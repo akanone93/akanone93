@@ -68,6 +68,9 @@ image:
   repository: registry.internal.example:5000/nightcode42/plux-server
 builderImage:
   repository: registry.internal.example:5000/nightcode42/plux-builder
+# With renderWorker.enabled, the visual-diff render worker (deploy/render-worker):
+renderWorkerImage:
+  repository: registry.internal.example:5000/nightcode42/plux-render-worker
 imagePullSecrets:
   - name: internal-registry
 networkPolicy:

@@ -18,6 +18,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/jcs"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
 // Document serves DocumentService.
@@ -90,7 +91,7 @@ func (s Document) PutDocument(ctx context.Context, req *connect.Request[pluxv1.P
 			return nil, err
 		}
 		m := req.Msg
-		w, err := s.h.Documents.PutDocument(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetPath(), m.GetContent(), m.GetIfRevision())
+		w, err := s.h.Documents.PutDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, m.GetPath(), m.GetContent(), m.GetIfRevision())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -110,12 +111,63 @@ func (s Document) PatchDocument(ctx context.Context, req *connect.Request[pluxv1
 		if err != nil {
 			return nil, err
 		}
-		w, err := s.h.Documents.PatchDocument(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetPath(), ops, m.GetIfRevision())
+		w, err := s.h.Documents.PatchDocumentTagged(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, m.GetPath(), ops, m.GetIfRevision())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.PatchDocumentResponse{Document: firstDocument(w), SnapshotId: w.SnapshotID, Diagnostics: diagnosticProtos(w.Diagnostics)}, nil
 	})
+}
+
+// ApplyChangeSet writes documents of several drafts of an app in one
+// transaction (STU-055, STU-070, contracts #15).
+func (s Document) ApplyChangeSet(ctx context.Context, req *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ApplyChangeSetResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		drafts, err := changeSetDrafts(m.GetDrafts(), int(s.h.Limits.Get(limits.DocumentJSONDepth)))
+		if err != nil {
+			return nil, err
+		}
+		written, err := s.h.Documents.ApplyChangeSet(ctx, p, m.GetAppId(), document.Tag{EditorSession: m.GetEditorSessionId(), Step: m.GetStepId()}, drafts)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ApplyChangeSetResponse{}
+		for _, w := range written {
+			r := &pluxv1.ChangeSetDraftResult{PluginId: w.PluginID, SnapshotId: w.SnapshotID, Revision: w.Revision}
+			for _, d := range w.Documents {
+				r.Documents = append(r.Documents, documentProto(d))
+			}
+			out.Drafts = append(out.Drafts, r)
+			out.Diagnostics = append(out.Diagnostics, diagnosticProtos(w.Diagnostics)...)
+		}
+		return out, nil
+	})
+}
+
+// changeSetDrafts reads the drafts of a change set request.
+func changeSetDrafts(in []*pluxv1.ChangeSetDraft, depth int) ([]document.ChangeSetDraft, error) {
+	out := make([]document.ChangeSetDraft, 0, len(in))
+	for _, d := range in {
+		part := document.ChangeSetDraft{PluginID: d.GetPluginId(), Session: d.GetSession(), IfDraftRevision: d.GetIfDraftRevision()}
+		for _, e := range d.GetEdits() {
+			ops, err := patchOps(e.GetPatch(), depth)
+			if err != nil {
+				return nil, err
+			}
+			edit := document.ChangeSetEdit{Path: e.GetPath(), Patch: ops, Delete: e.GetDelete(), IfRevision: e.GetIfRevision()}
+			if len(e.GetContent()) > 0 {
+				edit.Content = e.GetContent()
+			}
+			part.Edits = append(part.Edits, edit)
+		}
+		out = append(out, part)
+	}
+	return out, nil
 }
 
 // DeleteDocument deletes a document; a page goes to the trash.
@@ -162,6 +214,41 @@ func (s Document) ValidatePage(ctx context.Context, req *connect.Request[pluxv1.
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.ValidatePageResponse{Diagnostics: diagnosticProtos(diags)}, nil
+	})
+}
+
+// ListEditorSessionEntries lists an editor session's writes to a draft,
+// newest first, for Studio's undo rebuild (STU-069).
+func (s Document) ListEditorSessionEntries(ctx context.Context, req *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListEditorSessionEntriesResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		page := m.GetPage()
+		after, size, err := s.h.Pages.Request(req.Spec().Procedure, p.OrganizationID, page)
+		if err != nil {
+			return nil, err
+		}
+		entries, err := s.h.Documents.ListEditorSessionEntries(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetEditorSessionId(), after.Sequence, size)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListEditorSessionEntriesResponse{Page: &pluxv1.PageResult{}}
+		var last storage.Cursor
+		for _, e := range entries {
+			last = storage.Cursor{Sequence: e.Sequence, ID: e.SnapshotID}
+			inverse, err := patchProtos(e.Inverse)
+			if err != nil {
+				return nil, err
+			}
+			out.Entries = append(out.Entries, &pluxv1.EditorSessionEntry{
+				SnapshotId: e.SnapshotID, Path: e.Path, Revision: e.Revision, Inverse: inverse, CreatedAt: ts(e.CreatedAt), StepId: e.Step,
+			})
+		}
+		out.Page.NextPageToken = s.h.Pages.Next(req.Spec().Procedure, p.OrganizationID, page, len(entries), size, last)
+		return out, nil
 	})
 }
 
@@ -396,11 +483,72 @@ func (s Plugin) UpdatePlugin(ctx context.Context, req *connect.Request[pluxv1.Up
 		if err != nil {
 			return nil, err
 		}
-		pl, err := s.h.Documents.UpdatePlugin(ctx, p, req.Msg.GetId(), req.Msg.GetName())
+		var pl document.Plugin
+		if md := req.Msg.GetMetadata(); md != nil {
+			pl, err = s.h.Documents.UpdatePluginMetadata(ctx, p, req.Msg.GetId(), req.Msg.GetName(), metadataOf(md))
+		} else {
+			pl, err = s.h.Documents.UpdatePlugin(ctx, p, req.Msg.GetId(), req.Msg.GetName())
+		}
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.UpdatePluginResponse{Plugin: pluginProto(pl)}, nil
+	})
+}
+
+// DuplicatePlugin copies a plugin under a new key (STU-034).
+func (s Plugin) DuplicatePlugin(ctx context.Context, req *connect.Request[pluxv1.DuplicatePluginRequest]) (*connect.Response[pluxv1.DuplicatePluginResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.DuplicatePluginResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		pl, err := s.h.Documents.DuplicatePlugin(ctx, p, m.GetId(), m.GetKey(), m.GetName(), m.GetSession())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.DuplicatePluginResponse{Plugin: pluginProto(pl)}, nil
+	})
+}
+
+// ArchivePlugin archives or restores a plugin without deleting it.
+func (s Plugin) ArchivePlugin(ctx context.Context, req *connect.Request[pluxv1.ArchivePluginRequest]) (*connect.Response[pluxv1.ArchivePluginResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ArchivePluginResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		archived := req.Msg.GetArchived()
+		pl, err := s.h.Documents.UpdatePluginMetadata(ctx, p, req.Msg.GetId(), "", tenancy.Metadata{Archived: &archived})
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.ArchivePluginResponse{Plugin: pluginProto(pl)}, nil
+	})
+}
+
+// ListPluginSummaries returns the app canvas's summaries in one call.
+func (s Plugin) ListPluginSummaries(ctx context.Context, req *connect.Request[pluxv1.ListPluginSummariesRequest]) (*connect.Response[pluxv1.ListPluginSummariesResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListPluginSummariesResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		sums, err := s.h.Documents.ListPluginSummaries(ctx, p, req.Msg.GetAppId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListPluginSummariesResponse{}
+		for _, m := range sums {
+			out.Summaries = append(out.Summaries, &pluxv1.PluginSummary{
+				Plugin: pluginProto(m.Plugin), Screens: m.Screens, Versions: m.Versions, UnpublishedChanges: m.UnpublishedChanges,
+				LockHolder: m.LockHolder, ValidationErrors: m.ValidationErrors, Killed: m.Killed, OwnerTeamId: m.Plugin.OwningTeamID,
+				BundleSize: m.BundleSize, LinksOut: m.LinksOut, LinksIn: m.LinksIn, FunctionsUsed: m.FunctionsUsed,
+				PublishedAt: ts(m.PublishedAt),
+			})
+		}
+		return out, nil
 	})
 }
 
@@ -726,7 +874,7 @@ func firstDocument(w document.Written) *pluxv1.Document {
 func snapshotProto(s document.Snapshot) *pluxv1.Snapshot {
 	return &pluxv1.Snapshot{
 		Id: s.ID, AppId: s.AppID, PluginId: s.PluginID, Revision: s.Revision, Reason: s.Reason,
-		Paths: s.Paths, Actor: actorProto(s.Actor), CreatedAt: ts(s.CreatedAt),
+		Paths: s.Paths, Actor: actorProto(s.Actor), CreatedAt: ts(s.CreatedAt), EditorSessionId: s.EditorSession,
 	}
 }
 
@@ -734,6 +882,7 @@ func pluginProto(p document.Plugin) *pluxv1.Plugin {
 	return &pluxv1.Plugin{
 		Id: p.ID, AppId: p.AppID, Key: p.Key, Name: p.Name, LatestVersion: p.LatestVersion,
 		DraftRevision: p.DraftRevision, CreatedAt: ts(p.CreatedAt), UpdatedAt: ts(p.UpdatedAt),
+		Description: p.Description, IconAssetId: p.IconAssetID, OwningTeamId: p.OwningTeamID, Tags: p.Tags, Archived: p.Archived,
 	}
 }
 
@@ -741,6 +890,7 @@ func lockProto(l document.Lock) *pluxv1.Lock {
 	out := &pluxv1.Lock{
 		AppId: l.AppID, PluginId: l.PluginID, Scope: l.Scope, Holder: actorProto(l.Holder), Session: l.Session,
 		AcquiredAt: ts(l.AcquiredAt), ExpiresAt: ts(l.ExpiresAt),
+		LastEditAt: ts(l.LastEditAt), TakeoverAllowedAt: ts(l.TakeoverAllowedAt),
 	}
 	for _, a := range l.RequestedBy {
 		out.RequestedBy = append(out.RequestedBy, actorProto(a))

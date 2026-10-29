@@ -6,6 +6,7 @@ package api
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"connectrpc.com/connect"
 
@@ -75,14 +76,19 @@ func (s App) ListApps(ctx context.Context, req *connect.Request[pluxv1.ListAppsR
 		if err != nil {
 			return nil, err
 		}
-		apps, err := s.h.Tenancy.ListApps(ctx, p, tenancy.Page{After: after, Size: size})
+		m := req.Msg
+		filter := tenancy.AppFilter{
+			Query: strings.ToLower(strings.TrimSpace(m.GetQuery())), Tags: m.GetTags(), OwningTeamID: m.GetOwningTeamId(),
+			IncludeArchived: m.GetIncludeArchived(), Status: m.GetStatus(), Mine: m.GetMine(), Sort: m.GetSort(),
+		}
+		apps, err := s.h.Tenancy.ListApps(ctx, p, tenancy.Page{After: after, Size: size, Filter: filter})
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		out := &pluxv1.ListAppsResponse{Page: &pluxv1.PageResult{}}
 		var last storage.Cursor
 		for _, a := range apps {
-			last = storage.Cursor{Key: a.Key, ID: a.ID}
+			last = storage.Cursor{Key: tenancy.SortKey(a, filter.Sort), ID: a.ID}
 			if item := appProto(a); q.Keep(clauses, item) {
 				out.Apps = append(out.Apps, item)
 			}
@@ -102,6 +108,16 @@ func (s App) UpdateApp(ctx context.Context, req *connect.Request[pluxv1.UpdateAp
 		a, err := s.h.Tenancy.UpdateApp(ctx, p, req.Msg.GetId(), req.Msg.GetName(), req.Msg.GetDefaultPluginKey())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
+		}
+		if md := req.Msg.GetMetadata(); md != nil {
+			if a, err = s.h.Tenancy.UpdateAppMetadata(ctx, p, req.Msg.GetId(), metadataOf(md)); err != nil {
+				return nil, err //nolint:wrapcheck // a domain error
+			}
+		}
+		if req.Msg.GetSetHostFonts() {
+			if a, err = s.h.Tenancy.UpdateAppHostFonts(ctx, p, req.Msg.GetId(), hostFontsOf(req.Msg.GetHostFonts())); err != nil {
+				return nil, err //nolint:wrapcheck // a domain error
+			}
 		}
 		return &pluxv1.UpdateAppResponse{App: appProto(a)}, nil
 	})
@@ -543,7 +559,27 @@ func appProto(a tenancy.App) *pluxv1.App {
 	return &pluxv1.App{
 		Id: a.ID, OrganizationId: a.OrganizationID, Key: a.Key, Name: a.Name,
 		DefaultPluginKey: a.DefaultPluginKey, CreatedAt: ts(a.CreatedAt), UpdatedAt: ts(a.UpdatedAt),
+		Description: a.Description, IconAssetId: a.IconAssetID, OwningTeamId: a.OwningTeamID, Tags: a.Tags, Archived: a.Archived,
+		HostFonts: hostFontsProto(a.HostFonts),
 	}
+}
+
+// hostFontsProto converts the host fonts of an app.
+func hostFontsProto(fonts []tenancy.HostFont) []*pluxv1.HostFont {
+	out := make([]*pluxv1.HostFont, len(fonts))
+	for i, f := range fonts {
+		out[i] = &pluxv1.HostFont{Family: f.Family, AssetId: f.AssetID}
+	}
+	return out
+}
+
+// hostFontsOf converts the host fonts of a request.
+func hostFontsOf(fonts []*pluxv1.HostFont) []tenancy.HostFont {
+	out := make([]tenancy.HostFont, len(fonts))
+	for i, f := range fonts {
+		out[i] = tenancy.HostFont{Family: f.GetFamily(), AssetID: f.GetAssetId()}
+	}
+	return out
 }
 
 // environmentProto converts an environment.
@@ -587,4 +623,12 @@ func trashProto(t tenancy.TrashItem) *pluxv1.TrashItem {
 		out.DeletedBy = &pluxv1.Actor{Kind: "user", Id: t.DeletedBy}
 	}
 	return out
+}
+
+// metadataOf converts a metadata update of the API.
+func metadataOf(m *pluxv1.MetadataUpdate) tenancy.Metadata {
+	return tenancy.Metadata{
+		Description: m.Description, IconAssetID: m.IconAssetId, OwningTeamID: m.OwningTeamId,
+		SetTags: m.GetSetTags(), Tags: m.GetTags(), Archived: m.Archived,
+	}
 }

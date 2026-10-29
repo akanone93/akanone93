@@ -5,11 +5,13 @@ package tenancy
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -17,6 +19,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -31,6 +34,19 @@ type App struct {
 	DefaultPluginKey string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+	Description      string
+	IconAssetID      string
+	OwningTeamID     string
+	Tags             []string
+	Archived         bool
+	HostFonts        []HostFont
+}
+
+// HostFont is a font file the host app bundles, by the family the device
+// uses it by, with the app asset that holds the same file (STU-006).
+type HostFont struct {
+	Family  string `json:"family"`
+	AssetID string `json:"assetId"`
 }
 
 // Environment isolates variables, secrets, signing keys and device
@@ -229,10 +245,47 @@ func (s *Service) ListApps(ctx context.Context, p auth.Principal, page Page) ([]
 			only = append(only, storage.MustUUID(id))
 		}
 	}
+	f := page.Filter
+	switch f.Sort {
+	case "", "key", "name", "updated":
+	default:
+		return nil, plxerr.New(plxerr.InvalidEnumValue, "an app listing sorts by key, name or updated")
+	}
+	includeArchived, onlyArchived := f.IncludeArchived, false
+	switch f.Status {
+	case "", "active":
+	case "all":
+		includeArchived = true
+	case "archived":
+		includeArchived, onlyArchived = true, true
+	default:
+		return nil, plxerr.New(plxerr.InvalidEnumValue, "an app listing filters by status active, archived or all")
+	}
+	mine := pgtype.UUID{Valid: true}
+	if f.Mine {
+		id, err := storage.UUID(p.UserID)
+		if err != nil {
+			return nil, plxerr.New(plxerr.InvalidFormat, "mine needs a signed-in person")
+		}
+		mine = id
+	}
+	team := pgtype.UUID{Valid: true}
+	if f.OwningTeamID != "" {
+		id, err := storage.UUID(f.OwningTeamID)
+		if err != nil {
+			return nil, plxerr.New(plxerr.InvalidFormat, "the owning team is not a valid identifier")
+		}
+		team = id
+	}
+	tags := f.Tags
+	if tags == nil {
+		tags = []string{}
+	}
 	var out []App
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		rows, err := dbgen.New(tx).ListApps(ctx, dbgen.ListAppsParams{
 			OrganizationID: storage.MustUUID(p.OrganizationID), OnlyIds: only, ExceptIds: excludedApps(p),
+			IncludeArchived: includeArchived, OnlyArchived: onlyArchived, MineUser: mine, Query: f.Query, Tags: tags, OwningTeamID: team, Sort: f.Sort,
 			AfterKey: page.After.Key, AfterID: page.After.AfterID(), PageSize: page.Size,
 		})
 		if err != nil {
@@ -287,6 +340,223 @@ func (s *Service) UpdateApp(ctx context.Context, p auth.Principal, appID, name, 
 		return s.record(ctx, tx, p, audit.AppUpdated, "app", appID)
 	})
 	return out, err
+}
+
+// UpdateAppMetadata changes an app's description, icon, owning team, tags
+// and archived state (plan P11 §4.3 #13). It needs app.manage like a rename.
+func (s *Service) UpdateAppMetadata(ctx context.Context, p auth.Principal, appID string, m Metadata) (App, error) {
+	args, err := CheckMetadata(m, s.o.Limits)
+	if err != nil {
+		return App{}, err
+	}
+	var out App
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		row, err := s.app(ctx, q, p, auth.AppManage, appID)
+		if err != nil {
+			return err
+		}
+		if err := CheckMetadataRefs(ctx, q, p, row.ID, args); err != nil {
+			return err
+		}
+		updated, err := q.UpdateAppMetadata(ctx, dbgen.UpdateAppMetadataParams{
+			ID: row.ID, SetDescription: args.SetDescription, Description: args.Description,
+			SetIcon: args.SetIcon, IconAssetID: args.Icon, SetTeam: args.SetTeam, OwningTeamID: args.Team,
+			SetTags: m.SetTags, Tags: args.Tags, SetArchived: args.SetArchived, Archived: args.Archived,
+		})
+		if err != nil {
+			return failure(err, "app")
+		}
+		out = appOf(updated)
+		if args.SetArchived && out.Archived != row.ArchivedAt.Valid {
+			if err := s.record(ctx, tx, p, audit.AppArchived, "app", appID); err != nil {
+				return err
+			}
+		}
+		return s.record(ctx, tx, p, audit.AppUpdated, "app", appID)
+	})
+	return out, err
+}
+
+// UpdateAppHostFonts replaces the font files of the host app that the app
+// lists for Studio's canvas (STU-006). It needs app.manage. The list is
+// bounded by app.hostFonts (LIM-001), and each entry names a live font asset
+// (TrueType or OpenType) of the same app; a reference that does not resolve
+// is reported as not found.
+func (s *Service) UpdateAppHostFonts(ctx context.Context, p auth.Principal, appID string, fonts []HostFont) (App, error) {
+	if max := s.o.Limits.Get(limits.AppHostFonts); int64(len(fonts)) > max {
+		return App{}, plxerr.New(plxerr.LimitExceeded, "an app lists at most %d host fonts", max)
+	}
+	seen := map[HostFont]bool{}
+	for i, f := range fonts {
+		f.Family = strings.TrimSpace(f.Family)
+		if f.Family == "" || utf8.RuneCountInString(f.Family) > hostFontFamilyLength {
+			return App{}, plxerr.New(plxerr.InvalidFormat, "a font family is 1 to %d characters", hostFontFamilyLength)
+		}
+		if seen[f] {
+			return App{}, plxerr.New(plxerr.InvalidFormat, "the host font %q is listed twice", f.Family)
+		}
+		seen[f], fonts[i] = true, f
+	}
+	if fonts == nil {
+		fonts = []HostFont{}
+	}
+	raw, err := json.Marshal(fonts)
+	if err != nil {
+		return App{}, failure(err, "app")
+	}
+	var out App
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		row, err := s.app(ctx, q, p, auth.AppManage, appID)
+		if err != nil {
+			return err
+		}
+		for _, f := range fonts {
+			if err := checkFontAsset(ctx, q, row.ID, f.AssetID); err != nil {
+				return err
+			}
+		}
+		updated, err := q.UpdateAppHostFonts(ctx, dbgen.UpdateAppHostFontsParams{ID: row.ID, HostFonts: raw})
+		if err != nil {
+			return failure(err, "app")
+		}
+		out = appOf(updated)
+		return s.record(ctx, tx, p, audit.AppUpdated, "app", appID)
+	})
+	return out, err
+}
+
+// hostFontFamilyLength is the longest font family name, in characters; it
+// is a field width, not a governed limit.
+const hostFontFamilyLength = 200
+
+// checkFontAsset verifies that assetID is a live TrueType or OpenType asset
+// of the app.
+func checkFontAsset(ctx context.Context, q *dbgen.Queries, appID pgtype.UUID, assetID string) error {
+	id, err := storage.UUID(assetID)
+	if err != nil {
+		return plxerr.New(plxerr.ResourceNotFound, "no such asset")
+	}
+	asset, err := q.GetAppAssetByAssetID(ctx, dbgen.GetAppAssetByAssetIDParams{AppID: appID, AssetID: id})
+	if err != nil {
+		return failure(err, "asset")
+	}
+	if asset.MediaType != "font/ttf" && asset.MediaType != "font/otf" {
+		return plxerr.New(plxerr.InvalidFormat, "a host font is a TrueType or OpenType asset")
+	}
+	return nil
+}
+
+// MetadataArgs are a Metadata update in the shape the queries take; the
+// document service builds plugin updates from the same one.
+type MetadataArgs struct {
+	SetDescription bool
+	Description    string
+	SetIcon        bool
+	Icon           string
+	SetTeam        bool
+	Team           pgtype.UUID
+	Tags           []string
+	SetArchived    bool
+	Archived       bool
+}
+
+// CheckMetadata validates a Metadata update against the limits of a
+// description, an icon reference, tags and the owning team (LIM-001).
+func CheckMetadata(m Metadata, lim limits.Set) (MetadataArgs, error) {
+	a := MetadataArgs{Tags: []string{}}
+	if m.Description != nil {
+		if max := lim.Get(limits.MetadataDescriptionLength); int64(utf8.RuneCountInString(*m.Description)) > max {
+			return a, plxerr.New(plxerr.InvalidFormat, "a description is at most %d characters", max)
+		}
+		a.SetDescription, a.Description = true, *m.Description
+	}
+	if m.IconAssetID != nil {
+		if max := lim.Get(limits.MetadataIconIDLength); int64(utf8.RuneCountInString(*m.IconAssetID)) > max {
+			return a, plxerr.New(plxerr.InvalidFormat, "an icon asset identifier is at most %d characters", max)
+		}
+		a.SetIcon, a.Icon = true, *m.IconAssetID
+	}
+	if m.OwningTeamID != nil {
+		team, err := parseTeam(*m.OwningTeamID)
+		if err != nil {
+			return a, err
+		}
+		a.SetTeam, a.Team = true, team
+	}
+	if m.SetTags {
+		tags, err := checkTags(m.Tags, lim)
+		if err != nil {
+			return a, err
+		}
+		a.Tags = tags
+	}
+	if m.Archived != nil {
+		a.SetArchived, a.Archived = true, *m.Archived
+	}
+	return a, nil
+}
+
+// CheckMetadataRefs verifies, inside the organisation-scoped transaction q
+// belongs to, what a Metadata update points at: the owning team must belong
+// to the principal's organisation (the foreign key ignores row-level
+// security, so it would accept another organisation's team) and the icon
+// must name a live asset of the same app. A reference that does not resolve
+// is reported as not found, which does not tell the caller whether it
+// exists elsewhere.
+func CheckMetadataRefs(ctx context.Context, q *dbgen.Queries, p auth.Principal, appID pgtype.UUID, a MetadataArgs) error {
+	if a.SetTeam && a.Team.Valid {
+		team, err := q.GetTeam(ctx, a.Team)
+		if err != nil {
+			return failure(err, "team")
+		}
+		if storage.ID(team.OrganizationID) != p.OrganizationID {
+			return plxerr.New(plxerr.ResourceNotFound, "no such team")
+		}
+	}
+	if a.SetIcon && a.Icon != "" {
+		id, err := storage.UUID(a.Icon)
+		if err != nil {
+			return plxerr.New(plxerr.ResourceNotFound, "no such asset")
+		}
+		if _, err := q.GetAppAssetByAssetID(ctx, dbgen.GetAppAssetByAssetIDParams{AppID: appID, AssetID: id}); err != nil {
+			return failure(err, "asset")
+		}
+	}
+	return nil
+}
+
+// parseTeam reads an owning team; empty clears the owner.
+func parseTeam(id string) (pgtype.UUID, error) {
+	if id == "" {
+		return pgtype.UUID{}, nil
+	}
+	team, err := storage.UUID(id)
+	if err != nil {
+		return pgtype.UUID{}, plxerr.New(plxerr.InvalidFormat, "the owning team is not a valid identifier")
+	}
+	return team, nil
+}
+
+// checkTags validates tags and drops duplicates, keeping the first order.
+func checkTags(in []string, lim limits.Set) ([]string, error) {
+	maxTags, maxLen := lim.Get(limits.MetadataTagsPerItem), lim.Get(limits.MetadataTagLength)
+	if int64(len(in)) > maxTags {
+		return nil, plxerr.New(plxerr.LimitExceeded, "an item has at most %d tags", maxTags)
+	}
+	out := []string{}
+	seen := map[string]bool{}
+	for _, t := range in {
+		if t == "" || int64(utf8.RuneCountInString(t)) > maxLen || strings.ContainsAny(t, " \t\n") {
+			return nil, plxerr.New(plxerr.InvalidFormat, "a tag is 1 to %d characters without spaces", maxLen)
+		}
+		if !seen[t] {
+			seen[t] = true
+			out = append(out, t)
+		}
+	}
+	return out, nil
 }
 
 // CreateEnvironment adds a custom environment to an app (GOV-010).
@@ -800,7 +1070,18 @@ func appOf(row dbgen.App) App {
 	return App{
 		ID: storage.ID(row.ID), OrganizationID: storage.ID(row.OrganizationID), Key: row.Key, Name: row.Name,
 		DefaultPluginKey: row.DefaultPluginKey, CreatedAt: storage.Time(row.CreatedAt), UpdatedAt: storage.Time(row.UpdatedAt),
+		Description: row.Description, IconAssetID: row.IconAssetID, OwningTeamID: storage.ID(row.OwningTeamID),
+		Tags: row.Tags, Archived: row.ArchivedAt.Valid, HostFonts: hostFontsOf(row.HostFonts),
 	}
+}
+
+// hostFontsOf reads the stored list; what cannot be read is an empty list.
+func hostFontsOf(raw []byte) []HostFont {
+	var fonts []HostFont
+	if err := json.Unmarshal(raw, &fonts); err != nil {
+		return []HostFont{}
+	}
+	return fonts
 }
 
 // environmentOf converts a stored environment.

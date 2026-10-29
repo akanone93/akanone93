@@ -1,0 +1,25 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "layer2-wizard-form",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "ar",
+  "textScale": 2.0,
+  "rects": {
+    "step2": [
+      0.0,
+      76.0,
+      800.0,
+      120.0
+    ],
+    "wizard": [
+      0.0,
+      0.0,
+      800.0,
+      276.0
+    ]
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "name": "fill-remaining-scrollable",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "scroll",
+            "type": "CustomScrollView",
+            "props": {},
+            "children": [
+              {
+                "id": "top",
+                "type": "SliverToBoxAdapter",
+                "props": {},
+                "children": [
+                  {
+                    "id": "top-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 100
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "fill",
+                "type": "SliverFillRemaining",
+                "props": {},
+                "children": [
+                  {
+                    "id": "inner",
+                    "type": "ListView",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "in0",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 300,
+                          "height": 60
+                        }
+                      },
+                      {
+                        "id": "in1",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 300,
+                          "height": 60
+                        }
+                      },
+                      {
+                        "id": "in2",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 300,
+                          "height": 60
+                        }
+                      },
+                      {
+                        "id": "in3",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 300,
+                          "height": 60
+                        }
+                      },
+                      {
+                        "id": "in4",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 300,
+                          "height": 60
+                        }
+                      },
+                      {
+                        "id": "in5",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 300,
+                          "height": 60
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

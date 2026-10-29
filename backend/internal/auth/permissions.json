@@ -23,6 +23,17 @@
       "readOnly": false
     },
     {
+      "name": "analytics.manage",
+      "description": "Create, change and delete funnel definitions.",
+      "area": "analytics",
+      "feature": "analytics",
+      "action": "manage",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
       "name": "analytics.read",
       "description": "Read analytics, rollups and experiment results.",
       "area": "analytics",
@@ -273,6 +284,28 @@
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "library.manage",
+      "description": "Edit the organisation's shared templates and components that someone else made.",
+      "area": "library",
+      "feature": "library",
+      "action": "manage",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "library.publish",
+      "description": "Make a template or component public to the whole installation.",
+      "area": "library",
+      "feature": "library",
+      "action": "publish",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
       "readOnly": false
     },
     {

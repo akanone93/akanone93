@@ -18,6 +18,7 @@ const (
 	KindActionGraph     DocumentKind = "actionGraph"
 	KindApp             DocumentKind = "app"
 	KindAssetIndex      DocumentKind = "assetIndex"
+	KindCanvas          DocumentKind = "canvas"
 	KindComponent       DocumentKind = "component"
 	KindExperiment      DocumentKind = "experiment"
 	KindFlag            DocumentKind = "flag"
@@ -42,6 +43,7 @@ var documentSchemas = [...]struct {
 	{KindActionGraph, "action-graph.schema.json"},
 	{KindApp, "app.schema.json"},
 	{KindAssetIndex, "asset-index.schema.json"},
+	{KindCanvas, "canvas.schema.json"},
 	{KindComponent, "component.schema.json"},
 	{KindExperiment, "experiment.schema.json"},
 	{KindFlag, "flag.schema.json"},
@@ -339,6 +341,56 @@ func (v Calendar) Valid() bool {
 		return true
 	}
 	return false
+}
+
+// CanvasDocument — Editor-only layout of the Studio canvas: where plugin
+// boxes and frames sit in an app, or where screens sit in a plugin (STU-032,
+// STU-035, STU-050). It is versioned and snapshotted like any document and is
+// never compiled into a bundle. File: `canvas.json` (app) or
+// `plugins/<key>/canvas.json` (plugin).
+type CanvasDocument struct {
+	// SchemaVersion: Version of the document schema (SCH-000). Older documents
+	// are migrated before validation.
+	SchemaVersion string `json:"schemaVersion"`
+	Kind          string `json:"kind"`
+	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+	ID string `json:"id"`
+	// Positions: The top-left corner of each box: a plugin in an app canvas, a
+	// screen (page) in a plugin canvas. The number of entries is bounded by the
+	// limit canvas.positions.
+	Positions []CanvasPosition `json:"positions,omitempty"`
+	// Frames: Labelled groups of plugins (STU-035), for example "Onboarding" or
+	// "Payments". Only app canvases carry frames. The number of entries is
+	// bounded by the limit canvas.frames.
+	Frames []CanvasFrame `json:"frames,omitempty"`
+}
+
+// CanvasFrame — is generated from
+// canvas.schema.json#/properties/frames/items.
+type CanvasFrame struct {
+	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+	ID    string `json:"id"`
+	Label string `json:"label"`
+	// X: A coordinate in canvas world units.
+	X float64 `json:"x"`
+	// Y: A coordinate in canvas world units.
+	Y      float64 `json:"y"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+	// Members: The ids of the plugins in the frame. The number of entries is
+	// bounded by the limit canvas.frameMembers.
+	Members []string `json:"members,omitempty"`
+}
+
+// CanvasPosition — is generated from
+// canvas.schema.json#/properties/positions/items.
+type CanvasPosition struct {
+	// ID: The id of the plugin or page the box shows.
+	ID string `json:"id"`
+	// X: A coordinate in canvas world units.
+	X float64 `json:"x"`
+	// Y: A coordinate in canvas world units.
+	Y float64 `json:"y"`
 }
 
 // Capabilities — Capabilities the plugin requests; everything else is
@@ -731,13 +783,26 @@ type ExperimentDocument struct {
 	// Holdout: The share of subjects, in percent, kept out of the experiment and
 	// shown the control.
 	Holdout *float64 `json:"holdout,omitempty"`
-	// Segment: Human-readable lower-kebab slug, unique within its parent
-	// (SCH-002). Files in the Git layout are named after it.
+	// Segment: A segment the experiment targets. With `segments` it is the first
+	// of them.
 	Segment string `json:"segment,omitempty"`
+	// Segments: More segments to target. A device in any of them, this
+	// document's `segment` included, is eligible (limit
+	// `experiments.segmentsPerTargeting`).
+	Segments []string `json:"segments,omitempty"`
+	// Attributes: Conditions on device and user attributes. A device must meet
+	// every one of them, as well as be in one of the segments if any are named
+	// (limit `experiments.attributesPerTargeting`).
+	Attributes []SegmentRule `json:"attributes,omitempty"`
 	// Schedule: When the experiment runs; both bounds are optional.
-	Schedule         *ExperimentSchedule `json:"schedule,omitempty"`
-	PrimaryMetric    ExperimentMetric    `json:"primaryMetric"`
-	GuardrailMetrics []ExperimentMetric  `json:"guardrailMetrics,omitempty"`
+	Schedule *ExperimentSchedule `json:"schedule,omitempty"`
+	// PrimaryMetric: The lead primary metric; its sample sets the minimum sample
+	// size check.
+	PrimaryMetric ExperimentMetric `json:"primaryMetric"`
+	// PrimaryMetrics: More primary metrics, analysed like the lead one (limit
+	// `experiments.primaryMetrics`, the lead metric included).
+	PrimaryMetrics   []ExperimentMetric `json:"primaryMetrics,omitempty"`
+	GuardrailMetrics []ExperimentMetric `json:"guardrailMetrics,omitempty"`
 	// MinimumSampleSize: Subjects per variant before a result may be read.
 	MinimumSampleSize *int64 `json:"minimumSampleSize,omitempty"`
 	// Salt: Mixed into the hash that assigns a subject to a variant, so two

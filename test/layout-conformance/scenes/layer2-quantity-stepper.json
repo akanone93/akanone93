@@ -1,0 +1,9 @@
+{
+  "name": "layer2-quantity-stepper",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "QuantityStepper",
+    "props": { "value": 3, "min": 0, "max": 10 }
+  }
+}

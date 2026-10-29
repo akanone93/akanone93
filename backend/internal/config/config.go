@@ -68,6 +68,9 @@ type Config struct {
 	// Builder configures the builder role, and the worker's route to it
 	// (FN-016, ADR-0063).
 	Builder Builder `json:"builder"`
+	// RenderWorker configures the worker role's route to the render worker
+	// of the visual diffs (O-9, ADR-0097).
+	RenderWorker RenderWorker `json:"renderWorker"`
 	// License names the enterprise licence file (GOV-030, ADR-0084).
 	License License `json:"license"`
 	// Notifications configures notification and webhook delivery (SRV-062,
@@ -90,8 +93,20 @@ type License struct {
 	File string `json:"file"`
 }
 
+// RenderWorker is the worker role's route to the render worker, the process
+// of deploy/render-worker that renders the visual diffs of release requests.
+// The render worker holds no credential of the server; this process sends it
+// the projects and stores the images it returns (L-4).
+type RenderWorker struct {
+	// Address is the base URL of the render worker, such as
+	// "https://render-worker:8443". The worker role renders through it with
+	// the identity of server.internalTLS; empty means this installation
+	// renders no visual diffs, and a requested diff stays queued.
+	Address string `json:"address"`
+}
+
 // Builder configures the builder role. The role's fields are read only when
-// the process runs it; Address is read by the worker role.
+// the process runs it; Address is read by the worker and api roles.
 type Builder struct {
 	// Listen is the address of the mutual-TLS listener the worker connects
 	// to.
@@ -122,6 +137,15 @@ type Builder struct {
 	// Concurrency is the number of builds the role runs at once; the next is
 	// refused as unavailable.
 	Concurrency int `json:"concurrency"`
+	// LanguageServer is the rust-analyzer executable the role runs for the
+	// Rust editor of Studio (FN-033, ADR-0099), in the same sandbox as builds
+	// with build scripts and procedural macros off. Empty, the default,
+	// leaves the editor without language services.
+	LanguageServer string `json:"languageServer"`
+	// LanguageSessions is how many editor sessions the role runs at once,
+	// beside Concurrency; each is one sandboxed process. Zero, the default,
+	// refuses them.
+	LanguageSessions int `json:"languageSessions"`
 	// WorkDir is the parent of the scratch directories of builds; empty
 	// means the system's temporary directory.
 	WorkDir string `json:"workDir"`

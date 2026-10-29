@@ -1,0 +1,31 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "animated-padding-t100",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "ar",
+  "textScale": 1.0,
+  "rects": {
+    "ap": [
+      260.0,
+      0.0,
+      100.0,
+      100.0
+    ],
+    "c": [
+      290.0,
+      10.0,
+      50.0,
+      50.0
+    ],
+    "root": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ]
+  }
+}

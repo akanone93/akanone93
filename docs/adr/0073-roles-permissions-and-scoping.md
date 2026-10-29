@@ -82,3 +82,11 @@ Cheapest, but each customer's need produces another role and an upgrade; no scop
 Most expressive, but hard to review, hard to test exhaustively, and a new language in the
 authorisation path. The approval engine (ADR-0076) already covers the conditional cases that
 need attributes (risk, environment). Rejected for authorisation.
+
+## Revision (2026-10-24, P11 plan: Studio commands and permissions)
+
+Every Studio command maps to the permission of the RPC it calls, declared in the command registry and typed against the catalogue generated for TypeScript, so an unknown name does not compile. When a command's action is not covered by an existing permission, the permission is added in the same change, server first: an entry in `permissions.json` (area, feature, action, risk), role assignments in `roles.json`, a check in the RPC handler (deny by default, `SEC-102`) and coverage in the authorisation-matrix test for every role (`QA-008`). The addition is listed in the change for the maintainer's approval (AGENTS §7); only then does the Studio command use it.
+
+A switch that only shapes the interface, such as hiding the JSON tab from a role that may still edit through Properties, is a profile or organisation setting, never a permission, and is documented as not being a security control.
+
+New keys: `library.manage` and `library.publish` for shared templates and components ([ADR-0098](0098-library-templates-and-components.md)). The plan's §6.2 holds the rule in full.

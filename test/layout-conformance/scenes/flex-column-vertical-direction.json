@@ -1,0 +1,52 @@
+{
+  "name": "flex-column-vertical-direction",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "verticalDirection": "up",
+      "mainAxisAlignment": "spaceBetween",
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "first",
+        "type": "TestBox",
+        "props": {
+          "width": 100,
+          "height": 40
+        }
+      },
+      {
+        "id": "mid",
+        "type": "Expanded",
+        "props": {},
+        "children": [
+          {
+            "id": "mid-center",
+            "type": "Center",
+            "props": {},
+            "children": [
+              {
+                "id": "mid-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "last",
+        "type": "TestBox",
+        "props": {
+          "width": 50,
+          "height": 60
+        }
+      }
+    ]
+  }
+}

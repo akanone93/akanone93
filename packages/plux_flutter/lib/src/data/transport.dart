@@ -102,8 +102,8 @@ final class ClientTransport implements DataTransport {
       res = await client.send(req);
     } on SocketException catch (e) {
       throw _network(r, e.osError?.message ?? 'connection failed');
-    } on HandshakeException {
-      throw _network(r, 'the TLS handshake failed');
+    } on HandshakeException catch (e) {
+      throw _network(r, handshakeFailure(e));
     } on HttpException catch (e) {
       throw _network(r, e.message);
     } on http.ClientException catch (e) {
@@ -168,3 +168,17 @@ String _where(Uri u) => '${u.scheme}://${u.host}${u.path}';
 
 /// [where] for other libraries of the data layer.
 String describeUrl(Uri u) => _where(u);
+
+/// The message of a failed TLS handshake: what TLS reported (a certificate
+/// it could not verify, a connection closed mid-handshake), which names no
+/// secret and tells a failure apart from a timeout.
+String handshakeFailure(HandshakeException e) {
+  final os = e.osError?.message;
+  final detail = [
+    if (e.message.isNotEmpty) e.message,
+    if (os != null && os.isNotEmpty) os,
+  ].join(': ');
+  return detail.isEmpty
+      ? 'the TLS handshake failed'
+      : 'the TLS handshake failed: $detail';
+}

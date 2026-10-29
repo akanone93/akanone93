@@ -12,6 +12,7 @@
       "description": "May do everything except manage members and keys.",
       "permissions": [
         "a11y.waive",
+        "analytics.manage",
         "app.manage",
         "app.read",
         "audit.read",
@@ -22,6 +23,8 @@
         "function.deploy.production",
         "function.read",
         "goldens.approve",
+        "library.manage",
+        "library.publish",
         "limits.manage",
         "organization.manage",
         "organization.read",
@@ -42,6 +45,7 @@
       "name": "release-manager",
       "description": "May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code.",
       "permissions": [
+        "analytics.manage",
         "analytics.read",
         "app.read",
         "approvals.decide",

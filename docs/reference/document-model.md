@@ -83,6 +83,10 @@ A node is a widget (`type`) or a component instance (`component` with its `id` a
 
 A node of the reserved type `Variant` shows the subtree of an experiment's variant (`ABT-001`): `experiment` names the experiment (its key is a PXL name), `control` is the subtree for the control, and `variants` maps the name of each other variant to its subtree. It carries nothing else. A variant without a subtree shows the control. The subtrees are compiled into the release and the runtime picks one by the variant assigned to the device (`ABT-002`); a bundle with a `Variant` node requires the feature `experiments.variant.v1`. In PXL, `experiment.<key>` is the assigned variant, an enum of the experiment's variant names, and `experiment.<key>.<prop>` the value of a prop the experiment declares for that variant.
 
+### 4.1 Design-time view of structural nodes
+
+Studio's canvas has no data, conditions or host widgets, so a structural node shows one child, chosen by a fixed rule (STU-005; maintainer, 2026-10-26). `If` shows its `then` slot (the `else` slot has no design-time view). `Match` shows the branch named by a literal `value` when the document gives one and it names a case, else the `otherwise` slot, else the first branch. `ForEach` shows its `item` template once. `Slot` shows its `fallback`. `Responsive` shows its `compact` variant, else the next wider one. `DataScope` shows the `success` state, else the first state that has a widget. `NativeSlot` draws as a labelled placeholder (`WGT-031`). The rules live in `studio/packages/layout/src/widgets/structural.ts`.
+
 ## 5. Action graphs
 
 A graph is a list of steps; the first step is the entry. A step names an `action` from the catalogue, its `input` values, and its successors: `next`, `onSuccess`, `onError`, or named `branches`. A step may declare a `retry` policy and a timeout. Later steps read earlier results as `steps.<id>.output` (§14.1).

@@ -1,0 +1,130 @@
+{
+  "name": "cupertino-sliding-segmented-control-proportional",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "children": [
+          {
+            "id": "prop",
+            "type": "CupertinoSlidingSegmentedControl",
+            "props": {
+              "proportionalWidth": true,
+              "groupValue": 1
+            },
+            "children": [
+              {
+                "id": "prop-0",
+                "type": "Text",
+                "props": {
+                  "text": "A",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "prop-1",
+                "type": "Text",
+                "props": {
+                  "text": "Medium",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "prop-2",
+                "type": "Text",
+                "props": {
+                  "text": "A much longer segment",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "equal",
+            "type": "CupertinoSlidingSegmentedControl",
+            "props": {
+              "groupValue": 2
+            },
+            "children": [
+              {
+                "id": "equal-0",
+                "type": "Text",
+                "props": {
+                  "text": "A",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "equal-1",
+                "type": "Text",
+                "props": {
+                  "text": "Medium",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "equal-2",
+                "type": "Text",
+                "props": {
+                  "text": "A much longer segment",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "squeezed",
+            "type": "CupertinoSlidingSegmentedControl",
+            "props": {},
+            "children": [
+              {
+                "id": "squeezed-0",
+                "type": "Text",
+                "props": {
+                  "text": "Overview of all the things",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "squeezed-1",
+                "type": "Text",
+                "props": {
+                  "text": "Details of every one of them",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/approval"
+	"github.com/nightCode42/plux3/backend/internal/archive"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/breakglass"
@@ -31,19 +32,26 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
+	"github.com/nightCode42/plux3/backend/internal/library"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/replay"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
+	"github.com/nightCode42/plux3/backend/internal/shellupdate"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
+	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
+	"github.com/nightCode42/plux3/backend/internal/testrun"
 )
 
 // Handlers are the ConnectRPC services of this phase. They authenticate
@@ -51,9 +59,12 @@ import (
 // the wire and the domain, and delegate; nothing here decides what is
 // allowed or stores anything (L-1).
 type Handlers struct {
-	Auth      *auth.Service
-	Tenancy   *tenancy.Service
-	Documents *document.Service
+	Auth *auth.Service
+	// Authenticator re-checks a long-lived stream's credential quietly
+	// (SEC-101, GOV-005); nil leaves such streams unrefreshed-and-refused.
+	Authenticator Authenticator
+	Tenancy       *tenancy.Service
+	Documents     *document.Service
 	// Translations serves LocalisationService (I18N-009); nil leaves it
 	// unmounted.
 	Translations *localisation.Service
@@ -73,14 +84,34 @@ type Handlers struct {
 	Reports *compliance.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
 	Goldens *golden.Service
+	// Archives and Shells serve AppProjectService (STU-022 to STU-024,
+	// GEN-004); nil leaves it unmounted.
+	Archives *archive.Service
+	Shells   *shellupdate.Service
+	// TestRuns serves TestRunService (TST-002); nil leaves it unmounted.
+	TestRuns *testrun.Service
+	// ReleaseRequests serves ReleaseRequestService (STU-100); nil leaves it
+	// unmounted.
+	ReleaseRequests *releasereq.Service
+	// Library serves the authoring calls of TemplateService and
+	// ComponentService (STU-080); nil refuses them as unavailable.
+	Library *library.Service
 	// Searches serves SearchService (SRV-061); nil leaves it unmounted.
 	Searches *search.Service
+	// StudioStream serves StudioEventsService (STU-075); nil leaves it
+	// unmounted.
+	StudioStream *studioevents.Service
+	// UserPreferences serves PreferencesService (STU-014, STU-015,
+	// STU-058); nil leaves it unmounted.
+	UserPreferences *preferences.Service
 	// GitExports serves GitExportService (GOV-011); nil leaves it
 	// unmounted.
 	GitExports *gitsync.Service
 	Releases   *release.Service
 	Devices    *device.Service
 	Events     *telemetry.Service
+	// Replays serves ReplayService (ANL-050); nil leaves it unmounted.
+	Replays *replay.Service
 	// Analytics serves AnalyticsService (ANL-010, ANL-011); nil leaves it
 	// unmounted.
 	Analytics *analytics.Service
@@ -118,6 +149,9 @@ type Handlers struct {
 	// Edition answers what the licence allows (GOV-030); nil is the
 	// community provider.
 	Edition edition.Provider
+	// InstallationState supplies what InstallationService reports; nil
+	// reports nothing.
+	InstallationState InstallationReader
 	// Functions administers functions (FN-006, FN-016); nil leaves
 	// FunctionAdminService unmounted.
 	Functions *function.Service
@@ -181,6 +215,19 @@ func (h *Handlers) principal(ctx context.Context, header http.Header, requestOrg
 	if err != nil {
 		return auth.Principal{}, err
 	}
+	p, err := h.resolve(ctx, id, header, requestOrg)
+	if err != nil {
+		return auth.Principal{}, err
+	}
+	if err := h.organisationRate(ctx, p); err != nil {
+		return auth.Principal{}, err
+	}
+	return p, nil
+}
+
+// resolve resolves an identity to its principal in the organisation the
+// request or the X-Plux-Organization header names.
+func (h *Handlers) resolve(ctx context.Context, id auth.Identity, header http.Header, requestOrg string) (auth.Principal, error) {
 	org := requestOrg
 	if named := header.Get(OrganizationHeader); named != "" {
 		if org != "" && org != named {
@@ -192,9 +239,6 @@ func (h *Handlers) principal(ctx context.Context, header http.Header, requestOrg
 	p, err := h.Auth.Resolve(ctx, id, org)
 	if err != nil {
 		return auth.Principal{}, err //nolint:wrapcheck // a domain error
-	}
-	if err := h.organisationRate(ctx, p); err != nil {
-		return auth.Principal{}, err
 	}
 	return p, nil
 }

@@ -39,6 +39,18 @@ const (
 	// AssetServiceUploadAssetProcedure is the fully-qualified name of the AssetService's UploadAsset
 	// RPC.
 	AssetServiceUploadAssetProcedure = "/plux.v1.AssetService/UploadAsset"
+	// AssetServiceBeginAssetUploadProcedure is the fully-qualified name of the AssetService's
+	// BeginAssetUpload RPC.
+	AssetServiceBeginAssetUploadProcedure = "/plux.v1.AssetService/BeginAssetUpload"
+	// AssetServiceUploadAssetChunkProcedure is the fully-qualified name of the AssetService's
+	// UploadAssetChunk RPC.
+	AssetServiceUploadAssetChunkProcedure = "/plux.v1.AssetService/UploadAssetChunk"
+	// AssetServiceGetAssetUploadProcedure is the fully-qualified name of the AssetService's
+	// GetAssetUpload RPC.
+	AssetServiceGetAssetUploadProcedure = "/plux.v1.AssetService/GetAssetUpload"
+	// AssetServiceFinishAssetUploadProcedure is the fully-qualified name of the AssetService's
+	// FinishAssetUpload RPC.
+	AssetServiceFinishAssetUploadProcedure = "/plux.v1.AssetService/FinishAssetUpload"
 	// AssetServiceGetAssetProcedure is the fully-qualified name of the AssetService's GetAsset RPC.
 	AssetServiceGetAssetProcedure = "/plux.v1.AssetService/GetAsset"
 	// AssetServiceListAssetsProcedure is the fully-qualified name of the AssetService's ListAssets RPC.
@@ -53,6 +65,15 @@ type AssetServiceClient interface {
 	// UploadAsset streams one file. The first message carries the metadata
 	// and no bytes.
 	UploadAsset(context.Context) *connect.ClientStreamForClient[pluxv1.UploadAssetRequest, pluxv1.UploadAssetResponse]
+	// BeginAssetUpload, UploadAssetChunk and FinishAssetUpload are the unary
+	// form of UploadAsset, for browsers, which cannot client-stream. Chunks
+	// are accepted in order at their offset; the SHA-256 of the whole file
+	// is verified at finish. GetAssetUpload reports how far an upload got,
+	// so a failed chunk can be resumed.
+	BeginAssetUpload(context.Context, *connect.Request[pluxv1.BeginAssetUploadRequest]) (*connect.Response[pluxv1.BeginAssetUploadResponse], error)
+	UploadAssetChunk(context.Context, *connect.Request[pluxv1.UploadAssetChunkRequest]) (*connect.Response[pluxv1.UploadAssetChunkResponse], error)
+	GetAssetUpload(context.Context, *connect.Request[pluxv1.GetAssetUploadRequest]) (*connect.Response[pluxv1.GetAssetUploadResponse], error)
+	FinishAssetUpload(context.Context, *connect.Request[pluxv1.FinishAssetUploadRequest]) (*connect.Response[pluxv1.FinishAssetUploadResponse], error)
 	GetAsset(context.Context, *connect.Request[pluxv1.GetAssetRequest]) (*connect.Response[pluxv1.GetAssetResponse], error)
 	ListAssets(context.Context, *connect.Request[pluxv1.ListAssetsRequest]) (*connect.Response[pluxv1.ListAssetsResponse], error)
 	DeleteAsset(context.Context, *connect.Request[pluxv1.DeleteAssetRequest]) (*connect.Response[pluxv1.DeleteAssetResponse], error)
@@ -73,6 +94,30 @@ func NewAssetServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+AssetServiceUploadAssetProcedure,
 			connect.WithSchema(assetServiceMethods.ByName("UploadAsset")),
+			connect.WithClientOptions(opts...),
+		),
+		beginAssetUpload: connect.NewClient[pluxv1.BeginAssetUploadRequest, pluxv1.BeginAssetUploadResponse](
+			httpClient,
+			baseURL+AssetServiceBeginAssetUploadProcedure,
+			connect.WithSchema(assetServiceMethods.ByName("BeginAssetUpload")),
+			connect.WithClientOptions(opts...),
+		),
+		uploadAssetChunk: connect.NewClient[pluxv1.UploadAssetChunkRequest, pluxv1.UploadAssetChunkResponse](
+			httpClient,
+			baseURL+AssetServiceUploadAssetChunkProcedure,
+			connect.WithSchema(assetServiceMethods.ByName("UploadAssetChunk")),
+			connect.WithClientOptions(opts...),
+		),
+		getAssetUpload: connect.NewClient[pluxv1.GetAssetUploadRequest, pluxv1.GetAssetUploadResponse](
+			httpClient,
+			baseURL+AssetServiceGetAssetUploadProcedure,
+			connect.WithSchema(assetServiceMethods.ByName("GetAssetUpload")),
+			connect.WithClientOptions(opts...),
+		),
+		finishAssetUpload: connect.NewClient[pluxv1.FinishAssetUploadRequest, pluxv1.FinishAssetUploadResponse](
+			httpClient,
+			baseURL+AssetServiceFinishAssetUploadProcedure,
+			connect.WithSchema(assetServiceMethods.ByName("FinishAssetUpload")),
 			connect.WithClientOptions(opts...),
 		),
 		getAsset: connect.NewClient[pluxv1.GetAssetRequest, pluxv1.GetAssetResponse](
@@ -98,15 +143,39 @@ func NewAssetServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 
 // assetServiceClient implements AssetServiceClient.
 type assetServiceClient struct {
-	uploadAsset *connect.Client[pluxv1.UploadAssetRequest, pluxv1.UploadAssetResponse]
-	getAsset    *connect.Client[pluxv1.GetAssetRequest, pluxv1.GetAssetResponse]
-	listAssets  *connect.Client[pluxv1.ListAssetsRequest, pluxv1.ListAssetsResponse]
-	deleteAsset *connect.Client[pluxv1.DeleteAssetRequest, pluxv1.DeleteAssetResponse]
+	uploadAsset       *connect.Client[pluxv1.UploadAssetRequest, pluxv1.UploadAssetResponse]
+	beginAssetUpload  *connect.Client[pluxv1.BeginAssetUploadRequest, pluxv1.BeginAssetUploadResponse]
+	uploadAssetChunk  *connect.Client[pluxv1.UploadAssetChunkRequest, pluxv1.UploadAssetChunkResponse]
+	getAssetUpload    *connect.Client[pluxv1.GetAssetUploadRequest, pluxv1.GetAssetUploadResponse]
+	finishAssetUpload *connect.Client[pluxv1.FinishAssetUploadRequest, pluxv1.FinishAssetUploadResponse]
+	getAsset          *connect.Client[pluxv1.GetAssetRequest, pluxv1.GetAssetResponse]
+	listAssets        *connect.Client[pluxv1.ListAssetsRequest, pluxv1.ListAssetsResponse]
+	deleteAsset       *connect.Client[pluxv1.DeleteAssetRequest, pluxv1.DeleteAssetResponse]
 }
 
 // UploadAsset calls plux.v1.AssetService.UploadAsset.
 func (c *assetServiceClient) UploadAsset(ctx context.Context) *connect.ClientStreamForClient[pluxv1.UploadAssetRequest, pluxv1.UploadAssetResponse] {
 	return c.uploadAsset.CallClientStream(ctx)
+}
+
+// BeginAssetUpload calls plux.v1.AssetService.BeginAssetUpload.
+func (c *assetServiceClient) BeginAssetUpload(ctx context.Context, req *connect.Request[pluxv1.BeginAssetUploadRequest]) (*connect.Response[pluxv1.BeginAssetUploadResponse], error) {
+	return c.beginAssetUpload.CallUnary(ctx, req)
+}
+
+// UploadAssetChunk calls plux.v1.AssetService.UploadAssetChunk.
+func (c *assetServiceClient) UploadAssetChunk(ctx context.Context, req *connect.Request[pluxv1.UploadAssetChunkRequest]) (*connect.Response[pluxv1.UploadAssetChunkResponse], error) {
+	return c.uploadAssetChunk.CallUnary(ctx, req)
+}
+
+// GetAssetUpload calls plux.v1.AssetService.GetAssetUpload.
+func (c *assetServiceClient) GetAssetUpload(ctx context.Context, req *connect.Request[pluxv1.GetAssetUploadRequest]) (*connect.Response[pluxv1.GetAssetUploadResponse], error) {
+	return c.getAssetUpload.CallUnary(ctx, req)
+}
+
+// FinishAssetUpload calls plux.v1.AssetService.FinishAssetUpload.
+func (c *assetServiceClient) FinishAssetUpload(ctx context.Context, req *connect.Request[pluxv1.FinishAssetUploadRequest]) (*connect.Response[pluxv1.FinishAssetUploadResponse], error) {
+	return c.finishAssetUpload.CallUnary(ctx, req)
 }
 
 // GetAsset calls plux.v1.AssetService.GetAsset.
@@ -129,6 +198,15 @@ type AssetServiceHandler interface {
 	// UploadAsset streams one file. The first message carries the metadata
 	// and no bytes.
 	UploadAsset(context.Context, *connect.ClientStream[pluxv1.UploadAssetRequest]) (*connect.Response[pluxv1.UploadAssetResponse], error)
+	// BeginAssetUpload, UploadAssetChunk and FinishAssetUpload are the unary
+	// form of UploadAsset, for browsers, which cannot client-stream. Chunks
+	// are accepted in order at their offset; the SHA-256 of the whole file
+	// is verified at finish. GetAssetUpload reports how far an upload got,
+	// so a failed chunk can be resumed.
+	BeginAssetUpload(context.Context, *connect.Request[pluxv1.BeginAssetUploadRequest]) (*connect.Response[pluxv1.BeginAssetUploadResponse], error)
+	UploadAssetChunk(context.Context, *connect.Request[pluxv1.UploadAssetChunkRequest]) (*connect.Response[pluxv1.UploadAssetChunkResponse], error)
+	GetAssetUpload(context.Context, *connect.Request[pluxv1.GetAssetUploadRequest]) (*connect.Response[pluxv1.GetAssetUploadResponse], error)
+	FinishAssetUpload(context.Context, *connect.Request[pluxv1.FinishAssetUploadRequest]) (*connect.Response[pluxv1.FinishAssetUploadResponse], error)
 	GetAsset(context.Context, *connect.Request[pluxv1.GetAssetRequest]) (*connect.Response[pluxv1.GetAssetResponse], error)
 	ListAssets(context.Context, *connect.Request[pluxv1.ListAssetsRequest]) (*connect.Response[pluxv1.ListAssetsResponse], error)
 	DeleteAsset(context.Context, *connect.Request[pluxv1.DeleteAssetRequest]) (*connect.Response[pluxv1.DeleteAssetResponse], error)
@@ -145,6 +223,30 @@ func NewAssetServiceHandler(svc AssetServiceHandler, opts ...connect.HandlerOpti
 		AssetServiceUploadAssetProcedure,
 		svc.UploadAsset,
 		connect.WithSchema(assetServiceMethods.ByName("UploadAsset")),
+		connect.WithHandlerOptions(opts...),
+	)
+	assetServiceBeginAssetUploadHandler := connect.NewUnaryHandler(
+		AssetServiceBeginAssetUploadProcedure,
+		svc.BeginAssetUpload,
+		connect.WithSchema(assetServiceMethods.ByName("BeginAssetUpload")),
+		connect.WithHandlerOptions(opts...),
+	)
+	assetServiceUploadAssetChunkHandler := connect.NewUnaryHandler(
+		AssetServiceUploadAssetChunkProcedure,
+		svc.UploadAssetChunk,
+		connect.WithSchema(assetServiceMethods.ByName("UploadAssetChunk")),
+		connect.WithHandlerOptions(opts...),
+	)
+	assetServiceGetAssetUploadHandler := connect.NewUnaryHandler(
+		AssetServiceGetAssetUploadProcedure,
+		svc.GetAssetUpload,
+		connect.WithSchema(assetServiceMethods.ByName("GetAssetUpload")),
+		connect.WithHandlerOptions(opts...),
+	)
+	assetServiceFinishAssetUploadHandler := connect.NewUnaryHandler(
+		AssetServiceFinishAssetUploadProcedure,
+		svc.FinishAssetUpload,
+		connect.WithSchema(assetServiceMethods.ByName("FinishAssetUpload")),
 		connect.WithHandlerOptions(opts...),
 	)
 	assetServiceGetAssetHandler := connect.NewUnaryHandler(
@@ -169,6 +271,14 @@ func NewAssetServiceHandler(svc AssetServiceHandler, opts ...connect.HandlerOpti
 		switch r.URL.Path {
 		case AssetServiceUploadAssetProcedure:
 			assetServiceUploadAssetHandler.ServeHTTP(w, r)
+		case AssetServiceBeginAssetUploadProcedure:
+			assetServiceBeginAssetUploadHandler.ServeHTTP(w, r)
+		case AssetServiceUploadAssetChunkProcedure:
+			assetServiceUploadAssetChunkHandler.ServeHTTP(w, r)
+		case AssetServiceGetAssetUploadProcedure:
+			assetServiceGetAssetUploadHandler.ServeHTTP(w, r)
+		case AssetServiceFinishAssetUploadProcedure:
+			assetServiceFinishAssetUploadHandler.ServeHTTP(w, r)
 		case AssetServiceGetAssetProcedure:
 			assetServiceGetAssetHandler.ServeHTTP(w, r)
 		case AssetServiceListAssetsProcedure:
@@ -186,6 +296,22 @@ type UnimplementedAssetServiceHandler struct{}
 
 func (UnimplementedAssetServiceHandler) UploadAsset(context.Context, *connect.ClientStream[pluxv1.UploadAssetRequest]) (*connect.Response[pluxv1.UploadAssetResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AssetService.UploadAsset is not implemented"))
+}
+
+func (UnimplementedAssetServiceHandler) BeginAssetUpload(context.Context, *connect.Request[pluxv1.BeginAssetUploadRequest]) (*connect.Response[pluxv1.BeginAssetUploadResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AssetService.BeginAssetUpload is not implemented"))
+}
+
+func (UnimplementedAssetServiceHandler) UploadAssetChunk(context.Context, *connect.Request[pluxv1.UploadAssetChunkRequest]) (*connect.Response[pluxv1.UploadAssetChunkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AssetService.UploadAssetChunk is not implemented"))
+}
+
+func (UnimplementedAssetServiceHandler) GetAssetUpload(context.Context, *connect.Request[pluxv1.GetAssetUploadRequest]) (*connect.Response[pluxv1.GetAssetUploadResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AssetService.GetAssetUpload is not implemented"))
+}
+
+func (UnimplementedAssetServiceHandler) FinishAssetUpload(context.Context, *connect.Request[pluxv1.FinishAssetUploadRequest]) (*connect.Response[pluxv1.FinishAssetUploadResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AssetService.FinishAssetUpload is not implemented"))
 }
 
 func (UnimplementedAssetServiceHandler) GetAsset(context.Context, *connect.Request[pluxv1.GetAssetRequest]) (*connect.Response[pluxv1.GetAssetResponse], error) {

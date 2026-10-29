@@ -1,0 +1,17 @@
+{
+  "name": "@plux/canvas",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Plux Canvas renderer core on CanvasKit, built for machines without a GPU (STU-003, STU-120, ADR-0013 M-12).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./worker": "./src/worker.ts"
+  },
+  "dependencies": {
+    "@plux/layout": "workspace:*"
+  },
+  "devDependencies": {
+    "canvaskit-wasm": "0.42.0"
+  }
+}

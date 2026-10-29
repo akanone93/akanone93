@@ -47,3 +47,37 @@ func TestSessionWithoutStepUpIsRefused_GOV_005(t *testing.T) {
 		t.Errorf("a session that stepped up: %v", err)
 	}
 }
+
+// Verifies: GOV-005, STU-075, SEC-101.
+// A Studio events stream ends at its next heartbeat once its session is
+// signed out, instead of running on with the permissions it started with.
+func TestStudioEventsEndsWithRevokedSession_GOV_005(t *testing.T) {
+	t.Parallel()
+	w := newWorld(t)
+	ctx := context.Background()
+	_, invitation, err := w.auth.Bootstrap(ctx, "admin@example.com")
+	if err != nil {
+		t.Fatal(err)
+	}
+	must(w.identity.AcceptInvitation(ctx, connect.NewRequest(&pluxv1.AcceptInvitationRequest{
+		Invitation: invitation, DisplayName: "Admin", Password: "correct horse battery",
+	})))(t)
+	admin := w.signIn(t, "admin@example.com")
+	org := must(w.org.CreateOrganization(ctx, req(admin, &pluxv1.CreateOrganizationRequest{Key: "acme", Name: "Acme"})))(t).GetOrganization()
+	admin.org = org.GetId()
+
+	stream, err := w.studioEvents.Watch(ctx, req(admin, &pluxv1.StudioEventsServiceWatchRequest{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = stream.Close() }()
+	if !stream.Receive() {
+		t.Fatalf("no first heartbeat: %v", stream.Err())
+	}
+	must(w.identity.Logout(ctx, req(admin, &pluxv1.LogoutRequest{})))(t)
+	for stream.Receive() { //nolint:revive // drain until the server ends the stream
+	}
+	if codeOf(stream.Err()) != connect.CodeUnauthenticated {
+		t.Fatalf("stream ended with %v, want Unauthenticated", stream.Err())
+	}
+}

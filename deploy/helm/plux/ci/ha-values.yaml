@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Plux contributors
 # SPDX-License-Identifier: Apache-2.0
 
-# A highly available installation with every role: functions, the builder,
-# TLS at the api role, an ingress and autoscaling.
+# A highly available installation with every role: functions, the builder, the
+# render worker, TLS at the api role, an ingress and autoscaling.
 server:
   publicBaseURL: https://plux.example.com
   tls:
@@ -19,6 +19,8 @@ functions:
     - keyID: "000102030405060708090a0b0c0d0e0f"
       publicKey: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
 builder:
+  enabled: true
+renderWorker:
   enabled: true
 postgresql:
   cnpg:
@@ -55,3 +57,6 @@ observability:
   dashboards:
     enabled: true
     analytics: {url: plux-postgresql-rw:5432}
+
+studio:
+  publicBaseUrl: https://studio.example.com

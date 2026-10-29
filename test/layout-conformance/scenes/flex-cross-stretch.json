@@ -1,0 +1,36 @@
+{
+  "name": "flex-cross-stretch",
+  "root": {
+    "id": "row",
+    "type": "Row",
+    "props": {
+      "crossAxisAlignment": "stretch",
+      "spacing": 8
+    },
+    "children": [
+      {
+        "id": "a",
+        "type": "TestBox",
+        "props": {
+          "width": 50,
+          "height": 20
+        }
+      },
+      {
+        "id": "b",
+        "type": "SizedBox",
+        "props": {
+          "width": 70
+        }
+      },
+      {
+        "id": "c",
+        "type": "TestBox",
+        "props": {
+          "width": 30,
+          "height": 400
+        }
+      }
+    ]
+  }
+}

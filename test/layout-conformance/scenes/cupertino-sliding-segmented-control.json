@@ -1,0 +1,158 @@
+{
+  "name": "cupertino-sliding-segmented-control",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "children": [
+          {
+            "id": "two",
+            "type": "CupertinoSlidingSegmentedControl",
+            "props": {},
+            "children": [
+              {
+                "id": "two-0",
+                "type": "Text",
+                "props": {
+                  "text": "Day",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "two-1",
+                "type": "Text",
+                "props": {
+                  "text": "Week",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "three",
+            "type": "CupertinoSlidingSegmentedControl",
+            "props": {
+              "groupValue": 1
+            },
+            "children": [
+              {
+                "id": "three-0",
+                "type": "Text",
+                "props": {
+                  "text": "Daily",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "three-1",
+                "type": "Text",
+                "props": {
+                  "text": "Weekly",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "three-2",
+                "type": "Text",
+                "props": {
+                  "text": "Monthly",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "none",
+            "type": "CupertinoSlidingSegmentedControl",
+            "props": {
+              "groupValue": null
+            },
+            "children": [
+              {
+                "id": "none-0",
+                "type": "Text",
+                "props": {
+                  "text": "One",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "none-1",
+                "type": "Text",
+                "props": {
+                  "text": "Two",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "padded",
+            "type": "CupertinoSlidingSegmentedControl",
+            "props": {
+              "groupValue": 2
+            },
+            "children": [
+              {
+                "id": "padded-0",
+                "type": "Text",
+                "props": {
+                  "text": "Map",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "padded-1",
+                "type": "Text",
+                "props": {
+                  "text": "Transit",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              },
+              {
+                "id": "padded-2",
+                "type": "Text",
+                "props": {
+                  "text": "Satellite",
+                  "style": {
+                    "fontFamily": "NotoSans"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

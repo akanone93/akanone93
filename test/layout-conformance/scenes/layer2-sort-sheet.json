@@ -1,0 +1,9 @@
+{
+  "name": "layer2-sort-sheet",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "SortSheet",
+    "props": { "title": "Sort by", "selected": "new", "options": [{ "id": "new", "label": "Newest first" }, { "id": "old", "label": "Oldest first" }, { "id": "low", "label": "Price, low to high" }] }
+  }
+}

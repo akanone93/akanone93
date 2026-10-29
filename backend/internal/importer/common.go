@@ -7,7 +7,8 @@
 //
 // The package is a pure library: it reads bytes and returns values, never
 // touching the network, the file system, the clock or a random source, so the
-// same input always yields the same bytes. It is used by the CLI only.
+// same input always yields the same bytes. The CLI and, in the validator
+// WebAssembly module, Studio's data source designer use it (L-12).
 package importer
 
 import (

@@ -37,3 +37,6 @@ networkPolicy:
           - {protocol: TCP, port: 6379}
     worker: *db
     migrate: *db
+
+studio:
+  publicBaseUrl: https://studio.example.com

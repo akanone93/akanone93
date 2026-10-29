@@ -366,6 +366,10 @@ func (s *Service) noteOutcome(ctx context.Context, t dbgen.FunctionTrigger, resu
 		Attributes: map[string]string{
 			"function": t.FunctionName, "alias": t.Alias, "result": result, "trigger": storage.ID(t.ID),
 		},
+		Params: map[string]string{
+			"function": t.FunctionName, "alias": t.Alias, "expression": t.Expression, "result": result,
+		},
+		Subject: storage.ID(t.ID),
 	})
 	if err != nil && s.o.Log != nil {
 		s.o.Log.WarnContext(ctx, "function: publish function.failing", "error", err)

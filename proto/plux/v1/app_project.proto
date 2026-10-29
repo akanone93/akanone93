@@ -1,0 +1,257 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/app.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// AppProjectService serves the apps grid and an app's project: bounded
+// summaries, the .plux archive (ADR-0102), the sample apps (F17) and the
+// host project with shell-update detection (GEN-004, F18).
+service AppProjectService {
+  // ListAppSummaries returns one summary per app the caller may read, in
+  // key order, in one call. It needs app.read and is bounded by the limit
+  // app.summariesPerCall.
+  rpc ListAppSummaries(ListAppSummariesRequest) returns (ListAppSummariesResponse) {}
+
+  // ExportApp returns the app's drafts as a deterministic .plux archive.
+  // It needs plugin.read on the app and is audited.
+  rpc ExportApp(ExportAppRequest) returns (ExportAppResponse) {}
+  // ImportApp creates an app from a .plux archive, an untrusted input. It
+  // needs app.manage on the organisation, is idempotent per
+  // Idempotency-Key and is audited.
+  rpc ImportApp(ImportAppRequest) returns (ImportAppResponse) {}
+  // DuplicateApp creates an app from an export of another. It needs
+  // plugin.read on the source and app.manage; it is idempotent and audited.
+  rpc DuplicateApp(DuplicateAppRequest) returns (DuplicateAppResponse) {}
+  // ListSampleApps lists the sample apps embedded in the server image.
+  rpc ListSampleApps(ListSampleAppsRequest) returns (ListSampleAppsResponse) {}
+  // ImportSampleApp imports a sample app as an ordinary import.
+  rpc ImportSampleApp(ImportSampleAppRequest) returns (ImportSampleAppResponse) {}
+
+  // GetShellStatus compares the app's shell settings with those its host
+  // project was last generated from (GEN-004). It needs app.read.
+  rpc GetShellStatus(GetShellStatusRequest) returns (GetShellStatusResponse) {}
+  // SetShellSettings stores the app's shell settings. It needs app.manage
+  // and is idempotent.
+  rpc SetShellSettings(SetShellSettingsRequest) returns (SetShellSettingsResponse) {}
+  // GenerateProject queues the generation of the host project as a zip. At
+  // most one job per app runs at a time, and the number per hour is limited
+  // by project.jobsPerHour. It needs app.manage and is idempotent.
+  rpc GenerateProject(GenerateProjectRequest) returns (GenerateProjectResponse) {}
+  // GetProjectJob returns a generation job's status. It needs app.read.
+  rpc GetProjectJob(GetProjectJobRequest) returns (GetProjectJobResponse) {}
+  // DownloadProject returns the zip of a succeeded job. It needs app.manage.
+  rpc DownloadProject(DownloadProjectRequest) returns (DownloadProjectResponse) {}
+}
+
+message EnvironmentRelease {
+  string environment_key = 1;
+  // live_sequence is the release the environment's default channel serves, 0 for none.
+  int64 live_sequence = 2;
+  google.protobuf.Timestamp published_at = 3;
+}
+
+message AppLimitUsage {
+  string key = 1;
+  int64 used = 2;
+  int64 limit = 3;
+}
+
+message AppSummary {
+  App app = 1;
+  repeated EnvironmentRelease releases = 2;
+  // last_published_at is the newest release of any environment.
+  google.protobuf.Timestamp last_published_at = 3;
+  // active_devices counts devices seen in the last seven days.
+  int64 active_devices = 4;
+  int64 plugin_count = 5;
+  // crash_free_rate is the share of active devices without a fatal error
+  // in the last seven days, 0 to 1; 1 when there are no active devices.
+  double crash_free_rate = 6;
+  // crash_free_trend is crash_free_rate minus the same rate for the seven
+  // days before; positive is better.
+  double crash_free_trend = 7;
+  // limits is the app's current usage against every app-scope limit the
+  // server can measure (STU-025, LIM-005); the rest are in ListAppLimits'
+  // registry listing with a value of zero.
+  repeated AppLimitUsage limits = 8;
+  // last_publisher is who created the newest release of any environment;
+  // unset when the app was never published (STU-022).
+  Actor last_publisher = 9;
+}
+
+message ListAppSummariesRequest {
+  string organization_id = 1;
+  // limit is the number of apps to return, up to app.summariesPerCall.
+  int32 limit = 2;
+  // after_key returns the apps after this app key.
+  string after_key = 3;
+}
+message ListAppSummariesResponse {
+  repeated AppSummary summaries = 1;
+  // next_after_key is set when more apps follow.
+  string next_after_key = 2;
+}
+
+message ExportAppRequest {
+  string app_id = 1;
+}
+message ExportAppResponse {
+  string filename = 1;
+  bytes archive = 2;
+  string sha256 = 3;
+}
+
+message ImportAppRequest {
+  string organization_id = 1;
+  bytes archive = 2;
+  // key and name override the archive's; empty keeps them.
+  string key = 3;
+  string name = 4;
+}
+message ImportAppResponse {
+  App app = 1;
+  // documents is the number of documents written.
+  int32 documents = 2;
+  // error_diagnostics counts validation errors the imported project still has.
+  int32 error_diagnostics = 3;
+}
+
+message DuplicateAppRequest {
+  string app_id = 1;
+  string key = 2;
+  string name = 3;
+}
+message DuplicateAppResponse {
+  App app = 1;
+  int32 documents = 2;
+}
+
+message SampleApp {
+  string id = 1;
+  string key = 2;
+  string name = 3;
+  string description = 4;
+  int64 size = 5;
+  string sha256 = 6;
+}
+message ListSampleAppsRequest {}
+message ListSampleAppsResponse {
+  repeated SampleApp samples = 1;
+}
+message ImportSampleAppRequest {
+  string organization_id = 1;
+  string sample_id = 2;
+  string key = 3;
+  string name = 4;
+}
+message ImportSampleAppResponse {
+  App app = 1;
+  int32 documents = 2;
+}
+
+// ShellSettings is everything about an app that needs a new store build
+// when it changes (GEN-004, ADR-0024).
+message ShellSettings {
+  string name = 1;
+  string package = 2;
+  string application_id = 3;
+  string bundle_id = 4;
+  string app_version = 5;
+  string splash_color = 6;
+  string router = 7;
+  repeated string device_apis = 8;
+  bool push = 9;
+  repeated string deep_link_hosts = 10;
+  repeated string deep_link_schemes = 11;
+  repeated string packages = 12;
+  string entry_route = 13;
+  // icon_asset_id is an asset of the app (image/png, square, 1024 to 4096
+  // pixels a side) used as the launcher and store icon; empty for the
+  // default icon.
+  string icon_asset_id = 14;
+}
+
+message ShellChange {
+  string field = 1;
+  string old_value = 2;
+  string new_value = 3;
+  // reason says why the change needs a store build.
+  string reason = 4;
+}
+
+message GetShellStatusRequest {
+  string app_id = 1;
+}
+message GetShellStatusResponse {
+  ShellSettings current = 1;
+  // generated is what the project was last generated from; unset when never generated.
+  ShellSettings generated = 2;
+  google.protobuf.Timestamp generated_at = 3;
+  // update_required is true when changes is not empty.
+  bool update_required = 4;
+  repeated ShellChange changes = 5;
+}
+
+message SetShellSettingsRequest {
+  string app_id = 1;
+  ShellSettings settings = 2;
+}
+message SetShellSettingsResponse {
+  ShellSettings settings = 1;
+}
+
+message ProjectJob {
+  string id = 1;
+  string app_id = 2;
+  string environment_key = 3;
+  string channel_key = 4;
+  // format is "zip" or "patch".
+  string format = 5;
+  // status is "queued", "running", "succeeded" or "failed".
+  string status = 6;
+  // error_code is the registered code of a failure.
+  string error_code = 7;
+  string error_message = 8;
+  int64 size = 9;
+  string sha256 = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp finished_at = 12;
+}
+
+message GenerateProjectRequest {
+  string app_id = 1;
+  string environment_key = 2;
+  string channel_key = 3;
+  // format is "zip" (the default), or "patch": the files that changed since
+  // the last generation and plux-patch.json. A patch needs a previous
+  // generation (failed precondition otherwise).
+  string format = 4;
+}
+message GenerateProjectResponse {
+  ProjectJob job = 1;
+}
+message GetProjectJobRequest {
+  string job_id = 1;
+  // app_id is the app the job belongs to; permissions are checked on it.
+  string app_id = 2;
+}
+message GetProjectJobResponse {
+  ProjectJob job = 1;
+}
+message DownloadProjectRequest {
+  string job_id = 1;
+  string app_id = 2;
+}
+message DownloadProjectResponse {
+  string filename = 1;
+  bytes archive = 2;
+  string sha256 = 3;
+}

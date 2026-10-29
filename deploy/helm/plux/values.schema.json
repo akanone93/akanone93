@@ -63,6 +63,30 @@
         }
       }
     },
+    "renderWorkerImage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^(sha256:[a-f0-9]{64})?$"
+        },
+        "pullPolicy": {
+          "enum": [
+            "Always",
+            "IfNotPresent",
+            "Never"
+          ]
+        }
+      }
+    },
     "imagePullSecrets": {
       "type": "array"
     },
@@ -278,6 +302,9 @@
               "type": "string"
             },
             "builder": {
+              "type": "string"
+            },
+            "renderWorker": {
               "type": "string"
             }
           }
@@ -1161,6 +1188,91 @@
         }
       }
     },
+    "renderWorker": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "replicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "resources": {
+          "type": "object"
+        },
+        "autoscaling": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "minReplicas": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxReplicas": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "targetCPUUtilizationPercentage": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        },
+        "podDisruptionBudget": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "minAvailable": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            },
+            "maxUnavailable": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        },
+        "topologySpreadConstraints": {
+          "type": "array"
+        },
+        "affinity": {
+          "type": "object"
+        },
+        "nodeSelector": {
+          "type": "object"
+        },
+        "tolerations": {
+          "type": "array"
+        },
+        "podAnnotations": {
+          "type": "object"
+        },
+        "extraEnv": {
+          "type": "array"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "scratchSize": {
+          "type": "string"
+        },
+        "sdkSize": {
+          "type": "string"
+        },
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
     "networkPolicy": {
       "type": "object",
       "additionalProperties": false,
@@ -1310,6 +1422,74 @@
               }
             }
           }
+        }
+      }
+    },
+    "studio": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "docsUrl": {
+          "type": "string"
+        },
+        "existingSecret": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "resources": {
+          "type": "object"
+        },
+        "podDisruptionBudget": {
+          "type": "object"
+        },
+        "topologySpreadConstraints": {
+          "type": "array"
+        },
+        "affinity": {
+          "type": "object"
+        },
+        "nodeSelector": {
+          "type": "object"
+        },
+        "tolerations": {
+          "type": "array"
+        },
+        "podAnnotations": {
+          "type": "object"
+        },
+        "extraEnv": {
+          "type": "array"
+        },
+        "publicBaseUrl": {
+          "type": "string"
+        },
+        "service": {
+          "type": "object"
+        },
+        "ingress": {
+          "type": "object"
         }
       }
     }

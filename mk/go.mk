@@ -20,8 +20,9 @@ GO_MODULES    := backend tools test/refapi ee/backend
 GEN_PATHS     := backend tools docs/reference packages studio/packages schema
 PROTO_DIR     := proto
 PROTO_GO_DIR  := backend/internal/pluxv1
-PROTO_INTERNAL_GO_DIR := backend/internal/pkcs11pb backend/internal/fnpb
+PROTO_INTERNAL_GO_DIR := backend/internal/pkcs11pb backend/internal/fnpb backend/internal/renderpb
 PROTO_API_DIR := docs/reference/api
+PROTO_TS_DIR  := studio/packages/api/src/gen
 # The base of `buf breaking`: the last tagged release of the contract
 # (SRV-000). Override to compare with another ref.
 PROTO_BASE    ?= $(shell git describe --tags --match 'backend/v*' --abbrev=0 2>/dev/null)
@@ -81,9 +82,9 @@ gen: ## Regenerate all generated code and reference documents (CI-003)
 # The API contract generates the Go messages and handlers and the OpenAPI
 # description; buf runs with locally built plugins, never remote ones
 # (SRV-002, CI-003).
-proto: ## Regenerate the API contract's Go code and OpenAPI description (SRV-002)
+proto: studio-install ## Regenerate the API contract's Go code and OpenAPI description (SRV-002)
 	@command -v "$(BUF)" >/dev/null || { echo "✗ buf not found at $(BUF); run 'make install-buf'" >&2; exit 1; }
-	rm -rf $(PROTO_GO_DIR) $(PROTO_INTERNAL_GO_DIR) $(PROTO_API_DIR)
+	rm -rf $(PROTO_GO_DIR) $(PROTO_INTERNAL_GO_DIR) $(PROTO_API_DIR) $(PROTO_TS_DIR)
 	@mkdir -p $(PROTO_API_DIR)
 	cd $(PROTO_DIR) && PATH="$(TOOLS_BIN):$$PATH" "$(BUF)" format -w .
 	cd $(PROTO_DIR) && PATH="$(TOOLS_BIN):$$PATH" "$(BUF)" generate
@@ -159,12 +160,15 @@ go-test: ## Run Go unit tests
 # The race detector and coverage run as two passes, and as two parallel jobs
 # in CI: together the instrumentations cost more than each pass alone
 # (ADR-0043, Revision 2026-10-16). Coverage is the same with or without the
-# race detector.
+# race detector. Every database test migrates a schema of its own, so a
+# package of many integration tests can pass Go's default ten minutes on a
+# hosted runner under either instrumentation; GO_TEST_TIMEOUT bounds it.
+GO_TEST_TIMEOUT ?= 20m
 go-test-race: ## Run Go tests with the race detector (needs cgo)
-	@for m in $(GO_MODULES); do (cd $$m && CGO_ENABLED=1 $(GO) test -race ./...); done
+	@for m in $(GO_MODULES); do (cd $$m && CGO_ENABLED=1 $(GO) test -race -timeout $(GO_TEST_TIMEOUT) ./...); done
 
 go-cover: ## Run Go tests with coverage; enforce floors (QA-001)
-	@for m in $(GO_MODULES); do (cd $$m && $(GO) test -covermode=atomic -coverprofile=coverage.out ./...); done
+	@for m in $(GO_MODULES); do (cd $$m && $(GO) test -timeout $(GO_TEST_TIMEOUT) -covermode=atomic -coverprofile=coverage.out ./...); done
 	$(COVGATE) -kind go $(addsuffix /coverage.out,$(GO_MODULES))
 
 # Verifies: CMP-002. `plux golden`'s own CLI tests (TST-003) match the name

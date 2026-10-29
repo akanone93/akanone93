@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# Rules for `make zap-studio`, the OWASP ZAP baseline scan of Studio (QA-008).
+# Format: rule id, IGNORE, a comment. A rule not listed is a warning, and a
+# warning fails the scan; list a rule only with the reason it is a false
+# positive for Studio.
+10049	IGNORE	(Storable and Cacheable Content) reports every response's cacheability; Studio's HTML, auth and API answers carry Cache-Control: no-store on purpose, hashed assets are immutable (studio/apps/bff/src/app.ts, brotli.ts), and a missing path such as /sitemap.xml is a 404
+10055	IGNORE	(CSP: Notices) the policy's remaining relaxations are deliberate and reviewed: style-src-attr 'unsafe-inline' for Monaco and 'wasm-unsafe-eval' for CanvasKit (ADR-0014 Revision 2026-10-26; studio/apps/bff/src/security.ts, asserted in bff.test.ts)
+10109	IGNORE	(Modern Web Application) informational: ZAP detects a single-page application; Studio is one by design (spec §21)

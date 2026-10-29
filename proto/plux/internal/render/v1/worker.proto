@@ -1,0 +1,89 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.internal.render.v1;
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/renderpb;renderpb";
+
+// RenderWorkerService is served by the render worker and called by the worker
+// role of the server over mutual TLS (O-9, ADR-0097). It is internal: it is
+// not part of the public API contract and carries no compatibility promise
+// beyond the roles of one release. The render worker holds no database
+// credentials, no object-store credentials and no signing keys (L-4): the
+// server hands it the sources and stores the images it returns.
+service RenderWorkerService {
+  // Render compiles the project before and after a release request, renders
+  // the pages of both on the standard devices with the golden harness
+  // (ADR-0070) and streams one RenderResponse for each screen whose image
+  // changed, in order of plugin, screen and device. A project that does not
+  // compile, or a limit that is exceeded, ends the call with an error; the
+  // server then queues the job again.
+  rpc Render(RenderRequest) returns (stream RenderResponse) {}
+}
+
+// RenderLimits are the limits the server resolved for the organisation. The
+// worker clamps each to the maximum of the registry, so a request cannot ask
+// for more than the installation allows (LIM-001).
+message RenderLimits {
+  // project_bytes bounds the expanded size of one project (archive.expandedBytes).
+  uint64 project_bytes = 1;
+  // entries bounds the files of one project (archive.entries).
+  uint32 entries = 2;
+  // cases bounds the cases of one render (golden.casesPerRun).
+  uint32 cases = 3;
+  // image_bytes bounds one image (golden.imageBytes).
+  uint64 image_bytes = 4;
+}
+
+message RenderRequest {
+  string job_id = 1;
+  // before is a ZIP of the project the channel serves now, in the SCH-006
+  // layout; empty when the channel serves nothing yet, so that every screen
+  // is new.
+  bytes before = 2;
+  // after is a ZIP of the project the request would release.
+  bytes after = 3;
+  // devices are the identifiers of the standard device frames to render.
+  repeated string devices = 4;
+  RenderLimits limits = 5;
+  // functions are the function declarations of the app and environment the
+  // request releases to, the catalogue the release build compiles against
+  // (FN-004, FN-006, FN-008), so that a page that calls a function compiles.
+  // The server bounds them by app.functions; the worker refuses more.
+  repeated FunctionDeclaration functions = 6;
+  // device_functions is the effective security setting deviceFunctions
+  // (FN-055).
+  bool device_functions = 7;
+}
+
+// FunctionDeclaration is what the compiler knows about one function name and
+// alias: one answer of the catalogue. An empty alias is the newest version.
+message FunctionDeclaration {
+  string name = 1;
+  string alias = 2;
+  // placement is "server" or "device".
+  string placement = 3;
+  uint32 version = 4;
+  // capabilities and limits are the JSON of the declaration's capabilities
+  // and limits objects; empty when the declaration has none.
+  bytes capabilities_json = 5;
+  bytes limits_json = 6;
+  // input_schema and output_schema are the JSON Schemas derived from the
+  // function's types (FN-004); empty means unknown.
+  bytes input_schema = 7;
+  bytes output_schema = 8;
+  bool requires_attestation = 9;
+  bool requires_sca = 10;
+}
+
+// RenderResponse is one screen on one device. before_png is empty for a new
+// screen and after_png for a removed one; both are PNG images.
+message RenderResponse {
+  string plugin_key = 1;
+  string screen = 2;
+  string device = 3;
+  bytes before_png = 4;
+  bytes after_png = 5;
+}

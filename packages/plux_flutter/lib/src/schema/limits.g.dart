@@ -43,6 +43,11 @@ enum PluxLimit {
   /// Steps one action run trace records; later steps are counted but not
   /// recorded.
   actionTraceSteps('action.traceSteps', PluxLimitUnit.count, 200, 0, 10000),
+  /// Raw events one funnel result may scan; a result that would scan more fails
+  /// and asks for a narrower range.
+  analyticsFunnelScanEvents('analytics.funnelScanEvents', PluxLimitUnit.count, 500000, 0, 5000000),
+  /// Steps one funnel may have.
+  analyticsFunnelSteps('analytics.funnelSteps', PluxLimitUnit.count, 10, 0, 20),
   /// Nodes below an animated opacity or layout prop before the compiler warns
   /// of an expensive animation.
   animCompositedSubtree('anim.compositedSubtree', PluxLimitUnit.count, 40, 0, 1000),
@@ -68,17 +73,32 @@ enum PluxLimit {
   apiRequestsPerMinutePerDevice('api.requestsPerMinutePerDevice', PluxLimitUnit.count, 120, 0, 10000),
   /// Functions per app.
   appFunctions('app.functions', PluxLimitUnit.count, 100, 0, 1000),
+  /// Font files of the host app that one app lists for Studio's canvas.
+  appHostFonts('app.hostFonts', PluxLimitUnit.count, 32, 0, 256),
   /// Locales one app may declare.
   appLocales('app.locales', PluxLimitUnit.count, 50, 0, 300),
   /// Plugins per app.
   appPlugins('app.plugins', PluxLimitUnit.count, 200, 0, 1000),
+  /// Apps one summary call returns; a longer list is paged.
+  appSummariesPerCall('app.summariesPerCall', PluxLimitUnit.count, 100, 0, 500),
   /// Translation keys one app may declare.
   appTranslationKeys('app.translationKeys', PluxLimitUnit.count, 10000, 0, 100000),
+  /// Size of a .plux archive the server accepts for import.
+  archiveBytes('archive.bytes', PluxLimitUnit.bytes, 8388608, 0, 268435456),
+  /// Files in one .plux archive.
+  archiveEntries('archive.entries', PluxLimitUnit.count, 2000, 0, 20000),
+  /// Total size of the files in one .plux archive after unzipping.
+  archiveExpandedBytes('archive.expandedBytes', PluxLimitUnit.bytes, 67108864, 0, 1073741824),
   /// Size of one asset file, checked at upload and again at publish.
   assetFileSize('asset.fileSize', PluxLimitUnit.bytes, 10485760, 0, 104857600),
   /// Pixels of one image asset, width times height, checked before it is
   /// decoded so that a small file cannot expand into a huge image.
   assetImagePixels('asset.imagePixels', PluxLimitUnit.count, 40000000, 0, 100000000),
+  /// Bytes in one chunk of a chunked asset upload; a larger chunk is refused.
+  assetUploadChunkBytes('asset.uploadChunkBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
+  /// Time an unfinished chunked upload is kept after its last chunk before it
+  /// expires.
+  assetUploadSessionTtl('asset.uploadSessionTtl', PluxLimitUnit.milliseconds, 3600000, 0, 86400000),
   /// Size of an App Attest attestation object or assertion.
   attestAppAttestObjectBytes('attest.appAttestObjectBytes', PluxLimitUnit.bytes, 65536, 0, 262144),
   /// Certificates an Android Key Attestation chain may hold.
@@ -126,6 +146,14 @@ enum PluxLimit {
   /// Ceremonies one step-up request accepts before it is closed; each wrong
   /// assertion uses one.
   authStepUpAttempts('auth.stepUpAttempts', PluxLimitUnit.count, 5, 0, 20),
+  /// Requests the Studio BFF accepts per session per minute before it answers
+  /// 429.
+  bffRequestsPerMinute('bff.requestsPerMinute', PluxLimitUnit.count, 1200, 0, 100000),
+  /// Server streams the Studio BFF keeps open per session at once.
+  bffStreamsPerSession('bff.streamsPerSession', PluxLimitUnit.count, 8, 0, 64),
+  /// Telemetry events the Studio BFF accepts per session per minute; the rest
+  /// are dropped and counted.
+  bffTelemetryEventsPerMinute('bff.telemetryEventsPerMinute', PluxLimitUnit.count, 120, 0, 10000),
   /// Size of the WebAssembly module of the device-placed functions of one
   /// plugin.
   bundleDeviceFunctionModuleSize('bundle.deviceFunctionModuleSize', PluxLimitUnit.bytes, 4194304, 0, 67108864),
@@ -138,6 +166,12 @@ enum PluxLimit {
   /// Maximum number of tables and vectors the FlatBuffers verifier visits in
   /// one section.
   bundleVerifierTables('bundle.verifierTables', PluxLimitUnit.count, 1000000, 0, 10000000),
+  /// Plugins one frame of a canvas document may group.
+  canvasFrameMembers('canvas.frameMembers', PluxLimitUnit.count, 500, 0, 10000),
+  /// Frames one canvas document may hold.
+  canvasFrames('canvas.frames', PluxLimitUnit.count, 200, 0, 5000),
+  /// Box positions one canvas document may hold.
+  canvasPositions('canvas.positions', PluxLimitUnit.count, 1000, 0, 20000),
   /// Bytes of confidential content one confidential bundle may hold.
   confidentialBundleBytes('confidential.bundleBytes', PluxLimitUnit.bytes, 16777216, 0, 268435456),
   /// Bytes of one server-held configuration value.
@@ -212,6 +246,9 @@ enum PluxLimit {
   devSessionCommandsPerMinute('devSession.commandsPerMinute', PluxLimitUnit.count, 120, 0, 1200),
   /// Devices that may be paired to one dev session at the same time.
   devSessionDevicesPerSession('devSession.devicesPerSession', PluxLimitUnit.count, 5, 0, 20),
+  /// Studio draft compiles one replica runs at the same time; writes to the
+  /// same plugin that arrive meanwhile coalesce into one further compile.
+  devSessionDraftCompileWorkers('devSession.draftCompileWorkers', PluxLimitUnit.count, 4, 0, 64),
   /// Minutes without any device event or command after which the server ends a
   /// dev session.
   devSessionIdleMinutes('devSession.idleMinutes', PluxLimitUnit.count, 30, 0, 480),
@@ -225,6 +262,9 @@ enum PluxLimit {
   devSessionPairingTokenSeconds('devSession.pairingTokenSeconds', PluxLimitUnit.count, 120, 0, 120),
   /// Size of the document patches of one PushPatch call.
   devSessionPatchBytes('devSession.patchBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
+  /// Bytes of patches one CLI dev session keeps in its log; a push beyond it is
+  /// refused until the session restarts.
+  devSessionPatchLogBytes('devSession.patchLogBytes', PluxLimitUnit.bytes, 8388608, 0, 67108864),
   /// Characters copyToClipboard may put on the clipboard in one step.
   deviceClipboardChars('device.clipboardChars', PluxLimitUnit.count, 10000, 0, 100000),
   /// Disk space the runtime may use for releases on one device.
@@ -258,8 +298,19 @@ enum PluxLimit {
   dsrExportBytes('dsr.exportBytes', PluxLimitUnit.bytes, 268435456, 0, 4294967296),
   /// Experiments that may be running at once in one app.
   experimentsActivePerApp('experiments.activePerApp', PluxLimitUnit.count, 20, 0, 500),
+  /// Attribute conditions one experiment may add to its targeting; all must
+  /// hold.
+  experimentsAttributesPerTargeting('experiments.attributesPerTargeting', PluxLimitUnit.count, 20, 0, 100),
+  /// Guardrail metrics one experiment may have.
+  experimentsGuardrailMetrics('experiments.guardrailMetrics', PluxLimitUnit.count, 5, 0, 20),
+  /// Primary metrics one experiment may have, the lead metric included.
+  experimentsPrimaryMetrics('experiments.primaryMetrics', PluxLimitUnit.count, 3, 0, 10),
+  /// Segments one experiment may target; a device in any of them is eligible.
+  experimentsSegmentsPerTargeting('experiments.segmentsPerTargeting', PluxLimitUnit.count, 10, 0, 50),
   /// Feature flags one app may define.
   flagsPerApp('flags.perApp', PluxLimitUnit.count, 500, 0, 10000),
+  /// Per-segment values one flag may have.
+  flagsSegmentValues('flags.segmentValues', PluxLimitUnit.count, 20, 0, 100),
   /// Memory one function build may use.
   functionBuildMemory('function.buildMemory', PluxLimitUnit.bytes, 4294967296, 0, 17179869184),
   /// Wall-clock time one function build may run.
@@ -332,13 +383,42 @@ enum PluxLimit {
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
+  /// Templates and components one organisation may keep in its library.
+  libraryItemsPerOrganization('library.itemsPerOrganization', PluxLimitUnit.count, 500, 0, 10000),
+  /// Versions one template or component may have; older versions an app adopted
+  /// are kept.
+  libraryVersionsPerItem('library.versionsPerItem', PluxLimitUnit.count, 100, 0, 1000),
+  /// Size of one language-server message the Rust editor sends to its sandbox;
+  /// a document the editor opens must fit.
+  lspMessageBytes('lsp.messageBytes', PluxLimitUnit.bytes, 1048576, 0, 8388608),
+  /// Minutes one language-server sandbox may run before it is stopped.
+  lspSessionMinutes('lsp.sessionMinutes', PluxLimitUnit.count, 60, 0, 480),
+  /// Language-server sandboxes of the Rust editor running at once in one
+  /// organisation.
+  lspSessionsPerOrganization('lsp.sessionsPerOrganization', PluxLimitUnit.count, 10, 0, 1000),
   /// Largest network video or audio file the player downloads through the
   /// pinned client when the security setting pinnedMediaOnly is on (SEC-041:
   /// platform players cannot use the pinned client).
   mediaPinnedDownloadSize('media.pinnedDownloadSize', PluxLimitUnit.bytes, 209715200, 0, 1073741824),
+  /// Length of the description of an app or a plugin.
+  metadataDescriptionLength('metadata.descriptionLength', PluxLimitUnit.codepoints, 2000, 0, 20000),
+  /// Length of the asset identifier an app or a plugin uses as its icon.
+  metadataIconIdLength('metadata.iconIdLength', PluxLimitUnit.codepoints, 200, 0, 1000),
+  /// Length of one tag on an app or a plugin.
+  metadataTagLength('metadata.tagLength', PluxLimitUnit.codepoints, 40, 0, 200),
+  /// Tags one app or one plugin may carry.
+  metadataTagsPerItem('metadata.tagsPerItem', PluxLimitUnit.count, 20, 0, 100),
+  /// Largest value of one display parameter of a notification; an event with a
+  /// larger one is refused.
+  notificationsParamBytes('notifications.paramBytes', PluxLimitUnit.bytes, 1024, 0, 8192),
+  /// Display parameters one notification event may carry; an event with more is
+  /// refused.
+  notificationsParamsPerEvent('notifications.paramsPerEvent', PluxLimitUnit.count, 16, 0, 64),
   /// Notifications one organisation may send in an hour across all channels;
   /// the excess is dropped and audited.
   notificationsPerHour('notifications.perHour', PluxLimitUnit.count, 600, 0, 100000),
+  /// Days an inbox notification is kept before it is deleted.
+  notificationsRetentionDays('notifications.retentionDays', PluxLimitUnit.count, 90, 0, 3650),
   /// Animations that can run at the same time on one page.
   pageAnimations('page.animations', PluxLimitUnit.count, 30, 10, 200),
   /// Estimated build time of a page on the mid-tier reference device, the sum
@@ -356,6 +436,10 @@ enum PluxLimit {
   pluginAssetBytes('plugin.assetBytes', PluxLimitUnit.bytes, 20971520, 0, 268435456),
   /// Pages per plugin.
   pluginPages('plugin.pages', PluxLimitUnit.count, 500, 0, 2000),
+  /// Size of a generated host project (zip).
+  projectBytes('project.bytes', PluxLimitUnit.bytes, 67108864, 0, 536870912),
+  /// Project generation jobs one app may queue per hour.
+  projectJobsPerHour('project.jobsPerHour', PluxLimitUnit.count, 10, 0, 1000),
   /// Time a publish waits, from when it was queued, for the app's image assets
   /// to finish processing before it fails.
   publishAssetWait('publish.assetWait', PluxLimitUnit.milliseconds, 600000, 0, 3600000),
@@ -390,6 +474,22 @@ enum PluxLimit {
   reconstructionRetentionDays('reconstruction.retentionDays', PluxLimitUnit.count, 365, 0, 3650),
   /// Total size of one app release: the app bundle and every plugin bundle.
   releaseAppSize('release.appSize', PluxLimitUnit.bytes, 104857600, 0, 1073741824),
+  /// Visual-diff render jobs of one organisation running at once; further jobs
+  /// wait in the queue.
+  renderVisualDiffJobsPerOrganization('render.visualDiffJobsPerOrganization', PluxLimitUnit.count, 2, 0, 50),
+  /// The size of one structural session replay after encoding; the runtime
+  /// stops recording at it and the server refuses a larger replay (ANL-050).
+  replayBytesPerReplay('replay.bytesPerReplay', PluxLimitUnit.bytes, 262144, 0, 4194304),
+  /// Events (screens, layout snapshots, taps, inputs and state changes) in one
+  /// structural session replay; the runtime stops recording at it and the
+  /// server refuses more (ANL-050).
+  replayEventsPerReplay('replay.eventsPerReplay', PluxLimitUnit.count, 2000, 0, 20000),
+  /// Structural session replays one device may upload in a day; the runtime
+  /// records no more and the server refuses the surplus (ANL-050).
+  replayPerDevicePerDay('replay.perDevicePerDay', PluxLimitUnit.count, 5, 0, 100),
+  /// Days a structural session replay is kept; older replays are deleted by the
+  /// retention sweep (ANL-050).
+  replayRetentionDays('replay.retentionDays', PluxLimitUnit.count, 7, 0, 90),
   /// Staged rollouts that may be in progress at once in one app.
   rolloutsActivePerApp('rollouts.activePerApp', PluxLimitUnit.count, 10, 0, 100),
   /// Disk space the runtime's cache of remote images may use on one device.
@@ -417,6 +517,45 @@ enum PluxLimit {
   /// (plain; secure state is the encrypted one, plan p5 B6); writes beyond it
   /// stay in memory and are reported.
   stateSecureBytes('state.secureBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Quiet time after the last edit before Studio autosaves the change as a
+  /// JSON Patch.
+  studioAutosaveDebounceMs('studio.autosaveDebounceMs', PluxLimitUnit.milliseconds, 500, 0, 5000),
+  /// Times Studio replays an autosave on a newer revision after a conflict
+  /// before it asks the user.
+  studioAutosaveReplays('studio.autosaveReplays', PluxLimitUnit.count, 3, 0, 10),
+  /// Documents one atomic change set may write across the drafts of an app
+  /// (moving a screen with its links, redirecting incoming links).
+  studioChangeSetDocuments('studio.changeSetDocuments', PluxLimitUnit.count, 500, 0, 5000),
+  /// Size of one Studio clipboard envelope; a larger copy is refused.
+  studioClipboardBytes('studio.clipboardBytes', PluxLimitUnit.bytes, 4194304, 0, 33554432),
+  /// Largest pixel density of a custom device frame (D40); the smallest is 1.
+  studioCustomFrameMaxDensity('studio.customFrameMaxDensity', PluxLimitUnit.count, 4, 0, 4),
+  /// Largest width or height, in logical pixels, of a custom device frame
+  /// (D40); a larger frame is refused.
+  studioCustomFrameMaxPixels('studio.customFrameMaxPixels', PluxLimitUnit.count, 4096, 0, 8192),
+  /// Events the server keeps per Studio events stream for resumption before it
+  /// drops the oldest and the tab reloads its state.
+  studioEventsStreamBufferEvents('studio.eventsStreamBufferEvents', PluxLimitUnit.count, 1000, 0, 10000),
+  /// Apps one user may mark as favourites in an organisation's Studio
+  /// preferences.
+  studioFavouriteApps('studio.favouriteApps', PluxLimitUnit.count, 100, 0, 1000),
+  /// Minutes without an edit after which Studio releases an editing lock it
+  /// holds.
+  studioLockIdleReleaseMinutes('studio.lockIdleReleaseMinutes', PluxLimitUnit.count, 10, 0, 120),
+  /// Minutes the lock holder must have made no edit before another user may
+  /// take the lock over; a lapsed lease allows it at once.
+  studioLockTakeoverIdleMinutes('studio.lockTakeoverIdleMinutes', PluxLimitUnit.count, 5, 0, 60),
+  /// Studio paths one user may pin in an organisation's Studio preferences.
+  studioPinnedItems('studio.pinnedItems', PluxLimitUnit.count, 50, 0, 500),
+  /// Bytes of one user's stored Studio preferences in an organisation, as JSON.
+  studioPreferencesBytes('studio.preferencesBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Size of one canvas or screen thumbnail Studio uploads.
+  studioThumbnailBytes('studio.thumbnailBytes', PluxLimitUnit.bytes, 262144, 0, 2097152),
+  /// Undo steps kept per editor session and plugin.
+  studioUndoDepth('studio.undoDepth', PluxLimitUnit.count, 200, 0, 1000),
+  /// Minutes a person's Studio events log (inbox unread count) is kept after
+  /// its last event, so a tab that was away that long reloads its state.
+  studioUserEventsTTLMinutes('studio.userEventsTTLMinutes', PluxLimitUnit.count, 1440, 0, 10080),
   /// Minutes between background syncs the runtime asks the operating system
   /// for; the runtime refuses less than 15 minutes, the least the platforms
   /// grant.
@@ -438,6 +577,8 @@ enum PluxLimit {
   /// Rows one Parquet file of the enterprise analytics export holds; a longer
   /// window is written as several files.
   telemetryExportFileRows('telemetry.exportFileRows', PluxLimitUnit.count, 100000, 0, 1000000),
+  /// Scenarios and steps one reported Plux Test run may contain.
+  testStepsPerRun('test.stepsPerRun', PluxLimitUnit.count, 5000, 0, 100000),
   /// Size of one translation import file.
   translationImportSize('translation.importSize', PluxLimitUnit.bytes, 16777216, 0, 134217728),
   /// Size of one translation message.

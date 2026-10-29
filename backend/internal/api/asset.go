@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
@@ -63,6 +64,67 @@ func (s Asset) UploadAsset(ctx context.Context, stream *connect.ClientStream[plu
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	return connect.NewResponse(&pluxv1.UploadAssetResponse{Asset: s.assetProto(ctx, a)}), nil
+}
+
+// BeginAssetUpload opens a chunked upload (SRV-060, plan §4.3 #2).
+func (s Asset) BeginAssetUpload(ctx context.Context, req *connect.Request[pluxv1.BeginAssetUploadRequest]) (*connect.Response[pluxv1.BeginAssetUploadResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.BeginAssetUploadResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		u, err := s.h.Documents.BeginAssetUpload(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetName(), m.GetSize(), m.GetSha256())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.BeginAssetUploadResponse{UploadId: u.ID, ChunkSize: u.ChunkSize, ExpiresAt: timestamppb.New(u.ExpiresAt)}, nil
+	})
+}
+
+// UploadAssetChunk appends one chunk at its offset.
+func (s Asset) UploadAssetChunk(ctx context.Context, req *connect.Request[pluxv1.UploadAssetChunkRequest]) (*connect.Response[pluxv1.UploadAssetChunkResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.UploadAssetChunkResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		u, err := s.h.Documents.UploadAssetChunk(ctx, p, req.Msg.GetUploadId(), req.Msg.GetOffset(), req.Msg.GetChunk())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.UploadAssetChunkResponse{Received: u.Received, ExpiresAt: timestamppb.New(u.ExpiresAt)}, nil
+	})
+}
+
+// GetAssetUpload reports an upload's progress.
+func (s Asset) GetAssetUpload(ctx context.Context, req *connect.Request[pluxv1.GetAssetUploadRequest]) (*connect.Response[pluxv1.GetAssetUploadResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetAssetUploadResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		u, err := s.h.Documents.GetAssetUpload(ctx, p, req.Msg.GetUploadId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.GetAssetUploadResponse{Size: u.Size, Received: u.Received, ExpiresAt: timestamppb.New(u.ExpiresAt)}, nil
+	})
+}
+
+// FinishAssetUpload verifies and stores the uploaded file.
+func (s Asset) FinishAssetUpload(ctx context.Context, req *connect.Request[pluxv1.FinishAssetUploadRequest]) (*connect.Response[pluxv1.FinishAssetUploadResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.FinishAssetUploadResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		a, err := s.h.Documents.FinishAssetUpload(ctx, p, req.Msg.GetUploadId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.FinishAssetUploadResponse{Asset: s.assetProto(ctx, a)}, nil
+	})
 }
 
 // GetAsset returns an asset with links to its file and variants.

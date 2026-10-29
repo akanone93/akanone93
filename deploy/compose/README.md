@@ -5,23 +5,24 @@ A complete single-node Plux installation (`DEP-002`): `plux-server` running the 
 Collector, Prometheus and Grafana beside it. The roles that run tenant code are separate
 containers that hold no database, storage or signing credential (`FN-013`, `FN-016`):
 `plux-fnrunner` and `plux-egress` always, `plux-builder` under the `functions` profile (see
-[Function roles](#function-roles)). Every image is pinned by digest. Studio joins the stack
+[Function roles](#function-roles)), and `plux-render-worker` under the `visual-diff` profile (see
+[Render worker](#render-worker)). Every image is pinned by digest. Studio joins the stack
 in P11.
 
 ## Use
 
 | Command | What it does |
 |---|---|
-| `make compose-up` | Generates credentials on first run, builds the server image and starts the stack; `COMPOSE_PROFILES=functions make compose-up` also builds and starts the function builder |
+| `make compose-up` | Generates credentials on first run, builds the server image and starts the stack; `COMPOSE_PROFILES=functions make compose-up` also builds and starts the function builder, `COMPOSE_PROFILES=visual-diff make compose-up` the render worker of visual diffs |
 | `make dev` | The same with hot reload of the server (`compose watch`); on first run seeds an administrator and the loan calculator promoted to `staging` |
 | `make compose-seed` | Starts the stack and seeds it once, without watching |
 | `make compose-test` | Runs the Go integration and end-to-end tests against the stack's PostgreSQL, SeaweedFS and Valkey (`QA-005`) |
 | `make compose-down` | Stops the stack; volumes are kept (`docker compose … down -v` deletes them) |
 
-Addresses, all bound to `127.0.0.1`: server <https://localhost:8080> (TLS 1.3, see [Development TLS](#development-tls)), Grafana
+Addresses, all bound to `127.0.0.1`: server <https://localhost:8080> (TLS 1.3, see [Development TLS](#development-tls)), Studio <http://localhost:8081> (the BFF, which proxies the server; `DEP-002`), Grafana
 <http://localhost:3000>, Prometheus <http://localhost:9090>. The optional profiles
-`keycloak` (an OpenID Connect provider on port 8180), `ollama` and `functions` (the function
-builder) start with `docker compose --profile <name> …`.
+`keycloak` (an OpenID Connect provider on port 8180), `ollama`, `functions` (the function
+builder) and `visual-diff` (the render worker) start with `docker compose --profile <name> …`.
 
 ## Secrets
 
@@ -73,7 +74,7 @@ like the development TLS certificate (renewed within 30 days of expiry, keys kep
 
 | File | What |
 |---|---|
-| `.secrets/ca/internal-ca.crt`, `internal-ca.key` | The internal CA, ECDSA P-256, valid 1 year. It is not the development CA above, which people install in their operating system: trusting that one must never vouch for a role. Its name constraints allow only `plux-server`, `plux-fnrunner`, `plux-egress` and `plux-builder`. The key is mounted nowhere. |
+| `.secrets/ca/internal-ca.crt`, `internal-ca.key` | The internal CA, ECDSA P-256, valid 1 year. It is not the development CA above, which people install in their operating system: trusting that one must never vouch for a role. Its name constraints allow only `plux-server`, `plux-fnrunner`, `plux-egress`, `plux-builder` and `plux-render-worker`; a CA made before the render worker existed is replaced on the next run (the roles' keys are kept, their certificates are issued again), so restart the roles afterwards. The key is mounted nowhere. |
 | `.secrets/internal/<service>/tls.crt`, `tls.key`, `ca.crt` | One identity per service, valid 90 days, with the service name as its only name and both `serverAuth` and `clientAuth` (every role is a server and a client). A service mounts its own directory at `/etc/plux/internal`, so it cannot read another's key. |
 
 After a renewal restart the service (`docker compose -f deploy/compose/compose.yaml restart
@@ -128,6 +129,27 @@ the sysctl on a development machine; do not switch the sandbox off.
 The image (`backend/Dockerfile`, target `builder`) pins Rust 1.97.0 with `wasm32-wasip1`,
 Bun 1.3.11 running the npm package `binaryen@132.0.0`, and the SDK crate `sdk/fn/plux-fn`
 at `/opt/plux/sdk/plux-fn`, the same pins as `plux fn build` and `sdk/fn/rust-toolchain.toml`.
+
+## Render worker
+
+`plux-render-worker` renders the visual diffs of release requests (`STU-100`, `O-9`,
+[ADR-0097](../../docs/adr/0097-release-requests-and-visual-diffs.md)): the worker role of
+`plux-server` sends it the projects before and after a request over mutual TLS
+(`renderWorker.address` in `plux-server.yaml`), and it compiles them against the function
+catalogue of the request's environment, draws their pages on the standard devices with the
+golden harness and returns the screens that changed. Without the `visual-diff` profile it is
+absent: everything else works, and a requested diff fails after its attempts.
+
+| | |
+|---|---|
+| Image | `plux-render-worker:local`, built from `deploy/render-worker/Dockerfile` with the Flutter SDK of the Makefile's `FLUTTER_VERSION`, checked against its SHA-256 (the build arguments in `compose.yaml` change together with `release.yml`). Large; `COMPOSE_PROFILES=visual-diff make compose-up` builds it. |
+| Listens on | `:8443`, mutual TLS, identity `plux-render-worker` (`.secrets/internal/plux-render-worker`) |
+| Network | `render`, an `internal` network shared with `plux-server` alone: no route out of the host, and no other service can reach it |
+| Credentials | none: no database URL, object-store key, keys volume or Vault token (`L-4`); the projects arrive in the request and the images leave in the response |
+| Hardening | `cap_drop: [ALL]`, `no-new-privileges`, user `65532`, the default seccomp profile. **Not `read_only`:** the Flutter tool writes its lock and stamp files below its SDK, which the image owns for that user. `/var/lib/plux/render` (renders) is a 4 GiB `tmpfs`, executable because the test runner runs from it. |
+
+The image has not been built or run by CI yet (it needs Docker): the first run of the
+`visual-diff` profile is its check.
 
 ## Development TLS
 
@@ -190,7 +212,7 @@ The runtime wants at least two distinct pins; make the second from a spare key w
 |---|---|
 | `compose.yaml` | The stack |
 | `plux-server.yaml` | The server's configuration inside the stack, including `server.tls`, the internal listener and the routes to the function roles |
-| `plux-fnrunner.yaml`, `plux-egress.yaml`, `plux-builder.yaml` | The configuration of the function roles; the first is completed in `.secrets/` |
+| `plux-fnrunner.yaml`, `plux-egress.yaml`, `plux-builder.yaml` | The configuration of the function roles; the first is completed in `.secrets/`. The render worker takes its settings as flags (`deploy/render-worker/Dockerfile`) and has no file |
 | `seccomp-builder.json` | The builder's seccomp profile: Docker's default plus the `clone` rule for the build sandbox |
 | `init-secrets.sh` | Generates the credentials, the development CA and certificate, the internal CA and identities, and the function-artifact key |
 | `compose.dev.yaml` | Overlay for `make dev`: rebuilds and restarts the server on source changes |

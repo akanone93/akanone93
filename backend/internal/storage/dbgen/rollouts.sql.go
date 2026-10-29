@@ -811,6 +811,67 @@ func (q *Queries) RecordRolloutCheck(ctx context.Context, arg RecordRolloutCheck
 	return err
 }
 
+const rescheduleRollout = `-- name: RescheduleRollout :one
+UPDATE rollouts
+   SET start_at = $1, end_at = $2, updated_at = $3
+ WHERE id = $4 AND state = ANY($5::text[])
+RETURNING id, organization_id, app_id, environment_id, channel_id, environment_key, channel_key, candidate_sequence, previous_sequence, salt, state, close_action, close_state, stages, stage_index, stage_started_at, basis_points, start_at, end_at, targeting, allow_devices, deny_devices, health, state_reason, last_check, last_check_at, reverted_sequence, created_by, created_at, updated_at
+`
+
+type RescheduleRolloutParams struct {
+	StartAt    pgtype.Timestamptz
+	EndAt      pgtype.Timestamptz
+	At         pgtype.Timestamptz
+	ID         pgtype.UUID
+	FromStates []string
+}
+
+// Changes the window of a rollout that has not finished. The start moves only
+// while the rollout is scheduled; only one caller wins.
+func (q *Queries) RescheduleRollout(ctx context.Context, arg RescheduleRolloutParams) (Rollout, error) {
+	row := q.db.QueryRow(ctx, rescheduleRollout,
+		arg.StartAt,
+		arg.EndAt,
+		arg.At,
+		arg.ID,
+		arg.FromStates,
+	)
+	var i Rollout
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.EnvironmentID,
+		&i.ChannelID,
+		&i.EnvironmentKey,
+		&i.ChannelKey,
+		&i.CandidateSequence,
+		&i.PreviousSequence,
+		&i.Salt,
+		&i.State,
+		&i.CloseAction,
+		&i.CloseState,
+		&i.Stages,
+		&i.StageIndex,
+		&i.StageStartedAt,
+		&i.BasisPoints,
+		&i.StartAt,
+		&i.EndAt,
+		&i.Targeting,
+		&i.AllowDevices,
+		&i.DenyDevices,
+		&i.Health,
+		&i.StateReason,
+		&i.LastCheck,
+		&i.LastCheckAt,
+		&i.RevertedSequence,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const setRolloutState = `-- name: SetRolloutState :one
 UPDATE rollouts
    SET state = $1, state_reason = $2,

@@ -1,0 +1,352 @@
+{
+  "name": "material-tab-bar-scrollable",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b0",
+                "type": "TabBar",
+                "props": {
+                  "isScrollable": true
+                },
+                "children": [
+                  {
+                    "id": "b0t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Overview"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b0t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Specs"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b0t2",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Reviews"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b0t3",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Related"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b0t4",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Support"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b0t5",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Warranty"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b1",
+                "type": "TabBar",
+                "props": {
+                  "isScrollable": true
+                },
+                "children": [
+                  {
+                    "id": "b1t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "One"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b1t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Two"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b2",
+                "type": "TabBar",
+                "props": {
+                  "isScrollable": true,
+                  "tabAlignment": "start"
+                },
+                "children": [
+                  {
+                    "id": "b2t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Start"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b2t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Aligned"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b2t2",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Tabs"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w3",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b3",
+                "type": "TabBar",
+                "props": {
+                  "isScrollable": true,
+                  "tabAlignment": "center"
+                },
+                "children": [
+                  {
+                    "id": "b3t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Mid"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b3t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Tabs"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w4",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b4",
+                "type": "TabBar",
+                "props": {
+                  "isScrollable": true
+                },
+                "children": [
+                  {
+                    "id": "b4t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Home"
+                    },
+                    "children": [
+                      {
+                        "id": "b4t0i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b4t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Map"
+                    },
+                    "children": [
+                      {
+                        "id": "b4t1i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b4t2",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Chat"
+                    },
+                    "children": [
+                      {
+                        "id": "b4t2i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b4t3",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Settings"
+                    },
+                    "children": [
+                      {
+                        "id": "b4t3i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w5",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b5",
+                "type": "TabBar",
+                "props": {
+                  "isScrollable": true,
+                  "tabAlignment": "start"
+                },
+                "children": [
+                  {
+                    "id": "b5t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Short"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b5t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Icon"
+                    },
+                    "children": [
+                      {
+                        "id": "b5t1i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b5t2",
+                    "type": "Tab",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "b5t2i",
+                        "type": "Icon",
+                        "props": {},
+                        "slot": "icon"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b5t3",
+                    "type": "Tab",
+                    "props": {
+                      "height": 60,
+                      "text": "Tall"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cap",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

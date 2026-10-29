@@ -105,12 +105,12 @@ CNF
   echo "Issued the development server certificate .secrets/tls/server.crt (valid 90 days; restart plux-server to load a renewed one)."
 }
 
-# The roles api/worker (plux-server), fnrunner, egress and builder talk over
-# mutual TLS 1.3 (SEC-043): each presents a certificate signed by one
+# The roles api/worker (plux-server), fnrunner, egress, builder and the render
+# worker talk over mutual TLS 1.3 (SEC-043): each presents a certificate signed by one
 # internal CA and trusts no other. The CA is separate from the development
 # CA above, which people install in their operating system: trusting that
 # one must never vouch for a role. The internal CA (1 year) is name-
-# constrained to the four service names, so even its key could not vouch for
+# constrained to the five service names, so even its key could not vouch for
 # any other host; its key stays in .secrets/ca and is mounted nowhere. Each
 # role gets a directory with only its own certificate (90 days, serverAuth
 # and clientAuth, because every role is both) and key, and the CA certificate,
@@ -120,7 +120,10 @@ internal_tls() {
   mkdir -p .secrets/ca .secrets/internal
   month=2592000
   renew=0
-  if [ ! -s .secrets/ca/internal-ca.crt ] || ! openssl x509 -checkend "$month" -noout -in .secrets/ca/internal-ca.crt >/dev/null; then
+  # A CA made before a role existed does not allow its name: it is made again
+  # (the keys of the roles are kept, their certificates are issued again).
+  if [ ! -s .secrets/ca/internal-ca.crt ] || ! openssl x509 -checkend "$month" -noout -in .secrets/ca/internal-ca.crt >/dev/null \
+    || ! openssl x509 -noout -text -in .secrets/ca/internal-ca.crt | grep -q 'DNS:plux-render-worker'; then
     cat > "$tmp/internal-ca.cnf" <<'CNF'
 [req]
 distinguished_name = dn
@@ -133,14 +136,14 @@ CN = Plux internal CA
 basicConstraints = critical,CA:TRUE,pathlen:0
 keyUsage = critical,keyCertSign,cRLSign
 subjectKeyIdentifier = hash
-nameConstraints = critical,permitted;DNS:plux-server,permitted;DNS:plux-fnrunner,permitted;DNS:plux-egress,permitted;DNS:plux-builder
+nameConstraints = critical,permitted;DNS:plux-server,permitted;DNS:plux-fnrunner,permitted;DNS:plux-egress,permitted;DNS:plux-builder,permitted;DNS:plux-render-worker
 CNF
     openssl ecparam -name prime256v1 -genkey -noout -out .secrets/ca/internal-ca.key
     openssl req -new -x509 -sha256 -days 365 -key .secrets/ca/internal-ca.key -config "$tmp/internal-ca.cnf" -out .secrets/ca/internal-ca.crt
     renew=1
     echo "Generated the internal CA .secrets/ca/internal-ca.crt (valid 1 year); it is not for installing anywhere."
   fi
-  for svc in plux-server plux-fnrunner plux-egress plux-builder; do
+  for svc in plux-server plux-fnrunner plux-egress plux-builder plux-render-worker; do
     dir=.secrets/internal/$svc
     mkdir -p "$dir"
     # The roles run as another user than the one running this script; the
@@ -202,7 +205,15 @@ function_key() {
   chmod 644 .secrets/plux-fnrunner.yaml
 }
 
+# Studio's sign-in state key, shared by every BFF replica (PLUX_BFF_STATE_SECRET):
+# base64 of 32 random bytes. Kept once created, also on an existing .secrets/.
+studio_env() {
+  command -v openssl >/dev/null 2>&1 || { echo "init-secrets.sh: openssl is required to create the Studio state secret" >&2; exit 1; }
+  printf 'PLUX_BFF_STATE_SECRET=%s\n' "$(openssl rand -base64 32)" > .secrets/studio.env
+}
+
 [ -d .secrets ] || credentials
+[ -s .secrets/studio.env ] || studio_env
 dev_tls
 internal_tls
 function_key

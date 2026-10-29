@@ -66,6 +66,19 @@ funcs=$(render -f "$chart/ci/ha-values.yaml" --show-only templates/functions.yam
 if grep -En 'secretKeyRef|valueFrom|PLUX_|postgres-ca|name: keys|name: trust|projected' <<<"$funcs"; then
 	fail "fnrunner, egress or builder holds a data credential (L-4)"
 fi
+# The render worker holds no credential either, keeps its root file system
+# read-only, is reached by the worker role alone and reaches nothing.
+render=$(render -f "$chart/ci/ha-values.yaml" --show-only templates/render-worker.yaml)
+if grep -En 'secretKeyRef|valueFrom|PLUX_|postgres-ca|name: keys|name: trust|projected|readOnlyRootFilesystem: false' <<<"$render"; then
+	fail "the render worker holds a data credential or a writable root file system (L-4)"
+fi
+grep -q 'kind: Deployment' <<<"$render" || fail "the render worker is not rendered where renderWorker.enabled is true"
+grep -Eq 'renderWorker:' <<<"$(render -f "$chart/ci/ha-values.yaml" --show-only templates/configmap.yaml)" || fail "the worker's configuration has no renderWorker.address"
+np=$(render -f "$chart/ci/ha-values.yaml" --show-only templates/networkpolicy.yaml | awk '/name: plux-render-worker$/ {on = 1} on && /^---/ {exit} on')
+grep -q 'egress: \[\]' <<<"$np" || fail "the render worker's NetworkPolicy lets it reach something"
+if grep -Eq 'name: plux-render-worker|component: render-worker$' "$out/default.yaml"; then
+	fail "the render worker is rendered although renderWorker.enabled is false"
+fi
 # The seccomp profile is the builder's alone.
 [ "$(grep -c 'type: Localhost' "$ha")" -eq 1 ] || fail "only the builder uses a Localhost seccomp profile"
 # No credential is set inline: a variable that carries one is a reference.

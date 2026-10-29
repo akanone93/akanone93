@@ -4,6 +4,7 @@
 package compiler
 
 import (
+	"encoding/json"
 	"slices"
 	"testing"
 
@@ -243,5 +244,49 @@ func TestDBQueryConditionSeesTheRecord(t *testing.T) {
 	}
 	if res := compile("record.missing == false"); !res.Diagnostics.HasErrors() {
 		t.Errorf("a condition over a field the collection does not have compiled")
+	}
+}
+
+// TestPreviewCollections checks the Studio migration preview runs the publish
+// comparison (DB-005): a lost field at a raised version needs a plan, and a
+// plan that explains the change leaves only the data-loss warning.
+func TestPreviewCollections(t *testing.T) {
+	prev := `[{"id":"` + taskID + `","key":"tasks","version":1,"primaryKey":["id"],
+		"fields":[{"name":"id","type":"string"},{"name":"title","type":"string"}]}]`
+	lost := `[{"id":"` + taskID + `","key":"tasks","version":2,"primaryKey":["id"],
+		"fields":[{"name":"id","type":"string"}]}]`
+	planned := `[{"id":"` + taskID + `","key":"tasks","version":2,"primaryKey":["id"],
+		"fields":[{"name":"id","type":"string"}],
+		"migrations":[{"from":1,"drop":["title"]}]}]`
+	cases := []struct {
+		name, cur, want string
+	}{
+		{"unchanged", prev, ""},
+		{"field lost without a plan", lost, "COLLECTION_PLAN_REQUIRED"},
+		{"field dropped by a plan", planned, "COLLECTION_DESTRUCTIVE"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			out, err := PreviewCollections([]byte(prev), []byte(tc.cur), nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var diags []map[string]any
+			if err := json.Unmarshal(out, &diags); err != nil {
+				t.Fatal(err)
+			}
+			if tc.want == "" {
+				if len(diags) != 0 {
+					t.Fatalf("findings = %s", out)
+				}
+				return
+			}
+			if len(diags) != 1 || diags[0]["reason"] != tc.want {
+				t.Fatalf("findings = %s, want %s", out, tc.want)
+			}
+		})
+	}
+	if _, err := PreviewCollections([]byte("{"), []byte("[]"), nil); err == nil {
+		t.Fatal("malformed previous collections were accepted")
 	}
 }

@@ -115,6 +115,41 @@ func (q *Queries) FindProcessedAsset(ctx context.Context, arg FindProcessedAsset
 	return i, err
 }
 
+const getAppAssetByAssetID = `-- name: GetAppAssetByAssetID :one
+SELECT id, asset_id, organization_id, app_id, file, media_type, sha256, size, width, height, processing, variants, diagnostics, uploaded_by_kind, uploaded_by_id, uploaded_by, created_at, deleted_at FROM assets WHERE app_id = $1 AND asset_id = $2 AND deleted_at IS NULL ORDER BY created_at LIMIT 1
+`
+
+type GetAppAssetByAssetIDParams struct {
+	AppID   pgtype.UUID
+	AssetID pgtype.UUID
+}
+
+func (q *Queries) GetAppAssetByAssetID(ctx context.Context, arg GetAppAssetByAssetIDParams) (Asset, error) {
+	row := q.db.QueryRow(ctx, getAppAssetByAssetID, arg.AppID, arg.AssetID)
+	var i Asset
+	err := row.Scan(
+		&i.ID,
+		&i.AssetID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.File,
+		&i.MediaType,
+		&i.Sha256,
+		&i.Size,
+		&i.Width,
+		&i.Height,
+		&i.Processing,
+		&i.Variants,
+		&i.Diagnostics,
+		&i.UploadedByKind,
+		&i.UploadedByID,
+		&i.UploadedBy,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getAsset = `-- name: GetAsset :one
 SELECT id, asset_id, organization_id, app_id, file, media_type, sha256, size, width, height, processing, variants, diagnostics, uploaded_by_kind, uploaded_by_id, uploaded_by, created_at, deleted_at FROM assets WHERE asset_id = $1 AND deleted_at IS NULL ORDER BY created_at LIMIT 1
 `

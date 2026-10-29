@@ -162,6 +162,42 @@
       "description": "Steps one action run trace records; later steps are counted but not recorded."
     },
     {
+      "key": "analytics.funnelScanEvents",
+      "unit": "count",
+      "default": 500000,
+      "max": 5000000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-020"
+      ],
+      "description": "Raw events one funnel result may scan; a result that would scan more fails and asks for a narrower range."
+    },
+    {
+      "key": "analytics.funnelSteps",
+      "unit": "count",
+      "default": 10,
+      "max": 20,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-020"
+      ],
+      "description": "Steps one funnel may have."
+    },
+    {
       "key": "anim.compositedSubtree",
       "unit": "count",
       "default": 40,
@@ -350,6 +386,24 @@
       "description": "Functions per app."
     },
     {
+      "key": "app.hostFonts",
+      "unit": "count",
+      "default": 32,
+      "max": 256,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-006"
+      ],
+      "description": "Font files of the host app that one app lists for Studio's canvas."
+    },
+    {
       "key": "app.locales",
       "unit": "count",
       "default": 50,
@@ -390,6 +444,23 @@
       "description": "Plugins per app."
     },
     {
+      "key": "app.summariesPerCall",
+      "unit": "count",
+      "default": 100,
+      "max": 500,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-022"
+      ],
+      "description": "Apps one summary call returns; a longer list is paged."
+    },
+    {
       "key": "app.translationKeys",
       "unit": "count",
       "default": 10000,
@@ -408,6 +479,63 @@
         "I18N-007"
       ],
       "description": "Translation keys one app may declare."
+    },
+    {
+      "key": "archive.bytes",
+      "unit": "bytes",
+      "default": 8388608,
+      "max": 268435456,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-023",
+        "STU-024"
+      ],
+      "description": "Size of a .plux archive the server accepts for import."
+    },
+    {
+      "key": "archive.entries",
+      "unit": "count",
+      "default": 2000,
+      "max": 20000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-023",
+        "STU-024"
+      ],
+      "description": "Files in one .plux archive."
+    },
+    {
+      "key": "archive.expandedBytes",
+      "unit": "bytes",
+      "default": 67108864,
+      "max": 1073741824,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-023",
+        "STU-024"
+      ],
+      "description": "Total size of the files in one .plux archive after unzipping."
     },
     {
       "key": "asset.fileSize",
@@ -447,6 +575,40 @@
         "CMP-030"
       ],
       "description": "Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image."
+    },
+    {
+      "key": "asset.uploadChunkBytes",
+      "unit": "bytes",
+      "default": 1048576,
+      "max": 8388608,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-060"
+      ],
+      "description": "Bytes in one chunk of a chunked asset upload; a larger chunk is refused."
+    },
+    {
+      "key": "asset.uploadSessionTtl",
+      "unit": "milliseconds",
+      "default": 3600000,
+      "max": 86400000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-060"
+      ],
+      "description": "Time an unfinished chunked upload is kept after its last chunk before it expires."
     },
     {
       "key": "attest.appAttestObjectBytes",
@@ -762,6 +924,57 @@
       "description": "Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one."
     },
     {
+      "key": "bff.requestsPerMinute",
+      "unit": "count",
+      "default": 1200,
+      "max": 100000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-002"
+      ],
+      "description": "Requests the Studio BFF accepts per session per minute before it answers 429."
+    },
+    {
+      "key": "bff.streamsPerSession",
+      "unit": "count",
+      "default": 8,
+      "max": 64,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-002"
+      ],
+      "description": "Server streams the Studio BFF keeps open per session at once."
+    },
+    {
+      "key": "bff.telemetryEventsPerMinute",
+      "unit": "count",
+      "default": 120,
+      "max": 10000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "OBS-001"
+      ],
+      "description": "Telemetry events the Studio BFF accepts per session per minute; the rest are dropped and counted."
+    },
+    {
       "key": "bundle.deviceFunctionModuleSize",
       "unit": "bytes",
       "default": 4194304,
@@ -863,6 +1076,69 @@
         "QA-004"
       ],
       "description": "Maximum number of tables and vectors the FlatBuffers verifier visits in one section."
+    },
+    {
+      "key": "canvas.frameMembers",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-032",
+        "STU-035",
+        "STU-050"
+      ],
+      "description": "Plugins one frame of a canvas document may group."
+    },
+    {
+      "key": "canvas.frames",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-032",
+        "STU-035",
+        "STU-050"
+      ],
+      "description": "Frames one canvas document may hold."
+    },
+    {
+      "key": "canvas.positions",
+      "unit": "count",
+      "default": 1000,
+      "max": 20000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-032",
+        "STU-035",
+        "STU-050"
+      ],
+      "description": "Box positions one canvas document may hold."
     },
     {
       "key": "confidential.bundleBytes",
@@ -1447,6 +1723,23 @@
       "description": "Devices that may be paired to one dev session at the same time."
     },
     {
+      "key": "devSession.draftCompileWorkers",
+      "unit": "count",
+      "default": 4,
+      "max": 64,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-130"
+      ],
+      "description": "Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile."
+    },
+    {
       "key": "devSession.idleMinutes",
       "unit": "count",
       "default": 30,
@@ -1540,6 +1833,25 @@
         "DEV-010"
       ],
       "description": "Size of the document patches of one PushPatch call."
+    },
+    {
+      "key": "devSession.patchLogBytes",
+      "unit": "bytes",
+      "default": 8388608,
+      "max": 67108864,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "DEV-010"
+      ],
+      "description": "Bytes of patches one CLI dev session keeps in its log; a push beyond it is refused until the session restarts."
     },
     {
       "key": "device.clipboardChars",
@@ -1828,6 +2140,82 @@
       "description": "Experiments that may be running at once in one app."
     },
     {
+      "key": "experiments.attributesPerTargeting",
+      "unit": "count",
+      "default": 20,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Attribute conditions one experiment may add to its targeting; all must hold."
+    },
+    {
+      "key": "experiments.guardrailMetrics",
+      "unit": "count",
+      "default": 5,
+      "max": 20,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-003"
+      ],
+      "description": "Guardrail metrics one experiment may have."
+    },
+    {
+      "key": "experiments.primaryMetrics",
+      "unit": "count",
+      "default": 3,
+      "max": 10,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-003"
+      ],
+      "description": "Primary metrics one experiment may have, the lead metric included."
+    },
+    {
+      "key": "experiments.segmentsPerTargeting",
+      "unit": "count",
+      "default": 10,
+      "max": 50,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Segments one experiment may target; a device in any of them is eligible."
+    },
+    {
       "key": "flags.perApp",
       "unit": "count",
       "default": 500,
@@ -1845,6 +2233,25 @@
         "ABT-001"
       ],
       "description": "Feature flags one app may define."
+    },
+    {
+      "key": "flags.segmentValues",
+      "unit": "count",
+      "default": 20,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ABT-006"
+      ],
+      "description": "Per-segment values one flag may have."
     },
     {
       "key": "function.buildMemory",
@@ -2496,6 +2903,98 @@
       "description": "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."
     },
     {
+      "key": "library.itemsPerOrganization",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-080",
+        "STU-084"
+      ],
+      "description": "Templates and components one organisation may keep in its library."
+    },
+    {
+      "key": "library.versionsPerItem",
+      "unit": "count",
+      "default": 100,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-080",
+        "STU-084"
+      ],
+      "description": "Versions one template or component may have; older versions an app adopted are kept."
+    },
+    {
+      "key": "lsp.messageBytes",
+      "unit": "bytes",
+      "default": 1048576,
+      "max": 8388608,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "FN-033"
+      ],
+      "description": "Size of one language-server message the Rust editor sends to its sandbox; a document the editor opens must fit."
+    },
+    {
+      "key": "lsp.sessionMinutes",
+      "unit": "count",
+      "default": 60,
+      "max": 480,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-110"
+      ],
+      "description": "Minutes one language-server sandbox may run before it is stopped."
+    },
+    {
+      "key": "lsp.sessionsPerOrganization",
+      "unit": "count",
+      "default": 10,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-110"
+      ],
+      "description": "Language-server sandboxes of the Rust editor running at once in one organisation."
+    },
+    {
       "key": "media.pinnedDownloadSize",
       "unit": "bytes",
       "default": 209715200,
@@ -2515,6 +3014,112 @@
       "description": "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."
     },
     {
+      "key": "metadata.descriptionLength",
+      "unit": "codepoints",
+      "default": 2000,
+      "max": 20000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-034"
+      ],
+      "description": "Length of the description of an app or a plugin."
+    },
+    {
+      "key": "metadata.iconIdLength",
+      "unit": "codepoints",
+      "default": 200,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-034"
+      ],
+      "description": "Length of the asset identifier an app or a plugin uses as its icon."
+    },
+    {
+      "key": "metadata.tagLength",
+      "unit": "codepoints",
+      "default": 40,
+      "max": 200,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-034"
+      ],
+      "description": "Length of one tag on an app or a plugin."
+    },
+    {
+      "key": "metadata.tagsPerItem",
+      "unit": "count",
+      "default": 20,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-034"
+      ],
+      "description": "Tags one app or one plugin may carry."
+    },
+    {
+      "key": "notifications.paramBytes",
+      "unit": "bytes",
+      "default": 1024,
+      "max": 8192,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Largest value of one display parameter of a notification; an event with a larger one is refused."
+    },
+    {
+      "key": "notifications.paramsPerEvent",
+      "unit": "count",
+      "default": 16,
+      "max": 64,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Display parameters one notification event may carry; an event with more is refused."
+    },
+    {
       "key": "notifications.perHour",
       "unit": "count",
       "default": 600,
@@ -2532,6 +3137,24 @@
         "SRV-062"
       ],
       "description": "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."
+    },
+    {
+      "key": "notifications.retentionDays",
+      "unit": "count",
+      "default": 90,
+      "max": 3650,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Days an inbox notification is kept before it is deleted."
     },
     {
       "key": "page.animations",
@@ -2686,6 +3309,43 @@
         "SCH-005"
       ],
       "description": "Pages per plugin."
+    },
+    {
+      "key": "project.bytes",
+      "unit": "bytes",
+      "default": 67108864,
+      "max": 536870912,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "GEN-001",
+        "GEN-004"
+      ],
+      "description": "Size of a generated host project (zip)."
+    },
+    {
+      "key": "project.jobsPerHour",
+      "unit": "count",
+      "default": 10,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "GEN-001",
+        "GEN-004"
+      ],
+      "description": "Project generation jobs one app may queue per hour."
     },
     {
       "key": "publish.assetWait",
@@ -2979,6 +3639,103 @@
       "description": "Total size of one app release: the app bundle and every plugin bundle."
     },
     {
+      "key": "render.visualDiffJobsPerOrganization",
+      "unit": "count",
+      "default": 2,
+      "max": 50,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-100"
+      ],
+      "description": "Visual-diff render jobs of one organisation running at once; further jobs wait in the queue."
+    },
+    {
+      "key": "replay.bytesPerReplay",
+      "unit": "bytes",
+      "default": 262144,
+      "max": 4194304,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "runtime"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-050"
+      ],
+      "description": "The size of one structural session replay after encoding; the runtime stops recording at it and the server refuses a larger replay (ANL-050)."
+    },
+    {
+      "key": "replay.eventsPerReplay",
+      "unit": "count",
+      "default": 2000,
+      "max": 20000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "runtime"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-050"
+      ],
+      "description": "Events (screens, layout snapshots, taps, inputs and state changes) in one structural session replay; the runtime stops recording at it and the server refuses more (ANL-050)."
+    },
+    {
+      "key": "replay.perDevicePerDay",
+      "unit": "count",
+      "default": 5,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "runtime"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-050"
+      ],
+      "description": "Structural session replays one device may upload in a day; the runtime records no more and the server refuses the surplus (ANL-050)."
+    },
+    {
+      "key": "replay.retentionDays",
+      "unit": "count",
+      "default": 7,
+      "max": 90,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "ANL-050"
+      ],
+      "description": "Days a structural session replay is kept; older replays are deleted by the retention sweep (ANL-050)."
+    },
+    {
       "key": "rollouts.activePerApp",
       "unit": "count",
       "default": 10,
@@ -3195,6 +3952,283 @@
       "description": "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."
     },
     {
+      "key": "studio.autosaveDebounceMs",
+      "unit": "milliseconds",
+      "default": 500,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-004"
+      ],
+      "description": "Quiet time after the last edit before Studio autosaves the change as a JSON Patch."
+    },
+    {
+      "key": "studio.autosaveReplays",
+      "unit": "count",
+      "default": 3,
+      "max": 10,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-004"
+      ],
+      "description": "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."
+    },
+    {
+      "key": "studio.changeSetDocuments",
+      "unit": "count",
+      "default": 500,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-055",
+        "STU-070"
+      ],
+      "description": "Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links)."
+    },
+    {
+      "key": "studio.clipboardBytes",
+      "unit": "bytes",
+      "default": 4194304,
+      "max": 33554432,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-067"
+      ],
+      "description": "Size of one Studio clipboard envelope; a larger copy is refused."
+    },
+    {
+      "key": "studio.customFrameMaxDensity",
+      "unit": "count",
+      "default": 4,
+      "max": 4,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-057"
+      ],
+      "description": "Largest pixel density of a custom device frame (D40); the smallest is 1."
+    },
+    {
+      "key": "studio.customFrameMaxPixels",
+      "unit": "count",
+      "default": 4096,
+      "max": 8192,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-057"
+      ],
+      "description": "Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused."
+    },
+    {
+      "key": "studio.eventsStreamBufferEvents",
+      "unit": "count",
+      "default": 1000,
+      "max": 10000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-075"
+      ],
+      "description": "Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state."
+    },
+    {
+      "key": "studio.favouriteApps",
+      "unit": "count",
+      "default": 100,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-014"
+      ],
+      "description": "Apps one user may mark as favourites in an organisation's Studio preferences."
+    },
+    {
+      "key": "studio.lockIdleReleaseMinutes",
+      "unit": "count",
+      "default": 10,
+      "max": 120,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-040"
+      ],
+      "description": "Minutes without an edit after which Studio releases an editing lock it holds."
+    },
+    {
+      "key": "studio.lockTakeoverIdleMinutes",
+      "unit": "count",
+      "default": 5,
+      "max": 60,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "SRV-041"
+      ],
+      "description": "Minutes the lock holder must have made no edit before another user may take the lock over; a lapsed lease allows it at once."
+    },
+    {
+      "key": "studio.pinnedItems",
+      "unit": "count",
+      "default": 50,
+      "max": 500,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-014"
+      ],
+      "description": "Studio paths one user may pin in an organisation's Studio preferences."
+    },
+    {
+      "key": "studio.preferencesBytes",
+      "unit": "bytes",
+      "default": 65536,
+      "max": 1048576,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-014"
+      ],
+      "description": "Bytes of one user's stored Studio preferences in an organisation, as JSON."
+    },
+    {
+      "key": "studio.thumbnailBytes",
+      "unit": "bytes",
+      "default": 262144,
+      "max": 2097152,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-021"
+      ],
+      "description": "Size of one canvas or screen thumbnail Studio uploads."
+    },
+    {
+      "key": "studio.undoDepth",
+      "unit": "count",
+      "default": 200,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server",
+        "studio"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-069"
+      ],
+      "description": "Undo steps kept per editor session and plugin."
+    },
+    {
+      "key": "studio.userEventsTTLMinutes",
+      "unit": "count",
+      "default": 1440,
+      "max": 10080,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "STU-075"
+      ],
+      "description": "Minutes a person's Studio events log (inbox unread count) is kept after its last event, so a tab that was away that long reloads its state."
+    },
+    {
       "key": "sync.backgroundIntervalMinutes",
       "unit": "count",
       "default": 360,
@@ -3324,6 +4358,25 @@
         "ANL-011"
       ],
       "description": "Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files."
+    },
+    {
+      "key": "test.stepsPerRun",
+      "unit": "count",
+      "default": 5000,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "TST-002"
+      ],
+      "description": "Scenarios and steps one reported Plux Test run may contain."
     },
     {
       "key": "translation.importSize",

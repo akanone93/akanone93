@@ -74,8 +74,11 @@ type Result struct {
 	// trusted.
 	SampleRatio     stats.SampleRatioResult
 	SampleRatioCode plxerr.Code
-	Primary         MetricResult
-	Guardrails      []MetricResult
+	// Primary is the lead primary metric; Primaries are all of them, the
+	// lead first.
+	Primary    MetricResult
+	Primaries  []MetricResult
+	Guardrails []MetricResult
 }
 
 // Analyse compares each variant of an experiment with its control on the
@@ -99,7 +102,8 @@ func (s *Service) Analyse(ctx context.Context, p auth.Principal, id string) (Res
 	if !exp.StoppedAt.IsZero() {
 		until = exp.StoppedAt
 	}
-	primary, err := s.observe(ctx, p, exp, exp.Definition.PrimaryMetric, until)
+	metrics := primaryMetrics(exp.Definition)
+	primary, err := s.observe(ctx, p, exp, metrics[0], until)
 	if err != nil {
 		return Result{}, err
 	}
@@ -114,8 +118,20 @@ func (s *Service) Analyse(ctx context.Context, p auth.Principal, id string) (Res
 	if res.SampleRatio.Mismatch {
 		res.SampleRatioCode = plxerr.SampleRatioMismatch
 	}
-	if res.Primary, err = compareMetric(exp, exp.Definition.PrimaryMetric, primary, false); err != nil {
+	if res.Primary, err = compareMetric(exp, metrics[0], primary, false); err != nil {
 		return Result{}, err
+	}
+	res.Primaries = []MetricResult{res.Primary}
+	for _, m := range metrics[1:] {
+		moments, err := s.observe(ctx, p, exp, m, until)
+		if err != nil {
+			return Result{}, err
+		}
+		r, err := compareMetric(exp, m, moments, false)
+		if err != nil {
+			return Result{}, err
+		}
+		res.Primaries = append(res.Primaries, r)
 	}
 	for _, m := range exp.Definition.GuardrailMetrics {
 		moments, err := s.observe(ctx, p, exp, m, until)

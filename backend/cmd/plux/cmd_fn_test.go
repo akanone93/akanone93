@@ -102,8 +102,11 @@ func (*fakeFunctions) ListVersions(_ context.Context, r *connect.Request[pluxv1.
 	at := timestamppb.New(time.Date(2026, 10, 14, 8, 0, 0, 0, time.UTC))
 	if r.Msg.GetPage().GetPageToken() == "" {
 		return connect.NewResponse(&pluxv1.ListVersionsResponse{
-			Versions: []*pluxv1.FunctionVersion{{Version: 2, Placement: "server", ModuleSha256: strings.Repeat("cd", 32), TestsPassed: true, CreatedAt: at}},
-			Page:     &pluxv1.PageResult{NextPageToken: "more"},
+			Versions: []*pluxv1.FunctionVersion{{
+				Version: 2, Placement: "server", ModuleSha256: strings.Repeat("cd", 32), TestsPassed: true, CreatedAt: at,
+				Assurance: "hardware", SourceId: "src-2", Capabilities: &pluxv1.FunctionCapabilities{Http: []string{"api.example.com"}, Kv: true, Secrets: []string{"key"}},
+			}},
+			Page: &pluxv1.PageResult{NextPageToken: "more"},
 		}), nil
 	}
 	return connect.NewResponse(&pluxv1.ListVersionsResponse{
@@ -400,14 +403,14 @@ func TestFnAliasAndVersions_FN_006(t *testing.T) { //nolint:paralleltest // the 
 	if code := r.run("alias", "bank.fee", "prod"); code != exitUsage {
 		t.Errorf("missing argument: %d", code)
 	}
-	want := `VERSION  PLACEMENT  MODULE        TESTS   ALIASES      CREATED
-2        server     cdcdcdcdcdcd  passed  prod,stable  2026-10-14T08:00:00Z
-1        server     efefefefefef  passed               2026-10-14T08:00:00Z
+	want := `VERSION  PLACEMENT  MODULE        TESTS   ASSURANCE  CAPABILITIES         ALIASES      CREATED
+2        server     cdcdcdcdcdcd  passed  hardware   http:1,kv,secrets:1  prod,stable  2026-10-14T08:00:00Z
+1        server     efefefefefef  passed  default    none                              2026-10-14T08:00:00Z
 `
 	if code := r.run("versions", "bank.fee"); code != exitOK || r.out.String() != want {
 		t.Errorf("versions: %d\n%s", code, r.out.String())
 	}
-	if code := r.run("versions", "bank.fee", "--json"); code != exitOK || !strings.Contains(r.out.String(), `"versions"`) {
+	if code := r.run("versions", "bank.fee", "--json"); code != exitOK || !strings.Contains(r.out.String(), `"versions"`) || !strings.Contains(r.out.String(), `"source_id": "src-2"`) {
 		t.Errorf("versions --json: %d %s", code, r.out.String())
 	}
 }

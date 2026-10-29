@@ -1,0 +1,34 @@
+{
+  "name": "material-calendar-date-picker",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "cal",
+            "type": "CalendarDatePicker",
+            "props": {
+              "initialDate": "2026-01-15",
+              "firstDate": "2020-01-01",
+              "lastDate": "2030-12-31"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

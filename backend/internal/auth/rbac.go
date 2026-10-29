@@ -58,6 +58,15 @@ const (
 	// GoldensApprove approves a golden-image change (ADR-0069). It
 	// requires a second factor.
 	GoldensApprove Permission = "goldens.approve"
+	// LibraryManage edits the organisation's shared templates and components
+	// that someone else made (ADR-0098).
+	LibraryManage Permission = "library.manage"
+	// LibraryPublish makes a template or component public to the whole
+	// installation (ADR-0098, STU-081).
+	LibraryPublish Permission = "library.publish"
+	// AnalyticsManage creates, changes and deletes funnel definitions
+	// (ANL-020).
+	AnalyticsManage Permission = "analytics.manage"
 )
 
 // allPermissions is every permission of the catalogue, sorted.

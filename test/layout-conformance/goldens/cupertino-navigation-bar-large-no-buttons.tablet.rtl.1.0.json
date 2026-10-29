@@ -1,0 +1,40 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "cupertino-navigation-bar-large-no-buttons",
+  "frame": {
+    "width": 800.0,
+    "height": 1280.0,
+    "devicePixelRatio": 2.0
+  },
+  "locale": "ar",
+  "textScale": 1.0,
+  "rects": {
+    "align": [
+      0.0,
+      0.0,
+      800.0,
+      1280.0
+    ],
+    "bar": [
+      0.0,
+      0.0,
+      800.0,
+      96.0
+    ],
+    "large-text": [
+      0.0,
+      42.0,
+      784.0,
+      46.0
+    ],
+    "nav-large": [
+      0.0,
+      42.0,
+      784.0,
+      46.0
+    ]
+  },
+  "baselines": {
+    "large-text": 36.34600067138672
+  }
+}

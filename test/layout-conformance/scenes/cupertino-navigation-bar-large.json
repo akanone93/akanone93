@@ -1,0 +1,84 @@
+{
+  "name": "cupertino-navigation-bar-large",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "bar",
+        "type": "CupertinoNavigationBar",
+        "props": {
+          "safeTop": 47
+        },
+        "children": [
+          {
+            "id": "nav-leading",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "leading-text",
+                "type": "Text",
+                "props": {
+                  "text": "Back",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "nav-trailing",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "trailing-text",
+                "type": "Text",
+                "props": {
+                  "text": "Edit",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "nav-large",
+            "type": "CupertinoNavSlot",
+            "props": {
+              "slot": "largeTitle"
+            },
+            "children": [
+              {
+                "id": "large-text",
+                "type": "Text",
+                "props": {
+                  "text": "Settings",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 34
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "layer2-secure-text-field",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "SecureTextField",
+    "props": { "label": "Password", "obscure": true }
+  }
+}

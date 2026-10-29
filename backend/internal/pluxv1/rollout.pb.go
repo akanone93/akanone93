@@ -1283,6 +1283,210 @@ func (x *AbortRolloutResponse) GetRollout() *Rollout {
 	return nil
 }
 
+type AdvanceRolloutRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvanceRolloutRequest) Reset() {
+	*x = AdvanceRolloutRequest{}
+	mi := &file_plux_v1_rollout_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvanceRolloutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvanceRolloutRequest) ProtoMessage() {}
+
+func (x *AdvanceRolloutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_rollout_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvanceRolloutRequest.ProtoReflect.Descriptor instead.
+func (*AdvanceRolloutRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_rollout_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *AdvanceRolloutRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type AdvanceRolloutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Rollout       *Rollout               `protobuf:"bytes,1,opt,name=rollout,proto3" json:"rollout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvanceRolloutResponse) Reset() {
+	*x = AdvanceRolloutResponse{}
+	mi := &file_plux_v1_rollout_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvanceRolloutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvanceRolloutResponse) ProtoMessage() {}
+
+func (x *AdvanceRolloutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_rollout_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvanceRolloutResponse.ProtoReflect.Descriptor instead.
+func (*AdvanceRolloutResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_rollout_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *AdvanceRolloutResponse) GetRollout() *Rollout {
+	if x != nil {
+		return x.Rollout
+	}
+	return nil
+}
+
+type RescheduleRolloutRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// start_at is the new start; it may differ from the current one only while
+	// the rollout is scheduled. Empty keeps it.
+	StartAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_at,json=startAt,proto3" json:"start_at,omitempty"`
+	// end_at is the new end; empty keeps it unless clear_end_at is set.
+	EndAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_at,json=endAt,proto3" json:"end_at,omitempty"`
+	// clear_end_at removes the end, so the rollout lasts until it completes.
+	ClearEndAt    bool `protobuf:"varint,4,opt,name=clear_end_at,json=clearEndAt,proto3" json:"clear_end_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RescheduleRolloutRequest) Reset() {
+	*x = RescheduleRolloutRequest{}
+	mi := &file_plux_v1_rollout_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RescheduleRolloutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RescheduleRolloutRequest) ProtoMessage() {}
+
+func (x *RescheduleRolloutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_rollout_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RescheduleRolloutRequest.ProtoReflect.Descriptor instead.
+func (*RescheduleRolloutRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_rollout_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *RescheduleRolloutRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RescheduleRolloutRequest) GetStartAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartAt
+	}
+	return nil
+}
+
+func (x *RescheduleRolloutRequest) GetEndAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndAt
+	}
+	return nil
+}
+
+func (x *RescheduleRolloutRequest) GetClearEndAt() bool {
+	if x != nil {
+		return x.ClearEndAt
+	}
+	return false
+}
+
+type RescheduleRolloutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Rollout       *Rollout               `protobuf:"bytes,1,opt,name=rollout,proto3" json:"rollout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RescheduleRolloutResponse) Reset() {
+	*x = RescheduleRolloutResponse{}
+	mi := &file_plux_v1_rollout_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RescheduleRolloutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RescheduleRolloutResponse) ProtoMessage() {}
+
+func (x *RescheduleRolloutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_rollout_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RescheduleRolloutResponse.ProtoReflect.Descriptor instead.
+func (*RescheduleRolloutResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_rollout_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *RescheduleRolloutResponse) GetRollout() *Rollout {
+	if x != nil {
+		return x.Rollout
+	}
+	return nil
+}
+
 var File_plux_v1_rollout_proto protoreflect.FileDescriptor
 
 const file_plux_v1_rollout_proto_rawDesc = "" +
@@ -1377,6 +1581,18 @@ const file_plux_v1_rollout_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\"B\n" +
 	"\x14AbortRolloutResponse\x12*\n" +
+	"\arollout\x18\x01 \x01(\v2\x10.plux.v1.RolloutR\arollout\"'\n" +
+	"\x15AdvanceRolloutRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"D\n" +
+	"\x16AdvanceRolloutResponse\x12*\n" +
+	"\arollout\x18\x01 \x01(\v2\x10.plux.v1.RolloutR\arollout\"\xb6\x01\n" +
+	"\x18RescheduleRolloutRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x125\n" +
+	"\bstart_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\astartAt\x121\n" +
+	"\x06end_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05endAt\x12 \n" +
+	"\fclear_end_at\x18\x04 \x01(\bR\n" +
+	"clearEndAt\"G\n" +
+	"\x19RescheduleRolloutResponse\x12*\n" +
 	"\arollout\x18\x01 \x01(\v2\x10.plux.v1.RolloutR\arollout*\x89\x02\n" +
 	"\fRolloutState\x12\x1d\n" +
 	"\x19ROLLOUT_STATE_UNSPECIFIED\x10\x00\x12\x1b\n" +
@@ -1391,7 +1607,7 @@ const file_plux_v1_rollout_proto_rawDesc = "" +
 	"\fHealthAction\x12\x1d\n" +
 	"\x19HEALTH_ACTION_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13HEALTH_ACTION_PAUSE\x10\x01\x12\x1a\n" +
-	"\x16HEALTH_ACTION_ROLLBACK\x10\x022\xea\x03\n" +
+	"\x16HEALTH_ACTION_ROLLBACK\x10\x022\x9d\x05\n" +
 	"\x0eRolloutService\x12P\n" +
 	"\rCreateRollout\x12\x1d.plux.v1.CreateRolloutRequest\x1a\x1e.plux.v1.CreateRolloutResponse\"\x00\x12G\n" +
 	"\n" +
@@ -1399,7 +1615,9 @@ const file_plux_v1_rollout_proto_rawDesc = "" +
 	"\fListRollouts\x12\x1c.plux.v1.ListRolloutsRequest\x1a\x1d.plux.v1.ListRolloutsResponse\"\x00\x12M\n" +
 	"\fPauseRollout\x12\x1c.plux.v1.PauseRolloutRequest\x1a\x1d.plux.v1.PauseRolloutResponse\"\x00\x12P\n" +
 	"\rResumeRollout\x12\x1d.plux.v1.ResumeRolloutRequest\x1a\x1e.plux.v1.ResumeRolloutResponse\"\x00\x12M\n" +
-	"\fAbortRollout\x12\x1c.plux.v1.AbortRolloutRequest\x1a\x1d.plux.v1.AbortRolloutResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\fAbortRollout\x12\x1c.plux.v1.AbortRolloutRequest\x1a\x1d.plux.v1.AbortRolloutResponse\"\x00\x12S\n" +
+	"\x0eAdvanceRollout\x12\x1e.plux.v1.AdvanceRolloutRequest\x1a\x1f.plux.v1.AdvanceRolloutResponse\"\x00\x12\\\n" +
+	"\x11RescheduleRollout\x12!.plux.v1.RescheduleRolloutRequest\x1a\".plux.v1.RescheduleRolloutResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_rollout_proto_rawDescOnce sync.Once
@@ -1414,70 +1632,82 @@ func file_plux_v1_rollout_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_rollout_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_plux_v1_rollout_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_plux_v1_rollout_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_plux_v1_rollout_proto_goTypes = []any{
-	(RolloutState)(0),             // 0: plux.v1.RolloutState
-	(HealthAction)(0),             // 1: plux.v1.HealthAction
-	(*Stage)(nil),                 // 2: plux.v1.Stage
-	(*CustomMetricGate)(nil),      // 3: plux.v1.CustomMetricGate
-	(*HealthGate)(nil),            // 4: plux.v1.HealthGate
-	(*Rollout)(nil),               // 5: plux.v1.Rollout
-	(*CreateRolloutRequest)(nil),  // 6: plux.v1.CreateRolloutRequest
-	(*CreateRolloutResponse)(nil), // 7: plux.v1.CreateRolloutResponse
-	(*GetRolloutRequest)(nil),     // 8: plux.v1.GetRolloutRequest
-	(*GetRolloutResponse)(nil),    // 9: plux.v1.GetRolloutResponse
-	(*ListRolloutsRequest)(nil),   // 10: plux.v1.ListRolloutsRequest
-	(*ListRolloutsResponse)(nil),  // 11: plux.v1.ListRolloutsResponse
-	(*PauseRolloutRequest)(nil),   // 12: plux.v1.PauseRolloutRequest
-	(*PauseRolloutResponse)(nil),  // 13: plux.v1.PauseRolloutResponse
-	(*ResumeRolloutRequest)(nil),  // 14: plux.v1.ResumeRolloutRequest
-	(*ResumeRolloutResponse)(nil), // 15: plux.v1.ResumeRolloutResponse
-	(*AbortRolloutRequest)(nil),   // 16: plux.v1.AbortRolloutRequest
-	(*AbortRolloutResponse)(nil),  // 17: plux.v1.AbortRolloutResponse
-	(*timestamppb.Timestamp)(nil), // 18: google.protobuf.Timestamp
-	(*Page)(nil),                  // 19: plux.v1.Page
-	(*PageResult)(nil),            // 20: plux.v1.PageResult
+	(RolloutState)(0),                 // 0: plux.v1.RolloutState
+	(HealthAction)(0),                 // 1: plux.v1.HealthAction
+	(*Stage)(nil),                     // 2: plux.v1.Stage
+	(*CustomMetricGate)(nil),          // 3: plux.v1.CustomMetricGate
+	(*HealthGate)(nil),                // 4: plux.v1.HealthGate
+	(*Rollout)(nil),                   // 5: plux.v1.Rollout
+	(*CreateRolloutRequest)(nil),      // 6: plux.v1.CreateRolloutRequest
+	(*CreateRolloutResponse)(nil),     // 7: plux.v1.CreateRolloutResponse
+	(*GetRolloutRequest)(nil),         // 8: plux.v1.GetRolloutRequest
+	(*GetRolloutResponse)(nil),        // 9: plux.v1.GetRolloutResponse
+	(*ListRolloutsRequest)(nil),       // 10: plux.v1.ListRolloutsRequest
+	(*ListRolloutsResponse)(nil),      // 11: plux.v1.ListRolloutsResponse
+	(*PauseRolloutRequest)(nil),       // 12: plux.v1.PauseRolloutRequest
+	(*PauseRolloutResponse)(nil),      // 13: plux.v1.PauseRolloutResponse
+	(*ResumeRolloutRequest)(nil),      // 14: plux.v1.ResumeRolloutRequest
+	(*ResumeRolloutResponse)(nil),     // 15: plux.v1.ResumeRolloutResponse
+	(*AbortRolloutRequest)(nil),       // 16: plux.v1.AbortRolloutRequest
+	(*AbortRolloutResponse)(nil),      // 17: plux.v1.AbortRolloutResponse
+	(*AdvanceRolloutRequest)(nil),     // 18: plux.v1.AdvanceRolloutRequest
+	(*AdvanceRolloutResponse)(nil),    // 19: plux.v1.AdvanceRolloutResponse
+	(*RescheduleRolloutRequest)(nil),  // 20: plux.v1.RescheduleRolloutRequest
+	(*RescheduleRolloutResponse)(nil), // 21: plux.v1.RescheduleRolloutResponse
+	(*timestamppb.Timestamp)(nil),     // 22: google.protobuf.Timestamp
+	(*Page)(nil),                      // 23: plux.v1.Page
+	(*PageResult)(nil),                // 24: plux.v1.PageResult
 }
 var file_plux_v1_rollout_proto_depIdxs = []int32{
 	3,  // 0: plux.v1.HealthGate.custom:type_name -> plux.v1.CustomMetricGate
 	1,  // 1: plux.v1.HealthGate.action:type_name -> plux.v1.HealthAction
 	0,  // 2: plux.v1.Rollout.state:type_name -> plux.v1.RolloutState
 	2,  // 3: plux.v1.Rollout.stages:type_name -> plux.v1.Stage
-	18, // 4: plux.v1.Rollout.start_at:type_name -> google.protobuf.Timestamp
-	18, // 5: plux.v1.Rollout.end_at:type_name -> google.protobuf.Timestamp
+	22, // 4: plux.v1.Rollout.start_at:type_name -> google.protobuf.Timestamp
+	22, // 5: plux.v1.Rollout.end_at:type_name -> google.protobuf.Timestamp
 	4,  // 6: plux.v1.Rollout.health:type_name -> plux.v1.HealthGate
-	18, // 7: plux.v1.Rollout.last_check_at:type_name -> google.protobuf.Timestamp
-	18, // 8: plux.v1.Rollout.created_at:type_name -> google.protobuf.Timestamp
-	18, // 9: plux.v1.Rollout.updated_at:type_name -> google.protobuf.Timestamp
+	22, // 7: plux.v1.Rollout.last_check_at:type_name -> google.protobuf.Timestamp
+	22, // 8: plux.v1.Rollout.created_at:type_name -> google.protobuf.Timestamp
+	22, // 9: plux.v1.Rollout.updated_at:type_name -> google.protobuf.Timestamp
 	2,  // 10: plux.v1.CreateRolloutRequest.stages:type_name -> plux.v1.Stage
-	18, // 11: plux.v1.CreateRolloutRequest.start_at:type_name -> google.protobuf.Timestamp
-	18, // 12: plux.v1.CreateRolloutRequest.end_at:type_name -> google.protobuf.Timestamp
+	22, // 11: plux.v1.CreateRolloutRequest.start_at:type_name -> google.protobuf.Timestamp
+	22, // 12: plux.v1.CreateRolloutRequest.end_at:type_name -> google.protobuf.Timestamp
 	4,  // 13: plux.v1.CreateRolloutRequest.health:type_name -> plux.v1.HealthGate
 	5,  // 14: plux.v1.CreateRolloutResponse.rollout:type_name -> plux.v1.Rollout
 	5,  // 15: plux.v1.GetRolloutResponse.rollout:type_name -> plux.v1.Rollout
-	19, // 16: plux.v1.ListRolloutsRequest.page:type_name -> plux.v1.Page
+	23, // 16: plux.v1.ListRolloutsRequest.page:type_name -> plux.v1.Page
 	5,  // 17: plux.v1.ListRolloutsResponse.rollouts:type_name -> plux.v1.Rollout
-	20, // 18: plux.v1.ListRolloutsResponse.page:type_name -> plux.v1.PageResult
+	24, // 18: plux.v1.ListRolloutsResponse.page:type_name -> plux.v1.PageResult
 	5,  // 19: plux.v1.PauseRolloutResponse.rollout:type_name -> plux.v1.Rollout
 	5,  // 20: plux.v1.ResumeRolloutResponse.rollout:type_name -> plux.v1.Rollout
 	5,  // 21: plux.v1.AbortRolloutResponse.rollout:type_name -> plux.v1.Rollout
-	6,  // 22: plux.v1.RolloutService.CreateRollout:input_type -> plux.v1.CreateRolloutRequest
-	8,  // 23: plux.v1.RolloutService.GetRollout:input_type -> plux.v1.GetRolloutRequest
-	10, // 24: plux.v1.RolloutService.ListRollouts:input_type -> plux.v1.ListRolloutsRequest
-	12, // 25: plux.v1.RolloutService.PauseRollout:input_type -> plux.v1.PauseRolloutRequest
-	14, // 26: plux.v1.RolloutService.ResumeRollout:input_type -> plux.v1.ResumeRolloutRequest
-	16, // 27: plux.v1.RolloutService.AbortRollout:input_type -> plux.v1.AbortRolloutRequest
-	7,  // 28: plux.v1.RolloutService.CreateRollout:output_type -> plux.v1.CreateRolloutResponse
-	9,  // 29: plux.v1.RolloutService.GetRollout:output_type -> plux.v1.GetRolloutResponse
-	11, // 30: plux.v1.RolloutService.ListRollouts:output_type -> plux.v1.ListRolloutsResponse
-	13, // 31: plux.v1.RolloutService.PauseRollout:output_type -> plux.v1.PauseRolloutResponse
-	15, // 32: plux.v1.RolloutService.ResumeRollout:output_type -> plux.v1.ResumeRolloutResponse
-	17, // 33: plux.v1.RolloutService.AbortRollout:output_type -> plux.v1.AbortRolloutResponse
-	28, // [28:34] is the sub-list for method output_type
-	22, // [22:28] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	5,  // 22: plux.v1.AdvanceRolloutResponse.rollout:type_name -> plux.v1.Rollout
+	22, // 23: plux.v1.RescheduleRolloutRequest.start_at:type_name -> google.protobuf.Timestamp
+	22, // 24: plux.v1.RescheduleRolloutRequest.end_at:type_name -> google.protobuf.Timestamp
+	5,  // 25: plux.v1.RescheduleRolloutResponse.rollout:type_name -> plux.v1.Rollout
+	6,  // 26: plux.v1.RolloutService.CreateRollout:input_type -> plux.v1.CreateRolloutRequest
+	8,  // 27: plux.v1.RolloutService.GetRollout:input_type -> plux.v1.GetRolloutRequest
+	10, // 28: plux.v1.RolloutService.ListRollouts:input_type -> plux.v1.ListRolloutsRequest
+	12, // 29: plux.v1.RolloutService.PauseRollout:input_type -> plux.v1.PauseRolloutRequest
+	14, // 30: plux.v1.RolloutService.ResumeRollout:input_type -> plux.v1.ResumeRolloutRequest
+	16, // 31: plux.v1.RolloutService.AbortRollout:input_type -> plux.v1.AbortRolloutRequest
+	18, // 32: plux.v1.RolloutService.AdvanceRollout:input_type -> plux.v1.AdvanceRolloutRequest
+	20, // 33: plux.v1.RolloutService.RescheduleRollout:input_type -> plux.v1.RescheduleRolloutRequest
+	7,  // 34: plux.v1.RolloutService.CreateRollout:output_type -> plux.v1.CreateRolloutResponse
+	9,  // 35: plux.v1.RolloutService.GetRollout:output_type -> plux.v1.GetRolloutResponse
+	11, // 36: plux.v1.RolloutService.ListRollouts:output_type -> plux.v1.ListRolloutsResponse
+	13, // 37: plux.v1.RolloutService.PauseRollout:output_type -> plux.v1.PauseRolloutResponse
+	15, // 38: plux.v1.RolloutService.ResumeRollout:output_type -> plux.v1.ResumeRolloutResponse
+	17, // 39: plux.v1.RolloutService.AbortRollout:output_type -> plux.v1.AbortRolloutResponse
+	19, // 40: plux.v1.RolloutService.AdvanceRollout:output_type -> plux.v1.AdvanceRolloutResponse
+	21, // 41: plux.v1.RolloutService.RescheduleRollout:output_type -> plux.v1.RescheduleRolloutResponse
+	34, // [34:42] is the sub-list for method output_type
+	26, // [26:34] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_rollout_proto_init() }
@@ -1492,7 +1722,7 @@ func file_plux_v1_rollout_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_rollout_proto_rawDesc), len(file_plux_v1_rollout_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   16,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

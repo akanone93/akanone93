@@ -14,6 +14,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
@@ -23,6 +24,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
@@ -32,9 +34,9 @@ const HooksRoute = "POST /hooks/{app}/{function}"
 // buildNotify assembles the notification and webhook service (SRV-062,
 // SRV-063). Its HTTP client and SMTP dialer refuse private destinations
 // unless the installation allows insecure development settings.
-func buildNotify(cfg *config.Config, db *storage.DB, crypter signing.Crypter, gen interface{ New() (string, error) }, log *audit.Log, ten *tenancy.Service, work WorkDeps) (*notify.Service, error) {
+func buildNotify(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, crypter signing.Crypter, gen interface{ New() (string, error) }, log *audit.Log, ten *tenancy.Service, work WorkDeps) (*notify.Service, error) {
 	svc, err := notify.New(notify.Options{
-		DB: db, Audit: log, Crypter: crypter, IDs: gen,
+		DB: db, Audit: log, Crypter: crypter, IDs: gen, Events: studioevents.NewPublisher(shared, set),
 		Policy:        httpx.Policy{AllowLoopback: cfg.Notifications.AllowInsecure},
 		StudioURL:     cfg.Server.PublicBaseURL,
 		AllowInsecure: cfg.Notifications.AllowInsecure,
@@ -115,6 +117,12 @@ func buildScheduler(svc *Services, log *slog.Logger, db *storage.DB) (*scheduler
 				_, err := svc.Functions.PurgeHooks(ctx, org)
 				return err //nolint:wrapcheck // a domain error
 			}})
+	}
+	if svc.Replays != nil {
+		jobs = append(jobs, scheduler.JobFunc{Label: "session replay retention", F: func(ctx context.Context, org string) error {
+			_, err := svc.Replays.Purge(ctx, org)
+			return err //nolint:wrapcheck // a domain error
+		}})
 	}
 	if svc.Rollouts != nil {
 		jobs = append(jobs, scheduler.JobFunc{Label: "rollouts", F: svc.Rollouts.Job()})

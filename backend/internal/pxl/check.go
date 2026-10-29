@@ -81,6 +81,9 @@ type checker struct {
 	// nonNull holds the paths a guard has checked are not null where the
 	// expression being checked runs (narrowing, ADR-0009).
 	nonNull map[string]bool
+	// trace, when set, records what the language service needs; the
+	// compiler leaves it nil.
+	trace *trace
 }
 
 // maxLocals is the number of local slots an operand byte addresses.
@@ -98,8 +101,11 @@ func (c *checker) check(n *node) *ir {
 		if p, ok := syntaxPath(n); ok && c.nonNull[p] {
 			narrowed := *x
 			narrowed.typ = x.typ.nonNull()
-			return &narrowed
+			x = &narrowed
 		}
+	}
+	if c.trace != nil {
+		c.trace.note(c, n, x)
 	}
 	return x
 }

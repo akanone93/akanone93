@@ -1,0 +1,135 @@
+{
+  "name": "viewport-scrolled",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "vp",
+            "type": "Viewport",
+            "props": {
+              "offset": 150
+            },
+            "children": [
+              {
+                "id": "hdr",
+                "type": "SliverToBoxAdapter",
+                "props": {},
+                "children": [
+                  {
+                    "id": "hdr-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 70
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "list",
+                "type": "SliverList",
+                "props": {},
+                "children": [
+                  {
+                    "id": "v0",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 60
+                    }
+                  },
+                  {
+                    "id": "v1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 100
+                    }
+                  },
+                  {
+                    "id": "v2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 40
+                    }
+                  },
+                  {
+                    "id": "v3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 80
+                    }
+                  },
+                  {
+                    "id": "v4",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 120
+                    }
+                  },
+                  {
+                    "id": "v5",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 50
+                    }
+                  },
+                  {
+                    "id": "v6",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 90
+                    }
+                  },
+                  {
+                    "id": "v7",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 70
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "ftr",
+                "type": "SliverToBoxAdapter",
+                "props": {},
+                "children": [
+                  {
+                    "id": "ftr-box",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 50
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

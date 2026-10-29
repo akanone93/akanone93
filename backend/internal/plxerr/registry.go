@@ -382,6 +382,12 @@ const (
 	UpdateMetadataInvalid        Code = 6022
 	OutboundRequestBlocked       Code = 6030
 	AssetRejected                Code = 6031
+	AssetUploadNotFound          Code = 6032
+	AssetUploadOutOfOrder        Code = 6033
+	AssetUploadChunkTooLarge     Code = 6034
+	AssetUploadTooLarge          Code = 6035
+	AssetUploadHashMismatch      Code = 6036
+	AssetUploadSizeMismatch      Code = 6037
 	SecurityConfigHashMismatch   Code = 6040
 	SecurityConfigLoosensPreset  Code = 6041
 	SecurityConfigOutOfBounds    Code = 6042
@@ -455,6 +461,10 @@ const (
 	PluginNotPublished           Code = 8052
 	AssetsNotReady               Code = 8053
 	HostBuildIncompatible        Code = 8054
+	ReleaseRequestState          Code = 8060
+	ReleaseRequestEnded          Code = 8061
+	VisualDiffRequired           Code = 8062
+	LibraryPublicScanFailed      Code = 8063
 	InternalServerError          Code = 8090
 	UpstreamUnavailable          Code = 8091
 	TranslationStateForbidden    Code = 8092

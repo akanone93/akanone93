@@ -32,6 +32,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/approval"
+	"github.com/nightCode42/plux3/backend/internal/archive"
 	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
@@ -39,6 +40,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/codegen"
 	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
@@ -54,14 +56,18 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/library"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/replay"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
 	"github.com/nightCode42/plux3/backend/internal/schema"
@@ -69,11 +75,14 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
+	"github.com/nightCode42/plux3/backend/internal/shellupdate"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
+	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
+	"github.com/nightCode42/plux3/backend/internal/testrun"
 )
 
 // Services are the domain services of this phase, built once per
@@ -88,6 +97,8 @@ type Services struct {
 	Releases  *release.Service
 	Devices   *device.Service
 	Events    *telemetry.Service
+	// Replays stores structural session replays (ANL-050).
+	Replays *replay.Service
 	// Analytics queries rollups, manages retention and the OTLP export, and
 	// does the worker's analytics duties (ANL-010, ANL-011).
 	Analytics *analytics.Service
@@ -149,6 +160,18 @@ type Services struct {
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
+	// Archives and Shells hold the .plux archive and the shell-update jobs
+	// of AppProjectService (STU-023, GEN-004).
+	Archives *archive.Service
+	Shells   *shellupdate.Service
+	// TestRuns holds the Plux Test runs reported by the CLI and CI (TST-002).
+	TestRuns *testrun.Service
+	// Library holds the templates and components authored in Studio
+	// (STU-080).
+	Library *library.Service
+	// ReleaseRequests holds release requests and their visual-diff jobs
+	// (STU-100); nil where there are no releases.
+	ReleaseRequests *releasereq.Service
 	// Reconstruction reconstructs what a device ran and showed (SEC-142); nil
 	// where the installation has no object store.
 	Reconstruction *reconstruct.Service
@@ -168,6 +191,12 @@ type Services struct {
 	DevSessions *devsession.Service
 	// Search is the full-text search (SRV-061).
 	Search *search.Service
+	// StudioEvents is the resumable Studio events stream (STU-075); nil
+	// where the shared cache keeps no logs or carries no notices.
+	StudioEvents *studioevents.Service
+	// Preferences keeps each user's Studio preferences per organisation
+	// (STU-014, STU-058).
+	Preferences *preferences.Service
 	// GitExport exports apps to Git on publish (GOV-011).
 	GitExport *gitsync.Service
 	// KMS checks the key management service, when the signing backend
@@ -188,7 +217,10 @@ type WorkDeps struct {
 	AnalyticsExporter analytics.Exporter
 	Objects           objects.Store
 	Queue             *JobQueue
-	Codecs            *media.Codecs
+	// Renderer renders visual diffs (O-9); nil in a process that runs no
+	// render jobs. It talks to the render worker, never to the database.
+	Renderer releasereq.Renderer
+	Codecs   *media.Codecs
 	// SVG compiles SVGs; nil where the server has no SVG compiler.
 	SVG    *media.SVGCompiler
 	Signer signing.Signer
@@ -204,6 +236,10 @@ type WorkDeps struct {
 	// Linker links the device functions of a plugin into one module on the
 	// builder role (FN-051); set with Builder.
 	Linker function.Linker
+	// Editor runs the Rust editor's language-server sessions and test runs
+	// on the builder role (FN-033, FN-034); the api role is given one where
+	// builder.address is set. It never holds a signer.
+	Editor function.Editor
 	// FunctionKey is the key reference that signs the statements of
 	// function builds (signing.keys.functionArtifact).
 	FunctionKey string
@@ -314,6 +350,38 @@ type gitQueue struct{ q *JobQueue }
 
 func (g gitQueue) Enqueue(ctx context.Context, tx pgx.Tx, job gitsync.ExportJob) error {
 	return g.q.insert(ctx, tx, job, jobs.QueueExport)
+}
+
+// projectQueue enqueues host-project generation jobs (GEN-001); they share
+// the lane of the Git pushes, which also run long and apart from publishing.
+type projectQueue struct{ q *JobQueue }
+
+func (p projectQueue) Enqueue(ctx context.Context, tx pgx.Tx, job shellupdate.Job) error {
+	return p.q.insert(ctx, tx, job, jobs.QueueExport)
+}
+
+// projectWorker generates host projects (GEN-001).
+type projectWorker struct {
+	river.WorkerDefaults[shellupdate.Job]
+	svc *Services
+}
+
+// Work generates one project.
+func (w *projectWorker) Work(ctx context.Context, job *river.Job[shellupdate.Job]) error {
+	return w.svc.Shells.Work(ctx, job.Args) //nolint:wrapcheck // a domain error
+}
+
+// rootKeys reads an environment's root public keys for a generated project.
+func rootKeys(ctx context.Context, releases *release.Service, org, env string) ([]codegen.RootKey, error) {
+	keys, err := releases.RootKeys(ctx, org, env)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	out := make([]codegen.RootKey, len(keys))
+	for i, k := range keys {
+		out[i] = codegen.RootKey{KeyID: k.KeyID, Algorithm: k.Algorithm, Role: k.Role, PublicKey: k.PublicKey}
+	}
+	return out, nil
 }
 
 // publishQueue enqueues publish jobs (SRV-050).
@@ -526,6 +594,14 @@ func (k *serviceKit) buildFoundation(ctx context.Context, svc *Services) error {
 		return fmt.Errorf("server: %w", err)
 	}
 	svc.Auth, svc.Tenancy, svc.Documents = core.auth, core.tenancy, core.docs
+	if svc.Library, err = library.NewService(library.Options{
+		DB: k.db, Audit: k.log, IDs: k.gen, Instances: svc.Documents,
+		Limits: func(ctx context.Context, tx pgx.Tx, organizationID string) (limits.Set, error) {
+			return svc.Tenancy.Effective(ctx, tx, organizationID, "", "") //nolint:wrapcheck // a domain error
+		},
+	}); err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
 	if svc.Idempotency, svc.Pages, err = buildEdge(ctx, k.db, k.backend, k.set); err != nil {
 		return err
 	}
@@ -551,7 +627,7 @@ func (k *serviceKit) buildSupport(ctx context.Context, svc *Services) error {
 	if k.runnerLink, err = buildRunnerLink(ctx, k.cfg, k.db, k.backend, k.work); err != nil {
 		return err
 	}
-	if svc.Notify, err = buildNotify(k.cfg, k.db, k.backend, k.gen, k.log, svc.Tenancy, k.work); err != nil {
+	if svc.Notify, err = buildNotify(k.cfg, k.db, k.shared, k.set, k.backend, k.gen, k.log, svc.Tenancy, k.work); err != nil {
 		return err
 	}
 	k.approvals.Use(approvalProfiles(svc.SecurityConfig), svc.Notify)
@@ -561,6 +637,10 @@ func (k *serviceKit) buildSupport(ctx context.Context, svc *Services) error {
 	}
 	svc.BreakGlass, svc.Freezes, svc.Reports = governed.breakGlass, governed.freezes, governed.reports
 	svc.Events, svc.Analytics, svc.EventConsumer, err = buildAnalytics(k.cfg, k.db, k.shared, k.set, k.gen, k.log, svc.Tenancy, svc.Notify, k.backend, k.work)
+	if err != nil {
+		return err
+	}
+	svc.Replays, err = buildReplays(k.db, k.set, svc.SecurityConfig)
 	return err
 }
 
@@ -579,7 +659,7 @@ func (k *serviceKit) functionDeps(svc *Services) functionDeps {
 func (k *serviceKit) buildRuntime(ctx context.Context, svc *Services) error {
 	var err error
 	retention := time.Duration(k.cfg.Telemetry.RetentionDays) * 24 * time.Hour
-	svc.Functions, err = buildFunctions(k.db, k.work, k.log, svc.Tenancy, svc.SecurityConfig, k.gen, retention, k.runnerLink, svc.Notify, k.approvals)
+	svc.Functions, err = buildFunctions(k.db, k.work, k.log, svc.Tenancy, svc.SecurityConfig, k.gen, retention, k.runnerLink, svc.Notify, k.approvals, k.shared)
 	if err != nil {
 		return err
 	}
@@ -617,18 +697,47 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 	if err != nil {
 		return fmt.Errorf("server: %w", err)
 	}
+	logs, okLogs := k.shared.(cache.Logs)
+	notices, okNotices := k.shared.(cache.Notifier)
+	if okLogs && okNotices {
+		if svc.StudioEvents, err = studioevents.NewService(studioevents.Options{Logs: logs, Notifier: notices}); err != nil {
+			return fmt.Errorf("server: %w", err)
+		}
+	}
+	svc.Preferences, err = preferences.NewService(preferences.Options{DB: k.db, Tenancy: svc.Tenancy})
+	if err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
 	if svc.Push, err = buildPush(k.cfg, k.db, k.set, k.backend, svc.Tenancy, k.work); err != nil {
 		return err
 	}
 	if k.work.Objects != nil {
 		svc.Goldens = golden.New(golden.Options{DB: k.db, Audit: k.log, Objects: k.work.Objects, IDs: k.gen, Limits: k.set, Approvals: k.approvals})
 	}
+	svc.TestRuns = testrun.New(testrun.Options{DB: k.db, IDs: k.gen, Limits: k.set})
+	if svc.Archives, err = archive.New(archive.Options{
+		DB: k.db, Audit: k.log, Tenancy: svc.Tenancy, Documents: svc.Documents, IDs: k.gen, Limits: k.set,
+	}); err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
+	if svc.Shells, err = shellupdate.New(shellupdate.Options{
+		DB: k.db, Audit: k.log, IDs: k.gen, Limits: k.set, Queue: projectQueue{k.work.Queue}, Objects: k.work.Objects, Endpoint: k.cfg.Server.PublicBaseURL,
+		Keys: func(ctx context.Context, org, env string) ([]codegen.RootKey, error) {
+			return rootKeys(ctx, svc.Releases, org, env)
+		},
+	}); err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
 	svc.Releases, err = buildReleases(k.cfg, k.db, k.set, k.work, releaseDeps{
 		approvals: k.approvals, breakGlass: svc.BreakGlass, freezes: svc.Freezes, goldens: svc.Goldens, published: svc.GitExport, push: svc.Push,
 		ids: k.gen, audit: k.log, tenancy: svc.Tenancy, documents: svc.Documents, devices: svc.Devices, configs: svc.SecurityConfig,
 		crypter: k.backend, gateway: gatewayRegistry(svc.Gateway), functions: svc.Functions,
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	svc.ReleaseRequests = k.buildReleaseRequests(svc)
+	return nil
 }
 
 // buildOperations builds the services that depend on releases: audit
@@ -658,7 +767,7 @@ func (k *serviceKit) buildOperations(_ context.Context, svc *Services) error {
 	if err != nil {
 		return err
 	}
-	svc.DevSessions, err = buildDevSessions(k.cfg, k.db, k.log, k.gen, svc.Tenancy, svc.SecurityConfig, k.tokenSigner, svc.Documents, svc.Releases)
+	svc.DevSessions, err = buildDevSessions(k.cfg, k.db, k.log, k.gen, svc.Tenancy, svc.SecurityConfig, k.tokenSigner, svc.Documents, svc.Releases, k.shared) //nolint:contextcheck // the relay's followers live until DevSessions.Close
 	return err
 }
 
@@ -779,7 +888,7 @@ func buildCore(ctx context.Context, cfg *config.Config, db *storage.DB, shared c
 	}
 	docs, err := document.NewService(document.Options{
 		DB: db, Audit: log, Tenancy: tenancyService, IDs: gen, Limits: set,
-		SnapshotDays: cfg.Retention.SnapshotDays, CompilerVersion: buildinfo.Get().Version,
+		SnapshotDays: cfg.Retention.SnapshotDays, CompilerVersion: buildinfo.Get().Version, Events: studioevents.NewPublisher(shared, set),
 		Objects: work.Objects, Jobs: assetQueue{work.Queue}, Scanner: scanner(cfg), Codecs: work.Codecs, SVG: work.SVG, Approvals: gate,
 	})
 	if err != nil {
@@ -1080,10 +1189,11 @@ func (s *Server) registerStepUp(svc *Services, proofs api.ProofChecker, limiter 
 // leaving out what the build did not provide.
 func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handlers {
 	h := &api.Handlers{
-		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
+		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events, Replays: svc.Replays,
 		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push, Approvals: svc.Approvals,
-		Emergencies: svc.BreakGlass, Freezes: svc.Freezes, Reports: svc.Reports,
+		Limiter: limiter, Limits: s.limits, Edition: s.edition,
+		InstallationState: installationReader{health: s.health, db: s.db, jobs: s.jobs, issuers: s.cfg.Auth.CI.Issuers}, Push: svc.Push, Approvals: svc.Approvals,
+		Emergencies: svc.BreakGlass, Freezes: svc.Freezes, Reports: svc.Reports, Library: svc.Library,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
@@ -1132,6 +1242,7 @@ func coreRegistrations(h *api.Handlers, opts connect.HandlerOption) []func() (st
 		func() (string, http.Handler) { return pluxv1connect.NewDeviceServiceHandler(h.Device(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewTokenServiceHandler(h.Token(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewReplayServiceHandler(h.Replay(), opts) },
 	}
 }
 
@@ -1160,6 +1271,19 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 			return pluxv1connect.NewSearchServiceHandler(h.Search(), opts)
 		})
 	}
+	if svc.StudioEvents != nil {
+		h.StudioStream = svc.StudioEvents
+		h.Authenticator = svc.Auth
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewStudioEventsServiceHandler(h.StudioEvents(), opts)
+		})
+	}
+	if svc.Preferences != nil {
+		h.UserPreferences = svc.Preferences
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewPreferencesServiceHandler(h.Preferences(), opts)
+		})
+	}
 	if svc.GitExport != nil {
 		h.GitExports = svc.GitExport
 		registrations = append(registrations, func() (string, http.Handler) {
@@ -1169,6 +1293,24 @@ func authoringRegistrations(svc *Services, h *api.Handlers, opts connect.Handler
 	if svc.Analytics != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewAnalyticsServiceHandler(h.AnalyticsService(), opts)
+		})
+	}
+	if svc.ReleaseRequests != nil {
+		h.ReleaseRequests = svc.ReleaseRequests
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
+		})
+	}
+	if svc.Archives != nil && svc.Shells != nil {
+		h.Archives, h.Shells = svc.Archives, svc.Shells
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewAppProjectServiceHandler(h.AppProject(), opts)
+		})
+	}
+	if svc.TestRuns != nil {
+		h.TestRuns = svc.TestRuns
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewTestRunServiceHandler(h.TestRun(), opts)
 		})
 	}
 	if svc.Goldens != nil {
@@ -1226,9 +1368,15 @@ func operationsRegistrations(svc *Services, h *api.Handlers, opts connect.Handle
 	registrations = append(registrations, func() (string, http.Handler) {
 		return pluxv1connect.NewLicenseServiceHandler(h.License(), opts)
 	})
+	registrations = append(registrations, func() (string, http.Handler) {
+		return pluxv1connect.NewInstallationServiceHandler(h.Installation(), opts)
+	})
 	if svc.Functions != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
+		})
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewLanguageServerServiceHandler(h.LanguageServer(), opts)
 		})
 	}
 	return registrations

@@ -1,0 +1,37 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: AGPL-3.0-only
+
+language js(typescript, jsx)
+
+// Studio components use token-backed utilities only (studio-development 4.2):
+// no hex, rgb(), hsl(), px or rem literals, and no Tailwind arbitrary values.
+or {
+  // A string literal that holds a raw colour, pixel or rem value.
+  `"$x"` as $s where {
+    $s <: r".*(#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\b[0-9.]+(px|rem)\b).*",
+    register_diagnostic(span=$s, message="No raw colour, pixel or rem values; use a semantic token (studio-development 4.2).", severity="error")
+  },
+  // The same in a JSX attribute written as attr="...".
+  jsx_attribute() as $a where {
+    $a <: r"^[\w-]+=\x22[^\x22]*(#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\b[0-9.]+(px|rem)\b)[^\x22]*\x22$",
+    register_diagnostic(span=$a, message="No raw colour, pixel or rem values; use a semantic token (studio-development 4.2).", severity="error")
+  },
+  // A Tailwind arbitrary value in a class attribute.
+  jsx_attribute(name=$n) as $a where {
+    $n <: or {
+      `className`,
+      `class`
+    },
+    $a <: r"(?s).*-\[.*",
+    register_diagnostic(span=$a, message="No Tailwind arbitrary values; use a token-backed utility (studio-development 4.2).", severity="error")
+  },
+  // A Tailwind arbitrary value in cn(...) or clsx(...) outside an attribute.
+  or {
+    `cn($...)`,
+    `clsx($...)`
+  } as $c where {
+    $c <: not within jsx_attribute(),
+    $c <: r"(?s).*-\[.*",
+    register_diagnostic(span=$c, message="No Tailwind arbitrary values; use a token-backed utility (studio-development 4.2).", severity="error")
+  }
+}

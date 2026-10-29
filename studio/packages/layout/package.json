@@ -1,0 +1,13 @@
+{
+  "name": "@plux/layout",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "TypeScript port of Flutter's box layout protocol for Studio's canvas (STU-005, ADR-0013).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "canvaskit-wasm": "0.42.0"
+  }
+}

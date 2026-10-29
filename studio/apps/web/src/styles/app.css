@@ -1,0 +1,17 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+@import "./fonts.css";
+@import "./theme.gen.css";
+/* sonner's own stylesheet: its runtime <style> injection is disabled (vite.config.ts, CSP §11.2). */
+@import "@plux/ui/toast.css";
+
+/* The shared components carry their utilities in their own sources. */
+@source "../../../../packages/ui/src";
+
+@layer base {
+  body {
+    background-color: var(--color-brand-surface);
+    color: var(--color-brand-ink);
+  }
+}

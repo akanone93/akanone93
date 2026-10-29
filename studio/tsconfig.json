@@ -1,25 +1,8 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2023",
-    "module": "Preserve",
-    "moduleResolution": "bundler",
-    "lib": ["ES2023"],
-    "types": ["bun"],
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "lib": ["ES2023", "DOM"]
   },
-  "include": ["apps/*/src", "packages/*/src"]
+  "include": ["packages/*/src", "packages/*/conformance", "packages/*/test-support", "scripts", "e2e"],
+  "exclude": ["packages/ui"]
 }

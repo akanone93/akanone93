@@ -51,6 +51,17 @@ and renders it as native widgets.
   publish gate.
 - [Widget packages](../../../../docs/guides/widget-packages.md): charts, Markdown, player,
   maps and scanner widgets.
+- [Studio guides](../../../../docs/guides/studio/README.md): using Plux Studio, one short guide per
+  area: [canvas and editing](../../../../docs/guides/studio/canvas.md),
+  [publishing and releases](../../../../docs/guides/studio/publishing.md),
+  [functions](../../../../docs/guides/studio/functions.md),
+  [data](../../../../docs/guides/studio/data.md),
+  [localisation](../../../../docs/guides/studio/localisation.md),
+  [design system](../../../../docs/guides/studio/design-system.md),
+  [analytics and replay](../../../../docs/guides/studio/analytics.md),
+  [experiments and flags](../../../../docs/guides/studio/experiments.md),
+  [Plux Test](../../../../docs/guides/studio/plux-test.md) and
+  [administration and security](../../../../docs/guides/studio/security-and-admin.md).
 - The [starter app](https://github.com/nightCode42/plux3/tree/main/apps/starter) is a complete
   host to copy from, and the reference apps
   [Plux Bank](https://github.com/nightCode42/plux3/tree/main/apps/plux_bank) and
@@ -67,5 +78,6 @@ and renders it as native widgets.
   [architecture decisions](../../../../docs/adr/README.md).
 - [Security](../../../../docs/security/README.md) and the
   [threat model](../../../../docs/security/threat-model.md),
-  [runbooks](../../../../docs/runbooks/README.md)
+  [runbooks](../../../../docs/runbooks/README.md) (including the
+  [Studio BFF runbook](../../../../docs/operations/studio-bff.md))
   and [benchmarks](../../../../docs/benchmarks/README.md).

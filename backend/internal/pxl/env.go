@@ -119,6 +119,9 @@ func (e *Env) Root(name string) (*Type, bool) {
 	return t, ok
 }
 
+// Roots returns the names of the roots in order.
+func (e *Env) Roots() []string { return sortedKeys(e.roots) }
+
 // isIdent reports whether s is a PXL identifier.
 func isIdent(s string) bool {
 	if s == "" || !isLetter(s[0]) {

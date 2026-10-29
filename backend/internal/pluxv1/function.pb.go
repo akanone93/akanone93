@@ -369,6 +369,196 @@ func (x *FunctionBusinessError) GetParams() []byte {
 	return nil
 }
 
+type RunTestsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SourceId      string                 `protobuf:"bytes,1,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunTestsRequest) Reset() {
+	*x = RunTestsRequest{}
+	mi := &file_plux_v1_function_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunTestsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunTestsRequest) ProtoMessage() {}
+
+func (x *RunTestsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_function_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunTestsRequest.ProtoReflect.Descriptor instead.
+func (*RunTestsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RunTestsRequest) GetSourceId() string {
+	if x != nil {
+		return x.SourceId
+	}
+	return ""
+}
+
+type RunTestsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Event:
+	//
+	//	*RunTestsResponse_Result
+	//	*RunTestsResponse_Finished
+	Event         isRunTestsResponse_Event `protobuf_oneof:"event"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunTestsResponse) Reset() {
+	*x = RunTestsResponse{}
+	mi := &file_plux_v1_function_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunTestsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunTestsResponse) ProtoMessage() {}
+
+func (x *RunTestsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_function_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunTestsResponse.ProtoReflect.Descriptor instead.
+func (*RunTestsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RunTestsResponse) GetEvent() isRunTestsResponse_Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+func (x *RunTestsResponse) GetResult() *FunctionTestResult {
+	if x != nil {
+		if x, ok := x.Event.(*RunTestsResponse_Result); ok {
+			return x.Result
+		}
+	}
+	return nil
+}
+
+func (x *RunTestsResponse) GetFinished() *RunTestsFinished {
+	if x != nil {
+		if x, ok := x.Event.(*RunTestsResponse_Finished); ok {
+			return x.Finished
+		}
+	}
+	return nil
+}
+
+type isRunTestsResponse_Event interface {
+	isRunTestsResponse_Event()
+}
+
+type RunTestsResponse_Result struct {
+	// result is the outcome of one stored test case.
+	Result *FunctionTestResult `protobuf:"bytes,1,opt,name=result,proto3,oneof"`
+}
+
+type RunTestsResponse_Finished struct {
+	// finished ends the stream.
+	Finished *RunTestsFinished `protobuf:"bytes,2,opt,name=finished,proto3,oneof"`
+}
+
+func (*RunTestsResponse_Result) isRunTestsResponse_Event() {}
+
+func (*RunTestsResponse_Finished) isRunTestsResponse_Event() {}
+
+type RunTestsFinished struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Passed uint32                 `protobuf:"varint,1,opt,name=passed,proto3" json:"passed,omitempty"`
+	Failed uint32                 `protobuf:"varint,2,opt,name=failed,proto3" json:"failed,omitempty"`
+	// diagnostics is the JSON of the build diagnostics when the source did
+	// not build; empty otherwise.
+	Diagnostics   []byte `protobuf:"bytes,3,opt,name=diagnostics,proto3" json:"diagnostics,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunTestsFinished) Reset() {
+	*x = RunTestsFinished{}
+	mi := &file_plux_v1_function_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunTestsFinished) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunTestsFinished) ProtoMessage() {}
+
+func (x *RunTestsFinished) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_function_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunTestsFinished.ProtoReflect.Descriptor instead.
+func (*RunTestsFinished) Descriptor() ([]byte, []int) {
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *RunTestsFinished) GetPassed() uint32 {
+	if x != nil {
+		return x.Passed
+	}
+	return 0
+}
+
+func (x *RunTestsFinished) GetFailed() uint32 {
+	if x != nil {
+		return x.Failed
+	}
+	return 0
+}
+
+func (x *RunTestsFinished) GetDiagnostics() []byte {
+	if x != nil {
+		return x.Diagnostics
+	}
+	return nil
+}
+
 // FunctionVersion is one immutable version of a function (FN-006).
 type FunctionVersion struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -394,16 +584,28 @@ type FunctionVersion struct {
 	// function-artifact key (FN-009).
 	Signature []byte `protobuf:"bytes,11,opt,name=signature,proto3" json:"signature,omitempty"`
 	// tests_passed is true when every stored test case passed (FN-031).
-	TestsPassed   bool                   `protobuf:"varint,12,opt,name=tests_passed,json=testsPassed,proto3" json:"tests_passed,omitempty"`
-	CreatedBy     *Actor                 `protobuf:"bytes,13,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	TestsPassed bool                   `protobuf:"varint,12,opt,name=tests_passed,json=testsPassed,proto3" json:"tests_passed,omitempty"`
+	CreatedBy   *Actor                 `protobuf:"bytes,13,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// capabilities are the host capabilities the deploy granted the version:
+	// the ones its build declared, as immutable as its module (FN-012). Unset
+	// when the build recorded no declaration, in which case the version is
+	// granted nothing and cannot be invoked.
+	Capabilities *FunctionCapabilities `protobuf:"bytes,15,opt,name=capabilities,proto3" json:"capabilities,omitempty"`
+	// assurance is the assurance level a device must hold to invoke the
+	// version, as its build declared it; empty means the environment's
+	// defaultFunctionAssurance applies (SEC-007).
+	Assurance string `protobuf:"bytes,16,opt,name=assurance,proto3" json:"assurance,omitempty"`
+	// source_id identifies the uploaded source the version was built from. It
+	// is an identifier only: reading the source needs its own permission.
+	SourceId      string `protobuf:"bytes,17,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FunctionVersion) Reset() {
 	*x = FunctionVersion{}
-	mi := &file_plux_v1_function_proto_msgTypes[3]
+	mi := &file_plux_v1_function_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -415,7 +617,7 @@ func (x *FunctionVersion) String() string {
 func (*FunctionVersion) ProtoMessage() {}
 
 func (x *FunctionVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[3]
+	mi := &file_plux_v1_function_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -428,7 +630,7 @@ func (x *FunctionVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionVersion.ProtoReflect.Descriptor instead.
 func (*FunctionVersion) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{3}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *FunctionVersion) GetAppId() string {
@@ -529,6 +731,111 @@ func (x *FunctionVersion) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *FunctionVersion) GetCapabilities() *FunctionCapabilities {
+	if x != nil {
+		return x.Capabilities
+	}
+	return nil
+}
+
+func (x *FunctionVersion) GetAssurance() string {
+	if x != nil {
+		return x.Assurance
+	}
+	return ""
+}
+
+func (x *FunctionVersion) GetSourceId() string {
+	if x != nil {
+		return x.SourceId
+	}
+	return ""
+}
+
+// FunctionCapabilities are the host capabilities a function version is
+// granted; everything not listed is denied (FN-012).
+type FunctionCapabilities struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// http are the domains the function may reach through egress.
+	Http []string `protobuf:"bytes,1,rep,name=http,proto3" json:"http,omitempty"`
+	// kv says whether the function may use its key-value namespace.
+	Kv bool `protobuf:"varint,2,opt,name=kv,proto3" json:"kv,omitempty"`
+	// secrets are the names of the secrets the function may read, never their
+	// values.
+	Secrets []string `protobuf:"bytes,3,rep,name=secrets,proto3" json:"secrets,omitempty"`
+	// functions are the names of the functions it may call.
+	Functions []string `protobuf:"bytes,4,rep,name=functions,proto3" json:"functions,omitempty"`
+	// claims says whether it may read the verified user claims.
+	Claims        bool `protobuf:"varint,5,opt,name=claims,proto3" json:"claims,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FunctionCapabilities) Reset() {
+	*x = FunctionCapabilities{}
+	mi := &file_plux_v1_function_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FunctionCapabilities) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FunctionCapabilities) ProtoMessage() {}
+
+func (x *FunctionCapabilities) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_function_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FunctionCapabilities.ProtoReflect.Descriptor instead.
+func (*FunctionCapabilities) Descriptor() ([]byte, []int) {
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *FunctionCapabilities) GetHttp() []string {
+	if x != nil {
+		return x.Http
+	}
+	return nil
+}
+
+func (x *FunctionCapabilities) GetKv() bool {
+	if x != nil {
+		return x.Kv
+	}
+	return false
+}
+
+func (x *FunctionCapabilities) GetSecrets() []string {
+	if x != nil {
+		return x.Secrets
+	}
+	return nil
+}
+
+func (x *FunctionCapabilities) GetFunctions() []string {
+	if x != nil {
+		return x.Functions
+	}
+	return nil
+}
+
+func (x *FunctionCapabilities) GetClaims() bool {
+	if x != nil {
+		return x.Claims
+	}
+	return false
+}
+
 // Provenance is the build record signed with the artifact (FN-005).
 type Provenance struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -555,7 +862,7 @@ type Provenance struct {
 
 func (x *Provenance) Reset() {
 	*x = Provenance{}
-	mi := &file_plux_v1_function_proto_msgTypes[4]
+	mi := &file_plux_v1_function_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -567,7 +874,7 @@ func (x *Provenance) String() string {
 func (*Provenance) ProtoMessage() {}
 
 func (x *Provenance) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[4]
+	mi := &file_plux_v1_function_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -580,7 +887,7 @@ func (x *Provenance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Provenance.ProtoReflect.Descriptor instead.
 func (*Provenance) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{4}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Provenance) GetSourceSha256() string {
@@ -645,7 +952,7 @@ type Dependency struct {
 
 func (x *Dependency) Reset() {
 	*x = Dependency{}
-	mi := &file_plux_v1_function_proto_msgTypes[5]
+	mi := &file_plux_v1_function_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -657,7 +964,7 @@ func (x *Dependency) String() string {
 func (*Dependency) ProtoMessage() {}
 
 func (x *Dependency) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[5]
+	mi := &file_plux_v1_function_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -670,7 +977,7 @@ func (x *Dependency) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Dependency.ProtoReflect.Descriptor instead.
 func (*Dependency) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{5}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Dependency) GetName() string {
@@ -706,7 +1013,7 @@ type Alias struct {
 
 func (x *Alias) Reset() {
 	*x = Alias{}
-	mi := &file_plux_v1_function_proto_msgTypes[6]
+	mi := &file_plux_v1_function_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +1025,7 @@ func (x *Alias) String() string {
 func (*Alias) ProtoMessage() {}
 
 func (x *Alias) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[6]
+	mi := &file_plux_v1_function_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +1038,7 @@ func (x *Alias) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Alias.ProtoReflect.Descriptor instead.
 func (*Alias) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{6}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Alias) GetName() string {
@@ -761,7 +1068,7 @@ type FunctionTestResult struct {
 
 func (x *FunctionTestResult) Reset() {
 	*x = FunctionTestResult{}
-	mi := &file_plux_v1_function_proto_msgTypes[7]
+	mi := &file_plux_v1_function_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -773,7 +1080,7 @@ func (x *FunctionTestResult) String() string {
 func (*FunctionTestResult) ProtoMessage() {}
 
 func (x *FunctionTestResult) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[7]
+	mi := &file_plux_v1_function_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -786,7 +1093,7 @@ func (x *FunctionTestResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionTestResult.ProtoReflect.Descriptor instead.
 func (*FunctionTestResult) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{7}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *FunctionTestResult) GetName() string {
@@ -827,7 +1134,7 @@ type Build struct {
 
 func (x *Build) Reset() {
 	*x = Build{}
-	mi := &file_plux_v1_function_proto_msgTypes[8]
+	mi := &file_plux_v1_function_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -839,7 +1146,7 @@ func (x *Build) String() string {
 func (*Build) ProtoMessage() {}
 
 func (x *Build) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[8]
+	mi := &file_plux_v1_function_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -852,7 +1159,7 @@ func (x *Build) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Build.ProtoReflect.Descriptor instead.
 func (*Build) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{8}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Build) GetId() string {
@@ -899,7 +1206,7 @@ type UploadSourceRequest struct {
 
 func (x *UploadSourceRequest) Reset() {
 	*x = UploadSourceRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[9]
+	mi := &file_plux_v1_function_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -911,7 +1218,7 @@ func (x *UploadSourceRequest) String() string {
 func (*UploadSourceRequest) ProtoMessage() {}
 
 func (x *UploadSourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[9]
+	mi := &file_plux_v1_function_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -924,7 +1231,7 @@ func (x *UploadSourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadSourceRequest.ProtoReflect.Descriptor instead.
 func (*UploadSourceRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{9}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UploadSourceRequest) GetAppId() string {
@@ -974,7 +1281,7 @@ type UploadSourceResponse struct {
 
 func (x *UploadSourceResponse) Reset() {
 	*x = UploadSourceResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[10]
+	mi := &file_plux_v1_function_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -986,7 +1293,7 @@ func (x *UploadSourceResponse) String() string {
 func (*UploadSourceResponse) ProtoMessage() {}
 
 func (x *UploadSourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[10]
+	mi := &file_plux_v1_function_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -999,7 +1306,7 @@ func (x *UploadSourceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadSourceResponse.ProtoReflect.Descriptor instead.
 func (*UploadSourceResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{10}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UploadSourceResponse) GetSourceId() string {
@@ -1025,7 +1332,7 @@ type BuildRequest struct {
 
 func (x *BuildRequest) Reset() {
 	*x = BuildRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[11]
+	mi := &file_plux_v1_function_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1037,7 +1344,7 @@ func (x *BuildRequest) String() string {
 func (*BuildRequest) ProtoMessage() {}
 
 func (x *BuildRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[11]
+	mi := &file_plux_v1_function_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1050,7 +1357,7 @@ func (x *BuildRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuildRequest.ProtoReflect.Descriptor instead.
 func (*BuildRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *BuildRequest) GetSourceId() string {
@@ -1069,7 +1376,7 @@ type BuildResponse struct {
 
 func (x *BuildResponse) Reset() {
 	*x = BuildResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[12]
+	mi := &file_plux_v1_function_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1081,7 +1388,7 @@ func (x *BuildResponse) String() string {
 func (*BuildResponse) ProtoMessage() {}
 
 func (x *BuildResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[12]
+	mi := &file_plux_v1_function_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1094,7 +1401,7 @@ func (x *BuildResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuildResponse.ProtoReflect.Descriptor instead.
 func (*BuildResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *BuildResponse) GetBuild() *Build {
@@ -1113,7 +1420,7 @@ type GetBuildRequest struct {
 
 func (x *GetBuildRequest) Reset() {
 	*x = GetBuildRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[13]
+	mi := &file_plux_v1_function_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1125,7 +1432,7 @@ func (x *GetBuildRequest) String() string {
 func (*GetBuildRequest) ProtoMessage() {}
 
 func (x *GetBuildRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[13]
+	mi := &file_plux_v1_function_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1138,7 +1445,7 @@ func (x *GetBuildRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBuildRequest.ProtoReflect.Descriptor instead.
 func (*GetBuildRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetBuildRequest) GetBuildId() string {
@@ -1157,7 +1464,7 @@ type GetBuildResponse struct {
 
 func (x *GetBuildResponse) Reset() {
 	*x = GetBuildResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[14]
+	mi := &file_plux_v1_function_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1169,7 +1476,7 @@ func (x *GetBuildResponse) String() string {
 func (*GetBuildResponse) ProtoMessage() {}
 
 func (x *GetBuildResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[14]
+	mi := &file_plux_v1_function_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1182,7 +1489,7 @@ func (x *GetBuildResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBuildResponse.ProtoReflect.Descriptor instead.
 func (*GetBuildResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetBuildResponse) GetBuild() *Build {
@@ -1203,7 +1510,7 @@ type GetFunctionRequest struct {
 
 func (x *GetFunctionRequest) Reset() {
 	*x = GetFunctionRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[15]
+	mi := &file_plux_v1_function_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1215,7 +1522,7 @@ func (x *GetFunctionRequest) String() string {
 func (*GetFunctionRequest) ProtoMessage() {}
 
 func (x *GetFunctionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[15]
+	mi := &file_plux_v1_function_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1228,7 +1535,7 @@ func (x *GetFunctionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFunctionRequest.ProtoReflect.Descriptor instead.
 func (*GetFunctionRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetFunctionRequest) GetAppId() string {
@@ -1263,7 +1570,7 @@ type GetFunctionResponse struct {
 
 func (x *GetFunctionResponse) Reset() {
 	*x = GetFunctionResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[16]
+	mi := &file_plux_v1_function_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1275,7 +1582,7 @@ func (x *GetFunctionResponse) String() string {
 func (*GetFunctionResponse) ProtoMessage() {}
 
 func (x *GetFunctionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[16]
+	mi := &file_plux_v1_function_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1288,7 +1595,7 @@ func (x *GetFunctionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFunctionResponse.ProtoReflect.Descriptor instead.
 func (*GetFunctionResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetFunctionResponse) GetLatest() *FunctionVersion {
@@ -1316,7 +1623,7 @@ type ListFunctionsRequest struct {
 
 func (x *ListFunctionsRequest) Reset() {
 	*x = ListFunctionsRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[17]
+	mi := &file_plux_v1_function_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1328,7 +1635,7 @@ func (x *ListFunctionsRequest) String() string {
 func (*ListFunctionsRequest) ProtoMessage() {}
 
 func (x *ListFunctionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[17]
+	mi := &file_plux_v1_function_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1341,7 +1648,7 @@ func (x *ListFunctionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFunctionsRequest.ProtoReflect.Descriptor instead.
 func (*ListFunctionsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ListFunctionsRequest) GetAppId() string {
@@ -1376,7 +1683,7 @@ type ListFunctionsResponse struct {
 
 func (x *ListFunctionsResponse) Reset() {
 	*x = ListFunctionsResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[18]
+	mi := &file_plux_v1_function_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1388,7 +1695,7 @@ func (x *ListFunctionsResponse) String() string {
 func (*ListFunctionsResponse) ProtoMessage() {}
 
 func (x *ListFunctionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[18]
+	mi := &file_plux_v1_function_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1401,7 +1708,7 @@ func (x *ListFunctionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFunctionsResponse.ProtoReflect.Descriptor instead.
 func (*ListFunctionsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListFunctionsResponse) GetFunctions() []*FunctionVersion {
@@ -1430,7 +1737,7 @@ type ListVersionsRequest struct {
 
 func (x *ListVersionsRequest) Reset() {
 	*x = ListVersionsRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[19]
+	mi := &file_plux_v1_function_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1442,7 +1749,7 @@ func (x *ListVersionsRequest) String() string {
 func (*ListVersionsRequest) ProtoMessage() {}
 
 func (x *ListVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[19]
+	mi := &file_plux_v1_function_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1455,7 +1762,7 @@ func (x *ListVersionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVersionsRequest.ProtoReflect.Descriptor instead.
 func (*ListVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListVersionsRequest) GetAppId() string {
@@ -1496,7 +1803,7 @@ type ListVersionsResponse struct {
 
 func (x *ListVersionsResponse) Reset() {
 	*x = ListVersionsResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[20]
+	mi := &file_plux_v1_function_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1508,7 +1815,7 @@ func (x *ListVersionsResponse) String() string {
 func (*ListVersionsResponse) ProtoMessage() {}
 
 func (x *ListVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[20]
+	mi := &file_plux_v1_function_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1521,7 +1828,7 @@ func (x *ListVersionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVersionsResponse.ProtoReflect.Descriptor instead.
 func (*ListVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListVersionsResponse) GetVersions() []*FunctionVersion {
@@ -1550,7 +1857,7 @@ type DeployRequest struct {
 
 func (x *DeployRequest) Reset() {
 	*x = DeployRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[21]
+	mi := &file_plux_v1_function_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1562,7 +1869,7 @@ func (x *DeployRequest) String() string {
 func (*DeployRequest) ProtoMessage() {}
 
 func (x *DeployRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[21]
+	mi := &file_plux_v1_function_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1575,7 +1882,7 @@ func (x *DeployRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployRequest.ProtoReflect.Descriptor instead.
 func (*DeployRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *DeployRequest) GetBuildId() string {
@@ -1608,7 +1915,7 @@ type DeployResponse struct {
 
 func (x *DeployResponse) Reset() {
 	*x = DeployResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[22]
+	mi := &file_plux_v1_function_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1620,7 +1927,7 @@ func (x *DeployResponse) String() string {
 func (*DeployResponse) ProtoMessage() {}
 
 func (x *DeployResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[22]
+	mi := &file_plux_v1_function_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1633,7 +1940,7 @@ func (x *DeployResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployResponse.ProtoReflect.Descriptor instead.
 func (*DeployResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *DeployResponse) GetVersion() *FunctionVersion {
@@ -1661,7 +1968,7 @@ type PromoteFunctionRequest struct {
 
 func (x *PromoteFunctionRequest) Reset() {
 	*x = PromoteFunctionRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[23]
+	mi := &file_plux_v1_function_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1673,7 +1980,7 @@ func (x *PromoteFunctionRequest) String() string {
 func (*PromoteFunctionRequest) ProtoMessage() {}
 
 func (x *PromoteFunctionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[23]
+	mi := &file_plux_v1_function_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1686,7 +1993,7 @@ func (x *PromoteFunctionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromoteFunctionRequest.ProtoReflect.Descriptor instead.
 func (*PromoteFunctionRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{23}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *PromoteFunctionRequest) GetAppId() string {
@@ -1748,7 +2055,7 @@ type PromoteFunctionResponse struct {
 
 func (x *PromoteFunctionResponse) Reset() {
 	*x = PromoteFunctionResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[24]
+	mi := &file_plux_v1_function_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1760,7 +2067,7 @@ func (x *PromoteFunctionResponse) String() string {
 func (*PromoteFunctionResponse) ProtoMessage() {}
 
 func (x *PromoteFunctionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[24]
+	mi := &file_plux_v1_function_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1773,7 +2080,7 @@ func (x *PromoteFunctionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromoteFunctionResponse.ProtoReflect.Descriptor instead.
 func (*PromoteFunctionResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *PromoteFunctionResponse) GetVersion() *FunctionVersion {
@@ -1796,7 +2103,7 @@ type SetAliasRequest struct {
 
 func (x *SetAliasRequest) Reset() {
 	*x = SetAliasRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[25]
+	mi := &file_plux_v1_function_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1808,7 +2115,7 @@ func (x *SetAliasRequest) String() string {
 func (*SetAliasRequest) ProtoMessage() {}
 
 func (x *SetAliasRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[25]
+	mi := &file_plux_v1_function_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1821,7 +2128,7 @@ func (x *SetAliasRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAliasRequest.ProtoReflect.Descriptor instead.
 func (*SetAliasRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *SetAliasRequest) GetAppId() string {
@@ -1868,7 +2175,7 @@ type SetAliasResponse struct {
 
 func (x *SetAliasResponse) Reset() {
 	*x = SetAliasResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[26]
+	mi := &file_plux_v1_function_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1880,7 +2187,7 @@ func (x *SetAliasResponse) String() string {
 func (*SetAliasResponse) ProtoMessage() {}
 
 func (x *SetAliasResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[26]
+	mi := &file_plux_v1_function_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1893,7 +2200,7 @@ func (x *SetAliasResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAliasResponse.ProtoReflect.Descriptor instead.
 func (*SetAliasResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *SetAliasResponse) GetAliases() []*Alias {
@@ -1919,7 +2226,7 @@ type ListLogsRequest struct {
 
 func (x *ListLogsRequest) Reset() {
 	*x = ListLogsRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[27]
+	mi := &file_plux_v1_function_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1931,7 +2238,7 @@ func (x *ListLogsRequest) String() string {
 func (*ListLogsRequest) ProtoMessage() {}
 
 func (x *ListLogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[27]
+	mi := &file_plux_v1_function_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1944,7 +2251,7 @@ func (x *ListLogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLogsRequest.ProtoReflect.Descriptor instead.
 func (*ListLogsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ListLogsRequest) GetAppId() string {
@@ -1999,7 +2306,7 @@ type ListLogsResponse struct {
 
 func (x *ListLogsResponse) Reset() {
 	*x = ListLogsResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[28]
+	mi := &file_plux_v1_function_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2011,7 +2318,7 @@ func (x *ListLogsResponse) String() string {
 func (*ListLogsResponse) ProtoMessage() {}
 
 func (x *ListLogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[28]
+	mi := &file_plux_v1_function_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2024,7 +2331,7 @@ func (x *ListLogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLogsResponse.ProtoReflect.Descriptor instead.
 func (*ListLogsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ListLogsResponse) GetLines() []*FunctionLogLine {
@@ -2057,7 +2364,7 @@ type FunctionLogLine struct {
 
 func (x *FunctionLogLine) Reset() {
 	*x = FunctionLogLine{}
-	mi := &file_plux_v1_function_proto_msgTypes[29]
+	mi := &file_plux_v1_function_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2069,7 +2376,7 @@ func (x *FunctionLogLine) String() string {
 func (*FunctionLogLine) ProtoMessage() {}
 
 func (x *FunctionLogLine) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[29]
+	mi := &file_plux_v1_function_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2082,7 +2389,7 @@ func (x *FunctionLogLine) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionLogLine.ProtoReflect.Descriptor instead.
 func (*FunctionLogLine) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{29}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *FunctionLogLine) GetTime() *timestamppb.Timestamp {
@@ -2133,7 +2440,7 @@ type GetMetricsRequest struct {
 
 func (x *GetMetricsRequest) Reset() {
 	*x = GetMetricsRequest{}
-	mi := &file_plux_v1_function_proto_msgTypes[30]
+	mi := &file_plux_v1_function_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2145,7 +2452,7 @@ func (x *GetMetricsRequest) String() string {
 func (*GetMetricsRequest) ProtoMessage() {}
 
 func (x *GetMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[30]
+	mi := &file_plux_v1_function_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2158,7 +2465,7 @@ func (x *GetMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricsRequest.ProtoReflect.Descriptor instead.
 func (*GetMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{30}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GetMetricsRequest) GetAppId() string {
@@ -2210,7 +2517,7 @@ type GetMetricsResponse struct {
 
 func (x *GetMetricsResponse) Reset() {
 	*x = GetMetricsResponse{}
-	mi := &file_plux_v1_function_proto_msgTypes[31]
+	mi := &file_plux_v1_function_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2222,7 +2529,7 @@ func (x *GetMetricsResponse) String() string {
 func (*GetMetricsResponse) ProtoMessage() {}
 
 func (x *GetMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_function_proto_msgTypes[31]
+	mi := &file_plux_v1_function_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2235,7 +2542,7 @@ func (x *GetMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_function_proto_rawDescGZIP(), []int{31}
+	return file_plux_v1_function_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetMetricsResponse) GetInvocations() uint64 {
@@ -2311,7 +2618,17 @@ const file_plux_v1_function_proto_rawDesc = "" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x1f\n" +
 	"\vmessage_key\x18\x02 \x01(\tR\n" +
 	"messageKey\x12\x16\n" +
-	"\x06params\x18\x03 \x01(\fR\x06params\"\x89\x04\n" +
+	"\x06params\x18\x03 \x01(\fR\x06params\".\n" +
+	"\x0fRunTestsRequest\x12\x1b\n" +
+	"\tsource_id\x18\x01 \x01(\tR\bsourceId\"\x8b\x01\n" +
+	"\x10RunTestsResponse\x125\n" +
+	"\x06result\x18\x01 \x01(\v2\x1b.plux.v1.FunctionTestResultH\x00R\x06result\x127\n" +
+	"\bfinished\x18\x02 \x01(\v2\x19.plux.v1.RunTestsFinishedH\x00R\bfinishedB\a\n" +
+	"\x05event\"d\n" +
+	"\x10RunTestsFinished\x12\x16\n" +
+	"\x06passed\x18\x01 \x01(\rR\x06passed\x12\x16\n" +
+	"\x06failed\x18\x02 \x01(\rR\x06failed\x12 \n" +
+	"\vdiagnostics\x18\x03 \x01(\fR\vdiagnostics\"\x87\x05\n" +
 	"\x0fFunctionVersion\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x12\n" +
@@ -2332,7 +2649,16 @@ const file_plux_v1_function_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\r \x01(\v2\x0e.plux.v1.ActorR\tcreatedBy\x129\n" +
 	"\n" +
-	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb7\x02\n" +
+	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12A\n" +
+	"\fcapabilities\x18\x0f \x01(\v2\x1d.plux.v1.FunctionCapabilitiesR\fcapabilities\x12\x1c\n" +
+	"\tassurance\x18\x10 \x01(\tR\tassurance\x12\x1b\n" +
+	"\tsource_id\x18\x11 \x01(\tR\bsourceId\"\x8a\x01\n" +
+	"\x14FunctionCapabilities\x12\x12\n" +
+	"\x04http\x18\x01 \x03(\tR\x04http\x12\x0e\n" +
+	"\x02kv\x18\x02 \x01(\bR\x02kv\x12\x18\n" +
+	"\asecrets\x18\x03 \x03(\tR\asecrets\x12\x1c\n" +
+	"\tfunctions\x18\x04 \x03(\tR\tfunctions\x12\x16\n" +
+	"\x06claims\x18\x05 \x01(\bR\x06claims\"\xb7\x02\n" +
 	"\n" +
 	"Provenance\x12#\n" +
 	"\rsource_sha256\x18\x01 \x01(\tR\fsourceSha256\x127\n" +
@@ -2465,7 +2791,7 @@ const file_plux_v1_function_proto_rawDesc = "" +
 	"\x15BUILD_STATE_SUCCEEDED\x10\x03\x12\x16\n" +
 	"\x12BUILD_STATE_FAILED\x10\x042l\n" +
 	"\x0fFunctionService\x12Y\n" +
-	"\x06Invoke\x12%.plux.v1.FunctionServiceInvokeRequest\x1a&.plux.v1.FunctionServiceInvokeResponse\"\x002\xb5\x06\n" +
+	"\x06Invoke\x12%.plux.v1.FunctionServiceInvokeRequest\x1a&.plux.v1.FunctionServiceInvokeResponse\"\x002\xfa\x06\n" +
 	"\x14FunctionAdminService\x12O\n" +
 	"\fUploadSource\x12\x1c.plux.v1.UploadSourceRequest\x1a\x1d.plux.v1.UploadSourceResponse\"\x00(\x01\x128\n" +
 	"\x05Build\x12\x15.plux.v1.BuildRequest\x1a\x16.plux.v1.BuildResponse\"\x00\x12A\n" +
@@ -2478,7 +2804,8 @@ const file_plux_v1_function_proto_rawDesc = "" +
 	"\bSetAlias\x12\x18.plux.v1.SetAliasRequest\x1a\x19.plux.v1.SetAliasResponse\"\x00\x12A\n" +
 	"\bListLogs\x12\x18.plux.v1.ListLogsRequest\x1a\x19.plux.v1.ListLogsResponse\"\x00\x12G\n" +
 	"\n" +
-	"GetMetrics\x12\x1a.plux.v1.GetMetricsRequest\x1a\x1b.plux.v1.GetMetricsResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"GetMetrics\x12\x1a.plux.v1.GetMetricsRequest\x1a\x1b.plux.v1.GetMetricsResponse\"\x00\x12C\n" +
+	"\bRunTests\x12\x18.plux.v1.RunTestsRequest\x1a\x19.plux.v1.RunTestsResponse\"\x000\x01B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_function_proto_rawDescOnce sync.Once
@@ -2493,107 +2820,116 @@ func file_plux_v1_function_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_function_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_plux_v1_function_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_plux_v1_function_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_plux_v1_function_proto_goTypes = []any{
 	(BuildState)(0),                       // 0: plux.v1.BuildState
 	(*FunctionServiceInvokeRequest)(nil),  // 1: plux.v1.FunctionServiceInvokeRequest
 	(*FunctionServiceInvokeResponse)(nil), // 2: plux.v1.FunctionServiceInvokeResponse
 	(*FunctionBusinessError)(nil),         // 3: plux.v1.FunctionBusinessError
-	(*FunctionVersion)(nil),               // 4: plux.v1.FunctionVersion
-	(*Provenance)(nil),                    // 5: plux.v1.Provenance
-	(*Dependency)(nil),                    // 6: plux.v1.Dependency
-	(*Alias)(nil),                         // 7: plux.v1.Alias
-	(*FunctionTestResult)(nil),            // 8: plux.v1.FunctionTestResult
-	(*Build)(nil),                         // 9: plux.v1.Build
-	(*UploadSourceRequest)(nil),           // 10: plux.v1.UploadSourceRequest
-	(*UploadSourceResponse)(nil),          // 11: plux.v1.UploadSourceResponse
-	(*BuildRequest)(nil),                  // 12: plux.v1.BuildRequest
-	(*BuildResponse)(nil),                 // 13: plux.v1.BuildResponse
-	(*GetBuildRequest)(nil),               // 14: plux.v1.GetBuildRequest
-	(*GetBuildResponse)(nil),              // 15: plux.v1.GetBuildResponse
-	(*GetFunctionRequest)(nil),            // 16: plux.v1.GetFunctionRequest
-	(*GetFunctionResponse)(nil),           // 17: plux.v1.GetFunctionResponse
-	(*ListFunctionsRequest)(nil),          // 18: plux.v1.ListFunctionsRequest
-	(*ListFunctionsResponse)(nil),         // 19: plux.v1.ListFunctionsResponse
-	(*ListVersionsRequest)(nil),           // 20: plux.v1.ListVersionsRequest
-	(*ListVersionsResponse)(nil),          // 21: plux.v1.ListVersionsResponse
-	(*DeployRequest)(nil),                 // 22: plux.v1.DeployRequest
-	(*DeployResponse)(nil),                // 23: plux.v1.DeployResponse
-	(*PromoteFunctionRequest)(nil),        // 24: plux.v1.PromoteFunctionRequest
-	(*PromoteFunctionResponse)(nil),       // 25: plux.v1.PromoteFunctionResponse
-	(*SetAliasRequest)(nil),               // 26: plux.v1.SetAliasRequest
-	(*SetAliasResponse)(nil),              // 27: plux.v1.SetAliasResponse
-	(*ListLogsRequest)(nil),               // 28: plux.v1.ListLogsRequest
-	(*ListLogsResponse)(nil),              // 29: plux.v1.ListLogsResponse
-	(*FunctionLogLine)(nil),               // 30: plux.v1.FunctionLogLine
-	(*GetMetricsRequest)(nil),             // 31: plux.v1.GetMetricsRequest
-	(*GetMetricsResponse)(nil),            // 32: plux.v1.GetMetricsResponse
-	nil,                                   // 33: plux.v1.GetMetricsResponse.ErrorsByKindEntry
-	(*Actor)(nil),                         // 34: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),         // 35: google.protobuf.Timestamp
-	(*Diagnostic)(nil),                    // 36: plux.v1.Diagnostic
-	(*Page)(nil),                          // 37: plux.v1.Page
-	(*PageResult)(nil),                    // 38: plux.v1.PageResult
+	(*RunTestsRequest)(nil),               // 4: plux.v1.RunTestsRequest
+	(*RunTestsResponse)(nil),              // 5: plux.v1.RunTestsResponse
+	(*RunTestsFinished)(nil),              // 6: plux.v1.RunTestsFinished
+	(*FunctionVersion)(nil),               // 7: plux.v1.FunctionVersion
+	(*FunctionCapabilities)(nil),          // 8: plux.v1.FunctionCapabilities
+	(*Provenance)(nil),                    // 9: plux.v1.Provenance
+	(*Dependency)(nil),                    // 10: plux.v1.Dependency
+	(*Alias)(nil),                         // 11: plux.v1.Alias
+	(*FunctionTestResult)(nil),            // 12: plux.v1.FunctionTestResult
+	(*Build)(nil),                         // 13: plux.v1.Build
+	(*UploadSourceRequest)(nil),           // 14: plux.v1.UploadSourceRequest
+	(*UploadSourceResponse)(nil),          // 15: plux.v1.UploadSourceResponse
+	(*BuildRequest)(nil),                  // 16: plux.v1.BuildRequest
+	(*BuildResponse)(nil),                 // 17: plux.v1.BuildResponse
+	(*GetBuildRequest)(nil),               // 18: plux.v1.GetBuildRequest
+	(*GetBuildResponse)(nil),              // 19: plux.v1.GetBuildResponse
+	(*GetFunctionRequest)(nil),            // 20: plux.v1.GetFunctionRequest
+	(*GetFunctionResponse)(nil),           // 21: plux.v1.GetFunctionResponse
+	(*ListFunctionsRequest)(nil),          // 22: plux.v1.ListFunctionsRequest
+	(*ListFunctionsResponse)(nil),         // 23: plux.v1.ListFunctionsResponse
+	(*ListVersionsRequest)(nil),           // 24: plux.v1.ListVersionsRequest
+	(*ListVersionsResponse)(nil),          // 25: plux.v1.ListVersionsResponse
+	(*DeployRequest)(nil),                 // 26: plux.v1.DeployRequest
+	(*DeployResponse)(nil),                // 27: plux.v1.DeployResponse
+	(*PromoteFunctionRequest)(nil),        // 28: plux.v1.PromoteFunctionRequest
+	(*PromoteFunctionResponse)(nil),       // 29: plux.v1.PromoteFunctionResponse
+	(*SetAliasRequest)(nil),               // 30: plux.v1.SetAliasRequest
+	(*SetAliasResponse)(nil),              // 31: plux.v1.SetAliasResponse
+	(*ListLogsRequest)(nil),               // 32: plux.v1.ListLogsRequest
+	(*ListLogsResponse)(nil),              // 33: plux.v1.ListLogsResponse
+	(*FunctionLogLine)(nil),               // 34: plux.v1.FunctionLogLine
+	(*GetMetricsRequest)(nil),             // 35: plux.v1.GetMetricsRequest
+	(*GetMetricsResponse)(nil),            // 36: plux.v1.GetMetricsResponse
+	nil,                                   // 37: plux.v1.GetMetricsResponse.ErrorsByKindEntry
+	(*Actor)(nil),                         // 38: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),         // 39: google.protobuf.Timestamp
+	(*Diagnostic)(nil),                    // 40: plux.v1.Diagnostic
+	(*Page)(nil),                          // 41: plux.v1.Page
+	(*PageResult)(nil),                    // 42: plux.v1.PageResult
 }
 var file_plux_v1_function_proto_depIdxs = []int32{
 	3,  // 0: plux.v1.FunctionServiceInvokeResponse.business_error:type_name -> plux.v1.FunctionBusinessError
-	5,  // 1: plux.v1.FunctionVersion.provenance:type_name -> plux.v1.Provenance
-	34, // 2: plux.v1.FunctionVersion.created_by:type_name -> plux.v1.Actor
-	35, // 3: plux.v1.FunctionVersion.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 4: plux.v1.Provenance.dependencies:type_name -> plux.v1.Dependency
-	35, // 5: plux.v1.Provenance.build_time:type_name -> google.protobuf.Timestamp
-	0,  // 6: plux.v1.Build.state:type_name -> plux.v1.BuildState
-	36, // 7: plux.v1.Build.diagnostics:type_name -> plux.v1.Diagnostic
-	8,  // 8: plux.v1.Build.test_results:type_name -> plux.v1.FunctionTestResult
-	9,  // 9: plux.v1.BuildResponse.build:type_name -> plux.v1.Build
-	9,  // 10: plux.v1.GetBuildResponse.build:type_name -> plux.v1.Build
-	4,  // 11: plux.v1.GetFunctionResponse.latest:type_name -> plux.v1.FunctionVersion
-	7,  // 12: plux.v1.GetFunctionResponse.aliases:type_name -> plux.v1.Alias
-	37, // 13: plux.v1.ListFunctionsRequest.page:type_name -> plux.v1.Page
-	4,  // 14: plux.v1.ListFunctionsResponse.functions:type_name -> plux.v1.FunctionVersion
-	38, // 15: plux.v1.ListFunctionsResponse.page:type_name -> plux.v1.PageResult
-	37, // 16: plux.v1.ListVersionsRequest.page:type_name -> plux.v1.Page
-	4,  // 17: plux.v1.ListVersionsResponse.versions:type_name -> plux.v1.FunctionVersion
-	38, // 18: plux.v1.ListVersionsResponse.page:type_name -> plux.v1.PageResult
-	4,  // 19: plux.v1.DeployResponse.version:type_name -> plux.v1.FunctionVersion
-	4,  // 20: plux.v1.PromoteFunctionResponse.version:type_name -> plux.v1.FunctionVersion
-	7,  // 21: plux.v1.SetAliasRequest.alias:type_name -> plux.v1.Alias
-	7,  // 22: plux.v1.SetAliasResponse.aliases:type_name -> plux.v1.Alias
-	37, // 23: plux.v1.ListLogsRequest.page:type_name -> plux.v1.Page
-	35, // 24: plux.v1.ListLogsRequest.since:type_name -> google.protobuf.Timestamp
-	30, // 25: plux.v1.ListLogsResponse.lines:type_name -> plux.v1.FunctionLogLine
-	38, // 26: plux.v1.ListLogsResponse.page:type_name -> plux.v1.PageResult
-	35, // 27: plux.v1.FunctionLogLine.time:type_name -> google.protobuf.Timestamp
-	33, // 28: plux.v1.GetMetricsResponse.errors_by_kind:type_name -> plux.v1.GetMetricsResponse.ErrorsByKindEntry
-	1,  // 29: plux.v1.FunctionService.Invoke:input_type -> plux.v1.FunctionServiceInvokeRequest
-	10, // 30: plux.v1.FunctionAdminService.UploadSource:input_type -> plux.v1.UploadSourceRequest
-	12, // 31: plux.v1.FunctionAdminService.Build:input_type -> plux.v1.BuildRequest
-	14, // 32: plux.v1.FunctionAdminService.GetBuild:input_type -> plux.v1.GetBuildRequest
-	16, // 33: plux.v1.FunctionAdminService.GetFunction:input_type -> plux.v1.GetFunctionRequest
-	18, // 34: plux.v1.FunctionAdminService.ListFunctions:input_type -> plux.v1.ListFunctionsRequest
-	20, // 35: plux.v1.FunctionAdminService.ListVersions:input_type -> plux.v1.ListVersionsRequest
-	22, // 36: plux.v1.FunctionAdminService.Deploy:input_type -> plux.v1.DeployRequest
-	24, // 37: plux.v1.FunctionAdminService.PromoteFunction:input_type -> plux.v1.PromoteFunctionRequest
-	26, // 38: plux.v1.FunctionAdminService.SetAlias:input_type -> plux.v1.SetAliasRequest
-	28, // 39: plux.v1.FunctionAdminService.ListLogs:input_type -> plux.v1.ListLogsRequest
-	31, // 40: plux.v1.FunctionAdminService.GetMetrics:input_type -> plux.v1.GetMetricsRequest
-	2,  // 41: plux.v1.FunctionService.Invoke:output_type -> plux.v1.FunctionServiceInvokeResponse
-	11, // 42: plux.v1.FunctionAdminService.UploadSource:output_type -> plux.v1.UploadSourceResponse
-	13, // 43: plux.v1.FunctionAdminService.Build:output_type -> plux.v1.BuildResponse
-	15, // 44: plux.v1.FunctionAdminService.GetBuild:output_type -> plux.v1.GetBuildResponse
-	17, // 45: plux.v1.FunctionAdminService.GetFunction:output_type -> plux.v1.GetFunctionResponse
-	19, // 46: plux.v1.FunctionAdminService.ListFunctions:output_type -> plux.v1.ListFunctionsResponse
-	21, // 47: plux.v1.FunctionAdminService.ListVersions:output_type -> plux.v1.ListVersionsResponse
-	23, // 48: plux.v1.FunctionAdminService.Deploy:output_type -> plux.v1.DeployResponse
-	25, // 49: plux.v1.FunctionAdminService.PromoteFunction:output_type -> plux.v1.PromoteFunctionResponse
-	27, // 50: plux.v1.FunctionAdminService.SetAlias:output_type -> plux.v1.SetAliasResponse
-	29, // 51: plux.v1.FunctionAdminService.ListLogs:output_type -> plux.v1.ListLogsResponse
-	32, // 52: plux.v1.FunctionAdminService.GetMetrics:output_type -> plux.v1.GetMetricsResponse
-	41, // [41:53] is the sub-list for method output_type
-	29, // [29:41] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	12, // 1: plux.v1.RunTestsResponse.result:type_name -> plux.v1.FunctionTestResult
+	6,  // 2: plux.v1.RunTestsResponse.finished:type_name -> plux.v1.RunTestsFinished
+	9,  // 3: plux.v1.FunctionVersion.provenance:type_name -> plux.v1.Provenance
+	38, // 4: plux.v1.FunctionVersion.created_by:type_name -> plux.v1.Actor
+	39, // 5: plux.v1.FunctionVersion.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 6: plux.v1.FunctionVersion.capabilities:type_name -> plux.v1.FunctionCapabilities
+	10, // 7: plux.v1.Provenance.dependencies:type_name -> plux.v1.Dependency
+	39, // 8: plux.v1.Provenance.build_time:type_name -> google.protobuf.Timestamp
+	0,  // 9: plux.v1.Build.state:type_name -> plux.v1.BuildState
+	40, // 10: plux.v1.Build.diagnostics:type_name -> plux.v1.Diagnostic
+	12, // 11: plux.v1.Build.test_results:type_name -> plux.v1.FunctionTestResult
+	13, // 12: plux.v1.BuildResponse.build:type_name -> plux.v1.Build
+	13, // 13: plux.v1.GetBuildResponse.build:type_name -> plux.v1.Build
+	7,  // 14: plux.v1.GetFunctionResponse.latest:type_name -> plux.v1.FunctionVersion
+	11, // 15: plux.v1.GetFunctionResponse.aliases:type_name -> plux.v1.Alias
+	41, // 16: plux.v1.ListFunctionsRequest.page:type_name -> plux.v1.Page
+	7,  // 17: plux.v1.ListFunctionsResponse.functions:type_name -> plux.v1.FunctionVersion
+	42, // 18: plux.v1.ListFunctionsResponse.page:type_name -> plux.v1.PageResult
+	41, // 19: plux.v1.ListVersionsRequest.page:type_name -> plux.v1.Page
+	7,  // 20: plux.v1.ListVersionsResponse.versions:type_name -> plux.v1.FunctionVersion
+	42, // 21: plux.v1.ListVersionsResponse.page:type_name -> plux.v1.PageResult
+	7,  // 22: plux.v1.DeployResponse.version:type_name -> plux.v1.FunctionVersion
+	7,  // 23: plux.v1.PromoteFunctionResponse.version:type_name -> plux.v1.FunctionVersion
+	11, // 24: plux.v1.SetAliasRequest.alias:type_name -> plux.v1.Alias
+	11, // 25: plux.v1.SetAliasResponse.aliases:type_name -> plux.v1.Alias
+	41, // 26: plux.v1.ListLogsRequest.page:type_name -> plux.v1.Page
+	39, // 27: plux.v1.ListLogsRequest.since:type_name -> google.protobuf.Timestamp
+	34, // 28: plux.v1.ListLogsResponse.lines:type_name -> plux.v1.FunctionLogLine
+	42, // 29: plux.v1.ListLogsResponse.page:type_name -> plux.v1.PageResult
+	39, // 30: plux.v1.FunctionLogLine.time:type_name -> google.protobuf.Timestamp
+	37, // 31: plux.v1.GetMetricsResponse.errors_by_kind:type_name -> plux.v1.GetMetricsResponse.ErrorsByKindEntry
+	1,  // 32: plux.v1.FunctionService.Invoke:input_type -> plux.v1.FunctionServiceInvokeRequest
+	14, // 33: plux.v1.FunctionAdminService.UploadSource:input_type -> plux.v1.UploadSourceRequest
+	16, // 34: plux.v1.FunctionAdminService.Build:input_type -> plux.v1.BuildRequest
+	18, // 35: plux.v1.FunctionAdminService.GetBuild:input_type -> plux.v1.GetBuildRequest
+	20, // 36: plux.v1.FunctionAdminService.GetFunction:input_type -> plux.v1.GetFunctionRequest
+	22, // 37: plux.v1.FunctionAdminService.ListFunctions:input_type -> plux.v1.ListFunctionsRequest
+	24, // 38: plux.v1.FunctionAdminService.ListVersions:input_type -> plux.v1.ListVersionsRequest
+	26, // 39: plux.v1.FunctionAdminService.Deploy:input_type -> plux.v1.DeployRequest
+	28, // 40: plux.v1.FunctionAdminService.PromoteFunction:input_type -> plux.v1.PromoteFunctionRequest
+	30, // 41: plux.v1.FunctionAdminService.SetAlias:input_type -> plux.v1.SetAliasRequest
+	32, // 42: plux.v1.FunctionAdminService.ListLogs:input_type -> plux.v1.ListLogsRequest
+	35, // 43: plux.v1.FunctionAdminService.GetMetrics:input_type -> plux.v1.GetMetricsRequest
+	4,  // 44: plux.v1.FunctionAdminService.RunTests:input_type -> plux.v1.RunTestsRequest
+	2,  // 45: plux.v1.FunctionService.Invoke:output_type -> plux.v1.FunctionServiceInvokeResponse
+	15, // 46: plux.v1.FunctionAdminService.UploadSource:output_type -> plux.v1.UploadSourceResponse
+	17, // 47: plux.v1.FunctionAdminService.Build:output_type -> plux.v1.BuildResponse
+	19, // 48: plux.v1.FunctionAdminService.GetBuild:output_type -> plux.v1.GetBuildResponse
+	21, // 49: plux.v1.FunctionAdminService.GetFunction:output_type -> plux.v1.GetFunctionResponse
+	23, // 50: plux.v1.FunctionAdminService.ListFunctions:output_type -> plux.v1.ListFunctionsResponse
+	25, // 51: plux.v1.FunctionAdminService.ListVersions:output_type -> plux.v1.ListVersionsResponse
+	27, // 52: plux.v1.FunctionAdminService.Deploy:output_type -> plux.v1.DeployResponse
+	29, // 53: plux.v1.FunctionAdminService.PromoteFunction:output_type -> plux.v1.PromoteFunctionResponse
+	31, // 54: plux.v1.FunctionAdminService.SetAlias:output_type -> plux.v1.SetAliasResponse
+	33, // 55: plux.v1.FunctionAdminService.ListLogs:output_type -> plux.v1.ListLogsResponse
+	36, // 56: plux.v1.FunctionAdminService.GetMetrics:output_type -> plux.v1.GetMetricsResponse
+	5,  // 57: plux.v1.FunctionAdminService.RunTests:output_type -> plux.v1.RunTestsResponse
+	45, // [45:58] is the sub-list for method output_type
+	32, // [32:45] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_function_proto_init() }
@@ -2606,13 +2942,17 @@ func file_plux_v1_function_proto_init() {
 		(*FunctionServiceInvokeResponse_Output)(nil),
 		(*FunctionServiceInvokeResponse_BusinessError)(nil),
 	}
+	file_plux_v1_function_proto_msgTypes[4].OneofWrappers = []any{
+		(*RunTestsResponse_Result)(nil),
+		(*RunTestsResponse_Finished)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_function_proto_rawDesc), len(file_plux_v1_function_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   33,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

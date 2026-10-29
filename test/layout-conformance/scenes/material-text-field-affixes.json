@@ -1,0 +1,119 @@
+{
+  "name": "material-text-field-affixes",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "wf0",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f0",
+                "type": "TextField",
+                "props": {
+                  "prefixText": "$",
+                  "suffixText": "USD",
+                  "border": "outline",
+                  "labelText": "Amount",
+                  "text": "12"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf1",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f1",
+                "type": "TextField",
+                "props": {
+                  "prefixText": "https://",
+                  "filled": true,
+                  "hintText": "example.com"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "wf2",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f2",
+                "type": "TextField",
+                "props": {
+                  "prefixText": "+1",
+                  "suffixText": ".00",
+                  "border": "outline",
+                  "text": "5"
+                },
+                "children": [
+                  {
+                    "id": "f2p",
+                    "type": "Icon",
+                    "props": {},
+                    "slot": "prefixIcon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "wf3",
+            "type": "SizedBox",
+            "props": {
+              "width": 300
+            },
+            "children": [
+              {
+                "id": "f3",
+                "type": "TextField",
+                "props": {
+                  "suffixText": "kg",
+                  "isDense": true,
+                  "filled": true,
+                  "text": "9"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "cap",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

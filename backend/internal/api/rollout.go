@@ -140,6 +140,43 @@ func (s RolloutAdmin) AbortRollout(ctx context.Context, req *connect.Request[plu
 	})
 }
 
+// AdvanceRollout moves a rollout to its next stage at once.
+func (s RolloutAdmin) AdvanceRollout(ctx context.Context, req *connect.Request[pluxv1.AdvanceRolloutRequest]) (*connect.Response[pluxv1.AdvanceRolloutResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.AdvanceRolloutResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		r, err := s.h.Rollouts.AdvanceNow(ctx, p, req.Msg.GetId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.AdvanceRolloutResponse{Rollout: rolloutProto(r)}, nil
+	})
+}
+
+// RescheduleRollout changes when a rollout starts and ends.
+func (s RolloutAdmin) RescheduleRollout(ctx context.Context, req *connect.Request[pluxv1.RescheduleRolloutRequest]) (*connect.Response[pluxv1.RescheduleRolloutResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.RescheduleRolloutResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		w := rollout.Window{ClearEnd: req.Msg.GetClearEndAt()}
+		if t := req.Msg.GetStartAt(); t != nil {
+			w.Start = t.AsTime()
+		}
+		if t := req.Msg.GetEndAt(); t != nil {
+			w.End = t.AsTime()
+		}
+		r, err := s.h.Rollouts.Reschedule(ctx, p, req.Msg.GetId(), w)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.RescheduleRolloutResponse{Rollout: rolloutProto(r)}, nil
+	})
+}
+
 // stagesOf converts the wire stages.
 func stagesOf(in []*pluxv1.Stage) []rollout.Stage {
 	out := make([]rollout.Stage, len(in))

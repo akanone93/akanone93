@@ -1,0 +1,56 @@
+{
+  "name": "constrained-over",
+  "root": {
+    "id": "root-box",
+    "type": "SizedBox",
+    "props": {
+      "width": 5000,
+      "height": 10
+    },
+    "children": [
+      {
+        "id": "center",
+        "type": "Center",
+        "props": {},
+        "children": [
+          {
+            "id": "over",
+            "type": "ConstrainedBox",
+            "props": {
+              "minWidth": 400,
+              "maxWidth": 500,
+              "minHeight": 50
+            },
+            "children": [
+              {
+                "id": "c2",
+                "type": "Center",
+                "props": {},
+                "children": [
+                  {
+                    "id": "cap",
+                    "type": "ConstrainedBox",
+                    "props": {
+                      "maxWidth": 120,
+                      "maxHeight": "infinity"
+                    },
+                    "children": [
+                      {
+                        "id": "fill",
+                        "type": "SizedBox",
+                        "props": {
+                          "width": "infinity",
+                          "height": "infinity"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

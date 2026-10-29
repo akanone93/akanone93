@@ -18,6 +18,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -45,6 +46,13 @@ type Options struct {
 	IDs     IDs
 	// Jobs enqueues builds; the api role sets it.
 	Jobs Enqueuer
+	// Editor runs the language-server sessions and the test runs of the
+	// Rust editor on the builder role (FN-033, FN-034). Nil refuses them.
+	Editor Editor
+	// Shared counts the Rust editor sessions of an organisation across the
+	// API replicas (lsp.sessionsPerOrganization, M-8); nil counts them in
+	// this process only.
+	Shared cache.Cache
 	// Builder compiles a source on the builder role. Nil refuses to run a
 	// build, as on the api role.
 	Builder Builder
@@ -97,6 +105,8 @@ type Service struct {
 	// invoker runs schedules and hooks; it is set by UseInvoker once the
 	// invoker, which needs the service itself, has been built.
 	invoker atomic.Pointer[invokerBox]
+	// editors are the live language-server sessions of this process.
+	editors editorRegistry
 }
 
 // invokerBox lets an interface value sit in an atomic pointer.
@@ -249,7 +259,14 @@ type Version struct {
 	KeyID         string
 	TestsPassed   bool
 	BuildID       string
-	CreatedAt     time.Time
+	// SourceID is the uploaded source the version's build was made from.
+	// It is set by the service's read and write paths, not by versionOf.
+	SourceID string
+	// Declared is the declaration of the version's build: what it was
+	// granted (FN-012). It is nil when the build recorded none, and set
+	// with SourceID.
+	Declared  *Declaration
+	CreatedAt time.Time
 }
 
 // Alias points a name at a version (FN-006).

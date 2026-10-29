@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -25,6 +26,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/jcs"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -404,6 +406,108 @@ func TestLocks(t *testing.T) {
 	}
 }
 
+// takeoverIdle is the default of studio.lockTakeoverIdleMinutes.
+func takeoverIdle(t *testing.T) time.Duration {
+	t.Helper()
+	def, ok := limits.Lookup(limits.StudioLockTakeoverIdleMinutes)
+	if !ok {
+		t.Fatal("studio.lockTakeoverIdleMinutes is not in the registry")
+	}
+	return time.Duration(def.Default) * time.Minute
+}
+
+// idleHolder advances the clock past the takeover idle time while the
+// holder's session keeps renewing the lock without editing.
+func (f *fixture) idleHolder(t *testing.T, holder auth.Principal, plugin, session string) {
+	t.Helper()
+	for end := f.now.Add(takeoverIdle(t)); f.now.Before(end); {
+		f.now = f.now.Add(document.LockHeartbeat)
+		if _, err := f.docs.RenewLock(context.Background(), holder, f.app, plugin, session); err != nil {
+			t.Fatalf("the heartbeat: %v", err)
+		}
+	}
+}
+
+// Verifies: SRV-041.
+// The lock carries the holder's last edit, and force takes it over only
+// once the holder has made no edit for studio.lockTakeoverIdleMinutes or
+// the lease has lapsed after two missed heartbeats (L-1); the override
+// permission is still required, and the takeover is audited with the
+// holder's last edit and a preserved snapshot.
+func TestTakeoverRule_SRV_041(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	path := "plugins/loans/pages/home.page.json"
+	idle := takeoverIdle(t)
+	near := func(a, b time.Time) bool { d := a.Sub(b); return d < time.Millisecond && d > -time.Millisecond }
+
+	if _, _, err := f.docs.AcquireLock(ctx, f.developer, f.app, plugin, "tab-1", false); err != nil {
+		t.Fatal(err)
+	}
+	f.now = f.now.Add(document.LockHeartbeat)
+	if _, err := f.docs.RenewLock(ctx, f.developer, f.app, plugin, "tab-1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, "tab-1", path, pageJSON("home", "One"), 0); err != nil {
+		t.Fatal(err)
+	}
+	edited := f.now
+	got, err := f.docs.GetLock(ctx, f.viewer, f.app, plugin)
+	if err != nil || !near(got.LastEditAt, edited) || !near(got.TakeoverAllowedAt, edited.Add(document.LockLeaseLapse)) {
+		t.Fatalf("the lock after an edit: %+v %v", got, err)
+	}
+	_, _, err = f.docs.AcquireLock(ctx, f.owner, f.app, plugin, "owner-1", true)
+	if code(err) != plxerr.EditingLockHeld || detail(err, "takeoverAllowedAt") != got.TakeoverAllowedAt.Format(time.RFC3339) {
+		t.Fatalf("a takeover right after an edit: %v", err)
+	}
+	// While the lease is alive only the idle time counts. Edits push the
+	// takeover back; heartbeats alone do not.
+	for !f.now.After(edited.Add(idle - document.LockHeartbeat)) {
+		f.now = f.now.Add(document.LockHeartbeat)
+		if _, err := f.docs.RenewLock(ctx, f.developer, f.app, plugin, "tab-1"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, "tab-1", path, pageJSON("home", "Two"), 1); err != nil {
+		t.Fatal(err)
+	}
+	f.now = f.now.Add(document.LockHeartbeat)
+	if _, err := f.docs.RenewLock(ctx, f.developer, f.app, plugin, "tab-1"); err != nil {
+		t.Fatal(err)
+	}
+	if !f.now.After(edited.Add(idle)) {
+		t.Fatal("the clock did not pass the first idle time")
+	}
+	if _, _, err := f.docs.AcquireLock(ctx, f.owner, f.app, plugin, "owner-1", true); code(err) != plxerr.EditingLockHeld {
+		t.Fatalf("a takeover after a recent edit: %v", err)
+	}
+	// Without the override permission the rule does not matter.
+	f.idleHolder(t, f.developer, plugin, "tab-1")
+	if _, _, err := f.docs.AcquireLock(ctx, f.viewer, f.app, plugin, "v", true); code(err) != plxerr.PermissionDenied {
+		t.Errorf("a viewer took over an idle lock: %v", err)
+	}
+	// The holder renews once more, then misses two heartbeats: the lease
+	// has lapsed, so an edit a moment ago would not matter either.
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, "tab-1", path, pageJSON("home", "Three"), 2); err != nil {
+		t.Fatal(err)
+	}
+	f.now = f.now.Add(document.LockLeaseLapse - time.Second)
+	if _, _, err := f.docs.AcquireLock(ctx, f.owner, f.app, plugin, "owner-1", true); code(err) != plxerr.EditingLockHeld {
+		t.Fatalf("a takeover before the lease lapsed: %v", err)
+	}
+	f.now = f.now.Add(time.Second)
+	lock, preserved, err := f.docs.AcquireLock(ctx, f.owner, f.app, plugin, "owner-1", true)
+	if err != nil || preserved == "" || lock.Holder.ID != f.owner.ID || !near(lock.LastEditAt, f.now) {
+		t.Fatalf("a takeover after the lease lapsed: %+v %q %v", lock, preserved, err)
+	}
+	snap, _, err := f.docs.GetSnapshot(ctx, f.owner, preserved, nil)
+	if err != nil || snap.Reason != "lock_takeover" {
+		t.Errorf("the takeover snapshot: %+v %v", snap, err)
+	}
+}
+
 // Verifies: SRV-041.
 // Taking over a lock snapshots the draft and is audited with both
 // parties; a write the displaced session makes afterwards is not applied
@@ -420,6 +524,9 @@ func TestTakeoverPreservesWork(t *testing.T) {
 	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, "tab-1", path, pageJSON("home", "Mine"), 0); err != nil {
 		t.Fatal(err)
 	}
+	// The holder keeps the lease alive but stops editing; after the idle
+	// time it may be taken over (L-1).
+	f.idleHolder(t, f.developer, plugin, "tab-1")
 	_, preserved, err := f.docs.AcquireLock(ctx, f.owner, f.app, plugin, "owner-1", true)
 	if err != nil || preserved == "" {
 		t.Fatalf("takeover: %q %v", preserved, err)
@@ -938,5 +1045,74 @@ func TestTemplatesComponentsAndUsages(t *testing.T) {
 	}
 	if _, err := g.docs.ListUsages(ctx, g.viewer, g.app, "nonsense", badge.ID, "", 50); code(err) == 0 {
 		t.Errorf("an unknown entity kind was accepted")
+	}
+}
+
+func canvasJSON(x int) []byte {
+	return []byte(fmt.Sprintf(`{"schemaVersion":"1.0.0","kind":"canvas","id":"01a0c450-6c00-7033-8000-0000000a0001","positions":[{"id":"01a0c450-6c00-7012-8000-000000022cce","x":%d,"y":8}]}`, x))
+}
+
+func TestCanvasDocumentRoundTrip_STU_032(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	const session = "tab-1"
+	if _, _, err := f.docs.AcquireLock(ctx, f.developer, f.app, plugin, session, false); err != nil {
+		t.Fatal(err)
+	}
+	path := "plugins/loans/canvas.json"
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, session, path, canvasJSON(1), 0); err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, session, path, canvasJSON(2), 1); err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	doc, err := f.docs.GetDocument(ctx, f.viewer, f.app, plugin, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if doc.Revision != 2 || !strings.Contains(string(doc.Content), `"x":2`) {
+		t.Errorf("document: rev %d %s", doc.Revision, doc.Content)
+	}
+	bad := []byte(`{"schemaVersion":"1.0.0","kind":"canvas","id":"01a0c450-6c00-7033-8000-0000000a0001","positions":[{"id":"01a0c450-6c00-7012-8000-000000022cce","x":"far","y":8}]}`)
+	if _, err := f.docs.PutDocument(ctx, f.developer, f.app, plugin, session, path, bad, 2); err == nil {
+		t.Error("an invalid canvas document was stored")
+	}
+}
+
+// Verifies: SRV-030, SRV-040.
+// An app-level document is edited under the app's own lock: a patch of it
+// that names a plugin, and so is made under the plugin's lock, finds no such
+// document in the plugin's draft and is refused; the same patch under the
+// app's lock is applied.
+func TestAppDocumentPatchNeedsTheAppLock(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	const session = "tab-1"
+	theme := []byte(`{"schemaVersion":"1.0.0","kind":"theme","id":"01a0c450-6c00-7011-8000-000000020de1","key":"default","name":"Default","tokens":{"color":{"$type":"color","primary":{"$value":"#5B3DF5"}}}}`)
+	if _, _, err := f.docs.AcquireLock(ctx, f.owner, f.app, "", session, false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.docs.PutDocument(ctx, f.owner, f.app, "", session, "theme.json", theme, 0); err != nil {
+		t.Fatalf("create the theme: %v", err)
+	}
+	if _, _, err := f.docs.AcquireLock(ctx, f.owner, f.app, plugin, session, false); err != nil {
+		t.Fatal(err)
+	}
+	patch := []document.Op{{Op: "replace", Path: "/tokens/color/primary/$value", Value: "#112233"}}
+	if _, err := f.docs.PatchDocument(ctx, f.owner, f.app, plugin, session, "theme.json", patch, 1); code(err) != plxerr.ResourceNotFound {
+		t.Errorf("a patch of the theme under the plugin lock: %v", err)
+	}
+	if _, err := f.docs.PatchDocument(ctx, f.owner, f.app, "", session, "theme.json", patch, 1); err != nil {
+		t.Errorf("a patch of the theme under the app lock: %v", err)
+	}
+	if err := f.docs.ReleaseLock(ctx, f.owner, f.app, "", session); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.docs.PatchDocument(ctx, f.owner, f.app, "", session, "theme.json", patch, 2); code(err) != plxerr.EditingLockHeld {
+		t.Errorf("a patch of the theme without the app lock: %v", err)
 	}
 }

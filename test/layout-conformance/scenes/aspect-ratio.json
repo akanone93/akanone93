@@ -1,0 +1,142 @@
+{
+  "name": "aspect-ratio",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "w",
+            "type": "SizedBox",
+            "props": {
+              "width": 200
+            },
+            "children": [
+              {
+                "id": "ar1",
+                "type": "AspectRatio",
+                "props": {
+                  "aspectRatio": 2
+                },
+                "children": [
+                  {
+                    "id": "a1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cb",
+            "type": "ConstrainedBox",
+            "props": {
+              "maxWidth": 300,
+              "maxHeight": 60
+            },
+            "children": [
+              {
+                "id": "ar2",
+                "type": "AspectRatio",
+                "props": {
+                  "aspectRatio": 1.5
+                },
+                "children": [
+                  {
+                    "id": "a2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cb3",
+            "type": "ConstrainedBox",
+            "props": {
+              "minWidth": 120,
+              "maxWidth": 300,
+              "minHeight": 0,
+              "maxHeight": 300
+            },
+            "children": [
+              {
+                "id": "ar3",
+                "type": "AspectRatio",
+                "props": {
+                  "aspectRatio": 0.5
+                },
+                "children": [
+                  {
+                    "id": "a3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 10,
+                      "height": 10
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "h",
+            "type": "SizedBox",
+            "props": {
+              "height": 40
+            },
+            "children": [
+              {
+                "id": "row",
+                "type": "Row",
+                "props": {
+                  "mainAxisSize": "min"
+                },
+                "children": [
+                  {
+                    "id": "ar4",
+                    "type": "AspectRatio",
+                    "props": {
+                      "aspectRatio": 3
+                    },
+                    "children": [
+                      {
+                        "id": "a4",
+                        "type": "TestBox",
+                        "props": {
+                          "width": 5,
+                          "height": 5
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

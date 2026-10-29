@@ -14,6 +14,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `action.stepsPerRun` | count | 10000 | 80% | 100000 | installation, organization, app, plugin | P4 | ACT-005 | Steps one action run may execute. |
 | `action.traceRuns` | count | 50 | 80% | 1000 | installation, organization, app | P5 | ACT-030 | Action run traces the runtime keeps for diagnostics; the oldest are dropped first. |
 | `action.traceSteps` | count | 200 | 80% | 10000 | installation, organization, app | P5 | ACT-030 | Steps one action run trace records; later steps are counted but not recorded. |
+| `analytics.funnelScanEvents` | count | 500000 | 80% | 5000000 | installation, organization | P11 | ANL-020 | Raw events one funnel result may scan; a result that would scan more fails and asks for a narrower range. |
+| `analytics.funnelSteps` | count | 10 | 80% | 20 | installation, organization | P11 | ANL-020 | Steps one funnel may have. |
 | `anim.compositedSubtree` | count | 40 | 80% | 1000 | installation, organization, app, plugin | P5 | ANI-008 | Nodes below an animated opacity or layout prop before the compiler warns of an expensive animation. |
 | `anim.keyframesPerTrack` | count | 64 | 80% | 1000 | installation, organization, app, plugin | P5 | ANI-002 | Keyframes of one track of a timeline. |
 | `anim.simultaneousTimelines` | count | 6 | 80% | 100 | installation, organization, app, plugin | P5 | ANI-008 | Timelines of one page that autoplay or follow a driver before the compiler warns. |
@@ -24,11 +26,18 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `api.requestsPerMinutePerAddress` | count | 300 | 80% | 100000 | installation | P2 | SRV-065 | API calls one client address may make per minute, whoever is calling. |
 | `api.requestsPerMinutePerDevice` | count | 120 | 80% | 10000 | installation, organization, app | P2 | SRV-065 | API calls one registered device may make per minute. |
 | `app.functions` | count | 100 | 80% | 1000 | installation, organization, app | P7 | LIM-001 | Functions per app. |
+| `app.hostFonts` | count | 32 | 80% | 256 | installation, organization | P11 | STU-006 | Font files of the host app that one app lists for Studio's canvas. |
 | `app.locales` | count | 50 | 80% | 300 | installation, organization, app | P8 | I18N-002 | Locales one app may declare. |
 | `app.plugins` | count | 200 | 80% | 1000 | installation, organization, app | P1 | SCH-005 | Plugins per app. |
+| `app.summariesPerCall` | count | 100 | 80% | 500 | installation | P11 | STU-022 | Apps one summary call returns; a longer list is paged. |
 | `app.translationKeys` | count | 10000 | 80% | 100000 | installation, organization, app | P8 | I18N-007 | Translation keys one app may declare. |
+| `archive.bytes` | bytes | 8388608 | 80% | 268435456 | installation, organization | P11 | STU-023, STU-024 | Size of a .plux archive the server accepts for import. |
+| `archive.entries` | count | 2000 | 80% | 20000 | installation, organization | P11 | STU-023, STU-024 | Files in one .plux archive. |
+| `archive.expandedBytes` | bytes | 67108864 | 80% | 1073741824 | installation, organization | P11 | STU-023, STU-024 | Total size of the files in one .plux archive after unzipping. |
 | `asset.fileSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P2 | SRV-060, AST-003 | Size of one asset file, checked at upload and again at publish. |
 | `asset.imagePixels` | count | 40000000 | 80% | 100000000 | installation | P2 | SRV-060, CMP-030 | Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image. |
+| `asset.uploadChunkBytes` | bytes | 1048576 | 80% | 8388608 | installation | P11 | SRV-060 | Bytes in one chunk of a chunked asset upload; a larger chunk is refused. |
+| `asset.uploadSessionTtl` | milliseconds | 3600000 | 80% | 86400000 | installation | P11 | SRV-060 | Time an unfinished chunked upload is kept after its last chunk before it expires. |
 | `attest.appAttestObjectBytes` | bytes | 65536 | 80% | 262144 | installation | P6 | SEC-004 | Size of an App Attest attestation object or assertion. |
 | `attest.keyAttestationChainCerts` | count | 10 | 80% | 16 | installation | P6 | SEC-002 | Certificates an Android Key Attestation chain may hold. |
 | `attest.playIntegrityTokenBytes` | bytes | 16384 | 80% | 65536 | installation | P6 | SEC-003 | Size of a Play Integrity token the server accepts. |
@@ -47,11 +56,17 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `auth.sessionIdleTimeout` | milliseconds | 1800000 | 80% | 86400000 | installation, organization | P9 | GOV-005 | Time without a request after which a browser session ends; an organisation may shorten it. |
 | `auth.simulatePerMinute` | count | 10 | 80% | 1000 | installation | P9 | GOV-007 | Explain calls with a proposed grant or restriction one principal may make per minute; each evaluates the resolver on a state that does not exist. |
 | `auth.stepUpAttempts` | count | 5 | 80% | 20 | installation | P9 | SEC-103 | Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one. |
+| `bff.requestsPerMinute` | count | 1200 | 80% | 100000 | installation | P11 | STU-002 | Requests the Studio BFF accepts per session per minute before it answers 429. |
+| `bff.streamsPerSession` | count | 8 | 80% | 64 | installation | P11 | STU-002 | Server streams the Studio BFF keeps open per session at once. |
+| `bff.telemetryEventsPerMinute` | count | 120 | 80% | 10000 | installation | P11 | OBS-001 | Telemetry events the Studio BFF accepts per session per minute; the rest are dropped and counted. |
 | `bundle.deviceFunctionModuleSize` | bytes | 4194304 | 80% | 67108864 | installation, organization, app, plugin | P7 | FN-050 | Size of the WebAssembly module of the device-placed functions of one plugin. |
 | `bundle.pageSectionSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app, plugin | P1 | BND-010 | Size of one page section in a bundle. |
 | `bundle.pluginSize` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P1 | BND-010 | Size of one plugin bundle. |
 | `bundle.verifierDepth` | count | 64 | 80% | 256 | installation | P1 | BND-006, QA-004 | Maximum nesting of tables the FlatBuffers verifier accepts in one section. |
 | `bundle.verifierTables` | count | 1000000 | 80% | 10000000 | installation | P1 | BND-006, QA-004 | Maximum number of tables and vectors the FlatBuffers verifier visits in one section. |
+| `canvas.frameMembers` | count | 500 | 80% | 10000 | installation, organization | P11 | STU-032, STU-035, STU-050 | Plugins one frame of a canvas document may group. |
+| `canvas.frames` | count | 200 | 80% | 5000 | installation, organization | P11 | STU-032, STU-035, STU-050 | Frames one canvas document may hold. |
+| `canvas.positions` | count | 1000 | 80% | 20000 | installation, organization | P11 | STU-032, STU-035, STU-050 | Box positions one canvas document may hold. |
 | `confidential.bundleBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P6 | SEC-053, LIM-004 | Bytes of confidential content one confidential bundle may hold. |
 | `config.valueBytes` | bytes | 4096 | 80% | 65536 | installation, organization, app | P6 | DAT-090, LIM-004 | Bytes of one server-held configuration value. |
 | `config.valuesPerEnvironment` | count | 256 | 80% | 4096 | installation, organization, app | P6 | DAT-090, LIM-004 | Server-held configuration values one environment holds. |
@@ -81,11 +96,13 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `db.recordBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app, plugin | P5 | DB-006, LIM-004 | Bytes one record of a local collection may take, encoded as JSON. |
 | `devSession.commandsPerMinute` | count | 120 | 80% | 1200 | installation, organization, app | P10 | DEV-011, DEV-031 | Commands one dev session may send to its devices per minute. |
 | `devSession.devicesPerSession` | count | 5 | 80% | 20 | installation, organization, app | P10 | DEV-002 | Devices that may be paired to one dev session at the same time. |
+| `devSession.draftCompileWorkers` | count | 4 | 80% | 64 | installation | P11 | STU-130 | Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile. |
 | `devSession.idleMinutes` | count | 30 | 80% | 480 | installation, organization, app | P10 | DEV-001 | Minutes without any device event or command after which the server ends a dev session. |
 | `devSession.lifetimeMinutes` | count | 480 | 80% | 1440 | installation, organization, app | P10 | DEV-001 | Lifetime of a dev session, in minutes, from its creation. |
 | `devSession.pairingCodeAttempts` | count | 5 | 80% | 5 | installation, organization, app | P10 | DEV-002 | Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes. |
 | `devSession.pairingTokenSeconds` | count | 120 | 80% | 120 | installation, organization, app | P10 | DEV-002 | Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows. |
 | `devSession.patchBytes` | bytes | 1048576 | 80% | 8388608 | installation, organization, app | P10 | DEV-010 | Size of the document patches of one PushPatch call. |
+| `devSession.patchLogBytes` | bytes | 8388608 | 80% | 67108864 | installation, organization, app | P11 | DEV-010 | Bytes of patches one CLI dev session keeps in its log; a push beyond it is refused until the session restarts. |
 | `device.clipboardChars` | count | 10000 | 80% | 100000 | installation, organization, app | P5 | SEC-080, LIM-004 | Characters copyToClipboard may put on the clipboard in one step. |
 | `device.diskQuota` | bytes | 209715200 | 80% | 4294967296 | installation, organization, app | P3 | SYN-012 | Disk space the runtime may use for releases on one device. |
 | `device.pickCount` | count | 10 | 80% | 100 | installation, organization, app | P5 | SEC-080, LIM-004 | Files a single pickImage or pickFile step may return. |
@@ -101,7 +118,12 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `dpop.replayCacheEntries` | count | 1000000 | 80% | 100000000 | installation | P6 | SEC-023, LIM-004 | Proof identifiers the DPoP replay cache holds. |
 | `dsr.exportBytes` | bytes | 268435456 | 80% | 4294967296 | installation, organization, app | P9 | SEC-162 | Size of one data subject export archive. |
 | `experiments.activePerApp` | count | 20 | 80% | 500 | installation, organization, app | P9 | ABT-001 | Experiments that may be running at once in one app. |
+| `experiments.attributesPerTargeting` | count | 20 | 80% | 100 | installation, organization, app | P11 | ABT-001 | Attribute conditions one experiment may add to its targeting; all must hold. |
+| `experiments.guardrailMetrics` | count | 5 | 80% | 20 | installation, organization, app | P11 | ABT-003 | Guardrail metrics one experiment may have. |
+| `experiments.primaryMetrics` | count | 3 | 80% | 10 | installation, organization, app | P11 | ABT-003 | Primary metrics one experiment may have, the lead metric included. |
+| `experiments.segmentsPerTargeting` | count | 10 | 80% | 50 | installation, organization, app | P11 | ABT-001 | Segments one experiment may target; a device in any of them is eligible. |
 | `flags.perApp` | count | 500 | 80% | 10000 | installation, organization, app | P9 | ABT-001 | Feature flags one app may define. |
+| `flags.segmentValues` | count | 20 | 80% | 100 | installation, organization, app | P11 | ABT-006 | Per-segment values one flag may have. |
 | `function.buildMemory` | bytes | 4294967296 | 80% | 17179869184 | installation, organization, app | P7 | FN-016 | Memory one function build may use. |
 | `function.buildTimeout` | milliseconds | 600000 | 80% | 3600000 | installation, organization, app | P7 | FN-016 | Wall-clock time one function build may run. |
 | `function.callDepth` | count | 3 | 80% | 3 | installation, organization, app | P7 | FN-011 | Depth of nested function-to-function calls within one invocation. |
@@ -136,8 +158,20 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `governance.justificationLength` | codepoints | 2000 | 80% | 20000 | installation, organization | P9 | GOV-024 | Length of the written justification of a break-glass action. |
 | `governance.reportChanges` | count | 20000 | 80% | 1000000 | installation, organization | P9 | GOV-026 | Production changes one compliance report may list; a longer period is refused and is split into shorter ones. |
 | `http.responseSize` | bytes | 1048576 | 80% | 67108864 | installation | P2 | SEC-104, SEC-105 | Size of a response the server reads when it fetches a URL, such as an identity provider's keys. |
+| `library.itemsPerOrganization` | count | 500 | 80% | 10000 | installation, organization | P11 | STU-080, STU-084 | Templates and components one organisation may keep in its library. |
+| `library.versionsPerItem` | count | 100 | 80% | 1000 | installation, organization | P11 | STU-080, STU-084 | Versions one template or component may have; older versions an app adopted are kept. |
+| `lsp.messageBytes` | bytes | 1048576 | 80% | 8388608 | installation, organization | P11 | FN-033 | Size of one language-server message the Rust editor sends to its sandbox; a document the editor opens must fit. |
+| `lsp.sessionMinutes` | count | 60 | 80% | 480 | installation, organization | P11 | STU-110 | Minutes one language-server sandbox may run before it is stopped. |
+| `lsp.sessionsPerOrganization` | count | 10 | 80% | 1000 | installation, organization | P11 | STU-110 | Language-server sandboxes of the Rust editor running at once in one organisation. |
 | `media.pinnedDownloadSize` | bytes | 209715200 | 80% | 1073741824 | installation, organization, app | P8 | SEC-041 | Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client). |
+| `metadata.descriptionLength` | codepoints | 2000 | 80% | 20000 | installation, organization | P11 | STU-034 | Length of the description of an app or a plugin. |
+| `metadata.iconIdLength` | codepoints | 200 | 80% | 1000 | installation, organization | P11 | STU-034 | Length of the asset identifier an app or a plugin uses as its icon. |
+| `metadata.tagLength` | codepoints | 40 | 80% | 200 | installation, organization | P11 | STU-034 | Length of one tag on an app or a plugin. |
+| `metadata.tagsPerItem` | count | 20 | 80% | 100 | installation, organization | P11 | STU-034 | Tags one app or one plugin may carry. |
+| `notifications.paramBytes` | bytes | 1024 | 80% | 8192 | installation | P11 | SRV-062 | Largest value of one display parameter of a notification; an event with a larger one is refused. |
+| `notifications.paramsPerEvent` | count | 16 | 80% | 64 | installation | P11 | SRV-062 | Display parameters one notification event may carry; an event with more is refused. |
 | `notifications.perHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | SRV-062 | Notifications one organisation may send in an hour across all channels; the excess is dropped and audited. |
+| `notifications.retentionDays` | count | 90 | 80% | 3650 | installation, organization | P11 | SRV-062 | Days an inbox notification is kept before it is deleted. |
 | `page.animations` | count | 30 | 10 | 200 | installation, organization, app, plugin | P1 | CMP-040 | Animations that can run at the same time on one page. |
 | `page.buildCost` | microseconds | 16000 | 8000 | 100000 | installation, organization, app, plugin | P1 | CMP-040 | Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints. |
 | `page.depth` | count | 64 | 32 | 128 | installation, organization, app, plugin | P1 | SCH-005, CMP-040 | Depth of a page's node tree. |
@@ -145,6 +179,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `page.nodes` | count | 5000 | 1000 | 50000 | installation, organization, app, plugin | P1 | SCH-005, CMP-040 | Nodes in one page document. Above the warning threshold the compiler reports the page. |
 | `plugin.assetBytes` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P2 | AST-003 | Bytes of the asset files one plugin's pages and icon use, checked at publish. |
 | `plugin.pages` | count | 500 | 80% | 2000 | installation, organization, app, plugin | P1 | SCH-005 | Pages per plugin. |
+| `project.bytes` | bytes | 67108864 | 80% | 536870912 | installation | P11 | GEN-001, GEN-004 | Size of a generated host project (zip). |
+| `project.jobsPerHour` | count | 10 | 80% | 1000 | installation, organization | P11 | GEN-001, GEN-004 | Project generation jobs one app may queue per hour. |
 | `publish.assetWait` | milliseconds | 600000 | 80% | 3600000 | installation | P3 | CMP-030, REL-003 | Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails. |
 | `push.batchSize` | count | 200 | 80% | 5000 | installation | P9 | SYN-060 | Devices one silent-push job sends to before it hands the rest to a follow-up job. |
 | `push.tokenBytes` | bytes | 1024 | 80% | 4096 | installation | P9 | SYN-060 | Length of the push token a device may register for silent push. |
@@ -159,6 +195,11 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `pxl.stringLength` | codepoints | 65536 | 80% | 1048576 | installation, organization, app, plugin | P1 | PXL-001 | Length of a string produced during one PXL evaluation. |
 | `reconstruction.retentionDays` | count | 365 | 80% | 3650 | installation, organization, app | P9 | SEC-142 | Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable. |
 | `release.appSize` | bytes | 104857600 | 80% | 1073741824 | installation, organization, app | P1 | BND-010 | Total size of one app release: the app bundle and every plugin bundle. |
+| `render.visualDiffJobsPerOrganization` | count | 2 | 80% | 50 | installation, organization | P11 | STU-100 | Visual-diff render jobs of one organisation running at once; further jobs wait in the queue. |
+| `replay.bytesPerReplay` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P11 | ANL-050 | The size of one structural session replay after encoding; the runtime stops recording at it and the server refuses a larger replay (ANL-050). |
+| `replay.eventsPerReplay` | count | 2000 | 80% | 20000 | installation, organization, app | P11 | ANL-050 | Events (screens, layout snapshots, taps, inputs and state changes) in one structural session replay; the runtime stops recording at it and the server refuses more (ANL-050). |
+| `replay.perDevicePerDay` | count | 5 | 80% | 100 | installation, organization, app | P11 | ANL-050 | Structural session replays one device may upload in a day; the runtime records no more and the server refuses the surplus (ANL-050). |
+| `replay.retentionDays` | count | 7 | 80% | 90 | installation, organization, app | P11 | ANL-050 | Days a structural session replay is kept; older replays are deleted by the retention sweep (ANL-050). |
 | `rollouts.activePerApp` | count | 10 | 80% | 100 | installation, organization, app | P9 | REL-050 | Staged rollouts that may be in progress at once in one app. |
 | `runtime.imageDiskCacheBytes` | bytes | 67108864 | 80% | 1073741824 | installation, organization, app | P3 | RT-014, AST-002 | Disk space the runtime's cache of remote images may use on one device. |
 | `runtime.imageSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P3 | AST-002, SEC-104 | Size of one remote image the runtime downloads; a larger one is refused. |
@@ -170,6 +211,21 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `securityConfig.patchBytes` | bytes | 16384 | 80% | 262144 | installation, organization, app | P6 | SEC-182, LIM-004 | Bytes of a security configuration patch, encoded. |
 | `state.persistedBytes` | bytes | 1048576 | 80% | 16777216 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the persisted state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
 | `state.secureBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
+| `studio.autosaveDebounceMs` | milliseconds | 500 | 80% | 5000 | installation, organization | P11 | STU-004 | Quiet time after the last edit before Studio autosaves the change as a JSON Patch. |
+| `studio.autosaveReplays` | count | 3 | 80% | 10 | installation, organization | P11 | STU-004 | Times Studio replays an autosave on a newer revision after a conflict before it asks the user. |
+| `studio.changeSetDocuments` | count | 500 | 80% | 5000 | installation, organization | P11 | STU-055, STU-070 | Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links). |
+| `studio.clipboardBytes` | bytes | 4194304 | 80% | 33554432 | installation, organization | P11 | STU-067 | Size of one Studio clipboard envelope; a larger copy is refused. |
+| `studio.customFrameMaxDensity` | count | 4 | 80% | 4 | installation, organization | P11 | STU-057 | Largest pixel density of a custom device frame (D40); the smallest is 1. |
+| `studio.customFrameMaxPixels` | count | 4096 | 80% | 8192 | installation, organization | P11 | STU-057 | Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused. |
+| `studio.eventsStreamBufferEvents` | count | 1000 | 80% | 10000 | installation | P11 | STU-075 | Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state. |
+| `studio.favouriteApps` | count | 100 | 80% | 1000 | installation, organization | P11 | STU-014 | Apps one user may mark as favourites in an organisation's Studio preferences. |
+| `studio.lockIdleReleaseMinutes` | count | 10 | 80% | 120 | installation, organization, app | P11 | SRV-040 | Minutes without an edit after which Studio releases an editing lock it holds. |
+| `studio.lockTakeoverIdleMinutes` | count | 5 | 80% | 60 | installation, organization, app | P11 | SRV-041 | Minutes the lock holder must have made no edit before another user may take the lock over; a lapsed lease allows it at once. |
+| `studio.pinnedItems` | count | 50 | 80% | 500 | installation, organization | P11 | STU-014 | Studio paths one user may pin in an organisation's Studio preferences. |
+| `studio.preferencesBytes` | bytes | 65536 | 80% | 1048576 | installation, organization | P11 | STU-014 | Bytes of one user's stored Studio preferences in an organisation, as JSON. |
+| `studio.thumbnailBytes` | bytes | 262144 | 80% | 2097152 | installation, organization, app | P11 | STU-021 | Size of one canvas or screen thumbnail Studio uploads. |
+| `studio.undoDepth` | count | 200 | 80% | 1000 | installation, organization | P11 | STU-069 | Undo steps kept per editor session and plugin. |
+| `studio.userEventsTTLMinutes` | count | 1440 | 80% | 10080 | installation | P11 | STU-075 | Minutes a person's Studio events log (inbox unread count) is kept after its last event, so a tab that was away that long reloads its state. |
 | `sync.backgroundIntervalMinutes` | count | 360 | 80% | 1440 | installation, organization, app | P10 | SYN-014 | Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant. |
 | `telemetry.batchBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P9 | ANL-010 | Bytes one telemetry batch may carry on the wire after decompression. |
 | `telemetry.bufferBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P3 | ANL-002 | The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first. |
@@ -177,6 +233,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `telemetry.eventsPerRequest` | count | 500 | 80% | 5000 | installation, organization, app | P2 | SEC-104 | Runtime events one telemetry request may carry. |
 | `telemetry.exportBatchEvents` | count | 500 | 80% | 5000 | installation, organization | P9 | ANL-011 | Events one signed-webhook message of the enterprise analytics export carries. |
 | `telemetry.exportFileRows` | count | 100000 | 80% | 1000000 | installation, organization | P9 | ANL-011 | Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files. |
+| `test.stepsPerRun` | count | 5000 | 80% | 100000 | installation, organization, app | P11 | TST-002 | Scenarios and steps one reported Plux Test run may contain. |
 | `translation.importSize` | bytes | 16777216 | 80% | 134217728 | installation, organization, app | P8 | I18N-009 | Size of one translation import file. |
 | `translation.messageSize` | bytes | 4096 | 80% | 65536 | installation, organization, app | P8 | I18N-001 | Size of one translation message. |
 | `updateMetadata.bytes` | bytes | 1048576 | 80% | 4194304 | installation | P6 | SEC-050 | Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves. |

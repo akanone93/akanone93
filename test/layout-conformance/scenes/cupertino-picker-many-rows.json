@@ -1,0 +1,167 @@
+{
+  "name": "cupertino-picker-many-rows",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "sized",
+        "type": "SizedBox",
+        "props": {
+          "height": 180,
+          "width": 280
+        },
+        "children": [
+          {
+            "id": "picker",
+            "type": "CupertinoPicker",
+            "props": {
+              "itemExtent": 40,
+              "selectedItem": 5
+            },
+            "children": [
+              {
+                "id": "r0",
+                "type": "Text",
+                "props": {
+                  "text": "January",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r1",
+                "type": "Text",
+                "props": {
+                  "text": "February",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r2",
+                "type": "Text",
+                "props": {
+                  "text": "March",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r3",
+                "type": "Text",
+                "props": {
+                  "text": "April",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r4",
+                "type": "Text",
+                "props": {
+                  "text": "May",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r5",
+                "type": "Text",
+                "props": {
+                  "text": "June",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r6",
+                "type": "Text",
+                "props": {
+                  "text": "July",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r7",
+                "type": "Text",
+                "props": {
+                  "text": "August",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r8",
+                "type": "Text",
+                "props": {
+                  "text": "September",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r9",
+                "type": "Text",
+                "props": {
+                  "text": "October",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r10",
+                "type": "Text",
+                "props": {
+                  "text": "November",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              },
+              {
+                "id": "r11",
+                "type": "Text",
+                "props": {
+                  "text": "December",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

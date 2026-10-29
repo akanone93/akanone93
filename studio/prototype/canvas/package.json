@@ -1,0 +1,30 @@
+{
+  "name": "plux-canvas-prototype",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Measurement harness for the Plux Canvas design (P11 S0.8). Not product code and not part of the Studio workspace.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "measure": "bun run measure.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@base-ui-components/react": "1.0.0-rc.0",
+    "@base-ui/react": "1.9.0",
+    "@happy-dom/global-registrator": "21.0.4",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.8",
+    "canvaskit-wasm": "0.42.0",
+    "happy-dom": "21.0.4",
+    "playwright": "1.63.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
+  }
+}

@@ -1,0 +1,126 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+import "plux/v1/telemetry.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// ReplayService stores and serves structural session replays (ANL-050,
+// ADR-0101): the screens a user opened, the layout of their nodes, which
+// node they touched and which non-sensitive state entries changed. A replay
+// never holds a pixel, a text or a sensitive value (SCH-012).
+service ReplayService {
+  // IngestReplay stores one replay a device recorded. It is a device RPC:
+  // the device must have declared the replay consent, and the server drops
+  // what a replay may not hold and refuses one above a replay.* limit.
+  rpc IngestReplay(IngestReplayRequest) returns (IngestReplayResponse) {}
+  // ListReplays lists an environment's replays, newest first. It needs
+  // analytics.read.
+  rpc ListReplays(ListReplaysRequest) returns (ListReplaysResponse) {}
+  // GetReplay returns one replay with its events. It needs analytics.read.
+  rpc GetReplay(GetReplayRequest) returns (GetReplayResponse) {}
+}
+
+// ReplayNode is a node of a layout snapshot.
+message ReplayNode {
+  // path is the node's path in the page, as errors report it.
+  string path = 1;
+  // widget is the widget type name.
+  string widget = 2;
+  // x, y, width and height are the rectangle in logical pixels.
+  double x = 3;
+  double y = 4;
+  double width = 5;
+  double height = 6;
+  // masked marks an input or a secure widget: only its rectangle is kept.
+  bool masked = 7;
+}
+
+// ReplayEvent is one step of a replay.
+message ReplayEvent {
+  // at_ms is the offset from the replay's start.
+  int32 at_ms = 1;
+  // kind is screen, layout, tap, input or state.
+  string kind = 2;
+  // route and plugin_key identify the screen of a screen event.
+  string route = 3;
+  string plugin_key = 4;
+  // nodes is the layout of a layout event.
+  repeated ReplayNode nodes = 5;
+  // node_path is the node a tap or input touched.
+  string node_path = 6;
+  // fx and fy are the tap position inside the node, 0 to 1.
+  double fx = 7;
+  double fy = 8;
+  // name is the state entry of a state event.
+  string name = 9;
+  // value_type is the type of the entry; value is set only for bool, int
+  // and double entries.
+  string value_type = 10;
+  string value = 11;
+}
+
+// Replay is the summary of a stored replay.
+message Replay {
+  string id = 1;
+  string app_id = 2;
+  string device_id = 3;
+  google.protobuf.Timestamp started_at = 4;
+  int32 duration_ms = 5;
+  int32 event_count = 6;
+  int32 bytes = 7;
+  int64 release_sequence = 8;
+  // truncated is set when the runtime stopped at a limit.
+  bool truncated = 9;
+  // route is the first screen of the replay.
+  string route = 10;
+  google.protobuf.Timestamp expires_at = 11;
+}
+
+message IngestReplayRequest {
+  string app_id = 1;
+  string environment = 2;
+  // id is a random UUID the device made, so that a retried upload is
+  // stored once.
+  string id = 3;
+  google.protobuf.Timestamp started_at = 4;
+  int32 duration_ms = 5;
+  int64 release_sequence = 6;
+  bool truncated = 7;
+  repeated ReplayEvent events = 8;
+  // consent is what the runtime had when it recorded the replay; the
+  // replay is refused unless consent.replay is set.
+  Consent consent = 9;
+}
+message IngestReplayResponse {
+  // stored is false when a replay with the same id was already stored.
+  bool stored = 1;
+  // dropped counts the events the server removed because a replay may not
+  // hold them.
+  int32 dropped = 2;
+}
+
+message ListReplaysRequest {
+  string app_id = 1;
+  string environment = 2;
+  Page page = 3;
+}
+message ListReplaysResponse {
+  repeated Replay replays = 1;
+  PageResult page = 2;
+}
+
+message GetReplayRequest {
+  string app_id = 1;
+  string id = 2;
+}
+message GetReplayResponse {
+  Replay replay = 1;
+  repeated ReplayEvent events = 2;
+}

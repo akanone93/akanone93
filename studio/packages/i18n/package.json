@@ -1,0 +1,13 @@
+{
+  "name": "@plux/i18n",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Studio localisation: locales, negotiation, direction, pseudo-locales and Intl helpers on Lingui (STU-012, I18N-010, ADR-0094).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@lingui/core": "6.10.1"
+  }
+}

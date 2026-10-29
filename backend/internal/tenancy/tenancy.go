@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -218,4 +219,47 @@ func checkRole(s string) error {
 type Page struct {
 	After storage.Cursor
 	Size  int32
+	// Filter narrows and orders ListApps (plan P11 §4.3 #13); its zero value
+	// lists live apps by key.
+	Filter AppFilter
+}
+
+// AppFilter is the search, filter and order of an app listing.
+type AppFilter struct {
+	Query           string
+	Tags            []string
+	OwningTeamID    string
+	IncludeArchived bool
+	// Status is "" or "active" (archived apps left out), "archived" (only
+	// them) or "all".
+	Status string
+	// Mine keeps the apps the caller holds a grant on or that a team of the
+	// caller owns.
+	Mine bool
+	// Sort is "key" (default), "name" or "updated" (newest first).
+	Sort string
+}
+
+// Metadata is a partial update of descriptive metadata: a nil field is left
+// as it is. Tags replace the stored ones when SetTags is true.
+type Metadata struct {
+	Description  *string
+	IconAssetID  *string
+	OwningTeamID *string
+	SetTags      bool
+	Tags         []string
+	Archived     *bool
+}
+
+// SortKey is the cursor value of an app under a sort order; it mirrors the
+// ORDER BY of the ListApps query.
+func SortKey(a App, sort string) string {
+	switch sort {
+	case "name":
+		return strings.ToLower(a.Name)
+	case "updated":
+		return fmt.Sprintf("%018d", 253402300799000000-a.UpdatedAt.UnixMicro())
+	default:
+		return a.Key
+	}
 }

@@ -299,6 +299,13 @@ func experimentResults(ctx context.Context, client pluxv1connect.ExperimentServi
 		guardrails = append(guardrails, metricView(g))
 	}
 	view["guardrails"] = guardrails
+	if len(r.GetPrimaries()) > 1 {
+		primaries := []map[string]any{}
+		for _, m := range r.GetPrimaries() {
+			primaries = append(primaries, metricView(m))
+		}
+		view["primaries"] = primaries
+	}
 	return view, resultsText(r), nil
 }
 
@@ -332,6 +339,11 @@ func resultsText(r *pluxv1.GetResultsResponse) string {
 		fmt.Fprintf(&b, "WARNING PLX-%d: the split of subjects differs from the allocation (p = %.2g); do not trust the comparisons\n", r.GetSampleRatioCode(), r.GetSampleRatioPValue())
 	}
 	writeMetric(&b, "primary", r.GetPrimary())
+	if len(r.GetPrimaries()) > 1 {
+		for _, m := range r.GetPrimaries()[1:] {
+			writeMetric(&b, "primary", m)
+		}
+	}
 	for _, g := range r.GetGuardrails() {
 		writeMetric(&b, "guardrail", g)
 	}

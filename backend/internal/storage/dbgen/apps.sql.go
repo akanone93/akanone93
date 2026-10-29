@@ -11,10 +11,79 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const appUsage = `-- name: AppUsage :many
+SELECT a.id AS app_id,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugins,
+       COALESCE((SELECT r.size FROM releases r WHERE r.app_id = a.id ORDER BY r.sequence DESC LIMIT 1), 0)::bigint AS release_size,
+       COALESCE((SELECT max(n) FROM (
+           SELECT count(*) AS n FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+            WHERE dr.app_id = a.id AND dr.plugin_id IS NOT NULL AND d.kind = 'page' AND d.deleted_at IS NULL
+            GROUP BY dr.plugin_id) pages), 0)::bigint AS max_pages,
+       COALESCE((SELECT sum(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS asset_bytes,
+       COALESCE((SELECT max(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS max_asset_file,
+       COALESCE((SELECT max(v.bundle_size) FROM (
+           SELECT DISTINCT ON (pv.plugin_id) pv.bundle_size FROM plugin_versions pv
+            WHERE pv.app_id = a.id AND pv.plugin_id IS NOT NULL
+            ORDER BY pv.plugin_id, pv.version DESC) v), 0)::bigint AS max_bundle_size,
+       (SELECT count(DISTINCT f.name) FROM function_versions f WHERE f.app_id = a.id)::bigint AS functions,
+       (SELECT count(*) FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+         WHERE dr.app_id = a.id AND dr.plugin_id IS NULL AND d.kind = 'translations' AND d.deleted_at IS NULL)::bigint AS locales,
+       (SELECT count(DISTINCT ff.key) FROM feature_flags ff WHERE ff.app_id = a.id)::bigint AS flags
+  FROM apps a
+ WHERE a.id = ANY ($1::uuid[])
+`
+
+type AppUsageRow struct {
+	AppID         pgtype.UUID
+	Plugins       int64
+	ReleaseSize   int64
+	MaxPages      int64
+	AssetBytes    int64
+	MaxAssetFile  int64
+	MaxBundleSize int64
+	Functions     int64
+	Locales       int64
+	Flags         int64
+}
+
+// What each app of a set uses of its app-scope limits, in one pass for the
+// whole set (STU-025, LIM-005). The per-plugin limits are reported as the
+// largest value any plugin of the app has, which is what the limit bounds.
+func (q *Queries) AppUsage(ctx context.Context, appIds []pgtype.UUID) ([]AppUsageRow, error) {
+	rows, err := q.db.Query(ctx, appUsage, appIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AppUsageRow{}
+	for rows.Next() {
+		var i AppUsageRow
+		if err := rows.Scan(
+			&i.AppID,
+			&i.Plugins,
+			&i.ReleaseSize,
+			&i.MaxPages,
+			&i.AssetBytes,
+			&i.MaxAssetFile,
+			&i.MaxBundleSize,
+			&i.Functions,
+			&i.Locales,
+			&i.Flags,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const createApp = `-- name: CreateApp :one
 INSERT INTO apps (id, organization_id, key, name)
 VALUES ($1, $2, $3, $4)
-RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 type CreateAppParams struct {
@@ -41,6 +110,12 @@ func (q *Queries) CreateApp(ctx context.Context, arg CreateAppParams) (App, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -279,7 +354,7 @@ func (q *Queries) FindAppAccess(ctx context.Context, arg FindAppAccessParams) (A
 }
 
 const getApp = `-- name: GetApp :one
-SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at FROM apps WHERE id = $1 AND deleted_at IS NULL
+SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts FROM apps WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetApp(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -294,12 +369,18 @@ func (q *Queries) GetApp(ctx context.Context, id pgtype.UUID) (App, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
 
 const getAppIncludingDeleted = `-- name: GetAppIncludingDeleted :one
-SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at FROM apps WHERE id = $1
+SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts FROM apps WHERE id = $1
 `
 
 func (q *Queries) GetAppIncludingDeleted(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -314,6 +395,12 @@ func (q *Queries) GetAppIncludingDeleted(ctx context.Context, id pgtype.UUID) (A
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -531,6 +618,48 @@ func (q *Queries) GrantAppAccess(ctx context.Context, arg GrantAppAccessParams) 
 	return i, err
 }
 
+const lastReleasePublishers = `-- name: LastReleasePublishers :many
+SELECT DISTINCT ON (r.app_id) r.app_id, r.created_by_kind, r.created_by_id, r.created_by, r.created_at
+  FROM releases r
+ WHERE r.app_id = ANY ($1::uuid[])
+ ORDER BY r.app_id, r.sequence DESC
+`
+
+type LastReleasePublishersRow struct {
+	AppID         pgtype.UUID
+	CreatedByKind string
+	CreatedByID   string
+	CreatedBy     string
+	CreatedAt     pgtype.Timestamptz
+}
+
+// Who created the newest release of each app in a set, and when (STU-022).
+func (q *Queries) LastReleasePublishers(ctx context.Context, appIds []pgtype.UUID) ([]LastReleasePublishersRow, error) {
+	rows, err := q.db.Query(ctx, lastReleasePublishers, appIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LastReleasePublishersRow{}
+	for rows.Next() {
+		var i LastReleasePublishersRow
+		if err := rows.Scan(
+			&i.AppID,
+			&i.CreatedByKind,
+			&i.CreatedByID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAppAccess = `-- name: ListAppAccess :many
 SELECT id, organization_id, app_id, team_id, user_id, role, granted_at FROM app_access WHERE app_id = $1 AND id > $2::uuid ORDER BY id LIMIT $3
 `
@@ -611,32 +740,66 @@ func (q *Queries) ListAppRolesForUser(ctx context.Context, arg ListAppRolesForUs
 }
 
 const listApps = `-- name: ListApps :many
-SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at FROM apps
- WHERE organization_id = $1 AND deleted_at IS NULL
-   AND ($2::uuid[] IS NULL OR id = ANY ($2::uuid[]))
-   AND NOT (id = ANY ($3::uuid[]))
-   AND (key, id) > ($4::text, $5::uuid)
- ORDER BY key, id
- LIMIT $6
+SELECT id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts FROM apps
+ WHERE apps.organization_id = $1 AND apps.deleted_at IS NULL
+   AND ($2::uuid[] IS NULL OR apps.id = ANY ($2::uuid[]))
+   AND NOT (apps.id = ANY ($3::uuid[]))
+   AND ($4::boolean OR archived_at IS NULL)
+   AND (NOT $5::boolean OR archived_at IS NOT NULL)
+   AND ($6::uuid = '00000000-0000-0000-0000-000000000000'::uuid
+        OR EXISTS (SELECT 1 FROM app_access a WHERE a.app_id = apps.id
+                    AND (a.user_id = $6::uuid
+                         OR a.team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = $6::uuid AND m.team_id IS NOT NULL)))
+        OR apps.owning_team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = $6::uuid AND m.team_id IS NOT NULL))
+   AND ($7::text = '' OR position(lower($7::text) IN lower(key || ' ' || name || ' ' || description || ' ' || array_to_string(tags, ' '))) > 0)
+   AND (cardinality($8::text[]) = 0 OR tags @> $8::text[])
+   AND ($9::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR owning_team_id = $9::uuid)
+   AND (CASE $10::text
+          WHEN 'name' THEN lower(name)
+          WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
+          ELSE key END, id) > ($11::text, $12::uuid)
+ ORDER BY (CASE $10::text
+          WHEN 'name' THEN lower(name)
+          WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
+          ELSE key END), id
+ LIMIT $13
 `
 
 type ListAppsParams struct {
-	OrganizationID pgtype.UUID
-	OnlyIds        []pgtype.UUID
-	ExceptIds      []pgtype.UUID
-	AfterKey       string
-	AfterID        pgtype.UUID
-	PageSize       int32
+	OrganizationID  pgtype.UUID
+	OnlyIds         []pgtype.UUID
+	ExceptIds       []pgtype.UUID
+	IncludeArchived bool
+	OnlyArchived    bool
+	MineUser        pgtype.UUID
+	Query           string
+	Tags            []string
+	OwningTeamID    pgtype.UUID
+	Sort            string
+	AfterKey        string
+	AfterID         pgtype.UUID
+	PageSize        int32
 }
 
 // only_ids, when not NULL, restricts the list to the apps a caller was
 // granted one by one (GOV-001); except_ids leaves out the apps a restriction
-// takes app.read away from (GOV-006).
+// takes app.read away from (GOV-006). sort_key is the cursor column of the
+// chosen order (key, name, or newest-first updated); the Go mirror is
+// tenancy.sortKey. Archived apps are left out unless include_archived; only_archived keeps
+// just them; mine_user, when not the zero UUID, keeps the apps that user holds
+// a grant on (directly or through a team) or that one of their teams owns.
 func (q *Queries) ListApps(ctx context.Context, arg ListAppsParams) ([]App, error) {
 	rows, err := q.db.Query(ctx, listApps,
 		arg.OrganizationID,
 		arg.OnlyIds,
 		arg.ExceptIds,
+		arg.IncludeArchived,
+		arg.OnlyArchived,
+		arg.MineUser,
+		arg.Query,
+		arg.Tags,
+		arg.OwningTeamID,
+		arg.Sort,
 		arg.AfterKey,
 		arg.AfterID,
 		arg.PageSize,
@@ -657,6 +820,12 @@ func (q *Queries) ListApps(ctx context.Context, arg ListAppsParams) ([]App, erro
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Description,
+			&i.IconAssetID,
+			&i.OwningTeamID,
+			&i.Tags,
+			&i.ArchivedAt,
+			&i.HostFonts,
 		); err != nil {
 			return nil, err
 		}
@@ -971,6 +1140,50 @@ func (q *Queries) ListVariables(ctx context.Context, arg ListVariablesParams) ([
 	return items, nil
 }
 
+const liveReleases = `-- name: LiveReleases :many
+SELECT e.app_id, e.key AS environment_key, max(c.release_sequence)::bigint AS release_sequence,
+       max(r.created_at)::timestamptz AS published_at
+  FROM environments e
+  JOIN channels c ON c.environment_id = e.id
+  LEFT JOIN releases r ON r.environment_id = e.id AND r.sequence = c.release_sequence
+ WHERE e.app_id = ANY ($1::uuid[])
+ GROUP BY e.app_id, e.key
+ ORDER BY e.app_id, e.key
+`
+
+type LiveReleasesRow struct {
+	AppID           pgtype.UUID
+	EnvironmentKey  string
+	ReleaseSequence int64
+	PublishedAt     pgtype.Timestamptz
+}
+
+// The newest release any channel of each environment serves, for a set of apps.
+func (q *Queries) LiveReleases(ctx context.Context, appIds []pgtype.UUID) ([]LiveReleasesRow, error) {
+	rows, err := q.db.Query(ctx, liveReleases, appIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LiveReleasesRow{}
+	for rows.Next() {
+		var i LiveReleasesRow
+		if err := rows.Scan(
+			&i.AppID,
+			&i.EnvironmentKey,
+			&i.ReleaseSequence,
+			&i.PublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const markTrashRestored = `-- name: MarkTrashRestored :execrows
 UPDATE trash SET restored_at = now() WHERE id = $1 AND restored_at IS NULL
 `
@@ -996,7 +1209,7 @@ func (q *Queries) PurgeApp(ctx context.Context, id pgtype.UUID) (int64, error) {
 }
 
 const restoreApp = `-- name: RestoreApp :one
-UPDATE apps SET deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at
+UPDATE apps SET deleted_at = NULL, updated_at = now() WHERE id = $1 RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 func (q *Queries) RestoreApp(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -1011,6 +1224,12 @@ func (q *Queries) RestoreApp(ctx context.Context, id pgtype.UUID) (App, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -1171,7 +1390,7 @@ func (q *Queries) SetVariable(ctx context.Context, arg SetVariableParams) (Envir
 }
 
 const softDeleteApp = `-- name: SoftDeleteApp :one
-UPDATE apps SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at
+UPDATE apps SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 func (q *Queries) SoftDeleteApp(ctx context.Context, id pgtype.UUID) (App, error) {
@@ -1186,15 +1405,119 @@ func (q *Queries) SoftDeleteApp(ctx context.Context, id pgtype.UUID) (App, error
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
+}
+
+const summariseApps = `-- name: SummariseApps :many
+SELECT a.id, a.organization_id, a.key, a.name, a.default_plugin_key, a.created_at, a.updated_at, a.deleted_at, a.description, a.icon_asset_id, a.owning_team_id, a.tags, a.archived_at, a.host_fonts,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugin_count,
+       (SELECT count(*) FROM devices d WHERE d.app_id = a.id AND d.last_seen_at > now() - interval '7 days')::bigint AS active_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '7 days')::bigint AS crashed_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '14 days' AND g.last_seen <= now() - interval '7 days')::bigint AS crashed_devices_before,
+       (SELECT max(r.created_at) FROM releases r WHERE r.app_id = a.id)::timestamptz AS last_published_at
+  FROM apps a
+ WHERE a.organization_id = $1 AND a.deleted_at IS NULL AND a.archived_at IS NULL
+   AND ($2::uuid[] IS NULL OR a.id = ANY ($2::uuid[]))
+   AND NOT (a.id = ANY ($3::uuid[]))
+   AND a.key > $4::text
+ ORDER BY a.key
+ LIMIT $5
+`
+
+type SummariseAppsParams struct {
+	OrganizationID pgtype.UUID
+	OnlyIds        []pgtype.UUID
+	ExceptIds      []pgtype.UUID
+	AfterKey       string
+	PageSize       int32
+}
+
+type SummariseAppsRow struct {
+	ID                   pgtype.UUID
+	OrganizationID       pgtype.UUID
+	Key                  string
+	Name                 string
+	DefaultPluginKey     string
+	CreatedAt            pgtype.Timestamptz
+	UpdatedAt            pgtype.Timestamptz
+	DeletedAt            pgtype.Timestamptz
+	Description          string
+	IconAssetID          string
+	OwningTeamID         pgtype.UUID
+	Tags                 []string
+	ArchivedAt           pgtype.Timestamptz
+	HostFonts            []byte
+	PluginCount          int64
+	ActiveDevices        int64
+	CrashedDevices       int64
+	CrashedDevicesBefore int64
+	LastPublishedAt      pgtype.Timestamptz
+}
+
+// One row per app for the apps grid (plan §4.3 #14), in key order after
+// after_key, bounded by page_size. Active devices were seen in the last
+// seven days; crash-free counts those that a fatal error group of the same
+// period names, for this period and the one before it.
+func (q *Queries) SummariseApps(ctx context.Context, arg SummariseAppsParams) ([]SummariseAppsRow, error) {
+	rows, err := q.db.Query(ctx, summariseApps,
+		arg.OrganizationID,
+		arg.OnlyIds,
+		arg.ExceptIds,
+		arg.AfterKey,
+		arg.PageSize,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SummariseAppsRow{}
+	for rows.Next() {
+		var i SummariseAppsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.Key,
+			&i.Name,
+			&i.DefaultPluginKey,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Description,
+			&i.IconAssetID,
+			&i.OwningTeamID,
+			&i.Tags,
+			&i.ArchivedAt,
+			&i.HostFonts,
+			&i.PluginCount,
+			&i.ActiveDevices,
+			&i.CrashedDevices,
+			&i.CrashedDevicesBefore,
+			&i.LastPublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateApp = `-- name: UpdateApp :one
 UPDATE apps
    SET name = $2, default_plugin_key = $3, updated_at = now()
  WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
 `
 
 type UpdateAppParams struct {
@@ -1215,6 +1538,12 @@ func (q *Queries) UpdateApp(ctx context.Context, arg UpdateAppParams) (App, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }
@@ -1239,6 +1568,100 @@ func (q *Queries) UpdateAppAccess(ctx context.Context, arg UpdateAppAccessParams
 		&i.UserID,
 		&i.Role,
 		&i.GrantedAt,
+	)
+	return i, err
+}
+
+const updateAppHostFonts = `-- name: UpdateAppHostFonts :one
+UPDATE apps
+   SET host_fonts = $2::jsonb, updated_at = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
+`
+
+type UpdateAppHostFontsParams struct {
+	ID        pgtype.UUID
+	HostFonts []byte
+}
+
+func (q *Queries) UpdateAppHostFonts(ctx context.Context, arg UpdateAppHostFontsParams) (App, error) {
+	row := q.db.QueryRow(ctx, updateAppHostFonts, arg.ID, arg.HostFonts)
+	var i App
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.Key,
+		&i.Name,
+		&i.DefaultPluginKey,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
+	)
+	return i, err
+}
+
+const updateAppMetadata = `-- name: UpdateAppMetadata :one
+UPDATE apps
+   SET description    = CASE WHEN $2::boolean THEN $3::text ELSE description END,
+       icon_asset_id  = CASE WHEN $4::boolean THEN $5::text ELSE icon_asset_id END,
+       owning_team_id = CASE WHEN $6::boolean THEN $7::uuid ELSE owning_team_id END,
+       tags           = CASE WHEN $8::boolean THEN $9::text[] ELSE tags END,
+       archived_at    = CASE WHEN $10::boolean THEN (CASE WHEN $11::boolean THEN coalesce(archived_at, now()) END) ELSE archived_at END,
+       updated_at     = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, organization_id, key, name, default_plugin_key, created_at, updated_at, deleted_at, description, icon_asset_id, owning_team_id, tags, archived_at, host_fonts
+`
+
+type UpdateAppMetadataParams struct {
+	ID             pgtype.UUID
+	SetDescription bool
+	Description    string
+	SetIcon        bool
+	IconAssetID    string
+	SetTeam        bool
+	OwningTeamID   pgtype.UUID
+	SetTags        bool
+	Tags           []string
+	SetArchived    bool
+	Archived       bool
+}
+
+func (q *Queries) UpdateAppMetadata(ctx context.Context, arg UpdateAppMetadataParams) (App, error) {
+	row := q.db.QueryRow(ctx, updateAppMetadata,
+		arg.ID,
+		arg.SetDescription,
+		arg.Description,
+		arg.SetIcon,
+		arg.IconAssetID,
+		arg.SetTeam,
+		arg.OwningTeamID,
+		arg.SetTags,
+		arg.Tags,
+		arg.SetArchived,
+		arg.Archived,
+	)
+	var i App
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.Key,
+		&i.Name,
+		&i.DefaultPluginKey,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Description,
+		&i.IconAssetID,
+		&i.OwningTeamID,
+		&i.Tags,
+		&i.ArchivedAt,
+		&i.HostFonts,
 	)
 	return i, err
 }

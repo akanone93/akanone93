@@ -61,9 +61,36 @@ func (s *Service) Publish(ctx context.Context, e Event) error {
 	if err != nil {
 		return err
 	}
-	return s.inTenant(ctx, storage.Tenant{OrganizationID: e.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
-		return s.queueEvent(ctx, tx, e, pe)
+	var inboxes []pgtype.UUID
+	err = s.inTenant(ctx, storage.Tenant{OrganizationID: e.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		inboxes, err = s.queueEvent(ctx, tx, e, pe)
+		return err
 	})
+	if err == nil {
+		s.announceInboxes(ctx, e.OrganizationID, inboxes)
+	}
+	return err
+}
+
+// announceInboxes tells the Studio stream each person's new unread count
+// once their inbox entries are committed (STU-075). It never fails the
+// publish: the stream's reset covers a lost announcement.
+func (s *Service) announceInboxes(ctx context.Context, org string, users []pgtype.UUID) {
+	if s.o.Events == nil {
+		return
+	}
+	for _, u := range users {
+		var n int64
+		err := s.inTenant(ctx, storage.Tenant{OrganizationID: org, UserID: storage.ID(u)}, func(ctx context.Context, tx pgx.Tx) error {
+			var err error
+			n, err = dbgen.New(tx).CountUnreadNotifications(ctx, u)
+			return err //nolint:wrapcheck // dropped by the caller
+		})
+		if err == nil {
+			s.o.Events.InboxChanged(ctx, org, storage.ID(u), n)
+		}
+	}
 }
 
 // preparedEvent is an event with its identifiers parsed, its payload
@@ -72,6 +99,7 @@ type preparedEvent struct {
 	org, app, id pgtype.UUID
 	now          time.Time
 	payload      []byte
+	params       []byte
 	perHour      int64
 }
 
@@ -108,6 +136,15 @@ func (s *Service) prepareEvent(ctx context.Context, e *Event) (preparedEvent, er
 	if err != nil {
 		return preparedEvent{}, err
 	}
+	if err := e.validateParams(lim.Get(limits.NotificationsParamsPerEvent), lim.Get(limits.NotificationsParamBytes)); err != nil {
+		return preparedEvent{}, err
+	}
+	params := []byte("{}")
+	if len(e.Params) > 0 {
+		if params, err = json.Marshal(e.Params); err != nil {
+			return preparedEvent{}, fmt.Errorf("notify: %w", err)
+		}
+	}
 	payload, err := json.Marshal(envelope{
 		Type: string(e.Type), Timestamp: e.At.UTC().Format(time.RFC3339Nano),
 		Data: envelopeData{
@@ -117,50 +154,55 @@ func (s *Service) prepareEvent(ctx context.Context, e *Event) (preparedEvent, er
 	if err != nil {
 		return preparedEvent{}, fmt.Errorf("notify: %w", err)
 	}
-	return preparedEvent{org: org, app: app, id: eventID, now: now, payload: payload, perHour: lim.Get(limits.NotificationsPerHour)}, nil
+	return preparedEvent{org: org, app: app, id: eventID, now: now, payload: payload, params: params, perHour: lim.Get(limits.NotificationsPerHour)}, nil
 }
 
 // queueEvent writes the inbox entries and deliveries of an event, within
 // the hourly limit, and audits the first drop of the hour.
-func (s *Service) queueEvent(ctx context.Context, tx pgx.Tx, e Event, pe preparedEvent) error {
+func (s *Service) queueEvent(ctx context.Context, tx pgx.Tx, e Event, pe preparedEvent) ([]pgtype.UUID, error) {
 	q := dbgen.New(tx)
 	targets, err := s.targets(ctx, q, e.Type)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	kept, dropped, first, err := s.reserve(ctx, q, pe.org, pe.now, int64(len(targets)), pe.perHour)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if dropped > 0 && first {
 		if err := s.record(ctx, tx, e.OrganizationID, auth.System(e.OrganizationID).Actor(), audit.NotificationsDropped, "organization", e.OrganizationID,
 			fmt.Sprintf("notifications.perHour = %d reached; the excess is dropped", pe.perHour)); err != nil {
-			return err
+			return nil, err
 		}
 	}
+	var inboxes []pgtype.UUID
 	for _, t := range targets[:kept] {
-		if err := s.enqueue(ctx, q, pe.org, pe.app, pe.id, e, pe.payload, t, pe.now); err != nil {
-			return err
+		if err := s.enqueue(ctx, q, pe, e, t); err != nil {
+			return nil, err
+		}
+		if t.user.Valid {
+			inboxes = append(inboxes, t.user)
 		}
 	}
-	return s.enqueueWebhooks(ctx, q, pe.org, pe.id, e.Type, pe.payload, pe.now)
+	return inboxes, s.enqueueWebhooks(ctx, q, pe.org, pe.id, e.Type, pe.payload, pe.now)
 }
 
-// enqueue writes an inbox entry or a channel delivery.
-func (s *Service) enqueue(ctx context.Context, q *dbgen.Queries, org, app, event pgtype.UUID, e Event, payload []byte, t target, now time.Time) error {
+// enqueue writes an inbox entry, with its display parameters and group
+// key, or a channel delivery.
+func (s *Service) enqueue(ctx context.Context, q *dbgen.Queries, pe preparedEvent, e Event, t target) error {
 	id, err := s.newID()
 	if err != nil {
 		return err
 	}
 	if t.user.Valid {
 		return failure(q.InsertNotification(ctx, dbgen.InsertNotificationParams{
-			ID: storage.MustUUID(id), OrganizationID: org, UserID: t.user, EventID: event, EventType: string(e.Type), AppID: app,
-			Title: e.Title, Body: e.Body, Link: e.Link, CreatedAt: storage.Timestamp(now),
+			ID: storage.MustUUID(id), OrganizationID: pe.org, UserID: t.user, EventID: pe.id, EventType: string(e.Type), AppID: pe.app,
+			Title: e.Title, Body: e.Body, Link: e.Link, CreatedAt: storage.Timestamp(pe.now), Params: pe.params, GroupKey: groupKey(e, id),
 		}), "notification")
 	}
 	return failure(q.InsertDelivery(ctx, dbgen.InsertDeliveryParams{
-		ID: storage.MustUUID(id), OrganizationID: org, Kind: "channel", ChannelID: t.channel, EventID: event, EventType: string(e.Type),
-		Recipient: t.recipient, Payload: payload, NextAttemptAt: storage.Timestamp(now), ExpiresAt: storage.Timestamp(now.Add(DeliveryWindow)), CreatedAt: storage.Timestamp(now),
+		ID: storage.MustUUID(id), OrganizationID: pe.org, Kind: "channel", ChannelID: t.channel, EventID: pe.id, EventType: string(e.Type),
+		Recipient: t.recipient, Payload: pe.payload, NextAttemptAt: storage.Timestamp(pe.now), ExpiresAt: storage.Timestamp(pe.now.Add(DeliveryWindow)), CreatedAt: storage.Timestamp(pe.now),
 	}), "delivery")
 }
 

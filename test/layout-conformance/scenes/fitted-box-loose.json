@@ -1,0 +1,108 @@
+{
+  "name": "fitted-box-loose",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "cb1",
+            "type": "ConstrainedBox",
+            "props": {
+              "maxWidth": 100,
+              "maxHeight": 100
+            },
+            "children": [
+              {
+                "id": "fl1",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "scaleDown"
+                },
+                "children": [
+                  {
+                    "id": "lc1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 200,
+                      "height": 50
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cb2",
+            "type": "ConstrainedBox",
+            "props": {
+              "maxWidth": 100,
+              "maxHeight": 100
+            },
+            "children": [
+              {
+                "id": "fl2",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "contain"
+                },
+                "children": [
+                  {
+                    "id": "lc2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 40,
+                      "height": 20
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cb3",
+            "type": "ConstrainedBox",
+            "props": {
+              "minWidth": 80,
+              "minHeight": 80,
+              "maxWidth": 100,
+              "maxHeight": 100
+            },
+            "children": [
+              {
+                "id": "fl3",
+                "type": "FittedBox",
+                "props": {
+                  "fit": "scaleDown"
+                },
+                "children": [
+                  {
+                    "id": "lc3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 20,
+                      "height": 10
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

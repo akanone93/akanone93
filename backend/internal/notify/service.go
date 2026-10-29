@@ -64,6 +64,15 @@ type Options struct {
 	Jitter func() float64
 	// Log receives warnings; it never receives a secret.
 	Log *slog.Logger
+	// Events announces a person's unread count to the Studio stream
+	// (STU-075); nil announces nothing.
+	Events InboxEvents
+}
+
+// InboxEvents receives the unread counts the Studio events stream carries.
+// It never fails its caller.
+type InboxEvents interface {
+	InboxChanged(ctx context.Context, org, user string, unread int64)
 }
 
 // Service stores channels, subscriptions, the inbox and webhooks, and sends

@@ -1,0 +1,99 @@
+{
+  "name": "list-view-horizontal",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "size",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 400
+        },
+        "children": [
+          {
+            "id": "list",
+            "type": "ListView",
+            "props": {
+              "scrollDirection": "horizontal",
+              "scrollOffset": 90
+            },
+            "children": [
+              {
+                "id": "h0",
+                "type": "TestBox",
+                "props": {
+                  "width": 90,
+                  "height": 10
+                }
+              },
+              {
+                "id": "h1",
+                "type": "TestBox",
+                "props": {
+                  "width": 120,
+                  "height": 10
+                }
+              },
+              {
+                "id": "h2",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 10
+                }
+              },
+              {
+                "id": "h3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 10
+                }
+              },
+              {
+                "id": "h4",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 10
+                }
+              },
+              {
+                "id": "h5",
+                "type": "TestBox",
+                "props": {
+                  "width": 140,
+                  "height": 10
+                }
+              },
+              {
+                "id": "h6",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 10
+                }
+              },
+              {
+                "id": "h7",
+                "type": "TestBox",
+                "props": {
+                  "width": 110,
+                  "height": 10
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

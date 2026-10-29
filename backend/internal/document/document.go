@@ -81,6 +81,64 @@ type Options struct {
 	// Approvals decides whether accessibility waivers may stand (A11Y-008,
 	// GOV-020); nil requires nothing.
 	Approvals approval.Gate
+	// Events announces lock and document changes to the Studio stream
+	// (STU-075); nil announces nothing.
+	Events Events
+}
+
+// Events receives the changes the Studio events stream carries (STU-075,
+// ADR-0096). It never fails its caller.
+type Events interface {
+	// LockChanged announces a lock taken or taken over, or released.
+	LockChanged(ctx context.Context, org string, l Lock, released bool)
+	// DocumentChanged announces a new revision of a document.
+	DocumentChanged(ctx context.Context, org, appID, pluginID, path string, revision int64, actor audit.Actor)
+}
+
+// DraftFollower is told of each accepted write to a draft once it commits,
+// so that the dev sessions that follow the stored draft compile and push it
+// (L-14, contract #17, DEV-010). It never fails its caller, and document
+// does not depend on the dev sessions that implement it.
+type DraftFollower interface {
+	// DraftWritten names the app and plugin written and the paths of the
+	// documents that changed.
+	DraftWritten(ctx context.Context, p auth.Principal, appID, pluginID string, paths []string)
+}
+
+// FollowDrafts sets the follower of accepted writes. It is called once
+// while the server is wired, before the service serves.
+func (s *Service) FollowDrafts(f DraftFollower) { s.follower = f }
+
+// draftWritten tells the follower of an accepted write, if there is one.
+func (s *Service) draftWritten(ctx context.Context, p auth.Principal, appID, pluginID string, docs []Document) {
+	if s.follower == nil || len(docs) == 0 {
+		return
+	}
+	paths := make([]string, 0, len(docs))
+	for _, d := range docs {
+		paths = append(paths, d.Path)
+	}
+	if docs[0].AppID != "" {
+		appID = docs[0].AppID
+	}
+	s.follower.DraftWritten(ctx, p, appID, pluginID, paths)
+}
+
+// lockChanged announces a lock change; the stream's reset covers a loss.
+func (s *Service) lockChanged(ctx context.Context, p auth.Principal, l Lock, released bool) {
+	if s.o.Events != nil {
+		s.o.Events.LockChanged(ctx, p.OrganizationID, l, released)
+	}
+}
+
+// documentsChanged announces the documents an accepted write changed.
+func (s *Service) documentsChanged(ctx context.Context, p auth.Principal, docs []Document) {
+	if s.o.Events == nil {
+		return
+	}
+	for _, d := range docs {
+		s.o.Events.DocumentChanged(ctx, p.OrganizationID, d.AppID, d.PluginID, d.Path, d.Revision, d.UpdatedBy)
+	}
 }
 
 // Service is the domain logic of drafts.
@@ -90,6 +148,8 @@ type Service struct {
 	schemaValidator *schema.Validator
 	encoder         *zstd.Encoder
 	decoder         *zstd.Decoder
+	// follower is told of accepted writes; nil tells no one.
+	follower DraftFollower
 }
 
 // NewService returns the service.
@@ -151,16 +211,19 @@ type Document struct {
 
 // Snapshot is one entry of a draft's history (SRV-031).
 type Snapshot struct {
-	ID        string
-	AppID     string
-	PluginID  string
-	Sequence  int64
-	Revision  int64
-	Reason    string
-	Paths     []string
-	Actor     audit.Actor
-	Kept      bool
-	CreatedAt time.Time
+	ID       string
+	AppID    string
+	PluginID string
+	Sequence int64
+	Revision int64
+	Reason   string
+	Paths    []string
+	Actor    audit.Actor
+	Kept     bool
+	// EditorSession is the Studio editor session of the write that made
+	// the snapshot; empty for writes outside Studio (STU-069).
+	EditorSession string
+	CreatedAt     time.Time
 }
 
 // Written is the outcome of an accepted write.
@@ -179,6 +242,9 @@ type draft struct {
 	// tx is the transaction of a write, set once the draft is locked, for the
 	// checks that ask the approval engine inside it (waivers).
 	tx pgx.Tx
+	// editorSession tags the snapshot of a write with the Studio editor
+	// session that made it (STU-069); empty otherwise.
+	editorSession string
 }
 
 // pluginID is the draft's plugin, or "".

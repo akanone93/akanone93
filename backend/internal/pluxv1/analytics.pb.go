@@ -2903,6 +2903,724 @@ func (x *GetErrorGroupResponse) GetSamples() []*ErrorSample {
 	return nil
 }
 
+// Funnel is an ordered list of event names of an app.
+type Funnel struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AppId string                 `protobuf:"bytes,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Name  string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// steps are event names, two to ten, in order.
+	Steps []string `protobuf:"bytes,4,rep,name=steps,proto3" json:"steps,omitempty"`
+	// environment narrows the funnel to one environment key; empty for all.
+	Environment   string                 `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
+	Revision      int64                  `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"`
+	UpdatedBy     string                 `protobuf:"bytes,7,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Funnel) Reset() {
+	*x = Funnel{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Funnel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Funnel) ProtoMessage() {}
+
+func (x *Funnel) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Funnel.ProtoReflect.Descriptor instead.
+func (*Funnel) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *Funnel) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Funnel) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *Funnel) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Funnel) GetSteps() []string {
+	if x != nil {
+		return x.Steps
+	}
+	return nil
+}
+
+func (x *Funnel) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *Funnel) GetRevision() int64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
+
+func (x *Funnel) GetUpdatedBy() string {
+	if x != nil {
+		return x.UpdatedBy
+	}
+	return ""
+}
+
+func (x *Funnel) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+type CreateFunnelRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Funnel        *Funnel                `protobuf:"bytes,1,opt,name=funnel,proto3" json:"funnel,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateFunnelRequest) Reset() {
+	*x = CreateFunnelRequest{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateFunnelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateFunnelRequest) ProtoMessage() {}
+
+func (x *CreateFunnelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateFunnelRequest.ProtoReflect.Descriptor instead.
+func (*CreateFunnelRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *CreateFunnelRequest) GetFunnel() *Funnel {
+	if x != nil {
+		return x.Funnel
+	}
+	return nil
+}
+
+type CreateFunnelResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Funnel        *Funnel                `protobuf:"bytes,1,opt,name=funnel,proto3" json:"funnel,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateFunnelResponse) Reset() {
+	*x = CreateFunnelResponse{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateFunnelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateFunnelResponse) ProtoMessage() {}
+
+func (x *CreateFunnelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateFunnelResponse.ProtoReflect.Descriptor instead.
+func (*CreateFunnelResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *CreateFunnelResponse) GetFunnel() *Funnel {
+	if x != nil {
+		return x.Funnel
+	}
+	return nil
+}
+
+type DeleteFunnelRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFunnelRequest) Reset() {
+	*x = DeleteFunnelRequest{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFunnelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFunnelRequest) ProtoMessage() {}
+
+func (x *DeleteFunnelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFunnelRequest.ProtoReflect.Descriptor instead.
+func (*DeleteFunnelRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *DeleteFunnelRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteFunnelResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFunnelResponse) Reset() {
+	*x = DeleteFunnelResponse{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFunnelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFunnelResponse) ProtoMessage() {}
+
+func (x *DeleteFunnelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFunnelResponse.ProtoReflect.Descriptor instead.
+func (*DeleteFunnelResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{50}
+}
+
+type ListFunnelsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// app_id narrows the list to one app; empty for the organisation.
+	AppId         string `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFunnelsRequest) Reset() {
+	*x = ListFunnelsRequest{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFunnelsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFunnelsRequest) ProtoMessage() {}
+
+func (x *ListFunnelsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFunnelsRequest.ProtoReflect.Descriptor instead.
+func (*ListFunnelsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *ListFunnelsRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+type ListFunnelsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Funnels       []*Funnel              `protobuf:"bytes,1,rep,name=funnels,proto3" json:"funnels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFunnelsResponse) Reset() {
+	*x = ListFunnelsResponse{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFunnelsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFunnelsResponse) ProtoMessage() {}
+
+func (x *ListFunnelsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFunnelsResponse.ProtoReflect.Descriptor instead.
+func (*ListFunnelsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *ListFunnelsResponse) GetFunnels() []*Funnel {
+	if x != nil {
+		return x.Funnels
+	}
+	return nil
+}
+
+// FunnelStep is one step of a funnel result.
+type FunnelStep struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Event string                 `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+	// events equals sessions; it is kept for clients that read the rollup-based
+	// result of earlier versions.
+	Events int64 `protobuf:"varint,2,opt,name=events,proto3" json:"events,omitempty"`
+	// conversion is the share of the first step's sessions, 0 to 1.
+	Conversion float64 `protobuf:"fixed64,3,opt,name=conversion,proto3" json:"conversion,omitempty"`
+	// sessions reached this step after reaching every step before it, in order.
+	Sessions      int64 `protobuf:"varint,4,opt,name=sessions,proto3" json:"sessions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FunnelStep) Reset() {
+	*x = FunnelStep{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FunnelStep) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FunnelStep) ProtoMessage() {}
+
+func (x *FunnelStep) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FunnelStep.ProtoReflect.Descriptor instead.
+func (*FunnelStep) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *FunnelStep) GetEvent() string {
+	if x != nil {
+		return x.Event
+	}
+	return ""
+}
+
+func (x *FunnelStep) GetEvents() int64 {
+	if x != nil {
+		return x.Events
+	}
+	return 0
+}
+
+func (x *FunnelStep) GetConversion() float64 {
+	if x != nil {
+		return x.Conversion
+	}
+	return 0
+}
+
+func (x *FunnelStep) GetSessions() int64 {
+	if x != nil {
+		return x.Sessions
+	}
+	return 0
+}
+
+type GetFunnelResultRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	From          *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`
+	To            *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to,proto3" json:"to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFunnelResultRequest) Reset() {
+	*x = GetFunnelResultRequest{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFunnelResultRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFunnelResultRequest) ProtoMessage() {}
+
+func (x *GetFunnelResultRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFunnelResultRequest.ProtoReflect.Descriptor instead.
+func (*GetFunnelResultRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *GetFunnelResultRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetFunnelResultRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *GetFunnelResultRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+type GetFunnelResultResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Funnel        *Funnel                `protobuf:"bytes,1,opt,name=funnel,proto3" json:"funnel,omitempty"`
+	Steps         []*FunnelStep          `protobuf:"bytes,2,rep,name=steps,proto3" json:"steps,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFunnelResultResponse) Reset() {
+	*x = GetFunnelResultResponse{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFunnelResultResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFunnelResultResponse) ProtoMessage() {}
+
+func (x *GetFunnelResultResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFunnelResultResponse.ProtoReflect.Descriptor instead.
+func (*GetFunnelResultResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *GetFunnelResultResponse) GetFunnel() *Funnel {
+	if x != nil {
+		return x.Funnel
+	}
+	return nil
+}
+
+func (x *GetFunnelResultResponse) GetSteps() []*FunnelStep {
+	if x != nil {
+		return x.Steps
+	}
+	return nil
+}
+
+// OverviewApp is the headline numbers of one app.
+type OverviewApp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Sessions      int64                  `protobuf:"varint,2,opt,name=sessions,proto3" json:"sessions,omitempty"`
+	ScreenViews   int64                  `protobuf:"varint,3,opt,name=screen_views,json=screenViews,proto3" json:"screen_views,omitempty"`
+	Errors        int64                  `protobuf:"varint,4,opt,name=errors,proto3" json:"errors,omitempty"`
+	FiringAlerts  int32                  `protobuf:"varint,5,opt,name=firing_alerts,json=firingAlerts,proto3" json:"firing_alerts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OverviewApp) Reset() {
+	*x = OverviewApp{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OverviewApp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OverviewApp) ProtoMessage() {}
+
+func (x *OverviewApp) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OverviewApp.ProtoReflect.Descriptor instead.
+func (*OverviewApp) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *OverviewApp) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *OverviewApp) GetSessions() int64 {
+	if x != nil {
+		return x.Sessions
+	}
+	return 0
+}
+
+func (x *OverviewApp) GetScreenViews() int64 {
+	if x != nil {
+		return x.ScreenViews
+	}
+	return 0
+}
+
+func (x *OverviewApp) GetErrors() int64 {
+	if x != nil {
+		return x.Errors
+	}
+	return 0
+}
+
+func (x *OverviewApp) GetFiringAlerts() int32 {
+	if x != nil {
+		return x.FiringAlerts
+	}
+	return 0
+}
+
+type GetOverviewRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	From          *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	To            *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=to,proto3" json:"to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOverviewRequest) Reset() {
+	*x = GetOverviewRequest{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOverviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOverviewRequest) ProtoMessage() {}
+
+func (x *GetOverviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOverviewRequest.ProtoReflect.Descriptor instead.
+func (*GetOverviewRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *GetOverviewRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *GetOverviewRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+type GetOverviewResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Apps          []*OverviewApp         `protobuf:"bytes,1,rep,name=apps,proto3" json:"apps,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOverviewResponse) Reset() {
+	*x = GetOverviewResponse{}
+	mi := &file_plux_v1_analytics_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOverviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOverviewResponse) ProtoMessage() {}
+
+func (x *GetOverviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_analytics_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOverviewResponse.ProtoReflect.Descriptor instead.
+func (*GetOverviewResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_analytics_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *GetOverviewResponse) GetApps() []*OverviewApp {
+	if x != nil {
+		return x.Apps
+	}
+	return nil
+}
+
 var File_plux_v1_analytics_proto protoreflect.FileDescriptor
 
 const file_plux_v1_analytics_proto_rawDesc = "" +
@@ -3131,7 +3849,55 @@ const file_plux_v1_analytics_proto_rawDesc = "" +
 	"\x04days\x18\x02 \x01(\x05R\x04days\"r\n" +
 	"\x15GetErrorGroupResponse\x12)\n" +
 	"\x05group\x18\x01 \x01(\v2\x13.plux.v1.ErrorGroupR\x05group\x12.\n" +
-	"\asamples\x18\x02 \x03(\v2\x14.plux.v1.ErrorSampleR\asamples2\xae\v\n" +
+	"\asamples\x18\x02 \x03(\v2\x14.plux.v1.ErrorSampleR\asamples\"\xf1\x01\n" +
+	"\x06Funnel\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x14\n" +
+	"\x05steps\x18\x04 \x03(\tR\x05steps\x12 \n" +
+	"\venvironment\x18\x05 \x01(\tR\venvironment\x12\x1a\n" +
+	"\brevision\x18\x06 \x01(\x03R\brevision\x12\x1d\n" +
+	"\n" +
+	"updated_by\x18\a \x01(\tR\tupdatedBy\x129\n" +
+	"\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\">\n" +
+	"\x13CreateFunnelRequest\x12'\n" +
+	"\x06funnel\x18\x01 \x01(\v2\x0f.plux.v1.FunnelR\x06funnel\"?\n" +
+	"\x14CreateFunnelResponse\x12'\n" +
+	"\x06funnel\x18\x01 \x01(\v2\x0f.plux.v1.FunnelR\x06funnel\"%\n" +
+	"\x13DeleteFunnelRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x16\n" +
+	"\x14DeleteFunnelResponse\"+\n" +
+	"\x12ListFunnelsRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"@\n" +
+	"\x13ListFunnelsResponse\x12)\n" +
+	"\afunnels\x18\x01 \x03(\v2\x0f.plux.v1.FunnelR\afunnels\"v\n" +
+	"\n" +
+	"FunnelStep\x12\x14\n" +
+	"\x05event\x18\x01 \x01(\tR\x05event\x12\x16\n" +
+	"\x06events\x18\x02 \x01(\x03R\x06events\x12\x1e\n" +
+	"\n" +
+	"conversion\x18\x03 \x01(\x01R\n" +
+	"conversion\x12\x1a\n" +
+	"\bsessions\x18\x04 \x01(\x03R\bsessions\"\x84\x01\n" +
+	"\x16GetFunnelResultRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
+	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"m\n" +
+	"\x17GetFunnelResultResponse\x12'\n" +
+	"\x06funnel\x18\x01 \x01(\v2\x0f.plux.v1.FunnelR\x06funnel\x12)\n" +
+	"\x05steps\x18\x02 \x03(\v2\x13.plux.v1.FunnelStepR\x05steps\"\xa0\x01\n" +
+	"\vOverviewApp\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
+	"\bsessions\x18\x02 \x01(\x03R\bsessions\x12!\n" +
+	"\fscreen_views\x18\x03 \x01(\x03R\vscreenViews\x12\x16\n" +
+	"\x06errors\x18\x04 \x01(\x03R\x06errors\x12#\n" +
+	"\rfiring_alerts\x18\x05 \x01(\x05R\ffiringAlerts\"p\n" +
+	"\x12GetOverviewRequest\x12.\n" +
+	"\x04from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"?\n" +
+	"\x13GetOverviewResponse\x12(\n" +
+	"\x04apps\x18\x01 \x03(\v2\x14.plux.v1.OverviewAppR\x04apps2\xbc\x0e\n" +
 	"\x10AnalyticsService\x12M\n" +
 	"\fQueryRollups\x12\x1c.plux.v1.QueryRollupsRequest\x1a\x1d.plux.v1.QueryRollupsResponse\"\x00\x12M\n" +
 	"\fGetRetention\x12\x1c.plux.v1.GetRetentionRequest\x1a\x1d.plux.v1.GetRetentionResponse\"\x00\x12M\n" +
@@ -3149,7 +3915,12 @@ const file_plux_v1_analytics_proto_rawDesc = "" +
 	"\x0eListAlertRules\x12\x1e.plux.v1.ListAlertRulesRequest\x1a\x1f.plux.v1.ListAlertRulesResponse\"\x00\x12V\n" +
 	"\x0fListAlertStates\x12\x1f.plux.v1.ListAlertStatesRequest\x1a .plux.v1.ListAlertStatesResponse\"\x00\x12V\n" +
 	"\x0fListErrorGroups\x12\x1f.plux.v1.ListErrorGroupsRequest\x1a .plux.v1.ListErrorGroupsResponse\"\x00\x12P\n" +
-	"\rGetErrorGroup\x12\x1d.plux.v1.GetErrorGroupRequest\x1a\x1e.plux.v1.GetErrorGroupResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\rGetErrorGroup\x12\x1d.plux.v1.GetErrorGroupRequest\x1a\x1e.plux.v1.GetErrorGroupResponse\"\x00\x12M\n" +
+	"\fCreateFunnel\x12\x1c.plux.v1.CreateFunnelRequest\x1a\x1d.plux.v1.CreateFunnelResponse\"\x00\x12M\n" +
+	"\fDeleteFunnel\x12\x1c.plux.v1.DeleteFunnelRequest\x1a\x1d.plux.v1.DeleteFunnelResponse\"\x00\x12J\n" +
+	"\vListFunnels\x12\x1b.plux.v1.ListFunnelsRequest\x1a\x1c.plux.v1.ListFunnelsResponse\"\x00\x12V\n" +
+	"\x0fGetFunnelResult\x12\x1f.plux.v1.GetFunnelResultRequest\x1a .plux.v1.GetFunnelResultResponse\"\x00\x12J\n" +
+	"\vGetOverview\x12\x1b.plux.v1.GetOverviewRequest\x1a\x1c.plux.v1.GetOverviewResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_analytics_proto_rawDescOnce sync.Once
@@ -3163,7 +3934,7 @@ func file_plux_v1_analytics_proto_rawDescGZIP() []byte {
 	return file_plux_v1_analytics_proto_rawDescData
 }
 
-var file_plux_v1_analytics_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
+var file_plux_v1_analytics_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
 var file_plux_v1_analytics_proto_goTypes = []any{
 	(*RollupGroup)(nil),                   // 0: plux.v1.RollupGroup
 	(*RollupPoint)(nil),                   // 1: plux.v1.RollupPoint
@@ -3211,94 +3982,128 @@ var file_plux_v1_analytics_proto_goTypes = []any{
 	(*ListErrorGroupsResponse)(nil),       // 43: plux.v1.ListErrorGroupsResponse
 	(*GetErrorGroupRequest)(nil),          // 44: plux.v1.GetErrorGroupRequest
 	(*GetErrorGroupResponse)(nil),         // 45: plux.v1.GetErrorGroupResponse
-	nil,                                   // 46: plux.v1.AlertRule.FiltersEntry
-	(*timestamppb.Timestamp)(nil),         // 47: google.protobuf.Timestamp
-	(*Diagnostic)(nil),                    // 48: plux.v1.Diagnostic
+	(*Funnel)(nil),                        // 46: plux.v1.Funnel
+	(*CreateFunnelRequest)(nil),           // 47: plux.v1.CreateFunnelRequest
+	(*CreateFunnelResponse)(nil),          // 48: plux.v1.CreateFunnelResponse
+	(*DeleteFunnelRequest)(nil),           // 49: plux.v1.DeleteFunnelRequest
+	(*DeleteFunnelResponse)(nil),          // 50: plux.v1.DeleteFunnelResponse
+	(*ListFunnelsRequest)(nil),            // 51: plux.v1.ListFunnelsRequest
+	(*ListFunnelsResponse)(nil),           // 52: plux.v1.ListFunnelsResponse
+	(*FunnelStep)(nil),                    // 53: plux.v1.FunnelStep
+	(*GetFunnelResultRequest)(nil),        // 54: plux.v1.GetFunnelResultRequest
+	(*GetFunnelResultResponse)(nil),       // 55: plux.v1.GetFunnelResultResponse
+	(*OverviewApp)(nil),                   // 56: plux.v1.OverviewApp
+	(*GetOverviewRequest)(nil),            // 57: plux.v1.GetOverviewRequest
+	(*GetOverviewResponse)(nil),           // 58: plux.v1.GetOverviewResponse
+	nil,                                   // 59: plux.v1.AlertRule.FiltersEntry
+	(*timestamppb.Timestamp)(nil),         // 60: google.protobuf.Timestamp
+	(*Diagnostic)(nil),                    // 61: plux.v1.Diagnostic
 }
 var file_plux_v1_analytics_proto_depIdxs = []int32{
-	47, // 0: plux.v1.RollupPoint.bucket:type_name -> google.protobuf.Timestamp
+	60, // 0: plux.v1.RollupPoint.bucket:type_name -> google.protobuf.Timestamp
 	0,  // 1: plux.v1.RollupPoint.group:type_name -> plux.v1.RollupGroup
-	47, // 2: plux.v1.QueryRollupsRequest.from:type_name -> google.protobuf.Timestamp
-	47, // 3: plux.v1.QueryRollupsRequest.to:type_name -> google.protobuf.Timestamp
+	60, // 2: plux.v1.QueryRollupsRequest.from:type_name -> google.protobuf.Timestamp
+	60, // 3: plux.v1.QueryRollupsRequest.to:type_name -> google.protobuf.Timestamp
 	1,  // 4: plux.v1.QueryRollupsResponse.points:type_name -> plux.v1.RollupPoint
-	47, // 5: plux.v1.RetentionSetting.changed_at:type_name -> google.protobuf.Timestamp
-	47, // 6: plux.v1.RetentionChange.requested_at:type_name -> google.protobuf.Timestamp
-	47, // 7: plux.v1.RetentionChange.apply_at:type_name -> google.protobuf.Timestamp
-	47, // 8: plux.v1.RetentionChange.finished_at:type_name -> google.protobuf.Timestamp
+	60, // 5: plux.v1.RetentionSetting.changed_at:type_name -> google.protobuf.Timestamp
+	60, // 6: plux.v1.RetentionChange.requested_at:type_name -> google.protobuf.Timestamp
+	60, // 7: plux.v1.RetentionChange.apply_at:type_name -> google.protobuf.Timestamp
+	60, // 8: plux.v1.RetentionChange.finished_at:type_name -> google.protobuf.Timestamp
 	4,  // 9: plux.v1.GetRetentionResponse.settings:type_name -> plux.v1.RetentionSetting
 	5,  // 10: plux.v1.GetRetentionResponse.scheduled:type_name -> plux.v1.RetentionChange
 	5,  // 11: plux.v1.SetRetentionResponse.change:type_name -> plux.v1.RetentionChange
-	48, // 12: plux.v1.SetRetentionResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	61, // 12: plux.v1.SetRetentionResponse.diagnostics:type_name -> plux.v1.Diagnostic
 	5,  // 13: plux.v1.ListRetentionChangesResponse.changes:type_name -> plux.v1.RetentionChange
 	5,  // 14: plux.v1.CancelRetentionChangeResponse.change:type_name -> plux.v1.RetentionChange
-	47, // 15: plux.v1.Export.exported_until:type_name -> google.protobuf.Timestamp
-	47, // 16: plux.v1.Export.last_attempt_at:type_name -> google.protobuf.Timestamp
+	60, // 15: plux.v1.Export.exported_until:type_name -> google.protobuf.Timestamp
+	60, // 16: plux.v1.Export.last_attempt_at:type_name -> google.protobuf.Timestamp
 	14, // 17: plux.v1.GetExportResponse.export:type_name -> plux.v1.Export
 	14, // 18: plux.v1.SetExportResponse.export:type_name -> plux.v1.Export
 	21, // 19: plux.v1.FileExport.settings:type_name -> plux.v1.FileExportSettings
-	47, // 20: plux.v1.FileExport.exported_until:type_name -> google.protobuf.Timestamp
-	47, // 21: plux.v1.FileExport.last_attempt_at:type_name -> google.protobuf.Timestamp
+	60, // 20: plux.v1.FileExport.exported_until:type_name -> google.protobuf.Timestamp
+	60, // 21: plux.v1.FileExport.last_attempt_at:type_name -> google.protobuf.Timestamp
 	22, // 22: plux.v1.GetFileExportResponse.export:type_name -> plux.v1.FileExport
 	21, // 23: plux.v1.SetFileExportRequest.settings:type_name -> plux.v1.FileExportSettings
 	22, // 24: plux.v1.SetFileExportResponse.export:type_name -> plux.v1.FileExport
-	46, // 25: plux.v1.AlertRule.filters:type_name -> plux.v1.AlertRule.FiltersEntry
-	47, // 26: plux.v1.AlertRule.updated_at:type_name -> google.protobuf.Timestamp
-	47, // 27: plux.v1.AlertState.since:type_name -> google.protobuf.Timestamp
-	47, // 28: plux.v1.AlertState.evaluated_at:type_name -> google.protobuf.Timestamp
-	47, // 29: plux.v1.AlertState.fired_at:type_name -> google.protobuf.Timestamp
-	47, // 30: plux.v1.AlertState.resolved_at:type_name -> google.protobuf.Timestamp
+	59, // 25: plux.v1.AlertRule.filters:type_name -> plux.v1.AlertRule.FiltersEntry
+	60, // 26: plux.v1.AlertRule.updated_at:type_name -> google.protobuf.Timestamp
+	60, // 27: plux.v1.AlertState.since:type_name -> google.protobuf.Timestamp
+	60, // 28: plux.v1.AlertState.evaluated_at:type_name -> google.protobuf.Timestamp
+	60, // 29: plux.v1.AlertState.fired_at:type_name -> google.protobuf.Timestamp
+	60, // 30: plux.v1.AlertState.resolved_at:type_name -> google.protobuf.Timestamp
 	27, // 31: plux.v1.CreateAlertRuleRequest.rule:type_name -> plux.v1.AlertRule
 	27, // 32: plux.v1.CreateAlertRuleResponse.rule:type_name -> plux.v1.AlertRule
 	27, // 33: plux.v1.UpdateAlertRuleRequest.rule:type_name -> plux.v1.AlertRule
 	27, // 34: plux.v1.UpdateAlertRuleResponse.rule:type_name -> plux.v1.AlertRule
 	27, // 35: plux.v1.ListAlertRulesResponse.rules:type_name -> plux.v1.AlertRule
 	28, // 36: plux.v1.ListAlertStatesResponse.states:type_name -> plux.v1.AlertState
-	47, // 37: plux.v1.ErrorGroup.first_seen:type_name -> google.protobuf.Timestamp
-	47, // 38: plux.v1.ErrorGroup.last_seen:type_name -> google.protobuf.Timestamp
+	60, // 37: plux.v1.ErrorGroup.first_seen:type_name -> google.protobuf.Timestamp
+	60, // 38: plux.v1.ErrorGroup.last_seen:type_name -> google.protobuf.Timestamp
 	39, // 39: plux.v1.ErrorGroup.trend:type_name -> plux.v1.ErrorDay
-	47, // 40: plux.v1.ErrorSample.occurred_at:type_name -> google.protobuf.Timestamp
+	60, // 40: plux.v1.ErrorSample.occurred_at:type_name -> google.protobuf.Timestamp
 	40, // 41: plux.v1.ListErrorGroupsResponse.groups:type_name -> plux.v1.ErrorGroup
 	40, // 42: plux.v1.GetErrorGroupResponse.group:type_name -> plux.v1.ErrorGroup
 	41, // 43: plux.v1.GetErrorGroupResponse.samples:type_name -> plux.v1.ErrorSample
-	2,  // 44: plux.v1.AnalyticsService.QueryRollups:input_type -> plux.v1.QueryRollupsRequest
-	6,  // 45: plux.v1.AnalyticsService.GetRetention:input_type -> plux.v1.GetRetentionRequest
-	8,  // 46: plux.v1.AnalyticsService.SetRetention:input_type -> plux.v1.SetRetentionRequest
-	10, // 47: plux.v1.AnalyticsService.ListRetentionChanges:input_type -> plux.v1.ListRetentionChangesRequest
-	12, // 48: plux.v1.AnalyticsService.CancelRetentionChange:input_type -> plux.v1.CancelRetentionChangeRequest
-	15, // 49: plux.v1.AnalyticsService.GetExport:input_type -> plux.v1.GetExportRequest
-	17, // 50: plux.v1.AnalyticsService.SetExport:input_type -> plux.v1.SetExportRequest
-	19, // 51: plux.v1.AnalyticsService.DeleteExport:input_type -> plux.v1.DeleteExportRequest
-	23, // 52: plux.v1.AnalyticsService.GetFileExport:input_type -> plux.v1.GetFileExportRequest
-	25, // 53: plux.v1.AnalyticsService.SetFileExport:input_type -> plux.v1.SetFileExportRequest
-	29, // 54: plux.v1.AnalyticsService.CreateAlertRule:input_type -> plux.v1.CreateAlertRuleRequest
-	31, // 55: plux.v1.AnalyticsService.UpdateAlertRule:input_type -> plux.v1.UpdateAlertRuleRequest
-	33, // 56: plux.v1.AnalyticsService.DeleteAlertRule:input_type -> plux.v1.DeleteAlertRuleRequest
-	35, // 57: plux.v1.AnalyticsService.ListAlertRules:input_type -> plux.v1.ListAlertRulesRequest
-	37, // 58: plux.v1.AnalyticsService.ListAlertStates:input_type -> plux.v1.ListAlertStatesRequest
-	42, // 59: plux.v1.AnalyticsService.ListErrorGroups:input_type -> plux.v1.ListErrorGroupsRequest
-	44, // 60: plux.v1.AnalyticsService.GetErrorGroup:input_type -> plux.v1.GetErrorGroupRequest
-	3,  // 61: plux.v1.AnalyticsService.QueryRollups:output_type -> plux.v1.QueryRollupsResponse
-	7,  // 62: plux.v1.AnalyticsService.GetRetention:output_type -> plux.v1.GetRetentionResponse
-	9,  // 63: plux.v1.AnalyticsService.SetRetention:output_type -> plux.v1.SetRetentionResponse
-	11, // 64: plux.v1.AnalyticsService.ListRetentionChanges:output_type -> plux.v1.ListRetentionChangesResponse
-	13, // 65: plux.v1.AnalyticsService.CancelRetentionChange:output_type -> plux.v1.CancelRetentionChangeResponse
-	16, // 66: plux.v1.AnalyticsService.GetExport:output_type -> plux.v1.GetExportResponse
-	18, // 67: plux.v1.AnalyticsService.SetExport:output_type -> plux.v1.SetExportResponse
-	20, // 68: plux.v1.AnalyticsService.DeleteExport:output_type -> plux.v1.DeleteExportResponse
-	24, // 69: plux.v1.AnalyticsService.GetFileExport:output_type -> plux.v1.GetFileExportResponse
-	26, // 70: plux.v1.AnalyticsService.SetFileExport:output_type -> plux.v1.SetFileExportResponse
-	30, // 71: plux.v1.AnalyticsService.CreateAlertRule:output_type -> plux.v1.CreateAlertRuleResponse
-	32, // 72: plux.v1.AnalyticsService.UpdateAlertRule:output_type -> plux.v1.UpdateAlertRuleResponse
-	34, // 73: plux.v1.AnalyticsService.DeleteAlertRule:output_type -> plux.v1.DeleteAlertRuleResponse
-	36, // 74: plux.v1.AnalyticsService.ListAlertRules:output_type -> plux.v1.ListAlertRulesResponse
-	38, // 75: plux.v1.AnalyticsService.ListAlertStates:output_type -> plux.v1.ListAlertStatesResponse
-	43, // 76: plux.v1.AnalyticsService.ListErrorGroups:output_type -> plux.v1.ListErrorGroupsResponse
-	45, // 77: plux.v1.AnalyticsService.GetErrorGroup:output_type -> plux.v1.GetErrorGroupResponse
-	61, // [61:78] is the sub-list for method output_type
-	44, // [44:61] is the sub-list for method input_type
-	44, // [44:44] is the sub-list for extension type_name
-	44, // [44:44] is the sub-list for extension extendee
-	0,  // [0:44] is the sub-list for field type_name
+	60, // 44: plux.v1.Funnel.updated_at:type_name -> google.protobuf.Timestamp
+	46, // 45: plux.v1.CreateFunnelRequest.funnel:type_name -> plux.v1.Funnel
+	46, // 46: plux.v1.CreateFunnelResponse.funnel:type_name -> plux.v1.Funnel
+	46, // 47: plux.v1.ListFunnelsResponse.funnels:type_name -> plux.v1.Funnel
+	60, // 48: plux.v1.GetFunnelResultRequest.from:type_name -> google.protobuf.Timestamp
+	60, // 49: plux.v1.GetFunnelResultRequest.to:type_name -> google.protobuf.Timestamp
+	46, // 50: plux.v1.GetFunnelResultResponse.funnel:type_name -> plux.v1.Funnel
+	53, // 51: plux.v1.GetFunnelResultResponse.steps:type_name -> plux.v1.FunnelStep
+	60, // 52: plux.v1.GetOverviewRequest.from:type_name -> google.protobuf.Timestamp
+	60, // 53: plux.v1.GetOverviewRequest.to:type_name -> google.protobuf.Timestamp
+	56, // 54: plux.v1.GetOverviewResponse.apps:type_name -> plux.v1.OverviewApp
+	2,  // 55: plux.v1.AnalyticsService.QueryRollups:input_type -> plux.v1.QueryRollupsRequest
+	6,  // 56: plux.v1.AnalyticsService.GetRetention:input_type -> plux.v1.GetRetentionRequest
+	8,  // 57: plux.v1.AnalyticsService.SetRetention:input_type -> plux.v1.SetRetentionRequest
+	10, // 58: plux.v1.AnalyticsService.ListRetentionChanges:input_type -> plux.v1.ListRetentionChangesRequest
+	12, // 59: plux.v1.AnalyticsService.CancelRetentionChange:input_type -> plux.v1.CancelRetentionChangeRequest
+	15, // 60: plux.v1.AnalyticsService.GetExport:input_type -> plux.v1.GetExportRequest
+	17, // 61: plux.v1.AnalyticsService.SetExport:input_type -> plux.v1.SetExportRequest
+	19, // 62: plux.v1.AnalyticsService.DeleteExport:input_type -> plux.v1.DeleteExportRequest
+	23, // 63: plux.v1.AnalyticsService.GetFileExport:input_type -> plux.v1.GetFileExportRequest
+	25, // 64: plux.v1.AnalyticsService.SetFileExport:input_type -> plux.v1.SetFileExportRequest
+	29, // 65: plux.v1.AnalyticsService.CreateAlertRule:input_type -> plux.v1.CreateAlertRuleRequest
+	31, // 66: plux.v1.AnalyticsService.UpdateAlertRule:input_type -> plux.v1.UpdateAlertRuleRequest
+	33, // 67: plux.v1.AnalyticsService.DeleteAlertRule:input_type -> plux.v1.DeleteAlertRuleRequest
+	35, // 68: plux.v1.AnalyticsService.ListAlertRules:input_type -> plux.v1.ListAlertRulesRequest
+	37, // 69: plux.v1.AnalyticsService.ListAlertStates:input_type -> plux.v1.ListAlertStatesRequest
+	42, // 70: plux.v1.AnalyticsService.ListErrorGroups:input_type -> plux.v1.ListErrorGroupsRequest
+	44, // 71: plux.v1.AnalyticsService.GetErrorGroup:input_type -> plux.v1.GetErrorGroupRequest
+	47, // 72: plux.v1.AnalyticsService.CreateFunnel:input_type -> plux.v1.CreateFunnelRequest
+	49, // 73: plux.v1.AnalyticsService.DeleteFunnel:input_type -> plux.v1.DeleteFunnelRequest
+	51, // 74: plux.v1.AnalyticsService.ListFunnels:input_type -> plux.v1.ListFunnelsRequest
+	54, // 75: plux.v1.AnalyticsService.GetFunnelResult:input_type -> plux.v1.GetFunnelResultRequest
+	57, // 76: plux.v1.AnalyticsService.GetOverview:input_type -> plux.v1.GetOverviewRequest
+	3,  // 77: plux.v1.AnalyticsService.QueryRollups:output_type -> plux.v1.QueryRollupsResponse
+	7,  // 78: plux.v1.AnalyticsService.GetRetention:output_type -> plux.v1.GetRetentionResponse
+	9,  // 79: plux.v1.AnalyticsService.SetRetention:output_type -> plux.v1.SetRetentionResponse
+	11, // 80: plux.v1.AnalyticsService.ListRetentionChanges:output_type -> plux.v1.ListRetentionChangesResponse
+	13, // 81: plux.v1.AnalyticsService.CancelRetentionChange:output_type -> plux.v1.CancelRetentionChangeResponse
+	16, // 82: plux.v1.AnalyticsService.GetExport:output_type -> plux.v1.GetExportResponse
+	18, // 83: plux.v1.AnalyticsService.SetExport:output_type -> plux.v1.SetExportResponse
+	20, // 84: plux.v1.AnalyticsService.DeleteExport:output_type -> plux.v1.DeleteExportResponse
+	24, // 85: plux.v1.AnalyticsService.GetFileExport:output_type -> plux.v1.GetFileExportResponse
+	26, // 86: plux.v1.AnalyticsService.SetFileExport:output_type -> plux.v1.SetFileExportResponse
+	30, // 87: plux.v1.AnalyticsService.CreateAlertRule:output_type -> plux.v1.CreateAlertRuleResponse
+	32, // 88: plux.v1.AnalyticsService.UpdateAlertRule:output_type -> plux.v1.UpdateAlertRuleResponse
+	34, // 89: plux.v1.AnalyticsService.DeleteAlertRule:output_type -> plux.v1.DeleteAlertRuleResponse
+	36, // 90: plux.v1.AnalyticsService.ListAlertRules:output_type -> plux.v1.ListAlertRulesResponse
+	38, // 91: plux.v1.AnalyticsService.ListAlertStates:output_type -> plux.v1.ListAlertStatesResponse
+	43, // 92: plux.v1.AnalyticsService.ListErrorGroups:output_type -> plux.v1.ListErrorGroupsResponse
+	45, // 93: plux.v1.AnalyticsService.GetErrorGroup:output_type -> plux.v1.GetErrorGroupResponse
+	48, // 94: plux.v1.AnalyticsService.CreateFunnel:output_type -> plux.v1.CreateFunnelResponse
+	50, // 95: plux.v1.AnalyticsService.DeleteFunnel:output_type -> plux.v1.DeleteFunnelResponse
+	52, // 96: plux.v1.AnalyticsService.ListFunnels:output_type -> plux.v1.ListFunnelsResponse
+	55, // 97: plux.v1.AnalyticsService.GetFunnelResult:output_type -> plux.v1.GetFunnelResultResponse
+	58, // 98: plux.v1.AnalyticsService.GetOverview:output_type -> plux.v1.GetOverviewResponse
+	77, // [77:99] is the sub-list for method output_type
+	55, // [55:77] is the sub-list for method input_type
+	55, // [55:55] is the sub-list for extension type_name
+	55, // [55:55] is the sub-list for extension extendee
+	0,  // [0:55] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_analytics_proto_init() }
@@ -3314,7 +4119,7 @@ func file_plux_v1_analytics_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_analytics_proto_rawDesc), len(file_plux_v1_analytics_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   47,
+			NumMessages:   60,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

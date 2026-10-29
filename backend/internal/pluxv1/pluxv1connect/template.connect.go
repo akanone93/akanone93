@@ -45,6 +45,27 @@ const (
 	// TemplateServiceInstantiateProcedure is the fully-qualified name of the TemplateService's
 	// Instantiate RPC.
 	TemplateServiceInstantiateProcedure = "/plux.v1.TemplateService/Instantiate"
+	// TemplateServiceCreateTemplateProcedure is the fully-qualified name of the TemplateService's
+	// CreateTemplate RPC.
+	TemplateServiceCreateTemplateProcedure = "/plux.v1.TemplateService/CreateTemplate"
+	// TemplateServiceReviseTemplateProcedure is the fully-qualified name of the TemplateService's
+	// ReviseTemplate RPC.
+	TemplateServiceReviseTemplateProcedure = "/plux.v1.TemplateService/ReviseTemplate"
+	// TemplateServiceListTemplateVersionsProcedure is the fully-qualified name of the TemplateService's
+	// ListTemplateVersions RPC.
+	TemplateServiceListTemplateVersionsProcedure = "/plux.v1.TemplateService/ListTemplateVersions"
+	// TemplateServiceListLibraryTemplatesProcedure is the fully-qualified name of the TemplateService's
+	// ListLibraryTemplates RPC.
+	TemplateServiceListLibraryTemplatesProcedure = "/plux.v1.TemplateService/ListLibraryTemplates"
+	// TemplateServiceSetTemplateVisibilityProcedure is the fully-qualified name of the
+	// TemplateService's SetTemplateVisibility RPC.
+	TemplateServiceSetTemplateVisibilityProcedure = "/plux.v1.TemplateService/SetTemplateVisibility"
+	// TemplateServiceExportTemplateProcedure is the fully-qualified name of the TemplateService's
+	// ExportTemplate RPC.
+	TemplateServiceExportTemplateProcedure = "/plux.v1.TemplateService/ExportTemplate"
+	// TemplateServiceImportTemplateProcedure is the fully-qualified name of the TemplateService's
+	// ImportTemplate RPC.
+	TemplateServiceImportTemplateProcedure = "/plux.v1.TemplateService/ImportTemplate"
 )
 
 // TemplateServiceClient is a client for the plux.v1.TemplateService service.
@@ -54,6 +75,27 @@ type TemplateServiceClient interface {
 	// Instantiate copies a template into a plugin's draft, generating new
 	// UUIDs for every entity it creates (SCH-031). It requires the lock.
 	Instantiate(context.Context, *connect.Request[pluxv1.InstantiateRequest]) (*connect.Response[pluxv1.InstantiateResponse], error)
+	// CreateTemplate makes a private template with its first version (STU-080).
+	CreateTemplate(context.Context, *connect.Request[pluxv1.CreateTemplateRequest]) (*connect.Response[pluxv1.CreateTemplateResponse], error)
+	// ReviseTemplate writes a new immutable version of a template, and may rename
+	// it. The author may revise it; for another person's it needs
+	// library.manage. expected_version guards against a lost update.
+	ReviseTemplate(context.Context, *connect.Request[pluxv1.ReviseTemplateRequest]) (*connect.Response[pluxv1.ReviseTemplateResponse], error)
+	// ListTemplateVersions returns a template with all its versions, newest first.
+	ListTemplateVersions(context.Context, *connect.Request[pluxv1.ListTemplateVersionsRequest]) (*connect.Response[pluxv1.ListTemplateVersionsResponse], error)
+	// ListLibraryTemplates lists the templates the caller may see: the organisation's
+	// shared ones, the caller's own private ones and every public one (STU-086).
+	ListLibraryTemplates(context.Context, *connect.Request[pluxv1.ListLibraryTemplatesRequest]) (*connect.Response[pluxv1.ListLibraryTemplatesResponse], error)
+	// SetTemplateVisibility changes who can see a template. Making it public, or
+	// taking it back from public, needs library.publish, and the public scan
+	// of the newest version must pass first (STU-081).
+	SetTemplateVisibility(context.Context, *connect.Request[pluxv1.SetTemplateVisibilityRequest]) (*connect.Response[pluxv1.SetTemplateVisibilityResponse], error)
+	// ExportTemplate returns a version of a template as a library file, byte for
+	// byte the same for the same version.
+	ExportTemplate(context.Context, *connect.Request[pluxv1.ExportTemplateRequest]) (*connect.Response[pluxv1.ExportTemplateResponse], error)
+	// ImportTemplate makes a private template from a library file, which is
+	// validated as untrusted input.
+	ImportTemplate(context.Context, *connect.Request[pluxv1.ImportTemplateRequest]) (*connect.Response[pluxv1.ImportTemplateResponse], error)
 }
 
 // NewTemplateServiceClient constructs a client for the plux.v1.TemplateService service. By default,
@@ -85,14 +127,63 @@ func NewTemplateServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(templateServiceMethods.ByName("Instantiate")),
 			connect.WithClientOptions(opts...),
 		),
+		createTemplate: connect.NewClient[pluxv1.CreateTemplateRequest, pluxv1.CreateTemplateResponse](
+			httpClient,
+			baseURL+TemplateServiceCreateTemplateProcedure,
+			connect.WithSchema(templateServiceMethods.ByName("CreateTemplate")),
+			connect.WithClientOptions(opts...),
+		),
+		reviseTemplate: connect.NewClient[pluxv1.ReviseTemplateRequest, pluxv1.ReviseTemplateResponse](
+			httpClient,
+			baseURL+TemplateServiceReviseTemplateProcedure,
+			connect.WithSchema(templateServiceMethods.ByName("ReviseTemplate")),
+			connect.WithClientOptions(opts...),
+		),
+		listTemplateVersions: connect.NewClient[pluxv1.ListTemplateVersionsRequest, pluxv1.ListTemplateVersionsResponse](
+			httpClient,
+			baseURL+TemplateServiceListTemplateVersionsProcedure,
+			connect.WithSchema(templateServiceMethods.ByName("ListTemplateVersions")),
+			connect.WithClientOptions(opts...),
+		),
+		listLibraryTemplates: connect.NewClient[pluxv1.ListLibraryTemplatesRequest, pluxv1.ListLibraryTemplatesResponse](
+			httpClient,
+			baseURL+TemplateServiceListLibraryTemplatesProcedure,
+			connect.WithSchema(templateServiceMethods.ByName("ListLibraryTemplates")),
+			connect.WithClientOptions(opts...),
+		),
+		setTemplateVisibility: connect.NewClient[pluxv1.SetTemplateVisibilityRequest, pluxv1.SetTemplateVisibilityResponse](
+			httpClient,
+			baseURL+TemplateServiceSetTemplateVisibilityProcedure,
+			connect.WithSchema(templateServiceMethods.ByName("SetTemplateVisibility")),
+			connect.WithClientOptions(opts...),
+		),
+		exportTemplate: connect.NewClient[pluxv1.ExportTemplateRequest, pluxv1.ExportTemplateResponse](
+			httpClient,
+			baseURL+TemplateServiceExportTemplateProcedure,
+			connect.WithSchema(templateServiceMethods.ByName("ExportTemplate")),
+			connect.WithClientOptions(opts...),
+		),
+		importTemplate: connect.NewClient[pluxv1.ImportTemplateRequest, pluxv1.ImportTemplateResponse](
+			httpClient,
+			baseURL+TemplateServiceImportTemplateProcedure,
+			connect.WithSchema(templateServiceMethods.ByName("ImportTemplate")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // templateServiceClient implements TemplateServiceClient.
 type templateServiceClient struct {
-	listTemplates *connect.Client[pluxv1.ListTemplatesRequest, pluxv1.ListTemplatesResponse]
-	getTemplate   *connect.Client[pluxv1.GetTemplateRequest, pluxv1.GetTemplateResponse]
-	instantiate   *connect.Client[pluxv1.InstantiateRequest, pluxv1.InstantiateResponse]
+	listTemplates         *connect.Client[pluxv1.ListTemplatesRequest, pluxv1.ListTemplatesResponse]
+	getTemplate           *connect.Client[pluxv1.GetTemplateRequest, pluxv1.GetTemplateResponse]
+	instantiate           *connect.Client[pluxv1.InstantiateRequest, pluxv1.InstantiateResponse]
+	createTemplate        *connect.Client[pluxv1.CreateTemplateRequest, pluxv1.CreateTemplateResponse]
+	reviseTemplate        *connect.Client[pluxv1.ReviseTemplateRequest, pluxv1.ReviseTemplateResponse]
+	listTemplateVersions  *connect.Client[pluxv1.ListTemplateVersionsRequest, pluxv1.ListTemplateVersionsResponse]
+	listLibraryTemplates  *connect.Client[pluxv1.ListLibraryTemplatesRequest, pluxv1.ListLibraryTemplatesResponse]
+	setTemplateVisibility *connect.Client[pluxv1.SetTemplateVisibilityRequest, pluxv1.SetTemplateVisibilityResponse]
+	exportTemplate        *connect.Client[pluxv1.ExportTemplateRequest, pluxv1.ExportTemplateResponse]
+	importTemplate        *connect.Client[pluxv1.ImportTemplateRequest, pluxv1.ImportTemplateResponse]
 }
 
 // ListTemplates calls plux.v1.TemplateService.ListTemplates.
@@ -110,6 +201,41 @@ func (c *templateServiceClient) Instantiate(ctx context.Context, req *connect.Re
 	return c.instantiate.CallUnary(ctx, req)
 }
 
+// CreateTemplate calls plux.v1.TemplateService.CreateTemplate.
+func (c *templateServiceClient) CreateTemplate(ctx context.Context, req *connect.Request[pluxv1.CreateTemplateRequest]) (*connect.Response[pluxv1.CreateTemplateResponse], error) {
+	return c.createTemplate.CallUnary(ctx, req)
+}
+
+// ReviseTemplate calls plux.v1.TemplateService.ReviseTemplate.
+func (c *templateServiceClient) ReviseTemplate(ctx context.Context, req *connect.Request[pluxv1.ReviseTemplateRequest]) (*connect.Response[pluxv1.ReviseTemplateResponse], error) {
+	return c.reviseTemplate.CallUnary(ctx, req)
+}
+
+// ListTemplateVersions calls plux.v1.TemplateService.ListTemplateVersions.
+func (c *templateServiceClient) ListTemplateVersions(ctx context.Context, req *connect.Request[pluxv1.ListTemplateVersionsRequest]) (*connect.Response[pluxv1.ListTemplateVersionsResponse], error) {
+	return c.listTemplateVersions.CallUnary(ctx, req)
+}
+
+// ListLibraryTemplates calls plux.v1.TemplateService.ListLibraryTemplates.
+func (c *templateServiceClient) ListLibraryTemplates(ctx context.Context, req *connect.Request[pluxv1.ListLibraryTemplatesRequest]) (*connect.Response[pluxv1.ListLibraryTemplatesResponse], error) {
+	return c.listLibraryTemplates.CallUnary(ctx, req)
+}
+
+// SetTemplateVisibility calls plux.v1.TemplateService.SetTemplateVisibility.
+func (c *templateServiceClient) SetTemplateVisibility(ctx context.Context, req *connect.Request[pluxv1.SetTemplateVisibilityRequest]) (*connect.Response[pluxv1.SetTemplateVisibilityResponse], error) {
+	return c.setTemplateVisibility.CallUnary(ctx, req)
+}
+
+// ExportTemplate calls plux.v1.TemplateService.ExportTemplate.
+func (c *templateServiceClient) ExportTemplate(ctx context.Context, req *connect.Request[pluxv1.ExportTemplateRequest]) (*connect.Response[pluxv1.ExportTemplateResponse], error) {
+	return c.exportTemplate.CallUnary(ctx, req)
+}
+
+// ImportTemplate calls plux.v1.TemplateService.ImportTemplate.
+func (c *templateServiceClient) ImportTemplate(ctx context.Context, req *connect.Request[pluxv1.ImportTemplateRequest]) (*connect.Response[pluxv1.ImportTemplateResponse], error) {
+	return c.importTemplate.CallUnary(ctx, req)
+}
+
 // TemplateServiceHandler is an implementation of the plux.v1.TemplateService service.
 type TemplateServiceHandler interface {
 	ListTemplates(context.Context, *connect.Request[pluxv1.ListTemplatesRequest]) (*connect.Response[pluxv1.ListTemplatesResponse], error)
@@ -117,6 +243,27 @@ type TemplateServiceHandler interface {
 	// Instantiate copies a template into a plugin's draft, generating new
 	// UUIDs for every entity it creates (SCH-031). It requires the lock.
 	Instantiate(context.Context, *connect.Request[pluxv1.InstantiateRequest]) (*connect.Response[pluxv1.InstantiateResponse], error)
+	// CreateTemplate makes a private template with its first version (STU-080).
+	CreateTemplate(context.Context, *connect.Request[pluxv1.CreateTemplateRequest]) (*connect.Response[pluxv1.CreateTemplateResponse], error)
+	// ReviseTemplate writes a new immutable version of a template, and may rename
+	// it. The author may revise it; for another person's it needs
+	// library.manage. expected_version guards against a lost update.
+	ReviseTemplate(context.Context, *connect.Request[pluxv1.ReviseTemplateRequest]) (*connect.Response[pluxv1.ReviseTemplateResponse], error)
+	// ListTemplateVersions returns a template with all its versions, newest first.
+	ListTemplateVersions(context.Context, *connect.Request[pluxv1.ListTemplateVersionsRequest]) (*connect.Response[pluxv1.ListTemplateVersionsResponse], error)
+	// ListLibraryTemplates lists the templates the caller may see: the organisation's
+	// shared ones, the caller's own private ones and every public one (STU-086).
+	ListLibraryTemplates(context.Context, *connect.Request[pluxv1.ListLibraryTemplatesRequest]) (*connect.Response[pluxv1.ListLibraryTemplatesResponse], error)
+	// SetTemplateVisibility changes who can see a template. Making it public, or
+	// taking it back from public, needs library.publish, and the public scan
+	// of the newest version must pass first (STU-081).
+	SetTemplateVisibility(context.Context, *connect.Request[pluxv1.SetTemplateVisibilityRequest]) (*connect.Response[pluxv1.SetTemplateVisibilityResponse], error)
+	// ExportTemplate returns a version of a template as a library file, byte for
+	// byte the same for the same version.
+	ExportTemplate(context.Context, *connect.Request[pluxv1.ExportTemplateRequest]) (*connect.Response[pluxv1.ExportTemplateResponse], error)
+	// ImportTemplate makes a private template from a library file, which is
+	// validated as untrusted input.
+	ImportTemplate(context.Context, *connect.Request[pluxv1.ImportTemplateRequest]) (*connect.Response[pluxv1.ImportTemplateResponse], error)
 }
 
 // NewTemplateServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -144,6 +291,48 @@ func NewTemplateServiceHandler(svc TemplateServiceHandler, opts ...connect.Handl
 		connect.WithSchema(templateServiceMethods.ByName("Instantiate")),
 		connect.WithHandlerOptions(opts...),
 	)
+	templateServiceCreateTemplateHandler := connect.NewUnaryHandler(
+		TemplateServiceCreateTemplateProcedure,
+		svc.CreateTemplate,
+		connect.WithSchema(templateServiceMethods.ByName("CreateTemplate")),
+		connect.WithHandlerOptions(opts...),
+	)
+	templateServiceReviseTemplateHandler := connect.NewUnaryHandler(
+		TemplateServiceReviseTemplateProcedure,
+		svc.ReviseTemplate,
+		connect.WithSchema(templateServiceMethods.ByName("ReviseTemplate")),
+		connect.WithHandlerOptions(opts...),
+	)
+	templateServiceListTemplateVersionsHandler := connect.NewUnaryHandler(
+		TemplateServiceListTemplateVersionsProcedure,
+		svc.ListTemplateVersions,
+		connect.WithSchema(templateServiceMethods.ByName("ListTemplateVersions")),
+		connect.WithHandlerOptions(opts...),
+	)
+	templateServiceListLibraryTemplatesHandler := connect.NewUnaryHandler(
+		TemplateServiceListLibraryTemplatesProcedure,
+		svc.ListLibraryTemplates,
+		connect.WithSchema(templateServiceMethods.ByName("ListLibraryTemplates")),
+		connect.WithHandlerOptions(opts...),
+	)
+	templateServiceSetTemplateVisibilityHandler := connect.NewUnaryHandler(
+		TemplateServiceSetTemplateVisibilityProcedure,
+		svc.SetTemplateVisibility,
+		connect.WithSchema(templateServiceMethods.ByName("SetTemplateVisibility")),
+		connect.WithHandlerOptions(opts...),
+	)
+	templateServiceExportTemplateHandler := connect.NewUnaryHandler(
+		TemplateServiceExportTemplateProcedure,
+		svc.ExportTemplate,
+		connect.WithSchema(templateServiceMethods.ByName("ExportTemplate")),
+		connect.WithHandlerOptions(opts...),
+	)
+	templateServiceImportTemplateHandler := connect.NewUnaryHandler(
+		TemplateServiceImportTemplateProcedure,
+		svc.ImportTemplate,
+		connect.WithSchema(templateServiceMethods.ByName("ImportTemplate")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.TemplateService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TemplateServiceListTemplatesProcedure:
@@ -152,6 +341,20 @@ func NewTemplateServiceHandler(svc TemplateServiceHandler, opts ...connect.Handl
 			templateServiceGetTemplateHandler.ServeHTTP(w, r)
 		case TemplateServiceInstantiateProcedure:
 			templateServiceInstantiateHandler.ServeHTTP(w, r)
+		case TemplateServiceCreateTemplateProcedure:
+			templateServiceCreateTemplateHandler.ServeHTTP(w, r)
+		case TemplateServiceReviseTemplateProcedure:
+			templateServiceReviseTemplateHandler.ServeHTTP(w, r)
+		case TemplateServiceListTemplateVersionsProcedure:
+			templateServiceListTemplateVersionsHandler.ServeHTTP(w, r)
+		case TemplateServiceListLibraryTemplatesProcedure:
+			templateServiceListLibraryTemplatesHandler.ServeHTTP(w, r)
+		case TemplateServiceSetTemplateVisibilityProcedure:
+			templateServiceSetTemplateVisibilityHandler.ServeHTTP(w, r)
+		case TemplateServiceExportTemplateProcedure:
+			templateServiceExportTemplateHandler.ServeHTTP(w, r)
+		case TemplateServiceImportTemplateProcedure:
+			templateServiceImportTemplateHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -171,4 +374,32 @@ func (UnimplementedTemplateServiceHandler) GetTemplate(context.Context, *connect
 
 func (UnimplementedTemplateServiceHandler) Instantiate(context.Context, *connect.Request[pluxv1.InstantiateRequest]) (*connect.Response[pluxv1.InstantiateResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.Instantiate is not implemented"))
+}
+
+func (UnimplementedTemplateServiceHandler) CreateTemplate(context.Context, *connect.Request[pluxv1.CreateTemplateRequest]) (*connect.Response[pluxv1.CreateTemplateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.CreateTemplate is not implemented"))
+}
+
+func (UnimplementedTemplateServiceHandler) ReviseTemplate(context.Context, *connect.Request[pluxv1.ReviseTemplateRequest]) (*connect.Response[pluxv1.ReviseTemplateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.ReviseTemplate is not implemented"))
+}
+
+func (UnimplementedTemplateServiceHandler) ListTemplateVersions(context.Context, *connect.Request[pluxv1.ListTemplateVersionsRequest]) (*connect.Response[pluxv1.ListTemplateVersionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.ListTemplateVersions is not implemented"))
+}
+
+func (UnimplementedTemplateServiceHandler) ListLibraryTemplates(context.Context, *connect.Request[pluxv1.ListLibraryTemplatesRequest]) (*connect.Response[pluxv1.ListLibraryTemplatesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.ListLibraryTemplates is not implemented"))
+}
+
+func (UnimplementedTemplateServiceHandler) SetTemplateVisibility(context.Context, *connect.Request[pluxv1.SetTemplateVisibilityRequest]) (*connect.Response[pluxv1.SetTemplateVisibilityResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.SetTemplateVisibility is not implemented"))
+}
+
+func (UnimplementedTemplateServiceHandler) ExportTemplate(context.Context, *connect.Request[pluxv1.ExportTemplateRequest]) (*connect.Response[pluxv1.ExportTemplateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.ExportTemplate is not implemented"))
+}
+
+func (UnimplementedTemplateServiceHandler) ImportTemplate(context.Context, *connect.Request[pluxv1.ImportTemplateRequest]) (*connect.Response[pluxv1.ImportTemplateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.TemplateService.ImportTemplate is not implemented"))
 }

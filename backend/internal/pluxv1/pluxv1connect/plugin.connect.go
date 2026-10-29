@@ -50,6 +50,15 @@ const (
 	// PluginServiceDeletePluginProcedure is the fully-qualified name of the PluginService's
 	// DeletePlugin RPC.
 	PluginServiceDeletePluginProcedure = "/plux.v1.PluginService/DeletePlugin"
+	// PluginServiceDuplicatePluginProcedure is the fully-qualified name of the PluginService's
+	// DuplicatePlugin RPC.
+	PluginServiceDuplicatePluginProcedure = "/plux.v1.PluginService/DuplicatePlugin"
+	// PluginServiceArchivePluginProcedure is the fully-qualified name of the PluginService's
+	// ArchivePlugin RPC.
+	PluginServiceArchivePluginProcedure = "/plux.v1.PluginService/ArchivePlugin"
+	// PluginServiceListPluginSummariesProcedure is the fully-qualified name of the PluginService's
+	// ListPluginSummaries RPC.
+	PluginServiceListPluginSummariesProcedure = "/plux.v1.PluginService/ListPluginSummaries"
 	// PluginServiceAcquireLockProcedure is the fully-qualified name of the PluginService's AcquireLock
 	// RPC.
 	PluginServiceAcquireLockProcedure = "/plux.v1.PluginService/AcquireLock"
@@ -78,6 +87,14 @@ type PluginServiceClient interface {
 	ListPlugins(context.Context, *connect.Request[pluxv1.ListPluginsRequest]) (*connect.Response[pluxv1.ListPluginsResponse], error)
 	UpdatePlugin(context.Context, *connect.Request[pluxv1.UpdatePluginRequest]) (*connect.Response[pluxv1.UpdatePluginResponse], error)
 	DeletePlugin(context.Context, *connect.Request[pluxv1.DeletePluginRequest]) (*connect.Response[pluxv1.DeletePluginResponse], error)
+	// DuplicatePlugin copies a plugin's draft under a new key, with new
+	// document IDs (STU-034).
+	DuplicatePlugin(context.Context, *connect.Request[pluxv1.DuplicatePluginRequest]) (*connect.Response[pluxv1.DuplicatePluginResponse], error)
+	// ArchivePlugin archives or restores a plugin without deleting it.
+	ArchivePlugin(context.Context, *connect.Request[pluxv1.ArchivePluginRequest]) (*connect.Response[pluxv1.ArchivePluginResponse], error)
+	// ListPluginSummaries returns one bounded summary per plugin of an app,
+	// for the app canvas, in a single call (plan P11 §4.3 #14).
+	ListPluginSummaries(context.Context, *connect.Request[pluxv1.ListPluginSummariesRequest]) (*connect.Response[pluxv1.ListPluginSummariesResponse], error)
 	// AcquireLock takes the editing lock. It fails with PLX-8020 when
 	// someone else holds it and force is not set (SRV-040).
 	AcquireLock(context.Context, *connect.Request[pluxv1.AcquireLockRequest]) (*connect.Response[pluxv1.AcquireLockResponse], error)
@@ -133,6 +150,24 @@ func NewPluginServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(pluginServiceMethods.ByName("DeletePlugin")),
 			connect.WithClientOptions(opts...),
 		),
+		duplicatePlugin: connect.NewClient[pluxv1.DuplicatePluginRequest, pluxv1.DuplicatePluginResponse](
+			httpClient,
+			baseURL+PluginServiceDuplicatePluginProcedure,
+			connect.WithSchema(pluginServiceMethods.ByName("DuplicatePlugin")),
+			connect.WithClientOptions(opts...),
+		),
+		archivePlugin: connect.NewClient[pluxv1.ArchivePluginRequest, pluxv1.ArchivePluginResponse](
+			httpClient,
+			baseURL+PluginServiceArchivePluginProcedure,
+			connect.WithSchema(pluginServiceMethods.ByName("ArchivePlugin")),
+			connect.WithClientOptions(opts...),
+		),
+		listPluginSummaries: connect.NewClient[pluxv1.ListPluginSummariesRequest, pluxv1.ListPluginSummariesResponse](
+			httpClient,
+			baseURL+PluginServiceListPluginSummariesProcedure,
+			connect.WithSchema(pluginServiceMethods.ByName("ListPluginSummaries")),
+			connect.WithClientOptions(opts...),
+		),
 		acquireLock: connect.NewClient[pluxv1.AcquireLockRequest, pluxv1.AcquireLockResponse](
 			httpClient,
 			baseURL+PluginServiceAcquireLockProcedure,
@@ -180,18 +215,21 @@ func NewPluginServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // pluginServiceClient implements PluginServiceClient.
 type pluginServiceClient struct {
-	createPlugin     *connect.Client[pluxv1.CreatePluginRequest, pluxv1.CreatePluginResponse]
-	getPlugin        *connect.Client[pluxv1.GetPluginRequest, pluxv1.GetPluginResponse]
-	listPlugins      *connect.Client[pluxv1.ListPluginsRequest, pluxv1.ListPluginsResponse]
-	updatePlugin     *connect.Client[pluxv1.UpdatePluginRequest, pluxv1.UpdatePluginResponse]
-	deletePlugin     *connect.Client[pluxv1.DeletePluginRequest, pluxv1.DeletePluginResponse]
-	acquireLock      *connect.Client[pluxv1.AcquireLockRequest, pluxv1.AcquireLockResponse]
-	renewLock        *connect.Client[pluxv1.RenewLockRequest, pluxv1.RenewLockResponse]
-	releaseLock      *connect.Client[pluxv1.ReleaseLockRequest, pluxv1.ReleaseLockResponse]
-	requestLock      *connect.Client[pluxv1.RequestLockRequest, pluxv1.RequestLockResponse]
-	getLock          *connect.Client[pluxv1.GetLockRequest, pluxv1.GetLockResponse]
-	listPluginLimits *connect.Client[pluxv1.ListPluginLimitsRequest, pluxv1.ListPluginLimitsResponse]
-	setPluginLimit   *connect.Client[pluxv1.SetPluginLimitRequest, pluxv1.SetPluginLimitResponse]
+	createPlugin        *connect.Client[pluxv1.CreatePluginRequest, pluxv1.CreatePluginResponse]
+	getPlugin           *connect.Client[pluxv1.GetPluginRequest, pluxv1.GetPluginResponse]
+	listPlugins         *connect.Client[pluxv1.ListPluginsRequest, pluxv1.ListPluginsResponse]
+	updatePlugin        *connect.Client[pluxv1.UpdatePluginRequest, pluxv1.UpdatePluginResponse]
+	deletePlugin        *connect.Client[pluxv1.DeletePluginRequest, pluxv1.DeletePluginResponse]
+	duplicatePlugin     *connect.Client[pluxv1.DuplicatePluginRequest, pluxv1.DuplicatePluginResponse]
+	archivePlugin       *connect.Client[pluxv1.ArchivePluginRequest, pluxv1.ArchivePluginResponse]
+	listPluginSummaries *connect.Client[pluxv1.ListPluginSummariesRequest, pluxv1.ListPluginSummariesResponse]
+	acquireLock         *connect.Client[pluxv1.AcquireLockRequest, pluxv1.AcquireLockResponse]
+	renewLock           *connect.Client[pluxv1.RenewLockRequest, pluxv1.RenewLockResponse]
+	releaseLock         *connect.Client[pluxv1.ReleaseLockRequest, pluxv1.ReleaseLockResponse]
+	requestLock         *connect.Client[pluxv1.RequestLockRequest, pluxv1.RequestLockResponse]
+	getLock             *connect.Client[pluxv1.GetLockRequest, pluxv1.GetLockResponse]
+	listPluginLimits    *connect.Client[pluxv1.ListPluginLimitsRequest, pluxv1.ListPluginLimitsResponse]
+	setPluginLimit      *connect.Client[pluxv1.SetPluginLimitRequest, pluxv1.SetPluginLimitResponse]
 }
 
 // CreatePlugin calls plux.v1.PluginService.CreatePlugin.
@@ -217,6 +255,21 @@ func (c *pluginServiceClient) UpdatePlugin(ctx context.Context, req *connect.Req
 // DeletePlugin calls plux.v1.PluginService.DeletePlugin.
 func (c *pluginServiceClient) DeletePlugin(ctx context.Context, req *connect.Request[pluxv1.DeletePluginRequest]) (*connect.Response[pluxv1.DeletePluginResponse], error) {
 	return c.deletePlugin.CallUnary(ctx, req)
+}
+
+// DuplicatePlugin calls plux.v1.PluginService.DuplicatePlugin.
+func (c *pluginServiceClient) DuplicatePlugin(ctx context.Context, req *connect.Request[pluxv1.DuplicatePluginRequest]) (*connect.Response[pluxv1.DuplicatePluginResponse], error) {
+	return c.duplicatePlugin.CallUnary(ctx, req)
+}
+
+// ArchivePlugin calls plux.v1.PluginService.ArchivePlugin.
+func (c *pluginServiceClient) ArchivePlugin(ctx context.Context, req *connect.Request[pluxv1.ArchivePluginRequest]) (*connect.Response[pluxv1.ArchivePluginResponse], error) {
+	return c.archivePlugin.CallUnary(ctx, req)
+}
+
+// ListPluginSummaries calls plux.v1.PluginService.ListPluginSummaries.
+func (c *pluginServiceClient) ListPluginSummaries(ctx context.Context, req *connect.Request[pluxv1.ListPluginSummariesRequest]) (*connect.Response[pluxv1.ListPluginSummariesResponse], error) {
+	return c.listPluginSummaries.CallUnary(ctx, req)
 }
 
 // AcquireLock calls plux.v1.PluginService.AcquireLock.
@@ -261,6 +314,14 @@ type PluginServiceHandler interface {
 	ListPlugins(context.Context, *connect.Request[pluxv1.ListPluginsRequest]) (*connect.Response[pluxv1.ListPluginsResponse], error)
 	UpdatePlugin(context.Context, *connect.Request[pluxv1.UpdatePluginRequest]) (*connect.Response[pluxv1.UpdatePluginResponse], error)
 	DeletePlugin(context.Context, *connect.Request[pluxv1.DeletePluginRequest]) (*connect.Response[pluxv1.DeletePluginResponse], error)
+	// DuplicatePlugin copies a plugin's draft under a new key, with new
+	// document IDs (STU-034).
+	DuplicatePlugin(context.Context, *connect.Request[pluxv1.DuplicatePluginRequest]) (*connect.Response[pluxv1.DuplicatePluginResponse], error)
+	// ArchivePlugin archives or restores a plugin without deleting it.
+	ArchivePlugin(context.Context, *connect.Request[pluxv1.ArchivePluginRequest]) (*connect.Response[pluxv1.ArchivePluginResponse], error)
+	// ListPluginSummaries returns one bounded summary per plugin of an app,
+	// for the app canvas, in a single call (plan P11 §4.3 #14).
+	ListPluginSummaries(context.Context, *connect.Request[pluxv1.ListPluginSummariesRequest]) (*connect.Response[pluxv1.ListPluginSummariesResponse], error)
 	// AcquireLock takes the editing lock. It fails with PLX-8020 when
 	// someone else holds it and force is not set (SRV-040).
 	AcquireLock(context.Context, *connect.Request[pluxv1.AcquireLockRequest]) (*connect.Response[pluxv1.AcquireLockResponse], error)
@@ -310,6 +371,24 @@ func NewPluginServiceHandler(svc PluginServiceHandler, opts ...connect.HandlerOp
 		PluginServiceDeletePluginProcedure,
 		svc.DeletePlugin,
 		connect.WithSchema(pluginServiceMethods.ByName("DeletePlugin")),
+		connect.WithHandlerOptions(opts...),
+	)
+	pluginServiceDuplicatePluginHandler := connect.NewUnaryHandler(
+		PluginServiceDuplicatePluginProcedure,
+		svc.DuplicatePlugin,
+		connect.WithSchema(pluginServiceMethods.ByName("DuplicatePlugin")),
+		connect.WithHandlerOptions(opts...),
+	)
+	pluginServiceArchivePluginHandler := connect.NewUnaryHandler(
+		PluginServiceArchivePluginProcedure,
+		svc.ArchivePlugin,
+		connect.WithSchema(pluginServiceMethods.ByName("ArchivePlugin")),
+		connect.WithHandlerOptions(opts...),
+	)
+	pluginServiceListPluginSummariesHandler := connect.NewUnaryHandler(
+		PluginServiceListPluginSummariesProcedure,
+		svc.ListPluginSummaries,
+		connect.WithSchema(pluginServiceMethods.ByName("ListPluginSummaries")),
 		connect.WithHandlerOptions(opts...),
 	)
 	pluginServiceAcquireLockHandler := connect.NewUnaryHandler(
@@ -366,6 +445,12 @@ func NewPluginServiceHandler(svc PluginServiceHandler, opts ...connect.HandlerOp
 			pluginServiceUpdatePluginHandler.ServeHTTP(w, r)
 		case PluginServiceDeletePluginProcedure:
 			pluginServiceDeletePluginHandler.ServeHTTP(w, r)
+		case PluginServiceDuplicatePluginProcedure:
+			pluginServiceDuplicatePluginHandler.ServeHTTP(w, r)
+		case PluginServiceArchivePluginProcedure:
+			pluginServiceArchivePluginHandler.ServeHTTP(w, r)
+		case PluginServiceListPluginSummariesProcedure:
+			pluginServiceListPluginSummariesHandler.ServeHTTP(w, r)
 		case PluginServiceAcquireLockProcedure:
 			pluginServiceAcquireLockHandler.ServeHTTP(w, r)
 		case PluginServiceRenewLockProcedure:
@@ -407,6 +492,18 @@ func (UnimplementedPluginServiceHandler) UpdatePlugin(context.Context, *connect.
 
 func (UnimplementedPluginServiceHandler) DeletePlugin(context.Context, *connect.Request[pluxv1.DeletePluginRequest]) (*connect.Response[pluxv1.DeletePluginResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.PluginService.DeletePlugin is not implemented"))
+}
+
+func (UnimplementedPluginServiceHandler) DuplicatePlugin(context.Context, *connect.Request[pluxv1.DuplicatePluginRequest]) (*connect.Response[pluxv1.DuplicatePluginResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.PluginService.DuplicatePlugin is not implemented"))
+}
+
+func (UnimplementedPluginServiceHandler) ArchivePlugin(context.Context, *connect.Request[pluxv1.ArchivePluginRequest]) (*connect.Response[pluxv1.ArchivePluginResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.PluginService.ArchivePlugin is not implemented"))
+}
+
+func (UnimplementedPluginServiceHandler) ListPluginSummaries(context.Context, *connect.Request[pluxv1.ListPluginSummariesRequest]) (*connect.Response[pluxv1.ListPluginSummariesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.PluginService.ListPluginSummaries is not implemented"))
 }
 
 func (UnimplementedPluginServiceHandler) AcquireLock(context.Context, *connect.Request[pluxv1.AcquireLockRequest]) (*connect.Response[pluxv1.AcquireLockResponse], error) {

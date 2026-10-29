@@ -22,6 +22,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/approval"
+	"github.com/nightCode42/plux3/backend/internal/archive"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
@@ -44,26 +45,33 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
+	"github.com/nightCode42/plux3/backend/internal/library"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/preferences"
 	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/releasereq"
+	"github.com/nightCode42/plux3/backend/internal/replay"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
+	"github.com/nightCode42/plux3/backend/internal/shellupdate"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
+	"github.com/nightCode42/plux3/backend/internal/studioevents"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
+	"github.com/nightCode42/plux3/backend/internal/testrun"
 )
 
 type uuids struct{ g *uuid7.Generator }
@@ -128,6 +136,7 @@ type world struct {
 	identity     pluxv1connect.IdentityServiceClient
 	org          pluxv1connect.OrgServiceClient
 	govern       pluxv1connect.GovernanceServiceClient
+	studioEvents pluxv1connect.StudioEventsServiceClient
 	app          pluxv1connect.AppServiceClient
 	plugin       pluxv1connect.PluginServiceClient
 	document     pluxv1connect.DocumentServiceClient
@@ -142,6 +151,7 @@ type world struct {
 	native       pluxv1connect.NativeCatalogueServiceClient
 	secAdmin     pluxv1connect.SecurityAdminServiceClient
 	license      pluxv1connect.LicenseServiceClient
+	installation pluxv1connect.InstallationServiceClient
 	audit        pluxv1connect.AuditServiceClient
 	dsr          pluxv1connect.DataSubjectServiceClient
 	config       pluxv1connect.ConfigServiceClient
@@ -169,9 +179,10 @@ type world struct {
 	devSession pluxv1connect.DevSessionServiceClient
 	// functions is the function service, and fn the fakes it runs builds
 	// with, as the worker role would.
-	functions     *function.Service
-	functionAdmin pluxv1connect.FunctionAdminServiceClient
-	fn            *functionFakes
+	functions      *function.Service
+	functionAdmin  pluxv1connect.FunctionAdminServiceClient
+	languageServer pluxv1connect.LanguageServerServiceClient
+	fn             *functionFakes
 	// fnrt is the api role's side of server functions: the invoker behind
 	// FunctionService, the host service the runner calls and the fakes
 	// that stand in for the runner, the SCA verifier and the clock.
@@ -206,6 +217,9 @@ type worldConfig struct {
 	Windows func(ctx context.Context, appID, environmentID string) (time.Duration, time.Duration, error)
 	// Checkpoints, when set, serves ListAuditCheckpoints.
 	Checkpoints api.CheckpointSource
+	// Edition is the licence provider the handlers consult; nil is the
+	// open-source core.
+	Edition edition.Provider
 }
 
 // newWorldWith is newWorld with the configuration applied.
@@ -317,6 +331,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	replays, err := replay.NewService(replay.Options{DB: db})
+	if err != nil {
+		t.Fatal(err)
+	}
 	window, err := analytics.ParseWindow("02:00", "04:00", "UTC")
 	if err != nil {
 		t.Fatal(err)
@@ -345,7 +363,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	resolver := &gateway.ConfigResolver{Source: configs, Cache: shared, Now: cfg.Now}
 	fn := &functionFakes{}
 	functions, err := function.NewService(function.Options{
-		DB: db, Audit: log, Objects: files, IDs: gen, Jobs: fn, Builder: fn, Signer: fn,
+		DB: db, Audit: log, Objects: files, IDs: gen, Jobs: fn, Builder: fn, Signer: fn, Editor: fn,
 		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
 			return tenancyService.Effective(ctx, tx, org, app, "")
 		},
@@ -419,6 +437,14 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	studioEventsService, err := studioevents.NewService(studioevents.Options{Logs: shared, Notifier: shared, Heartbeat: 50 * time.Millisecond})
+	if err != nil {
+		t.Fatal(err)
+	}
+	preferencesService, err := preferences.NewService(preferences.Options{DB: db, Tenancy: tenancyService})
+	if err != nil {
+		t.Fatal(err)
+	}
 	gitService, err := gitsync.New(gitsync.Options{DB: db, Audit: log, Documents: docs, Secrets: tenancyService, IDs: gen})
 	if err != nil {
 		t.Fatal(err)
@@ -447,16 +473,34 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	libraryService, err := library.NewService(library.Options{DB: db, Audit: log, IDs: gen, Instances: docs})
+	if err != nil {
+		t.Fatal(err)
+	}
+	archives, err := archive.New(archive.Options{DB: db, Audit: log, Tenancy: tenancyService, Documents: docs, IDs: gen, Limits: set})
+	if err != nil {
+		t.Fatal(err)
+	}
+	shells, err := shellupdate.New(shellupdate.Options{DB: db, Audit: log, IDs: gen, Limits: set, Queue: discardProjects{}})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
-		DevSessions: devSessions,
+		Archives: archives, Shells: shells,
+		Edition:     cfg.Edition,
+		DevSessions: devSessions, Library: libraryService,
 		Emergencies: emergencies, Freezes: freezes, Reports: reports,
 		Approvals: approvals, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
-		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
+		Auth: authService, Authenticator: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Replays: replays, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
-		Searches:     searchService, GitExports: gitService,
-		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
+		StudioStream: studioEventsService, Searches: searchService, GitExports: gitService, UserPreferences: preferencesService,
+		Goldens:  golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
+		TestRuns: testrun.New(testrun.Options{DB: db, IDs: gen, Limits: set}),
+		ReleaseRequests: releasereq.New(releasereq.Options{
+			DB: db, IDs: gen, Builds: releasereq.ReleaseBuilds{Releases: releases}, Releaser: releasereq.ReleaseMaker{Releases: releases}, Approvals: approvals,
+		}),
 	}
 	// The world's one signed-in person calls every RPC of the authorisation
 	// matrix within a minute, which is more than one person's default
@@ -482,12 +526,23 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	for _, r := range []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewTestRunServiceHandler(h.TestRun(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewAppProjectServiceHandler(h.AppProject(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewReleaseRequestServiceHandler(h.ReleaseRequest(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewBreakGlassServiceHandler(h.BreakGlass(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDevSessionServiceHandler(h.DevSession(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewStudioEventsServiceHandler(h.StudioEvents(), opts)
+		},
+		func() (string, http.Handler) {
+			return pluxv1connect.NewPreferencesServiceHandler(h.Preferences(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
@@ -514,10 +569,14 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewReplayServiceHandler(h.Replay(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewAnalyticsServiceHandler(h.AnalyticsService(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewLicenseServiceHandler(h.License(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewInstallationServiceHandler(h.Installation(), opts)
+		},
 		func() (string, http.Handler) {
 			return pluxv1connect.NewNotificationServiceHandler(h.Notification(), opts)
 		},
@@ -541,6 +600,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
 		},
 		func() (string, http.Handler) {
+			return pluxv1connect.NewLanguageServerServiceHandler(h.LanguageServer(), opts)
+		},
+		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewScaServiceHandler(h.ScaService(), opts) },
@@ -561,6 +623,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		identity:     pluxv1connect.NewIdentityServiceClient(srv.Client(), srv.URL),
 		org:          pluxv1connect.NewOrgServiceClient(srv.Client(), srv.URL),
 		govern:       pluxv1connect.NewGovernanceServiceClient(srv.Client(), srv.URL),
+		studioEvents: pluxv1connect.NewStudioEventsServiceClient(srv.Client(), srv.URL),
 		app:          pluxv1connect.NewAppServiceClient(srv.Client(), srv.URL),
 		analytics:    pluxv1connect.NewAnalyticsServiceClient(srv.Client(), srv.URL),
 		plugin:       pluxv1connect.NewPluginServiceClient(srv.Client(), srv.URL),
@@ -581,6 +644,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		compliance:   pluxv1connect.NewComplianceServiceClient(srv.Client(), srv.URL),
 		secAdmin:     pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
 		license:      pluxv1connect.NewLicenseServiceClient(srv.Client(), srv.URL),
+		installation: pluxv1connect.NewInstallationServiceClient(srv.Client(), srv.URL),
 		audit:        pluxv1connect.NewAuditServiceClient(srv.Client(), srv.URL),
 		dsr:          pluxv1connect.NewDataSubjectServiceClient(srv.Client(), srv.URL),
 		flags:        pluxv1connect.NewFlagServiceClient(srv.Client(), srv.URL),
@@ -588,17 +652,18 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		config:       pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
 		sca:          pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
 
-		functions:     functions,
-		functionAdmin: pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),
-		fn:            fn,
-		fnrt:          fnrt,
-		db:            db,
-		configs:       configs,
-		resolver:      resolver,
-		events:        pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
-		devices:       devices,
-		fakes:         fakes,
-		base:          base,
+		functions:      functions,
+		functionAdmin:  pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),
+		languageServer: pluxv1connect.NewLanguageServerServiceClient(srv.Client(), srv.URL),
+		fn:             fn,
+		fnrt:           fnrt,
+		db:             db,
+		configs:        configs,
+		resolver:       resolver,
+		events:         pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
+		devices:        devices,
+		fakes:          fakes,
+		base:           base,
 
 		deviceAuth: deviceAuth,
 		issuer:     issuer,
@@ -737,8 +802,19 @@ func TestServicesEndToEnd(t *testing.T) {
 	}
 	noCSRF := admin
 	noCSRF.csrf = "plux_csrf_forged"
-	if _, err := w.identity.GetCurrentUser(ctx, req(noCSRF, &pluxv1.GetCurrentUserRequest{})); codeOf(err) != connect.CodePermissionDenied {
+	if _, err := w.identity.ListFactors(ctx, req(noCSRF, &pluxv1.ListFactorsRequest{})); codeOf(err) != connect.CodePermissionDenied {
 		t.Errorf("a forged CSRF token: %v", err)
+	}
+	// GetCurrentUser is the one cookie call exempt from the header (SEC-101, STU-002):
+	// it returns the token a reloaded Studio has lost.
+	noHeader := admin
+	noHeader.csrf = ""
+	fetched, err := w.identity.GetCurrentUser(ctx, req(noHeader, &pluxv1.GetCurrentUserRequest{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fetched.Header().Get("Cache-Control") != "no-store" || fetched.Msg.GetCsrfToken() != admin.csrf || !fetched.Msg.GetInstallationAdmin() {
+		t.Errorf("GetCurrentUser without the header = %+v; Cache-Control %q", fetched.Msg, fetched.Header().Get("Cache-Control"))
 	}
 	me := must(w.identity.GetCurrentUser(ctx, req(admin, &pluxv1.GetCurrentUserRequest{})))(t)
 	if me.GetUser().GetMfaEnrolled() {
@@ -1035,3 +1111,8 @@ func licensed() api.Around {
 		return next(edition.WithProvider(ctx, fullLicence{}))
 	}
 }
+
+// discardProjects accepts project generation jobs and never runs them.
+type discardProjects struct{}
+
+func (discardProjects) Enqueue(context.Context, pgx.Tx, shellupdate.Job) error { return nil }

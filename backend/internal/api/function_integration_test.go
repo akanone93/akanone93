@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -26,6 +27,60 @@ import (
 type functionFakes struct {
 	mu   sync.Mutex
 	jobs []function.BuildJob
+	// hold keeps language sessions open and echoing; without it a session
+	// opens and closes at once, which is all the permission matrix needs.
+	hold     bool
+	sessions int
+	received []string
+	outbox   chan []byte
+}
+
+// OpenLanguage is the fake language server: it announces a session and, when
+// held, answers every message the client sends with an echo.
+func (f *functionFakes) OpenLanguage(ctx context.Context, in function.EditorInput, send func(function.EditorEvent) error) error {
+	f.mu.Lock()
+	f.sessions++
+	id := fmt.Sprintf("fake-session-%d", f.sessions)
+	hold := f.hold
+	if f.outbox == nil {
+		f.outbox = make(chan []byte, 8)
+	}
+	f.mu.Unlock()
+	opened := &function.EditorOpened{SessionID: id, RootURI: "file:///workspace/functions/" + in.Name + "/", Seconds: 60}
+	if err := send(function.EditorEvent{Opened: opened}); err != nil {
+		return err
+	}
+	if !hold {
+		return send(function.EditorEvent{Closed: &function.EditorClosed{Reason: "exited"}})
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case m := <-f.outbox:
+			if m == nil {
+				return send(function.EditorEvent{Closed: &function.EditorClosed{Reason: "exited", Detail: "bye"}})
+			}
+			if err := send(function.EditorEvent{Message: m}); err != nil {
+				return err
+			}
+		}
+	}
+}
+
+// SendLanguage keeps the message and has the session echo it.
+func (f *functionFakes) SendLanguage(_ context.Context, _ string, _ uint64, message []byte) error {
+	f.mu.Lock()
+	f.received = append(f.received, string(message))
+	out := f.outbox
+	f.mu.Unlock()
+	out <- append([]byte("echo:"), message...)
+	return nil
+}
+
+// Test reports no stored cases.
+func (*functionFakes) Test(context.Context, function.EditorInput) (function.EditorTests, error) {
+	return function.EditorTests{}, nil
 }
 
 // Enqueue keeps a build job.
@@ -129,6 +184,11 @@ func TestFunctionAdminService_FN_006(t *testing.T) {
 	if v.GetVersion() != 1 || v.GetPlacement() != "server" || len(v.GetModuleSha256()) != 64 || !v.GetTestsPassed() || v.GetProvenance().GetBuilderIdentity() != "builder-test" {
 		t.Errorf("version = %v", v)
 	}
+	// FN-012: the version names its source and reports what its build
+	// declared, on every read; the server's test build declares nothing.
+	if v.GetSourceId() == "" || v.GetCapabilities() != nil || v.GetAssurance() != "" {
+		t.Errorf("version source, capabilities and assurance = %q, %v, %q", v.GetSourceId(), v.GetCapabilities(), v.GetAssurance())
+	}
 	again := must(w.functionAdmin.Deploy(ctx, req(dev, &pluxv1.DeployRequest{BuildId: id})))(t).GetVersion()
 	if again.GetVersion() != 2 {
 		t.Errorf("the second deploy is version %d", again.GetVersion())
@@ -140,17 +200,17 @@ func TestFunctionAdminService_FN_006(t *testing.T) {
 		t.Errorf("aliases = %v", aliases)
 	}
 	got := must(w.functionAdmin.GetFunction(ctx, req(viewer, &pluxv1.GetFunctionRequest{AppId: f.app, EnvironmentId: f.dev, Name: apiFunction})))(t)
-	if got.GetLatest().GetVersion() != 2 || len(got.GetAliases()) != 2 {
+	if got.GetLatest().GetVersion() != 2 || len(got.GetAliases()) != 2 || got.GetLatest().GetSourceId() != v.GetSourceId() {
 		t.Errorf("GetFunction = %v", got)
 	}
 	list := must(w.functionAdmin.ListFunctions(ctx, req(viewer, &pluxv1.ListFunctionsRequest{AppId: f.app, EnvironmentId: f.dev})))(t)
-	if len(list.GetFunctions()) != 1 || list.GetFunctions()[0].GetVersion() != 2 {
+	if len(list.GetFunctions()) != 1 || list.GetFunctions()[0].GetVersion() != 2 || list.GetFunctions()[0].GetSourceId() != v.GetSourceId() {
 		t.Errorf("ListFunctions = %v", list)
 	}
 	first := must(w.functionAdmin.ListVersions(ctx, req(viewer, &pluxv1.ListVersionsRequest{
 		AppId: f.app, EnvironmentId: f.dev, Name: apiFunction, Page: &pluxv1.Page{PageSize: 1},
 	})))(t)
-	if len(first.GetVersions()) != 1 || first.GetVersions()[0].GetVersion() != 2 || first.GetPage().GetNextPageToken() == "" {
+	if len(first.GetVersions()) != 1 || first.GetVersions()[0].GetVersion() != 2 || first.GetVersions()[0].GetSourceId() != v.GetSourceId() || first.GetPage().GetNextPageToken() == "" {
 		t.Fatalf("first page = %v", first)
 	}
 	next := must(w.functionAdmin.ListVersions(ctx, req(viewer, &pluxv1.ListVersionsRequest{
@@ -208,4 +268,65 @@ func (f *matrixFixture) freshSource(t *testing.T) string {
 func (f *matrixFixture) freshFunctionBuild(t *testing.T, envID string) string {
 	t.Helper()
 	return f.w.builtBy(t, f.owner(), f.app, envID, apiFunction)
+}
+
+// Verifies: FN-033.
+// The language-server handlers translate a session: Open streams the opened
+// event, then the server's messages, then the close; Send is accepted for the
+// person who opened the session and refused for anyone else without revealing
+// it; an unknown source is not found, and a session cannot be sent to once over.
+func TestLanguageServerService_FN_033(t *testing.T) {
+	t.Parallel()
+	f := newMatrixFixture(t)
+	w, dev, owner, viewer := f.w, f.callers["developer"], f.owner(), f.callers["viewer"]
+	w.fn.mu.Lock()
+	w.fn.hold = true
+	w.fn.mu.Unlock()
+	src := f.freshSource(t)
+
+	if err := drain(w.languageServer.Open(context.Background(), req(dev, &pluxv1.LanguageServerServiceOpenRequest{SourceId: "no-such-source"}))); codeOf(err) != connect.CodeInvalidArgument {
+		t.Errorf("a malformed source identifier: %v; want invalid argument", err)
+	}
+	stream, err := w.languageServer.Open(context.Background(), req(dev, &pluxv1.LanguageServerServiceOpenRequest{SourceId: src}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !stream.Receive() {
+		t.Fatalf("no opened event: %v", stream.Err())
+	}
+	opened := stream.Msg().GetOpened()
+	if opened.GetSessionId() == "" || opened.GetSessionSeconds() != 60 || !strings.HasSuffix(opened.GetRootUri(), "/"+apiFunction+"/") {
+		t.Fatalf("opened = %v", stream.Msg())
+	}
+	send := func(c caller, seq uint64) error {
+		_, err := w.languageServer.Send(context.Background(), req(c, &pluxv1.LanguageServerServiceSendRequest{
+			SessionId: opened.GetSessionId(), Sequence: seq, Message: []byte(`{"jsonrpc":"2.0"}`),
+		}))
+		return err
+	}
+	if err := send(dev, 1); err != nil {
+		t.Fatalf("the owner's message: %v", err)
+	}
+	if !stream.Receive() || string(stream.Msg().GetMessage()) != `echo:{"jsonrpc":"2.0"}` {
+		t.Fatalf("message = %v, %v", stream.Msg(), stream.Err())
+	}
+	if codeOf(send(owner, 2)) != connect.CodeNotFound {
+		t.Errorf("another person's message: %v; want not found", send(owner, 2))
+	}
+	if codeOf(send(viewer, 2)) != connect.CodePermissionDenied {
+		t.Errorf("a viewer's message: %v; want permission denied", send(viewer, 2))
+	}
+
+	w.fn.outbox <- nil
+	if !stream.Receive() || stream.Msg().GetClosed().GetReason() != "exited" || stream.Msg().GetClosed().GetDetail() != "bye" {
+		t.Fatalf("closed = %v, %v", stream.Msg(), stream.Err())
+	}
+	for stream.Receive() {
+	}
+	if stream.Err() != nil {
+		t.Errorf("the stream ended with %v", stream.Err())
+	}
+	if codeOf(send(dev, 3)) != connect.CodeNotFound {
+		t.Errorf("a message after the end: %v; want not found", send(dev, 3))
+	}
 }

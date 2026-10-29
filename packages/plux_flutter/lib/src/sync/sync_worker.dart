@@ -22,6 +22,7 @@ import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/invoke_function.dart';
 import 'package:plux_flutter/src/reconstruction/import.dart';
 import 'package:plux_flutter/src/reconstruction/reconstruction.dart';
+import 'package:plux_flutter/src/replay/replay_outbox.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
@@ -236,6 +237,18 @@ final class _Record {
   const _Record(this.lines, this.maxBytes);
   final List<String> lines;
   final int maxBytes;
+}
+
+/// A closed session replay to store (ANL-050); no reply.
+final class _ReplayRecord {
+  const _ReplayRecord(this.replay, this.maxFiles);
+  final Map<String, Object?> replay;
+  final int maxFiles;
+}
+
+/// Deletes every stored replay, whose consent was withdrawn; no reply.
+final class _ReplayPurge {
+  const _ReplayPurge();
 }
 
 /// Ends the isolate once the commands sent before it are handled; no reply.
@@ -489,6 +502,14 @@ final class SyncWorker
   void recordTelemetry(List<String> lines, int maxBytes) =>
       _commands.send(_Record(lines, maxBytes));
 
+  /// Stores a closed session replay, at most [maxFiles] of them (ANL-050);
+  /// it is sent with the next [flushTelemetry].
+  void recordReplay(Map<String, Object?> replay, int maxFiles) =>
+      _commands.send(_ReplayRecord(replay, maxFiles));
+
+  /// Deletes every stored replay (SEC-161).
+  void purgeReplays() => _commands.send(const _ReplayPurge());
+
   /// Deletes the buffered events of [categories] (SEC-161).
   void purgeTelemetry(Set<TelemetryCategory> categories) =>
       _commands.send(_Purge(categories));
@@ -543,6 +564,7 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
   final client = config.httpClient();
   final api = PluxApiClient(client, config.endpoint);
   final outbox = TelemetryOutbox(config.storeRoot);
+  final replays = ReplayOutbox(config.storeRoot);
   var bufferBytes = PluxLimit.telemetryBufferBytes.defaultValue;
   // The installed-release report the next telemetry upload carries.
   (int, InstalledContext)? pendingInstalled;
@@ -616,6 +638,18 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         } on FileSystemException {
           // A full or unwritable disk loses events, never the sync.
         }
+      case _ReplayRecord(:final replay, :final maxFiles):
+        try {
+          replays.append(replay, maxFiles);
+        } on FileSystemException {
+          // A full or unwritable disk loses a replay, never the sync.
+        }
+      case _ReplayPurge():
+        try {
+          replays.purge();
+        } on FileSystemException {
+          // Retried at the next change of consent.
+        }
       case _Purge(:final categories):
         try {
           outbox.purge(categories);
@@ -646,6 +680,20 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
             }
           }
           if (r.error?.code == 'unauthenticated') engine.forgetToken();
+          if (r.error == null && replays.length > 0) {
+            // Replays follow the events; a failure keeps them for the next
+            // flush and never fails the telemetry's.
+            try {
+              await replays.flush(
+                api: api,
+                token: engine.recentToken,
+                appId: config.sync.appId,
+                environment: config.sync.environment,
+              );
+            } on Object {
+              // Kept for the next flush.
+            }
+          }
           reply.send(r);
         } on Object catch (e) {
           reply.send(_Failure('$e'));

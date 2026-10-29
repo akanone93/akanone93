@@ -1,0 +1,20 @@
+{
+  "name": "layer2-order-tracker-map",
+  "layer2": true,
+  "root": {
+    "id": "map",
+    "type": "OrderTrackerMap",
+    "props": {
+      "semanticLabel": "Your order",
+      "origin": {
+        "lat": 9.03,
+        "lng": 38.74
+      },
+      "destination": {
+        "lat": 9.05,
+        "lng": 38.77
+      },
+      "etaLabel": "12 min"
+    }
+  }
+}

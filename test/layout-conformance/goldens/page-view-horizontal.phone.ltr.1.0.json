@@ -1,0 +1,37 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "page-view-horizontal",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "en",
+  "textScale": 1.0,
+  "rects": {
+    "frame": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "p1": [
+      0.0,
+      0.0,
+      300.0,
+      400.0
+    ],
+    "pages": [
+      0.0,
+      0.0,
+      300.0,
+      400.0
+    ],
+    "size": [
+      0.0,
+      0.0,
+      300.0,
+      400.0
+    ]
+  }
+}

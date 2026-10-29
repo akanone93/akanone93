@@ -123,9 +123,11 @@ func (x *Event) GetFields() []byte {
 // Consent is what the host app's user agreed to (SEC-161). Operational
 // events need none.
 type Consent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Analytics     bool                   `protobuf:"varint,1,opt,name=analytics,proto3" json:"analytics,omitempty"`
-	Experiments   bool                   `protobuf:"varint,2,opt,name=experiments,proto3" json:"experiments,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Analytics   bool                   `protobuf:"varint,1,opt,name=analytics,proto3" json:"analytics,omitempty"`
+	Experiments bool                   `protobuf:"varint,2,opt,name=experiments,proto3" json:"experiments,omitempty"`
+	// replay allows structural session replay (ANL-050, ADR-0101).
+	Replay        bool `protobuf:"varint,3,opt,name=replay,proto3" json:"replay,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,6 +172,13 @@ func (x *Consent) GetAnalytics() bool {
 func (x *Consent) GetExperiments() bool {
 	if x != nil {
 		return x.Experiments
+	}
+	return false
+}
+
+func (x *Consent) GetReplay() bool {
+	if x != nil {
+		return x.Replay
 	}
 	return false
 }
@@ -459,10 +468,11 @@ const file_plux_v1_telemetry_proto_rawDesc = "" +
 	"\n" +
 	"plugin_key\x18\x05 \x01(\tR\tpluginKey\x12\x14\n" +
 	"\x05route\x18\x06 \x01(\tR\x05route\x12\x16\n" +
-	"\x06fields\x18\a \x01(\fR\x06fields\"I\n" +
+	"\x06fields\x18\a \x01(\fR\x06fields\"a\n" +
 	"\aConsent\x12\x1c\n" +
 	"\tanalytics\x18\x01 \x01(\bR\tanalytics\x12 \n" +
-	"\vexperiments\x18\x02 \x01(\bR\vexperiments\"\xe1\x01\n" +
+	"\vexperiments\x18\x02 \x01(\bR\vexperiments\x12\x16\n" +
+	"\x06replay\x18\x03 \x01(\bR\x06replay\"\xe1\x01\n" +
 	"\x13IngestEventsRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12&\n" +

@@ -9,14 +9,45 @@ SELECT * FROM apps WHERE id = $1 AND deleted_at IS NULL;
 -- name: ListApps :many
 -- only_ids, when not NULL, restricts the list to the apps a caller was
 -- granted one by one (GOV-001); except_ids leaves out the apps a restriction
--- takes app.read away from (GOV-006).
+-- takes app.read away from (GOV-006). sort_key is the cursor column of the
+-- chosen order (key, name, or newest-first updated); the Go mirror is
+-- tenancy.sortKey. Archived apps are left out unless include_archived; only_archived keeps
+-- just them; mine_user, when not the zero UUID, keeps the apps that user holds
+-- a grant on (directly or through a team) or that one of their teams owns.
 SELECT * FROM apps
- WHERE organization_id = $1 AND deleted_at IS NULL
-   AND (sqlc.narg(only_ids)::uuid[] IS NULL OR id = ANY (sqlc.narg(only_ids)::uuid[]))
-   AND NOT (id = ANY (sqlc.arg(except_ids)::uuid[]))
-   AND (key, id) > (sqlc.arg(after_key)::text, sqlc.arg(after_id)::uuid)
- ORDER BY key, id
+ WHERE apps.organization_id = $1 AND apps.deleted_at IS NULL
+   AND (sqlc.narg(only_ids)::uuid[] IS NULL OR apps.id = ANY (sqlc.narg(only_ids)::uuid[]))
+   AND NOT (apps.id = ANY (sqlc.arg(except_ids)::uuid[]))
+   AND (sqlc.arg(include_archived)::boolean OR archived_at IS NULL)
+   AND (NOT sqlc.arg(only_archived)::boolean OR archived_at IS NOT NULL)
+   AND (sqlc.arg(mine_user)::uuid = '00000000-0000-0000-0000-000000000000'::uuid
+        OR EXISTS (SELECT 1 FROM app_access a WHERE a.app_id = apps.id
+                    AND (a.user_id = sqlc.arg(mine_user)::uuid
+                         OR a.team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = sqlc.arg(mine_user)::uuid AND m.team_id IS NOT NULL)))
+        OR apps.owning_team_id IN (SELECT m.team_id FROM memberships m WHERE m.user_id = sqlc.arg(mine_user)::uuid AND m.team_id IS NOT NULL))
+   AND (sqlc.arg(query)::text = '' OR position(lower(sqlc.arg(query)::text) IN lower(key || ' ' || name || ' ' || description || ' ' || array_to_string(tags, ' '))) > 0)
+   AND (cardinality(sqlc.arg(tags)::text[]) = 0 OR tags @> sqlc.arg(tags)::text[])
+   AND (sqlc.arg(owning_team_id)::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR owning_team_id = sqlc.arg(owning_team_id)::uuid)
+   AND (CASE sqlc.arg(sort)::text
+          WHEN 'name' THEN lower(name)
+          WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
+          ELSE key END, id) > (sqlc.arg(after_key)::text, sqlc.arg(after_id)::uuid)
+ ORDER BY (CASE sqlc.arg(sort)::text
+          WHEN 'name' THEN lower(name)
+          WHEN 'updated' THEN lpad((253402300799000000 - (extract(epoch FROM updated_at) * 1000000)::numeric)::bigint::text, 18, '0')
+          ELSE key END), id
  LIMIT sqlc.arg(page_size);
+
+-- name: UpdateAppMetadata :one
+UPDATE apps
+   SET description    = CASE WHEN sqlc.arg(set_description)::boolean THEN sqlc.arg(description)::text ELSE description END,
+       icon_asset_id  = CASE WHEN sqlc.arg(set_icon)::boolean THEN sqlc.arg(icon_asset_id)::text ELSE icon_asset_id END,
+       owning_team_id = CASE WHEN sqlc.arg(set_team)::boolean THEN sqlc.narg(owning_team_id)::uuid ELSE owning_team_id END,
+       tags           = CASE WHEN sqlc.arg(set_tags)::boolean THEN sqlc.arg(tags)::text[] ELSE tags END,
+       archived_at    = CASE WHEN sqlc.arg(set_archived)::boolean THEN (CASE WHEN sqlc.arg(archived)::boolean THEN coalesce(archived_at, now()) END) ELSE archived_at END,
+       updated_at     = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;
 
 -- name: GetAppIncludingDeleted :one
 SELECT * FROM apps WHERE id = $1;
@@ -193,3 +224,72 @@ SELECT * FROM trash WHERE restored_at IS NULL AND purge_after < now() ORDER BY p
 
 -- name: GetTrashItemForUpdate :one
 SELECT * FROM trash WHERE id = $1 AND restored_at IS NULL FOR UPDATE;
+
+-- name: SummariseApps :many
+-- One row per app for the apps grid (plan §4.3 #14), in key order after
+-- after_key, bounded by page_size. Active devices were seen in the last
+-- seven days; crash-free counts those that a fatal error group of the same
+-- period names, for this period and the one before it.
+SELECT a.*,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugin_count,
+       (SELECT count(*) FROM devices d WHERE d.app_id = a.id AND d.last_seen_at > now() - interval '7 days')::bigint AS active_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '7 days')::bigint AS crashed_devices,
+       (SELECT count(DISTINCT gd.device_id) FROM error_groups g JOIN error_group_devices gd ON gd.group_id = g.id
+         WHERE g.app_id = a.id AND g.fatal AND g.last_seen > now() - interval '14 days' AND g.last_seen <= now() - interval '7 days')::bigint AS crashed_devices_before,
+       (SELECT max(r.created_at) FROM releases r WHERE r.app_id = a.id)::timestamptz AS last_published_at
+  FROM apps a
+ WHERE a.organization_id = $1 AND a.deleted_at IS NULL AND a.archived_at IS NULL
+   AND (sqlc.narg(only_ids)::uuid[] IS NULL OR a.id = ANY (sqlc.narg(only_ids)::uuid[]))
+   AND NOT (a.id = ANY (sqlc.arg(except_ids)::uuid[]))
+   AND a.key > sqlc.arg(after_key)::text
+ ORDER BY a.key
+ LIMIT sqlc.arg(page_size);
+
+-- name: LiveReleases :many
+-- The newest release any channel of each environment serves, for a set of apps.
+SELECT e.app_id, e.key AS environment_key, max(c.release_sequence)::bigint AS release_sequence,
+       max(r.created_at)::timestamptz AS published_at
+  FROM environments e
+  JOIN channels c ON c.environment_id = e.id
+  LEFT JOIN releases r ON r.environment_id = e.id AND r.sequence = c.release_sequence
+ WHERE e.app_id = ANY (sqlc.arg(app_ids)::uuid[])
+ GROUP BY e.app_id, e.key
+ ORDER BY e.app_id, e.key;
+
+-- name: UpdateAppHostFonts :one
+UPDATE apps
+   SET host_fonts = sqlc.arg(host_fonts)::jsonb, updated_at = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;
+
+-- name: LastReleasePublishers :many
+-- Who created the newest release of each app in a set, and when (STU-022).
+SELECT DISTINCT ON (r.app_id) r.app_id, r.created_by_kind, r.created_by_id, r.created_by, r.created_at
+  FROM releases r
+ WHERE r.app_id = ANY (sqlc.arg(app_ids)::uuid[])
+ ORDER BY r.app_id, r.sequence DESC;
+
+-- name: AppUsage :many
+-- What each app of a set uses of its app-scope limits, in one pass for the
+-- whole set (STU-025, LIM-005). The per-plugin limits are reported as the
+-- largest value any plugin of the app has, which is what the limit bounds.
+SELECT a.id AS app_id,
+       (SELECT count(*) FROM plugins p WHERE p.app_id = a.id AND p.deleted_at IS NULL)::bigint AS plugins,
+       COALESCE((SELECT r.size FROM releases r WHERE r.app_id = a.id ORDER BY r.sequence DESC LIMIT 1), 0)::bigint AS release_size,
+       COALESCE((SELECT max(n) FROM (
+           SELECT count(*) AS n FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+            WHERE dr.app_id = a.id AND dr.plugin_id IS NOT NULL AND d.kind = 'page' AND d.deleted_at IS NULL
+            GROUP BY dr.plugin_id) pages), 0)::bigint AS max_pages,
+       COALESCE((SELECT sum(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS asset_bytes,
+       COALESCE((SELECT max(s.size) FROM assets s WHERE s.app_id = a.id AND s.deleted_at IS NULL), 0)::bigint AS max_asset_file,
+       COALESCE((SELECT max(v.bundle_size) FROM (
+           SELECT DISTINCT ON (pv.plugin_id) pv.bundle_size FROM plugin_versions pv
+            WHERE pv.app_id = a.id AND pv.plugin_id IS NOT NULL
+            ORDER BY pv.plugin_id, pv.version DESC) v), 0)::bigint AS max_bundle_size,
+       (SELECT count(DISTINCT f.name) FROM function_versions f WHERE f.app_id = a.id)::bigint AS functions,
+       (SELECT count(*) FROM documents d JOIN drafts dr ON dr.id = d.draft_id
+         WHERE dr.app_id = a.id AND dr.plugin_id IS NULL AND d.kind = 'translations' AND d.deleted_at IS NULL)::bigint AS locales,
+       (SELECT count(DISTINCT ff.key) FROM feature_flags ff WHERE ff.app_id = a.id)::bigint AS flags
+  FROM apps a
+ WHERE a.id = ANY (sqlc.arg(app_ids)::uuid[]);

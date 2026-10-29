@@ -1,0 +1,79 @@
+{
+  "name": "cupertino-context-menu-action",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "sized",
+        "type": "SizedBox",
+        "props": {
+          "width": 250
+        },
+        "children": [
+          {
+            "id": "col",
+            "type": "Column",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "children": [
+              {
+                "id": "a",
+                "type": "CupertinoContextMenuAction",
+                "props": {},
+                "children": [
+                  {
+                    "id": "a-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Share"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "b",
+                "type": "CupertinoContextMenuAction",
+                "props": {
+                  "isDefaultAction": true
+                },
+                "children": [
+                  {
+                    "id": "b-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "A long action title that is long enough to wrap onto a second line"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c",
+                "type": "CupertinoContextMenuAction",
+                "props": {
+                  "isDestructiveAction": true
+                },
+                "children": [
+                  {
+                    "id": "c-text",
+                    "type": "Text",
+                    "props": {
+                      "text": "Delete"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

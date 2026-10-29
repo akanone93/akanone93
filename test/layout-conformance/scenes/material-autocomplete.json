@@ -1,0 +1,37 @@
+{
+  "name": "material-autocomplete",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "ac",
+            "type": "Autocomplete",
+            "props": {
+              "hintText": "Search"
+            }
+          },
+          {
+            "id": "ac2",
+            "type": "Autocomplete",
+            "props": {}
+          }
+        ]
+      }
+    ]
+  }
+}

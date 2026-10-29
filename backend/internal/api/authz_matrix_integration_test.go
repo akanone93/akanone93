@@ -6,6 +6,7 @@ package api_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -100,6 +101,9 @@ type matrixFixture struct {
 	device      string
 	job         string
 	count       int
+	// library holds the items the library entries act on, by kind.
+	library     map[string]string
+	libraryDocs map[string]string
 	// rule and group are the alert rule and error group the read and update
 	// entries share, made on first use to spare the rate limit.
 	rule  *pluxv1.AlertRule
@@ -277,6 +281,12 @@ func (f *matrixFixture) freshAlertRule(t *testing.T) *pluxv1.AlertRule {
 	return must(f.w.analytics.CreateAlertRule(context.Background(), req(f.owner(), &pluxv1.CreateAlertRuleRequest{Rule: rule})))(t).GetRule()
 }
 
+func (f *matrixFixture) freshFunnel(t *testing.T) *pluxv1.Funnel {
+	t.Helper()
+	fn := &pluxv1.Funnel{AppId: f.app, Name: f.name(), Steps: []string{"screen_view", "action_run"}}
+	return must(f.w.analytics.CreateFunnel(context.Background(), req(f.owner(), &pluxv1.CreateFunnelRequest{Funnel: fn})))(t).GetFunnel()
+}
+
 // errorGroup records one error event, which is delivered once however often
 // this runs, and returns the group it falls into.
 func (f *matrixFixture) errorGroup(t *testing.T) string {
@@ -349,6 +359,17 @@ func (f *matrixFixture) freshAsset(t *testing.T) string {
 	}
 	res, err := stream.CloseAndReceive()
 	return must(res, err)(t).GetAsset().GetId()
+}
+
+// freshUpload opens a chunked upload of the fixture's PNG as the owner.
+func (f *matrixFixture) freshUpload(t *testing.T) string {
+	t.Helper()
+	png := f.png(t)
+	sum := sha256.Sum256(png)
+	req := connect.NewRequest(&pluxv1.BeginAssetUploadRequest{AppId: f.app, Name: "images/" + f.name() + ".png", Session: "tab-1", Size: int64(len(png)), Sha256: sum[:]})
+	withHeaders(req.Header(), f.owner())
+	res, err := f.w.asset.BeginAssetUpload(context.Background(), req)
+	return must(res, err)(t).GetUploadId()
 }
 
 // upstream returns a valid upstream of the development environment.

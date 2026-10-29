@@ -1,0 +1,78 @@
+{
+  "name": "limited-box",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "row",
+            "type": "Row",
+            "props": {
+              "mainAxisSize": "min"
+            },
+            "children": [
+              {
+                "id": "lb",
+                "type": "LimitedBox",
+                "props": {
+                  "maxWidth": 50,
+                  "maxHeight": 30
+                },
+                "children": [
+                  {
+                    "id": "lbc",
+                    "type": "SizedBox",
+                    "props": {
+                      "width": "infinity",
+                      "height": "infinity"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "after",
+                "type": "TestBox",
+                "props": {
+                  "width": 20,
+                  "height": 20
+                }
+              }
+            ]
+          },
+          {
+            "id": "lb2",
+            "type": "LimitedBox",
+            "props": {
+              "maxWidth": 70
+            },
+            "children": [
+              {
+                "id": "lb2c",
+                "type": "ConstrainedBox",
+                "props": {
+                  "minHeight": 10,
+                  "maxHeight": 10,
+                  "minWidth": 0
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

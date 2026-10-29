@@ -1,0 +1,11 @@
+{
+  "name": "layer2-markdown-view",
+  "layer2": true,
+  "root": {
+    "id": "md",
+    "type": "MarkdownView",
+    "props": {
+      "source": "# Terms\n\nFirst paragraph of the terms.\n\nSecond paragraph.\n\n## Privacy\n\nThird paragraph."
+    }
+  }
+}

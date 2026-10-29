@@ -1,0 +1,30 @@
+{
+  "name": "text-scale-nowrap",
+  "root": {
+    "id": "center",
+    "type": "Center",
+    "props": {},
+    "children": [
+      {
+        "id": "box",
+        "type": "ConstrainedBox",
+        "props": {
+          "maxWidth": 240
+        },
+        "children": [
+          {
+            "id": "text",
+            "type": "Text",
+            "props": {
+              "text": "Scaled text that wraps at larger sizes",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 16
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

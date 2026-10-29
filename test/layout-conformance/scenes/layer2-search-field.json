@@ -1,0 +1,9 @@
+{
+  "name": "layer2-search-field",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "SearchField",
+    "props": { "hint": "Search accounts", "debounceMs": 300 }
+  }
+}

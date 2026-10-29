@@ -19,6 +19,50 @@ SELECT * FROM plugins
  ORDER BY key, id
  LIMIT sqlc.arg(page_size);
 
+-- name: UpdatePluginMetadata :one
+UPDATE plugins
+   SET description    = CASE WHEN sqlc.arg(set_description)::boolean THEN sqlc.arg(description)::text ELSE description END,
+       icon_asset_id  = CASE WHEN sqlc.arg(set_icon)::boolean THEN sqlc.arg(icon_asset_id)::text ELSE icon_asset_id END,
+       owning_team_id = CASE WHEN sqlc.arg(set_team)::boolean THEN sqlc.narg(owning_team_id)::uuid ELSE owning_team_id END,
+       tags           = CASE WHEN sqlc.arg(set_tags)::boolean THEN sqlc.arg(tags)::text[] ELSE tags END,
+       archived_at    = CASE WHEN sqlc.arg(set_archived)::boolean THEN (CASE WHEN sqlc.arg(archived)::boolean THEN coalesce(archived_at, now()) END) ELSE archived_at END,
+       name           = CASE WHEN sqlc.arg(name)::text = '' THEN name ELSE sqlc.arg(name)::text END,
+       updated_at     = now()
+ WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;
+
+-- name: SummarisePlugins :many
+-- One row per live plugin of an app for the app canvas (plan §4.3 #14): the
+-- draft, its screens, the newest published version, and the lock. Bounded by
+-- app.plugins.
+SELECT p.id, p.key, p.name, p.latest_version, p.archived_at, p.owning_team_id,
+       d.revision AS draft_revision, d.updated_at AS draft_updated_at,
+       (SELECT count(*) FROM documents x WHERE x.draft_id = d.id AND x.kind = 'page' AND x.deleted_at IS NULL)::bigint AS screens,
+       coalesce((SELECT v.bundle_size FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1), 0)::bigint AS bundle_size,
+       (SELECT v.created_at FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1) AS published_at,
+       l.holder_display AS lock_holder, l.expires_at AS lock_expires_at
+  FROM plugins p
+  JOIN drafts d ON d.plugin_id = p.id
+  LEFT JOIN locks l ON l.draft_id = d.id AND l.expires_at > now()
+ WHERE p.app_id = $1 AND p.deleted_at IS NULL
+ ORDER BY p.key
+ LIMIT sqlc.arg(max_rows);
+
+-- name: ListPageEntities :many
+-- The entity ID of every page and the plugin that holds it, for resolving
+-- the links between plugins.
+SELECT x.entity_id, d.plugin_id
+  FROM documents x JOIN drafts d ON d.id = x.draft_id
+ WHERE d.app_id = $1 AND d.plugin_id IS NOT NULL AND x.kind = 'page' AND x.deleted_at IS NULL AND x.entity_id IS NOT NULL;
+
+-- name: ListKilledPlugins :many
+-- The plugins any channel of the app's environments currently switches off.
+SELECT DISTINCT unnest(c.kill_switch_plugins)::text AS plugin_key
+  FROM channel_controls c
+  JOIN channels ch ON ch.id = c.channel_id
+  JOIN environments e ON e.id = ch.environment_id
+ WHERE e.app_id = $1;
+
 -- name: ListAllPlugins :many
 SELECT * FROM plugins WHERE app_id = $1 AND deleted_at IS NULL ORDER BY key;
 
@@ -138,13 +182,13 @@ UPDATE documents SET deleted_at = NULL, revision = revision + 1, updated_at = no
 
 -- name: CreateSnapshot :one
 INSERT INTO snapshots (id, organization_id, draft_id, sequence, revision, reason, applied,
-                       actor_kind, actor_id, actor_display, keep)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                       actor_kind, actor_id, actor_display, keep, editor_session_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING *;
 
 -- name: AddSnapshotDocument :exec
-INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO snapshot_documents (snapshot_id, organization_id, path, kind, sha256, carried, inverse_patch, step_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 ON CONFLICT (snapshot_id, path) DO NOTHING;
 
 -- name: GetSnapshot :one
@@ -155,6 +199,30 @@ SELECT * FROM snapshots
  WHERE draft_id = $1 AND sequence < sqlc.arg(before_sequence)::bigint
  ORDER BY sequence DESC
  LIMIT sqlc.arg(page_size);
+
+-- name: ListEditorSessionEntries :many
+-- The entries of an editor session on a draft, newest first, for Studio's
+-- undo rebuild (STU-069): every applied write it made that kept its
+-- inverse patch.
+SELECT s.id, s.sequence, s.revision, s.created_at, sd.path, sd.inverse_patch, sd.step_id
+  FROM snapshots s
+  JOIN snapshot_documents sd ON sd.snapshot_id = s.id
+ WHERE s.draft_id = $1
+   AND s.editor_session_id = sqlc.arg(editor_session_id)::text
+   AND s.applied AND NOT sd.carried AND sd.inverse_patch IS NOT NULL
+   AND s.sequence < sqlc.arg(before_sequence)::bigint
+ ORDER BY s.sequence DESC, sd.path
+ LIMIT sqlc.arg(page_size);
+
+-- name: PruneEditorSessionEntries :exec
+-- Clears the inverse patches of an editor session's writes on a draft
+-- beyond its newest keep (studio.undoDepth).
+UPDATE snapshot_documents SET inverse_patch = NULL
+ WHERE inverse_patch IS NOT NULL
+   AND snapshot_id IN (SELECT id FROM snapshots
+                        WHERE draft_id = $1 AND editor_session_id = sqlc.arg(editor_session_id)::text
+                        ORDER BY sequence DESC
+                        OFFSET sqlc.arg(keep)::bigint);
 
 -- name: ListSnapshotPaths :many
 SELECT path FROM snapshot_documents WHERE snapshot_id = $1 AND NOT carried ORDER BY path;
@@ -193,15 +261,18 @@ SELECT * FROM locks WHERE draft_id = $1;
 
 -- name: PutLock :one
 INSERT INTO locks (draft_id, organization_id, holder_kind, holder_id, holder_display, session,
-                   expires_at, previous_session, previous_holder)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                   expires_at, previous_session, previous_holder, last_edit_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (draft_id) DO UPDATE
    SET holder_kind = EXCLUDED.holder_kind, holder_id = EXCLUDED.holder_id,
        holder_display = EXCLUDED.holder_display, session = EXCLUDED.session,
        acquired_at = now(), heartbeat_at = now(), expires_at = EXCLUDED.expires_at,
        previous_session = EXCLUDED.previous_session, previous_holder = EXCLUDED.previous_holder,
-       requested_by = '[]'
+       requested_by = '[]', last_edit_at = EXCLUDED.last_edit_at
 RETURNING *;
+
+-- name: TouchLock :exec
+UPDATE locks SET last_edit_at = $3 WHERE draft_id = $1 AND session = $2;
 
 -- name: RenewLock :one
 UPDATE locks SET heartbeat_at = now(), expires_at = $2 WHERE draft_id = $1 RETURNING *;

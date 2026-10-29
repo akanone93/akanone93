@@ -123,7 +123,13 @@ func (s *Service) command(ctx context.Context, tx pgx.Tx, p auth.Principal, id p
 		return CommandSent{}, notPaired()
 	}
 	lim := relayLimitsOf(set)
-	if !s.hub.room(session.ID, &lim).allowCommand(now) {
+	lim.expires = session.ExpiresAt
+	s.hub.room(session.ID, &lim)
+	allowed, err := s.hub.allowCommand(session.ID, lim, now)
+	if err != nil {
+		return CommandSent{}, err
+	}
+	if !allowed {
 		return CommandSent{}, plxerr.New(plxerr.DevCommandNotAllowed, "the dev session may send %d commands a minute (devSession.commandsPerMinute)", lim.commands)
 	}
 	commandID, err := s.o.IDs.New()
@@ -165,7 +171,10 @@ func (s *Service) Watch(ctx context.Context, p auth.Principal, sessionID string,
 	if err != nil {
 		return err
 	}
+	lim.expires = session.ExpiresAt
 	room := s.hub.room(session.ID, &lim)
+	room.use() //nolint:contextcheck // the follower lives as long as the replica, not the watch
+	defer room.release()
 	if live, err := s.live(ctx, session.OrganizationID, session.ID); err != nil {
 		return err
 	} else if !live {
@@ -226,7 +235,7 @@ type Trace struct {
 // sequence order, redacted as the device sent them (DEV-021). It needs
 // devsession.observe on the session's environment.
 func (s *Service) ExportTrace(ctx context.Context, p auth.Principal, sessionID string, deviceIDs []string) (Trace, error) {
-	session, _, err := s.observed(ctx, p, sessionID)
+	session, lim, err := s.observed(ctx, p, sessionID)
 	if err != nil {
 		return Trace{}, err
 	}
@@ -242,10 +251,17 @@ func (s *Service) ExportTrace(ctx context.Context, p auth.Principal, sessionID s
 	if err != nil {
 		return Trace{}, err
 	}
-	var events []*pluxv1.DevEvent
-	if room, ok := s.hub.lookup(session.ID); ok {
-		events = room.retainedEvents(filterOf(deviceIDs))
+	// The session's events come from its event log, whichever replica
+	// relayed them; a replica that relayed them keeps them a while after
+	// the session ended.
+	room, ok := s.hub.lookup(session.ID)
+	if !ok {
+		room = s.hub.newRoom(session.ID, lim)
 	}
+	if err := room.catchUp(); err != nil {
+		return Trace{}, err
+	}
+	events := room.retainedEvents(filterOf(deviceIDs))
 	var buf bytes.Buffer
 	zw := gzip.NewWriter(&buf)
 	header := &pluxv1.TraceFileHeader{

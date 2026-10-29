@@ -56,6 +56,38 @@ func (h *Health) SetReady(ready bool) {
 	h.ready = ready
 }
 
+// Result is the answer of one registered check.
+type Result struct {
+	Name    string
+	Healthy bool
+}
+
+// Results runs every registered check once and returns the answers by
+// name. Like /readyz it reports only the fact of a failure, never the
+// error, which may quote a connection string.
+func (h *Health) Results(ctx context.Context) []Result {
+	h.mu.RLock()
+	checks := make(map[string]Check, len(h.checks))
+	for name, c := range h.checks {
+		checks[name] = c
+	}
+	timeout := h.timeout
+	h.mu.RUnlock()
+
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	names := make([]string, 0, len(checks))
+	for name := range checks {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	out := make([]Result, 0, len(names))
+	for _, name := range names {
+		out = append(out, Result{Name: name, Healthy: checks[name](ctx) == nil})
+	}
+	return out
+}
+
 // Live reports that the process is running. It checks nothing else, so
 // a dependency being down never restarts a healthy process.
 func (*Health) Live(w http.ResponseWriter, _ *http.Request) {

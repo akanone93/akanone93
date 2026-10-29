@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.9.0
+**Version:** 1.10.0
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-22
+**Date:** 2026-10-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -445,7 +445,7 @@ flowchart TB
 | Mobile runtime | Flutter (latest stable), Dart 3, Riverpod 3 | FFI for `mmap` and `zstd`. Impeller renderer. |
 | Bundle format | FlatBuffers | Zero-copy reads, forward-compatible evolution. |
 | Local database | Drift on SQLite (SQLCipher) by default | Adapter interface for ObjectBox, Hive CE, Sembast and custom stores. |
-| Studio | Bun, TypeScript (strict), React, TanStack Router and Query, shadcn/ui, Radix, Tailwind CSS, Monaco | Bun serves the SPA and acts as backend-for-frontend (BFF). |
+| Studio | Bun, TypeScript (strict), React, TanStack Router and Query, shadcn/ui on Base UI, Tailwind CSS, Vite, Monaco, CodeMirror 6 | Built with Vite on the Bun runtime; Bun serves the SPA and acts as backend-for-frontend (BFF). |
 | Studio canvas | **Plux Canvas**: a TypeScript WebGL2 scene graph with a Flutter-compatible layout engine | A Figma-like design surface; the device is the source of truth, and a layout conformance suite keeps the canvas faithful (ADR-0013). |
 | Observability | OpenTelemetry, Prometheus, Grafana, structured JSON logs | Dashboards and alerts shipped in `deploy/`. |
 | Packaging | Distroless multi-arch container images, Helm, Docker Compose | Signed with cosign; SBOMs in CycloneDX. |
@@ -613,7 +613,7 @@ The document model is the contract between every author (Studio, CLI, AI, Git) a
 |---|---|---|---|---|
 | `SCH-010` | P1 | MUST | The type system **MUST** include `string`, `int` (64-bit), `double`, `bool`, `decimal` (arbitrary precision, serialised as a string), `money` (`decimal` + ISO 4217 currency), `date`, `dateTime` (ISO 8601 with offset), `duration`, `color`, `enum`, `list<T>`, `map<string,T>`, named object types, `asset`, `route` and nullable variants of each. | DONE |
 | `SCH-011` | P1 | MUST | A prop value **MUST** be exactly one of: a literal of the prop's type; a PXL binding (`{"$expr": "…"}`); a design token reference (`{"$token": "color.primary"}`); a translation reference (`{"$t": "<key-id>", "args": {…}}`); an asset reference (`{"$asset": "<asset-id>"}`). | DONE |
-| `SCH-012` | P1 | MUST | Fields and state entries **MAY** be tagged `sensitive: true`. Sensitive values **MUST** be excluded from logs, traces, analytics, crash reports and session replay, and persisted only in encrypted storage (`SEC-092`). | WIP |
+| `SCH-012` | P1 | MUST | Fields and state entries **MAY** be tagged `sensitive: true`. Sensitive values **MUST** be excluded from logs, traces, analytics, crash reports and session replay, and persisted only in encrypted storage (`SEC-092`). | DONE |
 
 ### 7.4 App, plugin and page documents
 
@@ -683,8 +683,8 @@ The full catalogue with phases is in Appendix C.
 |---|---|---|---|---|
 | `WGT-020` | P3 | MUST | Layer 2 components **MUST** be implemented in Dart inside the Plux packages using only Layer 1 widgets, the theme, and runtime services, and **MUST** each have a descriptor, widget tests, golden tests in light/dark/RTL/200% text, and a screen-reader test script. | DONE |
 | `WGT-021` | P3 | SHOULD | Heavy Layer 2 components with third-party dependencies (charts, maps, Lottie, Rive, video, camera, QR scanning) **SHOULD** live in optional packages so that apps pay only for what they use (`RT-060`). | DONE |
-| `WGT-030` | P4 | MUST | Host apps **MUST** be able to expose existing widgets as **native slots** (Layer 3) without modifying them: the widget class names are listed in `plux.yaml`, `plux native scan` derives their prop descriptors from constructor parameters using the Dart analyzer, and the builders are registered in one place at startup. Studio **MUST** show native slots in its catalogue with their props. | WIP |
-| `WGT-031` | P11 | MUST | On the Studio canvas a native slot **MUST** render as a labelled placeholder at its declared or constrained size, and **SHOULD** show a screenshot of the real widget captured from a paired device (`DEV-033`). | SPEC |
+| `WGT-030` | P4 | MUST | Host apps **MUST** be able to expose existing widgets as **native slots** (Layer 3) without modifying them: the widget class names are listed in `plux.yaml`, `plux native scan` derives their prop descriptors from constructor parameters using the Dart analyzer, and the builders are registered in one place at startup. Studio **MUST** show native slots in its catalogue with their props. | DONE |
+| `WGT-031` | P11 | MUST | On the Studio canvas a native slot **MUST** render as a labelled placeholder at its declared or constrained size, and **SHOULD** show a screenshot of the real widget captured from a paired device (`DEV-033`). | DONE |
 | `WGT-033` | P4 | MUST | A native slot **MUST** receive its props from plugin bindings (reactively, like any node), **MUST** be able to emit typed events into the page's action graphs, and **MUST** participate in layout like any other child (constraints in, size out). A failure inside a native slot is contained by the page's error boundary (`RT-020`). | DONE |
 | `WGT-032` | P4 | MUST | Publishing a plugin that uses a custom widget or custom action **MUST** be validated against the native catalogues of the host app builds targeted by the release; builds lacking the widget receive the last compatible release (`REL-080`). | DONE |
 
@@ -939,7 +939,7 @@ Branching is deliberately **not** part of the model (ADR-0015). Each plugin has 
 | `RT-013` | P3 | MUST | Decoded page descriptors and component definitions **MUST** be cached in a bounded LRU keyed by section hash and released on memory-pressure signals. | DONE |
 | `RT-014` | P3 | MUST | Network images **MUST** be decoded at their laid-out size (`cacheWidth`/`cacheHeight`) and cached on disk and in memory with bounded sizes; placeholders **SHOULD** use ThumbHash or BlurHash when the document provides one. | DONE |
 | `RT-015` | P3 | MUST | The runtime **MUST** emit timeline events for page build, first frame and action execution, visible in Flutter DevTools and aggregated into telemetry (`ANL-001`). | DONE |
-| `RT-016` | P3 | MUST | The device is the **source of truth** for rendering. The Studio canvas reproduces layout through a Flutter-compatible engine kept faithful by the layout conformance suite (`STU-005`); interactive behaviour is verified only on devices (§20). | SPEC |
+| `RT-016` | P3 | MUST | The device is the **source of truth** for rendering. The Studio canvas reproduces layout through a Flutter-compatible engine kept faithful by the layout conformance suite (`STU-005`); interactive behaviour is verified only on devices (§20). | DONE |
 
 ### 12.3 Fault isolation
 
@@ -1033,7 +1033,7 @@ An **action graph** is a small, typed, bounded program attached to a trigger. No
 | `ACT-020` | P5 | MUST | Errors **MUST** be typed (`network`, `http(status)`, `timeout`, `validation`, `function(code)`, `permission`, `cancelled`, `custom`) and routed to the step's `onError` edge, then the page, plugin and app error handlers in that order; unhandled errors show a themed, localised error message and are reported. | DONE |
 | `ACT-030` | P5 | MUST | Every action run **MUST** produce a structured trace (run ID, trigger, steps with start/end, status, redacted inputs/outputs, errors). Traces are streamed to paired Studio sessions in development (`DEV-020`) and sampled into telemetry in production. | DONE |
 | `ACT-031` | P5 | MUST | Values tagged `sensitive` **MUST** never appear in traces, logs or telemetry, even in development. | DONE |
-| `ACT-060` | P4 | MUST | Host apps **MUST** be able to register custom actions with typed inputs and outputs in the one-place startup registration (`HST-031`), without modifying existing code; Studio lists them in the action catalogue. | WIP |
+| `ACT-060` | P4 | MUST | Host apps **MUST** be able to register custom actions with typed inputs and outputs in the one-place startup registration (`HST-031`), without modifying existing code; Studio lists them in the action catalogue. | DONE |
 | `ACT-061` | P5 | MUST | Plugins **MUST** be able to declare reusable named action graphs ("flows") callable from other graphs with typed inputs and outputs, within the plugin or across plugins through declared exports. | DONE |
 
 ### 14.2 PXL — Plux Expression Language
@@ -1048,8 +1048,8 @@ PXL is a small, typed, side-effect-free expression language with CEL-like syntax
 | `PXL-004` | P5 | MUST | The Dart VM **MUST** evaluate a typical binding (≤ 20 operations) in ≤ 2 µs p95 on the mid-tier reference device. | WIP |
 | `PXL-005` | P1 | MUST | `decimal` and `money` arithmetic **MUST** be exact, with explicit rounding modes (half-even default, half-up, down, up, ceiling, floor) and currency-aware scale. Floating-point is never used for money. | DONE |
 | `PXL-006` | P1 | MUST | PXL **MUST** support null-safe navigation (`a?.b`), null coalescing (`??`), conditional (`c ? a : b`), list/map literals and the standard library in Appendix E. | WIP |
-| `PXL-007` | P1 | MUST | A shared conformance suite of expressions, inputs and expected results **MUST** pass identically in the Go evaluator (used for constant folding and server-side validation), the Dart VM and the Studio language service. | WIP |
-| `PXL-008` | P11 | MUST | Studio **MUST** provide PXL autocompletion, hover types, inline errors and signature help through a language service (compiled to WASM from the Go implementation). | SPEC |
+| `PXL-007` | P1 | MUST | A shared conformance suite of expressions, inputs and expected results **MUST** pass identically in the Go evaluator (used for constant folding and server-side validation), the Dart VM and the Studio language service. | DONE |
+| `PXL-008` | P11 | MUST | Studio **MUST** provide PXL autocompletion, hover types, inline errors and signature help through a language service (compiled to WASM from the Go implementation). | DONE |
 
 ### 14.3 State
 
@@ -1078,7 +1078,7 @@ PXL is a small, typed, side-effect-free expression language with CEL-like syntax
 | `DAT-020` | P5 | MUST | Mutations **MAY** be marked `offlineCapable`; such mutations **MUST** be persisted in an encrypted **outbox** when offline and replayed in order with idempotency keys when connectivity returns, with success, failure and conflict events available to action graphs. | DONE |
 | `DAT-030` | P5 | MUST | Every outbound request **MUST** target a domain in the plugin's declared capabilities; requests to other domains **MUST** be blocked and reported (`SEC-080`). | DONE |
 | `DAT-031` | P5 | MUST | File uploads and downloads **MUST** support progress, cancellation and size limits. | DONE |
-| `DAT-080` | P5 | MUST | Every data source **MUST** support design-time mocks (static fixtures, generated examples from schemas, or recorded responses) with selectable states (`loading`, `empty`, `error`, `success`) for Studio, the Dev app and tests. | WIP |
+| `DAT-080` | P5 | MUST | Every data source **MUST** support design-time mocks (static fixtures, generated examples from schemas, or recorded responses) with selectable states (`loading`, `empty`, `error`, `success`) for Studio, the Dev app and tests. | DONE |
 | `DAT-090` | P6 | MUST | The server **MUST** hold configuration values per app and environment, typed (string, integer, decimal as a string, boolean), each with a tier (`server-bound` or `live`), a `sensitive` flag and a version that rises with every change. Values **MUST** be created, changed and deleted only through the admin API and CLI, which require the app-management permission and write an audit entry for each change (`SEC-140`); a sensitive value **MUST** be encrypted at rest (`SEC-106`), never returned after it is set, and never logged, traced or labelled (`SEC-092`); only a `server-bound` value may be sensitive (ADR-0061). | DONE |
 | `DAT-091` | P6 | MUST | A gateway operation **MAY** bind server-held values into the request it forwards, at locations its definition declares: a JSON Pointer into a JSON body, a header name, a path parameter or a query parameter. Only `server-bound` values may be bound. A device request that already sets a bound location **MUST** be refused (`PLX-6065`), and devices **MUST NOT** send placeholders or names of values; operations without bindings **MUST** keep streaming their bodies untouched (ADR-0061). | DONE |
 | `DAT-092` | P6 | MUST | The gateway **MUST** resolve bound values at the time of the request with no stale read: each replica caches the values of an environment with their epoch, the epoch moves in the shared cache store with every change, and the gateway **MUST** check that epoch on every call that binds a value or carries a configuration version. A call whose epoch cannot be checked **MUST** be refused (`PLX-6069`). | DONE |
@@ -1239,7 +1239,7 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `SEC-100` | P2 | MUST | Studio users **MUST** authenticate via OIDC (any compliant IdP) or built-in accounts with Argon2id password hashing; multi-factor authentication (TOTP or WebAuthn/passkeys) **MUST** be mandatory for roles that can publish, approve, manage keys or manage members. | DONE |
-| `SEC-101` | P2 | MUST | Studio **MUST** use a backend-for-frontend: OAuth tokens stay server-side; the browser holds only a `__Host-` prefixed, `HttpOnly`, `Secure`, `SameSite=Strict` session cookie; state-changing requests require a CSRF token; a strict nonce-based Content Security Policy with Trusted Types is enforced. | WIP |
+| `SEC-101` | P2 | MUST | Studio **MUST** use a backend-for-frontend: OAuth tokens stay server-side; the browser holds only a `__Host-` prefixed, `HttpOnly`, `Secure`, `SameSite=Strict` session cookie; state-changing requests require a CSRF token; a strict nonce-based Content Security Policy with Trusted Types is enforced. | DONE |
 | `SEC-102` | P2 | MUST | Authorisation **MUST** be deny-by-default, evaluated in the service layer for every call against RBAC permissions and resource scope (`GOV-002`), with PostgreSQL row-level security as a second barrier. | DONE |
 | `SEC-103` | P9 | MUST | Approving releases, publishing to production, key operations, role changes, secret changes and break-glass actions **MUST** require WebAuthn step-up authentication performed within the last 5 minutes. | DONE |
 | `SEC-104` | P2 | MUST | All inputs **MUST** be validated with size limits (request body, JSON depth, string length, array length) to prevent resource-exhaustion attacks. | DONE |
@@ -1272,7 +1272,7 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `SEC-160` | P6 | MUST | Plux **MUST** be designed for compliance with the EU GDPR (DSGVO) and comparable national data-protection laws (§31): data minimisation, purpose limitation, pseudonymous device identifiers, configurable retention, and documented processing activities. | WIP |
-| `SEC-161` | P6 | MUST | Telemetry and analytics **MUST** be gated by a host-provided consent state (`setConsent`), with categories (`necessary`, `analytics`, `experiments`, `replay`); only `necessary` operational telemetry is sent without consent, and it contains no personal data. | WIP |
+| `SEC-161` | P6 | MUST | Telemetry and analytics **MUST** be gated by a host-provided consent state (`setConsent`), with categories (`necessary`, `analytics`, `experiments`, `replay`); only `necessary` operational telemetry is sent without consent, and it contains no personal data. | DONE |
 | `SEC-162` | P9 | MUST | Administrators **MUST** be able to export and erase all data associated with a device or pseudonymous user ID (data subject requests) and see where personal data is stored. | DONE |
 | `SEC-163` | P9 | MUST | By default no data **MUST** leave a self-hosted installation except calls the customer configures (attestation verification, AI provider, push, webhooks); a documented egress list **MUST** be maintained (`DEP-040`). | DONE |
 
@@ -1430,9 +1430,9 @@ plux_fn::function!(calculate_schedule);
 | `FN-030` | P7 | MUST | `plux fn test` **MUST** run the function's Rust unit tests natively (`cargo test`) and then run the same test cases against the compiled WASM module — on `wazero` and, for device-placed functions, on an interpreter: the CLI uses `wazero`'s interpreter as the stand-in for the device engine, which the shared ABI conformance vectors keep equivalent (`FN-015`) — failing if results differ. | DONE |
 | `FN-031` | P7 | MUST | Test cases (input → expected output or error) **MUST** be storable with the function and runnable in CI and by `plux fn test`; a function with failing tests **MUST NOT** be deployable to production. | DONE |
 | `FN-032` | P7 | MUST | Per-function metrics (invocations, errors by kind, latency percentiles, memory peak, cache hits) and logs **MUST** be available through the API, the CLI and Prometheus; server invocation traces **MUST** link to the calling device request. | DONE |
-| `FN-033` | P11 | MUST | Studio **MUST** provide a Rust editor (Monaco) with `rust-analyzer`-backed completion, diagnostics and formatting (served through a language-server bridge in the `worker`), starter templates (loan schedule, fee calculator, eligibility, currency conversion), dependency management and a test runner. | SPEC |
-| `FN-034` | P11 | MUST | Stored test cases **MUST** be runnable in Studio (split from `FN-031`). | SPEC |
-| `FN-035` | P11 | MUST | Per-function metrics and logs **MUST** be shown in Studio (split from `FN-032`). | SPEC |
+| `FN-033` | P11 | MUST | Studio **MUST** provide a Rust editor (Monaco) with `rust-analyzer`-backed completion, diagnostics and formatting (served through a language-server bridge in the `worker`), starter templates (loan schedule, fee calculator, eligibility, currency conversion), dependency management and a test runner. | DONE |
+| `FN-034` | P11 | MUST | Stored test cases **MUST** be runnable in Studio (split from `FN-031`). | DONE |
+| `FN-035` | P11 | MUST | Per-function metrics and logs **MUST** be shown in Studio (split from `FN-032`). | DONE |
 | `FN-036` | P10 | MUST | Device invocations **MUST** appear in dev-session traces (`DEV-020`; split from `FN-032`). | DONE |
 | `FN-040` | P15 | MAY | Go and other languages that compile to WASM **MAY** be supported later, using the language-neutral ABI of `FN-015`. | SPEC |
 
@@ -1454,10 +1454,10 @@ plux_fn::function!(calculate_schedule);
 | `I18N-004` | P8 | MUST | Layouts **MUST** mirror automatically for RTL locales; nodes **MAY** override directionality (e.g. for phone numbers and IBANs). | DONE |
 | `I18N-005` | P8 | MUST | The runtime **MUST** follow the host's locale by default and switch locale at runtime without restart. | DONE |
 | `I18N-006` | P8 | MUST | Missing translations **MUST** fall back along a chain (e.g. `de-AT` → `de` → app default locale) and be reported in development builds and in telemetry as the sampled `l10n_missing` event (Appendix G.2); the key itself is never shown to end users in release builds. | DONE |
-| `I18N-007` | P8 | MUST | Text props authored in Studio **MUST** be extracted to translation keys automatically; keys are referenced by ID; unused keys are detected; per-key metadata includes description, screenshot context (captured from the canvas) and maximum length. | WIP |
+| `I18N-007` | P8 | MUST | Text props authored in Studio **MUST** be extracted to translation keys automatically; keys are referenced by ID; unused keys are detected; per-key metadata includes description, screenshot context (captured from the canvas) and maximum length. | DONE |
 | `I18N-008` | P8 | MUST | Translation workflow **MUST** track per-locale status (`new`, `translated`, `reviewed`, `approved`) in the translations document, support a translator role (`translations.edit`; approving needs `translations.approve`) editing under a lock per locale separate from the app-level lock of `SRV-042`, and optionally require approval before a release uses a translation (`localisation.requireApprovedTranslations`: unapproved translations are left out and fall back, and the release's localisation report lists them) ([ADR-0068](adr/0068-translation-workflow.md)). | DONE |
 | `I18N-009` | P8 | MUST | Translations **MUST** be importable and exportable as XLIFF 2.0, ARB, JSON and CSV. | DONE |
-| `I18N-010` | P8 | MUST | Studio **MUST** offer pseudo-localisation (accented, expanded by 30–40%, RTL pseudo-locale) to find truncation and hard-coded text before translation. | WIP |
+| `I18N-010` | P8 | MUST | Studio **MUST** offer pseudo-localisation (accented, expanded by 30–40%, RTL pseudo-locale) to find truncation and hard-coded text before translation. | DONE |
 | `I18N-011` | P8 | MUST | Money **MUST** format per locale and currency (e.g. `EUR` as "1.234,56 €" in German, `USD` as "$1,234.56" in US English). | DONE |
 | `I18N-012` | P8 | SHOULD | Assets and layout props **SHOULD** be overridable per locale (images with text, longer labels). | DONE |
 | `I18N-013` | P12 | SHOULD | AI-assisted translation suggestions **SHOULD** be offered with an org glossary and a "do not translate" list (`AI-030`). | SPEC |
@@ -1472,7 +1472,7 @@ Plux targets **WCAG 2.2 level AA** and the harmonised European standard **EN 301
 | `A11Y-002` | P8 | MUST | The compiler **MUST** require an accessible name for every interactive node (explicit or derived from visible text) and an alternative text or `decorative` flag for every image; violations are errors under the `strict` and `maximum` profiles and warnings otherwise. With `accessibilityBlocksPublish` (on under `strict` and `maximum`), an unwaived accessibility error refuses the publish (`PLX-3060`, [ADR-0069](adr/0069-accessibility-checks-and-report.md)). | DONE |
 | `A11Y-003` | P8 | MUST | The compiler **MUST** check text/background contrast from theme tokens (4.5:1 for normal text, 3:1 for large text and UI components) in light, dark and high-contrast themes, with `A11Y-002`'s severity; colours unknown before run time are reported as not checked. | DONE |
 | `A11Y-004` | P8 | MUST | Touch targets **MUST** be at least 48 × 48 dp on Android and 44 × 44 pt on iOS; smaller fixed targets produce diagnostics with `A11Y-002`'s severity (below 44 × 44 always, below 48 × 48 when the release targets Android). | DONE |
-| `A11Y-005` | P8 | MUST | Pages **MUST** remain usable at 200% text scale; the Dev app and Studio **MUST** provide a text-scale preview, and the compiler **SHOULD** flag fixed-height containers holding text. | WIP |
+| `A11Y-005` | P8 | MUST | Pages **MUST** remain usable at 200% text scale; the Dev app and Studio **MUST** provide a text-scale preview, and the compiler **SHOULD** flag fixed-height containers holding text. | DONE |
 | `A11Y-006` | P8 | MUST | Documents **MUST** support explicit focus order, semantic grouping, headings and live-region announcements for dynamic content (errors, status changes). | DONE |
 | `A11Y-007` | P8 | MUST | The runtime **MUST** honour reduce motion, bold text, high contrast and screen-reader-active settings. | DONE |
 | `A11Y-008` | P8 | MUST | Each release **MUST** produce an accessibility report (checks run, violations, waivers with justification), exportable as JSON and HTML through the API and the CLI for compliance documentation. A waiver names one check and carries a justification; under `maximum` it needs the `a11y.waive` permission. | DONE |
@@ -1486,8 +1486,8 @@ Plux targets **WCAG 2.2 level AA** and the harmonised European standard **EN 301
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `GOV-001` | P2 | MUST | The hierarchy **MUST** be Installation → Organization → Teams, with apps owned by an organization and access granted to teams or users per app. | DONE |
-| `GOV-002` | P9 | MUST | Predefined roles **MUST** include Owner, Admin, Release Manager, Developer, Designer, Translator, Reviewer, Compliance Officer, Auditor (read-only including audit log) and Viewer. Custom roles **MUST** be composable from a documented permission catalogue (e.g. `plugin.edit`, `release.publish:production`, `approval.grant`, `function.deploy`, `secrets.manage`, `keys.manage`, `members.manage`, `audit.read`). The catalogue **MUST** be fine-grained per feature and grouped as area → feature → action; each entry **MUST** state its area, feature, action, description and whether it can be scoped by app or environment, and a feature's permissions are added in the phase that builds the feature (ADR-0086). The Translator role and the `translations.edit` and `translations.approve` permissions exist from P8 (ADR-0068). | DONE |
-| `GOV-003` | P9 | MUST | Permissions **MUST** be scopable by environment (e.g. publish to staging but not production) and by app. | DONE |
+| `GOV-002` | P9 | MUST | Predefined roles **MUST** include Owner, Admin, Release Manager, Developer, Designer, Translator, Reviewer, Compliance Officer, Auditor (read-only including audit log) and Viewer. Custom roles **MUST** be composable from a documented permission catalogue (e.g. `plugin.edit`, `release.publish:production`, `approval.grant`, `function.deploy`, `secrets.manage`, `keys.manage`, `members.manage`, `audit.read`). The catalogue **MUST** be fine-grained per feature and grouped as area → feature → action; each entry **MUST** state its area, feature, action, description and whether it can be scoped by app or environment, and a feature's permissions are added in the phase that builds the feature (ADR-0086). The Translator role and the `translations.edit` and `translations.approve` permissions exist from P8 (ADR-0068). Every Studio command **MUST** map to the server permission that guards its RPC; a command no permission covers gets a new permission with its server check in the same change, and an interface-only switch is a setting, not a permission (ADR-0073 Revision). The Studio library adds `library.manage` (manage the organisation's templates and components) and `library.publish` (publish a template or component version to the organisation library) (ADR-0098). | DONE |
+| `GOV-003` | P9 | MUST | Permissions **MUST** be scopable by environment (e.g. publish to staging but not production) and by app. Every Studio command maps to the server permission that guards its RPC, and a command no permission covers gets a new permission with its server check in the same change; interface-only switches are settings, not permissions (ADR-0073 Revision). | DONE |
 | `GOV-004` | P9 | MUST | Single sign-on **MUST** support OIDC and SAML 2.0, with group-to-role mapping and just-in-time provisioning; SCIM 2.0 **MUST** support provisioning and deprovisioning of users and groups. | DONE |
 | `GOV-005` | P9 | MUST | Administrators **MUST** be able to view and revoke active sessions and tokens and set session idle and absolute timeouts. | DONE |
 | `GOV-006` | P9 | MUST | **Restriction policies** **MUST** be ceilings that remove permissions whatever the grants say; a restriction always wins over a grant. The Owner sets restrictions for the organisation; Admins set them for a team or a person, optionally scoped to an app and an environment, naming permissions or wildcards over the catalogue's areas and features (`GOV-002`). Effective permissions **MUST** be the grants minus every restriction that applies (organisation, team, person), evaluated deny-by-default in the service layer (`SEC-102`); a restriction on a whole app **MUST** also be enforced by PostgreSQL row-level security. A restriction **MUST NOT** remove the last Owner's ability to manage members, roles and restrictions; nobody may restrict a permission or scope they do not hold; break-glass (`GOV-024`) does not override a restriction. Changing a restriction requires step-up (`SEC-103`), restriction counts come from the limits registry (`LIM-001`), and every change to grants, roles or restrictions and every refused lockout **MUST** be audited (ADR-0086). | DONE |
@@ -1501,7 +1501,7 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `GOV-020` | P9 | MUST | Approval **policies** **MUST** be declarative (stored as documents, editable in Studio, exportable) and match on resource type, environment, action and risk attributes (e.g. "touches a page marked `secure`", "changes a function used by a payment flow"). | WIP |
+| `GOV-020` | P9 | MUST | Approval **policies** **MUST** be declarative (stored as documents, editable in Studio, exportable) and match on resource type, environment, action and risk attributes (e.g. "touches a page marked `secure`", "changes a function used by a payment flow"). | DONE |
 | `GOV-021` | P9 | MUST | A policy **MUST** be able to require: a number of approvers; approver roles; approvers distinct from the author (**four-eyes**); approvers from distinct teams; named approvers (e.g. compliance); sequential stages or parallel approval; and an expiry. | DONE |
 | `GOV-022` | P9 | MUST | An approval **MUST** be bound to the content hash of the artifact it approves (release, function version, policy change). Any change to the artifact **MUST** invalidate existing approvals. | DONE |
 | `GOV-023` | P9 | MUST | Approvers **MUST** see the visual diff, JSON diff, validation and accessibility reports, affected install base, changelog and risk summary before deciding, and **MUST** confirm with WebAuthn step-up (`SEC-103`). Each approval is a signed, audited record. | DONE |
@@ -1566,8 +1566,8 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 | `ANL-011` | P9 | MUST | Events **MUST** be exportable via OTLP, signed webhooks and periodic Parquet files to object storage, so customers can use their own analytics stack. | DONE |
 | `ANL-020` | P9 | MUST | Dashboards **MUST** include: organisation overview; app overview (active devices, sessions, release adoption over time); page and plugin usage; funnels defined from page sequences or events; crash-free sessions and error rates per release, plugin and page; performance (build time and jank percentiles by device class); sync health (success, bytes, delta ratio); function health; security (attestation failures, DPoP rejections, RASP detections by type, assurance-level distribution); experiment results. | DONE |
 | `ANL-030` | P9 | MUST | Alerts **MUST** be configurable on any dashboard metric and routed to notification channels (`SRV-062`). | DONE |
-| `ANL-040` | P9 | MUST | Errors and crashes **MUST** be grouped by fingerprint and symbolicated to document JSON paths using the retained source maps (`CMP-041`), with a link to open the offending node in Studio. | WIP |
-| `ANL-050` | P11 | SHOULD | **Structural session replay** **SHOULD** be offered as opt-in: because pages are declarative, the runtime can record page, node and state changes (not video) and Studio can replay them on the canvas. Sensitive values are never recorded; replay is disabled and cannot be enabled under the `maximum` profile. | SPEC |
+| `ANL-040` | P9 | MUST | Errors and crashes **MUST** be grouped by fingerprint and symbolicated to document JSON paths using the retained source maps (`CMP-041`), with a link to open the offending node in Studio. | DONE |
+| `ANL-050` | P11 | SHOULD | **Structural session replay** **SHOULD** be offered as opt-in: because pages are declarative, the runtime can record page, node and state changes (not video) and Studio can replay them on the canvas. Sensitive values are never recorded; replay is disabled and cannot be enabled under the `maximum` profile. | DONE |
 
 ---
 
@@ -1610,7 +1610,7 @@ sequenceDiagram
 | `DEV-003` | P10 | MUST | Dev sessions **MUST** be possible only for non-production environments, and dev bundles **MUST** be signed with development keys that production runtimes reject (`SEC-056`). | DONE |
 | `DEV-010` | P10 | MUST | Draft edits **MUST** reach paired devices within 500 ms p95 from the edit being saved (Studio's autosave, or a file save in `plux dev`) on a normal broadband/Wi-Fi connection, via incremental compilation (`CMP-051`), and **MUST** be hot-applied while preserving page state where the state schema is compatible. P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile (`NFR-030`); Studio's autosave joins the measurement in P11. | DONE |
 | `DEV-011` | P10 | MUST | A paired client — the CLI in P10 — **MUST** be able to open any screen on a chosen paired device with chosen parameters, locale (including the pseudo-locale), theme, text scale and data-source mock state. The device carries out the command and reports the result in the stream. | DONE |
-| `DEV-020` | P10 | MUST | Devices **MUST** stream to Studio: runtime logs; **action traces as a process flow** (every run, step, branch, timing, redacted inputs and outputs, errors); state changes; network calls (method, URL, status, timing, redacted headers and bodies); function calls with the server-side function logs merged by trace ID; sync events; frame timings; errors with node paths. | WIP |
+| `DEV-020` | P10 | MUST | Devices **MUST** stream to Studio: runtime logs; **action traces as a process flow** (every run, step, branch, timing, redacted inputs and outputs, errors); state changes; network calls (method, URL, status, timing, redacted headers and bodies); function calls with the server-side function logs merged by trace ID; sync events; frame timings; errors with node paths. | DONE |
 | `DEV-021` | P10 | MUST | The stream **MUST** be filterable, searchable, pausable and exportable (a shareable trace file for bug reports), and **MUST** keep working over flaky networks with bounded buffering. | DONE |
 | `DEV-030` | P10 | MUST | **Inspect mode** **MUST** let a developer tap any widget on the device and receive the corresponding node, identified by node index and document path, in the stream; a command from a paired client **MUST** highlight a chosen node on the device. | DONE |
 | `DEV-031` | P10 | MUST | A paired client **MUST** be able to edit state values, switch data-source mocks and their states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock, and trigger lifecycle events on a paired device. | DONE |
@@ -1635,7 +1635,7 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
 | **Releases** | Publish, rollouts, rollback, kill switch |
 | **Approvals** | Inbox, history, policies |
 | **Experiments** | A/B tests and feature flags |
-| **Functions** | Go editor, tests, versions, metrics |
+| **Functions** | Rust editor, tests, versions, metrics |
 | **Localisation** | Keys × locales, translation workflow |
 | **Design system** | Tokens, themes, brands, component library, templates |
 | **Data** | API definitions, mocks, local collections |
@@ -1647,35 +1647,35 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-001` | P11 | MUST | Studio **MUST** be a TypeScript (strict) single-page application built and served with **Bun**, using React, TanStack Router and Query, shadcn/ui on Radix primitives, Tailwind CSS and Monaco. API clients **MUST** be generated from the protobuf contract (Connect-ES). | SPEC |
-| `STU-002` | P11 | MUST | The Bun server **MUST** act as backend-for-frontend (`SEC-101`): OIDC authorisation code flow with PKCE, server-side token storage, session cookies, CSRF protection, CSP with nonces, and proxying of API calls with the user's identity. | SPEC |
-| `STU-003` | P11 | MUST | Canvases **MUST** be rendered by **Plux Canvas**, a Figma-like design surface implemented in TypeScript on a WebGL2 scene graph: screens are frames, widgets are items that are placed, moved, resized and nested; selection handles, guides, rulers, ghost regions and arrows are part of the same scene (ADR-0013). No Flutter Web build is used. | SPEC |
-| `STU-005` | P11 | MUST | Plux Canvas **MUST** lay out widgets with an engine that follows Flutter's layout model (constraints down, sizes up; flex, stack, sliver and text layout) and styles them from widget descriptors and theme tokens. A **layout conformance suite** **MUST** render every Layer 1 and Layer 2 widget in headless Flutter tests and on the canvas across device frames, locales and text scales, and CI **MUST** fail when positions or sizes differ beyond a defined tolerance. | SPEC |
-| `STU-006` | P11 | MUST | Text on the canvas **MUST** use the same font files as the device and browser text shaping; where exact metrics cannot be guaranteed (e.g. complex scripts), the canvas **MUST** indicate that the device preview is authoritative. | SPEC |
-| `STU-004` | P11 | MUST | Studio state **MUST** be split into server state (TanStack Query caches keyed by document revision) and local UI state; document edits **MUST** be applied optimistically and autosaved as JSON Patch (`SRV-030`) with debouncing (default 500 ms). | SPEC |
+| `STU-001` | P11 | MUST | Studio **MUST** be a TypeScript (strict) single-page application built with Vite on the **Bun** runtime and served by the Bun BFF, using React, TanStack Router and Query, shadcn/ui on **Base UI** primitives, Tailwind CSS, Monaco for full-screen editors and CodeMirror 6 for inline PXL fields. API clients **MUST** be generated from the protobuf contract (Connect-ES). | DONE |
+| `STU-002` | P11 | MUST | The Bun server **MUST** act as backend-for-frontend (`SEC-101`). The Plux Server performs sign-in (password with TOTP or WebAuthn; OpenID Connect and SAML from P9) and holds the sessions (`__Host-plux_session` and its CSRF token). The BFF keeps no session state: it serves the sign-in pages, hosts the OpenID Connect callback (calling `CompleteOidcLogin`) and the SAML assertion consumer (calling `CompleteSamlLogin`), enforces CSP with nonces, and proxies API calls, passing the session cookie and CSRF token through with the user's identity. No token is held in browser storage (`SEC-101`). | DONE |
+| `STU-003` | P11 | MUST | Canvases **MUST** be rendered by **Plux Canvas**, a Figma-like design surface implemented in TypeScript on a WebGL2 scene graph: screens are frames, widgets are items that are placed, moved, resized and nested; selection handles, guides, rulers, ghost regions and arrows are part of the same scene (ADR-0013). No Flutter Web build is used. | DONE |
+| `STU-005` | P11 | MUST | Plux Canvas **MUST** lay out widgets with an engine that follows Flutter's layout model (constraints down, sizes up; flex, stack, sliver and text layout) and styles them from widget descriptors and theme tokens. A **layout conformance suite** **MUST** render every Layer 1 and Layer 2 widget in headless Flutter tests and on the canvas across device frames, locales and text scales, and CI **MUST** fail when positions or sizes differ beyond a defined tolerance. | DONE |
+| `STU-006` | P11 | MUST | Text on the canvas **MUST** use the same font files as the device and browser text shaping; where exact metrics cannot be guaranteed (e.g. complex scripts), the canvas **MUST** indicate that the device preview is authoritative. Text is shaped and laid out with SkParagraph at the Skia revision of the pinned Flutter. | DONE |
+| `STU-004` | P11 | MUST | Studio state **MUST** be split into server state (TanStack Query caches keyed by document revision) and local UI state; document edits **MUST** be applied optimistically and autosaved as JSON Patch (`SRV-030`) with debouncing (default 500 ms). | DONE |
 
 ### 21.2 Visual design and shell
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-010` | P11 | MUST | Studio's visual language **MUST** be light and whitish by default, with generously rounded corners (radius tokens 12–20 px), **floating panels** with soft shadows over the canvas, restrained colour used for meaning (selection, status, arrows), and a dark theme; users switch between light, dark and system. | SPEC |
-| `STU-011` | P11 | MUST | Studio **MUST** itself meet WCAG 2.2 AA: full keyboard operability, visible focus, screen-reader labels and sufficient contrast in both themes. | SPEC |
-| `STU-012` | P11 | MUST | Studio's own UI **MUST** be localised, at least in English and German, with right-to-left support. | SPEC |
-| `STU-013` | P11 | MUST | A global **command palette** (⌘K / Ctrl+K) **MUST** search and jump to apps, plugins, screens, nodes, components, templates, translation keys, functions and commands; a shortcut sheet (`?`) **MUST** list all keyboard shortcuts. | SPEC |
-| `STU-014` | P11 | MUST | The shell **MUST** provide an organisation switcher, notifications inbox, help and documentation links, and profile settings (theme, language, density, shortcuts). | SPEC |
-| `STU-015` | P11 | MUST | First-run onboarding **MUST** offer a guided checklist (create or import a sample app → pair a device → edit → publish) and importable sample apps (*Plux Bank*, *Plux Express*, *Starter*). | SPEC |
-| `STU-016` | P11 | MUST | Studio **MUST** display the Plux wordmark and use the brand tokens of Appendix J. | SPEC |
+| `STU-010` | P11 | MUST | Studio's visual language **MUST** be light and whitish by default, with generously rounded corners (18–24 px on panels, cards and dialogs, full pills on controls; smaller radii only for small elements), **floating panels** with soft shadows over the canvas, restrained colour used for meaning (selection, status, arrows), and a dark theme; users switch between light, dark and system. | DONE |
+| `STU-011` | P11 | MUST | Studio **MUST** itself meet WCAG 2.2 AA: full keyboard operability, visible focus, screen-reader labels and sufficient contrast in both themes. | WIP |
+| `STU-012` | P11 | MUST | Studio's own UI **MUST** be localised, at least in English and German, with right-to-left support. | WIP |
+| `STU-013` | P11 | MUST | A global **command palette** (⌘K / Ctrl+K) **MUST** search and jump to apps, plugins, screens, nodes, components, templates, translation keys, functions and commands; a shortcut sheet (`?`) **MUST** list all keyboard shortcuts. | DONE |
+| `STU-014` | P11 | MUST | The shell **MUST** provide an organisation switcher, notifications inbox, help and documentation links, and profile settings (theme, language, density, shortcuts). | DONE |
+| `STU-015` | P11 | MUST | First-run onboarding **MUST** offer a guided checklist (create or import a sample app → pair a device → edit → publish) and importable sample apps (*Plux Bank*, *Plux Express*, *Starter*). | DONE |
+| `STU-016` | P11 | MUST | Studio **MUST** display the Plux wordmark and use the brand tokens of Appendix J. | DONE |
 
 ### 21.3 Apps grid
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-020` | P11 | MUST | Apps **MUST** be shown as a responsive grid of cards (reflowing from one column on narrow screens to many on wide screens), with a list view alternative. | SPEC |
-| `STU-021` | P11 | MUST | Each card's visual **MUST** be, in order of preference: a live screenshot of the app's plugin canvas, an uploaded image, or a monogram of the app name's first character on a colour derived from the app. | SPEC |
-| `STU-022` | P11 | MUST | Each card **MUST** show the app's name, description, owning team, environment badges with live release per environment, last publish (who, when), active devices, number of plugins, and a health indicator (crash-free rate and error trend). | SPEC |
-| `STU-023` | P11 | MUST | The grid **MUST** support search, filters (team, tag, status, my apps), sort (name, last activity, health), pinning favourites, and card actions (open, settings, duplicate, export `.plux` archive, archive). | SPEC |
-| `STU-024` | P11 | MUST | Creating an app **MUST** offer: blank, from template, from `.plux` import, or from an AI prompt (`AI-010`); then locales, theme, security profile and environments. Every new app **MUST** start with a default plugin and entry screen, and offer the **generated Flutter project** for download (`GEN-001`). | SPEC |
-| `STU-025` | P11 | MUST | Each app card and app settings **MUST** show the app's limits usage (release size, plugins, pages, assets, functions) against its configured limits (§30.4). | SPEC |
+| `STU-020` | P11 | MUST | Apps **MUST** be shown as a responsive grid of cards (reflowing from one column on narrow screens to many on wide screens), with a list view alternative. | DONE |
+| `STU-021` | P11 | MUST | Each card's visual **MUST** be, in order of preference: a live screenshot of the app's plugin canvas, an uploaded image, or a monogram of the app name's first character on a colour derived from the app. | DONE |
+| `STU-022` | P11 | MUST | Each card **MUST** show the app's name, description, owning team, environment badges with live release per environment, last publish (who, when), active devices, number of plugins, and a health indicator (crash-free rate and error trend). | DONE |
+| `STU-023` | P11 | MUST | The grid **MUST** support search, filters (team, tag, status, my apps), sort (name, last activity, health), pinning favourites, and card actions (open, settings, duplicate, export `.plux` archive, archive). | DONE |
+| `STU-024` | P11 | MUST | Creating an app **MUST** offer: blank, from template, from `.plux` import, or from an AI prompt (`AI-010`, arriving with P12); then locales, theme, security profile and environments. Every new app **MUST** start with a default plugin and entry screen, and offer the **generated Flutter project** for download (`GEN-001`). | DONE |
+| `STU-025` | P11 | MUST | Each app card and app settings **MUST** show the app's limits usage (release size, plugins, pages, assets, functions) against its configured limits (§30.4). | DONE |
 
 ### 21.4 App canvas — the plugin graph
 
@@ -1683,12 +1683,12 @@ The app canvas shows every plugin of an app as a box on an infinite canvas, with
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-030` | P11 | MUST | Each plugin **MUST** be a box showing name, icon, number of screens, draft/published state and version, badges (unpublished changes, locked by *user*, validation errors, disabled by kill switch), and owner. | SPEC |
-| `STU-031` | P11 | MUST | Hovering or focusing a plugin **MUST** show a detail card: description, a mini-map of its screens, inbound and outbound link counts, functions used, bundle size, last published by and when. | SPEC |
-| `STU-032` | P11 | MUST | Plugin boxes **MUST** be freely draggable, with snapping, alignment guides, multi-select, auto-layout (layered graph layout) and zoom-to-fit; positions are saved per app. | SPEC |
-| `STU-033` | P11 | MUST | Native routes that plugins navigate to **MUST** appear as distinct native nodes (dashed outline, native icon) that only **receive** arrows. Native → plugin arrows **MUST NOT** be drawn, because Plux cannot know which native screens open plugin pages (§13.1). | SPEC |
-| `STU-034` | P11 | MUST | Plugins **MUST** be creatable, renamed, duplicated, archived and configured from the canvas (context menu and toolbar). Double-clicking a plugin opens its plugin canvas. | SPEC |
-| `STU-035` | P11 | SHOULD | Frames (labelled groups of plugins, e.g. "Onboarding", "Payments") **SHOULD** be supported for organising large apps. | SPEC |
+| `STU-030` | P11 | MUST | Each plugin **MUST** be a box showing name, icon, number of screens, draft/published state and version, badges (unpublished changes, locked by *user*, validation errors, disabled by kill switch), and owner. | DONE |
+| `STU-031` | P11 | MUST | Hovering or focusing a plugin **MUST** show a detail card: description, a mini-map of its screens, inbound and outbound link counts, functions used, bundle size, last published by and when. | DONE |
+| `STU-032` | P11 | MUST | Plugin boxes **MUST** be freely draggable, with snapping, alignment guides, multi-select, auto-layout (layered graph layout) and zoom-to-fit; positions are saved per app. | DONE |
+| `STU-033` | P11 | MUST | Native routes that plugins navigate to **MUST** appear as distinct native nodes (dashed outline, native icon) that only **receive** arrows. Native → plugin arrows **MUST NOT** be drawn, because Plux cannot know which native screens open plugin pages (§13.1). | DONE |
+| `STU-034` | P11 | MUST | Plugins **MUST** be creatable, renamed, duplicated, archived and configured from the canvas (context menu and toolbar). Double-clicking a plugin opens its plugin canvas. | DONE |
+| `STU-035` | P11 | SHOULD | Frames (labelled groups of plugins, e.g. "Onboarding", "Payments") **SHOULD** be supported for organising large apps. | DONE |
 
 ### 21.5 Bundled navigation arrows
 
@@ -1700,15 +1700,15 @@ These rules apply to arrows on the app canvas (plugin → plugin, plugin → nat
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-040` | P11 | MUST | Arrows **MUST** be derived automatically from the reference graph (`SCH-041`): every navigate action produces a link from its source to its target. | SPEC |
-| `STU-041` | P11 | MUST | All links from one box to another in the same direction **MUST** be drawn as **one bundled arrow** with a count badge at its midpoint. Links in the opposite direction form a separate bundle, drawn parallel and offset. | SPEC |
-| `STU-042` | P11 | MUST | Each bundle **MUST** attach to the pair of sides (top, right, bottom, left) of its two boxes that gives the **shortest connection**; when several bundles share a side, their anchor points **MUST** be spread along the side and ordered to minimise crossings. Side selection **MUST** use hysteresis so arrows do not flicker when boxes are nearly equidistant. | SPEC |
-| `STU-043` | P11 | MUST | Bundles **MUST** be drawn as smooth curves (cubic Béziers leaving and entering perpendicular to their sides) and **SHOULD** route around other boxes. | SPEC |
-| `STU-044` | P11 | MUST | On **hover or keyboard focus**, a bundle **MUST** expand: from a **single entry stem** at the source box, it fans out in the middle into one lane per link with enough spacing for each lane's **title** (e.g. "Apply now → Loan form"), then **merges back** into a single stem that attaches to the target box. Expansion animates in 150–200 ms; the expanded bundle is raised above others and unrelated bundles are dimmed. | SPEC |
-| `STU-045` | P11 | MUST | While a box is being dragged, all connected bundles **MUST** re-route and re-select their sides live at 60 fps (for up to 200 boxes and 1,000 links). | SPEC |
-| `STU-046` | P11 | MUST | Clicking a lane **MUST** select that link and offer: open the source widget and its action, open the target, change the trigger, redirect the target, or remove the link. | SPEC |
-| `STU-047` | P11 | MUST | Users **MUST** be able to create a link by dragging from a box's connection handle to another box; Studio then asks for the trigger (which widget and event) and creates the navigate action with the target's required parameters. | SPEC |
-| `STU-048` | P11 | MUST | At low zoom levels arrows **MUST** simplify (labels hidden, lanes merged) to keep the canvas readable and fast. | SPEC |
+| `STU-040` | P11 | MUST | Arrows **MUST** be derived automatically from the reference graph (`SCH-041`): every navigate action produces a link from its source to its target. | DONE |
+| `STU-041` | P11 | MUST | All links from one box to another in the same direction **MUST** be drawn as **one bundled arrow** with a count badge at its midpoint. Links in the opposite direction form a separate bundle, drawn parallel and offset. | DONE |
+| `STU-042` | P11 | MUST | Each bundle **MUST** attach to the pair of sides (top, right, bottom, left) of its two boxes that gives the **shortest connection**; when several bundles share a side, their anchor points **MUST** be spread along the side and ordered to minimise crossings. Side selection **MUST** use hysteresis so arrows do not flicker when boxes are nearly equidistant. | DONE |
+| `STU-043` | P11 | MUST | Bundles **MUST** be drawn as smooth curves (cubic Béziers leaving and entering perpendicular to their sides) and **SHOULD** route around other boxes. | DONE |
+| `STU-044` | P11 | MUST | On **hover or keyboard focus**, a bundle **MUST** expand: from a **single entry stem** at the source box, it fans out in the middle into one lane per link with enough spacing for each lane's **title** (e.g. "Apply now → Loan form"), then **merges back** into a single stem that attaches to the target box. Expansion animates in 150–200 ms; the expanded bundle is raised above others and unrelated bundles are dimmed. | DONE |
+| `STU-045` | P11 | MUST | While a box is being dragged, all connected bundles **MUST** re-route and re-select their sides live at 60 fps (for up to 200 boxes and 1,000 links). | DONE |
+| `STU-046` | P11 | MUST | Clicking a lane **MUST** select that link and offer: open the source widget and its action, open the target, change the trigger, redirect the target, or remove the link. | DONE |
+| `STU-047` | P11 | MUST | Users **MUST** be able to create a link by dragging from a box's connection handle to another box; Studio then asks for the trigger (which widget and event) and creates the navigate action with the target's required parameters. | DONE |
+| `STU-048` | P11 | MUST | At low zoom levels arrows **MUST** simplify (labels hidden, lanes merged) to keep the canvas readable and fast. | DONE |
 
 ### 21.6 Plugin canvas — screens
 
@@ -1716,15 +1716,15 @@ The plugin canvas shows **all screens of the plugin at the same time**, with arr
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-050` | P11 | MUST | All screens of a plugin **MUST** be laid out on one infinite canvas inside device frames, freely draggable, with snapping and auto-layout by navigation flow. | SPEC |
-| `STU-051` | P11 | MUST | Links between screens of the same plugin **MUST** be drawn with the bundled-arrow rules of §21.5. | SPEC |
-| `STU-052` | P11 | MUST | For every link between a screen of this plugin and a screen of **another plugin** — in either direction — the other screen **MUST** appear as a **ghost screen**: semi-transparent, dashed outline, showing its plugin name, screen name, thumbnail and link count, placed near the connected screens. | SPEC |
-| `STU-053` | P11 | MUST | Clicking a ghost screen **MUST** show a confirmation ("Leave *Loans* and open *Cards › Card details*?"), then open the other plugin's canvas, pan and zoom to that screen and highlight it (a pulse lasting about 2 s). | SPEC |
-| `STU-054` | P11 | MUST | Native routes targeted by this plugin's screens **MUST** appear as native nodes that only receive arrows (`STU-033`). | SPEC |
-| `STU-055` | P11 | MUST | Screens **MUST** be creatable (blank, from template, from AI prompt), duplicated (with new IDs and internal links remapped), renamed, moved to another plugin (links updated), set as the plugin's entry screen, and deleted subject to `STU-070`. | SPEC |
-| `STU-056` | P11 | MUST | Content that extends beyond a screen's viewport (e.g. a long list or scroll view) **MUST** be shown on the canvas as a translucent **overflow region** below or beside the device frame, so designers see the whole scrollable content. | SPEC |
-| `STU-057` | P11 | MUST | Studio **MUST** support **multiple device frames**: presets (small Android phone 360×800, Pixel, Galaxy A-series, entry-level Android, iPhone SE, iPhone standard and Pro Max, iPad, foldable), custom sizes, orientation, and a **device matrix** mode showing one screen on several devices side by side. | SPEC |
-| `STU-058` | P11 | MUST | Canvas-wide preview switches **MUST** include theme (light/dark, brand overlay), locale (including RTL and pseudo-locales), text scale, platform style (Material/Cupertino) and data-source mock state (`loading`, `empty`, `error`, `success`). | SPEC |
+| `STU-050` | P11 | MUST | All screens of a plugin **MUST** be laid out on one infinite canvas inside device frames, freely draggable, with snapping and auto-layout by navigation flow. | DONE |
+| `STU-051` | P11 | MUST | Links between screens of the same plugin **MUST** be drawn with the bundled-arrow rules of §21.5. | DONE |
+| `STU-052` | P11 | MUST | For every link between a screen of this plugin and a screen of **another plugin** — in either direction — the other screen **MUST** appear as a **ghost screen**: semi-transparent, dashed outline, showing its plugin name, screen name, thumbnail and link count, placed near the connected screens. | DONE |
+| `STU-053` | P11 | MUST | Clicking a ghost screen **MUST** show a confirmation ("Leave *Loans* and open *Cards › Card details*?"), then open the other plugin's canvas, pan and zoom to that screen and highlight it (a pulse lasting about 2 s). | DONE |
+| `STU-054` | P11 | MUST | Native routes targeted by this plugin's screens **MUST** appear as native nodes that only receive arrows (`STU-033`). | DONE |
+| `STU-055` | P11 | MUST | Screens **MUST** be creatable (blank, from template, and from an AI prompt, which arrives with P12), duplicated (with new IDs and internal links remapped), renamed, moved to another plugin (links updated), set as the plugin's entry screen, and deleted subject to `STU-070`. | DONE |
+| `STU-056` | P11 | MUST | Content that extends beyond a screen's viewport (e.g. a long list or scroll view) **MUST** be shown on the canvas as a translucent **overflow region** below or beside the device frame, so designers see the whole scrollable content. | DONE |
+| `STU-057` | P11 | MUST | Studio **MUST** support **multiple device frames**: presets (small Android phone 360×800, Pixel, Galaxy A-series, entry-level Android, iPhone SE, iPhone standard and Pro Max, iPad, foldable), custom sizes, orientation, and a **device matrix** mode showing one screen on several devices side by side. | DONE |
+| `STU-058` | P11 | MUST | Canvas-wide preview switches **MUST** include theme (light/dark, brand overlay), locale (including RTL and pseudo-locales), text scale, platform style (Material/Cupertino) and data-source mock state (`loading`, `empty`, `error`, `success`). | DONE |
 
 ### 21.7 Screen editor
 
@@ -1736,71 +1736,71 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-060` | P11 | MUST | A floating **action bar at the top centre** **MUST** provide: undo/redo, zoom, device frame, theme, locale, text scale, **send to device** (choose paired device), validation status (opens Problems), history, AI assistant, and **Publish** (primary action, opens the release flow, `STU-100`). | SPEC |
-| `STU-061` | P11 | MUST | A floating **left panel** **MUST** provide tabs: **Insert** (Layer 1, Layer 2 and custom widgets, components and templates, searchable, drag-and-drop); **Layers** (tree view with drag-to-reorder and reparent, rename, hide, lock, multi-select); **Screens**; **Assets**; **State** (app/plugin/page state, computed values, forms); **Data** (data sources, mocks, collections); and **Selection** (details of the current multi-selection). | SPEC |
-| `STU-062` | P11 | MUST | A floating **right panel** **MUST** provide tabs: **Properties** (grouped editors generated from widget descriptors: layout, style, content, behaviour, responsive overrides, bindings with PXL autocompletion, token pickers, translation pickers); **Actions** (events of the selection and their action graphs); **JSON** (compact JSON of the selection); **Code** (functions used by the selection); **Localisation** (strings of the selection); **Accessibility**; **Performance** (node count, estimated cost, budget status); and **Docs** (widget documentation). | SPEC |
-| `STU-063` | P11 | MUST | Heavy editors — **JSON editor**, **Rust function editor**, **action graph editor**, **localisation table**, **state designer**, **data source designer** (with OpenAPI import), **DB schema designer** and **theme editor** — **MUST** be launched from the right panel and open as **full-screen overlays**. Opening an overlay **MUST NOT** unmount or re-render the canvas: the canvas is paused and preserved, and closing the overlay restores zoom, scroll and selection exactly. | SPEC |
-| `STU-064` | P11 | MUST | The JSON editor **MUST** validate against the schema as the user types, show diagnostics inline, offer a diff against the last published version, and apply edits only when valid. | SPEC |
-| `STU-065` | P11 | MUST | The action graph editor **MUST** be a node-based editor with typed ports, the action catalogue (built-in, custom, functions, flows), inline PXL editing with autocompletion, and validation of every path. | SPEC |
-| `STU-066` | P11 | MUST | A resizable, collapsible **bottom drawer** **MUST** provide tabs fed by paired devices (`DEV-020`): **Problems** (validation), **Logs**, **Process flow** (visual timeline and graph of action runs; clicking a step selects the node or action in the editor), **State**, **Network**, **Functions** (with server-side logs), **Sync**, **Performance** and **Console** (PXL against device state). The drawer **MUST** support choosing the source device, filters, search, pause and export. | SPEC |
-| `STU-067` | P11 | MUST | Canvas interactions **MUST** include: click, shift-click and marquee selection; select parent (Esc) and children (Enter); deep select; drag and drop from the Insert panel onto the canvas or the layer tree with insertion indicators for rows, columns and stacks; reparenting by drag; wrap selection in a layout widget and unwrap; copy, paste and duplicate across screens, plugins and apps (with ID remapping and dependency reporting); smart guides and distance measurement; keyboard nudging; zoom 10–400%, fit screen and fit all. | SPEC |
-| `STU-068` | P11 | MUST | The canvas is a design surface: lists and scroll views can be scrolled, tabs and page views switched, text wraps and overflows as laid out by the conformance-tested engine, and animation timelines can be scrubbed. Actions that navigate, call networks or functions are **not** executed on the canvas; interactive testing happens on the device (§20). | SPEC |
-| `STU-069` | P11 | MUST | Every edit **MUST** be undoable (per-plugin undo history persisted across reloads for the session) and autosaved; the history panel **MUST** list snapshots with author and time, compare any two and restore any one (`SRV-031`). | SPEC |
+| `STU-060` | P11 | MUST | A floating **action bar at the top centre** **MUST** provide: undo/redo, zoom, device frame, theme, locale, text scale, **send to device** (choose paired device), validation status (opens Problems), history, AI assistant (arriving with P12), and **Publish** (primary action, opens the release flow, `STU-100`). | DONE |
+| `STU-061` | P11 | MUST | A floating **left panel** **MUST** provide tabs: **Insert** (Layer 1, Layer 2 and custom widgets, components and templates, searchable, drag-and-drop); **Layers** (tree view with drag-to-reorder and reparent, rename, hide, lock, multi-select); **Screens**; **Assets**; **State** (app/plugin/page state, computed values, forms); **Data** (data sources, mocks, collections); and **Selection** (details of the current multi-selection). | DONE |
+| `STU-062` | P11 | MUST | A floating **right panel** **MUST** provide tabs: **Properties** (grouped editors generated from widget descriptors: layout, style, content, behaviour, responsive overrides, bindings with PXL autocompletion, token pickers, translation pickers); **Actions** (events of the selection and their action graphs); **JSON** (compact JSON of the selection); **Code** (functions used by the selection); **Localisation** (strings of the selection); **Accessibility**; **Performance** (node count, estimated cost, budget status); and **Docs** (widget documentation). | DONE |
+| `STU-063` | P11 | MUST | Heavy editors — **JSON editor**, **Rust function editor**, **action graph editor**, **localisation table**, **state designer**, **data source designer** (with OpenAPI import), **DB schema designer** and **theme editor** — **MUST** be launched from the right panel and open as **full-screen overlays**. Opening an overlay **MUST NOT** unmount or re-render the canvas: the canvas is paused and preserved, and closing the overlay restores zoom, scroll and selection exactly. | DONE |
+| `STU-064` | P11 | MUST | The JSON editor **MUST** validate against the schema as the user types, show diagnostics inline, offer a diff against the last published version, and apply edits only when valid. | DONE |
+| `STU-065` | P11 | MUST | The action graph editor **MUST** be a node-based editor with typed ports, the action catalogue (built-in, custom, functions, flows), inline PXL editing with autocompletion, and validation of every path. | DONE |
+| `STU-066` | P11 | MUST | A resizable, collapsible **bottom drawer** **MUST** provide tabs fed by paired devices (`DEV-020`): **Problems** (validation), **Logs**, **Process flow** (visual timeline and graph of action runs; clicking a step selects the node or action in the editor), **State**, **Network**, **Functions** (with server-side logs), **Sync**, **Performance** and **Console** (PXL against device state). The drawer **MUST** support choosing the source device, filters, search, pause and export. | DONE |
+| `STU-067` | P11 | MUST | Canvas interactions **MUST** include: click, shift-click and marquee selection; select parent (Esc) and children (Enter); deep select; drag and drop from the Insert panel onto the canvas or the layer tree with insertion indicators for rows, columns and stacks; reparenting by drag; wrap selection in a layout widget and unwrap; copy, paste and duplicate across screens, plugins and apps (with ID remapping and dependency reporting); smart guides and distance measurement; keyboard nudging; zoom 10–400%, fit screen and fit all. | DONE |
+| `STU-068` | P11 | MUST | The canvas is a design surface: lists and scroll views can be scrolled, tabs and page views switched, text wraps and overflows as laid out by the conformance-tested engine, and animation timelines can be scrubbed. Actions that navigate, call networks or functions are **not** executed on the canvas; interactive testing happens on the device (§20). | DONE |
+| `STU-069` | P11 | MUST | Every edit **MUST** be undoable (per-plugin undo history persisted across reloads for the session) and autosaved; the history panel **MUST** list snapshots with author and time, compare any two and restore any one (`SRV-031`). | DONE |
 
 ### 21.8 Safety rules
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-070` | P11 | MUST | A plugin **MUST NOT** be deletable while any link enters or leaves it, and a screen **MUST NOT** be deletable while any link enters it. Studio **MUST** list the blocking links and offer assisted fixes: "redirect all incoming links to…" and "remove outgoing links". | SPEC |
-| `STU-071` | P11 | MUST | The app's entry plugin and each plugin's entry screen **MUST NOT** be deletable until another entry is chosen. | SPEC |
-| `STU-072` | P11 | MUST | Components, state entries, translation keys, data sources, collections, flows and functions **MUST NOT** be deletable while used; Studio **MUST** show "where used" with navigation to each usage. | SPEC |
-| `STU-073` | P11 | MUST | Deleting a published plugin **MUST** follow a deprecation flow: it is removed from the next release only when nothing links to it, while earlier releases keep it; deletions go to trash for 30 days (`GOV-031`). | SPEC |
-| `STU-074` | P11 | MUST | Destructive actions affecting production (disabling a plugin, rolling back, deleting a published plugin) **MUST** require type-to-confirm and are subject to approval policies. | SPEC |
-| `STU-075` | P11 | MUST | A plugin locked by another user **MUST** open read-only with the lock holder shown and a "request edit" action (`SRV-041`). | SPEC |
-| `STU-076` | P11 | MUST | Renames **MUST** never break links (references are by ID); key changes that affect deep links or host code **MUST** warn and list the affected generated APIs. | SPEC |
-| `STU-077` | P11 | MUST | Navigation loops that redirect automatically without user input (e.g. `onEnter` navigate chains) **MUST** be detected and reported as errors; user-driven cycles are allowed. | SPEC |
+| `STU-070` | P11 | MUST | A plugin **MUST NOT** be deletable while any link enters or leaves it, and a screen **MUST NOT** be deletable while any link enters it. Studio **MUST** list the blocking links and offer assisted fixes: "redirect all incoming links to…" and "remove outgoing links". | DONE |
+| `STU-071` | P11 | MUST | The app's entry plugin and each plugin's entry screen **MUST NOT** be deletable until another entry is chosen. | DONE |
+| `STU-072` | P11 | MUST | Components, state entries, translation keys, data sources, collections, flows and functions **MUST NOT** be deletable while used; Studio **MUST** show "where used" with navigation to each usage. | DONE |
+| `STU-073` | P11 | MUST | Deleting a published plugin **MUST** follow a deprecation flow: it is removed from the next release only when nothing links to it, while earlier releases keep it; deletions go to trash for 30 days (`GOV-031`). | DONE |
+| `STU-074` | P11 | MUST | Destructive actions affecting production (disabling a plugin, rolling back, deleting a published plugin) **MUST** require type-to-confirm and are subject to approval policies. | DONE |
+| `STU-075` | P11 | MUST | A plugin locked by another user **MUST** open read-only with the lock holder shown and a "request edit" action (`SRV-041`). | DONE |
+| `STU-076` | P11 | MUST | Renames **MUST** never break links (references are by ID); key changes that affect deep links or host code **MUST** warn and list the affected generated APIs. | DONE |
+| `STU-077` | P11 | MUST | Navigation loops that redirect automatically without user input (e.g. `onEnter` navigate chains) **MUST** be detected and reported as errors; user-driven cycles are allowed. | DONE |
 
 ### 21.9 Components and templates
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-080` | P11 | MUST | Selecting one or more nodes (with all nested nodes) **MUST** allow **Save as template** in at most two steps: name, description, category, tags, auto-generated thumbnail, parameters to expose (chosen from props of the selection), and visibility. | SPEC |
-| `STU-081` | P11 | MUST | Template visibility **MUST** be `private` (only the author can see and reuse it), `organization` (every member of the organization — "Team" in the UI — can see and reuse it) or `public` (everyone on the installation, and, on multi-tenant installations, in the public gallery, `SAAS-006`). Changing visibility to `public` **MUST** run an automated scan (no secrets, no private URLs, no personal data) and **MAY** require moderation. | SPEC |
-| `STU-082` | P11 | MUST | Saving a template **MUST** capture its dependencies (tokens, assets, components) and convert references to page state into parameters, or flag what cannot be converted. | SPEC |
-| `STU-083` | P11 | MUST | Inserting a template **MUST** copy it with new IDs and prompt for its parameters; inserted content is independent of the template afterwards. | SPEC |
-| `STU-084` | P11 | MUST | **Extract to component** **MUST** turn a selection into a linked component with props, slots and events; the original selection is replaced by an instance. Editing the component **MUST** show which instances will change before saving; instances **MAY** override props and **MAY** be detached. | SPEC |
-| `STU-085` | P11 | MUST | Components **MUST** have the same visibility levels as templates and be versioned; apps choose when to adopt a new component version. | SPEC |
-| `STU-086` | P11 | MUST | A library browser **MUST** list components and templates with search, filters (visibility, owner, category, tag), previews and usage counts; templates and components **MUST** be exportable and importable as files. | SPEC |
+| `STU-080` | P11 | MUST | Selecting one or more nodes (with all nested nodes) **MUST** allow **Save as template** in at most two steps: name, description, category, tags, auto-generated thumbnail, parameters to expose (chosen from props of the selection), and visibility. | DONE |
+| `STU-081` | P11 | MUST | Template visibility **MUST** be `private` (only the author can see and reuse it), `organization` (every member of the organization — "Team" in the UI — can see and reuse it) or `public` (everyone on the installation, and, on multi-tenant installations, in the public gallery, `SAAS-006`). Changing visibility to `public` **MUST** run an automated scan (no secrets, no private URLs, no personal data) and **MAY** require moderation. | DONE |
+| `STU-082` | P11 | MUST | Saving a template **MUST** capture its dependencies (tokens, assets, components) and convert references to page state into parameters, or flag what cannot be converted. | DONE |
+| `STU-083` | P11 | MUST | Inserting a template **MUST** copy it with new IDs and prompt for its parameters; inserted content is independent of the template afterwards. | DONE |
+| `STU-084` | P11 | MUST | **Extract to component** **MUST** turn a selection into a linked component with props, slots and events; the original selection is replaced by an instance. Editing the component **MUST** show which instances will change before saving; instances **MAY** override props and **MAY** be detached. | DONE |
+| `STU-085` | P11 | MUST | Components **MUST** have the same visibility levels as templates and be versioned; apps choose when to adopt a new component version. | DONE |
+| `STU-086` | P11 | MUST | A library browser **MUST** list components and templates with search, filters (visibility, owner, category, tag), previews and usage counts; templates and components **MUST** be exportable and importable as files. | DONE |
 
 ### 21.10 Releases, approvals and experiments
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-100` | P11 | MUST | The **publish flow** **MUST** guide the user through: plugins with changes → validation, accessibility and budget reports → **visual diff** (before/after screenshots of every changed screen, rendered server-side on standard devices) and JSON diff → changelog and notes → target environment and channel → approval request → rollout plan. | SPEC |
-| `STU-101` | P11 | MUST | The **Releases** area **MUST** show a timeline of releases per environment and channel, adoption curves, health against the previous release, rollout controls (pause, resume, advance, schedule), one-click rollback, and the kill-switch panel. | SPEC |
-| `STU-102` | P11 | MUST | The **Approvals** area **MUST** provide an inbox of pending approvals, a detail view with all evidence (`GOV-023`), approve/reject with comments and WebAuthn, history, break-glass reviews and a policy editor with a policy simulator ("who would need to approve this change?"). | SPEC |
-| `STU-103` | P11 | MUST | The **Experiments** area **MUST** let users create experiments by selecting a page, subtree or prop on the canvas, define variants visually, set allocation, targeting and metrics, and read results; and manage feature flags. | SPEC |
+| `STU-100` | P11 | MUST | The **publish flow** **MUST** guide the user through: plugins with changes → validation, accessibility and budget reports → **visual diff** (before/after screenshots of every changed screen, rendered server-side on standard devices) and JSON diff → changelog and notes → target environment and channel → approval request → rollout plan. | WIP |
+| `STU-101` | P11 | MUST | The **Releases** area **MUST** show a timeline of releases per environment and channel, adoption curves, health against the previous release, rollout controls (pause, resume, advance, schedule), one-click rollback, and the kill-switch panel. | DONE |
+| `STU-102` | P11 | MUST | The **Approvals** area **MUST** provide an inbox of pending approvals, a detail view with all evidence (`GOV-023`), approve/reject with comments and WebAuthn, history, break-glass reviews and a policy editor with a policy simulator ("who would need to approve this change?"). | DONE |
+| `STU-103` | P11 | MUST | The **Experiments** area **MUST** let users create experiments by selecting a page, subtree or prop on the canvas, define variants visually, set allocation, targeting and metrics, and read results; and manage feature flags. | DONE |
 
 ### 21.11 Functions, localisation, design system, data, analytics, devices and admin
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-110` | P11 | MUST | The **Functions** area **MUST** list functions with versions, aliases, required assurance, capabilities, tests and metrics, and open the Rust editor overlay (`FN-033`). | SPEC |
-| `STU-111` | P11 | MUST | The **Localisation** area **MUST** show a keys × locales grid with status colours, a missing-translation heatmap per plugin, screenshot context per key, filters, bulk actions, import/export and pseudo-localisation. | SPEC |
-| `STU-112` | P11 | MUST | The **Design system** area **MUST** edit tokens, themes (light, dark, high contrast), brand overlays, typography per script, icon sets, and the organisation's locked component library; it **SHOULD** import tokens from Figma variables exports in DTCG format. | SPEC |
-| `STU-113` | P11 | MUST | The **Data** area **MUST** manage API definitions per environment (with OpenAPI and GraphQL import), mocks, and local database collections with migration previews. | SPEC |
-| `STU-114` | P11 | MUST | The **Analytics** area **MUST** present the dashboards of `ANL-020` with drill-down from app to plugin to screen and links from errors to the offending node. | SPEC |
-| `STU-115` | P11 | MUST | The **Devices & security** area **MUST** show paired dev devices, registered devices with platform, app build, assurance level and last attestation, allow revoking devices, and manage signing keys, certificate pins, capability grants and the security profile. | SPEC |
-| `STU-116` | P11 | MUST | The **Admin** area **MUST** manage organisation settings, teams, members, roles and custom roles, SSO and SCIM, API tokens, environments and secrets, audit log search and export, retention, license, and (for installation administrators) installation health, storage, jobs and backups. | SPEC |
+| `STU-110` | P11 | MUST | The **Functions** area **MUST** list functions with versions, aliases, required assurance, capabilities, tests and metrics, and open the Rust editor overlay (`FN-033`). | DONE |
+| `STU-111` | P11 | MUST | The **Localisation** area **MUST** show a keys × locales grid with status colours, a missing-translation heatmap per plugin, screenshot context per key, filters, bulk actions, import/export and pseudo-localisation. | DONE |
+| `STU-112` | P11 | MUST | The **Design system** area **MUST** edit tokens, themes (light, dark, high contrast), brand overlays, typography per script, icon sets, and the organisation's locked component library; it **SHOULD** import tokens from Figma variables exports in DTCG format. | DONE |
+| `STU-113` | P11 | MUST | The **Data** area **MUST** manage API definitions per environment (with OpenAPI and GraphQL import), mocks, and local database collections with migration previews. | DONE |
+| `STU-114` | P11 | MUST | The **Analytics** area **MUST** present the dashboards of `ANL-020` with drill-down from app to plugin to screen and links from errors to the offending node. | DONE |
+| `STU-115` | P11 | MUST | The **Devices & security** area **MUST** show paired dev devices, registered devices with platform, app build, assurance level and last attestation, allow revoking devices, **show** signing keys and certificate pins with their rotation state and link the key-ceremony runbook, and **manage** capability grants and the security profile. | DONE |
+| `STU-116` | P11 | MUST | The **Admin** area **MUST** manage organisation settings, teams, members, roles and custom roles, SSO and SCIM, API tokens, environments and secrets, audit log search and export, retention, license, and (for installation administrators) installation health, storage, jobs and backups. | DONE |
 
 ### 21.12 Studio performance
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-120` | P11 | MUST | Canvases **MUST** pan and zoom at 60 fps with 100 screens (plugin canvas) or 200 plugins (app canvas) on the reference laptop (§30). Screens outside the viewport or below a zoom threshold **MUST** be drawn from cached rasterised snapshots and re-rendered only when visible at sufficient zoom. | SPEC |
-| `STU-121` | P11 | MUST | A property change **MUST** be reflected on the canvas within 50 ms p95. | SPEC |
-| `STU-122` | P11 | MUST | Studio's initial load **MUST** reach Largest Contentful Paint in ≤ 2.5 s on a typical broadband connection; the initial JavaScript **MUST** stay under 1.5 MiB compressed, with editors, the canvas and overlays code-split and loaded on demand. | SPEC |
-| `STU-123` | P11 | MUST | Opening a full-screen overlay **MUST** take ≤ 150 ms after its code is loaded. | SPEC |
+| `STU-120` | P11 | MUST | Canvases **MUST** pan and zoom at 60 fps with 100 screens (plugin canvas) or 200 plugins (app canvas) on the reference laptop (§30). Screens outside the viewport or below a zoom threshold **MUST** be drawn from cached rasterised snapshots and re-rendered only when visible at sufficient zoom. | WIP |
+| `STU-121` | P11 | MUST | A property change **MUST** be reflected on the canvas within 50 ms p95. | DONE |
+| `STU-122` | P11 | MUST | Studio's initial load **MUST** reach Largest Contentful Paint in ≤ 2.5 s on a typical broadband connection; the initial JavaScript **MUST** stay under 1.5 MiB compressed, with editors, the canvas and overlays code-split and loaded on demand. | DONE |
+| `STU-123` | P11 | MUST | Opening a full-screen overlay **MUST** take ≤ 150 ms after its code is loaded. | DONE |
 
 ### 21.13 Live debugging in Studio
 
@@ -1808,11 +1808,11 @@ Studio's side of the live debugging of §20. The device, server and CLI capabili
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-130` | P11 | MUST | Studio **MUST** open any screen on a chosen paired device from the screen editor, with the parameters, locale, theme, text scale and data-source mock state chosen in the action bar (`STU-060`, `DEV-011`). | SPEC |
-| `STU-131` | P11 | MUST | Inspect mode **MUST** work in both directions in Studio: tapping a widget on the device selects the corresponding node in Studio, and selecting a node in Studio highlights it on the device (`DEV-030`). | SPEC |
-| `STU-132` | P11 | MUST | Studio **MUST** let a developer edit state values, switch data-source mocks and their states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock and trigger lifecycle events on a paired device from the bottom drawer (`STU-066`, `DEV-031`). | SPEC |
-| `STU-133` | P11 | SHOULD | Studio **SHOULD** offer a PXL console in the bottom drawer that evaluates expressions against the live state of a paired device (`DEV-032`). | SPEC |
-| `STU-134` | P11 | SHOULD | Studio **SHOULD** capture device screenshots into app and plugin card thumbnails, native slot previews on the canvas (`WGT-031`), translation context and documentation (`DEV-033`). | SPEC |
+| `STU-130` | P11 | MUST | Studio **MUST** open any screen on a chosen paired device from the screen editor, with the parameters, locale, theme, text scale and data-source mock state chosen in the action bar (`STU-060`, `DEV-011`). | DONE |
+| `STU-131` | P11 | MUST | Inspect mode **MUST** work in both directions in Studio: tapping a widget on the device selects the corresponding node in Studio, and selecting a node in Studio highlights it on the device (`DEV-030`). | DONE |
+| `STU-132` | P11 | MUST | Studio **MUST** let a developer edit state values, switch data-source mocks and their states, simulate network conditions (offline, 2G, 3G, high latency, packet loss), fake the clock and trigger lifecycle events on a paired device from the bottom drawer (`STU-066`, `DEV-031`). | DONE |
+| `STU-133` | P11 | SHOULD | Studio **SHOULD** offer a PXL console in the bottom drawer that evaluates expressions against the live state of a paired device (`DEV-032`). | DONE |
+| `STU-134` | P11 | SHOULD | Studio **SHOULD** capture device screenshots into app and plugin card thumbnails, native slot previews on the canvas (`WGT-031`), translation context and documentation (`DEV-033`). | DONE |
 
 ---
 
@@ -1835,8 +1835,8 @@ Studio's side of the live debugging of §20. The device, server and CLI capabili
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `TST-001` | P5 | MUST | **Plux Test** **MUST** let developers define declarative test scenarios per page or flow — given parameters, state and data-source mocks; steps (tap by `testId`, enter text, scroll, wait for, trigger event); expectations (visible, text equals, navigated to route, action or function called with arguments, state value) — in YAML or in Studio. | WIP |
-| `TST-002` | P5 | MUST | `plux test` **MUST** run scenarios headlessly in CI using Flutter's test harness with the real runtime, and report results in JUnit XML and to Studio. | WIP |
+| `TST-001` | P5 | MUST | **Plux Test** **MUST** let developers define declarative test scenarios per page or flow — given parameters, state and data-source mocks; steps (tap by `testId`, enter text, scroll, wait for, trigger event); expectations (visible, text equals, navigated to route, action or function called with arguments, state value) — in YAML or in Studio. | DONE |
+| `TST-002` | P5 | MUST | `plux test` **MUST** run scenarios headlessly in CI using Flutter's test harness with the real runtime, and report results in JUnit XML and to Studio. | DONE |
 | `TST-003` | P8 | MUST | Golden (visual regression) tests **MUST** render pages per device frame, locale, theme and text scale with the real runtime (`plux golden`, Linux as the canonical renderer), compare them with approved baselines held by the server, and optionally block publication on unapproved differences (`goldens.blockPublish`, [ADR-0070](adr/0070-golden-tests.md)). | DONE |
 | `TST-004` | P5 | SHOULD | Mock servers **SHOULD** be generated from imported OpenAPI definitions for local development and tests. | DONE |
 | `TST-005` | P9 | MUST | Release policies **MUST** be able to require passing Plux tests and golden tests before production (mandatory under the `maximum` profile). | DONE |
@@ -1861,7 +1861,7 @@ Two adoption modes are first-class: **no-code** (Plux generates the whole Flutte
 | `GEN-001` | P4 | MUST | Creating an app **MUST** be able to produce a complete, ready-to-build Flutter project — via `plux create` (P4) and Studio download (P11) — containing: app name, bundle and application IDs, icons and splash screen, the Plux runtime wired in with root keys and configuration, an embedded baseline release whose entry is the app's default plugin, platform permissions and usage descriptions derived from the plugins' declared capabilities, push-notification configuration, and build scripts. | DONE |
 | `GEN-002` | P4 | MUST | The generated project **MUST** build and run unchanged with the pinned Flutter version on Android and iOS, and **MUST** be verified in CI by generating, building and launching a sample app. | DONE |
 | `GEN-003` | P4 | MUST | The generated project **MUST** be deliverable as a zip download, as a push to a Git repository, or into a local directory, and **MUST** include CI templates (GitHub Actions and GitLab CI) for signed release builds. | DONE |
-| `GEN-004` | P11 | MUST | Studio **MUST** manage the native shell settings of a no-code app — name, icons, splash, identifiers, version, permissions, optional packages, push configuration — and **MUST** detect when a change requires a new store build ("shell update required"), showing exactly what changed and offering a regenerated project or a patch. | SPEC |
+| `GEN-004` | P11 | MUST | Studio **MUST** manage the native shell settings of a no-code app — name, icons, splash, identifiers, version, permissions, optional packages, push configuration — and **MUST** detect when a change requires a new store build ("shell update required"), showing exactly what changed and offering a regenerated project or a patch. | DONE |
 | `GEN-005` | P4 | MUST | Everything that does not change the native shell (screens, flows, state, data, functions, translations, themes) **MUST** ship through Plux releases without regenerating or rebuilding the project. | DONE |
 | `GEN-006` | P4 | MUST | Generated projects **MUST** remain valid embedded-mode projects: a team **MAY** later add native code to them without losing any Plux capability. | DONE |
 
@@ -1973,7 +1973,7 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `QA-004` | P1 | MUST | Fuzzing **MUST** continuously cover the compiler, the bundle container and FlatBuffers verification (Go and Dart), manifest and metadata parsing, DPoP and attestation parsing, and PXL bytecode loading. | WIP |
 | `QA-005` | P2 | MUST | Integration tests **MUST** run the server against real PostgreSQL, object storage and Valkey (Testcontainers or Compose). | DONE |
 | `QA-006` | P3 | MUST | End-to-end tests **MUST** run the example host apps on Android emulators and iOS simulators in CI (Patrol or `integration_test`), and on a real-device farm nightly including at least one low-end Android device. | WIP |
-| `QA-007` | P3 | MUST | Performance benchmarks **MUST** run in CI and fail on regressions beyond 10% (20% for the runtime's size overhead, ADR-0036): runtime (init, page build, first frame, frame times, PXL, action overhead) in profile mode on reference devices; sync (bytes and time on simulated 3G); server (k6 load tests for manifest, functions, telemetry); Studio (Lighthouse CI and canvas frame-time tests). | WIP |
+| `QA-007` | P3 | MUST | Performance benchmarks **MUST** run in CI and fail on regressions beyond 10% (20% for the runtime's size overhead, ADR-0036): runtime (init, page build, first frame, frame times, PXL, action overhead) in profile mode on reference devices; sync (bytes and time on simulated 3G); server (k6 load tests for manifest, functions, telemetry); Studio (Playwright traces with `web-vitals` and canvas frame-time tests). | WIP |
 | `QA-008` | P6 | MUST | Security tests **MUST** include the DPoP and attestation negative suite (`SEC-029`), bundle tampering and rollback attacks, MASTG checks (`SEC-190`), OWASP ZAP baseline scans of Studio and the API, and authorisation matrix tests for every role and permission. | WIP |
 | `QA-009` | P3 | MUST | Failure-injection tests **MUST** cover network loss mid-download, corrupted and truncated deltas, disk full, process kill during activation, server errors and clock skew, and **MUST** prove the runtime always keeps a working release. | DONE |
 | `QA-010` | P3 | MUST | Compatibility tests **MUST** run the last three released runtime versions against the current server and new bundles, and the current runtime against bundles from the last three compiler versions. | WIP |
@@ -1994,7 +1994,7 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `CI-003` | P0 | MUST | Generated code (protobuf, FlatBuffers, JSON Schema types, widget decoders) **MUST** be committed and CI **MUST** fail if regeneration produces a diff. | DONE |
 | `CI-004` | P2 | MUST | Release artifacts **MUST** carry SLSA v1.0 Build Level 3 provenance and be signed keylessly with Sigstore cosign via CI OIDC. | DONE |
 | `CI-005` | P3 | MUST | Dart packages **MUST** be published to pub.dev by automated publishing with CI OIDC, never with personal credentials. | DONE |
-| `CI-006` | P0 | MUST | Go binaries **MUST** be built reproducibly (pinned toolchain, `-trimpath`, fixed build IDs) and CI **MUST** verify reproducibility for release builds. | DONE |
+| `CI-006` | P0 | MUST | Go binaries **MUST** be built reproducibly (pinned toolchain, `-trimpath`, fixed build IDs) and CI **MUST** verify reproducibility for release builds. The Studio build (Vite) is reproducible and verified like the Go binaries (ADR-0014). | DONE |
 | `CI-007` | P0 | MUST | Dependency updates **MUST** be automated (Renovate or Dependabot) with grouping and required review; new dependencies require justification per the dependency policy in the handbook. | DONE |
 | `CI-008` | P0 | MUST | Releases **MUST** be versioned per component with SemVer, generated changelogs and signed tags. | WIP |
 | `CI-009` | P0 | MUST | `main` **MUST** be protected: pull requests only, passing required checks, linear history, `CODEOWNERS` review for security-sensitive paths. | WIP |
@@ -2038,8 +2038,8 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `NFR-024` | P9 | MUST | Kill-switch / control propagation | ≤ 60 s p95 for online devices | DONE |
 | `NFR-025` | P6 | MUST | Gateway overhead and device-request verification at the server | gateway ≤ 5 ms p95 added per request, excluding the upstream's time, at 1,000 req/s per `api` replica (`SEC-031`); DPoP and access-token verification ≤ 1 ms p95 (`SEC-022`) | WIP |
 | `NFR-030` | P10 | MUST | Edit → paired device | ≤ 500 ms p95 (`DEV-010`). P10 measures from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile, and reports the server part separately; Studio's autosave joins the measurement in P11 | DONE |
-| `NFR-031` | P11 | MUST | Studio canvas frame rate | 60 fps with 100 screens / 200 plugins (`STU-120`) | SPEC |
-| `NFR-032` | P11 | MUST | Studio property change → canvas | ≤ 50 ms p95 (`STU-121`) | SPEC |
+| `NFR-031` | P11 | MUST | Studio canvas frame rate | 60 fps with 100 screens / 200 plugins (`STU-120`) | WIP |
+| `NFR-032` | P11 | MUST | Studio property change → canvas | ≤ 50 ms p95 (`STU-121`) | DONE |
 | `NFR-033` | P1 | MUST | Incremental validation of one page | ≤ 50 ms p95 (`SCH-042`) | DONE |
 | `NFR-040` | P9 | MUST | Availability of manifest and control endpoints (HA reference deployment) | 99.95% monthly | WIP |
 | `NFR-041` | P3 | MUST | Telemetry cost on device | < 1% battery, < 100 KiB/day typical (`ANL-002`) | WIP |
@@ -2061,13 +2061,13 @@ Every size and resource in Plux is governed by one limits framework. Limits are 
 | Scope | Limits (defaults in Appendix H) |
 |---|---|
 | **Release and bundles** | Total app release size; per-plugin bundle size; per-page section size; total and per-asset bytes; fonts; device function module size |
-| **Counts** | Plugins per app; pages per plugin; nodes per page; components; locales; translation keys; functions; data sources; experiments |
+| **Counts** | Plugins per app; pages per plugin; nodes per page; components; locales; translation keys; functions; data sources; experiments; tags per app or plugin |
 | **Device** | Device function time and memory; disk quota for releases; memory cache; local database size; outbox size; telemetry buffer; image cache |
 | **Server** | Function time, memory, input and output size, HTTP calls, call depth, key-value store and rate limits; function builds; publish frequency; AI usage; API rate limits; storage and retention |
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `LIM-001` | P2 | MUST | All limits **MUST** be defined in one registry with a key, unit, default, hard maximum and the scopes at which it can be set; the compiler, server, runtime and Studio **MUST** read limits from this registry rather than hard-coding values. | WIP |
+| `LIM-001` | P2 | MUST | All limits **MUST** be defined in one registry with a key, unit, default, hard maximum and the scopes at which it can be set; the compiler, server, runtime and Studio **MUST** read limits from this registry rather than hard-coding values. | DONE |
 | `LIM-002` | P2 | MUST | Limits **MUST** be configurable at installation, organisation, app and plugin level, and a lower level **MUST NOT** be able to raise a limit set above it. | DONE |
 | `LIM-003` | P2 | MUST | Publication **MUST** fail with a clear diagnostic when a release would exceed a limit, and **MUST** warn at 80% of any limit. | DONE |
 | `LIM-004` | P3 | MUST | Device-side limits **MUST** be delivered in the signed app bundle and enforced by the runtime, which **MUST** degrade gracefully (evict caches, pause telemetry, refuse new outbox entries with a typed error) rather than fail. | DONE |
@@ -2744,7 +2744,7 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 | `PLX-6000`–`6999` | Security | `PLX-6001` attestation failed · `PLX-6002` assurance level insufficient · `PLX-6003` key not hardware-backed · `PLX-6004` development provider in production · `PLX-6006` device revoked · `PLX-6010` DPoP proof invalid · `PLX-6011` DPoP replay detected · `PLX-6012` DPoP nonce required · `PLX-6013` token binding mismatch · `PLX-6015` replay cache unavailable · `PLX-6020` certificate pin mismatch · `PLX-6040` security configuration hash mismatch · `PLX-6041` setting loosens the profile · `PLX-6050` confidential bundle key unavailable · `PLX-6060`–`6064` gateway refusals · `PLX-6070`–`6073` SCA failures · `PLX-6080` fraud receipt unavailable · `PLX-6081` imported key invalid · `PLX-6100` RASP detection · `PLX-6200`–`6249` step-up, federation and sessions (`PLX-6200` step-up required, `PLX-6230` session revoked) |
 | `PLX-7000`–`7999` | Functions | `PLX-7001` timeout · `PLX-7002` memory limit exceeded · `PLX-7003` capability denied · `PLX-7004` output too large · `PLX-7005` call depth exceeded · `PLX-7010` egress refused · `PLX-7011` idempotency key conflict · `PLX-7014` device functions disabled · `PLX-7100` business error (carries function-defined code) · `PLX-7200` build failed · `PLX-7202` build script refused `PLX-7150`–`7199` function triggers (`PLX-7150` cron expression invalid) · further codes in the registry, ADR-0018 |
 | `PLX-8000`–`8999` | Governance | `PLX-8001` approval required · `PLX-8002` approval invalidated by content change · `PLX-8003` approver not eligible · `PLX-8004` approval expired · `PLX-8005` break-glass justification required · `PLX-8006` post-hoc review overdue · `PLX-8010` change freeze active · `PLX-8020` editing lock held by another user · `PLX-8030` permission denied · `PLX-8100`–`8149` roles, scoping and restriction policies · `PLX-8200`–`8249` experiments and flags (admin) · `PLX-8300`–`8349` analytics, telemetry and retention · `PLX-8400`–`8449` notifications and webhooks · `PLX-8500`–`8549` audit export, data-subject requests, reconstruction and Git export · `PLX-8600`–`8649` licence and edition |
-| `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9200`–`9229` dev sessions and pairing, server and CLI (`PLX-9200` session expired · `PLX-9201` pairing token expired · `PLX-9202` pairing token already used · `PLX-9203` environment not allowed for dev sessions · `PLX-9204` device not paired · `PLX-9205` socket ticket invalid · `PLX-9206` command not allowed · `PLX-9207` patch rejected by the compiler · `PLX-9208` session device limit reached · `PLX-9209` event too large) · `PLX-9230`–`9249` device-side devtools (`PLX-9230` dev bundle signature invalid · `PLX-9231` hot apply refused, incompatible state reset · `PLX-9232` command unsupported by this runtime · `PLX-9233` trace file unreadable) · `PLX-9300` golden harness failed |
+| `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9200`–`9229` dev sessions and pairing, server and CLI (`PLX-9200` session expired · `PLX-9201` pairing token expired · `PLX-9202` pairing token already used · `PLX-9203` environment not allowed for dev sessions · `PLX-9204` device not paired · `PLX-9205` socket ticket invalid · `PLX-9206` command not allowed · `PLX-9207` patch rejected by the compiler · `PLX-9208` session device limit reached · `PLX-9209` event too large) · `PLX-9230`–`9249` device-side devtools (`PLX-9230` dev bundle signature invalid · `PLX-9231` hot apply refused, incompatible state reset · `PLX-9232` command unsupported by this runtime · `PLX-9233` trace file unreadable) · `PLX-9300` golden harness failed · `PLX-9400`–`9499` Studio and its BFF: `PLX-9400`–`9419` BFF (session expired, CSRF, CSP report, upstream unavailable, rate limited, version mismatch) · `PLX-9420`–`9449` editing (lock lost, takeover refused, autosave conflict, replay limit, clipboard too large, paste from an unreadable organisation) · `PLX-9450`–`9469` release requests and visual diffs · `PLX-9470`–`9489` library (scan failed, version not adoptable, override of a removed prop) · `PLX-9490`–`9499` language services |
 
 ---
 
@@ -2912,6 +2912,19 @@ devSession:
   idleTimeout: "120s"                # a socket that carries no frame, pings included, for this long is closed
   pingInterval: "30s"
   # The Helm chart's ingress for the api role allows the WebSocket upgrade and keeps an idle upgraded connection open at least as long as idleTimeout (DEP-003)
+# The Studio BFF (§21, ADR-0014). It holds no session state and no secret. Requests per minute,
+# streams per session and telemetry events per minute are the limits bff.requestsPerMinute,
+# bff.streamsPerSession and bff.telemetryEventsPerMinute (§30.4).
+studioBff:
+  publicBaseUrl: "https://studio.example.com"  # used for the OpenID Connect redirect URI and the SAML assertion consumer URL
+  apiUpstream: "http://plux-api:8080"           # the api role the BFF proxies to
+  maxStreamConnections: 1000                    # open event and device streams, all sessions together
+  drainTimeout: "30s"                           # graceful drain: stop accepting, let open streams finish
+  telemetry:
+    enabled: true
+    sampleRate: 1.0                             # fraction of browser telemetry events kept
+  # /livez reports the process; /readyz also checks the API upstream
+  # The development catalogue page is always off in production builds
 ai:
   enabled: true
   provider: "ollama"
@@ -3052,14 +3065,14 @@ await Plux.sync();                                 // manual sync
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `brand.ink` | `#0F1222` | `#F5F6FA` | Wordmark letters, primary text |
-| `brand.violet` | `#5B3DF5` | `#8B74FF` | The x, primary actions, selection, arrows |
-| `brand.violet.subtle` | `#EEEAFE` | `#2A2250` | Selected items, lane labels |
-| `brand.mint` | `#12B886` | `#38D9A9` | Success |
-| `brand.amber` | `#F59F00` | `#FFC53D` | Warnings |
-| `brand.surface` | `#F7F8FB` | `#0B0D17` | Canvas background |
+| `brand.ink` | `#0F1222` | `#F5F6FA` | Wordmark letters |
+| `brand.violet` | `#5B3DF5` | `#8B74FF` | The x, brand accents |
+| `brand.violet.subtle` | `#EEEAFE` | `#2A2250` | Brand accents, lane labels |
+| `brand.mint` | `#12B886` | `#38D9A9` | Brand accent |
+| `brand.amber` | `#F59F00` | `#FFC53D` | Brand accent |
+| `brand.surface` | `#F7F8FB` | `#0B0D17` | Brand surface |
 
-Studio, the documentation site and the reference apps use these tokens (`STU-016`). The wordmark files live in `docs/assets/brand/`.
+The brand tokens are the wordmark and the brand accents; the documentation site and the reference apps use them (`STU-016`). Studio's interface uses the derived, contrast-measured scales of the Studio UI language ([`studio-ui-language.md`](engineering/studio-ui-language.md)), which keep the wordmark and accents as Appendix J defines them: primary text is `navy.900`; success and warning text are `green.700` and `amber.800` (the mint and amber accents fail 4.5:1 as text on white); the canvas background is `porcelain.100`; arrows are navy at rest and violet only when hovered or selected. The wordmark files live in `docs/assets/brand/`.
 
 ---
 
@@ -3121,10 +3134,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.9.0 |
+| Version | 1.10.0 |
 | Status | Draft (living document) |
-| Date | 2026-10-22 |
-| Supersedes | 1.8.0 |
+| Date | 2026-10-24 |
+| Supersedes | 1.9.0 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3159,3 +3172,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.7.0 | 2026-10-18 | P9 plan decisions (maintainer, 2026-10-18; P9 plan §2.1; ADR-0072): §5 adds Phase P16 "Super-app and partner mini-apps" (M4, after P15), and `HST-020` moves to it; `SEC-191` moves to P12 (before Plux 1.0); `DX-005` and `DEP-060` are `WITHDRAWN`. §15.12 names the settings `publishApprovals`, `requiredTests` and `experimentApproval`; §18.2 states the default approval policy per security profile and the 24 h break-glass review default; Appendix F lists the new P9 ranges; Appendix G.2 adds `fatal_error`, `flag_evaluated` and `control_applied` and states the consent category of the session, health, exposure and control events. |
 | 1.8.0 | 2026-10-21 | Restriction policies (maintainer, 2026-10-21; ADR-0086): new `GOV-006` (restrictions as ceilings over grants, deny wins, last-owner guard, row-level security for app-wide restrictions) and `GOV-007` (effective permissions, change notices, explain and simulate); `GOV-002` adds the area → feature → action grouping of the permission catalogue. |
 | 1.9.0 | 2026-10-22 | P10 plan decisions (maintainer, 2026-10-22; P10 plan §2.1 D-1 to D-11; ADR-0087 to ADR-0093): the Studio-written rows are split (D-3, ADR-0088) — `DEV-002` binds the pairing token to "the user who creates the session", and `DEV-011`, `DEV-030`, `DEV-031`, `DEV-032` and `DEV-033` state the device, server and CLI capability (P10), each with a new P11 row for the Studio interaction (`STU-130`–`STU-134`, new §21.13); `DEV-010` and `DEV-021` stay whole as properties of the channel. `DEV-010` and `NFR-030` give the P10 measurement method — from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile — and Studio's autosave joins in P11 (D-4). `DEV-001` runs `plux_security` report-only in development environments, with simulated detections (D-8, ADR-0091, ADR-0057 Revision). §20 states the transport: a WebSocket device channel served with `github.com/coder/websocket`, unary ConnectRPC for every command, a DPoP-bound short-lived socket ticket, development-signed dev bundles verified against pinned development roots, the CLI as a second client in the sequence diagram, the permissions `devsession.create` and `devsession.observe`, and step-up only when the organisation's policy requires it (D-1, D-2, D-5; ADR-0087, ADR-0075 Revision). `SYN-014` is re-tagged from P3 to P10 with its deferral recorded (D-9, ADR-0092). Appendix F lists `PLX-9200`–`9209`, `PLX-9230`–`9233` and `PLX-3500`–`3503`; Appendix H adds the `devSession` configuration and `PluxConfig.backgroundSync`; Appendix K is recounted from the requirement tables after the split and the re-tag, which also corrects figures that had fallen behind the tables and adds Phase P16. §6.3 names the CLI as a client of `devsession/`. No `Status` cell changes. |
+| 1.10.0 | 2026-10-24 | P11 plan wording (maintainer, 2026-10-24; P11 plan §2.3 O-5, O-12 to O-14, O-19; ADR-0013, ADR-0014, ADR-0026 Revision, ADR-0073 Revision, ADR-0098, ADR-0100): `STU-001` names shadcn/ui on Base UI, Vite on the Bun runtime and CodeMirror 6 beside Monaco, and the §3 technology table follows (Radix is dropped); `STU-002` has the server sign in and hold the sessions while the BFF keeps no session state, serves the sign-in pages, hosts the OpenID Connect callback and SAML assertion consumer and passes the session cookie and CSRF token through; `STU-006` shapes text with SkParagraph at the pinned Skia revision; `STU-010` replaces the 12–20 px radius tokens with 18–24 px on panels, cards and dialogs, full pills on controls and smaller radii only for small elements; `STU-024`, `STU-055` and `STU-060` mark their AI entry points as arriving with P12; `STU-115` has Studio show signing keys and certificate pins with their rotation state and link the key-ceremony runbook, and manage capability grants and the security profile; the §21 Functions area has a Rust editor; `GOV-002` and `GOV-003` map every Studio command to the server permission that guards its RPC, add a permission with its server check where none covers a command, treat interface-only switches as settings, and name `library.manage` and `library.publish`; `CI-006` extends reproducible builds to the Studio build; `QA-007` replaces Lighthouse CI with Playwright traces with `web-vitals`. Appendix J limits the brand tokens to the wordmark and brand accents and points Studio's interface at the derived UI-language scales (arrows navy at rest, violet when hovered or selected; `navy.900` text, `green.700` and `amber.800` status text, `porcelain.100` canvas). Appendix F allocates `PLX-9400`–`9499` to Studio and its BFF with sub-ranges; Appendix H adds the `studioBff` configuration. Appendix K needs no recount: no requirement row is added or removed. No `Status` cell changes. |

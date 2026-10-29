@@ -1,0 +1,38 @@
+{
+  "name": "flex-overflow",
+  "root": {
+    "id": "row",
+    "type": "Flex",
+    "props": {
+      "direction": "horizontal",
+      "mainAxisAlignment": "center",
+      "expectOverflow": true
+    },
+    "children": [
+      {
+        "id": "a",
+        "type": "TestBox",
+        "props": {
+          "width": 300,
+          "height": 40
+        }
+      },
+      {
+        "id": "b",
+        "type": "TestBox",
+        "props": {
+          "width": 300,
+          "height": 40
+        }
+      },
+      {
+        "id": "c",
+        "type": "TestBox",
+        "props": {
+          "width": 300,
+          "height": 40
+        }
+      }
+    ]
+  }
+}

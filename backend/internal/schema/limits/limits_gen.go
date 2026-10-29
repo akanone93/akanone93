@@ -28,6 +28,11 @@ const (
 	// ActionTraceSteps: Steps one action run trace records; later steps are
 	// counted but not recorded. (ACT-030)
 	ActionTraceSteps Key = "action.traceSteps"
+	// AnalyticsFunnelScanEvents: Raw events one funnel result may scan; a result
+	// that would scan more fails and asks for a narrower range. (ANL-020)
+	AnalyticsFunnelScanEvents Key = "analytics.funnelScanEvents"
+	// AnalyticsFunnelSteps: Steps one funnel may have. (ANL-020)
+	AnalyticsFunnelSteps Key = "analytics.funnelSteps"
 	// AnimCompositedSubtree: Nodes below an animated opacity or layout prop
 	// before the compiler warns of an expensive animation. (ANI-008)
 	AnimCompositedSubtree Key = "anim.compositedSubtree"
@@ -55,12 +60,26 @@ const (
 	APIRequestsPerMinutePerDevice Key = "api.requestsPerMinutePerDevice"
 	// AppFunctions: Functions per app. (LIM-001)
 	AppFunctions Key = "app.functions"
+	// AppHostFonts: Font files of the host app that one app lists for Studio's
+	// canvas. (STU-006)
+	AppHostFonts Key = "app.hostFonts"
 	// AppLocales: Locales one app may declare. (I18N-002)
 	AppLocales Key = "app.locales"
 	// AppPlugins: Plugins per app. (SCH-005)
 	AppPlugins Key = "app.plugins"
+	// AppSummariesPerCall: Apps one summary call returns; a longer list is
+	// paged. (STU-022)
+	AppSummariesPerCall Key = "app.summariesPerCall"
 	// AppTranslationKeys: Translation keys one app may declare. (I18N-007)
 	AppTranslationKeys Key = "app.translationKeys"
+	// ArchiveBytes: Size of a .plux archive the server accepts for import.
+	// (STU-023, STU-024)
+	ArchiveBytes Key = "archive.bytes"
+	// ArchiveEntries: Files in one .plux archive. (STU-023, STU-024)
+	ArchiveEntries Key = "archive.entries"
+	// ArchiveExpandedBytes: Total size of the files in one .plux archive after
+	// unzipping. (STU-023, STU-024)
+	ArchiveExpandedBytes Key = "archive.expandedBytes"
 	// AssetFileSize: Size of one asset file, checked at upload and again at
 	// publish. (SRV-060, AST-003)
 	AssetFileSize Key = "asset.fileSize"
@@ -68,6 +87,12 @@ const (
 	// before it is decoded so that a small file cannot expand into a huge image.
 	// (SRV-060, CMP-030)
 	AssetImagePixels Key = "asset.imagePixels"
+	// AssetUploadChunkBytes: Bytes in one chunk of a chunked asset upload; a
+	// larger chunk is refused. (SRV-060)
+	AssetUploadChunkBytes Key = "asset.uploadChunkBytes"
+	// AssetUploadSessionTtl: Time an unfinished chunked upload is kept after its
+	// last chunk before it expires. (SRV-060)
+	AssetUploadSessionTtl Key = "asset.uploadSessionTtl"
 	// AttestAppAttestObjectBytes: Size of an App Attest attestation object or
 	// assertion. (SEC-004)
 	AttestAppAttestObjectBytes Key = "attest.appAttestObjectBytes"
@@ -126,6 +151,15 @@ const (
 	// AuthStepUpAttempts: Ceremonies one step-up request accepts before it is
 	// closed; each wrong assertion uses one. (SEC-103)
 	AuthStepUpAttempts Key = "auth.stepUpAttempts"
+	// BffRequestsPerMinute: Requests the Studio BFF accepts per session per
+	// minute before it answers 429. (STU-002)
+	BffRequestsPerMinute Key = "bff.requestsPerMinute"
+	// BffStreamsPerSession: Server streams the Studio BFF keeps open per session
+	// at once. (STU-002)
+	BffStreamsPerSession Key = "bff.streamsPerSession"
+	// BffTelemetryEventsPerMinute: Telemetry events the Studio BFF accepts per
+	// session per minute; the rest are dropped and counted. (OBS-001)
+	BffTelemetryEventsPerMinute Key = "bff.telemetryEventsPerMinute"
 	// BundleDeviceFunctionModuleSize: Size of the WebAssembly module of the
 	// device-placed functions of one plugin. (FN-050)
 	BundleDeviceFunctionModuleSize Key = "bundle.deviceFunctionModuleSize"
@@ -139,6 +173,15 @@ const (
 	// BundleVerifierTables: Maximum number of tables and vectors the FlatBuffers
 	// verifier visits in one section. (BND-006, QA-004)
 	BundleVerifierTables Key = "bundle.verifierTables"
+	// CanvasFrameMembers: Plugins one frame of a canvas document may group.
+	// (STU-032, STU-035, STU-050)
+	CanvasFrameMembers Key = "canvas.frameMembers"
+	// CanvasFrames: Frames one canvas document may hold. (STU-032, STU-035,
+	// STU-050)
+	CanvasFrames Key = "canvas.frames"
+	// CanvasPositions: Box positions one canvas document may hold. (STU-032,
+	// STU-035, STU-050)
+	CanvasPositions Key = "canvas.positions"
 	// ConfidentialBundleBytes: Bytes of confidential content one confidential
 	// bundle may hold. (SEC-053, LIM-004)
 	ConfidentialBundleBytes Key = "confidential.bundleBytes"
@@ -232,6 +275,10 @@ const (
 	// DevSessionDevicesPerSession: Devices that may be paired to one dev session
 	// at the same time. (DEV-002)
 	DevSessionDevicesPerSession Key = "devSession.devicesPerSession"
+	// DevSessionDraftCompileWorkers: Studio draft compiles one replica runs at
+	// the same time; writes to the same plugin that arrive meanwhile coalesce
+	// into one further compile. (STU-130)
+	DevSessionDraftCompileWorkers Key = "devSession.draftCompileWorkers"
 	// DevSessionIdleMinutes: Minutes without any device event or command after
 	// which the server ends a dev session. (DEV-001)
 	DevSessionIdleMinutes Key = "devSession.idleMinutes"
@@ -248,6 +295,9 @@ const (
 	// DevSessionPatchBytes: Size of the document patches of one PushPatch call.
 	// (DEV-010)
 	DevSessionPatchBytes Key = "devSession.patchBytes"
+	// DevSessionPatchLogBytes: Bytes of patches one CLI dev session keeps in its
+	// log; a push beyond it is refused until the session restarts. (DEV-010)
+	DevSessionPatchLogBytes Key = "devSession.patchLogBytes"
 	// DeviceClipboardChars: Characters copyToClipboard may put on the clipboard
 	// in one step. (SEC-080, LIM-004)
 	DeviceClipboardChars Key = "device.clipboardChars"
@@ -292,8 +342,22 @@ const (
 	// ExperimentsActivePerApp: Experiments that may be running at once in one
 	// app. (ABT-001)
 	ExperimentsActivePerApp Key = "experiments.activePerApp"
+	// ExperimentsAttributesPerTargeting: Attribute conditions one experiment may
+	// add to its targeting; all must hold. (ABT-001)
+	ExperimentsAttributesPerTargeting Key = "experiments.attributesPerTargeting"
+	// ExperimentsGuardrailMetrics: Guardrail metrics one experiment may have.
+	// (ABT-003)
+	ExperimentsGuardrailMetrics Key = "experiments.guardrailMetrics"
+	// ExperimentsPrimaryMetrics: Primary metrics one experiment may have, the
+	// lead metric included. (ABT-003)
+	ExperimentsPrimaryMetrics Key = "experiments.primaryMetrics"
+	// ExperimentsSegmentsPerTargeting: Segments one experiment may target; a
+	// device in any of them is eligible. (ABT-001)
+	ExperimentsSegmentsPerTargeting Key = "experiments.segmentsPerTargeting"
 	// FlagsPerApp: Feature flags one app may define. (ABT-001)
 	FlagsPerApp Key = "flags.perApp"
+	// FlagsSegmentValues: Per-segment values one flag may have. (ABT-006)
+	FlagsSegmentValues Key = "flags.segmentValues"
 	// FunctionBuildMemory: Memory one function build may use. (FN-016)
 	FunctionBuildMemory Key = "function.buildMemory"
 	// FunctionBuildTimeout: Wall-clock time one function build may run. (FN-016)
@@ -390,14 +454,48 @@ const (
 	// HTTPResponseSize: Size of a response the server reads when it fetches a
 	// URL, such as an identity provider's keys. (SEC-104, SEC-105)
 	HTTPResponseSize Key = "http.responseSize"
+	// LibraryItemsPerOrganization: Templates and components one organisation may
+	// keep in its library. (STU-080, STU-084)
+	LibraryItemsPerOrganization Key = "library.itemsPerOrganization"
+	// LibraryVersionsPerItem: Versions one template or component may have; older
+	// versions an app adopted are kept. (STU-080, STU-084)
+	LibraryVersionsPerItem Key = "library.versionsPerItem"
+	// LspMessageBytes: Size of one language-server message the Rust editor sends
+	// to its sandbox; a document the editor opens must fit. (FN-033)
+	LspMessageBytes Key = "lsp.messageBytes"
+	// LspSessionMinutes: Minutes one language-server sandbox may run before it
+	// is stopped. (STU-110)
+	LspSessionMinutes Key = "lsp.sessionMinutes"
+	// LspSessionsPerOrganization: Language-server sandboxes of the Rust editor
+	// running at once in one organisation. (STU-110)
+	LspSessionsPerOrganization Key = "lsp.sessionsPerOrganization"
 	// MediaPinnedDownloadSize: Largest network video or audio file the player
 	// downloads through the pinned client when the security setting
 	// pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned
 	// client). (SEC-041)
 	MediaPinnedDownloadSize Key = "media.pinnedDownloadSize"
+	// MetadataDescriptionLength: Length of the description of an app or a
+	// plugin. (STU-034)
+	MetadataDescriptionLength Key = "metadata.descriptionLength"
+	// MetadataIconIDLength: Length of the asset identifier an app or a plugin
+	// uses as its icon. (STU-034)
+	MetadataIconIDLength Key = "metadata.iconIdLength"
+	// MetadataTagLength: Length of one tag on an app or a plugin. (STU-034)
+	MetadataTagLength Key = "metadata.tagLength"
+	// MetadataTagsPerItem: Tags one app or one plugin may carry. (STU-034)
+	MetadataTagsPerItem Key = "metadata.tagsPerItem"
+	// NotificationsParamBytes: Largest value of one display parameter of a
+	// notification; an event with a larger one is refused. (SRV-062)
+	NotificationsParamBytes Key = "notifications.paramBytes"
+	// NotificationsParamsPerEvent: Display parameters one notification event may
+	// carry; an event with more is refused. (SRV-062)
+	NotificationsParamsPerEvent Key = "notifications.paramsPerEvent"
 	// NotificationsPerHour: Notifications one organisation may send in an hour
 	// across all channels; the excess is dropped and audited. (SRV-062)
 	NotificationsPerHour Key = "notifications.perHour"
+	// NotificationsRetentionDays: Days an inbox notification is kept before it
+	// is deleted. (SRV-062)
+	NotificationsRetentionDays Key = "notifications.retentionDays"
 	// PageAnimations: Animations that can run at the same time on one page.
 	// (CMP-040)
 	PageAnimations Key = "page.animations"
@@ -416,6 +514,11 @@ const (
 	PluginAssetBytes Key = "plugin.assetBytes"
 	// PluginPages: Pages per plugin. (SCH-005)
 	PluginPages Key = "plugin.pages"
+	// ProjectBytes: Size of a generated host project (zip). (GEN-001, GEN-004)
+	ProjectBytes Key = "project.bytes"
+	// ProjectJobsPerHour: Project generation jobs one app may queue per hour.
+	// (GEN-001, GEN-004)
+	ProjectJobsPerHour Key = "project.jobsPerHour"
 	// PublishAssetWait: Time a publish waits, from when it was queued, for the
 	// app's image assets to finish processing before it fails. (CMP-030,
 	// REL-003)
@@ -459,6 +562,24 @@ const (
 	// ReleaseAppSize: Total size of one app release: the app bundle and every
 	// plugin bundle. (BND-010)
 	ReleaseAppSize Key = "release.appSize"
+	// RenderVisualDiffJobsPerOrganization: Visual-diff render jobs of one
+	// organisation running at once; further jobs wait in the queue. (STU-100)
+	RenderVisualDiffJobsPerOrganization Key = "render.visualDiffJobsPerOrganization"
+	// ReplayBytesPerReplay: The size of one structural session replay after
+	// encoding; the runtime stops recording at it and the server refuses a
+	// larger replay (ANL-050). (ANL-050)
+	ReplayBytesPerReplay Key = "replay.bytesPerReplay"
+	// ReplayEventsPerReplay: Events (screens, layout snapshots, taps, inputs and
+	// state changes) in one structural session replay; the runtime stops
+	// recording at it and the server refuses more (ANL-050). (ANL-050)
+	ReplayEventsPerReplay Key = "replay.eventsPerReplay"
+	// ReplayPerDevicePerDay: Structural session replays one device may upload in
+	// a day; the runtime records no more and the server refuses the surplus
+	// (ANL-050). (ANL-050)
+	ReplayPerDevicePerDay Key = "replay.perDevicePerDay"
+	// ReplayRetentionDays: Days a structural session replay is kept; older
+	// replays are deleted by the retention sweep (ANL-050). (ANL-050)
+	ReplayRetentionDays Key = "replay.retentionDays"
 	// RolloutsActivePerApp: Staged rollouts that may be in progress at once in
 	// one app. (REL-050)
 	RolloutsActivePerApp Key = "rollouts.activePerApp"
@@ -493,6 +614,54 @@ const (
 	// runtime's local store (plain; secure state is the encrypted one, plan p5
 	// B6); writes beyond it stay in memory and are reported. (STA-003, LIM-004)
 	StateSecureBytes Key = "state.secureBytes"
+	// StudioAutosaveDebounceMs: Quiet time after the last edit before Studio
+	// autosaves the change as a JSON Patch. (STU-004)
+	StudioAutosaveDebounceMs Key = "studio.autosaveDebounceMs"
+	// StudioAutosaveReplays: Times Studio replays an autosave on a newer
+	// revision after a conflict before it asks the user. (STU-004)
+	StudioAutosaveReplays Key = "studio.autosaveReplays"
+	// StudioChangeSetDocuments: Documents one atomic change set may write across
+	// the drafts of an app (moving a screen with its links, redirecting incoming
+	// links). (STU-055, STU-070)
+	StudioChangeSetDocuments Key = "studio.changeSetDocuments"
+	// StudioClipboardBytes: Size of one Studio clipboard envelope; a larger copy
+	// is refused. (STU-067)
+	StudioClipboardBytes Key = "studio.clipboardBytes"
+	// StudioCustomFrameMaxDensity: Largest pixel density of a custom device
+	// frame (D40); the smallest is 1. (STU-057)
+	StudioCustomFrameMaxDensity Key = "studio.customFrameMaxDensity"
+	// StudioCustomFrameMaxPixels: Largest width or height, in logical pixels, of
+	// a custom device frame (D40); a larger frame is refused. (STU-057)
+	StudioCustomFrameMaxPixels Key = "studio.customFrameMaxPixels"
+	// StudioEventsStreamBufferEvents: Events the server keeps per Studio events
+	// stream for resumption before it drops the oldest and the tab reloads its
+	// state. (STU-075)
+	StudioEventsStreamBufferEvents Key = "studio.eventsStreamBufferEvents"
+	// StudioFavouriteApps: Apps one user may mark as favourites in an
+	// organisation's Studio preferences. (STU-014)
+	StudioFavouriteApps Key = "studio.favouriteApps"
+	// StudioLockIdleReleaseMinutes: Minutes without an edit after which Studio
+	// releases an editing lock it holds. (SRV-040)
+	StudioLockIdleReleaseMinutes Key = "studio.lockIdleReleaseMinutes"
+	// StudioLockTakeoverIdleMinutes: Minutes the lock holder must have made no
+	// edit before another user may take the lock over; a lapsed lease allows it
+	// at once. (SRV-041)
+	StudioLockTakeoverIdleMinutes Key = "studio.lockTakeoverIdleMinutes"
+	// StudioPinnedItems: Studio paths one user may pin in an organisation's
+	// Studio preferences. (STU-014)
+	StudioPinnedItems Key = "studio.pinnedItems"
+	// StudioPreferencesBytes: Bytes of one user's stored Studio preferences in
+	// an organisation, as JSON. (STU-014)
+	StudioPreferencesBytes Key = "studio.preferencesBytes"
+	// StudioThumbnailBytes: Size of one canvas or screen thumbnail Studio
+	// uploads. (STU-021)
+	StudioThumbnailBytes Key = "studio.thumbnailBytes"
+	// StudioUndoDepth: Undo steps kept per editor session and plugin. (STU-069)
+	StudioUndoDepth Key = "studio.undoDepth"
+	// StudioUserEventsTTLMinutes: Minutes a person's Studio events log (inbox
+	// unread count) is kept after its last event, so a tab that was away that
+	// long reloads its state. (STU-075)
+	StudioUserEventsTTLMinutes Key = "studio.userEventsTTLMinutes"
 	// SyncBackgroundIntervalMinutes: Minutes between background syncs the
 	// runtime asks the operating system for; the runtime refuses less than 15
 	// minutes, the least the platforms grant. (SYN-014)
@@ -516,6 +685,9 @@ const (
 	// TelemetryExportFileRows: Rows one Parquet file of the enterprise analytics
 	// export holds; a longer window is written as several files. (ANL-011)
 	TelemetryExportFileRows Key = "telemetry.exportFileRows"
+	// TestStepsPerRun: Scenarios and steps one reported Plux Test run may
+	// contain. (TST-002)
+	TestStepsPerRun Key = "test.stepsPerRun"
 	// TranslationImportSize: Size of one translation import file. (I18N-009)
 	TranslationImportSize Key = "translation.importSize"
 	// TranslationMessageSize: Size of one translation message. (I18N-001)
@@ -538,6 +710,8 @@ var registry = [...]Definition{
 	{Key: ActionStepsPerRun, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P4", Description: "Steps one action run may execute."},
 	{Key: ActionTraceRuns, Unit: UnitCount, Default: 50, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Action run traces the runtime keeps for diagnostics; the oldest are dropped first."},
 	{Key: ActionTraceSteps, Unit: UnitCount, Default: 200, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Steps one action run trace records; later steps are counted but not recorded."},
+	{Key: AnalyticsFunnelScanEvents, Unit: UnitCount, Default: 500000, Warning: 0, Max: 5000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Raw events one funnel result may scan; a result that would scan more fails and asks for a narrower range."},
+	{Key: AnalyticsFunnelSteps, Unit: UnitCount, Default: 10, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Steps one funnel may have."},
 	{Key: AnimCompositedSubtree, Unit: UnitCount, Default: 40, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Nodes below an animated opacity or layout prop before the compiler warns of an expensive animation."},
 	{Key: AnimKeyframesPerTrack, Unit: UnitCount, Default: 64, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Keyframes of one track of a timeline."},
 	{Key: AnimSimultaneousTimelines, Unit: UnitCount, Default: 6, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P5", Description: "Timelines of one page that autoplay or follow a driver before the compiler warns."},
@@ -548,11 +722,18 @@ var registry = [...]Definition{
 	{Key: APIRequestsPerMinutePerAddress, Unit: UnitCount, Default: 300, Warning: 0, Max: 100000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one client address may make per minute, whoever is calling."},
 	{Key: APIRequestsPerMinutePerDevice, Unit: UnitCount, Default: 120, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one registered device may make per minute."},
 	{Key: AppFunctions, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Functions per app."},
+	{Key: AppHostFonts, Unit: UnitCount, Default: 32, Warning: 0, Max: 256, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Font files of the host app that one app lists for Studio's canvas."},
 	{Key: AppLocales, Unit: UnitCount, Default: 50, Warning: 0, Max: 300, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Locales one app may declare."},
 	{Key: AppPlugins, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Plugins per app."},
+	{Key: AppSummariesPerCall, Unit: UnitCount, Default: 100, Warning: 0, Max: 500, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one summary call returns; a longer list is paged."},
 	{Key: AppTranslationKeys, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Translation keys one app may declare."},
+	{Key: ArchiveBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of a .plux archive the server accepts for import."},
+	{Key: ArchiveEntries, Unit: UnitCount, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Files in one .plux archive."},
+	{Key: ArchiveExpandedBytes, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Total size of the files in one .plux archive after unzipping."},
 	{Key: AssetFileSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Size of one asset file, checked at upload and again at publish."},
 	{Key: AssetImagePixels, Unit: UnitCount, Default: 40000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image."},
+	{Key: AssetUploadChunkBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes in one chunk of a chunked asset upload; a larger chunk is refused."},
+	{Key: AssetUploadSessionTtl, Unit: UnitMilliseconds, Default: 3600000, Warning: 0, Max: 86400000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Time an unfinished chunked upload is kept after its last chunk before it expires."},
 	{Key: AttestAppAttestObjectBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 262144, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of an App Attest attestation object or assertion."},
 	{Key: AttestKeyAttestationChainCerts, Unit: UnitCount, Default: 10, Warning: 0, Max: 16, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Certificates an Android Key Attestation chain may hold."},
 	{Key: AttestPlayIntegrityTokenBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 65536, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a Play Integrity token the server accepts."},
@@ -571,11 +752,17 @@ var registry = [...]Definition{
 	{Key: AuthSessionIdleTimeout, Unit: UnitMilliseconds, Default: 1800000, Warning: 0, Max: 86400000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Time without a request after which a browser session ends; an organisation may shorten it."},
 	{Key: AuthSimulatePerMinute, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Explain calls with a proposed grant or restriction one principal may make per minute; each evaluates the resolver on a state that does not exist."},
 	{Key: AuthStepUpAttempts, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one."},
+	{Key: BffRequestsPerMinute, Unit: UnitCount, Default: 1200, Warning: 0, Max: 100000, Scopes: ScopeInstallation, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Requests the Studio BFF accepts per session per minute before it answers 429."},
+	{Key: BffStreamsPerSession, Unit: UnitCount, Default: 8, Warning: 0, Max: 64, Scopes: ScopeInstallation, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Server streams the Studio BFF keeps open per session at once."},
+	{Key: BffTelemetryEventsPerMinute, Unit: UnitCount, Default: 120, Warning: 0, Max: 10000, Scopes: ScopeInstallation, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Telemetry events the Studio BFF accepts per session per minute; the rest are dropped and counted."},
 	{Key: BundleDeviceFunctionModuleSize, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of the device-placed functions of one plugin."},
 	{Key: BundlePageSectionSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one page section in a bundle."},
 	{Key: BundlePluginSize, Unit: UnitBytes, Default: 20971520, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one plugin bundle."},
 	{Key: BundleVerifierDepth, Unit: UnitCount, Default: 64, Warning: 0, Max: 256, Scopes: ScopeInstallation, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Maximum nesting of tables the FlatBuffers verifier accepts in one section."},
 	{Key: BundleVerifierTables, Unit: UnitCount, Default: 1000000, Warning: 0, Max: 10000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Maximum number of tables and vectors the FlatBuffers verifier visits in one section."},
+	{Key: CanvasFrameMembers, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P11", Description: "Plugins one frame of a canvas document may group."},
+	{Key: CanvasFrames, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P11", Description: "Frames one canvas document may hold."},
+	{Key: CanvasPositions, Unit: UnitCount, Default: 1000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P11", Description: "Box positions one canvas document may hold."},
 	{Key: ConfidentialBundleBytes, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of confidential content one confidential bundle may hold."},
 	{Key: ConfigValueBytes, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of one server-held configuration value."},
 	{Key: ConfigValuesPerEnvironment, Unit: UnitCount, Default: 256, Warning: 0, Max: 4096, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Server-held configuration values one environment holds."},
@@ -605,11 +792,13 @@ var registry = [...]Definition{
 	{Key: DBRecordBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes one record of a local collection may take, encoded as JSON."},
 	{Key: DevSessionCommandsPerMinute, Unit: UnitCount, Default: 120, Warning: 0, Max: 1200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Commands one dev session may send to its devices per minute."},
 	{Key: DevSessionDevicesPerSession, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Devices that may be paired to one dev session at the same time."},
+	{Key: DevSessionDraftCompileWorkers, Unit: UnitCount, Default: 4, Warning: 0, Max: 64, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile."},
 	{Key: DevSessionIdleMinutes, Unit: UnitCount, Default: 30, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Minutes without any device event or command after which the server ends a dev session."},
 	{Key: DevSessionLifetimeMinutes, Unit: UnitCount, Default: 480, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a dev session, in minutes, from its creation."},
 	{Key: DevSessionPairingCodeAttempts, Unit: UnitCount, Default: 5, Warning: 0, Max: 5, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes."},
 	{Key: DevSessionPairingTokenSeconds, Unit: UnitCount, Default: 120, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows."},
 	{Key: DevSessionPatchBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Size of the document patches of one PushPatch call."},
+	{Key: DevSessionPatchLogBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes of patches one CLI dev session keeps in its log; a push beyond it is refused until the session restarts."},
 	{Key: DeviceClipboardChars, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Characters copyToClipboard may put on the clipboard in one step."},
 	{Key: DeviceDiskQuota, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Disk space the runtime may use for releases on one device."},
 	{Key: DevicePickCount, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Files a single pickImage or pickFile step may return."},
@@ -625,7 +814,12 @@ var registry = [...]Definition{
 	{Key: DPOPReplayCacheEntries, Unit: UnitCount, Default: 1000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Proof identifiers the DPoP replay cache holds."},
 	{Key: DsrExportBytes, Unit: UnitBytes, Default: 268435456, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Size of one data subject export archive."},
 	{Key: ExperimentsActivePerApp, Unit: UnitCount, Default: 20, Warning: 0, Max: 500, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Experiments that may be running at once in one app."},
+	{Key: ExperimentsAttributesPerTargeting, Unit: UnitCount, Default: 20, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Attribute conditions one experiment may add to its targeting; all must hold."},
+	{Key: ExperimentsGuardrailMetrics, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Guardrail metrics one experiment may have."},
+	{Key: ExperimentsPrimaryMetrics, Unit: UnitCount, Default: 3, Warning: 0, Max: 10, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Primary metrics one experiment may have, the lead metric included."},
+	{Key: ExperimentsSegmentsPerTargeting, Unit: UnitCount, Default: 10, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Segments one experiment may target; a device in any of them is eligible."},
 	{Key: FlagsPerApp, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Feature flags one app may define."},
+	{Key: FlagsSegmentValues, Unit: UnitCount, Default: 20, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Per-segment values one flag may have."},
 	{Key: FunctionBuildMemory, Unit: UnitBytes, Default: 4294967296, Warning: 0, Max: 17179869184, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Memory one function build may use."},
 	{Key: FunctionBuildTimeout, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one function build may run."},
 	{Key: FunctionCallDepth, Unit: UnitCount, Default: 3, Warning: 0, Max: 3, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Depth of nested function-to-function calls within one invocation."},
@@ -660,8 +854,20 @@ var registry = [...]Definition{
 	{Key: GovernanceJustificationLength, Unit: UnitCodepoints, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the written justification of a break-glass action."},
 	{Key: GovernanceReportChanges, Unit: UnitCount, Default: 20000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Production changes one compliance report may list; a longer period is refused and is split into shorter ones."},
 	{Key: HTTPResponseSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 67108864, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."},
+	{Key: LibraryItemsPerOrganization, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Templates and components one organisation may keep in its library."},
+	{Key: LibraryVersionsPerItem, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Versions one template or component may have; older versions an app adopted are kept."},
+	{Key: LspMessageBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of one language-server message the Rust editor sends to its sandbox; a document the editor opens must fit."},
+	{Key: LspSessionMinutes, Unit: UnitCount, Default: 60, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Minutes one language-server sandbox may run before it is stopped."},
+	{Key: LspSessionsPerOrganization, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Language-server sandboxes of the Rust editor running at once in one organisation."},
 	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},
+	{Key: MetadataDescriptionLength, Unit: UnitCodepoints, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Length of the description of an app or a plugin."},
+	{Key: MetadataIconIDLength, Unit: UnitCodepoints, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Length of the asset identifier an app or a plugin uses as its icon."},
+	{Key: MetadataTagLength, Unit: UnitCodepoints, Default: 40, Warning: 0, Max: 200, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Length of one tag on an app or a plugin."},
+	{Key: MetadataTagsPerItem, Unit: UnitCount, Default: 20, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Tags one app or one plugin may carry."},
+	{Key: NotificationsParamBytes, Unit: UnitBytes, Default: 1024, Warning: 0, Max: 8192, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Largest value of one display parameter of a notification; an event with a larger one is refused."},
+	{Key: NotificationsParamsPerEvent, Unit: UnitCount, Default: 16, Warning: 0, Max: 64, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Display parameters one notification event may carry; an event with more is refused."},
 	{Key: NotificationsPerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."},
+	{Key: NotificationsRetentionDays, Unit: UnitCount, Default: 90, Warning: 0, Max: 3650, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Days an inbox notification is kept before it is deleted."},
 	{Key: PageAnimations, Unit: UnitCount, Default: 30, Warning: 10, Max: 200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Animations that can run at the same time on one page."},
 	{Key: PageBuildCost, Unit: UnitMicroseconds, Default: 16000, Warning: 8000, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints."},
 	{Key: PageDepth, Unit: UnitCount, Default: 64, Warning: 32, Max: 128, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Depth of a page's node tree."},
@@ -669,6 +875,8 @@ var registry = [...]Definition{
 	{Key: PageNodes, Unit: UnitCount, Default: 5000, Warning: 1000, Max: 50000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Nodes in one page document. Above the warning threshold the compiler reports the page."},
 	{Key: PluginAssetBytes, Unit: UnitBytes, Default: 20971520, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Bytes of the asset files one plugin's pages and icon use, checked at publish."},
 	{Key: PluginPages, Unit: UnitCount, Default: 500, Warning: 0, Max: 2000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Pages per plugin."},
+	{Key: ProjectBytes, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 536870912, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of a generated host project (zip)."},
+	{Key: ProjectJobsPerHour, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Project generation jobs one app may queue per hour."},
 	{Key: PublishAssetWait, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P3", Description: "Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails."},
 	{Key: PushBatchSize, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Devices one silent-push job sends to before it hands the rest to a follow-up job."},
 	{Key: PushTokenBytes, Unit: UnitBytes, Default: 1024, Warning: 0, Max: 4096, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the push token a device may register for silent push."},
@@ -683,6 +891,11 @@ var registry = [...]Definition{
 	{Key: PXLStringLength, Unit: UnitCodepoints, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Length of a string produced during one PXL evaluation."},
 	{Key: ReconstructionRetentionDays, Unit: UnitCount, Default: 365, Warning: 0, Max: 3650, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable."},
 	{Key: ReleaseAppSize, Unit: UnitBytes, Default: 104857600, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Total size of one app release: the app bundle and every plugin bundle."},
+	{Key: RenderVisualDiffJobsPerOrganization, Unit: UnitCount, Default: 2, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Visual-diff render jobs of one organisation running at once; further jobs wait in the queue."},
+	{Key: ReplayBytesPerReplay, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P11", Description: "The size of one structural session replay after encoding; the runtime stops recording at it and the server refuses a larger replay (ANL-050)."},
+	{Key: ReplayEventsPerReplay, Unit: UnitCount, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P11", Description: "Events (screens, layout snapshots, taps, inputs and state changes) in one structural session replay; the runtime stops recording at it and the server refuses more (ANL-050)."},
+	{Key: ReplayPerDevicePerDay, Unit: UnitCount, Default: 5, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P11", Description: "Structural session replays one device may upload in a day; the runtime records no more and the server refuses the surplus (ANL-050)."},
+	{Key: ReplayRetentionDays, Unit: UnitCount, Default: 7, Warning: 0, Max: 90, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Days a structural session replay is kept; older replays are deleted by the retention sweep (ANL-050)."},
 	{Key: RolloutsActivePerApp, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Staged rollouts that may be in progress at once in one app."},
 	{Key: RuntimeImageDiskCacheBytes, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Disk space the runtime's cache of remote images may use on one device."},
 	{Key: RuntimeImageSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Size of one remote image the runtime downloads; a larger one is refused."},
@@ -694,6 +907,21 @@ var registry = [...]Definition{
 	{Key: SecurityConfigPatchBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 262144, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of a security configuration patch, encoded."},
 	{Key: StatePersistedBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the persisted state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
 	{Key: StateSecureBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
+	{Key: StudioAutosaveDebounceMs, Unit: UnitMilliseconds, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Quiet time after the last edit before Studio autosaves the change as a JSON Patch."},
+	{Key: StudioAutosaveReplays, Unit: UnitCount, Default: 3, Warning: 0, Max: 10, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Times Studio replays an autosave on a newer revision after a conflict before it asks the user."},
+	{Key: StudioChangeSetDocuments, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Documents one atomic change set may write across the drafts of an app (moving a screen with its links, redirecting incoming links)."},
+	{Key: StudioClipboardBytes, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 33554432, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Size of one Studio clipboard envelope; a larger copy is refused."},
+	{Key: StudioCustomFrameMaxDensity, Unit: UnitCount, Default: 4, Warning: 0, Max: 4, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Largest pixel density of a custom device frame (D40); the smallest is 1."},
+	{Key: StudioCustomFrameMaxPixels, Unit: UnitCount, Default: 4096, Warning: 0, Max: 8192, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerStudio, Phase: "P11", Description: "Largest width or height, in logical pixels, of a custom device frame (D40); a larger frame is refused."},
+	{Key: StudioEventsStreamBufferEvents, Unit: UnitCount, Default: 1000, Warning: 0, Max: 10000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Events the server keeps per Studio events stream for resumption before it drops the oldest and the tab reloads its state."},
+	{Key: StudioFavouriteApps, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Apps one user may mark as favourites in an organisation's Studio preferences."},
+	{Key: StudioLockIdleReleaseMinutes, Unit: UnitCount, Default: 10, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Minutes without an edit after which Studio releases an editing lock it holds."},
+	{Key: StudioLockTakeoverIdleMinutes, Unit: UnitCount, Default: 5, Warning: 0, Max: 60, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Minutes the lock holder must have made no edit before another user may take the lock over; a lapsed lease allows it at once."},
+	{Key: StudioPinnedItems, Unit: UnitCount, Default: 50, Warning: 0, Max: 500, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Studio paths one user may pin in an organisation's Studio preferences."},
+	{Key: StudioPreferencesBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes of one user's stored Studio preferences in an organisation, as JSON."},
+	{Key: StudioThumbnailBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 2097152, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Size of one canvas or screen thumbnail Studio uploads."},
+	{Key: StudioUndoDepth, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer | EnforcerStudio, Phase: "P11", Description: "Undo steps kept per editor session and plugin."},
+	{Key: StudioUserEventsTTLMinutes, Unit: UnitCount, Default: 1440, Warning: 0, Max: 10080, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Minutes a person's Studio events log (inbox unread count) is kept after its last event, so a tab that was away that long reloads its state."},
 	{Key: SyncBackgroundIntervalMinutes, Unit: UnitCount, Default: 360, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P10", Description: "Minutes between background syncs the runtime asks the operating system for; the runtime refuses less than 15 minutes, the least the platforms grant."},
 	{Key: TelemetryBatchBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Bytes one telemetry batch may carry on the wire after decompression."},
 	{Key: TelemetryBufferBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."},
@@ -701,6 +929,7 @@ var registry = [...]Definition{
 	{Key: TelemetryEventsPerRequest, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Runtime events one telemetry request may carry."},
 	{Key: TelemetryExportBatchEvents, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Events one signed-webhook message of the enterprise analytics export carries."},
 	{Key: TelemetryExportFileRows, Unit: UnitCount, Default: 100000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Rows one Parquet file of the enterprise analytics export holds; a longer window is written as several files."},
+	{Key: TestStepsPerRun, Unit: UnitCount, Default: 5000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Scenarios and steps one reported Plux Test run may contain."},
 	{Key: TranslationImportSize, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 134217728, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one translation import file."},
 	{Key: TranslationMessageSize, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Size of one translation message."},
 	{Key: UpdateMetadataBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 4194304, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P6", Description: "Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves."},

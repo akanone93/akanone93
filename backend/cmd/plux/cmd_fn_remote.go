@@ -369,12 +369,12 @@ func (e env) fnVersions(args []string) int {
 	}
 	var b bytes.Buffer
 	w := tabwriter.NewWriter(&b, 0, 4, 2, ' ', 0)
-	_, _ = fmt.Fprintln(w, "VERSION\tPLACEMENT\tMODULE\tTESTS\tALIASES\tCREATED")
+	_, _ = fmt.Fprintln(w, "VERSION\tPLACEMENT\tMODULE\tTESTS\tASSURANCE\tCAPABILITIES\tALIASES\tCREATED")
 	for _, v := range versions {
 		names := aliases[v.GetVersion()]
 		slices.Sort(names)
-		_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\t%s\n", v.GetVersion(), v.GetPlacement(), shortHash(v.GetModuleSha256()), passFail(v.GetTestsPassed()),
-			strings.Join(names, ","), v.GetCreatedAt().AsTime().Format(time.RFC3339))
+		_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", v.GetVersion(), v.GetPlacement(), shortHash(v.GetModuleSha256()), passFail(v.GetTestsPassed()),
+			assuranceLabel(v.GetAssurance()), capabilitySummary(v.GetCapabilities()), strings.Join(names, ","), v.GetCreatedAt().AsTime().Format(time.RFC3339))
 	}
 	_ = w.Flush()
 	return e.emit(c.json, map[string]any{"versions": versions, "aliases": aliases}, b.String())
@@ -539,4 +539,38 @@ func parseSince(v string, now time.Time) (time.Time, error) {
 		return time.Time{}, usageError("--since is a duration such as 15m or an RFC 3339 time")
 	}
 	return t, nil
+}
+
+// assuranceLabel names the assurance level a version requires; an empty
+// level is the environment's default (SEC-007).
+func assuranceLabel(level string) string {
+	if level == "" {
+		return "default"
+	}
+	return level
+}
+
+// capabilitySummary lists the capabilities a version was granted, or "none"
+// when it was granted nothing or its build recorded no declaration (FN-012).
+func capabilitySummary(c *pluxv1.FunctionCapabilities) string {
+	var granted []string
+	if n := len(c.GetHttp()); n > 0 {
+		granted = append(granted, fmt.Sprintf("http:%d", n))
+	}
+	if c.GetKv() {
+		granted = append(granted, "kv")
+	}
+	if n := len(c.GetSecrets()); n > 0 {
+		granted = append(granted, fmt.Sprintf("secrets:%d", n))
+	}
+	if n := len(c.GetFunctions()); n > 0 {
+		granted = append(granted, fmt.Sprintf("functions:%d", n))
+	}
+	if c.GetClaims() {
+		granted = append(granted, "claims")
+	}
+	if len(granted) == 0 {
+		return "none"
+	}
+	return strings.Join(granted, ",")
 }

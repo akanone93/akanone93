@@ -22,8 +22,8 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0010](0010-layered-widget-model.md) | Layered widget model with a descriptor registry | P1 | Accepted |
 | [0011](0011-plux-functions-rust-wasm.md) | Plux Functions: Rust compiled to WebAssembly; explicit placement | P7 | Accepted |
 | [0012](0012-dpop-hardware-keys-and-attestation.md) | DPoP with hardware-backed keys plus platform attestation | P6 | Accepted |
-| 0013 | Plux Canvas: TypeScript WebGL2 design surface with a conformance suite | P11 | Planned |
-| 0014 | Studio on Bun with a backend-for-frontend; React and shadcn/ui | P11 | Planned |
+| [0013](0013-plux-canvas.md) | Plux Canvas: CanvasKit, a port of Flutter's layout, and one canvas worker | P11 | Accepted |
+| [0014](0014-studio-stack.md) | The Studio stack | P11 | Accepted |
 | [0015](0015-single-draft-with-snapshots-and-locks.md) | Single draft with snapshots and exclusive plugin locks | P2 | Accepted |
 | 0016 | Local database adapter model with Drift as default | P5 | Covered by [ADR-0049](0049-local-persistence.md) |
 | 0017 | AI provider abstraction with structured output and validation-driven repair | P12 | Planned |
@@ -103,5 +103,13 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0091](0091-devtools-in-host-apps-and-release-absence.md) | Devtools in host apps, release absence and the `plux_security` development mode | P10 | Accepted |
 | [0092](0092-background-sync.md) | Background sync | P10 | Accepted |
 | [0093](0093-dev-app-and-host-kit.md) | The Dev app and the host kit | P10 | Accepted |
+| [0094](0094-studio-localisation-and-direction.md) | Studio localisation and direction | P11 | Accepted |
+| [0095](0095-studio-editing-model.md) | Studio editing model: locks, autosave, undo, change sets, clipboard and canvas | P11 | Accepted |
+| [0096](0096-studio-live-channels.md) | Studio live channels and the shared stream layer | P11 | Accepted |
+| [0097](0097-release-requests-and-visual-diffs.md) | Release requests and visual diffs | P11 | Accepted |
+| [0098](0098-library-templates-and-components.md) | Library: templates and components authored in Studio | P11 | Accepted |
+| [0099](0099-studio-language-services.md) | Studio language services: Wasm validator and the Rust editor bridge | P11 | Accepted |
+| [0100](0100-p11-scope-changes.md) | P11 changes to MUST requirements in specification 1.10.0 | P11 | Accepted |
+| [0101](0101-structural-session-replay.md) | Structural session replay: consent-gated, redacted, bounded, kept per app with retention | P11 | Proposed |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

@@ -12,6 +12,7 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 |---|---|---|---|---|---|---|---|
 | `telemetry_events` | Runtime telemetry events of the first analytics tables, kept for existing installations. | `device_id` | — | `device_id`, `fields` | Raw-event retention, 13 months by default and configurable per organisation (ANL-011). | delete | Declared, non-sensitive event properties only; the events are the device's. |
 | `analytics_events` | Raw analytics events, partitioned by month. | `device_id` | — | `device_id`, `locale`, `device_class`, `fields` | Raw-event retention, 13 months by default and configurable per organisation (ANL-011). | delete | Erased row-wise across every partition. |
+| `session_replays` | Structural session replays the device recorded with the replay consent (ANL-050, ADR-0101). | `device_id` | — | `device_id`, `events` | replay.retentionDays, 7 days by default; the sweep deletes older replays. | delete | Node paths, rectangles, tap positions and non-sensitive numeric state values only; never a text, an image or a sensitive field (SCH-012). |
 | `device_push_tokens` | The push token of a device, sealed with envelope encryption (SEC-106). | `device_id` | — | `ciphertext`, `wrapped_key` | Until the device is erased or its app or organisation is deleted. | delete | Export reports that a token is held and its provider; the token itself is never returned. |
 | `dev_pairing_attempts` | When a device tried a pairing code, which bounds its failed attempts (DEV-002); dev sessions exist only for non-production environments. | `device_id` | — | `device_id` | Ten minutes: older attempts are deleted as the device makes new ones, and the rows go with the organisation. | delete | — |
 | `device_sca_keys` | The public key a device enrolled for strong customer authentication (SEC-027). | `device_id` | — | `device_id`, `public_key`, `jkt` | Until the device is erased or its app or organisation is deleted. | delete | — |
@@ -49,6 +50,8 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 | `users` | Staff accounts. | — | — | `email`, `display name`, `password_hash` | While the account exists. | account | Removed when an administrator deletes the user. The account is not a pseudonymous data subject: it is identified by email. |
 | `memberships` | Which organisations and teams a user belongs to. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `role_grants` | Roles bound to a user at a scope. | — | `user_id` | `user_id` | While the account exists. | account | — |
+| `user_preferences` | A user's Studio preferences per organisation. | — | `user_id` | `user_id`, `preferences` | While the account exists. | account | — |
+| `upload_sessions` | Chunked Studio uploads in progress. | — | `user_id` | `user_id`, `name`, `data` | Until the upload completes or expires (expires_at), then the maintenance sweep; the rows go with the account. | account | — |
 | `restriction_policies` | Restrictions that remove permissions from the organisation, a team or a person (GOV-006). | — | `user_id` | `user_id`, `created_by` | While the account exists. | account | A person's restrictions go with the account; created_by is cleared when the author's account is deleted. |
 | `app_access` | Per-app access of a user. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `sessions` | Signed-in sessions of a user. | — | `user_id` | `user_id`, `secret_hash`, `ip_prefix`, `user_agent` | Until the session expires or is revoked. | account | — |
@@ -67,4 +70,8 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 |---|---|---|---|---|---|---|---|
 | `translation_locks` | The editing lock of one locale of an app's translations. | — | — | — | Until released or taken over. | none | locale is the language being translated, not a person's locale. |
 | `change_freezes` | Change-freeze windows of an organisation (GOV-025). | — | — | `created_by` | Until the window is deleted. | none | Holds the display name of the administrator who last wrote the window; the window itself is not about a person. |
+| `test_runs` | Plux Test runs reported for an app, with their scenario results (TST-002). | — | — | `created_by` | Until the app is deleted. | none | created_by is the identifier of the token or person that reported the run; the results describe scenarios, not people. |
+| `project_jobs` | Host-project generation jobs of an app (GEN-001, GEN-004). | — | — | `created_by` | Until the app is deleted. | none | created_by is the identifier of the person or token that queued the job. |
+| `project_job_results` | The generated host projects (zip) of those jobs. | — | — | — | Until the app is deleted. | none | — |
+| `app_shell_settings` | An app's shell settings and the settings its project was last generated from (GEN-004). | — | — | — | Until the app is deleted. | none | — |
 | `golden_cases` | Golden-test cases of an app. | — | — | — | Until the case is deleted. | none | locale is the language the case renders in, not a person's locale. |

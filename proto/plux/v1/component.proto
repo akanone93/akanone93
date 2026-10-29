@@ -7,6 +7,7 @@ package plux.v1;
 
 import "google/protobuf/timestamp.proto";
 import "plux/v1/common.proto";
+import "plux/v1/library.proto";
 
 option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
 
@@ -19,6 +20,34 @@ service ComponentService {
   // ListUsages reports every node that instantiates a component, from the
   // reference graph the compiler builds (SCH-041).
   rpc ListUsages(ListUsagesRequest) returns (ListUsagesResponse) {}
+
+  // CreateComponent makes a private component with its first version (STU-080).
+  rpc CreateComponent(CreateComponentRequest) returns (CreateComponentResponse) {}
+  // ReviseComponent writes a new immutable version of a component, and may rename
+  // it. The author may revise it; for another person's it needs
+  // library.manage. expected_version guards against a lost update.
+  rpc ReviseComponent(ReviseComponentRequest) returns (ReviseComponentResponse) {}
+  // ListComponentVersions returns a component with all its versions, newest first.
+  rpc ListComponentVersions(ListComponentVersionsRequest) returns (ListComponentVersionsResponse) {}
+  // ListLibraryComponents lists the components the caller may see: the organisation's
+  // shared ones, the caller's own private ones and every public one (STU-086).
+  rpc ListLibraryComponents(ListLibraryComponentsRequest) returns (ListLibraryComponentsResponse) {}
+  // SetComponentVisibility changes who can see a component. Making it public, or
+  // taking it back from public, needs library.publish, and the public scan
+  // of the newest version must pass first (STU-081).
+  rpc SetComponentVisibility(SetComponentVisibilityRequest) returns (SetComponentVisibilityResponse) {}
+  // ExportComponent returns a version of a component as a library file, byte for
+  // byte the same for the same version.
+  rpc ExportComponent(ExportComponentRequest) returns (ExportComponentResponse) {}
+  // ImportComponent makes a private component from a library file, which is
+  // validated as untrusted input.
+  rpc ImportComponent(ImportComponentRequest) returns (ImportComponentResponse) {}
+  // AdoptComponentVersion records the version of a component an app uses
+  // and reports the instances whose overrides the version no longer fits
+  // (STU-085). Adoption is explicit and per app.
+  rpc AdoptComponentVersion(AdoptComponentVersionRequest) returns (AdoptComponentVersionResponse) {}
+  // ListComponentAdoptions lists the versions an app adopted.
+  rpc ListComponentAdoptions(ListComponentAdoptionsRequest) returns (ListComponentAdoptionsResponse) {}
 }
 
 message Component {
@@ -71,4 +100,88 @@ message ListUsagesRequest {
 message ListUsagesResponse {
   repeated Usage usages = 1;
   PageResult page = 2;
+}
+
+message CreateComponentRequest {
+  LibraryDraft draft = 1;
+}
+message CreateComponentResponse {
+  LibraryItem item = 1;
+  LibraryVersion version = 2;
+}
+
+message ReviseComponentRequest {
+  string id = 1;
+  // expected_version is the head version the caller revised from.
+  int32 expected_version = 2;
+  LibraryDraft draft = 3;
+}
+message ReviseComponentResponse {
+  LibraryItem item = 1;
+  LibraryVersion version = 2;
+}
+
+message ListComponentVersionsRequest {
+  string id = 1;
+}
+message ListComponentVersionsResponse {
+  LibraryItem item = 1;
+  repeated LibraryVersion versions = 2;
+}
+
+message ListLibraryComponentsRequest {
+  // visibility filters to one level; empty lists all the caller may see.
+  string visibility = 1;
+  // query matches the key and name.
+  string query = 2;
+  Page page = 3;
+}
+message ListLibraryComponentsResponse {
+  repeated LibraryItem items = 1;
+  PageResult page = 2;
+}
+
+message SetComponentVisibilityRequest {
+  string id = 1;
+  string visibility = 2;
+}
+message SetComponentVisibilityResponse {
+  LibraryItem item = 1;
+}
+
+message ExportComponentRequest {
+  string id = 1;
+  // version is the version to export; zero is the newest.
+  int32 version = 2;
+}
+message ExportComponentResponse {
+  bytes file = 1;
+  string file_name = 2;
+}
+
+message ImportComponentRequest {
+  bytes file = 1;
+  // key replaces the file's key when the organisation already has it.
+  string key = 2;
+}
+message ImportComponentResponse {
+  LibraryItem item = 1;
+  LibraryVersion version = 2;
+}
+
+message AdoptComponentVersionRequest {
+  string app_id = 1;
+  string id = 2;
+  int32 version = 3;
+}
+message AdoptComponentVersionResponse {
+  Adoption adoption = 1;
+  repeated AdoptionConflict conflicts = 2;
+}
+
+message ListComponentAdoptionsRequest {
+  string app_id = 1;
+}
+message ListComponentAdoptionsResponse {
+  repeated Adoption adoptions = 1;
 }

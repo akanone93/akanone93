@@ -1,0 +1,432 @@
+{
+  "name": "wrap-alignment",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "f-start",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 90
+        },
+        "children": [
+          {
+            "id": "w-start",
+            "type": "Wrap",
+            "props": {
+              "alignment": "start",
+              "spacing": 8,
+              "runSpacing": 6,
+              "crossAxisAlignment": "start"
+            },
+            "children": [
+              {
+                "id": "w-start-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-start-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 20
+                }
+              },
+              {
+                "id": "w-start-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 50
+                }
+              },
+              {
+                "id": "w-start-3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 25
+                }
+              },
+              {
+                "id": "w-start-4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-start-5",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f-end",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 90
+        },
+        "children": [
+          {
+            "id": "w-end",
+            "type": "Wrap",
+            "props": {
+              "alignment": "end",
+              "spacing": 8,
+              "runSpacing": 6,
+              "crossAxisAlignment": "end"
+            },
+            "children": [
+              {
+                "id": "w-end-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-end-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 20
+                }
+              },
+              {
+                "id": "w-end-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 50
+                }
+              },
+              {
+                "id": "w-end-3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 25
+                }
+              },
+              {
+                "id": "w-end-4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-end-5",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f-center",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 90
+        },
+        "children": [
+          {
+            "id": "w-center",
+            "type": "Wrap",
+            "props": {
+              "alignment": "center",
+              "spacing": 8,
+              "runSpacing": 6,
+              "crossAxisAlignment": "center"
+            },
+            "children": [
+              {
+                "id": "w-center-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-center-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 20
+                }
+              },
+              {
+                "id": "w-center-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 50
+                }
+              },
+              {
+                "id": "w-center-3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 25
+                }
+              },
+              {
+                "id": "w-center-4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-center-5",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f-spaceBetween",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 90
+        },
+        "children": [
+          {
+            "id": "w-spaceBetween",
+            "type": "Wrap",
+            "props": {
+              "alignment": "spaceBetween",
+              "spacing": 8,
+              "runSpacing": 6,
+              "crossAxisAlignment": "start"
+            },
+            "children": [
+              {
+                "id": "w-spaceBetween-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-spaceBetween-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 20
+                }
+              },
+              {
+                "id": "w-spaceBetween-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 50
+                }
+              },
+              {
+                "id": "w-spaceBetween-3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 25
+                }
+              },
+              {
+                "id": "w-spaceBetween-4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-spaceBetween-5",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f-spaceAround",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 90
+        },
+        "children": [
+          {
+            "id": "w-spaceAround",
+            "type": "Wrap",
+            "props": {
+              "alignment": "spaceAround",
+              "spacing": 8,
+              "runSpacing": 6,
+              "crossAxisAlignment": "end"
+            },
+            "children": [
+              {
+                "id": "w-spaceAround-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-spaceAround-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 20
+                }
+              },
+              {
+                "id": "w-spaceAround-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 50
+                }
+              },
+              {
+                "id": "w-spaceAround-3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 25
+                }
+              },
+              {
+                "id": "w-spaceAround-4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-spaceAround-5",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "f-spaceEvenly",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 90
+        },
+        "children": [
+          {
+            "id": "w-spaceEvenly",
+            "type": "Wrap",
+            "props": {
+              "alignment": "spaceEvenly",
+              "spacing": 8,
+              "runSpacing": 6,
+              "crossAxisAlignment": "center"
+            },
+            "children": [
+              {
+                "id": "w-spaceEvenly-0",
+                "type": "TestBox",
+                "props": {
+                  "width": 60,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-spaceEvenly-1",
+                "type": "TestBox",
+                "props": {
+                  "width": 80,
+                  "height": 20
+                }
+              },
+              {
+                "id": "w-spaceEvenly-2",
+                "type": "TestBox",
+                "props": {
+                  "width": 40,
+                  "height": 50
+                }
+              },
+              {
+                "id": "w-spaceEvenly-3",
+                "type": "TestBox",
+                "props": {
+                  "width": 100,
+                  "height": 25
+                }
+              },
+              {
+                "id": "w-spaceEvenly-4",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 30
+                }
+              },
+              {
+                "id": "w-spaceEvenly-5",
+                "type": "TestBox",
+                "props": {
+                  "width": 70,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

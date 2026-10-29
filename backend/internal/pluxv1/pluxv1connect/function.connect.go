@@ -73,6 +73,9 @@ const (
 	// FunctionAdminServiceGetMetricsProcedure is the fully-qualified name of the FunctionAdminService's
 	// GetMetrics RPC.
 	FunctionAdminServiceGetMetricsProcedure = "/plux.v1.FunctionAdminService/GetMetrics"
+	// FunctionAdminServiceRunTestsProcedure is the fully-qualified name of the FunctionAdminService's
+	// RunTests RPC.
+	FunctionAdminServiceRunTestsProcedure = "/plux.v1.FunctionAdminService/RunTests"
 )
 
 // FunctionServiceClient is a client for the plux.v1.FunctionService service.
@@ -190,6 +193,10 @@ type FunctionAdminServiceClient interface {
 	// GetMetrics returns invocation counts, errors by kind, latency
 	// percentiles, memory peak and cache hits (FN-032).
 	GetMetrics(context.Context, *connect.Request[pluxv1.GetMetricsRequest]) (*connect.Response[pluxv1.GetMetricsResponse], error)
+	// RunTests builds an uploaded source and runs its stored test cases in the
+	// build sandbox, streaming one event per case and a last event with the
+	// summary (FN-034). It stores nothing and deploys nothing.
+	RunTests(context.Context, *connect.Request[pluxv1.RunTestsRequest]) (*connect.ServerStreamForClient[pluxv1.RunTestsResponse], error)
 }
 
 // NewFunctionAdminServiceClient constructs a client for the plux.v1.FunctionAdminService service.
@@ -269,6 +276,12 @@ func NewFunctionAdminServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(functionAdminServiceMethods.ByName("GetMetrics")),
 			connect.WithClientOptions(opts...),
 		),
+		runTests: connect.NewClient[pluxv1.RunTestsRequest, pluxv1.RunTestsResponse](
+			httpClient,
+			baseURL+FunctionAdminServiceRunTestsProcedure,
+			connect.WithSchema(functionAdminServiceMethods.ByName("RunTests")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -285,6 +298,7 @@ type functionAdminServiceClient struct {
 	setAlias        *connect.Client[pluxv1.SetAliasRequest, pluxv1.SetAliasResponse]
 	listLogs        *connect.Client[pluxv1.ListLogsRequest, pluxv1.ListLogsResponse]
 	getMetrics      *connect.Client[pluxv1.GetMetricsRequest, pluxv1.GetMetricsResponse]
+	runTests        *connect.Client[pluxv1.RunTestsRequest, pluxv1.RunTestsResponse]
 }
 
 // UploadSource calls plux.v1.FunctionAdminService.UploadSource.
@@ -342,6 +356,11 @@ func (c *functionAdminServiceClient) GetMetrics(ctx context.Context, req *connec
 	return c.getMetrics.CallUnary(ctx, req)
 }
 
+// RunTests calls plux.v1.FunctionAdminService.RunTests.
+func (c *functionAdminServiceClient) RunTests(ctx context.Context, req *connect.Request[pluxv1.RunTestsRequest]) (*connect.ServerStreamForClient[pluxv1.RunTestsResponse], error) {
+	return c.runTests.CallServerStream(ctx, req)
+}
+
 // FunctionAdminServiceHandler is an implementation of the plux.v1.FunctionAdminService service.
 type FunctionAdminServiceHandler interface {
 	// UploadSource streams a source archive. The first message carries the
@@ -377,6 +396,10 @@ type FunctionAdminServiceHandler interface {
 	// GetMetrics returns invocation counts, errors by kind, latency
 	// percentiles, memory peak and cache hits (FN-032).
 	GetMetrics(context.Context, *connect.Request[pluxv1.GetMetricsRequest]) (*connect.Response[pluxv1.GetMetricsResponse], error)
+	// RunTests builds an uploaded source and runs its stored test cases in the
+	// build sandbox, streaming one event per case and a last event with the
+	// summary (FN-034). It stores nothing and deploys nothing.
+	RunTests(context.Context, *connect.Request[pluxv1.RunTestsRequest], *connect.ServerStream[pluxv1.RunTestsResponse]) error
 }
 
 // NewFunctionAdminServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -452,6 +475,12 @@ func NewFunctionAdminServiceHandler(svc FunctionAdminServiceHandler, opts ...con
 		connect.WithSchema(functionAdminServiceMethods.ByName("GetMetrics")),
 		connect.WithHandlerOptions(opts...),
 	)
+	functionAdminServiceRunTestsHandler := connect.NewServerStreamHandler(
+		FunctionAdminServiceRunTestsProcedure,
+		svc.RunTests,
+		connect.WithSchema(functionAdminServiceMethods.ByName("RunTests")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.FunctionAdminService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case FunctionAdminServiceUploadSourceProcedure:
@@ -476,6 +505,8 @@ func NewFunctionAdminServiceHandler(svc FunctionAdminServiceHandler, opts ...con
 			functionAdminServiceListLogsHandler.ServeHTTP(w, r)
 		case FunctionAdminServiceGetMetricsProcedure:
 			functionAdminServiceGetMetricsHandler.ServeHTTP(w, r)
+		case FunctionAdminServiceRunTestsProcedure:
+			functionAdminServiceRunTestsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -527,4 +558,8 @@ func (UnimplementedFunctionAdminServiceHandler) ListLogs(context.Context, *conne
 
 func (UnimplementedFunctionAdminServiceHandler) GetMetrics(context.Context, *connect.Request[pluxv1.GetMetricsRequest]) (*connect.Response[pluxv1.GetMetricsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FunctionAdminService.GetMetrics is not implemented"))
+}
+
+func (UnimplementedFunctionAdminServiceHandler) RunTests(context.Context, *connect.Request[pluxv1.RunTestsRequest], *connect.ServerStream[pluxv1.RunTestsResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FunctionAdminService.RunTests is not implemented"))
 }

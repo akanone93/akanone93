@@ -211,6 +211,10 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	}
 	// Closed before the shared cache its subscription runs on.
 	closers.push(services.Auth.Close)
+	if services.DevSessions != nil {
+		// Its followers read the dev sessions' logs off the shared cache.
+		closers.push(services.DevSessions.Close)
+	}
 
 	srv, err := New(Deps{
 		Config: cfg, Log: log, Metrics: metrics, Tracer: tracer,
@@ -289,6 +293,9 @@ func addWorkerDeps(ctx context.Context, cfg *config.Config, log *slog.Logger, st
 	if err := attachBuilder(cfg, store, deps); err != nil {
 		return err
 	}
+	if err := attachRenderer(cfg, deps); err != nil {
+		return err
+	}
 	if o.builder != nil {
 		deps.Builder, deps.Linker, deps.FunctionKey = o.builder, o.linker, cfg.Signing.Keys.FunctionArtifact
 	}
@@ -311,8 +318,14 @@ func addWorkers(workers *jobs.Workers, services *Services, deps WorkDeps, log *s
 		jobs.AddWorker(workers, &pushWorker{svc: services})
 		jobs.AddWorker(workers, &deltaWorker{svc: services})
 	}
+	if services.ReleaseRequests != nil && deps.Renderer != nil {
+		jobs.AddWorker(workers, &renderWorker{runner: services.ReleaseRequests, log: log})
+	}
 	if services.GitExport != nil && services.Documents != nil {
 		jobs.AddWorker(workers, &gitExportWorker{svc: services})
+	}
+	if services.Shells != nil {
+		jobs.AddWorker(workers, &projectWorker{svc: services})
 	}
 	if services.Functions != nil && deps.Builder != nil && deps.Signer != nil {
 		jobs.AddWorker(workers, &functionBuildWorker{runner: services.Functions, log: log})
@@ -332,6 +345,15 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 	}
 	queue := &JobQueue{}
 	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, PushHTTP: o.pushHTTP, PushEndpoints: o.pushEnds, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, AnalyticsExporter: o.fileExporter, Identity: o.identity, Governance: o.governance}
+	if cfg.Has(config.RoleAPI) && cfg.Builder.Address != "" {
+		// The Rust editor's route to the builder (FN-033). It carries no
+		// signer: only the worker role is given one (SRV-052).
+		client, err := buildBuilderClient(cfg, store)
+		if err != nil {
+			return nil, nil, err
+		}
+		deps.Editor = client
+	}
 	if cfg.Has(config.RoleWorker) {
 		if err := addWorkerDeps(ctx, cfg, log, store, backend, o, &deps); err != nil {
 			return nil, nil, err

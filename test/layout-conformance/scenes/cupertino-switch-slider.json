@@ -1,0 +1,81 @@
+{
+  "name": "cupertino-switch-slider",
+  "root": {
+    "id": "col",
+    "type": "Column",
+    "props": {
+      "crossAxisAlignment": "start"
+    },
+    "children": [
+      {
+        "id": "switch",
+        "type": "CupertinoSwitch",
+        "props": {}
+      },
+      {
+        "id": "slider",
+        "type": "CupertinoSlider",
+        "props": {}
+      },
+      {
+        "id": "activity",
+        "type": "CupertinoActivityIndicator",
+        "props": {}
+      },
+      {
+        "id": "row",
+        "type": "Row",
+        "props": {
+          "crossAxisAlignment": "center"
+        },
+        "children": [
+          {
+            "id": "row-label",
+            "type": "Text",
+            "props": {
+              "text": "Volume",
+              "style": {
+                "fontFamily": "NotoSans",
+                "fontSize": 17
+              }
+            }
+          },
+          {
+            "id": "slider-fill",
+            "type": "Expanded",
+            "props": {},
+            "children": [
+              {
+                "id": "slider-in-row",
+                "type": "CupertinoSlider",
+                "props": {}
+              }
+            ]
+          },
+          {
+            "id": "row-switch",
+            "type": "CupertinoSwitch",
+            "props": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "tight",
+        "type": "SizedBox",
+        "props": {
+          "width": 300,
+          "height": 60
+        },
+        "children": [
+          {
+            "id": "slider-tight",
+            "type": "CupertinoSlider",
+            "props": {}
+          }
+        ]
+      }
+    ]
+  }
+}

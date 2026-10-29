@@ -1,0 +1,40 @@
+{
+  "flutterRevision": "6a19cca56475dbfba1478ee68d7bd0c2ef891da1",
+  "scene": "intrinsic-width-steps",
+  "frame": {
+    "width": 360.0,
+    "height": 800.0,
+    "devicePixelRatio": 3.0
+  },
+  "locale": "ar",
+  "textScale": 2.0,
+  "rects": {
+    "d1": [
+      160.0,
+      0.0,
+      200.0,
+      60.0
+    ],
+    "iw": [
+      160.0,
+      0.0,
+      200.0,
+      60.0
+    ],
+    "root": [
+      0.0,
+      0.0,
+      360.0,
+      800.0
+    ],
+    "t1": [
+      160.0,
+      0.0,
+      200.0,
+      60.0
+    ]
+  },
+  "baselines": {
+    "t1": 38.48400115966797
+  }
+}

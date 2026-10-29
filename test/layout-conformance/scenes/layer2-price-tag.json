@@ -1,0 +1,16 @@
+{
+  "name": "layer2-price-tag",
+  "layer2": true,
+  "root": {
+    "id": "node",
+    "type": "PriceTag",
+    "props": {
+      "price": {
+        "$expr": "money(\"19.99\", \"EUR\")"
+      },
+      "originalPrice": {
+        "$expr": "money(\"29.99\", \"EUR\")"
+      }
+    }
+  }
+}

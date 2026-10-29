@@ -1,0 +1,92 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/field_mask.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// PreferencesService keeps each signed-in user's Studio preferences, one
+// set per organisation (STU-014, STU-058), and reports the onboarding steps
+// of the organisation (STU-015). Every RPC is about the caller and needs no
+// permission beyond being signed in.
+service PreferencesService {
+  // GetPreferences returns the caller's preferences in the organisation of
+  // the call; a user who never saved any gets the defaults.
+  rpc GetPreferences(GetPreferencesRequest) returns (GetPreferencesResponse) {}
+  // UpdatePreferences replaces the fields named in update_mask (field names
+  // of Preferences) and returns the result. An empty mask or an unknown
+  // field name is PLX-1001; a value outside its enum is PLX-1004; a language
+  // that is not a BCP 47 tag is PLX-1005; more favourites than
+  // studio.favouriteApps, more pins than studio.pinnedItems or a stored
+  // form larger than studio.preferencesBytes is PLX-1006.
+  rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse) {}
+  // GetOnboarding returns the onboarding steps, derived from what the
+  // organisation has done (STU-015).
+  rpc GetOnboarding(GetOnboardingRequest) returns (GetOnboardingResponse) {}
+}
+
+message Preferences {
+  // theme is "system", "light", "dark" or "contrast"; empty reads as "system".
+  string theme = 1;
+  // language is a BCP 47 tag; empty follows the browser.
+  string language = 2;
+  // density is "comfortable" or "compact"; empty reads as "comfortable".
+  string density = 3;
+  // shortcuts maps a command ID to its key binding.
+  map<string, string> shortcuts = 4;
+  repeated string favourite_app_ids = 5;
+  // pinned holds the Studio paths pinned in the shell.
+  repeated string pinned = 6;
+  // preview maps an app ID to its preview switches (STU-058).
+  map<string, PreviewSwitches> preview = 7;
+  bool onboarding_dismissed = 8;
+  // muted_notification_types lists the event types whose inbox items the user
+  // mutes (F16, STU-013); approval and security types are refused.
+  repeated string muted_notification_types = 9;
+}
+
+// PreviewSwitches are the switches of an app's live preview (STU-058).
+message PreviewSwitches {
+  string device_frame = 1;
+  string theme = 2;
+  string brand_overlay = 3;
+  string locale = 4;
+  double text_scale = 5;
+  // platform is "material" or "cupertino"; empty follows the device frame.
+  string platform = 6;
+  // mock_states maps a data source to its mock state.
+  map<string, string> mock_states = 7;
+}
+
+message GetPreferencesRequest {}
+
+message GetPreferencesResponse {
+  Preferences preferences = 1;
+}
+
+message UpdatePreferencesRequest {
+  Preferences preferences = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdatePreferencesResponse {
+  Preferences preferences = 1;
+}
+
+message GetOnboardingRequest {}
+
+// OnboardingStep is one step: "create_app", "edit_screen", "pair_device",
+// "publish_release" or "invite_member".
+message OnboardingStep {
+  string key = 1;
+  bool done = 2;
+}
+
+message GetOnboardingResponse {
+  // steps holds every step, in the order Studio shows them.
+  repeated OnboardingStep steps = 1;
+}

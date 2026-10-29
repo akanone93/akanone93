@@ -73,6 +73,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- include "plux.image" (dict "image" .Values.builderImage "defaultTag" .Chart.AppVersion) -}}
 {{- end -}}
 
+{{- define "plux.renderWorkerImage" -}}
+{{- include "plux.image" (dict "image" .Values.renderWorkerImage "defaultTag" .Chart.AppVersion) -}}
+{{- end -}}
+
 {{- /* Names of the dependencies the chart runs or addresses. */ -}}
 {{- define "plux.pgName" -}}
 {{- default (printf "%s-pg" (include "plux.fullname" .)) .Values.postgresql.cnpg.clusterName -}}
@@ -86,10 +90,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-seaweedfs" (include "plux.fullname" .) -}}
 {{- end -}}
 
-{{- /* The Secret that holds a role's mutual-TLS identity. Context: root, role. */ -}}
+{{- /* The Secret that holds a role's mutual-TLS identity. Context: root, role, and key where the name of the role in internalTLS.existingSecrets differs. */ -}}
 {{- define "plux.tlsSecretName" -}}
 {{- if eq .root.Values.internalTLS.mode "existing" -}}
-{{- required (printf "internalTLS.existingSecrets.%s is required when internalTLS.mode is existing" .role) (index .root.Values.internalTLS.existingSecrets .role) -}}
+{{- $key := default .role .key -}}
+{{- required (printf "internalTLS.existingSecrets.%s is required when internalTLS.mode is existing" $key) (index .root.Values.internalTLS.existingSecrets $key) -}}
 {{- else -}}
 {{- printf "%s-tls-%s" (include "plux.fullname" .root) .role -}}
 {{- end -}}

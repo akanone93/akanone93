@@ -1,0 +1,71 @@
+{
+  "name": "shrink-wrapping-viewport",
+  "root": {
+    "id": "a",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "limit",
+        "type": "ConstrainedBox",
+        "props": {
+          "maxWidth": 300,
+          "maxHeight": 400
+        },
+        "children": [
+          {
+            "id": "vp",
+            "type": "ShrinkWrappingViewport",
+            "props": {},
+            "children": [
+              {
+                "id": "list",
+                "type": "SliverList",
+                "props": {},
+                "children": [
+                  {
+                    "id": "s0",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 60
+                    }
+                  },
+                  {
+                    "id": "s1",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 100
+                    }
+                  },
+                  {
+                    "id": "s2",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 40
+                    }
+                  },
+                  {
+                    "id": "s3",
+                    "type": "TestBox",
+                    "props": {
+                      "width": 300,
+                      "height": 80
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

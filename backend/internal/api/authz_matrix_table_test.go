@@ -5,12 +5,15 @@ package api_test
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"io"
+	"strings"
 	"testing"
 	"time"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
@@ -144,6 +147,16 @@ var matrix = map[string]entry{
 	"PluginService/UpdatePlugin": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UpdatePluginRequest{Id: f.plugin, Name: "Loans"}
 	})),
+	"PluginService/DuplicatePlugin": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		k := f.name()
+		return &pluxv1.DuplicatePluginRequest{Id: f.plugin, Key: k, Name: k, Session: "tab-3"}
+	}),
+	"PluginService/ArchivePlugin": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ArchivePluginRequest{Id: f.plugin, Archived: false}
+	})),
+	"PluginService/ListPluginSummaries": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListPluginSummariesRequest{AppId: f.app}
+	})),
 	"PluginService/DeletePlugin": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeletePluginRequest{Id: f.freshPlugin(t)}
 	}),
@@ -180,6 +193,12 @@ var matrix = map[string]entry{
 	"DocumentService/PatchDocument": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.PatchDocumentRequest{AppId: f.app, PluginId: f.plugin, Path: "plugins/loans/pages/home.page.json", IfRevision: 1, Session: "tab-2"}
 	})),
+	"DocumentService/ApplyChangeSet": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ApplyChangeSetRequest{AppId: f.app, Drafts: []*pluxv1.ChangeSetDraft{{
+			PluginId: f.plugin, Session: "tab-2",
+			Edits: []*pluxv1.ChangeSetEdit{{Path: "plugins/loans/pages/home.page.json", Content: []byte(pageDoc)}},
+		}}}
+	})),
 	"DocumentService/DeleteDocument": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteDocumentRequest{AppId: f.app, PluginId: f.plugin, Path: "plugins/loans/pages/home.page.json", IfRevision: 1, Session: "tab-2"}
 	})),
@@ -188,6 +207,9 @@ var matrix = map[string]entry{
 	})),
 	"DocumentService/ValidatePage": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ValidatePageRequest{AppId: f.app, PluginId: f.plugin, Path: "plugins/loans/pages/home.page.json", Content: []byte(pageDoc)}
+	})),
+	"DocumentService/ListEditorSessionEntries": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListEditorSessionEntriesRequest{AppId: f.app, PluginId: f.plugin, EditorSessionId: "tab-1"}
 	})),
 	"DocumentService/ListSnapshots": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListSnapshotsRequest{AppId: f.app, PluginId: f.plugin}
@@ -224,6 +246,20 @@ var matrix = map[string]entry{
 		_, err = stream.CloseAndReceive()
 		return err //nolint:wrapcheck // the code is what the test reads
 	}},
+	"AssetService/BeginAssetUpload": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		png := f.png(t)
+		sum := sha256.Sum256(png)
+		return &pluxv1.BeginAssetUploadRequest{AppId: f.app, Name: "images/" + f.name() + ".png", Session: "tab-2", Size: int64(len(png)), Sha256: sum[:]}
+	}),
+	"AssetService/UploadAssetChunk": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.UploadAssetChunkRequest{UploadId: f.freshUpload(t), Chunk: f.png(t)}
+	}),
+	"AssetService/GetAssetUpload": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.GetAssetUploadRequest{UploadId: f.freshUpload(t)}
+	}),
+	"AssetService/FinishAssetUpload": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.FinishAssetUploadRequest{UploadId: f.freshUpload(t)}
+	}),
 	"AssetService/GetAsset": atPerm(auth.PluginRead, anyone(&pluxv1.GetAssetRequest{Id: unknownID})),
 	"AssetService/ListAssets": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListAssetsRequest{AppId: f.app}
@@ -244,6 +280,54 @@ var matrix = map[string]entry{
 	"TemplateService/GetTemplate":   atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message { return &pluxv1.GetTemplateRequest{Id: f.template} })),
 	"TemplateService/Instantiate": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.InstantiateRequest{TemplateId: f.template, AppId: f.app, PluginId: f.plugin, Session: "tab-2", Key: "copy"}
+	})),
+
+	// The library's authoring calls (STU-080 to STU-086, ADR-0098). Items the
+	// calls act on are made by the owner and shared with the organisation, so
+	// that a refusal is the role's and not a hidden item's.
+	"TemplateService/CreateTemplate": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateTemplateRequest{Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDoc("template"))}}
+	}),
+	"TemplateService/ReviseTemplate": atPerm(auth.LibraryManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ReviseTemplateRequest{Id: f.libraryItem(t, "template"), ExpectedVersion: 1, Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDocOf("template", f.libraryItem(t, "template")))}}
+	}),
+	"TemplateService/ListTemplateVersions": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ListTemplateVersionsRequest{Id: f.libraryItem(t, "template")}
+	}),
+	"TemplateService/ListLibraryTemplates": atPerm(auth.PluginRead, anyone(&pluxv1.ListLibraryTemplatesRequest{})),
+	"TemplateService/SetTemplateVisibility": atPerm(auth.LibraryPublish, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.SetTemplateVisibilityRequest{Id: f.libraryItem(t, "template"), Visibility: "public"}
+	}),
+	"TemplateService/ExportTemplate": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ExportTemplateRequest{Id: f.libraryItem(t, "template")}
+	}),
+	"TemplateService/ImportTemplate": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ImportTemplateRequest{File: []byte("{}")}
+	}),
+	"ComponentService/CreateComponent": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateComponentRequest{Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDoc("component"))}}
+	}),
+	"ComponentService/ReviseComponent": atPerm(auth.LibraryManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ReviseComponentRequest{Id: f.libraryItem(t, "component"), ExpectedVersion: 1, Draft: &pluxv1.LibraryDraft{Content: []byte(f.libraryDocOf("component", f.libraryItem(t, "component")))}}
+	}),
+	"ComponentService/ListComponentVersions": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ListComponentVersionsRequest{Id: f.libraryItem(t, "component")}
+	}),
+	"ComponentService/ListLibraryComponents": atPerm(auth.PluginRead, anyone(&pluxv1.ListLibraryComponentsRequest{})),
+	"ComponentService/SetComponentVisibility": atPerm(auth.LibraryPublish, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.SetComponentVisibilityRequest{Id: f.libraryItem(t, "component"), Visibility: "public"}
+	}),
+	"ComponentService/ExportComponent": atPerm(auth.PluginRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ExportComponentRequest{Id: f.libraryItem(t, "component")}
+	}),
+	"ComponentService/ImportComponent": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.ImportComponentRequest{File: []byte("{}")}
+	}),
+	"ComponentService/AdoptComponentVersion": atPerm(auth.PluginEdit, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.AdoptComponentVersionRequest{AppId: f.app, Id: f.libraryItem(t, "component"), Version: 1}
+	}),
+	"ComponentService/ListComponentAdoptions": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListComponentAdoptionsRequest{AppId: f.app}
 	})),
 
 	// LocalisationService
@@ -288,6 +372,21 @@ var matrix = map[string]entry{
 	}),
 	"AnalyticsService/DeleteAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteAlertRuleRequest{Id: f.freshAlertRule(t).GetId()}
+	}),
+	"AnalyticsService/CreateFunnel": atPerm(auth.AnalyticsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateFunnelRequest{Funnel: &pluxv1.Funnel{AppId: f.app, Name: f.name(), Steps: []string{"screen_view", "action_run"}}}
+	}),
+	"AnalyticsService/DeleteFunnel": atPerm(auth.AnalyticsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteFunnelRequest{Id: f.freshFunnel(t).GetId()}
+	}),
+	"AnalyticsService/ListFunnels": atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListFunnelsRequest{})),
+	"AnalyticsService/GetFunnelResult": atPerm(auth.AnalyticsRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		now := timestamppb.Now()
+		return &pluxv1.GetFunnelResultRequest{Id: f.freshFunnel(t).GetId(), From: timestamppb.New(now.AsTime().Add(-48 * time.Hour)), To: now}
+	}),
+	"AnalyticsService/GetOverview": atPerm(auth.AnalyticsRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		now := timestamppb.Now()
+		return &pluxv1.GetOverviewRequest{From: timestamppb.New(now.AsTime().Add(-48 * time.Hour)), To: now}
 	}),
 	"AnalyticsService/ListAlertRules":  atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertRulesRequest{})),
 	"AnalyticsService/ListAlertStates": atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertStatesRequest{})),
@@ -365,6 +464,9 @@ var matrix = map[string]entry{
 	"ApprovalService/ExportPolicies": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ExportPoliciesRequest{AppId: f.app}
 	})),
+	"ApprovalService/SimulatePolicy": atPerm(auth.PoliciesManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SimulatePolicyRequest{AppId: f.app, Document: []byte(`{}`), Change: &pluxv1.SimulatedChange{Resource: "release"}}
+	})),
 	"ApprovalService/ListApprovals": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListApprovalsRequest{AppId: f.app}
 	})),
@@ -404,6 +506,24 @@ var matrix = map[string]entry{
 
 	// SearchService
 	"SearchService/Search": atPerm(auth.SearchRead, anyone(&pluxv1.SearchRequest{Query: "demo"})),
+	// StudioEventsService
+	"StudioEventsService/Watch": {kind: self, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		stream, err := f.w.studioEvents.Watch(ctx, req(c, &pluxv1.StudioEventsServiceWatchRequest{}))
+		if err != nil {
+			return err //nolint:wrapcheck // the code is what the test reads
+		}
+		defer func() { _ = stream.Close() }()
+		stream.Receive()
+		return stream.Err() //nolint:wrapcheck // the code is what the test reads
+	}},
+	// PreferencesService
+	"PreferencesService/GetPreferences": {kind: self, build: anyone(&pluxv1.GetPreferencesRequest{})},
+	"PreferencesService/UpdatePreferences": {kind: self, build: anyone(&pluxv1.UpdatePreferencesRequest{
+		Preferences: &pluxv1.Preferences{Theme: "dark"}, UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"theme"}},
+	})},
+	"PreferencesService/GetOnboarding": {kind: self, build: anyone(&pluxv1.GetOnboardingRequest{})},
 
 	// GitExportService
 	"GitExportService/GetSettings": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
@@ -468,6 +588,80 @@ var matrix = map[string]entry{
 	})),
 	"GoldenService/GetRunStatus": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetRunStatusRequest{AppId: f.app}
+	})),
+
+	// AppProjectService
+	"AppProjectService/ListAppSummaries": atPerm(auth.AppRead, anyone(&pluxv1.ListAppSummariesRequest{})),
+	"AppProjectService/ExportApp": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ExportAppRequest{AppId: f.app}
+	})),
+	"AppProjectService/ImportApp": atPerm(auth.AppManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.ImportAppRequest{Archive: []byte("not an archive")}
+	})),
+	"AppProjectService/DuplicateApp": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DuplicateAppRequest{AppId: f.freshApp(t), Key: f.name()}
+	}),
+	"AppProjectService/ListSampleApps": atPerm(auth.AppRead, anyone(&pluxv1.ListSampleAppsRequest{})),
+	"AppProjectService/ImportSampleApp": atPerm(auth.AppManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.ImportSampleAppRequest{SampleId: "no-such-sample"}
+	})),
+	"AppProjectService/GetShellStatus": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetShellStatusRequest{AppId: f.app}
+	})),
+	"AppProjectService/SetShellSettings": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetShellSettingsRequest{AppId: f.app, Settings: &pluxv1.ShellSettings{}}
+	})),
+	"AppProjectService/GenerateProject": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GenerateProjectRequest{AppId: f.app, EnvironmentKey: "development", ChannelKey: "production"}
+	})),
+	"AppProjectService/GetProjectJob": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetProjectJobRequest{AppId: f.app, JobId: unknownID}
+	})),
+	"AppProjectService/DownloadProject": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DownloadProjectRequest{AppId: f.app, JobId: unknownID}
+	})),
+
+	// TestRunService
+	"TestRunService/ReportRun": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ReportRunRequest{AppId: f.app}
+	})),
+	"TestRunService/ListRuns": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListRunsRequest{AppId: f.app}
+	})),
+	"TestRunService/GetRun": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetRunRequest{AppId: f.app, RunId: unknownID}
+	})),
+
+	// ReleaseRequestService
+	"ReleaseRequestService/CreateReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateReleaseRequestRequest{AppId: f.app, EnvironmentId: f.dev, Plugins: []*pluxv1.SelectedPlugin{{PluginKey: "unknown", Reason: "changed"}}}
+	})),
+	"ReleaseRequestService/GetReleaseRequest": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/ListReleaseRequests": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListReleaseRequestsRequest{AppId: f.app}
+	})),
+	"ReleaseRequestService/AdvanceReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.AdvanceReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/RefreezeReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RefreezeReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/RequestVisualDiff": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RequestVisualDiffRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/GetVisualDiffImage": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetVisualDiffImageRequest{AppId: f.app, Id: unknownID, Sha256: strings.Repeat("0", 64)}
+	})),
+	"ReleaseRequestService/RequestReleaseApproval": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RequestReleaseApprovalRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/CompleteReleaseRequest": atPerm(auth.ReleasePromote, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CompleteReleaseRequestRequest{AppId: f.app, Id: unknownID}
+	})),
+	"ReleaseRequestService/CancelReleaseRequest": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CancelReleaseRequestRequest{AppId: f.app, Id: unknownID}
 	})),
 
 	// PublishService and ReleaseService
@@ -605,11 +799,13 @@ var matrix = map[string]entry{
 	"RolloutService/CreateRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.CreateRolloutRequest{
 		AppId: unknownID, EnvironmentId: unknownID, CandidateSequence: 2, Stages: []*pluxv1.Stage{{BasisPoints: 10000}},
 	})),
-	"RolloutService/GetRollout":    atPerm(auth.RolloutManage, anyone(&pluxv1.GetRolloutRequest{Id: unknownID})),
-	"RolloutService/ListRollouts":  atPerm(auth.RolloutManage, anyone(&pluxv1.ListRolloutsRequest{AppId: unknownID})),
-	"RolloutService/PauseRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.PauseRolloutRequest{Id: unknownID})),
-	"RolloutService/ResumeRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.ResumeRolloutRequest{Id: unknownID})),
-	"RolloutService/AbortRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.AbortRolloutRequest{Id: unknownID})),
+	"RolloutService/GetRollout":        atPerm(auth.RolloutManage, anyone(&pluxv1.GetRolloutRequest{Id: unknownID})),
+	"RolloutService/ListRollouts":      atPerm(auth.RolloutManage, anyone(&pluxv1.ListRolloutsRequest{AppId: unknownID})),
+	"RolloutService/PauseRollout":      atPerm(auth.RolloutManage, anyone(&pluxv1.PauseRolloutRequest{Id: unknownID})),
+	"RolloutService/ResumeRollout":     atPerm(auth.RolloutManage, anyone(&pluxv1.ResumeRolloutRequest{Id: unknownID})),
+	"RolloutService/AbortRollout":      atPerm(auth.RolloutManage, anyone(&pluxv1.AbortRolloutRequest{Id: unknownID})),
+	"RolloutService/AdvanceRollout":    atPerm(auth.RolloutManage, anyone(&pluxv1.AdvanceRolloutRequest{Id: unknownID})),
+	"RolloutService/RescheduleRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.RescheduleRolloutRequest{Id: unknownID})),
 
 	"AuditService/Reconstruct": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ReconstructRequest{AppId: f.app, DeviceId: unknownID, At: timestamppb.Now()}
@@ -658,10 +854,16 @@ var matrix = map[string]entry{
 	"ExperimentService/GetHoldout": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetHoldoutRequest{AppId: f.app, EnvironmentId: f.prod}
 	})),
-	"ExperimentService/GetResults":              atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetResultsRequest{Id: unknownID})),
-	"ExperimentService/PromoteExperiment":       atPerm(auth.ExperimentsManage, anyone(&pluxv1.PromoteExperimentRequest{Id: unknownID, Variant: "b"})),
-	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
-	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
+	"ExperimentService/GetResults":                      atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetResultsRequest{Id: unknownID})),
+	"ExperimentService/PromoteExperiment":               atPerm(auth.ExperimentsManage, anyone(&pluxv1.PromoteExperimentRequest{Id: unknownID, Variant: "b"})),
+	"InstallationService/GetInstallationHealth":         {kind: installation, build: anyone(&pluxv1.GetInstallationHealthRequest{})},
+	"InstallationService/GetInstallationStorage":        {kind: installation, build: anyone(&pluxv1.GetInstallationStorageRequest{})},
+	"InstallationService/ListInstallationJobs":          {kind: installation, build: anyone(&pluxv1.ListInstallationJobsRequest{})},
+	"InstallationService/ListTrustedIssuers":            {kind: installation, build: anyone(&pluxv1.ListTrustedIssuersRequest{})},
+	"InstallationService/ListInstallationOrganizations": {kind: installation, build: anyone(&pluxv1.ListInstallationOrganizationsRequest{})},
+	"LicenseService/InstallLicense":                     {kind: installation, build: anyone(&pluxv1.InstallLicenseRequest{License: []byte("x")})},
+	"LicenseService/GetLicenseState":                    atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
+	"SecurityAdminService/ListAuditCheckpoints":         atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
 	// NotificationService, WebhookService (SRV-062, SRV-063)
 	"NotificationService/ListEventTypes":    {kind: self, build: anyone(&pluxv1.ListEventTypesRequest{})},
@@ -720,6 +922,15 @@ var matrix = map[string]entry{
 	"FunctionAdminService/ListVersions": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListVersionsRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn"}
 	})),
+	"FunctionAdminService/RunTests": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		return drain(f.w.functionAdmin.RunTests(context.Background(), req(c, &pluxv1.RunTestsRequest{SourceId: f.freshSource(t)})))
+	}},
+	// LanguageServerService: the sandbox runs at the organisation's cost on
+	// a source that Build accepts, so both calls need what Build needs.
+	"LanguageServerService/Open": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		return drain(f.w.languageServer.Open(context.Background(), req(c, &pluxv1.LanguageServerServiceOpenRequest{SourceId: f.freshSource(t)})))
+	}},
+	"LanguageServerService/Send": atPerm(auth.FunctionDeploy, anyone(&pluxv1.LanguageServerServiceSendRequest{SessionId: "no-such-session", Sequence: 1, Message: []byte("{}")})),
 	"FunctionAdminService/Deploy": atPerm(auth.FunctionDeploy, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.dev)}
 	}),
@@ -743,6 +954,12 @@ var matrix = map[string]entry{
 	})),
 	"DeviceService/RevokeDevice": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.RevokeDeviceRequest{DeviceId: f.device, Reason: "test"}
+	})),
+	"ReplayService/ListReplays": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListReplaysRequest{AppId: f.app, Environment: "development"}
+	})),
+	"ReplayService/GetReplay": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetReplayRequest{AppId: f.app, Id: "00000000-0000-4000-8000-000000000001"}
 	})),
 	"TelemetryService/ListEvents": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListEventsRequest{AppId: f.app, Environment: "development"}
@@ -826,6 +1043,7 @@ var matrix = map[string]entry{
 	"DeviceService/RegisterAttestedDevice":      {kind: deviceRPC, build: anyone(&pluxv1.RegisterAttestedDeviceRequest{})},
 	"DeviceService/ReattestDevice":              {kind: deviceRPC, build: anyone(&pluxv1.ReattestDeviceRequest{})},
 	"TelemetryService/IngestEvents":             {kind: deviceRPC, build: anyone(&pluxv1.IngestEventsRequest{})},
+	"ReplayService/IngestReplay":                {kind: deviceRPC, build: anyone(&pluxv1.IngestReplayRequest{})},
 	"TokenService/IssueDeviceToken":             {kind: deviceRPC, build: anyone(&pluxv1.IssueDeviceTokenRequest{})},
 	"TokenService/RefreshDeviceToken":           {kind: deviceRPC, build: anyone(&pluxv1.RefreshDeviceTokenRequest{})},
 	"TokenService/ExchangeUserToken":            {kind: deviceRPC, build: anyone(&pluxv1.ExchangeUserTokenRequest{})},

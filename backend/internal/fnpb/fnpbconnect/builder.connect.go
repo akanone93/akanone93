@@ -40,6 +40,14 @@ const (
 	BuilderServiceBuildProcedure = "/plux.internal.fn.v1.BuilderService/Build"
 	// BuilderServiceLinkProcedure is the fully-qualified name of the BuilderService's Link RPC.
 	BuilderServiceLinkProcedure = "/plux.internal.fn.v1.BuilderService/Link"
+	// BuilderServiceLanguageOpenProcedure is the fully-qualified name of the BuilderService's
+	// LanguageOpen RPC.
+	BuilderServiceLanguageOpenProcedure = "/plux.internal.fn.v1.BuilderService/LanguageOpen"
+	// BuilderServiceLanguageSendProcedure is the fully-qualified name of the BuilderService's
+	// LanguageSend RPC.
+	BuilderServiceLanguageSendProcedure = "/plux.internal.fn.v1.BuilderService/LanguageSend"
+	// BuilderServiceTestProcedure is the fully-qualified name of the BuilderService's Test RPC.
+	BuilderServiceTestProcedure = "/plux.internal.fn.v1.BuilderService/Test"
 )
 
 // BuilderServiceClient is a client for the plux.internal.fn.v1.BuilderService service.
@@ -59,6 +67,21 @@ type BuilderServiceClient interface {
 	// diagnostics and no module; only a failure of the builder itself is an RPC
 	// error.
 	Link(context.Context, *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error)
+	// LanguageOpen starts one language-server sandbox for an editor session
+	// (FN-033, ADR-0099) and streams its messages until the session ends:
+	// the client cancels the call, the server process exits or the session
+	// time of `lsp.sessionMinutes` passes. The first event is Opened. The
+	// sandbox has no network, no build scripts and no procedural macros, and
+	// the role holds no credential (L-4).
+	LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest]) (*connect.ServerStreamForClient[fnpb.LanguageOpenResponse], error)
+	// LanguageSend delivers one client message to the session's language
+	// server. Messages carry a sequence number that rises by one from 1; an
+	// out-of-order message is refused, so edits apply in the order typed.
+	LanguageSend(context.Context, *connect.Request[fnpb.LanguageSendRequest]) (*connect.Response[fnpb.LanguageSendResponse], error)
+	// Test builds the source and runs its stored test cases in the build
+	// sandbox and the function host (FN-034). Nothing is stored and no module
+	// is returned.
+	Test(context.Context, *connect.Request[fnpb.TestRequest]) (*connect.Response[fnpb.TestResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the plux.internal.fn.v1.BuilderService service.
@@ -84,13 +107,34 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("Link")),
 			connect.WithClientOptions(opts...),
 		),
+		languageOpen: connect.NewClient[fnpb.LanguageOpenRequest, fnpb.LanguageOpenResponse](
+			httpClient,
+			baseURL+BuilderServiceLanguageOpenProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("LanguageOpen")),
+			connect.WithClientOptions(opts...),
+		),
+		languageSend: connect.NewClient[fnpb.LanguageSendRequest, fnpb.LanguageSendResponse](
+			httpClient,
+			baseURL+BuilderServiceLanguageSendProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("LanguageSend")),
+			connect.WithClientOptions(opts...),
+		),
+		test: connect.NewClient[fnpb.TestRequest, fnpb.TestResponse](
+			httpClient,
+			baseURL+BuilderServiceTestProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("Test")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // builderServiceClient implements BuilderServiceClient.
 type builderServiceClient struct {
-	build *connect.Client[fnpb.BuildRequest, fnpb.BuildResponse]
-	link  *connect.Client[fnpb.LinkRequest, fnpb.LinkResponse]
+	build        *connect.Client[fnpb.BuildRequest, fnpb.BuildResponse]
+	link         *connect.Client[fnpb.LinkRequest, fnpb.LinkResponse]
+	languageOpen *connect.Client[fnpb.LanguageOpenRequest, fnpb.LanguageOpenResponse]
+	languageSend *connect.Client[fnpb.LanguageSendRequest, fnpb.LanguageSendResponse]
+	test         *connect.Client[fnpb.TestRequest, fnpb.TestResponse]
 }
 
 // Build calls plux.internal.fn.v1.BuilderService.Build.
@@ -101,6 +145,21 @@ func (c *builderServiceClient) Build(ctx context.Context, req *connect.Request[f
 // Link calls plux.internal.fn.v1.BuilderService.Link.
 func (c *builderServiceClient) Link(ctx context.Context, req *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error) {
 	return c.link.CallUnary(ctx, req)
+}
+
+// LanguageOpen calls plux.internal.fn.v1.BuilderService.LanguageOpen.
+func (c *builderServiceClient) LanguageOpen(ctx context.Context, req *connect.Request[fnpb.LanguageOpenRequest]) (*connect.ServerStreamForClient[fnpb.LanguageOpenResponse], error) {
+	return c.languageOpen.CallServerStream(ctx, req)
+}
+
+// LanguageSend calls plux.internal.fn.v1.BuilderService.LanguageSend.
+func (c *builderServiceClient) LanguageSend(ctx context.Context, req *connect.Request[fnpb.LanguageSendRequest]) (*connect.Response[fnpb.LanguageSendResponse], error) {
+	return c.languageSend.CallUnary(ctx, req)
+}
+
+// Test calls plux.internal.fn.v1.BuilderService.Test.
+func (c *builderServiceClient) Test(ctx context.Context, req *connect.Request[fnpb.TestRequest]) (*connect.Response[fnpb.TestResponse], error) {
+	return c.test.CallUnary(ctx, req)
 }
 
 // BuilderServiceHandler is an implementation of the plux.internal.fn.v1.BuilderService service.
@@ -120,6 +179,21 @@ type BuilderServiceHandler interface {
 	// diagnostics and no module; only a failure of the builder itself is an RPC
 	// error.
 	Link(context.Context, *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error)
+	// LanguageOpen starts one language-server sandbox for an editor session
+	// (FN-033, ADR-0099) and streams its messages until the session ends:
+	// the client cancels the call, the server process exits or the session
+	// time of `lsp.sessionMinutes` passes. The first event is Opened. The
+	// sandbox has no network, no build scripts and no procedural macros, and
+	// the role holds no credential (L-4).
+	LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest], *connect.ServerStream[fnpb.LanguageOpenResponse]) error
+	// LanguageSend delivers one client message to the session's language
+	// server. Messages carry a sequence number that rises by one from 1; an
+	// out-of-order message is refused, so edits apply in the order typed.
+	LanguageSend(context.Context, *connect.Request[fnpb.LanguageSendRequest]) (*connect.Response[fnpb.LanguageSendResponse], error)
+	// Test builds the source and runs its stored test cases in the build
+	// sandbox and the function host (FN-034). Nothing is stored and no module
+	// is returned.
+	Test(context.Context, *connect.Request[fnpb.TestRequest]) (*connect.Response[fnpb.TestResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -141,12 +215,36 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("Link")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceLanguageOpenHandler := connect.NewServerStreamHandler(
+		BuilderServiceLanguageOpenProcedure,
+		svc.LanguageOpen,
+		connect.WithSchema(builderServiceMethods.ByName("LanguageOpen")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceLanguageSendHandler := connect.NewUnaryHandler(
+		BuilderServiceLanguageSendProcedure,
+		svc.LanguageSend,
+		connect.WithSchema(builderServiceMethods.ByName("LanguageSend")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceTestHandler := connect.NewUnaryHandler(
+		BuilderServiceTestProcedure,
+		svc.Test,
+		connect.WithSchema(builderServiceMethods.ByName("Test")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.internal.fn.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceBuildProcedure:
 			builderServiceBuildHandler.ServeHTTP(w, r)
 		case BuilderServiceLinkProcedure:
 			builderServiceLinkHandler.ServeHTTP(w, r)
+		case BuilderServiceLanguageOpenProcedure:
+			builderServiceLanguageOpenHandler.ServeHTTP(w, r)
+		case BuilderServiceLanguageSendProcedure:
+			builderServiceLanguageSendHandler.ServeHTTP(w, r)
+		case BuilderServiceTestProcedure:
+			builderServiceTestHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -162,4 +260,16 @@ func (UnimplementedBuilderServiceHandler) Build(context.Context, *connect.Reques
 
 func (UnimplementedBuilderServiceHandler) Link(context.Context, *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.Link is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) LanguageOpen(context.Context, *connect.Request[fnpb.LanguageOpenRequest], *connect.ServerStream[fnpb.LanguageOpenResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.LanguageOpen is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) LanguageSend(context.Context, *connect.Request[fnpb.LanguageSendRequest]) (*connect.Response[fnpb.LanguageSendResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.LanguageSend is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) Test(context.Context, *connect.Request[fnpb.TestRequest]) (*connect.Response[fnpb.TestResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.Test is not implemented"))
 }

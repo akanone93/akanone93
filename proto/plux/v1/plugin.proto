@@ -19,6 +19,14 @@ service PluginService {
   rpc ListPlugins(ListPluginsRequest) returns (ListPluginsResponse) {}
   rpc UpdatePlugin(UpdatePluginRequest) returns (UpdatePluginResponse) {}
   rpc DeletePlugin(DeletePluginRequest) returns (DeletePluginResponse) {}
+  // DuplicatePlugin copies a plugin's draft under a new key, with new
+  // document IDs (STU-034).
+  rpc DuplicatePlugin(DuplicatePluginRequest) returns (DuplicatePluginResponse) {}
+  // ArchivePlugin archives or restores a plugin without deleting it.
+  rpc ArchivePlugin(ArchivePluginRequest) returns (ArchivePluginResponse) {}
+  // ListPluginSummaries returns one bounded summary per plugin of an app,
+  // for the app canvas, in a single call (plan P11 §4.3 #14).
+  rpc ListPluginSummaries(ListPluginSummariesRequest) returns (ListPluginSummariesResponse) {}
 
   // AcquireLock takes the editing lock. It fails with PLX-8020 when
   // someone else holds it and force is not set (SRV-040).
@@ -46,6 +54,36 @@ message Plugin {
   int64 draft_revision = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
+  string description = 9;
+  string icon_asset_id = 10;
+  string owning_team_id = 11;
+  repeated string tags = 12;
+  bool archived = 13;
+}
+
+// PluginSummary is what the app canvas shows of one plugin.
+message PluginSummary {
+  Plugin plugin = 1;
+  int64 screens = 2;
+  // versions is the number of published versions (the highest is the latest).
+  int64 versions = 3;
+  // unpublished_changes is true when the draft changed after the newest
+  // published version, or nothing was published yet and the draft has content.
+  bool unpublished_changes = 4;
+  // lock_holder is the display name of the draft's lock holder, or empty.
+  string lock_holder = 5;
+  int64 validation_errors = 6;
+  // killed is true when a channel of the app switches the plugin off.
+  bool killed = 7;
+  // owner_team_id mirrors plugin.owning_team_id.
+  string owner_team_id = 8;
+  int64 bundle_size = 9;
+  // links_out and links_in are the distinct other plugins this plugin
+  // navigates to, and that navigate to it, by plugin key.
+  repeated string links_out = 10;
+  repeated string links_in = 11;
+  repeated string functions_used = 12;
+  google.protobuf.Timestamp published_at = 13;
 }
 
 // Lock is an exclusive editing lock (SRV-040, ADR-0015).
@@ -63,6 +101,13 @@ message Lock {
   // scope is empty for the draft's own lock and "translations/<locale>" for
   // the lock of one locale's translations document (I18N-008).
   string scope = 8;
+  // last_edit_at is the time of the holder's last accepted write under
+  // this lock (ADR-0095).
+  google.protobuf.Timestamp last_edit_at = 9;
+  // takeover_allowed_at is the earliest time another user may take the
+  // lock over: studio.lockTakeoverIdleMinutes after last_edit_at, or at
+  // once when the lease has lapsed. The server enforces it (L-1, SRV-041).
+  google.protobuf.Timestamp takeover_allowed_at = 10;
 }
 
 message CreatePluginRequest {
@@ -92,7 +137,9 @@ message ListPluginsResponse {
 
 message UpdatePluginRequest {
   string id = 1;
+  // name is required unless metadata is set, when an empty name keeps it.
   string name = 2;
+  MetadataUpdate metadata = 3;
 }
 message UpdatePluginResponse {
   Plugin plugin = 1;
@@ -176,4 +223,31 @@ message SetPluginLimitRequest {
 }
 message SetPluginLimitResponse {
   LimitUsage limit = 1;
+}
+
+message DuplicatePluginRequest {
+  string id = 1;
+  string key = 2;
+  string name = 3;
+  // session is the caller's editing session, which takes the new plugin's
+  // lock while the copy is written and releases it.
+  string session = 4;
+}
+message DuplicatePluginResponse {
+  Plugin plugin = 1;
+}
+
+message ArchivePluginRequest {
+  string id = 1;
+  bool archived = 2;
+}
+message ArchivePluginResponse {
+  Plugin plugin = 1;
+}
+
+message ListPluginSummariesRequest {
+  string app_id = 1;
+}
+message ListPluginSummariesResponse {
+  repeated PluginSummary summaries = 1;
 }

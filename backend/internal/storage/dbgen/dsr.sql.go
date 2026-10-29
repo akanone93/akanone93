@@ -250,6 +250,23 @@ func (q *Queries) DsrEraseSCAKeys(ctx context.Context, arg DsrEraseSCAKeysParams
 	return result.RowsAffected(), nil
 }
 
+const dsrEraseSessionReplays = `-- name: DsrEraseSessionReplays :execrows
+DELETE FROM session_replays WHERE organization_id = $1 AND device_id = $2
+`
+
+type DsrEraseSessionReplaysParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+}
+
+func (q *Queries) DsrEraseSessionReplays(ctx context.Context, arg DsrEraseSessionReplaysParams) (int64, error) {
+	result, err := q.db.Exec(ctx, dsrEraseSessionReplays, arg.OrganizationID, arg.DeviceID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const dsrEraseTelemetryEvents = `-- name: DsrEraseTelemetryEvents :execrows
 DELETE FROM telemetry_events WHERE organization_id = $1 AND device_id = $2
 `
@@ -714,6 +731,43 @@ type DsrExportReconstructionsParams struct {
 
 func (q *Queries) DsrExportReconstructions(ctx context.Context, arg DsrExportReconstructionsParams) ([][]byte, error) {
 	rows, err := q.db.Query(ctx, dsrExportReconstructions, arg.OrganizationID, arg.DeviceID, arg.RowLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := [][]byte{}
+	for rows.Next() {
+		var document []byte
+		if err := rows.Scan(&document); err != nil {
+			return nil, err
+		}
+		items = append(items, document)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const dsrExportSessionReplays = `-- name: DsrExportSessionReplays :many
+SELECT jsonb_build_object('id', id, 'appId', app_id, 'environmentId', environment_id, 'startedAt', started_at,
+                          'durationMs', duration_ms, 'eventCount', event_count, 'bytes', bytes,
+                          'releaseSequence', release_sequence, 'truncated', truncated, 'route', route,
+                          'events', events, 'expiresAt', expires_at)::jsonb AS document
+  FROM session_replays
+ WHERE organization_id = $1 AND device_id = $2
+ ORDER BY started_at, id
+ LIMIT $3
+`
+
+type DsrExportSessionReplaysParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+	RowLimit       int32
+}
+
+func (q *Queries) DsrExportSessionReplays(ctx context.Context, arg DsrExportSessionReplaysParams) ([][]byte, error) {
+	rows, err := q.db.Query(ctx, dsrExportSessionReplays, arg.OrganizationID, arg.DeviceID, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}

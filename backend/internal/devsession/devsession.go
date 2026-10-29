@@ -81,6 +81,11 @@ type Options struct {
 	Signer         ManifestSigner
 	Deliverer      Deliverer
 	Channel        string
+	// Shared is the shared layer the sessions' events, frames and counters
+	// live on, so that every api replica serves every session (DEV-021,
+	// ADR-0087 revision 2026-10-24); nil keeps them in this process, which
+	// then must be the only replica.
+	Shared SharedLayer
 	// Random is the source of nonces and tickets; nil uses crypto/rand.
 	Random io.Reader
 	// Now is the clock; nil uses time.Now.
@@ -95,9 +100,14 @@ type Service struct {
 	random  io.Reader
 	compact devtoken.Compact
 	hub     *Hub
-	// drafts holds the draft state of each live session that pushed.
+	// closeHub ends the followers of a shared hub.
+	closeHub context.CancelFunc
+	// drafts is this replica's cache of the drafts of live sessions; the
+	// database holds what rebuilds it (ADR-0087 Revision 2026-10-24).
 	draftsMu sync.Mutex
-	drafts   map[string]*draftState
+	// drafter runs the Studio draft compiles off the write path (STU-130).
+	drafter *dispatcher
+	drafts  map[string]*draftState
 }
 
 // New returns the service.
@@ -105,7 +115,12 @@ func New(o Options) (*Service, error) {
 	if o.DB == nil || o.Audit == nil || o.IDs == nil || o.Limits == nil || o.Tokens == nil {
 		return nil, errors.New("devsession: a database, an audit log, identifiers, limits and a token signer are required")
 	}
-	s := &Service{o: o, now: o.Now, random: o.Random, hub: NewHub(), drafts: map[string]*draftState{}}
+	s := &Service{o: o, now: o.Now, random: o.Random, hub: NewHub(), closeHub: func() {}, drafts: map[string]*draftState{}}
+	if o.Shared != nil {
+		ctx, cancel := context.WithCancel(context.Background())
+		s.hub, s.closeHub = NewSharedHub(ctx, o.Shared, o.PingInterval), cancel
+	}
+	s.drafter = newDispatcher(s.followApp, s.draftWorkers)
 	if s.o.Deliverer == nil {
 		s.o.Deliverer = s.hub
 	}
@@ -116,6 +131,14 @@ func New(o Options) (*Service, error) {
 		s.random = rand.Reader
 	}
 	return s, nil
+}
+
+// Close stops following the shared layer: this replica's sockets and
+// watchers stop receiving what other replicas relay. The sessions go on
+// on the other replicas.
+func (s *Service) Close() {
+	s.closeHub()
+	s.drafter.stop()
 }
 
 // Session is a dev session.
@@ -133,7 +156,22 @@ type Session struct {
 	ExpiresAt      time.Time
 	LastActivityAt time.Time
 	EndedAt        time.Time
+	// Kind says who drives the session (contract #17).
+	Kind Kind
 }
+
+// Kind says who drives a dev session.
+type Kind string
+
+const (
+	// KindStudio is a session that follows the stored draft: the server
+	// compiles and pushes each accepted write, and the session takes no
+	// patches (L-14, contract #17).
+	KindStudio Kind = "studio"
+	// KindCLI is a session that pushes patches over the stored draft; its
+	// overlay is an ordered patch log in the database.
+	KindCLI Kind = "cli"
+)
 
 // Live reports whether the session is live at the instant now: not ended,
 // within its lifetime, and with traffic within idle (PLX-9200).
@@ -168,6 +206,14 @@ type Device struct {
 // CreateSession opens a dev session for an app's environment and issues its
 // first pairing token (DEV-002, DEV-003).
 func (s *Service) CreateSession(ctx context.Context, p auth.Principal, appID, environmentID string) (Session, Pairing, error) {
+	return s.CreateSessionOfKind(ctx, p, appID, environmentID, KindCLI)
+}
+
+// CreateSessionOfKind is CreateSession for a session of the given kind.
+func (s *Service) CreateSessionOfKind(ctx context.Context, p auth.Principal, appID, environmentID string, kind Kind) (Session, Pairing, error) {
+	if kind != KindStudio && kind != KindCLI {
+		return Session{}, Pairing{}, plxerr.New(plxerr.InvalidFormat, "a dev session is a Studio or a CLI session")
+	}
 	if err := p.AuthorizeSomeEnvironment(auth.DevSessionCreate, appID); err != nil {
 		return Session{}, Pairing{}, fmt.Errorf("devsession: %w", err)
 	}
@@ -195,7 +241,7 @@ func (s *Service) CreateSession(ctx context.Context, p auth.Principal, appID, en
 		pairing Pairing
 	)
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		session, pairing, err = s.create(ctx, tx, p, app, env, key)
+		session, pairing, err = s.create(ctx, tx, p, app, env, key, kind)
 		return err
 	})
 	return session, pairing, err
@@ -240,7 +286,7 @@ func (s *Service) checkStepUp(ctx context.Context, p auth.Principal, appID, envi
 }
 
 // create stores a session, issues its first pairing token and audits it.
-func (s *Service) create(ctx context.Context, tx pgx.Tx, p auth.Principal, app, env pgtype.UUID, key string) (Session, Pairing, error) {
+func (s *Service) create(ctx context.Context, tx pgx.Tx, p auth.Principal, app, env pgtype.UUID, key string, kind Kind) (Session, Pairing, error) {
 	set, err := s.o.Limits(ctx, tx, p.OrganizationID, storage.ID(app))
 	if err != nil {
 		return Session{}, Pairing{}, fmt.Errorf("devsession: read the limits: %w", err)
@@ -255,6 +301,7 @@ func (s *Service) create(ctx context.Context, tx pgx.Tx, p auth.Principal, app, 
 		ID: storage.MustUUID(id), OrganizationID: storage.MustUUID(p.OrganizationID), AppID: app, EnvironmentID: env, EnvironmentKey: key,
 		CreatedByUser: creatorOf(p), CreatedByKind: actor.Kind, CreatedByID: actor.ID, CreatedBy: actor.Display,
 		CreatedAt: storage.Timestamp(now), ExpiresAt: storage.Timestamp(now.Add(minutes(set, limits.DevSessionLifetimeMinutes))),
+		Kind: string(kind),
 	})
 	if err != nil {
 		return Session{}, Pairing{}, fmt.Errorf("devsession: store the session: %w", err)
@@ -266,7 +313,7 @@ func (s *Service) create(ctx context.Context, tx pgx.Tx, p auth.Principal, app, 
 	}
 	_, err = s.o.Audit.Append(ctx, tx, audit.Entry{
 		OrganizationID: p.OrganizationID, Actor: actor, Action: audit.DevSessionCreated, TargetKind: "dev_session", TargetID: id,
-		Detail: fmt.Sprintf("app %s, environment %s", session.AppID, key),
+		Detail: fmt.Sprintf("app %s, environment %s, %s", session.AppID, key, kind),
 	})
 	if err != nil {
 		return Session{}, Pairing{}, fmt.Errorf("devsession: %w", err)
@@ -456,6 +503,10 @@ func (s *Service) end(ctx context.Context, tx pgx.Tx, p auth.Principal, id pgtyp
 	if err != nil {
 		return Session{}, fmt.Errorf("devsession: end the session: %w", err)
 	}
+	// The patch log goes with the session (ADR-0087 Revision 2026-10-24).
+	if err := q.DeleteDevSessionPatches(ctx, id); err != nil {
+		return Session{}, fmt.Errorf("devsession: drop the patch log: %w", err)
+	}
 	if err := q.RevokeDevSessionDevices(ctx, dbgen.RevokeDevSessionDevicesParams{SessionID: id, RevokedAt: at}); err != nil {
 		return Session{}, fmt.Errorf("devsession: unpair the devices: %w", err)
 	}
@@ -535,6 +586,7 @@ func sessionOf(r dbgen.DevSession) Session {
 		EnvironmentKey: r.EnvironmentKey, Creator: r.CreatedByUser,
 		CreatedBy: audit.Actor{Kind: r.CreatedByKind, ID: r.CreatedByID, Display: r.CreatedBy},
 		CreatedAt: r.CreatedAt.Time, ExpiresAt: r.ExpiresAt.Time, LastActivityAt: r.LastActivityAt.Time, EndedAt: r.EndedAt.Time,
+		Kind: Kind(r.Kind),
 	}
 }
 

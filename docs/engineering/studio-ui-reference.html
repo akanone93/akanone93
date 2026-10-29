@@ -1,0 +1,263 @@
+<!doctype html>
+<!--
+SPDX-FileCopyrightText: 2026 Plux contributors
+SPDX-License-Identifier: Apache-2.0
+
+Plux Studio reference page: the approved plugin canvas (P11 UI language, docs/engineering/studio-ui-language.md).
+A design reference, not product code. Icons: Phosphor Icons duotone (MIT, @phosphor-icons/core 2.1.1).
+Fonts: Instrument Sans, Instrument Serif, DM Mono (OFL-1.1), loaded from Google Fonts for this page only.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Plux Studio — plugin canvas reference</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Instrument+Sans:wght@400;500;600&amp;family=Instrument+Serif&amp;display=swap">
+<style>
+body{margin:0;background:#F2F4F9}
+a{color:#4A2DE6}a:hover{color:#11142A}
+.st{--bg:#F2F4F9;--dot:rgba(52,60,110,.12);--surface:#FFFFFF;--ink:#11142A;--ink2:#3C4262;--ink3:#555C7C;--line:rgba(17,20,42,.08);--line2:rgba(17,20,42,.16);--hover:rgba(17,20,42,.05);--accent:#5B3DF5;--accent2:#4A2DE6;--soft:#EEEAFE;--halo:rgba(91,61,245,.12);--ok:#0B7A5A;--okbg:#E2F4EC;--warn:#8F5300;--warnbg:#FFF1D6;--arrow:#7A81A3;--glass:rgba(255,255,255,.66);--blur:28px;--r1:10px;--r3:18px;--r4:24px;--sh:0 1px 1px rgba(30,24,90,.04),0 16px 40px -8px rgba(48,34,150,.14);--font:'Instrument Sans',system-ui,sans-serif;--serif:'Instrument Serif',Georgia,serif;--mono:'DM Mono',ui-monospace,monospace;--ease:cubic-bezier(.2,0,0,1);position:relative;width:100%;height:900px;overflow:hidden;background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.1px,transparent 1.3px);background-size:22px 22px;font-family:var(--font);color:var(--ink);font-size:13px;line-height:18px;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.glass{position:absolute;box-sizing:border-box;background:var(--glass);backdrop-filter:blur(var(--blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.8);border:1px solid rgba(255,255,255,.72);box-shadow:var(--sh),0 0 0 1px rgba(17,20,42,.05);border-radius:var(--r4);animation:rise .42s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.cap{top:16px;height:48px;display:flex;align-items:center;gap:2px;padding:0 6px;border-radius:999px;white-space:nowrap}
+.c1{left:16px;padding-inline-start:18px}
+.c2{left:50%;translate:-50% 0;animation-delay:.04s}
+.c3{right:16px;animation-delay:.08s}
+.lp{left:16px;top:80px;bottom:16px;width:272px;display:flex;flex-direction:column;animation-delay:.1s}
+.rp{right:16px;top:80px;bottom:16px;width:304px;display:flex;flex-direction:column;animation-delay:.14s}
+.dr{left:300px;right:332px;bottom:16px;height:176px;display:flex;flex-direction:column;animation-delay:.18s}
+.i{width:17px;height:17px;fill:currentColor;flex:none}
+.i.s{width:14px;height:14px}
+.ib{appearance:none;border:0;background:transparent;width:36px;height:36px;border-radius:999px;display:inline-grid;place-items:center;color:var(--ink2);cursor:pointer;transition:background .14s var(--ease),color .14s,transform .14s}
+.ib:hover,.sbtn:hover{background:var(--hover);color:var(--ink)}
+.ib:active,.btn:active,.sbtn:active,.tab:active{transform:scale(.96)}
+.ib:focus-visible,.btn:focus-visible,.tab:focus-visible,.sbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sbtn{appearance:none;border:0;background:transparent;height:36px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font:500 13px/1 var(--font);color:var(--ink2);cursor:pointer;transition:background .14s var(--ease),transform .14s}
+.btn{appearance:none;border:0;height:36px;padding:0 18px;border-radius:999px;font:600 13px/1 var(--font);cursor:pointer;transition:background .14s var(--ease),transform .14s,box-shadow .2s var(--ease)}
+.pri{background:var(--accent);color:#fff;box-shadow:0 6px 16px -6px rgba(91,61,245,.6)}
+.pri:hover{background:var(--accent2);box-shadow:0 6px 16px -6px rgba(91,61,245,.6),0 0 0 5px var(--halo)}
+.vr{width:1px;height:18px;background:var(--line2);margin:0 4px}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:-.01em}
+.muted{color:var(--ink3)}
+.serif{font-family:var(--serif);font-weight:400}
+.word{font-weight:600;font-size:16px;letter-spacing:-.03em;margin-inline-end:8px}.word span{color:var(--accent)}
+.save{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px;color:var(--ink2);font-size:12.5px}
+.save .i{color:var(--ok)}
+.sw{display:grid}.sw>span{grid-area:1/1}.s1{animation:out .2s 1.4s both}.s2{animation:in .2s 1.4s both}
+@keyframes out{to{opacity:0}}@keyframes in{from{opacity:0}to{opacity:1}}
+.avs{display:flex;margin:0 10px 0 2px}
+.av{width:30px;height:30px;border-radius:50%;background:#E6E3FA;color:var(--ink);font:600 11px/30px var(--font);text-align:center;box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--ok);position:relative}
+.av+.av{margin-inline-start:-6px;background:#E3EEF4;box-shadow:0 0 0 2px #fff}
+.ph-h{padding:18px 18px 12px;display:flex;flex-direction:column;gap:2px}
+.ttl{font-family:var(--serif);font-size:24px;line-height:26px;color:var(--ink)}
+.sub{font-size:12px;color:var(--ink3)}
+.seg{display:flex;padding:3px;border-radius:999px;background:rgba(17,20,42,.05)}
+.lp .seg,.rp .seg{margin:0 12px}
+.tab{appearance:none;border:0;background:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;font:500 12px/1 var(--font);color:var(--ink3);height:28px;padding:0 10px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:color .14s,background .14s,box-shadow .14s,transform .14s}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected=true]{color:var(--ink);background:#fff;box-shadow:0 1px 2px rgba(17,20,42,.08),0 2px 8px -2px rgba(17,20,42,.10)}
+.srch{margin:12px 12px 6px;display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink3)}
+.srch input{all:unset;flex:1;font-size:12.5px;color:var(--ink)}
+.kbd{font:500 10.5px/1 var(--mono);padding:3px 6px;border-radius:6px;background:#fff;box-shadow:0 0 0 1px var(--line);color:var(--ink3)}
+.tree{padding:2px 8px;flex:1;overflow:hidden}
+.row{display:flex;align-items:center;gap:8px;height:30px;padding:0 10px;border-radius:12px;color:var(--ink2);transition:background .14s}
+.row:hover{background:var(--hover)}
+.row.sel{background:#fff;color:var(--accent2);font-weight:600;box-shadow:0 1px 2px rgba(17,20,42,.06),0 4px 12px -4px rgba(91,61,245,.28)}
+.t{font:500 9.5px/1 var(--mono);color:var(--ink3);width:26px;flex:none;letter-spacing:.02em}
+.row.sel .t{color:var(--accent)}
+.n{margin-inline-start:auto;display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:999px;background:var(--warnbg);color:var(--warn);font:500 10px/1 var(--mono)}
+.lfoot{margin:8px 12px 12px;padding:10px 12px;border-radius:var(--r3);background:rgba(255,255,255,.66);box-shadow:inset 0 0 0 1px var(--line);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;text-align:center}
+.lfoot b{display:block;font:500 15px/18px var(--mono);color:var(--ink)}
+.lfoot span{font-size:11px;color:var(--ink3)}
+.sec{margin:0 12px 10px;padding:12px 14px;border-radius:var(--r3);background:rgba(255,255,255,.7);box-shadow:inset 0 0 0 1px var(--line)}
+.h{font-family:var(--serif);font-size:17px;line-height:20px;color:var(--ink);margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+.h small{font:500 11px var(--font);color:var(--ink3)}
+.pr{display:grid;grid-template-columns:70px minmax(0,1fr);align-items:center;gap:8px;min-height:30px}
+.pr>span:first-child{color:var(--ink3);font-size:12px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.fld{display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .14s;box-sizing:border-box}
+.fld:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.fld:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--halo)}
+.fld input{all:unset;width:100%;min-width:0;font-size:12.5px;color:var(--ink)}
+.fld .k{font:500 10.5px var(--mono);color:var(--ink3)}
+.bind{display:flex;align-items:center;height:30px;padding:0 10px;border-radius:10px;background:var(--soft);color:var(--accent2);font-family:var(--mono);font-size:11px;white-space:nowrap;overflow:hidden}
+.tg{width:30px;height:18px;border-radius:999px;background:var(--accent);position:relative;justify-self:end}
+.tg::after{content:'';position:absolute;top:2px;inset-inline-end:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.pill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:999px;background:rgba(255,255,255,.85);box-shadow:0 0 0 1px var(--line);font:500 10.5px/1 var(--mono);color:var(--ink2);white-space:nowrap}
+.pill.ok{color:var(--ok)}.pill.w{background:var(--warnbg);color:var(--warn);box-shadow:none}
+.pill .i{width:12px;height:12px}
+.dtop{display:flex;align-items:center;gap:10px;padding:10px 10px 8px 12px}
+.dtop .seg{flex:none}
+.dtop .tab{flex:none}
+.cnt{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:999px;background:var(--warnbg);color:var(--warn);font:500 10px/1 var(--mono)}
+.live{display:inline-flex;align-items:center;gap:8px;margin-inline-start:auto;height:30px;padding:0 12px;border-radius:999px;background:var(--okbg);font-size:12px;color:var(--ok);font-weight:500;white-space:nowrap}
+.live i{position:relative;width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.live i::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--ok);animation:ping 2.4s var(--ease) infinite}
+@keyframes ping{0%{opacity:.6;transform:scale(.5)}80%,100%{opacity:0;transform:scale(1.4)}}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl td{padding:6px 14px;border-top:1px solid var(--line);white-space:nowrap}
+.tbl tbody tr{transition:background .12s}.tbl tbody tr:hover{background:rgba(255,255,255,.6)}
+.sev{display:inline-flex;align-items:center;gap:6px;color:var(--warn);font-weight:600}
+.sev.inf{color:var(--ink2)}
+.dfoot{margin-top:auto;display:flex;align-items:center;gap:18px;padding:0 14px;height:38px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3);white-space:nowrap}
+.dfoot b{font:500 11px var(--mono);color:var(--ink)}
+.meter{display:inline-block;width:72px;height:6px;border-radius:999px;background:rgba(17,20,42,.08);overflow:hidden;vertical-align:middle;margin:0 6px}
+.meter b{display:block;height:100%;width:32%;background:var(--ok);border-radius:999px;animation:grow .7s .5s var(--ease) both}
+@keyframes grow{from{width:0}}
+.spark{vertical-align:middle;margin:0 6px}
+.spark path{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:140;stroke-dashoffset:140;animation:draw 1s .6s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.ar{fill:none;stroke:var(--arrow);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fr{position:absolute;top:200px;width:216px;height:468px;background:var(--surface);border-radius:34px;box-shadow:0 0 0 1px rgba(17,20,42,.05),0 1px 0 rgba(17,20,42,.03),0 24px 48px -16px rgba(48,34,150,.20);transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.fr:hover{transform:translateY(-2px)}
+.fr.on{box-shadow:0 0 0 1px rgba(91,61,245,.24),0 0 0 7px var(--halo),0 28px 56px -16px rgba(48,34,150,.28)}
+.lbl{position:absolute;top:134px;width:216px;display:flex;flex-direction:column;gap:3px}
+.lbl b{font-family:var(--serif);font-weight:400;font-size:26px;line-height:28px;color:var(--ink)}
+.lbl span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink3)}
+.lbl.on span{color:var(--accent2);font-weight:500}
+.lbl.on span::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--halo)}
+.hs{position:absolute;top:678px;width:216px;display:flex;gap:4px}
+.ph{padding:38px 16px 16px;display:flex;flex-direction:column;gap:10px;height:100%;box-sizing:border-box;font-size:11px;color:#0F1222;font-family:system-ui,sans-serif}
+.ph h3{margin:0 0 2px;font-size:15px;font-weight:600}
+.pm{color:#5A6280;margin:0}
+.pin{height:36px;border-radius:10px;border:1px solid #E2E5EC;display:flex;align-items:center;padding:0 10px;color:#5A6280}
+.pbtn{height:38px;border-radius:12px;background:#0F1222;color:#fff;display:grid;place-items:center;font-weight:500;margin-top:auto}
+.card{border-radius:12px;background:#F4F5F8;padding:10px 12px;display:flex;justify-content:space-between}
+.big{font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+.amt{position:relative;height:52px;box-sizing:border-box;border-radius:12px;border:1.5px solid #0F1222;display:flex;flex-direction:column;justify-content:center;padding:0 12px;gap:2px}
+.amt b{font-size:16px}
+.selbox{position:absolute;inset:-5px;border:2px solid var(--accent);border-radius:16px;box-shadow:0 0 0 5px var(--halo);animation:selin .45s .55s var(--ease) both}
+@keyframes selin{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
+.hd{position:absolute;width:9px;height:9px;background:#fff;border:2px solid var(--accent);border-radius:50%;box-sizing:border-box}
+.dim{position:absolute;top:calc(100% + 8px);left:50%;translate:-50% 0;background:var(--accent);color:#fff;font:500 10.5px/1 var(--mono);padding:5px 8px;border-radius:999px;white-space:nowrap}
+.bundle{position:absolute;width:96px;height:100px;cursor:pointer}
+.lane{stroke:var(--accent);stroke-dasharray:120;stroke-dashoffset:120;transition:stroke-dashoffset .22s var(--ease)}
+.bundle:hover .lane{stroke-dashoffset:0}
+.trunk,.badge{transition:opacity .16s,transform .16s}
+.bundle:hover .trunk{opacity:.15}
+.bundle:hover .badge{opacity:0;transform:scale(.8)}
+.badge{position:absolute;left:35px;top:39px;min-width:26px;height:22px;padding:0 7px;box-sizing:border-box;border-radius:999px;background:#fff;box-shadow:0 0 0 1px var(--line),0 4px 10px -2px rgba(48,34,150,.18);font:500 11.5px/22px var(--mono);text-align:center;color:var(--ink)}
+.pop{position:absolute;left:50%;bottom:calc(100% + 6px);translate:-50% 0;width:212px;padding:6px;box-sizing:border-box;border-radius:20px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--sh),0 0 0 1px var(--line);opacity:0;transform:translateY(6px) scale(.97);transition:opacity .18s var(--ease),transform .18s var(--ease);pointer-events:none}
+.bundle:hover .pop{opacity:1;transform:none}
+.pop div{display:flex;justify-content:space-between;align-items:baseline;padding:6px 10px;border-radius:14px;font-size:12.5px}
+.pop div:first-child{font-family:var(--serif);font-size:17px}
+.glass{--ink2:#30364F;--ink3:#30364F}
+.sec,.pop,.fr{--ink2:#3C4262;--ink3:#555C7C}
+@media (prefers-reduced-motion:reduce){.st *,.st *::before,.st *::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="st">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="undo" viewBox="0 0 256 256"><path d="M80,40v96L32,88Z" opacity="0.2"></path><path d="M168,80H88V40a8,8,0,0,0-13.66-5.66l-48,48a8,8,0,0,0,0,11.32l48,48A8,8,0,0,0,88,136V96h80a48,48,0,0,1,0,96H80a8,8,0,0,0,0,16h88a64,64,0,0,0,0-128ZM72,116.69,43.31,88,72,59.31Z"></path></symbol>
+<symbol id="redo" viewBox="0 0 256 256"><path d="M224,88l-48,48V40Z" opacity="0.2"></path><path d="M172.94,143.39a8,8,0,0,0,8.72-1.73l48-48a8,8,0,0,0,0-11.32l-48-48A8,8,0,0,0,168,40V80H88a64,64,0,0,0,0,128h88a8,8,0,0,0,0-16H88a48,48,0,0,1,0-96h80v40A8,8,0,0,0,172.94,143.39ZM184,59.31,212.69,88,184,116.69Z"></path></symbol>
+<symbol id="caret" viewBox="0 0 256 256"><path d="M208,96l-80,80L48,96Z" opacity="0.2"></path><path d="M215.39,92.94A8,8,0,0,0,208,88H48a8,8,0,0,0-5.66,13.66l80,80a8,8,0,0,0,11.32,0l80-80A8,8,0,0,0,215.39,92.94ZM128,164.69,67.31,104H188.69Z"></path></symbol>
+<symbol id="sun" viewBox="0 0 256 256"><path d="M184,128a56,56,0,1,1-56-56A56,56,0,0,1,184,128Z" opacity="0.2"></path><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"></path></symbol>
+<symbol id="phone" viewBox="0 0 256 256"><path d="M192,56V200H64V56Z" opacity="0.2"></path><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"></path></symbol>
+<symbol id="search" viewBox="0 0 256 256"><path d="M192,112a80,80,0,1,1-80-80A80,80,0,0,1,192,112Z" opacity="0.2"></path><path d="M229.66,218.34,179.6,168.28a88.21,88.21,0,1,0-11.32,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></symbol>
+<symbol id="send" viewBox="0 0 256 256"><path d="M223.69,42.18l-58.22,192a8,8,0,0,1-14.92,1.25L108,148,20.58,105.45a8,8,0,0,1,1.25-14.92l192-58.22A8,8,0,0,1,223.69,42.18Z" opacity="0.2"></path><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></symbol>
+<symbol id="ok" viewBox="0 0 256 256"><path d="M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z" opacity="0.2"></path><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></symbol>
+<symbol id="warn" viewBox="0 0 256 256"><path d="M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z" opacity="0.2"></path><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"></path></symbol>
+<symbol id="cloud" viewBox="0 0 256 256"><path d="M240,128a80,80,0,0,1-80,80H72A56,56,0,1,1,85.92,97.74l0,.1A80,80,0,0,1,240,128Z" opacity="0.2"></path><path d="M160,40A88.09,88.09,0,0,0,81.29,88.67,64,64,0,1,0,72,216h88a88,88,0,0,0,0-176Zm0,160H72a48,48,0,0,1,0-96c1.1,0,2.2,0,3.29.11A88,88,0,0,0,72,128a8,8,0,0,0,16,0,72,72,0,1,1,72,72Zm37.66-93.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L144,148.69l42.34-42.35A8,8,0,0,1,197.66,106.34Z"></path></symbol>
+<symbol id="stack" viewBox="0 0 256 256"><path d="M224,80l-96,56L32,80l96-56Z" opacity="0.2"></path><path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"></path></symbol>
+</defs></svg>
+
+<svg width="1440" height="900" style="position:absolute;inset:0;pointer-events:none" aria-hidden="true">
+<path class="ar" d="M396 330H486M480 324l6 6-6 6"></path>
+<path class="ar" d="M1020 470H1110M1104 464l6 6-6 6"></path>
+</svg>
+
+<div class="lbl" style="left:180px"><b>Sign in</b><span>Entry screen</span></div>
+<div class="fr" style="left:180px"><div class="ph"><p class="pm">Plux Bank</p><h3>Welcome back</h3><p class="pm">Sign in to your accounts</p><div class="pin">Email</div><div class="pin">Password</div><div class="pbtn">Sign in</div></div></div>
+<div class="hs" style="left:180px"><span class="pill ok"><svg class="i" aria-hidden="true"><use href="#ok"></use></svg>valid</span><span class="pill">a11y 0</span><span class="pill">12 KB</span></div>
+
+<div class="lbl" style="left:492px"><b>Accounts</b><span>From Sign in</span></div>
+<div class="fr" style="left:492px"><div class="ph"><p class="pm">Total balance</p><div class="big">€12,480.20</div><div class="card"><span>Current account</span><b>€8,214.55</b></div><div class="card"><span>Savings</span><b>€4,265.65</b></div><div class="card"><span>Cards</span><span class="pm">2 active</span></div><div class="pbtn">Send money</div></div></div>
+<div class="hs" style="left:492px"><span class="pill ok"><svg class="i" aria-hidden="true"><use href="#ok"></use></svg>valid</span><span class="pill">a11y 0</span><span class="pill">9 KB</span></div>
+
+<div class="lbl on" style="left:804px"><b>Transfer</b><span>Editing · 3 ways in</span></div>
+<div class="fr on" style="left:804px"><div class="ph"><h3>Send money</h3><div class="card"><span>To</span><b>Anna Weber</b></div><div class="amt"><span class="pm">Amount</span><b>€ 250.00</b><div class="selbox"><span class="hd" style="left:-5.5px;top:-5.5px"></span><span class="hd" style="right:-5.5px;top:-5.5px"></span><span class="hd" style="left:-5.5px;bottom:-5.5px"></span><span class="hd" style="right:-5.5px;bottom:-5.5px"></span><span class="dim">184 × 52</span></div></div><div class="pin">Reference (optional)</div><div class="pbtn">Continue</div></div></div>
+<div class="hs" style="left:804px"><span class="pill w"><svg class="i" aria-hidden="true"><use href="#warn"></use></svg>2 warnings</span><span class="pill">a11y 1</span><span class="pill">8 KB</span></div>
+
+<div class="lbl" style="left:1116px"><b>Confirm</b><span>From Transfer</span></div>
+<div class="fr" style="left:1116px"><div class="ph"><h3>Confirm</h3><div class="card"><span>Amount</span><b>€250.00</b></div><div class="card"><span>To</span><b>Anna Weber</b></div><div class="card"><span>Fee</span><b>€0.00</b></div><div class="pbtn">Confirm with Face ID</div></div></div>
+
+<div class="bundle" style="left:700px;top:360px">
+<svg width="96" height="100" aria-hidden="true"><path class="ar trunk" d="M8 50H94M88 44l6 6-6 6"></path><path class="ar lane" d="M8 50C48 50 52 24 94 24"></path><path class="ar lane" d="M8 50H94"></path><path class="ar lane" d="M8 50C48 50 52 76 94 76"></path></svg>
+<span class="badge">3</span>
+<div class="pop"><div><span>Three ways in</span><span class="mono muted">→ Transfer</span></div><div><span>Send money</span><span class="mono muted">Button · onTap</span></div><div><span>Quick pay</span><span class="mono muted">Tile · onTap</span></div><div><span>Repeat last</span><span class="mono muted">Menu · onSelect</span></div></div>
+</div>
+
+<div class="glass cap c1">
+<span class="word">plu<span>x</span></span>
+<button class="sbtn" style="color:var(--ink);padding-inline-end:10px"><span class="serif" style="font-size:19px">Payments</span><span class="mono muted">1.4 · draft</span><svg class="i s" aria-hidden="true"><use href="#caret"></use></svg></button>
+</div>
+<div class="glass cap c2">
+<button class="ib" aria-label="Undo"><svg class="i" aria-hidden="true"><use href="#undo"></use></svg></button>
+<button class="ib" aria-label="Redo"><svg class="i" aria-hidden="true"><use href="#redo"></use></svg></button>
+<span class="vr"></span>
+<button class="sbtn"><span class="mono" style="font-size:12px">82%</span></button>
+<button class="sbtn"><svg class="i" aria-hidden="true"><use href="#phone"></use></svg>iPhone 16</button>
+<button class="sbtn">EN</button>
+<button class="ib" aria-label="Theme: light"><svg class="i" aria-hidden="true"><use href="#sun"></use></svg></button>
+<span class="vr"></span>
+<button class="sbtn"><svg class="i" aria-hidden="true"><use href="#send"></use></svg>Send to device</button>
+</div>
+<div class="glass cap c3">
+<span class="save"><svg class="i" aria-hidden="true"><use href="#cloud"></use></svg><span class="sw"><span class="s1">Saving…</span><span class="s2">Saved <span class="mono muted">r214</span></span></span></span>
+<span class="avs"><span class="av" title="Anna Weber holds the edit lock">AW</span><span class="av" title="Marc Klein is viewing">MK</span></span>
+<button class="btn pri">Publish</button>
+</div>
+
+<div class="glass lp">
+<div class="ph-h"><span class="ttl">Layers</span><span class="sub">Transfer · 9 nodes</span></div>
+<div class="seg" role="tablist"><button class="tab" role="tab" aria-selected="true"><svg class="i s" aria-hidden="true"><use href="#stack"></use></svg>Layers</button><button class="tab" role="tab" aria-selected="false">Insert</button><button class="tab" role="tab" aria-selected="false">Screens</button><button class="tab" role="tab" aria-selected="false">State</button></div>
+<label class="srch"><svg class="i s" aria-hidden="true"><use href="#search"></use></svg><input placeholder="Find a layer" aria-label="Find a layer"><span class="kbd">/</span></label>
+<div class="tree">
+<div class="row" style="padding-inline-start:10px"><span class="t">SCR</span>Transfer</div>
+<div class="row" style="padding-inline-start:22px"><span class="t">SCF</span>Scaffold</div>
+<div class="row" style="padding-inline-start:34px"><span class="t">BAR</span>App bar</div>
+<div class="row" style="padding-inline-start:34px"><span class="t">COL</span>Body</div>
+<div class="row" style="padding-inline-start:46px"><span class="t">TIL</span>Recipient</div>
+<div class="row sel" style="padding-inline-start:46px"><span class="t">TXF</span>Amount field</div>
+<div class="row" style="padding-inline-start:46px"><span class="t">TXF</span>Reference field<span class="n">1</span></div>
+<div class="row" style="padding-inline-start:46px"><span class="t">SPC</span>Spacer</div>
+<div class="row" style="padding-inline-start:46px"><span class="t">BTN</span>Continue<span class="n">1</span></div>
+</div>
+<div class="lfoot"><div><b>4</b><span>screens</span></div><div><b>6</b><span>links</span></div><div><b>1</b><span>ghost</span></div></div>
+</div>
+
+<div class="glass rp">
+<div class="ph-h"><span class="ttl">Amount field</span><span class="sub"><span class="mono">TextField</span> · Material</span></div>
+<div class="seg" role="tablist" style="margin-bottom:12px"><button class="tab" role="tab" aria-selected="true">Properties</button><button class="tab" role="tab" aria-selected="false">Actions</button><button class="tab" role="tab" aria-selected="false">JSON</button><button class="tab" role="tab" aria-selected="false">A11y</button></div>
+<div class="sec"><p class="h">Layout<small>Compact size class</small></p><div class="g2"><label class="fld"><span class="k">W</span><input value="Fill" aria-label="Width"></label><label class="fld"><span class="k">H</span><input value="52" aria-label="Height"></label><label class="fld"><span class="k">PX</span><input value="16" aria-label="Horizontal padding"></label><label class="fld"><span class="k">PY</span><input value="12" aria-label="Vertical padding"></label></div></div>
+<div class="sec"><p class="h">Data</p>
+<div class="pr"><span>Value</span><span class="bind">state.transfer.amount</span></div>
+<div class="pr"><span>Format</span><label class="fld"><input value="Currency · EUR" aria-label="Format"><svg class="i s muted" aria-hidden="true"><use href="#caret"></use></svg></label></div>
+<div class="pr"><span>Keyboard</span><label class="fld"><input value="Decimal" aria-label="Keyboard"></label></div></div>
+<div class="sec"><p class="h">Validation</p>
+<div class="pr"><span>Required</span><span class="tg"></span></div>
+<div class="pr"><span>Min</span><span class="mono">0.01</span></div>
+<div class="pr"><span>Max</span><span class="mono muted">limits.transfer.max</span></div></div>
+<div class="sec"><p class="h">Accessibility<small><span class="pill ok" style="height:20px"><svg class="i" aria-hidden="true"><use href="#ok"></use></svg>7.9 : 1</span></small></p><div class="pr"><span>Label</span><label class="fld"><input value="Amount in euros" aria-label="Accessible label"></label></div></div>
+</div>
+
+<div class="glass dr">
+<div class="dtop">
+<div class="seg" role="tablist"><button class="tab" role="tab" aria-selected="true"><svg class="i s" aria-hidden="true" style="color:var(--warn)"><use href="#warn"></use></svg>Problems<span class="cnt">2</span></button><button class="tab" role="tab" aria-selected="false">Logs</button><button class="tab" role="tab" aria-selected="false">Flow</button><button class="tab" role="tab" aria-selected="false">State</button><button class="tab" role="tab" aria-selected="false">Network</button></div>
+<span class="live"><i></i>Pixel 9 · live · <span class="mono">41 ms</span></span>
+</div>
+<table class="tbl"><tbody>
+<tr><td><span class="sev"><svg class="i s" aria-hidden="true"><use href="#warn"></use></svg>Warning</span></td><td>Hint text contrast 4.1 : 1, needs 4.5 : 1</td><td class="mono muted">transfer › Reference field</td></tr>
+<tr><td><span class="sev"><svg class="i s" aria-hidden="true"><use href="#warn"></use></svg>Warning</span></td><td>Button label is not announced as a button</td><td class="mono muted">transfer › Continue</td></tr>
+</tbody></table>
+<div class="dfoot">
+<span>Validation <b>0 errors</b></span>
+<span>Bundle<span class="meter"><b></b></span><b>38 / 120 KB</b></span>
+<span>Frame time<svg class="spark" width="84" height="18" aria-hidden="true"><path d="M1 12 L9 11 L17 13 L25 9 L33 11 L41 6 L49 10 L57 9 L65 12 L73 8 L83 10"></path></svg><b>8.1 ms p95</b></span>
+<span style="margin-inline-start:auto">Synced <b>2 s</b> ago</span>
+</div>
+</div>
+</div>
+</body>
+</html>

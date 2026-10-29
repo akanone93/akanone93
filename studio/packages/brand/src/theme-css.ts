@@ -1,0 +1,212 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: AGPL-3.0-only
+
+/**
+ * Generates Studio's Tailwind v4 stylesheet from the design tokens (ADR-0014,
+ * studio-development §4.2). The `@theme` block first resets every Tailwind
+ * default (`--*: initial`), so the only utilities that exist are the ones the
+ * tokens back. Add a token family by adding a row to `tokenFamilies`.
+ */
+
+import {
+  arabicAdjustedRoles,
+  arabicLineHeightExtra,
+  densityTokens,
+  dialogWidths,
+  elevations,
+  fontFamilies,
+  iconSizes,
+  motion,
+  radii,
+  semanticColors,
+  space,
+  surfaceScalars,
+  type ThemeName,
+  typeRoles,
+} from "./porcelain.ts";
+import { brandColors } from "./tokens.ts";
+
+/** A token value in each theme; `contrast` falls back to `light` when absent. */
+interface ThemedValue {
+  readonly light: string;
+  readonly dark: string;
+  readonly contrast?: string;
+}
+
+/** One family of tokens that becomes one Tailwind theme namespace. */
+interface TokenFamily {
+  /** The Tailwind theme namespace, e.g. `color` makes `--color-*` and `bg-*`. */
+  readonly namespace: string;
+  readonly tokens: Readonly<Record<string, ThemedValue>>;
+}
+
+function themed(entries: readonly { key: string; light: string; dark: string; contrast: string }[]) {
+  return Object.fromEntries(entries.map((e) => [e.key, e]));
+}
+
+function fixed(values: Readonly<Record<string, string>>): Record<string, ThemedValue> {
+  return Object.fromEntries(Object.entries(values).map(([k, v]) => [k, { light: v, dark: v }]));
+}
+
+const sizeTokens: Record<string, ThemedValue> = {};
+for (const role of typeRoles) {
+  sizeTokens[role.key] = { light: `${role.size}px`, dark: `${role.size}px` };
+  sizeTokens[`${role.key}--line-height`] = { light: `${role.line}px`, dark: `${role.line}px` };
+  sizeTokens[`${role.key}--font-weight`] = { light: `${role.weight}`, dark: `${role.weight}` };
+}
+
+/** The token families the stylesheet is built from, in output order. */
+const tokenFamilies: readonly TokenFamily[] = [
+  { namespace: "color", tokens: { ...brandColors, ...themed(semanticColors) } },
+  { namespace: "radius", tokens: fixed(Object.fromEntries(Object.entries(radii).map(([k, v]) => [k, v.value]))) },
+  { namespace: "shadow", tokens: themed(elevations) },
+  { namespace: "spacing", tokens: fixed({ ...space, ...iconSizes }) },
+  { namespace: "container", tokens: fixed(dialogWidths) },
+  { namespace: "font", tokens: fixed(fontFamilies) },
+  { namespace: "text", tokens: sizeTokens },
+  { namespace: "duration", tokens: fixed(motion.durations) },
+  { namespace: "ease", tokens: fixed(motion.easings) },
+  { namespace: "surface", tokens: themed(surfaceScalars) },
+];
+
+/** Maps a dotted token name to its CSS variable, e.g. `brand.violet` to `--color-brand-violet`. */
+function variableName(namespace: string, token: string): string {
+  const key = namespace === "spacing" ? token.replaceAll(".", "\\.") : token.replaceAll(".", "-");
+  return `--${namespace}-${key}`;
+}
+
+const forcedColors: Readonly<Record<string, string>> = {
+  canvas: "Canvas",
+  app: "Canvas",
+  raised: "Canvas",
+  selected: "Canvas",
+  primary: "CanvasText",
+  secondary: "CanvasText",
+  tertiary: "CanvasText",
+  accent: "Highlight",
+  "accent-hover": "Highlight",
+  selection: "Highlight",
+  "selection-text": "HighlightText",
+  "selection-surface": "Canvas",
+  "on-accent": "HighlightText",
+  focus: "Highlight",
+  link: "LinkText",
+  "button-text": "ButtonText",
+};
+
+function forcedColorDeclarations(): string[] {
+  return Object.entries(forcedColors).map(([key, v]) => `    --color-${key}: ${v};`);
+}
+
+/** The declarations of one theme; dark and contrast list only what differs from light. */
+function declarations(theme: ThemeName): string[] {
+  return tokenFamilies.flatMap((family) =>
+    Object.entries(family.tokens).flatMap(([token, value]) => {
+      const v = theme === "contrast" ? (value.contrast ?? value.light) : value[theme];
+      if (theme !== "light" && v === value.light) {
+        return [];
+      }
+      return [`  ${variableName(family.namespace, token)}: ${v};`];
+    }),
+  );
+}
+
+function densityDeclarations(density: "compact" | "comfortable"): string[] {
+  return densityTokens.map((t) => `  --density-${t.key}: ${t[density]};`);
+}
+
+function arabicDeclarations(): string[] {
+  return typeRoles
+    .filter((role) => arabicAdjustedRoles.has(role.key))
+    .map((role) => `  --text-${role.key}--line-height: ${role.line + arabicLineHeightExtra}px;`);
+}
+
+function reducedMotionDeclarations(): string[] {
+  return Object.keys(motion.durations).map((name) => `    --duration-${name}: 0ms;`);
+}
+
+/**
+ * Returns the stylesheet text. The output is a pure function of the tokens:
+ * the same tokens give the same bytes.
+ */
+export function themeCss(): string {
+  return [
+    "/* SPDX-FileCopyrightText: 2026 Plux contributors */",
+    "/* SPDX-License-Identifier: AGPL-3.0-only */",
+    "/* Generated by studio/scripts/gen-theme.ts from @plux/brand. Do not edit. */",
+    "@layer theme, base, components, utilities;",
+    '@import "tailwindcss/preflight.css" layer(base);',
+    '@import "tailwindcss/utilities.css" layer(utilities);',
+    "",
+    "@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));",
+    "",
+    "@theme static {",
+    "  --*: initial;",
+    ...declarations("light"),
+    "}",
+    "",
+    ":root {",
+    ...densityDeclarations("compact"),
+    "}",
+    "",
+    "[data-density=comfortable] {",
+    ...densityDeclarations("comfortable"),
+    "}",
+    "",
+    "/* U15: the contrast theme applies on request of the system; an explicit theme below wins. */",
+    "@media (prefers-contrast: more) {",
+    "  :root {",
+    ...declarations("contrast").map((d) => `  ${d}`),
+    "  }",
+    "}",
+    "",
+    "/* U15: forced colours use system colours; forced-color-adjust stays auto. */",
+    "@media (forced-colors: active) {",
+    "  :root {",
+    ...forcedColorDeclarations(),
+    "  }",
+    "}",
+    "",
+    "[data-theme=dark] {",
+    ...declarations("dark"),
+    "}",
+    "",
+    "[data-theme=contrast] {",
+    ...declarations("contrast"),
+    "}",
+    "",
+    ":lang(ar) {",
+    ...arabicDeclarations(),
+    "}",
+    "",
+    "/* Solid fallback for glass (U3 rule 3). */",
+    "@media (prefers-reduced-transparency: reduce) {",
+    "  :root {",
+    "    --surface-glass-fill: var(--surface-glass-solid);",
+    "    --surface-glass-backdrop: none;",
+    "  }",
+    "}",
+    "",
+    "[data-transparency=reduced] {",
+    "  --surface-glass-fill: var(--surface-glass-solid);",
+    "  --surface-glass-backdrop: none;",
+    "}",
+    "",
+    "@utility glass {",
+    "  background-color: var(--surface-glass-fill);",
+    "  backdrop-filter: var(--surface-glass-backdrop);",
+    "  box-shadow:",
+    "    inset 0 0 0 1px var(--surface-glass-inner),",
+    "    0 0 0 1px var(--surface-glass-outer),",
+    "    var(--shadow-e2);",
+    "}",
+    "",
+    "/* U13: every animation becomes an instant change. */",
+    "@media (prefers-reduced-motion: reduce) {",
+    "  :root {",
+    ...reducedMotionDeclarations(),
+    "  }",
+    "}",
+    "",
+  ].join("\n");
+}

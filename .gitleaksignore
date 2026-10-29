@@ -10,3 +10,15 @@ ee/backend/auditexport/testdata/standard_webhooks_vectors.json:generic-api-key:3
 # Public Standard Webhooks test vector, copied unmodified into the shared signer tests (published upstream, Apache-2.0)
 ee/backend/internal/stdwebhook/testdata/standard_webhooks_vectors.json:generic-api-key:3
 9621a540dfb4385443450440be837fdcbb059881:ee/backend/internal/stdwebhook/testdata/standard_webhooks_vectors.json:generic-api-key:3
+# Studio BFF test fixtures (P11): base64 of "0123456789abcdef0123456789abcdef"
+# and "e2e-test-state-secret-not-for-production", test-only state secrets.
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/apps/bff/src/signin.test.ts:generic-api-key:63
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/apps/bff/src/signin.test.ts:generic-api-key:175
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/apps/bff/src/bff.test.ts:generic-api-key:14
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/e2e/playwright.config.ts:generic-api-key:40
+# The same fixtures before the commit messages were reworded; the old commits stay
+# reachable through other branches (p11/g-wizard, the hand-off branches).
+70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/apps/bff/src/signin.test.ts:generic-api-key:63
+70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/apps/bff/src/signin.test.ts:generic-api-key:175
+70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/apps/bff/src/bff.test.ts:generic-api-key:14
+70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/e2e/playwright.config.ts:generic-api-key:40

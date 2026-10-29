@@ -120,16 +120,27 @@ const (
 	AnalyticsFileExportSet Action = "analytics.file_export_set"
 	// AlertRuleSet and AlertRuleDeleted: an alert rule was created or
 	// changed, or removed (ANL-030).
-	AlertRuleSet         Action = "analytics.alert_rule_set"
-	AlertRuleDeleted     Action = "analytics.alert_rule_deleted"
+	AlertRuleSet     Action = "analytics.alert_rule_set"
+	AlertRuleDeleted Action = "analytics.alert_rule_deleted"
+	// FunnelSet and FunnelDeleted: a funnel was defined or removed (ANL-020).
+	FunnelSet            Action = "analytics.funnel_set"
+	FunnelDeleted        Action = "analytics.funnel_deleted"
 	ReleasesPurged       Action = "release.purged"
 	ControlChanged       Action = "release.control_changed"
 	SnapshotRestored     Action = "snapshot.restored"
 	TemplateInstantiated Action = "template.instantiated"
-	LockAcquired         Action = "plugin.lock.acquired"
-	LockTakenOver        Action = "plugin.lock.override"
-	LockReleased         Action = "plugin.lock.released"
-	LockRequested        Action = "plugin.lock.requested"
+	// The library (STU-080 to STU-085, ADR-0098). LibraryItemCreated: a
+	// template or component was made or imported. LibraryVersionAdded: a new
+	// immutable version was written. LibraryVisibilitySet: who can see an item
+	// changed. LibraryVersionAdopted: an app adopted a component version.
+	LibraryItemCreated    Action = "library.item_created"
+	LibraryVersionAdded   Action = "library.version_added"
+	LibraryVisibilitySet  Action = "library.visibility_set"
+	LibraryVersionAdopted Action = "library.version_adopted"
+	LockAcquired          Action = "plugin.lock.acquired"
+	LockTakenOver         Action = "plugin.lock.override"
+	LockReleased          Action = "plugin.lock.released"
+	LockRequested         Action = "plugin.lock.requested"
 
 	// DeviceRevoked: a device's trust was withdrawn (SEC-006).
 	DeviceRevoked Action = "device.revoked"
@@ -167,6 +178,13 @@ const (
 	FunctionPromoted       Action = "function.promoted"
 	FunctionAliasSet       Action = "function.alias_set"
 
+	// FunctionEditorStarted and FunctionEditorStopped: a language-server
+	// sandbox of the Rust editor started or ended for a person; the entry
+	// names the source, the session and why it ended, never the code
+	// (FN-033, ADR-0099).
+	FunctionEditorStarted Action = "function.editor_started"
+	FunctionEditorStopped Action = "function.editor_stopped"
+
 	// UpdateMetadataRootUploaded: an operator stored a root signed
 	// offline (SEC-051, SEC-140).
 	UpdateMetadataRootUploaded Action = "update_metadata.root_uploaded"
@@ -175,10 +193,26 @@ const (
 	// became invalid, or came back to a valid state (GOV-030). It is
 	// recorded in the installation's own chain.
 	LicenseStateChanged Action = "license.state_changed"
+	// InstallationOrganizationsViewed: an installation administrator listed
+	// every organisation with its counts (STU-116). It is recorded in the
+	// installation's own chain.
+	InstallationOrganizationsViewed Action = "installation.organizations_viewed"
 	// GitExportConfigured: an app's Git export setting was set (GOV-011).
 	GitExportConfigured Action = "git.export_configured"
 	// GitExported: a publish was pushed to the app's Git remote (GOV-011).
 	GitExported Action = "git.exported"
+	// AppExported: an app was exported as a .plux archive (STU-023).
+	AppExported Action = "app.exported"
+	// AppImported: an app was created from a .plux archive or a sample app (STU-023, STU-015).
+	AppImported Action = "app.imported"
+	// AppDuplicated: an app was duplicated through an export and an import (STU-024).
+	AppDuplicated Action = "app.duplicated"
+	// AppArchived: an app was archived or unarchived (STU-022).
+	AppArchived Action = "app.archived"
+	// ShellSettingsSet: an app's shell settings were stored (GEN-004).
+	ShellSettingsSet Action = "shell.settings_set"
+	// ProjectGenerated: a host project was generated for an app (GEN-001).
+	ProjectGenerated Action = "project.generated"
 )
 
 // The actions of the audit export (SEC-143, ADR-0082).
@@ -230,6 +264,9 @@ const (
 	// health gate and the channel returned to the previous release as a new
 	// release; the detail says which.
 	RolloutReverted Action = "rollout.reverted"
+	// RolloutRescheduled: a person changed when a rollout starts or ends; the
+	// detail gives the old and the new window.
+	RolloutRescheduled Action = "rollout.rescheduled"
 )
 
 // The actions of feature flags and experiments (ABT-001, ABT-004, ABT-005,
@@ -439,17 +476,18 @@ var actions = sorted(
 	PluginCreated, PluginUpdated, PluginDeleted, PluginRestored, PluginPurged,
 	DocumentWritten, DocumentDeleted, DocumentRestored, DocumentPurged, DraftImported, AssetUploaded, AssetDeleted,
 	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged, GoldensApproved,
-	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AnalyticsFileExportSet, AlertRuleSet, AlertRuleDeleted,
+	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AnalyticsFileExportSet, AlertRuleSet, AlertRuleDeleted, FunnelSet, FunnelDeleted,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
 	ConfigValueSet, ConfigValueDeleted,
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
+	FunctionEditorStarted, FunctionEditorStopped,
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,
 	RestrictionCreated, RestrictionDeleted, RestrictionRefused,
 	SessionRevoked, StepUpRequested, StepUpApproved, StepUpRefused, StepUpGrantIssued, StepUpGrantRefused,
-	LicenseStateChanged,
+	LicenseStateChanged, InstallationOrganizationsViewed,
 	NotificationChannelSet, NotificationChannelDeleted, NotificationSubscriptionSet, NotificationsDropped,
 	WebhookSet, WebhookDeleted, WebhookSecretRotated, DeliveryFailed,
 	FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet, FunctionHookDeleted, FunctionHookSecretRotated,
@@ -459,13 +497,15 @@ var actions = sorted(
 	ScimAccessCreated, ScimAccessRotated, ScimAccessRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
 	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
 	DataSubjectExported, DataSubjectErased,
-	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted,
+	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted, RolloutRescheduled,
 	ReconstructionCreated, ReconstructionViewed,
 	FlagCreated, FlagUpdated, FlagDeleted, ExperimentCreated, ExperimentDeleted,
 	ExperimentStarted, ExperimentStopped, ExperimentPromoted, ExperimentHoldoutChanged,
 	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
 	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
 	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionCommandSent, DevSessionPatched,
+	LibraryItemCreated, LibraryVersionAdded, LibraryVisibilitySet, LibraryVersionAdopted,
+	AppExported, AppImported, AppDuplicated, AppArchived, ShellSettingsSet, ProjectGenerated,
 )
 
 // sorted returns its arguments in order.

@@ -1,0 +1,168 @@
+{
+  "name": "material-tab-bar-indicator",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "w0",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b0",
+                "type": "TabBar",
+                "props": {
+                  "indicatorSize": "label"
+                },
+                "children": [
+                  {
+                    "id": "b0t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Label"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b0t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Sized"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w1",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b1",
+                "type": "TabBar",
+                "props": {
+                  "indicatorSize": "tab"
+                },
+                "children": [
+                  {
+                    "id": "b1t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Tab"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b1t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Sized"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w2",
+            "type": "SizedBox",
+            "props": {
+              "width": 320
+            },
+            "children": [
+              {
+                "id": "b2",
+                "type": "TabBar",
+                "props": {
+                  "indicatorSize": "label"
+                },
+                "children": [
+                  {
+                    "id": "b2t0",
+                    "type": "Tab",
+                    "props": {
+                      "height": 64,
+                      "text": "Tall"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b2t1",
+                    "type": "Tab",
+                    "props": {
+                      "height": 64,
+                      "text": "Tabs"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "w3",
+            "type": "SizedBox",
+            "props": {
+              "width": 200
+            },
+            "children": [
+              {
+                "id": "b3",
+                "type": "TabBar",
+                "props": {},
+                "children": [
+                  {
+                    "id": "b3t0",
+                    "type": "Tab",
+                    "props": {
+                      "text": "A very long tab label"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "b3t1",
+                    "type": "Tab",
+                    "props": {
+                      "text": "Another long label"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cap",
+            "type": "Text",
+            "props": {
+              "text": "Caption"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

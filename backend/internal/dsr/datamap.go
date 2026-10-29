@@ -91,6 +91,12 @@ func deviceStores() []Store {
 			Note: "Erased row-wise across every partition.",
 		},
 		{
+			Name: "session_replays", Description: "Structural session replays the device recorded with the replay consent (ANL-050, ADR-0101).",
+			DeviceKey: "device_id", Personal: []string{"device_id", "events"},
+			Retention: "replay.retentionDays, 7 days by default; the sweep deletes older replays.", Erase: EraseDelete,
+			Note: "Node paths, rectangles, tap positions and non-sensitive numeric state values only; never a text, an image or a sensitive field (SCH-012).",
+		},
+		{
 			Name: "device_push_tokens", Description: "The push token of a device, sealed with envelope encryption (SEC-106).",
 			DeviceKey: "device_id", Personal: []string{"ciphertext", "wrapped_key"},
 			Retention: retentionDevice, Erase: EraseDelete,
@@ -216,6 +222,15 @@ func accountStores() []Store {
 			UserKey: "user_id", Personal: []string{"user_id"}, Retention: retentionAccount, Erase: EraseAccount,
 		},
 		{
+			Name: "user_preferences", Description: "A user's Studio preferences per organisation.",
+			UserKey: "user_id", Personal: []string{"user_id", "preferences"}, Retention: retentionAccount, Erase: EraseAccount,
+		},
+		{
+			Name: "upload_sessions", Description: "Chunked Studio uploads in progress.",
+			UserKey: "user_id", Personal: []string{"user_id", "name", "data"},
+			Retention: "Until the upload completes or expires (expires_at), then the maintenance sweep; the rows go with the account.", Erase: EraseAccount,
+		},
+		{
 			Name: "restriction_policies", Description: "Restrictions that remove permissions from the organisation, a team or a person (GOV-006).",
 			UserKey: "user_id", Personal: []string{"user_id", "created_by"}, Retention: retentionAccount, Erase: EraseAccount,
 			Note: "A person's restrictions go with the account; created_by is cleared when the author's account is deleted.",
@@ -305,6 +320,24 @@ func operationalStores() []Store {
 			Name: "compliance_reports", Description: "Stored compliance report statements and their signatures (GOV-026).",
 			Personal: []string{"requested_by_id", "requested_by"}, Retention: retentionAudit, Erase: EraseRetained,
 			Note: "Kept as compliance evidence (GOV-026). The signed statement names people by identifier and display name only, and is never rewritten, because the signature covers it.",
+		},
+		{
+			Name: "test_runs", Description: "Plux Test runs reported for an app, with their scenario results (TST-002).",
+			Personal: []string{"created_by"}, Retention: "Until the app is deleted.", Erase: EraseNone,
+			Note: "created_by is the identifier of the token or person that reported the run; the results describe scenarios, not people.",
+		},
+		{
+			Name: "project_jobs", Description: "Host-project generation jobs of an app (GEN-001, GEN-004).",
+			Personal: []string{"created_by"}, Retention: "Until the app is deleted.", Erase: EraseNone,
+			Note: "created_by is the identifier of the person or token that queued the job.",
+		},
+		{
+			Name: "project_job_results", Description: "The generated host projects (zip) of those jobs.",
+			Retention: "Until the app is deleted.", Erase: EraseNone,
+		},
+		{
+			Name: "app_shell_settings", Description: "An app's shell settings and the settings its project was last generated from (GEN-004).",
+			Retention: "Until the app is deleted.", Erase: EraseNone,
 		},
 		{
 			Name: "golden_cases", Description: "Golden-test cases of an app.",

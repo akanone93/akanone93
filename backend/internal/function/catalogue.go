@@ -41,7 +41,28 @@ type versionKey struct {
 	version uint32
 }
 
-var _ compiler.FunctionCatalogue = (*catalogue)(nil)
+var (
+	_ compiler.FunctionCatalogue = (*catalogue)(nil)
+	_ compiler.FunctionLister    = (*catalogue)(nil)
+)
+
+// FunctionEntries implements compiler.FunctionLister: every answer Function
+// can give, sorted by name and alias, for a process that compiles without
+// access to the database.
+func (c *catalogue) FunctionEntries() []compiler.FunctionEntry {
+	var out []compiler.FunctionEntry
+	for name := range c.latest {
+		if info, ok := c.Function(name, ""); ok {
+			out = append(out, compiler.FunctionEntry{Name: name, Info: info})
+		}
+		for alias := range c.aliases[name] {
+			if info, ok := c.Function(name, alias); ok {
+				out = append(out, compiler.FunctionEntry{Name: name, Alias: alias, Info: info})
+			}
+		}
+	}
+	return compiler.NewFunctionSet(out, c.deviceFunctions).FunctionEntries()
+}
 
 // Function implements compiler.FunctionCatalogue: the version the alias
 // selects, or the newest when alias is empty (FN-006).

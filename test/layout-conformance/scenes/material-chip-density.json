@@ -1,0 +1,119 @@
+{
+  "name": "material-chip-density",
+  "root": {
+    "id": "frame",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min"
+        },
+        "children": [
+          {
+            "id": "d0",
+            "type": "InputChip",
+            "props": {
+              "density": "compact",
+              "deletable": true
+            },
+            "children": [
+              {
+                "id": "d0t",
+                "type": "Text",
+                "props": {
+                  "text": "Dense"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "d0a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              },
+              {
+                "id": "d0d",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "deleteIcon"
+              }
+            ]
+          },
+          {
+            "id": "d1",
+            "type": "Chip",
+            "props": {
+              "density": "comfortable"
+            },
+            "children": [
+              {
+                "id": "d1t",
+                "type": "Text",
+                "props": {
+                  "text": "Dense"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "d2",
+            "type": "Chip",
+            "props": {
+              "tapTargetSize": "shrinkWrap"
+            },
+            "children": [
+              {
+                "id": "d2t",
+                "type": "Text",
+                "props": {
+                  "text": "Wrap"
+                },
+                "slot": "label"
+              }
+            ]
+          },
+          {
+            "id": "d3",
+            "type": "FilterChip",
+            "props": {
+              "tapTargetSize": "shrinkWrap",
+              "selected": true
+            },
+            "children": [
+              {
+                "id": "d3t",
+                "type": "Text",
+                "props": {
+                  "text": "Wrap"
+                },
+                "slot": "label"
+              },
+              {
+                "id": "d3a",
+                "type": "Icon",
+                "props": {
+                  "size": 18
+                },
+                "slot": "avatar"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

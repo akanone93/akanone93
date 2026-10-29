@@ -977,6 +977,94 @@ func (x *TrashItem) GetPurgeAfter() *timestamppb.Timestamp {
 	return nil
 }
 
+// MetadataUpdate changes the descriptive metadata of an app or a plugin
+// (plan P11 §4.3 #13). A field that is absent is left as it is; tags are
+// replaced whole when set_tags is true. An empty owning_team_id clears the
+// owner.
+type MetadataUpdate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Description   *string                `protobuf:"bytes,1,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	IconAssetId   *string                `protobuf:"bytes,2,opt,name=icon_asset_id,json=iconAssetId,proto3,oneof" json:"icon_asset_id,omitempty"`
+	OwningTeamId  *string                `protobuf:"bytes,3,opt,name=owning_team_id,json=owningTeamId,proto3,oneof" json:"owning_team_id,omitempty"`
+	SetTags       bool                   `protobuf:"varint,4,opt,name=set_tags,json=setTags,proto3" json:"set_tags,omitempty"`
+	Tags          []string               `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty"`
+	Archived      *bool                  `protobuf:"varint,6,opt,name=archived,proto3,oneof" json:"archived,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MetadataUpdate) Reset() {
+	*x = MetadataUpdate{}
+	mi := &file_plux_v1_common_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MetadataUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetadataUpdate) ProtoMessage() {}
+
+func (x *MetadataUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_common_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetadataUpdate.ProtoReflect.Descriptor instead.
+func (*MetadataUpdate) Descriptor() ([]byte, []int) {
+	return file_plux_v1_common_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *MetadataUpdate) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *MetadataUpdate) GetIconAssetId() string {
+	if x != nil && x.IconAssetId != nil {
+		return *x.IconAssetId
+	}
+	return ""
+}
+
+func (x *MetadataUpdate) GetOwningTeamId() string {
+	if x != nil && x.OwningTeamId != nil {
+		return *x.OwningTeamId
+	}
+	return ""
+}
+
+func (x *MetadataUpdate) GetSetTags() bool {
+	if x != nil {
+		return x.SetTags
+	}
+	return false
+}
+
+func (x *MetadataUpdate) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *MetadataUpdate) GetArchived() bool {
+	if x != nil && x.Archived != nil {
+		return *x.Archived
+	}
+	return false
+}
+
 var File_plux_v1_common_proto protoreflect.FileDescriptor
 
 const file_plux_v1_common_proto_rawDesc = "" +
@@ -1066,7 +1154,18 @@ const file_plux_v1_common_proto_rawDesc = "" +
 	"\n" +
 	"deleted_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\x12;\n" +
 	"\vpurge_after\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"purgeAfter*a\n" +
+	"purgeAfter\"\x9d\x02\n" +
+	"\x0eMetadataUpdate\x12%\n" +
+	"\vdescription\x18\x01 \x01(\tH\x00R\vdescription\x88\x01\x01\x12'\n" +
+	"\ricon_asset_id\x18\x02 \x01(\tH\x01R\viconAssetId\x88\x01\x01\x12)\n" +
+	"\x0eowning_team_id\x18\x03 \x01(\tH\x02R\fowningTeamId\x88\x01\x01\x12\x19\n" +
+	"\bset_tags\x18\x04 \x01(\bR\asetTags\x12\x12\n" +
+	"\x04tags\x18\x05 \x03(\tR\x04tags\x12\x1f\n" +
+	"\barchived\x18\x06 \x01(\bH\x03R\barchived\x88\x01\x01B\x0e\n" +
+	"\f_descriptionB\x10\n" +
+	"\x0e_icon_asset_idB\x11\n" +
+	"\x0f_owning_team_idB\v\n" +
+	"\t_archived*a\n" +
 	"\bSeverity\x12\x18\n" +
 	"\x14SEVERITY_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSEVERITY_INFO\x10\x01\x12\x14\n" +
@@ -1086,7 +1185,7 @@ func file_plux_v1_common_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_common_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_plux_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_plux_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_plux_v1_common_proto_goTypes = []any{
 	(Severity)(0),                 // 0: plux.v1.Severity
 	(*Page)(nil),                  // 1: plux.v1.Page
@@ -1100,21 +1199,22 @@ var file_plux_v1_common_proto_goTypes = []any{
 	(*Artifact)(nil),              // 9: plux.v1.Artifact
 	(*AuditEntry)(nil),            // 10: plux.v1.AuditEntry
 	(*TrashItem)(nil),             // 11: plux.v1.TrashItem
-	(*fieldmaskpb.FieldMask)(nil), // 12: google.protobuf.FieldMask
-	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
+	(*MetadataUpdate)(nil),        // 12: plux.v1.MetadataUpdate
+	(*fieldmaskpb.FieldMask)(nil), // 13: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
 }
 var file_plux_v1_common_proto_depIdxs = []int32{
-	12, // 0: plux.v1.Page.read_mask:type_name -> google.protobuf.FieldMask
+	13, // 0: plux.v1.Page.read_mask:type_name -> google.protobuf.FieldMask
 	3,  // 1: plux.v1.Location.range:type_name -> plux.v1.Range
 	0,  // 2: plux.v1.Diagnostic.severity:type_name -> plux.v1.Severity
 	4,  // 3: plux.v1.Diagnostic.location:type_name -> plux.v1.Location
 	5,  // 4: plux.v1.Diagnostic.patch:type_name -> plux.v1.PatchOp
 	4,  // 5: plux.v1.Diagnostic.related:type_name -> plux.v1.Location
-	13, // 6: plux.v1.AuditEntry.time:type_name -> google.protobuf.Timestamp
+	14, // 6: plux.v1.AuditEntry.time:type_name -> google.protobuf.Timestamp
 	7,  // 7: plux.v1.AuditEntry.actor:type_name -> plux.v1.Actor
 	7,  // 8: plux.v1.TrashItem.deleted_by:type_name -> plux.v1.Actor
-	13, // 9: plux.v1.TrashItem.deleted_at:type_name -> google.protobuf.Timestamp
-	13, // 10: plux.v1.TrashItem.purge_after:type_name -> google.protobuf.Timestamp
+	14, // 9: plux.v1.TrashItem.deleted_at:type_name -> google.protobuf.Timestamp
+	14, // 10: plux.v1.TrashItem.purge_after:type_name -> google.protobuf.Timestamp
 	11, // [11:11] is the sub-list for method output_type
 	11, // [11:11] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
@@ -1127,13 +1227,14 @@ func file_plux_v1_common_proto_init() {
 	if File_plux_v1_common_proto != nil {
 		return
 	}
+	file_plux_v1_common_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_common_proto_rawDesc), len(file_plux_v1_common_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

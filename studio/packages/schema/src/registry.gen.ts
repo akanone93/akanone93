@@ -46,6 +46,8 @@ export interface PropDescriptor {
   readonly deprecated?: Deprecation;
   /** False when the prop accepts only literals. */
   readonly bindable: boolean;
+  /** True when the prop's text is localised and can move to a translation key (I18N-007). */
+  readonly translatable?: boolean;
   readonly description?: string;
 }
 
@@ -197,11 +199,11 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "button", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The account's name."},
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The account's name."},
       {"name": "maskedNumber", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The account number, masked."},
       {"name": "balance", "id": 3, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The balance."},
       {"name": "flipped", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the back is shown."},
-      {"name": "backLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text on the back."}
+      {"name": "backLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The text on the back."}
     ],
     "events": [
       {"name": "onFlip", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the side the person asked for."}
@@ -226,7 +228,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "labelStyle", "id": 1, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
       {"name": "labelPadding", "id": 2, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
       {"name": "pressElevation", "id": 3, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
-      {"name": "tooltip", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "tooltip", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "side", "id": 5, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
       {"name": "shape", "id": 6, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
       {"name": "clipBehavior", "id": 7, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
@@ -289,12 +291,12 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The field's label."},
       {"name": "currency", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The ISO 4217 code of the amount."},
       {"name": "value", "id": 3, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The amount shown."},
       {"name": "min", "id": 4, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The smallest amount accepted."},
       {"name": "max", "id": 5, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The largest amount accepted."},
-      {"name": "rangeMessage", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown when the amount is outside the range."}
+      {"name": "rangeMessage", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The error shown when the amount is outside the range."}
     ],
     "events": [
       {"name": "onChanged", "id": 1, "payload": "money", "sensitive": true, "revision": 1, "description": "Fires with the amount whenever the typed text is a valid amount."}
@@ -704,12 +706,12 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the audio."},
-      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The title shown, and spoken for the player."},
+      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The title shown, and spoken for the player."},
       {"name": "autoplay", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts by itself; ignored under reduce motion."},
       {"name": "loop", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts again when it ends."},
-      {"name": "playLabel", "id": 5, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "description": "The play button's label."},
-      {"name": "pauseLabel", "id": 6, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "description": "The pause button's label."},
-      {"name": "positionLabel", "id": 7, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "description": "The progress bar's label."}
+      {"name": "playLabel", "id": 5, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "translatable": true, "description": "The play button's label."},
+      {"name": "pauseLabel", "id": 6, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "translatable": true, "description": "The pause button's label."},
+      {"name": "positionLabel", "id": 7, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "translatable": true, "description": "The progress bar's label."}
     ],
     "events": [
       {"name": "onEnded", "id": 1, "revision": 1, "description": "Fires when playback ends."},
@@ -733,7 +735,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "options", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true},
-      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "optionsMaxHeight", "id": 3, "type": "double", "required": false, "default": 200.0, "revision": 1, "bindable": true},
       {"name": "initialValue", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text the field starts with."}
     ],
@@ -837,8 +839,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "series", "id": 1, "type": "list<ChartSeries>", "required": true, "revision": 1, "bindable": true, "description": "The series; they share the labels."},
       {"name": "labels", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The label of each position along the horizontal axis."},
-      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
-      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "translatable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
       {"name": "showTable", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
     ],
     "events": [],
@@ -864,8 +866,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "cameraFacing", "id": 3, "type": "CameraFacing", "required": false, "default": "back", "revision": 1, "bindable": true, "description": "Which camera to open."},
       {"name": "scanWindow", "id": 4, "type": "list<double>?", "required": false, "revision": 1, "bindable": true, "description": "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
       {"name": "continuous", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
-      {"name": "overlayHint", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
-      {"name": "semanticLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
+      {"name": "overlayHint", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+      {"name": "semanticLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
     ],
     "events": [
       {"name": "onDetected", "id": 1, "payload": "ScanResult", "sensitive": true, "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
@@ -911,8 +913,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "button", "interactive": true},
     "typeParameters": [],
     "props": [
-      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The button text."},
-      {"name": "reason", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "Why the app asks, shown by the system prompt."}
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The button text."},
+      {"name": "reason", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "Why the app asks, shown by the system prompt."}
     ],
     "events": [
       {"name": "onSuccess", "id": 1, "revision": 1, "description": "Fires when the user confirms."},
@@ -1056,7 +1058,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "autoplay", "id": 1, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Advances on its own."},
       {"name": "intervalMs", "id": 2, "type": "int", "required": false, "default": 5000, "constraints": {"min": 500}, "revision": 1, "bindable": true, "description": "Milliseconds between automatic advances."},
       {"name": "indicators", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows page indicators."},
-      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label screen readers announce for the carousel."}
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The label screen readers announce for the carousel."}
     ],
     "events": [
       {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the index of the page shown."}
@@ -1083,10 +1085,10 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "subtotal", "id": 2, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The sum of the lines."},
       {"name": "tax", "id": 3, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The tax."},
       {"name": "total", "id": 4, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The amount due."},
-      {"name": "subtotalLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The subtotal row's label."},
-      {"name": "taxLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tax row's label."},
-      {"name": "totalLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The total row's label."},
-      {"name": "checkoutLabel", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the built-in checkout button."}
+      {"name": "subtotalLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The subtotal row's label."},
+      {"name": "taxLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The tax row's label."},
+      {"name": "totalLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The total row's label."},
+      {"name": "checkoutLabel", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The label of the built-in checkout button."}
     ],
     "events": [
       {"name": "onCheckout", "id": 1, "revision": 1, "description": "Fires when the person starts checkout."}
@@ -1148,7 +1150,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "shape", "id": 13, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
       {"name": "side", "id": 14, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
       {"name": "isError", "id": 15, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
-      {"name": "semanticLabel", "id": 16, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticLabel", "id": 16, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "adaptive", "id": 17, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": false, "description": "Renders the platform's variant through Flutter's adaptive constructor: the Cupertino look on iOS, Material elsewhere."}
     ],
     "events": [
@@ -1199,7 +1201,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "minVerticalPadding", "id": 26, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
       {"name": "minLeadingWidth", "id": 27, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
       {"name": "minTileHeight", "id": 28, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
-      {"name": "checkboxSemanticLabel", "id": 29, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "checkboxSemanticLabel", "id": 29, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "checkboxScaleFactor", "id": 30, "type": "double", "required": false, "default": 1.0, "revision": 1, "bindable": true},
       {"name": "titleAlignment", "id": 31, "type": "ListTileTitleAlignment", "required": false, "revision": 1, "bindable": true},
       {"name": "adaptive", "id": 32, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": false, "description": "Renders the platform's variant through Flutter's adaptive constructor: the Cupertino look on iOS, Material elsewhere."}
@@ -1232,7 +1234,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "labelStyle", "id": 1, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
       {"name": "labelPadding", "id": 2, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
       {"name": "deleteIconColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
-      {"name": "deleteButtonTooltipMessage", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "deleteButtonTooltipMessage", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "side", "id": 5, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
       {"name": "shape", "id": 6, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
       {"name": "clipBehavior", "id": 7, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
@@ -1278,7 +1280,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "selected", "id": 4, "type": "bool", "required": true, "revision": 1, "bindable": true},
       {"name": "selectedColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "disabledColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
-      {"name": "tooltip", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "tooltip", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "side", "id": 8, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
       {"name": "shape", "id": 9, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
       {"name": "clipBehavior", "id": 10, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
@@ -1356,8 +1358,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "color", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "strokeWidth", "id": 4, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
       {"name": "strokeAlign", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticsLabel", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticsValue", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
+      {"name": "semanticsValue", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "strokeCap", "id": 8, "type": "StrokeCap", "required": false, "revision": 1, "bindable": true},
       {"name": "constraints", "id": 9, "type": "BoxConstraints", "required": false, "revision": 1, "bindable": true},
       {"name": "trackGap", "id": 10, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
@@ -1500,9 +1502,9 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "checkbox", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the person consents to."},
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "What the person consents to."},
       {"name": "documentVersion", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The version of the document the consent covers."},
-      {"name": "linkLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text of the link that opens the document."},
+      {"name": "linkLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The text of the link that opens the document."},
       {"name": "value", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether consent is given."}
     ],
     "events": [
@@ -1606,7 +1608,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "value", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The ISO 3166 code selected."},
-      {"name": "searchHint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The hint of the search field."}
+      {"name": "searchHint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The hint of the search field."}
     ],
     "events": [
       {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the ISO 3166 code of the chosen country."}
@@ -1810,7 +1812,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "automaticallyImplyLeading", "id": 1, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
       {"name": "automaticallyImplyMiddle", "id": 2, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
-      {"name": "previousPageTitle", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "previousPageTitle", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "automaticBackgroundVisibility", "id": 5, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
       {"name": "enableBackgroundFilterBlur", "id": 6, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
@@ -2000,13 +2002,13 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "value", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text, bound two-way: the runtime owns the controller and updates bound state on every change."},
       {"name": "decoration", "id": 2, "type": "BoxDecoration", "required": false, "revision": 1, "bindable": true},
       {"name": "padding", "id": 3, "type": "EdgeInsets", "required": false, "default": {"all": 7.0}, "revision": 1, "bindable": true},
-      {"name": "placeholder", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "placeholder", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "placeholderStyle", "id": 5, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
       {"name": "prefixMode", "id": 6, "type": "OverlayVisibilityMode", "required": false, "default": "always", "revision": 1, "bindable": true},
       {"name": "suffixMode", "id": 7, "type": "OverlayVisibilityMode", "required": false, "default": "always", "revision": 1, "bindable": true},
       {"name": "crossAxisAlignment", "id": 8, "type": "CrossAxisAlignment", "required": false, "default": "center", "revision": 1, "bindable": true},
       {"name": "clearButtonMode", "id": 9, "type": "OverlayVisibilityMode", "required": false, "default": "never", "revision": 1, "bindable": true},
-      {"name": "clearButtonSemanticLabel", "id": 10, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "clearButtonSemanticLabel", "id": 10, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "keyboardType", "id": 11, "type": "TextInputType", "required": false, "revision": 1, "bindable": true},
       {"name": "textInputAction", "id": 12, "type": "TextInputAction", "required": false, "revision": 1, "bindable": true},
       {"name": "textCapitalization", "id": 13, "type": "TextCapitalization", "required": false, "default": "none", "revision": 1, "bindable": true},
@@ -2078,7 +2080,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "value", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The ISO 4217 code selected."},
       {"name": "currencies", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The codes offered; every currency of the locale when absent."},
-      {"name": "searchHint", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The hint of the search field."}
+      {"name": "searchHint", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The hint of the search field."}
     ],
     "events": [
       {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the ISO 4217 code of the chosen currency."}
@@ -2352,7 +2354,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "surfaceTintColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "shape", "id": 5, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
       {"name": "width", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticLabel", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticLabel", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "clipBehavior", "id": 8, "type": "Clip", "required": false, "revision": 1, "bindable": true}
     ],
     "events": [],
@@ -2379,9 +2381,9 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "width", "id": 2, "type": "double", "required": false, "revision": 1, "bindable": true},
       {"name": "menuHeight", "id": 3, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
       {"name": "showTrailingIcon", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
-      {"name": "hintText", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true},
-      {"name": "helperText", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
-      {"name": "errorText", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "hintText", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
+      {"name": "helperText", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
+      {"name": "errorText", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "enableFilter", "id": 8, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
       {"name": "enableSearch", "id": 9, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
       {"name": "keyboardType", "id": 10, "type": "TextInputType", "required": false, "revision": 1, "bindable": true},
@@ -2480,8 +2482,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "icon", "id": 1, "type": "IconData?", "required": false, "revision": 1, "bindable": true, "description": "The illustration icon."},
-      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The headline."},
-      {"name": "message", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "An explanation below the title."}
+      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The headline."},
+      {"name": "message", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "An explanation below the title."}
     ],
     "events": [],
     "slots": [
@@ -2504,9 +2506,9 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "icon", "id": 1, "type": "IconData?", "required": false, "revision": 1, "bindable": true, "description": "The illustration icon."},
-      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The headline."},
-      {"name": "message", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "An explanation below the title."},
-      {"name": "retryLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "Label of a built-in retry button; hidden when absent."}
+      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The headline."},
+      {"name": "message", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "An explanation below the title."},
+      {"name": "retryLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "Label of a built-in retry button; hidden when absent."}
     ],
     "events": [
       {"name": "onRetry", "id": 1, "revision": 1, "description": "Fired when the built-in retry button is pressed."}
@@ -2630,8 +2632,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "operation", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The upload operation of the data source."},
       {"name": "accept", "id": 3, "type": "list<string>", "required": false, "revision": 1, "bindable": true, "description": "Accepted media types; any when empty."},
       {"name": "maxBytes", "id": 4, "type": "int?", "required": false, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "The largest file in bytes."},
-      {"name": "label", "id": 5, "type": "string", "required": false, "default": "Choose file", "revision": 1, "bindable": true, "description": "The pick button's label."},
-      {"name": "uploadLabel", "id": 6, "type": "string", "required": false, "default": "Upload", "revision": 1, "bindable": true, "description": "The upload button's label."}
+      {"name": "label", "id": 5, "type": "string", "required": false, "default": "Choose file", "revision": 1, "bindable": true, "translatable": true, "description": "The pick button's label."},
+      {"name": "uploadLabel", "id": 6, "type": "string", "required": false, "default": "Upload", "revision": 1, "bindable": true, "translatable": true, "description": "The upload button's label."}
     ],
     "events": [
       {"name": "onUploaded", "id": 1, "payload": "FileUploadResult", "sensitive": true, "revision": 1, "description": "Fires with the upload result when the upload succeeds."},
@@ -2709,11 +2711,11 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "labelPadding", "id": 2, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
       {"name": "selected", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
       {"name": "deleteIconColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
-      {"name": "deleteButtonTooltipMessage", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "deleteButtonTooltipMessage", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "pressElevation", "id": 6, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
       {"name": "disabledColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "selectedColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true},
-      {"name": "tooltip", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "tooltip", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "side", "id": 10, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
       {"name": "shape", "id": 11, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
       {"name": "clipBehavior", "id": 12, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
@@ -2834,7 +2836,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "button", "interactive": true},
     "typeParameters": [],
     "props": [
-      {"name": "tooltip", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "tooltip", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "foregroundColor", "id": 2, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "focusColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
@@ -3107,9 +3109,9 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The field's label."},
       {"name": "value", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The IBAN without spaces."},
-      {"name": "invalidMessage", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid IBAN."}
+      {"name": "invalidMessage", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The error shown for an invalid IBAN."}
     ],
     "events": [
       {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."}
@@ -3139,7 +3141,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "opticalSize", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
       {"name": "color", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "shadows", "id": 8, "type": "list<Shadow>", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticLabel", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticLabel", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "textDirection", "id": 10, "type": "TextDirection", "required": false, "revision": 1, "bindable": true},
       {"name": "applyTextScaling", "id": 11, "type": "bool", "required": false, "revision": 1, "bindable": true},
       {"name": "blendMode", "id": 12, "type": "BlendMode", "required": false, "revision": 1, "bindable": true},
@@ -3175,7 +3177,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "splashColor", "id": 10, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "disabledColor", "id": 11, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "autofocus", "id": 12, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
-      {"name": "tooltip", "id": 13, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "tooltip", "id": 13, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "enableFeedback", "id": 14, "type": "bool", "required": false, "revision": 1, "bindable": true},
       {"name": "constraints", "id": 15, "type": "BoxConstraints", "required": false, "revision": 1, "bindable": true},
       {"name": "style", "id": 16, "type": "ButtonStyle", "required": false, "revision": 1, "bindable": true},
@@ -3230,7 +3232,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "source", "id": 1, "type": "ImageSource", "required": true, "revision": 1, "bindable": true, "description": "The asset or URL to show."},
-      {"name": "semanticLabel", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticLabel", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "excludeFromSemantics", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
       {"name": "scale", "id": 4, "type": "double", "required": false, "revision": 1, "bindable": true},
       {"name": "width", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
@@ -3271,7 +3273,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "images", "id": 1, "type": "list<ImageSource>", "required": true, "revision": 1, "bindable": true, "description": "The images."},
       {"name": "initialPage", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The index first shown."},
       {"name": "indicators", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows page indicators."},
-      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label screen readers announce for the gallery."}
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The label screen readers announce for the gallery."}
     ],
     "events": [
       {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the index of the image shown."}
@@ -3402,11 +3404,11 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "selected", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
       {"name": "isEnabled", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
       {"name": "deleteIconColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
-      {"name": "deleteButtonTooltipMessage", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "deleteButtonTooltipMessage", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "pressElevation", "id": 7, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
       {"name": "disabledColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "selectedColor", "id": 9, "type": "color", "required": false, "revision": 1, "bindable": true},
-      {"name": "tooltip", "id": 10, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "tooltip", "id": 10, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "side", "id": 11, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
       {"name": "shape", "id": 12, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
       {"name": "clipBehavior", "id": 13, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
@@ -3535,8 +3537,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "series", "id": 1, "type": "list<ChartSeries>", "required": true, "revision": 1, "bindable": true, "description": "The series; they share the labels."},
       {"name": "labels", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The label of each position along the horizontal axis."},
-      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
-      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "translatable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
       {"name": "showTable", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
     ],
     "events": [],
@@ -3561,8 +3563,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "backgroundColor", "id": 2, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "color", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "minHeight", "id": 4, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
-      {"name": "semanticsLabel", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticsValue", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
+      {"name": "semanticsValue", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "borderRadius", "id": 7, "type": "BorderRadius", "required": false, "revision": 1, "bindable": true},
       {"name": "stopIndicatorColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "stopIndicatorRadius", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true},
@@ -3685,10 +3687,10 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "none", "interactive": false},
     "typeParameters": [],
     "props": [
-      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The headline, such as the order or ride."},
+      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The headline, such as the order or ride."},
       {"name": "etaMinutes", "id": 2, "type": "int?", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "Minutes until arrival; bind it to a stream data source value."},
-      {"name": "status", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The current status text, such as `On the way`."},
-      {"name": "minutesLabel", "id": 4, "type": "string", "required": false, "default": "min", "revision": 1, "bindable": true, "description": "The unit shown after the minutes."},
+      {"name": "status", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The current status text, such as `On the way`."},
+      {"name": "minutesLabel", "id": 4, "type": "string", "required": false, "default": "min", "revision": 1, "bindable": true, "translatable": true, "description": "The unit shown after the minutes."},
       {"name": "icon", "id": 5, "type": "IconData?", "required": false, "revision": 1, "bindable": true, "description": "A leading icon."}
     ],
     "events": [],
@@ -3718,7 +3720,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "width", "id": 7, "type": "double?", "required": false, "revision": 1, "bindable": true, "description": "The width, or the animation's own."},
       {"name": "height", "id": 8, "type": "double?", "required": false, "revision": 1, "bindable": true, "description": "The height, or the animation's own."},
       {"name": "reduceMotion", "id": 9, "type": "string", "required": false, "default": "skip", "constraints": {"pattern": "^(skip|shorten|ignore)$"}, "revision": 1, "bindable": true, "description": "What it does under reduce motion: `skip` shows the last frame, `shorten` plays four times as fast, `ignore` plays as declared."},
-      {"name": "semanticLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
+      {"name": "semanticLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
     ],
     "events": [
       {"name": "onCompleted", "id": 1, "revision": 1, "description": "Fires when an animation that does not repeat ends."}
@@ -3740,7 +3742,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "group", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the map shows, spoken before its markers."},
+      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "What the map shows, spoken before its markers."},
       {"name": "center", "id": 2, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "The map centre."},
       {"name": "zoom", "id": 3, "type": "double", "required": false, "default": 13.0, "revision": 1, "bindable": true, "description": "The zoom level."},
       {"name": "minZoom", "id": 4, "type": "double", "required": false, "default": 2.0, "revision": 1, "bindable": true, "description": "The lowest zoom level."},
@@ -3748,7 +3750,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "markers", "id": 6, "type": "list<MapMarker>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The markers."},
       {"name": "polylines", "id": 7, "type": "list<MapPolyline>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The lines."},
       {"name": "tileUrlTemplate", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. Without it no tiles are drawn."},
-      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
       {"name": "showUserLocation", "id": 10, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Show the user's position; needs the `location` device API."},
       {"name": "interactive", "id": 11, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether the user can pan and zoom."}
     ],
@@ -3774,7 +3776,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "text", "interactive": false},
     "typeParameters": [],
     "props": [
-      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The Markdown text."}
+      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The Markdown text."}
     ],
     "events": [
       {"name": "onLink", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself."}
@@ -3800,7 +3802,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "mask", "id": 2, "type": "MaskKind", "required": false, "default": "card", "revision": 1, "bindable": true, "description": "How the value is hidden."},
       {"name": "visibleDigits", "id": 3, "type": "int", "required": false, "default": 4, "revision": 1, "bindable": true, "description": "How many trailing digits stay visible."},
       {"name": "revealable", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "A button shows the whole value."},
-      {"name": "revealLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the reveal button."}
+      {"name": "revealLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The label of the reveal button."}
     ],
     "events": [
       {"name": "onReveal", "id": 1, "revision": 1, "description": "Fires when the person reveals the value."}
@@ -4078,7 +4080,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "none", "interactive": false},
     "typeParameters": [],
     "props": [
-      {"name": "message", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The text shown while offline."},
+      {"name": "message", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The text shown while offline."},
       {"name": "visible", "id": 2, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether the banner can show: while true it shows whenever the device is offline; false hides it."}
     ],
     "events": [],
@@ -4100,8 +4102,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "currentPage", "id": 1, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The zero-based page shown."},
-      {"name": "nextLabel", "id": 2, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "description": "The Next button's text."},
-      {"name": "doneLabel", "id": 3, "type": "string", "required": false, "default": "Done", "revision": 1, "bindable": true, "description": "The Done button's text, on the last page."}
+      {"name": "nextLabel", "id": 2, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "translatable": true, "description": "The Next button's text."},
+      {"name": "doneLabel", "id": 3, "type": "string", "required": false, "default": "Done", "revision": 1, "bindable": true, "translatable": true, "description": "The Done button's text, on the last page."}
     ],
     "events": [
       {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the page now shown."},
@@ -4148,18 +4150,18 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "group", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the map shows, spoken before its markers."},
+      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "What the map shows, spoken before its markers."},
       {"name": "origin", "id": 2, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "Where the order starts."},
       {"name": "destination", "id": 3, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "Where the order goes."},
       {"name": "courier", "id": 4, "type": "LatLng?", "required": false, "revision": 1, "bindable": true, "description": "The courier's position; bindable, the marker animates to each new value."},
       {"name": "route", "id": 5, "type": "list<LatLng>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The route, in order."},
-      {"name": "etaLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The arrival estimate, shown over the map and spoken."},
+      {"name": "etaLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The arrival estimate, shown over the map and spoken."},
       {"name": "follow", "id": 7, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Keep the courier in view."},
       {"name": "tileUrlTemplate", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain."},
-      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
-      {"name": "originLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The origin marker's name for screen readers; the marker is silent without it."},
-      {"name": "destinationLabel", "id": 11, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The destination marker's name for screen readers; the marker is silent without it."},
-      {"name": "courierLabel", "id": 12, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The courier marker's name for screen readers; the marker is silent without it."}
+      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+      {"name": "originLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The origin marker's name for screen readers; the marker is silent without it."},
+      {"name": "destinationLabel", "id": 11, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The destination marker's name for screen readers; the marker is silent without it."},
+      {"name": "courierLabel", "id": 12, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The courier marker's name for screen readers; the marker is silent without it."}
     ],
     "events": [],
     "slots": []
@@ -4298,7 +4300,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "expiry", "id": 3, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The expiry, as printed."},
       {"name": "holder", "id": 4, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The holder's name."},
       {"name": "flipped", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the back is shown."},
-      {"name": "backLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text on the back."}
+      {"name": "backLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The text on the back."}
     ],
     "events": [
       {"name": "onFlip", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the side the person asked for."}
@@ -4320,10 +4322,10 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The field's label."},
       {"name": "value", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The number in E.164 form."},
       {"name": "region", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The default ISO 3166 region; the locale's region when absent."},
-      {"name": "invalidMessage", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid number."}
+      {"name": "invalidMessage", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The error shown for an invalid number."}
     ],
     "events": [
       {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the E.164 number when it is valid, and with an empty string when it is not."}
@@ -4346,8 +4348,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "slices", "id": 1, "type": "list<PieSlice>", "required": true, "revision": 1, "bindable": true, "description": "The slices."},
-      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
-      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{label}: {value}, {percent} percent", "revision": 1, "bindable": true, "description": "What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced."},
+      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{label}: {value}, {percent} percent", "revision": 1, "bindable": true, "translatable": true, "description": "What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced."},
       {"name": "showTable", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
     ],
     "events": [],
@@ -4370,7 +4372,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "items", "id": 1, "type": "list<MenuItem>", "required": true, "revision": 1, "bindable": true, "description": "The menu entries."},
       {"name": "initialValue", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The value of the entry shown as selected."},
-      {"name": "tooltip", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "tooltip", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "enabled", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
       {"name": "elevation", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
       {"name": "color", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
@@ -4432,7 +4434,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "price", "id": 1, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The current price."},
       {"name": "originalPrice", "id": 2, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The price before a reduction."},
-      {"name": "wasLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What screen readers say before the original price."}
+      {"name": "wasLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What screen readers say before the original price."}
     ],
     "events": [],
     "slots": []
@@ -4453,11 +4455,11 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "image", "id": 1, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "The product image."},
-      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The product name."},
+      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The product name."},
       {"name": "price", "id": 3, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The formatted price."},
       {"name": "originalPrice", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The formatted price before a discount, shown struck through."},
-      {"name": "badge", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A short badge such as `New` or `-20%`."},
-      {"name": "addToCartLabel", "id": 6, "type": "string", "required": false, "default": "Add to cart", "revision": 1, "bindable": true, "description": "The label of the add-to-cart button."}
+      {"name": "badge", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A short badge such as `New` or `-20%`."},
+      {"name": "addToCartLabel", "id": 6, "type": "string", "required": false, "default": "Add to cart", "revision": 1, "bindable": true, "translatable": true, "description": "The label of the add-to-cart button."}
     ],
     "events": [
       {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the card is tapped."},
@@ -4481,7 +4483,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The person's name."},
-      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the name."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A line below the name."},
       {"name": "avatar", "id": 3, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "The avatar image; the name's initial shows when absent or failing."},
       {"name": "radius", "id": 4, "type": "double", "required": false, "default": 32.0, "constraints": {"min": 8}, "revision": 1, "bindable": true, "description": "The avatar's radius."}
     ],
@@ -4505,10 +4507,10 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "button", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The headline."},
-      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the title."},
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The headline."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A line below the title."},
       {"name": "image", "id": 3, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "A background image."},
-      {"name": "ctaLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the call to action."},
+      {"name": "ctaLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The label of the call to action."},
       {"name": "endsAt", "id": 5, "type": "dateTime?", "required": false, "revision": 1, "bindable": true, "description": "When the offer ends; shows a countdown."}
     ],
     "events": [
@@ -4537,7 +4539,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "foreground", "id": 4, "type": "color?", "required": false, "revision": 1, "bindable": true, "description": "The colour of the modules; black when absent."},
       {"name": "background", "id": 5, "type": "color?", "required": false, "revision": 1, "bindable": true, "description": "The colour behind the modules; white when absent."},
       {"name": "quietZone", "id": 6, "type": "int", "required": false, "default": 4, "constraints": {"min": 0, "max": 16}, "revision": 1, "bindable": true, "description": "The empty border around the modules, in modules; scanners need four."},
-      {"name": "semanticLabel", "id": 7, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What a screen reader announces for the code. It describes what the code is for, never the data it holds."}
+      {"name": "semanticLabel", "id": 7, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "What a screen reader announces for the code. It describes what the code is for, never the data it holds."}
     ],
     "events": [],
     "slots": []
@@ -4561,8 +4563,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "cameraFacing", "id": 2, "type": "CameraFacing", "required": false, "default": "back", "revision": 1, "bindable": true, "description": "Which camera to open."},
       {"name": "scanWindow", "id": 3, "type": "list<double>?", "required": false, "revision": 1, "bindable": true, "description": "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
       {"name": "continuous", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
-      {"name": "overlayHint", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
-      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
+      {"name": "overlayHint", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
     ],
     "events": [
       {"name": "onDetected", "id": 1, "payload": "ScanResult", "sensitive": true, "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
@@ -4589,8 +4591,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "min", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The smallest quantity."},
       {"name": "max", "id": 3, "type": "int", "required": false, "default": 99, "revision": 1, "bindable": true, "description": "The largest quantity."},
       {"name": "step", "id": 4, "type": "int", "required": false, "default": 1, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "The change per press."},
-      {"name": "decreaseLabel", "id": 5, "type": "string", "required": false, "default": "Decrease", "revision": 1, "bindable": true, "description": "The accessibility label of the decrease button."},
-      {"name": "increaseLabel", "id": 6, "type": "string", "required": false, "default": "Increase", "revision": 1, "bindable": true, "description": "The accessibility label of the increase button."}
+      {"name": "decreaseLabel", "id": 5, "type": "string", "required": false, "default": "Decrease", "revision": 1, "bindable": true, "translatable": true, "description": "The accessibility label of the decrease button."},
+      {"name": "increaseLabel", "id": 6, "type": "string", "required": false, "default": "Increase", "revision": 1, "bindable": true, "translatable": true, "description": "The accessibility label of the increase button."}
     ],
     "events": [
       {"name": "onChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the new quantity."}
@@ -4743,8 +4745,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "value", "id": 1, "type": "double", "required": true, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The rating."},
       {"name": "max", "id": 2, "type": "int", "required": false, "default": 5, "constraints": {"min": 1, "max": 10}, "revision": 1, "bindable": true, "description": "The number of stars."},
-      {"name": "ofLabel", "id": 3, "type": "string", "required": false, "default": "of", "revision": 1, "bindable": true, "description": "The word between value and maximum in the spoken value."},
-      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What is rated, spoken before the value."}
+      {"name": "ofLabel", "id": 3, "type": "string", "required": false, "default": "of", "revision": 1, "bindable": true, "translatable": true, "description": "The word between value and maximum in the spoken value."},
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What is rated, spoken before the value."}
     ],
     "events": [],
     "slots": []
@@ -4766,7 +4768,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "value", "id": 1, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The current rating, 0 for none."},
       {"name": "max", "id": 2, "type": "int", "required": false, "default": 5, "constraints": {"min": 1, "max": 10}, "revision": 1, "bindable": true, "description": "The number of stars."},
-      {"name": "starLabel", "id": 3, "type": "string", "required": false, "default": "star", "revision": 1, "bindable": true, "description": "The noun in each star's label, such as `star`."}
+      {"name": "starLabel", "id": 3, "type": "string", "required": false, "default": "star", "revision": 1, "bindable": true, "translatable": true, "description": "The noun in each star's label, such as `star`."}
     ],
     "events": [
       {"name": "onChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the rating chosen."}
@@ -4792,8 +4794,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "edgeOffset", "id": 2, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
       {"name": "color", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticsLabel", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticsValue", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
+      {"name": "semanticsValue", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "strokeWidth", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true},
       {"name": "triggerMode", "id": 8, "type": "RefreshIndicatorTriggerMode", "required": false, "default": "onEdge", "revision": 1, "bindable": true},
       {"name": "elevation", "id": 9, "type": "double", "required": false, "default": 2.0, "revision": 1, "bindable": true}
@@ -4894,7 +4896,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "softWrap", "id": 6, "type": "bool", "required": false, "revision": 1, "bindable": true},
       {"name": "overflow", "id": 7, "type": "TextOverflow", "required": false, "revision": 1, "bindable": true},
       {"name": "maxLines", "id": 8, "type": "int", "required": false, "constraints": {"min": 1}, "revision": 1, "bindable": true},
-      {"name": "semanticsLabel", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "semanticsIdentifier", "id": 10, "type": "string", "required": false, "revision": 1, "bindable": true},
       {"name": "textWidthBasis", "id": 11, "type": "TextWidthBasis", "required": false, "revision": 1, "bindable": true},
       {"name": "selectionColor", "id": 12, "type": "color", "required": false, "revision": 1, "bindable": true}
@@ -4925,7 +4927,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "triggers", "id": 6, "type": "map<string,double>?", "required": false, "revision": 1, "bindable": true, "description": "Triggers by name; each fires whenever its value changes."},
       {"name": "fit", "id": 7, "type": "string", "required": false, "default": "contain", "revision": 1, "bindable": true, "description": "How it fits its box, a Rive `Fit` name."},
       {"name": "reduceMotion", "id": 8, "type": "string", "required": false, "default": "skip", "constraints": {"pattern": "^(skip|ignore)$"}, "revision": 1, "bindable": true, "description": "`skip` freezes the animation under reduce motion, `ignore` keeps it playing."},
-      {"name": "semanticLabel", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
+      {"name": "semanticLabel", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
     ],
     "events": [
       {"name": "onLoaded", "id": 1, "revision": 1, "description": "Fires when the file is loaded."},
@@ -5126,8 +5128,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "suggestions", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The suggestions; the runtime lists those that contain the typed text, ignoring case."},
       {"name": "isFullScreen", "id": 2, "type": "bool", "required": false, "revision": 1, "bindable": true},
-      {"name": "viewHintText", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
-      {"name": "hintText", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The hint of the bar that opens the view."}
+      {"name": "viewHintText", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
+      {"name": "hintText", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The hint of the bar that opens the view."}
     ],
     "events": [
       {"name": "onSelected", "id": 1, "payload": "string", "revision": 1}
@@ -5150,7 +5152,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "value", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text, bound two-way: the runtime owns the controller and updates bound state on every change."},
-      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true}
+      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true}
     ],
     "events": [
       {"name": "onChanged", "id": 1, "payload": "string", "revision": 1},
@@ -5178,7 +5180,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "value", "id": 1, "type": "string", "required": false, "default": "", "revision": 1, "bindable": true, "description": "The text in the field."},
-      {"name": "hint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The placeholder."},
+      {"name": "hint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The placeholder."},
       {"name": "debounceMs", "id": 3, "type": "int", "required": false, "default": 300, "constraints": {"min": 0, "max": 5000}, "revision": 1, "bindable": true, "description": "How long typing must pause before `onSearch` fires, in milliseconds."},
       {"name": "suggestions", "id": 4, "type": "list<string>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "Suggestions shown below the field while it has text."}
     ],
@@ -5228,7 +5230,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "value", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text, bound two-way. Sensitive: never logged, traced or persisted (SEC-092)."},
-      {"name": "label", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field label."},
+      {"name": "label", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The field label."},
       {"name": "obscure", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Hides the characters."},
       {"name": "maxLength", "id": 4, "type": "int", "required": false, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "The maximum number of characters."}
     ],
@@ -5284,7 +5286,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "text", "interactive": true},
     "typeParameters": [],
     "props": [
-      {"name": "data", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true},
+      {"name": "data", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true},
       {"name": "style", "id": 2, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
       {"name": "textAlign", "id": 3, "type": "TextAlign", "required": false, "revision": 1, "bindable": true},
       {"name": "textDirection", "id": 4, "type": "TextDirection", "required": false, "revision": 1, "bindable": true},
@@ -5302,7 +5304,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "dragStartBehavior", "id": 16, "type": "DragStartBehavior", "required": false, "default": "start", "revision": 1, "bindable": true},
       {"name": "enableInteractiveSelection", "id": 17, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
       {"name": "scrollPhysics", "id": 18, "type": "ScrollPhysics", "required": false, "revision": 1, "bindable": true},
-      {"name": "semanticsLabel", "id": 19, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 19, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "textWidthBasis", "id": 20, "type": "TextWidthBasis", "required": false, "revision": 1, "bindable": true}
     ],
     "events": [
@@ -5349,8 +5351,8 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "format", "id": 1, "type": "string", "required": false, "default": "svg", "constraints": {"pattern": "^(svg|png)$"}, "revision": 1, "bindable": true, "description": "`svg` for path data, `png` for a base64 PNG."},
       {"name": "strokeWidth", "id": 2, "type": "double", "required": false, "default": 2.0, "constraints": {"min": 0.5, "max": 12}, "revision": 1, "bindable": true, "description": "The pen width."},
       {"name": "height", "id": 3, "type": "double", "required": false, "default": 160.0, "constraints": {"min": 80}, "revision": 1, "bindable": true, "description": "The pad's height."},
-      {"name": "clearLabel", "id": 4, "type": "string", "required": false, "default": "Clear", "revision": 1, "bindable": true, "description": "The clear button's label."},
-      {"name": "semanticLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the signature is for, spoken for the pad."}
+      {"name": "clearLabel", "id": 4, "type": "string", "required": false, "default": "Clear", "revision": 1, "bindable": true, "translatable": true, "description": "The clear button's label."},
+      {"name": "semanticLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What the signature is for, spoken for the pad."}
     ],
     "events": [
       {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires after each stroke with the signature, and with an empty string when cleared."}
@@ -5478,7 +5480,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "min", "id": 3, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
       {"name": "max", "id": 4, "type": "double", "required": false, "default": 1.0, "revision": 1, "bindable": true},
       {"name": "divisions", "id": 5, "type": "int", "required": false, "constraints": {"min": 1}, "revision": 1, "bindable": true},
-      {"name": "label", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "label", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "activeColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "inactiveColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true},
       {"name": "secondaryActiveColor", "id": 9, "type": "color", "required": false, "revision": 1, "bindable": true},
@@ -5752,7 +5754,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "radio", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A header above the rows."},
+      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A header above the rows."},
       {"name": "options", "id": 2, "type": "list<ChoiceItem>", "required": true, "revision": 1, "bindable": true, "description": "The orders offered; their `selected` is ignored in favour of `selected`."},
       {"name": "selected", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The `id` of the chosen option."}
     ],
@@ -5797,8 +5799,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "values", "id": 1, "type": "list<double>", "required": true, "revision": 1, "bindable": true, "description": "The values."},
-      {"name": "semanticLabel", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the values are, spoken before the summary."},
-      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."}
+      {"name": "semanticLabel", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What the values are, spoken before the summary."},
+      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "translatable": true, "description": "What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."}
     ],
     "events": [],
     "slots": []
@@ -6085,10 +6087,10 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "group", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The terms as Markdown."},
+      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "The terms as Markdown."},
       {"name": "version", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The version of the terms, sent with `onAccepted`."},
-      {"name": "acceptLabel", "id": 3, "type": "string", "required": false, "default": "Accept", "revision": 1, "bindable": true, "description": "The accept button's label."},
-      {"name": "scrollHint", "id": 4, "type": "string", "required": false, "default": "Scroll to the end to accept", "revision": 1, "bindable": true, "description": "Shown, and spoken, while the end has not been reached."}
+      {"name": "acceptLabel", "id": 3, "type": "string", "required": false, "default": "Accept", "revision": 1, "bindable": true, "translatable": true, "description": "The accept button's label."},
+      {"name": "scrollHint", "id": 4, "type": "string", "required": false, "default": "Scroll to the end to accept", "revision": 1, "bindable": true, "translatable": true, "description": "Shown, and spoken, while the end has not been reached."}
     ],
     "events": [
       {"name": "onAccepted", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the version when the user accepts."},
@@ -6111,7 +6113,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "text", "interactive": false},
     "typeParameters": [],
     "props": [
-      {"name": "data", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true},
+      {"name": "data", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true},
       {"name": "style", "id": 2, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
       {"name": "textAlign", "id": 3, "type": "TextAlign", "required": false, "revision": 1, "bindable": true},
       {"name": "textDirection", "id": 4, "type": "TextDirection", "required": false, "revision": 1, "bindable": true},
@@ -6119,7 +6121,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "softWrap", "id": 6, "type": "bool", "required": false, "revision": 1, "bindable": true},
       {"name": "overflow", "id": 7, "type": "TextOverflow", "required": false, "revision": 1, "bindable": true},
       {"name": "maxLines", "id": 8, "type": "int", "required": false, "constraints": {"min": 1}, "revision": 1, "bindable": true},
-      {"name": "semanticsLabel", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 9, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "semanticsIdentifier", "id": 10, "type": "string", "required": false, "revision": 1, "bindable": true},
       {"name": "textWidthBasis", "id": 11, "type": "TextWidthBasis", "required": false, "revision": 1, "bindable": true},
       {"name": "selectionColor", "id": 12, "type": "color", "required": false, "revision": 1, "bindable": true}
@@ -6247,7 +6249,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "props": [
       {"name": "value", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text, bound two-way: the runtime owns the controller and updates bound state on every change."},
       {"name": "initialValue", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true},
-      {"name": "forceErrorText", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "forceErrorText", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "decoration", "id": 4, "type": "InputDecoration", "required": false, "revision": 1, "bindable": true},
       {"name": "keyboardType", "id": 5, "type": "TextInputType", "required": false, "revision": 1, "bindable": true},
       {"name": "textCapitalization", "id": 6, "type": "TextCapitalization", "required": false, "default": "none", "revision": 1, "bindable": true},
@@ -6345,7 +6347,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "none", "interactive": false},
     "typeParameters": [],
     "props": [
-      {"name": "message", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "message", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "translatable": true},
       {"name": "richMessage", "id": 2, "type": "TextSpan", "required": false, "revision": 1, "bindable": true},
       {"name": "constraints", "id": 3, "type": "BoxConstraints", "required": false, "revision": 1, "bindable": true},
       {"name": "padding", "id": 4, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
@@ -6386,12 +6388,12 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "button", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
-      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the transaction was."},
-      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the title."},
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "translatable": true, "description": "What the transaction was."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "A line below the title."},
       {"name": "amount", "id": 3, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The signed amount; negative is a debit."},
       {"name": "status", "id": 4, "type": "TransactionStatus", "required": false, "default": "completed", "revision": 1, "bindable": true, "description": "The state of the transaction."},
       {"name": "date", "id": 5, "type": "dateTime?", "required": false, "revision": 1, "bindable": true, "description": "When it happened."},
-      {"name": "statusLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The status written for the person; the status name when absent."}
+      {"name": "statusLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "The status written for the person; the status name when absent."}
     ],
     "events": [
       {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the row is tapped."}
@@ -6471,15 +6473,15 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the video."},
-      {"name": "captions", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "Captions as WebVTT text."},
+      {"name": "captions", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "Captions as WebVTT text."},
       {"name": "autoplay", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts by itself; ignored under reduce motion."},
       {"name": "loop", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts again when it ends."},
       {"name": "aspectRatio", "id": 5, "type": "double", "required": false, "default": 1.7777778, "constraints": {"min": 0.2, "max": 5}, "revision": 1, "bindable": true, "description": "Width over height."},
-      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the video is, spoken for the player."},
-      {"name": "playLabel", "id": 7, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "description": "The play button's label."},
-      {"name": "pauseLabel", "id": 8, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "description": "The pause button's label."},
-      {"name": "captionsLabel", "id": 9, "type": "string", "required": false, "default": "Captions", "revision": 1, "bindable": true, "description": "The captions switch's label."},
-      {"name": "positionLabel", "id": 10, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "description": "The progress bar's label."}
+      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "translatable": true, "description": "What the video is, spoken for the player."},
+      {"name": "playLabel", "id": 7, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "translatable": true, "description": "The play button's label."},
+      {"name": "pauseLabel", "id": 8, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "translatable": true, "description": "The pause button's label."},
+      {"name": "captionsLabel", "id": 9, "type": "string", "required": false, "default": "Captions", "revision": 1, "bindable": true, "translatable": true, "description": "The captions switch's label."},
+      {"name": "positionLabel", "id": 10, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "translatable": true, "description": "The progress bar's label."}
     ],
     "events": [
       {"name": "onEnded", "id": 1, "revision": 1, "description": "Fires when playback ends."},
@@ -6505,9 +6507,9 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "titles", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The title of each step, in order."},
       {"name": "currentStep", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The zero-based step shown."},
       {"name": "stepFields", "id": 3, "type": "list<string>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "For each step, the comma-separated form fields it holds; Next validates those fields through the enclosing `FormScope`."},
-      {"name": "backLabel", "id": 4, "type": "string", "required": false, "default": "Back", "revision": 1, "bindable": true, "description": "The Back button's text."},
-      {"name": "nextLabel", "id": 5, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "description": "The Next button's text."},
-      {"name": "submitLabel", "id": 6, "type": "string", "required": false, "default": "Submit", "revision": 1, "bindable": true, "description": "The Submit button's text, on the last step."}
+      {"name": "backLabel", "id": 4, "type": "string", "required": false, "default": "Back", "revision": 1, "bindable": true, "translatable": true, "description": "The Back button's text."},
+      {"name": "nextLabel", "id": 5, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "translatable": true, "description": "The Next button's text."},
+      {"name": "submitLabel", "id": 6, "type": "string", "required": false, "default": "Submit", "revision": 1, "bindable": true, "translatable": true, "description": "The Submit button's text, on the last step."}
     ],
     "events": [
       {"name": "onNext", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the step now shown, once the current step is valid."},

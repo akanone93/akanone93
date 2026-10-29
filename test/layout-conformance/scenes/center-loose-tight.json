@@ -1,0 +1,35 @@
+{
+  "name": "center-loose-tight",
+  "root": {
+    "id": "c-loose",
+    "type": "Center",
+    "props": {},
+    "children": [
+      {
+        "id": "tight",
+        "type": "SizedBox",
+        "props": {
+          "width": 200,
+          "height": 120
+        },
+        "children": [
+          {
+            "id": "c-tight",
+            "type": "Center",
+            "props": {},
+            "children": [
+              {
+                "id": "small",
+                "type": "TestBox",
+                "props": {
+                  "width": 50,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

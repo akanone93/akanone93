@@ -17,6 +17,8 @@ package notify
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"slices"
 	"strings"
 	"time"
@@ -84,6 +86,12 @@ var types = []TypeInfo{
 // Types returns the registry, in order.
 func Types() []TypeInfo { return slices.Clone(types) }
 
+// Mutable reports whether a user may mute event type t: approval and
+// break-glass types always reach the inbox (F16, STU-013).
+func Mutable(t EventType) bool {
+	return !strings.HasPrefix(string(t), "approval.") && !strings.HasPrefix(string(t), "breakglass.")
+}
+
 // Known reports whether t is a registered event type.
 func Known(t EventType) bool {
 	_, found := slices.BinarySearchFunc(types, t, func(i TypeInfo, t EventType) int { return strings.Compare(string(i.Type), string(t)) })
@@ -98,6 +106,7 @@ const (
 	maxLink       = 2000
 	maxAttributes = 32
 	maxAttribute  = 512
+	maxName       = 64
 )
 
 // Event is something that happened in an organisation.
@@ -119,6 +128,18 @@ type Event struct {
 	// Attributes are structured details for webhook receivers, such as
 	// {"release": "42"}.
 	Attributes map[string]string
+	// Params are the display parameters of the event, keyed by name: the
+	// values Title and Body are formatted from, which Studio formats again
+	// in the reader's language from the event type's message (SRV-062,
+	// STU-012). Like Title and Body they hold no secret and no personal data
+	// beyond what the recipient may see. notifications.paramsPerEvent bounds
+	// their number and notifications.paramBytes each value; a name is 1 to
+	// 64 bytes.
+	Params map[string]string
+	// Subject is what the event is about, such as a release or a plugin ID.
+	// Repeats of one event (same type, app and subject) form one group in
+	// the inbox; an empty subject groups nothing.
+	Subject string
 	// At is when it happened; zero is now.
 	At time.Time
 }
@@ -150,9 +171,36 @@ func (e Event) validate() error {
 		return plxerr.New(plxerr.LimitExceeded, "an event has at most %d attributes", maxAttributes)
 	}
 	for k, v := range e.Attributes {
-		if k == "" || len(k) > 64 || len(v) > maxAttribute {
+		if k == "" || len(k) > maxName || len(v) > maxAttribute {
 			return plxerr.New(plxerr.LimitExceeded, "an attribute name is 1 to 64 bytes and its value at most %d", maxAttribute)
 		}
 	}
 	return nil
+}
+
+// validateParams checks the display parameters against their limits.
+func (e Event) validateParams(count, valueBytes int64) error {
+	if int64(len(e.Params)) > count {
+		return plxerr.New(plxerr.LimitExceeded, "an event has at most %d display parameters (notifications.paramsPerEvent)", count)
+	}
+	for k, v := range e.Params {
+		if k == "" || len(k) > maxName || int64(len(v)) > valueBytes {
+			return plxerr.New(plxerr.LimitExceeded, "a display parameter name is 1 to %d bytes and its value at most %d (notifications.paramBytes)", maxName, valueBytes)
+		}
+	}
+	if len(e.Subject) > maxAttribute {
+		return plxerr.New(plxerr.LimitExceeded, "an event subject is at most %d bytes", maxAttribute)
+	}
+	return nil
+}
+
+// groupKey is equal for repeats of one event: the first 32 hex characters
+// of the SHA-256 of its type, app and subject. Without a subject an item is
+// its own group, keyed by its own ID.
+func groupKey(e Event, itemID string) string {
+	if e.Subject == "" {
+		return itemID
+	}
+	sum := sha256.Sum256([]byte(string(e.Type) + "\x00" + e.AppID + "\x00" + e.Subject))
+	return hex.EncodeToString(sum[:])[:32]
 }

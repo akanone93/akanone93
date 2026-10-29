@@ -952,6 +952,24 @@ enum PluxErrorCode {
   /// Asset rejected by the malware scanner.
   assetRejected(6031, 'ASSET_REJECTED', 'Asset rejected by the malware scanner'),
 
+  /// Asset upload not found or expired.
+  assetUploadNotFound(6032, 'ASSET_UPLOAD_NOT_FOUND', 'Asset upload not found or expired'),
+
+  /// Asset chunk at the wrong offset.
+  assetUploadOutOfOrder(6033, 'ASSET_UPLOAD_OUT_OF_ORDER', 'Asset chunk at the wrong offset'),
+
+  /// Asset chunk too large.
+  assetUploadChunkTooLarge(6034, 'ASSET_UPLOAD_CHUNK_TOO_LARGE', 'Asset chunk too large'),
+
+  /// Asset larger than the size limit.
+  assetUploadTooLarge(6035, 'ASSET_UPLOAD_TOO_LARGE', 'Asset larger than the size limit'),
+
+  /// Uploaded asset hash mismatch.
+  assetUploadHashMismatch(6036, 'ASSET_UPLOAD_HASH_MISMATCH', 'Uploaded asset hash mismatch'),
+
+  /// Uploaded asset size mismatch.
+  assetUploadSizeMismatch(6037, 'ASSET_UPLOAD_SIZE_MISMATCH', 'Uploaded asset size mismatch'),
+
   /// Security configuration hash mismatch.
   securityConfigHashMismatch(6040, 'SECURITY_CONFIG_HASH_MISMATCH', 'Security configuration hash mismatch'),
 
@@ -1209,6 +1227,18 @@ enum PluxErrorCode {
 
   /// Host build lacks a native entry.
   hostBuildIncompatible(8054, 'HOST_BUILD_INCOMPATIBLE', 'Host build lacks a native entry'),
+
+  /// Release request is at another step.
+  releaseRequestState(8060, 'RELEASE_REQUEST_STATE', 'Release request is at another step'),
+
+  /// Release request has ended.
+  releaseRequestEnded(8061, 'RELEASE_REQUEST_ENDED', 'Release request has ended'),
+
+  /// Visual diff not finished.
+  visualDiffRequired(8062, 'VISUAL_DIFF_REQUIRED', 'Visual diff not finished'),
+
+  /// Public scan found sensitive content.
+  libraryPublicScanFailed(8063, 'LIBRARY_PUBLIC_SCAN_FAILED', 'Public scan found sensitive content'),
 
   /// Internal error.
   internalServerError(8090, 'INTERNAL_SERVER_ERROR', 'Internal error'),

@@ -14,6 +14,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 )
 
@@ -109,6 +110,31 @@ func (s Approval) ExportPolicies(ctx context.Context, req *connect.Request[pluxv
 	})
 }
 
+// SimulatePolicy tries a draft policy against a sample change without saving
+// anything.
+func (s Approval) SimulatePolicy(ctx context.Context, req *connect.Request[pluxv1.SimulatePolicyRequest]) (*connect.Response[pluxv1.SimulatePolicyResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.SimulatePolicyResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		sample := approval.Artifact{
+			Resource:    schema.PolicyResource(m.GetChange().GetResource()),
+			Action:      m.GetChange().GetAction(),
+			Environment: approval.Environment{Key: m.GetChange().GetEnvironment()},
+		}
+		for _, r := range m.GetChange().GetRisk() {
+			sample.Risk = append(sample.Risk, schema.PolicyRisk(r))
+		}
+		sim, err := s.h.Approvals.SimulatePolicy(ctx, p, m.GetAppId(), m.GetDocument(), sample)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return simulationProto(sim), nil
+	})
+}
+
 // ListApprovals lists the approval requests of an app, newest first.
 func (s Approval) ListApprovals(ctx context.Context, req *connect.Request[pluxv1.ListApprovalsRequest]) (*connect.Response[pluxv1.ListApprovalsResponse], error) {
 	return read(ctx, func(ctx context.Context) (*pluxv1.ListApprovalsResponse, error) {
@@ -197,6 +223,24 @@ func policyProto(r approval.PolicyRecord) *pluxv1.PolicyRecord {
 		AppId: r.AppID, Key: r.Key, Version: r.Version, Document: r.Document, DocumentHash: r.Hash,
 		Deleted: r.Deleted, CreatedBy: r.CreatedBy, CreatedAt: timestamppb.New(r.CreatedAt),
 	}
+}
+
+// simulationProto converts the answer of a policy simulation.
+func simulationProto(sim approval.Simulation) *pluxv1.SimulatePolicyResponse {
+	out := &pluxv1.SimulatePolicyResponse{
+		Matches: sim.Matches, RequiresEnterprise: sim.RequiresEnterprise,
+		ApprovalsRequired: int32(sim.Required), //nolint:gosec // at most the schema's maximum of 10
+	}
+	for _, r := range sim.Requirements {
+		req := r.Policy
+		out.Requirements = append(out.Requirements, &pluxv1.SimulatedRequirement{
+			PolicyKey: r.PolicyKey, Draft: r.Draft, Approvers: int32(req.Approvers), //nolint:gosec // at most the schema's maximum of 10
+			Roles: req.Roles, Users: req.Users, Stages: string(req.Stages),
+			DistinctTeams:      req.DistinctTeams != nil && *req.DistinctTeams,
+			DistinctFromAuthor: req.DistinctFromAuthor != nil && *req.DistinctFromAuthor,
+		})
+	}
+	return out
 }
 
 // approvalProto converts a request with its decisions.

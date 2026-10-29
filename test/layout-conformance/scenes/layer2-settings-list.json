@@ -1,0 +1,9 @@
+{
+  "name": "layer2-settings-list",
+  "layer2": true,
+  "root": {
+    "id": "w",
+    "type": "SettingsList",
+    "props": { "sections": [{ "title": "Account", "count": 0 }, { "title": "Privacy", "count": 0 }] }
+  }
+}

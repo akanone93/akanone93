@@ -35,8 +35,20 @@ type App struct {
 	DefaultPluginKey string                 `protobuf:"bytes,5,opt,name=default_plugin_key,json=defaultPluginKey,proto3" json:"default_plugin_key,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	Description      string                 `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
+	// icon_asset_id names an image asset of the app, or is empty.
+	IconAssetId string `protobuf:"bytes,9,opt,name=icon_asset_id,json=iconAssetId,proto3" json:"icon_asset_id,omitempty"`
+	// owning_team_id is the team that owns the app, or empty.
+	OwningTeamId string   `protobuf:"bytes,10,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"`
+	Tags         []string `protobuf:"bytes,11,rep,name=tags,proto3" json:"tags,omitempty"`
+	// archived apps are left out of ListApps unless include_archived is set.
+	Archived bool `protobuf:"varint,12,opt,name=archived,proto3" json:"archived,omitempty"`
+	// host_fonts lists the font files the host app bundles and the plugins
+	// use by name; Studio's canvas loads them from the app's assets so its
+	// text is laid out with the device's fonts (STU-006).
+	HostFonts     []*HostFont `protobuf:"bytes,13,rep,name=host_fonts,json=hostFonts,proto3" json:"host_fonts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *App) Reset() {
@@ -118,6 +130,104 @@ func (x *App) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *App) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *App) GetIconAssetId() string {
+	if x != nil {
+		return x.IconAssetId
+	}
+	return ""
+}
+
+func (x *App) GetOwningTeamId() string {
+	if x != nil {
+		return x.OwningTeamId
+	}
+	return ""
+}
+
+func (x *App) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *App) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
+func (x *App) GetHostFonts() []*HostFont {
+	if x != nil {
+		return x.HostFonts
+	}
+	return nil
+}
+
+// HostFont names one font file of the host app: the family the device
+// uses it by and the app asset that holds the same file.
+type HostFont struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// family is the font family name, at most 200 characters.
+	Family string `protobuf:"bytes,1,opt,name=family,proto3" json:"family,omitempty"`
+	// asset_id names a live font asset (TrueType or OpenType) of the app.
+	AssetId       string `protobuf:"bytes,2,opt,name=asset_id,json=assetId,proto3" json:"asset_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HostFont) Reset() {
+	*x = HostFont{}
+	mi := &file_plux_v1_app_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HostFont) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HostFont) ProtoMessage() {}
+
+func (x *HostFont) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_app_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HostFont.ProtoReflect.Descriptor instead.
+func (*HostFont) Descriptor() ([]byte, []int) {
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *HostFont) GetFamily() string {
+	if x != nil {
+		return x.Family
+	}
+	return ""
+}
+
+func (x *HostFont) GetAssetId() string {
+	if x != nil {
+		return x.AssetId
+	}
+	return ""
+}
+
 // Environment isolates variables, secrets, data-source URLs, signing keys
 // and device registrations (GOV-010).
 type Environment struct {
@@ -139,7 +249,7 @@ type Environment struct {
 
 func (x *Environment) Reset() {
 	*x = Environment{}
-	mi := &file_plux_v1_app_proto_msgTypes[1]
+	mi := &file_plux_v1_app_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -151,7 +261,7 @@ func (x *Environment) String() string {
 func (*Environment) ProtoMessage() {}
 
 func (x *Environment) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[1]
+	mi := &file_plux_v1_app_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +274,7 @@ func (x *Environment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Environment.ProtoReflect.Descriptor instead.
 func (*Environment) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{1}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Environment) GetId() string {
@@ -237,7 +347,7 @@ type Channel struct {
 
 func (x *Channel) Reset() {
 	*x = Channel{}
-	mi := &file_plux_v1_app_proto_msgTypes[2]
+	mi := &file_plux_v1_app_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -249,7 +359,7 @@ func (x *Channel) String() string {
 func (*Channel) ProtoMessage() {}
 
 func (x *Channel) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[2]
+	mi := &file_plux_v1_app_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -262,7 +372,7 @@ func (x *Channel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Channel.ProtoReflect.Descriptor instead.
 func (*Channel) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{2}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Channel) GetId() string {
@@ -317,7 +427,7 @@ type Variable struct {
 
 func (x *Variable) Reset() {
 	*x = Variable{}
-	mi := &file_plux_v1_app_proto_msgTypes[3]
+	mi := &file_plux_v1_app_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -329,7 +439,7 @@ func (x *Variable) String() string {
 func (*Variable) ProtoMessage() {}
 
 func (x *Variable) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[3]
+	mi := &file_plux_v1_app_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -342,7 +452,7 @@ func (x *Variable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Variable.ProtoReflect.Descriptor instead.
 func (*Variable) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{3}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Variable) GetKey() string {
@@ -373,7 +483,7 @@ type Secret struct {
 
 func (x *Secret) Reset() {
 	*x = Secret{}
-	mi := &file_plux_v1_app_proto_msgTypes[4]
+	mi := &file_plux_v1_app_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -385,7 +495,7 @@ func (x *Secret) String() string {
 func (*Secret) ProtoMessage() {}
 
 func (x *Secret) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[4]
+	mi := &file_plux_v1_app_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -398,7 +508,7 @@ func (x *Secret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Secret.ProtoReflect.Descriptor instead.
 func (*Secret) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{4}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Secret) GetKey() string {
@@ -440,7 +550,7 @@ type CreateAppRequest struct {
 
 func (x *CreateAppRequest) Reset() {
 	*x = CreateAppRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[5]
+	mi := &file_plux_v1_app_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -452,7 +562,7 @@ func (x *CreateAppRequest) String() string {
 func (*CreateAppRequest) ProtoMessage() {}
 
 func (x *CreateAppRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[5]
+	mi := &file_plux_v1_app_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -465,7 +575,7 @@ func (x *CreateAppRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAppRequest.ProtoReflect.Descriptor instead.
 func (*CreateAppRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{5}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateAppRequest) GetOrganizationId() string {
@@ -498,7 +608,7 @@ type CreateAppResponse struct {
 
 func (x *CreateAppResponse) Reset() {
 	*x = CreateAppResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[6]
+	mi := &file_plux_v1_app_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -510,7 +620,7 @@ func (x *CreateAppResponse) String() string {
 func (*CreateAppResponse) ProtoMessage() {}
 
 func (x *CreateAppResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[6]
+	mi := &file_plux_v1_app_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -523,7 +633,7 @@ func (x *CreateAppResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAppResponse.ProtoReflect.Descriptor instead.
 func (*CreateAppResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{6}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateAppResponse) GetApp() *App {
@@ -542,7 +652,7 @@ type GetAppRequest struct {
 
 func (x *GetAppRequest) Reset() {
 	*x = GetAppRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[7]
+	mi := &file_plux_v1_app_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -554,7 +664,7 @@ func (x *GetAppRequest) String() string {
 func (*GetAppRequest) ProtoMessage() {}
 
 func (x *GetAppRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[7]
+	mi := &file_plux_v1_app_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -567,7 +677,7 @@ func (x *GetAppRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAppRequest.ProtoReflect.Descriptor instead.
 func (*GetAppRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{7}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetAppRequest) GetId() string {
@@ -586,7 +696,7 @@ type GetAppResponse struct {
 
 func (x *GetAppResponse) Reset() {
 	*x = GetAppResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[8]
+	mi := &file_plux_v1_app_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -598,7 +708,7 @@ func (x *GetAppResponse) String() string {
 func (*GetAppResponse) ProtoMessage() {}
 
 func (x *GetAppResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[8]
+	mi := &file_plux_v1_app_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -611,7 +721,7 @@ func (x *GetAppResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAppResponse.ProtoReflect.Descriptor instead.
 func (*GetAppResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{8}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetAppResponse) GetApp() *App {
@@ -625,13 +735,27 @@ type ListAppsRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	OrganizationId string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	Page           *Page                  `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// query matches the key, name, description and tags, ignoring case.
+	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
+	// tags keeps the apps that carry every one of them.
+	Tags            []string `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
+	OwningTeamId    string   `protobuf:"bytes,5,opt,name=owning_team_id,json=owningTeamId,proto3" json:"owning_team_id,omitempty"`
+	IncludeArchived bool     `protobuf:"varint,6,opt,name=include_archived,json=includeArchived,proto3" json:"include_archived,omitempty"`
+	// sort is "key" (default), "name" or "updated" (newest first).
+	Sort string `protobuf:"bytes,7,opt,name=sort,proto3" json:"sort,omitempty"`
+	// status is "active" (the default), "archived" or "all"; include_archived
+	// is the older spelling of "all".
+	Status string `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
+	// mine keeps the apps the caller holds a grant on, directly or through a
+	// team, or that a team of the caller owns.
+	Mine          bool `protobuf:"varint,9,opt,name=mine,proto3" json:"mine,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAppsRequest) Reset() {
 	*x = ListAppsRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[9]
+	mi := &file_plux_v1_app_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -643,7 +767,7 @@ func (x *ListAppsRequest) String() string {
 func (*ListAppsRequest) ProtoMessage() {}
 
 func (x *ListAppsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[9]
+	mi := &file_plux_v1_app_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -656,7 +780,7 @@ func (x *ListAppsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAppsRequest.ProtoReflect.Descriptor instead.
 func (*ListAppsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{9}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListAppsRequest) GetOrganizationId() string {
@@ -673,6 +797,55 @@ func (x *ListAppsRequest) GetPage() *Page {
 	return nil
 }
 
+func (x *ListAppsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *ListAppsRequest) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *ListAppsRequest) GetOwningTeamId() string {
+	if x != nil {
+		return x.OwningTeamId
+	}
+	return ""
+}
+
+func (x *ListAppsRequest) GetIncludeArchived() bool {
+	if x != nil {
+		return x.IncludeArchived
+	}
+	return false
+}
+
+func (x *ListAppsRequest) GetSort() string {
+	if x != nil {
+		return x.Sort
+	}
+	return ""
+}
+
+func (x *ListAppsRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListAppsRequest) GetMine() bool {
+	if x != nil {
+		return x.Mine
+	}
+	return false
+}
+
 type ListAppsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Apps          []*App                 `protobuf:"bytes,1,rep,name=apps,proto3" json:"apps,omitempty"`
@@ -683,7 +856,7 @@ type ListAppsResponse struct {
 
 func (x *ListAppsResponse) Reset() {
 	*x = ListAppsResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[10]
+	mi := &file_plux_v1_app_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -695,7 +868,7 @@ func (x *ListAppsResponse) String() string {
 func (*ListAppsResponse) ProtoMessage() {}
 
 func (x *ListAppsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[10]
+	mi := &file_plux_v1_app_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +881,7 @@ func (x *ListAppsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAppsResponse.ProtoReflect.Descriptor instead.
 func (*ListAppsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{10}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListAppsResponse) GetApps() []*App {
@@ -730,13 +903,18 @@ type UpdateAppRequest struct {
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	DefaultPluginKey string                 `protobuf:"bytes,3,opt,name=default_plugin_key,json=defaultPluginKey,proto3" json:"default_plugin_key,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	Metadata         *MetadataUpdate        `protobuf:"bytes,4,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	// set_host_fonts replaces the app's host_fonts with the list below, which
+	// may be empty; at most app.hostFonts entries.
+	SetHostFonts  bool        `protobuf:"varint,5,opt,name=set_host_fonts,json=setHostFonts,proto3" json:"set_host_fonts,omitempty"`
+	HostFonts     []*HostFont `protobuf:"bytes,6,rep,name=host_fonts,json=hostFonts,proto3" json:"host_fonts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateAppRequest) Reset() {
 	*x = UpdateAppRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[11]
+	mi := &file_plux_v1_app_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -748,7 +926,7 @@ func (x *UpdateAppRequest) String() string {
 func (*UpdateAppRequest) ProtoMessage() {}
 
 func (x *UpdateAppRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[11]
+	mi := &file_plux_v1_app_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,7 +939,7 @@ func (x *UpdateAppRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAppRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAppRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateAppRequest) GetId() string {
@@ -785,6 +963,27 @@ func (x *UpdateAppRequest) GetDefaultPluginKey() string {
 	return ""
 }
 
+func (x *UpdateAppRequest) GetMetadata() *MetadataUpdate {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+func (x *UpdateAppRequest) GetSetHostFonts() bool {
+	if x != nil {
+		return x.SetHostFonts
+	}
+	return false
+}
+
+func (x *UpdateAppRequest) GetHostFonts() []*HostFont {
+	if x != nil {
+		return x.HostFonts
+	}
+	return nil
+}
+
 type UpdateAppResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	App           *App                   `protobuf:"bytes,1,opt,name=app,proto3" json:"app,omitempty"`
@@ -794,7 +993,7 @@ type UpdateAppResponse struct {
 
 func (x *UpdateAppResponse) Reset() {
 	*x = UpdateAppResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[12]
+	mi := &file_plux_v1_app_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -806,7 +1005,7 @@ func (x *UpdateAppResponse) String() string {
 func (*UpdateAppResponse) ProtoMessage() {}
 
 func (x *UpdateAppResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[12]
+	mi := &file_plux_v1_app_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -819,7 +1018,7 @@ func (x *UpdateAppResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAppResponse.ProtoReflect.Descriptor instead.
 func (*UpdateAppResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateAppResponse) GetApp() *App {
@@ -838,7 +1037,7 @@ type DeleteAppRequest struct {
 
 func (x *DeleteAppRequest) Reset() {
 	*x = DeleteAppRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[13]
+	mi := &file_plux_v1_app_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -850,7 +1049,7 @@ func (x *DeleteAppRequest) String() string {
 func (*DeleteAppRequest) ProtoMessage() {}
 
 func (x *DeleteAppRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[13]
+	mi := &file_plux_v1_app_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -863,7 +1062,7 @@ func (x *DeleteAppRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAppRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAppRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DeleteAppRequest) GetId() string {
@@ -882,7 +1081,7 @@ type DeleteAppResponse struct {
 
 func (x *DeleteAppResponse) Reset() {
 	*x = DeleteAppResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[14]
+	mi := &file_plux_v1_app_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -894,7 +1093,7 @@ func (x *DeleteAppResponse) String() string {
 func (*DeleteAppResponse) ProtoMessage() {}
 
 func (x *DeleteAppResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[14]
+	mi := &file_plux_v1_app_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -907,7 +1106,7 @@ func (x *DeleteAppResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAppResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAppResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *DeleteAppResponse) GetTrash() *TrashItem {
@@ -929,7 +1128,7 @@ type CreateEnvironmentRequest struct {
 
 func (x *CreateEnvironmentRequest) Reset() {
 	*x = CreateEnvironmentRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[15]
+	mi := &file_plux_v1_app_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -941,7 +1140,7 @@ func (x *CreateEnvironmentRequest) String() string {
 func (*CreateEnvironmentRequest) ProtoMessage() {}
 
 func (x *CreateEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[15]
+	mi := &file_plux_v1_app_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -954,7 +1153,7 @@ func (x *CreateEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*CreateEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CreateEnvironmentRequest) GetAppId() string {
@@ -994,7 +1193,7 @@ type CreateEnvironmentResponse struct {
 
 func (x *CreateEnvironmentResponse) Reset() {
 	*x = CreateEnvironmentResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[16]
+	mi := &file_plux_v1_app_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1006,7 +1205,7 @@ func (x *CreateEnvironmentResponse) String() string {
 func (*CreateEnvironmentResponse) ProtoMessage() {}
 
 func (x *CreateEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[16]
+	mi := &file_plux_v1_app_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1019,7 +1218,7 @@ func (x *CreateEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*CreateEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateEnvironmentResponse) GetEnvironment() *Environment {
@@ -1039,7 +1238,7 @@ type ListEnvironmentsRequest struct {
 
 func (x *ListEnvironmentsRequest) Reset() {
 	*x = ListEnvironmentsRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[17]
+	mi := &file_plux_v1_app_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1051,7 +1250,7 @@ func (x *ListEnvironmentsRequest) String() string {
 func (*ListEnvironmentsRequest) ProtoMessage() {}
 
 func (x *ListEnvironmentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[17]
+	mi := &file_plux_v1_app_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1064,7 +1263,7 @@ func (x *ListEnvironmentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentsRequest.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListEnvironmentsRequest) GetAppId() string {
@@ -1091,7 +1290,7 @@ type ListEnvironmentsResponse struct {
 
 func (x *ListEnvironmentsResponse) Reset() {
 	*x = ListEnvironmentsResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[18]
+	mi := &file_plux_v1_app_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1103,7 +1302,7 @@ func (x *ListEnvironmentsResponse) String() string {
 func (*ListEnvironmentsResponse) ProtoMessage() {}
 
 func (x *ListEnvironmentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[18]
+	mi := &file_plux_v1_app_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,7 +1315,7 @@ func (x *ListEnvironmentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentsResponse.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListEnvironmentsResponse) GetEnvironments() []*Environment {
@@ -1143,7 +1342,7 @@ type UpdateEnvironmentRequest struct {
 
 func (x *UpdateEnvironmentRequest) Reset() {
 	*x = UpdateEnvironmentRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[19]
+	mi := &file_plux_v1_app_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1155,7 +1354,7 @@ func (x *UpdateEnvironmentRequest) String() string {
 func (*UpdateEnvironmentRequest) ProtoMessage() {}
 
 func (x *UpdateEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[19]
+	mi := &file_plux_v1_app_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1168,7 +1367,7 @@ func (x *UpdateEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateEnvironmentRequest) GetId() string {
@@ -1194,7 +1393,7 @@ type UpdateEnvironmentResponse struct {
 
 func (x *UpdateEnvironmentResponse) Reset() {
 	*x = UpdateEnvironmentResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[20]
+	mi := &file_plux_v1_app_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1206,7 +1405,7 @@ func (x *UpdateEnvironmentResponse) String() string {
 func (*UpdateEnvironmentResponse) ProtoMessage() {}
 
 func (x *UpdateEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[20]
+	mi := &file_plux_v1_app_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1219,7 +1418,7 @@ func (x *UpdateEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UpdateEnvironmentResponse) GetEnvironment() *Environment {
@@ -1238,7 +1437,7 @@ type DeleteEnvironmentRequest struct {
 
 func (x *DeleteEnvironmentRequest) Reset() {
 	*x = DeleteEnvironmentRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[21]
+	mi := &file_plux_v1_app_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1250,7 +1449,7 @@ func (x *DeleteEnvironmentRequest) String() string {
 func (*DeleteEnvironmentRequest) ProtoMessage() {}
 
 func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[21]
+	mi := &file_plux_v1_app_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1263,7 +1462,7 @@ func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *DeleteEnvironmentRequest) GetId() string {
@@ -1281,7 +1480,7 @@ type DeleteEnvironmentResponse struct {
 
 func (x *DeleteEnvironmentResponse) Reset() {
 	*x = DeleteEnvironmentResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[22]
+	mi := &file_plux_v1_app_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1293,7 +1492,7 @@ func (x *DeleteEnvironmentResponse) String() string {
 func (*DeleteEnvironmentResponse) ProtoMessage() {}
 
 func (x *DeleteEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[22]
+	mi := &file_plux_v1_app_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1306,7 +1505,7 @@ func (x *DeleteEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{23}
 }
 
 type SetVariableRequest struct {
@@ -1320,7 +1519,7 @@ type SetVariableRequest struct {
 
 func (x *SetVariableRequest) Reset() {
 	*x = SetVariableRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[23]
+	mi := &file_plux_v1_app_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1332,7 +1531,7 @@ func (x *SetVariableRequest) String() string {
 func (*SetVariableRequest) ProtoMessage() {}
 
 func (x *SetVariableRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[23]
+	mi := &file_plux_v1_app_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1345,7 +1544,7 @@ func (x *SetVariableRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetVariableRequest.ProtoReflect.Descriptor instead.
 func (*SetVariableRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{23}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *SetVariableRequest) GetEnvironmentId() string {
@@ -1378,7 +1577,7 @@ type SetVariableResponse struct {
 
 func (x *SetVariableResponse) Reset() {
 	*x = SetVariableResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[24]
+	mi := &file_plux_v1_app_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1390,7 +1589,7 @@ func (x *SetVariableResponse) String() string {
 func (*SetVariableResponse) ProtoMessage() {}
 
 func (x *SetVariableResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[24]
+	mi := &file_plux_v1_app_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1403,7 +1602,7 @@ func (x *SetVariableResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetVariableResponse.ProtoReflect.Descriptor instead.
 func (*SetVariableResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SetVariableResponse) GetVariable() *Variable {
@@ -1423,7 +1622,7 @@ type ListVariablesRequest struct {
 
 func (x *ListVariablesRequest) Reset() {
 	*x = ListVariablesRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[25]
+	mi := &file_plux_v1_app_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1435,7 +1634,7 @@ func (x *ListVariablesRequest) String() string {
 func (*ListVariablesRequest) ProtoMessage() {}
 
 func (x *ListVariablesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[25]
+	mi := &file_plux_v1_app_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1448,7 +1647,7 @@ func (x *ListVariablesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVariablesRequest.ProtoReflect.Descriptor instead.
 func (*ListVariablesRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListVariablesRequest) GetEnvironmentId() string {
@@ -1475,7 +1674,7 @@ type ListVariablesResponse struct {
 
 func (x *ListVariablesResponse) Reset() {
 	*x = ListVariablesResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[26]
+	mi := &file_plux_v1_app_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1487,7 +1686,7 @@ func (x *ListVariablesResponse) String() string {
 func (*ListVariablesResponse) ProtoMessage() {}
 
 func (x *ListVariablesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[26]
+	mi := &file_plux_v1_app_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1500,7 +1699,7 @@ func (x *ListVariablesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVariablesResponse.ProtoReflect.Descriptor instead.
 func (*ListVariablesResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ListVariablesResponse) GetVariables() []*Variable {
@@ -1528,7 +1727,7 @@ type SetSecretRequest struct {
 
 func (x *SetSecretRequest) Reset() {
 	*x = SetSecretRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[27]
+	mi := &file_plux_v1_app_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1540,7 +1739,7 @@ func (x *SetSecretRequest) String() string {
 func (*SetSecretRequest) ProtoMessage() {}
 
 func (x *SetSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[27]
+	mi := &file_plux_v1_app_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1553,7 +1752,7 @@ func (x *SetSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetSecretRequest.ProtoReflect.Descriptor instead.
 func (*SetSecretRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *SetSecretRequest) GetEnvironmentId() string {
@@ -1586,7 +1785,7 @@ type SetSecretResponse struct {
 
 func (x *SetSecretResponse) Reset() {
 	*x = SetSecretResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[28]
+	mi := &file_plux_v1_app_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1598,7 +1797,7 @@ func (x *SetSecretResponse) String() string {
 func (*SetSecretResponse) ProtoMessage() {}
 
 func (x *SetSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[28]
+	mi := &file_plux_v1_app_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1611,7 +1810,7 @@ func (x *SetSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetSecretResponse.ProtoReflect.Descriptor instead.
 func (*SetSecretResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *SetSecretResponse) GetSecret() *Secret {
@@ -1631,7 +1830,7 @@ type ListSecretsRequest struct {
 
 func (x *ListSecretsRequest) Reset() {
 	*x = ListSecretsRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[29]
+	mi := &file_plux_v1_app_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1643,7 +1842,7 @@ func (x *ListSecretsRequest) String() string {
 func (*ListSecretsRequest) ProtoMessage() {}
 
 func (x *ListSecretsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[29]
+	mi := &file_plux_v1_app_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1656,7 +1855,7 @@ func (x *ListSecretsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSecretsRequest.ProtoReflect.Descriptor instead.
 func (*ListSecretsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{29}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ListSecretsRequest) GetEnvironmentId() string {
@@ -1683,7 +1882,7 @@ type ListSecretsResponse struct {
 
 func (x *ListSecretsResponse) Reset() {
 	*x = ListSecretsResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[30]
+	mi := &file_plux_v1_app_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1695,7 +1894,7 @@ func (x *ListSecretsResponse) String() string {
 func (*ListSecretsResponse) ProtoMessage() {}
 
 func (x *ListSecretsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[30]
+	mi := &file_plux_v1_app_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1708,7 +1907,7 @@ func (x *ListSecretsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSecretsResponse.ProtoReflect.Descriptor instead.
 func (*ListSecretsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{30}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ListSecretsResponse) GetSecrets() []*Secret {
@@ -1735,7 +1934,7 @@ type DeleteSecretRequest struct {
 
 func (x *DeleteSecretRequest) Reset() {
 	*x = DeleteSecretRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[31]
+	mi := &file_plux_v1_app_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1747,7 +1946,7 @@ func (x *DeleteSecretRequest) String() string {
 func (*DeleteSecretRequest) ProtoMessage() {}
 
 func (x *DeleteSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[31]
+	mi := &file_plux_v1_app_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1760,7 +1959,7 @@ func (x *DeleteSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSecretRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSecretRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{31}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *DeleteSecretRequest) GetEnvironmentId() string {
@@ -1785,7 +1984,7 @@ type DeleteSecretResponse struct {
 
 func (x *DeleteSecretResponse) Reset() {
 	*x = DeleteSecretResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[32]
+	mi := &file_plux_v1_app_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1797,7 +1996,7 @@ func (x *DeleteSecretResponse) String() string {
 func (*DeleteSecretResponse) ProtoMessage() {}
 
 func (x *DeleteSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[32]
+	mi := &file_plux_v1_app_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1810,7 +2009,7 @@ func (x *DeleteSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSecretResponse.ProtoReflect.Descriptor instead.
 func (*DeleteSecretResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{32}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{33}
 }
 
 type CreateChannelRequest struct {
@@ -1823,7 +2022,7 @@ type CreateChannelRequest struct {
 
 func (x *CreateChannelRequest) Reset() {
 	*x = CreateChannelRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[33]
+	mi := &file_plux_v1_app_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1835,7 +2034,7 @@ func (x *CreateChannelRequest) String() string {
 func (*CreateChannelRequest) ProtoMessage() {}
 
 func (x *CreateChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[33]
+	mi := &file_plux_v1_app_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1848,7 +2047,7 @@ func (x *CreateChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateChannelRequest.ProtoReflect.Descriptor instead.
 func (*CreateChannelRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{33}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *CreateChannelRequest) GetEnvironmentId() string {
@@ -1874,7 +2073,7 @@ type CreateChannelResponse struct {
 
 func (x *CreateChannelResponse) Reset() {
 	*x = CreateChannelResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[34]
+	mi := &file_plux_v1_app_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1886,7 +2085,7 @@ func (x *CreateChannelResponse) String() string {
 func (*CreateChannelResponse) ProtoMessage() {}
 
 func (x *CreateChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[34]
+	mi := &file_plux_v1_app_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1899,7 +2098,7 @@ func (x *CreateChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateChannelResponse.ProtoReflect.Descriptor instead.
 func (*CreateChannelResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{34}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *CreateChannelResponse) GetChannel() *Channel {
@@ -1919,7 +2118,7 @@ type ListChannelsRequest struct {
 
 func (x *ListChannelsRequest) Reset() {
 	*x = ListChannelsRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[35]
+	mi := &file_plux_v1_app_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1931,7 +2130,7 @@ func (x *ListChannelsRequest) String() string {
 func (*ListChannelsRequest) ProtoMessage() {}
 
 func (x *ListChannelsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[35]
+	mi := &file_plux_v1_app_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1944,7 +2143,7 @@ func (x *ListChannelsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsRequest.ProtoReflect.Descriptor instead.
 func (*ListChannelsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{35}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListChannelsRequest) GetEnvironmentId() string {
@@ -1971,7 +2170,7 @@ type ListChannelsResponse struct {
 
 func (x *ListChannelsResponse) Reset() {
 	*x = ListChannelsResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[36]
+	mi := &file_plux_v1_app_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1983,7 +2182,7 @@ func (x *ListChannelsResponse) String() string {
 func (*ListChannelsResponse) ProtoMessage() {}
 
 func (x *ListChannelsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[36]
+	mi := &file_plux_v1_app_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1996,7 +2195,7 @@ func (x *ListChannelsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsResponse.ProtoReflect.Descriptor instead.
 func (*ListChannelsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{36}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListChannelsResponse) GetChannels() []*Channel {
@@ -2022,7 +2221,7 @@ type DeleteChannelRequest struct {
 
 func (x *DeleteChannelRequest) Reset() {
 	*x = DeleteChannelRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[37]
+	mi := &file_plux_v1_app_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2034,7 +2233,7 @@ func (x *DeleteChannelRequest) String() string {
 func (*DeleteChannelRequest) ProtoMessage() {}
 
 func (x *DeleteChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[37]
+	mi := &file_plux_v1_app_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2047,7 +2246,7 @@ func (x *DeleteChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelRequest.ProtoReflect.Descriptor instead.
 func (*DeleteChannelRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{37}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *DeleteChannelRequest) GetId() string {
@@ -2065,7 +2264,7 @@ type DeleteChannelResponse struct {
 
 func (x *DeleteChannelResponse) Reset() {
 	*x = DeleteChannelResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[38]
+	mi := &file_plux_v1_app_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2077,7 +2276,7 @@ func (x *DeleteChannelResponse) String() string {
 func (*DeleteChannelResponse) ProtoMessage() {}
 
 func (x *DeleteChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[38]
+	mi := &file_plux_v1_app_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2090,7 +2289,7 @@ func (x *DeleteChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelResponse.ProtoReflect.Descriptor instead.
 func (*DeleteChannelResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{38}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{39}
 }
 
 type ListTrashRequest struct {
@@ -2104,7 +2303,7 @@ type ListTrashRequest struct {
 
 func (x *ListTrashRequest) Reset() {
 	*x = ListTrashRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[39]
+	mi := &file_plux_v1_app_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2116,7 +2315,7 @@ func (x *ListTrashRequest) String() string {
 func (*ListTrashRequest) ProtoMessage() {}
 
 func (x *ListTrashRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[39]
+	mi := &file_plux_v1_app_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2129,7 +2328,7 @@ func (x *ListTrashRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTrashRequest.ProtoReflect.Descriptor instead.
 func (*ListTrashRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{39}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ListTrashRequest) GetOrganizationId() string {
@@ -2163,7 +2362,7 @@ type ListTrashResponse struct {
 
 func (x *ListTrashResponse) Reset() {
 	*x = ListTrashResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[40]
+	mi := &file_plux_v1_app_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2175,7 +2374,7 @@ func (x *ListTrashResponse) String() string {
 func (*ListTrashResponse) ProtoMessage() {}
 
 func (x *ListTrashResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[40]
+	mi := &file_plux_v1_app_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2188,7 +2387,7 @@ func (x *ListTrashResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTrashResponse.ProtoReflect.Descriptor instead.
 func (*ListTrashResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{40}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListTrashResponse) GetItems() []*TrashItem {
@@ -2214,7 +2413,7 @@ type RestoreFromTrashRequest struct {
 
 func (x *RestoreFromTrashRequest) Reset() {
 	*x = RestoreFromTrashRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[41]
+	mi := &file_plux_v1_app_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2226,7 +2425,7 @@ func (x *RestoreFromTrashRequest) String() string {
 func (*RestoreFromTrashRequest) ProtoMessage() {}
 
 func (x *RestoreFromTrashRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[41]
+	mi := &file_plux_v1_app_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2239,7 +2438,7 @@ func (x *RestoreFromTrashRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreFromTrashRequest.ProtoReflect.Descriptor instead.
 func (*RestoreFromTrashRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{41}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *RestoreFromTrashRequest) GetId() string {
@@ -2257,7 +2456,7 @@ type RestoreFromTrashResponse struct {
 
 func (x *RestoreFromTrashResponse) Reset() {
 	*x = RestoreFromTrashResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[42]
+	mi := &file_plux_v1_app_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2269,7 +2468,7 @@ func (x *RestoreFromTrashResponse) String() string {
 func (*RestoreFromTrashResponse) ProtoMessage() {}
 
 func (x *RestoreFromTrashResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[42]
+	mi := &file_plux_v1_app_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2282,7 +2481,7 @@ func (x *RestoreFromTrashResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreFromTrashResponse.ProtoReflect.Descriptor instead.
 func (*RestoreFromTrashResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{42}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{43}
 }
 
 type PurgeFromTrashRequest struct {
@@ -2294,7 +2493,7 @@ type PurgeFromTrashRequest struct {
 
 func (x *PurgeFromTrashRequest) Reset() {
 	*x = PurgeFromTrashRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[43]
+	mi := &file_plux_v1_app_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2306,7 +2505,7 @@ func (x *PurgeFromTrashRequest) String() string {
 func (*PurgeFromTrashRequest) ProtoMessage() {}
 
 func (x *PurgeFromTrashRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[43]
+	mi := &file_plux_v1_app_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2319,7 +2518,7 @@ func (x *PurgeFromTrashRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PurgeFromTrashRequest.ProtoReflect.Descriptor instead.
 func (*PurgeFromTrashRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{43}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *PurgeFromTrashRequest) GetId() string {
@@ -2337,7 +2536,7 @@ type PurgeFromTrashResponse struct {
 
 func (x *PurgeFromTrashResponse) Reset() {
 	*x = PurgeFromTrashResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[44]
+	mi := &file_plux_v1_app_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2349,7 +2548,7 @@ func (x *PurgeFromTrashResponse) String() string {
 func (*PurgeFromTrashResponse) ProtoMessage() {}
 
 func (x *PurgeFromTrashResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[44]
+	mi := &file_plux_v1_app_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2362,7 +2561,7 @@ func (x *PurgeFromTrashResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PurgeFromTrashResponse.ProtoReflect.Descriptor instead.
 func (*PurgeFromTrashResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{44}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{45}
 }
 
 type ListAppLimitsRequest struct {
@@ -2374,7 +2573,7 @@ type ListAppLimitsRequest struct {
 
 func (x *ListAppLimitsRequest) Reset() {
 	*x = ListAppLimitsRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[45]
+	mi := &file_plux_v1_app_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2386,7 +2585,7 @@ func (x *ListAppLimitsRequest) String() string {
 func (*ListAppLimitsRequest) ProtoMessage() {}
 
 func (x *ListAppLimitsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[45]
+	mi := &file_plux_v1_app_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2399,7 +2598,7 @@ func (x *ListAppLimitsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAppLimitsRequest.ProtoReflect.Descriptor instead.
 func (*ListAppLimitsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{45}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ListAppLimitsRequest) GetAppId() string {
@@ -2418,7 +2617,7 @@ type ListAppLimitsResponse struct {
 
 func (x *ListAppLimitsResponse) Reset() {
 	*x = ListAppLimitsResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[46]
+	mi := &file_plux_v1_app_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2430,7 +2629,7 @@ func (x *ListAppLimitsResponse) String() string {
 func (*ListAppLimitsResponse) ProtoMessage() {}
 
 func (x *ListAppLimitsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[46]
+	mi := &file_plux_v1_app_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2443,7 +2642,7 @@ func (x *ListAppLimitsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAppLimitsResponse.ProtoReflect.Descriptor instead.
 func (*ListAppLimitsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{46}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ListAppLimitsResponse) GetLimits() []*LimitUsage {
@@ -2464,7 +2663,7 @@ type SetAppLimitRequest struct {
 
 func (x *SetAppLimitRequest) Reset() {
 	*x = SetAppLimitRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[47]
+	mi := &file_plux_v1_app_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2476,7 +2675,7 @@ func (x *SetAppLimitRequest) String() string {
 func (*SetAppLimitRequest) ProtoMessage() {}
 
 func (x *SetAppLimitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[47]
+	mi := &file_plux_v1_app_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2489,7 +2688,7 @@ func (x *SetAppLimitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAppLimitRequest.ProtoReflect.Descriptor instead.
 func (*SetAppLimitRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{47}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *SetAppLimitRequest) GetAppId() string {
@@ -2522,7 +2721,7 @@ type SetAppLimitResponse struct {
 
 func (x *SetAppLimitResponse) Reset() {
 	*x = SetAppLimitResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[48]
+	mi := &file_plux_v1_app_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2534,7 +2733,7 @@ func (x *SetAppLimitResponse) String() string {
 func (*SetAppLimitResponse) ProtoMessage() {}
 
 func (x *SetAppLimitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[48]
+	mi := &file_plux_v1_app_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2547,7 +2746,7 @@ func (x *SetAppLimitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAppLimitResponse.ProtoReflect.Descriptor instead.
 func (*SetAppLimitResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{48}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *SetAppLimitResponse) GetLimit() *LimitUsage {
@@ -2573,7 +2772,7 @@ type AccessGrant struct {
 
 func (x *AccessGrant) Reset() {
 	*x = AccessGrant{}
-	mi := &file_plux_v1_app_proto_msgTypes[49]
+	mi := &file_plux_v1_app_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2585,7 +2784,7 @@ func (x *AccessGrant) String() string {
 func (*AccessGrant) ProtoMessage() {}
 
 func (x *AccessGrant) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[49]
+	mi := &file_plux_v1_app_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2598,7 +2797,7 @@ func (x *AccessGrant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AccessGrant.ProtoReflect.Descriptor instead.
 func (*AccessGrant) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{49}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *AccessGrant) GetId() string {
@@ -2655,7 +2854,7 @@ type GrantAccessRequest struct {
 
 func (x *GrantAccessRequest) Reset() {
 	*x = GrantAccessRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[50]
+	mi := &file_plux_v1_app_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2667,7 +2866,7 @@ func (x *GrantAccessRequest) String() string {
 func (*GrantAccessRequest) ProtoMessage() {}
 
 func (x *GrantAccessRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[50]
+	mi := &file_plux_v1_app_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2680,7 +2879,7 @@ func (x *GrantAccessRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrantAccessRequest.ProtoReflect.Descriptor instead.
 func (*GrantAccessRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{50}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GrantAccessRequest) GetAppId() string {
@@ -2720,7 +2919,7 @@ type GrantAccessResponse struct {
 
 func (x *GrantAccessResponse) Reset() {
 	*x = GrantAccessResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[51]
+	mi := &file_plux_v1_app_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2732,7 +2931,7 @@ func (x *GrantAccessResponse) String() string {
 func (*GrantAccessResponse) ProtoMessage() {}
 
 func (x *GrantAccessResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[51]
+	mi := &file_plux_v1_app_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2745,7 +2944,7 @@ func (x *GrantAccessResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrantAccessResponse.ProtoReflect.Descriptor instead.
 func (*GrantAccessResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{51}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GrantAccessResponse) GetGrant() *AccessGrant {
@@ -2764,7 +2963,7 @@ type RevokeAccessRequest struct {
 
 func (x *RevokeAccessRequest) Reset() {
 	*x = RevokeAccessRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[52]
+	mi := &file_plux_v1_app_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2776,7 +2975,7 @@ func (x *RevokeAccessRequest) String() string {
 func (*RevokeAccessRequest) ProtoMessage() {}
 
 func (x *RevokeAccessRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[52]
+	mi := &file_plux_v1_app_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2789,7 +2988,7 @@ func (x *RevokeAccessRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeAccessRequest.ProtoReflect.Descriptor instead.
 func (*RevokeAccessRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{52}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *RevokeAccessRequest) GetId() string {
@@ -2807,7 +3006,7 @@ type RevokeAccessResponse struct {
 
 func (x *RevokeAccessResponse) Reset() {
 	*x = RevokeAccessResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[53]
+	mi := &file_plux_v1_app_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2819,7 +3018,7 @@ func (x *RevokeAccessResponse) String() string {
 func (*RevokeAccessResponse) ProtoMessage() {}
 
 func (x *RevokeAccessResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[53]
+	mi := &file_plux_v1_app_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2832,7 +3031,7 @@ func (x *RevokeAccessResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeAccessResponse.ProtoReflect.Descriptor instead.
 func (*RevokeAccessResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{53}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{54}
 }
 
 type ListAccessRequest struct {
@@ -2845,7 +3044,7 @@ type ListAccessRequest struct {
 
 func (x *ListAccessRequest) Reset() {
 	*x = ListAccessRequest{}
-	mi := &file_plux_v1_app_proto_msgTypes[54]
+	mi := &file_plux_v1_app_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2857,7 +3056,7 @@ func (x *ListAccessRequest) String() string {
 func (*ListAccessRequest) ProtoMessage() {}
 
 func (x *ListAccessRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[54]
+	mi := &file_plux_v1_app_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2870,7 +3069,7 @@ func (x *ListAccessRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccessRequest.ProtoReflect.Descriptor instead.
 func (*ListAccessRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{54}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListAccessRequest) GetAppId() string {
@@ -2897,7 +3096,7 @@ type ListAccessResponse struct {
 
 func (x *ListAccessResponse) Reset() {
 	*x = ListAccessResponse{}
-	mi := &file_plux_v1_app_proto_msgTypes[55]
+	mi := &file_plux_v1_app_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2909,7 +3108,7 @@ func (x *ListAccessResponse) String() string {
 func (*ListAccessResponse) ProtoMessage() {}
 
 func (x *ListAccessResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_proto_msgTypes[55]
+	mi := &file_plux_v1_app_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2922,7 +3121,7 @@ func (x *ListAccessResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccessResponse.ProtoReflect.Descriptor instead.
 func (*ListAccessResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_proto_rawDescGZIP(), []int{55}
+	return file_plux_v1_app_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ListAccessResponse) GetGrants() []*AccessGrant {
@@ -2943,7 +3142,7 @@ var File_plux_v1_app_proto protoreflect.FileDescriptor
 
 const file_plux_v1_app_proto_rawDesc = "" +
 	"\n" +
-	"\x11plux/v1/app.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x88\x02\n" +
+	"\x11plux/v1/app.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xd6\x03\n" +
 	"\x03App\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0forganization_id\x18\x02 \x01(\tR\x0eorganizationId\x12\x10\n" +
@@ -2953,7 +3152,18 @@ const file_plux_v1_app_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xdd\x01\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12 \n" +
+	"\vdescription\x18\b \x01(\tR\vdescription\x12\"\n" +
+	"\ricon_asset_id\x18\t \x01(\tR\viconAssetId\x12$\n" +
+	"\x0eowning_team_id\x18\n" +
+	" \x01(\tR\fowningTeamId\x12\x12\n" +
+	"\x04tags\x18\v \x03(\tR\x04tags\x12\x1a\n" +
+	"\barchived\x18\f \x01(\bR\barchived\x120\n" +
+	"\n" +
+	"host_fonts\x18\r \x03(\v2\x11.plux.v1.HostFontR\thostFonts\"=\n" +
+	"\bHostFont\x12\x16\n" +
+	"\x06family\x18\x01 \x01(\tR\x06family\x12\x19\n" +
+	"\basset_id\x18\x02 \x01(\tR\aassetId\"\xdd\x01\n" +
 	"\vEnvironment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x10\n" +
@@ -2992,17 +3202,28 @@ const file_plux_v1_app_proto_rawDesc = "" +
 	"\rGetAppRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"0\n" +
 	"\x0eGetAppResponse\x12\x1e\n" +
-	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"]\n" +
+	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"\x98\x02\n" +
 	"\x0fListAppsRequest\x12'\n" +
 	"\x0forganization_id\x18\x01 \x01(\tR\x0eorganizationId\x12!\n" +
-	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"]\n" +
+	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\x12\x14\n" +
+	"\x05query\x18\x03 \x01(\tR\x05query\x12\x12\n" +
+	"\x04tags\x18\x04 \x03(\tR\x04tags\x12$\n" +
+	"\x0eowning_team_id\x18\x05 \x01(\tR\fowningTeamId\x12)\n" +
+	"\x10include_archived\x18\x06 \x01(\bR\x0fincludeArchived\x12\x12\n" +
+	"\x04sort\x18\a \x01(\tR\x04sort\x12\x16\n" +
+	"\x06status\x18\b \x01(\tR\x06status\x12\x12\n" +
+	"\x04mine\x18\t \x01(\bR\x04mine\"]\n" +
 	"\x10ListAppsResponse\x12 \n" +
 	"\x04apps\x18\x01 \x03(\v2\f.plux.v1.AppR\x04apps\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"d\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xf1\x01\n" +
 	"\x10UpdateAppRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12,\n" +
-	"\x12default_plugin_key\x18\x03 \x01(\tR\x10defaultPluginKey\"3\n" +
+	"\x12default_plugin_key\x18\x03 \x01(\tR\x10defaultPluginKey\x123\n" +
+	"\bmetadata\x18\x04 \x01(\v2\x17.plux.v1.MetadataUpdateR\bmetadata\x12$\n" +
+	"\x0eset_host_fonts\x18\x05 \x01(\bR\fsetHostFonts\x120\n" +
+	"\n" +
+	"host_fonts\x18\x06 \x03(\v2\x11.plux.v1.HostFontR\thostFonts\"3\n" +
 	"\x11UpdateAppResponse\x12\x1e\n" +
 	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\"\"\n" +
 	"\x10DeleteAppRequest\x12\x0e\n" +
@@ -3162,167 +3383,172 @@ func file_plux_v1_app_proto_rawDescGZIP() []byte {
 	return file_plux_v1_app_proto_rawDescData
 }
 
-var file_plux_v1_app_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
+var file_plux_v1_app_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
 var file_plux_v1_app_proto_goTypes = []any{
 	(*App)(nil),                       // 0: plux.v1.App
-	(*Environment)(nil),               // 1: plux.v1.Environment
-	(*Channel)(nil),                   // 2: plux.v1.Channel
-	(*Variable)(nil),                  // 3: plux.v1.Variable
-	(*Secret)(nil),                    // 4: plux.v1.Secret
-	(*CreateAppRequest)(nil),          // 5: plux.v1.CreateAppRequest
-	(*CreateAppResponse)(nil),         // 6: plux.v1.CreateAppResponse
-	(*GetAppRequest)(nil),             // 7: plux.v1.GetAppRequest
-	(*GetAppResponse)(nil),            // 8: plux.v1.GetAppResponse
-	(*ListAppsRequest)(nil),           // 9: plux.v1.ListAppsRequest
-	(*ListAppsResponse)(nil),          // 10: plux.v1.ListAppsResponse
-	(*UpdateAppRequest)(nil),          // 11: plux.v1.UpdateAppRequest
-	(*UpdateAppResponse)(nil),         // 12: plux.v1.UpdateAppResponse
-	(*DeleteAppRequest)(nil),          // 13: plux.v1.DeleteAppRequest
-	(*DeleteAppResponse)(nil),         // 14: plux.v1.DeleteAppResponse
-	(*CreateEnvironmentRequest)(nil),  // 15: plux.v1.CreateEnvironmentRequest
-	(*CreateEnvironmentResponse)(nil), // 16: plux.v1.CreateEnvironmentResponse
-	(*ListEnvironmentsRequest)(nil),   // 17: plux.v1.ListEnvironmentsRequest
-	(*ListEnvironmentsResponse)(nil),  // 18: plux.v1.ListEnvironmentsResponse
-	(*UpdateEnvironmentRequest)(nil),  // 19: plux.v1.UpdateEnvironmentRequest
-	(*UpdateEnvironmentResponse)(nil), // 20: plux.v1.UpdateEnvironmentResponse
-	(*DeleteEnvironmentRequest)(nil),  // 21: plux.v1.DeleteEnvironmentRequest
-	(*DeleteEnvironmentResponse)(nil), // 22: plux.v1.DeleteEnvironmentResponse
-	(*SetVariableRequest)(nil),        // 23: plux.v1.SetVariableRequest
-	(*SetVariableResponse)(nil),       // 24: plux.v1.SetVariableResponse
-	(*ListVariablesRequest)(nil),      // 25: plux.v1.ListVariablesRequest
-	(*ListVariablesResponse)(nil),     // 26: plux.v1.ListVariablesResponse
-	(*SetSecretRequest)(nil),          // 27: plux.v1.SetSecretRequest
-	(*SetSecretResponse)(nil),         // 28: plux.v1.SetSecretResponse
-	(*ListSecretsRequest)(nil),        // 29: plux.v1.ListSecretsRequest
-	(*ListSecretsResponse)(nil),       // 30: plux.v1.ListSecretsResponse
-	(*DeleteSecretRequest)(nil),       // 31: plux.v1.DeleteSecretRequest
-	(*DeleteSecretResponse)(nil),      // 32: plux.v1.DeleteSecretResponse
-	(*CreateChannelRequest)(nil),      // 33: plux.v1.CreateChannelRequest
-	(*CreateChannelResponse)(nil),     // 34: plux.v1.CreateChannelResponse
-	(*ListChannelsRequest)(nil),       // 35: plux.v1.ListChannelsRequest
-	(*ListChannelsResponse)(nil),      // 36: plux.v1.ListChannelsResponse
-	(*DeleteChannelRequest)(nil),      // 37: plux.v1.DeleteChannelRequest
-	(*DeleteChannelResponse)(nil),     // 38: plux.v1.DeleteChannelResponse
-	(*ListTrashRequest)(nil),          // 39: plux.v1.ListTrashRequest
-	(*ListTrashResponse)(nil),         // 40: plux.v1.ListTrashResponse
-	(*RestoreFromTrashRequest)(nil),   // 41: plux.v1.RestoreFromTrashRequest
-	(*RestoreFromTrashResponse)(nil),  // 42: plux.v1.RestoreFromTrashResponse
-	(*PurgeFromTrashRequest)(nil),     // 43: plux.v1.PurgeFromTrashRequest
-	(*PurgeFromTrashResponse)(nil),    // 44: plux.v1.PurgeFromTrashResponse
-	(*ListAppLimitsRequest)(nil),      // 45: plux.v1.ListAppLimitsRequest
-	(*ListAppLimitsResponse)(nil),     // 46: plux.v1.ListAppLimitsResponse
-	(*SetAppLimitRequest)(nil),        // 47: plux.v1.SetAppLimitRequest
-	(*SetAppLimitResponse)(nil),       // 48: plux.v1.SetAppLimitResponse
-	(*AccessGrant)(nil),               // 49: plux.v1.AccessGrant
-	(*GrantAccessRequest)(nil),        // 50: plux.v1.GrantAccessRequest
-	(*GrantAccessResponse)(nil),       // 51: plux.v1.GrantAccessResponse
-	(*RevokeAccessRequest)(nil),       // 52: plux.v1.RevokeAccessRequest
-	(*RevokeAccessResponse)(nil),      // 53: plux.v1.RevokeAccessResponse
-	(*ListAccessRequest)(nil),         // 54: plux.v1.ListAccessRequest
-	(*ListAccessResponse)(nil),        // 55: plux.v1.ListAccessResponse
-	(*timestamppb.Timestamp)(nil),     // 56: google.protobuf.Timestamp
-	(*Actor)(nil),                     // 57: plux.v1.Actor
-	(*Page)(nil),                      // 58: plux.v1.Page
-	(*PageResult)(nil),                // 59: plux.v1.PageResult
-	(*TrashItem)(nil),                 // 60: plux.v1.TrashItem
-	(*LimitUsage)(nil),                // 61: plux.v1.LimitUsage
+	(*HostFont)(nil),                  // 1: plux.v1.HostFont
+	(*Environment)(nil),               // 2: plux.v1.Environment
+	(*Channel)(nil),                   // 3: plux.v1.Channel
+	(*Variable)(nil),                  // 4: plux.v1.Variable
+	(*Secret)(nil),                    // 5: plux.v1.Secret
+	(*CreateAppRequest)(nil),          // 6: plux.v1.CreateAppRequest
+	(*CreateAppResponse)(nil),         // 7: plux.v1.CreateAppResponse
+	(*GetAppRequest)(nil),             // 8: plux.v1.GetAppRequest
+	(*GetAppResponse)(nil),            // 9: plux.v1.GetAppResponse
+	(*ListAppsRequest)(nil),           // 10: plux.v1.ListAppsRequest
+	(*ListAppsResponse)(nil),          // 11: plux.v1.ListAppsResponse
+	(*UpdateAppRequest)(nil),          // 12: plux.v1.UpdateAppRequest
+	(*UpdateAppResponse)(nil),         // 13: plux.v1.UpdateAppResponse
+	(*DeleteAppRequest)(nil),          // 14: plux.v1.DeleteAppRequest
+	(*DeleteAppResponse)(nil),         // 15: plux.v1.DeleteAppResponse
+	(*CreateEnvironmentRequest)(nil),  // 16: plux.v1.CreateEnvironmentRequest
+	(*CreateEnvironmentResponse)(nil), // 17: plux.v1.CreateEnvironmentResponse
+	(*ListEnvironmentsRequest)(nil),   // 18: plux.v1.ListEnvironmentsRequest
+	(*ListEnvironmentsResponse)(nil),  // 19: plux.v1.ListEnvironmentsResponse
+	(*UpdateEnvironmentRequest)(nil),  // 20: plux.v1.UpdateEnvironmentRequest
+	(*UpdateEnvironmentResponse)(nil), // 21: plux.v1.UpdateEnvironmentResponse
+	(*DeleteEnvironmentRequest)(nil),  // 22: plux.v1.DeleteEnvironmentRequest
+	(*DeleteEnvironmentResponse)(nil), // 23: plux.v1.DeleteEnvironmentResponse
+	(*SetVariableRequest)(nil),        // 24: plux.v1.SetVariableRequest
+	(*SetVariableResponse)(nil),       // 25: plux.v1.SetVariableResponse
+	(*ListVariablesRequest)(nil),      // 26: plux.v1.ListVariablesRequest
+	(*ListVariablesResponse)(nil),     // 27: plux.v1.ListVariablesResponse
+	(*SetSecretRequest)(nil),          // 28: plux.v1.SetSecretRequest
+	(*SetSecretResponse)(nil),         // 29: plux.v1.SetSecretResponse
+	(*ListSecretsRequest)(nil),        // 30: plux.v1.ListSecretsRequest
+	(*ListSecretsResponse)(nil),       // 31: plux.v1.ListSecretsResponse
+	(*DeleteSecretRequest)(nil),       // 32: plux.v1.DeleteSecretRequest
+	(*DeleteSecretResponse)(nil),      // 33: plux.v1.DeleteSecretResponse
+	(*CreateChannelRequest)(nil),      // 34: plux.v1.CreateChannelRequest
+	(*CreateChannelResponse)(nil),     // 35: plux.v1.CreateChannelResponse
+	(*ListChannelsRequest)(nil),       // 36: plux.v1.ListChannelsRequest
+	(*ListChannelsResponse)(nil),      // 37: plux.v1.ListChannelsResponse
+	(*DeleteChannelRequest)(nil),      // 38: plux.v1.DeleteChannelRequest
+	(*DeleteChannelResponse)(nil),     // 39: plux.v1.DeleteChannelResponse
+	(*ListTrashRequest)(nil),          // 40: plux.v1.ListTrashRequest
+	(*ListTrashResponse)(nil),         // 41: plux.v1.ListTrashResponse
+	(*RestoreFromTrashRequest)(nil),   // 42: plux.v1.RestoreFromTrashRequest
+	(*RestoreFromTrashResponse)(nil),  // 43: plux.v1.RestoreFromTrashResponse
+	(*PurgeFromTrashRequest)(nil),     // 44: plux.v1.PurgeFromTrashRequest
+	(*PurgeFromTrashResponse)(nil),    // 45: plux.v1.PurgeFromTrashResponse
+	(*ListAppLimitsRequest)(nil),      // 46: plux.v1.ListAppLimitsRequest
+	(*ListAppLimitsResponse)(nil),     // 47: plux.v1.ListAppLimitsResponse
+	(*SetAppLimitRequest)(nil),        // 48: plux.v1.SetAppLimitRequest
+	(*SetAppLimitResponse)(nil),       // 49: plux.v1.SetAppLimitResponse
+	(*AccessGrant)(nil),               // 50: plux.v1.AccessGrant
+	(*GrantAccessRequest)(nil),        // 51: plux.v1.GrantAccessRequest
+	(*GrantAccessResponse)(nil),       // 52: plux.v1.GrantAccessResponse
+	(*RevokeAccessRequest)(nil),       // 53: plux.v1.RevokeAccessRequest
+	(*RevokeAccessResponse)(nil),      // 54: plux.v1.RevokeAccessResponse
+	(*ListAccessRequest)(nil),         // 55: plux.v1.ListAccessRequest
+	(*ListAccessResponse)(nil),        // 56: plux.v1.ListAccessResponse
+	(*timestamppb.Timestamp)(nil),     // 57: google.protobuf.Timestamp
+	(*Actor)(nil),                     // 58: plux.v1.Actor
+	(*Page)(nil),                      // 59: plux.v1.Page
+	(*PageResult)(nil),                // 60: plux.v1.PageResult
+	(*MetadataUpdate)(nil),            // 61: plux.v1.MetadataUpdate
+	(*TrashItem)(nil),                 // 62: plux.v1.TrashItem
+	(*LimitUsage)(nil),                // 63: plux.v1.LimitUsage
 }
 var file_plux_v1_app_proto_depIdxs = []int32{
-	56, // 0: plux.v1.App.created_at:type_name -> google.protobuf.Timestamp
-	56, // 1: plux.v1.App.updated_at:type_name -> google.protobuf.Timestamp
-	56, // 2: plux.v1.Environment.created_at:type_name -> google.protobuf.Timestamp
-	56, // 3: plux.v1.Channel.updated_at:type_name -> google.protobuf.Timestamp
-	56, // 4: plux.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
-	57, // 5: plux.v1.Secret.updated_by:type_name -> plux.v1.Actor
-	0,  // 6: plux.v1.CreateAppResponse.app:type_name -> plux.v1.App
-	0,  // 7: plux.v1.GetAppResponse.app:type_name -> plux.v1.App
-	58, // 8: plux.v1.ListAppsRequest.page:type_name -> plux.v1.Page
-	0,  // 9: plux.v1.ListAppsResponse.apps:type_name -> plux.v1.App
-	59, // 10: plux.v1.ListAppsResponse.page:type_name -> plux.v1.PageResult
-	0,  // 11: plux.v1.UpdateAppResponse.app:type_name -> plux.v1.App
-	60, // 12: plux.v1.DeleteAppResponse.trash:type_name -> plux.v1.TrashItem
-	1,  // 13: plux.v1.CreateEnvironmentResponse.environment:type_name -> plux.v1.Environment
-	58, // 14: plux.v1.ListEnvironmentsRequest.page:type_name -> plux.v1.Page
-	1,  // 15: plux.v1.ListEnvironmentsResponse.environments:type_name -> plux.v1.Environment
-	59, // 16: plux.v1.ListEnvironmentsResponse.page:type_name -> plux.v1.PageResult
-	1,  // 17: plux.v1.UpdateEnvironmentResponse.environment:type_name -> plux.v1.Environment
-	3,  // 18: plux.v1.SetVariableResponse.variable:type_name -> plux.v1.Variable
-	58, // 19: plux.v1.ListVariablesRequest.page:type_name -> plux.v1.Page
-	3,  // 20: plux.v1.ListVariablesResponse.variables:type_name -> plux.v1.Variable
-	59, // 21: plux.v1.ListVariablesResponse.page:type_name -> plux.v1.PageResult
-	4,  // 22: plux.v1.SetSecretResponse.secret:type_name -> plux.v1.Secret
-	58, // 23: plux.v1.ListSecretsRequest.page:type_name -> plux.v1.Page
-	4,  // 24: plux.v1.ListSecretsResponse.secrets:type_name -> plux.v1.Secret
-	59, // 25: plux.v1.ListSecretsResponse.page:type_name -> plux.v1.PageResult
-	2,  // 26: plux.v1.CreateChannelResponse.channel:type_name -> plux.v1.Channel
-	58, // 27: plux.v1.ListChannelsRequest.page:type_name -> plux.v1.Page
-	2,  // 28: plux.v1.ListChannelsResponse.channels:type_name -> plux.v1.Channel
-	59, // 29: plux.v1.ListChannelsResponse.page:type_name -> plux.v1.PageResult
-	58, // 30: plux.v1.ListTrashRequest.page:type_name -> plux.v1.Page
-	60, // 31: plux.v1.ListTrashResponse.items:type_name -> plux.v1.TrashItem
-	59, // 32: plux.v1.ListTrashResponse.page:type_name -> plux.v1.PageResult
-	61, // 33: plux.v1.ListAppLimitsResponse.limits:type_name -> plux.v1.LimitUsage
-	61, // 34: plux.v1.SetAppLimitResponse.limit:type_name -> plux.v1.LimitUsage
-	56, // 35: plux.v1.AccessGrant.granted_at:type_name -> google.protobuf.Timestamp
-	49, // 36: plux.v1.GrantAccessResponse.grant:type_name -> plux.v1.AccessGrant
-	58, // 37: plux.v1.ListAccessRequest.page:type_name -> plux.v1.Page
-	49, // 38: plux.v1.ListAccessResponse.grants:type_name -> plux.v1.AccessGrant
-	59, // 39: plux.v1.ListAccessResponse.page:type_name -> plux.v1.PageResult
-	5,  // 40: plux.v1.AppService.CreateApp:input_type -> plux.v1.CreateAppRequest
-	7,  // 41: plux.v1.AppService.GetApp:input_type -> plux.v1.GetAppRequest
-	9,  // 42: plux.v1.AppService.ListApps:input_type -> plux.v1.ListAppsRequest
-	11, // 43: plux.v1.AppService.UpdateApp:input_type -> plux.v1.UpdateAppRequest
-	13, // 44: plux.v1.AppService.DeleteApp:input_type -> plux.v1.DeleteAppRequest
-	15, // 45: plux.v1.AppService.CreateEnvironment:input_type -> plux.v1.CreateEnvironmentRequest
-	17, // 46: plux.v1.AppService.ListEnvironments:input_type -> plux.v1.ListEnvironmentsRequest
-	19, // 47: plux.v1.AppService.UpdateEnvironment:input_type -> plux.v1.UpdateEnvironmentRequest
-	21, // 48: plux.v1.AppService.DeleteEnvironment:input_type -> plux.v1.DeleteEnvironmentRequest
-	23, // 49: plux.v1.AppService.SetVariable:input_type -> plux.v1.SetVariableRequest
-	25, // 50: plux.v1.AppService.ListVariables:input_type -> plux.v1.ListVariablesRequest
-	27, // 51: plux.v1.AppService.SetSecret:input_type -> plux.v1.SetSecretRequest
-	29, // 52: plux.v1.AppService.ListSecrets:input_type -> plux.v1.ListSecretsRequest
-	31, // 53: plux.v1.AppService.DeleteSecret:input_type -> plux.v1.DeleteSecretRequest
-	33, // 54: plux.v1.AppService.CreateChannel:input_type -> plux.v1.CreateChannelRequest
-	35, // 55: plux.v1.AppService.ListChannels:input_type -> plux.v1.ListChannelsRequest
-	37, // 56: plux.v1.AppService.DeleteChannel:input_type -> plux.v1.DeleteChannelRequest
-	50, // 57: plux.v1.AppService.GrantAccess:input_type -> plux.v1.GrantAccessRequest
-	52, // 58: plux.v1.AppService.RevokeAccess:input_type -> plux.v1.RevokeAccessRequest
-	54, // 59: plux.v1.AppService.ListAccess:input_type -> plux.v1.ListAccessRequest
-	39, // 60: plux.v1.AppService.ListTrash:input_type -> plux.v1.ListTrashRequest
-	41, // 61: plux.v1.AppService.RestoreFromTrash:input_type -> plux.v1.RestoreFromTrashRequest
-	43, // 62: plux.v1.AppService.PurgeFromTrash:input_type -> plux.v1.PurgeFromTrashRequest
-	45, // 63: plux.v1.AppService.ListAppLimits:input_type -> plux.v1.ListAppLimitsRequest
-	47, // 64: plux.v1.AppService.SetAppLimit:input_type -> plux.v1.SetAppLimitRequest
-	6,  // 65: plux.v1.AppService.CreateApp:output_type -> plux.v1.CreateAppResponse
-	8,  // 66: plux.v1.AppService.GetApp:output_type -> plux.v1.GetAppResponse
-	10, // 67: plux.v1.AppService.ListApps:output_type -> plux.v1.ListAppsResponse
-	12, // 68: plux.v1.AppService.UpdateApp:output_type -> plux.v1.UpdateAppResponse
-	14, // 69: plux.v1.AppService.DeleteApp:output_type -> plux.v1.DeleteAppResponse
-	16, // 70: plux.v1.AppService.CreateEnvironment:output_type -> plux.v1.CreateEnvironmentResponse
-	18, // 71: plux.v1.AppService.ListEnvironments:output_type -> plux.v1.ListEnvironmentsResponse
-	20, // 72: plux.v1.AppService.UpdateEnvironment:output_type -> plux.v1.UpdateEnvironmentResponse
-	22, // 73: plux.v1.AppService.DeleteEnvironment:output_type -> plux.v1.DeleteEnvironmentResponse
-	24, // 74: plux.v1.AppService.SetVariable:output_type -> plux.v1.SetVariableResponse
-	26, // 75: plux.v1.AppService.ListVariables:output_type -> plux.v1.ListVariablesResponse
-	28, // 76: plux.v1.AppService.SetSecret:output_type -> plux.v1.SetSecretResponse
-	30, // 77: plux.v1.AppService.ListSecrets:output_type -> plux.v1.ListSecretsResponse
-	32, // 78: plux.v1.AppService.DeleteSecret:output_type -> plux.v1.DeleteSecretResponse
-	34, // 79: plux.v1.AppService.CreateChannel:output_type -> plux.v1.CreateChannelResponse
-	36, // 80: plux.v1.AppService.ListChannels:output_type -> plux.v1.ListChannelsResponse
-	38, // 81: plux.v1.AppService.DeleteChannel:output_type -> plux.v1.DeleteChannelResponse
-	51, // 82: plux.v1.AppService.GrantAccess:output_type -> plux.v1.GrantAccessResponse
-	53, // 83: plux.v1.AppService.RevokeAccess:output_type -> plux.v1.RevokeAccessResponse
-	55, // 84: plux.v1.AppService.ListAccess:output_type -> plux.v1.ListAccessResponse
-	40, // 85: plux.v1.AppService.ListTrash:output_type -> plux.v1.ListTrashResponse
-	42, // 86: plux.v1.AppService.RestoreFromTrash:output_type -> plux.v1.RestoreFromTrashResponse
-	44, // 87: plux.v1.AppService.PurgeFromTrash:output_type -> plux.v1.PurgeFromTrashResponse
-	46, // 88: plux.v1.AppService.ListAppLimits:output_type -> plux.v1.ListAppLimitsResponse
-	48, // 89: plux.v1.AppService.SetAppLimit:output_type -> plux.v1.SetAppLimitResponse
-	65, // [65:90] is the sub-list for method output_type
-	40, // [40:65] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	57, // 0: plux.v1.App.created_at:type_name -> google.protobuf.Timestamp
+	57, // 1: plux.v1.App.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 2: plux.v1.App.host_fonts:type_name -> plux.v1.HostFont
+	57, // 3: plux.v1.Environment.created_at:type_name -> google.protobuf.Timestamp
+	57, // 4: plux.v1.Channel.updated_at:type_name -> google.protobuf.Timestamp
+	57, // 5: plux.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
+	58, // 6: plux.v1.Secret.updated_by:type_name -> plux.v1.Actor
+	0,  // 7: plux.v1.CreateAppResponse.app:type_name -> plux.v1.App
+	0,  // 8: plux.v1.GetAppResponse.app:type_name -> plux.v1.App
+	59, // 9: plux.v1.ListAppsRequest.page:type_name -> plux.v1.Page
+	0,  // 10: plux.v1.ListAppsResponse.apps:type_name -> plux.v1.App
+	60, // 11: plux.v1.ListAppsResponse.page:type_name -> plux.v1.PageResult
+	61, // 12: plux.v1.UpdateAppRequest.metadata:type_name -> plux.v1.MetadataUpdate
+	1,  // 13: plux.v1.UpdateAppRequest.host_fonts:type_name -> plux.v1.HostFont
+	0,  // 14: plux.v1.UpdateAppResponse.app:type_name -> plux.v1.App
+	62, // 15: plux.v1.DeleteAppResponse.trash:type_name -> plux.v1.TrashItem
+	2,  // 16: plux.v1.CreateEnvironmentResponse.environment:type_name -> plux.v1.Environment
+	59, // 17: plux.v1.ListEnvironmentsRequest.page:type_name -> plux.v1.Page
+	2,  // 18: plux.v1.ListEnvironmentsResponse.environments:type_name -> plux.v1.Environment
+	60, // 19: plux.v1.ListEnvironmentsResponse.page:type_name -> plux.v1.PageResult
+	2,  // 20: plux.v1.UpdateEnvironmentResponse.environment:type_name -> plux.v1.Environment
+	4,  // 21: plux.v1.SetVariableResponse.variable:type_name -> plux.v1.Variable
+	59, // 22: plux.v1.ListVariablesRequest.page:type_name -> plux.v1.Page
+	4,  // 23: plux.v1.ListVariablesResponse.variables:type_name -> plux.v1.Variable
+	60, // 24: plux.v1.ListVariablesResponse.page:type_name -> plux.v1.PageResult
+	5,  // 25: plux.v1.SetSecretResponse.secret:type_name -> plux.v1.Secret
+	59, // 26: plux.v1.ListSecretsRequest.page:type_name -> plux.v1.Page
+	5,  // 27: plux.v1.ListSecretsResponse.secrets:type_name -> plux.v1.Secret
+	60, // 28: plux.v1.ListSecretsResponse.page:type_name -> plux.v1.PageResult
+	3,  // 29: plux.v1.CreateChannelResponse.channel:type_name -> plux.v1.Channel
+	59, // 30: plux.v1.ListChannelsRequest.page:type_name -> plux.v1.Page
+	3,  // 31: plux.v1.ListChannelsResponse.channels:type_name -> plux.v1.Channel
+	60, // 32: plux.v1.ListChannelsResponse.page:type_name -> plux.v1.PageResult
+	59, // 33: plux.v1.ListTrashRequest.page:type_name -> plux.v1.Page
+	62, // 34: plux.v1.ListTrashResponse.items:type_name -> plux.v1.TrashItem
+	60, // 35: plux.v1.ListTrashResponse.page:type_name -> plux.v1.PageResult
+	63, // 36: plux.v1.ListAppLimitsResponse.limits:type_name -> plux.v1.LimitUsage
+	63, // 37: plux.v1.SetAppLimitResponse.limit:type_name -> plux.v1.LimitUsage
+	57, // 38: plux.v1.AccessGrant.granted_at:type_name -> google.protobuf.Timestamp
+	50, // 39: plux.v1.GrantAccessResponse.grant:type_name -> plux.v1.AccessGrant
+	59, // 40: plux.v1.ListAccessRequest.page:type_name -> plux.v1.Page
+	50, // 41: plux.v1.ListAccessResponse.grants:type_name -> plux.v1.AccessGrant
+	60, // 42: plux.v1.ListAccessResponse.page:type_name -> plux.v1.PageResult
+	6,  // 43: plux.v1.AppService.CreateApp:input_type -> plux.v1.CreateAppRequest
+	8,  // 44: plux.v1.AppService.GetApp:input_type -> plux.v1.GetAppRequest
+	10, // 45: plux.v1.AppService.ListApps:input_type -> plux.v1.ListAppsRequest
+	12, // 46: plux.v1.AppService.UpdateApp:input_type -> plux.v1.UpdateAppRequest
+	14, // 47: plux.v1.AppService.DeleteApp:input_type -> plux.v1.DeleteAppRequest
+	16, // 48: plux.v1.AppService.CreateEnvironment:input_type -> plux.v1.CreateEnvironmentRequest
+	18, // 49: plux.v1.AppService.ListEnvironments:input_type -> plux.v1.ListEnvironmentsRequest
+	20, // 50: plux.v1.AppService.UpdateEnvironment:input_type -> plux.v1.UpdateEnvironmentRequest
+	22, // 51: plux.v1.AppService.DeleteEnvironment:input_type -> plux.v1.DeleteEnvironmentRequest
+	24, // 52: plux.v1.AppService.SetVariable:input_type -> plux.v1.SetVariableRequest
+	26, // 53: plux.v1.AppService.ListVariables:input_type -> plux.v1.ListVariablesRequest
+	28, // 54: plux.v1.AppService.SetSecret:input_type -> plux.v1.SetSecretRequest
+	30, // 55: plux.v1.AppService.ListSecrets:input_type -> plux.v1.ListSecretsRequest
+	32, // 56: plux.v1.AppService.DeleteSecret:input_type -> plux.v1.DeleteSecretRequest
+	34, // 57: plux.v1.AppService.CreateChannel:input_type -> plux.v1.CreateChannelRequest
+	36, // 58: plux.v1.AppService.ListChannels:input_type -> plux.v1.ListChannelsRequest
+	38, // 59: plux.v1.AppService.DeleteChannel:input_type -> plux.v1.DeleteChannelRequest
+	51, // 60: plux.v1.AppService.GrantAccess:input_type -> plux.v1.GrantAccessRequest
+	53, // 61: plux.v1.AppService.RevokeAccess:input_type -> plux.v1.RevokeAccessRequest
+	55, // 62: plux.v1.AppService.ListAccess:input_type -> plux.v1.ListAccessRequest
+	40, // 63: plux.v1.AppService.ListTrash:input_type -> plux.v1.ListTrashRequest
+	42, // 64: plux.v1.AppService.RestoreFromTrash:input_type -> plux.v1.RestoreFromTrashRequest
+	44, // 65: plux.v1.AppService.PurgeFromTrash:input_type -> plux.v1.PurgeFromTrashRequest
+	46, // 66: plux.v1.AppService.ListAppLimits:input_type -> plux.v1.ListAppLimitsRequest
+	48, // 67: plux.v1.AppService.SetAppLimit:input_type -> plux.v1.SetAppLimitRequest
+	7,  // 68: plux.v1.AppService.CreateApp:output_type -> plux.v1.CreateAppResponse
+	9,  // 69: plux.v1.AppService.GetApp:output_type -> plux.v1.GetAppResponse
+	11, // 70: plux.v1.AppService.ListApps:output_type -> plux.v1.ListAppsResponse
+	13, // 71: plux.v1.AppService.UpdateApp:output_type -> plux.v1.UpdateAppResponse
+	15, // 72: plux.v1.AppService.DeleteApp:output_type -> plux.v1.DeleteAppResponse
+	17, // 73: plux.v1.AppService.CreateEnvironment:output_type -> plux.v1.CreateEnvironmentResponse
+	19, // 74: plux.v1.AppService.ListEnvironments:output_type -> plux.v1.ListEnvironmentsResponse
+	21, // 75: plux.v1.AppService.UpdateEnvironment:output_type -> plux.v1.UpdateEnvironmentResponse
+	23, // 76: plux.v1.AppService.DeleteEnvironment:output_type -> plux.v1.DeleteEnvironmentResponse
+	25, // 77: plux.v1.AppService.SetVariable:output_type -> plux.v1.SetVariableResponse
+	27, // 78: plux.v1.AppService.ListVariables:output_type -> plux.v1.ListVariablesResponse
+	29, // 79: plux.v1.AppService.SetSecret:output_type -> plux.v1.SetSecretResponse
+	31, // 80: plux.v1.AppService.ListSecrets:output_type -> plux.v1.ListSecretsResponse
+	33, // 81: plux.v1.AppService.DeleteSecret:output_type -> plux.v1.DeleteSecretResponse
+	35, // 82: plux.v1.AppService.CreateChannel:output_type -> plux.v1.CreateChannelResponse
+	37, // 83: plux.v1.AppService.ListChannels:output_type -> plux.v1.ListChannelsResponse
+	39, // 84: plux.v1.AppService.DeleteChannel:output_type -> plux.v1.DeleteChannelResponse
+	52, // 85: plux.v1.AppService.GrantAccess:output_type -> plux.v1.GrantAccessResponse
+	54, // 86: plux.v1.AppService.RevokeAccess:output_type -> plux.v1.RevokeAccessResponse
+	56, // 87: plux.v1.AppService.ListAccess:output_type -> plux.v1.ListAccessResponse
+	41, // 88: plux.v1.AppService.ListTrash:output_type -> plux.v1.ListTrashResponse
+	43, // 89: plux.v1.AppService.RestoreFromTrash:output_type -> plux.v1.RestoreFromTrashResponse
+	45, // 90: plux.v1.AppService.PurgeFromTrash:output_type -> plux.v1.PurgeFromTrashResponse
+	47, // 91: plux.v1.AppService.ListAppLimits:output_type -> plux.v1.ListAppLimitsResponse
+	49, // 92: plux.v1.AppService.SetAppLimit:output_type -> plux.v1.SetAppLimitResponse
+	68, // [68:93] is the sub-list for method output_type
+	43, // [43:68] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_app_proto_init() }
@@ -3337,7 +3563,7 @@ func file_plux_v1_app_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_app_proto_rawDesc), len(file_plux_v1_app_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   56,
+			NumMessages:   57,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

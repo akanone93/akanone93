@@ -17,6 +17,15 @@ service AssetService {
   // UploadAsset streams one file. The first message carries the metadata
   // and no bytes.
   rpc UploadAsset(stream UploadAssetRequest) returns (UploadAssetResponse) {}
+  // BeginAssetUpload, UploadAssetChunk and FinishAssetUpload are the unary
+  // form of UploadAsset, for browsers, which cannot client-stream. Chunks
+  // are accepted in order at their offset; the SHA-256 of the whole file
+  // is verified at finish. GetAssetUpload reports how far an upload got,
+  // so a failed chunk can be resumed.
+  rpc BeginAssetUpload(BeginAssetUploadRequest) returns (BeginAssetUploadResponse) {}
+  rpc UploadAssetChunk(UploadAssetChunkRequest) returns (UploadAssetChunkResponse) {}
+  rpc GetAssetUpload(GetAssetUploadRequest) returns (GetAssetUploadResponse) {}
+  rpc FinishAssetUpload(FinishAssetUploadRequest) returns (FinishAssetUploadResponse) {}
   rpc GetAsset(GetAssetRequest) returns (GetAssetResponse) {}
   rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse) {}
   rpc DeleteAsset(DeleteAssetRequest) returns (DeleteAssetResponse) {}
@@ -88,3 +97,47 @@ message DeleteAssetRequest {
   string session = 2;
 }
 message DeleteAssetResponse {}
+
+message BeginAssetUploadRequest {
+  string app_id = 1;
+  string plugin_id = 2;
+  string name = 3;
+  string session = 4;
+  // size is the byte length of the whole file.
+  int64 size = 5;
+  // sha256 is the digest of the whole file, 32 bytes.
+  bytes sha256 = 6;
+}
+message BeginAssetUploadResponse {
+  string upload_id = 1;
+  // chunk_size is the largest chunk the server accepts.
+  int64 chunk_size = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message UploadAssetChunkRequest {
+  string upload_id = 1;
+  // offset must equal the bytes received so far.
+  int64 offset = 2;
+  bytes chunk = 3;
+}
+message UploadAssetChunkResponse {
+  int64 received = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+message GetAssetUploadRequest {
+  string upload_id = 1;
+}
+message GetAssetUploadResponse {
+  int64 size = 1;
+  int64 received = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message FinishAssetUploadRequest {
+  string upload_id = 1;
+}
+message FinishAssetUploadResponse {
+  Asset asset = 1;
+}

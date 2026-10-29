@@ -2,7 +2,7 @@
 
 Installs Plux Server in high availability on Kubernetes (`DEP-003`, `DEP-004`; ADR-0083):
 the `api` and `worker` roles, and with `functions.enabled` the `fnrunner`, `egress` and
-`builder` roles, with PostgreSQL through CloudNativePG, Valkey with Sentinel and SeaweedFS,
+`builder` roles, with `renderWorker.enabled` the render worker of visual diffs, with PostgreSQL through CloudNativePG, Valkey with Sentinel and SeaweedFS,
 or external services for each.
 
 ## Install
@@ -25,7 +25,8 @@ wrong kind fails `helm install`.
 | `valkey.mode` | `sentinel` or `external` | `sentinel` |
 | `objectStorage.mode` | `seaweedfs` or `external` (S3; recommended for production) | `seaweedfs` |
 | `signing.backend` | `vault` (Transit) or `file` | `vault` |
-| `internalTLS.mode` | `generate` or `existingSecrets` | `generate` |
+| `internalTLS.mode` | `generate` or `existing` (supply `internalTLS.existingSecrets.<role>`, including `worker` and `renderWorker` for the render worker) | `generate` |
+| `renderWorker.enabled` | the render worker of visual diffs (`STU-100`, `O-9`; image `renderWorkerImage`, `deploy/render-worker/Dockerfile`); the worker role is given `renderWorker.address` and mutual TLS | `false` |
 | `license.existingSecret` | a Secret holding the enterprise licence file (key `license.key`, default `license.json`), mounted read-only into the api and worker roles; `license.file` is set to it | none |
 
 Every role runs at least two replicas with PodDisruptionBudgets, horizontal autoscaling and
@@ -33,6 +34,22 @@ topology spread (`scheduling.zoneSpread`, `scheduling.nodeSpread`). Pods run und
 Security `restricted`; NetworkPolicies deny by default, and `fnrunner` and `builder` reach
 only `egress` and hold no database credential or signing capability (L-4). Credentials come
 from existing Secrets, never from inline values.
+
+## Render worker
+
+With `renderWorker.enabled` the chart runs `plux render-worker serve` (`templates/render-worker.yaml`), which
+compiles the projects of a release request against the function catalogue of its environment and draws their
+pages with Flutter. It holds no database, object-store or signing credential, mounts no ServiceAccount token, and
+its NetworkPolicy admits the worker role alone and lets it reach nothing, not even DNS (`L-4`). The root file
+system is read-only: because the Flutter tool writes below its SDK, an init container copies the SDK and the
+package cache of the image into an `emptyDir` of `renderWorker.sdkSize` first, so the image needs no network
+at run time. It needs no `functions.enabled`, and it is independent of the other roles; size it
+(`renderWorker.resources`, `concurrency`) like any build host: a render saturates the CPU it is given. The image
+has not been run on a cluster yet (needs Docker and a registry): `make helm-lint` checks the rendering only.
+
+## Studio state secret
+
+`PLUX_BFF_STATE_SECRET` is required: base64 or base64url of at least 32 random bytes (`openssl rand -base64 32`, 43 characters or more). Every Studio replica must share it, because a sign-in callback can reach a different replica than the one that began it; the BFF refuses to start without it and never logs it. The chart generates one Secret (`<release>-plux-studio-state`, key `stateSecret`) on first install and keeps it across upgrades; set `studio.existingSecret` to use your own Secret with the same key. Compose generates `.secrets/studio.env` in `init-secrets.sh`; `make studio-dev` uses a fresh random value per run.
 
 ## Upgrade
 

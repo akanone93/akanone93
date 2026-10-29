@@ -1,0 +1,118 @@
+{
+  "name": "cupertino-list-tile-ellipsis",
+  "root": {
+    "id": "align",
+    "type": "Align",
+    "props": {
+      "alignment": [
+        -1,
+        -1
+      ]
+    },
+    "children": [
+      {
+        "id": "long",
+        "type": "CupertinoListTile",
+        "props": {
+          "type": "base"
+        },
+        "children": [
+          {
+            "id": "long-title",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "title"
+            },
+            "children": [
+              {
+                "id": "long-title-text",
+                "type": "Text",
+                "props": {
+                  "text": "A very long list tile title that cannot fit on one line of the screen",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "long-sub",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "subtitle"
+            },
+            "children": [
+              {
+                "id": "long-sub-text",
+                "type": "Text",
+                "props": {
+                  "text": "And a subtitle that is just as long and must be cut off as well",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "long-info",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "additionalInfo"
+            },
+            "children": [
+              {
+                "id": "long-info-text",
+                "type": "Text",
+                "props": {
+                  "text": "Detail",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 17
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "long-lead",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "leading"
+            },
+            "children": [
+              {
+                "id": "long-lead-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 28,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "id": "long-trail",
+            "type": "CupertinoSlot",
+            "props": {
+              "slot": "trailing"
+            },
+            "children": [
+              {
+                "id": "long-trail-box",
+                "type": "TestBox",
+                "props": {
+                  "width": 10,
+                  "height": 16
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

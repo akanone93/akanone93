@@ -51,6 +51,9 @@ const (
 	// DocumentServiceDeleteDocumentProcedure is the fully-qualified name of the DocumentService's
 	// DeleteDocument RPC.
 	DocumentServiceDeleteDocumentProcedure = "/plux.v1.DocumentService/DeleteDocument"
+	// DocumentServiceApplyChangeSetProcedure is the fully-qualified name of the DocumentService's
+	// ApplyChangeSet RPC.
+	DocumentServiceApplyChangeSetProcedure = "/plux.v1.DocumentService/ApplyChangeSet"
 	// DocumentServiceValidateDraftProcedure is the fully-qualified name of the DocumentService's
 	// ValidateDraft RPC.
 	DocumentServiceValidateDraftProcedure = "/plux.v1.DocumentService/ValidateDraft"
@@ -60,6 +63,9 @@ const (
 	// DocumentServiceListSnapshotsProcedure is the fully-qualified name of the DocumentService's
 	// ListSnapshots RPC.
 	DocumentServiceListSnapshotsProcedure = "/plux.v1.DocumentService/ListSnapshots"
+	// DocumentServiceListEditorSessionEntriesProcedure is the fully-qualified name of the
+	// DocumentService's ListEditorSessionEntries RPC.
+	DocumentServiceListEditorSessionEntriesProcedure = "/plux.v1.DocumentService/ListEditorSessionEntries"
 	// DocumentServiceGetSnapshotProcedure is the fully-qualified name of the DocumentService's
 	// GetSnapshot RPC.
 	DocumentServiceGetSnapshotProcedure = "/plux.v1.DocumentService/GetSnapshot"
@@ -88,12 +94,23 @@ type DocumentServiceClient interface {
 	// sends (SRV-030).
 	PatchDocument(context.Context, *connect.Request[pluxv1.PatchDocumentRequest]) (*connect.Response[pluxv1.PatchDocumentResponse], error)
 	DeleteDocument(context.Context, *connect.Request[pluxv1.DeleteDocumentRequest]) (*connect.Response[pluxv1.DeleteDocumentResponse], error)
+	// ApplyChangeSet applies one change set: edits to documents of the app
+	// and of several of its plugins, written in one transaction or not at
+	// all (STU-055, STU-070, contracts #15). Each draft's revision is checked
+	// and each draft's editing lock must be held by the session named for it;
+	// every write is tagged with the same undo step, so one change set is one
+	// undo step across plugins (STU-069).
+	ApplyChangeSet(context.Context, *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error)
 	// ValidateDraft runs the compiler's checking stages over the whole draft.
 	ValidateDraft(context.Context, *connect.Request[pluxv1.ValidateDraftRequest]) (*connect.Response[pluxv1.ValidateDraftResponse], error)
 	// ValidatePage checks one edited page as the user types (SCH-042); it
 	// does not write anything.
 	ValidatePage(context.Context, *connect.Request[pluxv1.ValidatePageRequest]) (*connect.Response[pluxv1.ValidatePageResponse], error)
 	ListSnapshots(context.Context, *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error)
+	// ListEditorSessionEntries lists an editor session's writes to a draft,
+	// newest first, with the inverse patch of each, for Studio's undo
+	// rebuild after a reload (STU-069, ADR-0095).
+	ListEditorSessionEntries(context.Context, *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error)
 	GetSnapshot(context.Context, *connect.Request[pluxv1.GetSnapshotRequest]) (*connect.Response[pluxv1.GetSnapshotResponse], error)
 	// CompareSnapshots returns the JSON Patch that turns one into the other.
 	CompareSnapshots(context.Context, *connect.Request[pluxv1.CompareSnapshotsRequest]) (*connect.Response[pluxv1.CompareSnapshotsResponse], error)
@@ -148,6 +165,12 @@ func NewDocumentServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(documentServiceMethods.ByName("DeleteDocument")),
 			connect.WithClientOptions(opts...),
 		),
+		applyChangeSet: connect.NewClient[pluxv1.ApplyChangeSetRequest, pluxv1.ApplyChangeSetResponse](
+			httpClient,
+			baseURL+DocumentServiceApplyChangeSetProcedure,
+			connect.WithSchema(documentServiceMethods.ByName("ApplyChangeSet")),
+			connect.WithClientOptions(opts...),
+		),
 		validateDraft: connect.NewClient[pluxv1.ValidateDraftRequest, pluxv1.ValidateDraftResponse](
 			httpClient,
 			baseURL+DocumentServiceValidateDraftProcedure,
@@ -164,6 +187,12 @@ func NewDocumentServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			httpClient,
 			baseURL+DocumentServiceListSnapshotsProcedure,
 			connect.WithSchema(documentServiceMethods.ByName("ListSnapshots")),
+			connect.WithClientOptions(opts...),
+		),
+		listEditorSessionEntries: connect.NewClient[pluxv1.ListEditorSessionEntriesRequest, pluxv1.ListEditorSessionEntriesResponse](
+			httpClient,
+			baseURL+DocumentServiceListEditorSessionEntriesProcedure,
+			connect.WithSchema(documentServiceMethods.ByName("ListEditorSessionEntries")),
 			connect.WithClientOptions(opts...),
 		),
 		getSnapshot: connect.NewClient[pluxv1.GetSnapshotRequest, pluxv1.GetSnapshotResponse](
@@ -201,19 +230,21 @@ func NewDocumentServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 
 // documentServiceClient implements DocumentServiceClient.
 type documentServiceClient struct {
-	getDocument      *connect.Client[pluxv1.GetDocumentRequest, pluxv1.GetDocumentResponse]
-	listDocuments    *connect.Client[pluxv1.ListDocumentsRequest, pluxv1.ListDocumentsResponse]
-	putDocument      *connect.Client[pluxv1.PutDocumentRequest, pluxv1.PutDocumentResponse]
-	patchDocument    *connect.Client[pluxv1.PatchDocumentRequest, pluxv1.PatchDocumentResponse]
-	deleteDocument   *connect.Client[pluxv1.DeleteDocumentRequest, pluxv1.DeleteDocumentResponse]
-	validateDraft    *connect.Client[pluxv1.ValidateDraftRequest, pluxv1.ValidateDraftResponse]
-	validatePage     *connect.Client[pluxv1.ValidatePageRequest, pluxv1.ValidatePageResponse]
-	listSnapshots    *connect.Client[pluxv1.ListSnapshotsRequest, pluxv1.ListSnapshotsResponse]
-	getSnapshot      *connect.Client[pluxv1.GetSnapshotRequest, pluxv1.GetSnapshotResponse]
-	compareSnapshots *connect.Client[pluxv1.CompareSnapshotsRequest, pluxv1.CompareSnapshotsResponse]
-	restoreSnapshot  *connect.Client[pluxv1.RestoreSnapshotRequest, pluxv1.RestoreSnapshotResponse]
-	exportDraft      *connect.Client[pluxv1.ExportDraftRequest, pluxv1.ExportDraftResponse]
-	importDraft      *connect.Client[pluxv1.ImportDraftRequest, pluxv1.ImportDraftResponse]
+	getDocument              *connect.Client[pluxv1.GetDocumentRequest, pluxv1.GetDocumentResponse]
+	listDocuments            *connect.Client[pluxv1.ListDocumentsRequest, pluxv1.ListDocumentsResponse]
+	putDocument              *connect.Client[pluxv1.PutDocumentRequest, pluxv1.PutDocumentResponse]
+	patchDocument            *connect.Client[pluxv1.PatchDocumentRequest, pluxv1.PatchDocumentResponse]
+	deleteDocument           *connect.Client[pluxv1.DeleteDocumentRequest, pluxv1.DeleteDocumentResponse]
+	applyChangeSet           *connect.Client[pluxv1.ApplyChangeSetRequest, pluxv1.ApplyChangeSetResponse]
+	validateDraft            *connect.Client[pluxv1.ValidateDraftRequest, pluxv1.ValidateDraftResponse]
+	validatePage             *connect.Client[pluxv1.ValidatePageRequest, pluxv1.ValidatePageResponse]
+	listSnapshots            *connect.Client[pluxv1.ListSnapshotsRequest, pluxv1.ListSnapshotsResponse]
+	listEditorSessionEntries *connect.Client[pluxv1.ListEditorSessionEntriesRequest, pluxv1.ListEditorSessionEntriesResponse]
+	getSnapshot              *connect.Client[pluxv1.GetSnapshotRequest, pluxv1.GetSnapshotResponse]
+	compareSnapshots         *connect.Client[pluxv1.CompareSnapshotsRequest, pluxv1.CompareSnapshotsResponse]
+	restoreSnapshot          *connect.Client[pluxv1.RestoreSnapshotRequest, pluxv1.RestoreSnapshotResponse]
+	exportDraft              *connect.Client[pluxv1.ExportDraftRequest, pluxv1.ExportDraftResponse]
+	importDraft              *connect.Client[pluxv1.ImportDraftRequest, pluxv1.ImportDraftResponse]
 }
 
 // GetDocument calls plux.v1.DocumentService.GetDocument.
@@ -241,6 +272,11 @@ func (c *documentServiceClient) DeleteDocument(ctx context.Context, req *connect
 	return c.deleteDocument.CallUnary(ctx, req)
 }
 
+// ApplyChangeSet calls plux.v1.DocumentService.ApplyChangeSet.
+func (c *documentServiceClient) ApplyChangeSet(ctx context.Context, req *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error) {
+	return c.applyChangeSet.CallUnary(ctx, req)
+}
+
 // ValidateDraft calls plux.v1.DocumentService.ValidateDraft.
 func (c *documentServiceClient) ValidateDraft(ctx context.Context, req *connect.Request[pluxv1.ValidateDraftRequest]) (*connect.Response[pluxv1.ValidateDraftResponse], error) {
 	return c.validateDraft.CallUnary(ctx, req)
@@ -254,6 +290,11 @@ func (c *documentServiceClient) ValidatePage(ctx context.Context, req *connect.R
 // ListSnapshots calls plux.v1.DocumentService.ListSnapshots.
 func (c *documentServiceClient) ListSnapshots(ctx context.Context, req *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error) {
 	return c.listSnapshots.CallUnary(ctx, req)
+}
+
+// ListEditorSessionEntries calls plux.v1.DocumentService.ListEditorSessionEntries.
+func (c *documentServiceClient) ListEditorSessionEntries(ctx context.Context, req *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error) {
+	return c.listEditorSessionEntries.CallUnary(ctx, req)
 }
 
 // GetSnapshot calls plux.v1.DocumentService.GetSnapshot.
@@ -292,12 +333,23 @@ type DocumentServiceHandler interface {
 	// sends (SRV-030).
 	PatchDocument(context.Context, *connect.Request[pluxv1.PatchDocumentRequest]) (*connect.Response[pluxv1.PatchDocumentResponse], error)
 	DeleteDocument(context.Context, *connect.Request[pluxv1.DeleteDocumentRequest]) (*connect.Response[pluxv1.DeleteDocumentResponse], error)
+	// ApplyChangeSet applies one change set: edits to documents of the app
+	// and of several of its plugins, written in one transaction or not at
+	// all (STU-055, STU-070, contracts #15). Each draft's revision is checked
+	// and each draft's editing lock must be held by the session named for it;
+	// every write is tagged with the same undo step, so one change set is one
+	// undo step across plugins (STU-069).
+	ApplyChangeSet(context.Context, *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error)
 	// ValidateDraft runs the compiler's checking stages over the whole draft.
 	ValidateDraft(context.Context, *connect.Request[pluxv1.ValidateDraftRequest]) (*connect.Response[pluxv1.ValidateDraftResponse], error)
 	// ValidatePage checks one edited page as the user types (SCH-042); it
 	// does not write anything.
 	ValidatePage(context.Context, *connect.Request[pluxv1.ValidatePageRequest]) (*connect.Response[pluxv1.ValidatePageResponse], error)
 	ListSnapshots(context.Context, *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error)
+	// ListEditorSessionEntries lists an editor session's writes to a draft,
+	// newest first, with the inverse patch of each, for Studio's undo
+	// rebuild after a reload (STU-069, ADR-0095).
+	ListEditorSessionEntries(context.Context, *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error)
 	GetSnapshot(context.Context, *connect.Request[pluxv1.GetSnapshotRequest]) (*connect.Response[pluxv1.GetSnapshotResponse], error)
 	// CompareSnapshots returns the JSON Patch that turns one into the other.
 	CompareSnapshots(context.Context, *connect.Request[pluxv1.CompareSnapshotsRequest]) (*connect.Response[pluxv1.CompareSnapshotsResponse], error)
@@ -348,6 +400,12 @@ func NewDocumentServiceHandler(svc DocumentServiceHandler, opts ...connect.Handl
 		connect.WithSchema(documentServiceMethods.ByName("DeleteDocument")),
 		connect.WithHandlerOptions(opts...),
 	)
+	documentServiceApplyChangeSetHandler := connect.NewUnaryHandler(
+		DocumentServiceApplyChangeSetProcedure,
+		svc.ApplyChangeSet,
+		connect.WithSchema(documentServiceMethods.ByName("ApplyChangeSet")),
+		connect.WithHandlerOptions(opts...),
+	)
 	documentServiceValidateDraftHandler := connect.NewUnaryHandler(
 		DocumentServiceValidateDraftProcedure,
 		svc.ValidateDraft,
@@ -364,6 +422,12 @@ func NewDocumentServiceHandler(svc DocumentServiceHandler, opts ...connect.Handl
 		DocumentServiceListSnapshotsProcedure,
 		svc.ListSnapshots,
 		connect.WithSchema(documentServiceMethods.ByName("ListSnapshots")),
+		connect.WithHandlerOptions(opts...),
+	)
+	documentServiceListEditorSessionEntriesHandler := connect.NewUnaryHandler(
+		DocumentServiceListEditorSessionEntriesProcedure,
+		svc.ListEditorSessionEntries,
+		connect.WithSchema(documentServiceMethods.ByName("ListEditorSessionEntries")),
 		connect.WithHandlerOptions(opts...),
 	)
 	documentServiceGetSnapshotHandler := connect.NewUnaryHandler(
@@ -408,12 +472,16 @@ func NewDocumentServiceHandler(svc DocumentServiceHandler, opts ...connect.Handl
 			documentServicePatchDocumentHandler.ServeHTTP(w, r)
 		case DocumentServiceDeleteDocumentProcedure:
 			documentServiceDeleteDocumentHandler.ServeHTTP(w, r)
+		case DocumentServiceApplyChangeSetProcedure:
+			documentServiceApplyChangeSetHandler.ServeHTTP(w, r)
 		case DocumentServiceValidateDraftProcedure:
 			documentServiceValidateDraftHandler.ServeHTTP(w, r)
 		case DocumentServiceValidatePageProcedure:
 			documentServiceValidatePageHandler.ServeHTTP(w, r)
 		case DocumentServiceListSnapshotsProcedure:
 			documentServiceListSnapshotsHandler.ServeHTTP(w, r)
+		case DocumentServiceListEditorSessionEntriesProcedure:
+			documentServiceListEditorSessionEntriesHandler.ServeHTTP(w, r)
 		case DocumentServiceGetSnapshotProcedure:
 			documentServiceGetSnapshotHandler.ServeHTTP(w, r)
 		case DocumentServiceCompareSnapshotsProcedure:
@@ -453,6 +521,10 @@ func (UnimplementedDocumentServiceHandler) DeleteDocument(context.Context, *conn
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.DeleteDocument is not implemented"))
 }
 
+func (UnimplementedDocumentServiceHandler) ApplyChangeSet(context.Context, *connect.Request[pluxv1.ApplyChangeSetRequest]) (*connect.Response[pluxv1.ApplyChangeSetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.ApplyChangeSet is not implemented"))
+}
+
 func (UnimplementedDocumentServiceHandler) ValidateDraft(context.Context, *connect.Request[pluxv1.ValidateDraftRequest]) (*connect.Response[pluxv1.ValidateDraftResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.ValidateDraft is not implemented"))
 }
@@ -463,6 +535,10 @@ func (UnimplementedDocumentServiceHandler) ValidatePage(context.Context, *connec
 
 func (UnimplementedDocumentServiceHandler) ListSnapshots(context.Context, *connect.Request[pluxv1.ListSnapshotsRequest]) (*connect.Response[pluxv1.ListSnapshotsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.ListSnapshots is not implemented"))
+}
+
+func (UnimplementedDocumentServiceHandler) ListEditorSessionEntries(context.Context, *connect.Request[pluxv1.ListEditorSessionEntriesRequest]) (*connect.Response[pluxv1.ListEditorSessionEntriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DocumentService.ListEditorSessionEntries is not implemented"))
 }
 
 func (UnimplementedDocumentServiceHandler) GetSnapshot(context.Context, *connect.Request[pluxv1.GetSnapshotRequest]) (*connect.Response[pluxv1.GetSnapshotResponse], error) {

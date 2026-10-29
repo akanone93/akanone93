@@ -126,3 +126,7 @@ holds; restricting one person means a new role per person. Rejected.
 
 Rejected for authorisation in ADR-0073; restrictions do not need attributes beyond subject, app
 and environment.
+
+## Revision (2026-10-24, P11 plan: one notifier for the stream layer)
+
+The cross-replica `cache.Notifier` introduced here for permission changes now also wakes readers of the shared stream layer in `internal/cache` (resumable reads by entry ID, Valkey and the in-memory backend), which carries the Studio events stream and the dev-session streams ([ADR-0096](0096-studio-live-channels.md)). A notice is only a wake-up: the stream holds the data, and a periodic read covers a lost notice. The notifier's contract for permission changes is unchanged. Studio refreshes its effective permissions from the events stream when such a notice arrives.

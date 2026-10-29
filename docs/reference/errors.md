@@ -2530,6 +2530,54 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Check the file on a trusted machine and upload a clean copy.
 
+### PLX-6032
+
+`ASSET_UPLOAD_NOT_FOUND` · error · Asset upload not found or expired
+
+**Cause.** The upload session does not exist, belongs to another user, has expired after sitting idle (asset.uploadTtl), or was already finished (SRV-060).
+
+**Fix.** Begin a new upload and send its chunks again.
+
+### PLX-6033
+
+`ASSET_UPLOAD_OUT_OF_ORDER` · error · Asset chunk at the wrong offset
+
+**Cause.** A chunk was sent at an offset other than the number of bytes the upload has already received, so it repeats, skips or overtakes another chunk (SRV-060).
+
+**Fix.** Ask for the upload's progress and resume from the offset it reports.
+
+### PLX-6034
+
+`ASSET_UPLOAD_CHUNK_TOO_LARGE` · error · Asset chunk too large
+
+**Cause.** A chunk is larger than the limit asset.uploadChunkBytes (SRV-060, LIM-001).
+
+**Fix.** Split the file into chunks no larger than the chunk size returned when the upload began.
+
+### PLX-6035
+
+`ASSET_UPLOAD_TOO_LARGE` · error · Asset larger than the size limit
+
+**Cause.** The declared size of the file is above the limit asset.fileSize (SRV-060, LIM-001).
+
+**Fix.** Upload a smaller file, or ask an administrator to raise the limit.
+
+### PLX-6036
+
+`ASSET_UPLOAD_HASH_MISMATCH` · error · Uploaded asset hash mismatch
+
+**Cause.** The SHA-256 of the received bytes differs from the digest declared when the upload began; the upload is discarded (SRV-060).
+
+**Fix.** Begin a new upload and send the file again; check that the digest is of the whole file.
+
+### PLX-6037
+
+`ASSET_UPLOAD_SIZE_MISMATCH` · error · Uploaded asset size mismatch
+
+**Cause.** The upload received fewer bytes than the size declared when it began, or a chunk would go past that size (SRV-060).
+
+**Fix.** Send every byte of the file before finishing, and declare the file's exact size when beginning.
+
 ### PLX-6040
 
 `SECURITY_CONFIG_HASH_MISMATCH` · error · Security configuration hash mismatch
@@ -3221,6 +3269,38 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** The release uses a native route, native slot or custom action that the native catalogue of one of the app's host builds lacks, or declares with other parameters, props, events, inputs or result types. Devices of that build keep receiving the newest release compatible with it (WGT-032, REL-080).
 
 **Fix.** Ship a host build that registers the entry and upload its catalogue with plux native sync, or keep the release from using the entry; the publisher acknowledges the warning to publish anyway.
+
+### PLX-8060
+
+`RELEASE_REQUEST_STATE` · error · Release request is at another step
+
+**Cause.** The call completes a step the release request is not at, or the step's exit condition does not hold yet: the request has not reached it, was moved back by a changed draft, or is held (STU-100, F11).
+
+**Fix.** Read the request again to see its step and hold, and repeat the call for that step.
+
+### PLX-8061
+
+`RELEASE_REQUEST_ENDED` · error · Release request has ended
+
+**Cause.** The release request was released, rejected, expired or cancelled, and an ended request takes no further step (STU-100).
+
+**Fix.** Open a new release request for the app and channel.
+
+### PLX-8062
+
+`VISUAL_DIFF_REQUIRED` · error · Visual diff not finished
+
+**Cause.** Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content.
+
+**Fix.** Request the visual diff and wait for it to finish; request it again if it failed or the content changed.
+
+### PLX-8063
+
+`LIBRARY_PUBLIC_SCAN_FAILED` · error · Public scan found sensitive content
+
+**Cause.** A template or component cannot be made public while its content holds a secret, a field tagged sensitive, or a URL that is not reachable from the public internet (STU-081, ADR-0098). The error names each finding by its JSON pointer and category, never by its value.
+
+**Fix.** Remove or replace the content at each pointer, save a new version and make that version public.
 
 ### PLX-8090
 

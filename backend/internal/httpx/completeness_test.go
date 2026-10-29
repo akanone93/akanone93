@@ -50,6 +50,7 @@ var notEgress = map[string]string{
 	"internal/server/builder.go":            "mutual TLS between the roles of one installation",
 	"internal/server/fnrunner.go":           "mutual TLS between the roles of one installation",
 	"internal/server/function.go":           "mutual TLS between the roles of one installation",
+	"internal/server/releasereq.go":         "mutual TLS between the roles of one installation (the render worker)",
 	"internal/signing/pkcs11.go":            "a local unix socket to the PKCS#11 module",
 	"internal/signing/vault.go":             "the operator's Vault; infrastructure, listed as not egress",
 }
