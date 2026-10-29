@@ -30,8 +30,8 @@ Models per [agent-rules.md](agent-rules.md); at most three agents at once. Brief
    maintainer: the screen-reader pass (STU-011), the native review of `de`/`ar` (STU-012, L-11),
    the reference-laptop benchmark (STU-120, NFR-031, M-4), the six legal reviews (O-7; list in
    [open.md](open.md)).
-7. **Stop and wait.** After the exit report, do not start, analyse or plan the cross-phase audit
-   phase until the maintainer gives the go-ahead with notes (maintainer, 2026-10-28). The audit
-   covers the requirements of every phase, P0–P11 (about 75 earlier rows are `WIP`), aims at
-   everything working and secure with acceptable performance, and is not to be made so deep that
-   it takes days; it gets its own plan and milestones. Items collected for it: [audit-phase-notes.md](../audit-phase-notes.md).
+7. **Stop and wait.** After the exit report, wait for the maintainer's go-ahead. The cross-phase
+   audit is parked as the last phase, after P12, the USSD phase and P16 (maintainer, 2026-10-29):
+   [audit-phase.md](../audit-phase.md), items in [audit-phase-notes.md](../audit-phase-notes.md).
+   The [manual checks](../../manual-checks/README.md) of layers 1 and 2 are written; layer 3 is
+   written in the audit.

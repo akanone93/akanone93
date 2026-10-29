@@ -53,6 +53,13 @@ makes the rest, and later checks reuse them.
 | R-DEVICE | The emulator, simulator or phone running the starter app | S-3 |
 | R-STUDIO | A browser signed in to Studio as R-ADMIN | [L2-STU-001](layer-2-functional/studio.md) |
 
+### Layer 2 resources
+
+The [layer 2](layer-2-functional/README.md) checks make about thirty more as they go (`R-APP`,
+`R-PLUGIN`, `R-USER2`, `R-CLI`, `R-FUNCTION`, `R-RELEASE1`…); each file's "Resources this file
+adds" table names them and the check that makes each one. Do the layer 2 files in the order of
+its README so every resource exists before a check needs it.
+
 ### Layer 1 resources
 
 Hardware, people and tools the [layer 1](layer-1-wip/README.md) checks need; each file's
