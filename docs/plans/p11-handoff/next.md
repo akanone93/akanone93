@@ -34,4 +34,4 @@ Models per [agent-rules.md](agent-rules.md); at most three agents at once. Brief
    phase until the maintainer gives the go-ahead with notes (maintainer, 2026-10-28). The audit
    covers the requirements of every phase, P0–P11 (about 75 earlier rows are `WIP`), aims at
    everything working and secure with acceptable performance, and is not to be made so deep that
-   it takes days; it gets its own plan and milestones.
+   it takes days; it gets its own plan and milestones. Items collected for it: [audit-phase-notes.md](../audit-phase-notes.md).
