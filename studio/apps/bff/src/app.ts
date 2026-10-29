@@ -185,6 +185,15 @@ export function createBff(options: AppOptions): BffApp {
   });
   app.use("/*", brotliStatic(options.staticDir));
   app.use("/*", serveStatic({ root }));
+  // Any other page address is a route of the app (a reload or a deep link): the app routes it. A
+  // missing asset or a request that does not ask for a page stays a 404.
+  app.get("/*", (c) => {
+    const path = new URL(c.req.url).pathname;
+    if (path.startsWith("/assets/") || !(c.req.header("accept") ?? "").includes("text/html")) {
+      return c.text("not found", 404, text);
+    }
+    return serveIndex(c.get("nonce"));
+  });
   return {
     app,
     cspReports: () => reports,

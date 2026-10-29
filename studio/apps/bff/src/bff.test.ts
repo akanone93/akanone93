@@ -152,6 +152,16 @@ describe("[SEC-101] configuration", () => {
 });
 
 describe("[SEC-101] [STU-002] security headers", () => {
+  test("a page address the BFF does not serve gets the app; assets and non-page requests stay 404", async () => {
+    const { app } = mk();
+    const html = { headers: { accept: "text/html,application/xhtml+xml" } };
+    const deep = await app.request("/o/acme/apps/shop/design", html);
+    expect(deep.status).toBe(200);
+    expect(deep.headers.get("cache-control")).toBe("no-store");
+    expect(await deep.text()).toMatch(/<script nonce="[^"]+" type="module"/);
+    expect((await app.request("/assets/missing.js", html)).status).toBe(404);
+    expect((await app.request("/o/acme/apps", { headers: { accept: "application/json" } })).status).toBe(404);
+  });
   test("every response carries the headers and a fresh nonce in index.html", async () => {
     const { app } = mk();
     const r1 = await app.request("/");
