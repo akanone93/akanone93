@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, test } from "bun:test";
 import type { CanvasKit, Surface } from "canvaskit-wasm";
 import { box, fontBytes, link, loadCanvasKit, text } from "../test-support/canvaskit.ts";
 import type { FrameSpec, ItemSpec } from "./protocol.ts";
-import { MAX_REGIONS, type RendererOptions, SceneRenderer } from "./renderer.ts";
+import { MAX_DAMAGE, MAX_REGIONS, type RendererOptions, SceneRenderer } from "./renderer.ts";
 import { Scene } from "./scene.ts";
 import { Viewport } from "./viewport.ts";
 
@@ -559,5 +559,147 @@ describe("[STU-045] interaction layer damage (M-12)", () => {
     expect(ghosts(renderer, viewport, all(), small)).toBe(0);
     renderer.dispose();
     layer.surface.delete();
+  });
+  /** Records the dirty rectangle [l, t, r, b] of every flush of `renderer`'s base; undefined for a whole flush. */
+  function spyFlushes(renderer: SceneRenderer): (number[] | undefined)[] {
+    const target = (renderer as unknown as { surface: Surface }).surface;
+    const flush = target.flush.bind(target) as (dirty?: Int32Array) => void;
+    const flushes: (number[] | undefined)[] = [];
+    target.flush = ((dirty?: Int32Array) => {
+      flushes.push(dirty ? Array.from(dirty) : undefined);
+      flush(dirty);
+    }) as Surface["flush"];
+    return flushes;
+  }
+
+  function patchesLeft(renderer: SceneRenderer): number {
+    return (renderer as unknown as { patches: unknown[] }).patches.length;
+  }
+
+  test("[STU-045] M-13 a drop's patches are presented in one flush once all are drawn, to a whole render", () => {
+    const small = { tileSize: 64 };
+    const { scene: live, viewport, renderer } = setup({ tiles: true, ...small });
+    live.apply(scene());
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame();
+    const lifted = ["a", "label", "ab", "ac"];
+    renderer.interacting = true;
+    live.setLive(lifted, true);
+    const layer = { surface: surface(400, 300), x: 0, y: 0, scale: 1 };
+    renderer.frame(true, layer);
+    for (let frames = 0; renderer.hasIdleWork() && frames < 1000; frames++) {
+      renderer.idle(Number.POSITIVE_INFINITY);
+      renderer.nextPatchFrame();
+    }
+    live.apply([
+      { op: "move", id: "a", dx: 84, dy: 36 },
+      { op: "move", id: "label", dx: 84, dy: 36 },
+      { op: "replace", item: link("ab", 224, 101, 300, 245) },
+      { op: "replace", item: link("ac", 224, 86, 260, 45) },
+    ]);
+    renderer.frame(false, layer);
+    renderer.interacting = false;
+    live.setLive(lifted, false);
+    renderer.frame(true, null);
+    const flushes = spyFlushes(renderer);
+    let sliced = 0;
+    for (let slices = 0; patchesLeft(renderer) > 0 && slices < 10_000; slices++) {
+      const before = flushes.length;
+      renderer.idle(0);
+      if (patchesLeft(renderer) > 0) {
+        // A slice that leaves patches to draw presents none of them.
+        expect(flushes.length).toBe(before);
+        sliced++;
+      }
+    }
+    expect(sliced).toBeGreaterThan(0);
+    // The last slice presents every patch at once, in one rectangle.
+    expect(flushes.length).toBe(1);
+    expect(flushes[0]).toBeDefined();
+    while (renderer.hasIdleWork()) {
+      renderer.idle(Number.POSITIVE_INFINITY);
+    }
+    renderer.frame(true, null);
+    const all = live.items().map((item) => item.spec);
+    expect(ghosts(renderer, viewport, all, small)).toBe(0);
+    renderer.dispose();
+    layer.surface.delete();
+  });
+
+  test("[STU-045] M-13 a dirty tile the base holds whole is copied from it in one piece, to a whole render", () => {
+    const small = { tileSize: 64 };
+    const { scene: live, viewport, renderer } = setup({ tiles: true, ...small });
+    live.apply(scene());
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame();
+    live.apply([{ op: "move", id: "a", dx: 3, dy: 2 }]);
+    renderer.frame();
+    // Every tile the move dirties lies inside the base: none is drawn on the tile surface, each is copied.
+    const tileSurface = (renderer as unknown as { tileSurface: Surface }).tileSurface;
+    const getCanvas = tileSurface.getCanvas.bind(tileSurface);
+    let drawn = 0;
+    tileSurface.getCanvas = () => {
+      drawn++;
+      return getCanvas();
+    };
+    const copied = renderer.copiedTileRefreshes;
+    const refreshed = renderer.partialTileRenders;
+    renderer.idle(Number.POSITIVE_INFINITY);
+    expect(renderer.hasIdleWork()).toBe(false);
+    expect(drawn).toBe(0);
+    expect(renderer.copiedTileRefreshes - copied).toBeGreaterThan(1);
+    expect(renderer.partialTileRenders - refreshed).toBe(renderer.copiedTileRefreshes - copied);
+    // A whole draw from the copied tiles alone equals a full render.
+    viewport.pan(-7, 0);
+    renderer.frame();
+    viewport.pan(7, 0);
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame();
+    const all = live.items().map((item) => item.spec);
+    expect(ghosts(renderer, viewport, all, small)).toBe(0);
+    renderer.dispose();
+  });
+
+  test("[STU-045] M-13 damage past the limit redraws only the dirty tiles in place and presents only them", () => {
+    const small = { tileSize: 64 };
+    const { scene: live, viewport, renderer } = setup({ tiles: true, ...small });
+    const marks = Array.from({ length: 40 }, (_, i) => ({
+      ...box(`m${i}`, 10 + (i % 8) * 20, 10 + Math.floor(i / 8) * 20),
+      w: 10,
+      h: 10,
+    }));
+    live.apply([...scene(), ...marks.map((item) => ({ op: "add" as const, item }))]);
+    renderer.frame();
+    renderer.idle(Number.POSITIVE_INFINITY);
+    renderer.frame();
+    const flushes = spyFlushes(renderer);
+    live.apply(marks.map((item) => ({ op: "move" as const, id: item.id, dx: 2, dy: 1 })));
+    const damaged = renderer.frame();
+    expect(marks.length).toBeGreaterThan(MAX_DAMAGE);
+    // No tile is blitted again and the flush covers the dirty tiles, not the whole base.
+    expect(damaged.tilesDrawn).toBe(0);
+    expect(damaged.regions).toBeGreaterThan(0);
+    expect(flushes.length).toBe(1);
+    const [l = 0, t = 0, r = 0, b = 0] = flushes[0] ?? [];
+    expect((r - l) * (b - t)).toBeLessThan((400 * 300) / 2);
+    // The base equals a whole draw, which blits the tiles again and redraws the same dirty rectangles over them.
+    const inPlace = base(renderer);
+    viewport.pan(-7, 0);
+    renderer.frame();
+    viewport.pan(7, 0);
+    expect(renderer.frame().tilesDrawn).toBeGreaterThan(0);
+    expect(base(renderer)).toEqual(inPlace);
+    // Idle time takes those pixels into the tiles: a whole draw from the tiles alone shows the same.
+    renderer.idle(Number.POSITIVE_INFINITY);
+    expect(renderer.hasIdleWork()).toBe(false);
+    viewport.pan(-7, 0);
+    renderer.frame();
+    viewport.pan(7, 0);
+    const blitted = renderer.frame();
+    expect([blitted.tilesDrawn > 0, blitted.regions]).toEqual([true, 0]);
+    expect(base(renderer)).toEqual(inPlace);
+    renderer.dispose();
   });
 });

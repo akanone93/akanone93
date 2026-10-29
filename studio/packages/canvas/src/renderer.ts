@@ -286,7 +286,7 @@ export class SceneRenderer {
   private readonly patchClip: Rect[] = [];
   private readonly patchUnion = makeRect(0, 0, 0, 0);
   /** The patches drawn since the last flush of the base. */
-  private readonly patchGroup = makeRect(0, 0, 0, 0);
+  private readonly patchGroup = makeRect(Infinity, Infinity, -Infinity, -Infinity);
   /** Device pixels of patches flushed since the last animation frame (`patchBudget`). */
   private patchPixels = 0;
   private readonly dropUnion = makeRect(0, 0, 0, 0);
@@ -493,6 +493,9 @@ export class SceneRenderer {
     if (this.options.tiles && this.canDrawDamage(scale, includeLive)) {
       return this.drawDamage(canvas, scale);
     }
+    if (this.options.tiles && this.damage.length > MAX_DAMAGE && this.canDrawDamage(scale, includeLive, false)) {
+      return this.drawDirtyTiles(canvas, scale);
+    }
     canvas.save();
     canvas.scale(scale, scale);
     canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
@@ -508,11 +511,12 @@ export class SceneRenderer {
 
   /**
    * Whether the surface already shows every visible tile at this placement,
-   * so a base draw only has to redraw the damaged rectangles over it.
+   * so a base draw only has to redraw the damaged rectangles over it — or,
+   * unless `limitDamage`, the tiles' dirty rectangles (`drawDirtyTiles`).
    */
-  private canDrawDamage(scale: number, includeLive: boolean): boolean {
+  private canDrawDamage(scale: number, includeLive: boolean, limitDamage = true): boolean {
     if (
-      this.damage.length > MAX_DAMAGE ||
+      (limitDamage && this.damage.length > MAX_DAMAGE) ||
       this.needsShift() ||
       this.tiles.scale !== scale ||
       this.tiles.hasStale ||
@@ -526,6 +530,40 @@ export class SceneRenderer {
       }
     }
     return true;
+  }
+
+  /**
+   * Redraws the dirty rectangle of every visible tile over the pixels the
+   * surface keeps, as a whole draw of the base does after blitting the tiles,
+   * and presents only their union: the tiles are already there, and a whole
+   * flush makes the browser upload the whole base again (M-13). For more
+   * damaged rectangles than `drawDamage` takes apart; returns the flush time.
+   */
+  private drawDirtyTiles(canvas: Canvas, scale: number): number {
+    const start = this.now();
+    this.damage.length = 0;
+    this.regionCount = 0;
+    // The dirty rectangles hold the dropped items, in z-order; the tiles may still show lifted items.
+    this.requeueMasks();
+    this.dropItems.length = 0;
+    const u = setRect(this.damageUnion, Infinity, Infinity, -Infinity, -Infinity);
+    canvas.save();
+    canvas.scale(scale, scale);
+    canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
+    for (const tile of this.tiles.collect(this.view, this.visible)) {
+      const region = this.tileTarget;
+      if (tile.dirty && intersectInto(region, tile.dirty, this.tiles.tileRect(tile, this.tileWorld))) {
+        this.drawRegion(canvas, region);
+        unionInto(u, region);
+        this.regionCount++;
+      }
+    }
+    canvas.restore();
+    if (u.r <= u.l || u.b <= u.t) {
+      return 0;
+    }
+    this.counters.regionMs = this.now() - start;
+    return this.flushBase(canvas, this.deviceRect(this.toArray(u, this.dst), scale));
   }
 
   /**
@@ -776,17 +814,21 @@ export class SceneRenderer {
   private drawRegions(canvas: Canvas): void {
     for (let i = 0; i < this.regionCount; i++) {
       const region = this.regions[i];
-      if (!region) {
-        continue;
+      if (region) {
+        this.drawRegion(canvas, region);
       }
-      const r = this.toArray(region, this.dst);
-      canvas.save();
-      canvas.clipRect(r, this.ck.ClipOp.Intersect, false);
-      canvas.drawRect(r, this.backgroundPaint);
-      this.calls++;
-      this.drawScene(canvas, region, false, this.itemsIn(region));
-      canvas.restore();
     }
+  }
+
+  /** Redraws the static items in `region` over the background, clipped to it. */
+  private drawRegion(canvas: Canvas, region: Rect): void {
+    const r = this.toArray(region, this.dst);
+    canvas.save();
+    canvas.clipRect(r, this.ck.ClipOp.Intersect, false);
+    canvas.drawRect(r, this.backgroundPaint);
+    this.calls++;
+    this.drawScene(canvas, region, false, this.itemsIn(region));
+    canvas.restore();
   }
 
   /**
@@ -845,7 +887,7 @@ export class SceneRenderer {
     // During an interaction each cell's chunks are flushed together, apart from other cells': every commit of the
     // base canvas costs the browser an upload through software GL, which a drag frame then waits for, so a flush
     // covers one cell, not the union of distant ones. Outside one, a single flush per call costs least.
-    const group = setRect(this.patchGroup, Infinity, Infinity, -Infinity, -Infinity);
+    const group = this.patchGroup;
     let cell = Number.NaN;
     let chunks = 0;
     while (this.patches.length > 0) {
@@ -870,7 +912,12 @@ export class SceneRenderer {
       canvas.restore();
       chunks++;
     }
-    this.flushPatches(canvas, scale);
+    // Outside an interaction the patches are presented together, once all are drawn: every flush of the base makes the
+    // browser upload its rectangle through software GL, and back-to-back uploads of most of the view stall the worker
+    // and the page alike for a hundred milliseconds or more (M-13). The drop shows at once without them.
+    if (this.interacting || this.patches.length === 0) {
+      this.flushPatches(canvas, scale);
+    }
     return chunks;
   }
 
@@ -1511,25 +1558,17 @@ export class SceneRenderer {
     const world = this.tiles.tileRect(tile, this.tileTarget);
     const current = this.shownTiles.has(tile) && this.damage.length === 0;
     const fromBase = current && this.baseIsCurrent();
+    if (fromBase && this.copyTileFromBase(tile, world, px)) {
+      this.partialRenders++;
+      this.tileRenders++;
+      this.tileRenderMs += this.now() - start;
+      return true;
+    }
     const canvas = surface.getCanvas();
     canvas.save();
     canvas.clipRect(this.src.fill(0).fill(px, 2), this.ck.ClipOp.Intersect, false);
     canvas.drawImage(image, 0, 0);
-    let done = 0;
-    while (done < pieces.length) {
-      if (done > 0 && (this.now() >= deadline || yieldNow())) {
-        break;
-      }
-      const end = Math.min(pieces.length, done + REFRESH_CHUNK);
-      if (fromBase) {
-        // Pieces the base shows are copied from it; only those off it, beyond the view, are redrawn.
-        this.refreshPieces(canvas, pieces, done, end, world, px, "onBase");
-        this.refreshPieces(canvas, pieces, done, end, world, px, "offBase");
-      } else {
-        this.refreshPieces(canvas, pieces, done, end, world, px, "all");
-      }
-      done = end;
-    }
+    const done = this.refreshChunks(canvas, pieces, world, px, fromBase, deadline, yieldNow);
     canvas.restore();
     this.irect.set([0, 0, px, px]);
     const snapshot = this.resources.own(surface.makeImageSnapshot(this.irect));
@@ -1547,6 +1586,39 @@ export class SceneRenderer {
     this.tileRenders++;
     this.tileRenderMs += this.now() - start;
     return true;
+  }
+
+  /**
+   * Redraws `pieces` of the tile at `world` on `canvas` in chunks of
+   * `REFRESH_CHUNK` until `deadline` or `yieldNow` (at least one chunk) —
+   * copying from the base those it shows when `fromBase` — and returns how
+   * many it redrew.
+   */
+  private refreshChunks(
+    canvas: Canvas,
+    pieces: readonly Rect[],
+    world: Rect,
+    px: number,
+    fromBase: boolean,
+    deadline: number,
+    yieldNow: () => boolean,
+  ): number {
+    let done = 0;
+    while (done < pieces.length) {
+      if (done > 0 && (this.now() >= deadline || yieldNow())) {
+        break;
+      }
+      const end = Math.min(pieces.length, done + REFRESH_CHUNK);
+      if (fromBase) {
+        // Pieces the base shows are copied from it; only those off it, beyond the view, are redrawn.
+        this.refreshPieces(canvas, pieces, done, end, world, px, "onBase");
+        this.refreshPieces(canvas, pieces, done, end, world, px, "offBase");
+      } else {
+        this.refreshPieces(canvas, pieces, done, end, world, px, "all");
+      }
+      done = end;
+    }
+    return done;
   }
 
   /**
@@ -1685,6 +1757,26 @@ export class SceneRenderer {
     canvas.restore();
     path.delete();
     snapshot.delete();
+    this.copiedRefreshes++;
+    return true;
+  }
+
+  /**
+   * Takes the whole image of `tile` ([px] pixels square at `world`) from the
+   * base surface when the base holds all of it: the caller found the base
+   * current, so it shows exactly what a full render of the tile does, and one
+   * copy replaces the copy of the old image and the copy or redraw of each
+   * dirty piece over it (M-13). Returns whether it copied.
+   */
+  private copyTileFromBase(tile: Tile<Image>, world: Rect, px: number): boolean {
+    const scale = this.tiles.scale;
+    const bx = Math.round(world.l * scale) - Math.round(this.viewport.x * scale);
+    const by = Math.round(world.t * scale) - Math.round(this.viewport.y * scale);
+    if (bx < 0 || by < 0 || bx + px > this.surface.width() || by + px > this.surface.height()) {
+      return false;
+    }
+    this.irect.set([bx, by, bx + px, by + px]);
+    this.tiles.store(tile, this.resources.own(this.surface.makeImageSnapshot(this.irect)), false);
     this.copiedRefreshes++;
     return true;
   }
