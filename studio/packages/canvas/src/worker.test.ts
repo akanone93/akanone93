@@ -4,8 +4,15 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import type { CanvasKit } from "canvaskit-wasm";
 import { box, fontBytes, link, loadCanvasKit, TestEnvironment, text, tick } from "../test-support/canvaskit.ts";
+import { type BrowserScope, browserWorkerDeps } from "./browser.ts";
 import { CanvasHost, type WorkerLike } from "./host.ts";
-import { type CanvasOptions, type HostMessage, PROTOCOL_VERSION as v, type WorkerMessage } from "./protocol.ts";
+import {
+  type CanvasOptions,
+  type HostMessage,
+  type SceneOp,
+  PROTOCOL_VERSION as v,
+  type WorkerMessage,
+} from "./protocol.ts";
 import { CanvasWorkerCore, serveCanvasWorker, type WorkerScopeLike } from "./worker.ts";
 
 let ck: CanvasKit;
@@ -155,6 +162,73 @@ describe("[STU-003] canvas worker core", () => {
     }
     const next = ofType(posted, "frame").at(-1)?.stats;
     expect(next?.tileRenders).toBeGreaterThan(queued?.tileRenders ?? 0);
+  });
+
+  test("[STU-045] a drop's idle work drains in back-to-back slices posted through a channel, not clamped timeouts", async () => {
+    const env = new TestEnvironment(ck);
+    // The browser scope's idle tasks: a message channel the test pumps, and timeouts it only counts.
+    const tasks: (() => void)[] = [];
+    let timeouts = 0;
+    class Channel {
+      readonly port1: { onmessage: (() => void) | null } = { onmessage: null };
+      readonly port2 = { postMessage: () => tasks.push(() => this.port1.onmessage?.()) };
+    }
+    const scope: BrowserScope = {
+      requestAnimationFrame: () => 0,
+      setTimeout: () => {
+        timeouts++;
+        return 0;
+      },
+      performance,
+      MessageChannel: Channel,
+    };
+    const unused = () => Promise.reject(new Error("unused")) as Promise<CanvasKit>;
+    const posted: WorkerMessage[] = [];
+    const core = new CanvasWorkerCore((message) => posted.push(message), {
+      ...env.deps(),
+      requestIdle: browserWorkerDeps(scope, unused).requestIdle,
+    });
+    const pump = (): number => {
+      let slices = 0;
+      while (tasks.length > 0 && slices < 200) {
+        tasks.shift()?.();
+        slices++;
+      }
+      return slices;
+    };
+    await core.receive({ ...init({ tiles: true }), layer: { width: 0, height: 0 } } as HostMessage);
+    const ops: SceneOp[] = [];
+    for (let i = 0; i < 12; i++) {
+      ops.push({ op: "add", item: box(`b${i}`, (i % 4) * 80, Math.floor(i / 4) * 60) });
+      ops.push({ op: "add", item: link(`l${i}`, 0, i * 15, 320, 200 - i * 15) });
+    }
+    await core.receive({ v, type: "patch", ops });
+    for (let i = 0; i < 20 && (env.frames.length > 0 || tasks.length > 0); i++) {
+      for (const callback of env.frames.splice(0)) {
+        callback();
+      }
+      pump();
+    }
+    const ids = ["b5", "l3", "l7"];
+    await core.receive({ v, type: "interaction", phase: "start", kind: "drag", ids });
+    await core.receive({ v, type: "patch", ops: [{ op: "move", id: "b5", dx: 40, dy: 20 }] });
+    for (const callback of env.frames.splice(0)) {
+      callback();
+    }
+    pump();
+    await core.receive({ v, type: "interaction", phase: "end", kind: "drag", ids });
+    for (const callback of env.frames.splice(0)) {
+      callback();
+    }
+    expect(ofType(posted, "frame").at(-1)?.stats.idleQueue).toBeGreaterThan(0);
+    // No animation frame runs from here: the drop's patches and tile refreshes go on slice after slice, each a
+    // task of its own so messages are still taken between them, and none waits for a frame or a clamped timeout.
+    expect(pump()).toBeGreaterThan(0);
+    expect(timeouts).toBe(0);
+    for (const callback of env.frames.splice(0)) {
+      callback();
+    }
+    expect(ofType(posted, "frame").at(-1)?.stats.idleQueue).toBe(0);
   });
 
   test("drag, resize and dispose", async () => {

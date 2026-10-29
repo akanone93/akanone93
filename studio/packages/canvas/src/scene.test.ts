@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { box, link, text } from "../test-support/canvaskit.ts";
 import { makeRect, type Rect } from "./geometry.ts";
 import type { FrameSpec } from "./protocol.ts";
-import { boundsOf, damageOf, moveSpec, Scene, type SceneItem, SHADOW_MARGIN } from "./scene.ts";
+import { boundsOf, damageOf, itemMeets, moveSpec, Scene, type SceneItem, SHADOW_MARGIN } from "./scene.ts";
 import { buildSceneModel } from "./scene-model.ts";
 import { Viewport } from "./viewport.ts";
 
@@ -175,5 +175,27 @@ describe("[STU-003] retained scene graph", () => {
     drain(scene);
     scene.apply([{ op: "replace", item: wider }]);
     expect(drain(scene)).toEqual([{ l: 92.5, t: -8, r: 137.5, b: 408 }]);
+  });
+
+  test("[STU-045] a link meets only rectangles along its pieces, not its whole bounding box", () => {
+    const scene = new Scene();
+    scene.apply([
+      { op: "add", item: link("l", 0, 0, 1000, 1000) },
+      { op: "add", item: box("b", 800, 100) },
+    ]);
+    const item = scene.items().find((i) => i.spec.id === "l") as SceneItem;
+    const boxItem = scene.items().find((i) => i.spec.id === "b") as SceneItem;
+    const offCurve = makeRect(850, 50, 950, 150);
+    const onCurve = makeRect(480, 480, 520, 520);
+    // Inside the link's bounding box, far from its curve and straight line: a patch there skips it.
+    expect(itemMeets(item, offCurve)).toBe(false);
+    expect(itemMeets(item, onCurve)).toBe(true);
+    expect(itemMeets(item, makeRect(2000, 2000, 2100, 2100))).toBe(false);
+    // Any other item meets a rectangle its bounds meet.
+    expect(itemMeets(boxItem, offCurve)).toBe(true);
+    // A change of the link recomputes its pieces: moved up by 400, its curve now crosses the rectangle.
+    scene.apply([{ op: "move", id: "l", dx: 400, dy: -400 }]);
+    expect(itemMeets(item, offCurve)).toBe(true);
+    expect(itemMeets(item, onCurve)).toBe(false);
   });
 });
