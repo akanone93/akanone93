@@ -134,31 +134,218 @@ function parseCsv(text: string): ParseResult {
   return { ok: true, entries };
 }
 
-/** The descendants with a local name, whatever their namespace prefix. */
-function named(root: Document | Element, name: string): Element[] {
-  return Array.from(root.getElementsByTagName("*")).filter((e) => e.localName === name);
+/** The local part of a qualified XML name: `xliff:unit` is `unit`. */
+function localName(qualified: string): string {
+  return qualified.slice(qualified.indexOf(":") + 1);
 }
 
+const xmlEntities: Readonly<Record<string, string>> = { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" };
+
+/** Replaces XML's predefined and numeric character references; undefined for any other reference. */
+function unescapeXml(text: string): string | undefined {
+  let bad = false;
+  const out = text.replace(/&([^;&\s<]*)(;?)/g, (_m, name: string, end: string) => {
+    if (end === "") {
+      bad = true;
+      return "";
+    }
+    const numeric = /^#(?:x([0-9a-fA-F]+)|([0-9]+))$/.exec(name);
+    const code = numeric ? Number.parseInt(numeric[1] ?? numeric[2] ?? "", numeric[1] ? 16 : 10) : Number.NaN;
+    if (numeric && code <= 0x10ffff) {
+      return String.fromCodePoint(code);
+    }
+    const named = xmlEntities[name];
+    if (named === undefined) {
+      bad = true;
+      return "";
+    }
+    return named;
+  });
+  return bad ? undefined : out;
+}
+
+const xmlAttribute = /([^\s=/>]+)\s*=\s*(?:"([^"<]*)"|'([^'<]*)')/g;
+
+/** One event of an XML document: text (references replaced), a start tag, or an end tag. */
+type XmlEvent =
+  | { readonly kind: "text"; readonly text: string }
+  | {
+      readonly kind: "start";
+      readonly name: string;
+      readonly attributes: ReadonlyMap<string, string>;
+      readonly empty: boolean;
+    }
+  | { readonly kind: "end"; readonly name: string };
+
+/** The attributes of a start tag by local name; undefined when a value holds a bad reference. */
+function xmlAttributes(source: string): Map<string, string> | undefined {
+  const attributes = new Map<string, string>();
+  for (const m of source.matchAll(xmlAttribute)) {
+    const value = unescapeXml(m[2] ?? m[3] ?? "");
+    if (value === undefined) {
+      return undefined;
+    }
+    attributes.set(localName(m[1] ?? ""), value);
+  }
+  return attributes;
+}
+
+/** The event of one tag's source between `<` and `>`; undefined when it is not a well-formed tag. */
+function xmlTag(tag: string): XmlEvent | undefined {
+  const closing = tag.startsWith("/");
+  const empty = !closing && tag.endsWith("/");
+  const body = tag.slice(closing ? 1 : 0, empty ? -1 : undefined);
+  const name = /^[^\s/>]+/.exec(body)?.[0] ?? "";
+  if (name === "") {
+    return undefined;
+  }
+  if (closing) {
+    return { kind: "end", name };
+  }
+  const attributes = xmlAttributes(body.slice(name.length));
+  return attributes === undefined ? undefined : { kind: "start", name, attributes, empty };
+}
+
+/** The markup at `lt`: its events and where the text after it starts; undefined when it is malformed or refused. */
+function xmlMarkup(text: string, lt: number): { events: XmlEvent[]; next: number } | undefined {
+  const until = (open: string, close: string): number => (text.startsWith(open, lt) ? text.indexOf(close, lt) : -2);
+  for (const [open, close] of [
+    ["<!--", "-->"],
+    ["<?", "?>"],
+  ] as const) {
+    const end = until(open, close);
+    if (end !== -2) {
+      return end < 0 ? undefined : { events: [], next: end + close.length };
+    }
+  }
+  const cdata = until("<![CDATA[", "]]>");
+  if (cdata !== -2) {
+    const raw = text.slice(lt + "<![CDATA[".length, cdata);
+    return cdata < 0 ? undefined : { events: [{ kind: "text", text: raw }], next: cdata + 3 };
+  }
+  const end = text.indexOf(">", lt);
+  // A document type (or any other declaration) is refused, so no entity is ever defined.
+  const event = end < 0 || text.startsWith("<!", lt) ? undefined : xmlTag(text.slice(lt + 1, end));
+  return event === undefined ? undefined : { events: [event], next: end + 1 };
+}
+
+/**
+ * The events of a small XML document: well-formed elements, comments, processing instructions, CDATA and
+ * character references. Undefined when it is not well formed or declares a document type.
+ */
+function xmlEvents(text: string): XmlEvent[] | undefined {
+  const events: XmlEvent[] = [];
+  let at = 0;
+  while (at < text.length) {
+    const lt = text.indexOf("<", at);
+    const raw = unescapeXml(text.slice(at, lt < 0 ? text.length : lt));
+    if (raw === undefined) {
+      return undefined;
+    }
+    events.push({ kind: "text", text: raw });
+    if (lt < 0) {
+      break;
+    }
+    const markup = xmlMarkup(text, lt);
+    if (markup === undefined) {
+      return undefined;
+    }
+    events.push(...markup.events);
+    at = markup.next;
+  }
+  return events;
+}
+
+/** Follows the nesting of XML events: the open elements and the number of root elements. */
+class XmlNesting {
+  readonly open: string[] = [];
+  roots = 0;
+
+  /** Takes one event; false when it breaks the nesting under one root named `root`. */
+  take(e: XmlEvent, root: string): boolean {
+    if (e.kind === "text") {
+      return this.open.length > 0 || e.text.trim() === "";
+    }
+    if (e.kind === "end") {
+      return this.open.pop() === e.name;
+    }
+    if (this.open.length === 0) {
+      this.roots += 1;
+      if (localName(e.name) !== root) {
+        return false;
+      }
+    }
+    if (!e.empty) {
+      this.open.push(e.name);
+    }
+    return true;
+  }
+}
+
+/** Whether the events nest properly under one root element named `root`, with nothing but space outside it. */
+function wellNested(events: readonly XmlEvent[], root: string): boolean {
+  const nesting = new XmlNesting();
+  return events.every((e) => nesting.take(e, root)) && nesting.roots === 1 && nesting.open.length === 0;
+}
+
+/** Collects the units of an XLIFF document from its events: each unit's id and its first target's text. */
+class XliffUnits {
+  readonly entries: Entries = Object.create(null) as Entries;
+  private unit: string | undefined;
+  private depth = 0;
+  private target: { depth: number; text: string } | undefined;
+
+  /** Takes one event; false when a unit has no id. */
+  take(e: XmlEvent): boolean {
+    if (e.kind === "text") {
+      if (this.target !== undefined) {
+        this.target.text += e.text;
+      }
+      return true;
+    }
+    if (e.kind === "end") {
+      this.end();
+      return true;
+    }
+    this.depth += e.empty ? 0 : 1;
+    return this.target !== undefined || this.start(localName(e.name), e);
+  }
+
+  private end(): void {
+    this.depth -= 1;
+    if (this.target !== undefined && this.depth < this.target.depth) {
+      this.entries[this.unit ?? ""] = this.target.text;
+      this.target = undefined;
+    }
+  }
+
+  private start(name: string, e: Extract<XmlEvent, { kind: "start" }>): boolean {
+    if (name === "unit") {
+      this.unit = e.attributes.get("id") ?? "";
+      return this.unit !== "";
+    }
+    if (name === "target" && this.unit !== undefined && !(this.unit in this.entries)) {
+      if (e.empty) {
+        this.entries[this.unit] = "";
+      } else {
+        this.target = { depth: this.depth, text: "" };
+      }
+    }
+    return true;
+  }
+}
+
+/**
+ * Reads an XLIFF document with a strict reader of the little XML it needs (`xmlEvents`): the `id` of every
+ * `unit` and the text of its first `target`, nested inline elements included.
+ */
 function parseXliff(text: string): ParseResult {
-  // The file is parsed as XML into a detached document that is only read: nothing of it is inserted into the page,
-  // and XML parsing runs no script.
-  // codeql[js/xss-through-dom]
-  const doc = new DOMParser().parseFromString(text, "application/xml"); // lgtm[js/xss-through-dom]
-  if (doc.getElementsByTagName("parsererror").length > 0 || doc.documentElement.localName !== "xliff") {
+  const events = xmlEvents(text);
+  if (events === undefined || !wellNested(events, "xliff")) {
     return malformed;
   }
-  const entries: Entries = Object.create(null) as Entries;
-  for (const unit of named(doc, "unit")) {
-    const id = unit.getAttribute("id") ?? "";
-    const target = named(unit, "target")[0];
-    if (id === "") {
-      return malformed;
-    }
-    if (target !== undefined) {
-      entries[id] = target.textContent ?? "";
-    }
-  }
-  return { ok: true, entries };
+  const units = new XliffUnits();
+  return events.every((e) => units.take(e)) ? { ok: true, entries: units.entries } : malformed;
 }
 
 /** Parses one import file. `maxBytes` caps its size (`translation.importSize`). */

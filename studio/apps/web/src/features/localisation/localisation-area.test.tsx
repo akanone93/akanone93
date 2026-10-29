@@ -44,6 +44,36 @@ describe("[I18N-009] translation formats", () => {
     expect(parseTranslations(format, bad[format], BIG)).toEqual({ ok: false, reason: "malformed" });
   });
 
+  test("reads XLIFF's XML: prefixes, comments, CDATA, references and inline elements", () => {
+    const x = (body: string) =>
+      `<?xml version="1.0"?>\n<!-- export --><x:xliff xmlns:x="urn:oasis:names:tc:xliff:document:2.0" version='2.0'><x:file id="f">${body}</x:file></x:xliff>\n`;
+    const r = parseTranslations(
+      "xliff",
+      x(
+        '<x:unit id="a"><x:segment><x:source>A</x:source><x:target>Fish &amp; chips &#x263A;&#65;</x:target></x:segment></x:unit>' +
+          '<x:unit id="b"><x:segment><x:target><![CDATA[<b>bold</b>]]> and <pc id="1">inline</pc></x:target><x:target>second</x:target></x:segment></x:unit>' +
+          '<x:unit id="c"><x:segment><x:source>no target</x:source></x:segment></x:unit>' +
+          '<x:unit id="d"><x:segment><x:target/></x:segment></x:unit>',
+      ),
+      BIG,
+    );
+    expect(r.ok && r.entries).toEqual({ a: "Fish & chips \u263AA", b: "<b>bold</b> and inline", d: "" });
+  });
+
+  test.each([
+    ["mismatched tags", '<xliff><unit id="a"><target>x</unit></target></xliff>'],
+    ["an unclosed root", '<xliff><unit id="a"><target>x</target></unit>'],
+    ["another root", '<other><unit id="a"><target>x</target></unit></other>'],
+    ["two roots", "<xliff></xliff><xliff></xliff>"],
+    ["a unit without id", "<xliff><unit><target>x</target></unit></xliff>"],
+    ["an unknown entity", '<xliff><unit id="a"><target>&nbsp;</target></unit></xliff>'],
+    ["a reference without semicolon", '<xliff><unit id="a"><target>&amp</target></unit></xliff>'],
+    ["a document type", '<!DOCTYPE xliff [<!ENTITY e "x">]><xliff><unit id="a"><target>&e;</target></unit></xliff>'],
+    ["text outside the root", 'text<xliff><unit id="a"><target>x</target></unit></xliff>'],
+  ])("rejects XLIFF with %s", (_name, text) => {
+    expect(parseTranslations("xliff", text, BIG)).toEqual({ ok: false, reason: "malformed" });
+  });
+
   test("rejects a file over the size cap, and one without entries", () => {
     expect(parseTranslations("json", samples.json, 5)).toEqual({ ok: false, reason: "tooLarge" });
     expect(parseTranslations("json", "{}", BIG)).toEqual({ ok: false, reason: "empty" });
