@@ -38,7 +38,7 @@ import { type Lod, lodForZoom, resolutionFor } from "./lod.ts";
 import { type Direction, orderJobs } from "./progressive.ts";
 import type { FrameSpec, FrameStats, ItemSpec, TextSpec } from "./protocol.ts";
 import { Resources } from "./resources.ts";
-import type { Scene, SceneItem } from "./scene.ts";
+import { itemMeets, type Scene, type SceneItem } from "./scene.ts";
 import { type Tile, TileCache } from "./tiles.ts";
 import type { Viewport } from "./viewport.ts";
 
@@ -784,7 +784,7 @@ export class SceneRenderer {
       canvas.clipRect(r, this.ck.ClipOp.Intersect, false);
       canvas.drawRect(r, this.backgroundPaint);
       this.calls++;
-      this.drawScene(canvas, region, false);
+      this.drawScene(canvas, region, false, this.itemsIn(region));
       canvas.restore();
     }
   }
@@ -973,6 +973,18 @@ export class SceneRenderer {
     return count;
   }
 
+  /** The static items, in z-order, that meet `region` (`itemMeets`: a link only along its pieces). */
+  private itemsIn(region: Rect): SceneItem[] {
+    const list = this.patchItems;
+    list.length = 0;
+    for (const item of this.scene.items()) {
+      if (!item.live && itemMeets(item, region)) {
+        list.push(item);
+      }
+    }
+    return list;
+  }
+
   /** The static items, in z-order, that meet any of the first `count` patch rectangles. */
   private patchItemsIn(count: number): SceneItem[] {
     const list = this.patchItems;
@@ -984,7 +996,7 @@ export class SceneRenderer {
       }
       for (let i = 0; i < count; i++) {
         const clip = clips[i];
-        if (clip && intersects(item.bounds, clip)) {
+        if (clip && itemMeets(item, clip)) {
           list.push(item);
           break;
         }
@@ -1509,7 +1521,13 @@ export class SceneRenderer {
         break;
       }
       const end = Math.min(pieces.length, done + REFRESH_CHUNK);
-      this.refreshPieces(canvas, pieces, done, end, world, px, fromBase);
+      if (fromBase) {
+        // Pieces the base shows are copied from it; only those off it, beyond the view, are redrawn.
+        this.refreshPieces(canvas, pieces, done, end, world, px, "onBase");
+        this.refreshPieces(canvas, pieces, done, end, world, px, "offBase");
+      } else {
+        this.refreshPieces(canvas, pieces, done, end, world, px, "all");
+      }
       done = end;
     }
     canvas.restore();
@@ -1535,7 +1553,9 @@ export class SceneRenderer {
    * Redraws `pieces[from..to)` of the tile at `world` ([px] pixels square)
    * on `canvas`, which holds its cached image: each piece snapped to whole
    * pixels, one clip of all of them, the background, then the static items
-   * that meet any of them, in z-order.
+   * that meet any of them, in z-order. `which` picks the pieces: all, those
+   * inside the base surface (copied from it: the caller found it current),
+   * or those outside it.
    */
   private refreshPieces(
     canvas: Canvas,
@@ -1544,9 +1564,14 @@ export class SceneRenderer {
     to: number,
     world: Rect,
     px: number,
-    fromBase: boolean,
+    which: "all" | "onBase" | "offBase",
   ): void {
     const scale = this.tiles.scale;
+    // The base surface's pixels in tile pixels: a piece inside them can be copied from the base.
+    const bx = Math.round(world.l * scale) - Math.round(this.viewport.x * scale);
+    const by = Math.round(world.t * scale) - Math.round(this.viewport.y * scale);
+    const baseR = this.surface.width() - bx;
+    const baseB = this.surface.height() - by;
     const u = setRect(this.patchUnion, Infinity, Infinity, -Infinity, -Infinity);
     const clips = this.patchClip;
     const bounds = this.pieceBounds.fill(0);
@@ -1560,6 +1585,9 @@ export class SceneRenderer {
       const r = Math.min(px, Math.ceil((piece.r - world.l) * scale));
       const b = Math.min(px, Math.ceil((piece.b - world.t) * scale));
       if (r <= l || b <= t) {
+        continue;
+      }
+      if (excluded(which, inside(l, t, r, b, -bx, -by, baseR, baseB))) {
         continue;
       }
       let clip = clips[count];
@@ -1582,7 +1610,7 @@ export class SceneRenderer {
     if (count === 0) {
       return;
     }
-    if (fromBase && this.copyFromBase(canvas, world, bounds)) {
+    if (which === "onBase" && this.copyFromBase(canvas, world, bounds)) {
       return;
     }
     const list = this.itemsMeeting(u, count);
@@ -1605,7 +1633,7 @@ export class SceneRenderer {
     for (const item of this.scene.query(union, this.items, false)) {
       for (let i = 0; i < count; i++) {
         const clip = this.patchClip[i];
-        if (clip && intersects(item.bounds, clip)) {
+        if (clip && itemMeets(item, clip)) {
           list.push(item);
           break;
         }
@@ -1673,4 +1701,14 @@ export class SceneRenderer {
     this.images.clear();
     this.resources.dispose();
   }
+}
+
+/** Whether the rectangle [l, t, r, b] lies inside [bl, bt, br, bb]. */
+function inside(l: number, t: number, r: number, b: number, bl: number, bt: number, br: number, bb: number): boolean {
+  return l >= bl && t >= bt && r <= br && b <= bb;
+}
+
+/** Whether a refresh of the pieces `which` leaves out a piece that lies (`onBase`) or not inside the base surface. */
+function excluded(which: "all" | "onBase" | "offBase", onBase: boolean): boolean {
+  return which !== "all" && onBase !== (which === "onBase");
 }

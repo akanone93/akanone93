@@ -27,6 +27,8 @@ export interface SceneItem {
   live: boolean;
   fillKey: string | null;
   strokeKey: string | null;
+  /** A link's piece hulls (`liveDamageOf`), computed on first use by `itemMeets`; null until then or after a change. */
+  pieces?: Rect[] | null;
 }
 
 /** The batching key of a fill colour. */
@@ -106,6 +108,44 @@ export function liveDamageOf(spec: ItemSpec, bounds: Rect, out: Rect[]): void {
   }
 }
 
+/**
+ * Whether `item` may draw inside `rect`: its bounds meet it and, for a link,
+ * one of the piece hulls along its curve or straight line does. A cubic lies
+ * in the hull of its control points, so a link whose pieces all miss `rect`
+ * leaves every pixel of it untouched; a patch along other links then skips
+ * the long links whose bounding box merely spans it.
+ */
+export function itemMeets(item: SceneItem, rect: Rect): boolean {
+  if (!intersects(item.bounds, rect)) {
+    return false;
+  }
+  const spec = item.spec;
+  if (spec.kind !== "link") {
+    return true;
+  }
+  for (const piece of piecesOf(item)) {
+    if (intersects(piece, rect)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * The piece hulls of a link item (`liveDamageOf`): `LINK_PIECES` along its
+ * straight line, then as many along its curve when it has one; piece `i` of
+ * each spans the curve parameters [i, i + 1] / `LINK_PIECES`. Cached on the item.
+ */
+export function piecesOf(item: SceneItem): Rect[] {
+  let pieces = item.pieces;
+  if (!pieces) {
+    pieces = [];
+    liveDamageOf(item.spec, item.bounds, pieces);
+    item.pieces = pieces;
+  }
+  return pieces;
+}
+
 /** The world bounds of `spec`, including stroke and shadow, written into `out`. */
 export function boundsOf(spec: ItemSpec, out: Rect): Rect {
   switch (spec.kind) {
@@ -176,11 +216,18 @@ function sameBoxStyle(a: ItemSpec, b: ItemSpec): boolean {
  * bounds `oldBounds`) becomes `next` (with bounds `nextBounds`). A box that
  * only moved an edge, with the same fill and stroke, damages just a strip
  * around each moved edge — its interior paints the same — so widening a
- * column does not dirty the whole column; anything else damages the old and
+ * column does not dirty the whole column; a link damages the pieces along
+ * its old and new curves (`liveDamageOf`); anything else damages the old and
  * the new bounds.
  */
 export function damageOf(old: ItemSpec, oldBounds: Rect, next: ItemSpec, nextBounds: Rect, out: Rect[]): void {
   if (sameItem(old, next)) {
+    return;
+  }
+  if (old.kind === "link" && next.kind === "link") {
+    // Pieces along both curves, not their bounding boxes: a rerouted long link re-renders only the tiles it crosses.
+    liveDamageOf(old, oldBounds, out);
+    liveDamageOf(next, nextBounds, out);
     return;
   }
   if (
@@ -344,6 +391,7 @@ export class Scene {
 
   private derive(item: SceneItem): void {
     boundsOf(item.spec, item.bounds);
+    item.pieces = null;
     const keys = keysOf(item.spec);
     item.fillKey = keys.fill;
     item.strokeKey = keys.stroke;
