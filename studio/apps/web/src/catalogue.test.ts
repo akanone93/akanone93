@@ -9,17 +9,22 @@ describe("[STU-011] development-only catalogue page", () => {
     // bun test sets NODE_ENV=test, which Vite would treat as a development build.
     const previous = process.env.NODE_ENV;
     process.env.NODE_ENV = "production";
-    const result = await build({
-      root: new URL("..", import.meta.url).pathname,
-      logLevel: "silent",
-      configFile: new URL("../vite.config.ts", import.meta.url).pathname,
-      mode: "production",
-      build: { write: false, sourcemap: false, manifest: false },
-    });
-    if (previous === undefined) {
-      delete process.env.NODE_ENV;
-    } else {
-      process.env.NODE_ENV = previous;
+    let result: Awaited<ReturnType<typeof build>>;
+    try {
+      result = await build({
+        root: new URL("..", import.meta.url).pathname,
+        logLevel: "silent",
+        configFile: new URL("../vite.config.ts", import.meta.url).pathname,
+        mode: "production",
+        build: { write: false, sourcemap: false, manifest: false },
+      });
+    } finally {
+      // A failed build must not leak NODE_ENV=production into the suites that run after this one.
+      if (previous === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = previous;
+      }
     }
     const outputs = (Array.isArray(result) ? result : [result]).flatMap((r) => ("output" in r ? r.output : []));
     const code = outputs.map((o) => (o.type === "chunk" ? o.code : "")).join("\n");

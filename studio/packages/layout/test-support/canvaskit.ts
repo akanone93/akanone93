@@ -11,10 +11,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { CanvasKit } from "canvaskit-wasm";
+import { defaultSource } from "../../../scripts/stage-canvaskit.ts";
 import { CanvasKitParagraphEngine } from "../src/text/canvaskit-engine.ts";
 
 /** The default CanvasKit directory: the web SDK of the pinned Flutter. */
-export const defaultCanvasKitDir = "/root/.cache/plux/flutter-3.47.5/bin/cache/flutter_web_sdk/canvaskit";
+export const defaultCanvasKitDir = defaultSource();
 
 const fontsDir = join(import.meta.dir, "../../../../schema/goldens/fonts");
 
