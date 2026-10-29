@@ -133,6 +133,30 @@ describe("[STU-003] canvas worker core", () => {
     expect(ofType(posted, "frame").at(-1)?.stats.idleQueue).toBe(0);
   });
 
+  test("[STU-045] idle tile work goes on past a frame a message asked for without changing anything", async () => {
+    const env = new TestEnvironment(ck);
+    const { core, posted } = start(env);
+    await core.receive(init({ tiles: true }));
+    await core.receive({ v, type: "patch", ops: [{ op: "add", item: box("a", 10, 10) }] });
+    for (const callback of env.frames.splice(0)) {
+      callback();
+    }
+    const queued = ofType(posted, "frame").at(-1)?.stats;
+    expect(queued?.idleQueue).toBeGreaterThan(0);
+    expect(env.idles.length).toBe(1);
+    // An empty patch only asks for a frame: the idle slice still renders, and the frame follows it.
+    await core.receive({ v, type: "patch", ops: [] });
+    for (const callback of env.idles.splice(0)) {
+      callback();
+    }
+    expect(env.frames.length).toBe(1);
+    for (const callback of env.frames.splice(0)) {
+      callback();
+    }
+    const next = ofType(posted, "frame").at(-1)?.stats;
+    expect(next?.tileRenders).toBeGreaterThan(queued?.tileRenders ?? 0);
+  });
+
   test("drag, resize and dispose", async () => {
     const env = new TestEnvironment(ck);
     const { core, posted } = start(env);

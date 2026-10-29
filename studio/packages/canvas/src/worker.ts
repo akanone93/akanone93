@@ -683,6 +683,25 @@ export class CanvasWorkerCore {
     }
   }
 
+  /**
+   * Whether a requested frame has something to draw or place, so idle work
+   * yields to it. A frame asked for by a message that changed nothing (an
+   * empty patch, a request for statistics) only reports them: idle work
+   * goes on, and the frame follows the slice, at most `IDLE_BUDGET_MS`
+   * later. Yielding to every such frame would leave idle work one slice
+   * per animation frame, and a drop would settle at that pace (M-13).
+   */
+  private frameWaits(running: Running): boolean {
+    return (
+      this.frameRequested &&
+      (running.baseDirty ||
+        running.dragging ||
+        running.layerChanged ||
+        running.gesture !== null ||
+        running.scene.hasDirty)
+    );
+  }
+
   private idleAfterFrame(running: Running): void {
     if (this.pacing) {
       return;
@@ -721,8 +740,9 @@ export class CanvasWorkerCore {
     if (!running) {
       return;
     }
-    if (this.frameRequested) {
-      // A message asked for a frame: idle work yields to it, and the frame asks for idle time again.
+    if (this.frameWaits(running)) {
+      // A message asked for a frame that changes what is shown: idle work yields to it, and the frame asks for idle
+      // time again.
       return;
     }
     if (running.recentreWhenIdle) {
@@ -732,7 +752,7 @@ export class CanvasWorkerCore {
       // The base jobs render the tiles the base needs; `jobDone` asks for idle time again when they finish.
       return;
     }
-    const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS, () => this.frameRequested);
+    const rendered = running.renderer.idle(this.deps.now() + IDLE_BUDGET_MS, () => this.frameWaits(running));
     if (running.renderer.patchesWaitForFrame) {
       // Patches are paced to one frame's budget per animation frame: idle time resumes them after the next one.
       this.idleAfterFrame(running);
