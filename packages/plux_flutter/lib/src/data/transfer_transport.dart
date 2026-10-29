@@ -19,7 +19,8 @@ import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/spec.dart' show TransferKind;
-import 'package:plux_flutter/src/data/transport.dart' show describeUrl;
+import 'package:plux_flutter/src/data/transport.dart'
+    show describeUrl, handshakeFailure;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 
 /// One transfer, built and checked on the UI isolate.
@@ -154,8 +155,8 @@ final class HttpTransferTransport implements TransferTransport {
       throw abort.isCompleted ? _cancelled() : _network(r.url, e.message);
     } on SocketException catch (e) {
       throw _network(r.url, e.osError?.message ?? 'connection failed');
-    } on HandshakeException {
-      throw _network(r.url, 'the TLS handshake failed');
+    } on HandshakeException catch (e) {
+      throw _network(r.url, handshakeFailure(e));
     } on HttpException catch (e) {
       throw _network(r.url, e.message);
     } on FileSystemException {

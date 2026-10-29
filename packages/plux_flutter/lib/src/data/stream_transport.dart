@@ -18,7 +18,8 @@ import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/sse.dart';
-import 'package:plux_flutter/src/data/transport.dart' show describeUrl;
+import 'package:plux_flutter/src/data/transport.dart'
+    show describeUrl, handshakeFailure;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/platform/pinned_http.dart';
 
@@ -200,8 +201,8 @@ final class SocketStreamTransport implements StreamTransport {
       throw _network(r.url, e.message);
     } on SocketException catch (e) {
       throw _network(r.url, e.osError?.message ?? 'connection failed');
-    } on HandshakeException {
-      throw _network(r.url, 'the TLS handshake failed');
+    } on HandshakeException catch (e) {
+      throw _network(r.url, handshakeFailure(e));
     } on HttpException catch (e) {
       throw _network(r.url, e.message);
     } on PluxException catch (e) {
@@ -231,8 +232,8 @@ final class SocketStreamTransport implements StreamTransport {
       throw _network(r.url, 'connecting took longer than the timeout');
     } on SocketException catch (e) {
       throw _network(r.url, e.osError?.message ?? 'connection failed');
-    } on HandshakeException {
-      throw _network(r.url, 'the TLS handshake failed');
+    } on HandshakeException catch (e) {
+      throw _network(r.url, handshakeFailure(e));
     } on http.ClientException catch (e) {
       throw _network(r.url, e.message);
     }
