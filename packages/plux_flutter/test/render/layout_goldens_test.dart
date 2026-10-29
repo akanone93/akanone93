@@ -98,18 +98,25 @@ Set<String> _testIds(Map<String, Object?> n, [Set<String>? into]) {
 }
 
 /// Compiles the pages into bundles with the Go CLI.
-Future<Map<String, Uint8List>> _compile(List<Map<String, Object?>> pages) async {
+Future<Map<String, Uint8List>> _compile(
+  List<Map<String, Object?>> pages,
+) async {
   final work = Directory.systemTemp.createTempSync('plux_l2');
   addTearDown(() => work.deleteSync(recursive: true));
   final project = Directory('${work.path}/project');
-  await Process.run('cp', ['-r', '../../schema/testdata/documents/widgets', project.path]);
+  await Process.run('cp', [
+    '-r',
+    '../../schema/testdata/documents/widgets',
+    project.path,
+  ]);
   final pagesDir = Directory('${project.path}/plugins/gallery/pages');
   for (final f in pagesDir.listSync()) {
     f.deleteSync();
   }
   Directory('${project.path}/components').deleteSync(recursive: true);
   for (var i = 0; i < pages.length; i++) {
-    File('${pagesDir.path}/scene$i.page.json').writeAsStringSync(jsonEncode(pages[i]));
+    File('${pagesDir.path}/scene$i.page.json')
+        .writeAsStringSync(jsonEncode(pages[i]));
   }
   void edit(String path, void Function(Map<String, Object?>) f) {
     final file = File('${project.path}/$path');
@@ -135,7 +142,8 @@ Future<Map<String, Uint8List>> _compile(List<Map<String, Object?>> pages) async 
   ) as Map<String, Object?>;
   ar['id'] = _uuid(0x90);
   ar['locale'] = 'ar';
-  File('${project.path}/translations/ar.json').writeAsStringSync(jsonEncode(ar));
+  File('${project.path}/translations/ar.json')
+      .writeAsStringSync(jsonEncode(ar));
   final binary = '${work.path}/plux';
   final built = await Process.run('go', [
     'build',
@@ -161,9 +169,9 @@ Future<void> _loadFonts() async {
     ('NotoNaskhArabic', 'NotoNaskhArabic_400Regular.ttf'),
   ]) {
     final bytes = File('../../schema/goldens/fonts/$file').readAsBytesSync();
-    (loaders[family] ??= FontLoader(family)).addFont(
-      Future.value(ByteData.sublistView(bytes)),
-    );
+    (loaders[family] ??= FontLoader(
+      family,
+    )).addFont(Future.value(ByteData.sublistView(bytes)));
   }
   for (final l in loaders.values) {
     await l.load();
@@ -172,14 +180,16 @@ Future<void> _loadFonts() async {
 
 void main() {
   final update = Platform.environment['UPDATE_GOLDENS'] == '1';
-  final files = Directory('$_suite/scenes')
-      .listSync()
-      .whereType<File>()
-      .where((f) => f.uri.pathSegments.last.startsWith('layer2-'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final files =
+      Directory('$_suite/scenes')
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.uri.pathSegments.last.startsWith('layer2-'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
   final scenes = [
-    for (final f in files) jsonDecode(f.readAsStringSync()) as Map<String, Object?>,
+    for (final f in files)
+      jsonDecode(f.readAsStringSync()) as Map<String, Object?>,
   ];
 
   testWidgets('Layer 2 layout goldens are current', (tester) async {
@@ -194,8 +204,11 @@ void main() {
     for (var i = 0; i < scenes.length; i++) {
       final name = scenes[i]['name']! as String;
       // Nodes a component does not build (the steps of a wizard but the shown one).
-      final unbuilt = {...?(scenes[i]['unbuilt'] as List<Object?>?)?.cast<String>()};
-      final ids = _testIds(scenes[i]['root']! as Map<String, Object?>)..removeAll(unbuilt);
+      final unbuilt = {
+        ...?(scenes[i]['unbuilt'] as List<Object?>?)?.cast<String>(),
+      };
+      final ids = _testIds(scenes[i]['root']! as Map<String, Object?>)
+        ..removeAll(unbuilt);
       for (final (dir, locale) in _directions) {
         tester.platformDispatcher.localeTestValue = Locale(locale);
         final h = await Harness.create();
@@ -231,7 +244,9 @@ void main() {
                     disableAnimations: true,
                   ),
                   child: Directionality(
-                    textDirection: dir == 'rtl' ? TextDirection.rtl : TextDirection.ltr,
+                    textDirection: dir == 'rtl'
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
                     child: child!,
                   ),
                 ),
@@ -248,7 +263,8 @@ void main() {
               final r = tester.getRect(finder.first);
               rects[id] = [r.left, r.top, r.width, r.height];
             }
-            final goldenName = '$name.$frame.$dir.${scale.toStringAsFixed(1)}.json';
+            final goldenName =
+                '$name.$frame.$dir.${scale.toStringAsFixed(1)}.json';
             expected.add(goldenName);
             final content =
                 '${const JsonEncoder.withIndent('  ').convert({
@@ -263,8 +279,18 @@ void main() {
             if (update) {
               golden.writeAsStringSync(content);
             } else {
-              expect(golden.existsSync(), isTrue, reason: '$goldenName is missing: run make studio-conformance-update');
-              expect(golden.readAsStringSync(), content, reason: '$goldenName is stale: run make studio-conformance-update');
+              expect(
+                golden.existsSync(),
+                isTrue,
+                reason:
+                    '$goldenName is missing: run make studio-conformance-update',
+              );
+              expect(
+                golden.readAsStringSync(),
+                content,
+                reason:
+                    '$goldenName is stale: run make studio-conformance-update',
+              );
             }
           }
         }
