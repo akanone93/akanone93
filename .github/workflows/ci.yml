@@ -655,8 +655,10 @@ jobs:
     if: fromJSON(needs.changes.outputs.jobs)['go-test']
     runs-on: ubuntu-latest
     # P9's integration tests took the race run past 20 minutes (run
-    # 39733923984 was cancelled in internal/server).
-    timeout-minutes: 30
+    # 39733923984 was cancelled in internal/server), and P11's past 30
+    # (run 40803068694: every package passed, devsession, release and api
+    # took 8 to 9 minutes each under the race detector).
+    timeout-minutes: ${{ matrix.minutes }}
     permissions:
       contents: read
     strategy:
@@ -665,8 +667,10 @@ jobs:
         include:
           - part: race detector
             target: go-test-race
+            minutes: 45
           - part: coverage
             target: go-cover
+            minutes: 30
     # Integration tests run against real infrastructure, never fakes
     # (QA-005). Without PLUX_TEST_DATABASE_URL they skip, so the same
     # command is useful on a developer's machine.
