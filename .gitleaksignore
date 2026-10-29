@@ -12,7 +12,7 @@ ee/backend/internal/stdwebhook/testdata/standard_webhooks_vectors.json:generic-a
 9621a540dfb4385443450440be837fdcbb059881:ee/backend/internal/stdwebhook/testdata/standard_webhooks_vectors.json:generic-api-key:3
 # Studio BFF test fixtures (P11): base64 of "0123456789abcdef0123456789abcdef"
 # and "e2e-test-state-secret-not-for-production", test-only state secrets.
-70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/apps/bff/src/signin.test.ts:generic-api-key:63
-70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/apps/bff/src/signin.test.ts:generic-api-key:175
-70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/apps/bff/src/bff.test.ts:generic-api-key:14
-70d77e5a496758b99ccc2bdd43c057ad7c5560dc:studio/e2e/playwright.config.ts:generic-api-key:40
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/apps/bff/src/signin.test.ts:generic-api-key:63
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/apps/bff/src/signin.test.ts:generic-api-key:175
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/apps/bff/src/bff.test.ts:generic-api-key:14
+1f4bfa77d191496de6e8ebf3e17dcb0522bb2bb9:studio/e2e/playwright.config.ts:generic-api-key:40
