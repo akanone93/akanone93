@@ -293,11 +293,19 @@ describe("[STU-002] [SRV-007] API proxy", () => {
     expect(
       [
         ...filterRequestHeaders(
-          new Headers({ "Idempotency-Key": "k", Traceparent: "t", Accept: "a", Host: "h" }),
+          new Headers({
+            "Idempotency-Key": "k",
+            Traceparent: "t",
+            Accept: "a",
+            "Accept-Encoding": "gzip",
+            Host: "h",
+          }),
         ).keys(),
       ].sort(),
     ).toEqual(["accept", "idempotency-key", "traceparent"]);
     expect(filterResponseHeaders(new Headers({ "Grpc-Status": "0", Server: "x" })).get("server")).toBeNull();
+    // The upstream body arrives decoded, so its Content-Encoding must not reach the browser.
+    expect(filterResponseHeaders(new Headers({ "Content-Encoding": "gzip" })).get("content-encoding")).toBeNull();
   });
   test("a chunked upstream response is streamed chunk by chunk", async () => {
     const res = await mk().app.request("/api/stream", { headers: { Accept: "text/event-stream" } });

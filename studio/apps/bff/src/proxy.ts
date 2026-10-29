@@ -9,16 +9,11 @@ const requestAllow = [
   "idempotency-key",
   "traceparent",
 ];
+// Accept-Encoding stays here: Bun's fetch decodes a compressed upstream body, so the body the
+// BFF passes on is never encoded, and it carries no Content-Encoding.
 const requestPrefixes = ["connect-", "accept"];
-const responseAllow = [
-  "content-type",
-  "content-encoding",
-  "cache-control",
-  "retry-after",
-  "grpc-status",
-  "grpc-message",
-  "trailer",
-];
+const requestDeny = ["accept-encoding"];
+const responseAllow = ["content-type", "cache-control", "retry-after", "grpc-status", "grpc-message", "trailer"];
 const responsePrefixes = ["connect-", "grpc-"];
 const sessionCookie = "__Host-plux_session=";
 
@@ -34,7 +29,7 @@ export function filterRequestHeaders(src: Headers): Headers {
       if (session !== undefined) {
         out.set("cookie", session);
       }
-    } else if (requestAllow.includes(k) || requestPrefixes.some((p) => k.startsWith(p))) {
+    } else if (!requestDeny.includes(k) && (requestAllow.includes(k) || requestPrefixes.some((p) => k.startsWith(p)))) {
       out.set(k, v);
     }
   }
