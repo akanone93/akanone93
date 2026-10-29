@@ -29,6 +29,40 @@ export interface BrowserScope {
   setTimeout(callback: () => void, ms: number): unknown;
   readonly performance: { now(): number };
   readonly OffscreenCanvas?: new (width: number, height: number) => ProbeCanvas;
+  readonly MessageChannel?: new () => MessageChannelLike;
+}
+
+/** The parts of a `MessageChannel` idle slices are scheduled through. */
+interface MessageChannelLike {
+  readonly port1: { onmessage: (() => void) | null };
+  readonly port2: { postMessage(message: unknown): void };
+}
+
+/**
+ * Schedules idle slices as tasks posted through a `MessageChannel`, which,
+ * unlike `setTimeout(callback, 0)`, browsers do not clamp to 4 ms once
+ * timeouts nest five deep: a chain of slices would otherwise lose 3–4 ms
+ * before each 8 ms slice, a third of the throughput the work after a drop
+ * drains at (M-13). Frames still run between the tasks, and idle work yields
+ * to a frame that has something to draw. Falls back to `setTimeout` without
+ * one.
+ */
+function idleScheduler(scope: BrowserScope): (callback: () => void) => void {
+  const Channel = scope.MessageChannel;
+  if (!Channel) {
+    return (callback) => {
+      scope.setTimeout(callback, 0);
+    };
+  }
+  const channel = new Channel();
+  const queued: (() => void)[] = [];
+  channel.port1.onmessage = () => {
+    queued.shift()?.();
+  };
+  return (callback) => {
+    queued.push(callback);
+    channel.port2.postMessage(null);
+  };
 }
 
 type SurfaceTarget = Parameters<CanvasKit["MakeSWCanvasSurface"]>[0];
@@ -164,9 +198,7 @@ export function browserWorkerDeps(scope: BrowserScope, loadCanvasKit: () => Prom
     requestFrame: (callback) => {
       scope.requestAnimationFrame(() => callback());
     },
-    requestIdle: (callback) => {
-      scope.setTimeout(callback, 0);
-    },
+    requestIdle: idleScheduler(scope),
     probeGl: () => probe(scope),
     makeSurface: surfaceOn,
     watchContext: watchCanvasContext,
