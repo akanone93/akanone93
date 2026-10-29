@@ -712,6 +712,17 @@ jobs:
         run: |
           psql -h 127.0.0.1 -U postgres -d plux_test -v ON_ERROR_STOP=1 -c \
             "CREATE ROLE plux LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'plux'; GRANT CONNECT, CREATE, TEMPORARY ON DATABASE plux_test TO plux; ALTER SCHEMA public OWNER TO plux;"
+      # The database lives only for this job, and every test migrates a
+      # schema of its own: without durability the checkpoints that took
+      # minutes per test run no longer hold the tests up.
+      - name: Tune the throwaway test database for speed
+        env:
+          PGPASSWORD: postgres
+        run: |
+          for setting in "fsync = off" "full_page_writes = off" "synchronous_commit = off" "max_wal_size = '4GB'" "checkpoint_timeout = '30min'"; do
+            psql -h 127.0.0.1 -U postgres -d plux_test -v ON_ERROR_STOP=1 -c "ALTER SYSTEM SET $setting"
+          done
+          psql -h 127.0.0.1 -U postgres -d plux_test -v ON_ERROR_STOP=1 -c "SELECT pg_reload_conf()"
       # Verifies: QA-001.
       - name: Tests with the race detector, or with coverage floors
         env:
