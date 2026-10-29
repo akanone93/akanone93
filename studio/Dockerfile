@@ -47,7 +47,11 @@ RUN bun install --frozen-lockfile \
 FROM oven/bun:1.3.11-slim@sha256:478281fdd196871c7e51ba6a820b7803a8ae97042ec86cdbc2e1c6b6626442d9 AS prod
 WORKDIR /src/studio
 COPY studio/ ./
-RUN bun install --frozen-lockfile --production
+# The .bin launchers are not used at run time (the entry point runs Bun
+# directly), and bun install links them in an order that varies between
+# builds (CI-006).
+RUN bun install --frozen-lockfile --production \
+ && find node_modules -name .bin -prune -exec rm -rf {} +
 COPY scripts/release/js-notices.sh /src/scripts/release/
 RUN sh /src/scripts/release/js-notices.sh node_modules /out/notices
 

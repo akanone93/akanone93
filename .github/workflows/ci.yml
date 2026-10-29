@@ -2217,8 +2217,15 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
       - run: flutter precache --web
+      # The output goes to a file first: Bun fails a large write into a slow
+      # pipe (WriteFailed), which a coverage table through tee triggers.
       - name: Install (frozen lockfile), lint, type-check, test with coverage floors
-        run: make studio-check | tee -a "$GITHUB_STEP_SUMMARY"
+        run: |
+          status=0
+          make studio-check > "$RUNNER_TEMP/studio-check.log" 2>&1 || status=$?
+          cat "$RUNNER_TEMP/studio-check.log"
+          tail -n 300 "$RUNNER_TEMP/studio-check.log" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
   # Studio's layout conformance against Flutter's goldens (STU-005).
   studio-conformance:
