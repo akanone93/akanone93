@@ -52,4 +52,8 @@ builder:
     limits: {memory: 2Gi}
 
 studio:
+  # The kind jobs test the server; the Studio image is published only with a
+  # release, and the Compose jobs (studio-e2e, zap-studio) and
+  # studio-image-repro cover it.
+  enabled: false
   publicBaseUrl: https://studio.example.com

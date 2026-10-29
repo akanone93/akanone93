@@ -140,6 +140,9 @@ function named(root: Document | Element, name: string): Element[] {
 }
 
 function parseXliff(text: string): ParseResult {
+  // The file is parsed as XML into a detached document that is only read: nothing of it is inserted into the page,
+  // and XML parsing runs no script.
+  // codeql[js/xss-through-dom]
   const doc = new DOMParser().parseFromString(text, "application/xml");
   if (doc.getElementsByTagName("parsererror").length > 0 || doc.documentElement.localName !== "xliff") {
     return malformed;

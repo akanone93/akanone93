@@ -45,6 +45,8 @@ export function securityHeaders(nonce: string, opts: SecurityOptions): Record<st
     "Referrer-Policy": "no-referrer",
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Resource-Policy": "same-origin",
+    // Every subresource is Studio's own, so nothing cross-origin is embedded.
+    "Cross-Origin-Embedder-Policy": "require-corp",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
   };
   if (opts.https) {

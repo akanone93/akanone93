@@ -378,7 +378,8 @@ func nextFrame(buf []byte, limit int64) (body, rest []byte, ok bool, err error) 
 	for line := range strings.SplitSeq(string(buf[:end]), "\r\n") {
 		name, value, found := strings.Cut(line, ":")
 		if found && strings.EqualFold(strings.TrimSpace(name), "Content-Length") {
-			n, perr := strconv.ParseInt(strings.TrimSpace(value), 10, 64)
+			// 32 bits bound the length before the int conversion below.
+			n, perr := strconv.ParseInt(strings.TrimSpace(value), 10, 32)
 			if perr != nil || n < 0 {
 				return nil, nil, false, errors.New("builder: a message has no valid Content-Length")
 			}

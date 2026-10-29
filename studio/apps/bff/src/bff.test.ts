@@ -190,6 +190,7 @@ describe("[SEC-101] [STU-002] security headers", () => {
       expect(h.get("referrer-policy")).toBe("no-referrer");
       expect(h.get("cross-origin-opener-policy")).toBe("same-origin");
       expect(h.get("cross-origin-resource-policy")).toBe("same-origin");
+      expect(h.get("cross-origin-embedder-policy")).toBe("require-corp");
       expect(h.get("permissions-policy")).toContain("camera=()");
     }
   });

@@ -91,10 +91,12 @@ export function removeDependency(manifest: string, name: string): string {
   if (span === undefined) {
     return manifest;
   }
-  const pattern = new RegExp(`^\\s*${name.replace(/[-]/g, "\\-")}\\s*=`);
   const kept = manifest
     .slice(span.start, span.end)
     .split("\n")
-    .filter((l) => !pattern.test(l));
+    .filter((l) => {
+      const at = l.indexOf("=");
+      return at < 0 || l.slice(0, at).trim() !== name;
+    });
   return manifest.slice(0, span.start) + kept.join("\n") + manifest.slice(span.end);
 }

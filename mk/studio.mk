@@ -141,4 +141,5 @@ studio-image-repro: studio-image-inputs ## Build the Studio image twice and fail
 			--output type=oci,dest=build/studio-image-$$n.tar,rewrite-timestamp=true . || exit 1; \
 	done
 	@a=$$(tar -xOf build/studio-image-1.tar index.json | sha256sum); b=$$(tar -xOf build/studio-image-2.tar index.json | sha256sum); \
-	if [ "$$a" = "$$b" ]; then echo "✓ Studio image reproducible"; else echo "✗ Studio image digests differ"; exit 1; fi
+	if [ "$$a" = "$$b" ]; then echo "✓ Studio image reproducible"; else echo "✗ Studio image digests differ"; \
+		scripts/release/oci-diff.sh build/studio-image-1.tar build/studio-image-2.tar; exit 1; fi

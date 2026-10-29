@@ -550,6 +550,10 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0 # the permanent-ID lock is compared with the base commit's
+      # make gen also generates the Studio API client, with Bun.
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
@@ -2193,7 +2197,7 @@ jobs:
     needs: changes
     if: fromJSON(needs.changes.outputs.jobs)['studio']
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
@@ -2207,6 +2211,12 @@ jobs:
         with:
           go-version-file: backend/go.mod
           cache: false
+      # The canvas and layout tests load the pinned CanvasKit of this SDK.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter precache --web
       - name: Install (frozen lockfile), lint, type-check, test with coverage floors
         run: make studio-check | tee -a "$GITHUB_STEP_SUMMARY"
 
@@ -2259,6 +2269,9 @@ jobs:
           cache: true
       # The Studio image takes the pinned CanvasKit from this SDK (make studio-image-inputs).
       - run: flutter precache --web
+      - run: make studio-install
+      # The browser of the pinned @playwright/test.
+      - run: cd studio && bunx playwright install --with-deps chromium
       - name: Build and start the single-node stack, Studio included
         run: make compose-up
       - name: Run the end-to-end tests
@@ -2297,7 +2310,15 @@ jobs:
         with:
           go-version-file: backend/go.mod
           cache: false
+      # The canvas benchmark and the built app load the pinned CanvasKit of this SDK.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter precache --web
       - run: make studio-install
+      # The browser of the pinned @playwright/test.
+      - run: cd studio && bunx playwright install --with-deps chromium
       - name: Run the canvas benchmark
         run: make studio-bench-canvas
       - name: Run the overlay benchmark
