@@ -8,11 +8,11 @@
 
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
+import { defaultSource } from "../../../scripts/stage-canvaskit.ts";
 import { type Summary, violations } from "./budgets.ts";
 
 const root = import.meta.dir;
-const canvasKitDir =
-  process.env.PLUX_CANVASKIT_DIR ?? "/root/.cache/plux/flutter-3.47.5/bin/cache/flutter_web_sdk/canvaskit";
+const canvasKitDir = defaultSource();
 const font = join(root, "../../../../schema/goldens/fonts/NotoSans_400Regular.ttf");
 
 async function bundle(entry: string): Promise<string> {

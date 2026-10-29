@@ -26,10 +26,8 @@ Object.assign(globalThis, native);
 Bun.plugin({
   name: "vite-worker-url",
   setup(build) {
-    build.onResolve({ filter: /\?worker&url$/ }, (args) => ({ path: args.path, namespace: "vite-worker-url" }));
-    build.onLoad({ filter: /.*/, namespace: "vite-worker-url" }, () => ({
-      contents: 'export default "/assets/canvas-worker-test.js";',
-      loader: "js",
+    build.onResolve({ filter: /\?worker&url$/ }, () => ({
+      path: new URL("./test-worker-url.ts", import.meta.url).pathname,
     }));
   },
 });

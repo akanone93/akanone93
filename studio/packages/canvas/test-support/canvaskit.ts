@@ -10,12 +10,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { CanvasKit } from "canvaskit-wasm";
+import { defaultSource } from "../../../scripts/stage-canvaskit.ts";
 import type { LinkSpec, RectSpec, TextSpec } from "../src/protocol.ts";
 import type { GlProbe } from "../src/select.ts";
 import type { WorkerDeps } from "../src/worker.ts";
 
 /** The CanvasKit of the pinned Flutter SDK. */
-export const defaultCanvasKitDir = "/root/.cache/plux/flutter-3.47.5/bin/cache/flutter_web_sdk/canvaskit";
+export const defaultCanvasKitDir = defaultSource();
 
 /** Loads CanvasKit from `PLUX_CANVASKIT_DIR` (default [defaultCanvasKitDir]). */
 export async function loadCanvasKit(): Promise<CanvasKit> {
