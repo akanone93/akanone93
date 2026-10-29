@@ -1432,6 +1432,12 @@ msgstr "Erlaubt"
 msgid "notify.mute.locked"
 msgstr "Immer aktiv"
 
+#. Accessible description of the animated picture beside the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.hero.scene"
+msgstr "Ein App-Bildschirm, in seine Ebenen zerlegt"
+
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -1659,6 +1665,12 @@ msgstr "Übernehmen"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.apply"
 msgstr "Anwenden"
+
+#. Button of the sample app screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.apply"
+msgstr "Beantragen"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -3867,6 +3879,12 @@ msgstr "Beschreibung"
 #: apps/web/src/features/shell/app-nav.messages.ts
 msgid "appnav.design"
 msgstr "Design"
+
+#. First line of the large headline of the sign-in page. Keep it short: about 16 characters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.hero.line-one"
+msgstr "Hier gestalten."
 
 #. Accessible name of the navigation between the pages of the Design system area.
 #. js-lingui-explicit-id
@@ -6978,6 +6996,12 @@ msgstr "Liste"
 msgid "panels.literal"
 msgstr "Festwert"
 
+#. Second line of the large headline: the screens reach every device. About 16 characters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.hero.line-two"
+msgstr "Überall live."
+
 #. Checkbox that makes screen readers announce changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -7139,6 +7163,12 @@ msgstr "Wird geladen …"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.loading"
 msgstr "Wird geladen …"
+
+#. Title of the sample app screen drawn in the sign-in picture.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.title"
+msgstr "Kreditrechner"
 
 #. Label of the preview locale select.
 #. js-lingui-explicit-id
@@ -7529,6 +7559,12 @@ msgstr "Modi"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceModule"
 msgstr "Modul-Hash"
+
+#. Label of the monthly payment in the sample app screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.monthly"
+msgstr "Monatlich"
 
 #. Label of the field that lists further primary metrics.
 #. js-lingui-explicit-id
@@ -9538,6 +9574,12 @@ msgstr "Plugins auf der Arbeitsfläche"
 #. js-lingui-explicit-id
 #: apps/web/src/shell.messages.ts
 msgid "shell.app.title"
+msgstr "Plux Studio"
+
+#. Product name in the corner of the sign-in page; translate only if the product name is localised.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.hero.wordmark"
 msgstr "Plux Studio"
 
 #. Explains why the browser cannot run Studio.
@@ -11922,6 +11964,12 @@ msgstr "Anmeldungen von Personen dieser Organisation. Widerrufen meldet die Sitz
 msgid "admin.colSigned"
 msgstr "Signiert"
 
+#. Badge on the sample app screen: the release is signed. {version} is a version number.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.signed"
+msgstr "Signiert · v{version}"
+
 #. Says the version carries a builder signature.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -12515,6 +12563,12 @@ msgstr "Stärkere Geräteprüfungen und verschlüsselte lokale Speicher. Zwei Pe
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replaysCaption"
 msgstr "Strukturelle Aufzeichnungen von Sitzungen, deren Freigabe Nutzer zugestimmt haben. Sie enthalten Bildschirme, Layout, Tippen und unkritische Werte, nie Text oder Bilder."
+
+#. Sentence under the headline of the sign-in page, saying what Plux Studio does.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.hero.lead"
+msgstr "Studio baut die Bildschirme, die Ihre Flutter-Apps laden, prüfen und nativ darstellen – ohne Store-Release."
 
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id
@@ -15486,6 +15540,12 @@ msgstr "Du bist offline. Es wurde nichts geändert; versuche es erneut, sobald d
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.signedout.title"
 msgstr "Sie sind abgemeldet"
+
+#. Label above the amount in the sample app screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.borrow"
+msgstr "Sie leihen"
 
 #. Note under the security profiles.
 #. js-lingui-explicit-id

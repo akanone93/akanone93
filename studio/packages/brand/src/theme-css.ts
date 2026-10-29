@@ -11,10 +11,12 @@
 import {
   arabicAdjustedRoles,
   arabicLineHeightExtra,
+  breakpoints,
   densityTokens,
   dialogWidths,
   elevations,
   fontFamilies,
+  fontWeights,
   iconSizes,
   motion,
   radii,
@@ -53,6 +55,9 @@ for (const role of typeRoles) {
   sizeTokens[role.key] = { light: `${role.size}px`, dark: `${role.size}px` };
   sizeTokens[`${role.key}--line-height`] = { light: `${role.line}px`, dark: `${role.line}px` };
   sizeTokens[`${role.key}--font-weight`] = { light: `${role.weight}`, dark: `${role.weight}` };
+  if (role.tracking !== undefined) {
+    sizeTokens[`${role.key}--letter-spacing`] = { light: `${role.tracking}em`, dark: `${role.tracking}em` };
+  }
 }
 
 /** The token families the stylesheet is built from, in output order. */
@@ -62,7 +67,9 @@ const tokenFamilies: readonly TokenFamily[] = [
   { namespace: "shadow", tokens: themed(elevations) },
   { namespace: "spacing", tokens: fixed({ ...space, ...iconSizes }) },
   { namespace: "container", tokens: fixed(dialogWidths) },
+  { namespace: "breakpoint", tokens: fixed(breakpoints) },
   { namespace: "font", tokens: fixed(fontFamilies) },
+  { namespace: "font-weight", tokens: fixed(fontWeights) },
   { namespace: "text", tokens: sizeTokens },
   { namespace: "duration", tokens: fixed(motion.durations) },
   { namespace: "ease", tokens: fixed(motion.easings) },
@@ -116,9 +123,14 @@ function densityDeclarations(density: "compact" | "comfortable"): string[] {
 }
 
 function arabicDeclarations(): string[] {
-  return typeRoles
+  const lineHeights = typeRoles
     .filter((role) => arabicAdjustedRoles.has(role.key))
     .map((role) => `  --text-${role.key}--line-height: ${role.line + arabicLineHeightExtra}px;`);
+  // Arabic letters join: negative tracking would pull them apart (U7.3).
+  const tracking = typeRoles
+    .filter((role) => role.tracking !== undefined)
+    .map((role) => `  --text-${role.key}--letter-spacing: 0em;`);
+  return [...lineHeights, ...tracking];
 }
 
 function reducedMotionDeclarations(): string[] {
@@ -143,6 +155,12 @@ export function themeCss(): string {
     "@theme static {",
     "  --*: initial;",
     ...declarations("light"),
+    "  --animate-spin: spin 0.8s linear infinite;",
+    "  @keyframes spin {",
+    "    to {",
+    "      transform: rotate(360deg);",
+    "    }",
+    "  }",
     "}",
     "",
     ":root {",
@@ -184,12 +202,16 @@ export function themeCss(): string {
     "  :root {",
     "    --surface-glass-fill: var(--surface-glass-solid);",
     "    --surface-glass-backdrop: none;",
+    "    --surface-glass-deep-backdrop: none;",
+    "    --surface-glass-sheen: none;",
     "  }",
     "}",
     "",
     "[data-transparency=reduced] {",
     "  --surface-glass-fill: var(--surface-glass-solid);",
     "  --surface-glass-backdrop: none;",
+    "  --surface-glass-deep-backdrop: none;",
+    "  --surface-glass-sheen: none;",
     "}",
     "",
     "@utility glass {",
@@ -199,6 +221,18 @@ export function themeCss(): string {
     "    inset 0 0 0 1px var(--surface-glass-inner),",
     "    0 0 0 1px var(--surface-glass-outer),",
     "    var(--shadow-e2);",
+    "}",
+    "",
+    "/* U3.4 deep glass: the hero surfaces of the public pages; a stronger blur, a light sheen, a floating shadow. */",
+    "@utility glass-deep {",
+    "  background-color: var(--surface-glass-fill);",
+    "  background-image: var(--surface-glass-sheen);",
+    "  backdrop-filter: var(--surface-glass-deep-backdrop);",
+    "  box-shadow:",
+    "    inset 0 1px 0 0 var(--surface-glass-inner),",
+    "    inset 0 0 0 1px var(--surface-glass-inner),",
+    "    0 0 0 1px var(--surface-glass-outer),",
+    "    var(--shadow-float);",
     "}",
     "",
     "/* U13: every animation becomes an instant change. */",

@@ -230,6 +230,13 @@ export const semanticColors: readonly SemanticColor[] = [
     dark: violet.dark,
     contrast: primitives["violet.700"],
   },
+  // U16.2 the tint of the sign-in picture: its screen and the light under it; decorative, never
+  // under text, so it carries no contrast pair. The contrast theme has none.
+  { name: "hero.tint", key: "hero-tint", light: "#B9A8FF", dark: "#4B2FD6", contrast: "transparent" },
+  // U16.2 the liquid form: violet into sky into rose, deeper in the dark theme.
+  { name: "hero.liquidA", key: "hero-liquid-a", light: "#7B5CFF", dark: "#5B3DF5", contrast: "transparent" },
+  { name: "hero.liquidB", key: "hero-liquid-b", light: "#62B6FF", dark: "#2D6BFF", contrast: "transparent" },
+  { name: "hero.liquidC", key: "hero-liquid-c", light: "#FF9AD0", dark: "#B83E8C", contrast: "transparent" },
 ];
 
 /** A scalar token with a theme-dependent value (shadows, glass, strokes). */
@@ -245,6 +252,8 @@ export const radii: Readonly<Record<string, { readonly name: string; readonly va
   md: { name: "radius.md", value: "12px" },
   lg: { name: "radius.lg", value: "18px" },
   xl: { name: "radius.xl", value: "24px" },
+  "2xl": { name: "radius.2xl", value: "32px" },
+  "3xl": { name: "radius.3xl", value: "44px" },
   full: { name: "radius.full", value: "9999px" },
 };
 
@@ -287,6 +296,20 @@ export const elevations: readonly ThemedScalar[] = [
     light: "0 6px 16px -6px rgba(91,61,245,.60)",
     dark: "0 6px 16px -6px rgba(139,116,255,.60)",
     contrast: "0 0 0 2px #11142A",
+  },
+  {
+    name: "elevation.soft",
+    key: "soft",
+    light: "0 1px 2px rgba(17,20,42,.04), 0 12px 32px -16px rgba(48,34,150,.16)",
+    dark: `0 1px 2px rgba(0,0,0,.20), 0 12px 32px -16px rgba(0,0,0,.50), ${darkEdge}`,
+    contrast: "0 0 0 2px rgb(17,20,42)",
+  },
+  {
+    name: "elevation.float",
+    key: "float",
+    light: "0 2px 6px rgba(17,20,42,.04), 0 32px 80px -32px rgba(48,34,150,.28)",
+    dark: `0 2px 6px rgba(0,0,0,.24), 0 32px 80px -32px rgba(0,0,0,.70), ${darkEdge}`,
+    contrast: "0 0 0 2px rgb(17,20,42)",
   },
   {
     name: "elevation.4",
@@ -335,6 +358,20 @@ export const surfaceScalars: readonly ThemedScalar[] = [
     contrast: "#11142A",
   },
   {
+    name: "glass.deepBackdrop",
+    key: "glass-deep-backdrop",
+    light: "blur(40px) saturate(190%)",
+    dark: "blur(40px) saturate(150%)",
+    contrast: "none",
+  },
+  {
+    name: "glass.sheen",
+    key: "glass-sheen",
+    light: "linear-gradient(160deg, rgba(255,255,255,.70), rgba(255,255,255,.20) 40%, rgba(255,255,255,.04))",
+    dark: "linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.03) 40%, rgba(255,255,255,0))",
+    contrast: "none",
+  },
+  {
     name: "scrim.fill",
     key: "scrim-fill",
     light: "rgba(17,20,42,.24)",
@@ -361,6 +398,8 @@ export const space: Readonly<Record<string, string>> = {
   "10": "40px",
   "12": "48px",
   "16": "64px",
+  "20": "80px",
+  "24": "96px",
 };
 
 /** U8 icon sizes (12 px in pills, 14 px in tabs, fields and tables, 17 px in capsules), keyed `icon-<size>`. */
@@ -375,6 +414,18 @@ export const dialogWidths: Readonly<Record<string, string>> = {
   "dialog-sm": "400px",
   "dialog-md": "560px",
   "dialog-lg": "800px",
+  // The public pages (U9.4): the sign-in column and the width of the whole page.
+  "auth-form": "400px",
+  page: "1280px",
+};
+
+/** U9.5 viewport breakpoints, keyed by the Tailwind variant (`md:`, `lg:`); the theme resets Tailwind's own. */
+export const breakpoints: Readonly<Record<string, string>> = {
+  sm: "640px",
+  md: "768px",
+  lg: "1024px",
+  xl: "1280px",
+  "2xl": "1536px",
 };
 
 /** U6 density sets. */
@@ -401,8 +452,8 @@ export const densityTokens: readonly DensityToken[] = [
 
 /** U13 motion; `ease.standard` is the only easing. */
 export const motion = {
-  durations: { fast: "140ms", base: "180ms", enter: "420ms", bundle: "220ms" },
-  easings: { standard: "cubic-bezier(0.2, 0, 0, 1)" },
+  durations: { fast: "140ms", base: "180ms", enter: "420ms", bundle: "220ms", slow: "720ms" },
+  easings: { standard: "cubic-bezier(0.2, 0, 0, 1)", emphasized: "cubic-bezier(0.16, 1, 0.3, 1)" },
 } as const;
 
 /** U7 font families; the Arabic faces follow the Latin ones so each script falls through (M-1). */
@@ -413,6 +464,13 @@ export const fontFamilies = {
   wordmark: '"Sora", system-ui, sans-serif',
 } as const;
 
+/** U7 font weights, keyed by the Tailwind suffix (`font-medium`); the theme resets Tailwind's own. */
+export const fontWeights: Readonly<Record<string, string>> = {
+  normal: "400",
+  medium: "500",
+  semibold: "600",
+};
+
 /** A U7 type role. */
 export interface TypeRole {
   /** The Tailwind key: `text-<key>` sets size, line height and weight. */
@@ -422,6 +480,8 @@ export interface TypeRole {
   readonly size: number;
   readonly line: number;
   readonly weight: number;
+  /** Letter spacing in em, for the display roles only. */
+  readonly tracking?: number;
 }
 
 /**
@@ -429,6 +489,11 @@ export interface TypeRole {
  * 500, caption 12 / 16 at 400, tag 10 / 12 at 500 (the data role uses 400).
  */
 export const typeRoles: readonly TypeRole[] = [
+  // U7.3 the public pages: one very large sans headline and its lead sentence.
+  { key: "display", name: "type.display", family: "sans", size: 72, line: 72, weight: 600, tracking: -0.04 },
+  { key: "lead", name: "type.lead", family: "sans", size: 19, line: 28, weight: 400, tracking: -0.01 },
+  { key: "display-sm", name: "type.displaySmall", family: "sans", size: 44, line: 46, weight: 600, tracking: -0.035 },
+  { key: "control", name: "type.control", family: "sans", size: 16, line: 22, weight: 400 },
   { key: "screen", name: "type.screen", family: "serif", size: 26, line: 28, weight: 400 },
   { key: "title", name: "type.title", family: "serif", size: 24, line: 26, weight: 400 },
   { key: "plugin", name: "type.plugin", family: "serif", size: 19, line: 22, weight: 400 },
@@ -456,10 +521,12 @@ export function tokenCount(): number {
     Object.keys(space).length +
     Object.keys(iconSizes).length +
     Object.keys(dialogWidths).length +
+    Object.keys(breakpoints).length +
     densityTokens.length +
     Object.keys(motion.durations).length +
     Object.keys(motion.easings).length +
     typeRoles.length +
-    Object.keys(fontFamilies).length
+    Object.keys(fontFamilies).length +
+    Object.keys(fontWeights).length
   );
 }

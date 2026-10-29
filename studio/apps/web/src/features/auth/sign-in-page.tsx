@@ -8,12 +8,14 @@ import { Button, Field, Input } from "@plux/ui";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
+import { domAnimation, LazyMotion, m as motion, useReducedMotion } from "motion/react";
 import { type ReactNode, useMemo, useState } from "react";
 import { forgetUser, safeNext } from "../../lib/guards.ts";
 import type { Session } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { authMessages } from "./auth.messages.ts";
 import { codeSchema, signInSchema } from "./auth.schema.ts";
+import { HeroScene } from "./hero-scene.tsx";
 import { getAssertion } from "./webauthn.ts";
 
 type Messages = ReturnType<typeof authMessages>;
@@ -28,6 +30,91 @@ function FormError({ children }: { children: ReactNode }) {
     <p role="alert" className="text-body text-danger">
       {children}
     </p>
+  );
+}
+
+const enter = [0.16, 1, 0.3, 1] as const;
+
+/** Headline words that rise out of a blur, one after another (U13.4). */
+function RisingWords({ text, from, className }: { text: string; from: number; className?: string }) {
+  const reduced = useReducedMotion() === true;
+  return (
+    <span className={className}>
+      {text.split(" ").map((word, i) => (
+        <motion.span
+          // biome-ignore lint/suspicious/noArrayIndexKey: the words of a fixed sentence keep their order
+          key={i}
+          className="inline-block whitespace-pre"
+          initial={reduced ? false : { opacity: 0, y: "0.45em", filter: "blur(12px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1.1, ease: enter, delay: reduced ? 0 : 0.1 + (from + i) * 0.07 }}
+        >
+          {`${word} `}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+/** Fades a block up into place after the headline (U13.4). */
+function Rise({ delay, children, className }: { delay: number; children: ReactNode; className?: string }) {
+  const reduced = useReducedMotion() === true;
+  return (
+    <motion.div
+      className={className}
+      initial={reduced ? false : { opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, ease: enter, delay: reduced ? 0 : delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/**
+ * The sign-in page (U16.2), composed like a product page: the promise in large type, the exploded
+ * app screen standing in the middle, and the form on deep glass floating over its foot. The layers
+ * of the picture come together while the form has focus.
+ */
+function SignInFrame({ children }: { children: ReactNode }) {
+  const { i18n } = useLingui();
+  const m = authMessages(i18n);
+  const [focused, setFocused] = useState(false);
+  const lineOne = m.heroLineOne;
+  return (
+    <LazyMotion features={domAnimation} strict>
+      <div className="mx-auto flex min-h-screen w-full max-w-page flex-col px-6 lg:px-10">
+        <header className="flex h-16 shrink-0 items-center">
+          <span className="font-wordmark text-section font-semibold">{m.wordmark}</span>
+        </header>
+        <main className="flex flex-1 flex-col items-center pb-10 text-center">
+          <h1 className="signin-title mt-2 text-display-sm lg:text-display">
+            <RisingWords text={lineOne} from={0} />
+            <RisingWords text={m.heroLineTwo} from={lineOne.split(" ").length} className="text-tertiary" />
+          </h1>
+          <Rise delay={0.55} className="mt-4 max-w-dialog-md">
+            <p className="text-lead text-secondary">{m.heroLead}</p>
+          </Rise>
+          <div className="signin-stage mt-12 w-full">
+            <HeroScene together={focused} />
+          </div>
+          <Rise delay={0.9} className="signin-card relative -mt-12 w-full max-w-auth-form text-start">
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: focus is only observed, to move the picture; the controls inside handle input */}
+            <div
+              className="glass-deep rounded-2xl p-8"
+              onFocus={() => setFocused(true)}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) {
+                  setFocused(false);
+                }
+              }}
+            >
+              {children}
+            </div>
+          </Rise>
+        </main>
+      </div>
+    </LazyMotion>
   );
 }
 
@@ -68,81 +155,93 @@ export function SignInPage() {
 
   if (challenge !== null) {
     return (
-      <FactorStep
-        m={m}
-        challenge={challenge}
-        failure={failure}
-        setFailure={setFailure}
-        onCode={async (code) => {
-          try {
-            finish((await identity.completeMfa({ challengeId: challenge.id, code })).session?.csrfToken ?? "");
-          } catch {
-            setFailure(m.codeRejected);
-          }
-        }}
-        onPasskey={async () => {
-          try {
-            const options = await identity.beginWebAuthnLogin({ challengeId: challenge.id });
-            const assertion = await getAssertion(options.optionsJson, challenge.id);
-            finish((await identity.completeWebAuthnLogin(assertion)).session?.csrfToken ?? "");
-          } catch {
-            setFailure(m.passkeyFailed);
-          }
-        }}
-      />
+      <SignInFrame>
+        <FactorStep
+          m={m}
+          challenge={challenge}
+          failure={failure}
+          setFailure={setFailure}
+          onCode={async (code) => {
+            try {
+              finish((await identity.completeMfa({ challengeId: challenge.id, code })).session?.csrfToken ?? "");
+            } catch {
+              setFailure(m.codeRejected);
+            }
+          }}
+          onPasskey={async () => {
+            try {
+              const options = await identity.beginWebAuthnLogin({ challengeId: challenge.id });
+              const assertion = await getAssertion(options.optionsJson, challenge.id);
+              finish((await identity.completeWebAuthnLogin(assertion)).session?.csrfToken ?? "");
+            } catch {
+              setFailure(m.passkeyFailed);
+            }
+          }}
+        />
+      </SignInFrame>
     );
   }
 
   return (
-    <section aria-labelledby="signin-title" className="flex flex-col gap-6">
-      <h1 id="signin-title" className="text-screen">
-        {m.signInTitle}
-      </h1>
-      <form
-        noValidate
-        className="flex flex-col gap-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void passwordForm.handleSubmit();
-        }}
-      >
-        <passwordForm.Field name="email">
-          {(field) => (
-            <Field label={m.email} error={messagesOf(field.state.meta.errors)}>
-              <Input
-                type="email"
-                autoComplete="username"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-              />
-            </Field>
-          )}
-        </passwordForm.Field>
-        <passwordForm.Field name="password">
-          {(field) => (
-            <Field label={m.password} error={messagesOf(field.state.meta.errors)}>
-              <Input
-                type="password"
-                autoComplete="current-password"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-              />
-            </Field>
-          )}
-        </passwordForm.Field>
-        {failure !== null && <FormError>{failure}</FormError>}
-        <passwordForm.Subscribe selector={(s) => s.isSubmitting}>
-          {(submitting) => (
-            <Button type="submit" variant="primary" loading={submitting} loadingLabel={m.submitting}>
-              {m.submit}
-            </Button>
-          )}
-        </passwordForm.Subscribe>
-      </form>
-      <Providers m={m} />
-    </section>
+    <SignInFrame>
+      <section aria-labelledby="signin-title" className="flex flex-col gap-6">
+        <h2 id="signin-title" className="text-section font-semibold">
+          {m.signInTitle}
+        </h2>
+        <form
+          noValidate
+          className="flex flex-col gap-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void passwordForm.handleSubmit();
+          }}
+        >
+          <passwordForm.Field name="email">
+            {(field) => (
+              <Field
+                label={m.email}
+                error={field.state.meta.isTouched ? messagesOf(field.state.meta.errors) : undefined}
+              >
+                <Input
+                  size="lg"
+                  type="email"
+                  autoComplete="username"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                />
+              </Field>
+            )}
+          </passwordForm.Field>
+          <passwordForm.Field name="password">
+            {(field) => (
+              <Field
+                label={m.password}
+                error={field.state.meta.isTouched ? messagesOf(field.state.meta.errors) : undefined}
+              >
+                <Input
+                  size="lg"
+                  type="password"
+                  autoComplete="current-password"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                />
+              </Field>
+            )}
+          </passwordForm.Field>
+          {failure !== null && <FormError>{failure}</FormError>}
+          <passwordForm.Subscribe selector={(s) => s.isSubmitting}>
+            {(submitting) => (
+              <Button type="submit" variant="primary" size="lg" loading={submitting} loadingLabel={m.submitting}>
+                {m.submit}
+              </Button>
+            )}
+          </passwordForm.Subscribe>
+        </form>
+        <Providers m={m} />
+      </section>
+    </SignInFrame>
   );
 }
 
@@ -165,9 +264,9 @@ function FactorStep(props: {
   });
   return (
     <section aria-labelledby="factor-title" className="flex flex-col gap-6">
-      <h1 id="factor-title" className="text-screen">
+      <h2 id="factor-title" className="text-section font-semibold">
         {m.factorTitle}
-      </h1>
+      </h2>
       {challenge.kinds.includes("totp") && (
         <form
           noValidate
@@ -179,8 +278,12 @@ function FactorStep(props: {
         >
           <form.Field name="code">
             {(field) => (
-              <Field label={m.code} error={messagesOf(field.state.meta.errors)}>
+              <Field
+                label={m.code}
+                error={field.state.meta.isTouched ? messagesOf(field.state.meta.errors) : undefined}
+              >
                 <Input
+                  size="lg"
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   value={field.state.value}
@@ -190,13 +293,13 @@ function FactorStep(props: {
               </Field>
             )}
           </form.Field>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="primary" size="lg">
             {m.verify}
           </Button>
         </form>
       )}
       {challenge.kinds.includes("webauthn") && (
-        <Button type="button" variant="secondary" onClick={() => void props.onPasskey()}>
+        <Button type="button" variant="secondary" size="lg" onClick={() => void props.onPasskey()}>
           {m.passkey}
         </Button>
       )}
@@ -237,7 +340,7 @@ function Providers({ m }: { m: Messages }) {
     <fieldset className="flex flex-col gap-2">
       <legend className="sr-only">{m.providers}</legend>
       {list.map((p) => (
-        <Button key={p.id} type="button" variant="secondary" onClick={() => void startProvider(session, p)}>
+        <Button key={p.id} type="button" variant="secondary" size="lg" onClick={() => void startProvider(session, p)}>
           {m.continueWith(p.name)}
         </Button>
       ))}

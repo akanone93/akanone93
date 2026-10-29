@@ -113,5 +113,58 @@ export function authMessages(i18n: I18n) {
       message: "The invitation is invalid or has expired.",
       comment: "Shown when the invitation is refused.",
     }),
+    wordmark: i18n._({
+      id: "auth.hero.wordmark",
+      message: "Plux Studio",
+      comment: "Product name in the corner of the sign-in page; translate only if the product name is localised.",
+    }),
+    heroLineOne: i18n._({
+      id: "auth.hero.line-one",
+      message: "Design it here.",
+      comment: "First line of the large headline of the sign-in page. Keep it short: about 16 characters.",
+    }),
+    heroLineTwo: i18n._({
+      id: "auth.hero.line-two",
+      message: "Live everywhere.",
+      comment: "Second line of the large headline: the screens reach every device. About 16 characters.",
+    }),
+    heroLead: i18n._({
+      id: "auth.hero.lead",
+      message:
+        "Studio builds the screens your Flutter apps download, verify and render natively, with no store release.",
+      comment: "Sentence under the headline of the sign-in page, saying what Plux Studio does.",
+    }),
+    sceneLabel: i18n._({
+      id: "auth.hero.scene",
+      message: "An app screen taken apart into its layers",
+      comment: "Accessible description of the animated picture beside the sign-in form.",
+    }),
+    sceneTitle: i18n._({
+      id: "auth.scene.title",
+      message: "Loan calculator",
+      comment: "Title of the sample app screen drawn in the sign-in picture.",
+    }),
+    sceneBorrow: i18n._({
+      id: "auth.scene.borrow",
+      message: "You borrow",
+      comment: "Label above the amount in the sample app screen.",
+    }),
+    sceneMonthly: i18n._({
+      id: "auth.scene.monthly",
+      message: "Monthly",
+      comment: "Label of the monthly payment in the sample app screen.",
+    }),
+    sceneApply: i18n._({
+      id: "auth.scene.apply",
+      message: "Apply",
+      comment: "Button of the sample app screen.",
+    }),
+    sceneSigned: (version: string) =>
+      i18n._({
+        id: "auth.scene.signed",
+        message: "Signed · v{version}",
+        comment: "Badge on the sample app screen: the release is signed. {version} is a version number.",
+        values: { version },
+      }),
   };
 }

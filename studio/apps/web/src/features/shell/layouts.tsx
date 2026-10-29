@@ -4,14 +4,24 @@
 import { useQuery } from "@connectrpc/connect-query";
 import { PreferencesService } from "@plux/api";
 import { Outlet } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { CommandsProvider, createRegistry } from "../../lib/commands/index.ts";
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 
 /** Public pages (sign-in family): no shell, no organisation (R1). */
 export function PublicLayout() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center p-6">
+    <div className="relative isolate min-h-screen overflow-hidden bg-app text-primary">
       <Outlet />
+    </div>
+  );
+}
+
+/** The column of the smaller public pages: one deep-glass card in the middle of the screen. */
+export function PublicColumn({ children }: { readonly children: ReactNode }) {
+  return (
+    <main className="mx-auto flex min-h-screen w-full max-w-auth-form flex-col justify-center px-6 py-12">
+      <div className="glass-deep flex flex-col gap-6 rounded-2xl p-8">{children}</div>
     </main>
   );
 }

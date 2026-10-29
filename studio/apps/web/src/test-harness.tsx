@@ -6,6 +6,7 @@ import type { Messages } from "@lingui/core";
 import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
+import { MotionGlobalConfig } from "motion/react";
 import { App } from "./app.tsx";
 import type { EditSession } from "./features/editor/edit-session.ts";
 import type { SurfaceFactory } from "./features/plugin-canvas/surface.ts";
@@ -17,6 +18,10 @@ import { createAppRouter } from "./router.tsx";
 import { createUpstream, type UpstreamData } from "./test-upstream.ts";
 
 export { createUpstream, orgA, orgB, orgNew } from "./test-upstream.ts";
+
+// Tests read the end state: Motion jumps there at once instead of running the Web Animations
+// that happy-dom cancels between tests (U13).
+MotionGlobalConfig.skipAnimations = true;
 
 export interface Upstream extends UpstreamData {
   surface?: SurfaceFactory;

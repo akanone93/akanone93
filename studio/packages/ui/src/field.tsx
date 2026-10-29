@@ -32,21 +32,36 @@ export function Field({ label, description, error, children }: FieldProps): Reac
 }
 
 const controlClass = cx(
-  "w-full rounded-sm bg-raised px-3 text-body text-primary",
+  "w-full text-primary transition duration-fast ease-standard",
   "border border-hairline hover:border-strong",
   "data-invalid:border-danger-fill",
   "disabled:opacity-50",
   focusRing,
 );
 
-export type InputProps = Omit<ComponentPropsWithoutRef<"input">, "className">;
+export type InputSize = "md" | "lg";
 
-export function Input(props: InputProps): ReactElement {
-  return <BaseField.Control {...props} className={cx(controlClass, "h-(--density-field)")} />;
+const inputSizeClass: Readonly<Record<InputSize, string>> = {
+  md: "h-(--density-field) rounded-sm bg-raised px-3 text-body",
+  // The public pages (U11.2): a 48 px field with 16 px text, a soft fill and a halo on focus.
+  lg: "h-12 rounded-lg bg-raised/70 px-4 text-control focus-visible:ring-4 focus-visible:ring-accent-halo",
+};
+
+export type InputProps = Omit<ComponentPropsWithoutRef<"input">, "className" | "size"> & {
+  readonly size?: InputSize;
+};
+
+export function Input({ size = "md", ...props }: InputProps): ReactElement {
+  return <BaseField.Control {...props} className={cx(controlClass, inputSizeClass[size])} />;
 }
 
 export type TextareaProps = Omit<ComponentPropsWithoutRef<"textarea">, "className">;
 
 export function Textarea(props: TextareaProps): ReactElement {
-  return <BaseField.Control render={<textarea {...props} />} className={cx(controlClass, "py-2")} />;
+  return (
+    <BaseField.Control
+      render={<textarea {...props} />}
+      className={cx(controlClass, "rounded-sm bg-raised px-3 py-2 text-body")}
+    />
+  );
 }

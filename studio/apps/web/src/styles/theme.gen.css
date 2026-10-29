@@ -45,17 +45,25 @@
   --color-danger-fill: #D92D20;
   --color-arrow: #7A81A3;
   --color-arrow-active: #5B3DF5;
+  --color-hero-tint: #B9A8FF;
+  --color-hero-liquid-a: #7B5CFF;
+  --color-hero-liquid-b: #62B6FF;
+  --color-hero-liquid-c: #FF9AD0;
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 12px;
   --radius-lg: 18px;
   --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-3xl: 44px;
   --radius-full: 9999px;
   --shadow-e1: 0 1px 2px rgba(17,20,42,.08), 0 2px 8px -2px rgba(17,20,42,.10);
   --shadow-e2: 0 1px 1px rgba(30,24,90,.04), 0 16px 40px -8px rgba(48,34,150,.14);
   --shadow-frame: 0 0 0 1px rgba(17,20,42,.05), 0 24px 48px -16px rgba(48,34,150,.20);
   --shadow-frame-active: 0 0 0 1px rgba(17,20,42,.05), 0 24px 48px -16px rgba(48,34,150,.20), 0 0 0 7px rgba(91,61,245,.12), 0 0 0 1px #5B3DF5;
   --shadow-primary: 0 6px 16px -6px rgba(91,61,245,.60);
+  --shadow-soft: 0 1px 2px rgba(17,20,42,.04), 0 12px 32px -16px rgba(48,34,150,.16);
+  --shadow-float: 0 2px 6px rgba(17,20,42,.04), 0 32px 80px -32px rgba(48,34,150,.28);
   --shadow-e4: 0 24px 64px rgba(17,20,42,.18), 0 4px 12px rgba(17,20,42,.08);
   --spacing-0: 0px;
   --spacing-1: 4px;
@@ -68,6 +76,8 @@
   --spacing-10: 40px;
   --spacing-12: 48px;
   --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
   --spacing-0\.5: 2px;
   --spacing-icon-sm: 12px;
   --spacing-icon-md: 14px;
@@ -75,10 +85,35 @@
   --container-dialog-sm: 400px;
   --container-dialog-md: 560px;
   --container-dialog-lg: 800px;
+  --container-auth-form: 400px;
+  --container-page: 1280px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
   --font-sans: "Instrument Sans", "Noto Sans Arabic", system-ui, sans-serif;
   --font-serif: "Instrument Serif", "Noto Naskh Arabic", serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
   --font-wordmark: "Sora", system-ui, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --text-display: 72px;
+  --text-display--line-height: 72px;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.04em;
+  --text-lead: 19px;
+  --text-lead--line-height: 28px;
+  --text-lead--font-weight: 400;
+  --text-lead--letter-spacing: -0.01em;
+  --text-display-sm: 44px;
+  --text-display-sm--line-height: 46px;
+  --text-display-sm--font-weight: 600;
+  --text-display-sm--letter-spacing: -0.035em;
+  --text-control: 16px;
+  --text-control--line-height: 22px;
+  --text-control--font-weight: 400;
   --text-screen: 26px;
   --text-screen--line-height: 28px;
   --text-screen--font-weight: 400;
@@ -110,16 +145,26 @@
   --duration-base: 180ms;
   --duration-enter: 420ms;
   --duration-bundle: 220ms;
+  --duration-slow: 720ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
   --surface-glass-fill: rgba(255,255,255,.66);
   --surface-glass-solid: rgba(255,255,255,.96);
   --surface-glass-backdrop: blur(28px) saturate(180%);
   --surface-glass-inner: rgba(255,255,255,.72);
   --surface-glass-outer: rgba(17,20,42,.05);
+  --surface-glass-deep-backdrop: blur(40px) saturate(190%);
+  --surface-glass-sheen: linear-gradient(160deg, rgba(255,255,255,.70), rgba(255,255,255,.20) 40%, rgba(255,255,255,.04));
   --surface-scrim-fill: rgba(17,20,42,.24);
   --surface-stroke-field: 1px;
   --surface-stroke-focus: 2px;
   --surface-stroke-arrow: 1.5px;
+  --animate-spin: spin 0.8s linear infinite;
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }
 
 :root {
@@ -171,17 +216,25 @@
     --color-danger-fill: #8E1B10;
     --color-arrow: #11142A;
     --color-arrow-active: #4A2DE6;
+    --color-hero-tint: transparent;
+    --color-hero-liquid-a: transparent;
+    --color-hero-liquid-b: transparent;
+    --color-hero-liquid-c: transparent;
     --shadow-e1: 0 0 0 2px rgb(17,20,42);
     --shadow-e2: 0 0 0 2px rgb(17,20,42);
     --shadow-frame: 0 0 0 2px rgb(17,20,42);
     --shadow-frame-active: 0 0 0 3px #4A2DE6;
     --shadow-primary: 0 0 0 2px #11142A;
+    --shadow-soft: 0 0 0 2px rgb(17,20,42);
+    --shadow-float: 0 0 0 2px rgb(17,20,42);
     --shadow-e4: 0 0 0 2px rgb(17,20,42);
     --surface-glass-fill: #FFFFFF;
     --surface-glass-solid: #FFFFFF;
     --surface-glass-backdrop: none;
     --surface-glass-inner: transparent;
     --surface-glass-outer: #11142A;
+    --surface-glass-deep-backdrop: none;
+    --surface-glass-sheen: none;
     --surface-scrim-fill: rgba(17,20,42,.60);
     --surface-stroke-field: 2px;
     --surface-stroke-focus: 3px;
@@ -248,17 +301,25 @@
   --color-danger-fill: #F97066;
   --color-arrow: #6B7390;
   --color-arrow-active: #8B74FF;
+  --color-hero-tint: #4B2FD6;
+  --color-hero-liquid-a: #5B3DF5;
+  --color-hero-liquid-b: #2D6BFF;
+  --color-hero-liquid-c: #B83E8C;
   --shadow-e1: 0 1px 2px rgba(0,0,0,.16), 0 2px 8px -2px rgba(0,0,0,.20), 0 0 0 1px rgba(0,0,0,.40);
   --shadow-e2: 0 1px 1px rgba(0,0,0,.08), 0 16px 40px -8px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.40);
   --shadow-frame: 0 0 0 1px rgba(0,0,0,.10), 0 24px 48px -16px rgba(0,0,0,.40), 0 0 0 1px rgba(0,0,0,.40);
   --shadow-frame-active: 0 0 0 1px rgba(0,0,0,.10), 0 24px 48px -16px rgba(0,0,0,.40), 0 0 0 7px rgba(139,116,255,.20), 0 0 0 1px #8B74FF;
   --shadow-primary: 0 6px 16px -6px rgba(139,116,255,.60);
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.20), 0 12px 32px -16px rgba(0,0,0,.50), 0 0 0 1px rgba(0,0,0,.40);
+  --shadow-float: 0 2px 6px rgba(0,0,0,.24), 0 32px 80px -32px rgba(0,0,0,.70), 0 0 0 1px rgba(0,0,0,.40);
   --shadow-e4: 0 24px 64px rgba(0,0,0,.36), 0 4px 12px rgba(0,0,0,.16), 0 0 0 1px rgba(0,0,0,.40);
   --surface-glass-fill: rgba(20,23,38,.80);
   --surface-glass-solid: rgba(20,23,38,.96);
   --surface-glass-backdrop: blur(28px) saturate(140%);
   --surface-glass-inner: rgba(255,255,255,.06);
   --surface-glass-outer: rgba(0,0,0,.40);
+  --surface-glass-deep-backdrop: blur(40px) saturate(150%);
+  --surface-glass-sheen: linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.03) 40%, rgba(255,255,255,0));
   --surface-scrim-fill: rgba(0,0,0,.48);
 }
 
@@ -287,17 +348,25 @@
   --color-danger-fill: #8E1B10;
   --color-arrow: #11142A;
   --color-arrow-active: #4A2DE6;
+  --color-hero-tint: transparent;
+  --color-hero-liquid-a: transparent;
+  --color-hero-liquid-b: transparent;
+  --color-hero-liquid-c: transparent;
   --shadow-e1: 0 0 0 2px rgb(17,20,42);
   --shadow-e2: 0 0 0 2px rgb(17,20,42);
   --shadow-frame: 0 0 0 2px rgb(17,20,42);
   --shadow-frame-active: 0 0 0 3px #4A2DE6;
   --shadow-primary: 0 0 0 2px #11142A;
+  --shadow-soft: 0 0 0 2px rgb(17,20,42);
+  --shadow-float: 0 0 0 2px rgb(17,20,42);
   --shadow-e4: 0 0 0 2px rgb(17,20,42);
   --surface-glass-fill: #FFFFFF;
   --surface-glass-solid: #FFFFFF;
   --surface-glass-backdrop: none;
   --surface-glass-inner: transparent;
   --surface-glass-outer: #11142A;
+  --surface-glass-deep-backdrop: none;
+  --surface-glass-sheen: none;
   --surface-scrim-fill: rgba(17,20,42,.60);
   --surface-stroke-field: 2px;
   --surface-stroke-focus: 3px;
@@ -310,6 +379,9 @@
   --text-caption--line-height: 18px;
   --text-data--line-height: 18px;
   --text-tag--line-height: 14px;
+  --text-display--letter-spacing: 0em;
+  --text-lead--letter-spacing: 0em;
+  --text-display-sm--letter-spacing: 0em;
 }
 
 /* Solid fallback for glass (U3 rule 3). */
@@ -317,12 +389,16 @@
   :root {
     --surface-glass-fill: var(--surface-glass-solid);
     --surface-glass-backdrop: none;
+    --surface-glass-deep-backdrop: none;
+    --surface-glass-sheen: none;
   }
 }
 
 [data-transparency=reduced] {
   --surface-glass-fill: var(--surface-glass-solid);
   --surface-glass-backdrop: none;
+  --surface-glass-deep-backdrop: none;
+  --surface-glass-sheen: none;
 }
 
 @utility glass {
@@ -334,6 +410,18 @@
     var(--shadow-e2);
 }
 
+/* U3.4 deep glass: the hero surfaces of the public pages; a stronger blur, a light sheen, a floating shadow. */
+@utility glass-deep {
+  background-color: var(--surface-glass-fill);
+  background-image: var(--surface-glass-sheen);
+  backdrop-filter: var(--surface-glass-deep-backdrop);
+  box-shadow:
+    inset 0 1px 0 0 var(--surface-glass-inner),
+    inset 0 0 0 1px var(--surface-glass-inner),
+    0 0 0 1px var(--surface-glass-outer),
+    var(--shadow-float);
+}
+
 /* U13: every animation becomes an instant change. */
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -341,5 +429,6 @@
     --duration-base: 0ms;
     --duration-enter: 0ms;
     --duration-bundle: 0ms;
+    --duration-slow: 0ms;
   }
 }
