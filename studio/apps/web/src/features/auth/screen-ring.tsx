@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Icon, type IconName } from "@plux/ui";
 import {
+  animate,
   domAnimation,
   LazyMotion,
   type MotionStyle,
@@ -26,21 +27,30 @@ interface SampleScreen {
   readonly chip: { readonly icon: IconName; readonly text: string };
 }
 
-/** How long a screen stays at the front before the ring turns on. */
-const PAUSE_MS = 3600;
-/** The yaw of the whole ring, so the front screen is seen a little from the side and its layers show their depth. */
-const YAW = -16;
+/** The ring's radius in px: the same value as `--ring-radius` in screen-ring.css. */
+const RADIUS = 360;
+/**
+ * The front screen never stops: it arrives `DRIFT` degrees before the middle, glides slowly
+ * through the middle to `DRIFT` degrees past it over `DRIFT_S` seconds, then the ring turns on to
+ * the next screen in `TURN_S` seconds, always in the same direction.
+ */
+const DRIFT = 9;
+const DRIFT_S = 4.2;
+const TURN_S = 1.1;
+const driftEase = [0.33, 0, 0.67, 1] as const;
+const turnEase = [0.6, 0, 0.2, 1] as const;
+/** The view turns the front screen around its own centre, so it stays in the middle and its layers show their depth. */
+const YAW = -26;
 /**
  * How high each layer of the front screen stands above it, in px, from the lowest layer up; the
  * chip floats highest. Every layer moves on the same curve over the same time, so a higher layer
  * moves faster and the ratio of their heights holds at every frame: they stay stacked on the screen.
  */
-const HEIGHTS = [22, 58, 104, 158] as const;
-const CHIP_HEIGHT = 210;
+const HEIGHTS = [30, 84, 146, 220] as const;
+const CHIP_HEIGHT = 290;
 /** Pointer parallax in degrees at the edge of the window. */
 const PARALLAX = 7;
 
-const turn = { type: "spring", stiffness: 42, damping: 14, mass: 1 } as const;
 /** The layers rise once the screen has settled at the front, and sink as it turns away. */
 const rise = { duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.55 } as const;
 const sink = { duration: 0.5, ease: [0.4, 0, 1, 1] } as const;
@@ -195,6 +205,9 @@ function Slot({ screen, index, count, front }: { screen: SampleScreen; index: nu
       animate={{ opacity: isFront ? 1 : 0 }}
       transition={reduced ? { duration: 0 } : isFront ? show : hide}
     >
+      <div className="sr-glow" />
+      <div className="sr-edge" data-edge="2" />
+      <div className="sr-edge" data-edge="1" />
       <div className="sr-screen" />
       {screen.layers.map((layer, k) => (
         <m.div
@@ -231,25 +244,51 @@ export function ScreenRing() {
   const m$ = authMessages(i18n);
   const reduced = useReducedMotion() === true;
   const list = screens(m$, i18n.locale);
-  const [step, setStep] = useState(0);
+  const [front, setFront] = useState(0);
+  const count = list.length;
+  const step = 360 / count;
+  /** The ring's turn in degrees: screen k faces the viewer at -k * step. */
+  const angle = useMotionValue(reduced ? 0 : DRIFT + step);
 
   useEffect(() => {
     if (reduced) {
+      angle.set(0);
       return;
     }
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible") {
-        setStep((s) => s + 1);
+    let alive = true;
+    let running: { stop: () => void } | undefined;
+    const run = async (target: number, duration: number, ease: readonly [number, number, number, number]) => {
+      const controls = animate(angle, target, { duration, ease });
+      running = controls;
+      await controls;
+    };
+    void (async () => {
+      let k = 0;
+      await run(DRIFT, TURN_S * 1.4, turnEase);
+      while (alive) {
+        const started = performance.now();
+        await run(-k * step - DRIFT, DRIFT_S, driftEase);
+        // A glide that ends at once means animations are switched off (Motion's skipAnimations):
+        // stop rather than turn the ring in a tight loop.
+        if (!alive || performance.now() - started < DRIFT_S * 500) {
+          return;
+        }
+        k += 1;
+        setFront(k % count);
+        await run(-k * step + DRIFT, TURN_S, turnEase);
       }
-    }, PAUSE_MS);
-    return () => window.clearInterval(timer);
-  }, [reduced]);
+    })();
+    return () => {
+      alive = false;
+      running?.stop();
+    };
+  }, [reduced, angle, step, count]);
 
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const smoothX = useSpring(pointerX, { stiffness: 50, damping: 20 });
   const smoothY = useSpring(pointerY, { stiffness: 50, damping: 20 });
-  const tiltY = useTransform(smoothX, (v) => v * PARALLAX);
+  const tiltY = useTransform(smoothX, (v) => YAW + v * PARALLAX);
   const tiltX = useTransform(smoothY, (v) => 6 - v * PARALLAX * 0.6);
 
   useEffect(() => {
@@ -264,17 +303,16 @@ export function ScreenRing() {
     return () => window.removeEventListener("pointermove", move);
   }, [reduced, pointerX, pointerY]);
 
-  const count = list.length;
-  const front = step % count;
   return (
     <LazyMotion features={domAnimation} strict>
       <div role="img" aria-label={m$.sceneLabel} className="sr-stage">
         <m.div className="sr-view" style={{ rotateX: tiltX, rotateY: tiltY }}>
           <m.div
             className="sr-ring"
-            initial={reduced ? false : { rotateY: YAW + 120, opacity: 0, scale: 0.9 }}
-            animate={{ rotateY: YAW - step * (360 / count), opacity: 1, scale: 1 }}
-            transition={reduced ? { duration: 0 } : { rotateY: turn, opacity: { duration: 0.8 }, scale: turn }}
+            style={{ z: -RADIUS, rotateY: angle }}
+            initial={reduced ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: reduced ? 0 : 0.8 }}
           >
             {list.map((screen, i) => (
               <Slot key={screen.key} screen={screen} index={i} count={count} front={front} />

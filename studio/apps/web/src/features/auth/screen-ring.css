@@ -12,7 +12,7 @@
   place-items: center;
   block-size: 100%;
   min-block-size: 640px;
-  perspective: 2600px;
+  perspective: 2200px;
   perspective-origin: 50% 35%;
   --ring-radius: 360px;
 }
@@ -37,11 +37,37 @@
   backface-visibility: hidden;
 }
 
-/* One large screen at a time, moved back to the middle of the stage: the yaw of the ring carries
-   the front screen to one side by the ring's radius times the sine of the yaw. */
+/* One large screen at a time. The ring stands one radius behind the view, so the front screen is
+   at the view's centre and the view's yaw turns it in place. */
 .sr-view {
   scale: 1.05;
-  translate: calc(var(--ring-radius) * 0.28) 0;
+}
+
+/* A little depth: the screen has a thickness (two edge plates behind it) and casts a soft
+   coloured light behind itself. */
+.sr-edge {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-3xl);
+  background-color: color-mix(in oklab, var(--color-strong) 60%, var(--color-raised));
+}
+
+.sr-edge[data-edge="1"] {
+  transform: translateZ(-5px);
+}
+
+.sr-edge[data-edge="2"] {
+  transform: translateZ(-10px);
+}
+
+.sr-glow {
+  position: absolute;
+  inset: 8% 6%;
+  border-radius: var(--radius-3xl);
+  background-color: var(--color-hero-liquid-a);
+  opacity: 0.28;
+  filter: blur(40px);
+  transform: translateZ(-80px);
 }
 
 /* The screen surface: no device around it, only the lit glass of the display. */
@@ -68,8 +94,8 @@
 /* The feature chip floats outside the screen's edge, highest of all. */
 .sr-chip {
   position: absolute;
-  inset-block-start: 96px;
-  inset-inline-end: -64px;
+  inset-block-start: 330px;
+  inset-inline-end: -96px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -388,7 +414,6 @@
 @media (max-width: 1023px) {
   .sr-stage {
     min-block-size: 520px;
-    --ring-radius: 380px;
   }
 
   .sr-view {
