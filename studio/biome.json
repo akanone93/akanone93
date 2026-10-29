@@ -18,6 +18,7 @@
       "!lint/fixtures",
       "!prototype",
       "!apps/web/src/features/plugin-canvas/canvaskit",
+      "!.canvaskit",
       "!packages/api/src/gen"
     ]
   },
