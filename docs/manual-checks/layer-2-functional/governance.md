@@ -92,9 +92,13 @@ one, expect a refusal that names the feature, and note it. Access control itself
 
 - **Needs:** R-STACK
 - **Do:**
-  1. Start Keycloak: `COMPOSE_PROFILES=keycloak make compose-up` (it listens on 8180; stop the object-storage port clash by changing it if needed).
-  2. In Studio **Administration**, **SSO** (`/admin/sso`) add the provider (issuer, client id and secret from `deploy/compose/.secrets/keycloak.env`).
-  3. Sign out; the sign-in page offers the provider; sign in through it.
+  1. Start Keycloak: `COMPOSE_PROFILES=keycloak make compose-up` (it listens on <http://localhost:8180>).
+  2. Open the Keycloak console at <http://localhost:8180> as `admin` (password
+     `KC_BOOTSTRAP_ADMIN_PASSWORD` in `deploy/compose/.secrets/keycloak.env`); create a realm,
+     a user, and an OpenID Connect client with the Studio redirect URL.
+  3. In Studio **Administration**, **SSO** (`/admin/sso`) add the provider: the realm's issuer
+     URL, and the client's id and secret.
+  4. Sign out; the sign-in page offers the provider; sign in through it as the Keycloak user.
 - **Expect:** you land in Studio as a linked user; groups map to teams if a mapping is set.
 - **Why:** sign-in with your identity provider (GOV-004, SEC-100).
 - **Look at:** the session shows the authentication context; back-channel logout ends the session.

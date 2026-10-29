@@ -210,7 +210,7 @@ shows a hardware key and `AL2`.
 - **Do:** set `confidentialBundles` to `optional` for `development`; publish a release as confidential; inspect the stored bundle in the object store.
 - **Expect:** the stored bundle is ciphertext; a device below the required level gets no key (`PLX-6050`).
 - **Why:** content is unreadable to CDN and storage (SEC-053).
-- **Look at:** SeaweedFS object contents (`http://localhost:8180`): no readable JSON.
+- **Look at:** the stored object in SeaweedFS holds no readable JSON (SeaweedFS is reachable only inside the Compose network, not from the host).
 - **Result:** ☐ pass ☐ fail — notes:
 
 ### L2-SEC-022 — The reference bank app (gateway and SCA)
