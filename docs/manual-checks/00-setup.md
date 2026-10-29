@@ -27,7 +27,9 @@ The commands come from [Run it locally](../guides/run-locally.md), which has the
 | <http://localhost:8081> | Studio (BFF and web app) |
 | <http://localhost:3000> | Grafana |
 | <http://localhost:9090> | Prometheus |
-| <http://localhost:8180> | Object storage (SeaweedFS) |
+
+Object storage (SeaweedFS) is reachable only inside the Compose network; port 8180 is
+Keycloak's, under `COMPOSE_PROFILES=keycloak`.
 
 ## S-3 — A device with the starter app
 

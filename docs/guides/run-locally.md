@@ -40,7 +40,8 @@ Also: `make dev-starter` points the app at the stack again and pulls a fresh bas
 - Start and stop it: `make compose-up`, `make compose-down`. Seed the sample apps:
   `make compose-seed`.
 - Addresses: API <http://localhost:8080>, Grafana <http://localhost:3000>, Prometheus
-  <http://localhost:9090>, object storage <http://localhost:8180>.
+  <http://localhost:9090>; object storage (SeaweedFS) is reachable only inside the Compose
+  network.
 - Seeded credentials: `deploy/compose/.secrets/dev.env`. More:
   [deploy/compose](../../deploy/compose/README.md).
 
@@ -122,7 +123,7 @@ running. Each step names the file the command comes from.
    ```bash
    . deploy/compose/.secrets/dev.env
    cd backend && PLUX_TOKEN=$PLUX_DEV_TOKEN \
-     go run -exec "env SSL_CERT_FILE=../deploy/compose/.secrets/tls/ca.crt" ./cmd/plux publish \
+     go run -exec "env SSL_CERT_FILE=../deploy/compose/.secrets/ca/ca.crt" ./cmd/plux publish \
      -C <project> --server https://localhost:8080 --org "$PLUX_DEV_ORGANIZATION" \
      --app "$PLUX_DEV_APP" --env staging --promote staging
    ```
