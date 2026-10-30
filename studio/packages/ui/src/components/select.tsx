@@ -46,11 +46,14 @@ function SelectTrigger({
       {...props}
     >
       {children}
+      {/* Local change (ADR-0103): no children, so Base UI's default "▼" text is not drawn inside the icon. */}
       <SelectPrimitive.Icon
         render={
           <ChevronDownIcon className="text-muted-foreground size-4 pointer-events-none" />
         }
-      />
+      >
+        {null}
+      </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
 }

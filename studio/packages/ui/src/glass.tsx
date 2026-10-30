@@ -14,7 +14,7 @@ export interface GlassProps {
   readonly onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
 }
 
-/** The three top capsules: floating glass, height from the density tokens (U3). Never nested in another glass surface. */
+/** The canvas's top bars on shadcn's popover surface, height from the density tokens. */
 export function GlassCapsule({ label, children, className, role = "group", onKeyDown }: GlassProps): ReactElement {
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: the role is a toolbar or a group; the handler only roves focus
@@ -24,17 +24,23 @@ export function GlassCapsule({ label, children, className, role = "group", onKey
       role={role}
       aria-label={label}
       onKeyDown={onKeyDown}
-      className={cx("glass flex h-(--density-capsule) items-center gap-2 rounded-full px-3 text-foreground", className)}
+      className={cx(
+        "flex h-(--density-capsule) items-center gap-2 rounded-xl bg-popover px-2 text-popover-foreground shadow-md ring-1 ring-foreground/10",
+        className,
+      )}
     >
       {children}
     </div>
   );
 }
 
-/** Left and right panels, menus and the bottom drawer: floating glass, `radius.xl` (U3). Never nested in another glass surface. */
+/** The canvas's floating panels on shadcn's popover surface. */
 export function FloatingPanel({ label, children, className }: GlassProps): ReactElement {
   return (
-    <section aria-label={label} className={cx("glass rounded-xl p-3 text-foreground", className)}>
+    <section
+      aria-label={label}
+      className={cx("rounded-xl bg-popover p-3 text-popover-foreground shadow-md ring-1 ring-foreground/10", className)}
+    >
       {children}
     </section>
   );

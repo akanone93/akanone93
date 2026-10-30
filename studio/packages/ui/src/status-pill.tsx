@@ -2,17 +2,21 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ReactElement } from "react";
+import { Badge } from "./components/badge";
 import { cx } from "./cx.ts";
 import { Icon } from "./icon.tsx";
 import type { IconName } from "./icons.ts";
 
 export type StatusKind = "success" | "warning" | "danger" | "neutral";
 
-const kindClass: Readonly<Record<StatusKind, string>> = {
-  success: "bg-success-surface text-success",
-  warning: "bg-warning-surface text-warning",
-  danger: "bg-danger-surface text-danger",
-  neutral: "bg-raised text-muted-foreground",
+/** shadcn's Badge variant for each status; success and warning colour only their icon. */
+const kindVariant = { success: "outline", warning: "outline", danger: "destructive", neutral: "secondary" } as const;
+
+const kindIconClass: Readonly<Record<StatusKind, string>> = {
+  success: "text-success",
+  warning: "text-warning",
+  danger: "",
+  neutral: "text-muted-foreground",
 };
 
 const kindIcon: Readonly<Record<StatusKind, IconName>> = {
@@ -24,24 +28,19 @@ const kindIcon: Readonly<Record<StatusKind, IconName>> = {
 
 export interface StatusPillProps {
   readonly status: StatusKind;
-  /** The status word from the message catalogue; every status has an icon and a word (U10). */
+  /** The status word from the message catalogue; every status has an icon and a word. */
   readonly label: string;
   /** Optional number or value with its unit, shown after the word. */
   readonly value?: string;
 }
 
-/** Health under a screen, release health, test results (U10). */
+/** A status as shadcn's Badge: an icon, the word and an optional value (ADR-0103). */
 export function StatusPill({ status, label, value }: StatusPillProps): ReactElement {
   return (
-    <span
-      className={cx(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-tag shadow-e1",
-        kindClass[status],
-      )}
-    >
-      <Icon name={kindIcon[status]} size="pill" />
+    <Badge variant={kindVariant[status]} data-status={status}>
+      <Icon name={kindIcon[status]} size="pill" className={cx(kindIconClass[status])} />
       <span>{label}</span>
-      {value === undefined ? null : <span>{value}</span>}
-    </span>
+      {value === undefined ? null : <span className="tabular-nums text-muted-foreground">{value}</span>}
+    </Badge>
   );
 }

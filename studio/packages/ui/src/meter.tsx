@@ -25,14 +25,14 @@ export function Meter({ value, max, label, valueText }: MeterProps): ReactElemen
         aria-valuemax={max}
         aria-valuenow={value}
         aria-valuetext={valueText}
-        className="h-1.5 w-16 overflow-hidden rounded-full bg-hover"
+        className="h-1 w-16 overflow-hidden rounded-full bg-muted"
       >
         <div
-          className="h-full origin-left rounded-full bg-success transition-transform duration-enter ease-standard rtl:origin-right"
+          className="h-full origin-left rounded-full bg-primary transition-transform duration-enter ease-standard rtl:origin-right"
           style={{ transform: `scaleX(${ratio})` }}
         />
       </div>
-      <span className="font-mono text-tag text-muted-foreground">{valueText}</span>
+      <span className="text-xs tabular-nums text-muted-foreground">{valueText}</span>
     </div>
   );
 }

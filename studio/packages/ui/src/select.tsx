@@ -1,10 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { Select as BaseSelect } from "@base-ui/react/select";
 import type { ReactElement } from "react";
-import { cx, focusRing } from "./cx.ts";
-import { Icon } from "./icon.tsx";
+import {
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Select as ShadcnSelect,
+} from "./components/select";
 
 export interface SelectOption {
   readonly value: string;
@@ -22,7 +27,10 @@ export interface SelectProps {
   readonly disabled?: boolean;
 }
 
-/** Single-choice select (U11 "Input, select"). Arrow keys, type-ahead and Escape come from Base UI. */
+/**
+ * shadcn's Select (ADR-0103). Arrow keys, type-ahead and Escape come from Base UI. It is not modal, so the page keeps
+ * its scroll bar and scroll position while the list is open.
+ */
 export function Select({
   options,
   value,
@@ -34,8 +42,9 @@ export function Select({
 }: SelectProps): ReactElement {
   const items = options.map((o) => ({ value: o.value, label: o.label }));
   return (
-    <BaseSelect.Root
+    <ShadcnSelect
       items={items}
+      modal={false}
       {...(value !== undefined && { value })}
       {...(defaultValue !== undefined && { defaultValue })}
       {...(disabled !== undefined && { disabled })}
@@ -45,43 +54,18 @@ export function Select({
         }
       }}
     >
-      <BaseSelect.Trigger
-        {...(label !== undefined && { "aria-label": label })}
-        className={cx(
-          "flex h-(--density-field) w-full items-center justify-between gap-2 rounded-sm bg-raised px-3 text-body text-foreground",
-          "border border-hairline hover:border-strong disabled:opacity-50",
-          focusRing,
-        )}
-      >
-        <BaseSelect.Value {...(placeholder !== undefined && { placeholder })} />
-        <BaseSelect.Icon>
-          <Icon name="caret-down" />
-        </BaseSelect.Icon>
-      </BaseSelect.Trigger>
-      <BaseSelect.Portal>
-        <BaseSelect.Positioner sideOffset={4} className="z-20">
-          <BaseSelect.Popup className="rounded-xl bg-glass p-1 shadow-e2">
-            <BaseSelect.List>
-              {items.map((o) => (
-                <BaseSelect.Item
-                  key={o.value}
-                  value={o.value}
-                  className={cx(
-                    "flex h-(--density-field) cursor-default items-center gap-2 rounded-md px-3 text-body text-foreground",
-                    "data-highlighted:bg-hover",
-                    focusRing,
-                  )}
-                >
-                  <BaseSelect.ItemText>{o.label}</BaseSelect.ItemText>
-                  <BaseSelect.ItemIndicator className="ms-auto">
-                    <Icon name="check" />
-                  </BaseSelect.ItemIndicator>
-                </BaseSelect.Item>
-              ))}
-            </BaseSelect.List>
-          </BaseSelect.Popup>
-        </BaseSelect.Positioner>
-      </BaseSelect.Portal>
-    </BaseSelect.Root>
+      <SelectTrigger {...(label !== undefined && { "aria-label": label })} className="w-full">
+        <SelectValue {...(placeholder !== undefined && { placeholder })} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {items.map((o) => (
+            <SelectItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </ShadcnSelect>
   );
 }

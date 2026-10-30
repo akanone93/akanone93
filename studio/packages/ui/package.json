@@ -6,6 +6,8 @@
   "description": "Studio's shared components: shadcn/ui on Base UI, and the components built from them (STU-010, STU-011).",
   "exports": {
     ".": "./src/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
     "./toast.css": "./src/toast.css"
   },
   "dependencies": {

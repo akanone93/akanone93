@@ -27,8 +27,9 @@ export function Toaster({ direction, regionLabel }: ToasterProps): ReactElement 
       toastOptions={{
         unstyled: true,
         classNames: {
-          toast: "flex items-center gap-2 rounded-full bg-glass px-4 py-2 text-body text-foreground shadow-e2",
-          error: "text-danger",
+          toast:
+            "flex items-center gap-2 rounded-lg bg-popover px-4 py-3 text-sm text-popover-foreground shadow-lg ring-1 ring-foreground/10",
+          error: "text-destructive",
         },
       }}
     />

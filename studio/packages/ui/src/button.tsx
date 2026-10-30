@@ -1,70 +1,49 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { Button as BaseButton } from "@base-ui/react/button";
 import type { ComponentPropsWithoutRef, ReactElement } from "react";
-import { cx, focusRing } from "./cx.ts";
+import { Button as ShadcnButton } from "./components/button";
+import { Spinner } from "./components/spinner";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
-const variantClass: Readonly<Record<ButtonVariant, string>> = {
-  primary: "bg-primary text-on-accent shadow-primary hover:bg-accent-hover",
-  secondary: "bg-raised text-foreground shadow-soft hover:bg-canvas",
-  ghost: "bg-transparent text-muted-foreground hover:bg-hover hover:text-foreground",
-  danger: "bg-danger-fill text-on-accent",
-};
+/** Studio's variants as shadcn's: the primary action, an outlined secondary one, a quiet one and a destructive one. */
+const variants = { primary: "default", secondary: "outline", ghost: "ghost", danger: "destructive" } as const;
+const sizes = { sm: "sm", md: "default", lg: "lg" } as const;
 
-const sizeClass: Readonly<Record<ButtonSize, string>> = {
-  sm: "h-(--density-field) px-3 text-label",
-  md: "h-(--density-capsule-button) px-4 text-label",
-  // The public pages (U11.1): a 48 px pill with control-size text that presses in.
-  lg: "h-12 px-6 text-control font-medium active:scale-98",
-};
-
-export type ButtonProps = Omit<ComponentPropsWithoutRef<typeof BaseButton>, "className"> & {
+export type ButtonProps = Omit<ComponentPropsWithoutRef<typeof ShadcnButton>, "variant" | "size"> & {
   readonly variant?: ButtonVariant;
   readonly size?: ButtonSize;
   /** Busy state: the button stays focusable, ignores presses and announces `aria-busy`. */
   readonly loading?: boolean;
   /** Visually hidden text announced while loading, from the message catalogue. */
   readonly loadingLabel?: string;
-  readonly className?: string;
 };
 
-/** Pill button (U11). Disabled and loading buttons stay focusable so keyboard users keep their place. */
+/** shadcn's Button (ADR-0103). Disabled and loading buttons stay focusable so keyboard users keep their place. */
 export function Button({
   variant = "primary",
   size = "md",
   loading = false,
   loadingLabel,
   disabled,
-  className,
   children,
   ...rest
 }: ButtonProps): ReactElement {
   return (
-    <BaseButton
+    <ShadcnButton
       {...rest}
+      variant={variants[variant]}
+      size={sizes[size]}
       disabled={disabled === true || loading}
       focusableWhenDisabled
       aria-busy={loading || undefined}
       data-variant={variant}
-      className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-full font-medium",
-        "transition duration-fast ease-standard",
-        "disabled:opacity-50 aria-disabled:opacity-50",
-        focusRing,
-        variantClass[variant],
-        sizeClass[size],
-        className,
-      )}
     >
-      {loading && (
-        <span aria-hidden="true" className="size-3 animate-spin rounded-full border-2 border-t-transparent" />
-      )}
+      {loading && <Spinner data-icon="inline-start" aria-hidden="true" />}
       {loading && loadingLabel !== undefined && <span className="sr-only">{loadingLabel}</span>}
       {children}
-    </BaseButton>
+    </ShadcnButton>
   );
 }

@@ -13,14 +13,14 @@ export interface MetricStripProps {
   readonly metrics: readonly Metric[];
 }
 
-/** One row at the foot of a panel: label in sans, value in mono (U10). */
+/** One row at the foot of a panel: the label muted, the value in tabular figures. */
 export function MetricStrip({ metrics }: MetricStripProps): ReactElement {
   return (
-    <dl className="m-0 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-hairline pt-2 text-caption">
+    <dl className="m-0 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t pt-2 text-xs">
       {metrics.map((m) => (
         <div key={m.label} className="flex items-baseline gap-1">
           <dt className="text-muted-foreground">{m.label}</dt>
-          <dd className="m-0 font-mono text-data text-foreground">{m.value}</dd>
+          <dd className="m-0 font-medium tabular-nums text-foreground">{m.value}</dd>
         </div>
       ))}
     </dl>

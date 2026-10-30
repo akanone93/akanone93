@@ -1,38 +1,44 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog";
-import { Dialog as BaseDialog } from "@base-ui/react/dialog";
-import type { ReactElement, ReactNode } from "react";
-import { Button } from "./button.tsx";
-import { cx } from "./cx.ts";
+import type { ComponentProps, ReactElement, ReactNode } from "react";
+import {
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialog as ShadcnAlertDialog,
+} from "./components/alert-dialog";
+import { Button } from "./components/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Dialog as ShadcnDialog,
+} from "./components/dialog";
 import { Icon } from "./icon.tsx";
 
-/**
- * U11 widths 400 / 560 / 800 px, approximated by the container scale until dialog width tokens exist; `full`
- * is the full-screen overlay of the heavy editors (STU-063): it fills the viewport and has no corners.
- */
+/** `full` is the full-screen overlay of the heavy editors (STU-063): it fills the viewport and has no corners. */
 export type DialogSize = "sm" | "md" | "lg" | "full";
 
 const sizeClass: Readonly<Record<DialogSize, string>> = {
-  sm: "max-w-dialog-sm",
-  md: "max-w-dialog-md",
-  lg: "max-w-dialog-lg",
-  full: "h-full max-w-none rounded-none",
+  sm: "sm:max-w-sm",
+  md: "sm:max-w-lg",
+  lg: "sm:max-w-3xl",
+  full: "top-0 start-0 h-full w-full max-w-none translate-x-0 translate-y-0 rounded-none sm:max-w-none rtl:translate-x-0",
 };
-
-const backdropClass = "fixed inset-0 bg-brand-ink opacity-40";
-const viewportClass = "fixed inset-0 flex items-center justify-center p-4";
-const fullViewportClass = "fixed inset-0 flex items-stretch justify-center";
-const popupClass = "flex w-full flex-col gap-3 rounded-xl bg-raised p-6 shadow-e4";
-const titleClass = "font-serif text-title text-foreground";
-const descriptionClass = "text-body text-muted-foreground";
 
 export interface DialogLabels {
   readonly close: string;
 }
 
-export type DialogProps = Omit<BaseDialog.Root.Props, "children"> & {
+export type DialogProps = Omit<ComponentProps<typeof ShadcnDialog>, "children"> & {
   readonly title: string;
   readonly description?: string;
   readonly size?: DialogSize;
@@ -42,7 +48,10 @@ export type DialogProps = Omit<BaseDialog.Root.Props, "children"> & {
   readonly children?: ReactNode;
 };
 
-/** Modal dialog: focus is trapped and returned, Escape closes (STU-011). */
+/**
+ * shadcn's Dialog (ADR-0103): focus is trapped and returned, Escape closes (STU-011). The close button is shadcn's,
+ * named from the message catalogue.
+ */
 export function Dialog({
   title,
   description,
@@ -53,26 +62,21 @@ export function Dialog({
   ...root
 }: DialogProps): ReactElement {
   return (
-    <BaseDialog.Root {...root}>
-      {trigger !== undefined && <BaseDialog.Trigger render={trigger} />}
-      <BaseDialog.Portal>
-        <BaseDialog.Backdrop className={backdropClass} />
-        <BaseDialog.Viewport className={size === "full" ? fullViewportClass : viewportClass}>
-          <BaseDialog.Popup className={cx(popupClass, sizeClass[size])}>
-            <div className="flex items-start justify-between gap-3">
-              <BaseDialog.Title className={titleClass}>{title}</BaseDialog.Title>
-              <BaseDialog.Close render={<Button variant="ghost" size="sm" aria-label={labels.close} />}>
-                <Icon name="x" />
-              </BaseDialog.Close>
-            </div>
-            {description !== undefined && (
-              <BaseDialog.Description className={descriptionClass}>{description}</BaseDialog.Description>
-            )}
-            {children}
-          </BaseDialog.Popup>
-        </BaseDialog.Viewport>
-      </BaseDialog.Portal>
-    </BaseDialog.Root>
+    <ShadcnDialog {...root}>
+      {trigger !== undefined && <DialogTrigger render={trigger} />}
+      <DialogContent showCloseButton={false} className={sizeClass[size]}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {description !== undefined && <DialogDescription>{description}</DialogDescription>}
+        </DialogHeader>
+        {children}
+        <DialogClose
+          render={<Button variant="ghost" size="icon-sm" className="absolute top-2 end-2" aria-label={labels.close} />}
+        >
+          <Icon name="x" />
+        </DialogClose>
+      </DialogContent>
+    </ShadcnDialog>
   );
 }
 
@@ -81,7 +85,7 @@ export interface AlertDialogLabels {
   readonly confirm: string;
 }
 
-export type AlertDialogProps = Omit<BaseAlertDialog.Root.Props, "children"> & {
+export type AlertDialogProps = Omit<ComponentProps<typeof ShadcnAlertDialog>, "children"> & {
   readonly title: string;
   readonly description: string;
   readonly labels: AlertDialogLabels;
@@ -89,7 +93,7 @@ export type AlertDialogProps = Omit<BaseAlertDialog.Root.Props, "children"> & {
   readonly trigger?: ReactElement;
 };
 
-/** Confirm dialog for destructive actions: a role `alertdialog` that outside clicks do not dismiss (U11). */
+/** shadcn's AlertDialog for destructive actions: a role `alertdialog` that outside clicks do not dismiss. */
 export function AlertDialog({
   title,
   description,
@@ -99,23 +103,20 @@ export function AlertDialog({
   ...root
 }: AlertDialogProps): ReactElement {
   return (
-    <BaseAlertDialog.Root {...root}>
-      {trigger !== undefined && <BaseAlertDialog.Trigger render={trigger} />}
-      <BaseAlertDialog.Portal>
-        <BaseAlertDialog.Backdrop className={backdropClass} />
-        <BaseAlertDialog.Viewport className={viewportClass}>
-          <BaseAlertDialog.Popup className={cx(popupClass, sizeClass.sm)}>
-            <BaseAlertDialog.Title className={titleClass}>{title}</BaseAlertDialog.Title>
-            <BaseAlertDialog.Description className={descriptionClass}>{description}</BaseAlertDialog.Description>
-            <div className="flex justify-end gap-2">
-              <BaseAlertDialog.Close render={<Button variant="secondary" />}>{labels.cancel}</BaseAlertDialog.Close>
-              <BaseAlertDialog.Close render={<Button variant="danger" onClick={onConfirm} />}>
-                {labels.confirm}
-              </BaseAlertDialog.Close>
-            </div>
-          </BaseAlertDialog.Popup>
-        </BaseAlertDialog.Viewport>
-      </BaseAlertDialog.Portal>
-    </BaseAlertDialog.Root>
+    <ShadcnAlertDialog {...root}>
+      {trigger !== undefined && <AlertDialogTrigger render={trigger} />}
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
+          <AlertDialogCancel variant="destructive" onClick={onConfirm}>
+            {labels.confirm}
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </ShadcnAlertDialog>
   );
 }

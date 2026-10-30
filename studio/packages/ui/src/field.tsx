@@ -3,7 +3,10 @@
 
 import { Field as BaseField } from "@base-ui/react/field";
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from "react";
-import { cx, focusRing } from "./cx.ts";
+import { FieldDescription, FieldError, FieldLabel, Field as ShadcnField } from "./components/field";
+import { Input as ShadcnInput } from "./components/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./components/input-group";
+import { Textarea as ShadcnTextarea } from "./components/textarea";
 import { Icon } from "./icon.tsx";
 import type { IconName } from "./icons.ts";
 
@@ -15,17 +18,21 @@ export interface FieldProps {
   readonly children: ReactNode;
 }
 
-/** Label, control, description and error wired together by Base UI Field (STU-011). */
+/**
+ * shadcn's Field (ADR-0103), with Base UI's Field underneath so the label, description and error are wired to the
+ * control without ids (STU-011).
+ */
 export function Field({ label, description, error, children }: FieldProps): ReactElement {
+  const invalid = error !== undefined;
   return (
-    <BaseField.Root invalid={error !== undefined} className="flex flex-col gap-1">
-      <BaseField.Label className="text-label font-medium text-foreground">{label}</BaseField.Label>
+    <BaseField.Root invalid={invalid} render={<ShadcnField {...(invalid && { "data-invalid": true })} />}>
+      <BaseField.Label render={<FieldLabel />}>{label}</BaseField.Label>
       {children}
       {description !== undefined && (
-        <BaseField.Description className="text-caption text-tertiary">{description}</BaseField.Description>
+        <BaseField.Description render={<FieldDescription />}>{description}</BaseField.Description>
       )}
-      {error !== undefined && (
-        <BaseField.Error match className="text-caption text-danger">
+      {invalid && (
+        <BaseField.Error match render={<FieldError />}>
           {error}
         </BaseField.Error>
       )}
@@ -33,28 +40,8 @@ export function Field({ label, description, error, children }: FieldProps): Reac
   );
 }
 
-const controlClass = cx(
-  "w-full border text-foreground transition duration-fast ease-standard",
-  "data-invalid:border-danger-fill",
-  "disabled:opacity-50",
-);
-
+/** `lg` is the taller control of the public pages. */
 export type InputSize = "md" | "lg";
-
-const inputSizeClass: Readonly<Record<InputSize, string>> = {
-  md: cx("h-(--density-field) rounded-sm border-hairline bg-raised px-3 text-body hover:border-strong", focusRing),
-  // The public pages (U11.2): a 48 px field with 16 px text on a soft fill, no line until it is
-  // hovered; on focus it lifts to the raised surface with an accent edge and a halo.
-  lg: cx(
-    "h-12 rounded-lg border-transparent bg-canvas px-4 text-control placeholder:text-tertiary",
-    "hover:border-strong focus-visible:border-primary focus-visible:bg-raised",
-    "focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-accent-halo",
-  ),
-};
-
-/** Room left at the start or end of a control for its icon or trailing button. */
-const leadingRoom: Readonly<Record<InputSize, string>> = { md: "ps-8", lg: "ps-12" };
-const trailingRoom: Readonly<Record<InputSize, string>> = { md: "pe-8", lg: "pe-12" };
 
 export type InputProps = Omit<ComponentPropsWithoutRef<"input">, "className" | "size"> & {
   readonly size?: InputSize;
@@ -64,45 +51,28 @@ export type InputProps = Omit<ComponentPropsWithoutRef<"input">, "className" | "
   readonly trailing?: ReactNode;
 };
 
+/** shadcn's Input, or its InputGroup when the field carries an icon or a trailing control (ADR-0103). */
 export function Input({ size = "md", leading, trailing, ...props }: InputProps): ReactElement {
-  const control = (
-    <BaseField.Control
-      {...props}
-      className={cx(
-        controlClass,
-        inputSizeClass[size],
-        leading !== undefined && leadingRoom[size],
-        trailing !== undefined && trailingRoom[size],
-      )}
-    />
-  );
+  const height = size === "lg" ? "h-9" : undefined;
   if (leading === undefined && trailing === undefined) {
-    return control;
+    return <ShadcnInput {...props} {...(height !== undefined && { className: height })} />;
   }
   return (
-    <span className="relative flex items-center">
+    <InputGroup {...(height !== undefined && { className: height })}>
+      <InputGroupInput {...props} />
       {leading !== undefined && (
-        <span className={cx("pointer-events-none absolute text-tertiary", size === "lg" ? "start-4" : "start-2")}>
-          <Icon name={leading} size="tab" />
-        </span>
+        <InputGroupAddon>
+          <Icon name={leading} />
+        </InputGroupAddon>
       )}
-      {control}
-      {trailing !== undefined && <span className="absolute end-2 flex items-center">{trailing}</span>}
-    </span>
+      {trailing !== undefined && <InputGroupAddon align="inline-end">{trailing}</InputGroupAddon>}
+    </InputGroup>
   );
 }
 
 export type TextareaProps = Omit<ComponentPropsWithoutRef<"textarea">, "className">;
 
+/** shadcn's Textarea, registered with the surrounding Field. */
 export function Textarea(props: TextareaProps): ReactElement {
-  return (
-    <BaseField.Control
-      render={<textarea {...props} />}
-      className={cx(
-        controlClass,
-        "rounded-sm border-hairline bg-raised px-3 py-2 text-body hover:border-strong",
-        focusRing,
-      )}
-    />
-  );
+  return <BaseField.Control render={<ShadcnTextarea {...props} />} />;
 }

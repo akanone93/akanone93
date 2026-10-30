@@ -7,4 +7,4 @@ export function cx(...parts: readonly (string | false | null | undefined)[]): st
 }
 
 /** Visible focus ring from the focus token (STU-011). */
-export const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+export const focusRing = "outline-none focus-visible:ring-3 focus-visible:ring-ring/50";

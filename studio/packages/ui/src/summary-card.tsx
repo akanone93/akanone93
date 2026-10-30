@@ -12,14 +12,14 @@ export interface SummaryCardProps {
   readonly cells: readonly [SummaryCell, SummaryCell, SummaryCell];
 }
 
-/** Three equal cells, mono value over a sans caption, for panel footers (U10). */
+/** Three equal cells, value over caption, for panel footers; the surface is shadcn's card. */
 export function SummaryCard({ cells }: SummaryCardProps): ReactElement {
   return (
-    <dl className="m-0 grid grid-cols-3 rounded-lg bg-card px-(--density-card-padding-x) py-(--density-card-padding-y) text-center">
+    <dl className="m-0 grid grid-cols-3 rounded-xl bg-card py-3 text-center text-card-foreground ring-1 ring-foreground/10">
       {cells.map((c) => (
-        <div key={c.caption} className="flex flex-col-reverse">
-          <dt className="text-caption text-muted-foreground">{c.caption}</dt>
-          <dd className="m-0 font-mono text-data text-foreground">{c.value}</dd>
+        <div key={c.caption} className="flex flex-col-reverse gap-0.5">
+          <dt className="text-xs text-muted-foreground">{c.caption}</dt>
+          <dd className="m-0 text-sm font-medium tabular-nums">{c.value}</dd>
         </div>
       ))}
     </dl>
