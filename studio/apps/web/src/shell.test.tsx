@@ -148,11 +148,18 @@ describe("[STU-013] sign-in form", () => {
     renderApp("/signin", { signedIn: false });
     const email = await screen.findByLabelText("Email");
     fireEvent.change(email, { target: { value: "nope" } });
+    // Nothing is shown while the field is first typed into (STU-011).
+    expect(screen.queryByText("Enter a valid email address.")).toBeNull();
     fireEvent.blur(email);
     await screen.findByText("Enter a valid email address.");
+    // Once shown, the error follows the value and goes away when it is valid.
+    fireEvent.change(email, { target: { value: "ada@example.org" } });
+    await waitFor(() => expect(screen.queryByText("Enter a valid email address.") === null).toBe(true));
     const password = screen.getByLabelText("Password");
     fireEvent.change(password, { target: { value: "x" } });
     fireEvent.change(password, { target: { value: "" } });
+    expect(screen.queryByText("Enter your password.")).toBeNull();
+    fireEvent.blur(password);
     await screen.findByText("Enter your password.");
   });
 });

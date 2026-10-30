@@ -5,11 +5,12 @@ import { Code, ConnectError, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { FederationService, IdentityService, type MfaChallenge, type SignInProvider } from "@plux/api";
 import { Button, Field, Icon, type IconName, Input } from "@plux/ui";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { domAnimation, LazyMotion, m as motion, useReducedMotion } from "motion/react";
 import { type ReactNode, useMemo, useState } from "react";
+import { shownError } from "../../lib/field-error.ts";
 import { forgetUser, safeNext } from "../../lib/guards.ts";
 import type { Session } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
@@ -20,11 +21,6 @@ import "./sign-in.css";
 import { getAssertion } from "./webauthn.ts";
 
 type Messages = ReturnType<typeof authMessages>;
-
-function messagesOf(errors: readonly unknown[]): string | undefined {
-  const first = errors[0];
-  return typeof first === "object" && first !== null && "message" in first ? String(first.message) : undefined;
-}
 
 function FormError({ children }: { children: ReactNode }) {
   return (
@@ -191,6 +187,7 @@ export function SignInPage() {
       }
     },
   });
+  const submitted = useStore(passwordForm.store, (state) => state.submissionAttempts > 0);
 
   if (challenge !== null) {
     return (
@@ -237,10 +234,7 @@ export function SignInPage() {
         >
           <passwordForm.Field name="email">
             {(field) => (
-              <Field
-                label={m.email}
-                error={field.state.meta.isTouched ? messagesOf(field.state.meta.errors) : undefined}
-              >
+              <Field label={m.email} error={shownError(field.state.meta, submitted)}>
                 <Input
                   size="lg"
                   leading="user"
@@ -256,10 +250,7 @@ export function SignInPage() {
           </passwordForm.Field>
           <passwordForm.Field name="password">
             {(field) => (
-              <Field
-                label={m.password}
-                error={field.state.meta.isTouched ? messagesOf(field.state.meta.errors) : undefined}
-              >
+              <Field label={m.password} error={shownError(field.state.meta, submitted)}>
                 <Input
                   size="lg"
                   leading="lock"
@@ -305,6 +296,7 @@ function FactorStep(props: {
       await props.onCode(value.code);
     },
   });
+  const submitted = useStore(form.store, (state) => state.submissionAttempts > 0);
   return (
     <section aria-labelledby="factor-title" className="flex flex-col gap-6">
       <h2 id="factor-title" className="text-section font-semibold">
@@ -321,10 +313,7 @@ function FactorStep(props: {
         >
           <form.Field name="code">
             {(field) => (
-              <Field
-                label={m.code}
-                error={field.state.meta.isTouched ? messagesOf(field.state.meta.errors) : undefined}
-              >
+              <Field label={m.code} error={shownError(field.state.meta, submitted)}>
                 <Input
                   size="lg"
                   inputMode="numeric"
