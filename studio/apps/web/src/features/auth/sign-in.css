@@ -1,0 +1,54 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The left half of the sign-in page (U16.2): the mark and the rules for short windows. */
+
+/* Plux's mark: three layers of a screen, offset down and to the end, lightest at the back. */
+.signin-mark {
+  position: relative;
+  inline-size: 26px;
+  block-size: 26px;
+}
+
+.signin-mark i {
+  position: absolute;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: 6px;
+}
+
+.signin-mark i:nth-child(1) {
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  background-color: color-mix(in oklab, var(--color-accent) 22%, var(--color-raised));
+}
+
+.signin-mark i:nth-child(2) {
+  inset-block-start: 4px;
+  inset-inline-start: 4px;
+  background-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-raised));
+}
+
+.signin-mark i:nth-child(3) {
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
+  background-color: var(--color-accent);
+  box-shadow: 0 4px 10px -4px var(--color-accent);
+}
+
+/* Short windows (laptops): a smaller headline and tighter rhythm, so the form stays in view. */
+@media (max-height: 820px) {
+  .signin-title {
+    font-size: var(--text-display-sm);
+    line-height: var(--text-display-sm--line-height);
+    letter-spacing: var(--text-display-sm--letter-spacing);
+  }
+
+  .signin-main {
+    padding-block: var(--spacing-4);
+  }
+
+  .signin-form {
+    margin-block-start: var(--spacing-8);
+  }
+}

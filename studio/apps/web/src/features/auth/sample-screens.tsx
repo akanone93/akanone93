@@ -9,7 +9,7 @@ type Messages = ReturnType<typeof authMessages>;
 
 /**
  * One sample app screen on the sign-in page (U16.2). `base` lies on the screen; `layers` stand
- * above it from the lowest up, and the last one carries the story's moment. Each app has its own
+ * above it from the lowest up. Each app has its own
  * brand colour (`app`), as real apps do; the story says which Plux feature the screen shows.
  */
 export interface SampleScreen {
@@ -17,7 +17,8 @@ export interface SampleScreen {
   readonly app: "loan" | "shop" | "bank" | "delivery" | "fresh";
   readonly base: ReactNode;
   readonly layers: readonly ReactNode[];
-  readonly story: { readonly title: string; readonly body: string };
+  /** The caption under the screen: its tag plays the story's moment while the screen is in front. */
+  readonly story: { readonly tag: ReactNode; readonly title: string; readonly body: string };
 }
 
 function money(locale: string, value: number, digits = 2): string {
@@ -80,7 +81,16 @@ export function sampleScreens(m: Messages, locale: string): SampleScreen[] {
     {
       key: "loan",
       app: "loan",
-      story: { title: m.storyLiveTitle, body: m.storyLiveBody },
+      story: {
+        tag: (
+          <>
+            <span className="ss-live-dot" />
+            {m.loanLive}
+          </>
+        ),
+        title: m.storyLiveTitle,
+        body: m.storyLiveBody,
+      },
       base: (
         <>
           <StatusBar locale={locale} />
@@ -114,16 +124,21 @@ export function sampleScreens(m: Messages, locale: string): SampleScreen[] {
         <div key="a" className="ss-action">
           {m.loanApply}
         </div>,
-        <div key="s" className="ss-moment ss-live">
-          <span className="ss-live-dot" />
-          {m.loanLive}
-        </div>,
       ],
     },
     {
       key: "shop",
       app: "shop",
-      story: { title: m.storyTestTitle, body: m.storyTestBody },
+      story: {
+        tag: (
+          <>
+            <Icon name="flask" size="pill" />
+            <Swap from={m.shopVariantA} to={m.shopVariantB} />
+          </>
+        ),
+        title: m.storyTestTitle,
+        body: m.storyTestBody,
+      },
       base: (
         <>
           <StatusBar locale={locale} />
@@ -160,16 +175,21 @@ export function sampleScreens(m: Messages, locale: string): SampleScreen[] {
           from={<span className="ss-action">{m.shopAdd}</span>}
           to={<span className="ss-action ss-action-alt">{m.shopBuy}</span>}
         />,
-        <div key="s" className="ss-moment ss-variant">
-          <Icon name="flask" size="pill" />
-          <Swap from={m.shopVariantA} to={m.shopVariantB} />
-        </div>,
       ],
     },
     {
       key: "bank",
       app: "bank",
-      story: { title: m.storySignedTitle, body: m.storySignedBody },
+      story: {
+        tag: (
+          <span className="ss-stamp">
+            <Icon name="check-circle" size="pill" />
+            {m.bankVerified}
+          </span>
+        ),
+        title: m.storySignedTitle,
+        body: m.storySignedBody,
+      },
       base: (
         <>
           <StatusBar locale={locale} />
@@ -204,16 +224,21 @@ export function sampleScreens(m: Messages, locale: string): SampleScreen[] {
             <span className="ss-value">{money(locale, -950)}</span>
           </div>
         </div>,
-        <div key="s" className="ss-moment ss-seal">
-          <Icon name="check-circle" size="tab" />
-          {m.bankVerified}
-        </div>,
       ],
     },
     {
       key: "delivery",
       app: "delivery",
-      story: { title: m.storyOfflineTitle, body: m.storyOfflineBody },
+      story: {
+        tag: (
+          <>
+            <Icon name="wifi-slash" size="pill" />
+            {m.tagOffline}
+          </>
+        ),
+        title: m.storyOfflineTitle,
+        body: m.storyOfflineBody,
+      },
       base: <StatusBar locale={locale} />,
       layers: [
         <div key="h" className="ss-header ss-header-row">
@@ -243,7 +268,18 @@ export function sampleScreens(m: Messages, locale: string): SampleScreen[] {
     {
       key: "fresh",
       app: "fresh",
-      story: { title: m.storyRolloutTitle, body: m.storyRolloutBody },
+      story: {
+        tag: (
+          <>
+            <span className="ss-rollout-bar">
+              <i />
+            </span>
+            <Swap from={percent(locale, 0.1)} to={percent(locale, 0.5)} />
+          </>
+        ),
+        title: m.storyRolloutTitle,
+        body: m.storyRolloutBody,
+      },
       base: <StatusBar locale={locale} />,
       layers: [
         <div key="o" className="ss-orb">
@@ -262,12 +298,6 @@ export function sampleScreens(m: Messages, locale: string): SampleScreen[] {
         </div>,
         <div key="a" className="ss-action">
           {m.onboardStart}
-        </div>,
-        <div key="s" className="ss-moment ss-rollout">
-          <div className="ss-rollout-bar">
-            <div />
-          </div>
-          <Swap from={m.onboardRollout(percent(locale, 0.1))} to={m.onboardRollout(percent(locale, 0.5))} />
         </div>,
       ],
     },

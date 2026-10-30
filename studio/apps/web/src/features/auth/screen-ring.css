@@ -56,62 +56,11 @@
   scale: 1.05;
 }
 
-/* The floor the screen stands over: two orbits and a signal travelling round the outer one. */
-.sr-floor {
-  position: absolute;
-  inset-block-start: calc(100% + 24px - 300px);
-  inset-inline-start: calc(50% - 300px);
-  inline-size: 600px;
-  block-size: 600px;
-  /* Tilted a little toward the viewer from flat, so the orbits read as rings, not lines. */
-  transform: rotateX(76deg);
-  pointer-events: none;
-}
-
-.sr-orbit {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-strong);
-  mask-image: linear-gradient(to bottom, black, transparent 70%);
-}
-
-.sr-orbit[data-orbit="inner"] {
-  inset: 130px;
-  border: 1px dashed var(--color-accent);
-  opacity: 0.45;
-  animation: sr-spin 80s linear infinite;
-}
-
-.sr-signal {
-  position: absolute;
-  inset: 0;
-  animation: sr-spin 10s linear infinite;
-}
-
-.sr-signal::after {
-  content: "";
-  position: absolute;
-  inset-block-start: -4px;
-  inset-inline-start: calc(50% - 4px);
-  inline-size: 8px;
-  block-size: 8px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-accent);
-  box-shadow: 0 0 0 6px var(--color-accent-halo);
-}
-
-@keyframes sr-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* The caption under the screen: what the front screen shows. */
 .sr-stories {
   position: relative;
-  inline-size: 360px;
-  block-size: 76px;
+  inline-size: 380px;
+  block-size: 112px;
   text-align: center;
 }
 
@@ -120,6 +69,7 @@
   inset: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spacing-1);
   opacity: 0;
   translate: 0 8px;
@@ -132,6 +82,28 @@
   opacity: 1;
   translate: 0 0;
   transition-delay: 0.4s;
+}
+
+/* The tag over the caption: it plays the moment of the front screen's story. */
+.sr-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-block-end: var(--spacing-2);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background-color: color-mix(in oklab, var(--app) 10%, var(--color-raised));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--app) 22%, transparent);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app);
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .sr-tag {
+  background-color: color-mix(in oklab, var(--app) 22%, var(--color-raised));
+  color: var(--color-primary);
 }
 
 .sr-story-title {
@@ -164,23 +136,23 @@
   backface-visibility: hidden;
 }
 
-.sr-slot[data-app="loan"] {
+[data-app="loan"] {
   --app: var(--color-sample-loan);
 }
 
-.sr-slot[data-app="shop"] {
+[data-app="shop"] {
   --app: var(--color-sample-shop);
 }
 
-.sr-slot[data-app="bank"] {
+[data-app="bank"] {
   --app: var(--color-sample-bank);
 }
 
-.sr-slot[data-app="delivery"] {
+[data-app="delivery"] {
   --app: var(--color-sample-delivery);
 }
 
-.sr-slot[data-app="fresh"] {
+[data-app="fresh"] {
   --app: var(--color-sample-fresh);
 }
 
@@ -484,9 +456,10 @@
   box-shadow: var(--shadow-e1);
 }
 
-.ss-live {
-  inset-block-start: 116px;
-  inset-inline-end: -18px;
+.ss-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .ss-live-dot {
@@ -539,11 +512,6 @@
 
 .ss-swatches [data-swatch="3"] {
   background-color: var(--color-primary);
-}
-
-.ss-variant {
-  inset-block-start: 112px;
-  inset-inline-end: -22px;
 }
 
 /* Bank: the card, the ledger and the verified seal. */
@@ -603,16 +571,6 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--app);
-}
-
-.ss-seal {
-  inset-block-start: 150px;
-  inset-inline-end: -26px;
-  color: var(--color-success);
-}
-
-.ss-seal svg {
-  color: var(--color-success);
 }
 
 /* Delivery: the map, the courier and the offline bar. */
@@ -768,23 +726,15 @@
   background-color: var(--app);
 }
 
-.ss-rollout {
-  inset-block-start: 196px;
-  inset-inline: -18px;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--radius-lg);
-}
-
 .ss-rollout-bar {
+  inline-size: 56px;
   block-size: 6px;
   border-radius: var(--radius-full);
   background-color: var(--color-hairline);
 }
 
-.ss-rollout-bar > div {
+.ss-rollout-bar > i {
+  display: block;
   block-size: 100%;
   border-radius: inherit;
   background-color: var(--app);
@@ -793,17 +743,20 @@
 }
 
 [dir="rtl"] .ss-slider-fill,
-[dir="rtl"] .ss-rollout-bar > div {
+[dir="rtl"] .ss-rollout-bar > i {
+  display: block;
   transform-origin: right center;
 }
 
 /* ── The live moments, played while a screen is at the front ───────────────────────────────── */
 
-.sr-slot[data-front="true"] .ss-swap-from {
+.sr-slot[data-front="true"] .ss-swap-from,
+.sr-story[data-front="true"] .ss-swap-from {
   animation: ss-out 0.5s var(--ease-standard) 2.2s forwards;
 }
 
-.sr-slot[data-front="true"] .ss-swap-to {
+.sr-slot[data-front="true"] .ss-swap-to,
+.sr-story[data-front="true"] .ss-swap-to {
   animation: ss-in 0.5s var(--ease-standard) 2.2s forwards;
 }
 
@@ -815,11 +768,11 @@
   animation: ss-slider-thumb 1.4s var(--ease-emphasized) 1.2s forwards;
 }
 
-.sr-slot[data-front="true"] .ss-live-dot {
+.sr-story[data-front="true"] .ss-live-dot {
   animation: ss-pulse 1.6s ease-in-out infinite;
 }
 
-.sr-slot[data-front="true"] .ss-seal {
+.sr-story[data-front="true"] .ss-stamp {
   animation: ss-stamp 0.7s var(--ease-emphasized) 1.4s both;
 }
 
@@ -831,7 +784,8 @@
   animation: ss-ride 4.4s ease-in-out 0.6s forwards;
 }
 
-.sr-slot[data-front="true"] .ss-rollout-bar > div {
+.sr-slot[data-front="true"] .ss-rollout-bar > i {
+  display: block;
   animation: ss-rollout 2.6s var(--ease-emphasized) 1s forwards;
 }
 
@@ -906,7 +860,7 @@
   }
 }
 
-/* Short windows (laptops): a smaller stage and headline, so the form and the screen both fit. */
+/* Short windows (laptops): a smaller stage, so the screen and its caption fit. */
 @media (max-height: 820px) {
   .sr-scene {
     min-block-size: 600px;
@@ -919,23 +873,11 @@
   .sr-view {
     scale: 0.84;
   }
-
-  .signin-title {
-    font-size: var(--text-display-sm);
-    line-height: var(--text-display-sm--line-height);
-    letter-spacing: var(--text-display-sm--letter-spacing);
-  }
-
-  .signin-main {
-    gap: var(--spacing-6);
-    padding-block: var(--spacing-4);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sr-orbit[data-orbit="inner"],
-  .sr-signal,
-  .sr-slot[data-front="true"] * {
+  .sr-slot[data-front="true"] *,
+  .sr-story[data-front="true"] * {
     animation: none;
   }
 

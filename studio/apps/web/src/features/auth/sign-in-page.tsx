@@ -4,7 +4,7 @@
 import { Code, ConnectError, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { FederationService, IdentityService, type MfaChallenge, type SignInProvider } from "@plux/api";
-import { Button, Field, Icon, Input } from "@plux/ui";
+import { Button, Field, Icon, type IconName, Input } from "@plux/ui";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
@@ -16,6 +16,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import { authMessages } from "./auth.messages.ts";
 import { codeSchema, signInSchema } from "./auth.schema.ts";
 import { ScreenRing } from "./screen-ring.tsx";
+import "./sign-in.css";
 import { getAssertion } from "./webauthn.ts";
 
 type Messages = ReturnType<typeof authMessages>;
@@ -71,19 +72,30 @@ function Rise({ delay, children, className }: { delay: number; children: ReactNo
   );
 }
 
-/** One of the short facts under the form. */
-function Fact({ children }: { children: ReactNode }) {
+/** One of the short facts in the footer of the left half. */
+function Fact({ icon, children }: { icon: IconName; children: ReactNode }) {
   return (
-    <li className="flex items-center gap-2 text-caption text-secondary">
-      <Icon name="check-circle" size="tab" />
+    <li className="flex items-center gap-2 text-caption text-tertiary">
+      <Icon name={icon} size="tab" />
       {children}
     </li>
   );
 }
 
+/** Plux's mark: three layers of a screen, offset, the way Plux sends them to a device. */
+function Mark() {
+  return (
+    <span aria-hidden="true" className="signin-mark">
+      <i />
+      <i />
+      <i />
+    </span>
+  );
+}
+
 /**
- * The sign-in page (U16.2): on a white page, the promise, the form and three facts fill the left
- * half; on the right, sample app screens built with Plux turn on a ring and lift their layers.
+ * The sign-in page (U16.2): on a white page, the left half holds the mark, the promise, the form
+ * and a quiet footer of facts; on the right, sample apps built with Plux turn on a ring.
  */
 function SignInFrame({ children }: { children: ReactNode }) {
   const { i18n } = useLingui();
@@ -93,36 +105,54 @@ function SignInFrame({ children }: { children: ReactNode }) {
     <LazyMotion features={domAnimation} strict>
       <div className="grid min-h-screen bg-raised lg:grid-cols-12">
         <div className="flex flex-col px-6 py-8 sm:px-12 lg:col-span-6 lg:px-16 xl:px-24">
-          <header className="flex h-10 shrink-0 items-center">
+          <header className="flex h-10 shrink-0 items-center gap-3">
+            <Mark />
             <span className="font-wordmark text-section font-semibold">{m.wordmark}</span>
           </header>
-          <main className="signin-main flex flex-1 flex-col justify-center gap-10 py-12">
-            <div className="flex flex-col gap-5">
+          <main className="signin-main flex flex-1 flex-col justify-center py-12">
+            <div className="flex w-full max-w-dialog-md flex-col">
               <h1 className="signin-title text-display-sm lg:text-display">
                 <RisingWords text={lineOne} from={0} className="block" />
                 <RisingWords text={m.heroLineTwo} from={lineOne.split(" ").length} className="block text-tertiary" />
               </h1>
-              <Rise delay={0.5}>
+              <Rise delay={0.5} className="mt-5">
                 <p className="max-w-auth-form text-lead text-secondary">{m.heroLead}</p>
               </Rise>
+              <Rise delay={0.7} className="signin-form mt-12 w-full max-w-auth-form">
+                {children}
+              </Rise>
             </div>
-            <Rise delay={0.7} className="w-full max-w-auth-form">
-              {children}
-            </Rise>
-            <Rise delay={0.9}>
-              <ul className="flex flex-col gap-2">
-                <Fact>{m.factSigned}</Fact>
-                <Fact>{m.factInstant}</Fact>
-                <Fact>{m.factNative}</Fact>
-              </ul>
-            </Rise>
           </main>
+          <Rise delay={0.9}>
+            <footer>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                <Fact icon="key">{m.factSigned}</Fact>
+                <Fact icon="lightning">{m.factInstant}</Fact>
+                <Fact icon="check-circle">{m.factNative}</Fact>
+              </ul>
+            </footer>
+          </Rise>
         </div>
         <div className="relative hidden overflow-hidden lg:col-span-6 lg:block">
           <ScreenRing />
         </div>
       </div>
     </LazyMotion>
+  );
+}
+
+/** The password field's button that shows or hides what was typed. */
+function RevealButton({ shown, onToggle, m }: { shown: boolean; onToggle: () => void; m: Messages }) {
+  return (
+    <button
+      type="button"
+      aria-label={shown ? m.hidePassword : m.showPassword}
+      aria-pressed={shown}
+      onClick={onToggle}
+      className="grid size-8 place-items-center rounded-md text-tertiary transition duration-fast hover:bg-hover hover:text-primary focus-visible:outline-2 focus-visible:outline-focus"
+    >
+      <Icon name={shown ? "eye-slash" : "eye"} size="tab" />
+    </button>
   );
 }
 
@@ -136,6 +166,7 @@ export function SignInPage() {
   const identity = useMemo(() => createClient(IdentityService, session.transport), [session]);
   const [challenge, setChallenge] = useState<MfaChallenge | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
+  const [reveal, setReveal] = useState(false);
 
   const finish = (csrfToken: string) => {
     session.setCsrfToken(csrfToken);
@@ -192,13 +223,13 @@ export function SignInPage() {
 
   return (
     <SignInFrame>
-      <section aria-labelledby="signin-title" className="flex flex-col gap-6">
+      <section aria-labelledby="signin-title" className="flex flex-col gap-5">
         <h2 id="signin-title" className="text-section font-semibold">
           {m.signInTitle}
         </h2>
         <form
           noValidate
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-5"
           onSubmit={(event) => {
             event.preventDefault();
             void passwordForm.handleSubmit();
@@ -212,6 +243,8 @@ export function SignInPage() {
               >
                 <Input
                   size="lg"
+                  leading="user"
+                  placeholder={m.emailPlaceholder}
                   type="email"
                   autoComplete="username"
                   value={field.state.value}
@@ -229,7 +262,9 @@ export function SignInPage() {
               >
                 <Input
                   size="lg"
-                  type="password"
+                  leading="lock"
+                  trailing={<RevealButton shown={reveal} onToggle={() => setReveal((v) => !v)} m={m} />}
+                  type={reveal ? "text" : "password"}
                   autoComplete="current-password"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}

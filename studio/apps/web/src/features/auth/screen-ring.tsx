@@ -28,10 +28,8 @@ const RADIUS = 360;
  * the way in mirrors the way out.
  */
 const DRIFT = 16;
-const DRIFT_S = 5.2;
-const TURN_S = 2.1;
-const driftEase = [0.37, 0, 0.63, 1] as const;
-const turnEase = [0.65, 0, 0.35, 1] as const;
+const DRIFT_S = 7;
+const TURN_S = 3;
 /**
  * Everything a screen shows follows its angle from facing, the same way on both sides: it is
  * fully seen within `DRIFT` degrees and fades out over the next `FADE` degrees, while the ring
@@ -62,6 +60,25 @@ function fold(degrees: number): number {
 
 function smooth(t: number): number {
   return t * t * (3 - 2 * t);
+}
+
+/**
+ * One cycle of the ring, from one screen's arrival to the next one's, as a single curve: steady
+ * through the glide (the first `glide` of the time covers `share` of the angle), then the speed
+ * rises and falls back as a smooth bump through the turn. The speed is the same at both ends of
+ * the turn and of the cycle, so glide, turn and the next glide join without a hitch.
+ */
+function cycleCurve(glide: number, share: number): (t: number) => number {
+  const steady = share / glide;
+  const bump = (2 * (1 - steady)) / (1 - glide);
+  const span = 1 - glide;
+  return (t) => {
+    if (t <= glide) {
+      return steady * t;
+    }
+    const u = t - glide;
+    return steady * t + bump * (u / 2 - (span / (4 * Math.PI)) * Math.sin((2 * Math.PI * u) / span));
+  };
 }
 
 /** One layer of a screen, lifted by the screen's lift factor to its own height. */
@@ -145,7 +162,7 @@ export function ScreenRing() {
   const count = list.length;
   const step = 360 / count;
   /** The ring's turn in degrees: screen k faces the viewer at -k * step. */
-  const angle = useMotionValue(reduced ? 0 : DRIFT + FADE + 30);
+  const angle = useMotionValue(reduced ? 0 : step - DRIFT);
   const [front, setFront] = useState(0);
 
   useMotionValueEvent(angle, "change", (a) => {
@@ -160,24 +177,28 @@ export function ScreenRing() {
     }
     let alive = true;
     let running: { stop: () => void } | undefined;
-    const run = async (target: number, duration: number, ease: readonly [number, number, number, number]) => {
+    const run = async (target: number, duration: number, ease: (t: number) => number) => {
       const controls = animate(angle, target, { duration, ease });
       running = controls;
       await controls;
     };
+    const cycle = DRIFT_S + TURN_S;
+    const glide = DRIFT_S / cycle;
+    const curve = cycleCurve(glide, (2 * DRIFT) / step);
+    // The first arrival is the end of a cycle: the turn part of the curve, rescaled to 0..1.
+    const atTurn = curve(glide);
+    const arrival = (t: number) => (curve(glide + t * (1 - glide)) - atTurn) / (1 - atTurn);
     void (async () => {
-      let k = 0;
-      await run(DRIFT, TURN_S, turnEase);
-      while (alive) {
+      angle.set(step - DRIFT);
+      await run(DRIFT, TURN_S, arrival);
+      for (let k = 0; alive; k++) {
         const started = performance.now();
-        await run(-k * step - DRIFT, DRIFT_S, driftEase);
-        // A glide that ends at once means animations are switched off (Motion's skipAnimations):
+        await run(-(k + 1) * step + DRIFT, cycle, curve);
+        // A cycle that ends at once means animations are switched off (Motion's skipAnimations):
         // stop rather than turn the ring in a tight loop.
-        if (!alive || performance.now() - started < DRIFT_S * 500) {
+        if (performance.now() - started < cycle * 500) {
           return;
         }
-        k += 1;
-        await run(-k * step + DRIFT, TURN_S, turnEase);
       }
     })();
     return () => {
@@ -211,11 +232,6 @@ export function ScreenRing() {
         <div aria-hidden="true" className="sr-grid" />
         <div role="img" aria-label={copy.sceneLabel} className="sr-stage">
           <m.div className="sr-view" style={{ rotateX: tiltX, rotateY: tiltY }}>
-            <div aria-hidden="true" className="sr-floor">
-              <i className="sr-orbit" />
-              <i className="sr-orbit" data-orbit="inner" />
-              <i className="sr-signal" />
-            </div>
             <m.div className="sr-ring" style={{ z: -RADIUS, rotateY: angle }}>
               {list.map((screen, i) => (
                 <Slot key={screen.key} screen={screen} index={i} step={step} angle={angle} front={i === front} />
@@ -225,7 +241,14 @@ export function ScreenRing() {
         </div>
         <div className="sr-stories">
           {list.map((screen, i) => (
-            <div key={screen.key} className="sr-story" data-front={i === front} aria-hidden={i !== front}>
+            <div
+              key={screen.key}
+              className="sr-story"
+              data-app={screen.app}
+              data-front={i === front}
+              aria-hidden={i !== front}
+            >
+              <span className="sr-tag">{screen.story.tag}</span>
               <span className="sr-story-title">{screen.story.title}</span>
               <span className="sr-story-body">{screen.story.body}</span>
             </div>

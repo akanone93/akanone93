@@ -134,6 +134,21 @@ export function authMessages(i18n: I18n) {
         "Studio builds the screens your Flutter apps download, verify and render natively, with no store release.",
       comment: "Sentence under the headline of the sign-in page, saying what Plux Studio does.",
     }),
+    emailPlaceholder: i18n._({
+      id: "auth.field.email-placeholder",
+      message: "you@company.com",
+      comment: "Example shown inside the empty email field of the sign-in page.",
+    }),
+    showPassword: i18n._({
+      id: "auth.field.show-password",
+      message: "Show password",
+      comment: "Button in the password field that shows the typed password.",
+    }),
+    hidePassword: i18n._({
+      id: "auth.field.hide-password",
+      message: "Hide password",
+      comment: "Button in the password field that hides the typed password again.",
+    }),
     sceneLabel: i18n._({
       id: "auth.hero.scene",
       message: "Sample app screens built with Plux, turning one by one",
@@ -146,12 +161,12 @@ export function authMessages(i18n: I18n) {
     }),
     factInstant: i18n._({
       id: "auth.fact.instant",
-      message: "Updates without a store release",
+      message: "No store releases",
       comment: "One of three short facts under the sign-in form.",
     }),
     factNative: i18n._({
       id: "auth.fact.native",
-      message: "Rendered natively by Flutter",
+      message: "Native Flutter rendering",
       comment: "One of three short facts under the sign-in form.",
     }),
     storyLiveTitle: i18n._({
@@ -368,13 +383,10 @@ export function authMessages(i18n: I18n) {
       message: "Get started",
       comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
     }),
-    onboardRollout: (percent: string) =>
-      i18n._({
-        id: "auth.scene.onboard-rollout",
-        message: "Live on {percent} of devices",
-        comment:
-          "Text in a sample app screen drawn beside the sign-in form. Badge of a staged rollout; {percent} is a formatted percentage.",
-        values: { percent },
-      }),
+    tagOffline: i18n._({
+      id: "auth.scene.tag-offline",
+      message: "Offline",
+      comment: "Small tag over the caption of the sample delivery screen: the phone has no connection.",
+    }),
   };
 }

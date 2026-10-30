@@ -5812,6 +5812,12 @@ msgstr "Hilfe"
 msgid "analytics.replayMasked"
 msgstr "Verborgen"
 
+#. Button in the password field that hides the typed password again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.hide-password"
+msgstr "Passwort verbergen"
+
 #. Risk level.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -7080,12 +7086,6 @@ msgstr "Live"
 msgid "auth.hero.line-two"
 msgstr "Überall live."
 
-#. Text in a sample app screen drawn beside the sign-in form. Badge of a staged rollout; {percent} is a formatted percentage.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.scene.onboard-rollout"
-msgstr "Live auf {percent} der Geräte"
-
 #. Checkbox that makes screen readers announce changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -7854,6 +7854,12 @@ msgstr "benannt: {users}"
 msgid "panels.native"
 msgstr "Nativ und benutzerdefiniert"
 
+#. One of three short facts under the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.fact.native"
+msgstr "Natives Flutter-Rendering"
+
 #. Type of a box on the app canvas that stands for a screen of the host app, not a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -8520,6 +8526,12 @@ msgstr "Kein Screenshot"
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
 
+#. One of three short facts under the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.fact.instant"
+msgstr "Ohne Store-Releases"
+
 #. Shown when the fingerprint is unknown.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -8842,6 +8854,12 @@ msgstr "Aus"
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "chip.offline"
+msgstr "Offline"
+
+#. Small tag over the caption of the sample delivery screen: the phone has no connection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.tag-offline"
 msgstr "Offline"
 
 #. Text in a sample app screen drawn beside the sign-in form. Bar that slides in when the phone loses its connection.
@@ -10620,12 +10638,6 @@ msgstr "Visuellen Vergleich rendern"
 msgid "publish.diffSucceeded"
 msgstr "Gerendert"
 
-#. One of three short facts under the sign-in form.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.fact.native"
-msgstr "Nativ von Flutter dargestellt"
-
 #. Alternative text of a rendered screen thumbnail; side is Before or After.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -12071,6 +12083,12 @@ msgstr "Erste Schritte anzeigen"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.nav.shortcuts"
 msgstr "Tastaturkürzel anzeigen"
+
+#. Button in the password field that shows the typed password.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.show-password"
+msgstr "Passwort anzeigen"
 
 #. One of five short stories under the sample screen on the sign-in page. Its sentence.
 #. js-lingui-explicit-id
@@ -15061,12 +15079,6 @@ msgstr "Einbettung der Auswahl aufheben"
 msgid "auth.story.live.title"
 msgstr "Live aktualisiert"
 
-#. One of three short facts under the sign-in form.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.fact.instant"
-msgstr "Updates ohne Store-Release"
-
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -15888,6 +15900,12 @@ msgstr "Sie benötigen die Berechtigung, Richtlinien zu verwalten."
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.title"
 msgstr "Sie halten die Bearbeitungssperre nicht mehr"
+
+#. Example shown inside the empty email field of the sign-in page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.email-placeholder"
+msgstr "sie@firma.de"
 
 #. Caption under the profile heading.
 #. js-lingui-explicit-id

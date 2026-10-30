@@ -5812,6 +5812,12 @@ msgstr "Help"
 msgid "analytics.replayMasked"
 msgstr "Hidden"
 
+#. Button in the password field that hides the typed password again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.hide-password"
+msgstr "Hide password"
+
 #. Risk level.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -7080,12 +7086,6 @@ msgstr "Live"
 msgid "auth.hero.line-two"
 msgstr "Live everywhere."
 
-#. Text in a sample app screen drawn beside the sign-in form. Badge of a staged rollout; {percent} is a formatted percentage.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.scene.onboard-rollout"
-msgstr "Live on {percent} of devices"
-
 #. Checkbox that makes screen readers announce changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -7854,6 +7854,12 @@ msgstr "named: {users}"
 msgid "panels.native"
 msgstr "Native and custom"
 
+#. One of three short facts under the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.fact.native"
+msgstr "Native Flutter rendering"
+
 #. Type of a box on the app canvas that stands for a screen of the host app, not a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -8520,6 +8526,12 @@ msgstr "No screenshot"
 msgid "cmd.shortcuts.none"
 msgstr "No shortcut"
 
+#. One of three short facts under the sign-in form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.fact.instant"
+msgstr "No store releases"
+
 #. Shown when the fingerprint is unknown.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -8842,6 +8854,12 @@ msgstr "Off"
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "chip.offline"
+msgstr "Offline"
+
+#. Small tag over the caption of the sample delivery screen: the phone has no connection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.tag-offline"
 msgstr "Offline"
 
 #. Text in a sample app screen drawn beside the sign-in form. Bar that slides in when the phone loses its connection.
@@ -10620,12 +10638,6 @@ msgstr "Render visual diff"
 msgid "publish.diffSucceeded"
 msgstr "Rendered"
 
-#. One of three short facts under the sign-in form.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.fact.native"
-msgstr "Rendered natively by Flutter"
-
 #. Alternative text of a rendered screen thumbnail; side is Before or After.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -12071,6 +12083,12 @@ msgstr "Show getting started"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.nav.shortcuts"
 msgstr "Show keyboard shortcuts"
+
+#. Button in the password field that shows the typed password.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.show-password"
+msgstr "Show password"
 
 #. One of five short stories under the sample screen on the sign-in page. Its sentence.
 #. js-lingui-explicit-id
@@ -15061,12 +15079,6 @@ msgstr "Unwrap selection"
 msgid "auth.story.live.title"
 msgstr "Updated live"
 
-#. One of three short facts under the sign-in form.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.fact.instant"
-msgstr "Updates without a store release"
-
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -15888,6 +15900,12 @@ msgstr "You need the permission to manage policies."
 #: apps/web/src/features/editor/lock.messages.ts
 msgid "lock.lost.title"
 msgstr "You no longer hold the editing lock"
+
+#. Example shown inside the empty email field of the sign-in page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.field.email-placeholder"
+msgstr "you@company.com"
 
 #. Caption under the profile heading.
 #. js-lingui-explicit-id
