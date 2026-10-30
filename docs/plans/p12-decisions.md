@@ -165,17 +165,33 @@ SPDX-License-Identifier: Apache-2.0
      pipeline checks short of signing and storing. Results per prompt (pass, repair attempts,
      tokens, time, prompt template version, `AI-051`) are kept as a workflow artifact and
      appended to a history file on a dedicated `ai-eval-history` branch, not on `main`.
+- **Both output modes are first-class.** The pipeline MUST work with models that enforce the
+  schema strictly **and** with models that only return valid JSON (JSON mode, `AI-002`); the
+  capability profile (D-6) selects the mode. Neither path is a degraded fallback: both are
+  covered by the replayed tests of tier 1.
+- **Order of work (live runs):**
+  1. **Strict stage, development runs:** Google Gemini Flash on its free tier through the
+     OpenAI-compatible endpoint, with strict JSON Schema output. Small runs (10 to 20 prompts)
+     while the protocol, prompts and validators are built; its daily cap is too low for the full
+     suite. Known limitation to test early: union types (`anyOf`) are reported to fail there.
+  2. **JSON-mode stage and the gate:** DeepSeek V4 Flash in JSON mode runs the full nightly
+     suite and is the 1.0 exit gate. Whether it also enforces strict schemas is checked by the
+     capability test (D-6) and does not change the gate.
 - **Manual tests, documented with the other manual tests:** a local deployment (Ollama or a
   self-hosted open-weight model) and Claude. Neither is a CI gate; local is lowest priority.
-- **Pending maintainer confirmation:** whether DeepSeek V4 Flash satisfies "free provider" in
-  `AI-050` and `AI-007` (see the open question at the end of this file).
+- **"Free provider":** decided as OQ-1 option A below.
+- **Measured need of one nightly run (estimate, 2026-10-29):** 100 prompts, about 3 rounds each,
+  10k to 30k tokens per call: 300 to 500 requests and about 6M input tokens. No free hosted tier
+  found covers that (Groq free ~200k tokens a day; Gemini free tens to hundreds of requests a
+  day; OpenRouter free 1,000 requests a day after a one-time credit, with throttled, often
+  retired models). DeepSeek V4 Flash costs about one dollar or less per run at published rates.
 
 ---
 
-## Open questions
+## Resolved questions
 
-- **OQ-1. Does DeepSeek V4 Flash count as a "free provider" (`AI-050`, `AI-007`)?** Its hosted
-  API is paid (low per-token price); its weights are published, so it can be self-hosted at no
-  licence cost. Option A: read "free" as "open-weight and self-hostable" and reword `AI-050` and
-  `AI-007` to say so. Option B: keep the wording and add a free hosted or local model as the
-  gating provider. Awaiting the maintainer.
+- **OQ-1. Does DeepSeek V4 Flash count as a "free provider" (`AI-050`, `AI-007`)?** Decided
+  2026-10-29: **option A.** "Free" means **open-weight and self-hostable at no licence cost**;
+  the hosted API of such a model stands in for a self-hosted copy in CI. Follow-up: reword
+  `AI-050` and `AI-007` accordingly in the P12 pull request (spec change, `AGENTS.md` §3; ADR
+  because `AI-050` is a `MUST`), then `make spec-lint`.
