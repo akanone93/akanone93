@@ -134,6 +134,20 @@ describe("[STU-014] preferences", () => {
     expect(document.documentElement.getAttribute("lang")).toBe("ar");
   });
 
+  test("a toggled theme holds on the next page", async () => {
+    renderApp(`/o/${orgA}`, { stored: { theme: "dark", language: "", density: "" } });
+    await screen.findByRole("heading", { name: /Welcome to/ });
+    await waitFor(() => expect(document.documentElement.getAttribute("data-theme")).toBe("dark"));
+    // The shortcut listener is installed by an effect: press until it toggles the theme.
+    await waitFor(() => {
+      fireEvent.keyDown(document.body, { key: "t", code: "KeyT", altKey: true });
+      expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+    });
+    fireEvent.keyDown(document.body, { key: "p", code: "KeyP", altKey: true });
+    await screen.findByRole("heading", { name: "Profile" });
+    expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+  });
+
   test("the profile page offers the three fields that exist", async () => {
     renderApp("/me", {});
     await screen.findByRole("heading", { name: "Profile" });

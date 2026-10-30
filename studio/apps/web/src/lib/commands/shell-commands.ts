@@ -4,6 +4,7 @@
 import { create } from "@bufbuild/protobuf";
 import { FieldMaskSchema } from "@bufbuild/protobuf/wkt";
 import { createClient } from "@connectrpc/connect";
+import { createConnectQueryKey } from "@connectrpc/connect-query";
 import type { I18n } from "@lingui/core";
 import { IdentityService, PreferencesSchema, PreferencesService } from "@plux/api";
 import { forgetUser } from "../guards.ts";
@@ -19,6 +20,17 @@ export interface ShellCommandDeps {
   readonly openPalette: () => void;
 }
 
+/** A cached `GetPreferences` reply with `theme` replaced; anything else is left as it is. */
+function withTheme(reply: unknown, theme: string): unknown {
+  if (typeof reply !== "object" || reply === null || !("preferences" in reply)) {
+    return reply;
+  }
+  const preferences = reply.preferences;
+  return typeof preferences === "object" && preferences !== null
+    ? { ...reply, preferences: { ...preferences, theme } }
+    : reply;
+}
+
 /** The commands the shell already offers (S0.6). None calls an RPC that a permission guards beyond sign-in. */
 export function shellCommands(d: ShellCommandDeps): readonly Command[] {
   const m = commandMessages(d.i18n);
@@ -32,10 +44,14 @@ export function shellCommands(d: ShellCommandDeps): readonly Command[] {
       d.navigate("/signed-out");
     }
   };
+  // The cached preferences take the new theme at once: every layout applies them when it mounts,
+  // so a stale cache would turn the theme back on the next page (STU-014).
   const toggleTheme = async () => {
     const root = document.documentElement;
     const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     root.setAttribute("data-theme", next);
+    const cached = createConnectQueryKey({ schema: PreferencesService.method.getPreferences, cardinality: undefined });
+    d.session.queryClient.setQueriesData({ queryKey: cached }, (old: unknown) => withTheme(old, next));
     await createClient(PreferencesService, d.session.transport).updatePreferences({
       preferences: create(PreferencesSchema, { theme: next }),
       updateMask: create(FieldMaskSchema, { paths: ["theme"] }),
