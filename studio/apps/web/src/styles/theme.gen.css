@@ -48,6 +48,12 @@
   --color-hero-liquid-a: #7B5CFF;
   --color-hero-liquid-b: #62B6FF;
   --color-hero-liquid-c: #FF9AD0;
+  --color-sample-loan: #0F7B6C;
+  --color-sample-shop: #C8432B;
+  --color-sample-bank: #2B2D8F;
+  --color-sample-delivery: #B45F00;
+  --color-sample-fresh: #217A45;
+  --color-sample-on-app: #FFFFFF;
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 12px;
@@ -218,6 +224,10 @@
     --color-hero-liquid-a: transparent;
     --color-hero-liquid-b: transparent;
     --color-hero-liquid-c: transparent;
+    --color-sample-loan: #0B5E52;
+    --color-sample-shop: #A03420;
+    --color-sample-delivery: #8A4800;
+    --color-sample-fresh: #185C34;
     --shadow-e1: 0 0 0 2px rgb(17,20,42);
     --shadow-e2: 0 0 0 2px rgb(17,20,42);
     --shadow-frame: 0 0 0 2px rgb(17,20,42);
@@ -302,6 +312,7 @@
   --color-hero-liquid-a: #5B3DF5;
   --color-hero-liquid-b: #2D6BFF;
   --color-hero-liquid-c: #B83E8C;
+  --color-sample-bank: #3B3EB8;
   --shadow-e1: 0 1px 2px rgba(0,0,0,.16), 0 2px 8px -2px rgba(0,0,0,.20), 0 0 0 1px rgba(0,0,0,.40);
   --shadow-e2: 0 1px 1px rgba(0,0,0,.08), 0 16px 40px -8px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.40);
   --shadow-frame: 0 0 0 1px rgba(0,0,0,.10), 0 24px 48px -16px rgba(0,0,0,.40), 0 0 0 1px rgba(0,0,0,.40);
@@ -348,6 +359,10 @@
   --color-hero-liquid-a: transparent;
   --color-hero-liquid-b: transparent;
   --color-hero-liquid-c: transparent;
+  --color-sample-loan: #0B5E52;
+  --color-sample-shop: #A03420;
+  --color-sample-delivery: #8A4800;
+  --color-sample-fresh: #185C34;
   --shadow-e1: 0 0 0 2px rgb(17,20,42);
   --shadow-e2: 0 0 0 2px rgb(17,20,42);
   --shadow-frame: 0 0 0 2px rgb(17,20,42);

@@ -154,6 +154,56 @@ export function authMessages(i18n: I18n) {
       message: "Rendered natively by Flutter",
       comment: "One of three short facts under the sign-in form.",
     }),
+    storyLiveTitle: i18n._({
+      id: "auth.story.live.title",
+      message: "Updated live",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its title.",
+    }),
+    storyLiveBody: i18n._({
+      id: "auth.story.live.body",
+      message: "Change a screen in Studio and every app shows it the next time it opens. No store release.",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its sentence.",
+    }),
+    storyTestTitle: i18n._({
+      id: "auth.story.test.title",
+      message: "A/B tests",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its title.",
+    }),
+    storyTestBody: i18n._({
+      id: "auth.story.test.body",
+      message: "Show two versions to two halves of your users, then keep the one that works.",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its sentence.",
+    }),
+    storySignedTitle: i18n._({
+      id: "auth.story.signed.title",
+      message: "Signed releases",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its title.",
+    }),
+    storySignedBody: i18n._({
+      id: "auth.story.signed.body",
+      message: "Every release is signed in Studio and verified on the device before it is shown.",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its sentence.",
+    }),
+    storyOfflineTitle: i18n._({
+      id: "auth.story.offline.title",
+      message: "Works offline",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its title.",
+    }),
+    storyOfflineBody: i18n._({
+      id: "auth.story.offline.body",
+      message: "Screens and data stay on the device, so the app keeps working without a connection.",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its sentence.",
+    }),
+    storyRolloutTitle: i18n._({
+      id: "auth.story.rollout.title",
+      message: "Staged rollouts",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its title.",
+    }),
+    storyRolloutBody: i18n._({
+      id: "auth.story.rollout.body",
+      message: "Release to a few devices first, watch how it does, then to everyone.",
+      comment: "One of five short stories under the sample screen on the sign-in page. Its sentence.",
+    }),
     loanTitle: i18n._({
       id: "auth.scene.title",
       message: "Loan calculator",
@@ -163,6 +213,23 @@ export function authMessages(i18n: I18n) {
       id: "auth.scene.borrow",
       message: "You borrow",
       comment: "Text in a sample app screen drawn beside the sign-in form.",
+    }),
+    loanTerm: i18n._({
+      id: "auth.scene.loan-term",
+      message: "Term",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Label of the loan duration.",
+    }),
+    loanMonths: (months: string) =>
+      i18n._({
+        id: "auth.scene.loan-months",
+        message: "{months} months",
+        comment: "Text in a sample app screen drawn beside the sign-in form. {months} is a number.",
+        values: { months },
+      }),
+    loanRate: i18n._({
+      id: "auth.scene.loan-rate",
+      message: "Rate",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Label of the interest rate.",
     }),
     loanMonthly: i18n._({
       id: "auth.scene.monthly",
@@ -174,6 +241,11 @@ export function authMessages(i18n: I18n) {
       message: "Apply",
       comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
     }),
+    loanLive: i18n._({
+      id: "auth.scene.loan-live",
+      message: "Live",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Small badge saying the screen just updated.",
+    }),
     shopTitle: i18n._({
       id: "auth.scene.shop-title",
       message: "New in",
@@ -184,10 +256,32 @@ export function authMessages(i18n: I18n) {
       message: "Linen shirt",
       comment: "Text in a sample app screen drawn beside the sign-in form. A product name.",
     }),
+    shopColour: i18n._({
+      id: "auth.scene.shop-colour",
+      message: "Sand",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A colour name of the product.",
+    }),
     shopAdd: i18n._({
       id: "auth.scene.shop-add",
       message: "Add to bag",
-      comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Button of variant A of an A/B test.",
+    }),
+    shopBuy: i18n._({
+      id: "auth.scene.shop-buy",
+      message: "Buy now",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Button of variant B of an A/B test.",
+    }),
+    shopVariantA: i18n._({
+      id: "auth.scene.shop-variant-a",
+      message: "Variant A",
+      comment:
+        "Text in a sample app screen drawn beside the sign-in form. Badge naming the first version in an A/B test.",
+    }),
+    shopVariantB: i18n._({
+      id: "auth.scene.shop-variant-b",
+      message: "Variant B",
+      comment:
+        "Text in a sample app screen drawn beside the sign-in form. Badge naming the second version in an A/B test.",
     }),
     bankBalance: i18n._({
       id: "auth.scene.bank-balance",
@@ -214,6 +308,51 @@ export function authMessages(i18n: I18n) {
       message: "Corner Café",
       comment: "Text in a sample app screen drawn beside the sign-in form. Name of a shop in a payment list.",
     }),
+    bankSalary: i18n._({
+      id: "auth.scene.bank-salary",
+      message: "Salary",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A payment in a payment list.",
+    }),
+    bankRent: i18n._({
+      id: "auth.scene.bank-rent",
+      message: "Rent",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A payment in a payment list.",
+    }),
+    bankVerified: i18n._({
+      id: "auth.scene.bank-verified",
+      message: "Verified",
+      comment:
+        "Text in a sample app screen drawn beside the sign-in form. Seal saying the screen's release signature was checked.",
+    }),
+    deliveryTitle: i18n._({
+      id: "auth.scene.delivery-title",
+      message: "On its way",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Title of a delivery tracking screen.",
+    }),
+    deliveryEta: (minutes: string) =>
+      i18n._({
+        id: "auth.scene.delivery-eta",
+        message: "{minutes} min",
+        comment:
+          "Text in a sample app screen drawn beside the sign-in form. Minutes until the delivery arrives; {minutes} is a number.",
+        values: { minutes },
+      }),
+    deliveryCourier: i18n._({
+      id: "auth.scene.delivery-courier",
+      message: "Sam is 1.2 km away",
+      comment: "Text in a sample app screen drawn beside the sign-in form. Line about the courier.",
+    }),
+    deliveryTrack: i18n._({
+      id: "auth.scene.delivery-track",
+      message: "Track order",
+      comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
+    }),
+    deliveryOffline: i18n._({
+      id: "auth.scene.delivery-offline",
+      message: "Offline. Showing your saved order.",
+      comment:
+        "Text in a sample app screen drawn beside the sign-in form. Bar that slides in when the phone loses its connection.",
+    }),
     onboardTitle: i18n._({
       id: "auth.scene.onboard-title",
       message: "Fresh, every morning",
@@ -229,59 +368,13 @@ export function authMessages(i18n: I18n) {
       message: "Get started",
       comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
     }),
-    deliveryTitle: i18n._({
-      id: "auth.scene.delivery-title",
-      message: "On its way",
-      comment: "Text in a sample app screen drawn beside the sign-in form. Title of a delivery tracking screen.",
-    }),
-    deliveryNear: i18n._({
-      id: "auth.scene.delivery-near",
-      message: "Your courier is nearby",
-      comment: "Text in a sample app screen drawn beside the sign-in form.",
-    }),
-    deliveryTrack: i18n._({
-      id: "auth.scene.delivery-track",
-      message: "Track order",
-      comment: "Text in a sample app screen drawn beside the sign-in form. A button.",
-    }),
-    deliveryEta: (minutes: string) =>
+    onboardRollout: (percent: string) =>
       i18n._({
-        id: "auth.scene.delivery-eta",
-        message: "{minutes} min",
+        id: "auth.scene.onboard-rollout",
+        message: "Live on {percent} of devices",
         comment:
-          "Text in a sample app screen drawn beside the sign-in form. Minutes until the delivery arrives; {minutes} is a number.",
-        values: { minutes },
-      }),
-    chipSigned: (version: string) =>
-      i18n._({
-        id: "auth.scene.signed",
-        message: "Signed · v{version}",
-        comment:
-          "Small floating label beside a sample app screen, naming a Plux feature. {version} is a version number.",
-        values: { version },
-      }),
-    chipInstant: i18n._({
-      id: "auth.chip.instant",
-      message: "Updated live",
-      comment: "Small floating label beside a sample app screen, naming a Plux feature.",
-    }),
-    chipRollout: (percent: string) =>
-      i18n._({
-        id: "auth.chip.rollout",
-        message: "Rollout · {percent}",
-        comment:
-          "Small floating label beside a sample app screen, naming a Plux feature. {percent} is a formatted percentage.",
+          "Text in a sample app screen drawn beside the sign-in form. Badge of a staged rollout; {percent} is a formatted percentage.",
         values: { percent },
       }),
-    chipExperiment: i18n._({
-      id: "auth.chip.experiment",
-      message: "A/B test · variant B",
-      comment: "Small floating label beside a sample app screen, naming a Plux feature.",
-    }),
-    chipOffline: i18n._({
-      id: "auth.chip.offline",
-      message: "Works offline",
-      comment: "Small floating label beside a sample app screen, naming a Plux feature.",
-    }),
   };
 }

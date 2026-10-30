@@ -133,3 +133,13 @@ describe("Porcelain tokens [STU-010] [STU-016]", () => {
     }
   });
 });
+
+describe("sample app colours on the sign-in page [STU-010]", () => {
+  for (const key of ["sample.loan", "sample.shop", "sample.bank", "sample.delivery", "sample.fresh"]) {
+    for (const theme of themeNames) {
+      test(`white text on ${key} meets 4.5:1 (${theme})`, () => {
+        expect(contrastRatio(primitives.white, semantic(key)[theme])).toBeGreaterThanOrEqual(minimumTextContrast);
+      });
+    }
+  }
+});

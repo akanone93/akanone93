@@ -235,6 +235,14 @@ export const semanticColors: readonly SemanticColor[] = [
   { name: "hero.liquidA", key: "hero-liquid-a", light: "#7B5CFF", dark: "#5B3DF5", contrast: "transparent" },
   { name: "hero.liquidB", key: "hero-liquid-b", light: "#62B6FF", dark: "#2D6BFF", contrast: "transparent" },
   { name: "hero.liquidC", key: "hero-liquid-c", light: "#FF9AD0", dark: "#B83E8C", contrast: "transparent" },
+  // U16.2 the brand colours of the five sample apps on the sign-in page; white text on each meets
+  // 4.5:1 (sample-colours test). They never stand for Studio itself.
+  { name: "sample.loan", key: "sample-loan", light: "#0F7B6C", dark: "#0F7B6C", contrast: "#0B5E52" },
+  { name: "sample.shop", key: "sample-shop", light: "#C8432B", dark: "#C8432B", contrast: "#A03420" },
+  { name: "sample.bank", key: "sample-bank", light: "#2B2D8F", dark: "#3B3EB8", contrast: "#2B2D8F" },
+  { name: "sample.delivery", key: "sample-delivery", light: "#B45F00", dark: "#B45F00", contrast: "#8A4800" },
+  { name: "sample.fresh", key: "sample-fresh", light: "#217A45", dark: "#217A45", contrast: "#185C34" },
+  { name: "sample.onApp", key: "sample-on-app", light: "#FFFFFF", dark: "#FFFFFF", contrast: "#FFFFFF" },
 ];
 
 /** A scalar token with a theme-dependent value (shadows, glass, strokes). */

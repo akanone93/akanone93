@@ -1,22 +1,46 @@
 /* SPDX-FileCopyrightText: 2026 Plux contributors */
 /* SPDX-License-Identifier: AGPL-3.0-only */
 
-/* The sign-in picture (U16.2): sample app screens on a ring that turns on its vertical axis.
-   screen-ring.tsx moves the ring and lifts the layers of the front screen; this file places the
-   slots and draws the miniature screens. Colours, radii and shadows are tokens; the geometry of
-   the miniatures is their own. Only transforms and opacity animate. */
+/* The sign-in picture (U16.2): sample apps built with Plux on a ring above a quiet technical
+   floor. screen-ring.tsx turns the ring, fades the screens and lifts their layers by angle; this
+   file places them, draws the miniature apps and plays each front screen's live moment. Colours,
+   radii and shadows are tokens; the geometry of the miniatures is their own. Only transforms and
+   opacity animate. */
+
+/* ── The scene ─────────────────────────────────────────────────────────────────────────────── */
+
+.sr-scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  inline-size: min(100%, 600px);
+  block-size: 100%;
+  min-block-size: 720px;
+  margin-inline-end: auto;
+}
+
+/* A faint dot grid, like Studio's canvas, fading out from the middle. */
+.sr-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--color-strong) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(closest-side at 50% 44%, black 20%, transparent 100%);
+  opacity: 0.7;
+  pointer-events: none;
+}
 
 .sr-stage {
   position: relative;
   display: grid;
   place-items: center;
-  block-size: 100%;
-  min-block-size: 640px;
-  perspective: 2200px;
-  /* The screen stands nearer the form than the middle of its half, so the two halves read as one
-     composition. */
-  padding-inline-end: 28%;
-  perspective-origin: 50% 35%;
+  inline-size: 100%;
+  block-size: 620px;
+  perspective: 2000px;
+  perspective-origin: 50% 50%;
   --ring-radius: 360px;
 }
 
@@ -28,7 +52,107 @@
   transform-style: preserve-3d;
 }
 
-/* Each slot stands on the ring, turned to face outwards. */
+.sr-view {
+  scale: 1.05;
+}
+
+/* The floor the screen stands over: two orbits and a signal travelling round the outer one. */
+.sr-floor {
+  position: absolute;
+  inset-block-start: calc(100% + 24px - 300px);
+  inset-inline-start: calc(50% - 300px);
+  inline-size: 600px;
+  block-size: 600px;
+  /* Tilted a little toward the viewer from flat, so the orbits read as rings, not lines. */
+  transform: rotateX(76deg);
+  pointer-events: none;
+}
+
+.sr-orbit {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-strong);
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
+}
+
+.sr-orbit[data-orbit="inner"] {
+  inset: 130px;
+  border: 1px dashed var(--color-accent);
+  opacity: 0.45;
+  animation: sr-spin 80s linear infinite;
+}
+
+.sr-signal {
+  position: absolute;
+  inset: 0;
+  animation: sr-spin 10s linear infinite;
+}
+
+.sr-signal::after {
+  content: "";
+  position: absolute;
+  inset-block-start: -4px;
+  inset-inline-start: calc(50% - 4px);
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  box-shadow: 0 0 0 6px var(--color-accent-halo);
+}
+
+@keyframes sr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The caption under the screen: what the front screen shows. */
+.sr-stories {
+  position: relative;
+  inline-size: 360px;
+  block-size: 76px;
+  text-align: center;
+}
+
+.sr-story {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  opacity: 0;
+  translate: 0 8px;
+  transition:
+    opacity var(--duration-enter) var(--ease-standard),
+    translate var(--duration-enter) var(--ease-standard);
+}
+
+.sr-story[data-front="true"] {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 0.4s;
+}
+
+.sr-story-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-section);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-primary);
+}
+
+.sr-story-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.45;
+  color: var(--color-secondary);
+}
+
+/* ── The ring ──────────────────────────────────────────────────────────────────────────────── */
+
+/* Each slot stands on the ring, turned to face outwards; the ring stands one radius behind the
+   view, so the front screen is at the view's centre. */
 .sr-slot {
   position: absolute;
   inset: 0;
@@ -40,14 +164,27 @@
   backface-visibility: hidden;
 }
 
-/* One large screen at a time. The ring stands one radius behind the view, so the front screen is
-   at the view's centre and the view's yaw turns it in place. */
-.sr-view {
-  scale: 1.05;
+.sr-slot[data-app="loan"] {
+  --app: var(--color-sample-loan);
 }
 
-/* A little depth: the screen has a thickness (two edge plates behind it) and casts a soft
-   coloured light behind itself. */
+.sr-slot[data-app="shop"] {
+  --app: var(--color-sample-shop);
+}
+
+.sr-slot[data-app="bank"] {
+  --app: var(--color-sample-bank);
+}
+
+.sr-slot[data-app="delivery"] {
+  --app: var(--color-sample-delivery);
+}
+
+.sr-slot[data-app="fresh"] {
+  --app: var(--color-sample-fresh);
+}
+
+/* A little depth: two edge plates give the screen a thickness, and it casts its app's colour. */
 .sr-edge {
   position: absolute;
   inset: 0;
@@ -65,23 +202,22 @@
 
 .sr-glow {
   position: absolute;
-  inset: 8% 6%;
+  inset: 10% 8%;
   border-radius: var(--radius-3xl);
-  background-color: var(--color-hero-liquid-a);
-  opacity: 0.28;
-  filter: blur(40px);
-  transform: translateZ(-80px);
+  background-color: var(--app);
+  filter: blur(46px);
+  transform: translateZ(-90px);
 }
 
-/* The screen surface: no device around it, only the lit glass of the display. */
+/* The screen surface: no device around it, only the lit glass of the display. A tight shadow: a
+   wide one makes planes overlap, and the browser then cuts them into each other in depth. */
 .sr-screen {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   border-radius: var(--radius-3xl);
   background-color: var(--color-raised);
   background-image: var(--surface-glass-sheen);
-  /* A tight shadow: a wide one makes the planes of neighbouring screens overlap, and the browser
-     then cuts them into each other when it sorts the ring in depth. */
   box-shadow:
     inset 0 0 0 1px var(--color-hairline),
     var(--shadow-e1);
@@ -90,348 +226,698 @@
 .sr-layer {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
   pointer-events: none;
 }
 
-/* The feature chip floats outside the screen's edge, highest of all. */
-.sr-chip {
+/* ── The miniature apps ────────────────────────────────────────────────────────────────────── */
+
+.ss-status {
   position: absolute;
-  inset-block-start: 330px;
-  inset-inline-end: -96px;
-  display: inline-flex;
+  inset-block-start: 14px;
+  inset-inline: 22px;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  border-radius: var(--radius-full);
-  background-color: var(--surface-glass-solid);
-  box-shadow: var(--shadow-float);
+  justify-content: space-between;
   font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--color-primary);
-  white-space: nowrap;
-  pointer-events: none;
 }
 
-.sr-chip svg {
-  color: var(--color-accent);
+.ss-status-icons {
+  display: flex;
+  gap: 4px;
 }
 
-/* The parts the screens are made of. */
-.sr-header {
+.ss-status-icons i {
+  inline-size: 12px;
+  block-size: 7px;
+  border-radius: 2px;
+  background-color: var(--color-primary);
+  opacity: 0.8;
+}
+
+.ss-status-icons i:first-child {
+  inline-size: 8px;
+}
+
+.ss-tabs {
   position: absolute;
-  inset-block-start: 48px;
-  inset-inline: 24px;
+  inset-block-end: 0;
+  inset-inline: 0;
+  display: flex;
+  justify-content: space-around;
+  padding-block: 12px 18px;
+  border-block-start: 1px solid var(--color-hairline);
+  color: var(--color-tertiary);
+}
+
+.ss-tabs [data-active="true"] {
+  color: var(--app);
+}
+
+.ss-header {
+  position: absolute;
+  inset-block-start: 44px;
+  inset-inline: 22px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
-.sr-title {
+.ss-header-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ss-title {
   font-family: var(--font-sans);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-primary);
 }
 
-.sr-title-large {
-  font-size: 26px;
+.ss-title-large {
+  font-size: 24px;
   line-height: 1.1;
   letter-spacing: -0.03em;
 }
 
-.sr-caption {
+.ss-caption {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.4;
   color: var(--color-tertiary);
 }
 
-.sr-label {
+.ss-label {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--color-primary);
 }
 
-.sr-figure {
+.ss-value {
   font-family: var(--font-sans);
-  font-size: 36px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ss-positive {
+  color: var(--color-success);
+}
+
+.ss-figure {
+  font-family: var(--font-sans);
+  font-size: 34px;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.05;
   letter-spacing: -0.04em;
   color: var(--color-primary);
   font-variant-numeric: tabular-nums;
 }
 
-.sr-amount {
+.ss-amount {
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--color-primary);
   font-variant-numeric: tabular-nums;
 }
 
-.sr-row {
+.ss-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
-.sr-card {
+.ss-row-total {
+  padding-block-start: 10px;
+  border-block-start: 1px solid var(--color-hairline);
+}
+
+.ss-card {
   position: absolute;
-  inset-inline: 16px;
+  inset-inline: 14px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px;
+  gap: 10px;
+  padding: 16px;
   border-radius: var(--radius-xl);
   background-color: var(--color-raised);
   box-shadow: var(--shadow-e1);
 }
 
-.sr-at-middle {
-  inset-block-start: 210px;
-}
-
-.sr-at-bottom {
-  inset-block-end: 104px;
-}
-
-.sr-action {
+.ss-action {
   position: absolute;
-  inset-block-end: 28px;
-  inset-inline: 16px;
+  inset-block-end: 84px;
+  inset-inline: 14px;
   display: grid;
   place-items: center;
-  block-size: 50px;
+  block-size: 48px;
   border-radius: var(--radius-full);
-  background-color: var(--color-accent);
-  box-shadow: var(--shadow-primary);
+  background-color: var(--app);
+  box-shadow: 0 10px 24px -12px var(--app);
   font-family: var(--font-sans);
   font-size: 15px;
-  font-weight: 500;
-  color: var(--color-on-accent);
+  font-weight: 600;
+  color: var(--color-sample-on-app);
 }
 
-/* Loan: the slider. */
-.sr-track {
+.ss-action-alt {
+  background-color: var(--color-primary);
+  color: var(--color-raised);
+}
+
+.ss-icon-button {
+  display: grid;
+  place-items: center;
+  inline-size: 34px;
+  block-size: 34px;
+  border-radius: var(--radius-full);
+  background-color: color-mix(in oklab, var(--app) 12%, var(--color-raised));
+  color: var(--app);
+}
+
+/* The story's moment: a small floating badge, highest of all layers. */
+.ss-moment {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-glass-solid);
+  box-shadow: var(--shadow-soft);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.ss-moment svg {
+  color: var(--app);
+}
+
+/* Two values in one place (the live moment swaps them). */
+.ss-swap {
+  display: inline-grid;
+}
+
+.ss-swap > * {
+  grid-area: 1 / 1;
+}
+
+.ss-swap-to {
+  opacity: 0;
+}
+
+.ss-action-swap {
+  position: absolute;
+  inset-block-end: 84px;
+  inset-inline: 14px;
+  display: grid;
+}
+
+.ss-action-swap .ss-action {
+  position: static;
+}
+
+/* Loan: the slider and the live badge. */
+.ss-loan-card {
+  inset-block-start: 150px;
+}
+
+.ss-slider {
   position: relative;
   block-size: 6px;
+  margin-block: 8px 6px;
   border-radius: var(--radius-full);
   background-color: var(--color-hairline);
 }
 
-.sr-track-fill {
+.ss-slider-fill {
   position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  inline-size: 62%;
+  inset: 0;
   border-radius: inherit;
-  background-color: var(--color-accent);
+  background-color: var(--app);
+  transform-origin: left center;
+  transform: scaleX(0.45);
 }
 
-.sr-thumb {
+.ss-slider-thumb {
   position: absolute;
   inset-block-start: 50%;
-  inset-inline-start: 62%;
+  inset-inline-start: 45%;
   inline-size: 22px;
   block-size: 22px;
-  margin-inline-start: -11px;
   margin-block-start: -11px;
+  margin-inline-start: -11px;
   border-radius: var(--radius-full);
   background-color: var(--color-raised);
   box-shadow: var(--shadow-e1);
 }
 
-/* Shop: the product. */
-.sr-product {
-  position: absolute;
-  inset-block-start: 88px;
-  inset-inline: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  border-radius: var(--radius-xl);
-  background-color: var(--color-raised);
-  box-shadow: var(--shadow-e1);
+.ss-live {
+  inset-block-start: 116px;
+  inset-inline-end: -18px;
 }
 
-.sr-product-image {
-  block-size: 220px;
+.ss-live-dot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-success);
+}
+
+/* Shop: the product and the variant badge. */
+.ss-product {
+  inset-block-start: 96px;
+  padding: 10px;
+}
+
+.ss-product-image {
+  position: relative;
+  block-size: 196px;
+  overflow: hidden;
   border-radius: var(--radius-lg);
-  background-image: linear-gradient(150deg, var(--color-hero-liquid-c), var(--color-hero-liquid-a));
+  background-color: color-mix(in oklab, var(--app) 16%, var(--color-raised));
 }
 
-.sr-swatches {
+.ss-product-shape {
+  position: absolute;
+  inset: 26px 50px 0;
+  border-radius: 46% 46% 12px 12px;
+  background-image: linear-gradient(170deg, color-mix(in oklab, var(--app) 55%, var(--color-raised)), var(--app));
+}
+
+.ss-swatches {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
-.sr-swatches span {
-  inline-size: 18px;
-  block-size: 18px;
+.ss-swatches i {
+  inline-size: 14px;
+  block-size: 14px;
   border-radius: var(--radius-full);
   box-shadow: inset 0 0 0 1px var(--color-hairline);
 }
 
-.sr-swatches [data-swatch="1"] {
-  background-color: var(--color-hero-liquid-c);
+.ss-swatches [data-swatch="1"] {
+  background-color: var(--app);
 }
 
-.sr-swatches [data-swatch="2"] {
-  background-color: var(--color-hero-liquid-b);
+.ss-swatches [data-swatch="2"] {
+  background-color: var(--color-sample-bank);
 }
 
-.sr-swatches [data-swatch="3"] {
+.ss-swatches [data-swatch="3"] {
   background-color: var(--color-primary);
 }
 
-/* Bank: the card and the two actions. */
-.sr-bank-card {
-  position: absolute;
-  inset-block-start: 150px;
-  inset-inline: 16px;
-  block-size: 140px;
-  border-radius: var(--radius-xl);
-  background-image: linear-gradient(135deg, var(--color-hero-liquid-a), var(--color-hero-liquid-b));
-  box-shadow: var(--shadow-float);
+.ss-variant {
+  inset-block-start: 112px;
+  inset-inline-end: -22px;
 }
 
-.sr-pair {
+/* Bank: the card, the ledger and the verified seal. */
+.ss-bank-card {
   position: absolute;
-  inset-block-start: 306px;
-  inset-inline: 16px;
+  inset-block-start: 112px;
+  inset-inline: 14px;
+  block-size: 132px;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background-image: linear-gradient(
+    135deg,
+    var(--app),
+    color-mix(in oklab, var(--app) 55%, var(--color-hero-liquid-b))
+  );
+  box-shadow: 0 16px 32px -18px var(--app);
+}
+
+.ss-bank-chip {
+  position: absolute;
+  inset-block-start: 22px;
+  inset-inline-start: 20px;
+  inline-size: 30px;
+  block-size: 22px;
+  border-radius: 5px;
+  background-color: color-mix(in oklab, var(--color-sample-delivery) 55%, var(--color-raised));
+}
+
+.ss-bank-wave {
+  position: absolute;
+  inset: auto -40px -70px auto;
+  inline-size: 200px;
+  block-size: 160px;
+  border-radius: var(--radius-full);
+  border: 18px solid color-mix(in oklab, var(--color-raised) 18%, transparent);
+}
+
+.ss-ledger {
+  inset-block-start: 258px;
+  gap: 9px;
+}
+
+.ss-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
+  margin-block-end: 2px;
 }
 
-.sr-pair span {
+.ss-pair span {
   display: grid;
   place-items: center;
-  block-size: 44px;
+  block-size: 34px;
   border-radius: var(--radius-full);
-  background-color: var(--color-raised);
-  box-shadow: var(--shadow-e1);
+  background-color: color-mix(in oklab, var(--app) 10%, var(--color-raised));
   font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app);
 }
 
-/* Onboarding: the orb and the welcome. */
-.sr-orb {
+.ss-seal {
+  inset-block-start: 150px;
+  inset-inline-end: -26px;
+  color: var(--color-success);
+}
+
+.ss-seal svg {
+  color: var(--color-success);
+}
+
+/* Delivery: the map, the courier and the offline bar. */
+.ss-eta {
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  background-color: color-mix(in oklab, var(--app) 14%, var(--color-raised));
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app);
+}
+
+.ss-map {
   position: absolute;
-  inset-block-start: 64px;
+  inset-block-start: 96px;
+  inset-inline: 14px;
+  block-size: 180px;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background-color: color-mix(in oklab, var(--color-hero-liquid-b) 10%, var(--color-raised));
+  background-image:
+    linear-gradient(var(--color-hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px);
+  background-size: 28px 28px;
+  box-shadow: var(--shadow-e1);
+}
+
+.ss-map svg {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  fill: none;
+  stroke: var(--app);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 2 7;
+}
+
+.ss-map-home,
+.ss-map-pin {
+  position: absolute;
+  inline-size: 16px;
+  block-size: 16px;
+  border-radius: var(--radius-full);
+}
+
+.ss-map-home {
+  inset-block-start: 22px;
+  inset-inline-end: 20px;
+  background-color: var(--color-primary);
+}
+
+.ss-map-pin {
+  inset-block-end: 22px;
+  inset-inline-start: 16px;
+  background-color: var(--app);
+  box-shadow: 0 0 0 6px color-mix(in oklab, var(--app) 22%, transparent);
+}
+
+.ss-courier {
+  inset-block-start: 290px;
+  gap: 14px;
+}
+
+.ss-courier .ss-row {
+  justify-content: flex-start;
+}
+
+.ss-courier .ss-action {
+  position: static;
+}
+
+.ss-avatar {
+  inline-size: 30px;
+  block-size: 30px;
+  border-radius: var(--radius-full);
+  background-image: linear-gradient(135deg, var(--color-hero-liquid-c), var(--app));
+}
+
+.ss-offline {
+  inset-block-start: 40px;
+  inset-inline: 12px;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-raised);
+  opacity: 0;
+}
+
+.ss-offline svg {
+  color: var(--color-raised);
+}
+
+/* Fresh: the orb, the welcome and the rollout. */
+.ss-orb {
+  position: absolute;
+  inset-block-start: 58px;
   inset-inline: 0;
   margin-inline: auto;
-  inline-size: 168px;
-  block-size: 168px;
+  inline-size: 176px;
+  block-size: 176px;
+}
+
+.ss-orb i {
+  position: absolute;
   border-radius: var(--radius-full);
+}
+
+.ss-orb i:nth-child(1) {
+  inset: 0;
+  background-color: color-mix(in oklab, var(--app) 14%, var(--color-raised));
+}
+
+.ss-orb i:nth-child(2) {
+  inset: 30px;
+  background-color: color-mix(in oklab, var(--app) 30%, var(--color-raised));
+}
+
+.ss-orb i:nth-child(3) {
+  inset: 58px;
   background-image: radial-gradient(
     circle at 35% 30%,
-    var(--color-raised),
-    var(--color-hero-liquid-b) 45%,
-    var(--color-hero-liquid-a)
+    color-mix(in oklab, var(--app) 40%, var(--color-raised)),
+    var(--app)
   );
-  box-shadow: var(--shadow-float);
 }
 
-.sr-welcome {
+.ss-welcome {
   position: absolute;
-  inset-block-start: 270px;
-  inset-inline: 24px;
+  inset-block-start: 262px;
+  inset-inline: 22px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.sr-dots {
+.ss-dots {
   display: flex;
-  gap: 6px;
-  margin-block-start: 6px;
+  gap: 5px;
+  margin-block-start: 4px;
 }
 
-.sr-dots span {
+.ss-dots i {
   inline-size: 6px;
   block-size: 6px;
   border-radius: var(--radius-full);
   background-color: var(--color-strong);
 }
 
-.sr-dots [data-active="true"] {
+.ss-dots [data-active="true"] {
   inline-size: 18px;
-  background-color: var(--color-accent);
+  background-color: var(--app);
 }
 
-/* Delivery: the map and the progress. */
-.sr-map {
-  position: absolute;
-  inset-block-start: 140px;
-  inset-inline: 16px;
-  block-size: 170px;
-  overflow: hidden;
-  border-radius: var(--radius-xl);
-  background-color: color-mix(in oklab, var(--color-hero-liquid-b) 14%, var(--color-raised));
-  box-shadow: var(--shadow-e1);
+.ss-rollout {
+  inset-block-start: 196px;
+  inset-inline: -18px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
 }
 
-.sr-route {
-  position: absolute;
-  inset: 40px 30px 40px 30px;
-  border: 3px dashed var(--color-accent);
-  border-inline-start-color: transparent;
-  border-block-end-color: transparent;
-  border-radius: var(--radius-xl);
-}
-
-.sr-pin {
-  position: absolute;
-  inset-block-start: 30px;
-  inset-inline-end: 22px;
-  inline-size: 22px;
-  block-size: 22px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-accent);
-  box-shadow: 0 0 0 6px var(--color-accent-halo);
-}
-
-.sr-progress {
+.ss-rollout-bar {
   block-size: 6px;
   border-radius: var(--radius-full);
   background-color: var(--color-hairline);
 }
 
-.sr-progress > div {
-  inline-size: 72%;
+.ss-rollout-bar > div {
   block-size: 100%;
   border-radius: inherit;
-  background-color: var(--color-accent);
+  background-color: var(--app);
+  transform-origin: left center;
+  transform: scaleX(0.1);
 }
 
-@media (max-width: 1023px) {
-  .sr-stage {
-    min-block-size: 520px;
-  }
+[dir="rtl"] .ss-slider-fill,
+[dir="rtl"] .ss-rollout-bar > div {
+  transform-origin: right center;
+}
 
-  .sr-view {
-    scale: 0.8;
+/* ── The live moments, played while a screen is at the front ───────────────────────────────── */
+
+.sr-slot[data-front="true"] .ss-swap-from {
+  animation: ss-out 0.5s var(--ease-standard) 2.2s forwards;
+}
+
+.sr-slot[data-front="true"] .ss-swap-to {
+  animation: ss-in 0.5s var(--ease-standard) 2.2s forwards;
+}
+
+.sr-slot[data-front="true"] .ss-slider-fill {
+  animation: ss-slider-fill 1.4s var(--ease-emphasized) 1.2s forwards;
+}
+
+.sr-slot[data-front="true"] .ss-slider-thumb {
+  animation: ss-slider-thumb 1.4s var(--ease-emphasized) 1.2s forwards;
+}
+
+.sr-slot[data-front="true"] .ss-live-dot {
+  animation: ss-pulse 1.6s ease-in-out infinite;
+}
+
+.sr-slot[data-front="true"] .ss-seal {
+  animation: ss-stamp 0.7s var(--ease-emphasized) 1.4s both;
+}
+
+.sr-slot[data-front="true"] .ss-offline {
+  animation: ss-drop 0.6s var(--ease-emphasized) 1.6s forwards;
+}
+
+.sr-slot[data-front="true"] .ss-map-pin {
+  animation: ss-ride 4.4s ease-in-out 0.6s forwards;
+}
+
+.sr-slot[data-front="true"] .ss-rollout-bar > div {
+  animation: ss-rollout 2.6s var(--ease-emphasized) 1s forwards;
+}
+
+@keyframes ss-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
   }
 }
 
-/* Short windows (laptops): a smaller screen and headline, so the form and the screen both fit. */
+@keyframes ss-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ss-slider-fill {
+  to {
+    transform: scaleX(0.7);
+  }
+}
+
+@keyframes ss-slider-thumb {
+  to {
+    translate: 232% 0;
+  }
+}
+
+@keyframes ss-pulse {
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+@keyframes ss-stamp {
+  from {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ss-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ss-ride {
+  to {
+    translate: 150px -96px;
+  }
+}
+
+@keyframes ss-rollout {
+  to {
+    transform: scaleX(0.5);
+  }
+}
+
+/* Short windows (laptops): a smaller stage and headline, so the form and the screen both fit. */
 @media (max-height: 820px) {
+  .sr-scene {
+    min-block-size: 600px;
+  }
+
   .sr-stage {
-    min-block-size: 520px;
+    block-size: 520px;
   }
 
   .sr-view {
-    scale: 0.82;
+    scale: 0.84;
   }
 
   .signin-title {
@@ -443,5 +929,17 @@
   .signin-main {
     gap: var(--spacing-6);
     padding-block: var(--spacing-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-orbit[data-orbit="inner"],
+  .sr-signal,
+  .sr-slot[data-front="true"] * {
+    animation: none;
+  }
+
+  .ss-offline {
+    opacity: 1;
   }
 }

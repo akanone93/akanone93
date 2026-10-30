@@ -430,6 +430,12 @@ msgstr "قيمة {mode}"
 msgid "design.modeCount"
 msgstr "{mode}: {n} ألوان"
 
+#. Text in a sample app screen drawn beside the sign-in form. {months} is a number.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.loan-months"
+msgstr "{months} شهرًا"
+
 #. Number of apps shown after the filters; announced politely when it changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -784,11 +790,11 @@ msgstr "صورة PNG مربعة، من 1024 إلى 4096 بكسل لكل ضلع،
 msgid "publish.rollout.percentFalls"
 msgstr "لا يجوز أن تخفض المرحلة نسبة المرحلة السابقة."
 
-#. Small floating label beside a sample app screen, naming a Plux feature.
+#. One of five short stories under the sample screen on the sign-in page. Its title.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.chip.experiment"
-msgstr "اختبار A/B · النسخة B"
+msgid "auth.story.test.title"
+msgstr "اختبارات A/B"
 
 #. Button: end a rollout and revert.
 #. js-lingui-explicit-id
@@ -1204,7 +1210,7 @@ msgstr "إضافة خطوة"
 msgid "designers.dataAddImported"
 msgstr "إضافة مصادر البيانات المستوردة"
 
-#. Text in a sample app screen drawn beside the sign-in form. A button.
+#. Text in a sample app screen drawn beside the sign-in form. Button of variant A of an A/B test.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.shop-add"
@@ -2248,6 +2254,12 @@ msgstr "حجم الحزمة"
 msgid "panels.semButton"
 msgstr "زر"
 
+#. Text in a sample app screen drawn beside the sign-in form. Button of variant B of an A/B test.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.shop-buy"
+msgstr "اشترِ الآن"
+
 #. Author of a snapshot, after its time; the placeholder is a person's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -2445,6 +2457,12 @@ msgstr "تثبيتات الشهادات"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.colSubject"
 msgstr "التغيير"
+
+#. One of five short stories under the sample screen on the sign-in page. Its sentence.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.story.live.body"
+msgstr "غيّر شاشة في Studio وسيعرضها كل تطبيق عند فتحه في المرة التالية، دون إصدار في المتجر."
 
 #. Explains the edit-a-screen onboarding step.
 #. js-lingui-explicit-id
@@ -4828,6 +4846,12 @@ msgstr "كل تغيير في هذه المؤسسة، قابل للبحث وال�
 msgid "installation.organisationsCaption"
 msgstr "كل مؤسسة في هذا التثبيت."
 
+#. One of five short stories under the sample screen on the sign-in page. Its sentence.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.story.signed.body"
+msgstr "يُوقَّع كل إصدار في Studio ويُتحقق منه على الجهاز قبل عرضه."
+
 #. Caption under the release timeline heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -7044,11 +7068,23 @@ msgstr "قائمة"
 msgid "panels.literal"
 msgstr "قيمة ثابتة"
 
+#. Text in a sample app screen drawn beside the sign-in form. Small badge saying the screen just updated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.loan-live"
+msgstr "مباشر"
+
 #. Second line of the large headline: the screens reach every device. About 16 characters.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.hero.line-two"
 msgstr "حيّ في كل مكان."
+
+#. Text in a sample app screen drawn beside the sign-in form. Badge of a staged rollout; {percent} is a formatted percentage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.onboard-rollout"
+msgstr "متاح على {percent} من الأجهزة"
 
 #. Checkbox that makes screen readers announce changes.
 #. js-lingui-explicit-id
@@ -8808,6 +8844,12 @@ msgstr "إيقاف"
 msgid "chip.offline"
 msgstr "غير متصل"
 
+#. Text in a sample app screen drawn beside the sign-in form. Bar that slides in when the phone loses its connection.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.delivery-offline"
+msgstr "غير متصل. نعرض طلبك المحفوظ."
+
 #. Accessible name of the side-by-side view of the two versions of a document.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -10032,6 +10074,12 @@ msgstr "في الانتظار"
 msgid "publish.diffQueued"
 msgstr "في الانتظار. ينتظر الإنشاء المهام السابقة وهو محدود المعدل."
 
+#. Text in a sample app screen drawn beside the sign-in form. Label of the interest rate.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.loan-rate"
+msgstr "الفائدة"
+
 #. D37 button: take the lock again and send the unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -10271,6 +10319,12 @@ msgstr "ملاحظات الإصدار"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.limit.release-size"
 msgstr "حجم الإصدار"
+
+#. One of five short stories under the sample screen on the sign-in page. Its sentence.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.story.rollout.body"
+msgstr "أصدِر لعدد قليل من الأجهزة أولًا، وراقب النتائج، ثم للجميع."
 
 #. State of a request that was released.
 #. js-lingui-explicit-id
@@ -10583,6 +10637,12 @@ msgstr "الشاشة المعروضة: {side}"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffRunning"
 msgstr "جارٍ الإنشاء"
+
+#. Text in a sample app screen drawn beside the sign-in form. A payment in a payment list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-rent"
+msgstr "الإيجار"
 
 #. JSON Patch operation that replaces a value.
 #. js-lingui-explicit-id
@@ -11064,12 +11124,6 @@ msgstr "تم الرجوع"
 msgid "releases.colRollout"
 msgstr "الطرح"
 
-#. Small floating label beside a sample app screen, naming a Plux feature. {percent} is a formatted percentage.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.chip.rollout"
-msgstr "طرح تدريجي · {percent}"
-
 #. Heading of the rollout controls.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -11214,6 +11268,18 @@ msgstr "محرر Rust"
 msgid "rustEditor.editorLabel"
 msgstr "مصدر Rust للدالة"
 
+#. Text in a sample app screen drawn beside the sign-in form. A payment in a payment list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-salary"
+msgstr "الراتب"
+
+#. Text in a sample app screen drawn beside the sign-in form. Line about the courier.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.delivery-courier"
+msgstr "سام على بُعد 1.2 كم"
+
 #. Accessible description of the animated picture beside the sign-in form.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -11237,6 +11303,12 @@ msgstr "تطبيقات نموذجية للاستيراد"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.mismatch"
 msgstr "عدم تطابق نسبة العينة: التوزيع الملاحظ يختلف عن المخطط. لا تثق بالنتائج."
+
+#. Text in a sample app screen drawn beside the sign-in form. A colour name of the product.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.shop-colour"
+msgstr "رملي"
 
 #. Button.
 #. js-lingui-explicit-id
@@ -11531,6 +11603,12 @@ msgstr "الشاشات"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfScreens"
 msgstr "الشاشات"
+
+#. One of five short stories under the sample screen on the sign-in page. Its sentence.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.story.offline.body"
+msgstr "تبقى الشاشات والبيانات على الجهاز، فيعمل التطبيق دون اتصال."
 
 #. Label of the list of the plugin's screens, in the order the navigation flow reaches them.
 #. js-lingui-explicit-id
@@ -11994,6 +12072,12 @@ msgstr "إظهار البدء"
 msgid "cmd.nav.shortcuts"
 msgstr "عرض اختصارات لوحة المفاتيح"
 
+#. One of five short stories under the sample screen on the sign-in page. Its sentence.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.story.test.body"
+msgstr "اعرض نسختين على نصفين من مستخدميك، ثم احتفظ بالنسخة الأنجح."
+
 #. Announced to screen readers when the canvas pans to a screen and highlights it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -12054,12 +12138,6 @@ msgstr "عمليات تسجيل دخول الأشخاص في هذه المؤسس
 msgid "admin.colSigned"
 msgstr "موقّع"
 
-#. Small floating label beside a sample app screen, naming a Plux feature. {version} is a version number.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.scene.signed"
-msgstr "موقّع · v{version}"
-
 #. Says the version carries a builder signature.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -12070,6 +12148,12 @@ msgstr "موقّع من أداة البناء"
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.fact.signed"
+msgstr "إصدارات موقّعة"
+
+#. One of five short stories under the sample screen on the sign-in page. Its title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.story.signed.title"
 msgstr "إصدارات موقّعة"
 
 #. Text in the organisation administration area.
@@ -12293,6 +12377,12 @@ msgstr "المرحلة {index} من {total}"
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.stage"
 msgstr "المرحلة {n}"
+
+#. One of five short stories under the sample screen on the sign-in page. Its title.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.story.rollout.title"
+msgstr "طرح تدريجي"
 
 #. Legend of the rollout stages.
 #. js-lingui-explicit-id
@@ -12947,6 +13037,12 @@ msgstr "القالب"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.kind.template"
 msgstr "القوالب"
+
+#. Text in a sample app screen drawn beside the sign-in form. Label of the loan duration.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.loan-term"
+msgstr "المدة"
 
 #. JSON Patch operation that tests a value.
 #. js-lingui-explicit-id
@@ -14959,10 +15055,10 @@ msgstr "غير المقروءة فقط"
 msgid "pluginCanvas.command.unwrap"
 msgstr "إلغاء لف التحديد"
 
-#. Small floating label beside a sample app screen, naming a Plux feature.
+#. One of five short stories under the sample screen on the sign-in page. Its title.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.chip.instant"
+msgid "auth.story.live.title"
 msgstr "تحديث مباشر"
 
 #. One of three short facts under the sign-in form.
@@ -15241,6 +15337,18 @@ msgstr "القيم لكل شريحة"
 msgid "experiments.colVariant"
 msgstr "المتغير"
 
+#. Text in a sample app screen drawn beside the sign-in form. Badge naming the first version in an A/B test.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.shop-variant-a"
+msgstr "النسخة A"
+
+#. Text in a sample app screen drawn beside the sign-in form. Badge naming the second version in an A/B test.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.shop-variant-b"
+msgstr "النسخة B"
+
 #. Label of a variant name field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -15264,6 +15372,12 @@ msgstr "غيّر عناصر محددة من اللوحة، وقسّم الجمه
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colVerdict"
 msgstr "الحكم"
+
+#. Text in a sample app screen drawn beside the sign-in form. Seal saying the screen's release signature was checked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.scene.bank-verified"
+msgstr "تم التحقق"
 
 #. Button that submits the one-time code.
 #. js-lingui-explicit-id
@@ -15601,10 +15715,10 @@ msgstr "العمل"
 msgid "admin.workloads"
 msgstr "هويات أحمال العمل"
 
-#. Small floating label beside a sample app screen, naming a Plux feature.
+#. One of five short stories under the sample screen on the sign-in page. Its title.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.chip.offline"
+msgid "auth.story.offline.title"
 msgstr "يعمل دون اتصال"
 
 #. Verdict of a comparison.
@@ -15792,12 +15906,6 @@ msgstr "تعذّر دمج تغييراتك مع النسخة الأحدث. ال�
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.save-failed"
 msgstr "تعذّر حفظ اختيارك."
-
-#. Text in a sample app screen drawn beside the sign-in form.
-#. js-lingui-explicit-id
-#: apps/web/src/features/auth/auth.messages.ts
-msgid "auth.scene.delivery-near"
-msgstr "المندوب قريب منك"
 
 #. Heading of the decision form.
 #. js-lingui-explicit-id
