@@ -76,14 +76,14 @@ export function NotificationsPage() {
         >
           {m.markAllRead}
         </Button>
-        <span className="text-caption text-secondary">{m.retention(retentionDays())}</span>
+        <span className="text-caption text-muted-foreground">{m.retention(retentionDays())}</span>
       </div>
       {inbox.isError && (
         <p role="alert" className="text-body text-danger">
           {m.loadFailed}
         </p>
       )}
-      {inbox.data !== undefined && shown.length === 0 && <p className="text-body text-secondary">{m.empty}</p>}
+      {inbox.data !== undefined && shown.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
       {kindOrder.map((kind) => {
         const ofKind = groups.filter((g) => kindOf(g.eventType) === kind);
         if (ofKind.length === 0) {

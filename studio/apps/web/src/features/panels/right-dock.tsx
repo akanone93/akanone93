@@ -535,8 +535,8 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const labels: Record<Breakpoint, string> = { compact: m.compact, medium: m.medium, expanded: m.expanded };
   return (
     <div className="flex flex-col gap-3">
-      {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
-      {ids.length > 1 && <p className="text-caption text-secondary">{m.multi(ids.length)}</p>}
+      {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+      {ids.length > 1 && <p className="text-caption text-muted-foreground">{m.multi(ids.length)}</p>}
       <Select
         label={m.breakpoint}
         options={breakpoints.map((b) => ({ value: b, label: labels[b] }))}
@@ -595,7 +595,7 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
                 </Button>
               )}
             {!mixed && sv.overridden && (
-              <div className="flex items-center gap-2 text-caption text-secondary">
+              <div className="flex items-center gap-2 text-caption text-muted-foreground">
                 <span>{m.overridden}</span>
                 <Button
                   variant="ghost"
@@ -654,7 +654,7 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
     return s === undefined || id === undefined ? null : pointerOf(s.content, id);
   });
   if (id === undefined || ids.length !== 1 || doc === undefined || descriptor === undefined) {
-    return <p className="text-body text-secondary">{m.nothing}</p>;
+    return <p className="text-body text-muted-foreground">{m.nothing}</p>;
   }
   const set = (field: string, value: unknown) =>
     p.edit(doc, setSemanticsRecipe(id, field, value), { group: `sem:${id}:${field}:${burst.current}` });
@@ -667,12 +667,14 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
   ];
   return (
     <div className="flex flex-col gap-3">
-      {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+      {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
       <p className="text-body">
         {m.role}: <TypeTag>{descriptor.accessibility.role}</TypeTag>{" "}
         {descriptor.accessibility.interactive ? m.interactive : m.notInteractive}
       </p>
-      {descriptor.accessibility.minTarget === true && <p className="text-caption text-secondary">{m.minTarget}</p>}
+      {descriptor.accessibility.minTarget === true && (
+        <p className="text-caption text-muted-foreground">{m.minTarget}</p>
+      )}
       {(["label", "hint"] as const).map((f) => (
         <Field key={f} label={f === "label" ? m.semLabel : m.semHint}>
           <Input
@@ -701,7 +703,7 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
       ))}
       <h3 className="text-label font-medium">{m.a11yProblems}</h3>
       {found.length === 0 ? (
-        <p className="text-body text-secondary">{m.a11yNone}</p>
+        <p className="text-body text-muted-foreground">{m.a11yNone}</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {found.map((x) => (
@@ -728,7 +730,7 @@ function ActionsPanel(p: DockProps & { ids: readonly string[] }) {
   }, [p.documents, p.appDocuments]);
   const doc = id === undefined ? undefined : p.screenOf.get(id);
   if (id === undefined || node === undefined || doc === undefined) {
-    return <p className="text-body text-secondary">{m.nothing}</p>;
+    return <p className="text-body text-muted-foreground">{m.nothing}</p>;
   }
   return (
     <ActionsTab
@@ -746,7 +748,7 @@ function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; 
   const type = ids[0] === undefined ? undefined : index.type.get(ids[0]);
   const d = type === undefined ? undefined : widget(type);
   if (d === undefined) {
-    return <p className="text-body text-secondary">{m.nothing}</p>;
+    return <p className="text-body text-muted-foreground">{m.nothing}</p>;
   }
   const section = (
     title: string,
@@ -759,9 +761,11 @@ function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; 
           {rows.map((r) => (
             <li key={r.name} className="text-body">
               <TypeTag>{r.name}</TypeTag>
-              {r.required === true && <span className="text-caption text-secondary"> {m.docsRequired}</span>}
-              {r.deprecated !== undefined && <span className="text-caption text-secondary"> {m.docsDeprecated}</span>}
-              {r.description !== undefined && <p className="text-caption text-secondary">{r.description}</p>}
+              {r.required === true && <span className="text-caption text-muted-foreground"> {m.docsRequired}</span>}
+              {r.deprecated !== undefined && (
+                <span className="text-caption text-muted-foreground"> {m.docsDeprecated}</span>
+              )}
+              {r.description !== undefined && <p className="text-caption text-muted-foreground">{r.description}</p>}
             </li>
           ))}
         </ul>
@@ -799,7 +803,7 @@ export function RightDock(props: DockProps) {
     return own ?? Math.max(0, ...perScreen.values());
   }, [nodes, ids, props.screenOf]);
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
-    ids.length === 0 ? <p className="text-body text-secondary">{m.nothing}</p> : panel(ids);
+    ids.length === 0 ? <p className="text-body text-muted-foreground">{m.nothing}</p> : panel(ids);
   return (
     <FloatingPanel label={m.dock} className="absolute end-4 top-16 bottom-16 w-1/5 overflow-y-auto">
       {props.onOpenJson !== undefined && (

@@ -90,7 +90,7 @@ function PermissionTree({
                       onChange={(e) => onChange(toggleAll(selected, [x.name], e.target.checked))}
                     />
                     <span>{x.action}</span>
-                    {x.stepUp && <span className="text-caption text-secondary">{m.needsStepUp}</span>}
+                    {x.stepUp && <span className="text-caption text-muted-foreground">{m.needsStepUp}</span>}
                   </label>
                 ))}
               </fieldset>
@@ -148,7 +148,7 @@ export function RolePage(): ReactElement {
       failed={catalogue.isError || (!isNew && role.isError)}
       saveFailed={failed}
     >
-      {loaded?.predefined === true && <p className="text-body text-secondary">{m.predefinedLocked}</p>}
+      {loaded?.predefined === true && <p className="text-body text-muted-foreground">{m.predefinedLocked}</p>}
       <div className="flex flex-wrap gap-3">
         <Field label={m.colKey}>
           <Input value={key} disabled={!isNew} onChange={(e) => setKey(e.target.value)} />

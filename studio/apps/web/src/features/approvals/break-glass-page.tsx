@@ -74,7 +74,7 @@ export function BreakGlassPage(): ReactElement {
       failed={list.isError}
     >
       {items.length === 0 ? (
-        <p className="text-body text-secondary">{m.empty}</p>
+        <p className="text-body text-muted-foreground">{m.empty}</p>
       ) : (
         <Table
           caption={m.breakGlassTitle}

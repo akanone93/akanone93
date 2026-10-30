@@ -39,7 +39,7 @@ export function Menu({ trigger, entries, ...root }: MenuProps): ReactElement {
                   {...(e.disabled !== undefined && { disabled: e.disabled })}
                   className={cx(
                     "flex h-(--density-field) cursor-default items-center rounded-md px-3 text-body",
-                    e.danger === true ? "text-danger" : "text-primary",
+                    e.danger === true ? "text-danger" : "text-foreground",
                     "data-highlighted:bg-hover data-disabled:opacity-50",
                     focusRing,
                   )}

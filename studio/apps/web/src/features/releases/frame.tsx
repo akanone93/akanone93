@@ -27,9 +27,9 @@ export function Frame({
       <h1 id={id} className="text-screen">
         {title}
       </h1>
-      {caption !== undefined && <p className="text-body text-secondary">{caption}</p>}
+      {caption !== undefined && <p className="text-body text-muted-foreground">{caption}</p>}
       {loading && !failed && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}

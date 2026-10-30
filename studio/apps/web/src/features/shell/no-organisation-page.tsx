@@ -20,7 +20,7 @@ export function NoOrganisationPage() {
   return (
     <section className="flex flex-col gap-3">
       <h1 className="text-screen">{m.noOrgTitle}</h1>
-      <p className="text-body text-secondary">{admin ? m.noOrgAdminBody : m.noOrgBody}</p>
+      <p className="text-body text-muted-foreground">{admin ? m.noOrgAdminBody : m.noOrgBody}</p>
       {admin && (
         <div>
           <Button onClick={() => setCreating(true)}>{m.createOrganisation}</Button>

@@ -170,7 +170,7 @@ export function StateDesignerOverlay(props: StateDesignerOverlayProps) {
             <Icon name="plus" />
             {m.add}
           </Button>
-          {entries.length === 0 && <p className="text-body text-secondary">{m.none}</p>}
+          {entries.length === 0 && <p className="text-body text-muted-foreground">{m.none}</p>}
           <ul className="flex flex-col gap-1">
             {entries.map((e) => (
               <li key={e.id}>
@@ -182,17 +182,17 @@ export function StateDesignerOverlay(props: StateDesignerOverlayProps) {
                   <span className="font-mono text-data" dir="ltr">
                     {e.name}
                   </span>
-                  <span className="font-mono text-tag text-secondary" dir="ltr">
+                  <span className="font-mono text-tag text-muted-foreground" dir="ltr">
                     {e.type}
                   </span>
-                  <span className="text-caption text-secondary">{m.uses(uses(e.name).length)}</span>
+                  <span className="text-caption text-muted-foreground">{m.uses(uses(e.name).length)}</span>
                 </Button>
               </li>
             ))}
           </ul>
         </nav>
         <div className="flex min-w-0 flex-1 flex-col gap-3 overflow-y-auto">
-          {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+          {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
           {selected !== undefined && (
             <EntryForm
               key={selected.id}
@@ -319,7 +319,7 @@ function EntryForm({ entry, others, types, canEdit, m, verdict, onEdit, onRemove
         {m.sensitive}
       </label>
       {entry.computed ? (
-        <p className="text-caption text-secondary">{m.computedNote}</p>
+        <p className="text-caption text-muted-foreground">{m.computedNote}</p>
       ) : (
         <Field label={m.defaultValue} error={parsedDefault === undefined ? m.notJson : undefined}>
           <Input
@@ -354,14 +354,14 @@ function EntryForm({ entry, others, types, canEdit, m, verdict, onEdit, onRemove
 
 function Findings({ verdict, m }: { readonly verdict: Verdict; readonly m: StateMessages }) {
   if (verdict.state === "checking") {
-    return <p className="text-body text-secondary">{m.checking}</p>;
+    return <p className="text-body text-muted-foreground">{m.checking}</p>;
   }
   if (verdict.state === "unavailable") {
-    return <p className="text-body text-secondary">{m.unavailable}</p>;
+    return <p className="text-body text-muted-foreground">{m.unavailable}</p>;
   }
   const shown = verdict.problems.filter((p) => p.severity !== "info");
   return shown.length === 0 ? (
-    <p className="text-body text-secondary">{m.valid}</p>
+    <p className="text-body text-muted-foreground">{m.valid}</p>
   ) : (
     <ul className="flex flex-col gap-1">
       {shown.map((p) => (

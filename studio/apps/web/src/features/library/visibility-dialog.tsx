@@ -49,7 +49,7 @@ export function VisibilityDialog({
   };
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()} title={m.visibilityTitle} labels={{ close: m.close }}>
-      <p className="text-body text-secondary">{m.visibilityNote}</p>
+      <p className="text-body text-muted-foreground">{m.visibilityNote}</p>
       <fieldset className="mt-3 flex flex-col gap-2">
         <legend className="text-body font-medium">{m.visibilityLabel}</legend>
         {VISIBILITIES.map((v) => (
@@ -81,7 +81,7 @@ export function VisibilityDialog({
               </li>
             ))}
           </ul>
-          <p className="text-caption text-secondary">{m.scanHelp}</p>
+          <p className="text-caption text-muted-foreground">{m.scanHelp}</p>
         </section>
       )}
       <div className="mt-4 flex justify-end gap-2">

@@ -58,9 +58,9 @@ export function ScreenshotPanel({
       <Button size="sm" disabled={target.trim() === ""} loading={save.isPending} onClick={() => save.mutate()}>
         {m.screenshotSave}
       </Button>
-      {capture.platformViewsNotCaptured && <p className="text-caption text-secondary">{m.platformViews}</p>}
+      {capture.platformViewsNotCaptured && <p className="text-caption text-muted-foreground">{m.platformViews}</p>}
       {save.isSuccess && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.screenshotSaved}
         </p>
       )}

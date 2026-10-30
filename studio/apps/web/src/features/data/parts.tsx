@@ -82,7 +82,7 @@ export function CommitBar(props: {
           m={d}
         />
       </div>
-      {!state.canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+      {!state.canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
       <ProblemList problems={state.check.state === "done" ? state.check.problems : []} m={d} />
     </div>
   );

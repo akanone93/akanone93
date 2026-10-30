@@ -53,7 +53,7 @@ export function CardLimits({ limits }: { readonly limits: readonly AppLimitUsage
         );
         return (
           <li key={l.key} className="flex flex-wrap items-center gap-2">
-            <span className="text-caption text-secondary">{name}</span>
+            <span className="text-caption text-muted-foreground">{name}</span>
             <Meter value={Number(l.used)} max={Number(l.limit)} label={name} valueText={text} />
             <LevelPill level={levelOf(l.used, l.limit)} m={m} />
           </li>
@@ -68,7 +68,7 @@ export function LimitsTable({ limits }: { readonly limits: readonly LimitUsage[]
   const { i18n } = useLingui();
   const m = appsMessages(i18n);
   if (limits.length === 0) {
-    return <p className="text-body text-secondary">{m.limitsEmpty}</p>;
+    return <p className="text-body text-muted-foreground">{m.limitsEmpty}</p>;
   }
   return (
     <table className="w-full text-start text-body">
@@ -76,7 +76,7 @@ export function LimitsTable({ limits }: { readonly limits: readonly LimitUsage[]
       <thead>
         <tr>
           {[m.colLimit, m.colUsed, m.colEffective, m.colUsage].map((h) => (
-            <th key={h} scope="col" className="p-2 text-start text-caption text-secondary">
+            <th key={h} scope="col" className="p-2 text-start text-caption text-muted-foreground">
               {h}
             </th>
           ))}
@@ -93,7 +93,7 @@ export function LimitsTable({ limits }: { readonly limits: readonly LimitUsage[]
             <tr key={l.key}>
               <th scope="row" className="p-2 text-start font-normal">
                 {friendly !== undefined && <span className="block">{friendly}</span>}
-                <span className="font-mono text-data text-secondary">{l.key}</span>
+                <span className="font-mono text-data text-muted-foreground">{l.key}</span>
               </th>
               <td className="p-2 font-mono text-data">{used}</td>
               <td className="p-2 font-mono text-data">{effective}</td>

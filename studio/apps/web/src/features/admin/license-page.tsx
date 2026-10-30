@@ -44,13 +44,13 @@ export function LicensePage(): ReactElement {
       <dl className="flex flex-col gap-1 text-body">
         {rows.map(([k, v]) => (
           <div key={k} className="flex gap-4">
-            <dt className="w-48 text-secondary">{k}</dt>
+            <dt className="w-48 text-muted-foreground">{k}</dt>
             <dd className="font-mono">{v}</dd>
           </div>
         ))}
       </dl>
-      {s?.message !== undefined && s.message !== "" && <p className="text-body text-secondary">{s.message}</p>}
-      <p className="text-body text-secondary">{m.licenseNote}</p>
+      {s?.message !== undefined && s.message !== "" && <p className="text-body text-muted-foreground">{s.message}</p>}
+      <p className="text-body text-muted-foreground">{m.licenseNote}</p>
       <form
         className="flex items-end gap-3"
         onSubmit={async (e) => {

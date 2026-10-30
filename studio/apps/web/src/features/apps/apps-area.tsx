@@ -37,7 +37,7 @@ function States({
   return (
     <>
       {loading && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}
@@ -53,8 +53,8 @@ function States({
       )}
       {empty && (
         <div className="flex flex-col items-start gap-2">
-          <p className="text-body text-secondary">{home.appsEmpty}</p>
-          {onCreate === undefined && <p className="text-body text-secondary">{home.appsEmptyAsk}</p>}
+          <p className="text-body text-muted-foreground">{home.appsEmpty}</p>
+          {onCreate === undefined && <p className="text-body text-muted-foreground">{home.appsEmptyAsk}</p>}
           {onCreate !== undefined && <Button onClick={onCreate}>{home.createApp}</Button>}
         </div>
       )}
@@ -130,7 +130,7 @@ export function AppsArea({
       )}
       {anyApps && shown.length === 0 && (
         <div className="flex flex-col items-start gap-2">
-          <p className="text-body text-secondary">{m.noMatch}</p>
+          <p className="text-body text-muted-foreground">{m.noMatch}</p>
           {filtered && (
             <Button
               variant="secondary"

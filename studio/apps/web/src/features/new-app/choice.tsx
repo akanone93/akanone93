@@ -33,7 +33,7 @@ export function Choice({
     <label
       className={cx(
         "flex items-start gap-3 rounded-lg border p-3 text-body",
-        checked ? "border-accent bg-selection-surface" : "border-hairline bg-raised",
+        checked ? "border-primary bg-selection-surface" : "border-hairline bg-raised",
         disabled && "opacity-60",
       )}
     >
@@ -49,11 +49,11 @@ export function Choice({
       />
       {leading}
       <span className="flex flex-col gap-1">
-        <span id={`${id}-label`} className="text-body text-primary">
+        <span id={`${id}-label`} className="text-body text-foreground">
           {label}
         </span>
         {hint !== undefined && (
-          <span id={`${id}-hint`} className="text-caption text-secondary">
+          <span id={`${id}-hint`} className="text-caption text-muted-foreground">
             {hint}
           </span>
         )}

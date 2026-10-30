@@ -35,10 +35,10 @@ export function Frame({
       <h1 id={id} className="text-screen">
         {title}
       </h1>
-      {caption !== undefined && <p className="text-body text-secondary">{caption}</p>}
+      {caption !== undefined && <p className="text-body text-muted-foreground">{caption}</p>}
       <AreaNav />
       {loading && !failed && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}
@@ -128,7 +128,7 @@ export function RequestTable({ requests }: { readonly requests: readonly Approva
   const m = approvalsMessages(useLingui().i18n);
   const { org } = useScope();
   if (requests.length === 0) {
-    return <p className="text-body text-secondary">{m.empty}</p>;
+    return <p className="text-body text-muted-foreground">{m.empty}</p>;
   }
   return (
     <Table

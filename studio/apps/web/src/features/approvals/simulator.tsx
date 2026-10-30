@@ -22,7 +22,7 @@ function Requirement({ r }: { readonly r: SimulatedRequirement }): ReactElement 
   return (
     <li className="text-body">
       <span className="font-mono">{r.policyKey}</span>
-      {r.draft && <span className="text-caption text-secondary"> ({m.simDraft})</span>}: {parts.join(", ")}
+      {r.draft && <span className="text-caption text-muted-foreground"> ({m.simDraft})</span>}: {parts.join(", ")}
     </li>
   );
 }
@@ -77,7 +77,7 @@ export function Simulator({ app, draft }: { readonly app: string; readonly draft
       <h2 id="simulator-title" className="text-section">
         {m.simulatorTitle}
       </h2>
-      <p className="text-body text-secondary">{m.simulatorCaption}</p>
+      <p className="text-body text-muted-foreground">{m.simulatorCaption}</p>
       <Select
         label={m.sampleResource}
         options={policyResources.map((value) => ({ value, label: value }))}

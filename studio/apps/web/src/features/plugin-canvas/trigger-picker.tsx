@@ -50,7 +50,7 @@ export function TriggerPicker(props: TriggerPickerProps) {
       </fieldset>
       {binding !== "free" && event !== undefined && (
         <fieldset className="flex flex-col gap-1">
-          <legend className="text-body text-secondary">{m.bound(event)}</legend>
+          <legend className="text-body text-muted-foreground">{m.bound(event)}</legend>
           {(["replace", "append"] as const).map((value) => (
             <label key={value} className="flex items-center gap-2 text-body">
               <input type="radio" name="mode" value={value} checked={mode === value} onChange={() => setMode(value)} />

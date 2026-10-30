@@ -41,7 +41,7 @@ export function MuteSettings() {
             onChange={(e) => toggle(type, e.target.checked)}
           />
           <span className="font-mono text-tag">{type}</span>
-          <span className="text-caption text-secondary">{isMutable(type) ? m.muteLabel : m.muteLocked}</span>
+          <span className="text-caption text-muted-foreground">{isMutable(type) ? m.muteLabel : m.muteLocked}</span>
         </label>
       ))}
     </section>

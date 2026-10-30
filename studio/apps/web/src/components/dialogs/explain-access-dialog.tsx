@@ -33,7 +33,7 @@ export function ExplainAccessDialog({
   });
   return (
     <Dialog open={open} onOpenChange={onOpenChange} size="md" title={m.explainTitle} labels={{ close: m.close }}>
-      {query.isPending && <p className="text-body text-secondary">{m.explainLoading}</p>}
+      {query.isPending && <p className="text-body text-muted-foreground">{m.explainLoading}</p>}
       {query.isError && (
         <p role="alert" className="text-body text-danger">
           {m.explainFailed}

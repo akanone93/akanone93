@@ -38,15 +38,15 @@ function PairingBody({ pairing }: { readonly pairing: DevPairing }): ReactNode {
   const left = secondsLeft(expiresAt, now);
   return (
     <div className="flex flex-col items-center gap-3">
-      <p className="text-body text-secondary">{m.pairHelp}</p>
+      <p className="text-body text-muted-foreground">{m.pairHelp}</p>
       {left > 0 && <QrCode text={pairing.uri} label={m.qrLabel} />}
       <div className="flex w-full flex-col gap-1 text-body">
-        <span className="text-secondary">{m.code}</span>
-        <span className="font-mono text-primary">{pairing.code}</span>
-        <span className="text-secondary">{m.link}</span>
-        <span className="break-all font-mono text-caption text-primary">{pairing.uri}</span>
+        <span className="text-muted-foreground">{m.code}</span>
+        <span className="font-mono text-foreground">{pairing.code}</span>
+        <span className="text-muted-foreground">{m.link}</span>
+        <span className="break-all font-mono text-caption text-foreground">{pairing.uri}</span>
       </div>
-      <p role="timer" className="text-body text-secondary">
+      <p role="timer" className="text-body text-muted-foreground">
         {left > 0 ? m.expiresIn(clock(left)) : m.expired}
       </p>
     </div>

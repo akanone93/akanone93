@@ -12,7 +12,7 @@ export function UnsupportedPage() {
     <PublicColumn>
       <section className="flex flex-col gap-3">
         <h1 className="text-screen">{m.unsupportedTitle}</h1>
-        <p className="text-body text-secondary">{m.unsupportedBody}</p>
+        <p className="text-body text-muted-foreground">{m.unsupportedBody}</p>
       </section>
     </PublicColumn>
   );

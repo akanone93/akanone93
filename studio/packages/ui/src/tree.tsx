@@ -57,7 +57,7 @@ export function Tree({ nodes, rootId, label, dir = "ltr" }: TreeProps): ReactEle
             className={cx(
               "flex h-(--density-tree-row) items-center gap-2 rounded-md px-2 text-start text-body",
               focusRing,
-              item.isSelected() ? "bg-raised text-accent shadow-e1" : "text-primary hover:bg-hover",
+              item.isSelected() ? "bg-raised text-primary shadow-e1" : "text-foreground hover:bg-hover",
               item.isFocused() && "outline-2 outline-focus",
             )}
             style={{ paddingInlineStart: `calc(var(--spacing-4) * ${item.getItemMeta().level})` }}

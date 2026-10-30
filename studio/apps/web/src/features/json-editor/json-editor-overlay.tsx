@@ -217,7 +217,7 @@ function PublishedNotes({ diff, published, m }: { diff: boolean; published: Publ
     return null;
   }
   if (published.state === "loading") {
-    return <p className="text-caption text-secondary">{m.loadingPublished}</p>;
+    return <p className="text-caption text-muted-foreground">{m.loadingPublished}</p>;
   }
   if (published.state === "failed") {
     return (
@@ -226,7 +226,7 @@ function PublishedNotes({ diff, published, m }: { diff: boolean; published: Publ
       </p>
     );
   }
-  return published.text === null ? <p className="text-caption text-secondary">{m.noPublished}</p> : null;
+  return published.text === null ? <p className="text-caption text-muted-foreground">{m.noPublished}</p> : null;
 }
 
 function ProblemList({ problems, empty, m }: { problems: readonly Problem[]; empty: string; m: JsonEditorMessages }) {
@@ -234,7 +234,7 @@ function ProblemList({ problems, empty, m }: { problems: readonly Problem[]; emp
     <section aria-label={m.problems} className="max-h-40 overflow-y-auto">
       <h3 className="text-label font-medium">{m.problems}</h3>
       {problems.length === 0 ? (
-        <p className="text-body text-secondary">{empty}</p>
+        <p className="text-body text-muted-foreground">{empty}</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {problems.map((p) => (
@@ -310,15 +310,15 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
           <Button onClick={apply} disabled={!canApply}>
             {m.apply}
           </Button>
-          <span role="status" aria-live="polite" className="text-body text-secondary">
+          <span role="status" aria-live="polite" className="text-body text-muted-foreground">
             {note === "" ? status : note}
           </span>
         </div>
-        {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
         <PublishedNotes diff={diff} published={published} m={m} />
         <div className="min-h-0 flex-1">
           {props.open && (
-            <Suspense fallback={<p className="text-body text-secondary">{m.checking}</p>}>
+            <Suspense fallback={<p className="text-body text-muted-foreground">{m.checking}</p>}>
               <MonacoView
                 value={text}
                 baseline={published.state === "ready" ? (published.text ?? "") : undefined}

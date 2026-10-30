@@ -98,12 +98,12 @@ export function OnboardingChecklist({
   return (
     <section aria-labelledby="onboarding-title" className="flex flex-col gap-3 rounded-xl bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="onboarding-title" className="font-serif text-title text-primary">
+        <h2 id="onboarding-title" className="font-serif text-title text-foreground">
           {m.title}
         </h2>
         <Meter label={m.progressLabel} value={done} max={steps.length} valueText={m.progressText(done, steps.length)} />
       </div>
-      <p className="text-body text-secondary">{m.caption}</p>
+      <p className="text-body text-muted-foreground">{m.caption}</p>
       <ol aria-label={m.stepsLabel} className="flex flex-col gap-2">
         {steps.map((step) => {
           const text = stepText(m, step.key);
@@ -111,8 +111,8 @@ export function OnboardingChecklist({
             <li key={step.key} className="flex flex-wrap items-center gap-3">
               <StatusPill status={step.done ? "success" : "neutral"} label={step.done ? m.statusDone : m.statusTodo} />
               <div className="flex flex-col">
-                <span className="text-body text-primary">{text.label}</span>
-                <span className="text-caption text-secondary">{text.hint}</span>
+                <span className="text-body text-foreground">{text.label}</span>
+                <span className="text-caption text-muted-foreground">{text.hint}</span>
               </div>
               {step.key === "create_app" && !step.done && canCreate && (
                 <Button variant="secondary" onClick={onCreate}>

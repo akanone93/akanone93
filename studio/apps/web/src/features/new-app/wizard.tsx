@@ -120,12 +120,12 @@ export function NewAppWizard({ open, onOpenChange, organizationId, org }: NewApp
   const View = step === "done" ? undefined : stepViews[step];
   return (
     <Dialog open={open} onOpenChange={close} size="lg" title={m.title} labels={{ close: d.close }}>
-      <ol aria-label={m.stepsLabel} className="flex flex-wrap gap-2 text-caption text-secondary">
+      <ol aria-label={m.stepsLabel} className="flex flex-wrap gap-2 text-caption text-muted-foreground">
         {steps.map((id, index) => (
           <li
             key={id}
             {...(index === at && { "aria-current": "step" as const })}
-            className={index === at ? "font-medium text-primary" : undefined}
+            className={index === at ? "font-medium text-foreground" : undefined}
           >
             <span className="font-mono">{index + 1}</span> {names[id]}
           </li>
@@ -146,7 +146,7 @@ export function NewAppWizard({ open, onOpenChange, organizationId, org }: NewApp
           {View !== undefined && <View draft={draft} update={update} attempted={attempted} problem={problem} />}
           {stage !== undefined && (
             <div className="flex flex-col gap-1">
-              <p role="status" className="text-body text-secondary">
+              <p role="status" className="text-body text-muted-foreground">
                 {stage === "preparing" ? m.progressPreparing : m.progressCreating}
               </p>
               <progress aria-label={m.progressLabel} max={2} value={stage === "preparing" ? 1 : 2} className="w-full" />

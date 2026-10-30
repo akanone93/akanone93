@@ -55,13 +55,13 @@ function Changes({ changes }: { readonly changes: readonly ShellChange[] }): Rea
       <h2 id="shell-changes" className="text-section">
         {m.changesTitle}
       </h2>
-      <p className="text-body text-secondary">{m.requiredCaption}</p>
+      <p className="text-body text-muted-foreground">{m.requiredCaption}</p>
       <table className="w-full text-start text-body">
         <caption className="sr-only">{m.changesTable}</caption>
         <thead>
           <tr>
             {[m.colSetting, m.colGenerated, m.colCurrent, m.colReason].map((head) => (
-              <th key={head} scope="col" className="p-2 text-start text-caption text-secondary">
+              <th key={head} scope="col" className="p-2 text-start text-caption text-muted-foreground">
                 {head}
               </th>
             ))}
@@ -75,7 +75,7 @@ function Changes({ changes }: { readonly changes: readonly ShellChange[] }): Rea
               </th>
               <td className="p-2 font-mono text-data">{valueText(m, change.field, change.oldValue)}</td>
               <td className="p-2 font-mono text-data">{valueText(m, change.field, change.newValue)}</td>
-              <td className="p-2 text-secondary">{change.reason}</td>
+              <td className="p-2 text-muted-foreground">{change.reason}</td>
             </tr>
           ))}
         </tbody>
@@ -99,10 +99,10 @@ export function ShellSettingsPage(): ReactElement {
         <h1 id="shell-title" className="text-screen">
           {m.title}
         </h1>
-        <p className="text-body text-secondary">{m.caption}</p>
+        <p className="text-body text-muted-foreground">{m.caption}</p>
       </div>
       {status.isPending && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}
@@ -122,7 +122,7 @@ export function ShellSettingsPage(): ReactElement {
               <StatusPill status="success" label={m.statusCurrent} />
             )}
             {generatedAt !== undefined && (
-              <p className="text-caption text-secondary">
+              <p className="text-caption text-muted-foreground">
                 {m.generatedAt(i18n.date(generatedAt, { dateStyle: "medium", timeStyle: "short" }))}
               </p>
             )}
@@ -133,7 +133,7 @@ export function ShellSettingsPage(): ReactElement {
             <h2 id="shell-project" className="text-section">
               {m.projectTitle}
             </h2>
-            <p className="text-body text-secondary">{m.projectCaption(limitDefault("project.jobsPerHour"))}</p>
+            <p className="text-body text-muted-foreground">{m.projectCaption(limitDefault("project.jobsPerHour"))}</p>
             <div className="flex flex-wrap items-start gap-3">
               <ProjectDownload appId={appId} label={m.projectRegenerate} disabled={!canManage} />
               {data.generated !== undefined && data.updateRequired && (
@@ -141,7 +141,7 @@ export function ShellSettingsPage(): ReactElement {
               )}
             </div>
             {data.generated !== undefined && data.updateRequired && (
-              <p className="text-caption text-secondary">{m.projectPatchCaption}</p>
+              <p className="text-caption text-muted-foreground">{m.projectPatchCaption}</p>
             )}
           </section>
         </>

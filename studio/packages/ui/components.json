@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-nova",
+  "rsc": false,
+  "tsx": true,
+  "rtl": true,
+  "tailwind": {
+    "config": "",
+    "css": "../../apps/web/src/styles/app.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@plux/ui/components",
+    "ui": "@plux/ui/components",
+    "utils": "cn",
+    "lib": "@plux/ui/lib",
+    "hooks": "@plux/ui/hooks"
+  }
+}

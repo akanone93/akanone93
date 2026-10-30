@@ -124,7 +124,7 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
       <section aria-label={m.operations} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.operations}</h2>
         {ops.length === 0 ? (
-          <p className="text-body text-secondary">{m.noOperations}</p>
+          <p className="text-body text-muted-foreground">{m.noOperations}</p>
         ) : (
           <Table
             caption={m.operations}
@@ -145,7 +145,7 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
       <section aria-label={m.schemas} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.schemas}</h2>
         {schemas.length === 0 ? (
-          <p className="text-body text-secondary">{m.noSchemas}</p>
+          <p className="text-body text-muted-foreground">{m.noSchemas}</p>
         ) : (
           <ul>
             {schemas.map((t) => (
@@ -159,14 +159,14 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
       <section aria-label={m.baseUrl} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.baseUrl}</h2>
         {variable === "" ? (
-          <p className="text-body text-secondary">{m.noBaseUrl}</p>
+          <p className="text-body text-muted-foreground">{m.noBaseUrl}</p>
         ) : (
           <>
             <p className="text-body">
               {m.baseUrlVariable} <code className="text-code">{variable}</code>
             </p>
             {envValues.length === 0 ? (
-              <p className="text-body text-secondary">{m.noUrls}</p>
+              <p className="text-body text-muted-foreground">{m.noUrls}</p>
             ) : (
               <Table
                 caption={m.baseUrl}
@@ -262,7 +262,7 @@ function Editor(props: { sourceId: string }): ReactElement {
   const state = useCommit(next, "data-source");
   const current = sources.find((s) => String(s["id"]) === props.sourceId);
   if (current === undefined) {
-    return <p className="text-body text-secondary">{seeded ? m.notFound : m.loading}</p>;
+    return <p className="text-body text-muted-foreground">{seeded ? m.notFound : m.loading}</p>;
   }
   const change = (patch: Json) => setSources((all) => all.map((s) => (s === current ? patched(s, patch) : s)));
   return (

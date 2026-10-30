@@ -91,22 +91,22 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
           />
           <AddKey {...props} keys={keys} keysDoc={keysDoc} />
         </div>
-        {!props.canEditMessages && <p className="text-caption text-secondary">{m.readOnly}</p>}
+        {!props.canEditMessages && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
         <div className="min-h-0 flex-1 overflow-auto">
           {rows.length === 0 ? (
-            <p className="text-body text-secondary">{m.empty}</p>
+            <p className="text-body text-muted-foreground">{m.empty}</p>
           ) : (
             <table aria-label={m.table} className="w-full border-collapse text-start">
               <thead>
                 <tr>
-                  <th scope="col" className="p-2 text-start text-label text-secondary">
+                  <th scope="col" className="p-2 text-start text-label text-muted-foreground">
                     {m.keyColumn}
                   </th>
                   {shown.map((c) => (
                     <th
                       key={c.locale}
                       scope="col"
-                      className="p-2 text-start font-mono text-tag text-secondary"
+                      className="p-2 text-start font-mono text-tag text-muted-foreground"
                       dir="ltr"
                     >
                       {c.locale}
@@ -132,7 +132,7 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
                           />
                         ) : (
                           <span className="text-body">
-                            {c.messages?.[k.id] ?? <span className="text-secondary">{m.missing}</span>}
+                            {c.messages?.[k.id] ?? <span className="text-muted-foreground">{m.missing}</span>}
                           </span>
                         )}
                       </td>
@@ -199,7 +199,7 @@ function AddKey(props: LocalisationOverlayProps & { keys: ReturnType<typeof read
       <Button onClick={add} disabled={!props.canEditKeys}>
         {m.addKey}
       </Button>
-      {!props.canEditKeys && <span className="text-caption text-secondary">{m.keysReadOnly}</span>}
+      {!props.canEditKeys && <span className="text-caption text-muted-foreground">{m.keysReadOnly}</span>}
     </div>
   );
 }

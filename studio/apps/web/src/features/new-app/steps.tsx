@@ -69,9 +69,9 @@ function TemplateList({ draft, update, attempted, problem }: StepProps): ReactEl
   const list = samples.data?.samples ?? [];
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-label font-medium text-primary">{m.templateLegend}</legend>
+      <legend className="text-label font-medium text-foreground">{m.templateLegend}</legend>
       {samples.isPending && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.templatesLoading}
         </p>
       )}
@@ -80,7 +80,7 @@ function TemplateList({ draft, update, attempted, problem }: StepProps): ReactEl
           {m.templatesFailed}
         </p>
       )}
-      {samples.isSuccess && list.length === 0 && <p className="text-body text-secondary">{m.templatesEmpty}</p>}
+      {samples.isSuccess && list.length === 0 && <p className="text-body text-muted-foreground">{m.templatesEmpty}</p>}
       {list.map((sample) => (
         <Choice
           key={sample.id}
@@ -151,7 +151,7 @@ export function SourceStep(props: StepProps): ReactElement {
   return (
     <div className="flex flex-col gap-3">
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-label font-medium text-primary">{m.sourceLegend}</legend>
+        <legend className="text-label font-medium text-foreground">{m.sourceLegend}</legend>
         <Choice
           type="radio"
           name="source"
@@ -198,7 +198,7 @@ export function DetailsStep({ draft, update, attempted, problem }: StepProps): R
   const m = newAppMessages(useLingui().i18n);
   return (
     <div className="flex flex-col gap-3">
-      {draft.source === "import" && <p className="text-body text-secondary">{m.importKeepHint}</p>}
+      {draft.source === "import" && <p className="text-body text-muted-foreground">{m.importKeepHint}</p>}
       <Field label={d.createName} error={attempted && problem === "name" ? d.createNameInvalid : undefined}>
         <Input
           value={draft.name}
@@ -251,7 +251,7 @@ export function LocalesStep({ draft, update, attempted, problem }: StepProps): R
   };
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-body text-secondary">{m.localesHint(maxLocales)}</p>
+      <p className="text-body text-muted-foreground">{m.localesHint(maxLocales)}</p>
       <Field label={m.localesDefault}>
         <Select
           label={m.localesDefault}
@@ -261,7 +261,7 @@ export function LocalesStep({ draft, update, attempted, problem }: StepProps): R
         />
       </Field>
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-label font-medium text-primary">{m.localesLegend}</legend>
+        <legend className="text-label font-medium text-foreground">{m.localesLegend}</legend>
         <div className="grid grid-cols-2 gap-2">
           {localeChoices.map((code) => (
             <Choice
@@ -295,7 +295,7 @@ export function ThemeStep({ draft, update, attempted, problem }: StepProps): Rea
   const example = hexOf(0x5b3df5);
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-label font-medium text-primary">{m.themeLegend}</legend>
+      <legend className="text-label font-medium text-foreground">{m.themeLegend}</legend>
       <div className="grid grid-cols-2 gap-2">
         {themePresets.map((preset) => (
           <Choice
@@ -351,7 +351,7 @@ export function SecurityStep({ draft, update }: StepProps): ReactElement {
   } as const;
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-label font-medium text-primary">{m.securityLegend}</legend>
+      <legend className="text-label font-medium text-foreground">{m.securityLegend}</legend>
       {securityProfiles.map((profile) => (
         <Choice
           key={profile}
@@ -363,7 +363,7 @@ export function SecurityStep({ draft, update }: StepProps): ReactElement {
           onChange={() => update({ profile })}
         />
       ))}
-      <p className="text-caption text-secondary">{m.securityLater}</p>
+      <p className="text-caption text-muted-foreground">{m.securityLater}</p>
     </fieldset>
   );
 }
@@ -378,8 +378,8 @@ export function EnvironmentsStep({ draft, update }: StepProps): ReactElement {
   };
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-label font-medium text-primary">{m.environmentsLegend}</legend>
-      <p className="text-body text-secondary">{m.environmentsHint}</p>
+      <legend className="text-label font-medium text-foreground">{m.environmentsLegend}</legend>
+      <p className="text-body text-muted-foreground">{m.environmentsHint}</p>
       {environmentChoices.map((env) => (
         <Choice
           key={env}

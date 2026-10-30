@@ -40,7 +40,7 @@ export function AnalyticsFunnelsPage(): ReactElement {
       failed={funnels.isError}
     >
       <AreaNav />
-      {(funnels.data ?? []).length === 0 && <p className="text-body text-secondary">{m.noFunnels}</p>}
+      {(funnels.data ?? []).length === 0 && <p className="text-body text-muted-foreground">{m.noFunnels}</p>}
       <Table
         caption={m.funnelsTitle}
         heads={[m.funnelName, m.stepsColumn, ""]}

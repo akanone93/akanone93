@@ -32,7 +32,7 @@ export function Catalogue(): ReactElement {
           </h2>
           {section.cases.map((c) => (
             <div key={c.name} data-case={`${section.name}/${c.name}`} className="flex flex-col gap-1">
-              <h3 className="text-caption text-secondary">{c.name}</h3>
+              <h3 className="text-caption text-muted-foreground">{c.name}</h3>
               <div>{c.element}</div>
             </div>
           ))}

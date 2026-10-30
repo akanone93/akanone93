@@ -164,13 +164,13 @@ function finding(d: Json): Problem {
 export function PreviewPanel({ preview, m }: { preview: Preview; m: DesignerMessages }) {
   let body: React.ReactNode;
   if (preview.state === "none") {
-    body = <p className="text-body text-secondary">{m.dbPreviewNoRelease}</p>;
+    body = <p className="text-body text-muted-foreground">{m.dbPreviewNoRelease}</p>;
   } else if (preview.state === "checking") {
-    body = <p className="text-body text-secondary">{m.dbPreviewChecking}</p>;
+    body = <p className="text-body text-muted-foreground">{m.dbPreviewChecking}</p>;
   } else if (preview.state === "unavailable") {
     body = <p className="text-body">{m.dbPreviewUnavailable}</p>;
   } else if (preview.findings.length === 0) {
-    body = <p className="text-body text-secondary">{m.dbPreviewClean}</p>;
+    body = <p className="text-body text-muted-foreground">{m.dbPreviewClean}</p>;
   } else {
     body = (
       <ul className="flex flex-col gap-1">
@@ -435,10 +435,10 @@ export function DbSchemaOverlay(props: DbSchemaOverlayProps) {
           </Button>
           <Status check={check} valid={!hasErrors(check)} changed={changed} note={note} m={m} />
         </div>
-        {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
         <div className="flex min-h-0 flex-1 gap-6 overflow-y-auto">
           <nav aria-label={m.dbList} className="flex w-56 shrink-0 flex-col gap-1">
-            {collections.length === 0 && <p className="text-body text-secondary">{m.dbNone}</p>}
+            {collections.length === 0 && <p className="text-body text-muted-foreground">{m.dbNone}</p>}
             {collections.map((c, i) => (
               <Button
                 key={String(c["id"])}
@@ -452,7 +452,7 @@ export function DbSchemaOverlay(props: DbSchemaOverlayProps) {
           </nav>
           <div className="min-w-0 flex-1">
             {current === undefined ? (
-              <p className="text-body text-secondary">{m.dbSelect}</p>
+              <p className="text-body text-muted-foreground">{m.dbSelect}</p>
             ) : (
               <CollectionEditor
                 collection={current}

@@ -22,10 +22,10 @@ export function DoneStep({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <h3 className="font-serif text-title text-primary">{m.doneTitle(created.name)}</h3>
+        <h3 className="font-serif text-title text-foreground">{m.doneTitle(created.name)}</h3>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-mono text-data text-secondary">{created.key}</span>
-          <span className="text-caption text-secondary">{m.doneDocuments(created.documents)}</span>
+          <span className="font-mono text-data text-muted-foreground">{created.key}</span>
+          <span className="text-caption text-muted-foreground">{m.doneDocuments(created.documents)}</span>
           {created.errors > 0 && <StatusPill status="warning" label={m.doneErrors(created.errors)} />}
         </div>
       </div>
@@ -33,7 +33,7 @@ export function DoneStep({
         <h3 id="new-app-project" className="text-section">
           {m.projectTitle}
         </h3>
-        <p className="text-body text-secondary">{m.projectCaption}</p>
+        <p className="text-body text-muted-foreground">{m.projectCaption}</p>
         <ProjectDownload appId={created.id} label={m.projectDownload} />
       </section>
       <div className="flex justify-end gap-2">

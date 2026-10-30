@@ -36,7 +36,7 @@ function Table(): ReactElement {
   });
   if (data.isPending) {
     return (
-      <p role="status" className="text-body text-secondary">
+      <p role="status" className="text-body text-muted-foreground">
         {m.libraryLoading}
       </p>
     );
@@ -52,11 +52,11 @@ function Table(): ReactElement {
   return (
     <>
       {data.data.items.length === 0 ? (
-        <p className="text-body text-secondary">{m.libraryNone}</p>
+        <p className="text-body text-muted-foreground">{m.libraryNone}</p>
       ) : (
         <table aria-label={m.libraryTable} className="w-full text-body">
           <thead>
-            <tr className="text-start text-caption text-secondary">
+            <tr className="text-start text-caption text-muted-foreground">
               <th scope="col">{m.colComponent}</th>
               <th scope="col">{m.colAdopted}</th>
               <td />

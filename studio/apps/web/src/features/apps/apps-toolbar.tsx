@@ -10,7 +10,7 @@ import type { AppSort, AppStatus, AppsSearch } from "./apps.schema.ts";
 /** The Select value that stands for "no filter"; a Select option cannot be an empty string. */
 const ANY = "any";
 
-const pressed = "bg-raised text-primary shadow-soft";
+const pressed = "bg-raised text-foreground shadow-soft";
 
 /** A button of a toggle group: `aria-pressed` tells the state, the raised pill shows it. */
 export function Toggle({

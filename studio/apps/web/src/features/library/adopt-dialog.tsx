@@ -62,7 +62,7 @@ export function AdoptDialog({
           />
           <h3 className="mt-3 text-body font-medium">{m.adoptDiff}</h3>
           {lists.every(([, names]) => names.length === 0) && (
-            <p className="text-body text-secondary">{m.adoptNoDiff}</p>
+            <p className="text-body text-muted-foreground">{m.adoptNoDiff}</p>
           )}
           {lists
             .filter(([, names]) => names.length > 0)

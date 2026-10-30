@@ -53,7 +53,7 @@ export function ReleasesPage(): ReactElement {
         </Link>
       </div>
       {(releases.data?.releases ?? []).length === 0 ? (
-        <p className="text-body text-secondary">{m.noReleases}</p>
+        <p className="text-body text-muted-foreground">{m.noReleases}</p>
       ) : (
         <Table
           caption={m.timelineTitle}

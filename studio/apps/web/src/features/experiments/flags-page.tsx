@@ -71,7 +71,7 @@ function SegmentValues({
   return (
     <>
       <h2 className="text-heading">{m.segmentValuesHeading}</h2>
-      <p className="text-caption text-secondary">{m.segmentValuesHelp}</p>
+      <p className="text-caption text-muted-foreground">{m.segmentValuesHelp}</p>
       <ul className="flex flex-col gap-2">
         {form.segments.map((r, i) => (
           <li key={r.id} className="flex items-end gap-3">
@@ -143,7 +143,7 @@ export function FlagsPage(): ReactElement {
       failed={environment.failed || flags.isError}
     >
       {(flags.data?.flags ?? []).length === 0 ? (
-        <p className="text-body text-secondary">{m.noFlags}</p>
+        <p className="text-body text-muted-foreground">{m.noFlags}</p>
       ) : (
         <Table
           caption={m.flagsTitle}

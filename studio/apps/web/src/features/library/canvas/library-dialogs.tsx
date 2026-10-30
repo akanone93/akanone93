@@ -90,7 +90,7 @@ export function SaveTemplateDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()} title={m.saveTitle} labels={{ close: m.close }}>
       {step === 1 ? (
         <div className="flex flex-col gap-3">
-          <p className="text-caption text-secondary">{m.stepDetails}</p>
+          <p className="text-caption text-muted-foreground">{m.stepDetails}</p>
           <DetailFields form={form} />
           <Button disabled={!form.valid} onClick={() => setStep(2)}>
             {m.next}
@@ -98,9 +98,9 @@ export function SaveTemplateDialog({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <p className="text-caption text-secondary">{m.stepExpose}</p>
+          <p className="text-caption text-muted-foreground">{m.stepExpose}</p>
           <h3 className="text-body font-medium">{m.exposeHeading}</h3>
-          {candidates.length === 0 && <p className="text-body text-secondary">{m.exposeNone}</p>}
+          {candidates.length === 0 && <p className="text-body text-muted-foreground">{m.exposeNone}</p>}
           {candidates.map((c) => (
             <label key={c.path} className="flex items-center gap-2 text-body">
               <input type="checkbox" checked={exposed.has(c.path)} onChange={() => toggle(c.path)} />
@@ -125,7 +125,7 @@ export function SaveTemplateDialog({
                   <li key={f.path}>{m.flaggedItem(f.expression, f.reason)}</li>
                 ))}
               </ul>
-              <p className="text-caption text-secondary">{m.flaggedNote}</p>
+              <p className="text-caption text-muted-foreground">{m.flaggedNote}</p>
             </section>
           )}
           <Select
@@ -222,13 +222,15 @@ export function InsertTemplateDialog({
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()} title={m.insertTitle} labels={{ close: m.close }}>
       <div className="flex flex-col gap-3">
-        {state === "loading" && <p className="text-body text-secondary">{m.insertLoading}</p>}
+        {state === "loading" && <p className="text-body text-muted-foreground">{m.insertLoading}</p>}
         {(state === "failed" || failed) && (
           <p role="alert" className="text-body text-danger">
             {m.insertFailed}
           </p>
         )}
-        {state === "ready" && templates.length === 0 && <p className="text-body text-secondary">{m.insertNone}</p>}
+        {state === "ready" && templates.length === 0 && (
+          <p className="text-body text-muted-foreground">{m.insertNone}</p>
+        )}
         {templates.length > 0 && (
           <Select
             label={m.insertPick}
@@ -243,7 +245,7 @@ export function InsertTemplateDialog({
             <Input value={args[p.name] ?? ""} onChange={(e) => setArgs({ ...args, [p.name]: e.target.value })} />
           </Field>
         ))}
-        <p className="text-caption text-secondary">{m.insertCopyNote}</p>
+        <p className="text-caption text-muted-foreground">{m.insertCopyNote}</p>
         <Button disabled={doc === undefined} onClick={() => doc !== undefined && insert(doc, args)}>
           {m.insertConfirm}
         </Button>

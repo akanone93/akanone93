@@ -69,9 +69,9 @@ export function Frame({
       <h1 id={id} className="text-screen">
         {title}
       </h1>
-      {caption !== undefined && <p className="text-body text-secondary">{caption}</p>}
+      {caption !== undefined && <p className="text-body text-muted-foreground">{caption}</p>}
       {loading && !failed && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}
@@ -102,7 +102,7 @@ export function Table({
   readonly empty: string;
 }): ReactElement {
   if (rows.length === 0) {
-    return <p className="text-body text-secondary">{empty}</p>;
+    return <p className="text-body text-muted-foreground">{empty}</p>;
   }
   return (
     <table className="w-full text-start text-body">
@@ -110,7 +110,7 @@ export function Table({
       <thead>
         <tr>
           {heads.map((h) => (
-            <th key={h} scope="col" className="p-2 text-caption text-secondary">
+            <th key={h} scope="col" className="p-2 text-caption text-muted-foreground">
               {h}
             </th>
           ))}
@@ -218,7 +218,7 @@ export function SecretPanel({
     <div role="status" className="flex flex-col gap-2 rounded-sm border border-hairline p-3">
       <h2 className="text-label font-medium">{heading}</h2>
       <output className="font-mono text-data break-all">{secret}</output>
-      <p className="text-caption text-secondary">{note}</p>
+      <p className="text-caption text-muted-foreground">{note}</p>
       <Button variant="secondary" size="sm" onClick={onDismiss}>
         {dismiss}
       </Button>

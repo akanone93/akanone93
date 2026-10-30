@@ -120,7 +120,7 @@ type Results = ReturnType<typeof useResults>["data"];
 /** The sample split and the comparison of every primary metric and guardrail. */
 function ResultsPanel({ m, r }: { readonly m: ExperimentsMessages; readonly r: Results }): ReactElement {
   if (r === undefined) {
-    return <p className="text-body text-secondary">{m.noResults}</p>;
+    return <p className="text-body text-muted-foreground">{m.noResults}</p>;
   }
   return (
     <>

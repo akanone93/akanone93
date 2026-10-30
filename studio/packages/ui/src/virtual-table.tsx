@@ -62,7 +62,11 @@ export function VirtualTable<TData extends RowData>({
             style={{ ...template, height: rowHeight }}
           >
             {group.headers.map((header) => (
-              <div key={header.id} role="columnheader" className="flex items-center px-2 text-label text-secondary">
+              <div
+                key={header.id}
+                role="columnheader"
+                className="flex items-center px-2 text-label text-muted-foreground"
+              >
                 {header.isPlaceholder ? null : <table.FlexRender header={header} />}
               </div>
             ))}

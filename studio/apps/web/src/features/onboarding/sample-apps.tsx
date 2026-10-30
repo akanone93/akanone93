@@ -60,7 +60,7 @@ export function SampleApps({
       <h3 id="onboarding-samples" className="text-section">
         {m.samplesTitle}
       </h3>
-      <p className="text-body text-secondary">{m.samplesCaption}</p>
+      <p className="text-body text-muted-foreground">{m.samplesCaption}</p>
       <ul aria-label={m.samplesLabel} className="flex flex-col gap-2">
         {list.map((sample) => (
           <li key={sample.id} className="flex flex-wrap items-center gap-3">
@@ -73,7 +73,7 @@ export function SampleApps({
             >
               {m.importSample(sample.name)}
             </Button>
-            <span className="text-caption text-secondary">{sample.description}</span>
+            <span className="text-caption text-muted-foreground">{sample.description}</span>
           </li>
         ))}
       </ul>

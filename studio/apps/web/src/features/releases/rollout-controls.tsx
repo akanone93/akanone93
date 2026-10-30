@@ -76,7 +76,7 @@ export function RolloutControls({
         <Button variant="danger" disabled={!allowed || !open} onClick={() => guard(() => actions.abort(rollout.id))}>
           {m.abort}
         </Button>
-        <p className="text-caption text-secondary">{m.abortHint}</p>
+        <p className="text-caption text-muted-foreground">{m.abortHint}</p>
       </div>
       {(error || failed) && (
         <p role="alert" className="text-body text-danger">

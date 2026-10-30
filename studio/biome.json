@@ -19,7 +19,10 @@
       "!prototype",
       "!apps/web/src/features/plugin-canvas/canvaskit",
       "!.canvaskit",
-      "!packages/api/src/gen"
+      "!packages/api/src/gen",
+      "!packages/ui/src/components",
+      "!packages/ui/src/hooks/use-mobile.ts",
+      "!apps/web/src/styles/shadcn.css"
     ]
   },
   "formatter": {

@@ -26,7 +26,7 @@ export function Frame({
         {title}
       </h1>
       {loading && !failed && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}

@@ -64,7 +64,7 @@ function SignInFrame({ children }: { children: ReactNode }) {
                 <RisingWords text={m.heroLineTwo} from={lineOne.split(" ").length} className="block text-tertiary" />
               </h1>
               <Rise delay={0.5} className="mt-5">
-                <p className="max-w-auth-form text-lead text-secondary">{m.heroLead}</p>
+                <p className="max-w-auth-form text-lead text-muted-foreground">{m.heroLead}</p>
               </Rise>
               <Rise delay={0.7} className="signin-form mt-12 w-full max-w-auth-form">
                 {children}
@@ -97,7 +97,7 @@ function RevealButton({ shown, onToggle, m }: { shown: boolean; onToggle: () => 
       aria-label={shown ? m.hidePassword : m.showPassword}
       aria-pressed={shown}
       onClick={onToggle}
-      className="grid size-8 place-items-center rounded-md text-tertiary transition duration-fast hover:bg-hover hover:text-primary focus-visible:outline-2 focus-visible:outline-focus"
+      className="grid size-8 place-items-center rounded-md text-tertiary transition duration-fast hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
     >
       <Icon name={shown ? "eye-slash" : "eye"} size="tab" />
     </button>

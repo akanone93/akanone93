@@ -106,7 +106,7 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
           {m.bayToggle}
         </Button>
         {latency !== undefined && (
-          <span role="status" className="text-caption text-secondary">
+          <span role="status" className="text-caption text-muted-foreground">
             {m.latency(Math.round(latency))}
           </span>
         )}

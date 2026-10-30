@@ -114,7 +114,7 @@ export function CommandPalette({ open, onOpenChange, search, onOpenHit }: Palett
           setActive(0);
         }}
         onKeyDown={onKeyDown}
-        className="rounded-md border border-subtle bg-sunken px-3 py-2 text-body text-primary"
+        className="rounded-md border border-subtle bg-sunken px-3 py-2 text-body text-foreground"
       />
       <div
         id={listId}
@@ -123,7 +123,7 @@ export function CommandPalette({ open, onOpenChange, search, onOpenHit }: Palett
         className="flex max-h-80 flex-col gap-1 overflow-auto"
       >
         {results.length === 0 && !org.pending && (
-          <div className="px-3 py-2 text-body text-secondary">{m.paletteEmpty}</div>
+          <div className="px-3 py-2 text-body text-muted-foreground">{m.paletteEmpty}</div>
         )}
         {results.map((row) => (
           <div
@@ -135,12 +135,12 @@ export function CommandPalette({ open, onOpenChange, search, onOpenHit }: Palett
             tabIndex={-1}
             onClick={() => run(row)}
             onKeyDown={undefined}
-            className={`flex flex-col rounded-md px-3 py-2 text-body ${row === current ? "bg-sunken" : ""} ${row.type === "hit" || row.state.enabled ? "text-primary" : "text-secondary"}`}
+            className={`flex flex-col rounded-md px-3 py-2 text-body ${row === current ? "bg-sunken" : ""} ${row.type === "hit" || row.state.enabled ? "text-foreground" : "text-muted-foreground"}`}
           >
             {row.type === "hit" ? (
               <>
                 <span>{row.hit.name}</span>
-                <span className="text-caption text-secondary">{row.hit.kind}</span>
+                <span className="text-caption text-muted-foreground">{row.hit.kind}</span>
               </>
             ) : (
               <>
@@ -155,7 +155,7 @@ export function CommandPalette({ open, onOpenChange, search, onOpenHit }: Palett
             )}
           </div>
         ))}
-        {org.pending && <div className="px-3 py-2 text-caption text-secondary">{m.paletteSearching}</div>}
+        {org.pending && <div className="px-3 py-2 text-caption text-muted-foreground">{m.paletteSearching}</div>}
         {org.failed && (
           <div role="alert" className="px-3 py-2 text-caption text-danger">
             {m.paletteSearchFailed}

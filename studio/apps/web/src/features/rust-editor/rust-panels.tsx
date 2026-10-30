@@ -24,7 +24,7 @@ export function TestsPanel({ run, canRun, onRun, m }: TestsPanelProps) {
           <Icon name="eye" />
           {m.runTests}
         </Button>
-        <span role="status" aria-live="polite" className="text-body text-secondary">
+        <span role="status" aria-live="polite" className="text-body text-muted-foreground">
           {running && m.runningTests}
           {run.status === "finished" && m.testsPassed(run.passed, run.failed)}
           {run.status === "idle" && m.noTests}
@@ -39,7 +39,7 @@ export function TestsPanel({ run, canRun, onRun, m }: TestsPanelProps) {
         {run.results.map((r) => (
           <li key={r.name} className="text-body">
             <TypeTag>{r.passed ? m.testPass : m.testFail}</TypeTag> {r.name}
-            {r.message !== "" && <span className="text-secondary"> {r.message}</span>}
+            {r.message !== "" && <span className="text-muted-foreground"> {r.message}</span>}
           </li>
         ))}
       </ul>
@@ -82,13 +82,13 @@ export function DependenciesPanel({ manifest, canEdit, onChange, m }: Dependenci
   return (
     <div className="flex flex-col gap-2">
       {dependencies.length === 0 ? (
-        <p className="text-body text-secondary">{m.noDependencies}</p>
+        <p className="text-body text-muted-foreground">{m.noDependencies}</p>
       ) : (
         <ul aria-label={m.tabDependencies} className="flex flex-col gap-1">
           {dependencies.map((d) => (
             <li key={d.name} className="flex items-center gap-2 text-body">
               <TypeTag>{d.name}</TypeTag>
-              <span className="text-secondary">{d.version}</span>
+              <span className="text-muted-foreground">{d.version}</span>
               {canEdit && (
                 <Button
                   variant="secondary"
@@ -116,7 +116,7 @@ export function DependenciesPanel({ manifest, canEdit, onChange, m }: Dependenci
           </Button>
         </div>
       )}
-      <p className="text-caption text-secondary">{m.vendorNote}</p>
+      <p className="text-caption text-muted-foreground">{m.vendorNote}</p>
       <section aria-label={m.manifest}>
         <h3 className="text-label font-medium">{m.manifest}</h3>
         <pre className="max-h-32 overflow-auto font-mono text-caption">{manifest}</pre>

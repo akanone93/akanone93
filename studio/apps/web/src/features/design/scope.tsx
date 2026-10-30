@@ -86,7 +86,7 @@ function Body(props: {
       <h1 id={props.id} className="text-screen">
         {props.title}
       </h1>
-      <p className="text-body text-secondary">{props.caption}</p>
+      <p className="text-body text-muted-foreground">{props.caption}</p>
       <nav aria-label={m.areaNav} className="flex flex-wrap gap-4">
         <Link className="text-body" to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
           {m.tokensLink}
@@ -105,13 +105,13 @@ function Body(props: {
         </Link>
       </nav>
       {ctx.session !== null && <LockBanner lock={ctx.session.lock} />}
-      {!ctx.canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+      {!ctx.canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
       {props.refused && (
         <p role="alert" className="text-body text-danger">
           {m.saveRefused}
         </p>
       )}
-      {ctx.path === undefined && <p className="text-body text-secondary">{m.noTheme}</p>}
+      {ctx.path === undefined && <p className="text-body text-muted-foreground">{m.noTheme}</p>}
       {props.children}
     </section>
   );

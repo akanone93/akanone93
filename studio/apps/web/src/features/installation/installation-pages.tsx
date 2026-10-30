@@ -56,9 +56,9 @@ function Frame({
       <h1 id={id} className="text-screen">
         {title}
       </h1>
-      <p className="text-body text-secondary">{caption}</p>
+      <p className="text-body text-muted-foreground">{caption}</p>
       {loading && !failed && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}
@@ -84,7 +84,7 @@ function Table({
   readonly empty: string;
 }): ReactElement {
   if (rows.length === 0) {
-    return <p className="text-body text-secondary">{empty}</p>;
+    return <p className="text-body text-muted-foreground">{empty}</p>;
   }
   return (
     <table className="w-full text-start text-body">
@@ -92,7 +92,7 @@ function Table({
       <thead>
         <tr>
           {heads.map((h) => (
-            <th key={h} scope="col" className="p-2 text-caption text-secondary">
+            <th key={h} scope="col" className="p-2 text-caption text-muted-foreground">
               {h}
             </th>
           ))}
@@ -214,7 +214,7 @@ export function BackupsPage(): ReactElement {
   const m = installationMessages(useLingui().i18n);
   return (
     <Frame id="inst-backups" title={m.backupsTitle} caption={m.backupsCaption}>
-      <p className="text-body text-secondary">{m.backupsNote}</p>
+      <p className="text-body text-muted-foreground">{m.backupsNote}</p>
     </Frame>
   );
 }

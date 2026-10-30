@@ -93,7 +93,7 @@ export function ExtractKeyDialog(props: ExtractKeyDialogProps) {
             }}
           />
         </Field>
-        {!allowed && <p className="text-caption text-secondary">{m.extractUnavailable}</p>}
+        {!allowed && <p className="text-caption text-muted-foreground">{m.extractUnavailable}</p>}
         {failed && (
           <p role="alert" className="text-caption text-danger">
             {m.extractFailed}

@@ -65,7 +65,7 @@ function Health({
   return (
     <span className="flex flex-wrap items-center gap-2">
       <StatusPill status={status} label={word} value={m.crashFree(percent.format(health.rate))} />
-      <span className="flex items-center gap-1 text-caption text-secondary">
+      <span className="flex items-center gap-1 text-caption text-muted-foreground">
         {!flat && <Icon name={health.trend > 0 ? "caret-up" : "caret-down"} size="pill" />}
         <span>{flat ? m.trendFlat : health.trend > 0 ? m.trendUp(points) : m.trendDown(points)}</span>
       </span>
@@ -85,11 +85,13 @@ function Published({
 }) {
   const at = summary.lastPublishedAt;
   if (at === undefined || (at.seconds === 0n && at.nanos === 0)) {
-    return <p className="text-caption text-secondary">{m.neverPublished}</p>;
+    return <p className="text-caption text-muted-foreground">{m.neverPublished}</p>;
   }
   const when = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(timestampDate(at));
   const who = summary.lastPublisher?.display ?? "";
-  return <p className="text-caption text-secondary">{who === "" ? m.published(when) : m.publishedBy(when, who)}</p>;
+  return (
+    <p className="text-caption text-muted-foreground">{who === "" ? m.published(when) : m.publishedBy(when, who)}</p>
+  );
 }
 
 /** The pin toggle: pinned apps come first in every order (STU-023). */
@@ -179,7 +181,7 @@ export function AppCard(props: AppCardProps): ReactElement {
           <span className="font-mono text-tag text-tertiary">{app.key}</span>
           <Icon name="arrow-up-right" size="pill" className="app-go ms-auto text-tertiary" />
         </div>
-        {app.description !== "" && <p className="line-clamp-2 text-body text-secondary">{app.description}</p>}
+        {app.description !== "" && <p className="line-clamp-2 text-body text-muted-foreground">{app.description}</p>}
         <p className="text-caption text-tertiary">{team === undefined ? m.noTeam : m.owner(team)}</p>
         {app.archived && <StatusPill status="neutral" label={m.archivedBadge} />}
         {summary !== undefined && (
@@ -208,7 +210,7 @@ export function AppRow(props: AppCardProps): ReactElement {
       <CardVisual app={app} compact />
       <div className="flex min-w-40 flex-1 flex-col">
         <NameLink entry={entry} org={props.org} />
-        <span className="text-caption text-secondary">{team === undefined ? m.noTeam : m.owner(team)}</span>
+        <span className="text-caption text-muted-foreground">{team === undefined ? m.noTeam : m.owner(team)}</span>
       </div>
       {app.archived && <StatusPill status="neutral" label={m.archivedBadge} />}
       {summary !== undefined && (

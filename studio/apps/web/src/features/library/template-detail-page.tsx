@@ -41,7 +41,7 @@ export function TemplateDetailPage(): ReactElement {
       <Link to="/o/$org/library" params={{ org }} className="text-caption">
         {m.back}
       </Link>
-      {detail.isPending && <p className="text-body text-secondary">{m.loading}</p>}
+      {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
       {detail.isError && (
         <p role="alert" className="text-body text-danger">
           {m.detailLoadFailed}
@@ -52,7 +52,7 @@ export function TemplateDetailPage(): ReactElement {
           <h1 id="template-title" className="text-screen">
             {item.name}
           </h1>
-          <p className="text-body text-secondary">{item.description}</p>
+          <p className="text-body text-muted-foreground">{item.description}</p>
           {(canPublish || canManage) && (
             <div>
               <Button variant="secondary" onClick={() => setChanging(true)}>
@@ -61,12 +61,12 @@ export function TemplateDetailPage(): ReactElement {
             </div>
           )}
           <h2 className="text-body font-medium">{m.parametersHeading}</h2>
-          {parameters.length === 0 && <p className="text-body text-secondary">{m.parametersNone}</p>}
+          {parameters.length === 0 && <p className="text-body text-muted-foreground">{m.parametersNone}</p>}
           <ul>
             {parameters.map((p) => (
               <li key={p.name} className="text-body">
                 {m.parameterRow(p.name, p.type, p.required)}
-                {p.description !== "" && <span className="text-caption text-secondary"> {p.description}</span>}
+                {p.description !== "" && <span className="text-caption text-muted-foreground"> {p.description}</span>}
               </li>
             ))}
           </ul>
@@ -75,7 +75,7 @@ export function TemplateDetailPage(): ReactElement {
             {revisions.map((v) => (
               <li key={v.version} className="flex items-center gap-3 py-1">
                 <span className="text-body">{m.versionRow(v.version, v.createdByName)}</span>
-                <span className="text-caption text-secondary">{v.note}</span>
+                <span className="text-caption text-muted-foreground">{v.note}</span>
                 <Button variant="ghost" size="sm" onClick={() => void exportVersion(v.version)}>
                   {m.exportVersion}
                 </Button>

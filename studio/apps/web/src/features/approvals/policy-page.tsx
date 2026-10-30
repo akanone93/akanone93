@@ -37,7 +37,7 @@ function Editor({
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <div className="flex flex-col gap-3">
-        {!can && <p className="text-body text-secondary">{m.editorNeedsPermission}</p>}
+        {!can && <p className="text-body text-muted-foreground">{m.editorNeedsPermission}</p>}
         <Field label={m.fieldKey}>
           <Input value={form.key} disabled={!can || existing} onChange={(e) => change({ key: e.target.value })} />
         </Field>

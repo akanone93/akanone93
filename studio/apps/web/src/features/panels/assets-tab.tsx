@@ -154,8 +154,8 @@ export function AssetsTab({
         </ul>
       )}
       {loadFailed && <p role="alert">{m.loadFailed}</p>}
-      {assets === null && !loadFailed && <p className="text-body text-secondary">{m.loading}</p>}
-      {assets?.length === 0 && pending.length === 0 && <p className="text-body text-secondary">{m.empty}</p>}
+      {assets === null && !loadFailed && <p className="text-body text-muted-foreground">{m.loading}</p>}
+      {assets?.length === 0 && pending.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
       {assets !== null && assets.length > 0 && (
         <ul className="flex flex-col gap-1">
           {assets.map((a) => (
@@ -163,7 +163,7 @@ export function AssetsTab({
               <span className="font-mono text-data" dir="ltr">
                 {a.name}
               </span>
-              <span className="font-mono text-caption text-secondary" dir="ltr">
+              <span className="font-mono text-caption text-muted-foreground" dir="ltr">
                 {a.mediaType} {kb(Number(a.size))}
               </span>
               <Button size="sm" variant="ghost" aria-label={m.delete(a.name)} onClick={() => setToDelete(a)}>

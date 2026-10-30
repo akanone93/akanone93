@@ -19,8 +19,8 @@ export function MetricStrip({ metrics }: MetricStripProps): ReactElement {
     <dl className="m-0 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-hairline pt-2 text-caption">
       {metrics.map((m) => (
         <div key={m.label} className="flex items-baseline gap-1">
-          <dt className="text-secondary">{m.label}</dt>
-          <dd className="m-0 font-mono text-data text-primary">{m.value}</dd>
+          <dt className="text-muted-foreground">{m.label}</dt>
+          <dd className="m-0 font-mono text-data text-foreground">{m.value}</dd>
         </div>
       ))}
     </dl>

@@ -5,7 +5,7 @@ import { Field as BaseField } from "@base-ui/react/field";
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from "react";
 import { cx, focusRing } from "./cx.ts";
 import { Icon } from "./icon.tsx";
-import type { IconName } from "./icons.gen.ts";
+import type { IconName } from "./icons.ts";
 
 export interface FieldProps {
   readonly label: ReactNode;
@@ -19,7 +19,7 @@ export interface FieldProps {
 export function Field({ label, description, error, children }: FieldProps): ReactElement {
   return (
     <BaseField.Root invalid={error !== undefined} className="flex flex-col gap-1">
-      <BaseField.Label className="text-label font-medium text-primary">{label}</BaseField.Label>
+      <BaseField.Label className="text-label font-medium text-foreground">{label}</BaseField.Label>
       {children}
       {description !== undefined && (
         <BaseField.Description className="text-caption text-tertiary">{description}</BaseField.Description>
@@ -34,7 +34,7 @@ export function Field({ label, description, error, children }: FieldProps): Reac
 }
 
 const controlClass = cx(
-  "w-full border text-primary transition duration-fast ease-standard",
+  "w-full border text-foreground transition duration-fast ease-standard",
   "data-invalid:border-danger-fill",
   "disabled:opacity-50",
 );
@@ -47,7 +47,7 @@ const inputSizeClass: Readonly<Record<InputSize, string>> = {
   // hovered; on focus it lifts to the raised surface with an accent edge and a halo.
   lg: cx(
     "h-12 rounded-lg border-transparent bg-canvas px-4 text-control placeholder:text-tertiary",
-    "hover:border-strong focus-visible:border-accent focus-visible:bg-raised",
+    "hover:border-strong focus-visible:border-primary focus-visible:bg-raised",
     "focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-accent-halo",
   ),
 };

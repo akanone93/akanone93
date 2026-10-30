@@ -25,7 +25,7 @@ export function RestrictionsPage(): ReactElement {
       failed={list.isError}
       saveFailed={failed}
     >
-      <p className="text-body text-secondary">{m.lockoutNote}</p>
+      <p className="text-body text-muted-foreground">{m.lockoutNote}</p>
       <Table
         caption={m.restrictionsTitle}
         heads={[m.colSubject, m.colPatterns, m.reason, m.colCreated, ""]}

@@ -103,7 +103,7 @@
 
 [data-theme="dark"] .sr-tag {
   background-color: color-mix(in oklab, var(--app) 22%, var(--color-raised));
-  color: var(--color-primary);
+  color: var(--color-foreground);
 }
 
 .sr-story-title {
@@ -111,14 +111,14 @@
   font-size: var(--text-section);
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--color-primary);
+  color: var(--color-foreground);
 }
 
 .sr-story-body {
   font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: 1.45;
-  color: var(--color-secondary);
+  color: var(--color-muted-foreground);
 }
 
 /* ── The ring ──────────────────────────────────────────────────────────────────────────────── */
@@ -213,7 +213,7 @@
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-foreground);
 }
 
 .ss-status-icons {
@@ -225,7 +225,7 @@
   inline-size: 12px;
   block-size: 7px;
   border-radius: 2px;
-  background-color: var(--color-primary);
+  background-color: var(--color-foreground);
   opacity: 0.8;
 }
 
@@ -268,7 +268,7 @@
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--color-primary);
+  color: var(--color-foreground);
 }
 
 .ss-title-large {
@@ -288,14 +288,14 @@
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-primary);
+  color: var(--color-foreground);
 }
 
 .ss-value {
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-secondary);
+  color: var(--color-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -309,7 +309,7 @@
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.04em;
-  color: var(--color-primary);
+  color: var(--color-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -317,7 +317,7 @@
   font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -362,7 +362,7 @@
 }
 
 .ss-action-alt {
-  background-color: var(--color-primary);
+  background-color: var(--color-foreground);
   color: var(--color-raised);
 }
 
@@ -389,7 +389,7 @@
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-foreground);
   white-space: nowrap;
 }
 
@@ -511,7 +511,7 @@
 }
 
 .ss-swatches [data-swatch="3"] {
-  background-color: var(--color-primary);
+  background-color: var(--color-foreground);
 }
 
 /* Bank: the card, the ledger and the verified seal. */
@@ -622,7 +622,7 @@
 .ss-map-home {
   inset-block-start: 22px;
   inset-inline-end: 20px;
-  background-color: var(--color-primary);
+  background-color: var(--color-foreground);
 }
 
 .ss-map-pin {
@@ -656,7 +656,7 @@
   inset-block-start: 40px;
   inset-inline: 12px;
   justify-content: center;
-  background-color: var(--color-primary);
+  background-color: var(--color-foreground);
   color: var(--color-raised);
   opacity: 0;
 }

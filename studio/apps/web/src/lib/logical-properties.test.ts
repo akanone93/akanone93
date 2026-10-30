@@ -33,13 +33,19 @@ const physical = [
 /** Intentionally physical: the link layer positions a handle at canvas coordinates, which the canvas never mirrors. */
 const allowed = new Set(["features/plugin-canvas/link-layer.tsx"]);
 
+/**
+ * shadcn/ui's components, generated with shadcn's own RTL transform (ADR-0103): what stays physical there is the
+ * placement a caller asks for by name (`side="left"`), which shadcn mirrors itself.
+ */
+const vendored = "components/";
+
 describe("[STU-012] layout follows the writing direction", () => {
   test("no source uses a physical side where start and end exist", () => {
     const offenders: string[] = [];
     for (const root of roots) {
       for (const file of sources(root)) {
         const rel = file.slice(root.length + 1);
-        if (allowed.has(rel)) {
+        if (allowed.has(rel) || (root.endsWith("packages/ui/src") && rel.startsWith(vendored))) {
           continue;
         }
         const lines = readFileSync(file, "utf8").split("\n");

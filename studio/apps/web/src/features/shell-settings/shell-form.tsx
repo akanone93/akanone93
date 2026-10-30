@@ -157,7 +157,7 @@ export function ShellForm({
       <h2 id="shell-form-title" className="text-section">
         {m.formTitle}
       </h2>
-      {!canManage && <p className="text-body text-secondary">{m.needsManage}</p>}
+      {!canManage && <p className="text-body text-muted-foreground">{m.needsManage}</p>}
       <div className="grid grid-cols-2 gap-3">
         {text("name", m.fieldName)}
         {text("package", m.fieldPackage)}
@@ -186,7 +186,7 @@ export function ShellForm({
         onChange={(iconAssetId) => set({ iconAssetId })}
       />
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-label font-medium text-primary">{m.fieldDeviceApis}</legend>
+        <legend className="text-label font-medium text-foreground">{m.fieldDeviceApis}</legend>
         <div className="grid grid-cols-2 gap-2">
           {deviceApis.map((api) => (
             <Choice
@@ -212,7 +212,7 @@ export function ShellForm({
       {outcome !== undefined && (
         <p
           role={outcome.ok ? "status" : "alert"}
-          className={outcome.ok ? "text-body text-secondary" : "text-body text-danger"}
+          className={outcome.ok ? "text-body text-muted-foreground" : "text-body text-danger"}
         >
           {outcome.text}
         </p>

@@ -41,15 +41,15 @@ export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds 
   const waiting = current && (diff.state === "queued" || diff.state === "running");
   return (
     <div className="flex flex-col gap-3">
-      {diff === undefined && <p className="text-body text-secondary">{m.diffNone}</p>}
+      {diff === undefined && <p className="text-body text-muted-foreground">{m.diffNone}</p>}
       {diff !== undefined && <StatusPill status={diffTone(diff.state)} label={diffLabel(m, diff.state)} />}
-      {waiting && <p className="text-body text-secondary">{e.thumbQueued}</p>}
+      {waiting && <p className="text-body text-muted-foreground">{e.thumbQueued}</p>}
       <ul className="flex flex-col gap-3">
         {diff?.screens.map((s) => (
           <li key={`${s.pluginKey}/${s.screen}/${s.device}`} className="flex flex-col gap-1">
             <div className="flex items-center gap-3 text-body">
               <span>{m.diffScreen(s.pluginKey, s.screen, s.device)}</span>
-              <span className="text-secondary">
+              <span className="text-muted-foreground">
                 {s.beforeSha256 === "" ? m.diffNew : s.changed ? m.diffChanged : m.diffSame}
               </span>
             </div>
@@ -120,7 +120,7 @@ export function TargetPanel({ request, editable, busy, api, run }: PanelProps): 
       <Field label={m.channel}>
         <Input value={channel} readOnly={!editable} onChange={(e) => setChannel(e.target.value)} />
       </Field>
-      <p className="font-mono text-body text-secondary">{m.hash(request.contentHash.slice(0, 12))}</p>
+      <p className="font-mono text-body text-muted-foreground">{m.hash(request.contentHash.slice(0, 12))}</p>
       {editable && (
         <div>
           <Button
@@ -152,7 +152,7 @@ export function ApprovalPanel({ request, editable, busy, api, run }: PanelProps)
   return (
     <div className="flex flex-col gap-3">
       {waiting && <StatusPill status="warning" label={m.holdAwaiting} />}
-      {waiting && <p className="text-body text-secondary">{m.approvalWaiting}</p>}
+      {waiting && <p className="text-body text-muted-foreground">{m.approvalWaiting}</p>}
       {approved && <p className="text-body">{m.approvalDone(request.approvedHash.slice(0, 12))}</p>}
       {note !== undefined && (
         <p role="alert" className="text-body text-danger">

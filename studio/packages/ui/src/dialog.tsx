@@ -25,8 +25,8 @@ const backdropClass = "fixed inset-0 bg-brand-ink opacity-40";
 const viewportClass = "fixed inset-0 flex items-center justify-center p-4";
 const fullViewportClass = "fixed inset-0 flex items-stretch justify-center";
 const popupClass = "flex w-full flex-col gap-3 rounded-xl bg-raised p-6 shadow-e4";
-const titleClass = "font-serif text-title text-primary";
-const descriptionClass = "text-body text-secondary";
+const titleClass = "font-serif text-title text-foreground";
+const descriptionClass = "text-body text-muted-foreground";
 
 export interface DialogLabels {
   readonly close: string;

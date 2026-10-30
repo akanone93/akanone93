@@ -62,14 +62,14 @@ export function HostFonts(): ReactElement {
       <h2 id="design-host-fonts" className="text-section">
         {m.hostFontsTitle}
       </h2>
-      <p className="text-body text-secondary">{m.hostFontsCaption}</p>
-      {!can && <p className="text-caption text-secondary">{m.hostFontsNoPermission}</p>}
-      {stored.isSuccess && fonts.length === 0 && <p className="text-body text-secondary">{m.hostFontsNone}</p>}
+      <p className="text-body text-muted-foreground">{m.hostFontsCaption}</p>
+      {!can && <p className="text-caption text-muted-foreground">{m.hostFontsNoPermission}</p>}
+      {stored.isSuccess && fonts.length === 0 && <p className="text-body text-muted-foreground">{m.hostFontsNone}</p>}
       <ul className="flex flex-col gap-1">
         {fonts.map((f) => (
           <li key={`${f.family}:${f.assetId}`} className="flex items-center gap-3 text-body">
             <span className="w-48">{f.family}</span>
-            <span className="font-mono text-secondary">{nameOf(f.assetId)}</span>
+            <span className="font-mono text-muted-foreground">{nameOf(f.assetId)}</span>
             <Button
               variant="ghost"
               disabled={!can}
@@ -82,7 +82,7 @@ export function HostFonts(): ReactElement {
         ))}
       </ul>
       {listed.isSuccess && files.length === 0 ? (
-        <p className="text-body text-secondary">{m.hostFontsNoAssets}</p>
+        <p className="text-body text-muted-foreground">{m.hostFontsNoAssets}</p>
       ) : (
         <form
           className="flex items-end gap-3"

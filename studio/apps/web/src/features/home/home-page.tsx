@@ -56,7 +56,7 @@ export function HomePage() {
       <section aria-labelledby="home-title" className="home mx-auto flex w-full max-w-page flex-col gap-12">
         <div className="home-hero grid items-center gap-8 lg:grid-cols-12">
           <div className="flex min-w-0 flex-col lg:col-span-7">
-            <Rise delay={0} className="flex items-center gap-2 text-label text-secondary">
+            <Rise delay={0} className="flex items-center gap-2 text-label text-muted-foreground">
               <span className="home-eyebrow-dot" />
               {m.eyebrow}
             </Rise>
@@ -72,7 +72,7 @@ export function HomePage() {
               </p>
             )}
             <Rise delay={0.6} className="mt-6">
-              <p className="max-w-dialog-md text-lead text-secondary">{m.lead}</p>
+              <p className="max-w-dialog-md text-lead text-muted-foreground">{m.lead}</p>
             </Rise>
             <Rise delay={0.8} className="mt-10 flex flex-wrap items-center gap-3">
               {canCreate && pulse.apps > 0 && (

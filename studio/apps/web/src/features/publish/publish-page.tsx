@@ -113,7 +113,7 @@ export function PublishPage(): ReactElement {
             {m.loadFailed}
           </p>
         ) : (
-          <p role="status" className="text-body text-secondary">
+          <p role="status" className="text-body text-muted-foreground">
             {m.loading}
           </p>
         )}
@@ -142,8 +142,8 @@ export function PublishPage(): ReactElement {
       <h1 id="publish-title" className="text-screen">
         {m.title}
       </h1>
-      {!own && <p className="text-body text-secondary">{m.othersPublishing(request.createdByName)}</p>}
-      {own && !can && <p className="text-body text-secondary">{m.viewOnly}</p>}
+      {!own && <p className="text-body text-muted-foreground">{m.othersPublishing(request.createdByName)}</p>}
+      {own && !can && <p className="text-body text-muted-foreground">{m.viewOnly}</p>}
       {ended && (
         <StatusPill status={request.state === "released" ? "success" : "neutral"} label={endedText(m, request.state)} />
       )}

@@ -64,7 +64,7 @@ export function CapabilitiesPage(): ReactElement {
       <dl className="flex flex-col gap-1 text-body">
         {lists.map((k) => (
           <div key={k} className="flex gap-4">
-            <dt className="w-48 text-secondary">{labels[k]}</dt>
+            <dt className="w-48 text-muted-foreground">{labels[k]}</dt>
             <dd className="font-mono">{(grants[k] ?? []).join(", ") || m.none}</dd>
           </div>
         ))}

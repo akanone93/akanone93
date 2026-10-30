@@ -36,7 +36,7 @@ type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 const objects = (v: unknown): Obj[] => (Array.isArray(v) ? v.filter(isObj) : []);
 
-const empty = (text: string) => <p className="text-body text-secondary">{text}</p>;
+const empty = (text: string) => <p className="text-body text-muted-foreground">{text}</p>;
 
 export interface SummaryTabProps {
   readonly documents: readonly DesignerDocument[] | undefined;
@@ -111,8 +111,8 @@ function StateRow({
           onKeyDown={onEnter(commitDefault)}
         />
       )}
-      {nameBad !== undefined && <span className="text-caption text-secondary">{m.stateNameProblem}</span>}
-      {defaultBad && <span className="text-caption text-secondary">{m.stateNotJson}</span>}
+      {nameBad !== undefined && <span className="text-caption text-muted-foreground">{m.stateNameProblem}</span>}
+      {defaultBad && <span className="text-caption text-muted-foreground">{m.stateNotJson}</span>}
     </li>
   );
 }

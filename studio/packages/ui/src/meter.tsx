@@ -32,7 +32,7 @@ export function Meter({ value, max, label, valueText }: MeterProps): ReactElemen
           style={{ transform: `scaleX(${ratio})` }}
         />
       </div>
-      <span className="font-mono text-tag text-secondary">{valueText}</span>
+      <span className="font-mono text-tag text-muted-foreground">{valueText}</span>
     </div>
   );
 }

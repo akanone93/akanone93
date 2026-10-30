@@ -41,7 +41,7 @@ export function ComponentImpactDialog({
   };
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()} title={m.impactTitle} labels={{ close: m.close }}>
-      {rows.length === 0 && <p className="text-body text-secondary">{m.impactNone}</p>}
+      {rows.length === 0 && <p className="text-body text-muted-foreground">{m.impactNone}</p>}
       <ul className="flex flex-col gap-1">
         {rows.map((r) => (
           <li key={r.key} className="text-body">

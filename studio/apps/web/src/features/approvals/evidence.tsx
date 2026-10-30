@@ -29,7 +29,7 @@ export function DiffBlock({ diff }: { readonly diff: Uint8Array }): ReactElement
     <section className="flex flex-col gap-2">
       <Heading>{m.diffHeading}</Heading>
       {diff.length === 0 ? (
-        <p className="text-body text-secondary">{m.noDiff}</p>
+        <p className="text-body text-muted-foreground">{m.noDiff}</p>
       ) : (
         <pre className="overflow-auto rounded-sm bg-raised p-3 font-mono text-tag">{decoder.decode(diff)}</pre>
       )}
@@ -42,15 +42,15 @@ function GoldenPair({ image }: { readonly image: ReviewImage }): ReactElement {
   return (
     <figure className="flex gap-4">
       <div className="flex flex-col gap-1">
-        <figcaption className="text-caption text-secondary">{m.baseline}</figcaption>
+        <figcaption className="text-caption text-muted-foreground">{m.baseline}</figcaption>
         {image.baseline.length === 0 ? (
-          <span className="text-body text-secondary">{m.noBaseline}</span>
+          <span className="text-body text-muted-foreground">{m.noBaseline}</span>
         ) : (
           <img src={pngSource(image.baseline)} alt={`${m.baseline}: ${image.pluginKey} ${image.caseId}`} />
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <figcaption className="text-caption text-secondary">{m.actual}</figcaption>
+        <figcaption className="text-caption text-muted-foreground">{m.actual}</figcaption>
         <img src={pngSource(image.actual)} alt={`${m.actual}: ${image.pluginKey} ${image.caseId}`} />
       </div>
     </figure>

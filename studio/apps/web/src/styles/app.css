@@ -1,6 +1,10 @@
 /* SPDX-FileCopyrightText: 2026 Plux contributors */
 /* SPDX-License-Identifier: AGPL-3.0-only */
 
+/* The stylesheet `shadcn init` writes for a Vite app (ADR-0103), then Studio's generated theme. */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./shadcn.css";
 @import "./fonts.css";
 @import "./theme.gen.css";
 /* sonner's own stylesheet: its runtime <style> injection is disabled (vite.config.ts, CSP §11.2). */
@@ -10,8 +14,13 @@
 @source "../../../../packages/ui/src";
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
   body {
-    background-color: var(--color-brand-surface);
-    color: var(--color-brand-ink);
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }

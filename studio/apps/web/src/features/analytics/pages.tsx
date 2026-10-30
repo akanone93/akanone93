@@ -49,7 +49,7 @@ export function AnalyticsOverviewPage(): ReactElement {
         ]}
       />
       {days.length === 0 ? (
-        <p className="text-body text-secondary">{m.noData}</p>
+        <p className="text-body text-muted-foreground">{m.noData}</p>
       ) : (
         <>
           <LineChart label={m.screenViewsChart} series={[{ name: m.screenViews, values: days.map((d) => d.value) }]} />
@@ -106,7 +106,7 @@ export function AnalyticsUsagePage(): ReactElement {
           <DayTable m={m} days={days} />
         </>
       )}
-      {bars.length === 0 && <p className="text-body text-secondary">{m.noData}</p>}
+      {bars.length === 0 && <p className="text-body text-muted-foreground">{m.noData}</p>}
     </Frame>
   );
 }
@@ -127,7 +127,7 @@ export function AnalyticsPerformancePage(): ReactElement {
     >
       <AreaNav />
       {p.days.length === 0 ? (
-        <p className="text-body text-secondary">{m.noData}</p>
+        <p className="text-body text-muted-foreground">{m.noData}</p>
       ) : (
         <>
           <LineChart

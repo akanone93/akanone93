@@ -42,7 +42,7 @@ export function TrashDialog({
   const items = trash.data ?? [];
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()} title={m.trash} labels={{ close: m.close }}>
-      {trash.isSuccess && items.length === 0 && <p className="text-body text-secondary">{m.trashEmpty}</p>}
+      {trash.isSuccess && items.length === 0 && <p className="text-body text-muted-foreground">{m.trashEmpty}</p>}
       {trash.isError && (
         <p role="alert" className="text-body">
           {m.failed}
@@ -51,7 +51,7 @@ export function TrashDialog({
       <ul className="mt-2 flex flex-col gap-2">
         {items.map((item) => (
           <li key={item.id} className="flex items-center justify-between gap-2">
-            <span className="text-body text-primary">{m.trashItem(item.name, item.kind)}</span>
+            <span className="text-body text-foreground">{m.trashItem(item.name, item.kind)}</span>
             <Button
               size="sm"
               variant="secondary"

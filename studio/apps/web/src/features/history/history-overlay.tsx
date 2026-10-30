@@ -211,18 +211,18 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
         labels={{ close: m.close }}
       >
         <div className="flex min-h-0 flex-1 flex-col gap-3">
-          {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
-          <span role="status" aria-live="polite" className="text-body text-secondary">
+          {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+          <span role="status" aria-live="polite" className="text-body text-muted-foreground">
             {note}
           </span>
-          {listing.state === "loading" && <p className="text-body text-secondary">{m.loading}</p>}
+          {listing.state === "loading" && <p className="text-body text-muted-foreground">{m.loading}</p>}
           {listing.state === "failed" && (
             <p role="alert" className="text-body">
               {m.failed}
             </p>
           )}
           {listing.state === "ready" && listing.rows.length === 0 && (
-            <p className="text-body text-secondary">{m.empty}</p>
+            <p className="text-body text-muted-foreground">{m.empty}</p>
           )}
           <ul aria-label={m.list} className="flex max-h-64 flex-col gap-1 overflow-y-auto">
             {listing.rows.map((s) => (
@@ -234,12 +234,12 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
                   onChange={() => toggle(s.id)}
                 />
                 <span className="text-data">{whenOf(s)}</span>
-                <span className="text-secondary">
+                <span className="text-muted-foreground">
                   {m.by(s.actor?.display === undefined || s.actor.display === "" ? m.unknownAuthor : s.actor.display)}
                 </span>
                 <TypeTag>{reasonOf(s.reason, m)}</TypeTag>
                 {s.editorSessionId !== "" && (
-                  <span className="text-data text-secondary" title={m.sessionTitle}>
+                  <span className="text-data text-muted-foreground" title={m.sessionTitle}>
                     {m.sessionTag(sessionTag(s.editorSessionId))}
                   </span>
                 )}
@@ -261,12 +261,12 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
             </Button>
           )}
           {pair === undefined ? (
-            <p className="text-body text-secondary">{m.compareHint}</p>
+            <p className="text-body text-muted-foreground">{m.compareHint}</p>
           ) : (
             <section aria-label={m.compareTitle} className="flex min-h-0 flex-1 flex-col gap-2">
               <h3 className="text-label font-medium">{m.compareTitle}</h3>
               {changes.length === 0 && diff.state !== "failed" && (
-                <p className="text-body text-secondary">{m.noChanges}</p>
+                <p className="text-body text-muted-foreground">{m.noChanges}</p>
               )}
               {changes.length > 0 && (
                 <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
               )}
               <div className="min-h-0 flex-1">
                 {diff.state === "ready" && (
-                  <Suspense fallback={<p className="text-body text-secondary">{m.loading}</p>}>
+                  <Suspense fallback={<p className="text-body text-muted-foreground">{m.loading}</p>}>
                     <MonacoView
                       value={diff.newer}
                       baseline={diff.older}

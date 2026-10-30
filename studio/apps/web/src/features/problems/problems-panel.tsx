@@ -45,7 +45,7 @@ export function ProblemsContent({ validation }: { readonly validation: Validatio
     switch (validation.state) {
       case "idle":
       case "running":
-        return <p className="text-body text-secondary">{m.validating}</p>;
+        return <p className="text-body text-muted-foreground">{m.validating}</p>;
       case "failed":
         return (
           <p role="alert" className="text-body">
@@ -54,13 +54,13 @@ export function ProblemsContent({ validation }: { readonly validation: Validatio
         );
       case "done":
         if (validation.problems.length === 0) {
-          return <p className="text-body text-secondary">{m.none}</p>;
+          return <p className="text-body text-muted-foreground">{m.none}</p>;
         }
         return (
           <div className="flex flex-col gap-3">
             {groupByFile(validation.problems).map(([file, list]) => (
               <section key={file} aria-label={file === "" ? m.project : file}>
-                <h3 className="font-mono text-caption text-secondary">{file === "" ? m.project : file}</h3>
+                <h3 className="font-mono text-caption text-muted-foreground">{file === "" ? m.project : file}</h3>
                 <ul className="mt-1 flex flex-col gap-1">
                   {list.map((p, i) => (
                     // biome-ignore lint/suspicious/noArrayIndexKey: a problem has no identity beyond its place in the list
@@ -68,7 +68,7 @@ export function ProblemsContent({ validation }: { readonly validation: Validatio
                       <Icon name={icons[p.severity]} size="pill" label={label[p.severity]} />
                       <span>
                         {p.message}{" "}
-                        <span className="font-mono text-caption text-secondary">
+                        <span className="font-mono text-caption text-muted-foreground">
                           {p.code} {p.path}
                         </span>
                       </span>

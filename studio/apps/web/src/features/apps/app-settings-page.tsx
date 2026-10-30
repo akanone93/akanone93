@@ -64,14 +64,14 @@ function DetailsForm({ app, canEdit }: { readonly app: App; readonly canEdit: bo
         <Field label={m.descriptionLabel}>
           <Textarea value={description} disabled={!canEdit} rows={3} onChange={(e) => setDescription(e.target.value)} />
         </Field>
-        {!canEdit && <p className="text-body text-secondary">{m.readOnly}</p>}
+        {!canEdit && <p className="text-body text-muted-foreground">{m.readOnly}</p>}
         {canEdit && (
           <div className="flex items-center gap-3">
             <Button type="submit" loading={working}>
               {m.save}
             </Button>
             {state === "saved" && (
-              <p role="status" className="text-body text-secondary">
+              <p role="status" className="text-body text-muted-foreground">
                 {m.saved}
               </p>
             )}
@@ -113,11 +113,11 @@ export function AppSettingsPage(): ReactElement {
         <h1 id="app-settings-title" className="text-screen">
           {m.settingsTitle(loaded?.name ?? "")}
         </h1>
-        <p className="text-body text-secondary">{m.settingsCaption}</p>
-        {loaded !== undefined && <p className="font-mono text-data text-secondary">{m.keyOf(loaded.key)}</p>}
+        <p className="text-body text-muted-foreground">{m.settingsCaption}</p>
+        {loaded !== undefined && <p className="font-mono text-data text-muted-foreground">{m.keyOf(loaded.key)}</p>}
       </div>
       {app.isPending && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.loading}
         </p>
       )}
@@ -131,7 +131,7 @@ export function AppSettingsPage(): ReactElement {
         <h2 id="app-settings-limits" className="text-section">
           {m.limitsTitle}
         </h2>
-        <p className="text-body text-secondary">{m.limitsCaption}</p>
+        <p className="text-body text-muted-foreground">{m.limitsCaption}</p>
         {limits.isError && (
           <p role="alert" className="text-body text-danger">
             {m.limitsLoadFailed}
@@ -143,7 +143,7 @@ export function AppSettingsPage(): ReactElement {
         <h2 id="app-settings-shell" className="text-section">
           {m.shellTitle}
         </h2>
-        <p className="text-body text-secondary">{m.shellCaption}</p>
+        <p className="text-body text-muted-foreground">{m.shellCaption}</p>
         <ShellSettingsLink org={org} appId={appId} />
       </section>
       {canPlugins && <PluginUsage appId={appId} />}
@@ -151,7 +151,7 @@ export function AppSettingsPage(): ReactElement {
         <h2 id="app-settings-fonts" className="text-section">
           {m.fontsTitle}
         </h2>
-        <p className="text-body text-secondary">{m.fontsCaption}</p>
+        <p className="text-body text-muted-foreground">{m.fontsCaption}</p>
         <Link to="/o/$org/apps/$app/design/typography" params={{ org, app: appId }} className="text-body">
           {m.fontsLink}
         </Link>

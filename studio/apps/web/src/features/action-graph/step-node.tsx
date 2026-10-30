@@ -124,12 +124,12 @@ export function StepNode({ id }: NodeProps) {
   return (
     <section
       aria-label={step.id}
-      className="flex w-72 flex-col gap-2 rounded-xl border border-hairline bg-card p-3 text-primary"
+      className="flex w-72 flex-col gap-2 rounded-xl border border-hairline bg-card p-3 text-foreground"
     >
       <Handle type="target" position={Position.Left} id="in" aria-label={g.m.incoming} isConnectable={g.canEdit} />
       <header className="flex items-center gap-2">
         <span className="min-w-0 flex-1 truncate font-mono text-data">{step.id}</span>
-        {first && <span className="text-tag text-secondary">{g.m.entry}</span>}
+        {first && <span className="text-tag text-muted-foreground">{g.m.entry}</span>}
         {found.length > 0 && (
           <span role="status" className="flex items-center gap-1 text-caption text-danger">
             <Icon name="x-circle" />
@@ -137,7 +137,7 @@ export function StepNode({ id }: NodeProps) {
           </span>
         )}
       </header>
-      <p className="truncate font-mono text-tag text-secondary">
+      <p className="truncate font-mono text-tag text-muted-foreground">
         {entry?.label ?? step.action} · {entry?.category ?? ""}
       </p>
       <div className="nodrag nopan flex flex-col gap-2">

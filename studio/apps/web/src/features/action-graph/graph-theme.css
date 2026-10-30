@@ -12,7 +12,7 @@
   --xy-node-boxshadow-selected: none;
   --xy-controls-button-background-color: var(--color-raised);
   --xy-controls-button-background-color-hover: var(--color-hover);
-  --xy-controls-button-color: var(--color-primary);
+  --xy-controls-button-color: var(--color-foreground);
   --xy-controls-button-border-color: var(--color-hairline);
   --xy-attribution-background-color: var(--color-raised);
 }

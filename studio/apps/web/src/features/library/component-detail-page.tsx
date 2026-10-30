@@ -94,7 +94,7 @@ export function ComponentDetailPage(): ReactElement {
       <Link to="/o/$org/library" params={{ org }} className="text-caption">
         {m.back}
       </Link>
-      {detail.isPending && <p className="text-body text-secondary">{m.loading}</p>}
+      {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
       {detail.isError && (
         <p role="alert" className="text-body text-danger">
           {m.detailLoadFailed}
@@ -105,7 +105,7 @@ export function ComponentDetailPage(): ReactElement {
           <h1 id="component-title" className="text-screen">
             {item.name}
           </h1>
-          <p className="text-body text-secondary">{item.description}</p>
+          <p className="text-body text-muted-foreground">{item.description}</p>
           {(canPublish || canManage) && (
             <div>
               <Button variant="secondary" onClick={() => setDialog("visibility")}>
@@ -139,7 +139,7 @@ export function ComponentDetailPage(): ReactElement {
             {versions.map((v) => (
               <li key={v.version} className="flex items-center gap-3 py-1">
                 <span className="text-body">{m.versionRow(v.version, v.createdByName)}</span>
-                <span className="text-caption text-secondary">{v.note}</span>
+                <span className="text-caption text-muted-foreground">{v.note}</span>
                 <Button variant="ghost" size="sm" onClick={() => void exportVersion(v.version)}>
                   {m.exportVersion}
                 </Button>
@@ -148,13 +148,13 @@ export function ComponentDetailPage(): ReactElement {
           </ul>
           <h2 className="text-body font-medium">{m.usageHeading}</h2>
           {perApp.data?.every((a) => a.count === 0) === true && (
-            <p className="text-body text-secondary">{m.usageNone}</p>
+            <p className="text-body text-muted-foreground">{m.usageNone}</p>
           )}
           <ul>
             {(perApp.data ?? []).map(({ app, count, adopted }) => (
               <li key={app.id} className="flex flex-wrap items-center gap-3 py-1">
                 <span className="text-body">{m.usageApp(app.name, count)}</span>
-                <span className="text-caption text-secondary">
+                <span className="text-caption text-muted-foreground">
                   {adopted === undefined ? m.notAdopted(app.name) : m.adoptedVersion(app.name, adopted.version)}
                 </span>
                 {canEdit && (

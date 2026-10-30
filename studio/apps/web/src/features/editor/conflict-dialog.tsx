@@ -20,7 +20,7 @@ function PathList({
   }
   return (
     <section className="mt-3">
-      <h3 className="text-label text-secondary">{title}</h3>
+      <h3 className="text-label text-muted-foreground">{title}</h3>
       <ul className="mt-1 max-h-40 overflow-auto font-mono text-body" dir="ltr">
         {paths.map((p) => (
           <li key={p}>{p}</li>
@@ -54,7 +54,7 @@ export function ConflictDialog({ session }: { readonly session: EditSession }): 
             <PathList title={m.conflictDifferences} paths={conflict.differences} />
             <PathList title={m.conflictWouldDrop} paths={conflict.wouldDrop} />
             {copied && (
-              <p role="status" className="mt-3 text-body text-secondary">
+              <p role="status" className="mt-3 text-body text-muted-foreground">
                 {m.copied}
               </p>
             )}

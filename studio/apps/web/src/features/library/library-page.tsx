@@ -39,10 +39,10 @@ function Row({
   return (
     <li className="flex flex-wrap items-baseline gap-3 py-2">
       <span className="text-body font-medium">{link}</span>
-      <code className="text-caption text-secondary">{item.key}</code>
+      <code className="text-caption text-muted-foreground">{item.key}</code>
       <span className="text-caption">{item.kind === "component" ? m.kindComponent : m.kindTemplate}</span>
       <span className="text-caption">{vis}</span>
-      <span className="text-caption text-secondary">{m.headVersion(item.headVersion)}</span>
+      <span className="text-caption text-muted-foreground">{m.headVersion(item.headVersion)}</span>
     </li>
   );
 }
@@ -154,13 +154,13 @@ export function LibraryPage(): ReactElement {
           <ImportButton kind="template" m={m} />
         </div>
       )}
-      {items.isPending && <p className="text-body text-secondary">{m.loading}</p>}
+      {items.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
       {items.isError && (
         <p role="alert" className="text-body text-danger">
           {m.loadFailed}
         </p>
       )}
-      {items.data?.length === 0 && <p className="text-body text-secondary">{m.empty}</p>}
+      {items.data?.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
       <ul>
         {(items.data ?? []).map((item) => (
           <Row key={item.id} item={item} org={org} m={m} />

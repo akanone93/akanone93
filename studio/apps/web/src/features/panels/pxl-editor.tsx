@@ -48,19 +48,19 @@ const completionType: Record<PxlCompletionKind, string> = {
 };
 
 const theme = EditorView.theme({
-  "&": { backgroundColor: "transparent", color: "var(--color-primary)", fontSize: "inherit" },
+  "&": { backgroundColor: "transparent", color: "var(--color-foreground)", fontSize: "inherit" },
   "&.cm-focused": { outline: "none" },
   ".cm-content": {
     fontFamily: "var(--font-mono, ui-monospace, monospace)",
     padding: "6px 0",
-    caretColor: "var(--color-primary)",
+    caretColor: "var(--color-foreground)",
   },
   ".cm-line": { padding: "0" },
   ".cm-scroller": { overflowX: "auto", overflowY: "hidden", lineHeight: "1.4" },
   ".cm-placeholder": { color: "var(--color-tertiary)" },
   ".cm-tooltip": {
     backgroundColor: "var(--color-raised)",
-    color: "var(--color-primary)",
+    color: "var(--color-foreground)",
     border: "1px solid var(--color-strong)",
     borderRadius: "6px",
     padding: "4px 8px",
@@ -70,11 +70,11 @@ const theme = EditorView.theme({
   ".cm-tooltip-autocomplete > ul > li": { padding: "2px 8px" },
   ".cm-tooltip-autocomplete > ul > li[aria-selected]": {
     backgroundColor: "var(--color-accent-halo)",
-    color: "var(--color-primary)",
+    color: "var(--color-foreground)",
   },
   ".cm-completionDetail": { color: "var(--color-tertiary)", marginInlineStart: "8px", fontStyle: "normal" },
   ".cm-pxl-type": { fontFamily: "var(--font-mono, ui-monospace, monospace)" },
-  ".cm-pxl-active": { fontWeight: "700", color: "var(--color-accent)" },
+  ".cm-pxl-active": { fontWeight: "700", color: "var(--color-primary)" },
   ".cm-diagnostic-error": { borderInlineStartColor: "var(--color-danger, #c0392b)" },
 });
 
@@ -310,7 +310,7 @@ export default function PxlEditor(props: PxlEditorProps): ReactElement {
   return (
     <div
       ref={host}
-      className="w-full min-h-(--density-field) overflow-hidden rounded-sm border border-hairline bg-raised px-3 text-body text-primary hover:border-strong focus-within:border-accent"
+      className="w-full min-h-(--density-field) overflow-hidden rounded-sm border border-hairline bg-raised px-3 text-body text-foreground hover:border-strong focus-within:border-primary"
     />
   );
 }

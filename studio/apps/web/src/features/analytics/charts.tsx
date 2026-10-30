@@ -4,7 +4,7 @@
 import type { ReactElement } from "react";
 
 /** The series colours: Porcelain tokens, distinguishable in both themes and never the only cue (each line carries its label). */
-const palette = ["var(--color-accent)", "var(--color-brand-mint)", "var(--color-brand-amber)"] as const;
+const palette = ["var(--color-primary)", "var(--color-brand-mint)", "var(--color-brand-amber)"] as const;
 
 export interface Series {
   readonly name: string;
@@ -49,7 +49,7 @@ export function LineChart({
           />
         ))}
       </svg>
-      <figcaption className="flex gap-4 text-caption text-secondary">
+      <figcaption className="flex gap-4 text-caption text-muted-foreground">
         {series.map((s, i) => (
           <span key={s.name} className="flex items-center gap-1">
             <svg width="12" height="4" aria-hidden="true">
@@ -90,7 +90,7 @@ export function BarList({
           </span>
           <svg viewBox="0 0 100 4" preserveAspectRatio="none" className="h-1 w-full" aria-hidden="true">
             <rect width="100" height="4" fill="var(--color-hairline)" />
-            <rect width={(b.value / max) * 100} height="4" fill="var(--color-accent)" />
+            <rect width={(b.value / max) * 100} height="4" fill="var(--color-primary)" />
           </svg>
         </li>
       ))}
@@ -104,7 +104,7 @@ export function Sparkline({ values, label }: { readonly values: readonly number[
   return (
     <svg role="img" aria-label={label} viewBox={`0 0 ${W} ${H}`} className="h-6 w-24">
       <title>{label}</title>
-      <polyline fill="none" stroke="var(--color-accent)" strokeWidth={8} points={linePoints(values, max)} />
+      <polyline fill="none" stroke="var(--color-primary)" strokeWidth={8} points={linePoints(values, max)} />
     </svg>
   );
 }

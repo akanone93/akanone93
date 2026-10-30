@@ -35,7 +35,7 @@ export function KeysPage(): ReactElement {
         {m.rootVersions}: <span className="font-mono">{result.data?.roots.length ?? 0}</span>
       </p>
       {keys.length === 0 ? (
-        <p className="text-body text-secondary">{m.noKeys}</p>
+        <p className="text-body text-muted-foreground">{m.noKeys}</p>
       ) : (
         <Table
           caption={m.keysTitle}
@@ -63,7 +63,7 @@ export function PinsPage(): ReactElement {
   const m = securityMessages(useLingui().i18n);
   return (
     <Frame id="pins-title" title={m.pinsTitle} caption={m.pinsCaption} loading={false} failed={false}>
-      <p className="text-body text-secondary">{m.pinsNote}</p>
+      <p className="text-body text-muted-foreground">{m.pinsNote}</p>
       <Runbook label={m.ceremony} />
     </Frame>
   );

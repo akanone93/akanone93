@@ -11,7 +11,7 @@ import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 /** Public pages (sign-in family): no shell, no organisation (R1). */
 export function PublicLayout() {
   return (
-    <div className="relative isolate min-h-screen overflow-hidden bg-app text-primary">
+    <div className="relative isolate min-h-screen overflow-hidden bg-app text-foreground">
       <Outlet />
     </div>
   );

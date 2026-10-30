@@ -42,8 +42,8 @@ export function IconPicker({
   const images = (assets.data ?? []).filter((a) => a.mediaType === "image/png");
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-label font-medium text-primary">{m.fieldIcon}</legend>
-      <p className="text-caption text-secondary">{m.iconHint}</p>
+      <legend className="text-label font-medium text-foreground">{m.fieldIcon}</legend>
+      <p className="text-caption text-muted-foreground">{m.iconHint}</p>
       <div className="grid grid-cols-2 gap-2">
         <Choice
           type="radio"
@@ -77,7 +77,7 @@ export function IconPicker({
           {m.iconLoadFailed}
         </p>
       )}
-      {assets.isSuccess && images.length === 0 && <p className="text-body text-secondary">{m.iconNoAssets}</p>}
+      {assets.isSuccess && images.length === 0 && <p className="text-body text-muted-foreground">{m.iconNoAssets}</p>}
     </fieldset>
   );
 }

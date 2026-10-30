@@ -29,7 +29,7 @@ export function AnalyticsErrorsPage(): ReactElement {
   return (
     <Frame id="errors-title" title={m.errorsTitle} caption={m.errorsCaption} loading={q.isPending} failed={q.isError}>
       <AreaNav />
-      {groups.length === 0 && <p className="text-body text-secondary">{m.noErrors}</p>}
+      {groups.length === 0 && <p className="text-body text-muted-foreground">{m.noErrors}</p>}
       <Table
         caption={m.errorsTitle}
         heads={[
@@ -90,13 +90,13 @@ export function AnalyticsErrorPage(): ReactElement {
         <>
           <h2 className="text-section">{m.symbolicated}</h2>
           <dl className="m-0 flex flex-col gap-x-4 gap-y-1 text-body">
-            <dt className="text-secondary">{m.nodePathLabel}</dt>
+            <dt className="text-muted-foreground">{m.nodePathLabel}</dt>
             <dd className="m-0 font-mono">{group.nodePath}</dd>
-            <dt className="text-secondary">{m.jsonPathLabel}</dt>
+            <dt className="text-muted-foreground">{m.jsonPathLabel}</dt>
             <dd className="m-0 font-mono">{group.jsonPath}</dd>
-            <dt className="text-secondary">{m.sourceFileLabel}</dt>
+            <dt className="text-muted-foreground">{m.sourceFileLabel}</dt>
             <dd className="m-0 font-mono">{group.sourceFile}</dd>
-            <dt className="text-secondary">{m.framesLabel}</dt>
+            <dt className="text-muted-foreground">{m.framesLabel}</dt>
             <dd className="m-0 font-mono">{group.frames.join(" > ")}</dd>
           </dl>
           <Link

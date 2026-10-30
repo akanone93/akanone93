@@ -30,6 +30,20 @@ precedence = "override"
 SPDX-FileCopyrightText = "2026 Plux contributors"
 SPDX-License-Identifier = "AGPL-3.0-only"
 
+# shadcn/ui components, generated from the Base UI sources of shadcn-ui/ui
+# with the shadcn CLI's own transforms (ADR-0103), and the official shadcn
+# agent skill. Kept as shadcn ships them, under its MIT licence.
+[[annotations]]
+path = [
+    "studio/packages/ui/src/components/**",
+    "studio/packages/ui/src/hooks/use-mobile.ts",
+    "studio/apps/web/src/styles/shadcn.css",
+    ".claude/skills/shadcn/**",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "2023 shadcn"
+SPDX-License-Identifier = "MIT"
+
 # Plux Canvas's layout engine ports Flutter's layout code (ADR-0013): the
 # ported files keep Flutter's BSD-3-Clause notice inside AGPL studio/. The
 # legal review of this combination is a condition of release (P11 plan O-7).

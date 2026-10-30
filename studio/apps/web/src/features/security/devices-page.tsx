@@ -44,7 +44,7 @@ export function DevicesPage(): ReactElement {
         />
       </Field>
       {shown.length === 0 ? (
-        <p className="text-body text-secondary">{m.noDevices}</p>
+        <p className="text-body text-muted-foreground">{m.noDevices}</p>
       ) : (
         <Table
           caption={m.devicesTitle}

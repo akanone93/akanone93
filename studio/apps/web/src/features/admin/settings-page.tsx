@@ -49,7 +49,7 @@ export function SettingsPage(): ReactElement {
         </Button>
       </form>
       {done && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.saved}
         </p>
       )}

@@ -45,7 +45,7 @@ function Script({ script }: { readonly script: (typeof SCRIPTS)[number] }): Reac
           }
         />
       </Field>
-      <span className="text-caption text-secondary">
+      <span className="text-caption text-muted-foreground">
         {list.length < 2 ? m.noFallback(name) : m.fallbackOk(name, list.length)}
       </span>
     </li>

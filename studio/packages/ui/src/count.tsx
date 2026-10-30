@@ -19,7 +19,7 @@ export function Count({ value, tone = "neutral", label }: CountProps): ReactElem
       {...(label === undefined ? {} : { role: "img", "aria-label": label })}
       className={cx(
         "inline-flex min-w-4 items-center justify-center rounded-full px-1 font-mono text-tag",
-        tone === "warning" ? "bg-warning-surface text-warning" : "bg-hover text-secondary",
+        tone === "warning" ? "bg-warning-surface text-warning" : "bg-hover text-muted-foreground",
       )}
     >
       {value}

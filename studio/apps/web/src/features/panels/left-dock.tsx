@@ -112,18 +112,18 @@ export function LeftDock(props: LeftDockProps): ReactElement {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          {!canEdit && <p className="text-body text-secondary">{m.readOnly}</p>}
+          {!canEdit && <p className="text-body text-muted-foreground">{m.readOnly}</p>}
           {note !== null && (
-            <p role="status" className="text-body text-secondary">
+            <p role="status" className="text-body text-muted-foreground">
               {note}
             </p>
           )}
-          {found.length === 0 && <p className="text-body text-secondary">{m.noMatches}</p>}
+          {found.length === 0 && <p className="text-body text-muted-foreground">{m.noMatches}</p>}
           {insertGroups.map((g) => {
             const list = found.filter((d) => groupOf(d) === g);
             return list.length === 0 ? null : (
               <section key={g} aria-label={m[g]} className="flex flex-col gap-1">
-                <h3 className="text-label font-medium text-secondary">{m[g]}</h3>
+                <h3 className="text-label font-medium text-muted-foreground">{m[g]}</h3>
                 <ul className="flex flex-col gap-0.5">
                   {list.map((d) => (
                     <li key={d.type} draggable={canEdit} onDragStart={(e) => startDrag(e, d)}>
@@ -197,7 +197,7 @@ export function LeftDock(props: LeftDockProps): ReactElement {
       label: m.selectionTab,
       panel:
         selection.ids.length === 0 ? (
-          <p className="text-body text-secondary">{m.noSelection}</p>
+          <p className="text-body text-muted-foreground">{m.noSelection}</p>
         ) : (
           <div className="flex flex-col gap-2">
             {selection.ids.length > 1 && (
@@ -209,7 +209,7 @@ export function LeftDock(props: LeftDockProps): ReactElement {
               {selection.ids.map((id) => (
                 <li key={id} className="flex items-center gap-2 text-body">
                   <TypeTag>{index.type.get(id) ?? "?"}</TypeTag>
-                  <code className="truncate text-secondary">{id}</code>
+                  <code className="truncate text-muted-foreground">{id}</code>
                 </li>
               ))}
             </ul>

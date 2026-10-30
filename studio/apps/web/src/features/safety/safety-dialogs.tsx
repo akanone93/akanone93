@@ -92,11 +92,11 @@ function UseList({
   }
   return (
     <section className="mt-3">
-      <h3 className="text-label text-secondary">{title}</h3>
+      <h3 className="text-label text-muted-foreground">{title}</h3>
       <ul className="mt-1 flex max-h-60 flex-col gap-1 overflow-auto">
         {uses.map((u) => (
           <li key={`${u.path}#${u.pointer}`} className="flex items-center justify-between gap-2">
-            <span className="text-body text-primary">{u.fromTitle}</span>
+            <span className="text-body text-foreground">{u.fromTitle}</span>
             <Button variant="ghost" size="sm" aria-label={m.goToUse(u.fromTitle)} onClick={() => onNavigate(u)}>
               <span className="font-mono text-tag" dir="ltr">
                 {u.path}
@@ -134,7 +134,7 @@ export function BlockedDeletePanel({
   const links = check.incoming.filter((u) => u.kind === "navigates");
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={m.blockedTitle} size="lg" labels={{ close: m.close }}>
-      {check.entry && <p className="mt-2 text-body text-primary">{m.blockedEntry}</p>}
+      {check.entry && <p className="mt-2 text-body text-foreground">{m.blockedEntry}</p>}
       <UseList title={m.blockedIncoming(check.incoming.length)} uses={check.incoming} onNavigate={onNavigate} />
       <UseList title={m.blockedOutgoing(check.outgoing.length)} uses={check.outgoing} onNavigate={onNavigate} />
       <div className="mt-4 flex flex-wrap justify-end gap-2">
@@ -161,11 +161,11 @@ export function RenameWarning({ effects }: { readonly effects: readonly RenameEf
   }
   return (
     <section role="alert" className="mt-3">
-      <h3 className="text-label text-primary">{m.renameTitle}</h3>
+      <h3 className="text-label text-foreground">{m.renameTitle}</h3>
       <ul className="mt-1 flex flex-col gap-1">
         {effects.map((e) => (
           <li key={`${e.kind}:${e.before}`} className="flex flex-wrap items-baseline gap-2">
-            <span className="text-label text-secondary">
+            <span className="text-label text-muted-foreground">
               {e.kind === "deepLink" ? m.renameDeepLink : m.renameGenerated}
             </span>
             <span className="font-mono text-data" dir="ltr">

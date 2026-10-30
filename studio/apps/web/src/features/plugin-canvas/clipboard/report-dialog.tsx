@@ -121,7 +121,7 @@ export function ClipboardReportDialog({
     >
       {dropped !== undefined && (
         <>
-          <p className="text-body text-secondary">{m.droppedIntro}</p>
+          <p className="text-body text-muted-foreground">{m.droppedIntro}</p>
           <ul className="text-body">
             {dropped.map((x) => (
               <li key={`${x.kind}:${x.id}`} className="py-1">
@@ -131,10 +131,10 @@ export function ClipboardReportDialog({
           </ul>
         </>
       )}
-      {refusal !== undefined && <p className="text-body text-secondary">{why[refusal]}</p>}
+      {refusal !== undefined && <p className="text-body text-muted-foreground">{why[refusal]}</p>}
       {dropped === undefined && refusal === undefined && items !== undefined && (
         <>
-          <p className="text-body text-secondary">{m.reportIntro}</p>
+          <p className="text-body text-muted-foreground">{m.reportIntro}</p>
           {KINDS.filter((k) => items.some((i) => i.kind === k)).map((k) => (
             <section key={k} className="mt-3">
               <h3 className="text-body font-medium">{heading[k]}</h3>

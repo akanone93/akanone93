@@ -62,8 +62,8 @@ export function AppNav({
           to={e.to}
           params={{ org, app }}
           {...(e.id === "approvals" && { search: { app } })}
-          className="text-body text-secondary"
-          activeProps={{ "aria-current": "page", className: "text-body text-primary" }}
+          className="text-body text-muted-foreground"
+          activeProps={{ "aria-current": "page", className: "text-body text-foreground" }}
         >
           {names[e.id]}
         </Link>

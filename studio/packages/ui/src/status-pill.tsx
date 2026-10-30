@@ -4,7 +4,7 @@
 import type { ReactElement } from "react";
 import { cx } from "./cx.ts";
 import { Icon } from "./icon.tsx";
-import type { IconName } from "./icons.gen.ts";
+import type { IconName } from "./icons.ts";
 
 export type StatusKind = "success" | "warning" | "danger" | "neutral";
 
@@ -12,7 +12,7 @@ const kindClass: Readonly<Record<StatusKind, string>> = {
   success: "bg-success-surface text-success",
   warning: "bg-warning-surface text-warning",
   danger: "bg-danger-surface text-danger",
-  neutral: "bg-raised text-secondary",
+  neutral: "bg-raised text-muted-foreground",
 };
 
 const kindIcon: Readonly<Record<StatusKind, IconName>> = {

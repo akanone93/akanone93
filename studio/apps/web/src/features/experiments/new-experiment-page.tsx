@@ -178,7 +178,7 @@ function MetricsPanel({ m, draft, set }: PanelProps): ReactElement {
       </Field>
       <Field label={m.primariesLabel}>
         <Textarea rows={2} value={draft.primaries} onChange={(e) => set({ primaries: e.target.value })} />
-        <span className="text-caption text-secondary">{m.primariesHelp}</span>
+        <span className="text-caption text-muted-foreground">{m.primariesHelp}</span>
       </Field>
       <Field label={m.guardrailEvent}>
         <Textarea rows={2} value={draft.guardrails} onChange={(e) => set({ guardrails: e.target.value })} />
@@ -207,11 +207,11 @@ function Panel({ step, ...p }: PanelProps & { readonly step: WizardStep }): Reac
         <>
           <Field label={p.m.segmentLabel}>
             <Input value={p.draft.segments} onChange={(e) => p.set({ segments: e.target.value })} />
-            <span className="text-caption text-secondary">{p.m.segmentHelp}</span>
+            <span className="text-caption text-muted-foreground">{p.m.segmentHelp}</span>
           </Field>
           <Field label={p.m.attributesLabel}>
             <Textarea rows={3} value={p.draft.attributes} onChange={(e) => p.set({ attributes: e.target.value })} />
-            <span className="text-caption text-secondary">{p.m.attributesHelp}</span>
+            <span className="text-caption text-muted-foreground">{p.m.attributesHelp}</span>
           </Field>
         </>
       );

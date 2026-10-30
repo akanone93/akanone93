@@ -52,7 +52,7 @@ function Sets(): ReactElement {
   const sets = [...new Set(icons.map((r) => r.path[0] ?? ""))];
   return (
     <>
-      {sets.length === 0 && <p className="text-body text-secondary">{m.noIcons}</p>}
+      {sets.length === 0 && <p className="text-body text-muted-foreground">{m.noIcons}</p>}
       {sets.map((set) => (
         <section key={set} aria-label={set} className="flex flex-col gap-1">
           <h2 className="font-mono text-label font-medium">{set}</h2>
@@ -62,7 +62,7 @@ function Sets(): ReactElement {
               .map((r) => (
                 <li key={r.path.join(".")} className="flex items-center gap-2 text-body">
                   <span className="font-mono">{r.path.slice(1).join(".")}</span>
-                  <span className="text-secondary">{show(r.light)}</span>
+                  <span className="text-muted-foreground">{show(r.light)}</span>
                   <RemoveToken path={["icons", ...r.path]} />
                 </li>
               ))}

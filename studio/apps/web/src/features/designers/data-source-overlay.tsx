@@ -229,7 +229,7 @@ export function ImportSection(props: {
         >
           {m.dataRunImport}
         </Button>
-        {state === "running" && <span className="text-body text-secondary">{m.dataImporting}</span>}
+        {state === "running" && <span className="text-body text-muted-foreground">{m.dataImporting}</span>}
         {state === "failed" && (
           <span role="alert" className="text-body">
             {m.dataImportFailed}
@@ -246,10 +246,10 @@ export function ImportSection(props: {
             ))}
           </ul>
           {answer.dataSources.length === 0 ? (
-            <p className="text-body text-secondary">{m.dataImportNothing}</p>
+            <p className="text-body text-muted-foreground">{m.dataImportNothing}</p>
           ) : (
             <>
-              <p role="status" className="text-body text-secondary">
+              <p role="status" className="text-body text-muted-foreground">
                 {m.dataImportReady}
               </p>
               <ul className="flex flex-wrap gap-2">
@@ -259,7 +259,9 @@ export function ImportSection(props: {
                   </li>
                 ))}
               </ul>
-              {answer.variables.length > 0 && <p className="text-caption text-secondary">{m.dataVariablesNote}</p>}
+              {answer.variables.length > 0 && (
+                <p className="text-caption text-muted-foreground">{m.dataVariablesNote}</p>
+              )}
               <Button
                 disabled={!canEdit}
                 onClick={() => {
@@ -355,11 +357,11 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
           <Status check={check} valid={!hasErrors(check)} changed={changed} note={note} m={m} />
         </div>
         {props.app !== null && <LockBanner lock={props.app.lock} />}
-        {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
-        {variablesBlocked && <p className="text-caption text-secondary">{m.dataVariablesLocked}</p>}
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+        {variablesBlocked && <p className="text-caption text-muted-foreground">{m.dataVariablesLocked}</p>}
         <div className="flex min-h-0 flex-1 gap-6 overflow-y-auto">
           <nav aria-label={m.dataList} className="flex w-56 shrink-0 flex-col gap-1">
-            {d.sources.length === 0 && <p className="text-body text-secondary">{m.dataNone}</p>}
+            {d.sources.length === 0 && <p className="text-body text-muted-foreground">{m.dataNone}</p>}
             {d.sources.map((s, i) => (
               <Button
                 key={String(s["id"])}
@@ -374,7 +376,7 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
           </nav>
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             {current === undefined ? (
-              <p className="text-body text-secondary">{m.dataSelect}</p>
+              <p className="text-body text-muted-foreground">{m.dataSelect}</p>
             ) : (
               <SourceFields source={current} onChange={change} canEdit={canEdit} m={m} />
             )}

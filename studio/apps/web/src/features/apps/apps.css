@@ -197,7 +197,7 @@
   inline-size: 34px;
   block-size: 34px;
   padding: 0;
-  color: var(--color-primary);
+  color: var(--color-foreground);
   background-color: var(--surface-glass-fill);
   backdrop-filter: var(--surface-glass-backdrop);
   box-shadow:
@@ -207,12 +207,12 @@
 
 .app-pin[aria-pressed="true"] {
   color: var(--color-on-accent);
-  background-color: var(--color-accent);
+  background-color: var(--color-primary);
 }
 
 .app-card-controls .app-pin[aria-pressed="true"] {
   color: var(--color-on-accent);
-  background-color: var(--color-accent);
+  background-color: var(--color-primary);
 }
 
 /* A release pill: a dot that is green while the environment serves a release. */
@@ -224,7 +224,7 @@
   border-radius: 999px;
   font-family: var(--font-mono);
   font-size: var(--text-tag);
-  color: var(--color-primary);
+  color: var(--color-foreground);
   background-color: var(--surface-glass-fill);
   backdrop-filter: var(--surface-glass-backdrop);
   box-shadow: 0 0 0 1px var(--surface-glass-inner) inset;
@@ -245,7 +245,7 @@
 
 .app-env-none {
   margin: 0;
-  color: var(--color-secondary);
+  color: var(--color-muted-foreground);
 }
 
 /* The card's figures: two values side by side, label over value. */
@@ -268,7 +268,7 @@
 /* The label comes first in the markup, so it is read first; it is drawn under the value. */
 .app-figures dt {
   font-size: var(--text-caption);
-  color: var(--color-secondary);
+  color: var(--color-muted-foreground);
 }
 
 .app-figures dd {
@@ -276,7 +276,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-title);
   line-height: var(--text-title--line-height);
-  color: var(--color-primary);
+  color: var(--color-foreground);
 }
 
 /* A row of the list view. */

@@ -3,7 +3,6 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { cleanup, render, screen } from "@testing-library/react";
-import { parsePaths, render as renderIcons } from "../scripts/gen-icons.ts";
 import { cases as buttonCases } from "./button.cases.tsx";
 import { Button } from "./button.tsx";
 import { allCases } from "./cases.ts";
@@ -12,7 +11,7 @@ import { cases as fieldCases } from "./field.cases.tsx";
 import { cases as iconCases } from "./icon.cases.tsx";
 import { Icon } from "./icon.tsx";
 import { iconMirrors, mirroredIcons } from "./icon-mirrors.ts";
-import { iconNames, iconPaths } from "./icons.gen.ts";
+import { iconNames, icons } from "./icons.ts";
 import { cases as menuCases } from "./menu.cases.tsx";
 import { cases as popoverCases } from "./popover.cases.tsx";
 import { cases as selectCases } from "./select.cases.tsx";
@@ -23,12 +22,10 @@ import { Tooltip, tooltipDelayMs } from "./tooltip.tsx";
 
 afterEach(cleanup);
 
-describe("[STU-010] Icon component and generated set", () => {
-  test("every generated icon has a faded and a solid layer", () => {
+describe("[STU-010] Icon component and set", () => {
+  test("every icon name resolves to a lucide icon", () => {
     for (const name of iconNames) {
-      const paths = iconPaths[name];
-      expect(paths.some((p) => p.faded)).toBe(true);
-      expect(paths.some((p) => !p.faded)).toBe(true);
+      expect(icons[name]).toBeDefined();
     }
   });
 
@@ -63,17 +60,6 @@ describe("[STU-010] Icon component and generated set", () => {
     expect(back?.getAttribute("class")).toContain("rtl:-scale-x-100");
     expect(back?.getAttribute("data-mirrors")).toBe("true");
     expect(play?.getAttribute("class")).not.toContain("rtl:");
-  });
-
-  test("the generator is deterministic and rejects broken SVG", () => {
-    const svg = '<svg><path d="M0,0Z" opacity="0.2"/><path d="M1,1Z"/></svg>';
-    expect(parsePaths(svg)).toEqual([
-      { d: "M0,0Z", faded: true },
-      { d: "M1,1Z", faded: false },
-    ]);
-    expect(() => parsePaths("<svg></svg>")).toThrow();
-    expect(() => parsePaths('<svg><path fill="x"/></svg>')).toThrow();
-    expect(renderIcons(() => svg)).toBe(renderIcons(() => svg));
   });
 
   test("icon cases render", () => {

@@ -79,9 +79,9 @@ export function LockBanner({
       className="flex flex-wrap items-center gap-2 border-b border-subtle bg-surface-raised px-4 py-2 text-body"
     >
       <span className="grow">{m.heldBy(held.holder, held.acquiredAt)}</span>
-      {state.requested && <span className="text-secondary">{m.requested(held.holder)}</span>}
-      {canOverride && !open && <span className="text-secondary">{m.takeOverFrom(held.takeoverAllowedAt)}</span>}
-      {state.takeoverRefused && <span className="text-secondary">{m.takeoverRefused}</span>}
+      {state.requested && <span className="text-muted-foreground">{m.requested(held.holder)}</span>}
+      {canOverride && !open && <span className="text-muted-foreground">{m.takeOverFrom(held.takeoverAllowedAt)}</span>}
+      {state.takeoverRefused && <span className="text-muted-foreground">{m.takeoverRefused}</span>}
       {canEdit && (
         <Button variant="secondary" onClick={() => void lock.request()}>
           {m.requestEdit}
@@ -131,7 +131,7 @@ export function LockLostDialog({
     >
       <p className="text-body">{m.unsaved(count)}</p>
       {state.retakeFailed && (
-        <p role="alert" className="mt-2 text-body text-secondary">
+        <p role="alert" className="mt-2 text-body text-muted-foreground">
           {m.retakeFailed}
         </p>
       )}

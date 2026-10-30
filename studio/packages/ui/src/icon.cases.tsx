@@ -4,13 +4,13 @@
 import type { CaseDefinition } from "./case.ts";
 import { caseText } from "./case.ts";
 import { Icon } from "./icon.tsx";
-import { iconNames } from "./icons.gen.ts";
+import { iconNames } from "./icons.ts";
 
 export const cases: readonly CaseDefinition[] = [
   {
     name: "sizes",
     element: (
-      <div className="flex items-center gap-2 text-secondary">
+      <div className="flex items-center gap-2 text-muted-foreground">
         <Icon name="gear" size="pill" />
         <Icon name="gear" size="tab" />
         <Icon name="gear" size="capsule" />
@@ -23,7 +23,7 @@ export const cases: readonly CaseDefinition[] = [
   {
     name: "all icons",
     element: (
-      <div className="flex flex-wrap gap-2 text-secondary">
+      <div className="flex flex-wrap gap-2 text-muted-foreground">
         {iconNames.map((n) => (
           <Icon key={n} name={n} />
         ))}

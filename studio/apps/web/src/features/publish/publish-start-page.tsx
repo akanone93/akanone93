@@ -48,11 +48,11 @@ export function PublishStartPage(): ReactElement {
         {m.title}
       </h1>
       {state === "working" && !failed && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.starting}
         </p>
       )}
-      {state === "nothing" && <p className="text-body text-secondary">{m.nothing}</p>}
+      {state === "nothing" && <p className="text-body text-muted-foreground">{m.nothing}</p>}
       {failed && (
         <p role="alert" className="text-body text-danger">
           {m.startFailed}

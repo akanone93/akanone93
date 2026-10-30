@@ -185,7 +185,7 @@ export function AreaScope({ children }: { readonly children: ReactNode }): React
   const [added, setAdded] = useState<readonly string[]>([]);
   if (docs.data === undefined) {
     return (
-      <p role="status" className="text-body text-secondary">
+      <p role="status" className="text-body text-muted-foreground">
         {m.loading}
       </p>
     );

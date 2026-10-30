@@ -24,10 +24,10 @@ function Scenario({ m, scenario }: { readonly m: TestsMessages; readonly scenari
       <summary className="flex items-center gap-3 text-body">
         <span>{scenario.name}</span>
         <StatusPill status={pillOf(scenario.status)} label={statusName(m, scenario.status)} />
-        <span className="text-secondary">{`${scenario.durationMs} ms`}</span>
+        <span className="text-muted-foreground">{`${scenario.durationMs} ms`}</span>
       </summary>
       {scenario.steps.length === 0 ? (
-        <p className="text-body text-secondary">{m.noSteps}</p>
+        <p className="text-body text-muted-foreground">{m.noSteps}</p>
       ) : (
         <Table
           caption={scenario.name}

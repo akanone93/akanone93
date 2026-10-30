@@ -29,7 +29,7 @@ function Body(props: {
       <h1 id={props.id} className="text-screen">
         {props.title}
       </h1>
-      <p className="text-body text-secondary">{props.caption}</p>
+      <p className="text-body text-muted-foreground">{props.caption}</p>
       <nav className="flex gap-4">
         <Link className="text-body" to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
           {m.sourcesLink}

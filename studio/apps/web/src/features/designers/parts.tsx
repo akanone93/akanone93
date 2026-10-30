@@ -20,7 +20,7 @@ export function Status(props: { check: Check; valid: boolean; changed: boolean; 
     }
   }
   return (
-    <span role="status" aria-live="polite" className="text-body text-secondary">
+    <span role="status" aria-live="polite" className="text-body text-muted-foreground">
       {text}
     </span>
   );
@@ -32,7 +32,7 @@ export function ProblemList({ problems, m }: { problems: readonly Problem[]; m: 
     <section aria-label={m.problems} className="max-h-40 overflow-y-auto">
       <h3 className="text-label font-medium">{m.problems}</h3>
       {problems.length === 0 ? (
-        <p className="text-body text-secondary">{m.noProblems}</p>
+        <p className="text-body text-muted-foreground">{m.noProblems}</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {problems.map((p) => (

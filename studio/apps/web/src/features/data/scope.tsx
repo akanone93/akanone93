@@ -126,13 +126,13 @@ export function DataScope({ children }: { readonly children: ReactNode }): React
   const plugin = chosen ?? ids.data?.[0];
   if (ids.isPending) {
     return (
-      <p role="status" className="text-body text-secondary">
+      <p role="status" className="text-body text-muted-foreground">
         {m.loading}
       </p>
     );
   }
   if (plugin === undefined) {
-    return <p className="text-body text-secondary">{m.noPlugin}</p>;
+    return <p className="text-body text-muted-foreground">{m.noPlugin}</p>;
   }
   return (
     <EditorProvider appId={app} pluginId={plugin} documents={docs.data} undo={undo} editorSessionId={editorSessionId}>

@@ -25,17 +25,17 @@ export function PluginReport({ evidence }: { readonly evidence: PluginEvidence }
     <li className="flex flex-col gap-1 rounded-sm border border-hairline p-3">
       <span className="font-mono text-data">{evidence.pluginKey}</span>
       <div className="flex flex-wrap items-center gap-3 text-body">
-        <span className="text-secondary">{m.size}</span>
+        <span className="text-muted-foreground">{m.size}</span>
         {size === undefined ? (
-          <span className="text-secondary">{m.sizeUnknown}</span>
+          <span className="text-muted-foreground">{m.sizeUnknown}</span>
         ) : (
           <span className="font-mono">{m.sizeKib(kib(size))}</span>
         )}
         {size !== undefined &&
           (previousSize === undefined ? (
-            <span className="text-secondary">{m.sizeFirst}</span>
+            <span className="text-muted-foreground">{m.sizeFirst}</span>
           ) : (
-            <span className="font-mono text-secondary">{m.sizeDelta(signed(size - previousSize))}</span>
+            <span className="font-mono text-muted-foreground">{m.sizeDelta(signed(size - previousSize))}</span>
           ))}
       </div>
       <div className="flex flex-wrap items-center gap-3">
@@ -51,7 +51,7 @@ export function PluginReport({ evidence }: { readonly evidence: PluginEvidence }
             // A plugin can report one code many times; the order is the report's.
             // biome-ignore lint/suspicious/noArrayIndexKey: findings have no identity of their own
             <li key={`${d.code}/${i}`} className="flex gap-2">
-              <span className="font-mono text-secondary">{d.code}</span>
+              <span className="font-mono text-muted-foreground">{d.code}</span>
               <span>{d.message}</span>
             </li>
           ))}
@@ -91,11 +91,11 @@ function Op({ op }: { readonly op: PatchOp }): ReactElement {
   const m = evidenceMessages(useLingui().i18n);
   return (
     <li className="flex flex-wrap gap-2 font-mono text-tag">
-      <span className={op.op === "remove" ? "text-danger" : op.op === "add" ? "text-success" : "text-secondary"}>
+      <span className={op.op === "remove" ? "text-danger" : op.op === "add" ? "text-success" : "text-muted-foreground"}>
         {opName(m, op.op)}
       </span>
       <span>{op.path}</span>
-      {op.value.length > 0 && <span className="break-all text-secondary">{decoder.decode(op.value)}</span>}
+      {op.value.length > 0 && <span className="break-all text-muted-foreground">{decoder.decode(op.value)}</span>}
     </li>
   );
 }
@@ -106,7 +106,7 @@ function Change({ change }: { readonly change: DocumentChange }): ReactElement {
     <li className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2 text-body">
         <span className="font-mono">{change.path}</span>
-        <span className="text-secondary">{changeName(m, change.change)}</span>
+        <span className="text-muted-foreground">{changeName(m, change.change)}</span>
       </div>
       {change.patch.length > 0 && (
         <ul className="flex flex-col gap-0.5 ps-4">
@@ -128,14 +128,14 @@ export function JsonDiff({ evidence }: { readonly evidence: readonly PluginEvide
       <h3 className="text-label font-medium">{m.jsonDiff}</h3>
       {evidence.map((e) =>
         e.changes === undefined ? (
-          <p key={e.pluginKey} className="text-body text-secondary">
+          <p key={e.pluginKey} className="text-body text-muted-foreground">
             <span className="font-mono">{e.pluginKey}</span> {m.jsonDiffFirst}
           </p>
         ) : (
           <details key={e.pluginKey} open={e.changes.length > 0}>
             <summary className="text-body">{m.jsonDiffSummary(e.pluginKey, String(e.changes.length))}</summary>
             {e.changes.length === 0 ? (
-              <p className="text-body text-secondary">{m.jsonDiffNone}</p>
+              <p className="text-body text-muted-foreground">{m.jsonDiffNone}</p>
             ) : (
               <ul className="mt-2 flex flex-col gap-2">
                 {e.changes.map((c) => (
@@ -169,7 +169,7 @@ function Tile({
   const image = useDiffImage(appId, requestId, sha);
   return (
     <figure className="flex min-w-32 flex-col gap-1 rounded-sm border border-hairline bg-raised p-2">
-      <figcaption className="text-caption text-secondary">{label}</figcaption>
+      <figcaption className="text-caption text-muted-foreground">{label}</figcaption>
       {image.url !== undefined && <img src={image.url} alt={m.thumbAlt(label)} className="w-40 rounded-sm" />}
       <span className="font-mono text-tag">
         {sha === "" ? m.thumbNone : image.failed ? m.thumbFailed(shortHash(sha)) : m.thumbStored(shortHash(sha))}

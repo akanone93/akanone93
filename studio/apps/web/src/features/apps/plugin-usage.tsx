@@ -35,9 +35,9 @@ export function PluginUsage({ appId }: { readonly appId: string }): ReactElement
       <h2 id="app-settings-plugin-usage" className="text-section">
         {m.pluginUsageTitle}
       </h2>
-      <p className="text-body text-secondary">{m.pluginUsageCaption}</p>
+      <p className="text-body text-muted-foreground">{m.pluginUsageCaption}</p>
       {plugins.isSuccess && plugins.data.length === 0 && (
-        <p className="text-body text-secondary">{m.pluginUsageNone}</p>
+        <p className="text-body text-muted-foreground">{m.pluginUsageNone}</p>
       )}
       {plugins.isSuccess && plugins.data.length > 0 && (
         <fieldset className="flex flex-wrap gap-2">

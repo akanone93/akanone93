@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-bench-lcp studio-validator zap-studio studio-image-repro studio-build-repro studio-image-inputs
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-bench-lcp studio-validator zap-studio studio-image-repro studio-build-repro studio-image-inputs
 
 ##@ Studio (Bun, TypeScript)
 
@@ -26,10 +26,10 @@ studio-i18n-check: studio-install ## Catalogues are complete and current: strict
 	cd studio && apps/web/node_modules/.bin/lingui extract --clean && apps/web/node_modules/.bin/lingui compile --strict && rm -f apps/web/src/locales/*/messages.js
 	git diff --exit-code -- studio/apps/web/src/locales
 
-studio-typecheck: studio-gen-theme studio-gen-icons studio-validator ## Type-check Studio code
+studio-typecheck: studio-gen-theme studio-validator ## Type-check Studio code
 	cd studio && bun run typecheck
 
-studio-test: studio-gen-theme studio-gen-icons studio-validator ## Run Studio tests
+studio-test: studio-gen-theme studio-validator ## Run Studio tests
 	cd studio && bun run test
 
 studio-conformance: ## Compare Studio's layout with Flutter's goldens (STU-005)
@@ -53,9 +53,6 @@ studio-dev: studio-gen-theme ## Run Studio for development: the BFF and the Vite
 studio-gen-theme: studio-install ## Regenerate Studio's Tailwind theme from the design tokens
 	cd studio && bun run gen:theme
 
-studio-gen-icons: studio-install ## Regenerate the Icon set from @phosphor-icons/core (UI language U8)
-	cd studio/packages/ui && bun scripts/gen-icons.ts
-
 # The Go validator in WebAssembly (S2.1, F9) and Go's loader, staged beside the validator worker.
 # Vite emits both as hashed assets; neither is committed.
 STUDIO_VALIDATOR_DIR := studio/packages/validator/build
@@ -65,7 +62,7 @@ studio-validator: ## Build the validator WebAssembly module and stage Go's wasm_
 	cd backend && GOOS=js GOARCH=wasm go build -trimpath -ldflags='-s -w' -o $(CURDIR)/$(STUDIO_VALIDATOR_DIR)/validator.wasm ./cmd/plux-validator-wasm
 	cd backend && install -m 644 "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(CURDIR)/$(STUDIO_VALIDATOR_DIR)/wasm_exec.js
 
-studio-build: studio-install studio-gen-theme studio-gen-icons studio-validator ## Build the Studio web app into studio/apps/web/dist
+studio-build: studio-install studio-gen-theme studio-validator ## Build the Studio web app into studio/apps/web/dist
 	cd studio && bun scripts/stage-canvaskit.ts && bun run build && bun scripts/precompress.ts apps/web/dist
 
 # Verifies: STU-122.
@@ -118,7 +115,7 @@ STUDIO_COMMIT_DATE = $(shell git log -1 --format=%ct)
 
 # Verifies: CI-006. The same check without Docker: two Vite builds of one
 # tree give identical bytes in every file of dist/ (what the image copies).
-studio-build-repro: studio-install studio-gen-theme studio-gen-icons studio-validator ## Build the web app twice and fail when any dist/ byte differs (CI-006)
+studio-build-repro: studio-install studio-gen-theme studio-validator ## Build the web app twice and fail when any dist/ byte differs (CI-006)
 	cd studio && bun scripts/stage-canvaskit.ts
 	rm -rf build/studio-dist-1 build/studio-dist-2
 	mkdir -p build

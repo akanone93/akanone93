@@ -51,7 +51,7 @@ export function ActionsTab(props: ActionsTabProps) {
   const label = (r: RouteOption) => m.targetOption(r.title, r.own ? m.thisPlugin : m.otherPlugin);
 
   if (events.length === 0) {
-    return <p className="text-body text-secondary">{m.noEvents}</p>;
+    return <p className="text-body text-muted-foreground">{m.noEvents}</p>;
   }
   return (
     <div className="flex flex-col gap-3">
@@ -65,7 +65,7 @@ export function ActionsTab(props: ActionsTabProps) {
           onValueChange={setEvent}
         />
         {props.routes.length === 0 ? (
-          <p className="text-body text-secondary">{m.noTarget}</p>
+          <p className="text-body text-muted-foreground">{m.noTarget}</p>
         ) : (
           <Select
             label={m.target}
@@ -77,7 +77,7 @@ export function ActionsTab(props: ActionsTabProps) {
         )}
         {issue?.kind === "event-bound" && event !== undefined && (
           <fieldset className="flex flex-col gap-1">
-            <legend className="text-body text-secondary">{m.bound(event)}</legend>
+            <legend className="text-body text-muted-foreground">{m.bound(event)}</legend>
             {(["replace", "append"] as const).map((value) => (
               <label key={value} className="flex items-center gap-2 text-body">
                 <input type="radio" name="link-mode" checked={mode === value} onChange={() => setMode(value)} />
@@ -100,7 +100,7 @@ export function ActionsTab(props: ActionsTabProps) {
       <section className="flex flex-col gap-2">
         <h3 className="text-label font-medium">{m.existing}</h3>
         {links.length === 0 ? (
-          <p className="text-body text-secondary">{m.none}</p>
+          <p className="text-body text-muted-foreground">{m.none}</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {links.map((l) => (

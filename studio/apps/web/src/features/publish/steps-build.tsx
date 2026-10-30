@@ -22,7 +22,9 @@ export function SelectPanel({ request, editable, busy, api, run }: PanelProps): 
         {request.plugins.map((p) => (
           <li key={p.pluginKey} className="flex items-center gap-3 text-body">
             <span className="font-mono">{p.pluginKey}</span>
-            <span className="text-secondary">{p.reason === "dependency" ? m.reasonDependency : m.reasonChanged}</span>
+            <span className="text-muted-foreground">
+              {p.reason === "dependency" ? m.reasonDependency : m.reasonChanged}
+            </span>
           </li>
         ))}
       </ul>
@@ -69,9 +71,11 @@ function JobRow({
       <span className="font-mono">{pluginKey}</span>
       <StatusPill status={jobKind(state)} label={jobLabel(m, state)} />
       {state === "running" && (
-        <span className="text-secondary">{m.buildProgress(String(job?.percent ?? 0), job?.stage ?? "")}</span>
+        <span className="text-muted-foreground">{m.buildProgress(String(job?.percent ?? 0), job?.stage ?? "")}</span>
       )}
-      {state === "succeeded" && <span className="text-secondary">{m.buildVersion(String(job?.version ?? 0n))}</span>}
+      {state === "succeeded" && (
+        <span className="text-muted-foreground">{m.buildVersion(String(job?.version ?? 0n))}</span>
+      )}
     </li>
   );
 }
@@ -90,7 +94,7 @@ export function BuildPanel({ request, editable, busy, api, run, pluginIds }: Pan
       : refs.map((r, i) => ({ pluginKey: r.pluginKey, job: states[i], ref: undefined }));
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-body text-secondary">{m.buildsHint}</p>
+      <p className="text-body text-muted-foreground">{m.buildsHint}</p>
       <ul className="flex flex-col gap-2">
         {shown.map((s) => (
           <JobRow key={s.pluginKey} pluginKey={s.pluginKey} job={s.job ?? buildAsJob(s.ref)} />
@@ -150,24 +154,24 @@ export function ReportsPanel({ request, editable, busy, api, run, pluginIds }: P
     run(() => api.advance({ case: "reports", value: { acknowledgedWarnings: acknowledged } }));
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-body text-secondary">
+      <p className="text-body text-muted-foreground">
         {m.reportValidation} · {m.reportSize} · {m.reportAccessibility}
       </p>
       <ul className="flex flex-col gap-2">
         {request.builds.map((b) => (
           <li key={b.pluginKey} className="flex flex-wrap items-center gap-3 text-body">
             <span className="font-mono">{b.pluginKey}</span>
-            <span className="font-mono text-secondary">{m.reportBundle(b.bundleSha256.slice(0, 8))}</span>
+            <span className="font-mono text-muted-foreground">{m.reportBundle(b.bundleSha256.slice(0, 8))}</span>
             {b.errors > 0 && <StatusPill status="danger" label={m.reportErrors(String(b.errors))} />}
             {b.warnings.length > 0 && (
               <StatusPill status="warning" label={m.reportWarnings(String(b.warnings.length))} />
             )}
-            {b.errors === 0 && b.warnings.length === 0 && <span className="text-secondary">{m.reportOk}</span>}
+            {b.errors === 0 && b.warnings.length === 0 && <span className="text-muted-foreground">{m.reportOk}</span>}
           </li>
         ))}
       </ul>
       {evidence.isPending && request.builds.length > 0 && pluginIds.size > 0 && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {e.loading}
         </p>
       )}

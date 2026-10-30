@@ -2,120 +2,127 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Generates Studio's Tailwind v4 stylesheet from the design tokens (ADR-0014,
- * studio-development §4.2). The `@theme` block first resets every Tailwind
- * default (`--*: initial`), so the only utilities that exist are the ones the
- * tokens back. Add a token family by adding a row to `tokenFamilies`.
+ * Generates Studio's Tailwind v4 theme (ADR-0103): shadcn/ui's stock `neutral` theme for the `base-nova` style, mapped
+ * the way `shadcn init` maps it, with Tailwind's own defaults left in place. Older Studio token names that do not clash
+ * with shadcn's stay available as aliases of shadcn's variables, so screens not yet rebuilt on shadcn follow its look.
  */
 
 import {
   arabicAdjustedRoles,
   arabicLineHeightExtra,
-  breakpoints,
   densityTokens,
   dialogWidths,
-  elevations,
-  fontFamilies,
-  fontWeights,
   iconSizes,
   motion,
-  radii,
   semanticColors,
-  space,
-  surfaceScalars,
-  type ThemeName,
   typeRoles,
 } from "./porcelain.ts";
+import { type ShadcnVariable, shadcnContrast, shadcnDark, shadcnLight, shadcnRadius } from "./shadcn-theme.ts";
 import { brandColors } from "./tokens.ts";
 
-/** A token value in each theme; `contrast` falls back to `light` when absent. */
-interface ThemedValue {
-  readonly light: string;
-  readonly dark: string;
-  readonly contrast?: string;
-}
+/** shadcn's font: Inter, as `@fontsource-variable/inter` names it; Arabic falls through to Noto Sans Arabic. */
+const fontSans = "'Inter Variable', 'Noto Sans Arabic', sans-serif";
 
-/** One family of tokens that becomes one Tailwind theme namespace. */
-interface TokenFamily {
-  /** The Tailwind theme namespace, e.g. `color` makes `--color-*` and `bg-*`. */
-  readonly namespace: string;
-  readonly tokens: Readonly<Record<string, ThemedValue>>;
-}
+/** Studio colours shadcn has no variable for; they keep their measured light, dark and contrast values. */
+const keptColors: ReadonlySet<string> = new Set([
+  "selection",
+  "selection-text",
+  "selection-surface",
+  "success",
+  "success-surface",
+  "warning",
+  "warning-surface",
+  "danger-surface",
+  "arrow",
+  "arrow-active",
+  "hero-liquid-a",
+  "hero-liquid-b",
+  "hero-liquid-c",
+  "sample-loan",
+  "sample-shop",
+  "sample-bank",
+  "sample-delivery",
+  "sample-fresh",
+  "sample-on-app",
+]);
 
-function themed(entries: readonly { key: string; light: string; dark: string; contrast: string }[]) {
-  return Object.fromEntries(entries.map((e) => [e.key, e]));
-}
-
-function fixed(values: Readonly<Record<string, string>>): Record<string, ThemedValue> {
-  return Object.fromEntries(Object.entries(values).map(([k, v]) => [k, { light: v, dark: v }]));
-}
-
-const sizeTokens: Record<string, ThemedValue> = {};
-for (const role of typeRoles) {
-  sizeTokens[role.key] = { light: `${role.size}px`, dark: `${role.size}px` };
-  sizeTokens[`${role.key}--line-height`] = { light: `${role.line}px`, dark: `${role.line}px` };
-  sizeTokens[`${role.key}--font-weight`] = { light: `${role.weight}`, dark: `${role.weight}` };
-  if (role.tracking !== undefined) {
-    sizeTokens[`${role.key}--letter-spacing`] = { light: `${role.tracking}em`, dark: `${role.tracking}em` };
-  }
-}
-
-/** The token families the stylesheet is built from, in output order. */
-const tokenFamilies: readonly TokenFamily[] = [
-  { namespace: "color", tokens: { ...brandColors, ...themed(semanticColors) } },
-  { namespace: "radius", tokens: fixed(Object.fromEntries(Object.entries(radii).map(([k, v]) => [k, v.value]))) },
-  { namespace: "shadow", tokens: themed(elevations) },
-  { namespace: "spacing", tokens: fixed({ ...space, ...iconSizes }) },
-  { namespace: "container", tokens: fixed(dialogWidths) },
-  { namespace: "breakpoint", tokens: fixed(breakpoints) },
-  { namespace: "font", tokens: fixed(fontFamilies) },
-  { namespace: "font-weight", tokens: fixed(fontWeights) },
-  { namespace: "text", tokens: sizeTokens },
-  { namespace: "duration", tokens: fixed(motion.durations) },
-  { namespace: "ease", tokens: fixed(motion.easings) },
-  { namespace: "surface", tokens: themed(surfaceScalars) },
-];
-
-/** Maps a dotted token name to its CSS variable, e.g. `brand.violet` to `--color-brand-violet`. */
-function variableName(namespace: string, token: string): string {
-  const key = namespace === "spacing" ? token.replaceAll(".", "\\.") : token.replaceAll(".", "-");
-  return `--${namespace}-${key}`;
-}
-
-const forcedColors: Readonly<Record<string, string>> = {
-  canvas: "Canvas",
-  app: "Canvas",
-  raised: "Canvas",
-  selected: "Canvas",
-  primary: "CanvasText",
-  secondary: "CanvasText",
-  tertiary: "CanvasText",
-  accent: "Highlight",
-  "accent-hover": "Highlight",
-  selection: "Highlight",
-  "selection-text": "HighlightText",
-  "selection-surface": "Canvas",
-  "on-accent": "HighlightText",
-  focus: "Highlight",
-  link: "LinkText",
-  "button-text": "ButtonText",
+/** Older Studio colour names, now aliases of shadcn's variables. */
+const colorAliases: Readonly<Record<string, string>> = {
+  app: "var(--background)",
+  canvas: "var(--muted)",
+  raised: "var(--card)",
+  glass: "var(--popover)",
+  hover: "var(--accent)",
+  selected: "var(--accent)",
+  tertiary: "var(--muted-foreground)",
+  "secondary-glass": "var(--muted-foreground)",
+  "on-accent": "var(--primary-foreground)",
+  "accent-hover": "color-mix(in oklch, var(--primary) 90%, var(--background))",
+  "accent-halo": "color-mix(in oklch, var(--ring) 50%, transparent)",
+  hairline: "var(--border)",
+  strong: "var(--input)",
+  focus: "var(--ring)",
+  link: "var(--primary)",
+  danger: "var(--destructive)",
+  "danger-fill": "var(--destructive)",
+  "button-text": "var(--foreground)",
 };
 
-function forcedColorDeclarations(): string[] {
-  return Object.entries(forcedColors).map(([key, v]) => `    --color-${key}: ${v};`);
+/** Older Studio shadow names, as Tailwind's default shadows. */
+const shadowAliases: Readonly<Record<string, string>> = {
+  e1: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  soft: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+  e2: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+  frame: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+  "frame-active": "0 0 0 2px var(--ring)",
+  primary: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  float: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+  e4: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+};
+
+/** Glass, kept for the canvas chrome: a neutral popover surface with a light blur. */
+const glass: Readonly<Record<string, string>> = {
+  "glass-fill": "color-mix(in oklch, var(--popover) 88%, transparent)",
+  "glass-solid": "var(--popover)",
+  "glass-backdrop": "blur(12px)",
+  "glass-inner": "var(--border)",
+  "glass-outer": "transparent",
+  "glass-deep-backdrop": "blur(16px)",
+  "glass-sheen": "none",
+  "scrim-fill": "oklch(0 0 0 / 40%)",
+  "stroke-field": "1px",
+  "stroke-focus": "2px",
+  "stroke-arrow": "1.5px",
+};
+
+const shadcnVariables = Object.keys(shadcnLight) as ShadcnVariable[];
+
+function themeVars(values: Partial<Record<ShadcnVariable, string>>): string[] {
+  return shadcnVariables.flatMap((v) => (values[v] === undefined ? [] : [`  --${v}: ${values[v]};`]));
 }
 
-/** The declarations of one theme; dark and contrast list only what differs from light. */
-function declarations(theme: ThemeName): string[] {
-  return tokenFamilies.flatMap((family) =>
-    Object.entries(family.tokens).flatMap(([token, value]) => {
-      const v = theme === "contrast" ? (value.contrast ?? value.light) : value[theme];
-      if (theme !== "light" && v === value.light) {
-        return [];
-      }
-      return [`  ${variableName(family.namespace, token)}: ${v};`];
-    }),
-  );
+/** The kept Studio colours of one theme; dark and contrast list only what differs from light. */
+function keptColorVars(theme: "light" | "dark" | "contrast"): string[] {
+  const brand = Object.entries(brandColors).flatMap(([key, value]) => {
+    const v = theme === "dark" ? value.dark : value.light;
+    return theme !== "light" && v === value.light ? [] : [`  --color-${key.replaceAll(".", "-")}: ${v};`];
+  });
+  const kept = semanticColors
+    .filter((c) => keptColors.has(c.key))
+    .flatMap((c) => {
+      const v = theme === "contrast" ? c.contrast : c[theme];
+      return theme !== "light" && v === c.light ? [] : [`  --color-${c.key}: ${v};`];
+    });
+  return [...brand, ...kept];
+}
+
+function typeRoleVars(): string[] {
+  return typeRoles.flatMap((role) => [
+    `  --text-${role.key}: ${role.size}px;`,
+    `  --text-${role.key}--line-height: ${role.line}px;`,
+    `  --text-${role.key}--font-weight: ${role.weight};`,
+    ...(role.tracking === undefined ? [] : [`  --text-${role.key}--letter-spacing: ${role.tracking}em;`]),
+  ]);
 }
 
 function densityDeclarations(density: "compact" | "comfortable"): string[] {
@@ -126,44 +133,77 @@ function arabicDeclarations(): string[] {
   const lineHeights = typeRoles
     .filter((role) => arabicAdjustedRoles.has(role.key))
     .map((role) => `  --text-${role.key}--line-height: ${role.line + arabicLineHeightExtra}px;`);
-  // Arabic letters join: negative tracking would pull them apart (U7.3).
   const tracking = typeRoles
     .filter((role) => role.tracking !== undefined)
     .map((role) => `  --text-${role.key}--letter-spacing: 0em;`);
   return [...lineHeights, ...tracking];
 }
 
-function reducedMotionDeclarations(): string[] {
-  return Object.keys(motion.durations).map((name) => `    --duration-${name}: 0ms;`);
-}
+const forcedColors: Readonly<Partial<Record<ShadcnVariable, string>>> = {
+  background: "Canvas",
+  foreground: "CanvasText",
+  card: "Canvas",
+  "card-foreground": "CanvasText",
+  popover: "Canvas",
+  "popover-foreground": "CanvasText",
+  primary: "ButtonText",
+  "primary-foreground": "ButtonFace",
+  "muted-foreground": "CanvasText",
+  accent: "Highlight",
+  "accent-foreground": "HighlightText",
+  border: "CanvasText",
+  input: "CanvasText",
+  ring: "Highlight",
+};
 
 /**
- * Returns the stylesheet text. The output is a pure function of the tokens:
- * the same tokens give the same bytes.
+ * Returns the stylesheet text. The output is a pure function of the tokens: the same tokens give the same bytes.
  */
 export function themeCss(): string {
   return [
     "/* SPDX-FileCopyrightText: 2026 Plux contributors */",
     "/* SPDX-License-Identifier: AGPL-3.0-only */",
     "/* Generated by studio/scripts/gen-theme.ts from @plux/brand. Do not edit. */",
-    "@layer theme, base, components, utilities;",
-    '@import "tailwindcss/preflight.css" layer(base);',
-    '@import "tailwindcss/utilities.css" layer(utilities);',
     "",
+    "/* shadcn's dark variant, keyed to the theme Studio writes on <html data-theme> (STU-014). */",
     "@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));",
     "",
+    "/* shadcn/ui: the theme mapping `shadcn init` writes (ADR-0103). */",
+    "@theme inline {",
+    `  --font-sans: ${fontSans};`,
+    "  --font-heading: var(--font-sans);",
+    ...shadcnVariables.map((v) => `  --color-${v}: var(--${v});`),
+    "  --radius-sm: calc(var(--radius) * 0.6);",
+    "  --radius-md: calc(var(--radius) * 0.8);",
+    "  --radius-lg: var(--radius);",
+    "  --radius-xl: calc(var(--radius) * 1.4);",
+    "  --radius-2xl: calc(var(--radius) * 1.8);",
+    "  --radius-3xl: calc(var(--radius) * 2.2);",
+    "  --radius-4xl: calc(var(--radius) * 2.6);",
+    "}",
+    "",
+    "/* Older Studio names, as aliases of shadcn's variables; one family per Tailwind namespace. */",
+    "@theme inline {",
+    `  --font-serif: ${fontSans};`,
+    `  --font-wordmark: ${fontSans};`,
+    ...Object.entries(colorAliases).map(([k, v]) => `  --color-${k}: ${v};`),
+    ...Object.entries(shadowAliases).map(([k, v]) => `  --shadow-${k}: ${v};`),
+    ...Object.entries(glass).map(([k, v]) => `  --surface-${k}: ${v};`),
+    "}",
+    "",
+    "/* Studio values shadcn has no token for: status, selection, arrows, the sample apps and the type roles. */",
     "@theme static {",
-    "  --*: initial;",
-    ...declarations("light"),
-    "  --animate-spin: spin 0.8s linear infinite;",
-    "  @keyframes spin {",
-    "    to {",
-    "      transform: rotate(360deg);",
-    "    }",
-    "  }",
+    ...keptColorVars("light"),
+    ...typeRoleVars(),
+    ...Object.entries(iconSizes).map(([k, v]) => `  --spacing-${k}: ${v};`),
+    ...Object.entries(dialogWidths).map(([k, v]) => `  --container-${k}: ${v};`),
+    ...Object.entries(motion.durations).map(([k, v]) => `  --duration-${k}: ${v};`),
+    ...Object.entries(motion.easings).map(([k, v]) => `  --ease-${k}: ${v};`),
     "}",
     "",
     ":root {",
+    `  --radius: ${shadcnRadius};`,
+    ...themeVars(shadcnLight),
     ...densityDeclarations("compact"),
     "}",
     "",
@@ -171,74 +211,63 @@ export function themeCss(): string {
     ...densityDeclarations("comfortable"),
     "}",
     "",
-    "/* U15: the contrast theme applies on request of the system; an explicit theme below wins. */",
+    "/* The contrast theme applies on request of the system; an explicit theme below wins (STU-011). */",
     "@media (prefers-contrast: more) {",
     "  :root {",
-    ...declarations("contrast").map((d) => `  ${d}`),
+    ...themeVars(shadcnContrast).map((d) => `  ${d}`),
+    ...keptColorVars("contrast").map((d) => `  ${d}`),
     "  }",
     "}",
     "",
-    "/* U15: forced colours use system colours; forced-color-adjust stays auto. */",
+    "/* Forced colours use system colours; forced-color-adjust stays auto. */",
     "@media (forced-colors: active) {",
     "  :root {",
-    ...forcedColorDeclarations(),
+    ...themeVars(forcedColors).map((d) => `  ${d}`),
     "  }",
     "}",
     "",
     "[data-theme=dark] {",
-    ...declarations("dark"),
+    ...themeVars(shadcnDark),
+    ...keptColorVars("dark"),
     "}",
     "",
     "[data-theme=contrast] {",
-    ...declarations("contrast"),
+    ...themeVars(shadcnContrast),
+    ...keptColorVars("contrast"),
     "}",
     "",
     ":lang(ar) {",
     ...arabicDeclarations(),
     "}",
     "",
-    "/* Solid fallback for glass (U3 rule 3). */",
-    "@media (prefers-reduced-transparency: reduce) {",
-    "  :root {",
-    "    --surface-glass-fill: var(--surface-glass-solid);",
-    "    --surface-glass-backdrop: none;",
-    "    --surface-glass-deep-backdrop: none;",
-    "    --surface-glass-sheen: none;",
-    "  }",
-    "}",
-    "",
-    "[data-transparency=reduced] {",
-    "  --surface-glass-fill: var(--surface-glass-solid);",
-    "  --surface-glass-backdrop: none;",
-    "  --surface-glass-deep-backdrop: none;",
-    "  --surface-glass-sheen: none;",
-    "}",
-    "",
     "@utility glass {",
     "  background-color: var(--surface-glass-fill);",
     "  backdrop-filter: var(--surface-glass-backdrop);",
     "  box-shadow:",
-    "    inset 0 0 0 1px var(--surface-glass-inner),",
-    "    0 0 0 1px var(--surface-glass-outer),",
+    "    0 0 0 1px var(--surface-glass-inner),",
     "    var(--shadow-e2);",
     "}",
     "",
-    "/* U3.4 deep glass: the hero surfaces of the public pages; a stronger blur, a light sheen, a floating shadow. */",
     "@utility glass-deep {",
     "  background-color: var(--surface-glass-fill);",
-    "  background-image: var(--surface-glass-sheen);",
     "  backdrop-filter: var(--surface-glass-deep-backdrop);",
     "  box-shadow:",
-    "    inset 0 1px 0 0 var(--surface-glass-inner),",
-    "    inset 0 0 0 1px var(--surface-glass-inner),",
-    "    0 0 0 1px var(--surface-glass-outer),",
+    "    0 0 0 1px var(--surface-glass-inner),",
     "    var(--shadow-float);",
     "}",
     "",
-    "/* U13: every animation becomes an instant change. */",
+    "@media (prefers-reduced-transparency: reduce) {",
+    "  :root {",
+    "    --surface-glass-fill: var(--popover);",
+    "    --surface-glass-backdrop: none;",
+    "    --surface-glass-deep-backdrop: none;",
+    "  }",
+    "}",
+    "",
+    "/* Every animation becomes an instant change. */",
     "@media (prefers-reduced-motion: reduce) {",
     "  :root {",
-    ...reducedMotionDeclarations(),
+    ...Object.keys(motion.durations).map((name) => `    --duration-${name}: 0ms;`),
     "  }",
     "}",
     "",

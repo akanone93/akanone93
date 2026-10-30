@@ -92,7 +92,7 @@ function Brands(): ReactElement {
     <section aria-label={m.brandsHeading} className="flex flex-col gap-2">
       <h2 className="text-label font-medium">{m.brandsHeading}</h2>
       {names.length === 0 ? (
-        <p className="text-body text-secondary">{m.noBrands}</p>
+        <p className="text-body text-muted-foreground">{m.noBrands}</p>
       ) : (
         <ul>
           {names.map((b) => (

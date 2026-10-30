@@ -133,7 +133,7 @@ function BulkBar(props: { readonly ids: readonly string[]; readonly done: () => 
       <Button disabled={none || !area.canEdit || locale === defaultLocale} onClick={() => setPending("copy")}>
         {m.bulkCopy}
       </Button>
-      {area.canEdit && !area.canApprove && <span className="text-caption text-secondary">{m.noApprove}</span>}
+      {area.canEdit && !area.canApprove && <span className="text-caption text-muted-foreground">{m.noApprove}</span>}
       <AlertDialog
         open={pending !== null}
         onOpenChange={(o) => !o && setPending(null)}
@@ -177,7 +177,7 @@ function Rows(props: {
             />
           </th>
           {[m.gridTitle, m.sourceColumn, m.targetColumn({ locale }), m.statusColumn, m.contextColumn].map((h) => (
-            <th key={h} scope="col" className="p-2 text-start text-label text-secondary">
+            <th key={h} scope="col" className="p-2 text-start text-label text-muted-foreground">
               {h}
             </th>
           ))}
@@ -202,7 +202,7 @@ function Rows(props: {
               <td className="p-2 text-body">{source?.[k.id] ?? ""}</td>
               <td className="p-2 text-body">{mine?.[k.id] ?? ""}</td>
               <td className="p-2 text-body">{labels[statusOf(k.id, mine, area.states)]}</td>
-              <td className="p-2 text-caption text-secondary">
+              <td className="p-2 text-caption text-muted-foreground">
                 {screens.length > 0 ? m.context({ screens: screens.join(", ") }) : m.noContext}
               </td>
             </tr>
@@ -251,10 +251,10 @@ function Grid(): ReactElement {
     <div className="flex flex-col gap-4">
       <Filters search={search} set={set} />
       <Toolbar />
-      {!area.canEdit && <p className="text-caption text-secondary">{m.readOnlyGrid}</p>}
+      {!area.canEdit && <p className="text-caption text-muted-foreground">{m.readOnlyGrid}</p>}
       <BulkBar ids={rows.filter((r) => selected.has(r.id)).map((r) => r.id)} done={() => setSelected(new Set())} />
       {rows.length === 0 ? (
-        <p className="text-body text-secondary">{m.emptyGrid}</p>
+        <p className="text-body text-muted-foreground">{m.emptyGrid}</p>
       ) : (
         <Rows rows={rows} area={area} selected={selected} toggle={toggle} />
       )}

@@ -83,25 +83,25 @@ export function AssurancePanel({ v, m }: { readonly v: FunctionVersion; readonly
   return (
     <div className="flex flex-col gap-3">
       <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-body">
-        <dt className="text-secondary">{m.assuranceSigned}</dt>
+        <dt className="text-muted-foreground">{m.assuranceSigned}</dt>
         <dd>{v.signature.length > 0 ? m.assuranceSigned : m.assuranceUnsigned}</dd>
-        <dt className="text-secondary">{m.assuranceTests}</dt>
+        <dt className="text-muted-foreground">{m.assuranceTests}</dt>
         <dd>{v.testsPassed ? m.testsPassedYes : m.testsPassedNo}</dd>
-        <dt className="text-secondary">{m.assuranceRequired}</dt>
+        <dt className="text-muted-foreground">{m.assuranceRequired}</dt>
         <dd>{v.assurance === "" ? m.assuranceDefault : v.assurance}</dd>
-        <dt className="text-secondary">{m.sourceLabel}</dt>
+        <dt className="text-muted-foreground">{m.sourceLabel}</dt>
         <dd className="break-all">{v.sourceId}</dd>
-        <dt className="text-secondary">{m.assuranceModule}</dt>
+        <dt className="text-muted-foreground">{m.assuranceModule}</dt>
         <dd className="break-all">{v.moduleSha256}</dd>
-        <dt className="text-secondary">{m.assuranceSource}</dt>
+        <dt className="text-muted-foreground">{m.assuranceSource}</dt>
         <dd className="break-all">{p?.sourceSha256 ?? ""}</dd>
-        <dt className="text-secondary">{m.assuranceToolchain}</dt>
+        <dt className="text-muted-foreground">{m.assuranceToolchain}</dt>
         <dd>{p?.toolchain ?? ""}</dd>
-        <dt className="text-secondary">{m.assuranceBuilder}</dt>
+        <dt className="text-muted-foreground">{m.assuranceBuilder}</dt>
         <dd>{p?.builderIdentity ?? ""}</dd>
       </dl>
       {deps.length === 0 ? (
-        <p className="text-body text-secondary">{m.noDeps}</p>
+        <p className="text-body text-muted-foreground">{m.noDeps}</p>
       ) : (
         <Table
           caption={m.assuranceDeps}
@@ -124,22 +124,22 @@ export function CapabilitiesPanel({
   return (
     <div className="flex flex-col gap-4">
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-body">
-        <dt className="text-secondary">{m.capPlacement}</dt>
+        <dt className="text-muted-foreground">{m.capPlacement}</dt>
         <dd>{v.placement === "device" ? m.placementDevice : m.placementServer}</dd>
-        <dt className="text-secondary">{m.capAbi}</dt>
+        <dt className="text-muted-foreground">{m.capAbi}</dt>
         <dd>{String(v.abiVersion)}</dd>
-        <dt className="text-secondary">{m.capInput}</dt>
+        <dt className="text-muted-foreground">{m.capInput}</dt>
         <dd>
           <pre className="whitespace-pre-wrap font-mono text-caption">{v.inputSchema}</pre>
         </dd>
-        <dt className="text-secondary">{m.capOutput}</dt>
+        <dt className="text-muted-foreground">{m.capOutput}</dt>
         <dd>
           <pre className="whitespace-pre-wrap font-mono text-caption">{v.outputSchema}</pre>
         </dd>
       </dl>
       <h3 className="text-body font-medium">{m.capGranted}</h3>
       {v.capabilities === undefined ? (
-        <p className="text-body text-secondary">{m.noDeclaration}</p>
+        <p className="text-body text-muted-foreground">{m.noDeclaration}</p>
       ) : (
         <GrantedList c={v.capabilities} m={m} />
       )}
@@ -162,7 +162,7 @@ function GrantedList({ c, m }: { readonly c: FunctionCapabilities; readonly m: F
     <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-body">
       {rows.map(([label, value]) => (
         <Fragment key={label}>
-          <dt className="text-secondary">{label}</dt>
+          <dt className="text-muted-foreground">{label}</dt>
           <dd className="break-all">{value}</dd>
         </Fragment>
       ))}
@@ -175,27 +175,27 @@ export function MetricsPanel({ scope, m }: { readonly scope: Scope; readonly m: 
   const metrics = useMetrics(scope.app, scope.environmentId, scope.name);
   const d = metrics.data;
   if (d === undefined) {
-    return <p className="text-body text-secondary">{metrics.isError ? m.loadFailed : m.loading}</p>;
+    return <p className="text-body text-muted-foreground">{metrics.isError ? m.loadFailed : m.loading}</p>;
   }
   const errors = Object.entries(d.errorsByKind);
   return (
     <div className="flex flex-col gap-3">
       <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-body">
-        <dt className="text-secondary">{m.metricInvocations}</dt>
+        <dt className="text-muted-foreground">{m.metricInvocations}</dt>
         <dd>{String(d.invocations)}</dd>
-        <dt className="text-secondary">{m.metricP50}</dt>
+        <dt className="text-muted-foreground">{m.metricP50}</dt>
         <dd>{String(d.latencyP50Micros)}</dd>
-        <dt className="text-secondary">{m.metricP95}</dt>
+        <dt className="text-muted-foreground">{m.metricP95}</dt>
         <dd>{String(d.latencyP95Micros)}</dd>
-        <dt className="text-secondary">{m.metricP99}</dt>
+        <dt className="text-muted-foreground">{m.metricP99}</dt>
         <dd>{String(d.latencyP99Micros)}</dd>
-        <dt className="text-secondary">{m.metricMemory}</dt>
+        <dt className="text-muted-foreground">{m.metricMemory}</dt>
         <dd>{String(d.memoryPeakBytes)}</dd>
-        <dt className="text-secondary">{m.metricCache}</dt>
+        <dt className="text-muted-foreground">{m.metricCache}</dt>
         <dd>{String(d.cacheHits)}</dd>
       </dl>
       {errors.length === 0 ? (
-        <p className="text-body text-secondary">{m.noErrors}</p>
+        <p className="text-body text-muted-foreground">{m.noErrors}</p>
       ) : (
         <Table
           caption={m.metricErrors}
@@ -220,7 +220,11 @@ export function LogsPanel({ scope, m }: { readonly scope: Scope; readonly m: Fun
       <Field label={m.envLabel}>
         <Select label={m.envLabel} options={options} value={environmentId} onValueChange={setChosen} />
       </Field>
-      {logs.isError ? <p className="text-body text-secondary">{m.loadFailed}</p> : <LogTable lines={lines} m={m} />}
+      {logs.isError ? (
+        <p className="text-body text-muted-foreground">{m.loadFailed}</p>
+      ) : (
+        <LogTable lines={lines} m={m} />
+      )}
     </div>
   );
 }
@@ -234,7 +238,7 @@ function LogTable({
   readonly m: FunctionsMessages;
 }): ReactElement {
   return lines.length === 0 ? (
-    <p className="text-body text-secondary">{m.noLogs}</p>
+    <p className="text-body text-muted-foreground">{m.noLogs}</p>
   ) : (
     <Table
       caption={m.logsTitle}
@@ -277,7 +281,7 @@ export function StoredTestsPanel({
   return (
     <div className="flex flex-col gap-3">
       <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-body">
-        <dt className="text-secondary">{m.sourceLabel}</dt>
+        <dt className="text-muted-foreground">{m.sourceLabel}</dt>
         <dd className="break-all">{source}</dd>
       </dl>
       <TestsPanel run={run} canRun={source !== ""} onRun={start} m={editor} />

@@ -51,7 +51,7 @@ export function ProfilePage() {
         <h1 id="profile-title" className="text-screen">
           {m.title}
         </h1>
-        <p className="text-body text-secondary">{m.caption}</p>
+        <p className="text-body text-muted-foreground">{m.caption}</p>
       </header>
       <Field label={m.theme}>
         <Select

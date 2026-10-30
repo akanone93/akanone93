@@ -657,14 +657,14 @@ function PluginCanvasView({
           sync();
         }}
       />
-      {docs.isPending && <p className="absolute start-4 top-4 text-body text-secondary">{m.loading}</p>}
+      {docs.isPending && <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>}
       {docs.isError && (
         <p role="alert" className="absolute start-4 top-4 text-body">
           {m.failed}
         </p>
       )}
       {docs.isSuccess && screens.length === 0 && (
-        <p className="absolute start-4 top-4 text-body text-secondary">{m.empty}</p>
+        <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.empty}</p>
       )}
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}

@@ -51,7 +51,7 @@ export function SendToDeviceDialog({
   const chosen = deviceId === "" ? (list[0]?.id ?? "") : deviceId;
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()} title={m.sendTitle} labels={{ close: m.close }}>
-      {devices.isSuccess && list.length === 0 && <p className="text-body text-secondary">{m.noDevices}</p>}
+      {devices.isSuccess && list.length === 0 && <p className="text-body text-muted-foreground">{m.noDevices}</p>}
       {list.length > 0 && (
         <form
           className="flex flex-col gap-3"
@@ -90,7 +90,7 @@ export function SendToDeviceDialog({
             {m.send}
           </Button>
           {send.isSuccess && (
-            <p role="status" className="text-body text-secondary">
+            <p role="status" className="text-body text-muted-foreground">
               {m.sent}
             </p>
           )}

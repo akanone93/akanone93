@@ -60,7 +60,7 @@ function RunsTable({
   env: string;
 }) {
   if (runs.length === 0) {
-    return <p className="text-body text-secondary">{m.noRuns}</p>;
+    return <p className="text-body text-muted-foreground">{m.noRuns}</p>;
   }
   return (
     <Table
@@ -142,7 +142,7 @@ function TestsView(props: {
       </Field>
       <h2 className="text-label font-medium">{m.scenariosHeading}</h2>
       {rows.length === 0 ? (
-        <p className="text-body text-secondary">{m.noScenarios}</p>
+        <p className="text-body text-muted-foreground">{m.noScenarios}</p>
       ) : (
         <Table
           caption={m.scenariosHeading}
@@ -184,7 +184,7 @@ function TestsView(props: {
           >
             {m.fromSession}
           </Button>
-          <span role="status" className="text-body text-secondary">
+          <span role="status" className="text-body text-muted-foreground">
             {m.fromSessionSteps(session.recorded.steps.length)}
           </span>
         </div>
@@ -199,7 +199,7 @@ function TestsView(props: {
           onSave={() => void actions.save(draft).then((ok) => ok && setDraft(emptyDraft))}
         />
       ) : (
-        <p className="text-body text-secondary">{m.readOnly}</p>
+        <p className="text-body text-muted-foreground">{m.readOnly}</p>
       )}
       <h2 className="text-label font-medium">{m.runsHeading}</h2>
       {runs.isPending ? null : <RunsTable m={m} runs={runs.data ?? []} org={org} app={app} env={env} />}

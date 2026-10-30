@@ -48,7 +48,7 @@ export function Select({
       <BaseSelect.Trigger
         {...(label !== undefined && { "aria-label": label })}
         className={cx(
-          "flex h-(--density-field) w-full items-center justify-between gap-2 rounded-sm bg-raised px-3 text-body text-primary",
+          "flex h-(--density-field) w-full items-center justify-between gap-2 rounded-sm bg-raised px-3 text-body text-foreground",
           "border border-hairline hover:border-strong disabled:opacity-50",
           focusRing,
         )}
@@ -67,7 +67,7 @@ export function Select({
                   key={o.value}
                   value={o.value}
                   className={cx(
-                    "flex h-(--density-field) cursor-default items-center gap-2 rounded-md px-3 text-body text-primary",
+                    "flex h-(--density-field) cursor-default items-center gap-2 rounded-md px-3 text-body text-foreground",
                     "data-highlighted:bg-hover",
                     focusRing,
                   )}

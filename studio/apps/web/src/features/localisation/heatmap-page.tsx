@@ -16,7 +16,7 @@ function Rows(): ReactElement {
   const locales = area.sessions.locales;
   const rows = missingByPlugin(area.usedByPlugin, locales, area.messages);
   if (rows.length === 0) {
-    return <p className="text-body text-secondary">{m.heatEmpty}</p>;
+    return <p className="text-body text-muted-foreground">{m.heatEmpty}</p>;
   }
   return (
     <Table

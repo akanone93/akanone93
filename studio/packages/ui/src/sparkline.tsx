@@ -39,7 +39,7 @@ export function Sparkline({ values, label }: SparklineProps): ReactElement {
         strokeLinecap="round"
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
-        className="text-accent"
+        className="text-primary"
       />
     </svg>
   );

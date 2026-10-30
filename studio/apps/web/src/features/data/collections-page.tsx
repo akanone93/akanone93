@@ -39,7 +39,7 @@ function CollectionRows(): ReactElement {
   const ctx = useDataContext();
   const collections = objects(usePluginJson().value?.["collections"]);
   if (collections.length === 0) {
-    return <p className="text-body text-secondary">{m.noCollections}</p>;
+    return <p className="text-body text-muted-foreground">{m.noCollections}</p>;
   }
   return (
     <Table
@@ -144,7 +144,7 @@ function Schema(props: { collection: Json; canEdit: boolean; change: (patch: Jso
       </section>
       <section aria-label={m.plans} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.plans}</h2>
-        {plans.length === 0 && <p className="text-body text-secondary">{m.noPlans}</p>}
+        {plans.length === 0 && <p className="text-body text-muted-foreground">{m.noPlans}</p>}
         <ul>
           {plans.map((p) => (
             <li key={String(p["from"])} className="text-body">
@@ -168,7 +168,7 @@ function Editor(props: { collectionId: string }): ReactElement {
   const state = useCommit(next, "collection");
   const current = collections.find((c) => String(c["id"]) === props.collectionId);
   if (current === undefined) {
-    return <p className="text-body text-secondary">{seeded ? m.notFoundCollection : m.loading}</p>;
+    return <p className="text-body text-muted-foreground">{seeded ? m.notFoundCollection : m.loading}</p>;
   }
   const change = (patch: Json) =>
     setCollections((all) =>

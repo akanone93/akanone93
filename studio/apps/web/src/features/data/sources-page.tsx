@@ -51,8 +51,8 @@ function ImportDialog(props: { readonly open: boolean; readonly onClose: () => v
     >
       <div className="flex flex-col gap-3">
         <ImportSection tool={ctx.tool} canEdit={state.canEdit} m={d} onAdd={setStaged} />
-        {staged !== undefined && <p className="text-body text-secondary">{m.importStaged}</p>}
-        {blocked && <p className="text-caption text-secondary">{m.importLocked}</p>}
+        {staged !== undefined && <p className="text-body text-muted-foreground">{m.importStaged}</p>}
+        {blocked && <p className="text-caption text-muted-foreground">{m.importLocked}</p>}
         <CommitBar
           state={{
             ...state,
@@ -79,7 +79,7 @@ function Rows(): ReactElement {
   const { value } = usePluginJson();
   const sources = objects(value?.["dataSources"]);
   if (sources.length === 0) {
-    return <p className="text-body text-secondary">{m.noSources}</p>;
+    return <p className="text-body text-muted-foreground">{m.noSources}</p>;
   }
   return (
     <Table

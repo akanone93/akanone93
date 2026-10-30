@@ -87,7 +87,7 @@ export function DeviceDrawer({
     }
     const rows = shown.filter((e) => tabOf(e) === tab);
     return rows.length === 0 ? (
-      <p className="text-body text-secondary">{m.empty}</p>
+      <p className="text-body text-muted-foreground">{m.empty}</p>
     ) : (
       <ul aria-label={labels[tab]} className="flex flex-col gap-1 font-mono text-caption">
         {rows.map((e) => (
@@ -148,12 +148,12 @@ export function DeviceDrawer({
           {m.exportTrace}
         </Button>
         {waiting > 0 && (
-          <span role="status" className="text-caption text-secondary">
+          <span role="status" className="text-caption text-muted-foreground">
             {m.pausedCount(waiting)}
           </span>
         )}
       </div>
-      {stream.state === "ended" && <p className="text-caption text-secondary">{m.streamEnded}</p>}
+      {stream.state === "ended" && <p className="text-caption text-muted-foreground">{m.streamEnded}</p>}
       {exportTrace.isError && (
         <p role="alert" className="text-body">
           {m.failed}

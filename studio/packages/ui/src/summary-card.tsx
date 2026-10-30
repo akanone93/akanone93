@@ -18,8 +18,8 @@ export function SummaryCard({ cells }: SummaryCardProps): ReactElement {
     <dl className="m-0 grid grid-cols-3 rounded-lg bg-card px-(--density-card-padding-x) py-(--density-card-padding-y) text-center">
       {cells.map((c) => (
         <div key={c.caption} className="flex flex-col-reverse">
-          <dt className="text-caption text-secondary">{c.caption}</dt>
-          <dd className="m-0 font-mono text-data text-primary">{c.value}</dd>
+          <dt className="text-caption text-muted-foreground">{c.caption}</dt>
+          <dd className="m-0 font-mono text-data text-foreground">{c.value}</dd>
         </div>
       ))}
     </dl>

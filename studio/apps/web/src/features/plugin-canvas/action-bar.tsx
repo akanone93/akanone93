@@ -123,7 +123,7 @@ export function ActionBar(props: ActionBarProps) {
         <Button size="sm" variant="ghost" aria-label={m.zoomOut} onClick={() => props.onZoom(1 / 1.25)}>
           <Icon name="minus" size="capsule" />
         </Button>
-        <output aria-label={m.zoom(props.percent)} className="text-data text-primary">
+        <output aria-label={m.zoom(props.percent)} className="text-data text-foreground">
           {props.percent}%
         </output>
         <Button size="sm" variant="ghost" aria-label={m.zoomIn} onClick={() => props.onZoom(1.25)}>

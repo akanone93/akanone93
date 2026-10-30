@@ -41,14 +41,14 @@ export function ProjectDownload({
       </Button>
       {progress !== undefined && (
         <div className="flex w-full flex-col gap-1">
-          <p role="status" className="text-body text-secondary">
+          <p role="status" className="text-body text-muted-foreground">
             {progress}
           </p>
           <progress aria-label={m.projectProgress} className="w-full" />
         </div>
       )}
       {phase.state === "done" && (
-        <p role="status" className="text-body text-secondary">
+        <p role="status" className="text-body text-muted-foreground">
           {m.projectDone(phase.filename)}
         </p>
       )}

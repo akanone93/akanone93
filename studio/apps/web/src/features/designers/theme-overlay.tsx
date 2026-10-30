@@ -83,7 +83,7 @@ function Swatches({ rows, m }: { rows: readonly TokenRow[]; m: DesignerMessages 
       <div className="grid grid-cols-2 gap-3">
         {[m.themeLight, m.themeDark].map((mode, i) => (
           <div key={mode} className="flex flex-col gap-1">
-            <span className="text-caption text-secondary">{mode}</span>
+            <span className="text-caption text-muted-foreground">{mode}</span>
             <ul className="flex flex-wrap gap-2">
               {colours.map((r) => {
                 const value = i === 0 ? r.light : (r.dark ?? r.light);
@@ -203,13 +203,13 @@ export function ThemeOverlay(props: ThemeOverlayProps) {
       labels={{ close: m.themeClose }}
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <p className="text-caption text-secondary">{value === undefined ? m.themeNone : m.themeLive}</p>
+        <p className="text-caption text-muted-foreground">{value === undefined ? m.themeNone : m.themeLive}</p>
         {props.app !== null && <LockBanner lock={props.app.lock} />}
-        {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
         <div className="min-h-0 flex-1 overflow-y-auto">
           <table aria-label={m.themeTokens} className="w-full text-body">
             <thead>
-              <tr className="text-start text-caption text-secondary">
+              <tr className="text-start text-caption text-muted-foreground">
                 <th scope="col">{m.themeToken}</th>
                 <th scope="col">{m.themeLight}</th>
                 <th scope="col">{m.themeDark}</th>

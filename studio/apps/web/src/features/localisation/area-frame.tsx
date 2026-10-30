@@ -22,7 +22,7 @@ function Body(props: {
       <h1 id={props.id} className="text-screen">
         {props.title}
       </h1>
-      <p className="text-body text-secondary">{props.caption}</p>
+      <p className="text-body text-muted-foreground">{props.caption}</p>
       <nav aria-label={m.navLabel} className="flex gap-4">
         <Link className="text-body" to="/o/$org/apps/$app/localisation" params={params} search={search}>
           {m.gridLink}

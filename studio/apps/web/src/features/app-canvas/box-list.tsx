@@ -66,7 +66,7 @@ export function PluginBoxCard(props: CardProps): ReactNode {
       onBlur={() => props.onHover(false)}
     >
       <span className="text-title">{name}</span>
-      <span className="text-data text-secondary">{box.key}</span>
+      <span className="text-data text-muted-foreground">{box.key}</span>
       <span className="flex flex-wrap gap-1">
         {box.badges.map((b) => (
           <StatusPill key={b.label} status={b.status} label={b.label} />
@@ -86,7 +86,7 @@ export interface LastPublished {
 function MiniMapView(props: { map: MiniMap; messages: Messages }): ReactNode {
   const { map, messages: m } = props;
   if (map.screens.length === 0) {
-    return <span className="text-data text-secondary">{m.noScreens}</span>;
+    return <span className="text-data text-muted-foreground">{m.noScreens}</span>;
   }
   const centre = new Map(
     map.screens.map((s) => [s.id, { x: s.x + map.cell.width / 2, y: s.y + map.cell.height / 2 }] as const),
@@ -108,7 +108,7 @@ function MiniMapView(props: { map: MiniMap; messages: Messages }): ReactNode {
             y1={from.y}
             x2={to.x}
             y2={to.y}
-            className="stroke-current text-secondary"
+            className="stroke-current text-muted-foreground"
           />
         );
       })}
@@ -121,7 +121,7 @@ function MiniMapView(props: { map: MiniMap; messages: Messages }): ReactNode {
           width={map.cell.width}
           height={map.cell.height}
           rx={2}
-          className="fill-current text-accent"
+          className="fill-current text-primary"
         />
       ))}
     </svg>
@@ -161,7 +161,7 @@ export function DetailCard(props: {
       <span className="text-data">{m.linksIn(s.linksIn.length)}</span>
       <span className="text-data">{m.functions(functions.length)}</span>
       {functions.length > 0 ? (
-        <span className="text-data text-secondary">{m.functionsUsed(functions.join(", "))}</span>
+        <span className="text-data text-muted-foreground">{m.functionsUsed(functions.join(", "))}</span>
       ) : null}
       <span className="text-data">
         {props.published === undefined

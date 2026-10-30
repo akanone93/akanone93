@@ -178,7 +178,7 @@ export function ScenarioForm({ m, draft, problems, onChange, onSave, busy }: Pro
         </Button>
       </div>
       {problems.map((p) => (
-        <p key={p} role="note" className="text-body text-secondary">
+        <p key={p} role="note" className="text-body text-muted-foreground">
           {texts[p]}
         </p>
       ))}

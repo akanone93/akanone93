@@ -27,9 +27,9 @@ export function FunctionsPage(): ReactElement {
       loading={environment.loading || functions.isPending}
       failed={environment.failed || functions.isError}
     >
-      <p className="text-body text-secondary">{m.listCaption}</p>
+      <p className="text-body text-muted-foreground">{m.listCaption}</p>
       {list.length === 0 ? (
-        <p className="text-body text-secondary">{m.noFunctions}</p>
+        <p className="text-body text-muted-foreground">{m.noFunctions}</p>
       ) : (
         <Table
           caption={m.listTitle}

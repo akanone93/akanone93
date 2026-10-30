@@ -24,11 +24,11 @@ function Rows(): ReactElement {
         </Button>
       </div>
       {rows.length === 0 ? (
-        <p className="text-body text-secondary">{m.noTokens}</p>
+        <p className="text-body text-muted-foreground">{m.noTokens}</p>
       ) : (
         <table aria-label={m.tokensTable} className="w-full text-body">
           <thead>
-            <tr className="text-start text-caption text-secondary">
+            <tr className="text-start text-caption text-muted-foreground">
               <th scope="col">{m.colToken}</th>
               <th scope="col">{m.colLight}</th>
               <th scope="col">{m.colDark}</th>

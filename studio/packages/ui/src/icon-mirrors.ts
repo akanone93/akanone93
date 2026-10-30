@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { IconName } from "./icons.gen.ts";
+import type { IconName } from "./icons.ts";
 
 /**
  * Icons that carry a direction and mirror under `dir="rtl"` (studio-development 8.3). Phosphor ships no mirror

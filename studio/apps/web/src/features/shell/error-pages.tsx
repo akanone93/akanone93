@@ -24,7 +24,7 @@ export function NotFoundPage() {
   const m = chromeMessages(useLingui().i18n);
   return (
     <Message title={m.notFoundTitle}>
-      <p className="text-body text-secondary">{m.notFoundBody}</p>
+      <p className="text-body text-muted-foreground">{m.notFoundBody}</p>
     </Message>
   );
 }
@@ -50,7 +50,7 @@ export function ForbiddenPage({ permission }: { permission: string }) {
   };
   return (
     <Message title={m.forbiddenTitle}>
-      <p className="text-body text-secondary">{m.forbiddenBody}</p>
+      <p className="text-body text-muted-foreground">{m.forbiddenBody}</p>
       <div>
         <Button type="button" variant="secondary" onClick={() => void explain()}>
           {m.explain}
@@ -71,7 +71,7 @@ export function LicencePage() {
   const m = chromeMessages(useLingui().i18n);
   return (
     <Message title={m.licenceTitle}>
-      <p className="text-body text-secondary">{m.licenceBody}</p>
+      <p className="text-body text-muted-foreground">{m.licenceBody}</p>
     </Message>
   );
 }

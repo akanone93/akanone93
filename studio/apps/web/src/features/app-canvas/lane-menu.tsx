@@ -58,7 +58,7 @@ export function LaneMenu(props: LaneMenuProps): ReactNode {
         size="sm"
         labels={{ close: m.close }}
       >
-        <p className="text-body text-secondary">{link.edge.trigger}</p>
+        <p className="text-body text-muted-foreground">{link.edge.trigger}</p>
         <div className="mt-4 flex flex-col items-stretch gap-2">
           {laneMenu(link.edge).map((item) => (
             <Button

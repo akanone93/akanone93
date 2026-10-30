@@ -39,7 +39,7 @@ export function KillSwitchPage(): ReactElement {
       )}
       <h2 className="text-heading">{m.killActive}</h2>
       {off.length === 0 ? (
-        <p className="text-body text-secondary">{m.killNone}</p>
+        <p className="text-body text-muted-foreground">{m.killNone}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {off.map((key) => (

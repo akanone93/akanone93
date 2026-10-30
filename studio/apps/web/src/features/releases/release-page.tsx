@@ -66,7 +66,7 @@ function RollbackButton({
       >
         {m.rollback}
       </Button>
-      <p className="text-caption text-secondary">{m.rollbackHint}</p>
+      <p className="text-caption text-muted-foreground">{m.rollbackHint}</p>
       {failed && (
         <p role="alert" className="text-body text-danger">
           {m.actionFailed}
@@ -113,7 +113,7 @@ export function ReleasePage(): ReactElement {
       </p>
       <h2 className="text-heading">{m.changelog}</h2>
       {(changelog.data?.entries ?? []).length === 0 ? (
-        <p className="text-body text-secondary">{m.noChanges}</p>
+        <p className="text-body text-muted-foreground">{m.noChanges}</p>
       ) : (
         <ul className="text-body">
           {(changelog.data?.entries ?? []).map((e) => (
@@ -131,7 +131,7 @@ export function ReleasePage(): ReactElement {
           </p>
           <h2 className="text-heading">{m.health}</h2>
           {check === undefined ? (
-            <p className="text-body text-secondary">{m.noHealth}</p>
+            <p className="text-body text-muted-foreground">{m.noHealth}</p>
           ) : (
             <HealthTable check={check} />
           )}

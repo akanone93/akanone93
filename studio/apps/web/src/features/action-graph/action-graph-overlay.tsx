@@ -80,12 +80,12 @@ function CataloguePanel(props: {
     <section aria-label={m.catalogue} className="flex h-full w-72 shrink-0 flex-col gap-2 overflow-y-auto">
       <h3 className="text-label font-medium">{m.catalogue}</h3>
       <Input value={query} aria-label={m.search} onChange={(e) => setQuery(e.target.value)} />
-      {shown.length === 0 && <p className="text-body text-secondary">{m.nothingFound}</p>}
+      {shown.length === 0 && <p className="text-body text-muted-foreground">{m.nothingFound}</p>}
       {GROUPS.map((g) => {
         const entries = shown.filter((e) => e.group === g);
         return entries.length === 0 ? null : (
           <section key={g} aria-label={groupLabel(g, m)} className="flex flex-col gap-1">
-            <h4 className="text-caption text-secondary">{groupLabel(g, m)}</h4>
+            <h4 className="text-caption text-muted-foreground">{groupLabel(g, m)}</h4>
             <ul className="flex flex-col gap-1">
               {entries.map((e) => (
                 <li
@@ -324,20 +324,20 @@ export function ActionGraphOverlay(props: ActionGraphOverlayProps) {
             <Icon name="eye" />
             {m.autoLayout}
           </Button>
-          <span role="status" aria-live="polite" className="text-body text-secondary">
+          <span role="status" aria-live="polite" className="text-body text-muted-foreground">
             {statusOf(verdict, m)}
           </span>
         </div>
-        {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
-        {notice !== undefined && <p className="text-body text-secondary">{notice}</p>}
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+        {notice !== undefined && <p className="text-body text-muted-foreground">{notice}</p>}
         {context !== undefined && (
           <div className="flex min-h-0 flex-1 gap-3">
             <CataloguePanel catalogue={catalogue} canEdit={canEdit} m={m} onAdd={add} />
             <div className="min-h-0 min-w-0 flex-1">
-              {props.open && steps.length === 0 && <p className="text-body text-secondary">{m.empty}</p>}
+              {props.open && steps.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
               {props.open && steps.length > 0 && (
                 <GraphContext.Provider value={context}>
-                  <Suspense fallback={<p className="text-body text-secondary">{m.checking}</p>}>
+                  <Suspense fallback={<p className="text-body text-muted-foreground">{m.checking}</p>}>
                     <GraphCanvas layoutToken={layoutToken} />
                   </Suspense>
                 </GraphContext.Provider>

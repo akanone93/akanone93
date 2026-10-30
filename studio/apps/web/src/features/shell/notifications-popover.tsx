@@ -29,11 +29,11 @@ export function NotificationsPopover(): ReactElement {
         </button>
       }
     >
-      {items.length === 0 && <p className="text-body text-secondary">{m.empty}</p>}
+      {items.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
       <ul className="flex flex-col gap-1">
         {items.map((item) => (
           <li key={item.id} className="text-body">
-            <a href={item.link} className={item.read ? "text-secondary" : "font-medium"}>
+            <a href={item.link} className={item.read ? "text-muted-foreground" : "font-medium"}>
               {item.title}
             </a>
           </li>

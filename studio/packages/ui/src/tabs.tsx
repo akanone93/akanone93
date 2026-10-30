@@ -25,8 +25,8 @@ export function Tabs({ tabs, ...root }: TabsProps): ReactElement {
             key={t.value}
             value={t.value}
             className={cx(
-              "h-full rounded-full px-3 text-label font-medium text-secondary",
-              "data-selected:bg-raised data-selected:text-primary data-selected:shadow-e1",
+              "h-full rounded-full px-3 text-label font-medium text-muted-foreground",
+              "data-selected:bg-raised data-selected:text-foreground data-selected:shadow-e1",
               focusRing,
             )}
           >

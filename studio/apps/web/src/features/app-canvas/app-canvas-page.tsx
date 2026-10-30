@@ -395,14 +395,14 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         <Button disabled={one === undefined} onClick={() => setDialogue({ kind: "entry" })}>
           {m.setEntry}
         </Button>
-        <output aria-live="polite" className="text-data text-secondary">
+        <output aria-live="polite" className="text-data text-muted-foreground">
           {message ?? m.selected(selected.size)}
         </output>
       </div>
       <div className="relative flex-1 overflow-hidden">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full touch-none" {...gestures.handlers} />
         {list.length === 0 && summaries.isSuccess ? (
-          <p className="pointer-events-none absolute start-4 top-4 text-secondary">{m.empty}</p>
+          <p className="pointer-events-none absolute start-4 top-4 text-muted-foreground">{m.empty}</p>
         ) : null}
         {detail?.plugin === undefined ? null : (
           <DetailCard

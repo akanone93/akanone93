@@ -61,7 +61,7 @@ export function ExperimentsPage(): ReactElement {
         </Link>
       </div>
       {(list.data?.experiments ?? []).length === 0 ? (
-        <p className="text-body text-secondary">{m.noExperiments}</p>
+        <p className="text-body text-muted-foreground">{m.noExperiments}</p>
       ) : (
         <Table
           caption={m.listTitle}

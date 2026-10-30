@@ -88,7 +88,7 @@ export function InstanceOverrides({
     <section className="flex flex-col gap-2" aria-label={m.overridesHeading}>
       <h3 className="text-body font-medium">{m.overridesHeading}</h3>
       {exposed.data?.props.size === 0 && exposed.data.slots.length === 0 && (
-        <p className="text-caption text-secondary">{m.overridesNone}</p>
+        <p className="text-caption text-muted-foreground">{m.overridesNone}</p>
       )}
       {[...(exposed.data?.props ?? [])].map(([name, type]) => (
         <Field key={name} label={name}>
@@ -103,7 +103,7 @@ export function InstanceOverrides({
         </Field>
       ))}
       {overriddenSlots.map((slot) => (
-        <div key={slot} className="flex items-center gap-2 text-caption text-secondary">
+        <div key={slot} className="flex items-center gap-2 text-caption text-muted-foreground">
           <span>{m.overrideSlot(slot)}</span>
           <Button variant="ghost" size="sm" disabled={!canEdit} onClick={() => run(resetSlotRecipe(id, slot), slot)}>
             {m.overrideReset(slot)}

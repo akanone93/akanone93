@@ -41,8 +41,8 @@ export function LaneDialog({
         title={m.laneTitle(title)}
         labels={{ close: m.close }}
       >
-        {site === undefined && <p className="text-body text-secondary">{m.laneUnavailable}</p>}
-        {site !== undefined && !canEdit && <p className="text-body text-secondary">{m.laneReadOnly}</p>}
+        {site === undefined && <p className="text-body text-muted-foreground">{m.laneUnavailable}</p>}
+        {site !== undefined && !canEdit && <p className="text-body text-muted-foreground">{m.laneReadOnly}</p>}
         <div className="mt-4 flex flex-wrap justify-end gap-2">
           <Button variant="secondary" disabled={!fixable} onClick={() => setChoosing(true)}>
             {m.laneRedirect}

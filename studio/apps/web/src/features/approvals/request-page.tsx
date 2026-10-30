@@ -41,7 +41,7 @@ function DecideForm({ request }: { readonly request: ApprovalRequest }): ReactEl
         <Button variant="secondary" disabled={!can} onClick={() => start("reject")}>
           {m.reject}
         </Button>
-        {!can && <span className="text-caption text-secondary">{m.decideNeedsPermission}</span>}
+        {!can && <span className="text-caption text-muted-foreground">{m.decideNeedsPermission}</span>}
       </div>
       {gate.problem !== undefined && (
         <p role="alert" className="text-body text-danger">
@@ -59,17 +59,17 @@ function Decisions({ request }: { readonly request: ApprovalRequest }): ReactEle
     <section className="flex flex-col gap-2">
       <h2 className="text-section">{m.decisionsHeading}</h2>
       {request.decisions.length === 0 ? (
-        <p className="text-body text-secondary">{m.noDecisions}</p>
+        <p className="text-body text-muted-foreground">{m.noDecisions}</p>
       ) : (
         <ul className="flex flex-col gap-2 text-body">
           {request.decisions.map((d) => (
             <li key={d.id}>
               <span className="font-medium">{d.decider}</span>{" "}
               {d.decision === "approve" ? m.decisionApprove : m.decisionReject}{" "}
-              <span className="text-secondary">
+              <span className="text-muted-foreground">
                 {fmt(d.decidedAt === undefined ? undefined : timestampDate(d.decidedAt), m.never)}
               </span>
-              {d.comment !== "" && <p className="text-secondary">{d.comment}</p>}
+              {d.comment !== "" && <p className="text-muted-foreground">{d.comment}</p>}
             </li>
           ))}
         </ul>
@@ -101,7 +101,7 @@ export function RequestPage(): ReactElement {
             <Status status={request.status} />
             <span className="font-mono">{request.subject}</span>
             <span>{request.environment}</span>
-            <span className="text-secondary">{request.requestedBy}</span>
+            <span className="text-muted-foreground">{request.requestedBy}</span>
           </p>
           {request.policyKeys.length > 0 && (
             <p className="text-body">

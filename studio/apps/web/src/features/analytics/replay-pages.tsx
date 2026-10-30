@@ -34,7 +34,7 @@ export function AnalyticsReplaysPage(): ReactElement {
       failed={replays.isError}
     >
       <AreaNav />
-      {rows.length === 0 && <p className="text-body text-secondary">{m.noReplays}</p>}
+      {rows.length === 0 && <p className="text-body text-muted-foreground">{m.noReplays}</p>}
       <Table
         caption={m.replaysTitle}
         heads={[m.replayStarted, m.replayRoute, m.replayDuration, m.replayEvents, m.replayTruncated]}
@@ -147,7 +147,7 @@ export function AnalyticsReplayPage(): ReactElement {
       <Link to="/o/$org/apps/$app/analytics/replays" params={{ org, app }} search={search}>
         {m.backReplays}
       </Link>
-      <p className="text-body text-secondary">{frame.route}</p>
+      <p className="text-body text-muted-foreground">{frame.route}</p>
       <ReplayCanvas frame={frame} label={m.replayCanvas} hidden={m.replayMasked} />
       <div className="flex items-center gap-3">
         <Button onClick={toggle}>{playing ? m.replayPause : m.replayPlay}</Button>

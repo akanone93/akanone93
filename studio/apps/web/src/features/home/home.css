@@ -74,7 +74,7 @@
 }
 
 .home-figure {
-  --tone: var(--color-accent);
+  --tone: var(--color-primary);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
@@ -93,7 +93,7 @@
 }
 
 .home-figure[data-tone="neutral"] {
-  --tone: var(--color-secondary);
+  --tone: var(--color-muted-foreground);
 }
 
 .home-figure-icon {
@@ -144,7 +144,7 @@
   position: absolute;
   inset: -70%;
   background-image: radial-gradient(
-    color-mix(in oklab, var(--color-accent) 40%, var(--color-strong)) 1.2px,
+    color-mix(in oklab, var(--color-primary) 40%, var(--color-strong)) 1.2px,
     transparent 1.6px
   );
   background-size: 18px 18px;
@@ -262,7 +262,7 @@
   white-space: nowrap;
   font-size: var(--text-label);
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-foreground);
   background-color: var(--color-raised);
   box-shadow: var(--shadow-float);
   transform-origin: 0 100%;

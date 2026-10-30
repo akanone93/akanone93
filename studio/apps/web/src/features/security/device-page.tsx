@@ -43,7 +43,7 @@ export function DevicePage(): ReactElement {
           <dl className="flex flex-col gap-1 text-body">
             {rows.map(([k, v]) => (
               <div key={k} className="flex gap-4">
-                <dt className="w-48 text-secondary">{k}</dt>
+                <dt className="w-48 text-muted-foreground">{k}</dt>
                 <dd className="font-mono">{v}</dd>
               </div>
             ))}

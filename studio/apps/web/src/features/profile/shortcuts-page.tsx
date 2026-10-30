@@ -16,7 +16,7 @@ export function ShortcutsPage() {
         <h1 id="shortcuts-title" className="text-screen">
           {m.shortcutsTitle}
         </h1>
-        <p className="text-body text-secondary">{m.shortcutsCaption}</p>
+        <p className="text-body text-muted-foreground">{m.shortcutsCaption}</p>
       </header>
       <table>
         <tbody>

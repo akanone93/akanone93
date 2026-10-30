@@ -203,14 +203,14 @@ function RustEditorBody({ e }: { readonly e: RustEditor }) {
           {m.useTemplate}
         </Button>
       </div>
-      <p role="status" aria-live="polite" className="text-body text-secondary">
+      <p role="status" aria-live="polite" className="text-body text-muted-foreground">
         {describeSession(server.state, m)}
       </p>
-      {!canEdit && <p className="text-caption text-secondary">{m.readOnly}</p>}
+      {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
       <div className="grid min-h-0 flex-1 grid-cols-3 gap-3">
         <div className="col-span-2 min-h-0">
           {open && (
-            <Suspense fallback={<p className="text-body text-secondary">{m.starting}</p>}>
+            <Suspense fallback={<p className="text-body text-muted-foreground">{m.starting}</p>}>
               <RustMonacoView
                 value={text}
                 readOnly={!canEdit}

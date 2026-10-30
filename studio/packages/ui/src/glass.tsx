@@ -24,7 +24,7 @@ export function GlassCapsule({ label, children, className, role = "group", onKey
       role={role}
       aria-label={label}
       onKeyDown={onKeyDown}
-      className={cx("glass flex h-(--density-capsule) items-center gap-2 rounded-full px-3 text-primary", className)}
+      className={cx("glass flex h-(--density-capsule) items-center gap-2 rounded-full px-3 text-foreground", className)}
     >
       {children}
     </div>
@@ -34,7 +34,7 @@ export function GlassCapsule({ label, children, className, role = "group", onKey
 /** Left and right panels, menus and the bottom drawer: floating glass, `radius.xl` (U3). Never nested in another glass surface. */
 export function FloatingPanel({ label, children, className }: GlassProps): ReactElement {
   return (
-    <section aria-label={label} className={cx("glass rounded-xl p-3 text-primary", className)}>
+    <section aria-label={label} className={cx("glass rounded-xl p-3 text-foreground", className)}>
       {children}
     </section>
   );

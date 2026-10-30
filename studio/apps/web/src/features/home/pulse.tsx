@@ -24,7 +24,7 @@ function Figure({
 }) {
   return (
     <div className="home-figure" data-tone={tone}>
-      <dt className="flex items-center gap-2 text-label text-secondary">
+      <dt className="flex items-center gap-2 text-label text-muted-foreground">
         <span className="home-figure-icon">
           <Icon name={icon} size="tab" />
         </span>
