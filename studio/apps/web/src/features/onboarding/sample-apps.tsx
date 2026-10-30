@@ -4,7 +4,8 @@
 import { ConnectError, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppProjectService } from "@plux/api";
-import { Button } from "@plux/ui";
+import { Button, Icon } from "@plux/ui";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia } from "@plux/ui/components/item";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
@@ -56,29 +57,39 @@ export function SampleApps({
     }
   };
   return (
-    <section aria-labelledby="onboarding-samples" className="flex flex-col gap-2">
-      <h3 id="onboarding-samples" className="text-section">
-        {m.samplesTitle}
-      </h3>
-      <p className="text-body text-muted-foreground">{m.samplesCaption}</p>
+    <section aria-labelledby="onboarding-samples" className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <h3 id="onboarding-samples" className="text-sm font-medium">
+          {m.samplesTitle}
+        </h3>
+        <p className="text-sm text-muted-foreground">{m.samplesCaption}</p>
+      </div>
       <ul aria-label={m.samplesLabel} className="flex flex-col gap-2">
         {list.map((sample) => (
-          <li key={sample.id} className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="secondary"
-              loading={working === sample.id}
-              loadingLabel={m.importing}
-              disabled={working !== undefined}
-              onClick={() => void run(sample.id)}
-            >
-              {m.importSample(sample.name)}
-            </Button>
-            <span className="text-caption text-muted-foreground">{sample.description}</span>
-          </li>
+          <Item key={sample.id} variant="muted" size="sm" render={<li />}>
+            <ItemMedia variant="icon">
+              <Icon name="package" />
+            </ItemMedia>
+            <ItemContent>
+              <ItemDescription>{sample.description}</ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Button
+                variant="secondary"
+                size="sm"
+                loading={working === sample.id}
+                loadingLabel={m.importing}
+                disabled={working !== undefined}
+                onClick={() => void run(sample.id)}
+              >
+                {m.importSample(sample.name)}
+              </Button>
+            </ItemActions>
+          </Item>
         ))}
       </ul>
       {refusal !== undefined && (
-        <p role="alert" className="text-body text-danger">
+        <p role="alert" className="text-sm text-destructive">
           {refusal}
         </p>
       )}

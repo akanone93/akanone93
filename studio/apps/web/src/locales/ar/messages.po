@@ -700,6 +700,12 @@ msgstr "{plugin}: {count} مستندات متغيّرة"
 msgid "library.scan.finding"
 msgstr "{pointer} ({category})"
 
+#. Badge on the crash-free figure: its change in percentage points against the week before, e.g. +0.2 pts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.trend"
+msgstr "{points} نقطة"
+
 #. Accessible name of the point from which a step's port connects onwards; port is the port's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -1772,6 +1778,12 @@ msgstr "الموافقات"
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.kind.approvals"
+msgstr "الموافقات"
+
+#. Sidebar link to the organisation's approvals inbox.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.sidebar.approvals"
 msgstr "الموافقات"
 
 #. Heading of the approvals inbox.
@@ -6648,6 +6660,12 @@ msgstr "اختصارات لوحة المفاتيح"
 msgid "help.shortcuts"
 msgstr "اختصارات لوحة المفاتيح"
 
+#. Item of the account menu that opens the keyboard shortcuts page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.profile.shortcuts"
+msgstr "اختصارات لوحة المفاتيح"
+
 #. Notice in the key extraction dialog when a lock the extraction needs is held by someone else.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -8880,6 +8898,12 @@ msgstr "الإشعارات"
 msgid "notify.inbox.title"
 msgstr "الإشعارات"
 
+#. Sidebar link to the notifications page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.sidebar.notifications"
+msgstr "الإشعارات"
+
 #. Retention note on the inbox page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -9174,6 +9198,12 @@ msgstr "الحزم الاختيارية"
 msgid "newApp.details.description-hint"
 msgstr "اختياري. يظهر في قائمة التطبيقات."
 
+#. Separator between the password form and the single sign-on buttons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.providers.or"
+msgstr "أو تابع باستخدام"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -9190,6 +9220,12 @@ msgstr "المؤسسة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.org.switcher"
+msgstr "المؤسسة"
+
+#. Heading of the organisation's pages in the sidebar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.sidebar.organisation"
 msgstr "المؤسسة"
 
 #. Visibility: every member of the organisation.
@@ -9239,6 +9275,12 @@ msgstr "بحث المؤسسة غير متاح."
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.settingsTitle"
 msgstr "إعدادات المؤسسة"
+
+#. Heading of the list of organisations in the organisation switcher of the sidebar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.org.list"
+msgstr "المؤسسات"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -12185,6 +12227,12 @@ msgstr "إظهار البدء"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.nav.shortcuts"
 msgstr "عرض اختصارات لوحة المفاتيح"
+
+#. Accessible name of the button that collapses and expands the sidebar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.sidebar.toggle"
+msgstr "إظهار الشريط الجانبي أو إخفاؤه"
 
 #. Button in the password field that shows the typed password.
 #. js-lingui-explicit-id

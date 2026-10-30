@@ -122,5 +122,35 @@ export function chromeMessages(i18n: I18n) {
       message: "Switch to the dark theme",
       comment: "Accessible name of the top bar button that switches the light page to the dark theme.",
     }),
+    organisations: i18n._({
+      id: "chrome.org.list",
+      message: "Organisations",
+      comment: "Heading of the list of organisations in the organisation switcher of the sidebar.",
+    }),
+    workspace: i18n._({
+      id: "chrome.sidebar.organisation",
+      message: "Organisation",
+      comment: "Heading of the organisation's pages in the sidebar.",
+    }),
+    approvals: i18n._({
+      id: "chrome.sidebar.approvals",
+      message: "Approvals",
+      comment: "Sidebar link to the organisation's approvals inbox.",
+    }),
+    notifications: i18n._({
+      id: "chrome.sidebar.notifications",
+      message: "Notifications",
+      comment: "Sidebar link to the notifications page.",
+    }),
+    toggleSidebar: i18n._({
+      id: "chrome.sidebar.toggle",
+      message: "Show or hide the sidebar",
+      comment: "Accessible name of the button that collapses and expands the sidebar.",
+    }),
+    shortcuts: i18n._({
+      id: "chrome.profile.shortcuts",
+      message: "Keyboard shortcuts",
+      comment: "Item of the account menu that opens the keyboard shortcuts page.",
+    }),
   };
 }

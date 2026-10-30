@@ -3,6 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { Count, Icon, Popover } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { useParams, useRouter } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { useInbox } from "../notifications/use-inbox.ts";
@@ -22,11 +23,15 @@ export function NotificationsPopover(): ReactElement {
     <Popover
       title={m.bell}
       trigger={
-        <button type="button" className="shell-icon relative">
-          <Icon name="bell" size="capsule" />
+        <Button variant="ghost" size="icon-sm" className="relative">
+          <Icon name="bell" />
           <span className="sr-only">{m.bell}</span>
-          {unread > 0 && <Count value={unread} tone="warning" label={m.unread(unread)} />}
-        </button>
+          {unread > 0 && (
+            <span className="absolute -top-1 -end-1">
+              <Count value={unread} tone="warning" label={m.unread(unread)} />
+            </span>
+          )}
+        </Button>
       }
     >
       {items.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}

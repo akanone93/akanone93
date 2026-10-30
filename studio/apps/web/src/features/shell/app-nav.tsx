@@ -2,6 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
+import { Icon, type IconName } from "@plux/ui";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@plux/ui/components/sidebar";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { appNavMessages } from "./app-nav.messages.ts";
@@ -32,12 +41,32 @@ export const appNavEntries: readonly AppNavEntry[] = [
   { id: "settings", to: "/o/$org/apps/$app/settings", permission: "app.read", orgWide: false },
 ];
 
+/** The icon beside each area in the sidebar. */
+const entryIcons: Readonly<Record<string, IconName>> = {
+  releases: "rocket-launch",
+  functions: "lightning",
+  data: "stack",
+  localisation: "globe",
+  design: "pencil-simple",
+  analytics: "pulse",
+  tests: "flask",
+  experiments: "funnel",
+  approvals: "check-circle",
+  publish: "paper-plane-tilt",
+  devices: "device-mobile",
+  security: "lock",
+  settings: "gear",
+};
+
 /** The entries a person with `permissions` may open: the same checks the route guards make. */
 export function visibleAppNav(permissions: readonly string[]): readonly AppNavEntry[] {
   return appNavEntries.filter((e) => permissions.includes(e.permission));
 }
 
-/** Navigation between the areas of the app in the URL; it renders only entries the person's permissions allow. */
+/**
+ * Navigation between the areas of the app in the URL, as a group of the sidebar; it renders only entries the person's
+ * permissions allow.
+ */
 export function AppNav({
   org,
   app,
@@ -55,19 +84,31 @@ export function AppNav({
   }
   const names = m as unknown as Readonly<Record<string, string>>;
   return (
-    <nav aria-label={m.label} className="mx-4 flex flex-wrap gap-4">
-      {entries.map((e) => (
-        <Link
-          key={e.id}
-          to={e.to}
-          params={{ org, app }}
-          {...(e.id === "approvals" && { search: { app } })}
-          className="text-body text-muted-foreground"
-          activeProps={{ "aria-current": "page", className: "text-body text-foreground" }}
-        >
-          {names[e.id]}
-        </Link>
-      ))}
+    <nav aria-label={m.label}>
+      <SidebarGroup>
+        <SidebarGroupLabel>{m.label}</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {entries.map((e) => (
+              <SidebarMenuItem key={e.id}>
+                <SidebarMenuButton
+                  render={
+                    <Link
+                      to={e.to}
+                      params={{ org, app }}
+                      {...(e.id === "approvals" && { search: { app } })}
+                      activeProps={{ "aria-current": "page", "data-active": true }}
+                    />
+                  }
+                >
+                  <Icon name={entryIcons[e.id] ?? "file"} />
+                  <span>{names[e.id]}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
     </nav>
   );
 }

@@ -28,8 +28,9 @@ export interface SelectProps {
 }
 
 /**
- * shadcn's Select (ADR-0103). Arrow keys, type-ahead and Escape come from Base UI. It is not modal, so the page keeps
- * its scroll bar and scroll position while the list is open.
+ * shadcn's Select (ADR-0103). Arrow keys, type-ahead and Escape come from Base UI. The list opens below the trigger
+ * and is not modal: Base UI locks the page's scroll for a modal list or one laid over its trigger, so this way the
+ * page keeps its scroll bar and scroll position while the list is open.
  */
 export function Select({
   options,
@@ -57,7 +58,7 @@ export function Select({
       <SelectTrigger {...(label !== undefined && { "aria-label": label })} className="w-full">
         <SelectValue {...(placeholder !== undefined && { placeholder })} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent alignItemWithTrigger={false}>
         <SelectGroup>
           {items.map((o) => (
             <SelectItem key={o.value} value={o.value}>

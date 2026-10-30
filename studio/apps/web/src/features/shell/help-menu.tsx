@@ -3,6 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { Icon, Menu } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { useRouter } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { notifyMessages } from "./notify.messages.ts";
@@ -15,9 +16,9 @@ export function HelpMenu({ docsUrl }: { readonly docsUrl: string | undefined }):
   return (
     <Menu
       trigger={
-        <button type="button" aria-label={m.help} className="shell-icon">
-          <Icon name="question" size="capsule" />
-        </button>
+        <Button variant="ghost" size="icon-sm" aria-label={m.help}>
+          <Icon name="question" />
+        </Button>
       }
       entries={[
         ...(docsUrl === undefined

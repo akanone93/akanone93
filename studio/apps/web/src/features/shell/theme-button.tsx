@@ -3,6 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { Icon } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { type ReactElement, useSyncExternalStore } from "react";
 import { isDark } from "../../lib/color-scheme.ts";
 import { useCommands } from "../../lib/commands/index.ts";
@@ -27,13 +28,13 @@ export function ThemeButton(): ReactElement | null {
     return null;
   }
   return (
-    <button
-      type="button"
-      className="shell-icon"
+    <Button
+      variant="ghost"
+      size="icon-sm"
       aria-label={dark ? m.themeToLight : m.themeToDark}
       onClick={() => void toggle.run()}
     >
-      <Icon name={dark ? "sun" : "moon"} size="capsule" />
-    </button>
+      <Icon name={dark ? "sun" : "moon"} />
+    </Button>
   );
 }

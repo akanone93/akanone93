@@ -78,20 +78,24 @@ describe("creating an organisation from the empty state [STU-015]", () => {
   });
 });
 
-describe("creating an organisation from the top bar [STU-015]", () => {
-  test("an administrator opens the dialog beside the switcher and switches to the new organisation", async () => {
+describe("creating an organisation from the organisation switcher [STU-015]", () => {
+  test("an administrator opens the dialog from the switcher and switches to the new organisation", async () => {
     const state: Upstream = { installationAdmin: true, creation: { calls: [] } };
     const r = renderApp(`/o/${"0192f000-0000-7000-8000-00000000000a"}`, state);
-    fireEvent.click(await screen.findByRole("button", { name: "New organisation" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Organisation" }));
+    fireEvent.click(await screen.findByRole("menuitem", { name: "New organisation" }));
     submit(await fill("Gamma", "gamma"));
     await waitFor(() => expect(state.creation?.calls).toEqual(["organisation:gamma:Gamma"]));
     await waitFor(() => expect(r.router.state.location.pathname).toBe(`/o/${orgNew}`));
-    expect((await screen.findByRole("combobox", { name: "Organisation" })).textContent).toContain("Gamma");
+    await waitFor(async () =>
+      expect((await screen.findByRole("button", { name: "Organisation" })).textContent).toContain("Gamma"),
+    );
   });
 
   test("the button is hidden from a person who is not an installation administrator", async () => {
     renderApp("/o/0192f000-0000-7000-8000-00000000000a", { installationAdmin: false });
-    await screen.findByRole("combobox", { name: "Organisation" });
-    expect(screen.queryByRole("button", { name: "New organisation" }) === null).toBe(true);
+    fireEvent.click(await screen.findByRole("button", { name: "Organisation" }));
+    await screen.findByRole("menuitem", { name: "Alpha Org" });
+    expect(screen.queryByRole("menuitem", { name: "New organisation" }) === null).toBe(true);
   });
 });

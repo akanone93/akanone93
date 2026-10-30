@@ -3,7 +3,8 @@
 
 import { useLingui } from "@lingui/react";
 import type { App } from "@plux/api";
-import { Button, Icon, Menu, type MenuEntry } from "@plux/ui";
+import { Icon, Menu, type MenuEntry } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { useRouter } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { appsMessages } from "./apps.messages.ts";
@@ -78,8 +79,8 @@ export function AppActions({
   return (
     <Menu
       trigger={
-        <Button size="sm" variant="ghost" aria-label={m.actions(app.name)}>
-          <Icon name="dots-three" size="capsule" />
+        <Button variant="ghost" size="icon-sm" aria-label={m.actions(app.name)}>
+          <Icon name="dots-three" />
         </Button>
       }
       entries={entries}

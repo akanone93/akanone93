@@ -65,16 +65,17 @@ export function Dialog({
     <ShadcnDialog {...root}>
       {trigger !== undefined && <DialogTrigger render={trigger} />}
       <DialogContent showCloseButton={false} className={sizeClass[size]}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description !== undefined && <DialogDescription>{description}</DialogDescription>}
-        </DialogHeader>
-        {children}
+        {/* First in reading order, as the old header had it; shadcn's place on screen, the top end corner. */}
         <DialogClose
           render={<Button variant="ghost" size="icon-sm" className="absolute top-2 end-2" aria-label={labels.close} />}
         >
           <Icon name="x" />
         </DialogClose>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {description !== undefined && <DialogDescription>{description}</DialogDescription>}
+        </DialogHeader>
+        {children}
       </DialogContent>
     </ShadcnDialog>
   );

@@ -5,65 +5,43 @@ import { createClient } from "@connectrpc/connect";
 import { useQuery } from "@connectrpc/connect-query";
 import { useLingui } from "@lingui/react";
 import { OrgService, PreferencesService, SearchService } from "@plux/api";
-import { Button, GlassCapsule, Icon, Menu, Select } from "@plux/ui";
+import { directionOf } from "@plux/i18n";
+import { SidebarInset, SidebarProvider } from "@plux/ui/components/sidebar";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
-import { Link, Outlet, useParams, useRouter } from "@tanstack/react-router";
-import { type ReactElement, useMemo, useState } from "react";
+import { Outlet, useParams, useRouter } from "@tanstack/react-router";
+import { type CSSProperties, useMemo, useState } from "react";
 import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
-import { CommandsProvider, commandMessages, createRegistry, shellCommands } from "../../lib/commands/index.ts";
+import { CommandsProvider, createRegistry, shellCommands } from "../../lib/commands/index.ts";
 import { loadUser } from "../../lib/guards.ts";
 import { loadedStudioVersion } from "../../lib/server-version.ts";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
-import { shellMessages } from "../../shell.messages.ts";
 import { createPendingCounter, PendingChangesProvider, usePendingTotal } from "../editor/pending-changes.tsx";
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
-import { AppNav } from "./app-nav.tsx";
-import { Mark } from "./brand.tsx";
+import { StudioSidebar } from "./app-sidebar.tsx";
 import { CommandPalette } from "./command-palette.tsx";
 import { CreateOrganisationDialog } from "./create-organisation-dialog.tsx";
-import { HelpMenu } from "./help-menu.tsx";
-import { NotificationsPopover } from "./notifications-popover.tsx";
 import { hitPath, type OrgSearchFn } from "./palette-search.ts";
-import { chromeMessages } from "./shell-chrome.messages.ts";
-import { ShortcutKey } from "./shortcut-key.tsx";
+import { SiteHeader } from "./site-header.tsx";
 import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
-import { ThemeButton } from "./theme-button.tsx";
 import { useServerVersion } from "./use-server-version.ts";
 import { useStudioEvents } from "./use-studio-events.ts";
 
 /** One empty list, so memoised commands do not rebuild while queries load. */
 const NONE: readonly never[] = [];
 
-/** The administration area's permission: the one its first page (settings) needs (STU-116). */
-const ADMIN_PERMISSION = "organization.manage";
+/** The sidebar's width and the header's height, as shadcn's dashboard-01 sets them. */
+const layoutSize = {
+  "--sidebar-width": "calc(var(--spacing) * 64)",
+  "--header-height": "calc(var(--spacing) * 12)",
+} as CSSProperties;
 
-/** A link to the administration area, shown only to people the area admits. */
-function AdminLink({
-  organisationId,
-  permissions,
-  label,
-}: {
-  readonly organisationId: string | undefined;
-  readonly permissions: readonly string[];
-  readonly label: string;
-}): ReactElement | null {
-  if (organisationId === undefined || !permissions.includes(ADMIN_PERMISSION)) {
-    return null;
-  }
-  return (
-    <Link to="/o/$org/admin" params={{ org: organisationId }} className="shell-nav">
-      <Icon name="gear" size="tab" />
-      {label}
-    </Link>
-  );
-}
-
-/** U9.2: the top bar (identity, organisation switcher, profile menu) over the page content. */
-
+/**
+ * U9.2: shadcn's sidebar layout (dashboard-01). The sidebar holds the organisation switcher, the navigation and the
+ * account menu; the header above the page holds where the person is, status, search, theme, notifications and help.
+ */
 export function ShellLayout() {
   const { i18n } = useLingui();
-  const m = chromeMessages(i18n);
   const { session } = useApp();
   const router = useRouter();
   const { org, app } = useParams({ strict: false }) as { org?: string; app?: string };
@@ -114,77 +92,49 @@ export function ShellLayout() {
     () => ({ registry: commands, states: commands.stateFor(permissions) }),
     [commands, permissions],
   );
-  const c = commandMessages(i18n);
+  const current = organisations.find((o) => o.id === currentId);
+  const signOut = () => void value.states.find((x) => x.command.id === "account.signout")?.command.run();
+  const side = directionOf(i18n.locale) === "rtl" ? "right" : "left";
 
   return (
     <PendingChangesProvider counter={pending}>
       <CommandsProvider value={value}>
-        <div className="flex min-h-screen flex-col">
-          <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
-          <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
-          <header>
-            <GlassCapsule label={m.topBar} className="m-4 flex items-center gap-3 px-3">
-              <a href="/" className="flex items-center gap-2 ps-1 pe-2">
-                <Mark />
-                <span className="font-wordmark text-section font-semibold">{shellMessages(i18n).appTitle}</span>
-              </a>
-              {organisations.length > 0 && (
-                <>
-                  <span aria-hidden="true" className="shell-divider" />
-                  <span className="shell-org">
-                    <Select
-                      label={m.organisation}
-                      value={currentId ?? ""}
-                      placeholder={m.organisation}
-                      options={organisations.map((o) => ({ value: o.id, label: o.name }))}
-                      onValueChange={(id) => router.history.push(`/o/${id}`)}
-                    />
-                  </span>
-                </>
-              )}
-              {organisations.length > 0 && user.data?.installationAdmin === true && (
-                <>
-                  <Button size="sm" variant="ghost" onClick={() => setCreatingOrganisation(true)}>
-                    <Icon name="plus" size="pill" />
-                    {m.newOrganisation}
-                  </Button>
-                  <CreateOrganisationDialog open={creatingOrganisation} onOpenChange={setCreatingOrganisation} />
-                </>
-              )}
-              <AdminLink organisationId={currentId} permissions={permissions} label={m.admin} />
-              <span className="flex-1" />
-              <StatusChips online={online} stream={events.state} waiting={waiting} />
-              <button type="button" className="shell-search" onClick={() => setPaletteOpen(true)}>
-                <Icon name="magnifying-glass" size="tab" />
-                {c.paletteOpen}
-                <ShortcutKey shortcut="mod+k" />
-              </button>
-              <ThemeButton />
-              <NotificationsPopover />
-              <HelpMenu docsUrl={version?.docs} />
-              <Menu
-                trigger={
-                  <button type="button" aria-label={m.profile} className="shell-icon shell-avatar">
-                    <Icon name="user" size="capsule" />
-                  </button>
-                }
-                entries={[
-                  { kind: "item", id: "profile", label: m.profile, onSelect: () => router.history.push("/me") },
-                  { kind: "separator", id: "sep" },
-                  {
-                    kind: "item",
-                    id: "signout",
-                    label: m.signOut,
-                    onSelect: () => void value.states.find((x) => x.command.id === "account.signout")?.command.run(),
-                  },
-                ]}
-              />
-            </GlassCapsule>
-            {org !== undefined && app !== undefined && <AppNav org={org} app={app} permissions={permissions} />}
-          </header>
-          <main className="flex-1 px-6 pb-16 pt-4">
-            <Outlet />
-          </main>
+        <SidebarProvider style={layoutSize}>
+          <StudioSidebar
+            variant="inset"
+            side={side}
+            organisations={organisations}
+            currentId={currentId}
+            org={org}
+            app={app}
+            permissions={permissions}
+            user={
+              user.data?.user === undefined
+                ? undefined
+                : { name: user.data.user.displayName, email: user.data.user.email }
+            }
+            onSwitch={(id) => router.history.push(`/o/${id}`)}
+            onCreateOrganisation={
+              user.data?.installationAdmin === true ? () => setCreatingOrganisation(true) : undefined
+            }
+            onSignOut={signOut}
+          />
+          <SidebarInset>
+            <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
+            <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
+            <SiteHeader
+              title={current?.name ?? ""}
+              status={<StatusChips online={online} stream={events.state} waiting={waiting} />}
+              docsUrl={version?.docs}
+              onSearch={() => setPaletteOpen(true)}
+            />
+            <div className="flex flex-1 flex-col">
+              <Outlet />
+            </div>
+          </SidebarInset>
+          {user.data?.installationAdmin === true && (
+            <CreateOrganisationDialog open={creatingOrganisation} onOpenChange={setCreatingOrganisation} />
+          )}
           <CommandPalette
             open={paletteOpen}
             onOpenChange={setPaletteOpen}
@@ -196,7 +146,7 @@ export function ShellLayout() {
               }
             }}
           />
-        </div>
+        </SidebarProvider>
       </CommandsProvider>
     </PendingChangesProvider>
   );

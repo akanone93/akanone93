@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: 2026 Plux contributors */
 /* SPDX-License-Identifier: AGPL-3.0-only */
 
-/* The apps of an organisation (STU-020 to STU-022, U16.3): each app's colour, its card, row and icon. */
+/* An app's colour and the picture at the top of its card (STU-021). Everything else is shadcn's components. */
 
 /* An app's colour: the sample brand colours, each measured against white text (porcelain.test.ts). */
 [data-tone="bank"] {
@@ -24,323 +24,75 @@
   --tone: var(--color-sample-fresh);
 }
 
-/* The card: a raised surface that lifts and opens the app anywhere it is pressed. */
-.app-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-3xl);
-  background-color: var(--color-raised);
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
-  isolation: isolate;
-  transition:
-    transform var(--duration-slow) var(--ease-emphasized),
-    box-shadow var(--duration-slow) var(--ease-emphasized);
-}
-
-.app-card:hover,
-.app-card:focus-within {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-float);
-}
-
-/* The name's link covers the whole card; the controls above it stay pressable. */
-.app-link::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  border-radius: inherit;
-}
-
-.app-link:focus-visible {
-  outline: none;
-}
-
-.app-card:has(.app-link:focus-visible) {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 3px;
-}
-
-.app-go {
-  opacity: 0;
-  translate: -4px 4px;
-  transition:
-    opacity var(--duration-base) var(--ease-standard),
-    translate var(--duration-base) var(--ease-standard);
-}
-
-[dir="rtl"] .app-go {
-  translate: 4px 4px;
-}
-
-.app-card:hover .app-go {
-  opacity: 1;
-  translate: 0 0;
-}
-
-/* The picture: the app's colour washed over the card, a quiet dot grid, the icon or the phone in its middle. */
+/* The picture: a light wash of the app's colour over the muted surface, the icon or a phone in its middle. */
 .app-visual {
   position: relative;
   display: grid;
   place-items: center;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 8;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 70% 90% at 50% 110%, color-mix(in oklab, var(--tone) 34%, transparent), transparent 70%),
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--tone) 6%, var(--color-raised)),
-      color-mix(in oklab, var(--tone) 16%, var(--color-raised))
-    );
-}
-
-.app-visual::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(color-mix(in oklab, var(--tone) 35%, transparent) 1px, transparent 1.5px);
-  background-size: 16px 16px;
-  mask-image: radial-gradient(ellipse 60% 70% at 50% 60%, black, transparent);
+    radial-gradient(ellipse 60% 80% at 50% 100%, color-mix(in oklch, var(--tone) 22%, transparent), transparent 70%),
+    var(--muted);
+  border-block-end: 1px solid var(--border);
 }
 
 .app-icon {
-  position: relative;
   display: grid;
   place-items: center;
-  inline-size: 72px;
-  block-size: 72px;
-  border-radius: 22px;
+  inline-size: 56px;
+  block-size: 56px;
+  border-radius: calc(var(--radius) * 1.6);
   overflow: hidden;
   color: var(--color-sample-on-app);
-  background:
-    var(--surface-glass-sheen), linear-gradient(140deg, color-mix(in oklab, var(--tone) 72%, white), var(--tone));
+  background: var(--tone);
   box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--tone) 70%, black) inset,
-    0 1px 0 color-mix(in oklab, white 35%, transparent) inset,
-    0 18px 32px -14px color-mix(in oklab, var(--tone) 85%, black);
-  font-family: var(--font-wordmark);
+    0 1px 2px 0 rgb(0 0 0 / 0.05),
+    0 8px 16px -8px color-mix(in oklch, var(--tone) 70%, black);
   font-weight: 600;
-  font-size: var(--text-screen);
-  transition: transform var(--duration-slow) var(--ease-emphasized);
+  font-size: 1.5rem;
+  transition: transform 200ms ease;
 }
 
 .app-icon-lg {
-  inline-size: 88px;
-  block-size: 88px;
-  border-radius: 26px;
-  font-size: var(--text-display-sm);
+  inline-size: 64px;
+  block-size: 64px;
+  font-size: 1.75rem;
 }
 
 .app-icon-sm {
-  inline-size: 44px;
-  block-size: 44px;
-  border-radius: 14px;
-  font-size: var(--text-title);
-  box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--tone) 70%, black) inset,
-    0 8px 16px -10px color-mix(in oklab, var(--tone) 85%, black);
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
-.app-card:hover .app-icon {
-  transform: translateY(-6px) rotate(-4deg) scale(1.04);
+li:hover .app-visual .app-icon {
+  transform: translateY(-3px);
 }
 
-/* A screenshot stands as a small phone rising out of the card's foot. */
+/* A screenshot stands as a small phone rising out of the foot of the picture. */
 .app-phone {
   position: absolute;
-  inset-block-start: 22%;
-  inline-size: 38%;
+  inset-block-start: 18%;
+  inline-size: 30%;
   block-size: 120%;
-  border-radius: 22px;
+  border-radius: calc(var(--radius) * 1.6);
   overflow: hidden;
-  background-color: var(--color-raised);
+  background-color: var(--background);
   box-shadow:
-    0 0 0 5px var(--color-raised),
-    0 0 0 6px var(--color-hairline),
-    0 24px 40px -18px color-mix(in oklab, var(--tone) 80%, black);
-  transition: transform var(--duration-slow) var(--ease-emphasized);
-}
-
-.app-card:hover .app-phone {
-  transform: translateY(-8px);
-}
-
-/* Over the picture: the live releases at the start, pin and actions at the end. */
-.app-card-top {
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-2);
-  padding: var(--spacing-3);
-}
-
-.app-card-controls {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  gap: var(--spacing-1);
-  margin-inline-start: auto;
-}
-
-.app-card-controls button,
-.app-row .app-pin,
-.app-row [aria-haspopup] {
-  position: relative;
-  z-index: 2;
-}
-
-.app-card-controls button {
-  inline-size: 34px;
-  block-size: 34px;
-  padding: 0;
-  color: var(--color-foreground);
-  background-color: var(--surface-glass-fill);
-  backdrop-filter: var(--surface-glass-backdrop);
-  box-shadow:
-    0 0 0 1px var(--surface-glass-inner) inset,
-    var(--shadow-e1);
-}
-
-.app-pin[aria-pressed="true"] {
-  color: var(--color-on-accent);
-  background-color: var(--color-primary);
-}
-
-.app-card-controls .app-pin[aria-pressed="true"] {
-  color: var(--color-on-accent);
-  background-color: var(--color-primary);
-}
-
-/* A release pill: a dot that is green while the environment serves a release. */
-.app-env {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: var(--text-tag);
-  color: var(--color-foreground);
-  background-color: var(--surface-glass-fill);
-  backdrop-filter: var(--surface-glass-backdrop);
-  box-shadow: 0 0 0 1px var(--surface-glass-inner) inset;
-}
-
-.app-env::before {
-  content: "";
-  inline-size: 6px;
-  block-size: 6px;
-  border-radius: 999px;
-  background-color: var(--color-tertiary);
-}
-
-.app-env[data-live="true"]::before {
-  background-color: var(--color-success);
-  box-shadow: 0 0 0 3px var(--color-success-surface);
-}
-
-.app-env-none {
-  margin: 0;
-  color: var(--color-muted-foreground);
-}
-
-/* The card's figures: two values side by side, label over value. */
-.app-figures {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-2);
-  margin: 0;
-}
-
-.app-figures > div {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 2px;
-  padding: var(--spacing-3) var(--spacing-4);
-  border-radius: var(--radius-xl);
-  background-color: var(--color-canvas);
-}
-
-/* The label comes first in the markup, so it is read first; it is drawn under the value. */
-.app-figures dt {
-  font-size: var(--text-caption);
-  color: var(--color-muted-foreground);
-}
-
-.app-figures dd {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-title);
-  line-height: var(--text-title--line-height);
-  color: var(--color-foreground);
-}
-
-/* A row of the list view. */
-.app-row {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-3) var(--spacing-4);
-  border-radius: var(--radius-2xl);
-  background-color: var(--color-raised);
-  box-shadow: var(--shadow-soft);
-  transition: box-shadow var(--duration-base) var(--ease-standard);
-}
-
-.app-row:hover {
-  box-shadow: var(--shadow-float);
+    0 0 0 4px var(--background),
+    0 0 0 5px var(--border),
+    0 12px 24px -12px rgb(0 0 0 / 0.25);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-card,
-  .app-icon,
-  .app-phone,
-  .app-go {
+  .app-icon {
     transition: none;
   }
 
-  .app-card:hover,
-  .app-card:focus-within,
-  .app-card:hover .app-icon,
-  .app-card:hover .app-phone {
+  li:hover .app-visual .app-icon {
     transform: none;
   }
-}
-
-/* The toolbar: the search grows, the filters keep their width, the toggles sit in tracks. */
-.apps-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-3);
-  min-inline-size: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.apps-search {
-  flex: 1 1 18rem;
-  min-inline-size: 0;
-}
-
-.apps-filter {
-  inline-size: 10rem;
-}
-
-.apps-segments {
-  display: inline-flex;
-  gap: 2px;
-  margin: 0;
-  padding: 3px;
-  border: 0;
-  border-radius: 999px;
-  background-color: var(--color-canvas);
-  box-shadow: 0 0 0 1px var(--color-hairline) inset;
 }

@@ -388,5 +388,10 @@ export function authMessages(i18n: I18n) {
       message: "Offline",
       comment: "Small tag over the caption of the sample delivery screen: the phone has no connection.",
     }),
+    orContinue: i18n._({
+      id: "auth.providers.or",
+      message: "Or continue with",
+      comment: "Separator between the password form and the single sign-on buttons.",
+    }),
   };
 }

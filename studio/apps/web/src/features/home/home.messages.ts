@@ -162,5 +162,13 @@ export function homeMessages(i18n: I18n) {
         values: { rate },
         comment: "Chip on the top layer of the home picture; rate is a formatted percentage.",
       }),
+    pulseTrend: (points: string) =>
+      i18n._({
+        id: "home.pulse.trend",
+        message: "{points} pts",
+        values: { points },
+        comment:
+          "Badge on the crash-free figure: its change in percentage points against the week before, e.g. +0.2 pts.",
+      }),
   };
 }

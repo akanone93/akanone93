@@ -7,6 +7,54 @@
    radii and shadows are tokens; the geometry of the miniatures is their own. Only transforms and
    opacity animate. */
 
+/* The ring keeps the values it was designed with (ADR-0103): Studio's theme moved to shadcn's, the ring did not. */
+.sr-scene {
+  --color-raised: #ffffff;
+  --color-foreground: #11142a;
+  --color-primary: #5b3df5;
+  --color-muted-foreground: #3c4262;
+  --color-tertiary: #555c7c;
+  --color-hairline: rgba(17, 20, 42, 0.08);
+  --color-strong: rgba(17, 20, 42, 0.16);
+  --color-hover: rgba(17, 20, 42, 0.05);
+  --color-success: #0b7a5a;
+  --radius-sm: 10px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-3xl: 44px;
+  --radius-full: 9999px;
+  --shadow-e1: 0 1px 2px rgba(17, 20, 42, 0.08), 0 2px 8px -2px rgba(17, 20, 42, 0.1);
+  --shadow-soft: 0 1px 2px rgba(17, 20, 42, 0.04), 0 12px 32px -16px rgba(48, 34, 150, 0.16);
+  --surface-glass-solid: rgba(255, 255, 255, 0.96);
+  --surface-glass-sheen: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0.2) 40%,
+    rgba(255, 255, 255, 0.04)
+  );
+}
+
+[data-theme="dark"] .sr-scene {
+  --color-raised: #141726;
+  --color-foreground: #f5f6fa;
+  --color-primary: #8b74ff;
+  --color-muted-foreground: #b4bad0;
+  --color-tertiary: #a3aac2;
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-strong: rgba(255, 255, 255, 0.16);
+  --color-hover: rgba(255, 255, 255, 0.06);
+  --color-success: #38d9a9;
+  --shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.16), 0 2px 8px -2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 32px -16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  --surface-glass-solid: rgba(20, 23, 38, 0.96);
+  --surface-glass-sheen: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0)
+  );
+}
+
 /* ── The scene ─────────────────────────────────────────────────────────────────────────────── */
 
 .sr-scene {
@@ -15,7 +63,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2);
+  gap: calc(var(--spacing) * 2);
   inline-size: min(100%, 600px);
   block-size: 100%;
   min-block-size: 720px;
@@ -70,7 +118,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-1);
+  gap: calc(var(--spacing) * 1);
   opacity: 0;
   translate: 0 8px;
   transition:
@@ -89,7 +137,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-block-end: var(--spacing-2);
+  margin-block-end: calc(var(--spacing) * 2);
   padding: 5px 12px;
   border-radius: var(--radius-full);
   background-color: color-mix(in oklab, var(--app) 10%, var(--color-raised));

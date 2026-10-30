@@ -49,7 +49,8 @@ screen's labels or flow updates its guide in the same pull request.
 - **Strings.** No literal UI text, raw style values, physical-direction properties or `innerHTML`:
   Biome plugins in `lint/*.grit` reject them (`no-literal-ui-strings`, `no-raw-values`,
   `logical-properties`, `no-inner-html`), and `lint/lint.test.ts` proves each with a good and a bad
-  fixture in `lint/fixtures/`. Use the components of `packages/ui` (read `CATALOGUE.md` first).
+  fixture in `lint/fixtures/`. Use shadcn's components and the components of `packages/ui` (read `CATALOGUE.md`
+  first).
 - **Lingui recipe for a new string.**
   1. Add it to the area's `<area>.messages.ts` as `i18n._({ id: "<area>.<name>", message: "…", comment: "…" })`
      inside the `…Messages(i18n: I18n)` function; the stable key and the translator comment are
@@ -72,8 +73,13 @@ screen's labels or flow updates its guide in the same pull request.
 - **Canvas ownership.** The canvas draws and hit-tests; React does not render the scene. A property
   edit reaches the scene as a JSON Patch from the edit pipeline (`features/editor/`), never as props.
   Tests assert on the scene model (`packages/canvas`, `buildSceneModel`), not on pixels.
-- **Generated files** (`*.gen.ts`, `theme.gen.css`, `packages/api` clients, `icons.gen.ts`) come from
-  `make gen`, `make studio-gen-theme` and `make studio-gen-icons`; never edit them.
+- **Generated files** (`*.gen.ts`, `theme.gen.css`, `packages/api` clients) come from `make gen` and
+  `make studio-gen-theme`; never edit them.
+- **shadcn/ui** (ADR-0103). The interface is built from shadcn's components (`@plux/ui/components/<name>`),
+  layouts and blocks as shadcn ships them; load the shadcn skill (`.claude/skills/shadcn`) before changing the
+  interface. Add a component with the shadcn CLI, or, where `ui.shadcn.com` is out of reach, by generating it from
+  `shadcn-ui/ui`'s Base UI sources with the CLI's own transforms (ADR-0103). Keep local changes to shadcn's
+  files to the ones ADR-0103 lists.
 
 ## Rules for tests
 

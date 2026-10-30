@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 
 afterEach(cleanup);
@@ -316,7 +316,8 @@ describe("[STU-116] organisation administration", () => {
     };
     open("/audit?action=role.create&actor=grace", state);
     await screen.findByText("Grace");
-    expect(screen.queryByText("Ada")).toBeNull();
+    // The sidebar names the signed-in person (Ada); the audit rows are in the page's main region.
+    expect(within(screen.getByRole("main")).queryByText("Ada")).toBeNull();
     expect(calls(state)[0]).toBe('listAuditEntries:{"filter":"action = \\"role.create\\""}');
     expect(screen.getByRole("button", { name: "Export CSV" })).toBeTruthy();
   });

@@ -10,8 +10,8 @@ afterEach(cleanup);
 describe("[STU-116] administration link in the shell", () => {
   test("a person who holds the permission the admin area needs sees the link to it", async () => {
     renderApp(`/o/${orgA}`, { permissions: ["organization.manage"] });
-    const banner = await screen.findByRole("banner");
-    const link = await within(banner).findByRole("link", { name: "Administration" });
+    const nav = await screen.findByRole("navigation", { name: "Studio navigation" });
+    const link = await within(nav).findByRole("link", { name: "Administration" });
     expect(link.getAttribute("href")).toBe(`/o/${orgA}/admin`);
   });
 
@@ -19,6 +19,7 @@ describe("[STU-116] administration link in the shell", () => {
     renderApp(`/o/${orgA}`, { permissions: ["members.manage"] });
     const banner = await screen.findByRole("banner");
     await waitFor(() => expect(within(banner).getByText("Alpha Org")).toBeDefined());
-    expect(within(banner).queryByRole("link", { name: "Administration" })).toBeNull();
+    const nav = screen.getByRole("navigation", { name: "Studio navigation" });
+    expect(within(nav).queryByRole("link", { name: "Administration" })).toBeNull();
   });
 });

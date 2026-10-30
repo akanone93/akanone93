@@ -21,10 +21,12 @@ export interface IconProps {
   /** Accessible name from the message catalogue. Without it the icon is decorative and hidden from assistive technology. */
   readonly label?: string;
   readonly className?: string;
+  /** shadcn's placement inside a button or badge, which spaces the icon from the text. */
+  readonly "data-icon"?: "inline-start" | "inline-end";
 }
 
 /** A lucide icon by its Studio name (ADR-0103). Mirrors under RTL when the icon has a direction. */
-export function Icon({ name, size = "tab", label, className }: IconProps): ReactElement {
+export function Icon({ name, size = "tab", label, className, "data-icon": placement }: IconProps): ReactElement {
   const mirrors = iconMirrors(name);
   const labelled = label !== undefined && label !== "";
   const Glyph = icons[name];
@@ -32,6 +34,7 @@ export function Icon({ name, size = "tab", label, className }: IconProps): React
     <Glyph
       focusable="false"
       data-icon-name={name}
+      {...(placement !== undefined && { "data-icon": placement })}
       data-mirrors={mirrors}
       {...(labelled ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
       className={cx("shrink-0", sizeClass[size], mirrors && "rtl:-scale-x-100", className)}

@@ -5,102 +5,87 @@ import { Code, ConnectError, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { FederationService, IdentityService, type MfaChallenge, type SignInProvider } from "@plux/api";
 import { Button, Field, Icon, type IconName, Input } from "@plux/ui";
+import { Alert, AlertTitle } from "@plux/ui/components/alert";
+import { FieldGroup, FieldSeparator } from "@plux/ui/components/field";
+import { InputGroupButton } from "@plux/ui/components/input-group";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
-import { domAnimation, LazyMotion } from "motion/react";
 import { type ReactNode, useMemo, useState } from "react";
 import { shownError } from "../../lib/field-error.ts";
 import { forgetUser, safeNext } from "../../lib/guards.ts";
 import type { Session } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
-import { Mark, Rise, RisingWords } from "../shell/brand.tsx";
 import { authMessages } from "./auth.messages.ts";
 import { codeSchema, signInSchema } from "./auth.schema.ts";
 import { ScreenRing } from "./screen-ring.tsx";
-import "./sign-in.css";
 import { getAssertion } from "./webauthn.ts";
 
 type Messages = ReturnType<typeof authMessages>;
 
 function FormError({ children }: { children: ReactNode }) {
   return (
-    <p role="alert" className="text-body text-danger">
-      {children}
-    </p>
+    <Alert variant="destructive">
+      <Icon name="warning-circle" />
+      <AlertTitle>{children}</AlertTitle>
+    </Alert>
   );
 }
 
-/** One of the short facts in the footer of the left half. */
+/** One of the short facts at the foot of the form column. */
 function Fact({ icon, children }: { icon: IconName; children: ReactNode }) {
   return (
-    <li className="flex items-center gap-2 text-caption text-tertiary">
-      <Icon name={icon} size="tab" />
+    <li className="flex items-center gap-1.5">
+      <Icon name={icon} size="pill" />
       {children}
     </li>
   );
 }
 
 /**
- * The sign-in page (U16.2): on a white page, the left half holds the mark, the promise, the form
- * and a quiet footer of facts; on the right, sample apps built with Plux turn on a ring.
+ * The sign-in page: shadcn's login-02 block. The form column holds the product's name, the form and a quiet row of
+ * facts; the other half shows sample apps built with Plux turning on a ring (U16.2), unchanged.
  */
 function SignInFrame({ children }: { children: ReactNode }) {
-  const { i18n } = useLingui();
-  const m = authMessages(i18n);
-  const lineOne = m.heroLineOne;
+  const m = authMessages(useLingui().i18n);
   return (
-    <LazyMotion features={domAnimation} strict>
-      <div className="grid min-h-screen bg-raised lg:grid-cols-12">
-        <div className="flex flex-col px-6 py-8 sm:px-12 lg:col-span-6 lg:px-16 xl:px-24">
-          <header className="flex h-10 shrink-0 items-center gap-3">
-            <Mark />
-            <span className="font-wordmark text-section font-semibold">{m.wordmark}</span>
-          </header>
-          <main className="signin-main flex flex-1 flex-col justify-center py-12">
-            <div className="flex w-full max-w-dialog-md flex-col">
-              <h1 className="signin-title text-display-sm lg:text-display">
-                <RisingWords text={lineOne} from={0} className="block" />
-                <RisingWords text={m.heroLineTwo} from={lineOne.split(" ").length} className="block text-tertiary" />
-              </h1>
-              <Rise delay={0.5} className="mt-5">
-                <p className="max-w-auth-form text-lead text-muted-foreground">{m.heroLead}</p>
-              </Rise>
-              <Rise delay={0.7} className="signin-form mt-12 w-full max-w-auth-form">
-                {children}
-              </Rise>
-            </div>
-          </main>
-          <Rise delay={0.9}>
-            <footer>
-              <ul className="flex flex-wrap gap-x-6 gap-y-2">
-                <Fact icon="key">{m.factSigned}</Fact>
-                <Fact icon="lightning">{m.factInstant}</Fact>
-                <Fact icon="check-circle">{m.factNative}</Fact>
-              </ul>
-            </footer>
-          </Rise>
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <span className="flex items-center gap-2 font-medium">
+            <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Icon name="stack" size="pill" />
+            </span>
+            {m.wordmark}
+          </span>
         </div>
-        <div className="relative hidden overflow-hidden lg:col-span-6 lg:block">
-          <ScreenRing />
-        </div>
+        <main className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">{children}</div>
+        </main>
+        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground md:justify-start">
+          <Fact icon="key">{m.factSigned}</Fact>
+          <Fact icon="lightning">{m.factInstant}</Fact>
+          <Fact icon="check-circle">{m.factNative}</Fact>
+        </ul>
       </div>
-    </LazyMotion>
+      <div className="relative hidden overflow-hidden bg-muted lg:block">
+        <ScreenRing />
+      </div>
+    </div>
   );
 }
 
 /** The password field's button that shows or hides what was typed. */
 function RevealButton({ shown, onToggle, m }: { shown: boolean; onToggle: () => void; m: Messages }) {
   return (
-    <button
-      type="button"
+    <InputGroupButton
+      size="icon-xs"
       aria-label={shown ? m.hidePassword : m.showPassword}
       aria-pressed={shown}
       onClick={onToggle}
-      className="grid size-8 place-items-center rounded-md text-tertiary transition duration-fast hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
     >
-      <Icon name={shown ? "eye-slash" : "eye"} size="tab" />
-    </button>
+      <Icon name={shown ? "eye-slash" : "eye"} />
+    </InputGroupButton>
   );
 }
 
@@ -172,60 +157,60 @@ export function SignInPage() {
 
   return (
     <SignInFrame>
-      <section aria-labelledby="signin-title" className="flex flex-col gap-5">
-        <h2 id="signin-title" className="text-section font-semibold">
-          {m.signInTitle}
-        </h2>
+      <section aria-labelledby="signin-title" className="flex flex-col gap-6">
         <form
           noValidate
-          className="flex flex-col gap-5"
           onSubmit={(event) => {
             event.preventDefault();
             void passwordForm.handleSubmit();
           }}
         >
-          <passwordForm.Field name="email">
-            {(field) => (
-              <Field label={m.email} error={shownError(field.state.meta, submitted)}>
-                <Input
-                  size="lg"
-                  leading="user"
-                  placeholder={m.emailPlaceholder}
-                  type="email"
-                  autoComplete="username"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                />
-              </Field>
-            )}
-          </passwordForm.Field>
-          <passwordForm.Field name="password">
-            {(field) => (
-              <Field label={m.password} error={shownError(field.state.meta, submitted)}>
-                <Input
-                  size="lg"
-                  leading="lock"
-                  trailing={<RevealButton shown={reveal} onToggle={() => setReveal((v) => !v)} m={m} />}
-                  type={reveal ? "text" : "password"}
-                  autoComplete="current-password"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                />
-              </Field>
-            )}
-          </passwordForm.Field>
-          {failure !== null && <FormError>{failure}</FormError>}
-          <passwordForm.Subscribe selector={(s) => s.isSubmitting}>
-            {(submitting) => (
-              <Button type="submit" variant="primary" size="lg" loading={submitting} loadingLabel={m.submitting}>
-                {m.submit}
-              </Button>
-            )}
-          </passwordForm.Subscribe>
+          <FieldGroup>
+            <div className="flex flex-col items-center gap-1 text-center">
+              <h1 id="signin-title" className="text-2xl font-bold">
+                {m.signInTitle}
+              </h1>
+              <p className="text-sm text-balance text-muted-foreground">{m.heroLead}</p>
+            </div>
+            <passwordForm.Field name="email">
+              {(field) => (
+                <Field label={m.email} error={shownError(field.state.meta, submitted)}>
+                  <Input
+                    placeholder={m.emailPlaceholder}
+                    type="email"
+                    autoComplete="username"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                  />
+                </Field>
+              )}
+            </passwordForm.Field>
+            <passwordForm.Field name="password">
+              {(field) => (
+                <Field label={m.password} error={shownError(field.state.meta, submitted)}>
+                  <Input
+                    trailing={<RevealButton shown={reveal} onToggle={() => setReveal((v) => !v)} m={m} />}
+                    type={reveal ? "text" : "password"}
+                    autoComplete="current-password"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                  />
+                </Field>
+              )}
+            </passwordForm.Field>
+            {failure !== null && <FormError>{failure}</FormError>}
+            <passwordForm.Subscribe selector={(s) => s.isSubmitting}>
+              {(submitting) => (
+                <Button type="submit" className="w-full" loading={submitting} loadingLabel={m.submitting}>
+                  {m.submit}
+                </Button>
+              )}
+            </passwordForm.Subscribe>
+            <Providers m={m} />
+          </FieldGroup>
         </form>
-        <Providers m={m} />
       </section>
     </SignInFrame>
   );
@@ -251,9 +236,9 @@ function FactorStep(props: {
   const submitted = useStore(form.store, (state) => state.submissionAttempts > 0);
   return (
     <section aria-labelledby="factor-title" className="flex flex-col gap-6">
-      <h2 id="factor-title" className="text-section font-semibold">
+      <h1 id="factor-title" className="text-center text-2xl font-bold">
         {m.factorTitle}
-      </h2>
+      </h1>
       {challenge.kinds.includes("totp") && (
         <form
           noValidate
@@ -267,7 +252,6 @@ function FactorStep(props: {
             {(field) => (
               <Field label={m.code} error={shownError(field.state.meta, submitted)}>
                 <Input
-                  size="lg"
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   value={field.state.value}
@@ -277,13 +261,13 @@ function FactorStep(props: {
               </Field>
             )}
           </form.Field>
-          <Button type="submit" variant="primary" size="lg">
+          <Button type="submit" className="w-full">
             {m.verify}
           </Button>
         </form>
       )}
       {challenge.kinds.includes("webauthn") && (
-        <Button type="button" variant="secondary" size="lg" onClick={() => void props.onPasskey()}>
+        <Button type="button" variant="secondary" className="w-full" onClick={() => void props.onPasskey()}>
           {m.passkey}
         </Button>
       )}
@@ -321,13 +305,22 @@ function Providers({ m }: { m: Messages }) {
     return null;
   }
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="sr-only">{m.providers}</legend>
-      {list.map((p) => (
-        <Button key={p.id} type="button" variant="secondary" size="lg" onClick={() => void startProvider(session, p)}>
-          {m.continueWith(p.name)}
-        </Button>
-      ))}
-    </fieldset>
+    <>
+      <FieldSeparator>{m.orContinue}</FieldSeparator>
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="sr-only">{m.providers}</legend>
+        {list.map((p) => (
+          <Button
+            key={p.id}
+            type="button"
+            variant="secondary"
+            className="w-full"
+            onClick={() => void startProvider(session, p)}
+          >
+            {m.continueWith(p.name)}
+          </Button>
+        ))}
+      </fieldset>
+    </>
   );
 }

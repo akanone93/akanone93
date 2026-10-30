@@ -6,7 +6,19 @@ import { createClient } from "@connectrpc/connect";
 import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { useLingui } from "@lingui/react";
 import { AppService, PreferencesSchema, PreferencesService } from "@plux/api";
-import { Button, Meter, StatusPill } from "@plux/ui";
+import { Button, Icon, Meter } from "@plux/ui";
+import { Badge } from "@plux/ui/components/badge";
+import { Button as LinkButton } from "@plux/ui/components/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@plux/ui/components/card";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@plux/ui/components/item";
 import { useQuery as useQueryRq } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
@@ -35,6 +47,62 @@ function stepText(m: Messages, key: string): { readonly label: string; readonly 
     default:
       return undefined;
   }
+}
+
+/** One step of the checklist: shadcn's Item with its state and, while it is open, the action that does it. */
+function StepItem({
+  step,
+  m,
+  org,
+  app,
+  onCreate,
+}: {
+  readonly step: { readonly key: string; readonly done: boolean };
+  readonly m: Messages;
+  readonly org: string;
+  readonly app: { readonly id: string; readonly name: string } | undefined;
+  /** Opens the create dialog; undefined when the person may not create apps. */
+  readonly onCreate: (() => void) | undefined;
+}): ReactElement | null {
+  const text = stepText(m, step.key);
+  if (text === undefined) {
+    return null;
+  }
+  const open = !step.done;
+  return (
+    <Item variant="outline" render={<li />}>
+      <ItemMedia>
+        <Badge variant={step.done ? "secondary" : "outline"} className="w-20 justify-start">
+          <Icon
+            name={step.done ? "check-circle" : "clock"}
+            data-icon="inline-start"
+            className={step.done ? "text-success" : "text-muted-foreground"}
+          />
+          {step.done ? m.statusDone : m.statusTodo}
+        </Badge>
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>{text.label}</ItemTitle>
+        <ItemDescription>{text.hint}</ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        {open && step.key === "create_app" && onCreate !== undefined && (
+          <Button size="sm" onClick={onCreate}>
+            {m.newApp}
+          </Button>
+        )}
+        {open && step.key !== "create_app" && app !== undefined && (
+          <LinkButton
+            variant="outline"
+            size="sm"
+            render={<Link to="/o/$org/apps/$app" params={{ org, app: app.id }} />}
+          >
+            {m.continueIn(app.name)}
+          </LinkButton>
+        )}
+      </ItemActions>
+    </Item>
+  );
 }
 
 /**
@@ -82,12 +150,13 @@ export function OnboardingChecklist({
     );
   if (dismissed) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="secondary" onClick={() => setDismissed(false)}>
+      <div className="flex items-center gap-2 px-4 lg:px-6">
+        <Button variant="secondary" size="sm" onClick={() => setDismissed(false)}>
+          <Icon name="rocket-launch" data-icon="inline-start" />
           {m.reopen}
         </Button>
         {failed && (
-          <p role="alert" className="text-body text-danger">
+          <p role="alert" className="text-sm text-destructive">
             {m.saveFailed}
           </p>
         )}
@@ -96,54 +165,55 @@ export function OnboardingChecklist({
   }
   const app = first.data?.apps[0];
   return (
-    <section aria-labelledby="onboarding-title" className="flex flex-col gap-3 rounded-xl bg-card p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="onboarding-title" className="font-serif text-title text-foreground">
-          {m.title}
-        </h2>
-        <Meter label={m.progressLabel} value={done} max={steps.length} valueText={m.progressText(done, steps.length)} />
-      </div>
-      <p className="text-body text-muted-foreground">{m.caption}</p>
-      <ol aria-label={m.stepsLabel} className="flex flex-col gap-2">
-        {steps.map((step) => {
-          const text = stepText(m, step.key);
-          return text === undefined ? null : (
-            <li key={step.key} className="flex flex-wrap items-center gap-3">
-              <StatusPill status={step.done ? "success" : "neutral"} label={step.done ? m.statusDone : m.statusTodo} />
-              <div className="flex flex-col">
-                <span className="text-body text-foreground">{text.label}</span>
-                <span className="text-caption text-muted-foreground">{text.hint}</span>
-              </div>
-              {step.key === "create_app" && !step.done && canCreate && (
-                <Button variant="secondary" onClick={onCreate}>
-                  {m.newApp}
-                </Button>
-              )}
-              {step.key !== "create_app" && !step.done && app !== undefined && (
-                <Link to="/o/$org/apps/$app" params={{ org, app: app.id }} className="text-body">
-                  {m.continueIn(app.name)}
-                </Link>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-      {canCreate && (
-        <SampleApps
-          organizationId={organizationIdOf(org)}
-          onImported={(id) => router.history.push(`/o/${org}/apps/${id}`)}
-        />
-      )}
-      <div>
-        <Button variant="ghost" onClick={() => setDismissed(true)}>
-          {m.dismiss}
-        </Button>
-        {failed && (
-          <p role="alert" className="text-body text-danger">
-            {m.saveFailed}
-          </p>
-        )}
-      </div>
+    <section aria-labelledby="onboarding-title" className="px-4 lg:px-6">
+      <Card>
+        <CardHeader>
+          <CardTitle id="onboarding-title" className="text-base">
+            {m.title}
+          </CardTitle>
+          <CardDescription>{m.caption}</CardDescription>
+          <CardAction>
+            <Meter
+              label={m.progressLabel}
+              value={done}
+              max={steps.length}
+              valueText={m.progressText(done, steps.length)}
+            />
+          </CardAction>
+        </CardHeader>
+        <CardContent className="grid gap-6 lg:grid-cols-5">
+          <ol aria-label={m.stepsLabel} className="flex flex-col gap-2 lg:col-span-3">
+            {steps.map((step) => (
+              <StepItem
+                key={step.key}
+                step={step}
+                m={m}
+                org={org}
+                app={app}
+                onCreate={canCreate ? onCreate : undefined}
+              />
+            ))}
+          </ol>
+          {canCreate && (
+            <div className="lg:col-span-2">
+              <SampleApps
+                organizationId={organizationIdOf(org)}
+                onImported={(id) => router.history.push(`/o/${org}/apps/${id}`)}
+              />
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="gap-2 border-t">
+          <Button variant="ghost" size="sm" onClick={() => setDismissed(true)}>
+            {m.dismiss}
+          </Button>
+          {failed && (
+            <p role="alert" className="text-sm text-destructive">
+              {m.saveFailed}
+            </p>
+          )}
+        </CardFooter>
+      </Card>
     </section>
   );
 }

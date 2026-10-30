@@ -10,9 +10,12 @@ SPDX-License-Identifier: Apache-2.0
   Atelier's typefaces, screen titles and intentional detail and Signal's compact, information-rich
   presentation to be brought into it without changing Porcelain's identity. This file replaces the
   version of 2026-10-20 (Electric Violet on frosted panels with Noto Sans and Lucide).
-- **Reference page:** [studio-ui-reference.html](studio-ui-reference.html) — the approved plugin
-  canvas as one self-contained HTML file. Open it in a browser. It is the visual source of truth for
-  this file; where they disagree, this file wins and the page is corrected.
+- **Superseded for the look (2026-10-30):** Studio's visual language is now shadcn/ui as it ships
+  ([ADR-0103](../adr/0103-shadcn-stock-design.md)): its components, layouts, neutral theme, Inter and
+  lucide. The Porcelain sections below (colour, surfaces, radii, typography, icons, components and
+  the screen designs) no longer describe the interface; the reference page and the design skill are
+  removed. The rules on behaviour, accessibility, localisation and RTL still apply where shadcn's
+  components do not already meet them.
 - **Home:** this file and the reference page beside it moved here from `docs/plans/` on 2026-10-24
   (P11 S0.0).
 - **Read with:** [p11-studio-decisions.md](../plans/p11-studio-decisions.md) (stack),

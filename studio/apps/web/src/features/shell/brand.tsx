@@ -3,7 +3,6 @@
 
 import { m as motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
-import "./brand.css";
 
 /** The entrance curve of the brand's headlines and blocks: a quick start that settles slowly (U13.4). */
 export const enter = [0.16, 1, 0.3, 1] as const;
@@ -41,16 +40,5 @@ export function Rise({ delay, children, className }: { delay: number; children: 
     >
       {children}
     </motion.div>
-  );
-}
-
-/** Plux's mark: three layers of a screen, offset, the way Plux sends them to a device. */
-export function Mark() {
-  return (
-    <span aria-hidden="true" className="plux-mark">
-      <i />
-      <i />
-      <i />
-    </span>
   );
 }

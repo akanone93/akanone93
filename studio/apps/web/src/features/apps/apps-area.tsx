@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button } from "@plux/ui";
+import { Button, Icon } from "@plux/ui";
+import { Alert, AlertTitle } from "@plux/ui/components/alert";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@plux/ui/components/empty";
+import { Skeleton } from "@plux/ui/components/skeleton";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useMemo } from "react";
 import { useCan } from "../admin/use-admin.ts";
@@ -10,14 +13,14 @@ import { homeMessages } from "../home/home.messages.ts";
 import { AppCard, AppRow } from "./app-card.tsx";
 import { appsMessages } from "./apps.messages.ts";
 import { type AppsSearch, appsSearchSchema } from "./apps.schema.ts";
-import { AppsToolbar, Toggle } from "./apps-toolbar.tsx";
+import { AppsToolbar, Choice } from "./apps-toolbar.tsx";
 import { useAppActions } from "./use-app-actions.tsx";
 import { useVisibleApps } from "./use-apps.ts";
 import "./apps.css";
 
-const gridClass = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
+const gridClass = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3";
 
-/** The loading, failure and empty states above the apps. */
+/** The loading, failure and empty states above the apps: shadcn's Skeleton, Alert and Empty. */
 function States({
   loading,
   failed,
@@ -37,26 +40,45 @@ function States({
   return (
     <>
       {loading && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.loading}
-        </p>
+        <div className={gridClass}>
+          <p role="status" className="sr-only">
+            {m.loading}
+          </p>
+          {[0, 1, 2].map((k) => (
+            <Skeleton key={k} className="h-72 rounded-xl" />
+          ))}
+        </div>
       )}
       {failed && (
-        <p role="alert" className="text-body text-danger">
-          {home.appsLoadFailed}
-        </p>
+        <Alert variant="destructive">
+          <Icon name="warning-circle" />
+          <AlertTitle>{home.appsLoadFailed}</AlertTitle>
+        </Alert>
       )}
       {archivedFailed && (
-        <p role="alert" className="text-body text-danger">
-          {m.archivedLoadFailed}
-        </p>
+        <Alert variant="destructive">
+          <Icon name="warning-circle" />
+          <AlertTitle>{m.archivedLoadFailed}</AlertTitle>
+        </Alert>
       )}
       {empty && (
-        <div className="flex flex-col items-start gap-2">
-          <p className="text-body text-muted-foreground">{home.appsEmpty}</p>
-          {onCreate === undefined && <p className="text-body text-muted-foreground">{home.appsEmptyAsk}</p>}
-          {onCreate !== undefined && <Button onClick={onCreate}>{home.createApp}</Button>}
-        </div>
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Icon name="squares-four" />
+            </EmptyMedia>
+            <EmptyTitle>{home.appsEmpty}</EmptyTitle>
+            {onCreate === undefined && <EmptyDescription>{home.appsEmptyAsk}</EmptyDescription>}
+          </EmptyHeader>
+          {onCreate !== undefined && (
+            <EmptyContent>
+              <Button onClick={onCreate}>
+                <Icon name="plus" data-icon="inline-start" />
+                {home.createApp}
+              </Button>
+            </EmptyContent>
+          )}
+        </Empty>
       )}
     </>
   );
@@ -86,7 +108,8 @@ export function AppsArea({
   const search: AppsSearch = appsSearchSchema.parse(useSearch({ strict: false }));
   const view = search.view ?? "grid";
   const change = (patch: AppsSearch) =>
-    void navigate({ to: ".", search: (prev) => ({ ...prev, ...patch }), replace: true });
+    // The page stays where it is: a filter changes the list below, not the place the person reads (O2).
+    void navigate({ to: ".", search: (prev) => ({ ...prev, ...patch }), replace: true, resetScroll: false });
   const canManage = useCan("app.manage");
   const canReadPlugins = useCan("plugin.read");
   const permissions = { manage: canManage, readPlugins: canReadPlugins };
@@ -101,19 +124,27 @@ export function AppsArea({
     search.mine === true ||
     (search.status ?? "active") !== "active";
   return (
-    <section aria-labelledby="home-apps" className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center gap-4">
-        <h2 id="home-apps" className="text-screen font-semibold">
+    <section aria-labelledby="home-apps" className="flex flex-col gap-4 px-4 lg:px-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 id="home-apps" className="text-lg font-semibold tracking-tight">
           {home.appsTitle}
         </h2>
-        <fieldset aria-label={m.viewLabel} className="apps-segments ms-auto">
-          <Toggle on={view === "grid"} icon="squares-four" onClick={() => change({ view: "grid" })}>
-            {m.viewGrid}
-          </Toggle>
-          <Toggle on={view === "list"} icon="list" onClick={() => change({ view: "list" })}>
-            {m.viewList}
-          </Toggle>
-        </fieldset>
+        {anyApps && (
+          <p role="status" className="text-sm text-muted-foreground">
+            {m.count(shown.length)}
+          </p>
+        )}
+        <div className="ms-auto">
+          <Choice
+            label={m.viewLabel}
+            value={view}
+            options={[
+              { value: "grid", label: m.viewGrid, icon: "squares-four" },
+              { value: "list", label: m.viewList, icon: "list" },
+            ]}
+            onChange={(v) => change({ view: v })}
+          />
+        </div>
       </div>
       {anyApps && <AppsToolbar search={search} teams={teams} tags={tags} change={change} />}
       <States
@@ -123,14 +154,14 @@ export function AppsArea({
         empty={active.isSuccess && !anyApps && (search.status ?? "active") === "active"}
         onCreate={onCreate}
       />
-      {anyApps && (
-        <p role="status" className="text-caption text-tertiary">
-          {m.count(shown.length)}
-        </p>
-      )}
       {anyApps && shown.length === 0 && (
-        <div className="flex flex-col items-start gap-2">
-          <p className="text-body text-muted-foreground">{m.noMatch}</p>
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Icon name="magnifying-glass" />
+            </EmptyMedia>
+            <EmptyTitle>{m.noMatch}</EmptyTitle>
+          </EmptyHeader>
           {filtered && (
             <Button
               variant="secondary"
@@ -141,7 +172,7 @@ export function AppsArea({
               {m.clearFilters}
             </Button>
           )}
-        </div>
+        </Empty>
       )}
       {shown.length > 0 && (
         <ul className={view === "grid" ? gridClass : "flex flex-col gap-2"}>

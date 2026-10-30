@@ -43,18 +43,19 @@ export function CardLimits({ limits }: { readonly limits: readonly AppLimitUsage
     return null;
   }
   return (
-    <ul aria-label={m.limitsUsage} className="flex flex-col gap-1">
+    <ul aria-label={m.limitsUsage} className="grid grid-cols-2 gap-x-4 gap-y-3">
       {limits.map((l) => {
         const name = m.limitName(l.key) ?? l.key;
         const unit = registry.find((r) => r.key === l.key)?.unit ?? "count";
-        const text = m.limitUsageText(
-          formatAmount(l.used, unit, i18n.locale, unitWords(m)),
-          formatAmount(l.limit, unit, i18n.locale, unitWords(m)),
-        );
+        const used = formatAmount(l.used, unit, i18n.locale, unitWords(m));
+        const text = m.limitUsageText(used, formatAmount(l.limit, unit, i18n.locale, unitWords(m)));
         return (
-          <li key={l.key} className="flex flex-wrap items-center gap-2">
-            <span className="text-caption text-muted-foreground">{name}</span>
-            <Meter value={Number(l.used)} max={Number(l.limit)} label={name} valueText={text} />
+          <li key={l.key} className="flex min-w-0 flex-col gap-1.5">
+            <div className="flex items-baseline justify-between gap-2 text-xs">
+              <span className="truncate text-muted-foreground">{name}</span>
+              <span className="shrink-0 tabular-nums">{used}</span>
+            </div>
+            <Meter value={Number(l.used)} max={Number(l.limit)} label={name} valueText={text} layout="bar" />
             <LevelPill level={levelOf(l.used, l.limit)} m={m} />
           </li>
         );

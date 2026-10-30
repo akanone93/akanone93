@@ -14,6 +14,8 @@ export interface OrgPulse {
   readonly live: number;
   /** The crash-free rate over all active devices, each app weighted by its devices; undefined while no app has any. */
   readonly crashFree: number | undefined;
+  /** The change of that rate against the week before, weighted the same way; undefined with it. */
+  readonly crashFreeTrend: number | undefined;
   readonly plugins: bigint;
 }
 
@@ -22,6 +24,7 @@ export function orgPulse(entries: readonly AppEntry[]): OrgPulse {
   let plugins = 0n;
   let live = 0;
   let weighted = 0;
+  let weightedTrend = 0;
   for (const { summary } of entries) {
     if (summary === undefined) {
       continue;
@@ -29,6 +32,7 @@ export function orgPulse(entries: readonly AppEntry[]): OrgPulse {
     devices += summary.activeDevices;
     plugins += summary.pluginCount;
     weighted += summary.crashFreeRate * Number(summary.activeDevices);
+    weightedTrend += summary.crashFreeTrend * Number(summary.activeDevices);
     if (summary.releases.some((r) => r.environmentKey === productionKey && r.liveSequence > 0n)) {
       live += 1;
     }
@@ -38,6 +42,7 @@ export function orgPulse(entries: readonly AppEntry[]): OrgPulse {
     devices,
     live,
     crashFree: devices > 0n ? weighted / Number(devices) : undefined,
+    crashFreeTrend: devices > 0n ? weightedTrend / Number(devices) : undefined,
     plugins,
   };
 }

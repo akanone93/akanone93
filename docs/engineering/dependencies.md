@@ -164,9 +164,12 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@types/bun` | Bun type definitions | In use (dev) |
 | `react` 19.3.1, `react-dom` 19.3.1 | The Studio UI (ADR-0014); about 68.7 kB gzip together in the initial bundle | In use (P11 S0.1; MIT) |
 | `vite` 8.3.5, `@vitejs/plugin-react` 6.1.2 | Dev server and production build of `studio/apps/web`; not shipped | In use (P11 S0.1; MIT) |
-| `@base-ui/react` 1.9.0 | Unstyled accessible primitives under `@plux/ui` (ADR-0014; button, field, select, dialog, popover, menu, tabs, tooltip) | In use (P11 S0.2; MIT) |
-| `@phosphor-icons/core` 2.1.1 | Duotone icon paths, read at build time by `studio-gen-icons` and inlined as data; not shipped as a package. The MIT notice is kept in `icons.gen.ts`; legal review open (O-7) | In use (dev, P11 S0.2; MIT) |
-| `sonner` 2.0.8 | Toast engine behind `@plux/ui` Toast, styled with tokens only | In use (P11 S0.2; MIT) |
+| `@base-ui/react` 1.9.0 | Accessible primitives under shadcn's components in `@plux/ui` (ADR-0014, [0103](../adr/0103-shadcn-stock-design.md)) | In use (P11 S0.2; MIT) |
+| `lucide-react` 1.60.0 | The icons behind `@plux/ui` Icon and shadcn's components, shadcn's icon library ([0103](../adr/0103-shadcn-stock-design.md)); tree-shaken per icon | In use (P11; ISC) |
+| `class-variance-authority` 0.7.1 (with `clsx` 2.1.1) | The variants of shadcn's components ([0103](../adr/0103-shadcn-stock-design.md)) | In use (P11; Apache-2.0, MIT) |
+| `cn` 0.5.0 | shadcn-ui's class-name merger, which shadcn's components import in place of clsx and tailwind-merge ([0103](../adr/0103-shadcn-stock-design.md)) | In use (P11; MIT) |
+| `motion` 14.2.0 | The sign-in ring of sample apps and the home page's entrance, through `motion/react` with `LazyMotion` ([0103](../adr/0103-shadcn-stock-design.md)) | In use (P11; MIT) |
+| `sonner` 2.0.8 | Toast engine behind `@plux/ui` Toast, styled with shadcn's popover tokens | In use (P11 S0.2; MIT) |
 | `@codemirror/view` 6.43.14, `@codemirror/state` 6.7.6 | The inline PXL editor of the Properties panel (A4.6, `PXL-007`); lazy-loaded chunk, styles through a CSP nonce, no runtime style attribute | In use (P11 S5.2; MIT) |
 | `@codemirror/autocomplete` 6.20.4, `@codemirror/lint` 6.9.7, `@codemirror/commands` 6.11.1 | Completion with signature help, inline diagnostics and undo history of the inline PXL editor, fed by the validator module's language service | In use (P11 S5.2; MIT) |
 | `@codemirror/language` 6.13.1, `@lezer/common` 1.5.4, `@lezer/highlight` 1.2.5, `style-mod` 4.1.4, `crelt` 1.0.7, `w3c-keyname` 2.2.8, `@marijn/find-cluster-break` 1.0.4 | Transitive dependencies of the CodeMirror packages above, locked by `studio/bun.lock`; not imported by Studio code | In use (P11 S5.2; MIT) |
@@ -190,13 +193,10 @@ The native Android and iOS hosts embed the Plux module with the Flutter SDK's ow
 | `@connectrpc/connect-web` 2.2.0 | Browser fetch transport for the Connect clients | In use (P11 S0.3; Apache-2.0) |
 | `@bufbuild/protoc-gen-es` 2.16.0 | Local buf plugin generating the TypeScript API clients; not shipped | In use (P11 S0.3; Apache-2.0) |
 | `@types/react` 19.3.0, `@types/react-dom` 19.3.0 | React type definitions | In use (P11 S0.1; MIT) |
-| `tailwindcss` 4.3.3, `@tailwindcss/vite` 4.3.3 | Utility CSS generated from the design tokens; defaults reset, token-backed utilities only | In use (P11 S0.1; MIT) |
-| `@fontsource/instrument-sans` 5.3.0 | Instrument Sans: sans roles, weights 400 and 500, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
-| `@fontsource/instrument-serif` 5.3.0 | Instrument Serif: serif roles, weight 400, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
-| `@fontsource/dm-mono` 5.3.0 | DM Mono: data and tag roles, weights 400 and 500, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
-| `@fontsource/noto-sans-arabic` 5.3.0 | Noto Sans Arabic: Arabic sans roles, weights 400 and 500; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
-| `@fontsource/noto-naskh-arabic` 5.3.0 | Noto Naskh Arabic: Arabic serif roles, weight 400; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
-| `@fontsource/sora` 5.3.0 | Sora: wordmark, weight 600, latin; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
+| `tailwindcss` 4.3.3, `@tailwindcss/vite` 4.3.3 | Utility CSS with Tailwind's defaults and shadcn's theme ([0103](../adr/0103-shadcn-stock-design.md)) | In use (P11 S0.1; MIT) |
+| `tw-animate-css` 1.4.0 | The enter and exit animations shadcn's components use; a build-time stylesheet ([0103](../adr/0103-shadcn-stock-design.md)) | In use (P11, dev; MIT) |
+| `@fontsource-variable/inter` 5.3.0 | Inter, shadcn's default face, variable weight, latin; self-hosted woff2 ([0103](../adr/0103-shadcn-stock-design.md)) | In use (P11; OFL-1.1) |
+| `@fontsource/noto-sans-arabic` 5.3.0 | Noto Sans Arabic: Arabic text, which Inter does not cover, weights 400 to 600; self-hosted woff2 (rule book §11.5) | In use (P11 S0.2; OFL-1.1); legal review open (O-7) |
 | Roboto 400 and 700 from `@expo-google-fonts/roboto` 0.4.3, tarball pinned by SHA-256 | Plugin canvas text, the Material default (STU-006); TTF vendored unmodified under `studio/apps/web/src/features/plugin-canvas/fonts/` and shipped in the web build; each file's SHA-256 is tested | In use (P11 S1.4; OFL-1.1); legal review open (O-7) |
 | Noto Sans 400 and 700 from `@expo-google-fonts/noto-sans` 0.4.2, tarball pinned by SHA-256 | Plugin canvas fallback text (STU-006); same files as the golden fonts, also vendored beside the canvas and shipped in the web build | In use (P11 S1.4; OFL-1.1); legal review open (O-7) |
 | Flutter CanvasKit (`canvaskit.js`, `canvaskit.wasm`) at the pinned Flutter SDK, SHA-256 checked by `studio/scripts/stage-canvaskit.ts` | The canvas worker's renderer (ADR-0013); staged at build, not committed | In use (P11 S1.4; BSD-3-Clause); legal review open (O-7) |
