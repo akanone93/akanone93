@@ -22,7 +22,7 @@ export function NotificationsPopover(): ReactElement {
     <Popover
       title={m.bell}
       trigger={
-        <button type="button" className="inline-flex items-center gap-1 text-body">
+        <button type="button" className="shell-icon relative">
           <Icon name="bell" size="capsule" />
           <span className="sr-only">{m.bell}</span>
           {unread > 0 && <Count value={unread} tone="warning" label={m.unread(unread)} />}

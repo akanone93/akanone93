@@ -112,5 +112,15 @@ export function chromeMessages(i18n: I18n) {
       comment: "Link from the signed-out page to the sign-in page.",
     }),
     loading: i18n._({ id: "chrome.loading", message: "Loading", comment: "Shown while a page loads." }),
+    themeToLight: i18n._({
+      id: "chrome.theme.to-light",
+      message: "Switch to the light theme",
+      comment: "Accessible name of the top bar button that switches the dark page to the light theme.",
+    }),
+    themeToDark: i18n._({
+      id: "chrome.theme.to-dark",
+      message: "Switch to the dark theme",
+      comment: "Accessible name of the top bar button that switches the light page to the dark theme.",
+    }),
   };
 }

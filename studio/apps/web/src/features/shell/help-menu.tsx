@@ -15,7 +15,7 @@ export function HelpMenu({ docsUrl }: { readonly docsUrl: string | undefined }):
   return (
     <Menu
       trigger={
-        <button type="button" aria-label={m.help} className="inline-flex items-center">
+        <button type="button" aria-label={m.help} className="shell-icon">
           <Icon name="question" size="capsule" />
         </button>
       }

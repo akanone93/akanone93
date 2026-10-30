@@ -1,0 +1,324 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The organisation home (U16.3): the hero, its stack of apps and the pulse. */
+
+/* The hero sits on a faint dot grid that fades out towards the edges, like the sign-in picture. */
+.home-hero {
+  position: relative;
+  padding-block: var(--spacing-6) 0;
+}
+
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--spacing-12) * -1) calc(var(--spacing-24) * -1) 0;
+  z-index: -1;
+  background-image: radial-gradient(var(--color-strong) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 60% 70% at 72% 45%, black, transparent 75%);
+  pointer-events: none;
+}
+
+/* The live dot before the eyebrow: the one looping animation of the page (U13). */
+.home-eyebrow-dot {
+  position: relative;
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 999px;
+  background-color: var(--color-success);
+}
+
+.home-eyebrow-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--color-success);
+  animation: home-ping 2.4s var(--ease-standard) infinite;
+}
+
+@keyframes home-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  70%,
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* The pulse: four figures in one raised band, divided by hairlines. */
+.home-pulse {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  margin: 0;
+  border-radius: var(--radius-3xl);
+  background-color: var(--color-raised);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .home-pulse {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-pulse {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.home-figure {
+  --tone: var(--color-accent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-8);
+  box-shadow:
+    inset 1px 0 0 var(--color-hairline),
+    inset 0 1px 0 var(--color-hairline);
+}
+
+.home-figure[data-tone="success"] {
+  --tone: var(--color-success);
+}
+
+.home-figure[data-tone="warning"] {
+  --tone: var(--color-warning);
+}
+
+.home-figure[data-tone="neutral"] {
+  --tone: var(--color-secondary);
+}
+
+.home-figure-icon {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: 999px;
+  color: var(--tone);
+  background-color: color-mix(in oklab, var(--tone) 12%, transparent);
+}
+
+/* The stack: a plane laid back in isometric view, the apps as layers standing above it. */
+.hs-scene {
+  position: relative;
+  block-size: 440px;
+  perspective: 2000px;
+  perspective-origin: 50% 40%;
+}
+
+.hs-glow {
+  position: absolute;
+  inset: 12% 8%;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, var(--color-accent-halo), transparent);
+  filter: blur(40px);
+}
+
+.hs-view {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.hs-plane {
+  position: absolute;
+  inset-block-start: 64%;
+  inset-inline-start: 50%;
+  inline-size: 300px;
+  block-size: 196px;
+  margin-block-start: -98px;
+  margin-inline-start: -150px;
+  transform: rotateX(58deg) rotateZ(-38deg);
+  transform-style: preserve-3d;
+}
+
+.hs-floor {
+  position: absolute;
+  inset: -70%;
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--color-accent) 40%, var(--color-strong)) 1.2px,
+    transparent 1.6px
+  );
+  background-size: 18px 18px;
+  mask-image: radial-gradient(closest-side, black 30%, transparent);
+  opacity: 0.7;
+}
+
+.hs-layer {
+  position: absolute;
+  inset: 0;
+  translate: calc(var(--i) * 14px) calc(var(--i) * -14px);
+  transform-style: preserve-3d;
+}
+
+.hs-tile {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  column-gap: var(--spacing-3);
+  padding: var(--spacing-5);
+  border-radius: var(--radius-3xl);
+  color: var(--color-sample-on-app);
+  background:
+    var(--surface-glass-sheen), linear-gradient(135deg, color-mix(in oklab, var(--tone) 78%, white), var(--tone));
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--tone) 70%, black) inset,
+    0 18px 30px -18px color-mix(in oklab, var(--tone) 80%, black);
+  transition: transform var(--duration-slow) var(--ease-emphasized);
+}
+
+.hs-layer:hover .hs-tile {
+  transform: translateZ(24px);
+}
+
+.hs-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: 14px;
+  background-color: color-mix(in oklab, white 22%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, white 30%, transparent) inset;
+  font-family: var(--font-wordmark);
+  font-size: var(--text-title);
+  font-weight: 600;
+}
+
+.hs-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-inline-size: 0;
+}
+
+.hs-name {
+  font-size: var(--text-title);
+  line-height: var(--text-title--line-height);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.hs-key {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  opacity: 0.75;
+}
+
+.hs-bars {
+  grid-column: 1 / -1;
+  align-self: end;
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  block-size: 52px;
+}
+
+.hs-bars i {
+  flex: 1;
+  block-size: calc(var(--h) * 100%);
+  border-radius: 4px 4px 2px 2px;
+  background-color: color-mix(in oklab, white 55%, transparent);
+}
+
+.hs-bars i:last-child {
+  background-color: var(--color-sample-on-app);
+}
+
+.hs-devices {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin-block-start: var(--spacing-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-data);
+  opacity: 0.9;
+}
+
+/* The lower layers show only their colour and name: the layer above covers the rest. */
+.hs-layer:not([data-top="true"]) .hs-devices,
+.hs-layer:not([data-top="true"]) .hs-key {
+  visibility: hidden;
+}
+
+/* The chips stand upright above the top layer, facing the viewer: the plane's tilt undone. */
+.hs-chip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--color-primary);
+  background-color: var(--color-raised);
+  box-shadow: var(--shadow-float);
+  transform-origin: 0 100%;
+}
+
+.hs-chip-live {
+  inset-block-start: 4%;
+  inset-inline-end: 4%;
+  transform: translateZ(48px) rotateZ(38deg) rotateX(-58deg);
+}
+
+.hs-chip-health {
+  inset-block-end: -20%;
+  inset-inline-start: -40%;
+  transform: translateZ(36px) rotateZ(38deg) rotateX(-58deg);
+  color: var(--color-success);
+}
+
+.hs-dot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 999px;
+  background-color: var(--color-success);
+  box-shadow: 0 0 0 4px var(--color-success-surface);
+}
+
+.hs-ghost {
+  border-radius: var(--radius-3xl);
+  border: 2px dashed var(--color-strong);
+  background-color: color-mix(in oklab, var(--color-raised) 40%, transparent);
+  transform: translateZ(calc(var(--i) * 64px));
+}
+
+/* On RTL pages the stack mirrors, so the busiest layer still leans towards the text. */
+[dir="rtl"] .hs-plane {
+  transform: rotateX(58deg) rotateZ(38deg);
+}
+
+[dir="rtl"] .hs-chip {
+  transform-origin: 100% 100%;
+}
+
+[dir="rtl"] .hs-chip-live {
+  transform: translateZ(48px) rotateZ(-38deg) rotateX(-58deg);
+}
+
+[dir="rtl"] .hs-chip-health {
+  transform: translateZ(36px) rotateZ(-38deg) rotateX(-58deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-eyebrow-dot::after {
+    animation: none;
+  }
+
+  .hs-tile {
+    transition: none;
+  }
+}

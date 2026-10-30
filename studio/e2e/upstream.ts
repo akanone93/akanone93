@@ -5,6 +5,7 @@ import { type DescMethodUnary, fromBinary, toBinary } from "@bufbuild/protobuf";
 import type { Page } from "@playwright/test";
 import {
   AnalyticsService,
+  AppProjectService,
   ApprovalService,
   AppService,
   AssetService,
@@ -44,6 +45,7 @@ import { createUpstream, type UpstreamData } from "../apps/web/src/test-upstream
 const services = [
   AnalyticsService,
   ApprovalService,
+  AppProjectService,
   AppService,
   AssetService,
   AuditService,

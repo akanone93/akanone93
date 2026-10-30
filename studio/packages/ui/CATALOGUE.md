@@ -17,7 +17,7 @@ labels) comes in through props from the message catalogue.
 - **States:** decorative (`aria-hidden`, no `label`), labelled (`role="img"`), mirrored under `dir="rtl"`.
 - **Tokens:** `currentColor`; sizes `size-icon-sm|md|lg` (`size.icon.*`: 12, 14, 17 px).
 - **Mirrors:** `mirrors: true` for `arrow-bend-up-left`, `arrow-clockwise`, `arrow-counter-clockwise`, `arrow-left`,
-  `arrow-right`, `caret-left`, `caret-right`, `paper-plane-tilt`, `sign-out` (kept in `src/icon-mirrors.ts`); every
+  `arrow-right`, `arrow-up-right`, `caret-left`, `caret-right`, `paper-plane-tilt`, `sign-out` (kept in `src/icon-mirrors.ts`); every
   other icon is `mirrors: false`.
 - **Icons (44):** arrow-bend-up-left, arrow-clockwise, arrow-counter-clockwise, arrow-left, arrow-right, caret-down,
   caret-left, caret-right, caret-up, check, check-circle, clock, command, copy, dots-three, eye, file, folder, funnel,
@@ -34,7 +34,8 @@ labels) comes in through props from the message catalogue.
   `loadingLabel`.
 - **States:** rest, hover, focus-visible, disabled, loading (`aria-busy`, stays focusable), long text.
 - **Keyboard:** Enter and Space.
-- **Tokens:** `bg-accent`, `text-on-accent`, `shadow-primary`, `bg-hover`, `bg-danger-fill`, `outline-focus`.
+- **Tokens:** `bg-accent`, `text-on-accent`, `shadow-primary`, `bg-raised` and `shadow-soft` (secondary), `bg-hover`,
+  `bg-danger-fill`, `outline-focus`.
 - **Do not use for:** navigation (use a link); `danger` only inside confirm dialogs.
 
 ## Field, Input, Textarea

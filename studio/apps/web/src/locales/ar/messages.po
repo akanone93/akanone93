@@ -49,6 +49,24 @@ msgstr "{app}: {n} نسخة"
 msgid "approvals.simDescribe"
 msgstr "{approvers} موافقة"
 
+#. Second line of the home headline; devices is the formatted number of active devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.hero.count"
+msgstr "{apps, plural, zero {لا تطبيقات} one {تطبيق واحد} two {تطبيقان} few {# تطبيقات} many {# تطبيقًا} other {# تطبيق}} على {devices} جهاز."
+
+#. Note under the total of active devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.devices-note"
+msgstr "{apps, plural, zero {في لا تطبيقات} one {في تطبيق واحد} two {في تطبيقين} few {في # تطبيقات} many {في # تطبيقًا} other {في # تطبيق}}"
+
+#. Note under the number of apps live in production.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.live-note"
+msgstr "{apps, plural, zero {من لا تطبيقات} one {من تطبيق واحد} two {من تطبيقين} few {من # تطبيقات} many {من # تطبيقًا} other {من # تطبيق}}"
+
 #. A brand overlay and the number of tokens it replaces.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -291,6 +309,12 @@ msgstr "تم تحديد {count} عناصر؛ تُعرض الخصائص المش�
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.sizeDelta"
 msgstr "{delta} كيبي بايت مقارنةً بالإصدار السابق"
+
+#. Active devices on a layer of the home picture; devices is a compact number such as 184K.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.stack.devices"
+msgstr "{devices} جهاز"
 
 #. Reading of the checklist meter: steps done of all steps.
 #. js-lingui-explicit-id
@@ -688,6 +712,12 @@ msgstr "اتصال {port}"
 msgid "actionGraph.continuesTo"
 msgstr "{port} يؤدي إلى"
 
+#. Chip on the top layer of the home picture; rate is a formatted percentage.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.stack.crash-free"
+msgstr "{rate} بلا أعطال"
+
 #. Reading of an upload's progress, such as 2 KB of 10 KB.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -987,6 +1017,12 @@ msgstr "نشطة"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.stateActive"
 msgstr "نشط"
+
+#. Label of the organisation's total of active devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.devices"
+msgstr "الأجهزة النشطة"
 
 #. Label of the number of devices seen in the last seven days.
 #. js-lingui-explicit-id
@@ -1935,6 +1971,12 @@ msgstr "مستوى الضمان"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.tabAssurance"
 msgstr "الضمان"
+
+#. Accessible name of the row of organisation figures on the home page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.label"
+msgstr "نظرة سريعة"
 
 #. Badge on a limit whose usage has reached the limit in force.
 #. js-lingui-explicit-id
@@ -3280,6 +3322,12 @@ msgstr "نسخ إلى الهدف"
 msgid "auth.scene.bank-coffee"
 msgstr "مقهى الزاوية"
 
+#. Label of the crash-free rate over all active devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.crash-free"
+msgstr "بلا أعطال"
+
 #. Metric name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -3928,6 +3976,12 @@ msgstr "التصميم"
 msgid "auth.hero.line-one"
 msgstr "صمّمه هنا."
 
+#. Lead sentence under the home headline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.lead"
+msgstr "صمّم الشاشات، وانشر الإضافات، وأوصل الإصدارات إلى كل جهاز، موقّعة وأصلية."
+
 #. Accessible name of the navigation between the pages of the Design system area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -4449,6 +4503,12 @@ msgstr "إجراءات طارئة اتُّخذت دون موافقة مسبقة�
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.mockEmpty"
 msgstr "فارغ"
+
+#. Accessible name of the decorative picture while the organisation has no apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.stack.empty-label"
+msgstr "طبقات فارغة بانتظار التطبيق الأول."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -6118,6 +6178,12 @@ msgstr "بالترتيب"
 msgid "shell.col.generated"
 msgstr "في المشروع"
 
+#. Note under the total of plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.plugins-note"
+msgstr "مستخدمة في التطبيقات"
+
 #. Link to the inbox.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -7085,6 +7151,12 @@ msgstr "مباشر"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.hero.line-two"
 msgstr "حيّ في كل مكان."
+
+#. Label of the number of apps with a live release in production.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.live"
+msgstr "منشور في الإنتاج"
 
 #. Checkbox that makes screen readers announce changes.
 #. js-lingui-explicit-id
@@ -8268,6 +8340,12 @@ msgstr "لا أجهزة"
 msgid "security.noDevices"
 msgstr "لا توجد أجهزة مطابقة."
 
+#. Shown in place of the crash-free rate while no app has an active device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.no-rate"
+msgstr "لا أجهزة بعد"
+
 #. Shown when a request has no diff.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -9138,6 +9216,12 @@ msgstr "المؤسسة"
 msgid "apps.settings.admin"
 msgstr "إدارة المؤسسة"
 
+#. Small label above the organisation home's headline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.eyebrow"
+msgstr "الصفحة الرئيسية للمؤسسة"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -9522,7 +9606,7 @@ msgstr "الصور"
 msgid "admin.builderCaption"
 msgstr "اختر صلاحيات الدور. المناطق تضم الميزات والميزات تضم الإجراءات."
 
-#. Visible text of the button that pins an app.
+#. Tooltip of the pin button of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.card.pin-short"
@@ -9534,7 +9618,7 @@ msgstr "تثبيت"
 msgid "apps.card.pin"
 msgstr "تثبيت {name}"
 
-#. Visible text of the button of an app that is pinned.
+#. Tooltip of the pin button of an app that is pinned.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.card.pinned-short"
@@ -9665,6 +9749,12 @@ msgstr "إصدار الإضافة"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.cancelBody"
 msgstr "تبقى إصدارات الإضافات المبنية بالفعل؛ فهي ثابتة وغير ضارة."
+
+#. Label of the total of plugins over all apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.plugins"
+msgstr "الإضافات"
 
 #. Label of an app's number of plugins.
 #. js-lingui-explicit-id
@@ -10313,6 +10403,12 @@ msgstr "إصدار"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.colRelease"
 msgstr "الإصدار"
+
+#. Chip on the top layer of the home picture: the release live in production.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.stack.live"
+msgstr "الإصدار {release} منشور"
 
 #. Heading of the release page.
 #. js-lingui-explicit-id
@@ -11700,6 +11796,12 @@ msgstr "البحث في الأجهزة"
 msgid "l10n.area.search"
 msgstr "ابحث في المفاتيح والنصوص"
 
+#. Button on the home hero that opens the command palette.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.search"
+msgstr "ابحث أو نفّذ أمرًا"
+
 #. Label of the search field of the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -12864,6 +12966,18 @@ msgstr "تفعيل"
 msgid "cmd.org.switch"
 msgstr "التبديل إلى {name}"
 
+#. Accessible name of the top bar button that switches the light page to the dark theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.theme.to-dark"
+msgstr "التبديل إلى المظهر الداكن"
+
+#. Accessible name of the top bar button that switches the dark page to the light theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.theme.to-light"
+msgstr "التبديل إلى المظهر الفاتح"
+
 #. Heading of the plugins that are switched off.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -13259,6 +13373,12 @@ msgstr "عنوان URL الأساسي هو متغير التطبيق"
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.failed"
 msgstr "تعذّر تحميل تفاصيل البناء."
+
+#. Accessible name of the decorative picture on the home page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.stack.label"
+msgstr "أكثر تطبيقات المؤسسة استخدامًا، مكدّسة كطبقات."
 
 #. Shown when saving fails.
 #. js-lingui-explicit-id
@@ -15577,6 +15697,12 @@ msgstr "تحذير"
 msgid "devices.levelWarning"
 msgstr "التحذيرات والأخطاء"
 
+#. Note under the crash-free rate: each app counts by its active devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.pulse.crash-free-note"
+msgstr "مرجّحة بعدد الأجهزة"
+
 #. Heading of the organisation home; name is the organisation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -15930,6 +16056,12 @@ msgstr "تعذّر حفظ اختيارك."
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.decideHeading"
 msgstr "قرارك"
+
+#. Second line of the home headline while the organisation has no apps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/home/home.messages.ts
+msgid "home.hero.empty"
+msgstr "تطبيقك الأول يبدأ من هنا."
 
 #. D37: the heartbeat failed until the lock expired.
 #. js-lingui-explicit-id

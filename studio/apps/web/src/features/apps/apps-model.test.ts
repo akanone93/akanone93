@@ -13,10 +13,10 @@ import {
   levelOf,
   matchesQuery,
   monogramOf,
-  monogramTone,
   ratioOf,
   sortApps,
   tagsOf,
+  toneOf,
 } from "./apps-model.ts";
 import { pickVisual } from "./card-visual.tsx";
 
@@ -32,8 +32,8 @@ describe("the card visual [STU-021]", () => {
   test("the monogram is the name's first character, upper case, on a colour that stays with the app", () => {
     expect(monogramOf(app({ id: "a", name: "  bank" }))).toBe("B");
     expect(monogramOf(app({ id: "a", name: "Édith" }))).toBe("É");
-    expect(monogramTone(app({ id: "a", name: "x" }))).toBe(monogramTone(app({ id: "a", name: "y" })));
-    const tones = new Set(["a", "b", "c", "d", "e", "f", "g", "h"].map((id) => monogramTone(app({ id, name: id }))));
+    expect(toneOf(app({ id: "a", name: "x" }))).toBe(toneOf(app({ id: "a", name: "y" })));
+    const tones = new Set(["a", "b", "c", "d", "e", "f", "g", "h"].map((id) => toneOf(app({ id, name: id }))));
     expect(tones.size).toBeGreaterThan(1);
   });
 

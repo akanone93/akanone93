@@ -13,6 +13,7 @@ export const mirroredIcons: ReadonlySet<IconName> = new Set<IconName>([
   "arrow-counter-clockwise",
   "arrow-left",
   "arrow-right",
+  "arrow-up-right",
   "caret-left",
   "caret-right",
   "paper-plane-tilt",

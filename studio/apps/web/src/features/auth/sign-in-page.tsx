@@ -8,12 +8,13 @@ import { Button, Field, Icon, type IconName, Input } from "@plux/ui";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
-import { domAnimation, LazyMotion, m as motion, useReducedMotion } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import { type ReactNode, useMemo, useState } from "react";
 import { shownError } from "../../lib/field-error.ts";
 import { forgetUser, safeNext } from "../../lib/guards.ts";
 import type { Session } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { Mark, Rise, RisingWords } from "../shell/brand.tsx";
 import { authMessages } from "./auth.messages.ts";
 import { codeSchema, signInSchema } from "./auth.schema.ts";
 import { ScreenRing } from "./screen-ring.tsx";
@@ -30,44 +31,6 @@ function FormError({ children }: { children: ReactNode }) {
   );
 }
 
-const enter = [0.16, 1, 0.3, 1] as const;
-
-/** Headline words that rise out of a blur, one after another (U13.4). */
-function RisingWords({ text, from, className }: { text: string; from: number; className?: string }) {
-  const reduced = useReducedMotion() === true;
-  return (
-    <span className={className}>
-      {text.split(" ").map((word, i) => (
-        <motion.span
-          // biome-ignore lint/suspicious/noArrayIndexKey: the words of a fixed sentence keep their order
-          key={i}
-          className="inline-block whitespace-pre"
-          initial={reduced ? false : { opacity: 0, y: "0.45em", filter: "blur(12px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 1.1, ease: enter, delay: reduced ? 0 : 0.1 + (from + i) * 0.07 }}
-        >
-          {`${word} `}
-        </motion.span>
-      ))}
-    </span>
-  );
-}
-
-/** Fades a block up into place after the headline (U13.4). */
-function Rise({ delay, children, className }: { delay: number; children: ReactNode; className?: string }) {
-  const reduced = useReducedMotion() === true;
-  return (
-    <motion.div
-      className={className}
-      initial={reduced ? false : { opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, ease: enter, delay: reduced ? 0 : delay }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 /** One of the short facts in the footer of the left half. */
 function Fact({ icon, children }: { icon: IconName; children: ReactNode }) {
   return (
@@ -75,17 +38,6 @@ function Fact({ icon, children }: { icon: IconName; children: ReactNode }) {
       <Icon name={icon} size="tab" />
       {children}
     </li>
-  );
-}
-
-/** Plux's mark: three layers of a screen, offset, the way Plux sends them to a device. */
-function Mark() {
-  return (
-    <span aria-hidden="true" className="signin-mark">
-      <i />
-      <i />
-      <i />
-    </span>
   );
 }
 

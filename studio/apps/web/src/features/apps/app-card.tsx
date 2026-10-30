@@ -4,13 +4,13 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import type { AppSummary, EnvironmentRelease } from "@plux/api";
-import { Button, cx, Icon, MetricStrip, StatusPill } from "@plux/ui";
+import { Button, Icon, MetricStrip, StatusPill } from "@plux/ui";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { homeMessages } from "../home/home.messages.ts";
 import { type AppActionHandlers, AppActions, type AppPermissions } from "./app-actions.tsx";
 import { appsMessages } from "./apps.messages.ts";
-import { type AppEntry, healthOf } from "./apps-model.ts";
+import { type AppEntry, healthOf, toneOf } from "./apps-model.ts";
 import { CardVisual } from "./card-visual.tsx";
 import { CardLimits } from "./limits-usage.tsx";
 
@@ -30,12 +30,12 @@ export interface AppCardProps {
 /** The environment badges: the release each environment serves (STU-022). */
 function Environments({ releases, m }: { readonly releases: readonly EnvironmentRelease[]; readonly m: Messages }) {
   if (releases.length === 0) {
-    return <p className="text-caption text-secondary">{m.noEnvironments}</p>;
+    return <p className="app-env app-env-none">{m.noEnvironments}</p>;
   }
   return (
-    <ul aria-label={m.environments} className="flex flex-wrap gap-1">
+    <ul aria-label={m.environments} className="flex flex-wrap gap-2">
       {releases.map((r) => (
-        <li key={r.environmentKey} className="rounded-full bg-raised px-2 py-0.5 font-mono text-tag text-secondary">
+        <li key={r.environmentKey} className="app-env" data-live={r.liveSequence > 0n}>
           {r.liveSequence > 0n ? m.live(r.environmentKey, Number(r.liveSequence)) : m.notLive(r.environmentKey)}
         </li>
       ))}
@@ -102,9 +102,11 @@ function PinButton({ entry, pinned, handlers }: Pick<AppCardProps, "entry" | "pi
       variant="ghost"
       aria-pressed={pinned}
       aria-label={pinned ? m.unpin(name) : m.pin(name)}
+      title={pinned ? m.pinnedShort : m.pinShort}
+      className="app-pin"
       onClick={() => handlers.onPin(entry.app.id)}
     >
-      {pinned ? m.pinnedShort : m.pinShort}
+      <Icon name="push-pin" size="tab" />
     </Button>
   );
 }
@@ -118,52 +120,79 @@ function NameLink({ entry, org }: Pick<AppCardProps, "entry" | "org">): ReactEle
       to="/o/$org/apps/$app"
       params={{ org, app: app.id }}
       aria-label={home.openApp(app.name)}
-      className="min-w-0 truncate font-serif text-title"
+      className="app-link min-w-0 truncate text-title font-semibold"
     >
       {app.name}
     </Link>
   );
 }
 
-/** One app as a card (STU-020 to STU-022, STU-025). */
+/** The two figures at the foot of a card: active devices and plugins, label over value. */
+function Figures({
+  summary,
+  m,
+  locale,
+}: {
+  readonly summary: AppSummary;
+  readonly m: Messages;
+  readonly locale: string;
+}) {
+  const n = new Intl.NumberFormat(locale);
+  return (
+    <dl className="app-figures">
+      <div>
+        <dt>{m.devices}</dt>
+        <dd>{n.format(summary.activeDevices)}</dd>
+      </div>
+      <div>
+        <dt>{m.plugins}</dt>
+        <dd>{n.format(summary.pluginCount)}</dd>
+      </div>
+    </dl>
+  );
+}
+
+/**
+ * One app as a card (STU-020 to STU-022, STU-025): its picture on the app's colour with the live releases over it, the
+ * name, then health, figures and limits. The whole card opens the app; pin and actions stay their own buttons.
+ */
 export function AppCard(props: AppCardProps): ReactElement {
   const { i18n } = useLingui();
   const m = appsMessages(i18n);
   const { entry, team } = props;
   const { app, summary } = entry;
   return (
-    <li
-      className={cx(
-        "flex flex-col gap-3 rounded-lg bg-card p-(--density-card-padding-x) shadow-e1",
-        "transition-transform duration-enter ease-standard hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0",
-      )}
-    >
-      <CardVisual app={app} />
-      <div className="flex items-start gap-2">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <NameLink entry={entry} org={props.org} />
-          <span className="font-mono text-data text-tertiary">{app.key}</span>
+    <li className="app-card" data-tone={toneOf(app)}>
+      <div className="relative">
+        <CardVisual app={app} />
+        <div className="app-card-top">
+          {summary !== undefined && <Environments releases={summary.releases} m={m} />}
+          <span className="app-card-controls">
+            <PinButton entry={entry} pinned={props.pinned} handlers={props.handlers} />
+            <AppActions entry={entry} org={props.org} permissions={props.permissions} handlers={props.handlers} />
+          </span>
         </div>
-        <PinButton entry={entry} pinned={props.pinned} handlers={props.handlers} />
-        <AppActions entry={entry} org={props.org} permissions={props.permissions} handlers={props.handlers} />
       </div>
-      {app.description !== "" && <p className="line-clamp-2 text-body text-secondary">{app.description}</p>}
-      <p className="text-caption text-secondary">{team === undefined ? m.noTeam : m.owner(team)}</p>
-      {app.archived && <StatusPill status="neutral" label={m.archivedBadge} />}
-      {summary !== undefined && (
-        <>
-          <Environments releases={summary.releases} m={m} />
-          <Published summary={summary} m={m} locale={i18n.locale} />
-          <Health summary={summary} m={m} locale={i18n.locale} />
-          <MetricStrip
-            metrics={[
-              { label: m.devices, value: new Intl.NumberFormat(i18n.locale).format(summary.activeDevices) },
-              { label: m.plugins, value: new Intl.NumberFormat(i18n.locale).format(summary.pluginCount) },
-            ]}
-          />
-          <CardLimits limits={summary.limits} />
-        </>
-      )}
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <NameLink entry={entry} org={props.org} />
+          <span className="font-mono text-tag text-tertiary">{app.key}</span>
+          <Icon name="arrow-up-right" size="pill" className="app-go ms-auto text-tertiary" />
+        </div>
+        {app.description !== "" && <p className="line-clamp-2 text-body text-secondary">{app.description}</p>}
+        <p className="text-caption text-tertiary">{team === undefined ? m.noTeam : m.owner(team)}</p>
+        {app.archived && <StatusPill status="neutral" label={m.archivedBadge} />}
+        {summary !== undefined && (
+          <>
+            <div className="flex">
+              <Health summary={summary} m={m} locale={i18n.locale} />
+            </div>
+            <Figures summary={summary} m={m} locale={i18n.locale} />
+            <Published summary={summary} m={m} locale={i18n.locale} />
+            <CardLimits limits={summary.limits} />
+          </>
+        )}
+      </div>
     </li>
   );
 }
@@ -175,7 +204,7 @@ export function AppRow(props: AppCardProps): ReactElement {
   const { entry, team } = props;
   const { app, summary } = entry;
   return (
-    <li className="flex flex-wrap items-center gap-4 rounded-lg bg-card p-3 shadow-e1">
+    <li className="app-row" data-tone={toneOf(app)}>
       <CardVisual app={app} compact />
       <div className="flex min-w-40 flex-1 flex-col">
         <NameLink entry={entry} org={props.org} />

@@ -13,8 +13,9 @@ import { type AppsSearch, appsSearchSchema } from "./apps.schema.ts";
 import { AppsToolbar, Toggle } from "./apps-toolbar.tsx";
 import { useAppActions } from "./use-app-actions.tsx";
 import { useVisibleApps } from "./use-apps.ts";
+import "./apps.css";
 
-const gridClass = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4";
+const gridClass = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
 
 /** The loading, failure and empty states above the apps. */
 function States({
@@ -75,7 +76,7 @@ export function AppsArea({
   readonly org: string;
   /** The organisation's immutable ID, which the requests carry. */
   readonly organizationId: string;
-  /** Opens the create dialog; undefined when the person may not create apps. */
+  /** Opens the create dialog from the empty state; undefined when the person may not create apps. */
   readonly onCreate: (() => void) | undefined;
 }): ReactElement {
   const { i18n } = useLingui();
@@ -100,17 +101,16 @@ export function AppsArea({
     search.mine === true ||
     (search.status ?? "active") !== "active";
   return (
-    <section aria-labelledby="home-apps" className="flex flex-col gap-3">
+    <section aria-labelledby="home-apps" className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-4">
-        <h2 id="home-apps" className="text-section">
+        <h2 id="home-apps" className="text-screen font-semibold">
           {home.appsTitle}
         </h2>
-        {onCreate !== undefined && anyApps && <Button onClick={onCreate}>{home.createApp}</Button>}
-        <fieldset aria-label={m.viewLabel} className="ms-auto flex min-w-0 gap-1">
-          <Toggle on={view === "grid"} onClick={() => change({ view: "grid" })}>
+        <fieldset aria-label={m.viewLabel} className="apps-segments ms-auto">
+          <Toggle on={view === "grid"} icon="squares-four" onClick={() => change({ view: "grid" })}>
             {m.viewGrid}
           </Toggle>
-          <Toggle on={view === "list"} onClick={() => change({ view: "list" })}>
+          <Toggle on={view === "list"} icon="list" onClick={() => change({ view: "list" })}>
             {m.viewList}
           </Toggle>
         </fieldset>
@@ -124,7 +124,7 @@ export function AppsArea({
         onCreate={onCreate}
       />
       {anyApps && (
-        <p role="status" className="text-caption text-secondary">
+        <p role="status" className="text-caption text-tertiary">
           {m.count(shown.length)}
         </p>
       )}

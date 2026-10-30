@@ -1,0 +1,117 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* Plux's mark: three layers of a screen, offset down and to the end, lightest at the back. */
+.plux-mark {
+  position: relative;
+  inline-size: 26px;
+  block-size: 26px;
+}
+
+.plux-mark i {
+  position: absolute;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: 6px;
+}
+
+.plux-mark i:nth-child(1) {
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  background-color: color-mix(in oklab, var(--color-accent) 22%, var(--color-raised));
+}
+
+.plux-mark i:nth-child(2) {
+  inset-block-start: 4px;
+  inset-inline-start: 4px;
+  background-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-raised));
+}
+
+.plux-mark i:nth-child(3) {
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
+  background-color: var(--color-accent);
+  box-shadow: 0 4px 10px -4px var(--color-accent);
+}
+
+/* A shortcut beside the command it runs. */
+.shell-kbd {
+  margin-inline-start: var(--spacing-2);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-hover);
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  color: var(--color-secondary);
+}
+
+/* The top bar: round icon buttons and a search pill inside the glass capsule. */
+.shell-icon {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 36px;
+  block-size: 36px;
+  border-radius: 999px;
+  color: var(--color-secondary);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.shell-icon:hover {
+  color: var(--color-primary);
+  background-color: var(--color-hover);
+}
+
+.shell-search {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  block-size: 36px;
+  padding-inline: var(--spacing-3) var(--spacing-2);
+  border-radius: 999px;
+  color: var(--color-secondary);
+  background-color: var(--color-hover);
+  font-size: var(--text-label);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.shell-search:hover {
+  color: var(--color-primary);
+}
+
+.shell-org {
+  inline-size: 13rem;
+}
+
+.shell-divider {
+  inline-size: 1px;
+  block-size: 20px;
+  background-color: var(--color-strong);
+}
+
+.shell-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  block-size: 36px;
+  padding-inline: var(--spacing-3);
+  border-radius: 999px;
+  color: var(--color-secondary);
+  font-size: var(--text-label);
+  font-weight: 500;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.shell-nav:hover,
+.shell-nav[data-status="active"] {
+  color: var(--color-primary);
+  background-color: var(--color-hover);
+}
+
+.shell-avatar {
+  color: var(--color-accent);
+  background-color: color-mix(in oklab, var(--color-accent) 14%, transparent);
+}

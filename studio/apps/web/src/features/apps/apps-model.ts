@@ -87,22 +87,20 @@ export function monogramOf(app: App): string {
   return first.toLocaleUpperCase();
 }
 
-/** Token classes of the monogram's colour; one is derived from the app's ID, so an app keeps its colour (STU-021). */
-const monogramTones: readonly string[] = [
-  "bg-success-surface text-success",
-  "bg-warning-surface text-warning",
-  "bg-selection-surface text-selection-text",
-  "bg-hover text-primary",
-  "bg-raised text-secondary",
-];
+/**
+ * The colours an app's tile can take: the sample brand colours, each measured against white text (STU-021). One is
+ * derived from the app's ID, so an app keeps its colour wherever it shows.
+ */
+export const appTones = ["bank", "loan", "shop", "delivery", "fresh"] as const;
+export type AppTone = (typeof appTones)[number];
 
-/** The colour classes of an app's monogram: the same app always gets the same one. */
-export function monogramTone(app: App): string {
+/** The colour of an app's tile: the same app always gets the same one. */
+export function toneOf(app: App): AppTone {
   let hash = 0;
   for (const char of app.id === "" ? app.key : app.id) {
     hash = Math.imul(hash, 31) + (char.codePointAt(0) ?? 0);
   }
-  return monogramTones[Math.abs(hash) % monogramTones.length] ?? "";
+  return appTones[Math.abs(hash) % appTones.length] ?? "bank";
 }
 
 /** Crash-free rate at or above which an app is healthy, and at or above which it is merely degraded. */

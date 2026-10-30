@@ -238,12 +238,12 @@ export function appsMessages(i18n: I18n) {
     pinShort: i18n._({
       id: "apps.card.pin-short",
       message: "Pin",
-      comment: "Visible text of the button that pins an app.",
+      comment: "Tooltip of the pin button of an app.",
     }),
     pinnedShort: i18n._({
       id: "apps.card.pinned-short",
       message: "Pinned",
-      comment: "Visible text of the button of an app that is pinned.",
+      comment: "Tooltip of the pin button of an app that is pinned.",
     }),
     pinFailed: i18n._({
       id: "apps.pin-failed",

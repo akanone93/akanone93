@@ -19,13 +19,16 @@ import { shellMessages } from "../../shell.messages.ts";
 import { createPendingCounter, PendingChangesProvider, usePendingTotal } from "../editor/pending-changes.tsx";
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 import { AppNav } from "./app-nav.tsx";
+import { Mark } from "./brand.tsx";
 import { CommandPalette } from "./command-palette.tsx";
 import { CreateOrganisationDialog } from "./create-organisation-dialog.tsx";
 import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
 import { hitPath, type OrgSearchFn } from "./palette-search.ts";
 import { chromeMessages } from "./shell-chrome.messages.ts";
+import { ShortcutKey } from "./shortcut-key.tsx";
 import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
+import { ThemeButton } from "./theme-button.tsx";
 import { useServerVersion } from "./use-server-version.ts";
 import { useStudioEvents } from "./use-studio-events.ts";
 
@@ -49,7 +52,8 @@ function AdminLink({
     return null;
   }
   return (
-    <Link to="/o/$org/admin" params={{ org: organisationId }} className="text-body">
+    <Link to="/o/$org/admin" params={{ org: organisationId }} className="shell-nav">
+      <Icon name="gear" size="tab" />
       {label}
     </Link>
   );
@@ -119,22 +123,29 @@ export function ShellLayout() {
           <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
           <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
           <header>
-            <GlassCapsule label={m.topBar} className="m-4 flex items-center gap-4 px-4">
-              <a href="/" className="text-title">
-                {shellMessages(i18n).appTitle}
+            <GlassCapsule label={m.topBar} className="m-4 flex items-center gap-3 px-3">
+              <a href="/" className="flex items-center gap-2 ps-1 pe-2">
+                <Mark />
+                <span className="font-wordmark text-section font-semibold">{shellMessages(i18n).appTitle}</span>
               </a>
               {organisations.length > 0 && (
-                <Select
-                  label={m.organisation}
-                  value={currentId ?? ""}
-                  placeholder={m.organisation}
-                  options={organisations.map((o) => ({ value: o.id, label: o.name }))}
-                  onValueChange={(id) => router.history.push(`/o/${id}`)}
-                />
+                <>
+                  <span aria-hidden="true" className="shell-divider" />
+                  <span className="shell-org">
+                    <Select
+                      label={m.organisation}
+                      value={currentId ?? ""}
+                      placeholder={m.organisation}
+                      options={organisations.map((o) => ({ value: o.id, label: o.name }))}
+                      onValueChange={(id) => router.history.push(`/o/${id}`)}
+                    />
+                  </span>
+                </>
               )}
               {organisations.length > 0 && user.data?.installationAdmin === true && (
                 <>
-                  <Button size="sm" variant="secondary" onClick={() => setCreatingOrganisation(true)}>
+                  <Button size="sm" variant="ghost" onClick={() => setCreatingOrganisation(true)}>
+                    <Icon name="plus" size="pill" />
                     {m.newOrganisation}
                   </Button>
                   <CreateOrganisationDialog open={creatingOrganisation} onOpenChange={setCreatingOrganisation} />
@@ -143,14 +154,17 @@ export function ShellLayout() {
               <AdminLink organisationId={currentId} permissions={permissions} label={m.admin} />
               <span className="flex-1" />
               <StatusChips online={online} stream={events.state} waiting={waiting} />
-              <button type="button" className="text-body" onClick={() => setPaletteOpen(true)}>
+              <button type="button" className="shell-search" onClick={() => setPaletteOpen(true)}>
+                <Icon name="magnifying-glass" size="tab" />
                 {c.paletteOpen}
+                <ShortcutKey shortcut="mod+k" />
               </button>
+              <ThemeButton />
               <NotificationsPopover />
               <HelpMenu docsUrl={version?.docs} />
               <Menu
                 trigger={
-                  <button type="button" aria-label={m.profile} className="inline-flex items-center">
+                  <button type="button" aria-label={m.profile} className="shell-icon shell-avatar">
                     <Icon name="user" size="capsule" />
                   </button>
                 }
@@ -168,7 +182,7 @@ export function ShellLayout() {
             </GlassCapsule>
             {org !== undefined && app !== undefined && <AppNav org={org} app={app} permissions={permissions} />}
           </header>
-          <main className="flex-1 p-6">
+          <main className="flex-1 px-6 pb-16 pt-4">
             <Outlet />
           </main>
           <CommandPalette

@@ -9,7 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { type ReactElement, useCallback, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { appsMessages } from "./apps.messages.ts";
-import { monogramOf, monogramTone } from "./apps-model.ts";
+import { monogramOf, toneOf } from "./apps-model.ts";
+import "./apps.css";
 
 /** The name prefix of the screen thumbnails the plugin canvas uploads as app assets (STU-052). */
 const THUMBNAIL_PREFIX = "thumbnails/screen-";
@@ -54,9 +55,9 @@ function useOnScreen(): readonly [(el: HTMLElement | null) => void, boolean] {
 }
 
 /**
- * The visual of an app's card (STU-021): a live screenshot of its plugin canvas, an uploaded image, or a monogram of
- * the name's first character on a colour derived from the app. The assets are read only once the card is on screen,
- * so a long grid does not make one call per card up front.
+ * The visual of an app's card (STU-021): a live screenshot of its plugin canvas in a phone frame, an uploaded image as
+ * the app's icon, or a monogram of the name's first character on the app's own colour. The assets are read only once
+ * the card is on screen, so a long grid does not make one call per card up front.
  */
 export function CardVisual({ app, compact = false }: { readonly app: App; readonly compact?: boolean }): ReactElement {
   const m = appsMessages(useLingui().i18n);
@@ -69,24 +70,32 @@ export function CardVisual({ app, compact = false }: { readonly app: App; readon
     queryFn: async () => (await createClient(AssetService, session.transport).listAssets({ appId: app.id })).assets,
   });
   const visual = assets.data === undefined ? undefined : pickVisual(app, assets.data);
-  const frame = compact ? "size-10 rounded-md" : "w-full rounded-lg";
+  const alt = visual?.kind === "screenshot" ? m.cardVisual(app.name) : m.cardIcon(app.name);
+  if (compact) {
+    return (
+      <div ref={ref} data-visual={visual?.kind ?? "monogram"} data-tone={toneOf(app)} className="app-icon app-icon-sm">
+        {visual === undefined ? (
+          <span aria-hidden="true">{monogramOf(app)}</span>
+        ) : (
+          <img src={visual.url} alt={alt} className="size-full object-cover" />
+        )}
+      </div>
+    );
+  }
   return (
-    <div
-      ref={ref}
-      data-visual={visual?.kind ?? "monogram"}
-      style={compact ? undefined : { aspectRatio: "16 / 10" }}
-      className={cx("flex shrink-0 items-center justify-center overflow-hidden", frame, monogramTone(app))}
-    >
-      {visual === undefined ? (
-        <span aria-hidden="true" className={cx("font-serif", compact ? "text-title" : "text-screen")}>
-          {monogramOf(app)}
+    <div ref={ref} data-visual={visual?.kind ?? "monogram"} data-tone={toneOf(app)} className="app-visual">
+      {visual?.kind === "screenshot" ? (
+        <span className="app-phone">
+          <img src={visual.url} alt={alt} className="size-full object-cover object-top" />
         </span>
       ) : (
-        <img
-          src={visual.url}
-          alt={visual.kind === "screenshot" ? m.cardVisual(app.name) : m.cardIcon(app.name)}
-          className="size-full object-cover"
-        />
+        <span className={cx("app-icon", visual === undefined && "app-icon-lg")}>
+          {visual === undefined ? (
+            <span aria-hidden="true">{monogramOf(app)}</span>
+          ) : (
+            <img src={visual.url} alt={alt} className="size-full object-cover" />
+          )}
+        </span>
       )}
     </div>
   );

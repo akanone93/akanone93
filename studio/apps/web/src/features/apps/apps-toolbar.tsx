@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, cx, Field, Input, Select } from "@plux/ui";
+import { Button, cx, Icon, type IconName, Input, Select } from "@plux/ui";
 import type { ReactElement } from "react";
 import { appsMessages } from "./apps.messages.ts";
 import type { AppSort, AppStatus, AppsSearch } from "./apps.schema.ts";
@@ -10,20 +10,23 @@ import type { AppSort, AppStatus, AppsSearch } from "./apps.schema.ts";
 /** The Select value that stands for "no filter"; a Select option cannot be an empty string. */
 const ANY = "any";
 
-const pressed = "bg-raised text-primary shadow-e1";
+const pressed = "bg-raised text-primary shadow-soft";
 
 /** A button of a toggle group: `aria-pressed` tells the state, the raised pill shows it. */
 export function Toggle({
   on,
   onClick,
+  icon,
   children,
 }: {
   readonly on: boolean;
   readonly onClick: () => void;
+  readonly icon?: IconName;
   readonly children: string;
 }): ReactElement {
   return (
     <Button size="sm" variant="ghost" aria-pressed={on} className={cx(on && pressed)} onClick={onClick}>
+      {icon !== undefined && <Icon name={icon} size="tab" />}
       {children}
     </Button>
   );
@@ -40,7 +43,7 @@ function StatusToggles({ status, change }: { readonly status: AppStatus; readonl
     ["all", m.statusAll],
   ];
   return (
-    <fieldset aria-label={m.statusLabel} className="flex min-w-0 gap-1">
+    <fieldset aria-label={m.statusLabel} className="apps-segments">
       {options.map(([value, label]) => (
         <Toggle key={value} on={status === value} onClick={() => change({ status: value })}>
           {label}
@@ -67,32 +70,36 @@ export function AppsToolbar({
   const tag = search.tag ?? "";
   const mine = search.mine === true;
   return (
-    <fieldset aria-label={m.filtersLabel} className="flex min-w-0 flex-wrap items-end gap-3">
-      <Field label={m.searchLabel}>
+    <fieldset aria-label={m.filtersLabel} className="apps-toolbar">
+      <span className="apps-search">
         <Input
           type="search"
+          size="lg"
+          leading="magnifying-glass"
+          aria-label={m.searchLabel}
+          placeholder={m.searchLabel}
           value={search.q ?? ""}
           autoComplete="off"
           onChange={(e) => change({ q: e.target.value })}
         />
-      </Field>
-      <Field label={m.teamLabel}>
+      </span>
+      <span className="apps-filter">
         <Select
           label={m.teamLabel}
           options={[{ value: ANY, label: m.allTeams }, ...teams.map((t) => ({ value: t.id, label: t.name }))]}
           value={team === "" ? ANY : team}
           onValueChange={(v) => change({ team: v === ANY ? undefined : v })}
         />
-      </Field>
-      <Field label={m.tagLabel}>
+      </span>
+      <span className="apps-filter">
         <Select
           label={m.tagLabel}
           options={[{ value: ANY, label: m.allTags }, ...tags.map((t) => ({ value: t, label: t }))]}
           value={tag === "" ? ANY : tag}
           onValueChange={(v) => change({ tag: v === ANY ? undefined : v })}
         />
-      </Field>
-      <Field label={m.sortLabel}>
+      </span>
+      <span className="apps-filter">
         <Select
           label={m.sortLabel}
           options={[
@@ -103,11 +110,13 @@ export function AppsToolbar({
           value={search.sort ?? "name"}
           onValueChange={(v) => change({ sort: asSort(v) })}
         />
-      </Field>
+      </span>
       <StatusToggles status={search.status ?? "active"} change={change} />
-      <Toggle on={mine} onClick={() => change({ mine: mine ? undefined : true })}>
-        {m.mine}
-      </Toggle>
+      <span className="apps-segments">
+        <Toggle on={mine} icon="user" onClick={() => change({ mine: mine ? undefined : true })}>
+          {m.mine}
+        </Toggle>
+      </span>
     </fieldset>
   );
 }
