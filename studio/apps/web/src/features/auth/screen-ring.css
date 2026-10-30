@@ -13,6 +13,9 @@
   block-size: 100%;
   min-block-size: 640px;
   perspective: 2200px;
+  /* The screen stands nearer the form than the middle of its half, so the two halves read as one
+     composition. */
+  padding-inline-end: 28%;
   perspective-origin: 50% 35%;
   --ring-radius: 360px;
 }
