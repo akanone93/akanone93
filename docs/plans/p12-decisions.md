@@ -186,6 +186,37 @@ SPDX-License-Identifier: Apache-2.0
   day; OpenRouter free 1,000 requests a day after a one-time credit, with throttled, often
   retired models). DeepSeek V4 Flash costs about one dollar or less per run at published rates.
 
+### D-8. Prompt text and the first-request frame (`AI-051`)
+
+- **Decision:**
+  - **The frame is generated, never hand-written.** `make gen` produces the response format,
+    the recursive structures, the index of everything and the detail block of every widget,
+    action and type from `schema/` and the descriptors. The output is committed like all
+    generated code (`CI-003`), so every schema change shows up in the prompt diff.
+  - **The instructions are hand-written, versioned files**, one per task (page, plugin, edit,
+    action graph, translation, mock data, function), as standard-library Go templates under
+    `backend/internal/ai/prompts/`, each with a version number. Every evaluation result and
+    every audit record stores the version used.
+  - **Golden tests** render each prompt for fixed inputs and compare it with a stored copy, so
+    prompts are deterministic and every change is visible in review.
+- **Rejected:** prompts stored in the database and editable by administrators (they would
+  leave the evaluated, versioned path `AI-051` requires).
+
+### D-9. Function scaffolding (`AI-020`)
+
+- **Decision:**
+  1. **Same loop as D-5.** The first-request frame carries the `plux-fn` SDK interface and the
+     approved crate list; the `final` answer is the Rust source, its unit tests and the
+     function's input and output types.
+  2. **Checks before compiling:** approved crates only, no build scripts or procedural macros
+     outside the allowlist (`FN-016`), size limits from the registry.
+  3. **Build and test in the `builder` role.** Compiler errors and failing tests are the
+     diagnostics of the repair loop (`AI-003`, up to 3 attempts).
+  4. **The result is a proposal** (D-3) with the code, the tests and their results. Nothing is
+     deployed until the user accepts it **and** runs the normal function deploy flow.
+- **To measure early in P12:** the time of one build and test cycle on the P7 `builder` image;
+  if repairs make it too slow, add a warm build cache in `builder`, never skip the check.
+
 ---
 
 ## Resolved questions
