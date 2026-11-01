@@ -12,12 +12,15 @@ import type { OrgPulse } from "./org-pulse.ts";
 
 /** One figure: shadcn's section card (dashboard-01), the label over the number, a badge, and a note at the foot. */
 function Figure({
+  tone,
   icon,
   label,
   note,
   badge,
   children,
 }: {
+  /** The chart colour of the figure, 1 to 4 (home.css). */
+  readonly tone: 1 | 2 | 3 | 4;
   readonly icon: IconName;
   readonly label: string;
   readonly note: string;
@@ -25,17 +28,19 @@ function Figure({
   readonly children: ReactNode;
 }) {
   return (
-    <Card className="@container/card">
+    <Card className="@container/card" data-figure={tone}>
       <CardHeader>
-        <CardDescription>{label}</CardDescription>
+        <CardDescription className="flex items-center gap-2">
+          <span className="home-figure-icon" aria-hidden="true">
+            <Icon name={icon} size="pill" />
+          </span>
+          {label}
+        </CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @3xs/card:text-3xl">{children}</CardTitle>
         <CardAction>{badge}</CardAction>
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Icon name={icon} size="pill" />
-          {note}
-        </div>
+        <div className="text-muted-foreground">{note}</div>
       </CardFooter>
     </Card>
   );
@@ -59,15 +64,16 @@ export function Pulse({ pulse }: { readonly pulse: OrgPulse }) {
   return (
     <section
       aria-label={m.pulseLabel}
-      className="home-figures grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4"
+      className="home-figures grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4"
     >
-      <Figure icon="device-mobile" label={m.pulseDevices} note={m.pulseDevicesNote(pulse.apps)}>
+      <Figure tone={1} icon="device-mobile" label={m.pulseDevices} note={m.pulseDevicesNote(pulse.apps)}>
         <CountUp value={Number(pulse.devices)} format={(v) => whole.format(Math.round(v))} />
       </Figure>
-      <Figure icon="rocket-launch" label={m.pulseLive} note={m.pulseLiveNote(pulse.apps)}>
+      <Figure tone={2} icon="rocket-launch" label={m.pulseLive} note={m.pulseLiveNote(pulse.apps)}>
         <CountUp value={pulse.live} format={(v) => whole.format(Math.round(v))} />
       </Figure>
       <Figure
+        tone={3}
         icon="pulse"
         label={m.pulseCrashFree}
         note={m.pulseCrashFreeNote}
@@ -86,7 +92,7 @@ export function Pulse({ pulse }: { readonly pulse: OrgPulse }) {
           <CountUp value={pulse.crashFree} format={(v) => percent.format(v)} />
         )}
       </Figure>
-      <Figure icon="puzzle-piece" label={m.pulsePlugins} note={m.pulsePluginsNote}>
+      <Figure tone={4} icon="puzzle-piece" label={m.pulsePlugins} note={m.pulsePluginsNote}>
         <CountUp value={Number(pulse.plugins)} format={(v) => whole.format(Math.round(v))} />
       </Figure>
     </section>

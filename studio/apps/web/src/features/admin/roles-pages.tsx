@@ -3,7 +3,8 @@
 
 import { useLingui } from "@lingui/react";
 import { GovernanceService } from "@plux/api";
-import { Button, Field, Input } from "@plux/ui";
+import { Button, Field, Icon, Input } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useState } from "react";
 import { TypeConfirmDialog } from "../../components/dialogs/index.ts";
@@ -25,6 +26,7 @@ export function RolesPage(): ReactElement {
       caption={m.rolesCaption}
       loading={roles.isPending}
       failed={roles.isError}
+      error={roles.error}
     >
       <Table
         caption={m.rolesTitle}
@@ -41,7 +43,12 @@ export function RolesPage(): ReactElement {
           ],
         }))}
       />
-      <Link to="/o/$org/admin/roles/$roleId" params={{ org, roleId: "new" }}>
+      <Link
+        to="/o/$org/admin/roles/$roleId"
+        params={{ org, roleId: "new" }}
+        className={buttonVariants({ size: "sm", className: "self-start" })}
+      >
+        <Icon name="plus" data-icon="inline-start" />
         {m.newRole}
       </Link>
     </Frame>
@@ -146,6 +153,7 @@ export function RolePage(): ReactElement {
       caption={m.builderCaption}
       loading={catalogue.isPending || (!isNew && role.isPending)}
       failed={catalogue.isError || (!isNew && role.isError)}
+      error={catalogue.error ?? role.error}
       saveFailed={failed}
     >
       {loaded?.predefined === true && <p className="text-body text-muted-foreground">{m.predefinedLocked}</p>}

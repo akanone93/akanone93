@@ -9,11 +9,24 @@ export interface OrgHit {
   readonly kind: string;
   readonly id: string;
   readonly name: string;
+  /** The app the hit belongs to, for every kind but an app. */
+  readonly appId?: string;
+  /** The key path of an app or plugin, or the document's path in the project. */
+  readonly path?: string;
 }
 
-/** The route a hit opens: an app opens its canvas; other kinds need their app and have no route of their own yet. */
+/**
+ * The route a hit opens: an app opens its canvas and a plugin its own; any other hit inside an app opens that app's
+ * canvas, where it lives. A hit without its app has no route.
+ */
 export function hitPath(org: string, hit: OrgHit): string | undefined {
-  return hit.kind === "app" ? `/o/${org}/apps/${hit.id}` : undefined;
+  if (hit.kind === "app") {
+    return `/o/${org}/apps/${hit.id}`;
+  }
+  if (hit.appId === undefined || hit.appId === "") {
+    return undefined;
+  }
+  return hit.kind === "plugin" ? `/o/${org}/apps/${hit.appId}/plugins/${hit.id}` : `/o/${org}/apps/${hit.appId}`;
 }
 
 export type OrgSearchFn = (query: string, kinds: readonly string[], limit: number) => Promise<readonly OrgHit[]>;

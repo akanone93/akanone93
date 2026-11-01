@@ -72,7 +72,18 @@ export function notifyMessages(i18n: I18n) {
       message: "Always on",
       comment: "Shown next to approval and security types that cannot be muted.",
     }),
-    muteLabel: i18n._({ id: "notify.mute.label", message: "Mute", comment: "Label of the per-type mute checkbox." }),
+    muteCaption: i18n._({
+      id: "notify.mute.caption",
+      message: "Choose what reaches your inbox. Approval and security notifications are always on.",
+      comment: "Description of the notification settings in the profile.",
+    }),
+    notifyAbout: (name: string) =>
+      i18n._({
+        id: "notify.mute.switch",
+        message: "Notify me: {name}",
+        comment: "Accessible name of the switch that turns one notification type on or off; name is the type's name.",
+        values: { name },
+      }),
     inboxTitle: i18n._({
       id: "notify.inbox.title",
       message: "Notifications",

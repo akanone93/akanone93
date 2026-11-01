@@ -12,7 +12,7 @@ async function run(csrf: string | undefined, org: string | undefined): Promise<H
     seen.push(req.header);
     return {} as never;
   }) as never;
-  const req = { header: new Headers() } as UnaryRequest;
+  const req = { header: new Headers(), service: AppService } as unknown as UnaryRequest;
   await headerInterceptor({ csrfToken: () => csrf, organization: () => org })(next)(req);
   return seen[0] as Headers;
 }

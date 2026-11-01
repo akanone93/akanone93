@@ -4,6 +4,7 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import { Field, Input, StatusPill } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { Table } from "../security/parts.tsx";
@@ -31,6 +32,7 @@ export function ReleasesPage(): ReactElement {
       caption={m.timelineCaption}
       loading={environment.loading || releases.isPending || rollouts.isPending}
       failed={environment.failed || releases.isError || rollouts.isError}
+      error={releases.error ?? rollouts.error}
     >
       <div className="flex items-end gap-3">
         <Field label={m.channelLabel}>
@@ -39,6 +41,7 @@ export function ReleasesPage(): ReactElement {
             onChange={(e) =>
               void navigate({
                 to: ".",
+                resetScroll: false,
                 replace: true,
                 search: (s: object) => ({
                   ...s,
@@ -48,7 +51,12 @@ export function ReleasesPage(): ReactElement {
             }
           />
         </Field>
-        <Link className="text-body" to="/o/$org/apps/$app/releases/kill-switch" params={{ org, app }} search={{ env }}>
+        <Link
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+          to="/o/$org/apps/$app/releases/kill-switch"
+          params={{ org, app }}
+          search={{ env }}
+        >
           {m.killSwitchLink}
         </Link>
       </div>

@@ -4,7 +4,8 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppService } from "@plux/api";
-import { Button } from "@plux/ui";
+import { Button, Icon } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useRef, useState } from "react";
@@ -91,7 +92,12 @@ export function ComponentDetailPage(): ReactElement {
   const adoptTarget = perApp.data?.find((a) => a.app.id === dialog);
   return (
     <section className="flex flex-col gap-4" aria-labelledby="component-title">
-      <Link to="/o/$org/library" params={{ org }} className="text-caption">
+      <Link
+        to="/o/$org/library"
+        params={{ org }}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+      >
+        <Icon name="arrow-left" data-icon="inline-start" />
         {m.back}
       </Link>
       {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}

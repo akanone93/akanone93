@@ -29,6 +29,7 @@ export function CompliancePage(): ReactElement {
       caption={m.complianceCaption}
       loading={reports.isPending}
       failed={reports.isError}
+      error={reports.error}
       saveFailed={failed}
     >
       <Table

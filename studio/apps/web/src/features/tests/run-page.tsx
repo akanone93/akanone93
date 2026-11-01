@@ -3,7 +3,8 @@
 
 import { useLingui } from "@lingui/react";
 import type { TestScenarioResult } from "@plux/api";
-import { StatusPill } from "@plux/ui";
+import { Icon, StatusPill } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { Frame } from "../releases/frame.tsx";
@@ -60,8 +61,15 @@ export function TestRunPage(): ReactElement {
       caption={m.runCaption}
       loading={query.isPending}
       failed={query.isError || run === undefined}
+      error={query.error}
     >
-      <Link className="text-body" to="/o/$org/apps/$app/tests" params={{ org, app }} search={{ env }}>
+      <Link
+        to="/o/$org/apps/$app/tests"
+        params={{ org, app }}
+        search={{ env }}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+      >
+        <Icon name="arrow-left" data-icon="inline-start" />
         {m.back}
       </Link>
       <p className="text-body">

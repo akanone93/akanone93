@@ -3,6 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { StatusPill } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { shellSettingsMessages } from "./shell-settings.messages.ts";
@@ -17,7 +18,11 @@ export function ShellSettingsLink({ org, appId }: { readonly org: string; readon
   const status = useShellStatus(appId);
   return (
     <span className="inline-flex items-center gap-2">
-      <Link to="/o/$org/apps/$app/settings/shell" params={{ org, app: appId }} className="text-body">
+      <Link
+        to="/o/$org/apps/$app/settings/shell"
+        params={{ org, app: appId }}
+        className={buttonVariants({ variant: "outline", size: "sm" })}
+      >
         {m.linkLabel}
       </Link>
       {status.data?.updateRequired === true && <StatusPill status="warning" label={m.statusRequired} />}

@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from "@tanstack/react-router";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { fetchServerVersion } from "../../lib/server-version.ts";
 import { createSession } from "../../lib/session.ts";
@@ -119,6 +119,17 @@ describe("[STU-075] O14 inbox filter", () => {
     expect((screen.getByRole("button", { name: "Mark all as read" }) as HTMLButtonElement).disabled).toBe(false);
   });
 
+  test("E9 the bell shows the latest with the unread count and leads to all of them", async () => {
+    const r = renderApp(`/o/${orgA}`, { inbox });
+    const bell = await screen.findByRole("button", { name: "Notifications" });
+    await waitFor(() => expect(within(bell).getByText("1")).toBeTruthy());
+    fireEvent.click(bell);
+    await screen.findByText("Release one");
+    expect(screen.getByText("Member two")).toBeTruthy();
+    fireEvent.click(screen.getByRole("link", { name: "Open all notifications" }));
+    await waitFor(() => expect(r.router.state.location.pathname).toBe(`/o/${orgA}/notifications`));
+  });
+
   test("F16 approvals link to their audited record and sit under their own heading", async () => {
     const approvals = [{ id: "a1", eventType: "approval.requested", read: false, link: "/o/x/audit/1" }];
     renderApp(`/o/${orgA}/notifications`, { inbox: approvals });
@@ -139,23 +150,27 @@ describe("F16 kinds and mutes", () => {
 
   test("the profile lists every type, locking the approval ones", async () => {
     renderApp("/me");
-    const approval = (await screen.findAllByRole("checkbox")).find((c) => (c as HTMLInputElement).disabled);
-    expect(approval).toBeTruthy();
-    const publish = screen.getAllByRole("checkbox").find((c) => !(c as HTMLInputElement).disabled) as HTMLInputElement;
+    // A switch is on while its type reaches the inbox; the approval and security ones stay on.
+    const approval = await screen.findByRole("switch", { name: "Notify me: Approval requested" });
+    expect(approval.getAttribute("aria-checked")).toBe("true");
+    expect(approval.hasAttribute("data-disabled")).toBe(true);
+    const publish = screen.getByRole("switch", { name: "Notify me: Publish finished" });
+    expect(publish.hasAttribute("data-disabled")).toBe(false);
+    await waitFor(() => expect(publish.getAttribute("aria-checked")).toBe("true"));
     fireEvent.click(publish);
-    await waitFor(() => expect(publish.checked).toBe(true));
+    await waitFor(() => expect(publish.getAttribute("aria-checked")).toBe("false"));
     fireEvent.click(publish);
-    await waitFor(() => expect(publish.checked).toBe(false));
+    await waitFor(() => expect(publish.getAttribute("aria-checked")).toBe("true"));
   });
 
   test("a mute is stored in the server preferences under its own mask path [STU-013]", async () => {
     const updates: NonNullable<Parameters<typeof renderApp>[1]>["updates"] = [];
     renderApp("/me", { updates });
-    const publish = (await screen.findAllByRole("checkbox")).find((c) => !(c as HTMLInputElement).disabled);
-    fireEvent.click(publish as HTMLElement);
+    const publish = await screen.findByRole("switch", { name: "Notify me: Publish finished" });
+    fireEvent.click(publish);
     await waitFor(() => expect(updates?.length).toBe(1));
     expect(updates?.[0]?.paths).toEqual(["muted_notification_types"]);
-    expect(updates?.[0]?.mutedNotificationTypes?.length).toBe(1);
+    expect(updates?.[0]?.mutedNotificationTypes).toEqual(["release.published"]);
     expect(localStorage.getItem("plux.notifications.muted")).toBeNull();
   });
 });

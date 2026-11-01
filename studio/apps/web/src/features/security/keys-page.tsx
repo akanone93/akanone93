@@ -30,6 +30,7 @@ export function KeysPage(): ReactElement {
       caption={m.keysCaption}
       loading={result.isPending}
       failed={result.isError}
+      error={result.error}
     >
       <p className="text-body">
         {m.rootVersions}: <span className="font-mono">{result.data?.roots.length ?? 0}</span>

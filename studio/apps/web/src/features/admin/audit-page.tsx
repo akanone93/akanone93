@@ -49,6 +49,7 @@ export function AuditPage(): ReactElement {
       caption={m.auditCaption}
       loading={entries.isPending}
       failed={entries.isError}
+      error={entries.error}
     >
       <form
         className="flex flex-wrap items-end gap-3"

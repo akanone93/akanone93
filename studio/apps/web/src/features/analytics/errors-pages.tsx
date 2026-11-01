@@ -4,6 +4,8 @@
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
+import { Icon } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { Frame } from "../releases/frame.tsx";
@@ -81,9 +83,16 @@ export function AnalyticsErrorPage(): ReactElement {
       title={group?.code ?? m.errorTitle}
       loading={list.isPending || (id !== "" && detail.isPending)}
       failed={list.isError || detail.isError || missing}
+      error={list.error ?? detail.error}
     >
       <AreaNav />
-      <Link to="/o/$org/apps/$app/analytics/errors" params={{ org, app }} search={search}>
+      <Link
+        to="/o/$org/apps/$app/analytics/errors"
+        params={{ org, app }}
+        search={search}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+      >
+        <Icon name="arrow-left" data-icon="inline-start" />
         {m.backErrors}
       </Link>
       {group !== undefined && (

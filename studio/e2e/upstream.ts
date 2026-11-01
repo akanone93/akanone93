@@ -98,7 +98,13 @@ export async function mockUpstream(p: Page, data: UpstreamData): Promise<void> {
     }
     try {
       const input = fromBinary(desc.input, route.request().postDataBuffer() ?? new Uint8Array());
-      const res = await transport.unary(desc as DescMethodUnary, undefined, undefined, undefined, input as never);
+      const res = await transport.unary(
+        desc as DescMethodUnary,
+        undefined,
+        undefined,
+        new Headers(route.request().headers()),
+        input as never,
+      );
       return route.fulfill({
         status: 200,
         contentType: "application/proto",

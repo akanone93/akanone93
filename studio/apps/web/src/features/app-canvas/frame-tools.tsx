@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { Button, Dialog, Field, Input } from "@plux/ui";
+import { Button, Dialog, Field, Icon, Input } from "@plux/ui";
+import { Button as RowButton } from "@plux/ui/components/button";
 import { type ReactNode, useEffect, useState } from "react";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
 import type { Frame, FrameChange } from "./app-canvas.model.ts";
@@ -32,9 +33,10 @@ export function FrameTools({
   return (
     <>
       {frames.map((f) => (
-        <Button key={f.id} onClick={() => setEditing(f)}>
-          {m.editFrame(f.label)}
-        </Button>
+        <RowButton key={f.id} variant="ghost" size="sm" onClick={() => setEditing(f)}>
+          <Icon name="squares-four" data-icon="inline-start" />
+          <span className="truncate">{m.editFrame(f.label)}</span>
+        </RowButton>
       ))}
       {editing === undefined ? null : (
         <Dialog

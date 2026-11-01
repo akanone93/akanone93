@@ -23,6 +23,7 @@ export function RestrictionsPage(): ReactElement {
       caption={m.restrictionsCaption}
       loading={list.isPending}
       failed={list.isError}
+      error={list.error}
       saveFailed={failed}
     >
       <p className="text-body text-muted-foreground">{m.lockoutNote}</p>

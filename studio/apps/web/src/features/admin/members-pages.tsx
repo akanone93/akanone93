@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { GovernanceService, IdentityService, OrgService } from "@plux/api";
 import { Button } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { TypeConfirmDialog } from "../../components/dialogs/index.ts";
@@ -35,6 +36,7 @@ export function MembersPage(): ReactElement {
       caption={m.membersCaption}
       loading={members.isPending}
       failed={members.isError}
+      error={members.error}
       saveFailed={failed}
     >
       <Table
@@ -119,9 +121,15 @@ export function MemberPage(): ReactElement {
       title={member?.displayName || member?.email || m.memberTitle}
       loading={members.isPending}
       failed={members.isError}
+      error={members.error}
       saveFailed={failed}
     >
-      <Link to="/o/$org/admin/access" params={{ org }} search={{ user: userId }}>
+      <Link
+        to="/o/$org/admin/access"
+        params={{ org }}
+        search={{ user: userId }}
+        className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
+      >
         {m.explainLink}
       </Link>
       <GrantsSection userId={userId} />

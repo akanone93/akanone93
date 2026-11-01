@@ -6,9 +6,9 @@ import { type Client, createClient } from "@connectrpc/connect";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { loadUser } from "../../lib/guards.ts";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 
 /** The largest page the administration lists ask for; the server may return fewer. */
 export const pageSize = 200;
@@ -25,8 +25,7 @@ export function useRpc<S extends DescService>(service: S): Client<S> {
 
 /** Whether the signed-in person holds `permission`; actions without it are disabled, never hidden (F14). */
 export function useCan(permission: string): boolean {
-  const { session } = useApp();
-  const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   return user.data?.permissions.includes(permission) ?? false;
 }
 

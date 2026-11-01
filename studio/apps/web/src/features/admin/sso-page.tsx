@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { FederationService } from "@plux/api";
 import { Button } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { Refusal } from "../../components/refusal.tsx";
 import { adminMessages } from "./admin.messages.ts";
 import { CreateForm, Frame, fmt, SecretPanel, Table } from "./parts.tsx";
 import { pageSize, useAdminQuery, useCan, useRpc, useRun } from "./use-admin.ts";
@@ -31,8 +32,9 @@ export function SsoPage(): ReactElement {
       id="admin-sso"
       title={m.ssoTitle}
       caption={m.ssoCaption}
-      loading={providers.isPending || tokens.isPending}
-      failed={providers.isError || tokens.isError}
+      loading={providers.isPending}
+      failed={providers.isError}
+      error={providers.error}
       saveFailed={failed}
     >
       <h2 className="text-label font-medium">{m.providers}</h2>
@@ -55,47 +57,53 @@ export function SsoPage(): ReactElement {
           onDismiss={() => setSecret(undefined)}
         />
       )}
-      <Table
-        caption={m.scimTokens}
-        heads={[m.colName, m.colPrefix, m.colExpires, m.colState, ""]}
-        empty={m.nothing}
-        rows={(tokens.data?.tokens ?? []).map((t) => ({
-          key: t.id,
-          cells: [
-            t.name,
-            <span key="p" className="font-mono">
-              {t.prefix}
-            </span>,
-            fmt(t.expiresAt, m.never),
-            t.revokedAt === undefined ? m.stateActive : m.stateRevoked,
-            <span key="a" className="flex gap-2">
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={!can || t.revokedAt !== undefined}
-                onClick={() => issue(() => federation.rotateScimToken({ id: t.id, overlapSeconds: 3600n }))}
-              >
-                {m.rotate}
-              </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                disabled={!can || t.revokedAt !== undefined}
-                onClick={() => run(() => federation.revokeScimToken({ id: t.id }))}
-              >
-                {m.revoke}
-              </Button>
-            </span>,
-          ],
-        }))}
-      />
-      <CreateForm
-        fields={[{ name: "name", label: m.tokenName, required: true }]}
-        submit={m.createScim}
-        disabled={!can}
-        deniedReason={m.noPermission}
-        onSubmit={(v) => issue(() => federation.createScimToken({ name: v("name") }))}
-      />
+      {tokens.isError ? (
+        <Refusal error={tokens.error} failedTitle={m.loadFailed} />
+      ) : (
+        <Table
+          caption={m.scimTokens}
+          heads={[m.colName, m.colPrefix, m.colExpires, m.colState, ""]}
+          empty={m.nothing}
+          rows={(tokens.data?.tokens ?? []).map((t) => ({
+            key: t.id,
+            cells: [
+              t.name,
+              <span key="p" className="font-mono">
+                {t.prefix}
+              </span>,
+              fmt(t.expiresAt, m.never),
+              t.revokedAt === undefined ? m.stateActive : m.stateRevoked,
+              <span key="a" className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!can || t.revokedAt !== undefined}
+                  onClick={() => issue(() => federation.rotateScimToken({ id: t.id, overlapSeconds: 3600n }))}
+                >
+                  {m.rotate}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  disabled={!can || t.revokedAt !== undefined}
+                  onClick={() => run(() => federation.revokeScimToken({ id: t.id }))}
+                >
+                  {m.revoke}
+                </Button>
+              </span>,
+            ],
+          }))}
+        />
+      )}
+      {!tokens.isError && (
+        <CreateForm
+          fields={[{ name: "name", label: m.tokenName, required: true }]}
+          submit={m.createScim}
+          disabled={!can}
+          deniedReason={m.noPermission}
+          onSubmit={(v) => issue(() => federation.createScimToken({ name: v("name") }))}
+        />
+      )}
     </Frame>
   );
 }

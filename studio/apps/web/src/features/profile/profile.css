@@ -1,0 +1,85 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * The theme choices of the profile page: a card per theme with a small page drawn in that theme's own colours, so the
+ * picture does not change with the theme in use. The colours are shadcn's neutral theme (ADR-0103).
+ */
+.theme-option {
+  inline-size: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  gap: calc(var(--spacing) * 3);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.theme-option:has([data-checked]) {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.theme-option:has(:focus-visible) {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+}
+
+.theme-preview {
+  --pv-bg: oklch(1 0 0);
+  --pv-card: oklch(0.97 0 0);
+  --pv-fg: oklch(0.205 0 0);
+  --pv-muted: oklch(0.87 0 0);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 3);
+  block-size: calc(var(--spacing) * 20);
+  background: var(--pv-bg);
+  border-block-end: 1px solid var(--border);
+}
+
+.theme-preview[data-preview="dark"] {
+  --pv-bg: oklch(0.145 0 0);
+  --pv-card: oklch(0.269 0 0);
+  --pv-fg: oklch(0.922 0 0);
+  --pv-muted: oklch(0.371 0 0);
+}
+
+/* Match system: half light, half dark. */
+.theme-preview[data-preview="system"] {
+  background: linear-gradient(90deg, oklch(1 0 0) 50%, oklch(0.145 0 0) 50%);
+  --pv-card: oklch(0.556 0 0 / 35%);
+  --pv-fg: oklch(0.556 0 0);
+  --pv-muted: oklch(0.708 0 0);
+}
+
+.theme-preview[data-preview="contrast"] {
+  --pv-card: oklch(1 0 0);
+  --pv-fg: oklch(0 0 0);
+  --pv-muted: oklch(0.35 0 0);
+}
+
+.theme-preview-bar {
+  block-size: calc(var(--spacing) * 3);
+  border-radius: var(--radius-sm);
+  background: var(--pv-card);
+}
+
+.theme-preview[data-preview="contrast"] .theme-preview-bar {
+  border: 1px solid var(--pv-fg);
+}
+
+.theme-preview-line {
+  block-size: calc(var(--spacing) * 2);
+  inline-size: 80%;
+  border-radius: var(--radius-sm);
+  background: var(--pv-fg);
+  opacity: 0.85;
+}
+
+.theme-preview-short {
+  inline-size: 50%;
+  background: var(--pv-muted);
+}

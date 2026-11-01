@@ -134,6 +134,7 @@ function TestsView(props: {
           onChange={(e) =>
             void navigate({
               to: ".",
+              resetScroll: false,
               replace: true,
               search: (s: object) => ({ ...s, q: e.target.value === "" ? undefined : e.target.value }),
             } as never)

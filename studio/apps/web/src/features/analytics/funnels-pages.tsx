@@ -3,7 +3,8 @@
 
 import { useLingui } from "@lingui/react";
 import { limitDefault } from "@plux/schema";
-import { Button, Field, Input, Textarea } from "@plux/ui";
+import { Button, Field, Icon, Input, Textarea } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { Frame } from "../releases/frame.tsx";
@@ -38,6 +39,7 @@ export function AnalyticsFunnelsPage(): ReactElement {
       caption={m.funnelsCaption}
       loading={funnels.isPending}
       failed={funnels.isError}
+      error={funnels.error}
     >
       <AreaNav />
       {(funnels.data ?? []).length === 0 && <p className="text-body text-muted-foreground">{m.noFunnels}</p>}
@@ -104,7 +106,13 @@ export function AnalyticsFunnelPage(): ReactElement {
   return (
     <Frame id="funnel-title" title={q.data?.funnel?.name ?? m.funnelsTitle} loading={q.isPending} failed={q.isError}>
       <AreaNav />
-      <Link to="/o/$org/apps/$app/analytics/funnels" params={{ org, app }} search={search}>
+      <Link
+        to="/o/$org/apps/$app/analytics/funnels"
+        params={{ org, app }}
+        search={search}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+      >
+        <Icon name="arrow-left" data-icon="inline-start" />
         {m.backFunnels}
       </Link>
       <BarList

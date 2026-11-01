@@ -36,24 +36,34 @@ function LevelPill({ level, m }: { readonly level: LimitLevel; readonly m: Messa
  * The usage of an app against its limits on its card (STU-025): one meter per limit the summary reports, with the
  * number in text, and a badge once the usage is near or at the limit in force.
  */
-export function CardLimits({ limits }: { readonly limits: readonly AppLimitUsage[] }): ReactElement | null {
+export function CardLimits({
+  limits,
+  compact = false,
+}: {
+  readonly limits: readonly AppLimitUsage[];
+  /** The compact card: thin bars under their names, the amounts in a tooltip and for screen readers. */
+  readonly compact?: boolean;
+}): ReactElement | null {
   const { i18n } = useLingui();
   const m = appsMessages(i18n);
   if (limits.length === 0) {
     return null;
   }
   return (
-    <ul aria-label={m.limitsUsage} className="grid grid-cols-2 gap-x-4 gap-y-3">
+    <ul
+      aria-label={m.limitsUsage}
+      className={compact ? "grid grid-cols-3 gap-x-3 gap-y-2" : "grid grid-cols-2 gap-x-4 gap-y-3"}
+    >
       {limits.map((l) => {
         const name = m.limitName(l.key) ?? l.key;
         const unit = registry.find((r) => r.key === l.key)?.unit ?? "count";
         const used = formatAmount(l.used, unit, i18n.locale, unitWords(m));
         const text = m.limitUsageText(used, formatAmount(l.limit, unit, i18n.locale, unitWords(m)));
         return (
-          <li key={l.key} className="flex min-w-0 flex-col gap-1.5">
+          <li key={l.key} className="flex min-w-0 flex-col gap-1" title={compact ? `${name}: ${text}` : undefined}>
             <div className="flex items-baseline justify-between gap-2 text-xs">
               <span className="truncate text-muted-foreground">{name}</span>
-              <span className="shrink-0 tabular-nums">{used}</span>
+              {!compact && <span className="shrink-0 tabular-nums">{used}</span>}
             </div>
             <Meter value={Number(l.used)} max={Number(l.limit)} label={name} valueText={text} layout="bar" />
             <LevelPill level={levelOf(l.used, l.limit)} m={m} />

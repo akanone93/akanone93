@@ -4,8 +4,8 @@
 import { createClient } from "@connectrpc/connect";
 import { ComponentService, type LibraryItem, TemplateService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
-import { loadUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 import type { LibrarySearch } from "./library.schema.ts";
 import { filterItems } from "./library-model.ts";
 
@@ -13,8 +13,7 @@ export type LibraryKind = "component" | "template";
 
 /** Whether the signed-in person holds `permission`; false while it loads (the server checks it too). */
 export function useCan(permission: string): boolean {
-  const { session } = useApp();
-  const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   return user.data?.permissions.includes(permission) ?? false;
 }
 

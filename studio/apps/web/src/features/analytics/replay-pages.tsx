@@ -4,7 +4,8 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import type { Replay, ReplayEvent } from "@plux/api";
-import { Button } from "@plux/ui";
+import { Button, Icon } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useMemo, useState } from "react";
 import { Frame } from "../releases/frame.tsx";
@@ -32,6 +33,7 @@ export function AnalyticsReplaysPage(): ReactElement {
       caption={m.replaysCaption}
       loading={replays.isPending}
       failed={replays.isError}
+      error={replays.error}
     >
       <AreaNav />
       {rows.length === 0 && <p className="text-body text-muted-foreground">{m.noReplays}</p>}
@@ -144,7 +146,13 @@ export function AnalyticsReplayPage(): ReactElement {
   return (
     <Frame id="replay-title" title={m.replayTitle} loading={q.isPending} failed={q.isError}>
       <AreaNav />
-      <Link to="/o/$org/apps/$app/analytics/replays" params={{ org, app }} search={search}>
+      <Link
+        to="/o/$org/apps/$app/analytics/replays"
+        params={{ org, app }}
+        search={search}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+      >
+        <Icon name="arrow-left" data-icon="inline-start" />
         {m.backReplays}
       </Link>
       <p className="text-body text-muted-foreground">{frame.route}</p>

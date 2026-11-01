@@ -206,8 +206,11 @@ export function layoutPills(badges: readonly Badge[], inner: number): PlacedPill
   return out;
 }
 
-/** The items of one box: rectangle, title, key and its badges as pills, wrapped within the box. */
-export function boxItems(b: SceneBox, style: AppSceneStyle = appSceneStyle): ItemSpec[] {
+/**
+ * The items of one box: rectangle, title, key and its badges as pills, wrapped within the box. A selected box has a
+ * thicker outline in the focus colour, drawn with the box itself.
+ */
+export function boxItems(b: SceneBox, style: AppSceneStyle = appSceneStyle, selected = false): ItemSpec[] {
   const main = boxItem(b.id);
   const inner = BOX.width - 2 * PAD;
   const items: ItemSpec[] = [
@@ -219,9 +222,9 @@ export function boxItems(b: SceneBox, style: AppSceneStyle = appSceneStyle): Ite
       y: b.y,
       w: BOX.width,
       h: BOX.height,
-      radius: 8,
+      radius: 10,
       fill: b.native ? style.nativeFill : b.archived ? style.archivedFill : style.fill,
-      stroke: { color: style.stroke, width: 1 },
+      stroke: selected ? { color: style.focus, width: 2 } : { color: style.stroke, width: 1 },
       z: BOX_Z,
     },
     {

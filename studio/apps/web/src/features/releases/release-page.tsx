@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, StatusPill } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { firstError } from "../../components/refusal.tsx";
 import { Table } from "../security/parts.tsx";
 import { useEnvironment, usePermissions, useScope } from "../security/use-security.ts";
 import { Frame } from "./frame.tsx";
@@ -98,6 +99,7 @@ export function ReleasePage(): ReactElement {
       title={m.detailTitle(String(sequence))}
       loading={environment.loading || release.isPending || rollouts.isPending}
       failed={environment.failed || release.isError || rollouts.isError}
+      error={firstError(release.error, rollouts.error)}
     >
       <h2 className="text-heading">{m.content}</h2>
       <Table

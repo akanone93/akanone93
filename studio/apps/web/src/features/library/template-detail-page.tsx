@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button } from "@plux/ui";
+import { Button, Icon } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
@@ -38,7 +39,12 @@ export function TemplateDetailPage(): ReactElement {
   };
   return (
     <section className="flex flex-col gap-4" aria-labelledby="template-title">
-      <Link to="/o/$org/library" params={{ org }} className="text-caption">
+      <Link
+        to="/o/$org/library"
+        params={{ org }}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+      >
+        <Icon name="arrow-left" data-icon="inline-start" />
         {m.back}
       </Link>
       {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}

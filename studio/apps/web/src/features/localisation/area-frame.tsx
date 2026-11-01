@@ -23,11 +23,11 @@ function Body(props: {
         {props.title}
       </h1>
       <p className="text-body text-muted-foreground">{props.caption}</p>
-      <nav aria-label={m.navLabel} className="flex gap-4">
-        <Link className="text-body" to="/o/$org/apps/$app/localisation" params={params} search={search}>
+      <nav aria-label={m.navLabel} className="sub-nav">
+        <Link to="/o/$org/apps/$app/localisation" params={params} search={search}>
           {m.gridLink}
         </Link>
-        <Link className="text-body" to="/o/$org/apps/$app/localisation/heatmap" params={params} search={search}>
+        <Link to="/o/$org/apps/$app/localisation/heatmap" params={params} search={search}>
           {m.heatmapLink}
         </Link>
       </nav>

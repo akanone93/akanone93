@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { Code, ConnectError, createClient } from "@connectrpc/connect";
-import { type GetCurrentUserResponse, IdentityService, LicenseService } from "@plux/api";
+import { type GetCurrentUserResponse, IdentityService, LicenseService, ORGANIZATION_HEADER } from "@plux/api";
 import { notFound, redirect } from "@tanstack/react-router";
 import { organizationIdOf, type Session } from "./session.ts";
 
@@ -24,16 +24,37 @@ export function safeNext(next: string | undefined): string {
   return next?.startsWith("/") && !next.startsWith("//") ? next : "/";
 }
 
-/** The signed-in user, or undefined when the BFF answers 401. */
-export async function loadUser(session: Session): Promise<GetCurrentUserResponse | undefined> {
-  const client = createClient(IdentityService, session.transport);
+/**
+ * The signed-in user as seen from one organisation. The server returns permissions only for the organisation the call
+ * names, so each organisation has its own cache entry. A signed-out answer is an error, never cached data.
+ */
+async function fetchUser(session: Session, organization: string | undefined): Promise<GetCurrentUserResponse> {
+  const user = await createClient(IdentityService, session.transport).getCurrentUser(
+    {},
+    organization === undefined ? undefined : { headers: { [ORGANIZATION_HEADER]: organization } },
+  );
+  // After a reload only the cookie survives; GetCurrentUser hands the CSRF token back (SEC-101, STU-002).
+  if (user.csrfToken !== "") {
+    session.setCsrfToken(user.csrfToken);
+  }
+  return user;
+}
+
+/** The query of the current user in one organisation (undefined: outside any), for loaders and components alike. */
+export function currentUserQuery(session: Session, organization: string | undefined) {
+  return {
+    queryKey: [...userKey, organization ?? ""] as const,
+    queryFn: () => fetchUser(session, organization),
+  };
+}
+
+/**
+ * The signed-in user, or undefined when the BFF answers 401; with an organisation, their permissions there. It reads
+ * the cache through `fetchQuery` and never runs inside a query function, so a refetch cannot wait on itself.
+ */
+export async function loadUser(session: Session, organization?: string): Promise<GetCurrentUserResponse | undefined> {
   try {
-    const user = await session.queryClient.fetchQuery({ queryKey: userKey, queryFn: () => client.getCurrentUser({}) });
-    // After a reload only the cookie survives; GetCurrentUser hands the CSRF token back (SEC-101, STU-002).
-    if (user.csrfToken !== "") {
-      session.setCsrfToken(user.csrfToken);
-    }
-    return user;
+    return await session.queryClient.fetchQuery(currentUserQuery(session, organization));
   } catch (error) {
     if (error instanceof ConnectError && error.code === Code.Unauthenticated) {
       return undefined;
@@ -42,13 +63,22 @@ export async function loadUser(session: Session): Promise<GetCurrentUserResponse
   }
 }
 
+/** Refetches the current user in every organisation, after a change to the person's memberships. */
+export function refreshUser(session: Session): Promise<void> {
+  return session.queryClient.invalidateQueries({ queryKey: userKey });
+}
+
 export function forgetUser(session: Session): void {
   session.queryClient.removeQueries({ queryKey: userKey });
 }
 
 /** Signed out: to the sign-in page with the path to return to (R2.7). */
-export async function requireUser(session: Session, href: string): Promise<GetCurrentUserResponse> {
-  const user = await loadUser(session);
+export async function requireUser(
+  session: Session,
+  href: string,
+  organization?: string,
+): Promise<GetCurrentUserResponse> {
+  const user = await loadUser(session, organization);
   if (user === undefined) {
     throw redirect({ to: "/signin", search: { next: href } });
   }

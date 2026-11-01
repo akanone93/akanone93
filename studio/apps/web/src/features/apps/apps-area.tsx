@@ -17,8 +17,9 @@ import { AppsToolbar, Choice } from "./apps-toolbar.tsx";
 import { useAppActions } from "./use-app-actions.tsx";
 import { useVisibleApps } from "./use-apps.ts";
 import "./apps.css";
+import { AnimatedList } from "../../components/animated-list.tsx";
 
-const gridClass = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3";
+const gridClass = "grid grid-cols-1 gap-3 @2xl/main:grid-cols-2 @5xl/main:grid-cols-3 @7xl/main:grid-cols-4";
 
 /** The loading, failure and empty states above the apps: shadcn's Skeleton, Alert and Empty. */
 function States({
@@ -124,7 +125,7 @@ export function AppsArea({
     search.mine === true ||
     (search.status ?? "active") !== "active";
   return (
-    <section aria-labelledby="home-apps" className="flex flex-col gap-4 px-4 lg:px-6">
+    <section aria-labelledby="home-apps" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <h2 id="home-apps" className="text-lg font-semibold tracking-tight">
           {home.appsTitle}
@@ -174,11 +175,14 @@ export function AppsArea({
           )}
         </Empty>
       )}
-      {shown.length > 0 && (
-        <ul className={view === "grid" ? gridClass : "flex flex-col gap-2"}>
-          {shown.map((entry) => (
+      {/* Kept while it empties, so the last apps a filter removes leave as the others do. */}
+      {anyApps && (
+        <AnimatedList
+          items={shown}
+          keyOf={(entry) => entry.app.id}
+          className={view === "grid" ? gridClass : "flex flex-col gap-2"}
+          render={(entry) => (
             <Item
-              key={entry.app.id}
               entry={entry}
               org={org}
               team={teamNames.get(entry.app.owningTeamId)}
@@ -186,8 +190,8 @@ export function AppsArea({
               permissions={permissions}
               handlers={handlers}
             />
-          ))}
-        </ul>
+          )}
+        />
       )}
       {dialog}
     </section>

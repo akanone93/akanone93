@@ -33,7 +33,7 @@ export function AddLocaleDialog(props: { readonly open: boolean; readonly onClos
     setShown(true);
     if (problem === undefined && area.sessions.canEditKeys) {
       addLocale(area, code);
-      void navigate({ to: ".", search: (prev: object) => ({ ...prev, locale: code }) });
+      void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, locale: code }) });
       setCode("");
       setShown(false);
       props.onClose();

@@ -21,6 +21,7 @@ export function HistoryPage(): ReactElement {
       caption={m.historyCaption}
       loading={requests.isPending}
       failed={requests.isError}
+      error={requests.error}
     >
       <AppFilter />
       <RequestTable requests={decided} />

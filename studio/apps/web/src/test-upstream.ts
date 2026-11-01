@@ -43,6 +43,7 @@ import {
   ManifestService,
   MemberSchema,
   NotificationService,
+  ORGANIZATION_HEADER,
   OrganizationSchema,
   OrgService,
   PluginSchema,
@@ -484,7 +485,7 @@ export function createUpstream(state: UpstreamData) {
         state.security?.stepUps?.push(`complete:${req.requestId}`);
         return {};
       },
-      getCurrentUser: () => {
+      getCurrentUser: (_req, ctx) => {
         if (state.signedIn === false) {
           throw new ConnectError("no session", Code.Unauthenticated);
         }
@@ -493,7 +494,8 @@ export function createUpstream(state: UpstreamData) {
           memberships: [...(state.memberships ?? [orgA, orgB]), ...createdOrganisations.map((o) => o.id)].map((id) =>
             create(MemberSchema, { organizationId: id, userId: "u1" }),
           ),
-          permissions: state.permissions ?? [],
+          // As the server: permissions only for the organisation the call names.
+          permissions: ctx.requestHeader.has(ORGANIZATION_HEADER) ? (state.permissions ?? []) : [],
           installationAdmin: state.installationAdmin ?? false,
           csrfToken: state.csrfToken ?? "",
         });
@@ -519,8 +521,17 @@ export function createUpstream(state: UpstreamData) {
         };
       },
     });
+    // As the server: preferences are a person's in one organisation, so a call must name it.
+    const inOrganisation = (header: Headers) => {
+      if (!header.has(ORGANIZATION_HEADER)) {
+        throw new ConnectError("this call acts in an organisation", Code.InvalidArgument);
+      }
+    };
     service(PreferencesService, {
-      getPreferences: () => ({ preferences: create(PreferencesSchema, stored) }),
+      getPreferences: (_req, ctx) => {
+        inOrganisation(ctx.requestHeader);
+        return { preferences: create(PreferencesSchema, stored) };
+      },
       getOnboarding: () => ({
         steps: state.projects?.onboarding ?? [
           { key: "create_app", done: true },
@@ -530,7 +541,8 @@ export function createUpstream(state: UpstreamData) {
           { key: "invite_member", done: true },
         ],
       }),
-      updatePreferences: (req) => {
+      updatePreferences: (req, ctx) => {
+        inOrganisation(ctx.requestHeader);
         Object.assign(stored, { ...req.preferences });
         state.updates?.push({ paths: req.updateMask?.paths ?? [], ...stored });
         return { preferences: create(PreferencesSchema, stored) };

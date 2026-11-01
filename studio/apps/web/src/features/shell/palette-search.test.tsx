@@ -84,6 +84,43 @@ describe("[STU-013] F15 organisation search", () => {
     expect(hitPath("acme", { kind: "plugin", id: "p", name: "p" })).toBeUndefined();
   });
 
+  test("a plugin hit opens its canvas, any other hit inside an app opens the app [STU-013]", () => {
+    expect(hitPath("acme", { kind: "plugin", id: "p1", name: "Cart", appId: "a1" })).toBe("/o/acme/apps/a1/plugins/p1");
+    expect(hitPath("acme", { kind: "page", id: "d1", name: "home", appId: "a1" })).toBe("/o/acme/apps/a1");
+    expect(hitPath("acme", { kind: "function", id: "f1", name: "tax", appId: "" })).toBeUndefined();
+  });
+
+  test("the Commands filter keeps to commands and never asks the server", async () => {
+    const cmd: Command = {
+      id: "shop.cmd",
+      title: "Shop settings",
+      group: "navigate",
+      permission: null,
+      run: () => undefined,
+    };
+    const registry = createRegistry([cmd]);
+    const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });
+    const asked: string[] = [];
+    const search: OrgSearchFn = async (q) => {
+      asked.push(q);
+      return [hit("Shop app")];
+    };
+    render(
+      <I18nProvider studio={studio}>
+        <CommandsProvider value={{ registry, states: registry.stateFor([]) }}>
+          <CommandPalette open onOpenChange={() => undefined} search={search} />
+        </CommandsProvider>
+      </I18nProvider>,
+    );
+    const box = await screen.findByRole("combobox");
+    fireEvent.change(box, { target: { value: "shop" } });
+    fireEvent.click(screen.getByRole("button", { name: "Commands" }));
+    expect((box as HTMLInputElement).value).toBe(">shop");
+    await sleep(searchDebounceMs + 50);
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["Shop settings"]);
+    expect(asked).toEqual([]);
+  });
+
   test("choosing a hit in the palette reports it", async () => {
     const registry = createRegistry([]);
     const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });

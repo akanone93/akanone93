@@ -4,7 +4,8 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { FunctionAdminService } from "@plux/api";
-import { Tabs } from "@plux/ui";
+import { Icon, Tabs } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useMemo } from "react";
 import { useApp } from "../../lib/use-app.tsx";
@@ -71,19 +72,37 @@ export function FunctionPage(): ReactElement {
       title={m.detailTitle(fnId)}
       loading={environment.loading || fn.isPending}
       failed={environment.failed || fn.isError}
+      error={fn.error}
     >
-      <div className="flex gap-4 text-body">
-        <Link to="/o/$org/apps/$app/functions" params={{ org, app }} search={{ env }}>
+      <div className="flex items-center gap-2">
+        <Link
+          to="/o/$org/apps/$app/functions"
+          params={{ org, app }}
+          search={{ env }}
+          className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+        >
+          <Icon name="arrow-left" data-icon="inline-start" />
           {m.back}
         </Link>
-        <Link to="/o/$org/apps/$app/functions/$fnId/edit" params={{ org, app, fnId } as never} search={{ env }}>
+        <Link
+          to="/o/$org/apps/$app/functions/$fnId/edit"
+          params={{ org, app, fnId } as never}
+          search={{ env }}
+          className={buttonVariants({ size: "sm" })}
+        >
+          <Icon name="pencil-simple" data-icon="inline-start" />
           {m.openEditor}
         </Link>
       </div>
       <Tabs
         value={tab}
         onValueChange={(value) =>
-          void navigate({ to: ".", replace: true, search: (s: object) => ({ ...s, tab: value }) } as never)
+          void navigate({
+            to: ".",
+            resetScroll: false,
+            replace: true,
+            search: (s: object) => ({ ...s, tab: value }),
+          } as never)
         }
         tabs={functionTabs.map((value) => ({ value, label: labels[value], panel: panels[value] }))}
       />

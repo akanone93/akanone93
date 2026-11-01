@@ -32,6 +32,7 @@ export function TokensPage(): ReactElement {
       caption={m.tokensCaption}
       loading={tokens.isPending || workloads.isPending}
       failed={tokens.isError || workloads.isError}
+      error={tokens.error ?? workloads.error}
       saveFailed={failed}
     >
       {secret !== undefined && (

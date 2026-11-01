@@ -22,6 +22,11 @@ device was active, so there is no rate. The meters at the foot show the app's **
 against the limit in force; a badge appears from 80 percent (**Near limit**) and at the limit
 (**At limit**).
 
+Rest the pointer on a card, or move keyboard focus into it, to see its **detail card** beside it:
+the larger picture, the description, the environments, the figures, the health with its trend, the
+limits and the full time of the last publish. The card and its detail card both open the app's
+canvas; pin and the actions menu stay their own buttons.
+
 ## Find apps
 
 - **Search apps** matches the name, key, description and tags.

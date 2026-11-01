@@ -6,6 +6,7 @@ import { useLingui } from "@lingui/react";
 import { PreferencesService } from "@plux/api";
 import { Button, Select } from "@plux/ui";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import { AnimatedList } from "../../components/animated-list.tsx";
 import { notifyMessages } from "../shell/notify.messages.ts";
 import {
   describe,
@@ -44,7 +45,7 @@ export function NotificationsPage() {
     security: m.kindSecurity,
   };
   const setSearch = (next: { type?: string | undefined; unread?: boolean | undefined }) =>
-    void navigate({ to: ".", search: (prev: object) => ({ ...prev, ...next }) });
+    void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, ...next }) });
   return (
     <section className="flex flex-col gap-4" aria-labelledby="inbox-title">
       <h1 id="inbox-title" className="text-screen">
@@ -91,26 +92,33 @@ export function NotificationsPage() {
         }
         return (
           <section key={kind} aria-label={kindTitle[kind]} className="flex flex-col gap-2">
-            <h2 className="text-body font-medium">{kindTitle[kind]}</h2>
-            <ul className="flex flex-col gap-2">
-              {ofKind.map((group) => {
+            <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{kindTitle[kind]}</h2>
+            <AnimatedList
+              items={ofKind}
+              keyOf={(group) => group.key}
+              className="flex flex-col gap-2"
+              render={(group) => {
                 const first = group.items[0];
                 if (first === undefined) {
                   return null;
                 }
                 const audited = kind === "approvals" || kind === "security";
                 return (
-                  <li key={group.key} className="flex items-start gap-3 rounded-lg bg-raised p-3">
-                    <div className="flex flex-1 flex-col">
-                      <span className={`text-body ${group.unread ? "font-medium" : ""}`}>
+                  <div className="flex items-start gap-3 rounded-lg border bg-card px-4 py-3">
+                    <span
+                      aria-hidden="true"
+                      className={`mt-1.5 size-2 shrink-0 rounded-full ${group.unread ? "bg-primary" : "bg-transparent"}`}
+                    />
+                    <div className="flex flex-1 flex-col gap-0.5">
+                      <span className={`text-sm ${group.unread ? "font-medium" : "text-muted-foreground"}`}>
                         {describe(i18n, first, group.count)}
                       </span>
                       {audited && first.link !== "" && (
-                        <a href={first.link} className="text-caption">
+                        <a href={first.link} className="text-xs underline-offset-4 hover:underline">
                           {m.auditRecord}
                         </a>
                       )}
-                      <span className="font-mono text-tag text-tertiary">{group.eventType}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{group.eventType}</span>
                     </div>
                     {group.unread && (
                       <Button
@@ -121,10 +129,10 @@ export function NotificationsPage() {
                         {m.markRead}
                       </Button>
                     )}
-                  </li>
+                  </div>
                 );
-              })}
-            </ul>
+              }}
+            />
           </section>
         );
       })}

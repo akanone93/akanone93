@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { StatusPill } from "@plux/ui";
+import { Icon, StatusPill } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { type ReactElement, useEffect, useState } from "react";
 import { editorMessages } from "../editor/editor.messages.ts";
 import { notifyMessages } from "./notify.messages.ts";
@@ -67,9 +68,10 @@ export function UpdateBanner({
   return (
     <div role="status" className="flex items-center gap-3 bg-warning-surface px-4 py-2 text-body text-warning">
       <span className="flex-1">{m.updatedBanner}</span>
-      <button type="button" className="underline" onClick={() => window.location.reload()}>
+      <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+        <Icon name="arrow-clockwise" data-icon="inline-start" />
         {m.reload}
-      </button>
+      </Button>
     </div>
   );
 }

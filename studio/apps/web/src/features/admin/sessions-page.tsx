@@ -26,6 +26,7 @@ export function SessionsPage(): ReactElement {
       caption={m.sessionsCaption}
       loading={sessions.isPending}
       failed={sessions.isError}
+      error={sessions.error}
       saveFailed={failed}
     >
       <Table

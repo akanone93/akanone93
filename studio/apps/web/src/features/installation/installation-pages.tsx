@@ -6,33 +6,10 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { IdentityService, InstallationService, OrgService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
+import { type DataRow, DataTable, PageFrame } from "../../components/page.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { installationMessages } from "./installation.messages.ts";
-
-type Messages = ReturnType<typeof installationMessages>;
-
-function Nav({ m }: { readonly m: Messages }): ReactElement {
-  const items = [
-    { to: "/installation", label: m.navHealth },
-    { to: "/installation/organisations", label: m.navOrganisations },
-    { to: "/installation/storage", label: m.navStorage },
-    { to: "/installation/jobs", label: m.navJobs },
-    { to: "/installation/backups", label: m.navBackups },
-    { to: "/installation/issuers", label: m.navIssuers },
-    { to: "/installation/audit", label: m.navAudit },
-  ] as const;
-  return (
-    <nav aria-label={m.navLabel} className="flex flex-wrap gap-3 text-body">
-      {items.map((i) => (
-        <Link key={i.to} to={i.to} activeOptions={{ exact: true }}>
-          {i.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
 
 function Frame({
   id,
@@ -40,6 +17,7 @@ function Frame({
   caption,
   loading = false,
   failed = false,
+  error,
   children,
 }: {
   readonly id: string;
@@ -47,28 +25,14 @@ function Frame({
   readonly caption: string;
   readonly loading?: boolean;
   readonly failed?: boolean;
+  readonly error?: unknown;
   readonly children: ReactNode;
 }): ReactElement {
   const m = installationMessages(useLingui().i18n);
   return (
-    <section className="flex flex-col gap-4" aria-labelledby={id}>
-      <Nav m={m} />
-      <h1 id={id} className="text-screen">
-        {title}
-      </h1>
-      <p className="text-body text-muted-foreground">{caption}</p>
-      {loading && !failed && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.loading}
-        </p>
-      )}
-      {failed && (
-        <p role="alert" className="text-body text-danger">
-          {m.loadFailed}
-        </p>
-      )}
-      {!loading && !failed && children}
-    </section>
+    <PageFrame id={id} title={title} caption={caption} loading={loading} failed={failed} error={error} labels={m}>
+      {children}
+    </PageFrame>
   );
 }
 
@@ -80,38 +44,10 @@ function Table({
 }: {
   readonly caption: string;
   readonly heads: readonly string[];
-  readonly rows: readonly { readonly key: string; readonly cells: readonly ReactNode[] }[];
+  readonly rows: readonly DataRow[];
   readonly empty: string;
 }): ReactElement {
-  if (rows.length === 0) {
-    return <p className="text-body text-muted-foreground">{empty}</p>;
-  }
-  return (
-    <table className="w-full text-start text-body">
-      <caption className="sr-only">{caption}</caption>
-      <thead>
-        <tr>
-          {heads.map((h) => (
-            <th key={h} scope="col" className="p-2 text-caption text-muted-foreground">
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.key}>
-            {r.cells.map((c, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: cells have a fixed order
-              <td key={i} className="p-2">
-                {c}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+  return <DataTable caption={caption} heads={heads} rows={rows} empty={empty} />;
 }
 
 function useInstallationQuery<T>(key: string, read: (api: ReturnType<typeof clients>) => Promise<T>) {
@@ -157,6 +93,7 @@ export function OrganisationsPage(): ReactElement {
       caption={m.organisationsCaption}
       loading={q.isPending}
       failed={q.isError}
+      error={q.error}
     >
       <Table
         caption={m.organisationsTitle}

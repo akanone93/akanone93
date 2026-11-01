@@ -67,6 +67,7 @@ export function SecurityProfilePage(): ReactElement {
       caption={m.profileCaption}
       loading={environment.loading || config.isPending}
       failed={environment.failed || config.isError}
+      error={config.error}
     >
       <p className="text-body">
         {m.profileVersion}: <span className="font-mono">{String(config.data?.version ?? 0n)}</span>

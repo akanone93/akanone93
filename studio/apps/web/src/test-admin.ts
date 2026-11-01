@@ -48,6 +48,8 @@ export interface AdminData {
   calls?: string[];
   /** Every read fails. */
   failing?: boolean;
+  /** Reads the server refuses, by method name, with the Connect code and the Plux message (SRV-006). */
+  refused?: Readonly<Record<string, readonly [Code, string]>>;
 }
 
 function recorder(a: AdminData) {
@@ -59,6 +61,14 @@ function recorder(a: AdminData) {
 function guard(a: AdminData) {
   if (a.failing === true) {
     throw new ConnectError("unavailable", Code.Unavailable);
+  }
+}
+
+/** A read the server refuses, as `refused` names it. */
+function refuse(a: AdminData, method: string) {
+  const refusal = a.refused?.[method];
+  if (refusal !== undefined) {
+    throw new ConnectError(refusal[1], refusal[0]);
   }
 }
 
@@ -189,6 +199,7 @@ export function identityAdmin(a: AdminData): Partial<ServiceImpl<typeof Identity
     },
     listSessions: () => {
       guard(a);
+      refuse(a, "listSessions");
       return { sessions: a.sessions ?? [] };
     },
     revokeSession: (req) => {
@@ -219,7 +230,10 @@ export function federationAdmin(a: AdminData): Partial<ServiceImpl<typeof Federa
       guard(a);
       return { providers: a.providers ?? [] };
     },
-    listScimTokens: () => ({ tokens: a.scimTokens ?? [] }),
+    listScimTokens: () => {
+      refuse(a, "listScimTokens");
+      return { tokens: a.scimTokens ?? [] };
+    },
     createScimToken: (req) => {
       rec("createScimToken", { name: req.name });
       return { token: { id: "s-new", name: req.name }, secret: a.secret ?? "" };
@@ -240,6 +254,7 @@ export function complianceAdmin(a: AdminData): Partial<ServiceImpl<typeof Compli
   return {
     listComplianceReports: () => {
       guard(a);
+      refuse(a, "listComplianceReports");
       return { reports: a.reports ?? [] };
     },
     createComplianceReport: (req) => {

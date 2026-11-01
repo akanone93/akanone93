@@ -5,7 +5,7 @@ import { ConnectError, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppProjectService } from "@plux/api";
 import { Button, Icon } from "@plux/ui";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia } from "@plux/ui/components/item";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@plux/ui/components/item";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
@@ -71,6 +71,7 @@ export function SampleApps({
               <Icon name="package" />
             </ItemMedia>
             <ItemContent>
+              <ItemTitle>{sample.name}</ItemTitle>
               <ItemDescription>{sample.description}</ItemDescription>
             </ItemContent>
             <ItemActions>

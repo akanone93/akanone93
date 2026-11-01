@@ -31,6 +31,7 @@ export function KillSwitchPage(): ReactElement {
       caption={m.killCaption}
       loading={environment.loading || control.isPending}
       failed={environment.failed || control.isError}
+      error={control.error}
     >
       {control.data?.control?.appKillSwitch === true && (
         <p role="status" className="text-body text-danger">

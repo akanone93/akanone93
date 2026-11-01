@@ -137,7 +137,6 @@ export function AppStack({ entries }: { entries: readonly AppEntry[] }) {
   return (
     <LazyMotion features={domAnimation} strict>
       <div className="hs-scene" role="img" aria-label={entries.length === 0 ? copy.stackEmptyLabel : copy.stackLabel}>
-        <div aria-hidden="true" className="hs-glow" />
         <m.div className="hs-view" style={{ rotateX, rotateY }}>
           <div className="hs-plane">
             <div aria-hidden="true" className="hs-floor" />

@@ -5,52 +5,18 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import { Button, Field, Input, Select } from "@plux/ui";
-import { Link, useParams } from "@tanstack/react-router";
 import { type FormEvent, type ReactElement, type ReactNode, useState } from "react";
+import { type DataRow, DataTable, PageFrame } from "../../components/page.tsx";
 import { adminMessages } from "./admin.messages.ts";
 
-type Messages = ReturnType<typeof adminMessages>;
-
-/** The administration pages in navigation order; the path decides which page is current. */
-function navItems(m: Messages) {
-  return [
-    { to: "/o/$org/admin", label: m.navSettings },
-    { to: "/o/$org/admin/members", label: m.navMembers },
-    { to: "/o/$org/admin/teams", label: m.navTeams },
-    { to: "/o/$org/admin/roles", label: m.navRoles },
-    { to: "/o/$org/admin/restrictions", label: m.navRestrictions },
-    { to: "/o/$org/admin/access", label: m.navAccess },
-    { to: "/o/$org/admin/sso", label: m.navSso },
-    { to: "/o/$org/admin/tokens", label: m.navTokens },
-    { to: "/o/$org/admin/sessions", label: m.navSessions },
-    { to: "/o/$org/admin/audit", label: m.navAudit },
-    { to: "/o/$org/admin/compliance", label: m.navCompliance },
-    { to: "/o/$org/admin/retention", label: m.navRetention },
-    { to: "/o/$org/admin/license", label: m.navLicense },
-    { to: "/o/$org/admin/limits", label: m.navLimits },
-  ] as const;
-}
-
-function AdminNav({ m }: { readonly m: Messages }): ReactElement {
-  const org = (useParams({ strict: false }) as { org?: string }).org ?? "";
-  return (
-    <nav aria-label={m.navLabel} className="flex flex-wrap gap-3 text-body">
-      {navItems(m).map((item) => (
-        <Link key={item.to} to={item.to} params={{ org }} activeOptions={{ exact: true }}>
-          {item.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
-
-/** Heading, caption, the area's navigation and the loading and error states shared by every administration page. */
+/** Heading, caption and the loading and error states shared by every administration page; the sidebar lists the pages. */
 export function Frame({
   id,
   title,
   caption,
   loading = false,
   failed = false,
+  error,
   saveFailed = false,
   children,
 }: {
@@ -59,34 +25,24 @@ export function Frame({
   readonly caption?: string;
   readonly loading?: boolean;
   readonly failed?: boolean;
+  readonly error?: unknown;
   readonly saveFailed?: boolean;
   readonly children: ReactNode;
 }): ReactElement {
   const m = adminMessages(useLingui().i18n);
   return (
-    <section className="flex flex-col gap-4" aria-labelledby={id}>
-      <AdminNav m={m} />
-      <h1 id={id} className="text-screen">
-        {title}
-      </h1>
-      {caption !== undefined && <p className="text-body text-muted-foreground">{caption}</p>}
-      {loading && !failed && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.loading}
-        </p>
-      )}
-      {failed && (
-        <p role="alert" className="text-body text-danger">
-          {m.loadFailed}
-        </p>
-      )}
-      {saveFailed && (
-        <p role="alert" className="text-body text-danger">
-          {m.saveFailed}
-        </p>
-      )}
-      {!loading && !failed && children}
-    </section>
+    <PageFrame
+      id={id}
+      title={title}
+      caption={caption}
+      loading={loading}
+      failed={failed}
+      error={error}
+      saveFailed={saveFailed}
+      labels={m}
+    >
+      {children}
+    </PageFrame>
   );
 }
 
@@ -98,38 +54,10 @@ export function Table({
 }: {
   readonly caption: string;
   readonly heads: readonly string[];
-  readonly rows: readonly { readonly key: string; readonly cells: readonly ReactNode[] }[];
+  readonly rows: readonly DataRow[];
   readonly empty: string;
 }): ReactElement {
-  if (rows.length === 0) {
-    return <p className="text-body text-muted-foreground">{empty}</p>;
-  }
-  return (
-    <table className="w-full text-start text-body">
-      <caption className="sr-only">{caption}</caption>
-      <thead>
-        <tr>
-          {heads.map((h) => (
-            <th key={h} scope="col" className="p-2 text-caption text-muted-foreground">
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.key}>
-            {r.cells.map((c, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: cells have a fixed order
-              <td key={i} className="p-2">
-                {c}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+  return <DataTable caption={caption} heads={heads} rows={rows} empty={empty} />;
 }
 
 export function fmt(time: Timestamp | undefined, never: string): string {

@@ -4,12 +4,11 @@
 import { Code, ConnectError } from "@connectrpc/connect";
 import type { Document } from "@plux/api";
 import { limitDefault, type PermissionName } from "@plux/schema";
-import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { createContext, type ReactElement, type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { useStore } from "zustand";
-import { loadUser } from "../../lib/guards.ts";
 import { lockWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { ConflictDialog } from "./conflict-dialog.tsx";
 import { documentTransport, loadSessionEntries, toServerDocument } from "./document-transport.ts";
 import { type EditRecord, EditSession, type EditState } from "./edit-session.ts";
@@ -212,7 +211,7 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
   const status = useStore(lock.store, (st) => st.status);
   const canEdit = (props.canEdit ?? true) && editableWhile(status);
   // D36 "Take over" is offered only to holders of plugin.lock.override; the server checks it too.
-  const user = useTanstackQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   const canOverride = user.data?.permissions.includes(LOCK_OVERRIDE) ?? false;
 
   const waiting = useStore(edit.store, (s) => Object.values(s.docs).reduce((n, d) => n + d.waiting, 0));

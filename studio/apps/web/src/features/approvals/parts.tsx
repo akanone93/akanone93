@@ -7,6 +7,7 @@ import type { ApprovalRequest } from "@plux/api";
 import { Select, StatusPill } from "@plux/ui";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
+import { PageFrame } from "../../components/page.tsx";
 import { fmt, Table } from "../security/parts.tsx";
 import { approvalsMessages } from "./approvals.messages.ts";
 import { useApps, useScope } from "./use-approvals.ts";
@@ -20,6 +21,7 @@ export function Frame({
   caption,
   loading,
   failed,
+  error,
   children,
 }: {
   readonly id: string;
@@ -27,50 +29,14 @@ export function Frame({
   readonly caption?: string;
   readonly loading: boolean;
   readonly failed: boolean;
+  readonly error?: unknown;
   readonly children: ReactNode;
 }): ReactElement {
   const m = approvalsMessages(useLingui().i18n);
   return (
-    <section className="flex flex-col gap-4" aria-labelledby={id}>
-      <h1 id={id} className="text-screen">
-        {title}
-      </h1>
-      {caption !== undefined && <p className="text-body text-muted-foreground">{caption}</p>}
-      <AreaNav />
-      {loading && !failed && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.loading}
-        </p>
-      )}
-      {failed && (
-        <p role="alert" className="text-body text-danger">
-          {m.loadFailed}
-        </p>
-      )}
-      {!loading && !failed && children}
-    </section>
-  );
-}
-
-/** The links between O7, O9, O10 and O11, which keep the chosen app. */
-function AreaNav(): ReactElement {
-  const m = approvalsMessages(useLingui().i18n);
-  const { org, app } = useScope();
-  const search = app === "" ? {} : { app };
-  const links = [
-    { to: "/o/$org/approvals", label: m.navInbox },
-    { to: "/o/$org/approvals/history", label: m.navHistory },
-    { to: "/o/$org/approvals/break-glass", label: m.navBreakGlass },
-    { to: "/o/$org/approvals/policies", label: m.navPolicies },
-  ];
-  return (
-    <nav className="flex gap-4" aria-label={m.inboxTitle}>
-      {links.map((l) => (
-        <Link key={l.to} to={l.to} params={{ org } as never} search={search as never} className="text-body underline">
-          {l.label}
-        </Link>
-      ))}
-    </nav>
+    <PageFrame id={id} title={title} caption={caption} loading={loading} failed={failed} error={error} labels={m}>
+      {children}
+    </PageFrame>
   );
 }
 
@@ -92,6 +58,7 @@ export function AppFilter(): ReactElement {
       onValueChange={(value) =>
         void navigate({
           to: ".",
+          resetScroll: false,
           replace: true,
           search: (prev: object) => ({ ...prev, app: value === allApps ? undefined : value }),
         } as never)

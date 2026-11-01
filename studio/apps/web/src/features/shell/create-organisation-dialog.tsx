@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { CreateDialog } from "../../components/dialogs/index.ts";
-import { forgetUser, loadUser } from "../../lib/guards.ts";
+import { refreshUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 
@@ -36,9 +36,8 @@ export function CreateOrganisationDialog({
       submitLabel={m.createOrganisation}
       onCreate={async ({ key, name }) => {
         const res = await createClient(OrgService, session.transport).createOrganization({ key, name });
-        // The user query's function is itself a fetch of that key, so it is replaced rather than refetched.
-        forgetUser(session);
-        await Promise.all([loadUser(session), queryClient.invalidateQueries({ queryKey: ["organisations"] })]);
+        // The new membership must be known before the organisation's guard runs.
+        await Promise.all([refreshUser(session), queryClient.invalidateQueries({ queryKey: ["organisations"] })]);
         onOpenChange(false);
         router.history.push(`/o/${res.organization?.id ?? ""}`);
       }}

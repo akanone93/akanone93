@@ -26,6 +26,7 @@ export function FunctionsPage(): ReactElement {
       title={m.listTitle}
       loading={environment.loading || functions.isPending}
       failed={environment.failed || functions.isError}
+      error={functions.error}
     >
       <p className="text-body text-muted-foreground">{m.listCaption}</p>
       {list.length === 0 ? (

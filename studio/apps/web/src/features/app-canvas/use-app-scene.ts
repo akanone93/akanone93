@@ -6,6 +6,7 @@ import {
   ArrowCanvas,
   type ArrowPick,
   ArrowRouter,
+  type ArrowStyle,
   type Bundle,
   deriveAppBundles,
   EXPAND_MS,
@@ -14,10 +15,17 @@ import {
 } from "@plux/canvas";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { SceneSync } from "../plugin-canvas/ghosts.ts";
-import { arrowStyle } from "../plugin-canvas/scene.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { BOX, type Frame } from "./app-canvas.model.ts";
-import { type AppGraph, boxItem, boxItems, focusItem, frameItems, type SceneBox } from "./app-canvas.scene.ts";
+import {
+  type AppGraph,
+  type AppSceneStyle,
+  boxItem,
+  boxItems,
+  focusItem,
+  frameItems,
+  type SceneBox,
+} from "./app-canvas.scene.ts";
 
 interface Drawn {
   readonly surface: CanvasSurface;
@@ -42,6 +50,9 @@ export interface AppSceneInput {
   /** The box the accessible list has focus on; drawn with a focus ring. */
   readonly focused: string | undefined;
   readonly graph: AppGraph;
+  /** The theme's colours for boxes, frames, the focus ring and the arrows. */
+  readonly style: AppSceneStyle;
+  readonly arrowStyle: ArrowStyle;
 }
 
 const reducedMotion = (): boolean =>
@@ -53,7 +64,7 @@ const reducedMotion = (): boolean =>
  * STU-048). The worker draws; the main thread only diffs item specs and answers hits.
  */
 export function useAppScene(input: AppSceneInput) {
-  const { surface, generation, boxes, frames, selected, focused, graph } = input;
+  const { surface, generation, boxes, frames, selected, focused, graph, style, arrowStyle } = input;
   const bundles = useMemo<Bundle[]>(
     () =>
       deriveAppBundles(
@@ -84,7 +95,7 @@ export function useAppScene(input: AppSceneInput) {
       };
     }
     return drawn.current;
-  }, [surface]);
+  }, [surface, arrowStyle]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: generation redraws onto a new surface
   useEffect(() => {
@@ -92,10 +103,13 @@ export function useAppScene(input: AppSceneInput) {
     if (d === null) {
       return;
     }
-    const items: ItemSpec[] = [...frames.flatMap((f) => frameItems(f)), ...boxes.flatMap((b) => boxItems(b))];
+    const items: ItemSpec[] = [
+      ...frames.flatMap((f) => frameItems(f, style)),
+      ...boxes.flatMap((b) => boxItems(b, style, selected.has(b.id))),
+    ];
     const ring = boxes.find((b) => b.id === focused);
     if (ring !== undefined) {
-      items.push(focusItem(ring));
+      items.push(focusItem(ring, style));
     }
     const ops: SceneOp[] = [...d.sync.sync(items)];
     ops.push(...arrowOps(d, boxes, bundles));
@@ -104,7 +118,7 @@ export function useAppScene(input: AppSceneInput) {
       d.surface.patch?.(ops);
     }
     d.surface.setSelection?.([...selected].filter((id) => d.placed.has(id)).map(boxItem));
-  }, [current, generation, boxes, frames, bundles, focused, selected]);
+  }, [current, generation, boxes, frames, bundles, focused, selected, style]);
 
   useEffect(() => () => cancelAnimationFrame(drawn.current?.frame ?? 0), []);
 

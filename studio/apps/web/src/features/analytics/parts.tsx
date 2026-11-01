@@ -34,12 +34,16 @@ export function AreaNav(): ReactElement {
   const { org, app, search } = useAnalyticsScope();
   const navigate = useNavigate();
   const set = (key: "from" | "to", value: string) =>
-    navigate({ to: ".", search: (prev: AnalyticsSearch) => ({ ...prev, [key]: value === "" ? undefined : value }) });
+    navigate({
+      to: ".",
+      resetScroll: false,
+      search: (prev: AnalyticsSearch) => ({ ...prev, [key]: value === "" ? undefined : value }),
+    });
   return (
     <div className="flex flex-wrap items-end gap-4">
-      <nav aria-label={m.overviewTitle} className="flex gap-3">
+      <nav aria-label={m.overviewTitle} className="sub-nav">
         {routes.map(([to, key]) => (
-          <Link key={to} to={to} params={{ org, app }} search={{ env: search.env }} className="text-body">
+          <Link key={to} to={to} params={{ org, app }} search={{ env: search.env }}>
             {m[key]}
           </Link>
         ))}

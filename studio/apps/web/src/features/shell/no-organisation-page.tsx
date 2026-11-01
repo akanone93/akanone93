@@ -3,18 +3,15 @@
 
 import { useLingui } from "@lingui/react";
 import { Button } from "@plux/ui";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { loadUser } from "../../lib/guards.ts";
-import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { CreateOrganisationDialog } from "./create-organisation-dialog.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 
 /** U1 without an organisation; an installation administrator can create the first one. */
 export function NoOrganisationPage() {
   const m = chromeMessages(useLingui().i18n);
-  const { session } = useApp();
-  const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   const admin = user.data?.installationAdmin === true;
   const [creating, setCreating] = useState(false);
   return (

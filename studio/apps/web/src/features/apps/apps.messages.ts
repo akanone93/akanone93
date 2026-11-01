@@ -108,6 +108,11 @@ export function appsMessages(i18n: I18n) {
         values: { name },
         comment: "Accessible name of the uploaded image on an app's card; name is the app.",
       }),
+    openCanvas: i18n._({
+      id: "apps.card.open-canvas",
+      message: "Open app",
+      comment: "At the foot of an app's detail card: the whole card opens the app's canvas of plugins.",
+    }),
     noTeam: i18n._({
       id: "apps.card.no-team",
       message: "No team",

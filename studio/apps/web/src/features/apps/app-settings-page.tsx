@@ -6,6 +6,7 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { type App, AppService, MetadataUpdateSchema } from "@plux/api";
 import { Button, Field, Input, Textarea } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { type FormEvent, type ReactElement, useState } from "react";
@@ -152,7 +153,11 @@ export function AppSettingsPage(): ReactElement {
           {m.fontsTitle}
         </h2>
         <p className="text-body text-muted-foreground">{m.fontsCaption}</p>
-        <Link to="/o/$org/apps/$app/design/typography" params={{ org, app: appId }} className="text-body">
+        <Link
+          to="/o/$org/apps/$app/design/typography"
+          params={{ org, app: appId }}
+          className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
+        >
           {m.fontsLink}
         </Link>
       </section>
@@ -161,7 +166,11 @@ export function AppSettingsPage(): ReactElement {
           <h2 id="app-settings-admin" className="text-section">
             {m.adminTitle}
           </h2>
-          <Link to="/o/$org/admin" params={{ org }} className="text-body">
+          <Link
+            to="/o/$org/admin"
+            params={{ org }}
+            className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
+          >
             {m.adminLink}
           </Link>
         </section>

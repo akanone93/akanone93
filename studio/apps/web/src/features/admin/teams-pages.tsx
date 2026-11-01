@@ -27,6 +27,7 @@ export function TeamsPage(): ReactElement {
       caption={m.teamsCaption}
       loading={teams.isPending}
       failed={teams.isError}
+      error={teams.error}
       saveFailed={failed}
     >
       <Table
@@ -84,6 +85,7 @@ export function TeamPage(): ReactElement {
       title={team?.name ?? m.teamTitle}
       loading={teams.isPending || members.isPending}
       failed={teams.isError || members.isError}
+      error={teams.error ?? members.error}
     >
       <h2 className="text-label font-medium">{m.teamMembers}</h2>
       <Table

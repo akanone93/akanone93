@@ -166,6 +166,7 @@ export function ExperimentPage(): ReactElement {
       title={m.forKey(x?.key ?? "")}
       loading={environment.loading || experiment.isPending}
       failed={environment.failed || experiment.isError}
+      error={experiment.error}
     >
       <StatusPill status={running ? "success" : "neutral"} label={stateNames(m)[x?.state ?? 0] ?? ""} />
       <h2 className="text-heading">{m.definition}</h2>

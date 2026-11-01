@@ -5,8 +5,8 @@ import { ConnectError, createClient } from "@connectrpc/connect";
 import { ApprovalService, AppService, BreakGlassService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearch } from "@tanstack/react-router";
-import { loadUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 
 /** The organisation of the path and the app of `?app` (empty: the organisation's own). */
 export function useScope() {
@@ -17,8 +17,7 @@ export function useScope() {
 
 /** The signed-in person: their id and permissions (F14). Actions the person lacks are disabled, never hidden. */
 export function useMe() {
-  const { session } = useApp();
-  const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   return { id: user.data?.user?.id ?? "", permissions: new Set(user.data?.permissions ?? []) };
 }
 

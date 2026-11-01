@@ -30,6 +30,7 @@ export function DevicesPage(): ReactElement {
       caption={m.devicesCaption}
       loading={environment.loading || devices.isPending}
       failed={environment.failed || devices.isError}
+      error={devices.error}
     >
       <Field label={m.search}>
         <Input
@@ -37,6 +38,7 @@ export function DevicesPage(): ReactElement {
           onChange={(e) =>
             void navigate({
               to: ".",
+              resetScroll: false,
               replace: true,
               search: (prev: object) => ({ ...prev, q: e.target.value === "" ? undefined : e.target.value }),
             } as never)

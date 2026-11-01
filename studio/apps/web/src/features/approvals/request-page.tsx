@@ -94,6 +94,7 @@ export function RequestPage(): ReactElement {
       {...(request !== undefined && { caption: request.summary })}
       loading={review.isPending}
       failed={review.isError || (review.isSuccess && request === undefined)}
+      error={review.error}
     >
       {request !== undefined && data !== undefined && (
         <>

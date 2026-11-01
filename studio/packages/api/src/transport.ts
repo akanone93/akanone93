@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Interceptor } from "@connectrpc/connect";
+import type { Interceptor, Transport } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 
 /** Header names fixed by backend/internal/api/authn.go. */
@@ -12,22 +12,53 @@ export interface StudioTransportOptions {
   baseUrl: string;
   /** The session's CSRF token, read from memory on every call (SEC-101). */
   csrfToken: () => string | undefined;
-  /** The active organisation, read on every call. */
-  organization: () => string | undefined;
+  /** The organisation a call to `service` (its full type name) names, read on every call. */
+  organization: (service: string) => string | undefined;
+}
+
+type HeaderOptions = Pick<StudioTransportOptions, "csrfToken" | "organization">;
+
+function setHeaders(header: Headers, service: string, options: HeaderOptions): Headers {
+  const csrf = options.csrfToken();
+  if (csrf) {
+    header.set(CSRF_HEADER, csrf);
+  }
+  const organization = options.organization(service);
+  if (organization) {
+    header.set(ORGANIZATION_HEADER, organization);
+  }
+  return header;
 }
 
 /** Sets the CSRF and organisation headers when a value is present. */
-export function headerInterceptor(options: Pick<StudioTransportOptions, "csrfToken" | "organization">): Interceptor {
+export function headerInterceptor(options: HeaderOptions): Interceptor {
   return (next) => (req) => {
-    const csrf = options.csrfToken();
-    if (csrf) {
-      req.header.set(CSRF_HEADER, csrf);
-    }
-    const organization = options.organization();
-    if (organization) {
-      req.header.set(ORGANIZATION_HEADER, organization);
-    }
+    setHeaders(req.header, req.service.typeName, options);
     return next(req);
+  };
+}
+
+/** Any transport with the headers of `headerInterceptor`: tests pass an in-memory one, which must see them too. */
+export function withStudioHeaders(inner: Transport, options: HeaderOptions): Transport {
+  return {
+    unary: (method, signal, timeoutMs, header, input, context) =>
+      inner.unary(
+        method,
+        signal,
+        timeoutMs,
+        setHeaders(new Headers(header), method.parent.typeName, options),
+        input,
+        context,
+      ),
+    stream: (method, signal, timeoutMs, header, input, context) =>
+      inner.stream(
+        method,
+        signal,
+        timeoutMs,
+        setHeaders(new Headers(header), method.parent.typeName, options),
+        input,
+        context,
+      ),
   };
 }
 

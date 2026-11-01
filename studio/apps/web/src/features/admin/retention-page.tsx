@@ -23,6 +23,7 @@ export function RetentionPage(): ReactElement {
       caption={m.retentionCaption}
       loading={retention.isPending}
       failed={retention.isError}
+      error={retention.error}
       saveFailed={failed}
     >
       <Table

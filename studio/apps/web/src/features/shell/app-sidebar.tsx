@@ -29,7 +29,11 @@ import {
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ComponentProps, ReactElement } from "react";
 import { shellMessages } from "../../shell.messages.ts";
+import { adminPages } from "../admin/admin-pages.ts";
+import { approvalsMessages } from "../approvals/approvals.messages.ts";
+import { installationMessages } from "../installation/installation.messages.ts";
 import { AppNav } from "./app-nav.tsx";
+import { NavArea } from "./nav-area.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 
 /** The administration area's permission: the one its first page (settings) needs (STU-116). */
@@ -60,6 +64,8 @@ export interface StudioSidebarProps extends ComponentProps<typeof Sidebar> {
   /** Opens the create-organisation dialog; undefined unless the person is an installation administrator. */
   readonly onCreateOrganisation: (() => void) | undefined;
   readonly onSignOut: () => void;
+  /** Installation administrators also see the installation's pages (STU-116). */
+  readonly installationAdmin: boolean;
 }
 
 /** The organisation switcher at the top of the sidebar: shadcn's team switcher (sidebar-07). */
@@ -186,10 +192,6 @@ function NavUser({
                 <Icon name="user" />
                 {m.profile}
               </DropdownMenuItem>
-              <DropdownMenuItem render={<Link to="/me/shortcuts" />}>
-                <Icon name="command" />
-                {m.shortcuts}
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
@@ -219,11 +221,30 @@ export function StudioSidebar({
   onSwitch,
   onCreateOrganisation,
   onSignOut,
+  installationAdmin,
   ...props
 }: StudioSidebarProps): ReactElement {
-  const m = chromeMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = chromeMessages(i18n);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const home = org === undefined ? undefined : `/o/${org}`;
+  const approvals = approvalsMessages(i18n);
+  const approvalPages = [
+    { path: "", label: approvals.navInbox, permission: APPROVALS_PERMISSION },
+    { path: "/history", label: approvals.navHistory, permission: APPROVALS_PERMISSION },
+    { path: "/policies", label: approvals.navPolicies, permission: APPROVALS_PERMISSION },
+    { path: "/break-glass", label: approvals.navBreakGlass, permission: "audit.read" },
+  ];
+  const installation = installationMessages(i18n);
+  const installationPages = [
+    { path: "", label: installation.navHealth },
+    { path: "/organisations", label: installation.navOrganisations },
+    { path: "/storage", label: installation.navStorage },
+    { path: "/jobs", label: installation.navJobs },
+    { path: "/backups", label: installation.navBackups },
+    { path: "/issuers", label: installation.navIssuers },
+    { path: "/audit", label: installation.navAudit },
+  ];
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -242,44 +263,52 @@ export function StudioSidebar({
               <SidebarMenu>
                 {org !== undefined && (
                   <SidebarMenuItem>
-                    <SidebarMenuButton isActive={pathname === home} render={<Link to="/o/$org" params={{ org }} />}>
+                    <SidebarMenuButton
+                      tooltip={m.home}
+                      isActive={pathname === home}
+                      render={<Link to="/o/$org" params={{ org }} />}
+                    >
                       <Icon name="house" />
                       <span>{m.home}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
-                {org !== undefined && permissions.includes(APPROVALS_PERMISSION) && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      isActive={pathname.startsWith(`${home}/approvals`)}
-                      render={<Link to="/o/$org/approvals" params={{ org }} />}
-                    >
-                      <Icon name="check-circle" />
-                      <span>{m.approvals}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                {home !== undefined && (
+                  <NavArea
+                    icon="check-circle"
+                    label={m.approvals}
+                    pages={approvalPages
+                      .filter((p) => permissions.includes(p.permission))
+                      .map((p) => ({ href: `${home}/approvals${p.path}`, label: p.label }))}
+                  />
                 )}
                 {org !== undefined && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      isActive={pathname === `${home}/notifications`}
-                      render={<Link to="/o/$org/notifications" params={{ org }} />}
+                      tooltip={m.library}
+                      isActive={pathname.startsWith(`${home}/library`)}
+                      render={<Link to="/o/$org/library" params={{ org }} />}
                     >
-                      <Icon name="bell" />
-                      <span>{m.notifications}</span>
+                      <Icon name="book" />
+                      <span>{m.library}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
-                {currentId !== undefined && permissions.includes(ADMIN_PERMISSION) && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      isActive={pathname.startsWith(`/o/${currentId}/admin`)}
-                      render={<Link to="/o/$org/admin" params={{ org: currentId }} />}
-                    >
-                      <Icon name="gear" />
-                      <span>{m.admin}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                {home !== undefined && (
+                  <NavArea
+                    icon="gear"
+                    label={m.admin}
+                    pages={adminPages(i18n)
+                      .filter((p) => permissions.includes(p.permission))
+                      .map((p) => ({ href: `${home}/admin${p.path}`, label: p.label }))}
+                  />
+                )}
+                {installationAdmin && (
+                  <NavArea
+                    icon="server"
+                    label={installation.navLabel}
+                    pages={installationPages.map((p) => ({ href: `/installation${p.path}`, label: p.label }))}
+                  />
                 )}
               </SidebarMenu>
             </SidebarGroupContent>

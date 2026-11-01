@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
+import { Icon } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { Table } from "../security/parts.tsx";
@@ -23,6 +25,7 @@ export function PoliciesPage(): ReactElement {
       caption={m.policiesCaption}
       loading={policies.isPending}
       failed={policies.isError}
+      error={policies.error}
     >
       <div className="flex items-end justify-between gap-4">
         <AppFilter />
@@ -30,8 +33,9 @@ export function PoliciesPage(): ReactElement {
           to="/o/$org/approvals/policies/$policyId"
           params={{ org, policyId: "new" } as never}
           search={search as never}
-          className="underline"
+          className={buttonVariants({ size: "sm" })}
         >
+          <Icon name="plus" data-icon="inline-start" />
           {m.newPolicy}
         </Link>
       </div>

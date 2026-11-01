@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Select } from "@plux/ui";
+import { Icon, Select } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
 import { dataMessages } from "./data.messages.ts";
@@ -30,8 +31,8 @@ function Body(props: {
         {props.title}
       </h1>
       <p className="text-body text-muted-foreground">{props.caption}</p>
-      <nav className="flex gap-4">
-        <Link className="text-body" to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
+      <nav className="sub-nav">
+        <Link to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
           {m.sourcesLink}
         </Link>
         <Link
@@ -47,10 +48,18 @@ function Body(props: {
         label={m.pickPlugin}
         options={ids.map((id) => ({ value: id, label: id }))}
         value={ctx.plugin}
-        onValueChange={(plugin) => void navigate({ to: ".", search: (prev: object) => ({ ...prev, plugin }) })}
+        onValueChange={(plugin) =>
+          void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, plugin }) })
+        }
       />
       {props.back !== undefined && (
-        <Link className="text-body" to={props.back.to} params={{ org: ctx.org, app: ctx.app }} search={search}>
+        <Link
+          to={props.back.to}
+          params={{ org: ctx.org, app: ctx.app }}
+          search={search}
+          className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+        >
+          <Icon name="arrow-left" data-icon="inline-start" />
           {props.back.label}
         </Link>
       )}

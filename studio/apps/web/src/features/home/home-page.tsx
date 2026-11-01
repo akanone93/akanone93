@@ -18,7 +18,6 @@ import { useApp } from "../../lib/use-app.tsx";
 import { useCan } from "../admin/use-admin.ts";
 import { AppsArea } from "../apps/index.ts";
 import { useAppEntries } from "../apps/use-apps.ts";
-import { OnboardingChecklist } from "../onboarding/index.ts";
 import { Rise, RisingWords } from "../shell/brand.tsx";
 import { AppStack } from "./app-stack.tsx";
 import { CreateAppDialog } from "./create-app-dialog.tsx";
@@ -57,8 +56,8 @@ export function HomePage() {
   return (
     <LazyMotion features={domAnimation} strict>
       <div className="@container/main flex flex-1 flex-col">
-        <section aria-labelledby="home-title" className="flex flex-col gap-6 py-6 md:gap-8">
-          <div className="grid items-center gap-6 px-4 lg:grid-cols-12 lg:px-6">
+        <section aria-labelledby="home-title" className="flex flex-col gap-6 md:gap-8">
+          <div className="grid items-center gap-6 lg:grid-cols-12">
             <div className="flex min-w-0 flex-col gap-5 lg:col-span-7">
               <Rise delay={0}>
                 <Badge variant="outline">
@@ -107,7 +106,6 @@ export function HomePage() {
               <Pulse pulse={pulse} />
             </Rise>
           )}
-          <OnboardingChecklist org={org} canCreate={canCreate} onCreate={() => setCreating(true)} />
           <AppsArea org={org} organizationId={id} onCreate={canCreate ? () => setCreating(true) : undefined} />
           {canCreate && <CreateAppDialog open={creating} onOpenChange={setCreating} organizationId={id} org={org} />}
         </section>

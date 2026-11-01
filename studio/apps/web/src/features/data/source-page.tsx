@@ -3,6 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Input, Select } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { objects } from "../designers/db-schema-overlay.tsx";
@@ -176,7 +177,11 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
             )}
           </>
         )}
-        <Link className="text-body" to="/o/$org/apps/$app" params={{ org: ctx.org, app: ctx.app }}>
+        <Link
+          className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
+          to="/o/$org/apps/$app"
+          params={{ org: ctx.org, app: ctx.app }}
+        >
           {m.editVariables}
         </Link>
       </section>

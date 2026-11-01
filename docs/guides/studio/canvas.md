@@ -24,20 +24,37 @@ Canvas, and you can drive both from the keyboard.
 
 ## Arrange the plugins of an app
 
-1. Open the app. The **App canvas** lists a card per plugin with its screens, versions, links in and
-   out, functions, bundle size and whether it is valid, has unpublished changes or is switched off.
-2. Hover a plugin, or move keyboard focus to it, to see its **detail card**: the description, a
-   mini-map of its screens and the links among them, how many links go in and out, the functions it
-   uses, its bundle size, and who published it last and when.
-3. Choose **New plugin**, give it a name and a key, and save.
-4. Drag a plugin to move it, or use **Move to…** with X and Y positions. Frame a group with **Frame
-   selection**, then rename or resize the frame. **Arrange** tidies the layout and **Zoom to fit**
-   shows everything.
-5. Open **Plugin settings** to change the description, tags and owning team, make the plugin the
-   entry plugin, **Duplicate plugin**, or **Archive plugin** (and **Restore plugin** later).
-6. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.
+1. Open the app: its card, or its detail card, on the organisation home. The **App canvas** fills the
+   window, with a box per plugin and arrows for the links between them. Panels float over it as
+   frosted glass, so the plugins stay in view beneath them:
+   - top left, the way back to the organisation and the app's name and number of plugins;
+   - top centre, the tools (**Select** and **Hand**), **Frame selection**, **Arrange**, **Trash** and
+     **New plugin**;
+   - on the start side, **Plugins**: every plugin and frame as a list; choose a row to select the
+     plugin and bring it into view, double-click to open it, or fold the panel away;
+   - on the end side, the plugin's **detail panel**;
+   - bottom left, **Zoom out**, the zoom (choose it to go back to 100%), **Zoom in** and **Zoom to
+     fit**.
+2. Move around as in a design tool. Scroll, or drag with two fingers, to pan; hold **Ctrl** (or
+   **Cmd**) and scroll, or pinch, to zoom about the pointer. Drag with the **Hand** tool (**H**),
+   with **Space** held, or with the middle mouse button to pan. **V** goes back to **Select**;
+   **+** and **-** zoom, **Shift+1** fits everything, **Ctrl+0** resets the zoom and **Escape**
+   clears the selection.
+3. Hover a plugin, or move keyboard focus to it, to see its detail panel: the description, a
+   mini-map of its screens and the links among them, its screens and versions, its bundle size,
+   how many links go out and in, the functions it uses, and who published it last and when. Select
+   a plugin to add its actions: **Open plugin**, **Plugin settings**, **Duplicate plugin**, **Make
+   entry plugin**, **Move to…**, **Archive plugin** (or **Restore plugin**) and **Delete plugin**.
+4. Choose **New plugin**, give it a name and a key, and save.
+5. Drag a plugin to move it, or use **Move to…** with X and Y positions; drag on the background to
+   select every plugin the rectangle meets. Frame a group with **Frame selection**, then rename or
+   resize the frame from the **Plugins** panel. **Arrange** tidies the layout.
+6. **Plugin settings** changes the description, tags and owning team.
+7. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.
    Deleting or deprecating a plugin of an app with a production release asks you to type its key.
    If other plugins link into it, **Redirect incoming links** to a new target screen first.
+
+The canvas follows the light, dark and contrast themes.
 
 Positions are read-only while someone else is editing the app.
 

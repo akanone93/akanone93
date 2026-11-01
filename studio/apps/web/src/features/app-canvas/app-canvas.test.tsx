@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import type { I18n } from "@lingui/core";
 import type { PluginSummary } from "@plux/api";
 import type { Guides, SceneOp } from "@plux/canvas";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { appCanvasMessages } from "./app-canvas.messages.ts";
@@ -146,11 +146,13 @@ function stub() {
   const guides: (Guides | null)[] = [];
   const views: number[][] = [];
   const hits = { point: [] as string[], rect: [] as string[] };
+  const pans: number[][] = [];
+  const zooms: number[][] = [];
   const surface: CanvasSurface = {
     layoutScreens: () => Promise.resolve([]),
     setViewport: (x, y, z) => views.push([x, y, z]),
-    pan: () => undefined,
-    zoomAbout: () => undefined,
+    pan: (dx, dy) => pans.push([dx, dy]),
+    zoomAbout: (factor, x, y) => zooms.push([factor, x, y]),
     hitTest: () => hits.point,
     hitTestRect: () => hits.rect,
     setSelection: (ids) => selections.push([...ids]),
@@ -160,7 +162,7 @@ function stub() {
     dispose: () => undefined,
   };
   const added = () => new Set(patches.flatMap((o) => (o.op === "add" || o.op === "replace" ? [o.item.id] : [])));
-  return { patches, selections, guides, views, hits, added, factory: () => surface };
+  return { patches, selections, guides, views, hits, pans, zooms, added, factory: () => surface };
 }
 
 const canvas = () => document.querySelector("canvas") as HTMLCanvasElement;
@@ -256,5 +258,80 @@ describe("C1 on Plux Canvas ([STU-030], [STU-040], ADR-0013)", () => {
     fireEvent.pointerDown(canvas(), { button: 0, clientX: 5, clientY: 5 });
     fireEvent.pointerUp(canvas(), { clientX: 5, clientY: 5 });
     await waitFor(() => expect([...s.added()].some((id) => id.startsWith("arrow:loans→cards:l0"))).toBe(true));
+  });
+});
+
+describe("C1's floating panels and gestures ([STU-030], [STU-032], ADR-0103)", () => {
+  test("the hand tool, Space held or the middle button pan by dragging; the select tool draws a marquee", async () => {
+    const s = stub();
+    renderApp(path, state({ surface: s.factory }));
+    await waitFor(() => expect(s.added().has("app-box/cards")).toBe(true));
+    fireEvent.click(screen.getByRole("button", { name: "Hand" }));
+    fireEvent.pointerDown(canvas(), { button: 0, clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(canvas(), { clientX: 130, clientY: 90 });
+    fireEvent.pointerUp(canvas(), { clientX: 130, clientY: 90 });
+    expect(s.pans).toEqual([[30, -10]]);
+    expect(s.guides.length).toBe(0);
+
+    fireEvent.keyDown(window, { key: "v" });
+    fireEvent.pointerDown(canvas(), { button: 1, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(canvas(), { clientX: 5, clientY: 5 });
+    fireEvent.pointerUp(canvas(), { clientX: 5, clientY: 5 });
+    expect(s.pans.at(-1)).toEqual([5, 5]);
+
+    fireEvent.keyDown(window, { key: " " });
+    fireEvent.pointerDown(canvas(), { button: 0, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(canvas(), { clientX: -4, clientY: 8 });
+    fireEvent.pointerUp(canvas(), { clientX: -4, clientY: 8 });
+    fireEvent.keyUp(window, { key: " " });
+    expect(s.pans.at(-1)).toEqual([-4, 8]);
+
+    fireEvent.pointerDown(canvas(), { button: 0, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(canvas(), { clientX: 40, clientY: 40 });
+    expect(s.guides.at(-1)?.indicator).toBeDefined();
+    fireEvent.pointerUp(canvas(), { clientX: 40, clientY: 40 });
+    expect(s.pans.length).toBe(3);
+  });
+
+  test("the wheel pans and with Ctrl zooms the canvas, never the page", async () => {
+    const s = stub();
+    renderApp(path, state({ surface: s.factory }));
+    await waitFor(() => expect(s.added().has("app-box/cards")).toBe(true));
+    const pan = new WheelEvent("wheel", { deltaX: 0, deltaY: 40, cancelable: true });
+    canvas().dispatchEvent(pan);
+    expect(pan.defaultPrevented).toBe(true);
+    expect(s.pans.at(-1)?.[1]).toBe(-40);
+    // A trackpad pinch arrives as a wheel with Ctrl. happy-dom drops the modifier from a wheel's init, so it is set here.
+    const pinch = new WheelEvent("wheel", { deltaY: -100, cancelable: true });
+    Object.defineProperty(pinch, "ctrlKey", { value: true });
+    canvas().dispatchEvent(pinch);
+    expect(pinch.defaultPrevented).toBe(true);
+    expect((s.zooms.at(-1)?.[0] ?? 0) > 1).toBe(true);
+  });
+
+  test("the zoom controls zoom about the middle and the plugins list selects a plugin with its actions", async () => {
+    const s = stub();
+    renderApp(path, state({ surface: s.factory }));
+    await waitFor(() => expect(s.added().has("app-box/cards")).toBe(true));
+    fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
+    expect((s.zooms.at(-1)?.[0] ?? 0) > 1).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Zoom out" }));
+    expect((s.zooms.at(-1)?.[0] ?? 2) < 1).toBe(true);
+
+    const row = screen.getByRole("option", { name: "Show Cards on the canvas" });
+    fireEvent.click(row);
+    await waitFor(() => expect(row.getAttribute("aria-selected")).toBe("true"));
+    await waitFor(() => expect(s.selections.at(-1)).toEqual(["app-box/cards"]));
+    const panel = await screen.findByRole("complementary", { name: "Cards" });
+    const actions = within(panel).getByRole("group", { name: "Plugin actions" });
+    expect(within(actions).getByRole("button", { name: "Open plugin" })).toBeTruthy();
+    expect(within(actions).getByRole("button", { name: "Delete plugin" })).toBeTruthy();
+    // The selected box is outlined in the scene itself.
+    const outline = s.patches.flatMap((o) =>
+      (o.op === "add" || o.op === "replace") && o.item.id === "app-box/cards" ? [o.item] : [],
+    );
+    expect(outline.at(-1)).toMatchObject({ stroke: { width: 2 } });
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(row.getAttribute("aria-selected")).toBe("false"));
   });
 });

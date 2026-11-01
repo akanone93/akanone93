@@ -3,7 +3,8 @@
 
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
-import { Field, Select, StatusPill } from "@plux/ui";
+import { Field, Icon, Select, StatusPill } from "@plux/ui";
+import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { Frame } from "../releases/frame.tsx";
@@ -36,6 +37,7 @@ export function ExperimentsPage(): ReactElement {
       caption={m.listCaption}
       loading={environment.loading || list.isPending}
       failed={environment.failed || list.isError}
+      error={list.error}
     >
       <div className="flex items-end gap-3">
         <Field label={m.statusLabel}>
@@ -45,6 +47,7 @@ export function ExperimentsPage(): ReactElement {
             onValueChange={(v) =>
               void navigate({
                 to: ".",
+                resetScroll: false,
                 replace: true,
                 search: (s: object) => ({ ...s, status: v === "0" ? undefined : Number(v) }),
               } as never)
@@ -52,11 +55,22 @@ export function ExperimentsPage(): ReactElement {
           />
         </Field>
         {canCreate && (
-          <Link className="text-body" to="/o/$org/apps/$app/experiments/new" params={{ org, app }} search={{ env }}>
+          <Link
+            className={buttonVariants({ size: "sm" })}
+            to="/o/$org/apps/$app/experiments/new"
+            params={{ org, app }}
+            search={{ env }}
+          >
+            <Icon name="plus" data-icon="inline-start" />
             {m.newLink}
           </Link>
         )}
-        <Link className="text-body" to="/o/$org/apps/$app/experiments/flags" params={{ org, app }} search={{ env }}>
+        <Link
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+          to="/o/$org/apps/$app/experiments/flags"
+          params={{ org, app }}
+          search={{ env }}
+        >
           {m.flagsLink}
         </Link>
       </div>

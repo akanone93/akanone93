@@ -38,6 +38,7 @@ export function AnalyticsOverviewPage(): ReactElement {
       caption={m.overviewCaption}
       loading={overview.isPending || views.isPending}
       failed={overview.isError || views.isError}
+      error={overview.error ?? views.error}
     >
       <AreaNav />
       <MetricStrip
@@ -124,6 +125,7 @@ export function AnalyticsPerformancePage(): ReactElement {
       caption={m.performanceCaption}
       loading={q.isPending}
       failed={q.isError}
+      error={q.error}
     >
       <AreaNav />
       {p.days.length === 0 ? (

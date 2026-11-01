@@ -1,0 +1,172 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * Studio's surfaces on top of shadcn's components (ADR-0103, amended 2026-11-01): neutral solid pages and cards with
+ * hairline borders and soft elevation, and frosted glass for everything that floats over the page (the header, menus,
+ * popovers, selects, hover cards, dialogs, sheets and the canvas's panels): a translucent fill, a strong blur, a hairline
+ * edge and a light inner highlight on the top edge. Colour stays small and solid (the primary, the chart hues and the
+ * status colours); there are no washes or glows. The components stay shadcn's; this file only styles their data-slots.
+ * The contrast theme, forced colours and reduced transparency get solid surfaces without blur.
+ */
+
+:root {
+  --link: var(--primary);
+  --elevation-1: 0 1px 2px oklch(0.2 0.01 286 / 6%), 0 1px 3px oklch(0.2 0.01 286 / 4%);
+  --elevation-2: 0 1px 2px oklch(0.2 0.01 286 / 6%), 0 8px 20px -8px oklch(0.2 0.01 286 / 16%);
+  --elevation-3: 0 2px 6px -2px oklch(0.2 0.01 286 / 10%), 0 20px 44px -16px oklch(0.2 0.01 286 / 28%);
+  --glass-fill: color-mix(in oklch, var(--popover) 72%, transparent);
+  --glass-edge: color-mix(in oklch, var(--foreground) 10%, transparent);
+  --glass-highlight: oklch(1 0 0 / 65%);
+  --glass-blur: blur(28px) saturate(1.8);
+  --glass-shadow: 0 0 0 1px var(--glass-edge), inset 0 1px 0 0 var(--glass-highlight), var(--elevation-3);
+  /* The page: one faint wash of the primary from the top, so the glass that floats over it has something to blur. */
+  --page-wash: color-mix(in oklch, var(--primary) 7%, transparent);
+}
+
+[data-theme="dark"] {
+  --link: oklch(0.785 0.115 274.713);
+  --elevation-1: 0 1px 2px oklch(0 0 0 / 40%);
+  --elevation-2: 0 1px 2px oklch(0 0 0 / 40%), 0 10px 24px -10px oklch(0 0 0 / 60%);
+  --elevation-3: 0 2px 8px -2px oklch(0 0 0 / 50%), 0 24px 56px -16px oklch(0 0 0 / 70%);
+  --glass-fill: color-mix(in oklch, var(--popover) 68%, transparent);
+  --glass-edge: oklch(1 0 0 / 11%);
+  --glass-highlight: oklch(1 0 0 / 7%);
+  --page-wash: color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+[data-slot="sidebar-inset"] {
+  background: radial-gradient(70rem 28rem at 50% -12rem, var(--page-wash), transparent 70%), var(--background);
+  background-attachment: fixed;
+}
+
+/* Cards lift off the page: solid, a hairline and the first elevation. */
+[data-slot="card"] {
+  box-shadow: var(--elevation-1);
+}
+
+/* What floats is frosted glass: the page shows through, blurred. */
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="select-content"],
+[data-slot="hover-card-content"],
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"],
+[data-slot="sheet-content"],
+.glass {
+  background-color: var(--glass-fill);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+
+/* The header stays at the top of the page, frosted over what scrolls under it, with a hairline below. */
+.site-header {
+  background-color: color-mix(in oklch, var(--background) 72%, transparent);
+  backdrop-filter: var(--glass-blur);
+}
+
+[data-theme="contrast"] {
+  --link: oklch(0 0 0);
+  --glass-fill: var(--popover);
+  --glass-edge: var(--border);
+  --glass-highlight: transparent;
+  --glass-blur: none;
+  --page-wash: transparent;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-fill: var(--popover);
+    --glass-blur: none;
+  }
+
+  .site-header {
+    background-color: var(--background);
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --glass-blur: none;
+  }
+}
+
+/* A link in running text or a table cell, written without classes, reads as a link in every theme. */
+@layer base {
+  a:not([class]) {
+    color: var(--link);
+    font-weight: 500;
+    text-underline-offset: 4px;
+  }
+
+  a:not([class]):hover,
+  a:not([class]):focus-visible {
+    text-decoration: underline;
+  }
+}
+
+/* The pages of an area, side by side: shadcn's tab strip, the current page raised. */
+.sub-nav {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  align-self: flex-start;
+  padding: calc(var(--spacing) * 1);
+  border-radius: var(--radius-lg);
+  background-color: var(--muted);
+}
+
+.sub-nav > a {
+  padding-block: calc(var(--spacing) * 1);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition:
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.sub-nav > a:hover {
+  color: var(--foreground);
+}
+
+.sub-nav > a[data-status="active"] {
+  color: var(--foreground);
+  background-color: var(--background);
+  box-shadow: var(--elevation-1);
+}
+
+/*
+ * The native controls a few dense editors keep (checkboxes, radios, ranges, file pickers) take the theme's primary
+ * colour and shadcn's sizes, so they read as part of the same set as the shadcn components beside them.
+ */
+@layer base {
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"] {
+    accent-color: var(--primary);
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    inline-size: calc(var(--spacing) * 4);
+    block-size: calc(var(--spacing) * 4);
+    cursor: pointer;
+  }
+
+  input[type="file"]::file-selector-button {
+    margin-inline-end: calc(var(--spacing) * 3);
+    padding-block: calc(var(--spacing) * 1);
+    padding-inline: calc(var(--spacing) * 3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+  }
+}

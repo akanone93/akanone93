@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import type { GetCurrentUserResponse } from "@plux/api";
 import {
   createRootRouteWithContext,
   createRoute,
@@ -43,7 +44,7 @@ import {
   requireUser,
   safeNext,
 } from "./lib/guards.ts";
-import type { Session } from "./lib/session.ts";
+import { organizationIdOf, type Session } from "./lib/session.ts";
 
 export interface RouterContext {
   readonly session: Session;
@@ -69,6 +70,11 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
     if (context.webgl2 === false && location.pathname !== "/unsupported") {
       throw redirect({ to: "/unsupported" });
     }
+    // The one place requests get their organisation: the page's own, from the URL, before any layout renders and calls
+    // the server; none on a page outside one (the installation's state is read without any). The organisation's guard
+    // still checks membership and answers 404 to a stranger.
+    const org = /^\/o\/([^/]+)/.exec(location.pathname)?.[1];
+    context.session.setOrganization(org === undefined ? undefined : organizationIdOf(org));
   },
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -79,6 +85,32 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
 async function leaveWhenSignedIn(session: Session, next: string | undefined) {
   if ((await loadUser(session)) !== undefined) {
     throw redirect({ href: safeNext(next) });
+  }
+}
+
+/**
+ * Enters the organisation of `:org`: a member's requests name it from here on, and the pages below get the person's
+ * permissions in it. The layout's user carries none, because the server returns permissions only for a named
+ * organisation.
+ */
+async function enterOrganization(
+  context: { readonly session: Session; readonly user: GetCurrentUserResponse },
+  org: string,
+  href: string,
+) {
+  const id = requireMembership(context.user, org);
+  context.session.setOrganization(id);
+  return { user: await requireUser(context.session, href, id) };
+}
+
+/**
+ * Every signed-in page has a home organisation: the last one the person was in, or their first after a reload on a
+ * page outside any. The sidebar keeps its navigation there, and the person's preferences and inbox are read in it.
+ */
+function keepHome(context: { readonly session: Session; readonly user: GetCurrentUserResponse }) {
+  const home = context.session.home();
+  if (!context.user.memberships.some((m) => m.organizationId === home)) {
+    context.session.setHome(context.user.memberships[0]?.organizationId);
   }
 }
 
@@ -114,7 +146,11 @@ const unsupportedRoute = createRoute({
 const shellLayout = createRoute({
   getParentRoute: () => rootRoute,
   id: "shell",
-  beforeLoad: async ({ context, location }) => ({ user: await requireUser(context.session, location.href) }),
+  beforeLoad: async ({ context, location }) => {
+    const user = await requireUser(context.session, location.href);
+    keepHome({ session: context.session, user });
+    return { user };
+  },
   component: ShellLayout,
 });
 
@@ -133,14 +169,12 @@ const personalHomeRoute = createRoute({
 const profileRoute = createRoute({
   getParentRoute: () => shellLayout,
   path: "/me",
-  beforeLoad: ({ context }) => context.session.setOrganization(undefined),
   component: lazyRouteComponent(() => import("./features/profile/index.ts"), "ProfilePage"),
 });
 
 const shortcutsRoute = createRoute({
   getParentRoute: () => shellLayout,
   path: "/me/shortcuts",
-  beforeLoad: ({ context }) => context.session.setOrganization(undefined),
   component: lazyRouteComponent(() => import("./features/profile/index.ts"), "ShortcutsPage"),
 });
 
@@ -148,7 +182,7 @@ const orgRoute = createRoute({
   getParentRoute: () => shellLayout,
   path: "/o/$org",
   params: { parse: (raw) => ({ org: z.string().parse(raw.org) }) },
-  beforeLoad: ({ context, params }) => context.session.setOrganization(requireMembership(context.user, params.org)),
+  beforeLoad: ({ context, params, location }) => enterOrganization(context, params.org, location.href),
   component: Outlet,
 });
 
@@ -393,10 +427,7 @@ function installationRoute(path: string, component: keyof typeof import("./featu
   return createRoute({
     getParentRoute: () => shellLayout,
     path: `/installation${path}`,
-    beforeLoad: ({ context }) => {
-      requireInstallationAdmin(context.user);
-      context.session.setOrganization(undefined);
-    },
+    beforeLoad: ({ context }) => requireInstallationAdmin(context.user),
     component: lazyRouteComponent(() => import("./features/installation/index.ts"), component),
   });
 }
@@ -510,7 +541,7 @@ const appCanvasRoute = createRoute({
   getParentRoute: () => canvasLayout,
   path: "/o/$org/apps/$app",
   params: { parse: (raw) => ({ org: z.string().parse(raw.org), app: z.string().parse(raw.app) }) },
-  beforeLoad: ({ context, params }) => context.session.setOrganization(requireMembership(context.user, params.org)),
+  beforeLoad: ({ context, params, location }) => enterOrganization(context, params.org, location.href),
   component: lazyRouteComponent(() => import("./features/app-canvas/index.ts"), "AppCanvasPage"),
 });
 
@@ -526,7 +557,7 @@ const pluginCanvasRoute = createRoute({
     }),
   },
   validateSearch: (search) => canvasSearchSchema.parse(search),
-  beforeLoad: ({ context, params }) => context.session.setOrganization(requireMembership(context.user, params.org)),
+  beforeLoad: ({ context, params, location }) => enterOrganization(context, params.org, location.href),
   component: lazyRouteComponent(() => import("./features/plugin-canvas/index.ts"), "PluginCanvasPage"),
 });
 
@@ -592,7 +623,14 @@ const routeTree = rootRoute.addChildren([
 
 /** The route tree: only pages that exist (L-7). `canvas` and `page` layouts join with their first pages. */
 export function createAppRouter(context: RouterContext, history?: RouterHistory) {
-  return createRouter({ routeTree, context, ...(history !== undefined && { history }), defaultPreload: "intent" });
+  // Every route renders its own 403 and licence pages, so the shell and its navigation stay around them.
+  return createRouter({
+    routeTree,
+    context,
+    ...(history !== undefined && { history }),
+    defaultPreload: "intent",
+    defaultErrorComponent: RouteError,
+  });
 }
 
 declare module "@tanstack/react-router" {

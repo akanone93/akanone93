@@ -63,6 +63,17 @@ before they become overdue ([Approval deadlock and break-glass](../../runbooks/a
 | Compliance, Retention | Signed reports of changes in a period; how long each data class is kept |
 | Licence, Limits | The enterprise licence (verified offline) and the organisation's limits and usage |
 
+When the server refuses a page, the page says why and how to get past it, with the error code for
+support:
+
+- **Confirm it's you**: the page shows sensitive settings (SSO and SCIM, Sessions); choose
+  **Confirm with passkey**, and the page opens for the next five minutes.
+- **A second factor is required**: the session was signed in with a password only; sign out and
+  sign in with a passkey or your second factor.
+- **Not included in your licence**: the feature (SCIM, compliance reports) belongs to the enterprise
+  edition; **View licence** opens the licence page.
+- **You don't have access**: ask an administrator for the permission.
+
 Installation administrators also have **Installation**: health, organisations, storage use, job
 queues, backups, trusted CI issuers and the audit chain.
 

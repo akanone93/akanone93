@@ -49,6 +49,7 @@ export function LimitsPage(): ReactElement {
       caption={m.limitsCaption}
       loading={limits.isPending}
       failed={limits.isError}
+      error={limits.error}
       saveFailed={failed}
     >
       <Table

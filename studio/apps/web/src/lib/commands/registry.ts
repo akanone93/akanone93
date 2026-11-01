@@ -102,6 +102,11 @@ export function chordOf(
 
 /** Human form of a chord for display, with ⌘ on Apple platforms. */
 export function formatShortcut(shortcut: string, apple: boolean): string {
+  return shortcutKeys(shortcut, apple).join(apple ? "" : "+");
+}
+
+/** The keys of a shortcut in the platform's names, one entry per key: for key caps. */
+export function shortcutKeys(shortcut: string, apple: boolean): readonly string[] {
   const names: Readonly<Record<string, readonly [string, string]>> = {
     mod: ["⌘", "Ctrl"],
     alt: ["⌥", "Alt"],
@@ -109,8 +114,7 @@ export function formatShortcut(shortcut: string, apple: boolean): string {
   };
   return normaliseShortcut(shortcut)
     .split("+")
-    .map((p) => names[p]?.[apple ? 0 : 1] ?? p.toUpperCase())
-    .join(apple ? "" : "+");
+    .map((p) => names[p]?.[apple ? 0 : 1] ?? p.toUpperCase());
 }
 
 /** True for targets where typing must not trigger a shortcut. */

@@ -31,7 +31,12 @@ export function InboxPage(): ReactElement {
     used: m.statusUsed,
   };
   const change = (patch: object) =>
-    void navigate({ to: ".", replace: true, search: (prev: object) => ({ ...prev, ...patch }) } as never);
+    void navigate({
+      to: ".",
+      resetScroll: false,
+      replace: true,
+      search: (prev: object) => ({ ...prev, ...patch }),
+    } as never);
   return (
     <Frame
       id="approvals-title"
@@ -39,6 +44,7 @@ export function InboxPage(): ReactElement {
       caption={m.inboxCaption}
       loading={requests.isPending}
       failed={requests.isError}
+      error={requests.error}
     >
       <div className="flex items-end gap-4">
         <AppFilter />

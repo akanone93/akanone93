@@ -72,6 +72,7 @@ export function BreakGlassPage(): ReactElement {
       caption={m.breakGlassCaption}
       loading={list.isPending}
       failed={list.isError}
+      error={list.error}
     >
       {items.length === 0 ? (
         <p className="text-body text-muted-foreground">{m.empty}</p>

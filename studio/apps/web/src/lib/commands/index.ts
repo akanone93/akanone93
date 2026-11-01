@@ -17,6 +17,7 @@ export {
   formatShortcut,
   mergeScoped,
   type Registry,
+  shortcutKeys,
 } from "./registry.ts";
 export { shellCommands } from "./shell-commands.ts";
 export {

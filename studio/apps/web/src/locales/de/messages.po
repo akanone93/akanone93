@@ -186,6 +186,12 @@ msgstr "{count, plural, one {# Knoten ausgewählt} other {# Knoten ausgewählt}}
 msgid "notify.type.unknown"
 msgstr "{count, plural, one {# Benachrichtigung} other {# Benachrichtigungen}}"
 
+#. Under the app's name on the canvas: how many plugins the app has.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.plugin-count"
+msgstr "{count, plural, one {# Plugin} other {# Plugins}}"
+
 #. Count of problems found in one step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -231,6 +237,12 @@ msgstr "{count, plural, one {# Validierungsfehler zu beheben} other {# Validieru
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.warnings"
 msgstr "{count, plural, one {# Warnung} other {# Warnungen}}"
+
+#. Line on the account card: how many organisations the person belongs to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.account.member-of"
+msgstr "{count, plural, one {Mitglied in # Organisation} other {Mitglied in # Organisationen}}"
 
 #. Status chip: no network, and edits wait in memory to be sent on reconnect.
 #. js-lingui-explicit-id
@@ -321,6 +333,12 @@ msgstr "{devices} Geräte"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.progress-text"
 msgstr "{done} von {total} Schritten"
+
+#. Short progress on the Get started button of the header: steps done of all steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.progress.short"
+msgstr "{done}/{total}"
 
 #. Badge on an app's card: an environment that serves no release yet; environment is its key.
 #. js-lingui-explicit-id
@@ -676,6 +694,12 @@ msgstr "{passed} bestanden, {failed} fehlgeschlagen"
 msgid "apps.card.crash-free"
 msgstr "{percent} absturzfrei"
 
+#. The canvas zoom as a percentage, e.g. '100%'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.zoom.percent"
+msgstr "{percent} %"
+
 #. Progress of a publish job: percent and pipeline stage.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -813,6 +837,12 @@ msgstr "Ein Teil der Datei war größer, als der Server annimmt. Lade die Datei 
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reportsBlocked"
 msgstr "Ein Bericht enthält Fehler. Öffne die Probleme, behebe sie und friere erneut ein."
+
+#. Title shown when a page needs a session signed in with a second factor.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.second-factor.title"
+msgstr "Ein zweiter Faktor ist erforderlich"
 
 #. Explains which images work as the app icon.
 #. js-lingui-explicit-id
@@ -1366,6 +1396,11 @@ msgstr "Zur nächsten Stufe"
 msgid "publish.evidence.thumbAfter"
 msgstr "Nachher"
 
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.alert.fired"
+msgstr "Alarm ausgelöst"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -1654,6 +1689,12 @@ msgstr "App-Name"
 msgid "cmd.group.appearance"
 msgstr "Darstellung"
 
+#. Heading of the card with the theme, density and language.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.appearance"
+msgstr "Darstellung"
+
 #. Status shown after a change to the graph is made.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -1768,6 +1809,11 @@ msgstr "Freigaberichtlinien"
 msgid "approvals.requestTitle"
 msgstr "Freigabeanfrage"
 
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.approval.requested"
+msgstr "Freigabe angefordert"
+
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -1858,6 +1904,12 @@ msgstr "Freigegeben für Inhalt {hash}."
 msgid "l10n.area.noApprove"
 msgstr "Zum Freigeben ist die Berechtigung translations.approve nötig."
 
+#. Group of search results: apps.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.kind.app"
+msgstr "Apps"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -1941,6 +1993,12 @@ msgstr "Anordnen"
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.source.ai-hint"
 msgstr "Folgt in einer späteren Version."
+
+#. Explains a page refused for a missing permission.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.permission.body"
+msgstr "Bitte eine Administratorin oder einen Administrator der Organisation um die Berechtigung, die diese Seite braucht."
 
 #. Second sentence of the empty apps state for a person who may not create apps.
 #. js-lingui-explicit-id
@@ -2104,6 +2162,12 @@ msgstr "Zurück"
 msgid "experiments.back"
 msgstr "Zurück"
 
+#. Button that leaves the app canvas for the organisation's home.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.back"
+msgstr "Zurück zu {org}"
+
 #. Link.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -2242,6 +2306,11 @@ msgstr "Marken-Overlays"
 msgid "dialog.justification.title"
 msgstr "Begründung für Notfallzugriff"
 
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.breakglass.review_overdue"
+msgstr "Break-Glass-Prüfung überfällig"
+
 #. Link to the break-glass reviews.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -2253,6 +2322,11 @@ msgstr "Break-Glass-Prüfungen"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.breakGlassTitle"
 msgstr "Break-Glass-Prüfungen"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.breakglass.used"
+msgstr "Break-Glass verwendet"
 
 #. Heading of the compiler output shown when the source did not build.
 #. js-lingui-explicit-id
@@ -2782,6 +2856,12 @@ msgstr "Wählen Sie zwei Snapshots zum Vergleichen aus."
 msgid "newApp.locales.hint"
 msgstr "Wählen Sie bis zu {max} Sprachen. Die Standardsprache wird immer unterstützt."
 
+#. Description of the notification settings in the profile.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mute.caption"
+msgstr "Wählen Sie, was in Ihrem Posteingang ankommt. Freigabe- und Sicherheitsbenachrichtigungen sind immer aktiv."
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -2811,6 +2891,12 @@ msgstr "Client"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.api.clipboard"
 msgstr "Zwischenablage"
+
+#. Palette footer: Escape closes.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.hint.close"
+msgstr "Schließen"
 
 #. Accessible name of the dialog close button.
 #. js-lingui-explicit-id
@@ -3052,16 +3138,16 @@ msgstr "Farben im Modus {mode}"
 msgid "profile.density.comfortable"
 msgstr "Komfortabel"
 
-#. Title of the palette dialog.
+#. Heading of the matching commands in the palette.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
-msgid "cmd.palette.title"
-msgstr "Befehlspalette"
+msgid "cmd.palette.group.commands"
+msgstr "Befehle"
 
-#. Label of the top bar button that opens the palette.
+#. Palette filter: commands only (also typed as > before the text).
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
-msgid "cmd.palette.trigger"
+msgid "cmd.palette.scope.commands"
 msgstr "Befehle"
 
 #. Label of the comment field.
@@ -3081,6 +3167,12 @@ msgstr "Kompakt"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.compact"
 msgstr "Kompakt"
+
+#. Description under the density choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.density.caption"
+msgstr "Kompakt zeigt mehr Zeilen auf dem Bildschirm."
 
 #. D37 button: list the documents with unsaved changes.
 #. js-lingui-explicit-id
@@ -3160,6 +3252,12 @@ msgstr "Komponenten-Überschreibungen"
 msgid "experiments.scopeSubtree"
 msgstr "Komponenten-Teilbaum"
 
+#. Group of search results.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.kind.component"
+msgstr "Komponenten"
+
 #. Group of the Insert tab: ready-made components (Layer 2).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3213,6 +3311,18 @@ msgstr "Zerstörerische Aktion bestätigen"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.title"
 msgstr "Bestätigen Sie, dass Sie es sind"
+
+#. Title shown when a page needs a fresh passkey confirmation before the server shows it.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.step-up.title"
+msgstr "Bestätige, dass du es bist"
+
+#. Button that starts the passkey confirmation of a page.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.step-up.action"
+msgstr "Mit Passkey bestätigen"
 
 #. Explains the pair-a-device onboarding step.
 #. js-lingui-explicit-id
@@ -4294,6 +4404,12 @@ msgstr "Entwurf"
 msgid "experiments.stateDraft"
 msgstr "Entwurf"
 
+#. Short help at the foot of the canvas for the pointer gestures.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.hint"
+msgstr "Ziehen zum Verschieben · Leertaste + Ziehen zum Schwenken · Strg + Scrollen zum Zoomen · Doppelklick zum Öffnen"
+
 #. Accessible name of the drawer below the canvas that holds tabs such as Problems.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
@@ -4461,6 +4577,11 @@ msgstr "Variablen im App-Dokument bearbeiten"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.editTitle"
 msgstr "Token {token} bearbeiten"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.lock.requested"
+msgstr "Bearbeitungssperre angefordert"
 
 #. Hint under the build step.
 #. js-lingui-explicit-id
@@ -4774,6 +4895,12 @@ msgstr "Fehler"
 msgid "analytics.errorTitle"
 msgstr "Fehler"
 
+#. The stable error code of a refusal, for support (for example PLX-6200).
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.code"
+msgstr "Fehler {code}"
+
 #. Metric name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -4833,6 +4960,12 @@ msgstr "Fehler steigen, {points} Punkte"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.health.trend-flat"
 msgstr "Fehler unverändert"
+
+#. The Escape key as written on a key cap, in the palette's footer.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.key.escape"
+msgstr "Esc"
 
 #. Label of the share of the page's node budget the selection uses.
 #. js-lingui-explicit-id
@@ -4941,6 +5074,12 @@ msgstr "Jeder Schritt braucht eine gültige Test-ID, und eingegebener Text brauc
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.warningsBody"
 msgstr "Jede Warnung muss bestätigt werden, bevor das Release fortfahren kann."
+
+#. Palette filter: search commands and the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.scope.all"
+msgstr "Alles"
 
 #. Error: not exactly one control.
 #. js-lingui-explicit-id
@@ -5434,6 +5573,12 @@ msgstr "Rahmenbezeichnung"
 msgid "appCanvas.newFrame"
 msgstr "Auswahl umrahmen"
 
+#. Heading of the frames in the plugins panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.layers.frames"
+msgstr "Rahmen"
+
 #. Label of the stack frames.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -5523,6 +5668,17 @@ msgstr "Funktion"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.detailTitle"
 msgstr "Funktion {name}"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.function.failing"
+msgstr "Funktion schlägt fehl"
+
+#. Group of search results.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.kind.function"
+msgstr "Funktionen"
 
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
@@ -5800,6 +5956,12 @@ msgstr "Leitplanke ausgelöst"
 msgid "experiments.guardrails"
 msgstr "Leitplanken"
 
+#. Canvas tool that pans the canvas by dragging.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.tool.hand"
+msgstr "Hand"
+
 #. Button: release the lock to whoever asked.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -5878,11 +6040,23 @@ msgstr "Höhe (logische Pixel)"
 msgid "help.menu"
 msgstr "Hilfe"
 
+#. Accessible name of the links in the page footer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.footer.label"
+msgstr "Hilfelinks"
+
 #. Label on a node whose content is never recorded.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayMasked"
 msgstr "Verborgen"
+
+#. Button that collapses the plugins panel of the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.layers.hide"
+msgstr "Bereich ausblenden"
 
 #. Button in the password field that hides the typed password again.
 #. js-lingui-explicit-id
@@ -6003,6 +6177,12 @@ msgstr "Wie lange jede Datenklasse aufbewahrt wird. Eine Änderung wartet auf ih
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.storageCaption"
 msgstr "Wie viel Platz Datenbank und Objektspeicher belegen."
+
+#. Caption of the appearance card on the profile page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.appearance.caption"
+msgstr "Wie Studio aussieht und sich liest. Eine Änderung gilt sofort."
 
 #. Field label.
 #. js-lingui-explicit-id
@@ -6309,6 +6489,12 @@ msgstr "Installationsbasis"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.navLabel"
 msgstr "Installation"
+
+#. Badge on the profile of a person who administers the whole installation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.account.installation-admin"
+msgstr "Installationsadministrator"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -6660,10 +6846,10 @@ msgstr "Tastaturkürzel"
 msgid "help.shortcuts"
 msgstr "Tastenkürzel"
 
-#. Item of the account menu that opens the keyboard shortcuts page.
+#. Tab of the profile page with the keyboard shortcuts.
 #. js-lingui-explicit-id
-#: apps/web/src/features/shell/shell-chrome.messages.ts
-msgid "chrome.profile.shortcuts"
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.shortcuts"
 msgstr "Tastenkürzel"
 
 #. Notice in the key extraction dialog when a lock the extraction needs is held by someone else.
@@ -6960,6 +7146,12 @@ msgstr "Stufe"
 msgid "devices.level"
 msgstr "Stufe"
 
+#. Sidebar link to the organisation's library of shared components and templates.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.sidebar.library"
+msgstr "Bibliothek"
+
 #. Heading of the library of components and templates.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -6977,6 +7169,11 @@ msgstr "Lizenz"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.licenseTitle"
 msgstr "Lizenz"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.licence.expiring"
+msgstr "Lizenz läuft ab"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -7518,6 +7715,12 @@ msgstr "Als gelesen markieren"
 msgid "profile.theme.system"
 msgstr "Wie System"
 
+#. Description under the theme choice.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.theme.caption"
+msgstr "Wie System folgt der hellen oder dunklen Einstellung Ihres Geräts."
+
 #. Platform style option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -7752,6 +7955,12 @@ msgstr "Weitere primäre Messgrößen (Ereignisse)"
 msgid "publish.evidence.opMove"
 msgstr "verschieben"
 
+#. Palette footer: the arrow keys move.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.hint.move"
+msgstr "Bewegen"
+
 #. Button that confirms moving a screen to the chosen plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -7799,12 +8008,6 @@ msgstr "Ausgewählten Schritt {direction} verschoben. Neue Position, x: {x}, y: 
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.unit.milliseconds"
 msgstr "ms"
-
-#. Label of the per-type mute checkbox.
-#. js-lingui-explicit-id
-#: apps/web/src/features/shell/notify.messages.ts
-msgid "notify.mute.label"
-msgstr "Stummschalten"
 
 #. Toggle button that keeps only the apps the person holds a grant on, directly or through a team.
 #. js-lingui-explicit-id
@@ -8316,12 +8519,6 @@ msgstr "Keine Änderungen zu übernehmen."
 msgid "releases.noChanges"
 msgstr "Keine Änderungen."
 
-#. Shown when the filter matches nothing.
-#. js-lingui-explicit-id
-#: apps/web/src/lib/commands/commands.messages.ts
-msgid "cmd.palette.empty"
-msgstr "Kein Befehl passt."
-
 #. Shown when the range holds no events.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -8742,6 +8939,12 @@ msgstr "Nicht verfügbar"
 msgid "functions.capGrantedNo"
 msgstr "Nicht gewährt"
 
+#. Title shown when the organisation's licence does not include the feature of a page.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.licence.title"
+msgstr "Nicht in deiner Lizenz enthalten"
+
 #. Shown when the widget cannot be operated.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -8826,6 +9029,12 @@ msgstr "Nichts in der Bibliothek passt. Speichere eine Auswahl als Vorlage oder 
 msgid "clipboard.reportIntro"
 msgstr "Nichts wird stillschweigend hinzugefügt. Wählen Sie, was mit jedem fehlenden Element geschieht; erst nach Ihrer Bestätigung wird eingefügt."
 
+#. Shown when neither a command nor the organisation search matches the text.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.empty"
+msgstr "Keine Treffer."
+
 #. Shown on an app's card when no environment serves a release.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -8898,12 +9107,6 @@ msgstr "Benachrichtigungen"
 msgid "notify.inbox.title"
 msgstr "Benachrichtigungen"
 
-#. Sidebar link to the notifications page.
-#. js-lingui-explicit-id
-#: apps/web/src/features/shell/shell-chrome.messages.ts
-msgid "chrome.sidebar.notifications"
-msgstr "Benachrichtigungen"
-
 #. Retention note on the inbox page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -8915,6 +9118,12 @@ msgstr "Benachrichtigungen werden {days} Tage aufbewahrt. Das Audit-Log ist der 
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.failed"
 msgstr "Benachrichtigungen konnten nicht geladen werden."
+
+#. Accessible name of the switch that turns one notification type on or off; name is the type's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.mute.switch"
+msgstr "Benachrichtigen: {name}"
 
 #. Column head: the setting's current value.
 #. js-lingui-explicit-id
@@ -9036,6 +9245,12 @@ msgstr "Ein Plugin mit leerem Einstiegsbildschirm, bereit zum Gestalten."
 msgid "admin.licenseNote"
 msgstr "Nur Installationsadministratoren laden eine Lizenz hoch. Der Server prüft sie offline."
 
+#. Palette footer: Enter opens.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.hint.open"
+msgstr "Öffnen"
+
 #. Link to one data source or collection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -9078,6 +9293,12 @@ msgstr "Alle Benachrichtigungen öffnen"
 msgid "pluginCanvas.ghostLeaveTitle"
 msgstr "Anderes Plugin öffnen?"
 
+#. At the foot of an app's detail card: the whole card opens the app's canvas of plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.card.open-canvas"
+msgstr "App öffnen"
+
 #. Command title.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -9101,6 +9322,12 @@ msgstr "Knoten öffnen"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.admin-link"
 msgstr "Organisationsverwaltung öffnen"
+
+#. Button in the plugin's detail panel that opens its plugin canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.open-plugin"
+msgstr "Plugin öffnen"
 
 #. Button that leaves this plugin's canvas and opens the ghost screen on its own plugin's canvas.
 #. js-lingui-explicit-id
@@ -9756,6 +9983,12 @@ msgstr "Plugin"
 msgid "analytics.pluginColumn"
 msgstr "Plugin"
 
+#. Accessible name of the actions of the selected plugin in its detail panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.plugin-actions"
+msgstr "Plugin-Aktionen"
+
 #. Accessible name of the canvas that shows all screens of a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -9792,6 +10025,12 @@ msgstr "Plugin-Version"
 msgid "publish.cancelBody"
 msgstr "Bereits gebaute Plugin-Versionen bleiben erhalten; sie sind unveränderlich und harmlos."
 
+#. Group of search results.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.kind.plugin"
+msgstr "Plugins"
+
 #. Label of the total of plugins over all apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -9815,6 +10054,18 @@ msgstr "Plugins"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.limit.plugins"
 msgstr "Plugins"
+
+#. Title of the panel that lists the app's plugins and frames beside the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.layers"
+msgstr "Plugins"
+
+#. Explains the empty app canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.empty.hint"
+msgstr "Plugins sind die Bausteine einer App. Füge das erste mit „Neues Plugin“ in der Werkzeugleiste hinzu."
 
 #. Accessible name of the list of plugin boxes that screen readers and the keyboard use.
 #. js-lingui-explicit-id
@@ -10080,6 +10331,18 @@ msgstr "Profil"
 msgid "profile.title"
 msgstr "Profil"
 
+#. Tab of the profile page with the account, appearance and notifications.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.profile"
+msgstr "Profil"
+
+#. Accessible name of the tabs of the profile page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.label"
+msgstr "Profilseiten"
+
 #. Accessible name of the progress bar shown while the app is created.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -10163,6 +10426,11 @@ msgstr "Veröffentlichen"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.step.publish"
 msgstr "Version veröffentlichen"
+
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.release.published"
+msgstr "Veröffentlichung abgeschlossen"
 
 #. Accessible name of the list of publish steps.
 #. js-lingui-explicit-id
@@ -10301,6 +10569,12 @@ msgstr "Quelle wird gelesen …"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.reason"
 msgstr "Begründung"
+
+#. Heading of the commands the person ran last, in the palette.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.group.recent"
+msgstr "Zuletzt verwendet"
 
 #. Status chip: the live connection to the server dropped and is being retried.
 #. js-lingui-explicit-id
@@ -11280,6 +11554,11 @@ msgstr "Rollout"
 msgid "releases.controls"
 msgstr "Rollout-Steuerung"
 
+#. js-lingui-explicit-id
+#: apps/web/src/features/notifications/notification-kinds.ts
+msgid "notify.name.rollout.paused"
+msgstr "Rollout pausiert"
+
 #. Name of the rollout plan publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -11736,6 +12015,18 @@ msgstr "Bildschirmaufrufe pro Tag"
 msgid "cmd.group.screens"
 msgstr "Bildschirme"
 
+#. Palette filter: the organisation's screens only (also typed as # before the text).
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.scope.screens"
+msgstr "Bildschirme"
+
+#. Group of search results.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.kind.page"
+msgstr "Bildschirme"
+
 #. Tab: the list of the plugin's screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -11752,6 +12043,12 @@ msgstr "Bildschirme"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfScreens"
+msgstr "Bildschirme"
+
+#. Figure label in the plugin's detail panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.stat.screens"
 msgstr "Bildschirme"
 
 #. One of five short stories under the sample screen on the sign-in page. Its sentence.
@@ -11802,6 +12099,12 @@ msgstr "Screenshot: {screens}"
 msgid "tests.stepScroll"
 msgstr "Scrollen"
 
+#. Label of the top bar button that opens the search and command palette.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.trigger"
+msgstr "Suchen"
+
 #. Label of the library search field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -11826,11 +12129,23 @@ msgstr "Aktionen suchen"
 msgid "apps.search.label"
 msgstr "Apps durchsuchen"
 
+#. Label and placeholder of the search box of the palette.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.search"
+msgstr "Apps, Plugins und Bildschirme suchen oder einen Befehl eingeben"
+
 #. Label of the device search field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.search"
 msgstr "Geräte suchen"
+
+#. Accessible name of the palette's filter between everything, commands and screens.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.scope.label"
+msgstr "Suchen in"
 
 #. Label of the search field of the localisation grid.
 #. js-lingui-explicit-id
@@ -11843,6 +12158,12 @@ msgstr "Schlüssel und Texte suchen"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.search"
 msgstr "Suchen oder Befehl ausführen"
+
+#. Title of the search and command palette dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.title"
+msgstr "Studio durchsuchen"
 
 #. Label of the search field of the Insert tab.
 #. js-lingui-explicit-id
@@ -11909,6 +12230,12 @@ msgstr "Segmentschlüssel"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentHelp"
 msgstr "Segmentschlüssel, durch Kommas getrennt; ein Gerät in einem davon ist berechtigt. Leer lassen, um alle zu erreichen."
+
+#. Canvas tool that selects and moves plugins; a press on the background draws a selection box.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.tool.select"
+msgstr "Auswählen"
 
 #. Accessible name of the checkbox that selects one key for a bulk action.
 #. js-lingui-explicit-id
@@ -12216,6 +12543,12 @@ msgstr "Als Veröffentlichungsauftrag ausgeliefert."
 msgid "devices.code"
 msgstr "Kurzcode"
 
+#. Accessible name of a row of the plugins panel: selects the plugin and brings it into view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.layers.show"
+msgstr "{name} auf der Leinwand zeigen"
+
 #. Button that shows the dismissed first-run checklist again.
 #. js-lingui-explicit-id
 #: apps/web/src/features/onboarding/onboarding.messages.ts
@@ -12239,6 +12572,12 @@ msgstr "Seitenleiste ein- oder ausblenden"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.field.show-password"
 msgstr "Passwort anzeigen"
+
+#. Button that expands the plugins panel of the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.layers.show-panel"
+msgstr "Plugin-Bereich einblenden"
 
 #. One of five short stories under the sample screen on the sign-in page. Its sentence.
 #. js-lingui-explicit-id
@@ -13212,6 +13551,12 @@ msgstr "Vorlage"
 msgid "library.canvas.insert.pick"
 msgstr "Vorlage"
 
+#. Group of search results.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.kind.template"
+msgstr "Vorlagen"
+
 #. Filter option and kind name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -13535,6 +13880,12 @@ msgstr "Die Konfiguration nennt keine Variable für die Basis-URL."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.noOperations"
 msgstr "Die Konfiguration nennt keine Operationen."
+
+#. Shown when the passkey confirmation of a page failed or was cancelled.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.step-up.failed"
+msgstr "Die Bestätigung wurde nicht abgeschlossen. Versuche es erneut."
 
 #. Status shown when the connection to the language server failed; {detail} is the reason.
 #. js-lingui-explicit-id
@@ -13944,6 +14295,12 @@ msgstr "Der Mock ist kein gültiges JSON."
 msgid "designers.dataMockHelp"
 msgstr "Der Mock wird auf der Leinwand gezeigt, solange keine echten Daten vorliegen."
 
+#. Caption of the account card on the profile page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.account.caption"
+msgstr "Der Name und die E-Mail-Adresse, mit denen Sie sich anmelden."
+
 #. Reason a token was skipped.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -14201,6 +14558,12 @@ msgstr "dem Server"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.writeFailed"
 msgstr "Der Server hat die Änderung nicht akzeptiert."
+
+#. Explains a page whose data could not be loaded.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.failed.body"
+msgstr "Der Server hat nicht wie erwartet geantwortet. Versuche es gleich noch einmal."
 
 #. Progress stage: the server is validating the archive and creating the app.
 #. js-lingui-explicit-id
@@ -14641,6 +15004,12 @@ msgstr "Diese Sammlung gibt es nicht."
 msgid "library.canvas.overrides.none"
 msgstr "Diese Komponente stellt keine Props oder Slots bereit."
 
+#. Title shown when a page's data could not be loaded for another reason.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.failed.title"
+msgstr "Das konnte nicht geladen werden"
+
 #. Shown when a request fails.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -14731,6 +15100,12 @@ msgstr "Dieses Ereignis hat noch keine Schritte. Fügen Sie eine Aktion aus der 
 msgid "actionGraph.unresolved"
 msgstr "Dieses Ereignis verweist auf einen Aktionsgraphen, der nicht existiert."
 
+#. Explains a page whose feature the licence does not include.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.licence.body"
+msgstr "Diese Funktion gehört zur Enterprise-Edition. Füge eine Lizenz hinzu, die sie enthält, um diese Seite zu nutzen."
+
 #. Reason a screen cannot be deleted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -14766,6 +15141,12 @@ msgstr "Diese Seite existiert nicht oder Sie dürfen sie nicht sehen."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.body"
 msgstr "Diese Seite gehört zur Enterprise-Edition. Bitten Sie eine Installationsadministratorin oder einen Installationsadministrator, eine Lizenz einzuspielen."
+
+#. Explains the step-up a page needs (SEC-103).
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.step-up.body"
+msgstr "Diese Seite zeigt sensible Einstellungen. Bestätige mit deinem Passkey, um sie für die nächsten fünf Minuten zu öffnen."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -14856,6 +15237,12 @@ msgstr "Dieser Bildschirm hat ungespeicherte Änderungen. Warte, bis sie gespeic
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.template.empty"
 msgstr "Dieser Server hat keine Beispiel-Apps."
+
+#. Explains how to get a session with a second factor.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.second-factor.body"
+msgstr "Diese Sitzung wurde nur mit einem Passwort angemeldet. Melde dich ab und mit einem Passkey oder deinem zweiten Faktor wieder an, um diese Seite zu öffnen."
 
 #. Shown when a template has no parameters.
 #. js-lingui-explicit-id
@@ -15007,6 +15394,12 @@ msgstr "Token für Skripte und Pipelines sowie CI-Workloads, denen ohne Token ve
 msgid "functions.assuranceToolchain"
 msgstr "Toolchain"
 
+#. Accessible name of the group of canvas tools (Select, Hand).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.tools"
+msgstr "Werkzeuge"
+
 #. Edge inset at the top.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -15079,6 +15472,12 @@ msgstr "Übersetzungsschlüssel nach Sprache"
 msgid "l10n.area.gridCaption"
 msgstr "Übersetzungsschlüssel nach Sprache. Filtern, suchen und den Status vieler Texte auf einmal ändern."
 
+#. Group of search results: translation keys.
+#. js-lingui-explicit-id
+#: apps/web/src/lib/commands/commands.messages.ts
+msgid "cmd.palette.kind.translation"
+msgstr "Übersetzungen"
+
 #. Button and dialog title: deleted plugins and screens that can still be restored (A44).
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -15096,6 +15495,12 @@ msgstr "Verlauf"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.issuersTitle"
 msgstr "Vertrauenswürdige CI-Aussteller"
+
+#. Button that loads a page's data again.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.retry"
+msgstr "Erneut versuchen"
 
 #. Label of the list that chooses the type of the entry's value.
 #. js-lingui-explicit-id
@@ -15150,12 +15555,6 @@ msgstr "Gib {name} ein, um zu bestätigen"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.typeconfirm.prompt"
 msgstr "Geben Sie {phrase} zur Bestätigung ein"
-
-#. Label of the palette search box.
-#. js-lingui-explicit-id
-#: apps/web/src/lib/commands/commands.messages.ts
-msgid "cmd.palette.search"
-msgstr "Befehl eingeben"
 
 #. Label of the field in which a type that the pickers cannot express is edited as text.
 #. js-lingui-explicit-id
@@ -15625,6 +16024,12 @@ msgstr "Version {n} von {who}"
 msgid "library.adopt.done"
 msgstr "Version {n} wurde übernommen."
 
+#. Footer of every page: the Studio version loaded in this tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.footer.version"
+msgstr "Version {version}"
+
 #. Version a publish job built.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -15667,6 +16072,12 @@ msgstr "Versionen"
 msgid "functions.tabVersions"
 msgstr "Versionen"
 
+#. Figure label in the plugin's detail panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.stat.versions"
+msgstr "Versionen"
+
 #. Accessible name of the group of buttons that switch between the grid and the list of apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -15678,6 +16089,12 @@ msgstr "Ansicht"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.audit-record"
 msgstr "Audit-Eintrag ansehen"
+
+#. Button that opens the organisation's licence page.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.licence.action"
+msgstr "Lizenz anzeigen"
 
 #. Column heading: number of views.
 #. js-lingui-explicit-id
@@ -15991,6 +16408,12 @@ msgstr "Sie können die Übersetzungen lesen. Zum Ändern sind die Berechtigung 
 msgid "rustEditor.readOnly"
 msgstr "Sie können diesen Quellcode lesen, aber nicht ändern."
 
+#. Line beside the button that dismisses the first-run checklist.
+#. js-lingui-explicit-id
+#: apps/web/src/features/onboarding/onboarding.messages.ts
+msgid "onboarding.dismiss.hint"
+msgstr "Sie können diese Checkliste über das Hilfemenü wieder anzeigen."
+
 #. Shown when the editor is read-only (no lock on the plugin or insufficient permission).
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -16008,6 +16431,12 @@ msgstr "Sie dürfen es nicht lesen."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.forbidden.title"
 msgstr "Kein Zugriff"
+
+#. Title shown when the server refuses a page for a missing permission.
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.permission.title"
+msgstr "Du hast keinen Zugriff"
 
 #. Title of the dialog shown when the session ended.
 #. js-lingui-explicit-id
@@ -16141,16 +16570,34 @@ msgstr "Ihre Rolle enthält nicht die Berechtigung, die diese Seite benötigt."
 msgid "dialog.signedout.body"
 msgstr "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an, um fortzufahren; Ihre Arbeit auf dieser Seite bleibt erhalten."
 
+#. Accessible name of the zoom controls of the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.zoom.controls"
+msgstr "Zoom"
+
 #. Current zoom of the canvas in percent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoom"
 msgstr "Zoom {percent} %"
 
+#. Accessible name of the zoom percentage button; a click resets the zoom to 100 percent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.zoom.reset"
+msgstr "Zoom {percent} %, auf 100 % zurücksetzen"
+
 #. Button that zooms the canvas in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomIn"
+msgstr "Vergrößern"
+
+#. Button that zooms the canvas in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.zoom.in"
 msgstr "Vergrößern"
 
 #. Accessible name of the button that zooms the graph in.
@@ -16163,6 +16610,12 @@ msgstr "Vergrößern"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomOut"
+msgstr "Verkleinern"
+
+#. Button that zooms the canvas out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.zoom.out"
 msgstr "Verkleinern"
 
 #. Accessible name of the button that zooms the graph out.

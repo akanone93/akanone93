@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
+import { Code } from "@connectrpc/connect";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 
@@ -288,6 +289,40 @@ describe("[STU-116] organisation administration", () => {
     open("/sessions", state);
     fireEvent.click(await screen.findByRole("button", { name: "Revoke" }));
     await waitFor(() => expect(calls(state)).toEqual(['revokeSession:{"id":"s1"}']));
+  });
+
+  test("a page the server refuses says why and how past it: step-up, licence, second factor [SEC-103] [GOV-005]", async () => {
+    open("/sessions", {
+      admin: {
+        calls: [],
+        refused: { listSessions: [Code.PermissionDenied, "PLX-6200: sessions.manage requires a recent step-up"] },
+      },
+    });
+    expect(await screen.findByText("Confirm it's you")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Confirm with passkey" })).toBeTruthy();
+    expect(screen.getByText("Error PLX-6200")).toBeTruthy();
+    cleanup();
+
+    open("/sso", {
+      admin: {
+        calls: [],
+        providers: [{ id: "p1", name: "Okta", kind: "oidc", enabled: true }],
+        refused: { listScimTokens: [Code.PermissionDenied, "PLX-8600: SCIM is not licensed"] },
+      },
+    });
+    // The providers still show; only the SCIM section is refused, with the way to the licence.
+    expect(await screen.findByText("Okta")).toBeTruthy();
+    expect(screen.getByText("Not included in your licence")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "View licence" })).toBeTruthy();
+    cleanup();
+
+    open("/compliance", {
+      admin: {
+        calls: [],
+        refused: { listComplianceReports: [Code.Unauthenticated, "PLX-8011: a second factor is required"] },
+      },
+    });
+    expect(await screen.findByText("A second factor is required")).toBeTruthy();
   });
 
   test("O27 sends the action and resource filters to the server and filters the actor in the browser", async () => {

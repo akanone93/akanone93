@@ -32,6 +32,7 @@ export function SettingsPage(): ReactElement {
       caption={m.settingsCaption}
       loading={current.isPending}
       failed={current.isError}
+      error={current.error}
       saveFailed={failed}
     >
       <form

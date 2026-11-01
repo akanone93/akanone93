@@ -117,9 +117,11 @@ describe("the apps as a responsive grid with a list alternative [STU-020]", () =
     await card("Bank");
     expect(names()).toEqual(["Open Bank", "Open Chat", "Open Shop"]);
     const grid = screen.getByRole("link", { name: "Open Bank" }).closest("ul");
+    // One column on a narrow page, then two, three and four as the page widens (container queries).
     expect(grid?.className).toContain("grid-cols-1");
-    expect(grid?.className).toContain("sm:grid-cols-2");
-    expect(grid?.className).toContain("xl:grid-cols-3");
+    expect(grid?.className).toContain("@2xl/main:grid-cols-2");
+    expect(grid?.className).toContain("@5xl/main:grid-cols-3");
+    expect(grid?.className).toContain("@7xl/main:grid-cols-4");
     expect(screen.getByText("3 apps")).toBeTruthy();
   });
 

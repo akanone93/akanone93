@@ -3,7 +3,7 @@
 
 import type { PluginSummary } from "@plux/api";
 import type { Bundle, NavigateEdge } from "@plux/canvas";
-import { Button, Dialog, Field, Input, StatusPill } from "@plux/ui";
+import { Button, Dialog, Field, Icon, Input, StatusPill } from "@plux/ui";
 import { type ReactNode, useEffect, useState } from "react";
 import { type ArrowKey, nudgeDelta } from "../plugin-canvas/select/geometry.ts";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
@@ -96,7 +96,7 @@ function MiniMapView(props: { map: MiniMap; messages: Messages }): ReactNode {
       role="img"
       aria-label={m.miniMap(map.screens.map((s) => s.title).join(", "))}
       viewBox={`0 0 ${map.width} ${map.height}`}
-      className="w-full rounded-sm border bg-canvas"
+      className="w-full rounded-lg border bg-background/60 p-1"
     >
       {map.edges.map((e) => {
         const from = centre.get(e.from);
@@ -121,16 +121,28 @@ function MiniMapView(props: { map: MiniMap; messages: Messages }): ReactNode {
           width={map.cell.width}
           height={map.cell.height}
           rx={2}
-          className="fill-current text-primary"
+          className="fill-current text-chart-1"
         />
       ))}
     </svg>
   );
 }
 
+/** One figure of the detail panel: the value over its label. */
+function Stat({ label, value }: { readonly label: string; readonly value: string }): ReactNode {
+  return (
+    <div className="flex flex-col-reverse gap-0.5 rounded-lg border bg-background/60 px-3 py-2">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="text-sm font-semibold tabular-nums">{value}</dd>
+    </div>
+  );
+}
+
 /**
- * The hover/focus detail card of a plugin (E5, STU-031): description, a mini-map of its screens, link counts in and
- * out, the functions it uses, its bundle size, and who published it last and when. Floating chrome over the canvas.
+ * The detail panel of a plugin (E5, STU-031), floating glass beside the canvas: its name, key and badges, its
+ * description, a mini-map of its screens, its figures (screens, versions, bundle size, links out and in), the functions
+ * it uses and who published it last and when. It follows the pointer's or the keyboard's plugin, else the selected
+ * one; the actions of the selected plugin come below.
  */
 export function DetailCard(props: {
   summary: PluginSummary;
@@ -138,38 +150,67 @@ export function DetailCard(props: {
   messages: Messages;
   miniMap: MiniMap;
   published: LastPublished | undefined;
+  /** The actions on the plugin, when the panel shows the selected one. */
+  actions?: ReactNode;
 }): ReactNode {
   const { summary: s, messages: m } = props;
   const functions = [...s.functionsUsed];
   return (
     <aside
       aria-label={s.plugin?.name}
-      className="pointer-events-none absolute end-4 top-4 flex w-64 flex-col gap-1 rounded-md border bg-raised p-3"
+      className="canvas-panel canvas-inspector glass flex w-80 flex-col gap-4 overflow-y-auto p-4"
     >
-      <span className="text-section">{s.plugin?.name}</span>
-      <span className="flex flex-wrap gap-1">
-        {props.badges.map((b) => (
-          <StatusPill key={b.label} status={b.status} label={b.label} />
-        ))}
-      </span>
-      {s.plugin?.description ? <span>{s.plugin.description}</span> : null}
+      <header className="flex flex-col gap-2">
+        <div className="flex items-start gap-3">
+          <span className="canvas-plugin-icon" aria-hidden="true">
+            <Icon name="puzzle-piece" />
+          </span>
+          <div className="flex min-w-0 flex-col">
+            <h2 className="truncate font-semibold">{s.plugin?.name}</h2>
+            <span className="truncate font-mono text-xs text-muted-foreground">{s.plugin?.key}</span>
+          </div>
+        </div>
+        <span className="flex flex-wrap gap-1">
+          {props.badges.map((b) => (
+            <StatusPill key={b.label} status={b.status} label={b.label} />
+          ))}
+        </span>
+      </header>
+      {s.plugin?.description ? <p className="text-sm text-muted-foreground">{s.plugin.description}</p> : null}
       <MiniMapView map={props.miniMap} messages={m} />
-      <span className="text-data">{m.screens(Number(s.screens))}</span>
-      <span className="text-data">{m.versions(Number(s.versions))}</span>
-      <span className="text-data">{m.bundleSize(Math.ceil(Number(s.bundleSize) / 1024))}</span>
-      <span className="text-data">{m.linksOut(s.linksOut.length)}</span>
-      <span className="text-data">{m.linksIn(s.linksIn.length)}</span>
-      <span className="text-data">{m.functions(functions.length)}</span>
+      <dl className="grid grid-cols-2 gap-2">
+        <Stat label={m.statScreens} value={String(Number(s.screens))} />
+        <Stat label={m.statVersions} value={String(Number(s.versions))} />
+      </dl>
+      <ul className="flex flex-col gap-1.5 text-sm">
+        {(
+          [
+            ["package", m.bundleSize(Math.ceil(Number(s.bundleSize) / 1024))],
+            ["arrow-up-right", m.linksOut(s.linksOut.length)],
+            ["arrow-bend-up-left", m.linksIn(s.linksIn.length)],
+            ["lightning", m.functions(functions.length)],
+          ] as const
+        ).map(([icon, text]) => (
+          <li key={icon} className="flex items-center gap-2">
+            <Icon name={icon} size="pill" className="text-muted-foreground" />
+            {text}
+          </li>
+        ))}
+      </ul>
       {functions.length > 0 ? (
-        <span className="text-data text-muted-foreground">{m.functionsUsed(functions.join(", "))}</span>
+        <p className="text-xs text-muted-foreground">{m.functionsUsed(functions.join(", "))}</p>
       ) : null}
-      <span className="text-data">
-        {props.published === undefined
-          ? m.neverPublished
-          : props.published.by === ""
-            ? m.publishedAt(props.published.at)
-            : m.publishedBy(props.published.by, props.published.at)}
-      </span>
+      <p className="flex items-center gap-2 border-t pt-3 text-xs text-muted-foreground">
+        <Icon name="clock" size="pill" />
+        <span>
+          {props.published === undefined
+            ? m.neverPublished
+            : props.published.by === ""
+              ? m.publishedAt(props.published.at)
+              : m.publishedBy(props.published.by, props.published.at)}
+        </span>
+      </p>
+      {props.actions}
     </aside>
   );
 }

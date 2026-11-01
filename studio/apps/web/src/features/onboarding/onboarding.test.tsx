@@ -26,7 +26,16 @@ const manager = (over: Upstream = {}): Upstream => ({
   projects: { calls: [], samples, onboarding: fresh },
   ...over,
 });
-const checklist = () => screen.findByRole("region", { name: "Get started" }, { timeout: 10000 });
+/** The checklist lives in a dialog that the header's Get started button opens. */
+const checklist = async () => {
+  fireEvent.click(await screen.findByRole("button", { name: "Get started" }, { timeout: 10000 }));
+  return screen.findByRole("region", { name: "Get started" }, { timeout: 10000 });
+};
+/** The dismissed checklist is shown again from the help menu. */
+const showAgain = async () => {
+  fireEvent.click(await screen.findByRole("button", { name: "Help" }));
+  return screen.findByRole("menuitem", { name: "Show getting started" });
+};
 
 describe("the first-run checklist [STU-015]", () => {
   test("a new organisation sees the steps in the order create, pair, edit, publish, invite, all still to do", async () => {
@@ -65,6 +74,7 @@ describe("the first-run checklist [STU-015]", () => {
     );
     await screen.findByRole("heading", { name: "Welcome to Alpha Org" }, { timeout: 10000 });
     expect(screen.queryByRole("region", { name: "Get started" }) === null).toBe(true);
+    expect(screen.queryByRole("button", { name: "Get started" }) === null).toBe(true);
   });
 
   test("a step cannot be ticked by hand: the done steps have no control", async () => {
@@ -80,15 +90,17 @@ describe("the first-run checklist [STU-015]", () => {
     fireEvent.click(within(region).getByRole("button", { name: "Dismiss checklist" }));
     await waitFor(() => expect(updates.at(-1)?.paths).toEqual(["onboarding_dismissed"]));
     expect(updates.at(-1)?.onboardingDismissed).toBe(true);
-    fireEvent.click(await screen.findByRole("button", { name: "Show getting started" }));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Get started" }) === null).toBe(true));
+    fireEvent.click(await showAgain());
     await waitFor(() => expect(updates.at(-1)?.onboardingDismissed).toBe(false));
-    expect(await checklist()).toBeTruthy();
+    expect(await screen.findByRole("region", { name: "Get started" })).toBeTruthy();
   });
 
   test("a dismissed checklist stays dismissed after a reload", async () => {
     renderApp(home, manager({ stored: { theme: "", language: "", density: "", onboardingDismissed: true } }));
-    await screen.findByRole("button", { name: "Show getting started" }, { timeout: 10000 });
-    expect(screen.queryByRole("region", { name: "Get started" }) === null).toBe(true);
+    await screen.findByRole("heading", { name: "Welcome to Alpha Org" }, { timeout: 10000 });
+    expect(await showAgain()).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Get started" }) === null).toBe(true);
   });
 
   test("the first step opens the new-app wizard", async () => {

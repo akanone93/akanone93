@@ -1,0 +1,2323 @@
+diff --git a/docs/WORKLOG.md b/docs/WORKLOG.md
+index e25b3014..281d3554 100644
+--- a/docs/WORKLOG.md
++++ b/docs/WORKLOG.md
+@@ -170,6 +170,7 @@ validates its remote and branch now; the size baseline moves to round 3.
+
+ Newest first. Keep the latest ten; move older notes to [worklog-archive.md](worklog-archive.md) unchanged.
+
++- 2026-10-31 (Studio colour and consistency, `feat/studio-redesign`) — **Installation pages keep the sidebar for good; colour theme, elevation and glass; compact app cards with a detail card; footer; actions as buttons.** *Fixed:* requests now get their organisation in one place, the root route, from the URL only (none outside an organisation, which the installation's audit needs); the session keeps a home organisation for the sidebar, and preferences and the inbox (`PreferencesService`, `NotificationService`) are read in it on pages outside one, so no page loses the sidebar or the theme; `sidebar-everywhere.test.tsx` walks every signed-in page outside an organisation from the route tree, opened directly and from inside one (it fails on the old code). The hero's dots and glow use the primary colour, visible in light and dark. *Decided (maintainer, 2026-10-31):* colour in the theme; ADR-0103 amended, `STU-010` and Appendix J reworded (spec 1.12.0, whose Document Control table also catches up from 1.10.0). *Changed:* shadcn's `mist` base with its `indigo` theme plus a tinted light page, indigo hovers and multi-colour charts, every text pair checked at WCAG AA (`oklchContrast`, `theme-css.test.ts`); `styles/surfaces.css` adds the colour wash, elevation shadows and frosted glass on shadcn's `data-slot`s, solid for contrast, forced colours and reduced transparency; the header is sticky glass; the figure cards each take a chart colour; app cards are compact (picture, name, key, team, health, releases, small limit bars, devices, plugins, last publish) and a hover card shows the full picture and details (STU-020 to STU-022 and STU-025 still met on the card itself); a footer with the version and help links closes every page; "New …" links, back links, editor and settings links are buttons, area sub-navigations are one tab strip (`.sub-nav`), plain links take the link colour, and native checkboxes, radios, ranges and file pickers follow the theme. *Verified:* `make studio-lint`, `studio-bounds`, `studio-typecheck`, `studio-cover` (3662 pass), `studio-build`, `reuse-lint`, `spec-lint`; strict Lingui extract and compile, de and ar complete; screenshots in light and dark of home, cards, the hover card, roles and an installation page. *Not verified:* `make studio-e2e`, `make check`. *Open:* the stale-cookie 401 on sign-in (needs the maintainer's go-ahead, authentication); the dense editors still use native checkboxes, themed but not shadcn's `Checkbox`.
+ - 2026-10-31 (Studio on shadcn, follow-up, `feat/studio-redesign`) — **Access and navigation fixed; sidebar, profile, Get started, app cards, filters and search reworked.** *Fixed:* the current user is cached per organisation and the organisation's guard loads the person's permissions there, because `GetCurrentUser` returns permissions only for a named organisation (the sidebar lost Approvals and Administration, app routes threw `AccessError`); the user query no longer fetches its own key inside its query function, which deadlocked after a refocus refetch and left every later navigation pending with only the URL changing; the root route names the organisation from the URL before any layout calls the server, and the profile pages keep the last organisation, because preferences are stored per organisation (the profile page fell back to light); 403 and licence pages render inside the shell; test transports get the session's headers (`withStudioHeaders`) and the in-memory upstream answers permissions and preferences only for a named organisation, as the server does. *Changed:* the sidebar lists Home, Approvals and Administration with their pages filtered by permission, Library, and Installation for installation administrators, on every page; Notifications left the sidebar and the header's bell leads to the inbox; area frames and tables share `components/page.tsx` (shadcn header, states, table) and the page gutter is the shell's; headings and body follow shadcn's type scale; the profile is one page with Profile and Keyboard shortcuts tabs (account card, theme cards, density, language, notification switches by kind with type names); Get started is a header button with progress that opens the checklist in a dialog, and the help menu shows it again once dismissed; app cards rebuilt compact (icon, key and team, releases, figures, health, last publish); filtered lists and tables animate (`components/animated-list.tsx`, motion `domMax`, reduced motion respected); filter navigations keep the scroll position; the palette is the organisation's search and the commands in one, grouped by kind with icons, scope filters, shortcuts and key hints, and plugin and in-app hits now open. *Verified:* `make studio-lint`, `studio-bounds`, `studio-typecheck`, `studio-cover` (3657 pass), `studio-build`, `studio-size` (425 KB initial gzip), `reuse-lint`, `spec-lint`, `trace`; strict Lingui extract and compile with de and ar complete; screenshots of each changed page in light and dark against the dev server with the e2e upstream. *Not verified:* `make studio-e2e`, `make check`, the Docker image build (the Dockerfile no longer runs the removed icon generator). *Open:* a dead session cookie makes the server answer 401 even on the sign-in calls (`authn.go` `credential`), so a stale cookie blocks sign-in until site data is cleared; a fix touches authentication and waits for the maintainer; the admin and approvals pages beyond their frames, forms and tables are not yet redesigned individually.
+ - 2026-10-30 (Studio on shadcn, `feat/studio-redesign`) — **Studio moves to shadcn/ui as it ships; sign-in and the organisation home rebuilt.** *Decided (maintainer, 2026-10-30):* shadcn's components, layouts and blocks exactly, its default font, the custom design skill and its reference page removed, the sign-in ring kept ([ADR-0103](adr/0103-shadcn-stock-design.md); `STU-010` and Appendix J revised, spec 1.11.0). *Changed:* shadcn's Base UI components (`nova`, RTL) generated offline from `shadcn-ui/ui` with the CLI's own transforms into `@plux/ui/components`; the theme is shadcn's `neutral`, generated by `@plux/brand` with older names as aliases; Inter and lucide (Phosphor generator and `make studio-gen-icons` removed); every `@plux/ui` component renders shadcn's; the shell is shadcn's sidebar layout (organisation switcher, navigation with Approvals, Notifications and Administration, the app's areas, account menu; site header with search, theme, notifications, help); sign-in is block `login-02` with the ring; the home keeps its hero and gets section cards, a getting-started card, a shadcn toolbar and app cards; filters keep the scroll position, select and menu no longer lock the page's scroll, no horizontal overflow; the official shadcn skill in `.claude/skills/shadcn`; docs (rule book §4, §8.3, §13.7, catalogue, `studio/AGENTS.md`, dependencies). *Verified:* `make studio-lint`, `studio-bounds`, `studio-typecheck`, `studio-cover` (3,649 tests), `studio-build`, `studio-size`, `reuse-lint`, `spec-lint`, `trace`; `studio-i18n-check` after the commit; screenshots of sign-in and home, light and dark, against the mocked upstream. *Not verified:* `make studio-e2e`, `make check`, the design gate (its detector targets Porcelain). *Open:* other screens still use older token aliases and need rebuilding with shadcn blocks; the UI language is superseded for the look and needs revising or retiring; the field-error rule for the other forms; tests for the ring. *Next:* the maintainer tests sign-in and home.
+ - 2026-10-30 (Studio redesign, `feat/studio-redesign`) — **Sign-in errors wait for blur, the theme switch holds, the organisation home redesigned.** *Changed:* sign-in field errors show once a field is left or the form is submitted, then follow the input (`lib/field-error.ts`, STU-011); `toggleTheme` writes the new theme into the cached preferences, so the next page no longer turns it back (STU-014), and the top bar gains a light and dark switch; the organisation home (STU-015) gets a hero with the organisation's apps stacked as layers in 3D, an at-a-glance row (devices, live in production, device-weighted crash-free rate, plugins; `features/home/org-pulse.ts`), and new app cards (app colour from the sample brand tones, release pills, figures), toolbar and top bar; `Mark`, `RisingWords` and `Rise` moved from sign-in to `features/shell/brand.tsx`; icons `arrow-up-right`, `device-mobile`, `pulse`, `push-pin`, `squares-four`, `stack`; secondary buttons are now raised; e2e upstream routes `AppProjectService`. *Verified:* `make studio-lint`, `studio-bounds`, `studio-typecheck`, `studio-cover` (3,649 tests), `studio-build`, `studio-size`; `studio-i18n-check` after the commit; screenshots of the home in light and dark against the mocked upstream. *Not verified:* `make studio-e2e`, `make check`, the design gate. *Open:* the field-error rule for every other form; the sign-in wrap-up (ADR and `dependencies.md` entry for Motion, UI-language and design-skill updates for the Porcelain revision and screenshots, tests of the ring); U16.3 (the home) is not yet written into the UI language. *Next:* the maintainer's review of the home page.
+@@ -179,4 +180,3 @@ Newest first. Keep the latest ten; move older notes to [worklog-archive.md](work
+ - 2026-10-28 (P11 S8.1 server part, branch `p11/s81-apps`) — **App metadata filters, bounded summaries, the `.plux` archive, shell jobs.** *Changed:* new `AppProjectService` (`proto/plux/v1/app_project.proto`: `ListAppSummaries`, `ExportApp`, `ImportApp`, `DuplicateApp`, `ListSampleApps`, `ImportSampleApp`, `GetShellStatus`, `SetShellSettings`, `GenerateProject`, `GetProjectJob`, `DownloadProject`); `ListAppsRequest` gains `status` and `mine`; packages `internal/archive` ([ADR-0102](adr/0102-plux-archive.md); deterministic stored ZIP, untrusted import, three embedded samples built from `schema/testdata/documents`), `internal/shellupdate` (GEN-004 comparison, queued generation job on the `export` queue); `tenancy.ListAppSummaries`; migration 0062 (`app_shell_settings`, `project_jobs`, `project_job_results`); limits `app.summariesPerCall`, `archive.bytes`, `archive.entries`, `archive.expandedBytes`, `project.bytes`, `project.jobsPerHour`; audit actions `app.exported`, `app.imported`, `app.duplicated`, `app.archived`, `shell.settings_set`, `project.generated`. *Already existed (not rebuilt):* app metadata and archive state (0057), `ListApps` tags/team/query/sort, plugin duplicate and archive, `ListPluginSummaries`. *Not done:* Git push of the generated project (the only Git client, `gitsync`, is bound to export settings and its SSRF proxy, so it is not reusable as is), the baseline release and the icon inside the generated project, a sweep that deletes old job results. *Next:* Studio client for the new RPCs (S8.1 web part). Samples are rewritten with `go test ./internal/archive -run Samples -update`.
+ - 2026-10-27 (P11 S7.4, branch `p11/s74-approvals`) — **Approvals area and the policy simulator.** *Changed:* `ApprovalService.SimulatePolicy` (additive; read-only; `policies.manage`; the draft stands in for the policy of its key, the policies in force that also match are listed; no write), `backend/internal/approval/simulate.go`, authz matrix entry, integration tests incl. a cross-organisation refusal; Studio `features/approvals/` (O7 inbox, O8 request with diff, reports, golden images, install base, changelog, decisions and audit sequence, D47 decide with comment and step-up, O9 history, O10 break-glass reviews with step-up, O11 policies, O12 editor with simulator), routes under `/o/:org/approvals`, en/de/ar. *Open:* audit sequences are shown as text until O27 (`/admin/audit`) exists; the inbox `?mine` filter compares the requester with the user id; statuses are set at the phase exit (S9.7).
+ - 2026-10-27 (P11 session 1 end) — **Hand-off package for a new session: [plans/p11-handoff/](plans/p11-handoff/README.md) on branch `handoff/p11-session2`.** *State:* `feat/phase-11` @ `daa1d1c8` pushed with waves 1–6 and most of wave 7 (S4.5, S5.1–S5.3, S5.5, S5.6, the S5.4 server bridge) merged; about 62 % of P11. *Open branches:* `p11/s55c-app-lock` (finished, `.po` conflicts only), `p11/s54b-rust-editor` and `p11/s46c-rest` (agents stopped, WIP saved, unreviewed). *Decided (maintainer):* model tiers — Haiku and Sonnet low by default outside the five Opus parts (M-10 revised, sub-agents.md); `function.deploy` gates the Rust tools; limit `lsp.messageBytes`; CSP `style-src-attr 'unsafe-inline'` for Monaco (ADR-0014 revision); design-gate rules off for approved tokens (to revisit); structural design-time rules (document-model §4.1). *Verified:* see the package's verification.md (studio-check 2,947, e2e 19, design gate, conformance, dart-analyze, gen/spec/go-lint, Go race tests). *Next:* the package's next.md.
+-- 2026-10-26 (P11 day 4) — **Wave 6 merged: S3.1–S3.5, S4.3, S4.4 and all of S4.5 on `feat/phase-11`.** *Merged:* S3.1 app canvas C1 on Plux Canvas (plugin boxes, badges, frames, native nodes, accessible box list, drag/snap/marquee, dagre via `@dagrejs/dagre` 3.1.1), migration 0057 app/plugin metadata with org-scoped team and icon checks, `ListPluginSummaries`; S3.2 bundled arrows (routing, lanes, lane menu, low-zoom), drag p95 16.67 ms and lift first frame 5 ms at 200 boxes / 1,000 links; S3.3 ghost screens and native nodes with thumbnails; S3.4 link creation (Actions tab, drag handle, trigger picker E7, keyboard path); S3.5 `ApplyChangeSet` (multi-document, multi-plugin, one undo step), where-used index, blocked deletes with fixes, type-to-confirm, rename warning, move screen, trash and deprecation, `TestRedirectLoops` (STU-077); S4.3 Material and S4.4 Cupertino composites; S4.5 all 58 Layer 2 components with goldens written by the runtime itself (`packages/plux_flutter/test/render/layout_goldens_test.dart`), the scanners checked as a box only. *Decided (maintainer):* new limits `studio.changeSetDocuments` 500 (max 5000) and `metadata.*` (description 2000, 20 tags of ≤ 40, icon id ≤ 200); first-party plugin packages as plux_flutter dev_dependencies for the golden writer, plux_scanner excluded (build-hook cycle), scanners checked as a box only. *Verified:* `make studio-check` (2,716 tests), `make studio-e2e` (16), `make studio-conformance` (1,916; goldens regenerated identical), `make dart-analyze`, `make dart-lock-check`, `make gen-check`, `make spec-lint`, `make go-lint`, `go test -race` on tenancy, document, api, compiler. *Running:* S3.2d drop settle and scene A gap (targets missed: gap 66.66 ms vs 50, drop settle 511 ms vs 300). *Open:* TermsViewer's 480 px design-time height stands in for 0.6 of the device height (the screen theme has no height); `calendar-tables.ts` is a test-pinned copy of `schema/l10n/calendars/*.json`, not generated; Material MenuAnchor and the NavigationRail screen builder; LottieView/RiveView lay out 0×0 before load (runtime behaviour); the canvas-click → lane dialog path has no browser test. *Next:* S3/S4 exit gates, then wave 7 (S5, S4.6).
+diff --git a/docs/adr/0103-shadcn-stock-design.md b/docs/adr/0103-shadcn-stock-design.md
+index 40ccd68d..1af33bcb 100644
+--- a/docs/adr/0103-shadcn-stock-design.md
++++ b/docs/adr/0103-shadcn-stock-design.md
+@@ -49,7 +49,16 @@ Chosen option: **shadcn/ui as it ships**.
+   exported transforms (`createStyleMap`, `transformStyle`, `transformIcons`, `transformMenu`,
+   `transformDirection`) in the order shadcn's registry build applies them; only import paths are
+   rewritten. Where the CLI can reach the registry, `shadcn add` is used instead.
+-- **Theme.** shadcn's `neutral` theme and the `@theme inline` mapping `shadcn init` writes,
++- **Theme.** shadcn's `mist` base colour with its `indigo` theme (amended by the maintainer on
++  2026-10-31, who found the stock `neutral` light theme flat: "a little bit of colour and contrasted
++  whitish colours"). Studio tints the light page a cool off-white so white cards stand off it, gives
++  hovers an indigo wash, uses the indigo ring and five Tailwind hues for the charts, and keeps every
++  text pair at WCAG AA, checked by `theme-css.test.ts`. On top of the theme, `styles/surfaces.css`
++  adds a soft wash of colour behind the pages, elevation shadows for cards and popups, and frosted
++  glass (backdrop blur) for the header, menus, popovers, selects, hover cards and dialogs; the
++  contrast theme, forced colours and reduced transparency get solid surfaces. It styles shadcn's
++  `data-slot`s only, so the components stay shadcn's. Earlier text of this decision: shadcn's
++  `neutral` theme and the `@theme inline` mapping `shadcn init` writes,
+   generated by `@plux/brand`'s `theme-css.ts` into `theme.gen.css`, keyed to Studio's
+   `data-theme` attribute. Tailwind's defaults stay in place. Studio adds only what shadcn has no
+   token for: the contrast theme, the status colours, selection and arrow colours of the canvas,
+diff --git a/docs/engineering/studio-development.md b/docs/engineering/studio-development.md
+index 710f3a58..7e688d64 100644
+--- a/docs/engineering/studio-development.md
++++ b/docs/engineering/studio-development.md
+@@ -101,11 +101,11 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
+
+ ## 4. Design system
+
+-4.1. **shadcn's tokens** ([ADR-0103](../adr/0103-shadcn-stock-design.md)). The interface uses shadcn/ui's semantic variables (`background`, `foreground`, `primary`, `muted`, `accent`, `border`, `ring`, `sidebar-*`, `chart-*`) from its `neutral` theme, generated by `@plux/brand` into `theme.gen.css`. Studio adds only what shadcn has no token for (status, selection and arrow colours, the sample-app colours); older Studio token names remain as aliases of shadcn's variables until no screen uses them. Brand tokens (Appendix J) feed the wordmark and Plux Canvas.
++4.1. **shadcn's tokens** ([ADR-0103](../adr/0103-shadcn-stock-design.md)). The interface uses shadcn/ui's semantic variables (`background`, `foreground`, `primary`, `muted`, `accent`, `border`, `ring`, `sidebar-*`, `chart-*`) from its `mist` base colour with the `indigo` theme, generated by `@plux/brand` into `theme.gen.css`; `styles/surfaces.css` adds the colour wash, elevation and frosted glass on shadcn's `data-slot`s. Studio adds only what shadcn has no token for (status, selection and arrow colours, the sample-app colours); older Studio token names remain as aliases of shadcn's variables until no screen uses them. Brand tokens (Appendix J) feed the wordmark and Plux Canvas.
+
+ 4.2. **No raw values in Studio's code.** No hex, `rgb()`, `hsl()`, pixel, `rem` or shadow literals in Studio's components, and no Tailwind arbitrary values (`bg-[#…]`, `p-[13px]`, `rounded-[…]`); Tailwind's default scale and shadcn's semantic utilities are used instead. A lint rule enforces this. shadcn's own components in `studio/packages/ui/src/components/` are exempt: they are kept as shadcn ships them (ADR-0103). No runtime CSS-in-JS.
+
+-4.3. **The visual language is shadcn/ui as it ships** ([ADR-0103](../adr/0103-shadcn-stock-design.md), maintainer, 2026-10-30): Base UI, the `nova` style, the `neutral` theme, Inter and lucide; shadcn's layouts and blocks for whole screens (the sidebar layout for the signed-in shell, `login-02` for sign-in, section cards, items, empty states). A screen is composed from shadcn's components and blocks before anything is written by hand; the official shadcn agent skill (`.claude/skills/shadcn`) holds the composition rules. The Porcelain sections of [studio-ui-language.md](studio-ui-language.md) no longer describe the interface.
++4.3. **The visual language is shadcn/ui as it ships** ([ADR-0103](../adr/0103-shadcn-stock-design.md), maintainer, 2026-10-30): Base UI, the `nova` style, the `mist` base colour with the `indigo` theme (amended 2026-10-31), Inter and lucide; shadcn's layouts and blocks for whole screens (the sidebar layout for the signed-in shell, `login-02` for sign-in, section cards, items, empty states). A screen is composed from shadcn's components and blocks before anything is written by hand; the official shadcn agent skill (`.claude/skills/shadcn`) holds the composition rules. The Porcelain sections of [studio-ui-language.md](studio-ui-language.md) no longer describe the interface.
+
+ 4.4. **Themes and density** (`STU-014`): light, dark and system; compact density by default and comfortable as the option, both as token sets (CSS variables), not conditional class names. A high-contrast theme exists for the canvas preview (`STU-112`) and is offered for the shell.
+
+diff --git a/docs/requirements.md b/docs/requirements.md
+index 05d21cc8..48f61705 100644
+--- a/docs/requirements.md
++++ b/docs/requirements.md
+@@ -1,9 +1,9 @@
+ # Plux — System Requirements Specification
+
+ **Document ID:** `SRS-PLUX-001`
+-**Version:** 1.11.0
++**Version:** 1.12.0
+ **Status:** Draft — living document, revised as implementation proceeds
+-**Date:** 2026-10-30
++**Date:** 2026-10-31
+ **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
+
+ > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
+@@ -1658,7 +1658,7 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
+
+ | ID | Phase | Priority | Requirement | Status |
+ |---|---|---|---|---|
+-| `STU-010` | P11 | MUST | Studio's visual language **MUST** be shadcn/ui as it ships (ADR-0103): its components, layouts and blocks on Base UI in the `nova` style, its `neutral` theme with Inter and lucide, light by default with a dark theme, colour used for meaning (selection, status, arrows); users switch between light, dark and system. | DONE |
++| `STU-010` | P11 | MUST | Studio's visual language **MUST** be shadcn/ui as it ships (ADR-0103): its components, layouts and blocks on Base UI in the `nova` style, its `mist` base colour with the `indigo` theme, Inter and lucide, elevation and frosted glass on what floats, light by default with a dark theme, colour used for meaning (selection, status, arrows); users switch between light, dark and system. | DONE |
+ | `STU-011` | P11 | MUST | Studio **MUST** itself meet WCAG 2.2 AA: full keyboard operability, visible focus, screen-reader labels and sufficient contrast in both themes. | WIP |
+ | `STU-012` | P11 | MUST | Studio's own UI **MUST** be localised, at least in English and German, with right-to-left support. | WIP |
+ | `STU-013` | P11 | MUST | A global **command palette** (⌘K / Ctrl+K) **MUST** search and jump to apps, plugins, screens, nodes, components, templates, translation keys, functions and commands; a shortcut sheet (`?`) **MUST** list all keyboard shortcuts. | DONE |
+@@ -3072,7 +3072,7 @@ await Plux.sync();                                 // manual sync
+ | `brand.amber` | `#F59F00` | `#FFC53D` | Brand accent |
+ | `brand.surface` | `#F7F8FB` | `#0B0D17` | Brand surface |
+
+-The brand tokens are the wordmark and the brand accents; the documentation site and the reference apps use them (`STU-016`). Studio's interface uses shadcn/ui's `neutral` theme (`STU-010`, ADR-0103); the brand accents remain for the wordmark, Plux Canvas and the sample apps of the sign-in page. The wordmark files live in `docs/assets/brand/`.
++The brand tokens are the wordmark and the brand accents; the documentation site and the reference apps use them (`STU-016`). Studio's interface uses shadcn/ui's `mist` base colour with its `indigo` theme (`STU-010`, ADR-0103); the brand accents remain for the wordmark, Plux Canvas and the sample apps of the sign-in page. The wordmark files live in `docs/assets/brand/`.
+
+ ---
+
+@@ -3134,10 +3134,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
+ | Field | Value |
+ |---|---|
+ | Document ID | `SRS-PLUX-001` |
+-| Version | 1.10.0 |
++| Version | 1.12.0 |
+ | Status | Draft (living document) |
+-| Date | 2026-10-24 |
+-| Supersedes | 1.9.0 |
++| Date | 2026-10-31 |
++| Supersedes | 1.11.0 |
+ | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
+
+ ### Revision history
+@@ -3174,3 +3174,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
+ | 1.9.0 | 2026-10-22 | P10 plan decisions (maintainer, 2026-10-22; P10 plan §2.1 D-1 to D-11; ADR-0087 to ADR-0093): the Studio-written rows are split (D-3, ADR-0088) — `DEV-002` binds the pairing token to "the user who creates the session", and `DEV-011`, `DEV-030`, `DEV-031`, `DEV-032` and `DEV-033` state the device, server and CLI capability (P10), each with a new P11 row for the Studio interaction (`STU-130`–`STU-134`, new §21.13); `DEV-010` and `DEV-021` stay whole as properties of the channel. `DEV-010` and `NFR-030` give the P10 measurement method — from a file save in `plux dev` to the section applied and rendered on the device, over the netsim good-Wi-Fi profile — and Studio's autosave joins in P11 (D-4). `DEV-001` runs `plux_security` report-only in development environments, with simulated detections (D-8, ADR-0091, ADR-0057 Revision). §20 states the transport: a WebSocket device channel served with `github.com/coder/websocket`, unary ConnectRPC for every command, a DPoP-bound short-lived socket ticket, development-signed dev bundles verified against pinned development roots, the CLI as a second client in the sequence diagram, the permissions `devsession.create` and `devsession.observe`, and step-up only when the organisation's policy requires it (D-1, D-2, D-5; ADR-0087, ADR-0075 Revision). `SYN-014` is re-tagged from P3 to P10 with its deferral recorded (D-9, ADR-0092). Appendix F lists `PLX-9200`–`9209`, `PLX-9230`–`9233` and `PLX-3500`–`3503`; Appendix H adds the `devSession` configuration and `PluxConfig.backgroundSync`; Appendix K is recounted from the requirement tables after the split and the re-tag, which also corrects figures that had fallen behind the tables and adds Phase P16. §6.3 names the CLI as a client of `devsession/`. No `Status` cell changes. |
+ | 1.10.0 | 2026-10-24 | P11 plan wording (maintainer, 2026-10-24; P11 plan §2.3 O-5, O-12 to O-14, O-19; ADR-0013, ADR-0014, ADR-0026 Revision, ADR-0073 Revision, ADR-0098, ADR-0100): `STU-001` names shadcn/ui on Base UI, Vite on the Bun runtime and CodeMirror 6 beside Monaco, and the §3 technology table follows (Radix is dropped); `STU-002` has the server sign in and hold the sessions while the BFF keeps no session state, serves the sign-in pages, hosts the OpenID Connect callback and SAML assertion consumer and passes the session cookie and CSRF token through; `STU-006` shapes text with SkParagraph at the pinned Skia revision; `STU-010` replaces the 12–20 px radius tokens with 18–24 px on panels, cards and dialogs, full pills on controls and smaller radii only for small elements; `STU-024`, `STU-055` and `STU-060` mark their AI entry points as arriving with P12; `STU-115` has Studio show signing keys and certificate pins with their rotation state and link the key-ceremony runbook, and manage capability grants and the security profile; the §21 Functions area has a Rust editor; `GOV-002` and `GOV-003` map every Studio command to the server permission that guards its RPC, add a permission with its server check where none covers a command, treat interface-only switches as settings, and name `library.manage` and `library.publish`; `CI-006` extends reproducible builds to the Studio build; `QA-007` replaces Lighthouse CI with Playwright traces with `web-vitals`. Appendix J limits the brand tokens to the wordmark and brand accents and points Studio's interface at the derived UI-language scales (arrows navy at rest, violet when hovered or selected; `navy.900` text, `green.700` and `amber.800` status text, `porcelain.100` canvas). Appendix F allocates `PLX-9400`–`9499` to Studio and its BFF with sub-ranges; Appendix H adds the `studioBff` configuration. Appendix K needs no recount: no requirement row is added or removed. No `Status` cell changes. |
+ | 1.11.0 | 2026-10-30 | Studio design (maintainer, 2026-10-30; ADR-0103): `STU-010` replaces the Porcelain description (whitish workspace, 18–24 px radii, pill controls, floating panels) with shadcn/ui as it ships — its components, layouts and blocks on Base UI in the `nova` style, its `neutral` theme, Inter and lucide, with light, dark and system themes. Appendix J points Studio's interface at shadcn's theme; the brand accents stay for the wordmark, Plux Canvas and the sign-in sample apps. No `Status` cell changes. |
++| 1.12.0 | 2026-10-31 | Studio colour (maintainer, 2026-10-31; ADR-0103 amended): `STU-010` names shadcn's `mist` base colour with its `indigo` theme in place of `neutral`, with elevation and frosted glass on what floats; Appendix J follows. The Document Control table catches up with the header, which 1.11.0 did not update. No `Status` cell changes. |
+diff --git a/docs/worklog-archive.md b/docs/worklog-archive.md
+index 8d1cfb1e..d7be9dd0 100644
+--- a/docs/worklog-archive.md
++++ b/docs/worklog-archive.md
+@@ -2,6 +2,7 @@
+
+ Hand-off notes moved out of [WORKLOG.md](WORKLOG.md), newest first. Notes are moved unchanged, never edited. Current state lives in the work log, not here.
+
++- 2026-10-26 (P11 day 4) — **Wave 6 merged: S3.1–S3.5, S4.3, S4.4 and all of S4.5 on `feat/phase-11`.** *Merged:* S3.1 app canvas C1 on Plux Canvas (plugin boxes, badges, frames, native nodes, accessible box list, drag/snap/marquee, dagre via `@dagrejs/dagre` 3.1.1), migration 0057 app/plugin metadata with org-scoped team and icon checks, `ListPluginSummaries`; S3.2 bundled arrows (routing, lanes, lane menu, low-zoom), drag p95 16.67 ms and lift first frame 5 ms at 200 boxes / 1,000 links; S3.3 ghost screens and native nodes with thumbnails; S3.4 link creation (Actions tab, drag handle, trigger picker E7, keyboard path); S3.5 `ApplyChangeSet` (multi-document, multi-plugin, one undo step), where-used index, blocked deletes with fixes, type-to-confirm, rename warning, move screen, trash and deprecation, `TestRedirectLoops` (STU-077); S4.3 Material and S4.4 Cupertino composites; S4.5 all 58 Layer 2 components with goldens written by the runtime itself (`packages/plux_flutter/test/render/layout_goldens_test.dart`), the scanners checked as a box only. *Decided (maintainer):* new limits `studio.changeSetDocuments` 500 (max 5000) and `metadata.*` (description 2000, 20 tags of ≤ 40, icon id ≤ 200); first-party plugin packages as plux_flutter dev_dependencies for the golden writer, plux_scanner excluded (build-hook cycle), scanners checked as a box only. *Verified:* `make studio-check` (2,716 tests), `make studio-e2e` (16), `make studio-conformance` (1,916; goldens regenerated identical), `make dart-analyze`, `make dart-lock-check`, `make gen-check`, `make spec-lint`, `make go-lint`, `go test -race` on tenancy, document, api, compiler. *Running:* S3.2d drop settle and scene A gap (targets missed: gap 66.66 ms vs 50, drop settle 511 ms vs 300). *Open:* TermsViewer's 480 px design-time height stands in for 0.6 of the device height (the screen theme has no height); `calendar-tables.ts` is a test-pinned copy of `schema/l10n/calendars/*.json`, not generated; Material MenuAnchor and the NavigationRail screen builder; LottieView/RiveView lay out 0×0 before load (runtime behaviour); the canvas-click → lane dialog path has no browser test. *Next:* S3/S4 exit gates, then wave 7 (S5, S4.6).
+ - 2026-10-26 (P11 day 3) — **S0, S1 and S2 complete on `feat/phase-11`; wave 6 (S3, S4.3, S4.4) running.** *Merged:* canvas CPU raster on software GL (M-13 met: pan p95 16.67 ms, longest gap 16.67 ms, visible settle ~40 ms); worker layout with SkParagraph; S4.1 slivers, S4.2 boxes; S2.1 validator (WebAssembly, Problems tab); S2.2 edit pipeline (JSON Patch, conflicts, offline queue; `zustand` 5.0.15, `immer` 11.1.21); S2.3 locks (server takeover rule L-1, migration 0054); S2.4 undo (editor sessions, step ids, migration 0055); S2.5 selection (F5 decision: move/nudge/resize follow the parent); S2.6 panels, chunked uploads (0056, PLX-6032–6037), live canvas with damage-rect redraw (STU-121: 17.2 ms p95); S2.7 screens; `studio-dev` runs BFF + Vite.
+   - *Security fixes (maintainer reviews):* sign-in cookie capture made request-scoped (race test); OIDC state secret required and shared across replicas (Helm Secret kept via `lookup`, Compose env, dev per-run secret); one Trusted Types policy `plux-worker` for Studio's own workers (canvas, validator, lock heartbeat); sonner styles shipped without runtime injection; CSP gate served by the BFF in e2e.
+   - *Verified:* `make studio-check` (1272 tests), `make studio-e2e` (16), `make studio-conformance` (608), `make helm-lint`, `make gen-check`, `make go-lint`, `go test -race` on document/api/plxerr/storage, `make studio-bench-canvas`.
+diff --git a/studio/apps/web/src/features/admin/members-pages.tsx b/studio/apps/web/src/features/admin/members-pages.tsx
+index d41f873b..d288d851 100644
+--- a/studio/apps/web/src/features/admin/members-pages.tsx
++++ b/studio/apps/web/src/features/admin/members-pages.tsx
+@@ -4,6 +4,7 @@
+ import { useLingui } from "@lingui/react";
+ import { GovernanceService, IdentityService, OrgService } from "@plux/api";
+ import { Button } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useParams } from "@tanstack/react-router";
+ import { type ReactElement, useState } from "react";
+ import { TypeConfirmDialog } from "../../components/dialogs/index.ts";
+@@ -121,7 +122,12 @@ export function MemberPage(): ReactElement {
+       failed={members.isError}
+       saveFailed={failed}
+     >
+-      <Link to="/o/$org/admin/access" params={{ org }} search={{ user: userId }}>
++      <Link
++        to="/o/$org/admin/access"
++        params={{ org }}
++        search={{ user: userId }}
++        className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
++      >
+         {m.explainLink}
+       </Link>
+       <GrantsSection userId={userId} />
+diff --git a/studio/apps/web/src/features/admin/roles-pages.tsx b/studio/apps/web/src/features/admin/roles-pages.tsx
+index 87103f56..e9f2b5b6 100644
+--- a/studio/apps/web/src/features/admin/roles-pages.tsx
++++ b/studio/apps/web/src/features/admin/roles-pages.tsx
+@@ -3,7 +3,8 @@
+
+ import { useLingui } from "@lingui/react";
+ import { GovernanceService } from "@plux/api";
+-import { Button, Field, Input } from "@plux/ui";
++import { Button, Field, Icon, Input } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useNavigate, useParams } from "@tanstack/react-router";
+ import { type ReactElement, useEffect, useState } from "react";
+ import { TypeConfirmDialog } from "../../components/dialogs/index.ts";
+@@ -41,7 +42,12 @@ export function RolesPage(): ReactElement {
+           ],
+         }))}
+       />
+-      <Link to="/o/$org/admin/roles/$roleId" params={{ org, roleId: "new" }}>
++      <Link
++        to="/o/$org/admin/roles/$roleId"
++        params={{ org, roleId: "new" }}
++        className={buttonVariants({ size: "sm", className: "self-start" })}
++      >
++        <Icon name="plus" data-icon="inline-start" />
+         {m.newRole}
+       </Link>
+     </Frame>
+diff --git a/studio/apps/web/src/features/analytics/errors-pages.tsx b/studio/apps/web/src/features/analytics/errors-pages.tsx
+index b5ae3754..f9614ea3 100644
+--- a/studio/apps/web/src/features/analytics/errors-pages.tsx
++++ b/studio/apps/web/src/features/analytics/errors-pages.tsx
+@@ -4,6 +4,8 @@
+ import type { Timestamp } from "@bufbuild/protobuf/wkt";
+ import { timestampDate } from "@bufbuild/protobuf/wkt";
+ import { useLingui } from "@lingui/react";
++import { Icon } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useParams } from "@tanstack/react-router";
+ import type { ReactElement } from "react";
+ import { Frame } from "../releases/frame.tsx";
+@@ -83,7 +85,13 @@ export function AnalyticsErrorPage(): ReactElement {
+       failed={list.isError || detail.isError || missing}
+     >
+       <AreaNav />
+-      <Link to="/o/$org/apps/$app/analytics/errors" params={{ org, app }} search={search}>
++      <Link
++        to="/o/$org/apps/$app/analytics/errors"
++        params={{ org, app }}
++        search={search}
++        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++      >
++        <Icon name="arrow-left" data-icon="inline-start" />
+         {m.backErrors}
+       </Link>
+       {group !== undefined && (
+diff --git a/studio/apps/web/src/features/analytics/funnels-pages.tsx b/studio/apps/web/src/features/analytics/funnels-pages.tsx
+index 9b6a964c..e556a5b2 100644
+--- a/studio/apps/web/src/features/analytics/funnels-pages.tsx
++++ b/studio/apps/web/src/features/analytics/funnels-pages.tsx
+@@ -3,7 +3,8 @@
+
+ import { useLingui } from "@lingui/react";
+ import { limitDefault } from "@plux/schema";
+-import { Button, Field, Input, Textarea } from "@plux/ui";
++import { Button, Field, Icon, Input, Textarea } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useParams } from "@tanstack/react-router";
+ import { type ReactElement, useState } from "react";
+ import { Frame } from "../releases/frame.tsx";
+@@ -104,7 +105,13 @@ export function AnalyticsFunnelPage(): ReactElement {
+   return (
+     <Frame id="funnel-title" title={q.data?.funnel?.name ?? m.funnelsTitle} loading={q.isPending} failed={q.isError}>
+       <AreaNav />
+-      <Link to="/o/$org/apps/$app/analytics/funnels" params={{ org, app }} search={search}>
++      <Link
++        to="/o/$org/apps/$app/analytics/funnels"
++        params={{ org, app }}
++        search={search}
++        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++      >
++        <Icon name="arrow-left" data-icon="inline-start" />
+         {m.backFunnels}
+       </Link>
+       <BarList
+diff --git a/studio/apps/web/src/features/analytics/parts.tsx b/studio/apps/web/src/features/analytics/parts.tsx
+index 6682e464..9b6bd32a 100644
+--- a/studio/apps/web/src/features/analytics/parts.tsx
++++ b/studio/apps/web/src/features/analytics/parts.tsx
+@@ -41,9 +41,9 @@ export function AreaNav(): ReactElement {
+     });
+   return (
+     <div className="flex flex-wrap items-end gap-4">
+-      <nav aria-label={m.overviewTitle} className="flex gap-3">
++      <nav aria-label={m.overviewTitle} className="sub-nav">
+         {routes.map(([to, key]) => (
+-          <Link key={to} to={to} params={{ org, app }} search={{ env: search.env }} className="text-body">
++          <Link key={to} to={to} params={{ org, app }} search={{ env: search.env }}>
+             {m[key]}
+           </Link>
+         ))}
+diff --git a/studio/apps/web/src/features/analytics/replay-pages.tsx b/studio/apps/web/src/features/analytics/replay-pages.tsx
+index 1b519101..143c82f9 100644
+--- a/studio/apps/web/src/features/analytics/replay-pages.tsx
++++ b/studio/apps/web/src/features/analytics/replay-pages.tsx
+@@ -4,7 +4,8 @@
+ import { timestampDate } from "@bufbuild/protobuf/wkt";
+ import { useLingui } from "@lingui/react";
+ import type { Replay, ReplayEvent } from "@plux/api";
+-import { Button } from "@plux/ui";
++import { Button, Icon } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useParams } from "@tanstack/react-router";
+ import { type ReactElement, useEffect, useMemo, useState } from "react";
+ import { Frame } from "../releases/frame.tsx";
+@@ -144,7 +145,13 @@ export function AnalyticsReplayPage(): ReactElement {
+   return (
+     <Frame id="replay-title" title={m.replayTitle} loading={q.isPending} failed={q.isError}>
+       <AreaNav />
+-      <Link to="/o/$org/apps/$app/analytics/replays" params={{ org, app }} search={search}>
++      <Link
++        to="/o/$org/apps/$app/analytics/replays"
++        params={{ org, app }}
++        search={search}
++        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++      >
++        <Icon name="arrow-left" data-icon="inline-start" />
+         {m.backReplays}
+       </Link>
+       <p className="text-body text-muted-foreground">{frame.route}</p>
+diff --git a/studio/apps/web/src/features/approvals/policies-page.tsx b/studio/apps/web/src/features/approvals/policies-page.tsx
+index 8fd07485..9cb26bb9 100644
+--- a/studio/apps/web/src/features/approvals/policies-page.tsx
++++ b/studio/apps/web/src/features/approvals/policies-page.tsx
+@@ -2,6 +2,8 @@
+ // SPDX-License-Identifier: AGPL-3.0-only
+
+ import { useLingui } from "@lingui/react";
++import { Icon } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link } from "@tanstack/react-router";
+ import type { ReactElement } from "react";
+ import { Table } from "../security/parts.tsx";
+@@ -30,8 +32,9 @@ export function PoliciesPage(): ReactElement {
+           to="/o/$org/approvals/policies/$policyId"
+           params={{ org, policyId: "new" } as never}
+           search={search as never}
+-          className="underline"
++          className={buttonVariants({ size: "sm" })}
+         >
++          <Icon name="plus" data-icon="inline-start" />
+           {m.newPolicy}
+         </Link>
+       </div>
+diff --git a/studio/apps/web/src/features/apps/app-card.tsx b/studio/apps/web/src/features/apps/app-card.tsx
+index 2ccfc2a7..2b1c57e2 100644
+--- a/studio/apps/web/src/features/apps/app-card.tsx
++++ b/studio/apps/web/src/features/apps/app-card.tsx
+@@ -8,10 +8,10 @@ import { Icon, StatusPill } from "@plux/ui";
+ import { Badge } from "@plux/ui/components/badge";
+ import { Button } from "@plux/ui/components/button";
+ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plux/ui/components/card";
++import { HoverCard, HoverCardContent, HoverCardTrigger } from "@plux/ui/components/hover-card";
+ import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@plux/ui/components/item";
+-import { Separator } from "@plux/ui/components/separator";
+ import { Link } from "@tanstack/react-router";
+-import type { ReactElement } from "react";
++import type { ComponentProps, ReactElement } from "react";
+ import { homeMessages } from "../home/home.messages.ts";
+ import { type AppActionHandlers, AppActions, type AppPermissions } from "./app-actions.tsx";
+ import { appsMessages } from "./apps.messages.ts";
+@@ -60,15 +60,20 @@ function Environments({ releases, m }: { readonly releases: readonly Environment
+   );
+ }
+
+-/** The health badge with its error trend (STU-022): the crash-free rate, and its change against the week before. */
++/**
++ * The health badge with its error trend (STU-022): the crash-free rate, and its change against the week before. The
++ * compact form shows the trend as an arrow and keeps its words for screen readers; the detail card spells it out.
++ */
+ function Health({
+   summary,
+   m,
+   locale,
++  compact = false,
+ }: {
+   readonly summary: AppSummary;
+   readonly m: Messages;
+   readonly locale: string;
++  readonly compact?: boolean;
+ }) {
+   const health = healthOf(summary);
+   if (health.kind === "none") {
+@@ -79,12 +84,13 @@ function Health({
+   const word = { good: m.healthGood, warn: m.healthWarn, bad: m.healthBad }[health.kind];
+   const status = { good: "success", warn: "warning", bad: "danger" }[health.kind] as "success" | "warning" | "danger";
+   const flat = Math.abs(health.trend) < 0.0005;
++  const trend = flat ? m.trendFlat : health.trend > 0 ? m.trendUp(points) : m.trendDown(points);
+   return (
+     <span className="flex flex-wrap items-center gap-2">
+       <StatusPill status={status} label={word} value={m.crashFree(percent.format(health.rate))} />
+       <span className="flex items-center gap-1 text-xs text-muted-foreground">
+         {!flat && <Icon name={health.trend > 0 ? "caret-up" : "caret-down"} size="pill" />}
+-        <span>{flat ? m.trendFlat : health.trend > 0 ? m.trendUp(points) : m.trendDown(points)}</span>
++        <span className={compact ? "sr-only" : undefined}>{trend}</span>
+       </span>
+     </span>
+   );
+@@ -95,16 +101,21 @@ function Published({
+   summary,
+   m,
+   locale,
++  compact = false,
+ }: {
+   readonly summary: AppSummary;
+   readonly m: Messages;
+   readonly locale: string;
++  readonly compact?: boolean;
+ }) {
+   const at = summary.lastPublishedAt;
+   if (at === undefined || (at.seconds === 0n && at.nanos === 0)) {
+     return <p className="text-xs">{m.neverPublished}</p>;
+   }
+-  const when = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(timestampDate(at));
++  const when = new Intl.DateTimeFormat(
++    locale,
++    compact ? { dateStyle: "medium" } : { dateStyle: "medium", timeStyle: "short" },
++  ).format(timestampDate(at));
+   const who = summary.lastPublisher?.display ?? "";
+   return <p className="truncate text-xs">{who === "" ? m.published(when) : m.publishedBy(when, who)}</p>;
+ }
+@@ -129,11 +140,17 @@ function PinButton({ entry, pinned, handlers }: Pick<AppCardProps, "entry" | "pi
+ }
+
+ /** The name as a link to the app's canvas, with the key beside it. */
+-function NameLink({ entry, org }: Pick<AppCardProps, "entry" | "org">): ReactElement {
++function NameLink({
++  entry,
++  org,
++  ...rest
++}: Pick<AppCardProps, "entry" | "org"> & Omit<ComponentProps<"a">, "href" | "children">): ReactElement {
+   const home = homeMessages(useLingui().i18n);
+   const { app } = entry;
++  // The rest are what a trigger adds (the hover card's handlers and ref), passed through to the link.
+   return (
+     <Link
++      {...(rest as Record<string, unknown>)}
+       to="/o/$org/apps/$app"
+       params={{ org, app: app.id }}
+       aria-label={home.openApp(app.name)}
+@@ -144,7 +161,7 @@ function NameLink({ entry, org }: Pick<AppCardProps, "entry" | "org">): ReactEle
+   );
+ }
+
+-/** The two figures of a card: active devices and plugins, side by side in one band, value over label. */
++/** The two figures of the detail card: active devices and plugins, side by side in one band, value over label. */
+ function Figures({
+   summary,
+   m,
+@@ -170,10 +187,72 @@ function Figures({
+   );
+ }
+
++/** The figures of a compact card: an icon and the number each, their names for screen readers. */
++function CompactFigures({
++  summary,
++  m,
++  locale,
++}: {
++  readonly summary: AppSummary;
++  readonly m: Messages;
++  readonly locale: string;
++}) {
++  const n = new Intl.NumberFormat(locale);
++  return (
++    <dl className="flex items-center gap-3">
++      {[
++        { label: m.devices, value: summary.activeDevices, icon: "device-mobile" as const },
++        { label: m.plugins, value: summary.pluginCount, icon: "puzzle-piece" as const },
++      ].map((f) => (
++        <div key={f.label} className="flex items-center gap-1" title={f.label}>
++          <Icon name={f.icon} size="pill" />
++          <dt className="sr-only">{f.label}</dt>
++          <dd className="font-medium text-foreground tabular-nums">{n.format(f.value)}</dd>
++        </div>
++      ))}
++    </dl>
++  );
++}
++
++/** The detail view of an app on hover or focus: its picture, everything the card shortens, and its limits. */
++function AppDetail(props: AppCardProps): ReactElement {
++  const { i18n } = useLingui();
++  const m = appsMessages(i18n);
++  const { entry, team } = props;
++  const { app, summary } = entry;
++  return (
++    <div className="flex flex-col">
++      <CardVisual app={app} />
++      <div className="flex flex-col gap-3 p-4">
++        <div className="flex flex-col gap-0.5">
++          <p className="font-semibold">{app.name}</p>
++          <p className="text-xs text-muted-foreground">
++            <span className="font-mono">{app.key}</span> · {team === undefined ? m.noTeam : m.owner(team)}
++          </p>
++        </div>
++        {app.description !== "" && <p className="text-sm text-muted-foreground">{app.description}</p>}
++        {summary !== undefined && (
++          <>
++            <Environments releases={summary.releases} m={m} />
++            <Figures summary={summary} m={m} locale={i18n.locale} />
++            <Health summary={summary} m={m} locale={i18n.locale} />
++            {summary.limits.length > 0 && <CardLimits limits={summary.limits} />}
++            <div className="flex items-center gap-2 border-t pt-3 text-muted-foreground">
++              <Icon name="clock" size="pill" />
++              <Published summary={summary} m={m} locale={i18n.locale} />
++            </div>
++          </>
++        )}
++      </div>
++    </div>
++  );
++}
++
+ /**
+- * One app as a card (STU-020 to STU-022, STU-025): shadcn's Card. The app's picture, name, key and team head it, with
+- * pin and actions; then what it is for, the release each environment serves, its figures, health and limits, and the
+- * newest release at the foot. The whole card opens the app; pin and actions stay their own buttons.
++ * One app as a card (STU-020 to STU-022, STU-025): shadcn's Card, compact. Its picture, name, key and team head it,
++ * with pin and actions; then a line of what it is for, its health and live releases, and at the foot its devices,
++ * plugins and newest release. Resting on the name, or anywhere on the card, opens the detail card with the full
++ * picture, figures and limits. The whole card opens the app; pin and actions stay their own buttons.
+  */
+ export function AppCard(props: AppCardProps): ReactElement {
+   const { i18n } = useLingui();
+@@ -182,44 +261,53 @@ export function AppCard(props: AppCardProps): ReactElement {
+   const { app, summary } = entry;
+   return (
+     <div className="relative h-full">
+-      <Card className="h-full gap-4 py-4 transition hover:border-foreground/20 hover:shadow-sm has-focus-visible:ring-3 has-focus-visible:ring-ring/50">
+-        <CardHeader className="flex items-start gap-3 px-4">
+-          <CardVisual app={app} compact />
+-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+-            <CardTitle className="flex min-w-0 items-center gap-2 text-base">
+-              <NameLink entry={entry} org={props.org} />
+-              {app.archived && <StatusPill status="neutral" label={m.archivedBadge} />}
+-            </CardTitle>
+-            <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+-              <span className="truncate font-mono">{app.key}</span>
+-              <span aria-hidden="true">·</span>
+-              <span className="truncate">{team === undefined ? m.noTeam : m.owner(team)}</span>
+-            </p>
+-          </div>
+-          <div className="relative z-10 -me-1 -mt-1 flex shrink-0 gap-0.5">
+-            <PinButton entry={entry} pinned={props.pinned} handlers={props.handlers} />
+-            <AppActions entry={entry} org={props.org} permissions={props.permissions} handlers={props.handlers} />
+-          </div>
+-        </CardHeader>
+-        <CardContent className="flex flex-1 flex-col gap-4 px-4">
+-          <CardDescription className="line-clamp-2 min-h-10">{app.description}</CardDescription>
+-          {summary !== undefined && <Environments releases={summary.releases} m={m} />}
+-          {summary !== undefined && <Figures summary={summary} m={m} locale={i18n.locale} />}
+-          {summary !== undefined && <Health summary={summary} m={m} locale={i18n.locale} />}
+-          {summary !== undefined && summary.limits.length > 0 && (
+-            <>
+-              <Separator />
+-              <CardLimits limits={summary.limits} />
+-            </>
++      <HoverCard>
++        <Card
++          size="sm"
++          className="app-card h-full gap-3 transition hover:shadow-md has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
++        >
++          <CardHeader className="flex items-center gap-3">
++            <CardVisual app={app} compact />
++            <div className="flex min-w-0 flex-1 flex-col">
++              <CardTitle className="flex min-w-0 items-center gap-2 text-sm">
++                <HoverCardTrigger delay={350} render={<NameLink entry={entry} org={props.org} />} />
++                {app.archived && <StatusPill status="neutral" label={m.archivedBadge} />}
++              </CardTitle>
++              <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
++                <span className="truncate font-mono">{app.key}</span>
++                <span aria-hidden="true">·</span>
++                <span className="truncate">{team === undefined ? m.noTeam : m.owner(team)}</span>
++              </p>
++            </div>
++            <div className="relative z-10 -me-1 flex shrink-0 gap-0.5">
++              <PinButton entry={entry} pinned={props.pinned} handlers={props.handlers} />
++              <AppActions entry={entry} org={props.org} permissions={props.permissions} handlers={props.handlers} />
++            </div>
++          </CardHeader>
++          <CardContent className="flex flex-1 flex-col gap-2.5">
++            <CardDescription className="truncate text-xs">{app.description}</CardDescription>
++            {summary !== undefined && (
++              <div className="flex flex-wrap items-center gap-1.5">
++                <Health summary={summary} m={m} locale={i18n.locale} compact />
++                <Environments releases={summary.releases} m={m} />
++              </div>
++            )}
++            {summary !== undefined && summary.limits.length > 0 && <CardLimits limits={summary.limits} compact />}
++          </CardContent>
++          {summary !== undefined && (
++            <CardFooter className="gap-3 text-xs text-muted-foreground">
++              <CompactFigures summary={summary} m={m} locale={i18n.locale} />
++              <span className="ms-auto flex min-w-0 items-center gap-1">
++                <Icon name="clock" size="pill" />
++                <Published summary={summary} m={m} locale={i18n.locale} compact />
++              </span>
++            </CardFooter>
+           )}
+-        </CardContent>
+-        {summary !== undefined && (
+-          <CardFooter className="gap-2 border-t px-4 pt-4 text-muted-foreground">
+-            <Icon name="clock" size="pill" />
+-            <Published summary={summary} m={m} locale={i18n.locale} />
+-          </CardFooter>
+-        )}
+-      </Card>
++        </Card>
++        <HoverCardContent side="bottom" align="start" className="w-80 overflow-hidden p-0">
++          <AppDetail {...props} />
++        </HoverCardContent>
++      </HoverCard>
+     </div>
+   );
+ }
+diff --git a/studio/apps/web/src/features/apps/app-settings-page.tsx b/studio/apps/web/src/features/apps/app-settings-page.tsx
+index 8866b76f..18e83e2b 100644
+--- a/studio/apps/web/src/features/apps/app-settings-page.tsx
++++ b/studio/apps/web/src/features/apps/app-settings-page.tsx
+@@ -6,6 +6,7 @@ import { createClient } from "@connectrpc/connect";
+ import { useLingui } from "@lingui/react";
+ import { type App, AppService, MetadataUpdateSchema } from "@plux/api";
+ import { Button, Field, Input, Textarea } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { useQuery } from "@tanstack/react-query";
+ import { Link, useParams } from "@tanstack/react-router";
+ import { type FormEvent, type ReactElement, useState } from "react";
+@@ -152,7 +153,11 @@ export function AppSettingsPage(): ReactElement {
+           {m.fontsTitle}
+         </h2>
+         <p className="text-body text-muted-foreground">{m.fontsCaption}</p>
+-        <Link to="/o/$org/apps/$app/design/typography" params={{ org, app: appId }} className="text-body">
++        <Link
++          to="/o/$org/apps/$app/design/typography"
++          params={{ org, app: appId }}
++          className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
++        >
+           {m.fontsLink}
+         </Link>
+       </section>
+@@ -161,7 +166,11 @@ export function AppSettingsPage(): ReactElement {
+           <h2 id="app-settings-admin" className="text-section">
+             {m.adminTitle}
+           </h2>
+-          <Link to="/o/$org/admin" params={{ org }} className="text-body">
++          <Link
++            to="/o/$org/admin"
++            params={{ org }}
++            className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
++          >
+             {m.adminLink}
+           </Link>
+         </section>
+diff --git a/studio/apps/web/src/features/apps/apps-area.tsx b/studio/apps/web/src/features/apps/apps-area.tsx
+index 65707048..e2e3cb7e 100644
+--- a/studio/apps/web/src/features/apps/apps-area.tsx
++++ b/studio/apps/web/src/features/apps/apps-area.tsx
+@@ -19,7 +19,7 @@ import { useVisibleApps } from "./use-apps.ts";
+ import "./apps.css";
+ import { AnimatedList } from "../../components/animated-list.tsx";
+
+-const gridClass = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3";
++const gridClass = "grid grid-cols-1 gap-3 @2xl/main:grid-cols-2 @5xl/main:grid-cols-3 @7xl/main:grid-cols-4";
+
+ /** The loading, failure and empty states above the apps: shadcn's Skeleton, Alert and Empty. */
+ function States({
+diff --git a/studio/apps/web/src/features/apps/apps.test.tsx b/studio/apps/web/src/features/apps/apps.test.tsx
+index ac2df122..e6569ec1 100644
+--- a/studio/apps/web/src/features/apps/apps.test.tsx
++++ b/studio/apps/web/src/features/apps/apps.test.tsx
+@@ -117,9 +117,11 @@ describe("the apps as a responsive grid with a list alternative [STU-020]", () =
+     await card("Bank");
+     expect(names()).toEqual(["Open Bank", "Open Chat", "Open Shop"]);
+     const grid = screen.getByRole("link", { name: "Open Bank" }).closest("ul");
++    // One column on a narrow page, then two, three and four as the page widens (container queries).
+     expect(grid?.className).toContain("grid-cols-1");
+-    expect(grid?.className).toContain("sm:grid-cols-2");
+-    expect(grid?.className).toContain("xl:grid-cols-3");
++    expect(grid?.className).toContain("@2xl/main:grid-cols-2");
++    expect(grid?.className).toContain("@5xl/main:grid-cols-3");
++    expect(grid?.className).toContain("@7xl/main:grid-cols-4");
+     expect(screen.getByText("3 apps")).toBeTruthy();
+   });
+
+diff --git a/studio/apps/web/src/features/apps/limits-usage.tsx b/studio/apps/web/src/features/apps/limits-usage.tsx
+index f39015a5..08fcde4d 100644
+--- a/studio/apps/web/src/features/apps/limits-usage.tsx
++++ b/studio/apps/web/src/features/apps/limits-usage.tsx
+@@ -36,24 +36,34 @@ function LevelPill({ level, m }: { readonly level: LimitLevel; readonly m: Messa
+  * The usage of an app against its limits on its card (STU-025): one meter per limit the summary reports, with the
+  * number in text, and a badge once the usage is near or at the limit in force.
+  */
+-export function CardLimits({ limits }: { readonly limits: readonly AppLimitUsage[] }): ReactElement | null {
++export function CardLimits({
++  limits,
++  compact = false,
++}: {
++  readonly limits: readonly AppLimitUsage[];
++  /** The compact card: thin bars under their names, the amounts in a tooltip and for screen readers. */
++  readonly compact?: boolean;
++}): ReactElement | null {
+   const { i18n } = useLingui();
+   const m = appsMessages(i18n);
+   if (limits.length === 0) {
+     return null;
+   }
+   return (
+-    <ul aria-label={m.limitsUsage} className="grid grid-cols-2 gap-x-4 gap-y-3">
++    <ul
++      aria-label={m.limitsUsage}
++      className={compact ? "grid grid-cols-3 gap-x-3 gap-y-2" : "grid grid-cols-2 gap-x-4 gap-y-3"}
++    >
+       {limits.map((l) => {
+         const name = m.limitName(l.key) ?? l.key;
+         const unit = registry.find((r) => r.key === l.key)?.unit ?? "count";
+         const used = formatAmount(l.used, unit, i18n.locale, unitWords(m));
+         const text = m.limitUsageText(used, formatAmount(l.limit, unit, i18n.locale, unitWords(m)));
+         return (
+-          <li key={l.key} className="flex min-w-0 flex-col gap-1.5">
++          <li key={l.key} className="flex min-w-0 flex-col gap-1" title={compact ? `${name}: ${text}` : undefined}>
+             <div className="flex items-baseline justify-between gap-2 text-xs">
+               <span className="truncate text-muted-foreground">{name}</span>
+-              <span className="shrink-0 tabular-nums">{used}</span>
++              {!compact && <span className="shrink-0 tabular-nums">{used}</span>}
+             </div>
+             <Meter value={Number(l.used)} max={Number(l.limit)} label={name} valueText={text} layout="bar" />
+             <LevelPill level={levelOf(l.used, l.limit)} m={m} />
+diff --git a/studio/apps/web/src/features/data/frame.tsx b/studio/apps/web/src/features/data/frame.tsx
+index 50b102da..0deae48b 100644
+--- a/studio/apps/web/src/features/data/frame.tsx
++++ b/studio/apps/web/src/features/data/frame.tsx
+@@ -2,7 +2,8 @@
+ // SPDX-License-Identifier: AGPL-3.0-only
+
+ import { useLingui } from "@lingui/react";
+-import { Select } from "@plux/ui";
++import { Icon, Select } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useNavigate } from "@tanstack/react-router";
+ import type { ReactElement, ReactNode } from "react";
+ import { dataMessages } from "./data.messages.ts";
+@@ -30,8 +31,8 @@ function Body(props: {
+         {props.title}
+       </h1>
+       <p className="text-body text-muted-foreground">{props.caption}</p>
+-      <nav className="flex gap-4">
+-        <Link className="text-body" to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
++      <nav className="sub-nav">
++        <Link to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
+           {m.sourcesLink}
+         </Link>
+         <Link
+@@ -52,7 +53,13 @@ function Body(props: {
+         }
+       />
+       {props.back !== undefined && (
+-        <Link className="text-body" to={props.back.to} params={{ org: ctx.org, app: ctx.app }} search={search}>
++        <Link
++          to={props.back.to}
++          params={{ org: ctx.org, app: ctx.app }}
++          search={search}
++          className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++        >
++          <Icon name="arrow-left" data-icon="inline-start" />
+           {props.back.label}
+         </Link>
+       )}
+diff --git a/studio/apps/web/src/features/data/source-page.tsx b/studio/apps/web/src/features/data/source-page.tsx
+index c7046b1a..56e7ad34 100644
+--- a/studio/apps/web/src/features/data/source-page.tsx
++++ b/studio/apps/web/src/features/data/source-page.tsx
+@@ -3,6 +3,7 @@
+
+ import { useLingui } from "@lingui/react";
+ import { Button, Dialog, Field, Input, Select } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useParams } from "@tanstack/react-router";
+ import { type ReactElement, useState } from "react";
+ import { objects } from "../designers/db-schema-overlay.tsx";
+@@ -176,7 +177,11 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
+             )}
+           </>
+         )}
+-        <Link className="text-body" to="/o/$org/apps/$app" params={{ org: ctx.org, app: ctx.app }}>
++        <Link
++          className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
++          to="/o/$org/apps/$app"
++          params={{ org: ctx.org, app: ctx.app }}
++        >
+           {m.editVariables}
+         </Link>
+       </section>
+diff --git a/studio/apps/web/src/features/design/scope.tsx b/studio/apps/web/src/features/design/scope.tsx
+index 3054b465..82bff0f2 100644
+--- a/studio/apps/web/src/features/design/scope.tsx
++++ b/studio/apps/web/src/features/design/scope.tsx
+@@ -87,20 +87,20 @@ function Body(props: {
+         {props.title}
+       </h1>
+       <p className="text-body text-muted-foreground">{props.caption}</p>
+-      <nav aria-label={m.areaNav} className="flex flex-wrap gap-4">
+-        <Link className="text-body" to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
++      <nav aria-label={m.areaNav} className="sub-nav">
++        <Link to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
+           {m.tokensLink}
+         </Link>
+-        <Link className="text-body" to="/o/$org/apps/$app/design/themes" params={{ org: ctx.org, app: ctx.app }}>
++        <Link to="/o/$org/apps/$app/design/themes" params={{ org: ctx.org, app: ctx.app }}>
+           {m.themesLink}
+         </Link>
+-        <Link className="text-body" to="/o/$org/apps/$app/design/typography" params={{ org: ctx.org, app: ctx.app }}>
++        <Link to="/o/$org/apps/$app/design/typography" params={{ org: ctx.org, app: ctx.app }}>
+           {m.typographyLink}
+         </Link>
+-        <Link className="text-body" to="/o/$org/apps/$app/design/icons" params={{ org: ctx.org, app: ctx.app }}>
++        <Link to="/o/$org/apps/$app/design/icons" params={{ org: ctx.org, app: ctx.app }}>
+           {m.iconsLink}
+         </Link>
+-        <Link className="text-body" to="/o/$org/apps/$app/design/library" params={{ org: ctx.org, app: ctx.app }}>
++        <Link to="/o/$org/apps/$app/design/library" params={{ org: ctx.org, app: ctx.app }}>
+           {m.libraryLink}
+         </Link>
+       </nav>
+diff --git a/studio/apps/web/src/features/experiments/experiments-page.tsx b/studio/apps/web/src/features/experiments/experiments-page.tsx
+index 77c2a6e9..dbffaa85 100644
+--- a/studio/apps/web/src/features/experiments/experiments-page.tsx
++++ b/studio/apps/web/src/features/experiments/experiments-page.tsx
+@@ -3,7 +3,8 @@
+
+ import { timestampDate } from "@bufbuild/protobuf/wkt";
+ import { useLingui } from "@lingui/react";
+-import { Field, Select, StatusPill } from "@plux/ui";
++import { Field, Icon, Select, StatusPill } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
+ import type { ReactElement } from "react";
+ import { Frame } from "../releases/frame.tsx";
+@@ -53,11 +54,22 @@ export function ExperimentsPage(): ReactElement {
+           />
+         </Field>
+         {canCreate && (
+-          <Link className="text-body" to="/o/$org/apps/$app/experiments/new" params={{ org, app }} search={{ env }}>
++          <Link
++            className={buttonVariants({ size: "sm" })}
++            to="/o/$org/apps/$app/experiments/new"
++            params={{ org, app }}
++            search={{ env }}
++          >
++            <Icon name="plus" data-icon="inline-start" />
+             {m.newLink}
+           </Link>
+         )}
+-        <Link className="text-body" to="/o/$org/apps/$app/experiments/flags" params={{ org, app }} search={{ env }}>
++        <Link
++          className={buttonVariants({ variant: "outline", size: "sm" })}
++          to="/o/$org/apps/$app/experiments/flags"
++          params={{ org, app }}
++          search={{ env }}
++        >
+           {m.flagsLink}
+         </Link>
+       </div>
+diff --git a/studio/apps/web/src/features/functions/function-page.tsx b/studio/apps/web/src/features/functions/function-page.tsx
+index c24c0fba..d416dcfb 100644
+--- a/studio/apps/web/src/features/functions/function-page.tsx
++++ b/studio/apps/web/src/features/functions/function-page.tsx
+@@ -4,7 +4,8 @@
+ import { createClient } from "@connectrpc/connect";
+ import { useLingui } from "@lingui/react";
+ import { FunctionAdminService } from "@plux/api";
+-import { Tabs } from "@plux/ui";
++import { Icon, Tabs } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
+ import { type ReactElement, useMemo } from "react";
+ import { useApp } from "../../lib/use-app.tsx";
+@@ -72,11 +73,23 @@ export function FunctionPage(): ReactElement {
+       loading={environment.loading || fn.isPending}
+       failed={environment.failed || fn.isError}
+     >
+-      <div className="flex gap-4 text-body">
+-        <Link to="/o/$org/apps/$app/functions" params={{ org, app }} search={{ env }}>
++      <div className="flex items-center gap-2">
++        <Link
++          to="/o/$org/apps/$app/functions"
++          params={{ org, app }}
++          search={{ env }}
++          className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++        >
++          <Icon name="arrow-left" data-icon="inline-start" />
+           {m.back}
+         </Link>
+-        <Link to="/o/$org/apps/$app/functions/$fnId/edit" params={{ org, app, fnId } as never} search={{ env }}>
++        <Link
++          to="/o/$org/apps/$app/functions/$fnId/edit"
++          params={{ org, app, fnId } as never}
++          search={{ env }}
++          className={buttonVariants({ size: "sm" })}
++        >
++          <Icon name="pencil-simple" data-icon="inline-start" />
+           {m.openEditor}
+         </Link>
+       </div>
+diff --git a/studio/apps/web/src/features/home/home.css b/studio/apps/web/src/features/home/home.css
+index 0c6b6e29..6d3f889c 100644
+--- a/studio/apps/web/src/features/home/home.css
++++ b/studio/apps/web/src/features/home/home.css
+@@ -34,13 +34,36 @@
+ }
+
+ /* The figures: shadcn's section cards (dashboard-01), a faint wash of the primary colour from the foot. */
+-.home-figures > [data-slot="card"] {
+-  background-image: linear-gradient(to top, color-mix(in oklch, var(--primary) 5%, transparent), var(--card));
+-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
++/* Each figure in its own chart colour: a wash from the top corner and the icon in a tinted chip. */
++.home-figures > [data-figure] {
++  --figure: var(--chart-1);
++  background-image: radial-gradient(
++    120% 90% at 100% 0%,
++    color-mix(in oklch, var(--figure) 14%, transparent),
++    transparent 60%
++  );
+ }
+
+-[data-theme="dark"] .home-figures > [data-slot="card"] {
+-  background-image: none;
++.home-figures > [data-figure="2"] {
++  --figure: var(--chart-2);
++}
++
++.home-figures > [data-figure="3"] {
++  --figure: var(--chart-3);
++}
++
++.home-figures > [data-figure="4"] {
++  --figure: var(--chart-4);
++}
++
++.home-figure-icon {
++  display: inline-grid;
++  place-items: center;
++  inline-size: calc(var(--spacing) * 6);
++  block-size: calc(var(--spacing) * 6);
++  border-radius: var(--radius-md);
++  color: var(--figure);
++  background-color: color-mix(in oklch, var(--figure) 15%, transparent);
+ }
+
+ /* The stack: a plane laid back in isometric view, the apps as layers standing above it. */
+@@ -56,7 +79,7 @@
+   position: absolute;
+   inset: 12% 8%;
+   border-radius: 999px;
+-  background: radial-gradient(closest-side, color-mix(in oklch, var(--foreground) 8%, transparent), transparent);
++  background: radial-gradient(closest-side, color-mix(in oklch, var(--primary) 18%, transparent), transparent);
+   filter: blur(40px);
+ }
+
+@@ -81,7 +104,8 @@
+ .hs-floor {
+   position: absolute;
+   inset: -40%;
+-  background-image: radial-gradient(var(--border) 1.2px, transparent 1.6px);
++  /* The grid under the stack: tinted with the primary colour, so it shows on the light and the dark page alike. */
++  background-image: radial-gradient(color-mix(in oklch, var(--primary) 45%, transparent) 1.2px, transparent 1.6px);
+   background-size: 18px 18px;
+   mask-image: radial-gradient(closest-side, black 30%, transparent);
+   opacity: 0.7;
+diff --git a/studio/apps/web/src/features/home/pulse.tsx b/studio/apps/web/src/features/home/pulse.tsx
+index f103395d..53937592 100644
+--- a/studio/apps/web/src/features/home/pulse.tsx
++++ b/studio/apps/web/src/features/home/pulse.tsx
+@@ -12,12 +12,15 @@ import type { OrgPulse } from "./org-pulse.ts";
+
+ /** One figure: shadcn's section card (dashboard-01), the label over the number, a badge, and a note at the foot. */
+ function Figure({
++  tone,
+   icon,
+   label,
+   note,
+   badge,
+   children,
+ }: {
++  /** The chart colour of the figure, 1 to 4 (home.css). */
++  readonly tone: 1 | 2 | 3 | 4;
+   readonly icon: IconName;
+   readonly label: string;
+   readonly note: string;
+@@ -25,17 +28,19 @@ function Figure({
+   readonly children: ReactNode;
+ }) {
+   return (
+-    <Card className="@container/card">
++    <Card className="@container/card" data-figure={tone}>
+       <CardHeader>
+-        <CardDescription>{label}</CardDescription>
++        <CardDescription className="flex items-center gap-2">
++          <span className="home-figure-icon" aria-hidden="true">
++            <Icon name={icon} size="pill" />
++          </span>
++          {label}
++        </CardDescription>
+         <CardTitle className="text-2xl font-semibold tabular-nums @3xs/card:text-3xl">{children}</CardTitle>
+         <CardAction>{badge}</CardAction>
+       </CardHeader>
+       <CardFooter className="flex-col items-start gap-1.5 text-sm">
+-        <div className="flex items-center gap-2 text-muted-foreground">
+-          <Icon name={icon} size="pill" />
+-          {note}
+-        </div>
++        <div className="text-muted-foreground">{note}</div>
+       </CardFooter>
+     </Card>
+   );
+@@ -61,13 +66,14 @@ export function Pulse({ pulse }: { readonly pulse: OrgPulse }) {
+       aria-label={m.pulseLabel}
+       className="home-figures grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4"
+     >
+-      <Figure icon="device-mobile" label={m.pulseDevices} note={m.pulseDevicesNote(pulse.apps)}>
++      <Figure tone={1} icon="device-mobile" label={m.pulseDevices} note={m.pulseDevicesNote(pulse.apps)}>
+         <CountUp value={Number(pulse.devices)} format={(v) => whole.format(Math.round(v))} />
+       </Figure>
+-      <Figure icon="rocket-launch" label={m.pulseLive} note={m.pulseLiveNote(pulse.apps)}>
++      <Figure tone={2} icon="rocket-launch" label={m.pulseLive} note={m.pulseLiveNote(pulse.apps)}>
+         <CountUp value={pulse.live} format={(v) => whole.format(Math.round(v))} />
+       </Figure>
+       <Figure
++        tone={3}
+         icon="pulse"
+         label={m.pulseCrashFree}
+         note={m.pulseCrashFreeNote}
+@@ -86,7 +92,7 @@ export function Pulse({ pulse }: { readonly pulse: OrgPulse }) {
+           <CountUp value={pulse.crashFree} format={(v) => percent.format(v)} />
+         )}
+       </Figure>
+-      <Figure icon="puzzle-piece" label={m.pulsePlugins} note={m.pulsePluginsNote}>
++      <Figure tone={4} icon="puzzle-piece" label={m.pulsePlugins} note={m.pulsePluginsNote}>
+         <CountUp value={Number(pulse.plugins)} format={(v) => whole.format(Math.round(v))} />
+       </Figure>
+     </section>
+diff --git a/studio/apps/web/src/features/library/component-detail-page.tsx b/studio/apps/web/src/features/library/component-detail-page.tsx
+index c1cdcb54..51182fe0 100644
+--- a/studio/apps/web/src/features/library/component-detail-page.tsx
++++ b/studio/apps/web/src/features/library/component-detail-page.tsx
+@@ -4,7 +4,8 @@
+ import { createClient } from "@connectrpc/connect";
+ import { useLingui } from "@lingui/react";
+ import { AppService } from "@plux/api";
+-import { Button } from "@plux/ui";
++import { Button, Icon } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { useQuery } from "@tanstack/react-query";
+ import { Link, useParams } from "@tanstack/react-router";
+ import { type ReactElement, useRef, useState } from "react";
+@@ -91,7 +92,12 @@ export function ComponentDetailPage(): ReactElement {
+   const adoptTarget = perApp.data?.find((a) => a.app.id === dialog);
+   return (
+     <section className="flex flex-col gap-4" aria-labelledby="component-title">
+-      <Link to="/o/$org/library" params={{ org }} className="text-caption">
++      <Link
++        to="/o/$org/library"
++        params={{ org }}
++        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++      >
++        <Icon name="arrow-left" data-icon="inline-start" />
+         {m.back}
+       </Link>
+       {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
+diff --git a/studio/apps/web/src/features/library/template-detail-page.tsx b/studio/apps/web/src/features/library/template-detail-page.tsx
+index 1d3a93a7..eacf4eec 100644
+--- a/studio/apps/web/src/features/library/template-detail-page.tsx
++++ b/studio/apps/web/src/features/library/template-detail-page.tsx
+@@ -2,7 +2,8 @@
+ // SPDX-License-Identifier: AGPL-3.0-only
+
+ import { useLingui } from "@lingui/react";
+-import { Button } from "@plux/ui";
++import { Button, Icon } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { useQuery } from "@tanstack/react-query";
+ import { Link, useParams } from "@tanstack/react-router";
+ import { type ReactElement, useState } from "react";
+@@ -38,7 +39,12 @@ export function TemplateDetailPage(): ReactElement {
+   };
+   return (
+     <section className="flex flex-col gap-4" aria-labelledby="template-title">
+-      <Link to="/o/$org/library" params={{ org }} className="text-caption">
++      <Link
++        to="/o/$org/library"
++        params={{ org }}
++        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++      >
++        <Icon name="arrow-left" data-icon="inline-start" />
+         {m.back}
+       </Link>
+       {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
+diff --git a/studio/apps/web/src/features/localisation/area-frame.tsx b/studio/apps/web/src/features/localisation/area-frame.tsx
+index 2a11d943..cc5421e6 100644
+--- a/studio/apps/web/src/features/localisation/area-frame.tsx
++++ b/studio/apps/web/src/features/localisation/area-frame.tsx
+@@ -23,11 +23,11 @@ function Body(props: {
+         {props.title}
+       </h1>
+       <p className="text-body text-muted-foreground">{props.caption}</p>
+-      <nav aria-label={m.navLabel} className="flex gap-4">
+-        <Link className="text-body" to="/o/$org/apps/$app/localisation" params={params} search={search}>
++      <nav aria-label={m.navLabel} className="sub-nav">
++        <Link to="/o/$org/apps/$app/localisation" params={params} search={search}>
+           {m.gridLink}
+         </Link>
+-        <Link className="text-body" to="/o/$org/apps/$app/localisation/heatmap" params={params} search={search}>
++        <Link to="/o/$org/apps/$app/localisation/heatmap" params={params} search={search}>
+           {m.heatmapLink}
+         </Link>
+       </nav>
+diff --git a/studio/apps/web/src/features/releases/releases-page.tsx b/studio/apps/web/src/features/releases/releases-page.tsx
+index bb34167f..ed48036f 100644
+--- a/studio/apps/web/src/features/releases/releases-page.tsx
++++ b/studio/apps/web/src/features/releases/releases-page.tsx
+@@ -4,6 +4,7 @@
+ import { timestampDate } from "@bufbuild/protobuf/wkt";
+ import { useLingui } from "@lingui/react";
+ import { Field, Input, StatusPill } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
+ import type { ReactElement } from "react";
+ import { Table } from "../security/parts.tsx";
+@@ -49,7 +50,12 @@ export function ReleasesPage(): ReactElement {
+             }
+           />
+         </Field>
+-        <Link className="text-body" to="/o/$org/apps/$app/releases/kill-switch" params={{ org, app }} search={{ env }}>
++        <Link
++          className={buttonVariants({ variant: "outline", size: "sm" })}
++          to="/o/$org/apps/$app/releases/kill-switch"
++          params={{ org, app }}
++          search={{ env }}
++        >
+           {m.killSwitchLink}
+         </Link>
+       </div>
+diff --git a/studio/apps/web/src/features/shell-settings/shell-link.tsx b/studio/apps/web/src/features/shell-settings/shell-link.tsx
+index c05b75d8..bcc584ec 100644
+--- a/studio/apps/web/src/features/shell-settings/shell-link.tsx
++++ b/studio/apps/web/src/features/shell-settings/shell-link.tsx
+@@ -3,6 +3,7 @@
+
+ import { useLingui } from "@lingui/react";
+ import { StatusPill } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link } from "@tanstack/react-router";
+ import type { ReactElement } from "react";
+ import { shellSettingsMessages } from "./shell-settings.messages.ts";
+@@ -17,7 +18,11 @@ export function ShellSettingsLink({ org, appId }: { readonly org: string; readon
+   const status = useShellStatus(appId);
+   return (
+     <span className="inline-flex items-center gap-2">
+-      <Link to="/o/$org/apps/$app/settings/shell" params={{ org, app: appId }} className="text-body">
++      <Link
++        to="/o/$org/apps/$app/settings/shell"
++        params={{ org, app: appId }}
++        className={buttonVariants({ variant: "outline", size: "sm" })}
++      >
+         {m.linkLabel}
+       </Link>
+       {status.data?.updateRequired === true && <StatusPill status="warning" label={m.statusRequired} />}
+diff --git a/studio/apps/web/src/features/shell/notifications-popover.tsx b/studio/apps/web/src/features/shell/notifications-popover.tsx
+index 96a487fd..f3d3f9ba 100644
+--- a/studio/apps/web/src/features/shell/notifications-popover.tsx
++++ b/studio/apps/web/src/features/shell/notifications-popover.tsx
+@@ -40,7 +40,7 @@ export function NotificationsPopover(): ReactElement {
+   const { i18n } = useLingui();
+   const m = notifyMessages(i18n);
+   const { session } = useApp();
+-  const org = session.organization();
++  const org = session.home();
+   const [open, setOpen] = useState(false);
+   const inbox = useInbox({ unreadOnly: false, limit: latest });
+   const unread = Number(inbox.data?.unread ?? 0n);
+diff --git a/studio/apps/web/src/features/shell/shell-chrome.messages.ts b/studio/apps/web/src/features/shell/shell-chrome.messages.ts
+index 0438ed64..53536fbd 100644
+--- a/studio/apps/web/src/features/shell/shell-chrome.messages.ts
++++ b/studio/apps/web/src/features/shell/shell-chrome.messages.ts
+@@ -142,6 +142,18 @@ export function chromeMessages(i18n: I18n) {
+       message: "Library",
+       comment: "Sidebar link to the organisation's library of shared components and templates.",
+     }),
++    version: (version: string) =>
++      i18n._({
++        id: "chrome.footer.version",
++        message: "Version {version}",
++        comment: "Footer of every page: the Studio version loaded in this tab.",
++        values: { version },
++      }),
++    footer: i18n._({
++      id: "chrome.footer.label",
++      message: "Help links",
++      comment: "Accessible name of the links in the page footer.",
++    }),
+     toggleSidebar: i18n._({
+       id: "chrome.sidebar.toggle",
+       message: "Show or hide the sidebar",
+diff --git a/studio/apps/web/src/features/shell/shell-layout.tsx b/studio/apps/web/src/features/shell/shell-layout.tsx
+index 75328b73..7d2033df 100644
+--- a/studio/apps/web/src/features/shell/shell-layout.tsx
++++ b/studio/apps/web/src/features/shell/shell-layout.tsx
+@@ -23,6 +23,7 @@ import { StudioSidebar } from "./app-sidebar.tsx";
+ import { CommandPalette } from "./command-palette.tsx";
+ import { CreateOrganisationDialog } from "./create-organisation-dialog.tsx";
+ import { hitPath, type OrgSearchFn } from "./palette-search.ts";
++import { SiteFooter } from "./site-footer.tsx";
+ import { SiteHeader } from "./site-header.tsx";
+ import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
+ import { useServerVersion } from "./use-server-version.ts";
+@@ -56,8 +57,8 @@ export function ShellLayout() {
+     queryFn: () => createClient(OrgService, session.transport).listOrganizations({}),
+   });
+   const organisations = orgs.data?.organizations ?? NONE;
+-  // Outside an organisation (the profile, the shortcuts) the sidebar keeps the one the requests name.
+-  const currentId = org === undefined ? session.organization() : organizationIdOf(org);
++  // Outside an organisation (the profile, the installation) the sidebar keeps the home organisation's navigation.
++  const currentId = org === undefined ? session.home() : organizationIdOf(org);
+
+   const [paletteOpen, setPaletteOpen] = useState(false);
+   const [gettingStartedOpen, setGettingStartedOpen] = useState(false);
+@@ -153,9 +154,10 @@ export function ShellLayout() {
+               }
+             />
+             {/* Every page sits in the same gutter, as shadcn's dashboard-01 lays out its content. */}
+-            <div className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
++            <div className="@container/main flex flex-1 flex-col gap-6 px-4 pt-6 pb-12 lg:px-6">
+               <Outlet />
+             </div>
++            <SiteFooter version={loadedStudioVersion} docsUrl={version?.docs} />
+           </SidebarInset>
+           {user.data?.installationAdmin === true && (
+             <CreateOrganisationDialog open={creatingOrganisation} onOpenChange={setCreatingOrganisation} />
+diff --git a/studio/apps/web/src/features/shell/sidebar-everywhere.test.tsx b/studio/apps/web/src/features/shell/sidebar-everywhere.test.tsx
+new file mode 100644
+index 00000000..6457d5d1
+--- /dev/null
++++ b/studio/apps/web/src/features/shell/sidebar-everywhere.test.tsx
+@@ -0,0 +1,66 @@
++// SPDX-FileCopyrightText: 2026 Plux contributors
++// SPDX-License-Identifier: AGPL-3.0-only
++
++import { afterEach, describe, expect, test } from "bun:test";
++import { act, cleanup, screen, within } from "@testing-library/react";
++import { createSession } from "../../lib/session.ts";
++import { createAppRouter } from "../../router.tsx";
++import { orgA, renderApp } from "../../test-harness.tsx";
++
++afterEach(cleanup);
++
++const everything = {
++  permissions: ["app.read", "organization.manage", "members.manage"],
++  installationAdmin: true,
++};
++
++/** Every signed-in page outside an organisation, read from the route tree, so a page added later is checked too. */
++function pagesOutsideAnOrganisation(): string[] {
++  const router = createAppRouter({ session: createSession("/api") });
++  type Node = { readonly id: string; readonly fullPath: string; readonly parentRoute?: Node };
++  const underShell = (route: Node | undefined): boolean =>
++    route !== undefined && (route.id === "/shell" || underShell(route.parentRoute));
++  const paths = (Object.values(router.routesById) as Node[])
++    .filter(
++      (route) => underShell(route.parentRoute) && !route.fullPath.startsWith("/o/") && !route.fullPath.includes("$"),
++    )
++    .map((route) => route.fullPath);
++  return [...new Set(paths)].filter((p) => p !== "/");
++}
++
++/** The sidebar of the home organisation: its home page and its areas the person may open. */
++async function expectFullSidebar(page: string): Promise<void> {
++  const nav = await screen.findByRole("navigation", { name: "Studio navigation" }, { timeout: 10_000 });
++  const home = await within(nav).findByRole("link", { name: "Home" }, { timeout: 10_000 });
++  expect([page, home.getAttribute("href")]).toEqual([page, `/o/${orgA}`]);
++  expect(within(nav).getByRole("button", { name: "Approvals" })).toBeTruthy();
++  expect(within(nav).getByRole("button", { name: "Administration" })).toBeTruthy();
++  expect(within(nav).getByRole("button", { name: "Installation" })).toBeTruthy();
++}
++
++describe("[STU-014] the sidebar on every page", () => {
++  const pages = pagesOutsideAnOrganisation();
++
++  test("the route tree has pages outside an organisation to check", () => {
++    expect(pages).toContain("/me");
++    expect(pages).toContain("/installation/organisations");
++  });
++
++  test("a page outside an organisation, opened directly, keeps the home organisation's navigation", async () => {
++    for (const page of pages) {
++      renderApp(page, everything);
++      await expectFullSidebar(page);
++      cleanup();
++    }
++  });
++
++  test("going from an organisation to a page outside it keeps that organisation's navigation", async () => {
++    for (const page of pages) {
++      const r = renderApp(`/o/${orgA}`, everything);
++      await screen.findByRole("heading", { name: /Welcome to/ }, { timeout: 10_000 });
++      await act(() => r.router.navigate({ to: page as never }));
++      await expectFullSidebar(page);
++      cleanup();
++    }
++  });
++});
+diff --git a/studio/apps/web/src/features/shell/site-footer.tsx b/studio/apps/web/src/features/shell/site-footer.tsx
+new file mode 100644
+index 00000000..a3584d49
+--- /dev/null
++++ b/studio/apps/web/src/features/shell/site-footer.tsx
+@@ -0,0 +1,42 @@
++// SPDX-FileCopyrightText: 2026 Plux contributors
++// SPDX-License-Identifier: AGPL-3.0-only
++
++import { useLingui } from "@lingui/react";
++import { Link } from "@tanstack/react-router";
++import type { ReactElement } from "react";
++import { shellMessages } from "../../shell.messages.ts";
++import { notifyMessages } from "./notify.messages.ts";
++import { chromeMessages } from "./shell-chrome.messages.ts";
++
++const link = "underline-offset-4 transition-colors hover:text-foreground hover:underline";
++
++/**
++ * The foot of every signed-in page: the Studio version loaded in this tab, and the shortcut sheet and documentation
++ * the help menu also offers. It closes the page, so the last row of a list never sits on the window's edge.
++ */
++export function SiteFooter({
++  version,
++  docsUrl,
++}: {
++  readonly version: string;
++  readonly docsUrl: string | undefined;
++}): ReactElement {
++  const { i18n } = useLingui();
++  const help = notifyMessages(i18n);
++  return (
++    <footer className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 border-t px-4 py-4 text-xs text-muted-foreground lg:px-6">
++      <span className="font-medium text-foreground">{shellMessages(i18n).appTitle}</span>
++      {version !== "" && <span className="tabular-nums">{chromeMessages(i18n).version(version)}</span>}
++      <nav aria-label={chromeMessages(i18n).footer} className="ms-auto flex items-center gap-4">
++        <Link to="/me/shortcuts" className={link}>
++          {help.helpShortcuts}
++        </Link>
++        {docsUrl !== undefined && (
++          <a href={docsUrl} target="_blank" rel="noopener noreferrer" className={link}>
++            {help.helpDocs}
++          </a>
++        )}
++      </nav>
++    </footer>
++  );
++}
+diff --git a/studio/apps/web/src/features/shell/site-header.tsx b/studio/apps/web/src/features/shell/site-header.tsx
+index a3828407..30df87cc 100644
+--- a/studio/apps/web/src/features/shell/site-header.tsx
++++ b/studio/apps/web/src/features/shell/site-header.tsx
+@@ -41,7 +41,7 @@ export function SiteHeader({
+   const c = commandMessages(i18n);
+   const apple = typeof navigator !== "undefined" && /mac|iphone|ipad/i.test(navigator.platform);
+   return (
+-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b">
++    <header className="site-header sticky top-0 z-20 flex h-(--header-height) shrink-0 items-center gap-2 rounded-t-xl border-b">
+       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+         <SidebarTrigger className="-ms-1" aria-label={m.toggleSidebar} />
+         <Separator orientation="vertical" className="mx-2 h-4 data-vertical:self-auto" />
+diff --git a/studio/apps/web/src/features/shell/status-chips.tsx b/studio/apps/web/src/features/shell/status-chips.tsx
+index bfe84317..b0cb7287 100644
+--- a/studio/apps/web/src/features/shell/status-chips.tsx
++++ b/studio/apps/web/src/features/shell/status-chips.tsx
+@@ -2,7 +2,8 @@
+ // SPDX-License-Identifier: AGPL-3.0-only
+
+ import { useLingui } from "@lingui/react";
+-import { StatusPill } from "@plux/ui";
++import { Icon, StatusPill } from "@plux/ui";
++import { Button } from "@plux/ui/components/button";
+ import { type ReactElement, useEffect, useState } from "react";
+ import { editorMessages } from "../editor/editor.messages.ts";
+ import { notifyMessages } from "./notify.messages.ts";
+@@ -67,9 +68,10 @@ export function UpdateBanner({
+   return (
+     <div role="status" className="flex items-center gap-3 bg-warning-surface px-4 py-2 text-body text-warning">
+       <span className="flex-1">{m.updatedBanner}</span>
+-      <button type="button" className="underline" onClick={() => window.location.reload()}>
++      <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
++        <Icon name="arrow-clockwise" data-icon="inline-start" />
+         {m.reload}
+-      </button>
++      </Button>
+     </div>
+   );
+ }
+diff --git a/studio/apps/web/src/features/tests/run-page.tsx b/studio/apps/web/src/features/tests/run-page.tsx
+index 89755450..caa43198 100644
+--- a/studio/apps/web/src/features/tests/run-page.tsx
++++ b/studio/apps/web/src/features/tests/run-page.tsx
+@@ -3,7 +3,8 @@
+
+ import { useLingui } from "@lingui/react";
+ import type { TestScenarioResult } from "@plux/api";
+-import { StatusPill } from "@plux/ui";
++import { Icon, StatusPill } from "@plux/ui";
++import { buttonVariants } from "@plux/ui/components/button";
+ import { Link, useParams } from "@tanstack/react-router";
+ import type { ReactElement } from "react";
+ import { Frame } from "../releases/frame.tsx";
+@@ -61,7 +62,13 @@ export function TestRunPage(): ReactElement {
+       loading={query.isPending}
+       failed={query.isError || run === undefined}
+     >
+-      <Link className="text-body" to="/o/$org/apps/$app/tests" params={{ org, app }} search={{ env }}>
++      <Link
++        to="/o/$org/apps/$app/tests"
++        params={{ org, app }}
++        search={{ env }}
++        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
++      >
++        <Icon name="arrow-left" data-icon="inline-start" />
+         {m.back}
+       </Link>
+       <p className="text-body">
+diff --git a/studio/apps/web/src/lib/session.ts b/studio/apps/web/src/lib/session.ts
+index 56bf9cd9..116f9a3a 100644
+--- a/studio/apps/web/src/lib/session.ts
++++ b/studio/apps/web/src/lib/session.ts
+@@ -2,7 +2,7 @@
+ // SPDX-License-Identifier: AGPL-3.0-only
+
+ import type { Transport } from "@connectrpc/connect";
+-import { createStudioTransport, withStudioHeaders } from "@plux/api";
++import { createStudioTransport, NotificationService, PreferencesService, withStudioHeaders } from "@plux/api";
+ import { QueryClient } from "@tanstack/react-query";
+
+ /**
+@@ -13,16 +13,34 @@ export interface Session {
+   readonly transport: Transport;
+   readonly queryClient: QueryClient;
+   readonly setCsrfToken: (token: string | undefined) => void;
++  /** Names the organisation of the page in every request; undefined on a page outside any. */
+   readonly setOrganization: (id: string | undefined) => void;
+   /** The organisation requests name, if any. */
+   readonly organization: () => string | undefined;
++  /**
++   * The person's home organisation: the last one a page named, kept on the pages outside any (the profile, the
++   * installation). The sidebar shows its navigation, and the person's own preferences and inbox are read in it.
++   */
++  readonly home: () => string | undefined;
++  /** Sets the home organisation, after a reload on a page outside any. */
++  readonly setHome: (id: string | undefined) => void;
+ }
+
++/**
++ * The services whose calls are the person's own rather than the page's: preferences and the inbox are kept per
++ * organisation on the server, and a page outside any still reads them in the home organisation.
++ */
++const personal: ReadonlySet<string> = new Set([PreferencesService.typeName, NotificationService.typeName]);
++
+ /** Creates the session; tests pass their own transport, which gets the same headers. */
+ export function createSession(baseUrl: string, transport?: Transport): Session {
+   let csrf: string | undefined;
+   let organization: string | undefined;
+-  const headers = { csrfToken: () => csrf, organization: () => organization };
++  let home: string | undefined;
++  const headers = {
++    csrfToken: () => csrf,
++    organization: (service: string) => organization ?? (personal.has(service) ? home : undefined),
++  };
+   return {
+     transport:
+       transport === undefined ? createStudioTransport({ baseUrl, ...headers }) : withStudioHeaders(transport, headers),
+@@ -32,8 +50,15 @@ export function createSession(baseUrl: string, transport?: Transport): Session {
+     },
+     setOrganization: (id) => {
+       organization = id;
++      if (id !== undefined) {
++        home = id;
++      }
+     },
+     organization: () => organization,
++    home: () => home,
++    setHome: (id) => {
++      home = id;
++    },
+   };
+ }
+
+diff --git a/studio/apps/web/src/locales/ar/messages.po b/studio/apps/web/src/locales/ar/messages.po
+index 87ec34b5..9b76410c 100644
+--- a/studio/apps/web/src/locales/ar/messages.po
++++ b/studio/apps/web/src/locales/ar/messages.po
+@@ -5974,6 +5974,12 @@ msgstr "الارتفاع (بكسل منطقي)"
+ msgid "help.menu"
+ msgstr "المساعدة"
+
++#. Accessible name of the links in the page footer.
++#. js-lingui-explicit-id
++#: apps/web/src/features/shell/shell-chrome.messages.ts
++msgid "chrome.footer.label"
++msgstr "روابط المساعدة"
++
+ #. Label on a node whose content is never recorded.
+ #. js-lingui-explicit-id
+ #: apps/web/src/features/analytics/analytics.messages.ts
+@@ -15838,6 +15844,12 @@ msgstr "الإصدار {n} بواسطة {who}"
+ msgid "library.adopt.done"
+ msgstr "تم اعتماد الإصدار {n}."
+
++#. Footer of every page: the Studio version loaded in this tab.
++#. js-lingui-explicit-id
++#: apps/web/src/features/shell/shell-chrome.messages.ts
++msgid "chrome.footer.version"
++msgstr "الإصدار {version}"
++
+ #. Version a publish job built.
+ #. js-lingui-explicit-id
+ #: apps/web/src/features/publish/publish.messages.ts
+diff --git a/studio/apps/web/src/locales/de/messages.po b/studio/apps/web/src/locales/de/messages.po
+index 388af89c..e61948eb 100644
+--- a/studio/apps/web/src/locales/de/messages.po
++++ b/studio/apps/web/src/locales/de/messages.po
+@@ -5974,6 +5974,12 @@ msgstr "Höhe (logische Pixel)"
+ msgid "help.menu"
+ msgstr "Hilfe"
+
++#. Accessible name of the links in the page footer.
++#. js-lingui-explicit-id
++#: apps/web/src/features/shell/shell-chrome.messages.ts
++msgid "chrome.footer.label"
++msgstr "Hilfelinks"
++
+ #. Label on a node whose content is never recorded.
+ #. js-lingui-explicit-id
+ #: apps/web/src/features/analytics/analytics.messages.ts
+@@ -15838,6 +15844,12 @@ msgstr "Version {n} von {who}"
+ msgid "library.adopt.done"
+ msgstr "Version {n} wurde übernommen."
+
++#. Footer of every page: the Studio version loaded in this tab.
++#. js-lingui-explicit-id
++#: apps/web/src/features/shell/shell-chrome.messages.ts
++msgid "chrome.footer.version"
++msgstr "Version {version}"
++
+ #. Version a publish job built.
+ #. js-lingui-explicit-id
+ #: apps/web/src/features/publish/publish.messages.ts
+diff --git a/studio/apps/web/src/locales/en/messages.po b/studio/apps/web/src/locales/en/messages.po
+index 3cbbb7da..f3f3cc1b 100644
+--- a/studio/apps/web/src/locales/en/messages.po
++++ b/studio/apps/web/src/locales/en/messages.po
+@@ -5974,6 +5974,12 @@ msgstr "Height (logical pixels)"
+ msgid "help.menu"
+ msgstr "Help"
+
++#. Accessible name of the links in the page footer.
++#. js-lingui-explicit-id
++#: apps/web/src/features/shell/shell-chrome.messages.ts
++msgid "chrome.footer.label"
++msgstr "Help links"
++
+ #. Label on a node whose content is never recorded.
+ #. js-lingui-explicit-id
+ #: apps/web/src/features/analytics/analytics.messages.ts
+@@ -15838,6 +15844,12 @@ msgstr "Version {n} by {who}"
+ msgid "library.adopt.done"
+ msgstr "Version {n} is adopted."
+
++#. Footer of every page: the Studio version loaded in this tab.
++#. js-lingui-explicit-id
++#: apps/web/src/features/shell/shell-chrome.messages.ts
++msgid "chrome.footer.version"
++msgstr "Version {version}"
++
+ #. Version a publish job built.
+ #. js-lingui-explicit-id
+ #: apps/web/src/features/publish/publish.messages.ts
+diff --git a/studio/apps/web/src/router.tsx b/studio/apps/web/src/router.tsx
+index dc504126..310a4fde 100644
+--- a/studio/apps/web/src/router.tsx
++++ b/studio/apps/web/src/router.tsx
+@@ -70,12 +70,11 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
+     if (context.webgl2 === false && location.pathname !== "/unsupported") {
+       throw redirect({ to: "/unsupported" });
+     }
+-    // Before any layout renders and calls the server: the shell asks for the organisation's preferences while the
+-    // organisation's own guard is still checking membership (which still answers 404 to a stranger).
++    // The one place requests get their organisation: the page's own, from the URL, before any layout renders and calls
++    // the server; none on a page outside one (the installation's state is read without any). The organisation's guard
++    // still checks membership and answers 404 to a stranger.
+     const org = /^\/o\/([^/]+)/.exec(location.pathname)?.[1];
+-    if (org !== undefined) {
+-      context.session.setOrganization(organizationIdOf(org));
+-    }
++    context.session.setOrganization(org === undefined ? undefined : organizationIdOf(org));
+   },
+   component: Outlet,
+   notFoundComponent: NotFoundPage,
+@@ -105,13 +104,14 @@ async function enterOrganization(
+ }
+
+ /**
+- * The person's own pages stay in the organisation they came from, or their first after a reload: preferences are
+- * stored per organisation, and the sidebar keeps its navigation.
++ * Every signed-in page has a home organisation: the last one the person was in, or their first after a reload on a
++ * page outside any. The sidebar keeps its navigation there, and the person's preferences and inbox are read in it.
+  */
+-function keepOrganization(context: { readonly session: Session; readonly user: GetCurrentUserResponse }) {
+-  const current = context.session.organization();
+-  const member = context.user.memberships.some((m) => m.organizationId === current);
+-  context.session.setOrganization(member ? current : context.user.memberships[0]?.organizationId);
++function keepHome(context: { readonly session: Session; readonly user: GetCurrentUserResponse }) {
++  const home = context.session.home();
++  if (!context.user.memberships.some((m) => m.organizationId === home)) {
++    context.session.setHome(context.user.memberships[0]?.organizationId);
++  }
+ }
+
+ const publicLayout = createRoute({ getParentRoute: () => rootRoute, id: "public", component: PublicLayout });
+@@ -146,7 +146,11 @@ const unsupportedRoute = createRoute({
+ const shellLayout = createRoute({
+   getParentRoute: () => rootRoute,
+   id: "shell",
+-  beforeLoad: async ({ context, location }) => ({ user: await requireUser(context.session, location.href) }),
++  beforeLoad: async ({ context, location }) => {
++    const user = await requireUser(context.session, location.href);
++    keepHome({ session: context.session, user });
++    return { user };
++  },
+   component: ShellLayout,
+ });
+
+@@ -165,14 +169,12 @@ const personalHomeRoute = createRoute({
+ const profileRoute = createRoute({
+   getParentRoute: () => shellLayout,
+   path: "/me",
+-  beforeLoad: ({ context }) => keepOrganization(context),
+   component: lazyRouteComponent(() => import("./features/profile/index.ts"), "ProfilePage"),
+ });
+
+ const shortcutsRoute = createRoute({
+   getParentRoute: () => shellLayout,
+   path: "/me/shortcuts",
+-  beforeLoad: ({ context }) => keepOrganization(context),
+   component: lazyRouteComponent(() => import("./features/profile/index.ts"), "ShortcutsPage"),
+ });
+
+@@ -425,10 +427,7 @@ function installationRoute(path: string, component: keyof typeof import("./featu
+   return createRoute({
+     getParentRoute: () => shellLayout,
+     path: `/installation${path}`,
+-    beforeLoad: ({ context }) => {
+-      requireInstallationAdmin(context.user);
+-      context.session.setOrganization(undefined);
+-    },
++    beforeLoad: ({ context }) => requireInstallationAdmin(context.user),
+     component: lazyRouteComponent(() => import("./features/installation/index.ts"), component),
+   });
+ }
+diff --git a/studio/apps/web/src/styles/app.css b/studio/apps/web/src/styles/app.css
+index ac319919..9c15ee0d 100644
+--- a/studio/apps/web/src/styles/app.css
++++ b/studio/apps/web/src/styles/app.css
+@@ -7,6 +7,8 @@
+ @import "./shadcn.css";
+ @import "./fonts.css";
+ @import "./theme.gen.css";
++/* Studio's colour wash, elevation and frosted glass on shadcn's surfaces. */
++@import "./surfaces.css";
+ /* sonner's own stylesheet: its runtime <style> injection is disabled (vite.config.ts, CSP §11.2). */
+ @import "@plux/ui/toast.css";
+
+diff --git a/studio/apps/web/src/styles/surfaces.css b/studio/apps/web/src/styles/surfaces.css
+new file mode 100644
+index 00000000..2c9f8c79
+--- /dev/null
++++ b/studio/apps/web/src/styles/surfaces.css
+@@ -0,0 +1,181 @@
++/* SPDX-FileCopyrightText: 2026 Plux contributors */
++/* SPDX-License-Identifier: AGPL-3.0-only */
++
++/*
++ * Studio's surfaces on top of shadcn's components (ADR-0103, amended 2026-10-31): a soft wash of colour behind the
++ * pages, elevation shadows for cards and popups, and frosted glass for everything that floats (the header, menus,
++ * popovers, selects, hover cards and dialogs). The components stay shadcn's; this file only styles their data-slots.
++ * The contrast theme, forced colours and reduced transparency get solid surfaces without blur.
++ */
++
++:root {
++  --link: var(--primary);
++  --elevation-1: 0 1px 2px oklch(0.25 0.04 272 / 5%), 0 2px 6px -2px oklch(0.25 0.05 272 / 8%);
++  --elevation-2: 0 1px 2px oklch(0.25 0.04 272 / 5%), 0 10px 24px -10px oklch(0.3 0.09 276 / 22%);
++  --elevation-3: 0 4px 10px -4px oklch(0.25 0.05 272 / 10%), 0 22px 48px -16px oklch(0.3 0.1 276 / 30%);
++  --glass-fill: color-mix(in oklch, var(--popover) 84%, transparent);
++  --glass-edge: color-mix(in oklch, var(--foreground) 9%, transparent);
++  --glass-blur: blur(20px) saturate(1.7);
++  --wash-1: oklch(0.7 0.17 276 / 24%);
++  --wash-2: oklch(0.74 0.16 305 / 18%);
++  --wash-3: oklch(0.8 0.12 190 / 18%);
++}
++
++[data-theme="dark"] {
++  --link: oklch(0.76 0.14 277);
++  --elevation-1: 0 1px 2px oklch(0 0 0 / 30%), 0 2px 8px -2px oklch(0 0 0 / 30%);
++  --elevation-2: 0 1px 2px oklch(0 0 0 / 30%), 0 12px 28px -10px oklch(0 0 0 / 55%);
++  --elevation-3: 0 4px 12px -4px oklch(0 0 0 / 40%), 0 24px 56px -16px oklch(0 0 0 / 65%);
++  --glass-fill: color-mix(in oklch, var(--popover) 80%, transparent);
++  --glass-edge: oklch(1 0 0 / 9%);
++  --wash-1: oklch(0.5 0.2 276 / 22%);
++  --wash-2: oklch(0.5 0.2 300 / 14%);
++  --wash-3: oklch(0.55 0.12 190 / 10%);
++}
++
++/* The page: a few soft pools of indigo, violet and teal under the content, fixed while it scrolls. */
++[data-slot="sidebar-inset"] {
++  background:
++    radial-gradient(60rem 36rem at 85% -10%, var(--wash-1), transparent 70%),
++    radial-gradient(48rem 32rem at -10% 30%, var(--wash-2), transparent 70%),
++    radial-gradient(52rem 30rem at 70% 110%, var(--wash-3), transparent 70%), var(--background);
++  background-attachment: fixed;
++}
++
++/* Cards lift off the page. */
++[data-slot="card"] {
++  box-shadow: var(--elevation-1);
++}
++
++/* What floats is frosted glass: the page shows through, blurred. */
++[data-slot="popover-content"],
++[data-slot="dropdown-menu-content"],
++[data-slot="select-content"],
++[data-slot="hover-card-content"],
++[data-slot="dialog-content"],
++[data-slot="alert-dialog-content"],
++[data-slot="sheet-content"] {
++  background-color: var(--glass-fill);
++  backdrop-filter: var(--glass-blur);
++  box-shadow:
++    0 0 0 1px var(--glass-edge),
++    var(--elevation-3);
++}
++
++/* The header stays at the top of the page, frosted over what scrolls under it. */
++.site-header {
++  background-color: color-mix(in oklch, var(--background) 70%, transparent);
++  backdrop-filter: var(--glass-blur);
++}
++
++/* The sidebar's own surface carries a hint of the same colour. */
++[data-slot="sidebar-wrapper"] {
++  background: radial-gradient(28rem 24rem at 0% 0%, var(--wash-1), transparent 70%), var(--sidebar);
++}
++
++[data-theme="contrast"] {
++  --link: oklch(0 0 0);
++  --glass-fill: var(--popover);
++  --glass-edge: var(--border);
++  --glass-blur: none;
++  --wash-1: transparent;
++  --wash-2: transparent;
++  --wash-3: transparent;
++}
++
++@media (prefers-reduced-transparency: reduce) {
++  :root {
++    --glass-fill: var(--popover);
++    --glass-blur: none;
++  }
++
++  .site-header {
++    background-color: var(--background);
++  }
++}
++
++@media (forced-colors: active) {
++  :root {
++    --glass-blur: none;
++  }
++}
++
++/* A link in running text or a table cell, written without classes, reads as a link in every theme. */
++@layer base {
++  a:not([class]) {
++    color: var(--link);
++    font-weight: 500;
++    text-underline-offset: 4px;
++  }
++
++  a:not([class]):hover,
++  a:not([class]):focus-visible {
++    text-decoration: underline;
++  }
++}
++
++/* The pages of an area, side by side: shadcn's tab strip, the current page raised. */
++.sub-nav {
++  display: inline-flex;
++  flex-wrap: wrap;
++  align-items: center;
++  gap: calc(var(--spacing) * 1);
++  align-self: flex-start;
++  padding: calc(var(--spacing) * 1);
++  border-radius: var(--radius-lg);
++  background-color: var(--muted);
++}
++
++.sub-nav > a {
++  padding-block: calc(var(--spacing) * 1);
++  padding-inline: calc(var(--spacing) * 3);
++  border-radius: var(--radius-md);
++  color: var(--muted-foreground);
++  font-size: var(--text-sm);
++  font-weight: 500;
++  transition:
++    color var(--duration-fast) ease,
++    background-color var(--duration-fast) ease;
++}
++
++.sub-nav > a:hover {
++  color: var(--foreground);
++}
++
++.sub-nav > a[data-status="active"] {
++  color: var(--foreground);
++  background-color: var(--background);
++  box-shadow: var(--elevation-1);
++}
++
++/*
++ * The native controls a few dense editors keep (checkboxes, radios, ranges, file pickers) take the theme's primary
++ * colour and shadcn's sizes, so they read as part of the same set as the shadcn components beside them.
++ */
++@layer base {
++  input[type="checkbox"],
++  input[type="radio"],
++  input[type="range"] {
++    accent-color: var(--primary);
++  }
++
++  input[type="checkbox"],
++  input[type="radio"] {
++    inline-size: calc(var(--spacing) * 4);
++    block-size: calc(var(--spacing) * 4);
++    cursor: pointer;
++  }
++
++  input[type="file"]::file-selector-button {
++    margin-inline-end: calc(var(--spacing) * 3);
++    padding-block: calc(var(--spacing) * 1);
++    padding-inline: calc(var(--spacing) * 3);
++    border: 1px solid var(--border);
++    border-radius: var(--radius-md);
++    background-color: var(--background);
++    color: var(--foreground);
++    font-size: var(--text-sm);
++    font-weight: 500;
++    cursor: pointer;
++  }
++}
+diff --git a/studio/apps/web/src/styles/theme.gen.css b/studio/apps/web/src/styles/theme.gen.css
+index 0db0fe84..b753faa1 100644
+--- a/studio/apps/web/src/styles/theme.gen.css
++++ b/studio/apps/web/src/styles/theme.gen.css
+@@ -183,37 +183,37 @@
+
+ :root {
+   --radius: 0.625rem;
+-  --background: oklch(1 0 0);
+-  --foreground: oklch(0.145 0 0);
++  --background: oklch(0.982 0.005 264);
++  --foreground: oklch(0.148 0.004 228.8);
+   --card: oklch(1 0 0);
+-  --card-foreground: oklch(0.145 0 0);
++  --card-foreground: oklch(0.148 0.004 228.8);
+   --popover: oklch(1 0 0);
+-  --popover-foreground: oklch(0.145 0 0);
+-  --primary: oklch(0.205 0 0);
+-  --primary-foreground: oklch(0.985 0 0);
+-  --secondary: oklch(0.97 0 0);
+-  --secondary-foreground: oklch(0.205 0 0);
+-  --muted: oklch(0.97 0 0);
+-  --muted-foreground: oklch(0.556 0 0);
+-  --accent: oklch(0.97 0 0);
+-  --accent-foreground: oklch(0.205 0 0);
++  --popover-foreground: oklch(0.148 0.004 228.8);
++  --primary: oklch(0.511 0.262 276.966);
++  --primary-foreground: oklch(0.962 0.018 272.314);
++  --secondary: oklch(0.96 0.008 268);
++  --secondary-foreground: oklch(0.218 0.008 223.9);
++  --muted: oklch(0.96 0.006 264);
++  --muted-foreground: oklch(0.5 0.022 262);
++  --accent: oklch(0.95 0.028 276);
++  --accent-foreground: oklch(0.398 0.195 277.366);
+   --destructive: oklch(0.577 0.245 27.325);
+-  --border: oklch(0.922 0 0);
+-  --input: oklch(0.922 0 0);
+-  --ring: oklch(0.708 0 0);
+-  --chart-1: oklch(0.87 0 0);
+-  --chart-2: oklch(0.556 0 0);
+-  --chart-3: oklch(0.439 0 0);
+-  --chart-4: oklch(0.371 0 0);
+-  --chart-5: oklch(0.269 0 0);
+-  --sidebar: oklch(0.985 0 0);
+-  --sidebar-foreground: oklch(0.145 0 0);
+-  --sidebar-primary: oklch(0.205 0 0);
+-  --sidebar-primary-foreground: oklch(0.985 0 0);
+-  --sidebar-accent: oklch(0.97 0 0);
+-  --sidebar-accent-foreground: oklch(0.205 0 0);
+-  --sidebar-border: oklch(0.922 0 0);
+-  --sidebar-ring: oklch(0.708 0 0);
++  --border: oklch(0.91 0.009 266);
++  --input: oklch(0.89 0.01 266);
++  --ring: oklch(0.585 0.233 277.117);
++  --chart-1: oklch(0.585 0.233 277.117);
++  --chart-2: oklch(0.606 0.25 292.717);
++  --chart-3: oklch(0.6 0.118 184.704);
++  --chart-4: oklch(0.769 0.188 70.08);
++  --chart-5: oklch(0.645 0.246 16.439);
++  --sidebar: oklch(0.968 0.01 270);
++  --sidebar-foreground: oklch(0.148 0.004 228.8);
++  --sidebar-primary: oklch(0.511 0.262 276.966);
++  --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
++  --sidebar-accent: oklch(0.93 0.035 276);
++  --sidebar-accent-foreground: oklch(0.359 0.144 278.697);
++  --sidebar-border: oklch(0.91 0.012 270);
++  --sidebar-ring: oklch(0.585 0.233 277.117);
+   --density-capsule: 48px;
+   --density-capsule-button: 36px;
+   --density-field: 30px;
+@@ -238,15 +238,19 @@
+ /* The contrast theme applies on request of the system; an explicit theme below wins (STU-011). */
+ @media (prefers-contrast: more) {
+   :root {
++    --background: oklch(1 0 0);
+     --foreground: oklch(0 0 0);
+     --card-foreground: oklch(0 0 0);
+     --popover-foreground: oklch(0 0 0);
+     --primary: oklch(0 0 0);
+     --muted-foreground: oklch(0.35 0 0);
++    --accent-foreground: oklch(0 0 0);
+     --border: oklch(0.45 0 0);
+     --input: oklch(0.45 0 0);
+     --ring: oklch(0 0 0);
++    --sidebar: oklch(1 0 0);
+     --sidebar-foreground: oklch(0 0 0);
++    --sidebar-accent-foreground: oklch(0 0 0);
+     --sidebar-border: oklch(0.45 0 0);
+     --color-selection: #4A2DE6;
+     --color-selection-text: #3A22B8;
+@@ -286,37 +290,37 @@
+ }
+
+ [data-theme=dark] {
+-  --background: oklch(0.145 0 0);
+-  --foreground: oklch(0.985 0 0);
+-  --card: oklch(0.205 0 0);
+-  --card-foreground: oklch(0.985 0 0);
+-  --popover: oklch(0.205 0 0);
+-  --popover-foreground: oklch(0.985 0 0);
+-  --primary: oklch(0.922 0 0);
+-  --primary-foreground: oklch(0.205 0 0);
+-  --secondary: oklch(0.269 0 0);
+-  --secondary-foreground: oklch(0.985 0 0);
+-  --muted: oklch(0.269 0 0);
+-  --muted-foreground: oklch(0.708 0 0);
+-  --accent: oklch(0.269 0 0);
+-  --accent-foreground: oklch(0.985 0 0);
++  --background: oklch(0.145 0.014 272);
++  --foreground: oklch(0.985 0.002 264);
++  --card: oklch(0.192 0.018 274);
++  --card-foreground: oklch(0.985 0.002 264);
++  --popover: oklch(0.205 0.02 274);
++  --popover-foreground: oklch(0.985 0.002 264);
++  --primary: oklch(0.511 0.262 276.966);
++  --primary-foreground: oklch(0.985 0 0);
++  --secondary: oklch(0.26 0.022 274);
++  --secondary-foreground: oklch(0.985 0.002 264);
++  --muted: oklch(0.26 0.02 274);
++  --muted-foreground: oklch(0.74 0.02 266);
++  --accent: oklch(0.29 0.06 277);
++  --accent-foreground: oklch(0.93 0.035 276);
+   --destructive: oklch(0.704 0.191 22.216);
+   --border: oklch(1 0 0 / 10%);
+   --input: oklch(1 0 0 / 15%);
+-  --ring: oklch(0.556 0 0);
+-  --chart-1: oklch(0.87 0 0);
+-  --chart-2: oklch(0.556 0 0);
+-  --chart-3: oklch(0.439 0 0);
+-  --chart-4: oklch(0.371 0 0);
+-  --chart-5: oklch(0.269 0 0);
+-  --sidebar: oklch(0.205 0 0);
+-  --sidebar-foreground: oklch(0.985 0 0);
+-  --sidebar-primary: oklch(0.488 0.243 264.376);
++  --ring: oklch(0.585 0.233 277.117);
++  --chart-1: oklch(0.673 0.182 276.935);
++  --chart-2: oklch(0.702 0.183 293.541);
++  --chart-3: oklch(0.704 0.14 182.503);
++  --chart-4: oklch(0.828 0.189 84.429);
++  --chart-5: oklch(0.712 0.194 13.428);
++  --sidebar: oklch(0.172 0.016 273);
++  --sidebar-foreground: oklch(0.985 0.002 264);
++  --sidebar-primary: oklch(0.511 0.262 276.966);
+   --sidebar-primary-foreground: oklch(0.985 0 0);
+-  --sidebar-accent: oklch(0.269 0 0);
+-  --sidebar-accent-foreground: oklch(0.985 0 0);
++  --sidebar-accent: oklch(0.27 0.055 277);
++  --sidebar-accent-foreground: oklch(0.95 0.02 276);
+   --sidebar-border: oklch(1 0 0 / 10%);
+-  --sidebar-ring: oklch(0.556 0 0);
++  --sidebar-ring: oklch(0.585 0.233 277.117);
+   --color-brand-ink: #F5F6FA;
+   --color-brand-violet: #8B74FF;
+   --color-brand-violet-subtle: #2A2250;
+@@ -340,15 +344,19 @@
+ }
+
+ [data-theme=contrast] {
++  --background: oklch(1 0 0);
+   --foreground: oklch(0 0 0);
+   --card-foreground: oklch(0 0 0);
+   --popover-foreground: oklch(0 0 0);
+   --primary: oklch(0 0 0);
+   --muted-foreground: oklch(0.35 0 0);
++  --accent-foreground: oklch(0 0 0);
+   --border: oklch(0.45 0 0);
+   --input: oklch(0.45 0 0);
+   --ring: oklch(0 0 0);
++  --sidebar: oklch(1 0 0);
+   --sidebar-foreground: oklch(0 0 0);
++  --sidebar-accent-foreground: oklch(0 0 0);
+   --sidebar-border: oklch(0.45 0 0);
+   --color-selection: #4A2DE6;
+   --color-selection-text: #3A22B8;
+diff --git a/studio/packages/api/src/transport.test.ts b/studio/packages/api/src/transport.test.ts
+index 2a18d226..7578d608 100644
+--- a/studio/packages/api/src/transport.test.ts
++++ b/studio/packages/api/src/transport.test.ts
+@@ -12,7 +12,7 @@ async function run(csrf: string | undefined, org: string | undefined): Promise<H
+     seen.push(req.header);
+     return {} as never;
+   }) as never;
+-  const req = { header: new Headers() } as UnaryRequest;
++  const req = { header: new Headers(), service: AppService } as unknown as UnaryRequest;
+   await headerInterceptor({ csrfToken: () => csrf, organization: () => org })(next)(req);
+   return seen[0] as Headers;
+ }
+diff --git a/studio/packages/api/src/transport.ts b/studio/packages/api/src/transport.ts
+index e9fa1e63..f8e8128d 100644
+--- a/studio/packages/api/src/transport.ts
++++ b/studio/packages/api/src/transport.ts
+@@ -12,18 +12,18 @@ export interface StudioTransportOptions {
+   baseUrl: string;
+   /** The session's CSRF token, read from memory on every call (SEC-101). */
+   csrfToken: () => string | undefined;
+-  /** The active organisation, read on every call. */
+-  organization: () => string | undefined;
++  /** The organisation a call to `service` (its full type name) names, read on every call. */
++  organization: (service: string) => string | undefined;
+ }
+
+ type HeaderOptions = Pick<StudioTransportOptions, "csrfToken" | "organization">;
+
+-function setHeaders(header: Headers, options: HeaderOptions): Headers {
++function setHeaders(header: Headers, service: string, options: HeaderOptions): Headers {
+   const csrf = options.csrfToken();
+   if (csrf) {
+     header.set(CSRF_HEADER, csrf);
+   }
+-  const organization = options.organization();
++  const organization = options.organization(service);
+   if (organization) {
+     header.set(ORGANIZATION_HEADER, organization);
+   }
+@@ -33,7 +33,7 @@ function setHeaders(header: Headers, options: HeaderOptions): Headers {
+ /** Sets the CSRF and organisation headers when a value is present. */
+ export function headerInterceptor(options: HeaderOptions): Interceptor {
+   return (next) => (req) => {
+-    setHeaders(req.header, options);
++    setHeaders(req.header, req.service.typeName, options);
+     return next(req);
+   };
+ }
+@@ -42,9 +42,23 @@ export function headerInterceptor(options: HeaderOptions): Interceptor {
+ export function withStudioHeaders(inner: Transport, options: HeaderOptions): Transport {
+   return {
+     unary: (method, signal, timeoutMs, header, input, context) =>
+-      inner.unary(method, signal, timeoutMs, setHeaders(new Headers(header), options), input, context),
++      inner.unary(
++        method,
++        signal,
++        timeoutMs,
++        setHeaders(new Headers(header), method.parent.typeName, options),
++        input,
++        context,
++      ),
+     stream: (method, signal, timeoutMs, header, input, context) =>
+-      inner.stream(method, signal, timeoutMs, setHeaders(new Headers(header), options), input, context),
++      inner.stream(
++        method,
++        signal,
++        timeoutMs,
++        setHeaders(new Headers(header), method.parent.typeName, options),
++        input,
++        context,
++      ),
+   };
+ }
+
+diff --git a/studio/packages/brand/src/contrast.ts b/studio/packages/brand/src/contrast.ts
+index 405d3b0e..befae834 100644
+--- a/studio/packages/brand/src/contrast.ts
++++ b/studio/packages/brand/src/contrast.ts
+@@ -35,6 +35,36 @@ export function relativeLuminance(color: string): number {
+   return 0.2126 * linearChannel(r) + 0.7152 * linearChannel(g) + 0.0722 * linearChannel(b);
+ }
+
++/**
++ * Returns the relative luminance of an opaque `oklch(L C H)` colour, as shadcn's theme writes them: OKLab to linear
++ * sRGB (Björn Ottosson's matrices), each channel clipped to the sRGB gamut.
++ */
++export function oklchLuminance(color: string): number {
++  const match = /^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/.exec(color);
++  if (match === null) {
++    throw new RangeError(`not an opaque oklch() colour: ${color}`);
++  }
++  const [l, c, h] = [Number(match[1]), Number(match[2]), (Number(match[3]) * Math.PI) / 180];
++  const a = c * Math.cos(h);
++  const b = c * Math.sin(h);
++  const l_ = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3;
++  const m_ = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3;
++  const s_ = (l - 0.0894841775 * a - 1.291485548 * b) ** 3;
++  const clip = (v: number) => Math.min(1, Math.max(0, v));
++  const r = clip(4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_);
++  const g = clip(-1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_);
++  const bl = clip(-0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_);
++  return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
++}
++
++/** Returns the WCAG contrast ratio of two `oklch()` colours, from 1 to 21. */
++export function oklchContrast(a: string, b: string): number {
++  const la = oklchLuminance(a);
++  const lb = oklchLuminance(b);
++  const [light, dark] = la >= lb ? [la, lb] : [lb, la];
++  return (light + 0.05) / (dark + 0.05);
++}
++
+ /** Returns the WCAG contrast ratio of two colours, from 1 to 21. */
+ export function contrastRatio(a: string, b: string): number {
+   const la = relativeLuminance(a);
+diff --git a/studio/packages/brand/src/shadcn-theme.ts b/studio/packages/brand/src/shadcn-theme.ts
+index ed635a1f..41d75a48 100644
+--- a/studio/packages/brand/src/shadcn-theme.ts
++++ b/studio/packages/brand/src/shadcn-theme.ts
+@@ -2,9 +2,11 @@
+ // SPDX-License-Identifier: AGPL-3.0-only
+
+ /**
+- * Studio's theme: shadcn/ui's stock `neutral` theme, as `shadcn init` writes it for the `base-nova` style (ADR-0103).
+- * The light and dark values are shadcn's own, copied unchanged from shadcn-ui/ui `apps/v4/registry/themes.ts` (MIT).
+- * Studio adds only what shadcn has no theme for: the contrast theme of `STU-011` and the status colours.
++ * Studio's theme (ADR-0103, amended 2026-10-31): shadcn/ui's `mist` base colour with its `indigo` theme, both from
++ * shadcn-ui/ui `apps/v4/registry/themes.ts` (MIT). On top, Studio tints the light page a cool off-white so white cards
++ * stand off it, gives hovers an indigo wash (`accent`), uses the indigo ring and five Tailwind hues for the charts, and
++ * lifts the dark theme's surfaces slightly towards indigo. It adds the contrast theme of `STU-011` and the status
++ * colours, which shadcn has no theme for.
+  */
+
+ export type ShadcnVariable =
+@@ -46,71 +48,71 @@ export type ShadcnTheme = Readonly<Record<ShadcnVariable, string>>;
+ export const shadcnRadius = "0.625rem";
+
+ export const shadcnLight: ShadcnTheme = {
+-  background: "oklch(1 0 0)",
+-  foreground: "oklch(0.145 0 0)",
++  background: "oklch(0.982 0.005 264)",
++  foreground: "oklch(0.148 0.004 228.8)",
+   card: "oklch(1 0 0)",
+-  "card-foreground": "oklch(0.145 0 0)",
++  "card-foreground": "oklch(0.148 0.004 228.8)",
+   popover: "oklch(1 0 0)",
+-  "popover-foreground": "oklch(0.145 0 0)",
+-  primary: "oklch(0.205 0 0)",
+-  "primary-foreground": "oklch(0.985 0 0)",
+-  secondary: "oklch(0.97 0 0)",
+-  "secondary-foreground": "oklch(0.205 0 0)",
+-  muted: "oklch(0.97 0 0)",
+-  "muted-foreground": "oklch(0.556 0 0)",
+-  accent: "oklch(0.97 0 0)",
+-  "accent-foreground": "oklch(0.205 0 0)",
++  "popover-foreground": "oklch(0.148 0.004 228.8)",
++  primary: "oklch(0.511 0.262 276.966)",
++  "primary-foreground": "oklch(0.962 0.018 272.314)",
++  secondary: "oklch(0.96 0.008 268)",
++  "secondary-foreground": "oklch(0.218 0.008 223.9)",
++  muted: "oklch(0.96 0.006 264)",
++  "muted-foreground": "oklch(0.5 0.022 262)",
++  accent: "oklch(0.95 0.028 276)",
++  "accent-foreground": "oklch(0.398 0.195 277.366)",
+   destructive: "oklch(0.577 0.245 27.325)",
+-  border: "oklch(0.922 0 0)",
+-  input: "oklch(0.922 0 0)",
+-  ring: "oklch(0.708 0 0)",
+-  "chart-1": "oklch(0.87 0 0)",
+-  "chart-2": "oklch(0.556 0 0)",
+-  "chart-3": "oklch(0.439 0 0)",
+-  "chart-4": "oklch(0.371 0 0)",
+-  "chart-5": "oklch(0.269 0 0)",
+-  sidebar: "oklch(0.985 0 0)",
+-  "sidebar-foreground": "oklch(0.145 0 0)",
+-  "sidebar-primary": "oklch(0.205 0 0)",
+-  "sidebar-primary-foreground": "oklch(0.985 0 0)",
+-  "sidebar-accent": "oklch(0.97 0 0)",
+-  "sidebar-accent-foreground": "oklch(0.205 0 0)",
+-  "sidebar-border": "oklch(0.922 0 0)",
+-  "sidebar-ring": "oklch(0.708 0 0)",
++  border: "oklch(0.91 0.009 266)",
++  input: "oklch(0.89 0.01 266)",
++  ring: "oklch(0.585 0.233 277.117)",
++  "chart-1": "oklch(0.585 0.233 277.117)",
++  "chart-2": "oklch(0.606 0.25 292.717)",
++  "chart-3": "oklch(0.6 0.118 184.704)",
++  "chart-4": "oklch(0.769 0.188 70.08)",
++  "chart-5": "oklch(0.645 0.246 16.439)",
++  sidebar: "oklch(0.968 0.01 270)",
++  "sidebar-foreground": "oklch(0.148 0.004 228.8)",
++  "sidebar-primary": "oklch(0.511 0.262 276.966)",
++  "sidebar-primary-foreground": "oklch(0.962 0.018 272.314)",
++  "sidebar-accent": "oklch(0.93 0.035 276)",
++  "sidebar-accent-foreground": "oklch(0.359 0.144 278.697)",
++  "sidebar-border": "oklch(0.91 0.012 270)",
++  "sidebar-ring": "oklch(0.585 0.233 277.117)",
+ };
+
+ export const shadcnDark: ShadcnTheme = {
+-  background: "oklch(0.145 0 0)",
+-  foreground: "oklch(0.985 0 0)",
+-  card: "oklch(0.205 0 0)",
+-  "card-foreground": "oklch(0.985 0 0)",
+-  popover: "oklch(0.205 0 0)",
+-  "popover-foreground": "oklch(0.985 0 0)",
+-  primary: "oklch(0.922 0 0)",
+-  "primary-foreground": "oklch(0.205 0 0)",
+-  secondary: "oklch(0.269 0 0)",
+-  "secondary-foreground": "oklch(0.985 0 0)",
+-  muted: "oklch(0.269 0 0)",
+-  "muted-foreground": "oklch(0.708 0 0)",
+-  accent: "oklch(0.269 0 0)",
+-  "accent-foreground": "oklch(0.985 0 0)",
++  background: "oklch(0.145 0.014 272)",
++  foreground: "oklch(0.985 0.002 264)",
++  card: "oklch(0.192 0.018 274)",
++  "card-foreground": "oklch(0.985 0.002 264)",
++  popover: "oklch(0.205 0.02 274)",
++  "popover-foreground": "oklch(0.985 0.002 264)",
++  primary: "oklch(0.511 0.262 276.966)",
++  "primary-foreground": "oklch(0.985 0 0)",
++  secondary: "oklch(0.26 0.022 274)",
++  "secondary-foreground": "oklch(0.985 0.002 264)",
++  muted: "oklch(0.26 0.02 274)",
++  "muted-foreground": "oklch(0.74 0.02 266)",
++  accent: "oklch(0.29 0.06 277)",
++  "accent-foreground": "oklch(0.93 0.035 276)",
+   destructive: "oklch(0.704 0.191 22.216)",
+   border: "oklch(1 0 0 / 10%)",
+   input: "oklch(1 0 0 / 15%)",
+-  ring: "oklch(0.556 0 0)",
+-  "chart-1": "oklch(0.87 0 0)",
+-  "chart-2": "oklch(0.556 0 0)",
+-  "chart-3": "oklch(0.439 0 0)",
+-  "chart-4": "oklch(0.371 0 0)",
+-  "chart-5": "oklch(0.269 0 0)",
+-  sidebar: "oklch(0.205 0 0)",
+-  "sidebar-foreground": "oklch(0.985 0 0)",
+-  "sidebar-primary": "oklch(0.488 0.243 264.376)",
++  ring: "oklch(0.585 0.233 277.117)",
++  "chart-1": "oklch(0.673 0.182 276.935)",
++  "chart-2": "oklch(0.702 0.183 293.541)",
++  "chart-3": "oklch(0.704 0.14 182.503)",
++  "chart-4": "oklch(0.828 0.189 84.429)",
++  "chart-5": "oklch(0.712 0.194 13.428)",
++  sidebar: "oklch(0.172 0.016 273)",
++  "sidebar-foreground": "oklch(0.985 0.002 264)",
++  "sidebar-primary": "oklch(0.511 0.262 276.966)",
+   "sidebar-primary-foreground": "oklch(0.985 0 0)",
+-  "sidebar-accent": "oklch(0.269 0 0)",
+-  "sidebar-accent-foreground": "oklch(0.985 0 0)",
++  "sidebar-accent": "oklch(0.27 0.055 277)",
++  "sidebar-accent-foreground": "oklch(0.95 0.02 276)",
+   "sidebar-border": "oklch(1 0 0 / 10%)",
+-  "sidebar-ring": "oklch(0.556 0 0)",
++  "sidebar-ring": "oklch(0.585 0.233 277.117)",
+ };
+
+ /**
+@@ -118,6 +120,10 @@ export const shadcnDark: ShadcnTheme = {
+  * reaches 7:1 or 3:1 against white. Only the values that differ from light are listed.
+  */
+ export const shadcnContrast: Partial<Record<ShadcnVariable, string>> = {
++  background: "oklch(1 0 0)",
++  sidebar: "oklch(1 0 0)",
++  "accent-foreground": "oklch(0 0 0)",
++  "sidebar-accent-foreground": "oklch(0 0 0)",
+   foreground: "oklch(0 0 0)",
+   "card-foreground": "oklch(0 0 0)",
+   "popover-foreground": "oklch(0 0 0)",
+diff --git a/studio/packages/brand/src/theme-css.test.ts b/studio/packages/brand/src/theme-css.test.ts
+index 270c80ef..5ddc9b3c 100644
+--- a/studio/packages/brand/src/theme-css.test.ts
++++ b/studio/packages/brand/src/theme-css.test.ts
+@@ -3,6 +3,7 @@
+
+ import { describe, expect, test } from "bun:test";
+
++import { minimumTextContrast, oklchContrast } from "./contrast.ts";
+ import { shadcnDark, shadcnLight } from "./shadcn-theme.ts";
+ import { themeCss } from "./theme-css.ts";
+ import { brandColors } from "./tokens.ts";
+@@ -10,7 +11,7 @@ import { brandColors } from "./tokens.ts";
+ describe("themeCss [STU-010] [STU-016]", () => {
+   const css = themeCss();
+
+-  test("declares shadcn's neutral theme in light and dark, unchanged", () => {
++  test("declares the theme of ADR-0103 in light and dark", () => {
+     for (const [name, value] of Object.entries(shadcnLight)) {
+       expect(css).toContain(`  --${name}: ${value};`);
+       expect(css).toContain(`  --color-${name}: var(--${name});`);
+@@ -52,6 +53,33 @@ describe("themeCss [STU-010] [STU-016]", () => {
+     expect(css).toContain("[data-theme=contrast] {");
+   });
+
++  test("text on every surface of both themes meets WCAG AA [STU-011]", () => {
++    const pairs = [
++      ["foreground", "background"],
++      ["foreground", "card"],
++      ["muted-foreground", "background"],
++      ["muted-foreground", "card"],
++      ["muted-foreground", "muted"],
++      ["primary-foreground", "primary"],
++      ["secondary-foreground", "secondary"],
++      ["accent-foreground", "accent"],
++      ["popover-foreground", "popover"],
++      ["sidebar-foreground", "sidebar"],
++      ["sidebar-accent-foreground", "sidebar-accent"],
++      ["sidebar-primary-foreground", "sidebar-primary"],
++    ] as const;
++    for (const theme of [shadcnLight, shadcnDark]) {
++      for (const [fg, bg] of pairs) {
++        expect([fg, bg, oklchContrast(theme[fg], theme[bg]) >= minimumTextContrast]).toEqual([fg, bg, true]);
++      }
++    }
++  });
++
++  test("the oklch contrast agrees with the hex one at the extremes", () => {
++    expect(oklchContrast("oklch(1 0 0)", "oklch(0 0 0)")).toBeCloseTo(21, 1);
++    expect(oklchContrast("oklch(0.5 0 0)", "oklch(0.5 0 0)")).toBe(1);
++  });
++
+   test("is deterministic", () => {
+     expect(themeCss()).toBe(themeCss());
+   });

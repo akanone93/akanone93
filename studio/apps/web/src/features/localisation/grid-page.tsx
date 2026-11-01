@@ -17,7 +17,10 @@ type Bulk = "approve" | "review" | "copy";
 function useSearchState(): [LocalisationSearch, (change: Partial<LocalisationSearch>) => void] {
   const search = useSearch({ strict: false }) as LocalisationSearch;
   const navigate = useNavigate();
-  return [search, (change) => void navigate({ to: ".", search: (prev: object) => ({ ...prev, ...change }) })];
+  return [
+    search,
+    (change) => void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, ...change }) }),
+  ];
 }
 
 function useStatusLabels() {

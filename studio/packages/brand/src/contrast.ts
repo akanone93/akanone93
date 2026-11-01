@@ -35,6 +35,36 @@ export function relativeLuminance(color: string): number {
   return 0.2126 * linearChannel(r) + 0.7152 * linearChannel(g) + 0.0722 * linearChannel(b);
 }
 
+/**
+ * Returns the relative luminance of an opaque `oklch(L C H)` colour, as shadcn's theme writes them: OKLab to linear
+ * sRGB (Björn Ottosson's matrices), each channel clipped to the sRGB gamut.
+ */
+export function oklchLuminance(color: string): number {
+  const match = /^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/.exec(color);
+  if (match === null) {
+    throw new RangeError(`not an opaque oklch() colour: ${color}`);
+  }
+  const [l, c, h] = [Number(match[1]), Number(match[2]), (Number(match[3]) * Math.PI) / 180];
+  const a = c * Math.cos(h);
+  const b = c * Math.sin(h);
+  const l_ = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m_ = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s_ = (l - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const clip = (v: number) => Math.min(1, Math.max(0, v));
+  const r = clip(4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_);
+  const g = clip(-1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_);
+  const bl = clip(-0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+}
+
+/** Returns the WCAG contrast ratio of two `oklch()` colours, from 1 to 21. */
+export function oklchContrast(a: string, b: string): number {
+  const la = oklchLuminance(a);
+  const lb = oklchLuminance(b);
+  const [light, dark] = la >= lb ? [la, lb] : [lb, la];
+  return (light + 0.05) / (dark + 0.05);
+}
+
 /** Returns the WCAG contrast ratio of two colours, from 1 to 21. */
 export function contrastRatio(a: string, b: string): number {
   const la = relativeLuminance(a);

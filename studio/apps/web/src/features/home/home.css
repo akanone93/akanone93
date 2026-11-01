@@ -33,14 +33,34 @@
   }
 }
 
-/* The figures: shadcn's section cards (dashboard-01), a faint wash of the primary colour from the foot. */
-.home-figures > [data-slot="card"] {
-  background-image: linear-gradient(to top, color-mix(in oklch, var(--primary) 5%, transparent), var(--card));
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+/* The figures: shadcn's section cards (dashboard-01), each marked by a small solid tile in its own chart colour. */
+.home-figures > [data-figure] {
+  --figure: var(--chart-1);
 }
 
-[data-theme="dark"] .home-figures > [data-slot="card"] {
-  background-image: none;
+.home-figures > [data-figure="2"] {
+  --figure: var(--chart-2);
+}
+
+.home-figures > [data-figure="3"] {
+  --figure: var(--chart-3);
+}
+
+.home-figures > [data-figure="4"] {
+  --figure: var(--chart-4);
+}
+
+.home-figure-icon {
+  display: inline-grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 6);
+  block-size: calc(var(--spacing) * 6);
+  border-radius: var(--radius-md);
+  color: oklch(1 0 0);
+  background-color: var(--figure);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 25%),
+    0 1px 2px oklch(0 0 0 / 15%);
 }
 
 /* The stack: a plane laid back in isometric view, the apps as layers standing above it. */
@@ -50,14 +70,6 @@
   overflow: clip;
   perspective: 2000px;
   perspective-origin: 50% 40%;
-}
-
-.hs-glow {
-  position: absolute;
-  inset: 12% 8%;
-  border-radius: 999px;
-  background: radial-gradient(closest-side, color-mix(in oklch, var(--foreground) 8%, transparent), transparent);
-  filter: blur(40px);
 }
 
 .hs-view {
@@ -81,7 +93,8 @@
 .hs-floor {
   position: absolute;
   inset: -40%;
-  background-image: radial-gradient(var(--border) 1.2px, transparent 1.6px);
+  /* The grid under the stack: tinted with the primary colour, so it shows on the light and the dark page alike. */
+  background-image: radial-gradient(color-mix(in oklch, var(--primary) 45%, transparent) 1.2px, transparent 1.6px);
   background-size: 18px 18px;
   mask-image: radial-gradient(closest-side, black 30%, transparent);
   opacity: 0.7;
@@ -108,7 +121,7 @@
     var(--surface-glass-sheen), linear-gradient(135deg, color-mix(in oklab, var(--tone) 78%, white), var(--tone));
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--tone) 70%, black) inset,
-    0 18px 30px -18px color-mix(in oklab, var(--tone) 80%, black);
+    var(--elevation-2);
   transition: transform var(--duration-slow) var(--ease-emphasized);
 }
 

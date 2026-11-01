@@ -146,6 +146,52 @@ const renderers: Readonly<Record<string, Render>> = {
 /** The event types this Studio can word; the profile lists them for muting. */
 export const knownTypes: readonly string[] = Object.keys(renderers);
 
+const nameComment = "Name of a notification type in the profile's notification settings.";
+
+/** The names of the event types, for the profile's notification settings. */
+function typeNames(i18n: I18n): Readonly<Record<string, string>> {
+  return {
+    "release.published": i18n._({
+      id: "notify.name.release.published",
+      message: "Publish finished",
+      comment: nameComment,
+    }),
+    "lock.requested": i18n._({
+      id: "notify.name.lock.requested",
+      message: "Editing lock requested",
+      comment: nameComment,
+    }),
+    "approval.requested": i18n._({
+      id: "notify.name.approval.requested",
+      message: "Approval requested",
+      comment: nameComment,
+    }),
+    "rollout.paused": i18n._({ id: "notify.name.rollout.paused", message: "Rollout paused", comment: nameComment }),
+    "function.failing": i18n._({
+      id: "notify.name.function.failing",
+      message: "Function failing",
+      comment: nameComment,
+    }),
+    "alert.fired": i18n._({ id: "notify.name.alert.fired", message: "Alert fired", comment: nameComment }),
+    "breakglass.used": i18n._({ id: "notify.name.breakglass.used", message: "Break-glass used", comment: nameComment }),
+    "breakglass.review_overdue": i18n._({
+      id: "notify.name.breakglass.review_overdue",
+      message: "Break-glass review overdue",
+      comment: nameComment,
+    }),
+    "licence.expiring": i18n._({
+      id: "notify.name.licence.expiring",
+      message: "Licence expiring",
+      comment: nameComment,
+    }),
+  };
+}
+
+/** The name of an event type; a type this Studio does not know keeps its key. */
+export function typeName(i18n: I18n, eventType: string): string {
+  return typeNames(i18n)[eventType] ?? eventType;
+}
+
 /** Text rendered at display time from the type and its typed parameters; never stored text (O-18). */
 export function describe(i18n: I18n, item: InboxLike, count: number): string {
   const render = renderers[item.eventType];

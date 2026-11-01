@@ -40,7 +40,6 @@ ENV PLUX_CANVASKIT_DIR=/src/studio/.canvaskit
 RUN bun install --frozen-lockfile \
  && bun scripts/stage-canvaskit.ts \
  && bun run gen:theme \
- && (cd packages/ui && bun scripts/gen-icons.ts) \
  && bun run build \
  && bun scripts/precompress.ts apps/web/dist
 

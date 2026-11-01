@@ -486,13 +486,13 @@ export interface TypeRole {
   readonly size: number;
   readonly line: number;
   readonly weight: number;
-  /** Letter spacing in em, for the display roles only. */
+  /** Letter spacing in em, for the display roles and the headings. */
   readonly tracking?: number;
 }
 
 /**
- * U7 roles. Ranges in the UI language take these defaults: label 12 / 16 at
- * 500, caption 12 / 16 at 400, tag 10 / 12 at 500 (the data role uses 400).
+ * U7 roles. Since ADR-0103 the headings, body and label follow shadcn's type scale; caption 12 / 16 at 400 and tag
+ * 10 / 12 at 500 keep their sizes (the data role uses 400).
  */
 export const typeRoles: readonly TypeRole[] = [
   // U7.3 the public pages: one very large sans headline and its lead sentence.
@@ -500,12 +500,13 @@ export const typeRoles: readonly TypeRole[] = [
   { key: "lead", name: "type.lead", family: "sans", size: 19, line: 28, weight: 400, tracking: -0.01 },
   { key: "display-sm", name: "type.displaySmall", family: "sans", size: 44, line: 46, weight: 600, tracking: -0.035 },
   { key: "control", name: "type.control", family: "sans", size: 16, line: 22, weight: 400 },
-  { key: "screen", name: "type.screen", family: "serif", size: 26, line: 28, weight: 400 },
-  { key: "title", name: "type.title", family: "serif", size: 24, line: 26, weight: 400 },
-  { key: "plugin", name: "type.plugin", family: "serif", size: 19, line: 22, weight: 400 },
-  { key: "section", name: "type.section", family: "serif", size: 17, line: 20, weight: 400 },
-  { key: "body", name: "type.body", family: "sans", size: 13, line: 18, weight: 400 },
-  { key: "label", name: "type.label", family: "sans", size: 12, line: 16, weight: 500 },
+  // ADR-0103: the headings and body follow shadcn's scale (text-2xl, text-xl, text-lg, text-base, text-sm).
+  { key: "screen", name: "type.screen", family: "sans", size: 24, line: 32, weight: 600, tracking: -0.025 },
+  { key: "title", name: "type.title", family: "sans", size: 20, line: 28, weight: 600, tracking: -0.025 },
+  { key: "plugin", name: "type.plugin", family: "sans", size: 18, line: 28, weight: 600, tracking: -0.025 },
+  { key: "section", name: "type.section", family: "sans", size: 16, line: 24, weight: 600 },
+  { key: "body", name: "type.body", family: "sans", size: 14, line: 20, weight: 400 },
+  { key: "label", name: "type.label", family: "sans", size: 14, line: 20, weight: 500 },
   { key: "caption", name: "type.caption", family: "sans", size: 12, line: 16, weight: 400 },
   { key: "data", name: "type.data", family: "mono", size: 11, line: 16, weight: 400 },
   { key: "tag", name: "type.tag", family: "mono", size: 10, line: 12, weight: 500 },

@@ -7,7 +7,7 @@ import { createClient } from "@connectrpc/connect";
 import { GetCurrentUserResponseSchema, PreferencesService } from "@plux/api";
 import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from "@tanstack/react-router";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { ForbiddenPage } from "./features/shell/error-pages.tsx";
 import { I18nProvider } from "./i18n-provider.tsx";
 import { AccessError, requireInstallationAdmin, requireUser } from "./lib/guards.ts";
@@ -34,6 +34,30 @@ describe("[STU-013] guards", () => {
   test("an unknown organisation is a 404 page, not a 403", async () => {
     renderApp("/o/0192f000-0000-7000-8000-0000000000ff", {});
     await screen.findByRole("heading", { name: "Page not found" });
+  });
+
+  test("a page opened directly checks the person's permissions in its organisation", async () => {
+    // The server returns permissions only when the call names the organisation; the shell's own user names none.
+    renderApp(`/o/${orgA}/approvals`, { permissions: ["app.read"] });
+    await screen.findByRole("heading", { name: "Approvals" });
+    expect(screen.queryByRole("heading", { name: "You do not have access" })).toBeNull();
+  });
+
+  test("the 403 page renders inside the shell, with its navigation", async () => {
+    renderApp(`/o/${orgA}/approvals`, { permissions: [] });
+    await screen.findByRole("heading", { name: "You do not have access" });
+    expect(screen.getByRole("navigation", { name: "Studio navigation" })).toBeTruthy();
+  });
+
+  test("a refetch of the current user while the person navigates does not hold the page", async () => {
+    const r = renderApp(`/o/${orgA}`, { permissions: ["app.read"] });
+    await screen.findByRole("heading", { name: /Welcome to/ });
+    // A refocused window refetches the shell's user query; the next page's guard reads the same entry.
+    void r.session.queryClient.invalidateQueries({ queryKey: ["current-user"] });
+    await act(() => r.router.navigate({ to: "/me" }));
+    await screen.findByRole("heading", { name: "Profile" });
+    await act(() => r.router.navigate({ to: "/o/$org", params: { org: orgA } }));
+    await screen.findByRole("heading", { name: /Welcome to/ });
   });
 
   test("a missing permission throws the 403 error and Explain access calls the server", async () => {

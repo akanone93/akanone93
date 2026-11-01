@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ArrowPick, Guides } from "@plux/canvas";
-import { type RefObject, useRef } from "react";
+import { type RefObject, useEffect, useRef } from "react";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { BOX, type Point, select, snap } from "./app-canvas.model.ts";
 import { boxOfHits, boxOfItem, type SceneBox } from "./app-canvas.scene.ts";
@@ -10,9 +10,24 @@ import { boxOfHits, boxOfItem, type SceneBox } from "./app-canvas.scene.ts";
 /** Movement in CSS pixels below which a press is a click, not a drag or a marquee. */
 const CLICK_PX = 3;
 
+/** The pointer tools of the canvas: select (boxes, marquee) or hand (the whole canvas pans). */
+export type CanvasTool = "select" | "hand";
+
+/** The zoom the wheel and the zoom buttons stay within. */
+export const ZOOM_MIN = 0.1;
+export const ZOOM_MAX = 4;
+
+/** The factor a wheel delta zooms by: a mouse notch (100) about 1.6x, a trackpad pinch step a few percent. */
+const wheelZoom = (deltaY: number): number => Math.exp(-deltaY / 220);
+
 export interface GestureInput {
   readonly surface: () => CanvasSurface | null;
   readonly canvas: RefObject<HTMLCanvasElement | null>;
+  /**
+   * The element the canvas fills, whose box is the view: pointer positions are measured against it. The canvas element
+   * itself is larger than the view and moved by a transform while the base catches up (overscan), so its box is not.
+   */
+  readonly frame?: RefObject<HTMLElement | null>;
   readonly boxes: readonly SceneBox[];
   readonly selected: ReadonlySet<string>;
   readonly setSelected: (next: ReadonlySet<string>) => void;
@@ -25,6 +40,18 @@ export interface GestureInput {
   readonly onLane: (pick: ArrowPick) => void;
   readonly onOpen: (box: SceneBox) => void;
   readonly onView: () => void;
+  /** The tool in use; Space held or the middle button pans whatever the tool. */
+  readonly tool: CanvasTool;
+  /** Whether Space is held: the canvas pans while it is. */
+  readonly spaceHeld: () => boolean;
+  /** The marquee being drawn, in view pixels, or null when it ends; the page draws it. */
+  readonly onMarquee?: (rect: { l: number; t: number; r: number; b: number } | null) => void;
+  /** Changes when the canvas element is replaced, so the wheel listener moves to the new one. */
+  readonly element?: unknown;
+}
+
+interface Pan {
+  last: Point;
 }
 
 interface Drag {
@@ -61,17 +88,66 @@ function guideLines(guides: readonly { axis: "x" | "y"; at: number }[], boxes: r
   };
 }
 
+/** The pan of a wheel turn: a mouse wheel with Shift scrolls sideways; a trackpad gives both deltas itself. */
+function wheelPan(e: WheelEvent): readonly [number, number] {
+  return e.shiftKey && e.deltaX === 0 ? [-e.deltaY, 0] : [-e.deltaX, -e.deltaY];
+}
+
+/** The new zoom of a wheel turn with Ctrl or Cmd, within the zoom range, as a factor of the current one. */
+function zoomFactor(zoom: number, deltaY: number): number {
+  return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * wheelZoom(deltaY))) / zoom;
+}
+
 /**
- * Pointer handling of the app canvas: the main-thread hit index finds the box or arrow under the
- * pointer (ADR-0013), a drag moves the selection with snapping and overlay guides, a press on the
- * background draws a marquee in the overlay, a click on an arrow expands it or opens a lane, and the
- * wheel pans (with Ctrl or Cmd: zooms). The worker draws all of it.
+ * The wheel as a native, non-passive listener: React's is passive, so a pinch would also zoom the whole page. It pans,
+ * and with Ctrl or Cmd (a trackpad pinch) zooms about the pointer.
+ */
+function useWheel(input: GestureInput, latest: { readonly current: GestureInput }): void {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new canvas element needs the listener again
+  useEffect(() => {
+    const canvas = input.canvas.current;
+    if (canvas === null) {
+      return undefined;
+    }
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const { surface: target, onView, frame } = latest.current;
+      const surface = target();
+      if (surface === null) {
+        return;
+      }
+      if (e.ctrlKey || e.metaKey) {
+        const r = (frame?.current ?? canvas).getBoundingClientRect();
+        surface.zoomAbout(zoomFactor(surface.viewport.zoom, e.deltaY), e.clientX - r.left, e.clientY - r.top);
+      } else {
+        const [dx, dy] = wheelPan(e);
+        surface.pan(dx, dy);
+      }
+      onView();
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheel);
+  }, [input.canvas, input.element]);
+}
+
+/**
+ * Pointer handling of the app canvas, as design tools do it: the main-thread hit index finds the box or arrow under
+ * the pointer (ADR-0013), a drag moves the selection with snapping and overlay guides, a press on the background draws
+ * a marquee in the overlay, a click on an arrow expands it or opens a lane. The hand tool, Space held or the middle
+ * button pan by dragging; the wheel or a two-finger scroll pans, and with Ctrl or Cmd (a trackpad pinch) zooms about
+ * the pointer, never the page. The worker draws all of it.
  */
 export function useCanvasGestures(input: GestureInput) {
   const drag = useRef<Drag | null>(null);
   const press = useRef<Press | null>(null);
+  const pan = useRef<Pan | null>(null);
+  const latest = useRef(input);
+  latest.current = input;
+
+  useWheel(input, latest);
+  const viewRect = () => (input.frame?.current ?? input.canvas.current)?.getBoundingClientRect();
   const local = (e: { clientX: number; clientY: number }): Point => {
-    const r = input.canvas.current?.getBoundingClientRect();
+    const r = viewRect();
     return { x: e.clientX - (r?.left ?? 0), y: e.clientY - (r?.top ?? 0) };
   };
   const hitsAt = (e: { clientX: number; clientY: number }): string[] => {
@@ -130,6 +206,7 @@ export function useCanvasGestures(input: GestureInput) {
     }
     const v = surface.viewport;
     const r = rectOf(p.from, p.to);
+    input.onMarquee?.(r);
     surface.setGuides?.({
       lines: [],
       labels: [],
@@ -140,6 +217,7 @@ export function useCanvasGestures(input: GestureInput) {
   const endPress = (e: React.PointerEvent, p: Press) => {
     const surface = input.surface();
     surface?.setGuides?.(null);
+    input.onMarquee?.(null);
     const r = rectOf(p.from, local(e));
     if (r.r - r.l + (r.b - r.t) >= CLICK_PX) {
       const hit = (surface?.hitTestRect?.(r, "intersect") ?? []).flatMap((h) => boxOfItem(h) ?? []);
@@ -158,6 +236,14 @@ export function useCanvasGestures(input: GestureInput) {
 
   const handlers = {
     onPointerDown: (e: React.PointerEvent<HTMLCanvasElement>) => {
+      const panning = e.button === 1 || (e.button === 0 && (input.tool === "hand" || input.spaceHeld()));
+      if (panning) {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        pan.current = { last: { x: e.clientX, y: e.clientY } };
+        e.currentTarget.dataset["panning"] = "true";
+        return;
+      }
       if (e.button !== 0) {
         return;
       }
@@ -172,6 +258,13 @@ export function useCanvasGestures(input: GestureInput) {
       }
     },
     onPointerMove: (e: React.PointerEvent<HTMLCanvasElement>) => {
+      const p = pan.current;
+      if (p !== null) {
+        input.surface()?.pan(e.clientX - p.last.x, e.clientY - p.last.y);
+        p.last = { x: e.clientX, y: e.clientY };
+        input.onView();
+        return;
+      }
       if (drag.current !== null) {
         moveDrag(e, drag.current);
       } else if (press.current !== null) {
@@ -183,6 +276,11 @@ export function useCanvasGestures(input: GestureInput) {
       }
     },
     onPointerUp: (e: React.PointerEvent<HTMLCanvasElement>) => {
+      if (pan.current !== null) {
+        pan.current = null;
+        delete e.currentTarget.dataset["panning"];
+        return;
+      }
       const d = drag.current;
       const p = press.current;
       drag.current = null;
@@ -197,7 +295,7 @@ export function useCanvasGestures(input: GestureInput) {
       }
     },
     onPointerLeave: () => {
-      if (drag.current === null && press.current === null) {
+      if (drag.current === null && press.current === null && pan.current === null) {
         input.setHover(undefined);
         input.expand(null);
       }
@@ -208,16 +306,6 @@ export function useCanvasGestures(input: GestureInput) {
       if (box !== undefined) {
         input.onOpen(box);
       }
-    },
-    onWheel: (e: React.WheelEvent<HTMLCanvasElement>) => {
-      const surface = input.surface();
-      if (e.ctrlKey || e.metaKey) {
-        const p = local(e);
-        surface?.zoomAbout(Math.exp(-e.deltaY / 200), p.x, p.y);
-      } else {
-        surface?.pan(-e.deltaX, -e.deltaY);
-      }
-      input.onView();
     },
   };
   return { handlers, pressBox };

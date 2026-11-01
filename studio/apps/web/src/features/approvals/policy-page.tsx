@@ -77,6 +77,7 @@ export function PolicyPage(): ReactElement {
       caption={m.editorCaption}
       loading={policies.isPending}
       failed={policies.isError || missing}
+      error={policies.error}
     >
       <Editor
         key={key}

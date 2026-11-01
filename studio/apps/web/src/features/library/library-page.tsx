@@ -4,8 +4,10 @@
 import { useLingui } from "@lingui/react";
 import type { LibraryItem } from "@plux/api";
 import { Button, Field, Input, notify, Select } from "@plux/ui";
+import { Badge } from "@plux/ui/components/badge";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ChangeEvent, type ReactElement, useState } from "react";
+import { AnimatedList } from "../../components/animated-list.tsx";
 import { libraryMessages } from "./library.messages.ts";
 import type { LibrarySearch } from "./library.schema.ts";
 import { readFile } from "./library-model.ts";
@@ -37,20 +39,22 @@ function Row({
       </Link>
     );
   return (
-    <li className="flex flex-wrap items-baseline gap-3 py-2">
-      <span className="text-body font-medium">{link}</span>
-      <code className="text-caption text-muted-foreground">{item.key}</code>
-      <span className="text-caption">{item.kind === "component" ? m.kindComponent : m.kindTemplate}</span>
-      <span className="text-caption">{vis}</span>
-      <span className="text-caption text-muted-foreground">{m.headVersion(item.headVersion)}</span>
-    </li>
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3">
+      <span className="text-sm font-medium">{link}</span>
+      <code className="text-xs text-muted-foreground">{item.key}</code>
+      <span className="ms-auto flex flex-wrap items-center gap-2">
+        <Badge variant="secondary">{item.kind === "component" ? m.kindComponent : m.kindTemplate}</Badge>
+        <Badge variant="outline">{vis}</Badge>
+        <span className="text-xs text-muted-foreground">{m.headVersion(item.headVersion)}</span>
+      </span>
+    </div>
   );
 }
 
 function Filters({ search, m }: { readonly search: LibrarySearch; readonly m: Messages }): ReactElement {
   const navigate = useNavigate();
   const set = (next: Partial<Record<keyof LibrarySearch, string | undefined>>) =>
-    void navigate({ to: ".", search: ((prev: object) => ({ ...prev, ...next })) as never });
+    void navigate({ to: ".", resetScroll: false, search: ((prev: object) => ({ ...prev, ...next })) as never });
   const text = (key: "q" | "owner" | "category" | "tag", label: string) => (
     <Field label={label}>
       <Input value={search[key] ?? ""} onChange={(e) => set({ [key]: e.target.value || undefined })} />
@@ -161,11 +165,12 @@ export function LibraryPage(): ReactElement {
         </p>
       )}
       {items.data?.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
-      <ul>
-        {(items.data ?? []).map((item) => (
-          <Row key={item.id} item={item} org={org} m={m} />
-        ))}
-      </ul>
+      <AnimatedList
+        items={items.data ?? []}
+        keyOf={(item) => item.id}
+        className="flex flex-col gap-2"
+        render={(item) => <Row item={item} org={org} m={m} />}
+      />
     </section>
   );
 }

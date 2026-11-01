@@ -13,8 +13,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearch } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { loadUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { defaultEnvironment } from "./security.schema.ts";
 import { assertionFields, requestOptions } from "./step-up.ts";
 
@@ -29,8 +29,7 @@ export function useScope() {
 
 /** The signed-in person's permissions (F14): actions the person lacks are disabled, never hidden mid-page. */
 export function usePermissions(): ReadonlySet<string> {
-  const { session } = useApp();
-  const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   return useMemo(() => new Set(user.data?.permissions ?? []), [user.data]);
 }
 

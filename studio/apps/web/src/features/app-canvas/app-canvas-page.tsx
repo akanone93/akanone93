@@ -6,7 +6,8 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppService, PluginService, ReleaseService } from "@plux/api";
 import type { ArrowPick, NavigateEdge } from "@plux/canvas";
-import { Button } from "@plux/ui";
+import { Icon } from "@plux/ui";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@plux/ui/components/empty";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams, useRouteContext } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -48,15 +49,20 @@ import {
   type SceneBox,
 } from "./app-canvas.scene.ts";
 import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
+import { AppBar, CanvasToolbar, LayersPanel, Panel, PluginActions, ZoomControls } from "./canvas-chrome.tsx";
 import { FrameTools } from "./frame-tools.tsx";
 import { LaneMenu } from "./lane-menu.tsx";
 import { latestPublisher } from "./latest-publisher.ts";
 import { type Dialogue, PluginDialogs } from "./plugin-dialogs.tsx";
 import { miniMapOf } from "./plugin-minimap.ts";
 import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
+import { useSceneTheme } from "./scene-theme.ts";
 import { TrashDialog } from "./trash-dialog.tsx";
 import { useAppScene } from "./use-app-scene.ts";
-import { useCanvasGestures } from "./use-canvas-gestures.ts";
+import { type CanvasTool, useCanvasGestures } from "./use-canvas-gestures.ts";
+import { useCanvasKeys } from "./use-canvas-keys.ts";
+import { useZoom } from "./use-zoom.ts";
+import "./app-canvas.css";
 import { useTeams } from "./use-teams.ts";
 
 export { PluginBoxCard } from "./box-list.tsx";
@@ -88,6 +94,44 @@ interface ViewProps {
   readonly documents: ReturnType<typeof usePluginDocuments>["data"];
 }
 
+/**
+ * The canvas fills the page: the surface follows a change of the page's size (the first report is the size `initial`
+ * it has). The page is measured, not the canvas, which the host sizes itself with a margin around the view.
+ */
+function followSize(page: HTMLElement, surface: CanvasSurface, initial: string): ResizeObserver | undefined {
+  if (typeof ResizeObserver === "undefined") {
+    return undefined;
+  }
+  let size = initial;
+  const observer = new ResizeObserver(() => {
+    const next = `${page.clientWidth}x${page.clientHeight}`;
+    if (page.clientWidth > 0 && page.clientHeight > 0 && next !== size) {
+      size = next;
+      surface.resize?.(page.clientWidth, page.clientHeight, window.devicePixelRatio || 1);
+    }
+  });
+  observer.observe(page);
+  return observer;
+}
+
+/** The marquee being drawn, in view pixels (screen space has no writing direction); nothing when none is. */
+function Marquee({ rect }: { readonly rect: { l: number; t: number; r: number; b: number } | null }): ReactNode {
+  if (rect === null) {
+    return null;
+  }
+  const style = { "--x": rect.l, "--y": rect.t, "--w": rect.r - rect.l, "--h": rect.b - rect.t } as React.CSSProperties;
+  return <div aria-hidden="true" className="canvas-marquee" style={style} />;
+}
+
+/** The size of the view in CSS pixels, the window's while the page is not laid out yet, and the pixel ratio. */
+function viewSize(view: HTMLElement): { width: number; height: number; dpr: number } {
+  return {
+    width: view.clientWidth || window.innerWidth,
+    height: view.clientHeight || window.innerHeight,
+    dpr: window.devicePixelRatio || 1,
+  };
+}
+
 /** The selection's positions moved by `delta`; every other box keeps its place. */
 function moved(boxes: readonly SceneBox[], ids: ReadonlySet<string>, delta: Point): Map<string, Point> {
   return new Map(boxes.map((b) => [b.id, ids.has(b.id) ? { x: b.x + delta.x, y: b.y + delta.y } : { x: b.x, y: b.y }]));
@@ -100,6 +144,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const { session } = useApp();
   const navigate = useNavigate();
   const params = useParams({ strict: false }) as { org?: string };
+  const orgKey = params.org ?? "";
   const { createSurface = browserSurface } = useRouteContext({ strict: false }) as Pick<RouterContext, "createSurface">;
   const hostFonts = useHostFonts(appId);
   const deviceFonts = useDeviceFonts(appId);
@@ -177,8 +222,11 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const [movingBox, setMovingBox] = useState<SceneBox | undefined>();
   const [lane, setLane] = useState<AppLink | undefined>();
 
-  // The surface: Plux Canvas on a worker; the main thread keeps input, the hit index and the DOM layer.
+  // The surface: Plux Canvas on a worker; the main thread keeps input, the hit index and the DOM layer. Its colours
+  // follow the page's theme; a change of theme makes the surface again on the new background.
+  const theme = useSceneTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const [generation, setGeneration] = useState(0);
   useEffect(() => {
@@ -186,18 +234,41 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     if (canvas === null) {
       return undefined;
     }
-    const width = canvas.clientWidth || window.innerWidth;
-    const height = canvas.clientHeight || window.innerHeight;
-    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1, hostFonts, deviceFonts });
+    const page = sectionRef.current ?? canvas;
+    const { width, height, dpr } = viewSize(page);
+    const surface = createSurface(canvas, {
+      width,
+      height,
+      dpr,
+      background: theme.background,
+      hostFonts,
+      deviceFonts,
+    });
     surfaceRef.current = surface;
     setGeneration((g) => g + 1);
+    const observer = followSize(page, surface, `${width}x${height}`);
     return () => {
+      observer?.disconnect();
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface, hostFonts, deviceFonts]);
+  }, [createSurface, hostFonts, deviceFonts, theme.background]);
   const surface = useCallback(() => surfaceRef.current, []);
-  const scene = useAppScene({ surface, generation, boxes, frames, selected, focused, graph });
+  /** The element whose box is the view: the page, or the canvas before the page is laid out. */
+  const viewOf = useCallback(() => sectionRef.current ?? canvasRef.current, []);
+  const scene = useAppScene({
+    surface,
+    generation,
+    boxes,
+    frames,
+    selected,
+    focused,
+    graph,
+    style: theme.style,
+    arrowStyle: theme.arrows,
+  });
+
+  const { zoom, setZoom, viewChanged, zoomBy, resetZoom } = useZoom(surface, viewOf, scene.zoomed);
 
   const persist = useCallback(
     (next: SavedCanvas, group = "canvas") => {
@@ -230,15 +301,16 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const teams = useTeams();
 
   const fit = useCallback(() => {
-    const canvas = canvasRef.current;
     const target = surfaceRef.current;
-    if (target === null) {
+    const view = viewOf();
+    if (target === null || view === null) {
       return;
     }
-    const v = fitViewport(boxes, { width: canvas?.clientWidth ?? 0, height: canvas?.clientHeight ?? 0 });
+    const v = fitViewport(boxes, { width: view.clientWidth, height: view.clientHeight });
     target.setViewport(v.x, v.y, v.z);
     scene.zoomed(v.z);
-  }, [boxes, scene]);
+    setZoom(v.z);
+  }, [boxes, scene, viewOf, setZoom]);
   const fitted = useRef(0);
   useEffect(() => {
     if (fitted.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
@@ -260,20 +332,28 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     if (!b.native) {
       void navigate({
         to: "/o/$org/apps/$app/plugins/$plugin",
-        params: { org: params.org ?? "", app: appId, plugin: b.id },
+        params: { org: orgKey, app: appId, plugin: b.id },
       });
     }
   };
   const openScreen = (plugin: string, page: string) =>
     void navigate({
       to: "/o/$org/apps/$app/plugins/$plugin",
-      params: { org: params.org ?? "", app: appId, plugin },
+      params: { org: orgKey, app: appId, plugin },
       search: { focus: page },
     });
   const linkOf = useMemo(() => new Map(graph.links.map((l) => [l.edge.id, l])), [graph]);
   const openLane = (edge: NavigateEdge | undefined) => setLane(edge === undefined ? undefined : linkOf.get(edge.id));
 
+  const [tool, setTool] = useState<CanvasTool>("select");
+  const [marquee, setMarquee] = useState<{ l: number; t: number; r: number; b: number } | null>(null);
+  const space = useRef(false);
   const gestures = useCanvasGestures({
+    tool,
+    frame: sectionRef,
+    onMarquee: setMarquee,
+    spaceHeld: () => space.current,
+    element: generation,
     surface,
     canvas: canvasRef,
     boxes,
@@ -286,7 +366,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     pick: scene.pick,
     onLane: (p: ArrowPick) => openLane(p.link),
     onOpen: open,
-    onView: () => scene.zoomed(surfaceRef.current?.viewport.zoom ?? 1),
+    onView: viewChanged,
   });
 
   const nudge = (box: SceneBox, delta: Point) => {
@@ -310,8 +390,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       return;
     }
     const v = target.viewport;
-    const w = canvas.clientWidth / v.zoom;
-    const h = canvas.clientHeight / v.zoom;
+    const view = viewOf() ?? canvas;
+    const w = view.clientWidth / v.zoom;
+    const h = view.clientHeight / v.zoom;
     if (b.x < v.x || b.y < v.y || b.x + BOX.width > v.x + w || b.y + BOX.height > v.y + h) {
       target.setViewport(b.x + BOX.width / 2 - w / 2, b.y + BOX.height / 2 - h / 2, v.zoom);
     }
@@ -356,78 +437,146 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   }, [publisher.data, detail?.publishedAt, i18n]);
   const miniMap = useMemo(() => miniMapOf(graph, detailPlugin?.id ?? ""), [graph, detailPlugin?.id]);
 
+  /** 100% about the middle of the canvas. */
+  /** A row of the plugins panel: selects its plugin and brings it into view. */
+  const showBox = (b: SceneBox, additive: boolean) => {
+    setSelected(select(selected, b.id, additive));
+    const target = surfaceRef.current;
+    const canvas = viewOf();
+    if (target === null || canvas === null) {
+      return;
+    }
+    const v = target.viewport;
+    target.setViewport(
+      b.x + BOX.width / 2 - canvas.clientWidth / v.zoom / 2,
+      b.y + BOX.height / 2 - canvas.clientHeight / v.zoom / 2,
+      v.zoom,
+    );
+  };
+
+  useCanvasKeys({ canvas: canvasRef, space, fit, zoomBy, resetZoom, setTool, clear: () => setSelected(new Set()) });
+
+  const archiveOrRestore = () => {
+    const p = one?.plugin;
+    if (p?.archived === true) {
+      mutation.mutate(() => plugins.archivePlugin({ id: p.id, archived: false }));
+    } else if (p !== undefined) {
+      setSafety("archive");
+    }
+  };
+  // The selected plugin's actions, in its detail panel when the panel shows it.
+  const selectedBox = boxes.find((b) => b.id === one?.plugin?.id);
+  const actions = (
+    <PluginActions
+      selectedId={selectedBox?.id}
+      shownId={detail?.plugin?.id}
+      messages={m}
+      archived={one?.plugin?.archived === true}
+      onOpen={() => selectedBox !== undefined && open(selectedBox)}
+      onDialogue={(kind) => setDialogue({ kind })}
+      onMove={() => setMovingBox(selectedBox)}
+      onArchive={archiveOrRestore}
+      onDelete={() => setSafety("delete")}
+    />
+  );
+
   return (
-    <section aria-label={m.title} className="relative flex h-full w-full flex-col bg-canvas">
-      <div role="toolbar" aria-label={m.toolbar} className="flex items-center gap-2 p-2">
-        <Button onClick={() => setDialogue({ kind: "new" })}>{m.newPlugin}</Button>
-        <Button disabled={selected.size === 0} onClick={() => setDialogue({ kind: "frame" })}>
-          {m.newFrame}
-        </Button>
-        <FrameTools frames={frames} messages={m} onChange={changeFrameOf} />
-        <Button onClick={arrange}>{m.autoLayout}</Button>
-        <Button onClick={fit}>{m.zoomToFit}</Button>
-        <Button disabled={one === undefined} onClick={() => setDialogue({ kind: "settings" })}>
-          {m.settings}
-        </Button>
-        <Button disabled={one === undefined} onClick={() => setDialogue({ kind: "duplicate" })}>
-          {m.duplicate}
-        </Button>
-        <Button
-          disabled={one?.plugin === undefined}
-          onClick={() => {
-            const p = one?.plugin;
-            if (p?.archived === true) {
-              mutation.mutate(() => plugins.archivePlugin({ id: p.id, archived: false }));
-            } else if (p !== undefined) {
-              setSafety("archive");
-            }
-          }}
-        >
-          {one?.plugin?.archived === true ? m.restore : m.archive}
-        </Button>
-        <Button disabled={one?.plugin === undefined} onClick={() => setSafety("delete")}>
-          {m.deletePlugin}
-        </Button>
-        <Button disabled={selected.size !== 1} onClick={() => setMovingBox(boxes.find((b) => selected.has(b.id)))}>
-          {m.moveSelection}
-        </Button>
-        <Button onClick={() => setTrashOpen(true)}>{m.trash}</Button>
-        <Button disabled={one === undefined} onClick={() => setDialogue({ kind: "entry" })}>
-          {m.setEntry}
-        </Button>
-        <output aria-live="polite" className="text-data text-muted-foreground">
-          {message ?? m.selected(selected.size)}
-        </output>
-      </div>
-      <div className="relative flex-1 overflow-hidden">
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full touch-none" {...gestures.handlers} />
-        {list.length === 0 && summaries.isSuccess ? (
-          <p className="pointer-events-none absolute start-4 top-4 text-muted-foreground">{m.empty}</p>
-        ) : null}
-        {detail?.plugin === undefined ? null : (
-          <DetailCard
-            summary={detail}
-            badges={boxes.find((b) => b.id === detail.plugin?.id)?.badges ?? []}
+    <section
+      ref={sectionRef}
+      aria-label={m.title}
+      className="app-canvas relative h-full w-full overflow-hidden"
+      data-tool={tool}
+    >
+      {/* A canvas hands its drawing to the worker once: a new theme gets a new element, and a new surface on it. */}
+      <canvas
+        key={theme.background}
+        ref={canvasRef}
+        className="absolute inset-0 size-full touch-none"
+        {...gestures.handlers}
+      />
+      <Marquee rect={marquee} />
+      <BoxList
+        boxes={boxes}
+        bundles={scene.bundles}
+        frames={frames}
+        selected={selected}
+        messages={m}
+        onPointerDown={(e, b) => gestures.pressBox(b, e.shiftKey || e.metaKey || e.ctrlKey)}
+        onSelect={(b, additive) => setSelected(select(selected, b.id, additive))}
+        onOpen={open}
+        onFocusBox={focusBox}
+        onNudge={nudge}
+        onFocusBundle={scene.expand}
+        onLane={openLane}
+      />
+      {/* The chrome floats over the scene; only the panels take the pointer, the canvas runs on beneath them. */}
+      <div className="canvas-chrome pointer-events-none absolute inset-0 grid p-3">
+        <div className="canvas-top flex items-start justify-between gap-3">
+          <AppBar org={orgKey} app={app.data} plugins={list.length} messages={m} />
+          <CanvasToolbar
+            tool={tool}
+            onTool={setTool}
             messages={m}
-            miniMap={miniMap}
-            published={published}
+            selected={selected.size}
+            onNew={() => setDialogue({ kind: "new" })}
+            onFrame={() => setDialogue({ kind: "frame" })}
+            onArrange={arrange}
+            onTrash={() => setTrashOpen(true)}
           />
-        )}
-        <BoxList
-          boxes={boxes}
-          bundles={scene.bundles}
-          frames={frames}
-          selected={selected}
-          messages={m}
-          onPointerDown={(e, b) => gestures.pressBox(b, e.shiftKey || e.metaKey || e.ctrlKey)}
-          onSelect={(b, additive) => setSelected(select(selected, b.id, additive))}
-          onOpen={open}
-          onFocusBox={focusBox}
-          onNudge={nudge}
-          onFocusBundle={scene.expand}
-          onLane={openLane}
-        />
+          <Panel className="flex h-11 items-center px-3">
+            <output aria-live="polite" className="text-xs text-muted-foreground">
+              {message ?? m.selected(selected.size)}
+            </output>
+          </Panel>
+        </div>
+        <div className="canvas-middle flex min-h-0 items-start justify-between gap-3">
+          <LayersPanel
+            boxes={boxes}
+            frames={frames}
+            selected={selected}
+            messages={m}
+            onShow={showBox}
+            onOpen={open}
+            frameTools={<FrameTools frames={frames} messages={m} onChange={changeFrameOf} />}
+          />
+          {detail?.plugin === undefined ? null : (
+            <DetailCard
+              summary={detail}
+              badges={boxes.find((b) => b.id === detail.plugin?.id)?.badges ?? []}
+              messages={m}
+              miniMap={miniMap}
+              published={published}
+              actions={actions}
+            />
+          )}
+        </div>
+        <div className="canvas-bottom flex items-end justify-between gap-3">
+          <ZoomControls
+            zoom={zoom}
+            messages={m}
+            onZoomIn={() => zoomBy(1.25)}
+            onZoomOut={() => zoomBy(0.8)}
+            onReset={resetZoom}
+            onFit={fit}
+          />
+          <Panel className="canvas-hint hidden px-3 py-2 text-xs text-muted-foreground lg:block">{m.hint}</Panel>
+        </div>
       </div>
+      {list.length === 0 && summaries.isSuccess ? (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
+          <Panel className="max-w-sm">
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Icon name="puzzle-piece" />
+                </EmptyMedia>
+                <EmptyTitle>{m.empty}</EmptyTitle>
+                <EmptyDescription>{m.emptyHint}</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          </Panel>
+        </div>
+      ) : null}
       <MoveToDialog
         box={movingBox}
         messages={m}

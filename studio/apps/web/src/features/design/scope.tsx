@@ -87,20 +87,20 @@ function Body(props: {
         {props.title}
       </h1>
       <p className="text-body text-muted-foreground">{props.caption}</p>
-      <nav aria-label={m.areaNav} className="flex flex-wrap gap-4">
-        <Link className="text-body" to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
+      <nav aria-label={m.areaNav} className="sub-nav">
+        <Link to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
           {m.tokensLink}
         </Link>
-        <Link className="text-body" to="/o/$org/apps/$app/design/themes" params={{ org: ctx.org, app: ctx.app }}>
+        <Link to="/o/$org/apps/$app/design/themes" params={{ org: ctx.org, app: ctx.app }}>
           {m.themesLink}
         </Link>
-        <Link className="text-body" to="/o/$org/apps/$app/design/typography" params={{ org: ctx.org, app: ctx.app }}>
+        <Link to="/o/$org/apps/$app/design/typography" params={{ org: ctx.org, app: ctx.app }}>
           {m.typographyLink}
         </Link>
-        <Link className="text-body" to="/o/$org/apps/$app/design/icons" params={{ org: ctx.org, app: ctx.app }}>
+        <Link to="/o/$org/apps/$app/design/icons" params={{ org: ctx.org, app: ctx.app }}>
           {m.iconsLink}
         </Link>
-        <Link className="text-body" to="/o/$org/apps/$app/design/library" params={{ org: ctx.org, app: ctx.app }}>
+        <Link to="/o/$org/apps/$app/design/library" params={{ org: ctx.org, app: ctx.app }}>
           {m.libraryLink}
         </Link>
       </nav>

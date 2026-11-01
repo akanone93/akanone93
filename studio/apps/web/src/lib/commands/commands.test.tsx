@@ -3,6 +3,7 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { createStudioI18n } from "@plux/i18n";
+import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from "@tanstack/react-router";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { ShortcutsPage } from "../../features/profile/shortcuts-page.tsx";
@@ -86,7 +87,13 @@ describe("[STU-013] palette", () => {
 
 describe("[STU-013] shortcut sheet", () => {
   test("lists exactly the commands that have a shortcut", async () => {
-    render(wrap([cmd("a", "Alpha", { shortcut: "alt+a" }), cmd("b", "Beta")], [], <ShortcutsPage />));
+    // The sheet is a tab of the profile page, whose tabs are links.
+    const root = createRootRoute({ component: ShortcutsPage });
+    const router = createRouter({
+      routeTree: root,
+      history: createMemoryHistory({ initialEntries: ["/me/shortcuts"] }),
+    });
+    render(wrap([cmd("a", "Alpha", { shortcut: "alt+a" }), cmd("b", "Beta")], [], <RouterProvider router={router} />));
     await screen.findByRole("heading", { name: "Keyboard shortcuts" });
     expect(screen.getByText("Alpha")).toBeTruthy();
     expect(screen.queryByText("Beta")).toBeNull();

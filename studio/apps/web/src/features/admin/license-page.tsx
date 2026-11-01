@@ -4,10 +4,8 @@
 import { useLingui } from "@lingui/react";
 import { LicenseService } from "@plux/api";
 import { Button, Field, Input } from "@plux/ui";
-import { useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
-import { loadUser } from "../../lib/guards.ts";
-import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { adminMessages } from "./admin.messages.ts";
 import { Frame, fmt } from "./parts.tsx";
 import { useAdminQuery, useRpc, useRun } from "./use-admin.ts";
@@ -15,10 +13,9 @@ import { useAdminQuery, useRpc, useRun } from "./use-admin.ts";
 /** O30: the enterprise licence (GOV-030); only an installation administrator uploads one (§4.3 #23). */
 export function LicensePage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
-  const { session } = useApp();
   const license = useRpc(LicenseService);
   const { run, failed } = useRun();
-  const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   const state = useAdminQuery(["license"], () => license.getLicenseState({}));
   const [file, setFile] = useState<File>();
   const s = state.data;
@@ -39,6 +36,7 @@ export function LicensePage(): ReactElement {
       caption={m.licenseCaption}
       loading={state.isPending}
       failed={state.isError}
+      error={state.error}
       saveFailed={failed}
     >
       <dl className="flex flex-col gap-1 text-body">

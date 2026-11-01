@@ -428,5 +428,112 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Remove link",
       comment: "Lane menu action: delete this one navigation step.",
     }),
+    toolSelect: i18n._({
+      id: "appCanvas.tool.select",
+      message: "Select",
+      comment: "Canvas tool that selects and moves plugins; a press on the background draws a selection box.",
+    }),
+    toolHand: i18n._({
+      id: "appCanvas.tool.hand",
+      message: "Hand",
+      comment: "Canvas tool that pans the canvas by dragging.",
+    }),
+    tools: i18n._({
+      id: "appCanvas.tools",
+      message: "Tools",
+      comment: "Accessible name of the group of canvas tools (Select, Hand).",
+    }),
+    zoomIn: i18n._({ id: "appCanvas.zoom.in", message: "Zoom in", comment: "Button that zooms the canvas in." }),
+    zoomOut: i18n._({ id: "appCanvas.zoom.out", message: "Zoom out", comment: "Button that zooms the canvas out." }),
+    zoomReset: (percent: number) =>
+      i18n._({
+        id: "appCanvas.zoom.reset",
+        message: "Zoom {percent}%, reset to 100%",
+        values: { percent },
+        comment: "Accessible name of the zoom percentage button; a click resets the zoom to 100 percent.",
+      }),
+    zoomPercent: (percent: number) =>
+      i18n._({
+        id: "appCanvas.zoom.percent",
+        message: "{percent}%",
+        values: { percent },
+        comment: "The canvas zoom as a percentage, e.g. '100%'.",
+      }),
+    zoomControls: i18n._({
+      id: "appCanvas.zoom.controls",
+      message: "Zoom",
+      comment: "Accessible name of the zoom controls of the canvas.",
+    }),
+    back: (org: string) =>
+      i18n._({
+        id: "appCanvas.back",
+        message: "Back to {org}",
+        values: { org },
+        comment: "Button that leaves the app canvas for the organisation's home.",
+      }),
+    pluginCount: (count: number) =>
+      i18n._({
+        id: "appCanvas.plugin-count",
+        message: "{count, plural, one {# plugin} other {# plugins}}",
+        values: { count },
+        comment: "Under the app's name on the canvas: how many plugins the app has.",
+      }),
+    layers: i18n._({
+      id: "appCanvas.layers",
+      message: "Plugins",
+      comment: "Title of the panel that lists the app's plugins and frames beside the canvas.",
+    }),
+    showOnCanvas: (name: string) =>
+      i18n._({
+        id: "appCanvas.layers.show",
+        message: "Show {name} on the canvas",
+        values: { name },
+        comment: "Accessible name of a row of the plugins panel: selects the plugin and brings it into view.",
+      }),
+    framesTitle: i18n._({
+      id: "appCanvas.layers.frames",
+      message: "Frames",
+      comment: "Heading of the frames in the plugins panel.",
+    }),
+    hidePanel: i18n._({
+      id: "appCanvas.layers.hide",
+      message: "Hide panel",
+      comment: "Button that collapses the plugins panel of the canvas.",
+    }),
+    showPanel: i18n._({
+      id: "appCanvas.layers.show-panel",
+      message: "Show plugins panel",
+      comment: "Button that expands the plugins panel of the canvas.",
+    }),
+    hint: i18n._({
+      id: "appCanvas.hint",
+      message: "Drag to move · Space + drag to pan · Ctrl + scroll to zoom · Double-click to open",
+      comment: "Short help at the foot of the canvas for the pointer gestures.",
+    }),
+    emptyHint: i18n._({
+      id: "appCanvas.empty.hint",
+      message: "Plugins are the building blocks of an app. Add the first one with New plugin in the toolbar.",
+      comment: "Explains the empty app canvas.",
+    }),
+    openPlugin: i18n._({
+      id: "appCanvas.open-plugin",
+      message: "Open plugin",
+      comment: "Button in the plugin's detail panel that opens its plugin canvas.",
+    }),
+    statScreens: i18n._({
+      id: "appCanvas.stat.screens",
+      message: "Screens",
+      comment: "Figure label in the plugin's detail panel.",
+    }),
+    statVersions: i18n._({
+      id: "appCanvas.stat.versions",
+      message: "Versions",
+      comment: "Figure label in the plugin's detail panel.",
+    }),
+    pluginActions: i18n._({
+      id: "appCanvas.plugin-actions",
+      message: "Plugin actions",
+      comment: "Accessible name of the actions of the selected plugin in its detail panel.",
+    }),
   };
 }

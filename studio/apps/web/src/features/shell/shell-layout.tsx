@@ -12,16 +12,18 @@ import { Outlet, useParams, useRouter } from "@tanstack/react-router";
 import { type CSSProperties, useMemo, useState } from "react";
 import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
 import { CommandsProvider, createRegistry, shellCommands } from "../../lib/commands/index.ts";
-import { loadUser } from "../../lib/guards.ts";
 import { loadedStudioVersion } from "../../lib/server-version.ts";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { createPendingCounter, PendingChangesProvider, usePendingTotal } from "../editor/pending-changes.tsx";
+import { GetStarted, useOnboarding } from "../onboarding/index.ts";
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
 import { StudioSidebar } from "./app-sidebar.tsx";
 import { CommandPalette } from "./command-palette.tsx";
 import { CreateOrganisationDialog } from "./create-organisation-dialog.tsx";
 import { hitPath, type OrgSearchFn } from "./palette-search.ts";
+import { SiteFooter } from "./site-footer.tsx";
 import { SiteHeader } from "./site-header.tsx";
 import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
 import { useServerVersion } from "./use-server-version.ts";
@@ -55,9 +57,12 @@ export function ShellLayout() {
     queryFn: () => createClient(OrgService, session.transport).listOrganizations({}),
   });
   const organisations = orgs.data?.organizations ?? NONE;
-  const currentId = org === undefined ? undefined : organizationIdOf(org);
+  // Outside an organisation (the profile, the installation) the sidebar keeps the home organisation's navigation.
+  const currentId = org === undefined ? session.home() : organizationIdOf(org);
 
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [gettingStartedOpen, setGettingStartedOpen] = useState(false);
+  const onboarding = useOnboarding(org !== undefined);
   const [creatingOrganisation, setCreatingOrganisation] = useState(false);
   const [pending] = useState(createPendingCounter);
   const waiting = usePendingTotal(pending);
@@ -68,11 +73,11 @@ export function ShellLayout() {
         kinds: [...kinds],
         page: { pageSize: limit, pageToken: "" },
       });
-      return res.hits.map((h) => ({ kind: h.kind, id: h.id, name: h.name }));
+      return res.hits.map((h) => ({ kind: h.kind, id: h.id, name: h.name, appId: h.appId, path: h.path }));
     },
     [session],
   );
-  const user = useTanstackQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser(currentId);
   const permissions = user.data?.permissions ?? NONE;
   const commands = useMemo(
     () =>
@@ -105,7 +110,7 @@ export function ShellLayout() {
             side={side}
             organisations={organisations}
             currentId={currentId}
-            org={org}
+            org={org ?? currentId}
             app={app}
             permissions={permissions}
             user={
@@ -118,6 +123,7 @@ export function ShellLayout() {
               user.data?.installationAdmin === true ? () => setCreatingOrganisation(true) : undefined
             }
             onSignOut={signOut}
+            installationAdmin={user.data?.installationAdmin === true}
           />
           <SidebarInset>
             <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
@@ -127,10 +133,31 @@ export function ShellLayout() {
               status={<StatusChips online={online} stream={events.state} waiting={waiting} />}
               docsUrl={version?.docs}
               onSearch={() => setPaletteOpen(true)}
+              gettingStarted={
+                org !== undefined && (
+                  <GetStarted
+                    org={org}
+                    canCreate={user.data?.permissions.includes("app.manage") === true}
+                    open={gettingStartedOpen}
+                    onOpenChange={setGettingStartedOpen}
+                  />
+                )
+              }
+              onShowGettingStarted={
+                org !== undefined && onboarding.ready && !onboarding.complete && onboarding.dismissed
+                  ? async () => {
+                      if (await onboarding.setDismissed(false)) {
+                        setGettingStartedOpen(true);
+                      }
+                    }
+                  : undefined
+              }
             />
-            <div className="flex flex-1 flex-col">
+            {/* Every page sits in the same gutter, as shadcn's dashboard-01 lays out its content. */}
+            <div className="@container/main flex flex-1 flex-col gap-6 px-4 pt-6 pb-12 lg:px-6">
               <Outlet />
             </div>
+            <SiteFooter version={loadedStudioVersion} docsUrl={version?.docs} />
           </SidebarInset>
           {user.data?.installationAdmin === true && (
             <CreateOrganisationDialog open={creatingOrganisation} onOpenChange={setCreatingOrganisation} />

@@ -1,0 +1,22 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * The forms of the area pages (ADR-0103). shadcn's Field fills its row; in a row of fields, such as the filters of the
+ * audit log or a create form, each field takes a column of a readable width instead, and the row wraps.
+ */
+.page-frame form:where(.flex) > [data-slot="field"] {
+  flex: 1 1 calc(var(--spacing) * 48);
+  inline-size: auto;
+  max-inline-size: calc(var(--spacing) * 80);
+}
+
+/* A form of fields one above the other keeps a readable line length. */
+.page-frame form:not(.flex) {
+  max-inline-size: var(--container-2xl);
+}
+
+/* The last row of a data table sits on the frame's own border. */
+.data-table tbody tr:last-child {
+  border-block-end-width: 0;
+}

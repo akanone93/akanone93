@@ -14,8 +14,8 @@ import {
 } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { loadUser } from "../../lib/guards.ts";
 import { useApp } from "../../lib/use-app.tsx";
+import { useCurrentUser } from "../../lib/use-current-user.ts";
 
 type StepPayload = NonNullable<MessageInitShape<typeof AdvanceReleaseRequestRequestSchema>["step"]>;
 
@@ -112,8 +112,7 @@ export function useStartRequest() {
 
 /** The id of the signed-in person, to tell their own request from someone else's. */
 export function useUserId(): string {
-  const { session } = useApp();
-  const user = useQuery({ queryKey: ["current-user"], queryFn: () => loadUser(session) });
+  const user = useCurrentUser();
   return user.data?.user?.id ?? "";
 }
 

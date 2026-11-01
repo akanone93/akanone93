@@ -24,19 +24,24 @@ export function SiteHeader({
   status,
   docsUrl,
   onSearch,
+  gettingStarted,
+  onShowGettingStarted,
 }: {
   /** Where the person is: the organisation's name, or nothing while it loads. */
   readonly title: string;
   readonly status: ReactNode;
   readonly docsUrl: string | undefined;
   readonly onSearch: () => void;
+  /** The Get started button of an organisation with steps left (STU-015). */
+  readonly gettingStarted: ReactNode;
+  readonly onShowGettingStarted: (() => void) | undefined;
 }): ReactElement {
   const { i18n } = useLingui();
   const m = chromeMessages(i18n);
   const c = commandMessages(i18n);
   const apple = typeof navigator !== "undefined" && /mac|iphone|ipad/i.test(navigator.platform);
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b">
+    <header className="site-header sticky top-0 z-20 flex h-(--header-height) shrink-0 items-center gap-2 rounded-t-xl border-b">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ms-1" aria-label={m.toggleSidebar} />
         <Separator orientation="vertical" className="mx-2 h-4 data-vertical:self-auto" />
@@ -49,6 +54,7 @@ export function SiteHeader({
         </Breadcrumb>
         <div className="ms-auto flex items-center gap-2">
           {status}
+          {gettingStarted}
           <Button
             variant="outline"
             size="sm"
@@ -61,7 +67,7 @@ export function SiteHeader({
           </Button>
           <ThemeButton />
           <NotificationsPopover />
-          <HelpMenu docsUrl={docsUrl} />
+          <HelpMenu docsUrl={docsUrl} onShowGettingStarted={onShowGettingStarted} />
         </div>
       </div>
     </header>

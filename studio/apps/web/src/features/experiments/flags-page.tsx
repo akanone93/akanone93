@@ -141,6 +141,7 @@ export function FlagsPage(): ReactElement {
       caption={m.flagsCaption}
       loading={environment.loading || flags.isPending}
       failed={environment.failed || flags.isError}
+      error={flags.error}
     >
       {(flags.data?.flags ?? []).length === 0 ? (
         <p className="text-body text-muted-foreground">{m.noFlags}</p>

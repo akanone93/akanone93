@@ -3,6 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import type { ReactElement, ReactNode } from "react";
+import { PageFrame } from "../../components/page.tsx";
 import { releasesMessages } from "./releases.messages.ts";
 
 /** Heading, caption and the loading and error states shared by the pages of the area. */
@@ -12,6 +13,7 @@ export function Frame({
   caption,
   loading,
   failed,
+  error,
   children,
 }: {
   readonly id: string;
@@ -19,26 +21,13 @@ export function Frame({
   readonly caption?: string;
   readonly loading: boolean;
   readonly failed: boolean;
+  readonly error?: unknown;
   readonly children: ReactNode;
 }): ReactElement {
   const m = releasesMessages(useLingui().i18n);
   return (
-    <section className="flex flex-col gap-4" aria-labelledby={id}>
-      <h1 id={id} className="text-screen">
-        {title}
-      </h1>
-      {caption !== undefined && <p className="text-body text-muted-foreground">{caption}</p>}
-      {loading && !failed && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.loading}
-        </p>
-      )}
-      {failed && (
-        <p role="alert" className="text-body text-danger">
-          {m.loadFailed}
-        </p>
-      )}
-      {!loading && !failed && children}
-    </section>
+    <PageFrame id={id} title={title} caption={caption} loading={loading} failed={failed} error={error} labels={m}>
+      {children}
+    </PageFrame>
   );
 }

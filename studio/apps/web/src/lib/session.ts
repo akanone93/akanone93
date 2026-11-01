@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Transport } from "@connectrpc/connect";
-import { createStudioTransport } from "@plux/api";
+import { createStudioTransport, NotificationService, PreferencesService, withStudioHeaders } from "@plux/api";
 import { QueryClient } from "@tanstack/react-query";
 
 /**
@@ -13,21 +13,51 @@ export interface Session {
   readonly transport: Transport;
   readonly queryClient: QueryClient;
   readonly setCsrfToken: (token: string | undefined) => void;
+  /** Names the organisation of the page in every request; undefined on a page outside any. */
   readonly setOrganization: (id: string | undefined) => void;
+  /** The organisation requests name, if any. */
+  readonly organization: () => string | undefined;
+  /**
+   * The person's home organisation: the last one a page named, kept on the pages outside any (the profile, the
+   * installation). The sidebar shows its navigation, and the person's own preferences and inbox are read in it.
+   */
+  readonly home: () => string | undefined;
+  /** Sets the home organisation, after a reload on a page outside any. */
+  readonly setHome: (id: string | undefined) => void;
 }
 
-/** Creates the session; tests pass their own transport. */
+/**
+ * The services whose calls are the person's own rather than the page's: preferences and the inbox are kept per
+ * organisation on the server, and a page outside any still reads them in the home organisation.
+ */
+const personal: ReadonlySet<string> = new Set([PreferencesService.typeName, NotificationService.typeName]);
+
+/** Creates the session; tests pass their own transport, which gets the same headers. */
 export function createSession(baseUrl: string, transport?: Transport): Session {
   let csrf: string | undefined;
   let organization: string | undefined;
+  let home: string | undefined;
+  const headers = {
+    csrfToken: () => csrf,
+    organization: (service: string) => organization ?? (personal.has(service) ? home : undefined),
+  };
   return {
-    transport: transport ?? createStudioTransport({ baseUrl, csrfToken: () => csrf, organization: () => organization }),
+    transport:
+      transport === undefined ? createStudioTransport({ baseUrl, ...headers }) : withStudioHeaders(transport, headers),
     queryClient: new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } }),
     setCsrfToken: (token) => {
       csrf = token;
     },
     setOrganization: (id) => {
       organization = id;
+      if (id !== undefined) {
+        home = id;
+      }
+    },
+    organization: () => organization,
+    home: () => home,
+    setHome: (id) => {
+      home = id;
     },
   };
 }

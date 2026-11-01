@@ -137,20 +137,27 @@ export function chromeMessages(i18n: I18n) {
       message: "Approvals",
       comment: "Sidebar link to the organisation's approvals inbox.",
     }),
-    notifications: i18n._({
-      id: "chrome.sidebar.notifications",
-      message: "Notifications",
-      comment: "Sidebar link to the notifications page.",
+    library: i18n._({
+      id: "chrome.sidebar.library",
+      message: "Library",
+      comment: "Sidebar link to the organisation's library of shared components and templates.",
+    }),
+    version: (version: string) =>
+      i18n._({
+        id: "chrome.footer.version",
+        message: "Version {version}",
+        comment: "Footer of every page: the Studio version loaded in this tab.",
+        values: { version },
+      }),
+    footer: i18n._({
+      id: "chrome.footer.label",
+      message: "Help links",
+      comment: "Accessible name of the links in the page footer.",
     }),
     toggleSidebar: i18n._({
       id: "chrome.sidebar.toggle",
       message: "Show or hide the sidebar",
       comment: "Accessible name of the button that collapses and expands the sidebar.",
-    }),
-    shortcuts: i18n._({
-      id: "chrome.profile.shortcuts",
-      message: "Keyboard shortcuts",
-      comment: "Item of the account menu that opens the keyboard shortcuts page.",
     }),
   };
 }

@@ -138,6 +138,18 @@ export function onboardingMessages(i18n: I18n) {
       message: "Dismiss checklist",
       comment: "Button that hides the first-run checklist.",
     }),
+    dismissHint: i18n._({
+      id: "onboarding.dismiss.hint",
+      message: "You can show this checklist again from the help menu.",
+      comment: "Line beside the button that dismisses the first-run checklist.",
+    }),
+    progressShort: (done: number, total: number) =>
+      i18n._({
+        id: "onboarding.progress.short",
+        message: "{done}/{total}",
+        comment: "Short progress on the Get started button of the header: steps done of all steps.",
+        values: { done, total },
+      }),
     reopen: i18n._({
       id: "onboarding.reopen",
       message: "Show getting started",

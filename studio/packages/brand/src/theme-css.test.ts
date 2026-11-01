@@ -3,6 +3,7 @@
 
 import { describe, expect, test } from "bun:test";
 
+import { minimumTextContrast, oklchContrast } from "./contrast.ts";
 import { shadcnDark, shadcnLight } from "./shadcn-theme.ts";
 import { themeCss } from "./theme-css.ts";
 import { brandColors } from "./tokens.ts";
@@ -10,7 +11,7 @@ import { brandColors } from "./tokens.ts";
 describe("themeCss [STU-010] [STU-016]", () => {
   const css = themeCss();
 
-  test("declares shadcn's neutral theme in light and dark, unchanged", () => {
+  test("declares the theme of ADR-0103 in light and dark", () => {
     for (const [name, value] of Object.entries(shadcnLight)) {
       expect(css).toContain(`  --${name}: ${value};`);
       expect(css).toContain(`  --color-${name}: var(--${name});`);
@@ -50,6 +51,33 @@ describe("themeCss [STU-010] [STU-016]", () => {
     expect(css).toContain("@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));");
     expect(css).toContain("[data-theme=dark] {");
     expect(css).toContain("[data-theme=contrast] {");
+  });
+
+  test("text on every surface of both themes meets WCAG AA [STU-011]", () => {
+    const pairs = [
+      ["foreground", "background"],
+      ["foreground", "card"],
+      ["muted-foreground", "background"],
+      ["muted-foreground", "card"],
+      ["muted-foreground", "muted"],
+      ["primary-foreground", "primary"],
+      ["secondary-foreground", "secondary"],
+      ["accent-foreground", "accent"],
+      ["popover-foreground", "popover"],
+      ["sidebar-foreground", "sidebar"],
+      ["sidebar-accent-foreground", "sidebar-accent"],
+      ["sidebar-primary-foreground", "sidebar-primary"],
+    ] as const;
+    for (const theme of [shadcnLight, shadcnDark]) {
+      for (const [fg, bg] of pairs) {
+        expect([fg, bg, oklchContrast(theme[fg], theme[bg]) >= minimumTextContrast]).toEqual([fg, bg, true]);
+      }
+    }
+  });
+
+  test("the oklch contrast agrees with the hex one at the extremes", () => {
+    expect(oklchContrast("oklch(1 0 0)", "oklch(0 0 0)")).toBeCloseTo(21, 1);
+    expect(oklchContrast("oklch(0.5 0 0)", "oklch(0.5 0 0)")).toBe(1);
   });
 
   test("is deterministic", () => {

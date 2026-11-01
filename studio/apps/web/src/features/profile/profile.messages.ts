@@ -40,5 +40,57 @@ export function profileMessages(i18n: I18n) {
       message: "Account",
       comment: "Heading of the section with the person's name and email.",
     }),
+    accountCaption: i18n._({
+      id: "profile.account.caption",
+      message: "The name and email address you sign in with.",
+      comment: "Caption of the account card on the profile page.",
+    }),
+    installationAdmin: i18n._({
+      id: "profile.account.installation-admin",
+      message: "Installation administrator",
+      comment: "Badge on the profile of a person who administers the whole installation.",
+    }),
+    memberOf: (count: number) =>
+      i18n._({
+        id: "profile.account.member-of",
+        message: "{count, plural, one {Member of # organisation} other {Member of # organisations}}",
+        comment: "Line on the account card: how many organisations the person belongs to.",
+        values: { count },
+      }),
+    appearance: i18n._({
+      id: "profile.appearance",
+      message: "Appearance",
+      comment: "Heading of the card with the theme, density and language.",
+    }),
+    appearanceCaption: i18n._({
+      id: "profile.appearance.caption",
+      message: "How Studio looks and reads. A change applies at once.",
+      comment: "Caption of the appearance card on the profile page.",
+    }),
+    themeCaption: i18n._({
+      id: "profile.theme.caption",
+      message: "Match system follows the light or dark setting of your device.",
+      comment: "Description under the theme choice.",
+    }),
+    densityCaption: i18n._({
+      id: "profile.density.caption",
+      message: "Compact fits more rows on the screen.",
+      comment: "Description under the density choice.",
+    }),
+    navProfile: i18n._({
+      id: "profile.nav.profile",
+      message: "Profile",
+      comment: "Tab of the profile page with the account, appearance and notifications.",
+    }),
+    navShortcuts: i18n._({
+      id: "profile.nav.shortcuts",
+      message: "Keyboard shortcuts",
+      comment: "Tab of the profile page with the keyboard shortcuts.",
+    }),
+    navLabel: i18n._({
+      id: "profile.nav.label",
+      message: "Profile pages",
+      comment: "Accessible name of the tabs of the profile page.",
+    }),
   };
 }
