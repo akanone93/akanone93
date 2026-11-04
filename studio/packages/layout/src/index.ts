@@ -249,6 +249,7 @@ export {
 export { type PaintNode, paintTree } from "./paint/painters.ts";
 export {
   M3_TYPE_SCALE,
+  ownTextStyle,
   type ResolvedText,
   resolveTextStyle,
   type TypeRole,

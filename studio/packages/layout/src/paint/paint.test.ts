@@ -81,7 +81,7 @@ describe("[STU-005] what each widget paints, in paint order", () => {
             props: { borderRadius: { all: 4 } },
             children: [{ id: "inner", type: "ColoredBox", props: { color: hex("00FF00") } }],
           },
-          { id: "fade", type: "Opacity", props: { opacity: 0.5 }, children: [{ id: "faded", type: "ElevatedButton" }] },
+          { id: "fade", type: "Opacity", props: { opacity: 0.5 }, children: [{ id: "faded", type: "DataTable" }] },
           {
             id: "stack",
             type: "IndexedStack",
@@ -154,7 +154,7 @@ describe("[THM-005] icons as Flutter's Icon draws them", () => {
       type: "Column",
       children: [
         icon("own", { size: 32, color: { $token: "color.primary" }, icon: { name: "heart", set: "cupertino" } }),
-        { id: "b", type: "FilledButton", slots: { child: icon("inFilled") } },
+        { id: "b", type: "FilledButton", events: { onPressed: { steps: [] } }, slots: { child: icon("inFilled") } },
         { id: "bar", type: "AppBar", slots: { leading: icon("lead"), actions: [icon("act")] } },
         icon("none", { icon: { $expr: "page.icon" } }),
       ],

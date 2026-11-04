@@ -14,7 +14,7 @@ import { kMinInteractiveDimension, MaterialTapTargetSize, VisualDensity } from "
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
-import type { MaterialContext } from "./material-scene.ts";
+import { type MaterialContext, style } from "./material-scene.ts";
 import { padding, type SceneNode } from "./scene.ts";
 
 type LeafBuilder = (node: SceneNode, ctx: MaterialContext) => RenderBox;
@@ -92,7 +92,9 @@ export const leafBuilders: Readonly<Record<string, LeafBuilder>> = {
     return new RenderConstrainedBox({
       additionalConstraints: BoxConstraints.tightFor({ width: side, height: side }),
       child:
-        child === undefined ? null : new RenderPositionedBox({ alignment: Alignment.center, child: ctx.build(child) }),
+        child === undefined
+          ? null
+          : new RenderPositionedBox({ alignment: Alignment.center, child: ctx.build(child, style("titleMedium")) }),
     });
   },
   CircularProgressIndicator: () =>

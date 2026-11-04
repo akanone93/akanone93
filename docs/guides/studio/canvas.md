@@ -134,7 +134,9 @@ from Material Symbols and the Cupertino icons in their colour and size; an icon 
 of both sets, searched by name. The canvas draws Material Symbols at their default fill and weight. Images of the
 app's uploaded assets are drawn in their fit and corners, and avatars in their image or colour with their initials;
 drag an image from **Assets** onto a screen to add it, or pick one for an image property. A web image is loaded on the
-device; the canvas shows its placeholder. The canvas previews with the same layout code the device runs; the device decides. Check anything
+device; the canvas shows its placeholder. Buttons, chips, checkboxes, radios, switches, sliders and progress
+indicators look as Material 3 draws them, their labels and icons in the component's colours; a control without an
+action is drawn disabled, as it is on the device until you add one. The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 ## Link screens

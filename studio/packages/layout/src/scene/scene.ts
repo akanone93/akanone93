@@ -143,6 +143,8 @@ export interface SceneText {
   screen?: { width: number; height: number };
   /** The render objects of [hostType] nodes, by node id: widgets the host built itself. */
   hosts?: ReadonlyMap<string, RenderBox>;
+  /** Told the style each `Text` node is laid out in, its component's merged with its own (the canvas draws it so). */
+  onText?: (id: string, style: TextStyle) => void;
 }
 
 /** The type of a node standing for a render object its host built (the screen builder's own widgets). */
@@ -492,6 +494,7 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
     textStyle.fontStyle = FontStyle.italic;
   }
   const maxLines = optionalNum(props, "maxLines") ?? text.defaults?.maxLines ?? null;
+  text.onText?.(node.id, textStyle);
   return new RenderParagraph({
     strutStyle: buildStrut(field(props, "strutStyle") as Record<string, unknown> | undefined),
     text: { text: String(field(props, "text") ?? field(props, "data")), style: textStyle },

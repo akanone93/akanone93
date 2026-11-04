@@ -10,6 +10,7 @@
  */
 
 import type { ColorRole } from "../material-color/scheme.ts";
+import { checkboxMark, controlForeground, controlPainters } from "./controls.ts";
 import {
   argbToRgba,
   type BoxFitName,
@@ -43,6 +44,8 @@ export interface PaintNode {
   readonly props?: Obj;
   readonly children?: readonly PaintNode[];
   readonly slots?: Readonly<Record<string, PaintNode | readonly PaintNode[]>>;
+  /** The actions the widget handles; a control with none is disabled. */
+  readonly events?: unknown;
 }
 
 /** What a painter returns: its boxes, and the clip and opacity it puts on its children. */
@@ -366,13 +369,6 @@ const TEXT_THEMES: Readonly<Record<string, ColorRole>> = {
 };
 
 const ICON_THEMES: Readonly<Record<string, readonly [ColorRole, number]>> = {
-  IconButton: ["onSurfaceVariant", 24],
-  FilledButton: ["onPrimary", 18],
-  FilledTonalButton: ["onSecondaryContainer", 18],
-  ElevatedButton: ["primary", 18],
-  OutlinedButton: ["primary", 18],
-  TextButton: ["primary", 18],
-  FloatingActionButton: ["onPrimaryContainer", 24],
   AppBar: ["onSurfaceVariant", 24],
   BottomAppBar: ["onSurfaceVariant", 24],
   NavigationBar: ["onSurfaceVariant", 24],
@@ -381,17 +377,20 @@ const ICON_THEMES: Readonly<Record<string, readonly [ColorRole, number]>> = {
   ListTile: ["onSurfaceVariant", 24],
   SearchBar: ["onSurfaceVariant", 24],
   TextField: ["onSurfaceVariant", 24],
-  ActionChip: ["primary", 18],
-  Chip: ["onSurfaceVariant", 18],
-  FilterChip: ["onSurfaceVariant", 18],
-  InputChip: ["onSurfaceVariant", 18],
-  ChoiceChip: ["onSurfaceVariant", 18],
 };
 
 /** The icon theme `node`'s child in `slot` sees: its component's, an app bar's leading icon in `onSurface`. */
 function iconContextOf(node: PaintNode, slot: string | undefined, theme: PaintTheme, above: IconContext): IconContext {
+  const control = controlForeground(node, theme);
+  if (control !== undefined) {
+    return {
+      color: control.icon ?? above.color,
+      size: control.iconSize ?? above.size,
+      ...(control.text === undefined ? {} : { text: control.text }),
+    };
+  }
   const entry = ICON_THEMES[node.type ?? ""];
-  const text = TEXT_THEMES[node.type ?? ""];
+  const text = node.type === "ListTile" && slot === "subtitle" ? "onSurfaceVariant" : TEXT_THEMES[node.type ?? ""];
   const withText = text === undefined ? above : { ...above, text: roleColor(theme, text) };
   if (entry === undefined) {
     return withText;
@@ -428,6 +427,24 @@ function slotEntries(node: PaintNode): [string | undefined, PaintNode][] {
   );
 }
 
+/** What a widget paints in its box `r`: a control's boxes, or its painter's. */
+function paintOf(node: PaintNode, r: Rect, theme: PaintTheme): Painted {
+  const control = controlPainters.get(node.type ?? "");
+  if (control !== undefined) {
+    return { boxes: control(node, r, theme) };
+  }
+  return painters.get(node.type ?? "")?.(node.props ?? {}, r, theme) ?? {};
+}
+
+/** The glyph a widget draws: an `Icon`'s, or the check of a checked checkbox. */
+function ownIcon(node: PaintNode, theme: PaintTheme, icons: IconContext): IconPaint | undefined {
+  if (node.type === "Icon") {
+    return iconOf(node.props ?? {}, theme, icons);
+  }
+  const mark = checkboxMark(node, theme);
+  return mark === undefined ? undefined : { name: mark.name, set: "material", size: 18, color: mark.color };
+}
+
 /** Walks a screen's widgets in paint order and records how each is drawn. */
 class TreePainter {
   readonly out = new Map<string, NodePaint>();
@@ -449,14 +466,14 @@ class TreePainter {
 
   visit(node: PaintNode, opacity: number, clips: readonly PaintClip[], icons: IconContext): void {
     const r = this.rects.get(node.id);
-    const type = node.type ?? "";
-    const painter = painters.get(type);
-    const painted: Painted = r === undefined || painter === undefined ? {} : painter(node.props ?? {}, r, this.theme);
+    const painted: Painted = r === undefined ? {} : paintOf(node, r, this.theme);
     if (r !== undefined) {
-      const icon = type === "Icon" ? iconOf(node.props ?? {}, this.theme, icons) : undefined;
+      const type = node.type ?? "";
+      const icon = ownIcon(node, this.theme, icons);
       // An image with no source the canvas knows is a placeholder, as a widget not painted yet is.
       const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
-      const role = icon === undefined ? roleOf(type, painter !== undefined && !sourceless) : "icon";
+      const painterOf = (painters.has(type) || controlPainters.has(type)) && !sourceless;
+      const role = icon === undefined || type !== "Icon" ? roleOf(type, painterOf) : "icon";
       this.record(node, role, painted, opacity, clips, { icon, text: icons.text });
     }
     const childOpacity = opacity * (painted.opacity ?? 1);

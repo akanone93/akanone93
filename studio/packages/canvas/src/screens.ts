@@ -250,6 +250,22 @@ function imageOf(box: BoxPaint, style: ScreenStyle): Partial<RectSpec> {
   };
 }
 
+/** A widget's glyph over the boxes it paints (a checkbox's check over its box). */
+function glyphItems(
+  s: ScreenDocument,
+  b: Placed,
+  paint: NodePaint,
+  icon: IconPaint,
+  glyph: { readonly text: string; readonly families: readonly string[]; readonly mirrored: boolean },
+  style: ScreenStyle,
+): ItemSpec[] {
+  const frame = b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) };
+  return [
+    ...iconItems(s, b, paint, icon, glyph, style),
+    ...paint.boxes.map((box, i) => paintedBox(s, b, paint, box, i, frame, style)),
+  ];
+}
+
 /** One painted box of a widget as a scene item. */
 function paintedBox(
   s: ScreenDocument,
@@ -307,7 +323,7 @@ function paintedItems(
   }
   const glyph = paint.icon === undefined ? undefined : glyphs?.glyph(paint.icon);
   if (paint.icon !== undefined && glyph !== undefined) {
-    return iconItems(s, b, paint, paint.icon, glyph, style);
+    return glyphItems(s, b, paint, paint.icon, glyph, style);
   }
   const beyond = b.y >= style.deviceHeight;
   const frame = beyond ? {} : { frame: frameId(s.id) };

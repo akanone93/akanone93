@@ -18,10 +18,12 @@ import { RenderIntrinsicWidth } from "../flutter/proxy-boxes.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { TextScaler, type TextStyle } from "../flutter/text-style.ts";
 import { type PaintTheme, resolveColor } from "../paint/paint.ts";
-import { type ResolvedText, resolveTextStyle, type TypeRole } from "../paint/text-style.ts";
+import { ownTextStyle, resolveTextStyle } from "../paint/text-style.ts";
+import { materialFontFamily } from "../scene/material-scene.ts";
 import { buildNode, hostType, type SceneNode, type SceneText, supportedTypes } from "../scene/scene.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
-import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
+import { FontStyle } from "../text/paragraph-engine.ts";
+import type { PlacedText, WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 import { layoutTextStyle, paintedTextOf } from "./screen.ts";
 import { placeholder } from "./structural.ts";
 
@@ -128,22 +130,8 @@ const unusedSlots: ReadonlySet<string> = new Set(["empty", "loading", "error", "
 interface Bridge {
   readonly ctx: WidgetContext;
   readonly hosts: Map<string, RenderBox>;
-  /** The text style the component around a text gives it (its `DefaultTextStyle`), on a painted screen. */
-  readonly text?: ResolvedText;
-}
-
-/** The type-scale role a Material 3 component gives the texts inside it (its `DefaultTextStyle`). */
-const COMPONENT_TEXT: Readonly<Record<string, TypeRole>> = {
-  CircleAvatar: "titleMedium",
-};
-
-/** The bridge the children of `node` are converted with: its component's text style, on a painted screen. */
-function childBridge(node: WidgetNode, bridge: Bridge): Bridge {
-  const role = COMPONENT_TEXT[node.type ?? ""];
-  const paint = bridge.ctx.paint;
-  return role === undefined || paint === undefined
-    ? bridge
-    : { ...bridge, text: resolveTextStyle({ $token: `typography.${role}` }, paint) };
+  /** The texts of a painted screen waiting for the style the scene lays them out in: their data and how they draw. */
+  readonly texts: Map<string, { readonly data: string; readonly placed: PlacedText }>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -196,6 +184,20 @@ function sceneProps(type: string, props: Record<string, unknown>): Record<string
   }
 }
 
+/** Material components a painted screen builds from scene nodes, their texts and icons with them. */
+const componentTypes: readonly string[] = [
+  "FilledButton",
+  "FilledTonalButton",
+  "ElevatedButton",
+  "OutlinedButton",
+  "TextButton",
+  "IconButton",
+  "FloatingActionButton",
+  "Chip",
+  "FilterChip",
+  "InputChip",
+];
+
 /**
  * The types a painted screen builds from scene nodes too, as Flutter lays them out (STU-005): the flex, padding, size
  * and alignment widgets every screen is made of, and the containers and scroll views the scene spells otherwise.
@@ -214,6 +216,7 @@ export const faithfulTypes: ReadonlySet<string> = new Set([
   "SafeArea",
   "SingleChildScrollView",
   "ListView",
+  ...componentTypes,
 ]);
 
 /** Whether `type` is built from a scene node, given whether its parent is a composite and the screen is painted. */
@@ -313,17 +316,13 @@ function convert(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNode {
   if (!converts(type, deep, paint !== undefined) || type === undefined) {
     return host(node, bridge);
   }
-  const inner = deep || compositeTypes.includes(type);
+  const inner = deep || compositeTypes.includes(type) || (paint !== undefined && componentTypes.includes(type));
   const raw = (node.props ?? {}) as Record<string, unknown>;
   if (paint !== undefined && faithfulTypes.has(type)) {
-    return faithfulScene(
-      node,
-      literalProps(raw, paint) as Record<string, unknown>,
-      sceneChildren(node, childBridge(node, bridge), inner),
-    );
+    return faithfulScene(node, literalProps(raw, paint) as Record<string, unknown>, sceneChildren(node, bridge, inner));
   }
   const props = type === "Text" ? textProps(node, sceneProps(type, raw), bridge) : sceneProps(type, raw);
-  const children = sceneChildren(node, childBridge(node, bridge), inner);
+  const children = sceneChildren(node, bridge, inner);
   const scene: SceneNode = { id: node.id, type, props, ...(children.length === 0 ? {} : { children }) };
   return boundedHeight.has(type) ? inViewportHeight(scene, bridge) : scene;
 }
@@ -336,9 +335,39 @@ function textProps(node: WidgetNode, props: Record<string, unknown>, bridge: Bri
     bridge.ctx.mark(node.id, "text", data);
     return props;
   }
-  const { placed, style } = paintedTextOf(node, paint, bridge.ctx.theme, bridge.text);
+  // The scene merges the text's own fields over its component's style (a button's `labelLarge`) and reports the
+  // result, which the text is then drawn in (`measured`).
+  const { placed } = paintedTextOf(node, paint, bridge.ctx.theme);
   bridge.ctx.mark(node.id, "text", data, placed);
-  return { ...props, style: { ...style, ...(placed.italic ? { fontStyle: "italic" } : {}) } };
+  bridge.texts.set(node.id, { data, placed });
+  const own = ownTextStyle((node.props as Record<string, unknown> | undefined)?.["style"], paint);
+  return {
+    ...props,
+    style: {
+      ...(own.size === undefined ? {} : { fontSize: own.size }),
+      ...(own.weight === undefined ? {} : { fontWeight: own.weight }),
+      ...(own.height === undefined ? {} : { height: own.height }),
+      ...(own.letterSpacing === undefined ? {} : { letterSpacing: own.letterSpacing }),
+      ...(own.family === undefined ? {} : { fontFamily: own.family }),
+      ...(own.italic === true ? { fontStyle: "italic" } : {}),
+    },
+  };
+}
+
+/** A text's placed style with the metrics the scene laid it out in; the theme's own family is no family of its own. */
+function measured(placed: PlacedText, style: TextStyle, families: readonly string[]): PlacedText {
+  const family =
+    style.fontFamily === materialFontFamily || style.fontFamily === families[0] ? undefined : style.fontFamily;
+  const { family: _, ...rest } = placed;
+  return {
+    ...rest,
+    size: style.fontSize ?? placed.size,
+    weight: style.fontWeight ?? placed.weight,
+    height: style.height ?? placed.height,
+    letterSpacing: style.letterSpacing ?? 0,
+    italic: style.fontStyle === FontStyle.italic,
+    ...(family === undefined ? {} : { family }),
+  };
 }
 
 /**
@@ -389,9 +418,28 @@ function faithfulScene(node: WidgetNode, props: Record<string, unknown>, childre
       return { id: node.id, type: "Padding", props: { padding: ZERO }, ...own };
     case "ListView":
       return { id: node.id, type: "ListView", props: { ...props, shrinkWrap: true }, ...own };
+    case "IconButton":
+    case "FloatingActionButton":
+      return { id: node.id, type: node.type, props, ...withChild(children) };
     default:
       return { id: node.id, type: node.type ?? "", props, ...own };
   }
+}
+
+/**
+ * An icon button's or a floating action button's children as the scene reads them: the `icon` slot is the child (an
+ * icon button's selected icon is not shown).
+ */
+function withChild(children: SceneNode[]): { children?: SceneNode[] } {
+  const hasChild = children.some((c) => c.slot === undefined);
+  const out = children
+    .filter((c) => c.slot !== "selectedIcon")
+    .map((c) =>
+      c.slot === "icon" && !hasChild
+        ? { id: c.id, type: c.type, props: c.props, ...(c.children === undefined ? {} : { children: c.children }) }
+        : c,
+    );
+  return out.length === 0 ? {} : { children: out };
 }
 
 /** Flutter's `Container.build`: margin, then the size and constraints, then padding, then alignment, then the child. */
@@ -485,7 +533,7 @@ export function faithful(legacy: WidgetBuilder): WidgetBuilder {
 
 /** Builds `node` from its scene node; throws when the scene cannot build it. */
 function sceneBuild(node: WidgetNode, ctx: WidgetContext): RenderBox {
-  const bridge: Bridge = { ctx, hosts: new Map() };
+  const bridge: Bridge = { ctx, hosts: new Map(), texts: new Map() };
   const [family, ...fallback] = ctx.theme.fontFamilies;
   const base: TextStyle =
     ctx.paint === undefined
@@ -497,6 +545,12 @@ function sceneBuild(node: WidgetNode, ctx: WidgetContext): RenderBox {
     base,
     hosts: bridge.hosts,
     screen: { width: ctx.available(), height: 0 },
+    onText: (id, style) => {
+      const text = bridge.texts.get(id);
+      if (text !== undefined) {
+        ctx.mark(id, "text", text.data, measured(text.placed, style, ctx.theme.fontFamilies));
+      }
+    },
   };
   const box = buildNode(convert(node, bridge, false), ctx.textDirection ?? TextDirection.ltr, text);
   ctx.mark(node.id, "box");

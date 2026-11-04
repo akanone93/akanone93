@@ -55,9 +55,10 @@ Needs.
 - **PC-04 Images.** *See:* asset images in every fit, with rounded corners; avatars with an image, initials or an
   icon; a web image's placeholder; an image picker. *Build:* drag an uploaded image onto a screen. *Check:* change the
   fit; pick another image; a web image shows its placeholder. `AST-002`.
-- **PC-05 Buttons and controls.** *See:* Material 3 buttons, FABs, chips, switches, checkboxes, radios, sliders,
-  segmented buttons, progress, badges, in their states. *Build:* an actions screen. *Check:* the **State** preview
-  switch shows disabled and selected. `STU-005`.
+- **PC-05 Buttons and controls.** *See:* Material 3 buttons, icon buttons, FABs, chips, switches, checkboxes, radios,
+  sliders, progress, badges, in their states; labels in the component's text style and colour. *Build:* an actions
+  screen. *Check:* a button without an action is disabled, as on the device — add one and it is enabled; set a
+  checkbox, switch, radio or filter chip's value and it shows selected. `STU-005`.
 - **PC-06 Fields and pickers.** *See:* text fields in every state, dropdowns, search bars, steppers, date pickers.
   *Build:* a form screen. *Check:* preview the error state. `STU-005`, `STA-020`.
 - **PC-07 Bars, surfaces and lists.** *See:* app bars, navigation bar, rail and drawer, tab bar, cards, list tiles,

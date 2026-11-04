@@ -475,4 +475,32 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(items.get("s/w#paint0web")).toMatchObject({ kind: "text", text: String.fromCodePoint(0xe3f4) });
     engine.dispose();
   });
+
+  test("[STU-005] a button is laid out by Flutter's rules and painted as Material 3's: its label in labelLarge, onPrimary", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        {
+          id: "b",
+          type: "FilledButton",
+          events: { onPressed: { steps: [] } },
+          slots: { child: { id: "l", type: "Text", props: { data: "Go" } } },
+        },
+      ],
+    };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    const items = new Map(painted.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])));
+    expect(items.get("s/b#paint0")).toMatchObject({ kind: "rect", h: 40, fill: argbToRgba(scheme.primary) });
+    expect(items.get("s/l")).toMatchObject({
+      kind: "text",
+      size: 14,
+      weight: 500,
+      letterSpacing: 0.1,
+      color: argbToRgba(scheme.onPrimary),
+    });
+    engine.dispose();
+  });
 });

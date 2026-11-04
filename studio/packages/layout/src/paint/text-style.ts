@@ -154,6 +154,30 @@ function paintedOf(value: Obj, from: ResolvedText, theme: PaintTheme | undefined
   };
 }
 
+/**
+ * The fields a `style` value sets itself, without a base: a type-scale role's metrics for its token, another
+ * typography token's fields, then its own fields. The component a text sits in gives the rest.
+ */
+export function ownTextStyle(value: unknown, theme: PaintTheme | undefined): Partial<TypeSpec> & { italic?: boolean } {
+  if (!isObj(value)) {
+    return {};
+  }
+  const token = typeof value["$token"] === "string" ? value["$token"] : undefined;
+  const role = token === undefined ? undefined : typeRoleOf(token);
+  const fromToken =
+    role !== undefined ? typeScaleOf(theme)[role] : token === undefined ? {} : (theme?.textTokens?.[token] ?? {});
+  const set = (name: string, v: number | undefined) => (v === undefined ? {} : { [name]: v });
+  return {
+    ...fromToken,
+    ...set("size", num(value["fontSize"])),
+    ...set("weight", weightOf(value["fontWeight"])),
+    ...set("height", num(value["height"])),
+    ...set("letterSpacing", num(value["letterSpacing"])),
+    ...(typeof value["fontFamily"] === "string" ? { family: value["fontFamily"] } : {}),
+    ...(value["fontStyle"] === undefined ? {} : { italic: value["fontStyle"] === "italic" }),
+  };
+}
+
 function decorationOf(v: unknown): ResolvedText["decoration"] {
   return v === "underline" || v === "lineThrough" || v === "overline" ? v : undefined;
 }
