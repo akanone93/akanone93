@@ -8,6 +8,7 @@ import { Icon } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { Table } from "../security/parts.tsx";
 import { analyticsMessages } from "./analytics.messages.ts";
@@ -29,9 +30,15 @@ export function AnalyticsErrorsPage(): ReactElement {
   const q = useErrorGroups(app, daysOf(range.from, range.to));
   const groups = q.data ?? [];
   return (
-    <Frame id="errors-title" title={m.errorsTitle} caption={m.errorsCaption} loading={q.isPending} failed={q.isError}>
-      <AreaNav />
-      {groups.length === 0 && <p className="text-body text-muted-foreground">{m.noErrors}</p>}
+    <Frame
+      id="errors-title"
+      title={m.errorsTitle}
+      caption={m.errorsCaption}
+      loading={q.isPending}
+      failed={q.isError}
+      nav={<AreaNav />}
+    >
+      {groups.length === 0 && <PageEmpty icon="pulse" text={m.noErrors} />}
       <Table
         caption={m.errorsTitle}
         heads={[
@@ -84,8 +91,8 @@ export function AnalyticsErrorPage(): ReactElement {
       loading={list.isPending || (id !== "" && detail.isPending)}
       failed={list.isError || detail.isError || missing}
       error={list.error ?? detail.error}
+      nav={<AreaNav />}
     >
-      <AreaNav />
       <Link
         to="/o/$org/apps/$app/analytics/errors"
         params={{ org, app }}

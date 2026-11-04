@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Field, Input } from "@plux/ui";
+import { Icon } from "@plux/ui";
+import { Input } from "@plux/ui/components/input";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { useScope } from "../security/use-security.ts";
@@ -40,7 +41,7 @@ export function AreaNav(): ReactElement {
       search: (prev: AnalyticsSearch) => ({ ...prev, [key]: value === "" ? undefined : value }),
     });
   return (
-    <div className="flex flex-wrap items-end gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-4">
       <nav aria-label={m.overviewTitle} className="sub-nav">
         {routes.map(([to, key]) => (
           <Link key={to} to={to} params={{ org, app }} search={{ env: search.env }}>
@@ -48,12 +49,29 @@ export function AreaNav(): ReactElement {
           </Link>
         ))}
       </nav>
-      <Field label={m.rangeFrom}>
-        <Input type="date" value={search.from ?? ""} onChange={(e) => set("from", e.target.value)} />
-      </Field>
-      <Field label={m.rangeTo}>
-        <Input type="date" value={search.to ?? ""} onChange={(e) => set("to", e.target.value)} />
-      </Field>
+      {/* biome-ignore lint/a11y/useSemanticElements: a labelled pair of dates, not a form's fieldset */}
+      <div
+        role="group"
+        aria-label={m.rangeLabel}
+        className="flex items-center gap-2 py-2 text-xs text-muted-foreground"
+      >
+        <Icon name="clock" size="pill" />
+        <Input
+          type="date"
+          aria-label={m.rangeFrom}
+          className="h-8 w-36"
+          value={search.from ?? ""}
+          onChange={(e) => set("from", e.target.value)}
+        />
+        <span aria-hidden="true">–</span>
+        <Input
+          type="date"
+          aria-label={m.rangeTo}
+          className="h-8 w-36"
+          value={search.to ?? ""}
+          onChange={(e) => set("to", e.target.value)}
+        />
+      </div>
     </div>
   );
 }

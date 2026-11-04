@@ -6,6 +6,7 @@ import { Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
+import { FieldGrid, SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
 import type { EditSession } from "../editor/index.ts";
 import {
   BlockedDeletePanel,
@@ -163,51 +164,72 @@ export function StateDesignerOverlay(props: StateDesignerOverlayProps) {
       size="full"
       title={m.title}
       labels={{ close: m.close }}
+      icon="variable"
+      flush
+      headerActions={
+        <Button onClick={add} disabled={!canEdit}>
+          <Icon name="plus" />
+          {m.add}
+        </Button>
+      }
     >
-      <div className="flex min-h-0 flex-1 gap-4">
-        <nav aria-label={m.entries} className="flex w-64 shrink-0 flex-col gap-2 overflow-y-auto">
-          <Button onClick={add} disabled={!canEdit}>
-            <Icon name="plus" />
-            {m.add}
-          </Button>
-          {entries.length === 0 && <p className="text-body text-muted-foreground">{m.none}</p>}
-          <ul className="flex flex-col gap-1">
-            {entries.map((e) => (
-              <li key={e.id}>
-                <Button
-                  variant={e.id === selected?.id ? "secondary" : "ghost"}
-                  aria-pressed={e.id === selected?.id}
-                  onClick={() => setChosen(e.id)}
-                >
-                  <span className="font-mono text-data" dir="ltr">
-                    {e.name}
-                  </span>
-                  <span className="font-mono text-tag text-muted-foreground" dir="ltr">
-                    {e.type}
-                  </span>
-                  <span className="text-caption text-muted-foreground">{m.uses(uses(e.name).length)}</span>
+      <SheetLayout
+        nav={
+          <nav aria-label={m.entries} className="flex flex-col gap-1">
+            <SheetNavHead title={m.entries} count={entries.length} />
+            {entries.length === 0 && <p className="px-2 text-xs text-muted-foreground">{m.none}</p>}
+            <ul className="flex flex-col gap-0.5">
+              {entries.map((e) => (
+                <li key={e.id}>
+                  <button
+                    type="button"
+                    className="sheet-item"
+                    aria-pressed={e.id === selected?.id}
+                    onClick={() => setChosen(e.id)}
+                  >
+                    <Icon name={e.computed ? "lightning" : "variable"} size="pill" />
+                    <span className="min-w-0 truncate font-mono text-xs" dir="ltr">
+                      {e.name}
+                    </span>
+                    <span className="rounded-sm bg-muted px-1.5 font-mono text-tag text-muted-foreground" dir="ltr">
+                      {e.type}
+                    </span>
+                    <span className="sheet-item-meta">{m.uses(uses(e.name).length)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        }
+      >
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+        {selected === undefined ? (
+          <SheetEmpty
+            icon="variable"
+            title={m.none}
+            action={
+              canEdit ? (
+                <Button variant="secondary" onClick={add}>
+                  <Icon name="plus" />
+                  {m.add}
                 </Button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="flex min-w-0 flex-1 flex-col gap-3 overflow-y-auto">
-          {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-          {selected !== undefined && (
-            <EntryForm
-              key={selected.id}
-              entry={selected}
-              others={entries.filter((e) => e.id !== selected.id).map((e) => e.name)}
-              types={types}
-              canEdit={canEdit}
-              m={m}
-              verdict={verdict}
-              onEdit={(field, value) => edit(selected.id, field, value)}
-              onRemove={() => remove(selected)}
-            />
-          )}
-        </div>
-      </div>
+              ) : undefined
+            }
+          />
+        ) : (
+          <EntryForm
+            key={selected.id}
+            entry={selected}
+            others={entries.filter((e) => e.id !== selected.id).map((e) => e.name)}
+            types={types}
+            canEdit={canEdit}
+            m={m}
+            verdict={verdict}
+            onEdit={(field, value) => edit(selected.id, field, value)}
+            onRemove={() => remove(selected)}
+          />
+        )}
+      </SheetLayout>
       <BlockedDeletePanel
         open={blocked !== null}
         check={{ entry: false, incoming: blocked ?? [], outgoing: [] }}
@@ -249,106 +271,122 @@ function EntryForm({ entry, others, types, canEdit, m, verdict, onEdit, onRemove
     }
   };
   return (
-    <div className="flex flex-col gap-3">
-      <Field label={m.name} error={nameIssue === undefined ? undefined : m.problem(nameIssue)}>
-        <Input
-          value={name}
-          dir="ltr"
-          readOnly={!canEdit}
-          onChange={(e) => {
-            setName(e.target.value);
-            if (nameProblem(e.target.value, others) === undefined) {
-              onEdit("name", e.target.value);
-            }
-          }}
-        />
-      </Field>
-      {parts === undefined ? (
-        <Field label={m.rawType}>
-          <Input value={entry.type} dir="ltr" readOnly={!canEdit} onChange={(e) => onEdit("type", e.target.value)} />
-        </Field>
-      ) : (
-        <div className="flex flex-wrap items-end gap-3">
-          <Select
-            label={m.container}
-            options={[
-              { value: "single", label: m.single },
-              { value: "list", label: m.list },
-              { value: "map", label: m.map },
-            ]}
-            value={parts.container}
-            disabled={!canEdit}
-            onValueChange={(v) => setType({ container: v as Container })}
-          />
-          <Select
-            label={m.base}
-            options={
-              baseOptions.some((o) => o.value === parts.base)
-                ? baseOptions
-                : [...baseOptions, { value: parts.base, label: parts.base }]
-            }
-            value={parts.base}
-            disabled={!canEdit}
-            onValueChange={(v) => setType({ base: v })}
-          />
-          <label className="flex items-center gap-2 text-body">
-            <input
-              type="checkbox"
-              checked={parts.nullable}
-              disabled={!canEdit}
-              onChange={(e) => setType({ nullable: e.target.checked })}
+    <>
+      <SheetSection
+        title={m.sectionEntry}
+        icon="variable"
+        actions={
+          <Button variant="ghost" size="sm" onClick={onRemove} disabled={!canEdit}>
+            <Icon name="trash" />
+            {m.remove}
+          </Button>
+        }
+      >
+        <FieldGrid>
+          <Field label={m.name} error={nameIssue === undefined ? undefined : m.problem(nameIssue)}>
+            <Input
+              value={name}
+              dir="ltr"
+              readOnly={!canEdit}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (nameProblem(e.target.value, others) === undefined) {
+                  onEdit("name", e.target.value);
+                }
+              }}
             />
-            {m.nullable}
-          </label>
-        </div>
-      )}
-      <Select
-        label={m.persistence}
-        options={persistences.map((p) => ({ value: p, label: persistenceLabel(m, p) }))}
-        value={entry.persistence ?? "memory"}
-        disabled={!canEdit}
-        onValueChange={(v) => onEdit("persistence", v)}
-      />
-      <label className="flex items-center gap-2 text-body">
-        <input
-          type="checkbox"
-          checked={entry.sensitive}
-          disabled={!canEdit}
-          onChange={(e) => onEdit("sensitive", e.target.checked ? true : undefined)}
-        />
-        {m.sensitive}
-      </label>
-      {entry.computed ? (
-        <p className="text-caption text-muted-foreground">{m.computedNote}</p>
-      ) : (
-        <Field label={m.defaultValue} error={parsedDefault === undefined ? m.notJson : undefined}>
-          <Input
-            value={text}
-            dir="ltr"
-            readOnly={!canEdit}
-            onChange={(e) => {
-              setText(e.target.value);
-              const next = parseDefault(e.target.value);
-              if (next === null) {
-                onEdit("default", undefined);
-              } else if (next !== undefined) {
-                onEdit("default", next.value);
-              }
-            }}
+          </Field>
+          <Field label={m.persistence}>
+            <Select
+              label={m.persistence}
+              options={persistences.map((p) => ({ value: p, label: persistenceLabel(m, p) }))}
+              value={entry.persistence ?? "memory"}
+              disabled={!canEdit}
+              onValueChange={(v) => onEdit("persistence", v)}
+            />
+          </Field>
+        </FieldGrid>
+      </SheetSection>
+      <SheetSection title={m.sectionType} icon="braces">
+        {parts === undefined ? (
+          <Field label={m.rawType}>
+            <Input value={entry.type} dir="ltr" readOnly={!canEdit} onChange={(e) => onEdit("type", e.target.value)} />
+          </Field>
+        ) : (
+          <FieldGrid>
+            <Field label={m.container}>
+              <Select
+                label={m.container}
+                options={[
+                  { value: "single", label: m.single },
+                  { value: "list", label: m.list },
+                  { value: "map", label: m.map },
+                ]}
+                value={parts.container}
+                disabled={!canEdit}
+                onValueChange={(v) => setType({ container: v as Container })}
+              />
+            </Field>
+            <Field label={m.base}>
+              <Select
+                label={m.base}
+                options={
+                  baseOptions.some((o) => o.value === parts.base)
+                    ? baseOptions
+                    : [...baseOptions, { value: parts.base, label: parts.base }]
+                }
+                value={parts.base}
+                disabled={!canEdit}
+                onValueChange={(v) => setType({ base: v })}
+              />
+            </Field>
+            <label className="sheet-wide flex items-center gap-2 text-body">
+              <input
+                type="checkbox"
+                checked={parts.nullable}
+                disabled={!canEdit}
+                onChange={(e) => setType({ nullable: e.target.checked })}
+              />
+              {m.nullable}
+            </label>
+          </FieldGrid>
+        )}
+      </SheetSection>
+      <SheetSection title={m.sectionValue} icon="sliders">
+        {entry.computed ? (
+          <p className="text-caption text-muted-foreground">{m.computedNote}</p>
+        ) : (
+          <Field label={m.defaultValue} error={parsedDefault === undefined ? m.notJson : undefined}>
+            <Input
+              value={text}
+              dir="ltr"
+              readOnly={!canEdit}
+              onChange={(e) => {
+                setText(e.target.value);
+                const next = parseDefault(e.target.value);
+                if (next === null) {
+                  onEdit("default", undefined);
+                } else if (next !== undefined) {
+                  onEdit("default", next.value);
+                }
+              }}
+            />
+          </Field>
+        )}
+        <label className="flex items-center gap-2 text-body">
+          <input
+            type="checkbox"
+            checked={entry.sensitive}
+            disabled={!canEdit}
+            onChange={(e) => onEdit("sensitive", e.target.checked ? true : undefined)}
           />
-        </Field>
-      )}
-      <section aria-label={m.problems} className="flex flex-col gap-1">
-        <h3 className="text-label font-medium">{m.problems}</h3>
+          {m.sensitive}
+        </label>
+      </SheetSection>
+      <SheetSection title={m.problems} icon="check-circle">
         <Findings verdict={verdict} m={m} />
-      </section>
-      <div>
-        <Button variant="secondary" onClick={onRemove} disabled={!canEdit}>
-          <Icon name="trash" />
-          {m.remove}
-        </Button>
-      </div>
-    </div>
+      </SheetSection>
+    </>
   );
 }
 

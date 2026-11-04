@@ -8,6 +8,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/component
 import { Tooltip, TooltipContent, TooltipTrigger } from "@plux/ui/components/tooltip";
 import type { ReactElement } from "react";
 import { panelsMessages } from "./panels.messages.ts";
+import type { MetaChange } from "./studio-meta.ts";
 
 /** The Layers pane's tools, which stay at the top while the tree scrolls: the filter, expand all and collapse all. */
 export function LayersToolbar({
@@ -64,6 +65,7 @@ export function LayersPane({
   onReveal,
   onClear,
   onDrop,
+  onMeta,
 }: {
   readonly nodes: Readonly<Record<string, LayerNode>>;
   readonly selected: readonly string[];
@@ -75,6 +77,8 @@ export function LayersPane({
   readonly onReveal: (id: string) => void;
   readonly onClear: () => void;
   readonly onDrop: ((dragged: string, target: string, half: "before" | "after") => void) | undefined;
+  /** Rename, hide and lock; absent while the editor is read-only. */
+  readonly onMeta?: ((id: string, change: MetaChange) => void) | undefined;
 }): ReactElement {
   const m = panelsMessages(useLingui().i18n);
   const types = selected.map((id) => nodes[id]?.type ?? id);
@@ -122,6 +126,24 @@ export function LayersPane({
         expanded={expanded}
         onExpandedChange={onExpanded}
         onDrop={onDrop}
+        actions={
+          onMeta === undefined
+            ? undefined
+            : {
+                labels: {
+                  name: m.layerName,
+                  hide: m.layerHide,
+                  show: m.layerShow,
+                  lock: m.layerLock,
+                  unlock: m.layerUnlock,
+                  hidden: m.layerHidden,
+                  locked: m.layerLocked,
+                },
+                onRename: (id, name) => onMeta(id, { name }),
+                onHidden: (id, hidden) => onMeta(id, { hidden }),
+                onLocked: (id, locked) => onMeta(id, { locked }),
+              }
+        }
       />
     </div>
   );

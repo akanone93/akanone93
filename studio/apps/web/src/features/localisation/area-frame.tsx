@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
+import { PageHeader } from "../../components/page.tsx";
 import { localisationAreaMessages } from "./area.messages.ts";
 import { AreaScope, useArea } from "./area-scope.tsx";
 
@@ -18,20 +19,23 @@ function Body(props: {
   const search = { plugin: area.plugin };
   const params = { org: area.org, app: area.app };
   return (
-    <section className="flex flex-col gap-4" aria-labelledby={props.id}>
-      <h1 id={props.id} className="text-screen">
-        {props.title}
-      </h1>
-      <p className="text-body text-muted-foreground">{props.caption}</p>
-      <nav aria-label={m.navLabel} className="sub-nav">
-        <Link to="/o/$org/apps/$app/localisation" params={params} search={search}>
-          {m.gridLink}
-        </Link>
-        <Link to="/o/$org/apps/$app/localisation/heatmap" params={params} search={search}>
-          {m.heatmapLink}
-        </Link>
-      </nav>
-      {props.children}
+    <section className="page-frame" aria-labelledby={props.id}>
+      <PageHeader
+        id={props.id}
+        title={props.title}
+        caption={props.caption}
+        nav={
+          <nav aria-label={m.navLabel} className="sub-nav">
+            <Link to="/o/$org/apps/$app/localisation" params={params} search={search}>
+              {m.gridLink}
+            </Link>
+            <Link to="/o/$org/apps/$app/localisation/heatmap" params={params} search={search}>
+              {m.heatmapLink}
+            </Link>
+          </nav>
+        }
+      />
+      <div className="page-body">{props.children}</div>
     </section>
   );
 }
@@ -44,7 +48,14 @@ export function AreaFrame(props: {
   readonly children: ReactNode;
 }): ReactElement {
   return (
-    <AreaScope>
+    <AreaScope
+      shell={(content) => (
+        <section className="page-frame" aria-labelledby={props.id}>
+          <PageHeader id={props.id} title={props.title} caption={props.caption} />
+          <div className="page-body">{content}</div>
+        </section>
+      )}
+    >
       <Body {...props} />
     </AreaScope>
   );

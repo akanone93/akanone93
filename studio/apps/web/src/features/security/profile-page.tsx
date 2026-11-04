@@ -5,7 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { StepUpDialog } from "../../components/dialogs/index.ts";
-import { Frame, Table } from "./parts.tsx";
+import { Frame, SecurityTabs, Table } from "./parts.tsx";
 import { securityMessages } from "./security.messages.ts";
 import {
   useEffectiveSecurity,
@@ -62,6 +62,7 @@ export function SecurityProfilePage(): ReactElement {
   };
   return (
     <Frame
+      nav={<SecurityTabs />}
       id="security-title"
       title={m.profileTitle}
       caption={m.profileCaption}

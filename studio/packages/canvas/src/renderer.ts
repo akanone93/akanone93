@@ -229,6 +229,15 @@ interface FrameCounters {
 }
 
 /** Renders a `Scene` through a `Viewport` onto a CanvasKit surface. */
+/**
+ * The width a text item is laid out at when drawn. Its width was measured in floating point; laid out again at exactly
+ * that width, SkParagraph can find a line a hair too long and break it, so the width is rounded up, as Flutter's text
+ * painter once did.
+ */
+export function textLayoutWidth(measured: number): number {
+  return Math.ceil(measured);
+}
+
 export class SceneRenderer {
   /** Every long-lived CanvasKit object the renderer owns. */
   readonly resources = new Resources();
@@ -1412,6 +1421,12 @@ export class SceneRenderer {
     }
   }
 
+  /** The families `spec` draws with: the ones it was measured with, then the canvas's for glyphs they lack. */
+  private familiesOf(spec: TextSpec): string[] {
+    const canvas = [this.options.fontFamily, ...(this.options.fallbackFamilies ?? [])];
+    return spec.families === undefined ? canvas : [...new Set([...spec.families, ...canvas])];
+  }
+
   private paragraph(spec: TextSpec): Paragraph | null {
     const cached = this.paragraphs.get(spec.id);
     if (cached?.spec === spec) {
@@ -1430,14 +1445,14 @@ export class SceneRenderer {
         color: color4f(ck, spec.color),
         fontSize: spec.size,
         ...(spec.weight === "bold" ? { fontStyle: { weight: ck.FontWeight.Bold } } : {}),
-        fontFamilies: [this.options.fontFamily, ...(this.options.fallbackFamilies ?? [])],
+        fontFamilies: this.familiesOf(spec),
       },
     });
     const builder = ck.ParagraphBuilder.Make(style, this.fontMgr);
     builder.addText(spec.text);
     const paragraph = this.resources.own(builder.build());
     builder.delete();
-    paragraph.layout(spec.w);
+    paragraph.layout(textLayoutWidth(spec.w));
     this.paragraphs.set(spec.id, { spec, paragraph });
     return paragraph;
   }

@@ -105,6 +105,40 @@
   }
 }
 
+/*
+ * The sidebar's current page, in the canvases' language: the primary's short rail on its start edge, its icon and name
+ * in the primary over a faint tint of it.
+ */
+[data-sidebar="menu-button"][data-active],
+[data-sidebar="menu-sub-button"][data-active] {
+  position: relative;
+  color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+}
+
+[data-theme="dark"] [data-sidebar="menu-button"][data-active],
+[data-theme="dark"] [data-sidebar="menu-sub-button"][data-active] {
+  color: var(--link);
+  background-color: color-mix(in oklch, var(--primary) 22%, transparent);
+}
+
+[data-sidebar="menu-button"][data-active]::before,
+[data-sidebar="menu-sub-button"][data-active]::before {
+  position: absolute;
+  inset-block: calc(var(--spacing) * 1.5);
+  inset-inline-start: 0;
+  inline-size: 3px;
+  border-radius: 2px;
+  background-color: var(--primary);
+  content: "";
+}
+
+[data-theme="contrast"] [data-sidebar="menu-button"][data-active],
+[data-theme="contrast"] [data-sidebar="menu-sub-button"][data-active] {
+  color: var(--sidebar-accent-foreground);
+  background-color: var(--sidebar-accent);
+}
+
 /* The pages of an area, side by side: shadcn's tab strip, the current page raised. */
 .sub-nav {
   display: inline-flex;
@@ -133,8 +167,14 @@
   color: var(--foreground);
 }
 
+.sub-nav > a {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+}
+
 .sub-nav > a[data-status="active"] {
-  color: var(--foreground);
+  color: var(--primary);
   background-color: var(--background);
   box-shadow: var(--elevation-1);
 }
@@ -190,7 +230,26 @@
 }
 
 [data-slot="dialog-full-head"] {
-  background-color: color-mix(in oklch, var(--muted) 45%, var(--popover));
+  min-block-size: calc(var(--spacing) * 16);
+  background-color: var(--popover);
+}
+
+[data-slot="dialog-full-head"] [data-slot="dialog-title"] {
+  font-size: var(--text-base);
+  font-weight: 650;
+}
+
+/* The editor's mark at the start of a full-screen editor's header: its icon on the primary colour. */
+[data-slot="dialog-full-icon"] {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 10);
+  block-size: calc(var(--spacing) * 10);
+  border-radius: var(--radius-lg);
+  color: var(--primary-foreground);
+  background: linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 78%, black));
+  box-shadow: 0 6px 14px -6px color-mix(in oklch, var(--primary) 70%, transparent);
 }
 
 /*
@@ -243,4 +302,8 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);
+}
+
+[data-theme="dark"] .sub-nav > a[data-status="active"] {
+  color: var(--link);
 }

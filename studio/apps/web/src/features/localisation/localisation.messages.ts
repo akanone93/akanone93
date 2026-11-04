@@ -16,6 +16,12 @@ export function localisationMessages(i18n: I18n) {
       message: "Localisation",
       comment: "Title of the full-screen overlay in which translation keys are edited for every locale.",
     }),
+    notReady: i18n._({
+      id: "l10n.notReady",
+      message:
+        "The app's languages are not available yet. Choose them in the app's settings, then open translations again.",
+      comment: "Shown in the translations editor when the app document with its languages is not loaded.",
+    }),
     close: i18n._({
       id: "l10n.close",
       message: "Close the localisation table",

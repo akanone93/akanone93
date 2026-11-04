@@ -7,6 +7,7 @@ import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
 import { childNodes, type NodeIndex } from "../plugin-canvas/select/tree.ts";
 import { typeIcon } from "./catalogue.ts";
+import { metaOf } from "./studio-meta.ts";
 
 /** Selecting a node from a panel (F5): replaces the selection, or with `toggle` adds or removes it. Scope is its container. */
 export function selectIds(index: NodeIndex, current: Selection, id: string, toggle: boolean): Selection {
@@ -95,16 +96,24 @@ export function treeNodes(
     }
     walk(s.root, (n) => {
       const row = out[n.id];
-      const preview = nodePreview(n);
-      if (row !== undefined && preview !== undefined) {
-        out[n.id] = { ...row, preview };
+      if (row === undefined) {
+        return;
       }
+      const preview = nodePreview(n);
+      const meta = metaOf(n);
+      out[n.id] = {
+        ...row,
+        ...(meta.name === undefined ? {} : { name: meta.name }),
+        ...(preview === undefined ? {} : { preview }),
+        ...(meta.hidden === true ? { hidden: true } : {}),
+        ...(meta.locked === true ? { locked: true } : {}),
+      };
     });
     const root = out[s.root.id];
     if (root !== undefined) {
       out[root.id] = {
         ...root,
-        name: s.title === "" ? root.name : s.title,
+        name: metaOf(s.root).name ?? (s.title === "" ? root.name : s.title),
         icon: "device-mobile",
         preview: root.type,
         ...(entry !== undefined && s.id === entry.page ? { badge: entry.label } : {}),

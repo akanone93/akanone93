@@ -14,6 +14,8 @@ import type { ItemSpec, SceneOp, ScreenDocument, ScreenHeight, ScreenStyle } fro
 
 /** The scene id of a screen's device frame. */
 export const frameId = (screen: string) => `screen:${screen}`;
+/** The scene id of a screen's name above its frame. */
+export const titleId = (screen: string) => `title:${screen}`;
 /** The scene id of a screen's overflow region (STU-056). */
 export const overflowId = (screen: string) => `overflow:${screen}`;
 
@@ -33,6 +35,7 @@ function boxItem(s: ScreenDocument, b: Placed, style: ScreenStyle): ItemSpec {
       ...common,
       text: b.text,
       size: style.theme.fontSize,
+      families: style.theme.fontFamilies,
       color: beyond ? style.overflowText : style.text,
     };
   }
@@ -44,6 +47,37 @@ function boxItem(s: ScreenDocument, b: Placed, style: ScreenStyle): ItemSpec {
     fill: beyond ? style.overflowBox : b.kind === "placeholder" ? style.placeholder : style.box,
     stroke: { color: beyond ? style.overflowStroke : style.boxStroke, width: 1 },
     ...(b.text === undefined ? {} : { label: b.text }),
+  };
+}
+
+/** The suffix of the scene id of a labelled box's label; a hit on the label is a hit on its box. */
+export const LABEL_SUFFIX = "#label";
+
+/**
+ * The label of a labelled box (a button's text, an input's hint, a placeholder's widget type), centred in it on one
+ * line at the theme's control text size; a box too small to read a label in gets none.
+ */
+function labelItem(s: ScreenDocument, b: Placed, style: ScreenStyle): ItemSpec | null {
+  const size = Math.round(style.theme.fontSize * 0.875);
+  if (b.kind === "text" || b.text === undefined || b.text === "" || b.h < size * 1.5 || b.w < size * 2) {
+    return null;
+  }
+  const beyond = b.y >= style.deviceHeight;
+  const pad = Math.min(12, b.w / 8);
+  return {
+    kind: "text",
+    id: `${s.id}/${b.id}${LABEL_SUFFIX}`,
+    x: s.x + b.x + pad,
+    y: s.y + b.y + (b.h - size * 1.36) / 2,
+    w: b.w - 2 * pad,
+    text: b.text,
+    size,
+    color: beyond ? style.overflowText : style.text,
+    align: "center",
+    maxLines: 1,
+    families: style.theme.fontFamilies,
+    z: 3,
+    ...(beyond ? {} : { frame: frameId(s.id) }),
   };
 }
 
@@ -71,6 +105,22 @@ function screenItems(
       z: 1,
     },
   ];
+  if (style.title !== undefined && s.title !== "") {
+    items.push({
+      kind: "text",
+      id: titleId(s.id),
+      x: s.x + 4,
+      y: s.y - 30,
+      w: width - 8,
+      text: s.title,
+      size: 15,
+      weight: "bold",
+      color: style.title,
+      maxLines: 1,
+      families: style.theme.fontFamilies,
+      z: 2,
+    });
+  }
   const overflow = Math.max(0, contentHeight - style.deviceHeight);
   if (overflow > 0) {
     items.push({
@@ -86,7 +136,13 @@ function screenItems(
       z: 1,
     });
   }
-  items.push(...boxes.map((b) => boxItem(s, b, style)));
+  for (const b of boxes) {
+    items.push(boxItem(s, b, style));
+    const label = labelItem(s, b, style);
+    if (label !== null) {
+      items.push(label);
+    }
+  }
   return items;
 }
 

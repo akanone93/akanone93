@@ -32,6 +32,7 @@ import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
 import { panelsMessages } from "../panels/panels.messages.ts";
 import { RightDock } from "../panels/right-dock.tsx";
+import { lockedIds } from "../panels/studio-meta.ts";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
@@ -50,7 +51,7 @@ import { useHostFonts } from "./host-fonts.ts";
 import { LaneDialog, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
-import { dataSourcesOf } from "./look.ts";
+import { dataSourcesOf, messagesFor, titledScreens } from "./look.ts";
 import { resolveNodeParam } from "./node-path.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
@@ -74,7 +75,7 @@ import { handleKey } from "./select/keys.ts";
 import { announce } from "./select/live-region.ts";
 import * as sel from "./select/selection.ts";
 import { type SelectionStore, useSelectionStore } from "./select/store.ts";
-import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
+import { indexNodes, itemIdOf, type NodeIndex, nodeIdOfHit } from "./select/tree.ts";
 import { useGestures } from "./select/use-gestures.ts";
 import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
 import { useAssetsTab } from "./use-assets-tab.ts";
@@ -96,7 +97,9 @@ export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedS
   return order.flatMap((id) => {
     const s = byId.get(id);
     const p = at.get(id);
-    return s === undefined || p === undefined ? [] : [{ id, title: s.title, at: p, root: s.root }];
+    return s === undefined || p === undefined
+      ? []
+      : [{ id, title: s.title, ...(s.titleKey === undefined ? {} : { titleKey: s.titleKey }), at: p, root: s.root }];
   });
 }
 
@@ -109,18 +112,23 @@ function pointerSelect(
   from: { x: number; y: number },
   e: { clientX: number; clientY: number; shiftKey: boolean; altKey: boolean; ctrlKey: boolean; metaKey: boolean },
   onGhost: (hits: readonly string[]) => boolean,
+  locked: ReadonlySet<string> = new Set(),
 ): void {
   const a = { x: from.x - box.left, y: from.y - box.top };
   const z = { x: e.clientX - box.left, y: e.clientY - box.top };
+  // A locked layer is not picked on the canvas (STU-061): the pointer reaches what is under it.
+  const free = (hits: readonly string[]) => hits.filter((h) => !locked.has(nodeIdOfHit(h)));
   if (Math.hypot(z.x - a.x, z.y - a.y) <= MARQUEE_PX) {
-    const hits = surface.hitTest?.(z.x, z.y) ?? [];
+    const hits = free(surface.hitTest?.(z.x, z.y) ?? []);
     if (onGhost(hits)) {
       return;
     }
     store.set(sel.click(index, store.get(), hits, { toggle: e.shiftKey, deep: e.ctrlKey || e.metaKey }));
   } else if (e.shiftKey) {
     const rect = { l: Math.min(a.x, z.x), t: Math.min(a.y, z.y), r: Math.max(a.x, z.x), b: Math.max(a.y, z.y) };
-    store.set(sel.marquee(index, store.get(), surface.hitTestRect?.(rect, e.altKey ? "contain" : "intersect") ?? []));
+    store.set(
+      sel.marquee(index, store.get(), free(surface.hitTestRect?.(rect, e.altKey ? "contain" : "intersect") ?? [])),
+    );
   }
 }
 
@@ -365,7 +373,13 @@ function PluginCanvasView({
     params.app,
     sources.map((x) => x.id),
   );
-  const screens = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
+  // A translated title reads in the previewed locale, as the screen itself does.
+  const placed = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
+  const titleMessages = useMemo(
+    () => messagesFor([...(appDocs.data ?? []), ...(docs.data ?? [])], look),
+    [appDocs.data, docs.data, look],
+  );
+  const screens = useMemo(() => titledScreens(placed, titleMessages), [placed, titleMessages]);
   const { shown, styled } = usePreviewScene(screens, appDocs.data, docs.data, look);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -418,6 +432,7 @@ function PluginCanvasView({
     nativeRoutes,
   });
   const index = useMemo(() => indexNodes(screens.map((s) => s.root)), [screens]);
+  const locked = useMemo(() => lockedIds(screens.map((s) => s.root)), [screens]);
   const screenOf = useMemo(() => {
     const out = new Map<string, string>();
     for (const sc of screens) {
@@ -785,7 +800,12 @@ function PluginCanvasView({
         tabIndex={0}
         {...dropHandlers}
         onKeyDown={(e) => {
-          const handled = handleKey({ store, index, edit, docOf: (id) => screenOf.get(id) }, e);
+          // A selection with a locked layer still moves the selection, but edits nothing.
+          const frozen = selection.ids.some((id) => locked.has(id));
+          const handled = handleKey(
+            { store, index, edit: frozen ? () => undefined : edit, docOf: (id) => screenOf.get(id) },
+            e,
+          );
           if (handled) {
             e.preventDefault();
           }
@@ -816,21 +836,30 @@ function PluginCanvasView({
           start.current = null;
           const box = canvasRef.current?.getBoundingClientRect();
           if (from !== null && surfaceRef.current && box) {
-            pointerSelect(surfaceRef.current, store, index, box, from, e, (hits) => {
-              const lane = ghostLayer.pick(hits)?.link;
-              if (lane !== undefined) {
-                setLane(lane);
+            pointerSelect(
+              surfaceRef.current,
+              store,
+              index,
+              box,
+              from,
+              e,
+              (hits) => {
+                const lane = ghostLayer.pick(hits)?.link;
+                if (lane !== undefined) {
+                  setLane(lane);
+                  return true;
+                }
+                const ghost = ghostOfHit(hits, ghostLayer.placed);
+                if (ghost === undefined) {
+                  return false;
+                }
+                if (ghost.kind === "screen") {
+                  setLeaving(ghost);
+                }
                 return true;
-              }
-              const ghost = ghostOfHit(hits, ghostLayer.placed);
-              if (ghost === undefined) {
-                return false;
-              }
-              if (ghost.kind === "screen") {
-                setLeaving(ghost);
-              }
-              return true;
-            });
+              },
+              locked,
+            );
           }
           sync();
         }}
@@ -923,6 +952,7 @@ function PluginCanvasView({
       <DeviceBayHost
         appId={params.app}
         request={consoleRequest}
+        live={canSend}
         validation={validation}
         screens={screens}
         store={store}

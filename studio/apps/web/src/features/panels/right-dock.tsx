@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import type { I18n } from "@lingui/core";
 import { useLingui } from "@lingui/react";
 import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
 import { Button, Field, Icon, type IconName, Input, Select, TypeTag, tooltipDelayMs } from "@plux/ui";
@@ -18,7 +19,7 @@ import { InstanceOverrides } from "../library/canvas/instance-overrides.tsx";
 import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../localisation/index.ts";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
-import { readPlugin } from "../plugin-canvas/plugin-model.ts";
+import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
@@ -28,7 +29,8 @@ import type { TestsClient } from "../rust-editor/test-runner.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
-import { panelMessages } from "./panels.messages.ts";
+import { useStoredFlag } from "./dock-tabs.tsx";
+import { panelMessages, panelsMessages } from "./panels.messages.ts";
 import {
   type Breakpoint,
   bindingOf,
@@ -50,6 +52,7 @@ import {
 } from "./properties-model.ts";
 import type { PxlEditorSource } from "./pxl-editor.tsx";
 import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
+import { lockedIds } from "./studio-meta.ts";
 import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
 
@@ -565,9 +568,28 @@ function PropSection(props: {
   );
 }
 
+/** Whether the selection may be edited: the editor can edit and no selected widget is locked in Layers (STU-061). */
+function useSelectionEditable(p: DockProps, ids: readonly string[]): { canEdit: boolean; lockedNote: string | null } {
+  const canEdit = useCanEdit();
+  const locked = useMemo(() => lockedIds(p.screens.map((s) => s.root as Node | undefined)), [p.screens]);
+  const note = panelsMessages(useLingui().i18n).lockedNote;
+  const isLocked = ids.some((id) => locked.has(id));
+  return { canEdit: canEdit && !isLocked, lockedNote: isLocked ? note : null };
+}
+
+/** The note a tab shows over a locked selection. */
+function LockedNote({ text }: { readonly text: string | null }) {
+  return text === null ? null : (
+    <p className="locked-note">
+      <Icon name="lock" size="pill" />
+      {text}
+    </p>
+  );
+}
+
 function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const { m, ids } = p;
-  const canEdit = useCanEdit();
+  const { canEdit, lockedNote } = useSelectionEditable(p, ids);
   const [bp, setBp] = useState<Breakpoint>("compact");
   const burst = useRef(0);
   const scopes = useRef<PxlScopeCache>(new Map());
@@ -610,7 +632,8 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   };
   return (
     <div className="flex flex-col gap-3">
-      {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+      <LockedNote text={lockedNote} />
+      {!canEdit && lockedNote === null && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
       {ids.length > 1 && <p className="text-caption text-muted-foreground">{m.multi(ids.length)}</p>}
       {/* biome-ignore lint/a11y/useSemanticElements: a labelled radio group of size classes, not a form's fieldset */}
       <div
@@ -755,7 +778,7 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
 
 function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const { m, ids } = p;
-  const canEdit = useCanEdit();
+  const { canEdit, lockedNote } = useSelectionEditable(p, ids);
   const burst = useRef(0);
   const nodes = useLiveNodes(p);
   const id = ids[0];
@@ -784,7 +807,8 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
   ];
   return (
     <div className="flex flex-col gap-3">
-      {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+      <LockedNote text={lockedNote} />
+      {!canEdit && lockedNote === null && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
       <p className="text-body">
         {m.role}: <TypeTag>{descriptor.accessibility.role}</TypeTag>{" "}
         {descriptor.accessibility.interactive ? m.interactive : m.notInteractive}
@@ -966,31 +990,70 @@ function PluginOverview(props: DockProps & { readonly m: ReturnType<typeof panel
   );
 }
 
-export function RightDock(props: DockProps) {
-  const { i18n } = useLingui();
-  const m = panelMessages(i18n);
-  const ids = useEditor((st) => st.selection.ids);
+/** How many nodes the screen of the selection holds; with nothing selected, the largest screen's count. */
+function usePageNodeCount(
+  nodes: ReadonlyMap<string, unknown>,
+  ids: readonly string[],
+  screenOf: ReadonlyMap<string, string>,
+): number {
+  return useMemo(() => {
+    const perScreen = new Map<string | undefined, number>();
+    for (const id of nodes.keys()) {
+      const screen = screenOf.get(id);
+      perScreen.set(screen, (perScreen.get(screen) ?? 0) + 1);
+    }
+    const own = ids[0] === undefined ? undefined : perScreen.get(screenOf.get(ids[0]));
+    return own ?? Math.max(0, ...perScreen.values());
+  }, [nodes, ids, screenOf]);
+}
+
+/** The inspector folded to a strip: the button that opens it, the selection's mark and how many are selected. */
+function FoldedInspector({
+  m,
+  glyph,
+  count,
+  onOpen,
+}: {
+  readonly m: ReturnType<typeof panelMessages>;
+  readonly glyph: IconName;
+  readonly count: number;
+  readonly onOpen: () => void;
+}) {
+  return (
+    <aside
+      aria-label={m.dock}
+      className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass"
+      data-folded=""
+    >
+      <div className="inspector-strip">
+        <button
+          type="button"
+          className="inspector-unfold"
+          aria-label={m.openInspector}
+          title={m.openInspector}
+          onClick={onOpen}
+        >
+          <Icon name="panel-end-open" />
+        </button>
+        <span className="inspector-glyph" aria-hidden="true">
+          <Icon name={glyph} />
+        </span>
+        {count > 0 && <span className="inspector-count">{count}</span>}
+      </div>
+    </aside>
+  );
+}
+
+/** The full-screen editors the inspector opens, with their labels and marks; a missing opener disables one. */
+function editorTools(props: DockProps, i18n: I18n) {
   const jsonLabel = jsonEditorMessages(i18n).open;
   const dm = designerMessages(i18n);
   const designerLabels = { data: dm.dataOpen, db: dm.dbOpen, theme: dm.themeOpen };
   const openOverlay = (id: "data" | "db" | "theme") =>
     props.onOpenOverlay === undefined ? undefined : () => props.onOpenOverlay?.(id);
   const graphLabel = actionGraphMessages(i18n).open;
-  const tm = tabMessages(i18n);
-  const nodes = useLiveNodes(props);
-  const pageNodes = useMemo(() => {
-    const perScreen = new Map<string | undefined, number>();
-    for (const id of nodes.keys()) {
-      const screen = props.screenOf.get(id);
-      perScreen.set(screen, (perScreen.get(screen) ?? 0) + 1);
-    }
-    const own = ids[0] === undefined ? undefined : perScreen.get(props.screenOf.get(ids[0]));
-    return own ?? Math.max(0, ...perScreen.values());
-  }, [nodes, ids, props.screenOf]);
-  const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
-    ids.length === 0 ? <PluginOverview {...props} m={m} /> : panel(ids);
   const tools: readonly {
-    id: Parameters<typeof m.editorShort>[0];
+    id: Parameters<ReturnType<typeof panelMessages>["editorShort"]>[0];
     label: string;
     icon: IconName;
     open: (() => void) | undefined;
@@ -1004,6 +1067,19 @@ export function RightDock(props: DockProps) {
     { id: "graph", label: graphLabel, icon: "flow-arrow", open: props.onOpenGraph },
     { id: "rust", label: rustEditorMessages(i18n).open, icon: "lightning", open: props.onOpenRust },
   ];
+  return tools;
+}
+
+export function RightDock(props: DockProps) {
+  const { i18n } = useLingui();
+  const m = panelMessages(i18n);
+  const ids = useEditor((st) => st.selection.ids);
+  const tm = tabMessages(i18n);
+  const nodes = useLiveNodes(props);
+  const pageNodes = usePageNodeCount(nodes, ids, props.screenOf);
+  const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
+    ids.length === 0 ? <PluginOverview {...props} m={m} /> : panel(ids);
+  const tools = editorTools(props, i18n);
   const tabs: readonly { value: string; label: string; icon: IconName; panel: React.ReactNode }[] = [
     {
       value: "properties",
@@ -1062,6 +1138,9 @@ export function RightDock(props: DockProps) {
       panel: body((i) => <DocsTab ids={i} index={props.index} m={m} />),
     },
   ];
+  const [folded, setFolded] = useStoredFlag("plux.dock.end.folded", false);
+  const [toolsOpen, setToolsOpen] = useStoredFlag("plux.inspector.editors", true);
+  const [tabsOpen, setTabsOpen] = useStoredFlag("plux.inspector.details", true);
   const first = ids[0];
   const type = first === undefined ? undefined : props.index.type.get(first);
   const descriptor = type === undefined ? undefined : widget(type);
@@ -1069,22 +1148,25 @@ export function RightDock(props: DockProps) {
     const screen = first === undefined ? undefined : props.screenOf.get(first);
     return props.screens.find((x) => x.id === screen)?.title;
   })();
+  const glyph: IconName =
+    first === undefined ? "sliders" : descriptor === undefined ? "cube" : typeIcon(descriptor.type);
+  if (folded) {
+    return <FoldedInspector m={m} glyph={glyph} count={ids.length} onOpen={() => setFolded(false)} />;
+  }
   return (
     <aside aria-label={m.dock} className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass">
       <div className="inspector-head">
         <span className="inspector-glyph" aria-hidden="true">
-          <Icon
-            name={first === undefined ? "sliders" : descriptor === undefined ? "cube" : typeIcon(descriptor.type)}
-          />
+          <Icon name={glyph} />
         </span>
         <div className="flex min-w-0 flex-1 flex-col">
           <strong className="truncate text-sm">
             {first === undefined ? m.dock : ids.length > 1 ? m.multiTitle(ids.length) : (type ?? first)}
           </strong>
           {ids.length === 1 ? (
-            <span className="truncate font-mono text-xs text-muted-foreground">{first}</span>
+            <span className="inspector-sub truncate font-mono">{first}</span>
           ) : (
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="inspector-sub truncate">
               {first === undefined ? m.overview : [...new Set(ids.map((i) => props.index.type.get(i) ?? i))].join(", ")}
             </span>
           )}
@@ -1094,44 +1176,67 @@ export function RightDock(props: DockProps) {
         ) : (
           screenTitle !== undefined && <span className="inspector-screen">{screenTitle}</span>
         )}
+        <button
+          type="button"
+          className="inspector-fold"
+          aria-label={m.foldInspector}
+          title={m.foldInspector}
+          onClick={() => setFolded(true)}
+        >
+          <Icon name="panel-end-close" />
+        </button>
       </div>
       <TooltipProvider delay={tooltipDelayMs}>
-        <section aria-label={m.editors} className="inspector-tools">
-          <h3 className="inspector-label">{m.editors}</h3>
-          <div className="inspector-tool-grid">
-            {tools
-              .filter((t) => t.open !== undefined)
-              .map((t) => (
-                <Tooltip key={t.id}>
-                  <TooltipTrigger
-                    render={<button type="button" className="inspector-tool" aria-label={t.label} onClick={t.open} />}
-                  >
-                    <Icon name={t.icon} />
-                    <span className="inspector-tool-name" aria-hidden="true">
-                      {m.editorShort(t.id)}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>{t.label}</TooltipContent>
-                </Tooltip>
-              ))}
-          </div>
-        </section>
+        <Collapsible open={toolsOpen} onOpenChange={setToolsOpen} className="inspector-tools">
+          <CollapsibleTrigger className="inspector-section-head">
+            <Icon name="caret-down" size="pill" className="inspector-section-caret" />
+            <span className="flex-1 text-start">{m.editors}</span>
+            <span className="inspector-section-count">{tools.filter((t) => t.open !== undefined).length}</span>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <section aria-label={m.editors} className="inspector-tool-grid">
+              {tools
+                .filter((t) => t.open !== undefined)
+                .map((t) => (
+                  <Tooltip key={t.id}>
+                    <TooltipTrigger
+                      render={<button type="button" className="inspector-tool" aria-label={t.label} onClick={t.open} />}
+                    >
+                      <Icon name={t.icon} />
+                      <span className="inspector-tool-name" aria-hidden="true">
+                        {m.editorShort(t.id)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>{t.label}</TooltipContent>
+                  </Tooltip>
+                ))}
+            </section>
+          </CollapsibleContent>
+        </Collapsible>
       </TooltipProvider>
-      <ShadcnTabs defaultValue="properties" className="inspector-tabs-root">
-        <TabsList className="inspector-tabs">
-          {tabs.map((t) => (
-            <TabsTrigger key={t.value} value={t.value} className="inspector-tab">
-              <Icon name={t.icon} size="pill" />
-              <span className="truncate">{t.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {tabs.map((t) => (
-          <TabsContent key={t.value} value={t.value} className="inspector-body">
-            {t.panel}
-          </TabsContent>
-        ))}
-      </ShadcnTabs>
+      <Collapsible open={tabsOpen} onOpenChange={setTabsOpen} className="inspector-details">
+        <CollapsibleTrigger className="inspector-section-head">
+          <Icon name="caret-down" size="pill" className="inspector-section-caret" />
+          <span className="flex-1 text-start">{m.detailsSection}</span>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="inspector-details-body">
+          <ShadcnTabs defaultValue="properties" className="inspector-tabs-root">
+            <TabsList className="inspector-tabs">
+              {tabs.map((t) => (
+                <TabsTrigger key={t.value} value={t.value} className="inspector-tab">
+                  <Icon name={t.icon} size="pill" />
+                  <span className="truncate">{t.label}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {tabs.map((t) => (
+              <TabsContent key={t.value} value={t.value} className="inspector-body">
+                {t.panel}
+              </TabsContent>
+            ))}
+          </ShadcnTabs>
+        </CollapsibleContent>
+      </Collapsible>
     </aside>
   );
 }

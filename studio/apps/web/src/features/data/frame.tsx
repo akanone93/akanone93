@@ -6,6 +6,7 @@ import { Icon, Select } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
+import { PageHeader } from "../../components/page.tsx";
 import { dataMessages } from "./data.messages.ts";
 import { DataScope, useDataContext, usePluginIds } from "./scope.tsx";
 
@@ -26,44 +27,48 @@ function Body(props: {
   const navigate = useNavigate();
   const ids = usePluginIds(ctx.app).data ?? [ctx.plugin];
   return (
-    <section className="flex flex-col gap-4" aria-labelledby={props.id}>
-      <h1 id={props.id} className="text-screen">
-        {props.title}
-      </h1>
-      <p className="text-body text-muted-foreground">{props.caption}</p>
-      <nav className="sub-nav">
-        <Link to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
-          {m.sourcesLink}
-        </Link>
-        <Link
-          className="text-body"
-          to="/o/$org/apps/$app/data/collections"
-          params={{ org: ctx.org, app: ctx.app }}
-          search={search}
-        >
-          {m.collectionsLink}
-        </Link>
-      </nav>
-      <Select
-        label={m.pickPlugin}
-        options={ids.map((id) => ({ value: id, label: id }))}
-        value={ctx.plugin}
-        onValueChange={(plugin) =>
-          void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, plugin }) })
+    <section className="page-frame" aria-labelledby={props.id}>
+      <PageHeader
+        id={props.id}
+        title={props.title}
+        caption={props.caption}
+        actions={
+          <div className="w-56">
+            <Select
+              label={m.pickPlugin}
+              options={ids.map((id) => ({ value: id, label: id }))}
+              value={ctx.plugin}
+              onValueChange={(plugin) =>
+                void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, plugin }) })
+              }
+            />
+          </div>
+        }
+        nav={
+          <nav aria-label={m.areaNav} className="sub-nav">
+            <Link to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
+              {m.sourcesLink}
+            </Link>
+            <Link to="/o/$org/apps/$app/data/collections" params={{ org: ctx.org, app: ctx.app }} search={search}>
+              {m.collectionsLink}
+            </Link>
+          </nav>
         }
       />
-      {props.back !== undefined && (
-        <Link
-          to={props.back.to}
-          params={{ org: ctx.org, app: ctx.app }}
-          search={search}
-          className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
-        >
-          <Icon name="arrow-left" data-icon="inline-start" />
-          {props.back.label}
-        </Link>
-      )}
-      {props.children}
+      <div className="page-body">
+        {props.back !== undefined && (
+          <Link
+            to={props.back.to}
+            params={{ org: ctx.org, app: ctx.app }}
+            search={search}
+            className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+          >
+            <Icon name="arrow-left" data-icon="inline-start" />
+            {props.back.label}
+          </Link>
+        )}
+        {props.children}
+      </div>
     </section>
   );
 }
@@ -80,7 +85,14 @@ export function Frame(props: {
   readonly children: ReactNode;
 }): ReactElement {
   return (
-    <DataScope>
+    <DataScope
+      shell={(content) => (
+        <section className="page-frame" aria-labelledby={props.id}>
+          <PageHeader id={props.id} title={props.title} caption={props.caption} />
+          <div className="page-body">{content}</div>
+        </section>
+      )}
+    >
       <Body {...props} />
     </DataScope>
   );

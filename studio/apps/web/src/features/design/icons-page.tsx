@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Button, Field, Icon, Input } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { designMessages } from "./design.messages.ts";
 import { groupRows, putToken, validName } from "./design-model.ts";
 import { RemoveToken, show } from "./parts.tsx";
@@ -52,7 +53,7 @@ function Sets(): ReactElement {
   const sets = [...new Set(icons.map((r) => r.path[0] ?? ""))];
   return (
     <>
-      {sets.length === 0 && <p className="text-body text-muted-foreground">{m.noIcons}</p>}
+      {sets.length === 0 && <PageEmpty icon="palette" text={m.noIcons} />}
       {sets.map((set) => (
         <section key={set} aria-label={set} className="flex flex-col gap-1">
           <h2 className="font-mono text-label font-medium">{set}</h2>

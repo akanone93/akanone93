@@ -84,6 +84,11 @@ export interface TextSpec {
   readonly align?: "center" | "end";
   /** At most this many lines, the last ending in an ellipsis; unlimited when absent. */
   readonly maxLines?: number;
+  /**
+   * The font families, in fallback order, the text was measured with (a screen's theme); the canvas's own when absent.
+   * Drawing with the measuring fonts keeps a line the layout fitted on one line from wrapping onto the next.
+   */
+  readonly families?: readonly string[];
   readonly z: number;
 }
 
@@ -261,6 +266,8 @@ export interface ScreenStyle {
   readonly overflowBox: ColorRgba;
   readonly overflowText: ColorRgba;
   readonly overflowStroke: ColorRgba;
+  /** The colour of each screen's name, drawn above its device frame as a design tool names its frames; none when absent. */
+  readonly title?: ColorRgba;
 }
 
 /** The laid-out height of one screen's content (STU-056). */

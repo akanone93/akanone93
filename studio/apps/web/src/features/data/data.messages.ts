@@ -214,6 +214,11 @@ export function dataMessages(i18n: I18n) {
       message: "This plugin has no collections.",
       comment: "Empty state.",
     }),
+    areaNav: i18n._({
+      id: "data.areaNav",
+      message: "Pages of the data area",
+      comment: "Accessible name of the links between the pages of the data area.",
+    }),
     sourcesLink: i18n._({
       id: "data.sourcesLink",
       message: "API definitions",

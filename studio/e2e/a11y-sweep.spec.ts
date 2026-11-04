@@ -148,6 +148,13 @@ async function check(p: Page, route: (typeof routes)[number]): Promise<void> {
   await expect(p.locator("html")).toHaveAttribute("data-theme", /^(light|dark)$/);
   // Long-lived requests (fonts, event streams) keep a page from ever being network-idle: wait for the loading states to end instead.
   await expect(p.locator('[aria-busy="true"], [role="progressbar"]')).toHaveCount(0);
+  // Entrances (the home's rising headline and blocks) fade in from transparent and axe measures colours as drawn:
+  // wait for every finite animation to settle, so the page is checked as it stays, not half faded in.
+  await p.waitForFunction(() =>
+    document
+      .getAnimations()
+      .every((a) => a.playState !== "running" || a.effect?.getComputedTiming().endTime === Number.POSITIVE_INFINITY),
+  );
   const { violations } = await new AxeBuilder({ page: p }).withTags(axeTags).analyze();
   expect(
     violations.map(

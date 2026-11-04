@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { AlertDialog, Button, Input, Select } from "@plux/ui";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useMemo, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { localisationAreaMessages } from "./area.messages.ts";
 import { type LocalisationSearch, setStates, writeMessages } from "./area-actions.ts";
 import { AreaFrame } from "./area-frame.tsx";
@@ -257,7 +258,7 @@ function Grid(): ReactElement {
       {!area.canEdit && <p className="text-caption text-muted-foreground">{m.readOnlyGrid}</p>}
       <BulkBar ids={rows.filter((r) => selected.has(r.id)).map((r) => r.id)} done={() => setSelected(new Set())} />
       {rows.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.emptyGrid}</p>
+        <PageEmpty icon="translate" text={m.emptyGrid} />
       ) : (
         <Rows rows={rows} area={area} selected={selected} toggle={toggle} />
       )}

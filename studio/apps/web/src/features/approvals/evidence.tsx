@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import type { GetApprovalReviewResponse, ReviewImage } from "@plux/api";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Table } from "../security/parts.tsx";
 import { approvalsMessages } from "./approvals.messages.ts";
 
@@ -29,7 +30,7 @@ export function DiffBlock({ diff }: { readonly diff: Uint8Array }): ReactElement
     <section className="flex flex-col gap-2">
       <Heading>{m.diffHeading}</Heading>
       {diff.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noDiff}</p>
+        <PageEmpty icon="check-circle" text={m.noDiff} />
       ) : (
         <pre className="overflow-auto rounded-sm bg-raised p-3 font-mono text-tag">{decoder.decode(diff)}</pre>
       )}

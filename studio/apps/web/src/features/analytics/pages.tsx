@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { MetricStrip } from "@plux/ui";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { Table } from "../security/parts.tsx";
 import { type AnalyticsMessages, analyticsMessages } from "./analytics.messages.ts";
@@ -39,8 +40,8 @@ export function AnalyticsOverviewPage(): ReactElement {
       loading={overview.isPending || views.isPending}
       failed={overview.isError || views.isError}
       error={overview.error ?? views.error}
+      nav={<AreaNav />}
     >
-      <AreaNav />
       <MetricStrip
         metrics={[
           { label: m.sessions, value: String(mine?.sessions ?? 0) },
@@ -50,7 +51,7 @@ export function AnalyticsOverviewPage(): ReactElement {
         ]}
       />
       {days.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noData}</p>
+        <PageEmpty icon="pulse" text={m.noData} />
       ) : (
         <>
           <LineChart label={m.screenViewsChart} series={[{ name: m.screenViews, values: days.map((d) => d.value) }]} />
@@ -89,8 +90,14 @@ export function AnalyticsUsagePage(): ReactElement {
       : totalsBy(inPlugin, (p) => p.group?.page ?? "");
   const days = dailyEvents(inScreen);
   return (
-    <Frame id="usage-title" title={m.usageTitle} caption={m.usageCaption} loading={q.isPending} failed={q.isError}>
-      <AreaNav />
+    <Frame
+      id="usage-title"
+      title={m.usageTitle}
+      caption={m.usageCaption}
+      loading={q.isPending}
+      failed={q.isError}
+      nav={<AreaNav />}
+    >
       {plugin !== undefined && link({ plugin: undefined, screen: undefined }, m.allPlugins)}
       {screen === undefined ? (
         <BarList
@@ -107,7 +114,7 @@ export function AnalyticsUsagePage(): ReactElement {
           <DayTable m={m} days={days} />
         </>
       )}
-      {bars.length === 0 && <p className="text-body text-muted-foreground">{m.noData}</p>}
+      {bars.length === 0 && <PageEmpty icon="pulse" text={m.noData} />}
     </Frame>
   );
 }
@@ -126,10 +133,10 @@ export function AnalyticsPerformancePage(): ReactElement {
       loading={q.isPending}
       failed={q.isError}
       error={q.error}
+      nav={<AreaNav />}
     >
-      <AreaNav />
       {p.days.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noData}</p>
+        <PageEmpty icon="pulse" text={m.noData} />
       ) : (
         <>
           <LineChart

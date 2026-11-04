@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, FileDrop, Icon, Input, Select, Textarea, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useState } from "react";
+import { FieldGrid, SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
 import { jsonEqual } from "../editor/json-patch.ts";
 import { LockBanner } from "../editor/lock-ui.tsx";
 import type { AppSession } from "../localisation/l10n-sessions.tsx";
@@ -119,32 +120,38 @@ function SourceFields(props: { source: Json; onChange: (patch: Json) => void; ca
     setBadMock(false);
   }, [id]);
   return (
-    <div className="flex flex-col gap-3">
-      <Field label={m.name}>
-        <Input
-          value={String(source["name"] ?? "")}
-          disabled={!canEdit}
-          onChange={(e) => onChange({ name: e.target.value })}
-        />
-      </Field>
-      <Select
-        label={m.dataKind}
-        options={KINDS.map((k) => ({ value: k, label: k }))}
-        value={String(source["kind"] ?? "rest")}
-        disabled={!canEdit}
-        onValueChange={(kind) => onChange({ kind })}
-      />
-      <Field label={m.dataType}>
-        <Input
-          value={String(source["type"] ?? "")}
-          disabled={!canEdit}
-          onChange={(e) => onChange({ type: e.target.value })}
-        />
-      </Field>
+    <>
+      <FieldGrid>
+        <Field label={m.name}>
+          <Input
+            value={String(source["name"] ?? "")}
+            disabled={!canEdit}
+            onChange={(e) => onChange({ name: e.target.value })}
+          />
+        </Field>
+        <Field label={m.dataKind}>
+          <Select
+            label={m.dataKind}
+            options={KINDS.map((k) => ({ value: k, label: k }))}
+            value={String(source["kind"] ?? "rest")}
+            disabled={!canEdit}
+            onValueChange={(kind) => onChange({ kind })}
+          />
+        </Field>
+        <Field label={m.dataType}>
+          <Input
+            value={String(source["type"] ?? "")}
+            dir="ltr"
+            disabled={!canEdit}
+            onChange={(e) => onChange({ type: e.target.value })}
+          />
+        </Field>
+      </FieldGrid>
       <Field label={m.dataMock} description={m.dataMockHelp} error={badMock ? m.dataMockInvalid : undefined}>
         <Textarea
           rows={8}
           value={mock}
+          dir="ltr"
           disabled={!canEdit}
           onChange={(e) => {
             setMock(e.target.value);
@@ -157,7 +164,7 @@ function SourceFields(props: { source: Json; onChange: (patch: Json) => void; ca
           }}
         />
       </Field>
-    </div>
+    </>
   );
 }
 
@@ -198,30 +205,33 @@ export function ImportSection(props: {
     }
   };
   return (
-    <section aria-label={m.dataImportHeading} className="flex flex-col gap-3 border-t border-hairline pt-3">
-      <h3 className="text-label font-medium">{m.dataImportHeading}</h3>
-      <Select
-        label={m.dataImportFormat}
-        options={[
-          { value: "openapi", label: m.dataOpenApi },
-          { value: "graphql", label: m.dataGraphQl },
-        ]}
-        value={format}
-        disabled={!canEdit}
-        onValueChange={(v) => setFormat(v === "graphql" ? "graphql" : "openapi")}
-      />
-      <FileDrop
-        label={m.dataChooseFile}
-        disabled={!canEdit}
-        icon="file"
-        onFiles={(files) => void readFile(files[0], setText)}
-      />
+    <SheetSection title={m.dataImportHeading} icon="download">
+      <FieldGrid>
+        <Field label={m.dataImportFormat}>
+          <Select
+            label={m.dataImportFormat}
+            options={[
+              { value: "openapi", label: m.dataOpenApi },
+              { value: "graphql", label: m.dataGraphQl },
+            ]}
+            value={format}
+            disabled={!canEdit}
+            onValueChange={(v) => setFormat(v === "graphql" ? "graphql" : "openapi")}
+          />
+        </Field>
+        <FileDrop
+          label={m.dataChooseFile}
+          disabled={!canEdit}
+          icon="file"
+          onFiles={(files) => void readFile(files[0], setText)}
+        />
+      </FieldGrid>
       <Field label={m.dataSourceText}>
-        <Textarea rows={6} value={text} disabled={!canEdit} onChange={(e) => setText(e.target.value)} />
+        <Textarea rows={6} value={text} dir="ltr" disabled={!canEdit} onChange={(e) => setText(e.target.value)} />
       </Field>
       {format === "graphql" && (
         <Field label={m.dataOperationsText}>
-          <Textarea rows={4} value={ops} disabled={!canEdit} onChange={(e) => setOps(e.target.value)} />
+          <Textarea rows={4} value={ops} dir="ltr" disabled={!canEdit} onChange={(e) => setOps(e.target.value)} />
         </Field>
       )}
       <div className="flex flex-wrap items-center gap-3">
@@ -278,7 +288,7 @@ export function ImportSection(props: {
           )}
         </div>
       )}
-    </section>
+    </SheetSection>
   );
 }
 
@@ -318,6 +328,20 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
     d.setSelected(0);
   };
   const problems = check.state === "done" ? check.problems : [];
+  const applyDraft = () => {
+    if (next === undefined) {
+      return;
+    }
+    apply(next);
+    if (staged) {
+      if (appValue !== undefined) {
+        applyApp.apply(withVariables(appValue, d.variables));
+      }
+      d.setVariables([]);
+    }
+    d.setTypes((all) => (all.length === 0 ? all : []));
+    setNote(m.applied);
+  };
   return (
     <Dialog
       open={props.open}
@@ -329,75 +353,85 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
       size="full"
       title={m.dataTitle}
       labels={{ close: m.dataClose }}
-    >
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="secondary" disabled={!canEdit} onClick={add}>
-            <Icon name="plus" />
-            {m.dataAdd}
-          </Button>
-          <Button variant="secondary" disabled={!canEdit || current === undefined} onClick={remove}>
-            {m.dataRemove}
-          </Button>
-          <Button
-            disabled={!canApply}
-            onClick={() => {
-              if (next !== undefined) {
-                apply(next);
-                if (staged) {
-                  if (appValue !== undefined) {
-                    applyApp.apply(withVariables(appValue, d.variables));
-                  }
-                  d.setVariables([]);
-                }
-                d.setTypes((all) => (all.length === 0 ? all : []));
-                setNote(m.applied);
-              }
-            }}
-          >
+      icon="database"
+      flush
+      headerActions={
+        <>
+          <Status check={check} valid={!hasErrors(check)} changed={changed} note={note} m={m} />
+          <Button disabled={!canApply} onClick={applyDraft}>
             {m.apply}
           </Button>
-          <Status check={check} valid={!hasErrors(check)} changed={changed} note={note} m={m} />
-        </div>
-        {props.app !== null && <LockBanner lock={props.app.lock} />}
-        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-        {variablesBlocked && <p className="text-caption text-muted-foreground">{m.dataVariablesLocked}</p>}
-        <div className="flex min-h-0 flex-1 gap-6 overflow-y-auto">
-          <nav aria-label={m.dataList} className="flex w-56 shrink-0 flex-col gap-1">
-            {d.sources.length === 0 && <p className="text-body text-muted-foreground">{m.dataNone}</p>}
+        </>
+      }
+    >
+      <SheetLayout
+        nav={
+          <nav aria-label={m.dataList} className="flex flex-col gap-1">
+            <SheetNavHead
+              title={m.dataList}
+              count={d.sources.length}
+              action={
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  aria-label={m.dataAdd}
+                  title={m.dataAdd}
+                  disabled={!canEdit}
+                  onClick={add}
+                >
+                  <Icon name="plus" />
+                </Button>
+              }
+            />
+            {d.sources.length === 0 && <p className="px-2 text-xs text-muted-foreground">{m.dataNone}</p>}
             {d.sources.map((s, i) => (
-              <Button
+              <button
                 key={String(s["id"])}
-                variant={i === d.selected ? "primary" : "secondary"}
+                type="button"
+                className="sheet-item"
                 aria-pressed={i === d.selected}
                 onClick={() => d.setSelected(i)}
               >
-                {String(s["name"] ?? "")}
+                <Icon name="database" size="pill" />
+                <span className="min-w-0 flex-1 truncate">{String(s["name"] ?? "")}</span>
                 <TypeTag>{String(s["kind"] ?? "")}</TypeTag>
-              </Button>
+              </button>
             ))}
           </nav>
-          <div className="flex min-w-0 flex-1 flex-col gap-4">
-            {current === undefined ? (
-              <p className="text-body text-muted-foreground">{m.dataSelect}</p>
-            ) : (
-              <SourceFields source={current} onChange={change} canEdit={canEdit} m={m} />
-            )}
-            <ImportSection
-              tool={props.tool}
-              canEdit={canEdit}
-              m={m}
-              onAdd={(answer) => {
-                const known = new Set(d.sources.map((s) => s["id"]));
-                d.setSources((all) => [...all, ...answer.dataSources.filter((s) => !known.has(s["id"]))]);
-                d.setTypes((all) => [...all, ...answer.types]);
-                d.setVariables((all) => withVariables({ variables: all }, answer.variables)["variables"] as Json[]);
-              }}
-            />
-          </div>
-        </div>
-        <ProblemList problems={problems} m={m} />
-      </div>
+        }
+        foot={<ProblemList problems={problems} m={m} />}
+      >
+        {props.app !== null && <LockBanner lock={props.app.lock} />}
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+        {variablesBlocked && <p className="text-caption text-muted-foreground">{m.dataVariablesLocked}</p>}
+        {current === undefined ? (
+          <SheetEmpty icon="database" title={m.dataSelect} />
+        ) : (
+          <SheetSection
+            title={String(current["name"] ?? "")}
+            icon="database"
+            actions={
+              <Button size="sm" variant="ghost" disabled={!canEdit} onClick={remove}>
+                <Icon name="trash" />
+                {m.dataRemove}
+              </Button>
+            }
+          >
+            <SourceFields source={current} onChange={change} canEdit={canEdit} m={m} />
+          </SheetSection>
+        )}
+        <ImportSection
+          tool={props.tool}
+          canEdit={canEdit}
+          m={m}
+          onAdd={(answer) => {
+            const known = new Set(d.sources.map((s) => s["id"]));
+            d.setSources((all) => [...all, ...answer.dataSources.filter((s) => !known.has(s["id"]))]);
+            d.setTypes((all) => [...all, ...answer.types]);
+            d.setVariables((all) => withVariables({ variables: all }, answer.variables)["variables"] as Json[]);
+          }}
+        />
+      </SheetLayout>
     </Dialog>
   );
 }

@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Link, useParams } from "@tanstack/react-router";
 import { createContext, type ReactElement, type ReactNode, useContext, useMemo, useRef, useState } from "react";
+import { PageEmpty, PageHeader } from "../../components/page.tsx";
 import { isObject, type Json, useDocumentValue } from "../designers/use-document.ts";
 import { EditorProvider } from "../editor/editor-provider.tsx";
 import { LockBanner } from "../editor/lock-ui.tsx";
@@ -82,38 +83,59 @@ function Body(props: {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
   return (
-    <section className="flex flex-col gap-4" aria-labelledby={props.id}>
-      <h1 id={props.id} className="text-screen">
-        {props.title}
-      </h1>
-      <p className="text-body text-muted-foreground">{props.caption}</p>
-      <nav aria-label={m.areaNav} className="sub-nav">
-        <Link to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
-          {m.tokensLink}
-        </Link>
-        <Link to="/o/$org/apps/$app/design/themes" params={{ org: ctx.org, app: ctx.app }}>
-          {m.themesLink}
-        </Link>
-        <Link to="/o/$org/apps/$app/design/typography" params={{ org: ctx.org, app: ctx.app }}>
-          {m.typographyLink}
-        </Link>
-        <Link to="/o/$org/apps/$app/design/icons" params={{ org: ctx.org, app: ctx.app }}>
-          {m.iconsLink}
-        </Link>
-        <Link to="/o/$org/apps/$app/design/library" params={{ org: ctx.org, app: ctx.app }}>
-          {m.libraryLink}
-        </Link>
-      </nav>
-      {ctx.session !== null && <LockBanner lock={ctx.session.lock} />}
-      {!ctx.canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-      {props.refused && (
-        <p role="alert" className="text-body text-danger">
-          {m.saveRefused}
-        </p>
-      )}
-      {ctx.path === undefined && <p className="text-body text-muted-foreground">{m.noTheme}</p>}
-      {props.children}
+    <section className="page-frame" aria-labelledby={props.id}>
+      <PageHeader
+        id={props.id}
+        title={props.title}
+        caption={props.caption}
+        nav={<DesignNav org={ctx.org} app={ctx.app} label={m.areaNav} links={m} />}
+      />
+      <div className="page-body">
+        {ctx.session !== null && <LockBanner lock={ctx.session.lock} />}
+        {!ctx.canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+        {props.refused && (
+          <p role="alert" className="text-body text-danger">
+            {m.saveRefused}
+          </p>
+        )}
+        {ctx.path === undefined && <PageEmpty icon="palette" text={m.noTheme} />}
+        {props.children}
+      </div>
     </section>
+  );
+}
+
+/** The pages of the Design system area, as the header's tab strip. */
+function DesignNav({
+  org,
+  app,
+  label,
+  links: m,
+}: {
+  readonly org: string;
+  readonly app: string;
+  readonly label: string;
+  readonly links: ReturnType<typeof designMessages>;
+}): ReactElement {
+  const ctx = { org, app };
+  return (
+    <nav aria-label={label} className="sub-nav">
+      <Link to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
+        {m.tokensLink}
+      </Link>
+      <Link to="/o/$org/apps/$app/design/themes" params={{ org: ctx.org, app: ctx.app }}>
+        {m.themesLink}
+      </Link>
+      <Link to="/o/$org/apps/$app/design/typography" params={{ org: ctx.org, app: ctx.app }}>
+        {m.typographyLink}
+      </Link>
+      <Link to="/o/$org/apps/$app/design/icons" params={{ org: ctx.org, app: ctx.app }}>
+        {m.iconsLink}
+      </Link>
+      <Link to="/o/$org/apps/$app/design/library" params={{ org: ctx.org, app: ctx.app }}>
+        {m.libraryLink}
+      </Link>
+    </nav>
   );
 }
 

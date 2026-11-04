@@ -6,8 +6,8 @@ import { layoutScreen, type ScreenLayout, type WidgetNode } from "@plux/layout";
 import type { CanvasKitParagraphEngine } from "../../../../../packages/layout/src/text/canvaskit-engine.ts";
 import { loadCanvasKit, testParagraphEngine } from "../../../../../packages/layout/test-support/canvaskit.ts";
 import { defaultPreview, previewRender } from "../preview/switches.ts";
-import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
-import type { Node } from "./plugin-model.ts";
+import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme, titledScreens } from "./look.ts";
+import { type Node, readPlugin, titleKeyOf } from "./plugin-model.ts";
 import { screenStyle } from "./scene.ts";
 
 let engine: CanvasKitParagraphEngine;
@@ -94,5 +94,20 @@ describe("the preview switches reach the canvas [STU-058]", () => {
 
   test("[DAT-080]: the data sources of the plugin are listed with their mock", () => {
     expect(dataSourcesOf(documents)).toEqual([{ id: "orders", name: "Orders", mock: [1] }]);
+  });
+});
+
+describe("[I18N-010] a translated screen title reads in the previewed locale", () => {
+  test("the title key is kept from the page and its message names the screen; a missing message keeps the name", () => {
+    const doc = (json: object) => ({ kind: "page", content: new TextEncoder().encode(JSON.stringify(json)) });
+    const model = readPlugin([
+      doc({ id: "a", kind: "page", route: "offers", title: { $t: "offers.title" } }),
+      doc({ id: "b", kind: "page", route: "home", title: "Home" }),
+    ]);
+    expect(model.screens.map((s) => s.titleKey)).toEqual(["offers.title", undefined]);
+    expect(titleKeyOf("Home")).toBeUndefined();
+    const named = titledScreens(model.screens, { "offers.title": "Angebote" });
+    expect(named.map((s) => s.title)).toEqual(["Angebote", "Home"]);
+    expect(titledScreens(model.screens, {})[0]?.title).toBe("offers");
   });
 });

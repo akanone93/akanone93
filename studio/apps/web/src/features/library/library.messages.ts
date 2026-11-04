@@ -6,6 +6,11 @@ import type { I18n } from "@lingui/core";
 /** Messages of the library browser and its detail pages (STU-080 to STU-086). */
 export function libraryMessages(i18n: I18n) {
   return {
+    caption: i18n._({
+      id: "library.caption",
+      message: "Components and templates your organisation shares between apps, versioned and imported as files.",
+      comment: "Caption under the heading of the library page.",
+    }),
     title: i18n._({
       id: "library.title",
       message: "Library",

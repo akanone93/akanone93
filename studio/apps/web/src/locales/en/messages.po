@@ -3408,6 +3408,12 @@ msgstr "Components"
 msgid "library.kind.component"
 msgstr "Components"
 
+#. Caption under the heading of the library page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/library/library.messages.ts
+msgid "library.caption"
+msgstr "Components and templates your organisation shares between apps, versioned and imported as files."
+
 #. Accessible name of the table.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -4308,6 +4314,12 @@ msgstr "Detach component instance"
 msgid "library.canvas.detach.title"
 msgstr "Detach this instance?"
 
+#. Heading of the inspector's foldable section with the tabs (Properties, Actions, JSON and the others).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panel.detailsSection"
+msgstr "Details"
+
 #. Name of the wizard step that asks for the app's name and key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -4942,6 +4954,12 @@ msgstr "Enter your password."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.title"
 msgstr "Enterprise: requires a licence"
+
+#. Section of the state designer: the entry's name and where it is kept.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.sectionEntry"
+msgstr "Entry"
 
 #. Marks the screen the plugin opens first.
 #. js-lingui-explicit-id
@@ -5687,6 +5705,18 @@ msgstr "Flows"
 msgid "newApp.project.title"
 msgstr "Flutter project"
 
+#. Button in the inspector's header: folds the right dock to a slim strip.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panel.foldInspector"
+msgstr "Fold the inspector"
+
+#. Button in the header of a canvas's left dock: hides the pane and keeps the rail; a tab opens it again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.foldDock"
+msgstr "Fold the panel to its rail"
+
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -6232,11 +6262,23 @@ msgstr "Help"
 msgid "chrome.footer.label"
 msgstr "Help links"
 
+#. Read out after a layer's name when it is hidden on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layerHidden"
+msgstr "hidden"
+
 #. Label on a node whose content is never recorded.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayMasked"
 msgstr "Hidden"
+
+#. Tooltip of a layer's eye: hides the widget on the canvas only; the device is not affected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layerHide"
+msgstr "Hide on the canvas (Ctrl+Shift+H)"
 
 #. Button that collapses the plugins panel of the canvas.
 #. js-lingui-explicit-id
@@ -6609,6 +6651,12 @@ msgstr "info"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.severity.info"
 msgstr "Information"
+
+#. Section of the state designer: the entry's initial value and whether it is sensitive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.sectionValue"
+msgstr "Initial value"
 
 #. Accessible name of the field that edits a state entry's initial value; the placeholder is its name.
 #. js-lingui-explicit-id
@@ -7296,6 +7344,12 @@ msgstr "Latest version"
 msgid "design.scriptLatin"
 msgstr "Latin"
 
+#. Label of the field that renames a layer in the layer tree.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layerName"
+msgstr "Layer name"
+
 #. Tab: the tree of the nodes of the screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -7835,6 +7889,12 @@ msgstr "Localisation table"
 msgid "shell.api.location"
 msgstr "Location"
 
+#. Tooltip of a layer's lock: the widget can no longer be picked on the canvas or edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layerLock"
+msgstr "Lock (Ctrl+Shift+L)"
+
 #. Accessible name of the button that locks the view in place.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -7846,6 +7906,12 @@ msgstr "Lock or unlock moving the view"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.reasonLockTakeover"
 msgstr "Lock taken over"
+
+#. Read out after a layer's name when it is locked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layerLocked"
+msgstr "locked"
 
 #. Badge: who holds the editing lock of the plugin.
 #. js-lingui-explicit-id
@@ -9659,6 +9725,12 @@ msgstr "Open the app"
 msgid "panelTabs.openData"
 msgstr "Open the data source designer"
 
+#. Button of the folded inspector: opens the right dock again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panel.openInspector"
+msgstr "Open the inspector"
+
 #. Button of the Localisation tab that opens the localisation table.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -9970,6 +10042,30 @@ msgstr "Page state that cannot become a parameter"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.converted.heading"
 msgstr "Page state turned into parameters"
+
+#. Accessible name of the links between the pages of the data area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/data/data.messages.ts
+msgid "data.areaNav"
+msgstr "Pages of the data area"
+
+#. Accessible name of the tabs between the experiments pages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.areaNav"
+msgstr "Pages of the experiments area"
+
+#. Accessible name of the tabs between the releases pages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.areaNav"
+msgstr "Pages of the releases area"
+
+#. Accessible name of the tabs between the security pages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/security/security.messages.ts
+msgid "security.areaNav"
+msgstr "Pages of the security area"
 
 #. Name of the limit on the number of pages in a plugin.
 #. js-lingui-explicit-id
@@ -10827,6 +10923,12 @@ msgstr "Queued"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffQueued"
 msgstr "Queued. Rendering waits for earlier jobs and is rate-limited."
+
+#. Accessible name of the pair of dates that bound every analytics page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/analytics/analytics.messages.ts
+msgid "analytics.rangeLabel"
+msgstr "Range"
 
 #. Text in a sample app screen drawn beside the sign-in form. Label of the interest rate.
 #. js-lingui-explicit-id
@@ -12945,6 +13047,12 @@ msgstr "Show keyboard shortcuts"
 msgid "panels.showSelection"
 msgstr "Show on canvas"
 
+#. Tooltip of a hidden layer's eye.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layerShow"
+msgstr "Show on the canvas (Ctrl+Shift+H)"
+
 #. Accessible name of the button that collapses and expands the sidebar.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -14096,6 +14204,12 @@ msgstr "The app's assets"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.load-failed"
 msgstr "The app's images could not be loaded."
+
+#. Shown in the translations editor when the app document with its languages is not loaded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.notReady"
+msgstr "The app's languages are not available yet. Choose them in the app's settings, then open translations again."
 
 #. Caption under the heading of the app settings page.
 #. js-lingui-explicit-id
@@ -15670,6 +15784,12 @@ msgstr "This widget has no events."
 msgid "links.none"
 msgstr "This widget has no links yet."
 
+#. Shown in the inspector when the selection holds a locked widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.lockedNote"
+msgstr "This widget is locked. Unlock it in Layers to edit it."
+
 #. Route option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -15898,6 +16018,12 @@ msgstr "Trusted CI issuers"
 msgid "refusal.retry"
 msgstr "Try again"
 
+#. Section of the state designer: the value's type, whether it is a list or a map, and whether it may be empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/state-designer/state.messages.ts
+msgid "state.sectionType"
+msgstr "Type"
+
 #. Label of the list that chooses the type of the entry's value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -16005,6 +16131,12 @@ msgstr "Unhealthy"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.unknownAuthor"
 msgstr "unknown author"
+
+#. Tooltip of a locked layer's lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.layerUnlock"
+msgstr "Unlock (Ctrl+Shift+L)"
 
 #. Button on an app's card that removes the pin; name is the app.
 #. js-lingui-explicit-id
@@ -16215,6 +16347,12 @@ msgstr "User ID"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.detail.functionsUsed"
 msgstr "Uses {names}"
+
+#. Short version label beside a collection in the database designer's list, e.g. v3.
+#. js-lingui-explicit-id
+#: apps/web/src/features/designers/designers.messages.ts
+msgid "designers.versionTag"
+msgstr "v{version}"
 
 #. Chip on a plugin's box: the plugin's newest published version, e.g. v3.
 #. js-lingui-explicit-id

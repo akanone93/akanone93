@@ -6,6 +6,11 @@ import type { I18n } from "@lingui/core";
 /** Messages of the Devices and security area (STU-115, SEC-180). */
 export function securityMessages(i18n: I18n) {
   return {
+    areaNav: i18n._({
+      id: "security.areaNav",
+      message: "Pages of the security area",
+      comment: "Accessible name of the tabs between the security pages.",
+    }),
     devicesTitle: i18n._({ id: "security.devicesTitle", message: "Devices", comment: "Heading of the devices list." }),
     devicesCaption: i18n._({
       id: "security.devicesCaption",

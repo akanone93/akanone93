@@ -6,6 +6,13 @@ import type { I18n } from "@lingui/core";
 /** Messages of the data source, DB schema and theme designers (S5.5, STU-063). */
 export function designerMessages(i18n: I18n) {
   return {
+    versionTag: (version: string) =>
+      i18n._({
+        id: "designers.versionTag",
+        message: "v{version}",
+        comment: "Short version label beside a collection in the database designer's list, e.g. v3.",
+        values: { version },
+      }),
     apply: i18n._({
       id: "designers.apply",
       message: "Apply",

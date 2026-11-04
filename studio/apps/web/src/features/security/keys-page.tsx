@@ -3,7 +3,8 @@
 
 import { useLingui } from "@lingui/react";
 import type { ReactElement } from "react";
-import { Frame, Table } from "./parts.tsx";
+import { PageEmpty } from "../../components/page.tsx";
+import { Frame, SecurityTabs, Table } from "./parts.tsx";
 import { securityMessages } from "./security.messages.ts";
 import { useRootKeys, useScope } from "./use-security.ts";
 
@@ -25,6 +26,7 @@ export function KeysPage(): ReactElement {
   const keys = result.data?.keys ?? [];
   return (
     <Frame
+      nav={<SecurityTabs />}
       id="keys-title"
       title={m.keysTitle}
       caption={m.keysCaption}
@@ -36,7 +38,7 @@ export function KeysPage(): ReactElement {
         {m.rootVersions}: <span className="font-mono">{result.data?.roots.length ?? 0}</span>
       </p>
       {keys.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noKeys}</p>
+        <PageEmpty icon="key" text={m.noKeys} />
       ) : (
         <Table
           caption={m.keysTitle}
@@ -63,7 +65,14 @@ export function KeysPage(): ReactElement {
 export function PinsPage(): ReactElement {
   const m = securityMessages(useLingui().i18n);
   return (
-    <Frame id="pins-title" title={m.pinsTitle} caption={m.pinsCaption} loading={false} failed={false}>
+    <Frame
+      id="pins-title"
+      nav={<SecurityTabs />}
+      title={m.pinsTitle}
+      caption={m.pinsCaption}
+      loading={false}
+      failed={false}
+    >
       <p className="text-body text-muted-foreground">{m.pinsNote}</p>
       <Runbook label={m.ceremony} />
     </Frame>

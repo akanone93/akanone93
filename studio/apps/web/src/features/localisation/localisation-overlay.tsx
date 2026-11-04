@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Input, Select } from "@plux/ui";
+import { Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
 import { useMemo, useState } from "react";
 import { useStore } from "zustand";
+import { SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
 import type { EditSession, JsonValue } from "../editor/index.ts";
 import {
   addKeyRecipe,
@@ -70,45 +71,48 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
       size="full"
       title={m.title}
       labels={{ close: m.close }}
+      icon="translate"
+      flush
     >
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex flex-wrap items-end gap-3">
-          <Select
-            label={m.scope}
-            options={[
-              { value: "plugin", label: m.scopePlugin },
-              { value: "selection", label: m.scopeSelection },
-              { value: "all", label: m.scopeAll },
-            ]}
-            value={scope}
-            onValueChange={(v) => setScope(v as KeyScope)}
-          />
-          <Select
-            label={m.editLocale}
-            options={props.locales.map((l) => ({ value: l, label: l }))}
-            value={props.locale}
-            onValueChange={props.onLocale}
-          />
-          <AddKey {...props} keys={keys} keysDoc={keysDoc} />
-        </div>
+      <SheetLayout
+        nav={
+          <div className="flex flex-col gap-4">
+            <SheetNavHead title={m.table} count={rows.length} />
+            <Field label={m.scope}>
+              <Select
+                label={m.scope}
+                options={[
+                  { value: "plugin", label: m.scopePlugin },
+                  { value: "selection", label: m.scopeSelection },
+                  { value: "all", label: m.scopeAll },
+                ]}
+                value={scope}
+                onValueChange={(v) => setScope(v as KeyScope)}
+              />
+            </Field>
+            <Field label={m.editLocale}>
+              <Select
+                label={m.editLocale}
+                options={props.locales.map((l) => ({ value: l, label: l }))}
+                value={props.locale}
+                onValueChange={props.onLocale}
+              />
+            </Field>
+            <AddKey {...props} keys={keys} keysDoc={keysDoc} />
+          </div>
+        }
+      >
         {!props.canEditMessages && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-        <div className="min-h-0 flex-1 overflow-auto">
+        <SheetSection title={m.table} icon="translate">
           {rows.length === 0 ? (
-            <p className="text-body text-muted-foreground">{m.empty}</p>
+            <SheetEmpty icon="translate" title={m.empty} />
           ) : (
-            <table aria-label={m.table} className="w-full border-collapse text-start">
+            <table aria-label={m.table} className="sheet-grid-table">
               <thead>
                 <tr>
-                  <th scope="col" className="p-2 text-start text-label text-muted-foreground">
-                    {m.keyColumn}
-                  </th>
+                  <th scope="col">{m.keyColumn}</th>
                   {shown.map((c) => (
-                    <th
-                      key={c.locale}
-                      scope="col"
-                      className="p-2 text-start font-mono text-tag text-muted-foreground"
-                      dir="ltr"
-                    >
+                    <th key={c.locale} scope="col" className="font-mono" dir="ltr">
                       {c.locale}
                     </th>
                   ))}
@@ -116,12 +120,12 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
               </thead>
               <tbody>
                 {rows.map((k) => (
-                  <tr key={k.id} className="border-t border-hairline">
-                    <th scope="row" className="p-2 text-start font-mono text-data font-normal" dir="ltr">
+                  <tr key={k.id}>
+                    <th scope="row" className="font-mono text-xs font-normal" dir="ltr">
                       {k.key}
                     </th>
                     {shown.map((c) => (
-                      <td key={c.locale} className="p-2">
+                      <td key={c.locale}>
                         {c.locale === props.locale ? (
                           <Input
                             aria-label={m.messageOf(k.key, c.locale)}
@@ -131,8 +135,8 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
                             onChange={(e) => writeMessage(props, messagesDoc, k.id, e.target.value)}
                           />
                         ) : (
-                          <span className="text-body">
-                            {c.messages?.[k.id] ?? <span className="text-muted-foreground">{m.missing}</span>}
+                          <span className="text-sm">
+                            {c.messages?.[k.id] ?? <span className="text-muted-foreground italic">{m.missing}</span>}
                           </span>
                         )}
                       </td>
@@ -142,8 +146,8 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
               </tbody>
             </table>
           )}
-        </div>
-      </div>
+        </SheetSection>
+      </SheetLayout>
     </Dialog>
   );
 }
@@ -184,7 +188,7 @@ function AddKey(props: LocalisationOverlayProps & { keys: ReturnType<typeof read
     setShown(false);
   };
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex flex-col gap-2 border-t pt-4">
       <Field label={m.newKey} error={shown && problem !== undefined ? m.problem(problem) : undefined}>
         <Input
           value={name}
@@ -197,6 +201,7 @@ function AddKey(props: LocalisationOverlayProps & { keys: ReturnType<typeof read
         />
       </Field>
       <Button onClick={add} disabled={!props.canEditKeys}>
+        <Icon name="plus" />
         {m.addKey}
       </Button>
       {!props.canEditKeys && <span className="text-caption text-muted-foreground">{m.keysReadOnly}</span>}

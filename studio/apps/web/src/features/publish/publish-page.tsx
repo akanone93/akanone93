@@ -6,6 +6,7 @@ import { Button, StatusPill } from "@plux/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageHeader, PageStatus } from "../../components/page.tsx";
 import { usePermissions } from "../security/use-security.ts";
 import { CancelDialog } from "./cancel-dialog.tsx";
 import type { PanelProps } from "./panel.ts";
@@ -104,19 +105,16 @@ export function PublishPage(): ReactElement {
   const api = useReleaseApi(app, request ?? { id: requestId, state: "", revision: 0n, environmentId: "" });
   if (request === undefined) {
     return (
-      <section className="flex flex-col gap-4" aria-labelledby="publish-title">
-        <h1 id="publish-title" className="text-screen">
-          {m.title}
-        </h1>
-        {query.isError ? (
-          <p role="alert" className="text-body text-danger">
-            {m.loadFailed}
-          </p>
-        ) : (
-          <p role="status" className="text-body text-muted-foreground">
-            {m.loading}
-          </p>
-        )}
+      <section className="page-frame" aria-labelledby="publish-title">
+        <PageHeader id="publish-title" title={m.title} />
+        <div className="page-body">
+          <PageStatus
+            loading={!query.isError}
+            failed={query.isError}
+            error={query.error}
+            labels={{ loading: m.loading, loadFailed: m.loadFailed }}
+          />
+        </div>
       </section>
     );
   }
@@ -138,56 +136,59 @@ export function PublishPage(): ReactElement {
   const pluginIds = new Map((summaries.data ?? []).map((s) => [s.plugin?.key ?? "", s.plugin?.id ?? ""]));
   const props: PanelProps = { request, diff: query.data?.visualDiff, api, editable, busy, run, pluginIds };
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="publish-title">
-      <h1 id="publish-title" className="text-screen">
-        {m.title}
-      </h1>
-      {!own && <p className="text-body text-muted-foreground">{m.othersPublishing(request.createdByName)}</p>}
-      {own && !can && <p className="text-body text-muted-foreground">{m.viewOnly}</p>}
-      {ended && (
-        <StatusPill status={request.state === "released" ? "success" : "neutral"} label={endedText(m, request.state)} />
-      )}
-      {request.hold !== "" && (
-        <StatusPill status="warning" label={holdText(m, request.hold)} value={request.holdReason} />
-      )}
-      <ol aria-label={m.stepsLabel} className="flex flex-wrap gap-2">
-        {steps.map((s, i) => (
-          <li key={s}>
-            <Button
-              size="sm"
-              variant={s === viewed ? "primary" : "secondary"}
-              aria-current={s === viewed ? "step" : undefined}
-              disabled={i > steps.indexOf(current)}
-              onClick={() => void navigate({ to: ".", search: (prev: object) => ({ ...prev, step: s }) })}
-            >
-              {i + 1}. {stepName(m, s)}
+    <section className="page-frame" aria-labelledby="publish-title">
+      <PageHeader id="publish-title" title={m.title} />
+      <div className="page-body">
+        {!own && <p className="text-body text-muted-foreground">{m.othersPublishing(request.createdByName)}</p>}
+        {own && !can && <p className="text-body text-muted-foreground">{m.viewOnly}</p>}
+        {ended && (
+          <StatusPill
+            status={request.state === "released" ? "success" : "neutral"}
+            label={endedText(m, request.state)}
+          />
+        )}
+        {request.hold !== "" && (
+          <StatusPill status="warning" label={holdText(m, request.hold)} value={request.holdReason} />
+        )}
+        <ol aria-label={m.stepsLabel} className="flex flex-wrap gap-2">
+          {steps.map((s, i) => (
+            <li key={s}>
+              <Button
+                size="sm"
+                variant={s === viewed ? "primary" : "secondary"}
+                aria-current={s === viewed ? "step" : undefined}
+                disabled={i > steps.indexOf(current)}
+                onClick={() => void navigate({ to: ".", search: (prev: object) => ({ ...prev, step: s }) })}
+              >
+                {i + 1}. {stepName(m, s)}
+              </Button>
+            </li>
+          ))}
+        </ol>
+        <h2 className="text-section">{stepName(m, viewed)}</h2>
+        {error !== "" && (
+          <p role="alert" className="text-body text-danger">
+            {error}
+          </p>
+        )}
+        <Panel step={viewed} props={props} />
+        {can && own && !ended && (
+          <div>
+            <Button variant="secondary" disabled={busy} onClick={() => setCancelling(true)}>
+              {m.cancelRequest}
             </Button>
-          </li>
-        ))}
-      </ol>
-      <h2 className="text-section">{stepName(m, viewed)}</h2>
-      {error !== "" && (
-        <p role="alert" className="text-body text-danger">
-          {error}
-        </p>
-      )}
-      <Panel step={viewed} props={props} />
-      {can && own && !ended && (
-        <div>
-          <Button variant="secondary" disabled={busy} onClick={() => setCancelling(true)}>
-            {m.cancelRequest}
-          </Button>
-        </div>
-      )}
-      {cancelling && (
-        <CancelDialog
-          onClose={() => setCancelling(false)}
-          onConfirm={() => {
-            setCancelling(false);
-            run(() => api.cancel());
-          }}
-        />
-      )}
+          </div>
+        )}
+        {cancelling && (
+          <CancelDialog
+            onClose={() => setCancelling(false)}
+            onConfirm={() => {
+              setCancelling(false);
+              run(() => api.cancel());
+            }}
+          />
+        )}
+      </div>
     </section>
   );
 }

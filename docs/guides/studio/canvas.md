@@ -90,8 +90,12 @@ Positions are read-only while someone else is editing the app.
    use **Recently used**; point at a tile to read what the widget does, then choose it or drag it
    onto a screen. **Layers** shows each screen over its widgets with their icons and what they show:
    choose a caret to fold a row, **Expand all** or **Collapse all**, **Filter layers** by name, type
-   or text, and drag a layer to move it. The card at the top of **Layers** lists the selection, with
-   **Show on canvas** and **Clear selection**. **Assets** takes files dropped on its zone (or chosen
+   or text, and drag a layer to move it. Double-click a layer's name (or press F2) to rename it; the
+   eye hides it on the canvas (Ctrl+Shift+H) and the lock keeps it from being selected, moved or edited
+   (Ctrl+Shift+L). Names, hiding and locks are Studio's own: the device still shows the widget. The
+   card at the top of **Layers** lists the selection, with **Show on canvas** and **Clear selection**.
+   The fold button in each dock's header folds it to its rail; a tab on the rail opens it again. In
+   the **Inspector**, **Editors** and **Details** fold separately. **Assets** takes files dropped on its zone (or chosen
    by clicking it) and shows them as cards you can search and filter by kind; **Data** holds the
    plugin's **State** and **Data sources**. Select a widget and edit it in the **Inspector**: it
    names the widget and its screen, opens the **Editors** (JSON, translations, state, data sources,
@@ -116,7 +120,8 @@ Positions are read-only while someone else is editing the app.
    **Capture screenshot** work on it. Drag the console's top edge, or use the arrow keys on it, to
    change its height.
 
-The canvas previews with the same layout code the device runs; the device decides. Check anything
+Each screen's name is shown above its device frame, and a button or a field shows its text inside its
+box. The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 ## Link screens

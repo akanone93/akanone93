@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Input, Textarea } from "@plux/ui";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { objects, PreviewPanel, splitList, strings, usePreview } from "../designers/db-schema-overlay.tsx";
 import { designerMessages } from "../designers/designers.messages.ts";
 import type { Json } from "../designers/use-document.ts";
@@ -39,7 +40,7 @@ function CollectionRows(): ReactElement {
   const ctx = useDataContext();
   const collections = objects(usePluginJson().value?.["collections"]);
   if (collections.length === 0) {
-    return <p className="text-body text-muted-foreground">{m.noCollections}</p>;
+    return <PageEmpty icon="database" text={m.noCollections} />;
   }
   return (
     <Table
@@ -144,7 +145,7 @@ function Schema(props: { collection: Json; canEdit: boolean; change: (patch: Jso
       </section>
       <section aria-label={m.plans} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.plans}</h2>
-        {plans.length === 0 && <p className="text-body text-muted-foreground">{m.noPlans}</p>}
+        {plans.length === 0 && <PageEmpty icon="database" text={m.noPlans} />}
         <ul>
           {plans.map((p) => (
             <li key={String(p["from"])} className="text-body">

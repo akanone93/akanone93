@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { designMessages } from "./design.messages.ts";
 import { baseRows, brandNames, contrastOf, groupRows, type Mode, putToken, validName } from "./design-model.ts";
 import { modeLabel } from "./parts.tsx";
@@ -92,7 +93,7 @@ function Brands(): ReactElement {
     <section aria-label={m.brandsHeading} className="flex flex-col gap-2">
       <h2 className="text-label font-medium">{m.brandsHeading}</h2>
       {names.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noBrands}</p>
+        <PageEmpty icon="palette" text={m.noBrands} />
       ) : (
         <ul>
           {names.map((b) => (

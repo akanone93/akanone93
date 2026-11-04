@@ -68,6 +68,8 @@ export const arrowStyle: ArrowStyle = {
 export interface PlacedScreen {
   readonly id: string;
   readonly title: string;
+  /** The translation key of a translated title; the page shows it in the previewed locale. */
+  readonly titleKey?: string;
   readonly at: Point;
   readonly root: Node | undefined;
 }

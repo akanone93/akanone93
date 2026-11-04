@@ -92,7 +92,21 @@ Chosen option: **shadcn/ui as it ships**.
   docks, a slim bar that opens into a resizable drawer of its tabs. A canvas opens at 100 %,
   centred in the room the docks leave. A native target on the app canvas is a dashed outline with
   a "Native" chip, and a secondary click on a plugin opens its context menu. The full-screen
-  editors open as one sheet inset from the window, rounded, with a header bar. Across Studio a
+  editors open as one sheet inset from the window, rounded, with a header bar. The left panel keeps
+  four tabs where `STU-061` listed seven (amended by the maintainer on 2026-11-04, spec 1.14.0):
+  Layers holds the screens as the tree's roots and the selection above it, Data holds the state and
+  the data sources; a layer's name, hidden and locked are editor-only settings in the node's
+  `x-studio` object, which the schema keeps and the compiler ignores (`SCH-004`), so the device is
+  never affected (its own switch is the node's `visible`). Every other page follows the canvases
+  (amended by the maintainer on 2026-11-04, who asked for "the rest of the ui and all the
+  urls/screens" to match them): a header card with the area's mark on the primary colour, the
+  area's name over the page's heading and caption, the page's actions on its end side and the
+  area's pages as a tab strip along its foot, over the canvas's dot grid fading in from the end
+  side; below it the content as cards on the page's wash — tables, filter rows and create forms
+  each a card, section headings with a short primary rail, fields never wider than a readable
+  column, and an empty list a dashed card with a mark. The header names where the person is as
+  organisation › area › page, and the sidebar marks the open page with the same primary rail.
+  Across Studio a
   select's list is as wide as its longest option, scroll bars are thin and in the theme's
   colours, and files are taken by one drop zone (`FileDrop`), never the browser's bare file
   input. The canvas's glass panels are lighter than the page's:

@@ -23,6 +23,7 @@ import {
   Dialog as ShadcnDialog,
 } from "./components/dialog";
 import { Icon } from "./icon.tsx";
+import type { IconName } from "./icons.ts";
 
 /**
  * `full` is the full-screen overlay of the heavy editors (STU-063): a sheet inset from the window's edges with a header
@@ -50,6 +51,12 @@ export type DialogProps = Omit<ComponentProps<typeof ShadcnDialog>, "children"> 
   /** The element that opens the dialog; omit when `open` is controlled. */
   readonly trigger?: ReactElement;
   readonly children?: ReactNode;
+  /** `full` only: the editor's icon on the primary colour at the start of the header bar. */
+  readonly icon?: IconName;
+  /** `full` only: the editor's own actions in the header bar, before Close (Apply, status). */
+  readonly headerActions?: ReactNode;
+  /** `full` only: the body without padding, for an editor that lays out its own columns. */
+  readonly flush?: boolean;
 };
 
 /**
@@ -63,6 +70,9 @@ export function Dialog({
   labels,
   trigger,
   children,
+  icon,
+  headerActions,
+  flush = false,
   ...root
 }: DialogProps): ReactElement {
   if (size === "full") {
@@ -71,15 +81,33 @@ export function Dialog({
         {trigger !== undefined && <DialogTrigger render={trigger} />}
         <DialogContent showCloseButton={false} className={sizeClass.full} data-size="full">
           <div data-slot="dialog-full-head" className="flex items-center gap-3 border-b px-5 py-3">
+            {icon !== undefined && (
+              <span data-slot="dialog-full-icon" aria-hidden="true">
+                <Icon name={icon} />
+              </span>
+            )}
             <DialogHeader className="min-w-0 flex-1 gap-0.5">
               <DialogTitle className="truncate">{title}</DialogTitle>
               {description !== undefined && <DialogDescription>{description}</DialogDescription>}
             </DialogHeader>
+            {headerActions !== undefined && (
+              <div data-slot="dialog-full-actions" className="flex items-center gap-2">
+                {headerActions}
+              </div>
+            )}
             <DialogClose render={<Button variant="ghost" size="icon-sm" aria-label={labels.close} />}>
               <Icon name="x" />
             </DialogClose>
           </div>
-          <div data-slot="dialog-full-body" className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-5">
+          <div
+            data-slot="dialog-full-body"
+            data-flush={flush || undefined}
+            className={
+              flush
+                ? "flex min-h-0 flex-1 flex-col overflow-hidden"
+                : "flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-5"
+            }
+          >
             {children}
           </div>
         </DialogContent>

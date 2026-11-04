@@ -7,6 +7,7 @@ import { PreferencesService } from "@plux/api";
 import { Button, Select } from "@plux/ui";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { AnimatedList } from "../../components/animated-list.tsx";
+import { PageEmpty, PageHeader } from "../../components/page.tsx";
 import { notifyMessages } from "../shell/notify.messages.ts";
 import {
   describe,
@@ -47,95 +48,95 @@ export function NotificationsPage() {
   const setSearch = (next: { type?: string | undefined; unread?: boolean | undefined }) =>
     void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, ...next }) });
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="inbox-title">
-      <h1 id="inbox-title" className="text-screen">
-        {m.inboxTitle}
-      </h1>
-      <div className="flex items-end gap-4">
-        <Select
-          label={m.filterType}
-          value={search.type ?? allTypes}
-          placeholder={m.filterAll}
-          options={[{ value: allTypes, label: m.filterAll }, ...types.map((t) => ({ value: t, label: t }))]}
-          onValueChange={(value) => setSearch({ type: value === allTypes ? undefined : value })}
-        />
-        <label className="flex items-center gap-2 text-body">
-          <input
-            type="checkbox"
-            checked={unreadOnly}
-            onChange={(e) => setSearch({ unread: e.target.checked ? true : undefined })}
+    <section className="page-frame" aria-labelledby="inbox-title">
+      <PageHeader id="inbox-title" title={m.inboxTitle} />
+      <div className="page-body">
+        <div className="flex items-end gap-4">
+          <Select
+            label={m.filterType}
+            value={search.type ?? allTypes}
+            placeholder={m.filterAll}
+            options={[{ value: allTypes, label: m.filterAll }, ...types.map((t) => ({ value: t, label: t }))]}
+            onValueChange={(value) => setSearch({ type: value === allTypes ? undefined : value })}
           />
-          {m.filterUnread}
-        </label>
-      </div>
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={!items.some((i) => !i.read)}
-          onClick={() => void markRead(items.filter((i) => !i.read).map((i) => i.id))}
-        >
-          {m.markAllRead}
-        </Button>
-        <span className="text-caption text-muted-foreground">{m.retention(retentionDays())}</span>
-      </div>
-      {inbox.isError && (
-        <p role="alert" className="text-body text-danger">
-          {m.loadFailed}
-        </p>
-      )}
-      {inbox.data !== undefined && shown.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
-      {kindOrder.map((kind) => {
-        const ofKind = groups.filter((g) => kindOf(g.eventType) === kind);
-        if (ofKind.length === 0) {
-          return null;
-        }
-        return (
-          <section key={kind} aria-label={kindTitle[kind]} className="flex flex-col gap-2">
-            <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{kindTitle[kind]}</h2>
-            <AnimatedList
-              items={ofKind}
-              keyOf={(group) => group.key}
-              className="flex flex-col gap-2"
-              render={(group) => {
-                const first = group.items[0];
-                if (first === undefined) {
-                  return null;
-                }
-                const audited = kind === "approvals" || kind === "security";
-                return (
-                  <div className="flex items-start gap-3 rounded-lg border bg-card px-4 py-3">
-                    <span
-                      aria-hidden="true"
-                      className={`mt-1.5 size-2 shrink-0 rounded-full ${group.unread ? "bg-primary" : "bg-transparent"}`}
-                    />
-                    <div className="flex flex-1 flex-col gap-0.5">
-                      <span className={`text-sm ${group.unread ? "font-medium" : "text-muted-foreground"}`}>
-                        {describe(i18n, first, group.count)}
-                      </span>
-                      {audited && first.link !== "" && (
-                        <a href={first.link} className="text-xs underline-offset-4 hover:underline">
-                          {m.auditRecord}
-                        </a>
-                      )}
-                      <span className="font-mono text-xs text-muted-foreground">{group.eventType}</span>
-                    </div>
-                    {group.unread && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => void markRead(group.items.filter((i) => !i.read).map((i) => i.id))}
-                      >
-                        {m.markRead}
-                      </Button>
-                    )}
-                  </div>
-                );
-              }}
+          <label className="flex items-center gap-2 text-body">
+            <input
+              type="checkbox"
+              checked={unreadOnly}
+              onChange={(e) => setSearch({ unread: e.target.checked ? true : undefined })}
             />
-          </section>
-        );
-      })}
+            {m.filterUnread}
+          </label>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={!items.some((i) => !i.read)}
+            onClick={() => void markRead(items.filter((i) => !i.read).map((i) => i.id))}
+          >
+            {m.markAllRead}
+          </Button>
+          <span className="text-caption text-muted-foreground">{m.retention(retentionDays())}</span>
+        </div>
+        {inbox.isError && (
+          <p role="alert" className="text-body text-danger">
+            {m.loadFailed}
+          </p>
+        )}
+        {inbox.data !== undefined && shown.length === 0 && <PageEmpty icon="bell" text={m.empty} />}
+        {kindOrder.map((kind) => {
+          const ofKind = groups.filter((g) => kindOf(g.eventType) === kind);
+          if (ofKind.length === 0) {
+            return null;
+          }
+          return (
+            <section key={kind} aria-label={kindTitle[kind]} className="flex flex-col gap-2">
+              <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{kindTitle[kind]}</h2>
+              <AnimatedList
+                items={ofKind}
+                keyOf={(group) => group.key}
+                className="flex flex-col gap-2"
+                render={(group) => {
+                  const first = group.items[0];
+                  if (first === undefined) {
+                    return null;
+                  }
+                  const audited = kind === "approvals" || kind === "security";
+                  return (
+                    <div className="flex items-start gap-3 rounded-lg border bg-card px-4 py-3">
+                      <span
+                        aria-hidden="true"
+                        className={`mt-1.5 size-2 shrink-0 rounded-full ${group.unread ? "bg-primary" : "bg-transparent"}`}
+                      />
+                      <div className="flex flex-1 flex-col gap-0.5">
+                        <span className={`text-sm ${group.unread ? "font-medium" : "text-muted-foreground"}`}>
+                          {describe(i18n, first, group.count)}
+                        </span>
+                        {audited && first.link !== "" && (
+                          <a href={first.link} className="text-xs underline-offset-4 hover:underline">
+                            {m.auditRecord}
+                          </a>
+                        )}
+                        <span className="font-mono text-xs text-muted-foreground">{group.eventType}</span>
+                      </div>
+                      {group.unread && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => void markRead(group.items.filter((i) => !i.read).map((i) => i.id))}
+                        >
+                          {m.markRead}
+                        </Button>
+                      )}
+                    </div>
+                  );
+                }}
+              />
+            </section>
+          );
+        })}
+      </div>
     </section>
   );
 }

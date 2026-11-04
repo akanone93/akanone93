@@ -6,6 +6,7 @@ import { useLingui } from "@lingui/react";
 import { StatusPill } from "@plux/ui";
 import { Link, useParams } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Table } from "../security/parts.tsx";
 import { useEnvironment, useScope } from "../security/use-security.ts";
 import { Frame } from "./frame.tsx";
@@ -30,7 +31,7 @@ export function FunctionsPage(): ReactElement {
     >
       <p className="text-body text-muted-foreground">{m.listCaption}</p>
       {list.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noFunctions}</p>
+        <PageEmpty icon="lightning" text={m.noFunctions} />
       ) : (
         <Table
           caption={m.listTitle}

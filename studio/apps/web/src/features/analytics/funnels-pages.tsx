@@ -7,6 +7,7 @@ import { Button, Field, Icon, Input, Textarea } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { Table } from "../security/parts.tsx";
 import { usePermissions } from "../security/use-security.ts";
@@ -40,9 +41,9 @@ export function AnalyticsFunnelsPage(): ReactElement {
       loading={funnels.isPending}
       failed={funnels.isError}
       error={funnels.error}
+      nav={<AreaNav />}
     >
-      <AreaNav />
-      {(funnels.data ?? []).length === 0 && <p className="text-body text-muted-foreground">{m.noFunnels}</p>}
+      {(funnels.data ?? []).length === 0 && <PageEmpty icon="pulse" text={m.noFunnels} />}
       <Table
         caption={m.funnelsTitle}
         heads={[m.funnelName, m.stepsColumn, ""]}
@@ -104,8 +105,13 @@ export function AnalyticsFunnelPage(): ReactElement {
   const q = useFunnelResult(funnelId, range);
   const steps = q.data?.steps ?? [];
   return (
-    <Frame id="funnel-title" title={q.data?.funnel?.name ?? m.funnelsTitle} loading={q.isPending} failed={q.isError}>
-      <AreaNav />
+    <Frame
+      id="funnel-title"
+      title={q.data?.funnel?.name ?? m.funnelsTitle}
+      loading={q.isPending}
+      failed={q.isError}
+      nav={<AreaNav />}
+    >
       <Link
         to="/o/$org/apps/$app/analytics/funnels"
         params={{ org, app }}

@@ -3,6 +3,8 @@
 
 import type { ScreenStyle } from "@plux/canvas";
 import { useMemo, useRef } from "react";
+import { useSceneTheme } from "../app-canvas/scene-theme.ts";
+import { withoutHidden } from "../panels/studio-meta.ts";
 import type { PreviewRender } from "../preview/switches.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
 import { bindMocks } from "./mock-bindings.ts";
@@ -29,7 +31,12 @@ export function usePreviewScene(
   look: PreviewRender,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
-  const styled = useMemo(() => lookedStyle(screenStyle, resolveTheme(everything, look), look), [everything, look]);
+  // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
+  const title = useSceneTheme().arrows.labelText;
+  const styled = useMemo(
+    () => ({ ...lookedStyle(screenStyle, resolveTheme(everything, look), look), title }),
+    [everything, look, title],
+  );
   const cache = useRef<LocalizedRoots | undefined>(undefined);
   const shown = useMemo(() => {
     const kept = cache.current;
@@ -45,7 +52,9 @@ export function usePreviewScene(
         return s;
       }
       if (!byRoot.has(s.root)) {
-        byRoot.set(s.root, bindMocks(localizeTree(s.root, messages, look.localize), mocks, look.mockStates));
+        // A layer hidden in Layers is left out of what the canvas draws (STU-061); the device still shows it.
+        const drawn = withoutHidden(s.root);
+        byRoot.set(s.root, bindMocks(localizeTree(drawn, messages, look.localize), mocks, look.mockStates));
       }
       return { ...s, root: byRoot.get(s.root) };
     });

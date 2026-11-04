@@ -2,21 +2,375 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 
 /*
- * The forms of the area pages (ADR-0103). shadcn's Field fills its row; in a row of fields, such as the filters of the
- * audit log or a create form, each field takes a column of a readable width instead, and the row wraps.
+ * The area pages (ADR-0103, amended 2026-11-04), in the canvases' language: a header card with the area's mark on the
+ * primary colour and the canvas's dot grid fading in from the end side, the area's pages as a tab strip along its foot,
+ * and the page's content below as cards on the page's faint wash — tables, forms and empty states each a surface of
+ * their own, section headings with the primary's short rail before them.
  */
-.page-frame form:where(.flex) > [data-slot="field"] {
+
+.page-frame {
+  --page-dot: color-mix(in oklch, var(--foreground) 16%, transparent);
+
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 6);
+  inline-size: 100%;
+  max-inline-size: var(--container-7xl);
+  margin-inline: auto;
+}
+
+[data-theme="dark"] .page-frame {
+  --page-dot: oklch(1 0 0 / 14%);
+}
+
+/* The header card. */
+.page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  background-color: var(--card);
+  box-shadow: var(--elevation-1);
+}
+
+/* The canvas's dot grid, strongest at the end side and gone before the heading. */
+.page-hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(circle, var(--page-dot) 1px, transparent 1.5px);
+  background-size: calc(var(--spacing) * 4) calc(var(--spacing) * 4);
+  mask-image: linear-gradient(to left, black, transparent 60%);
+  content: "";
+}
+
+[dir="rtl"] .page-hero::before {
+  mask-image: linear-gradient(to right, black, transparent 60%);
+}
+
+.page-hero-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing) * 4);
+  padding: calc(var(--spacing) * 5) calc(var(--spacing) * 6);
+}
+
+.page-hero-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 12);
+  block-size: calc(var(--spacing) * 12);
+  border-radius: var(--radius-xl);
+  color: var(--primary-foreground);
+  background: linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 74%, black));
+  box-shadow:
+    0 8px 18px -8px color-mix(in oklch, var(--primary) 75%, transparent),
+    inset 0 1px 0 0 oklch(1 0 0 / 22%);
+}
+
+.page-hero-mark svg {
+  inline-size: calc(var(--spacing) * 6);
+  block-size: calc(var(--spacing) * 6);
+}
+
+.page-hero-text {
+  display: flex;
+  flex: 1 1 calc(var(--spacing) * 80);
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+  min-inline-size: 0;
+}
+
+.page-hero-kicker {
+  color: var(--primary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .page-hero-kicker {
+  color: var(--link);
+}
+
+.page-hero-title {
+  font-size: var(--text-2xl);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.page-hero-caption {
+  max-inline-size: 70ch;
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.page-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  margin-inline-start: auto;
+}
+
+/* The area's pages: a tab strip on the header card's foot, the open page underlined in the primary. */
+.page-hero-nav {
+  border-block-start: 1px solid var(--border);
+  padding-inline: calc(var(--spacing) * 4);
+  background-color: color-mix(in oklch, var(--muted) 45%, transparent);
+}
+
+.page-hero-nav .sub-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: calc(var(--spacing) * 1);
+  overflow-x: auto;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  scrollbar-width: none;
+}
+
+.page-hero-nav .sub-nav > a {
+  position: relative;
+  flex: none;
+  padding-block: calc(var(--spacing) * 3);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+.page-hero-nav .sub-nav > a::after {
+  position: absolute;
+  inset-inline: calc(var(--spacing) * 2);
+  inset-block-end: -1px;
+  block-size: 2px;
+  border-radius: 2px;
+  background-color: transparent;
+  content: "";
+  transition: background-color var(--duration-fast) ease;
+}
+
+.page-hero-nav .sub-nav > a:hover::after {
+  background-color: var(--border);
+}
+
+.page-hero-nav .sub-nav > a[data-status="active"] {
+  color: var(--primary);
+  background: none;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .page-hero-nav .sub-nav > a[data-status="active"] {
+  color: var(--link);
+}
+
+.page-hero-nav .sub-nav > a[data-status="active"]::after {
+  background-color: var(--primary);
+}
+
+/* The content: what the page lists and edits, one surface per block. */
+.page-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 5);
+  min-inline-size: 0;
+}
+
+/* A section heading inside the content, with the primary's short rail before it. */
+.page-body :where(h2):not([class*="sr-only"]) {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.page-body :where(h2):not([class*="sr-only"])::before {
+  flex: none;
+  inline-size: 3px;
+  block-size: 1em;
+  border-radius: 2px;
+  background-color: var(--primary);
+  content: "";
+}
+
+.page-body :where(h2) + * {
+  margin-block-start: calc(var(--spacing) * -2);
+}
+
+/*
+ * The forms of the area pages. shadcn's Field fills its row; in a row of fields, such as the filters of the audit log
+ * or a create form, each field takes a column of a readable width instead, the row wraps, and the row is a panel of its
+ * own so it reads apart from the list above it.
+ */
+.page-body form:where(.flex) {
+  padding: calc(var(--spacing) * 4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background-color: var(--card);
+  box-shadow: var(--elevation-1);
+}
+
+.page-body form:where(.flex) > [data-slot="field"] {
   flex: 1 1 calc(var(--spacing) * 48);
   inline-size: auto;
   max-inline-size: calc(var(--spacing) * 80);
 }
 
 /* A form of fields one above the other keeps a readable line length. */
-.page-frame form:not(.flex) {
+.page-body form:not(.flex) {
   max-inline-size: var(--container-2xl);
+}
+
+/* A field outside a form row never runs the page's whole width. */
+.page-body [data-slot="field"],
+.page-body [data-slot="select-trigger"] {
+  max-inline-size: var(--container-xl);
+}
+
+/* A table is a card: a hairline frame, a quiet header row and rows that light up under the pointer. */
+.data-table {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background-color: var(--card);
+  box-shadow: var(--elevation-1);
+}
+
+.data-table thead {
+  background-color: color-mix(in oklch, var(--muted) 60%, transparent);
+}
+
+.data-table th {
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* The last row of a data table sits on the frame's own border. */
 .data-table tbody tr:last-child {
   border-block-end-width: 0;
+}
+
+/* An empty list: a mark over the dot grid and what is missing. */
+.page-empty {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  overflow: hidden;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+  border: 1px dashed color-mix(in oklch, var(--foreground) 16%, transparent);
+  border-radius: var(--radius-xl);
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+  text-align: center;
+  background-color: color-mix(in oklch, var(--card) 70%, transparent);
+}
+
+.page-empty::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(circle, var(--page-dot, var(--border)) 1px, transparent 1.5px);
+  background-size: calc(var(--spacing) * 4) calc(var(--spacing) * 4);
+  mask-image: radial-gradient(closest-side, black, transparent);
+  content: "";
+}
+
+.page-empty-mark {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 10);
+  block-size: calc(var(--spacing) * 10);
+  border-radius: var(--radius-lg);
+  color: var(--primary);
+  background-color: var(--card);
+  box-shadow:
+    0 0 0 1px var(--border),
+    var(--elevation-2);
+}
+
+[data-theme="dark"] .page-empty-mark {
+  color: var(--link);
+}
+
+/* A refusal or a failed read sits in a card of its own, as the rest of the content does. */
+.page-body > [data-slot="alert"],
+.page-body > [data-slot="empty"] {
+  border-radius: var(--radius-xl);
+  background-color: var(--card);
+  box-shadow: var(--elevation-1);
+}
+
+@media (forced-colors: active) {
+  .page-hero::before,
+  .page-empty::before {
+    display: none;
+  }
+}
+
+/* A row of filters: a panel whose fields share the row in columns of a readable width. */
+.page-toolbar [data-slot="field"],
+.page-toolbar [data-slot="select-trigger"] {
+  max-inline-size: none;
+}
+
+.page-toolbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--spacing) * 40), 1fr));
+  align-items: end;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background-color: var(--card);
+  box-shadow: var(--elevation-1);
+}
+
+/* A row of a list that is not a table: a card with the item's mark, its name and key, and its facts at the end. */
+.page-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background-color: var(--card);
+  box-shadow: var(--elevation-1);
+  transition:
+    box-shadow var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+}
+
+.page-row:hover {
+  border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
+  box-shadow: var(--elevation-2);
+}
+
+.page-row-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 9);
+  block-size: calc(var(--spacing) * 9);
+  border-radius: var(--radius-lg);
+  color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 10%, var(--card));
+}
+
+[data-theme="dark"] .page-row-mark {
+  color: var(--link);
 }

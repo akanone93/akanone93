@@ -7,6 +7,7 @@ import type { ApprovalRequest } from "@plux/api";
 import { Button, Field, Textarea } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { fmt } from "../security/parts.tsx";
 import { approvalsMessages } from "./approvals.messages.ts";
 import { AuditRecords, DiffBlock, EvidenceBlocks } from "./evidence.tsx";
@@ -59,7 +60,7 @@ function Decisions({ request }: { readonly request: ApprovalRequest }): ReactEle
     <section className="flex flex-col gap-2">
       <h2 className="text-section">{m.decisionsHeading}</h2>
       {request.decisions.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noDecisions}</p>
+        <PageEmpty icon="check-circle" text={m.noDecisions} />
       ) : (
         <ul className="flex flex-col gap-2 text-body">
           {request.decisions.map((d) => (

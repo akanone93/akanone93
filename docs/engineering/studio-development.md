@@ -131,7 +131,9 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 5.7. **Commands are registered once.** Every user-invocable action is a command in the command registry: ID, message key for its label, shortcut, availability predicate and handler. The command palette (`STU-013`, built on Base UI Dialog and Autocomplete), the shortcut sheet (`?`), menus and toolbars are generated from the registry; no shortcut is bound anywhere else. Each command maps to the server permission that guards its RPC; a command no permission covers gets a new permission with its server check in the same change, and there is no browser-only permission (M-7, plan [p11.md](../plans/p11.md) §6.2). A test checks for duplicate shortcuts per scope.
 
-5.8. **No `dangerouslySetInnerHTML`**, no `innerHTML`, no `eval`-like APIs (§11).
+5.8. **One page structure.** Every area page is a `PageFrame` (or a `PageHeader` over a `page-body`) from `apps/web/src/components/page.tsx`: the header card takes the area's mark and name from the sidebar's entry for the path (`features/shell/page-area.ts`), and the area's pages go in its `nav` as `AreaTabs`. Content goes in cards: `DataTable` for lists, `PageEmpty` for an empty list, `page-toolbar` for a row of filters, `page-row` for a list that is not a table. A full-screen editor uses `components/editor-sheet.tsx` (list column, work area, details, foot). A page does not draw its own `h1` (ADR-0103).
+
+5.9. **No `dangerouslySetInnerHTML`**, no `innerHTML`, no `eval`-like APIs (§11).
 
 ## 6. State and data
 

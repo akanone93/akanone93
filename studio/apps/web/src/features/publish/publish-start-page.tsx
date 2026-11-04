@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useRef, useState } from "react";
+import { PageEmpty, PageHeader, PageStatus } from "../../components/page.tsx";
 import { useEnvironment, useScope } from "../security/use-security.ts";
 import { publishMessages } from "./publish.messages.ts";
 import { useStartRequest, useSummaries } from "./use-publish.ts";
@@ -43,21 +44,17 @@ export function PublishStartPage(): ReactElement {
   }, [app, environmentId, loaded, navigate, org, start]);
   const failed = environment.failed || summaries.isError || state === "failed";
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="publish-title">
-      <h1 id="publish-title" className="text-screen">
-        {m.title}
-      </h1>
-      {state === "working" && !failed && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.starting}
-        </p>
-      )}
-      {state === "nothing" && <p className="text-body text-muted-foreground">{m.nothing}</p>}
-      {failed && (
-        <p role="alert" className="text-body text-danger">
-          {m.startFailed}
-        </p>
-      )}
+    <section className="page-frame" aria-labelledby="publish-title">
+      <PageHeader id="publish-title" title={m.title} />
+      <div className="page-body">
+        <PageStatus
+          loading={state === "working" && !failed}
+          failed={failed}
+          error={summaries.error}
+          labels={{ loading: m.starting, loadFailed: m.startFailed }}
+        />
+        {state === "nothing" && <PageEmpty icon="paper-plane-tilt" text={m.nothing} />}
+      </div>
     </section>
   );
 }

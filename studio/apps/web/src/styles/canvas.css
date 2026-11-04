@@ -83,9 +83,11 @@
 }
 
 /* The bars hold controls on one line, all of one height. `display` stays with the utilities (`hidden lg:flex`). */
+/* Every bar of a canvas has one height, so the three at the top line up (identity, tools, status) and the docks start a
+   full gap below them. */
 .canvas-bar {
   align-items: center;
-  min-block-size: calc(var(--spacing) * 11);
+  block-size: calc(var(--spacing) * 12);
 }
 
 /*
@@ -320,8 +322,15 @@ button.problem-counts:focus-visible {
 }
 
 /* The dock's header: which editor this is, what it edits and how big it is. */
+.dock-main[hidden] {
+  display: none;
+}
+
 .dock-head {
-  padding: calc(var(--spacing) * 3.5) calc(var(--spacing) * 3.5) calc(var(--spacing) * 3);
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 3.5) calc(var(--spacing) * 2.5) calc(var(--spacing) * 3) calc(var(--spacing) * 3.5);
   border-block-end: 1px solid var(--canvas-glass-edge);
   background: linear-gradient(180deg, color-mix(in oklch, var(--primary) 9%, transparent), transparent);
 }
@@ -523,4 +532,32 @@ button.problem-counts:focus-visible {
   font-weight: 500;
   color: var(--primary);
   background-color: color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+/* The app's mark in a canvas bar fits the bar's height. */
+.canvas-bar .app-icon-sm {
+  inline-size: calc(var(--spacing) * 9);
+  block-size: calc(var(--spacing) * 9);
+  font-size: var(--text-sm);
+}
+
+/* The fold button at the end of a dock's header. */
+.dock-fold {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 8);
+  block-size: calc(var(--spacing) * 8);
+  border-radius: var(--radius-lg);
+  color: var(--muted-foreground);
+}
+
+.dock-fold:hover {
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--foreground) 7%, transparent);
+}
+
+.dock-fold:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
 }

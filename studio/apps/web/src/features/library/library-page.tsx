@@ -3,11 +3,12 @@
 
 import { useLingui } from "@lingui/react";
 import type { LibraryItem } from "@plux/api";
-import { Field, FileDrop, Input, notify, Select } from "@plux/ui";
+import { Field, FileDrop, Icon, Input, notify, Select } from "@plux/ui";
 import { Badge } from "@plux/ui/components/badge";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { AnimatedList } from "../../components/animated-list.tsx";
+import { PageEmpty, PageHeader, PageStatus } from "../../components/page.tsx";
 import { libraryMessages } from "./library.messages.ts";
 import type { LibrarySearch } from "./library.schema.ts";
 import { readFile } from "./library-model.ts";
@@ -39,9 +40,14 @@ function Row({
       </Link>
     );
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3">
-      <span className="text-sm font-medium">{link}</span>
-      <code className="text-xs text-muted-foreground">{item.key}</code>
+    <div className="page-row">
+      <span className="page-row-mark" aria-hidden="true">
+        <Icon name={item.kind === "component" ? "component" : "package"} />
+      </span>
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate text-sm font-medium">{link}</span>
+        <code className="truncate text-xs text-muted-foreground">{item.key}</code>
+      </span>
       <span className="ms-auto flex flex-wrap items-center gap-2">
         <Badge variant="secondary">{item.kind === "component" ? m.kindComponent : m.kindTemplate}</Badge>
         <Badge variant="outline">{vis}</Badge>
@@ -61,7 +67,7 @@ function Filters({ search, m }: { readonly search: LibrarySearch; readonly m: Me
     </Field>
   );
   return (
-    <div className="flex flex-wrap items-end gap-4">
+    <div className="page-toolbar">
       {text("q", m.searchLabel)}
       <Select
         label={m.kindLabel}
@@ -136,30 +142,31 @@ export function LibraryPage(): ReactElement {
   const items = useLibraryItems(search);
   const canManage = useCan("library.manage");
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="library-title">
-      <h1 id="library-title" className="text-screen">
-        {m.title}
-      </h1>
-      <Filters search={search} m={m} />
-      {canManage && (
-        <div className="flex gap-2">
-          <ImportButton kind="component" m={m} />
-          <ImportButton kind="template" m={m} />
-        </div>
-      )}
-      {items.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
-      {items.isError && (
-        <p role="alert" className="text-body text-danger">
-          {m.loadFailed}
-        </p>
-      )}
-      {items.data?.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
-      <AnimatedList
-        items={items.data ?? []}
-        keyOf={(item) => item.id}
-        className="flex flex-col gap-2"
-        render={(item) => <Row item={item} org={org} m={m} />}
+    <section className="page-frame" aria-labelledby="library-title">
+      <PageHeader
+        id="library-title"
+        title={m.title}
+        caption={m.caption}
+        actions={
+          canManage && (
+            <>
+              <ImportButton kind="component" m={m} />
+              <ImportButton kind="template" m={m} />
+            </>
+          )
+        }
       />
+      <div className="page-body">
+        <Filters search={search} m={m} />
+        <PageStatus loading={items.isPending} failed={items.isError} error={items.error} labels={m} />
+        {items.data?.length === 0 && <PageEmpty icon="book" text={m.empty} />}
+        <AnimatedList
+          items={items.data ?? []}
+          keyOf={(item) => item.id}
+          className="flex flex-col gap-2"
+          render={(item) => <Row item={item} org={org} m={m} />}
+        />
+      </div>
     </section>
   );
 }

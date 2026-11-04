@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Icon, Select, TypeTag } from "@plux/ui";
+import { Button, Dialog, Icon, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
 import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import type { JsonValue } from "../editor/json-patch.ts";
 import { type JsonEditorMessages, jsonEditorMessages } from "./json-editor.messages.ts";
@@ -229,17 +230,33 @@ function PublishedNotes({ diff, published, m }: { diff: boolean; published: Publ
   return published.text === null ? <p className="text-caption text-muted-foreground">{m.noPublished}</p> : null;
 }
 
+/** The tone of the status chip: checking, an error to fix, or a valid document. */
+function statusTone(verdict: { readonly state: string }, valid: boolean): string {
+  if (verdict.state !== "done") {
+    return "busy";
+  }
+  return valid ? "ok" : "error";
+}
+
 function ProblemList({ problems, empty, m }: { problems: readonly Problem[]; empty: string; m: JsonEditorMessages }) {
   return (
-    <section aria-label={m.problems} className="max-h-40 overflow-y-auto">
-      <h3 className="text-label font-medium">{m.problems}</h3>
+    <section aria-label={m.problems} className="flex flex-col gap-1.5">
+      <h3 className="flex items-center gap-2 text-xs font-semibold">
+        {m.problems}
+        <span className="sheet-count">{problems.length}</span>
+      </h3>
       {problems.length === 0 ? (
         <p className="text-body text-muted-foreground">{empty}</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {problems.map((p) => (
-            <li key={`${p.code}${p.path}${p.message}`} className="text-body">
-              {p.code !== "" && <TypeTag>{p.code}</TypeTag>} {p.message}
+            <li key={`${p.code}${p.path}${p.message}`} className="sheet-problem" data-severity={p.severity}>
+              <Icon
+                name={p.severity === "error" ? "x-circle" : p.severity === "warning" ? "warning" : "info"}
+                size="pill"
+              />
+              {p.code !== "" && <TypeTag>{p.code}</TypeTag>}
+              <span className="min-w-0 flex-1">{p.message}</span>
             </li>
           ))}
         </ul>
@@ -294,15 +311,14 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
       size="full"
       title={m.title}
       labels={{ close: m.close }}
-    >
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Select
-            label={m.document}
-            options={paths.map((p) => ({ value: p, label: p }))}
-            value={path}
-            onValueChange={setPath}
-          />
+      icon="braces"
+      flush
+      headerActions={
+        <>
+          <span role="status" aria-live="polite" className="sheet-status" data-tone={statusTone(verdict, valid)}>
+            <span className="sheet-status-dot" aria-hidden="true" />
+            {note === "" ? status : note}
+          </span>
           <Button variant="secondary" aria-pressed={diff} onClick={() => setDiff((d) => !d)}>
             <Icon name="eye" />
             {m.diff}
@@ -310,13 +326,35 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
           <Button onClick={apply} disabled={!canApply}>
             {m.apply}
           </Button>
-          <span role="status" aria-live="polite" className="text-body text-muted-foreground">
-            {note === "" ? status : note}
-          </span>
-        </div>
+        </>
+      }
+    >
+      <SheetLayout
+        nav={
+          <nav aria-label={m.document} className="flex flex-col gap-1">
+            <SheetNavHead title={m.document} count={paths.length} />
+            {paths.map((p) => (
+              <button
+                key={p}
+                type="button"
+                className="sheet-item"
+                aria-pressed={p === path}
+                title={p}
+                onClick={() => setPath(p)}
+              >
+                <Icon name={p.endsWith(".page.json") ? "device-mobile" : "file"} size="pill" />
+                <span className="min-w-0 flex-1 truncate font-mono text-xs" dir="ltr">
+                  {p.split("/").at(-1)}
+                </span>
+              </button>
+            ))}
+          </nav>
+        }
+        foot={<ProblemList problems={problems} empty={verdict.state === "done" ? m.noProblems : status} m={m} />}
+      >
         {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
         <PublishedNotes diff={diff} published={published} m={m} />
-        <div className="min-h-0 flex-1">
+        <div className="sheet-code">
           {props.open && (
             <Suspense fallback={<p className="text-body text-muted-foreground">{m.checking}</p>}>
               <MonacoView
@@ -331,8 +369,7 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
             </Suspense>
           )}
         </div>
-        <ProblemList problems={problems} empty={verdict.state === "done" ? m.noProblems : status} m={m} />
-      </div>
+      </SheetLayout>
     </Dialog>
   );
 }

@@ -6,6 +6,11 @@ import type { I18n } from "@lingui/core";
 /** Messages of the Releases area (STU-101, REL-050 to REL-053, REL-060). */
 export function releasesMessages(i18n: I18n) {
   return {
+    areaNav: i18n._({
+      id: "releases.areaNav",
+      message: "Pages of the releases area",
+      comment: "Accessible name of the tabs between the releases pages.",
+    }),
     timelineTitle: i18n._({
       id: "releases.timelineTitle",
       message: "Releases",

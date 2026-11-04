@@ -4,10 +4,12 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AssetService } from "@plux/api";
+import { Spinner } from "@plux/ui/components/spinner";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearch } from "@tanstack/react-router";
 import { createContext, type ReactElement, type ReactNode, useContext, useMemo, useState } from "react";
 import { useStore } from "zustand";
+import { PageEmpty } from "../../components/page.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import type { JsonValue } from "../editor/index.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
@@ -17,6 +19,7 @@ import { localisationAreaMessages } from "./area.messages.ts";
 import { type CellStatus, readStates, screensByKey } from "./grid-model.ts";
 import { KEYS_PATH, localePath, readKeys, readMessages, referencedKeys, type TranslationKey } from "./l10n-model.ts";
 import { type L10nSessions, L10nSessionsProvider, useL10nSessions } from "./l10n-sessions.tsx";
+import { localisationMessages } from "./localisation.messages.ts";
 
 /** What the pages of the localisation area share (STU-111): the keys, the messages of every locale, what each plugin uses, and the permissions. */
 export interface Area {
@@ -164,13 +167,18 @@ function Loaded({
 
 function Inner({
   remember,
+  shell,
   children,
 }: {
   readonly remember: (locale: string) => void;
+  readonly shell: (content: ReactNode) => ReactElement;
   readonly children: ReactNode;
 }): ReactElement | null {
   const sessions = useL10nSessions();
-  return sessions === null ? null : (
+  const m = localisationMessages(useLingui().i18n);
+  return sessions === null ? (
+    shell(<PageEmpty icon="translate" text={m.notReady} />)
+  ) : (
     <Loaded sessions={sessions} remember={remember}>
       {children}
     </Loaded>
@@ -178,21 +186,31 @@ function Inner({
 }
 
 /** The sessions of the app's keys and the chosen locale's messages around the pages of the area. */
-export function AreaScope({ children }: { readonly children: ReactNode }): ReactElement {
+export function AreaScope({
+  shell,
+  children,
+}: {
+  /** The page around what the scope shows while it loads or before the app has its languages. */
+  readonly shell: (content: ReactNode) => ReactElement;
+  readonly children: ReactNode;
+}): ReactElement {
   const m = localisationAreaMessages(useLingui().i18n);
   const app = (useParams({ strict: false }) as { app?: string }).app ?? "";
   const docs = useAppDocuments(app);
   const [added, setAdded] = useState<readonly string[]>([]);
   if (docs.data === undefined) {
-    return (
-      <p role="status" className="text-body text-muted-foreground">
+    return shell(
+      <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Spinner />
         {m.loading}
-      </p>
+      </p>,
     );
   }
   return (
     <L10nSessionsProvider appId={app} documents={docs.data} addedLocales={added}>
-      <Inner remember={(l) => setAdded((cur) => [...cur, l])}>{children}</Inner>
+      <Inner remember={(l) => setAdded((cur) => [...cur, l])} shell={shell}>
+        {children}
+      </Inner>
     </L10nSessionsProvider>
   );
 }

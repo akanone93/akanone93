@@ -220,6 +220,51 @@ export function panelsMessages(i18n: I18n) {
       message: "Clear selection",
       comment: "Button of the selection card in the Layers tab.",
     }),
+    foldDock: i18n._({
+      id: "panels.foldDock",
+      message: "Fold the panel to its rail",
+      comment: "Button in the header of a canvas's left dock: hides the pane and keeps the rail; a tab opens it again.",
+    }),
+    layerName: i18n._({
+      id: "panels.layerName",
+      message: "Layer name",
+      comment: "Label of the field that renames a layer in the layer tree.",
+    }),
+    layerHide: i18n._({
+      id: "panels.layerHide",
+      message: "Hide on the canvas (Ctrl+Shift+H)",
+      comment: "Tooltip of a layer's eye: hides the widget on the canvas only; the device is not affected.",
+    }),
+    layerShow: i18n._({
+      id: "panels.layerShow",
+      message: "Show on the canvas (Ctrl+Shift+H)",
+      comment: "Tooltip of a hidden layer's eye.",
+    }),
+    layerLock: i18n._({
+      id: "panels.layerLock",
+      message: "Lock (Ctrl+Shift+L)",
+      comment: "Tooltip of a layer's lock: the widget can no longer be picked on the canvas or edited.",
+    }),
+    layerUnlock: i18n._({
+      id: "panels.layerUnlock",
+      message: "Unlock (Ctrl+Shift+L)",
+      comment: "Tooltip of a locked layer's lock.",
+    }),
+    layerHidden: i18n._({
+      id: "panels.layerHidden",
+      message: "hidden",
+      comment: "Read out after a layer's name when it is hidden on the canvas.",
+    }),
+    layerLocked: i18n._({
+      id: "panels.layerLocked",
+      message: "locked",
+      comment: "Read out after a layer's name when it is locked.",
+    }),
+    lockedNote: i18n._({
+      id: "panels.lockedNote",
+      message: "This widget is locked. Unlock it in Layers to edit it.",
+      comment: "Shown in the inspector when the selection holds a locked widget.",
+    }),
     showSelection: i18n._({
       id: "panels.showSelection",
       message: "Show on canvas",
@@ -302,6 +347,21 @@ export function panelMessages(i18n: I18n) {
         values: { count },
         comment: "Title of the inspector's header while several widgets are selected.",
       }),
+    foldInspector: i18n._({
+      id: "panel.foldInspector",
+      message: "Fold the inspector",
+      comment: "Button in the inspector's header: folds the right dock to a slim strip.",
+    }),
+    openInspector: i18n._({
+      id: "panel.openInspector",
+      message: "Open the inspector",
+      comment: "Button of the folded inspector: opens the right dock again.",
+    }),
+    detailsSection: i18n._({
+      id: "panel.detailsSection",
+      message: "Details",
+      comment: "Heading of the inspector's foldable section with the tabs (Properties, Actions, JSON and the others).",
+    }),
     dock: i18n._({
       id: "panels.inspector",
       message: "Inspector",

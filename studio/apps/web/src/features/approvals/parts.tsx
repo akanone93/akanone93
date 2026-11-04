@@ -7,7 +7,7 @@ import type { ApprovalRequest } from "@plux/api";
 import { Select, StatusPill } from "@plux/ui";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
-import { PageFrame } from "../../components/page.tsx";
+import { PageEmpty, PageFrame } from "../../components/page.tsx";
 import { fmt, Table } from "../security/parts.tsx";
 import { approvalsMessages } from "./approvals.messages.ts";
 import { useApps, useScope } from "./use-approvals.ts";
@@ -95,7 +95,7 @@ export function RequestTable({ requests }: { readonly requests: readonly Approva
   const m = approvalsMessages(useLingui().i18n);
   const { org } = useScope();
   if (requests.length === 0) {
-    return <p className="text-body text-muted-foreground">{m.empty}</p>;
+    return <PageEmpty icon="check-circle" text={m.empty} />;
   }
   return (
     <Table

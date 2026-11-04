@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { LABEL_SUFFIX } from "@plux/canvas";
 import type { Node } from "../plugin-model.ts";
 
 /** Parent, children and depth of every node of a screen tree, by ID (F5: IDs, not positions). */
@@ -61,5 +62,7 @@ export const itemIdOf = (screen: string, node: string): string => `${screen}/${n
 
 export function nodeIdOfHit(hit: string): string {
   const i = hit.indexOf("/");
-  return i < 0 ? hit : hit.slice(i + 1);
+  const id = i < 0 ? hit : hit.slice(i + 1);
+  // A box's label is drawn as its own item; a hit on it is a hit on the box.
+  return id.endsWith(LABEL_SUFFIX) ? id.slice(0, -LABEL_SUFFIX.length) : id;
 }

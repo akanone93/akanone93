@@ -7,6 +7,7 @@ import { buttonVariants } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageHeader, PageStatus } from "../../components/page.tsx";
 import { libraryMessages } from "./library.messages.ts";
 import { saveFile } from "./library-model.ts";
 import { useCan, useLibraryClients } from "./use-library.ts";
@@ -38,69 +39,75 @@ export function TemplateDetailPage(): ReactElement {
     saveFile(file.fileName, file.file);
   };
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="template-title">
-      <Link
-        to="/o/$org/library"
-        params={{ org }}
-        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
-      >
-        <Icon name="arrow-left" data-icon="inline-start" />
-        {m.back}
-      </Link>
-      {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
-      {detail.isError && (
-        <p role="alert" className="text-body text-danger">
-          {m.detailLoadFailed}
-        </p>
-      )}
-      {item !== undefined && (
-        <>
-          <h1 id="template-title" className="text-screen">
-            {item.name}
-          </h1>
-          <p className="text-body text-muted-foreground">{item.description}</p>
-          {(canPublish || canManage) && (
-            <div>
-              <Button variant="secondary" onClick={() => setChanging(true)}>
-                {m.changeVisibility}
-              </Button>
-            </div>
-          )}
-          <h2 className="text-body font-medium">{m.parametersHeading}</h2>
-          {parameters.length === 0 && <p className="text-body text-muted-foreground">{m.parametersNone}</p>}
-          <ul>
-            {parameters.map((p) => (
-              <li key={p.name} className="text-body">
-                {m.parameterRow(p.name, p.type, p.required)}
-                {p.description !== "" && <span className="text-caption text-muted-foreground"> {p.description}</span>}
-              </li>
-            ))}
-          </ul>
-          <h2 className="text-body font-medium">{m.revisionsHeading}</h2>
-          <ul>
-            {revisions.map((v) => (
-              <li key={v.version} className="flex items-center gap-3 py-1">
-                <span className="text-body">{m.versionRow(v.version, v.createdByName)}</span>
-                <span className="text-caption text-muted-foreground">{v.note}</span>
-                <Button variant="ghost" size="sm" onClick={() => void exportVersion(v.version)}>
-                  {m.exportVersion}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {changing && item !== undefined && (
-        <VisibilityDialog
-          current={item.visibility}
-          canPublish={canPublish}
-          apply={async (visibility) => {
-            await clients.templates.setTemplateVisibility({ id, visibility });
-            await clients.invalidate();
-          }}
-          onClose={() => setChanging(false)}
+    <section className="page-frame" aria-labelledby="template-title">
+      <PageHeader
+        id="template-title"
+        icon="package"
+        title={item?.name ?? m.kindTemplate}
+        caption={item === undefined || item.description === "" ? undefined : item.description}
+        actions={
+          <Link
+            to="/o/$org/library"
+            params={{ org }}
+            className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+          >
+            <Icon name="arrow-left" data-icon="inline-start" />
+            {m.back}
+          </Link>
+        }
+      />
+      <div className="page-body">
+        <PageStatus
+          loading={detail.isPending}
+          failed={detail.isError}
+          error={detail.error}
+          labels={{ loading: m.loading, loadFailed: m.detailLoadFailed }}
         />
-      )}
+        {item !== undefined && (
+          <>
+            {(canPublish || canManage) && (
+              <div>
+                <Button variant="secondary" onClick={() => setChanging(true)}>
+                  {m.changeVisibility}
+                </Button>
+              </div>
+            )}
+            <h2 className="text-body font-medium">{m.parametersHeading}</h2>
+            {parameters.length === 0 && <p className="text-body text-muted-foreground">{m.parametersNone}</p>}
+            <ul>
+              {parameters.map((p) => (
+                <li key={p.name} className="text-body">
+                  {m.parameterRow(p.name, p.type, p.required)}
+                  {p.description !== "" && <span className="text-caption text-muted-foreground"> {p.description}</span>}
+                </li>
+              ))}
+            </ul>
+            <h2 className="text-body font-medium">{m.revisionsHeading}</h2>
+            <ul>
+              {revisions.map((v) => (
+                <li key={v.version} className="flex items-center gap-3 py-1">
+                  <span className="text-body">{m.versionRow(v.version, v.createdByName)}</span>
+                  <span className="text-caption text-muted-foreground">{v.note}</span>
+                  <Button variant="ghost" size="sm" onClick={() => void exportVersion(v.version)}>
+                    {m.exportVersion}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {changing && item !== undefined && (
+          <VisibilityDialog
+            current={item.visibility}
+            canPublish={canPublish}
+            apply={async (visibility) => {
+              await clients.templates.setTemplateVisibility({ id, visibility });
+              await clients.invalidate();
+            }}
+            onClose={() => setChanging(false)}
+          />
+        )}
+      </div>
     </section>
   );
 }

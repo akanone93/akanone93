@@ -5,11 +5,11 @@ import type { PluginSummary } from "@plux/api";
 import { Icon } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ReactElement, type ReactNode, useState } from "react";
-import { DockTabs, type Pane } from "../panels/dock-tabs.tsx";
+import { DockTabs, type Pane, useStoredFlag } from "../panels/dock-tabs.tsx";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
 import type { Frame } from "./app-canvas.model.ts";
 import { hueOf, initialOf, type SceneBox } from "./app-canvas.scene.ts";
-import { Panel, ToolButton } from "./canvas-chrome.tsx";
+import { Panel } from "./canvas-chrome.tsx";
 
 type Messages = ReturnType<typeof appCanvasMessages>;
 type Filter = "all" | "draft" | "errors" | "archived";
@@ -45,8 +45,8 @@ function stateOf(b: SceneBox): string {
 /**
  * The app canvas's left dock, as the plugin editor's: the bold rail (Plugins, Frames, Overview) and the header (which
  * canvas, which app, how big). Plugins lists every plugin with its mark, key and owner, screens and state, searchable and
- * filtered by status; a row selects its plugin and brings it into view, a double click opens it. The dock folds away to
- * a single button.
+ * filtered by status; a row selects its plugin and brings it into view, a double click opens it. The dock folds to its
+ * rail.
  */
 export function AppDock({
   appName,
@@ -71,16 +71,9 @@ export function AppDock({
   readonly onOpen: (box: SceneBox) => void;
   readonly frameTools: ReactNode;
 }): ReactElement {
-  const [open, setOpen] = useState(true);
+  const [folded, setFolded] = useStoredFlag("plux.dock.app.folded", false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
-  if (!open) {
-    return (
-      <Panel className="p-1">
-        <ToolButton icon="stack" label={m.showPanel} onClick={() => setOpen(true)} />
-      </Panel>
-    );
-  }
   const plugins = boxes.filter((b) => !b.native);
   const q = query.trim().toLowerCase();
   const shown = [...boxes]
@@ -224,19 +217,19 @@ export function AppDock({
     },
   ];
   return (
-    <Panel className="canvas-layers canvas-side app-dock flex flex-col self-stretch">
+    <Panel className="canvas-layers canvas-side app-dock flex flex-col self-stretch" data-folded={folded || undefined}>
       <DockTabs
         panes={panes}
         defaultValue="plugins"
         mark="squares-four"
+        folded={folded}
+        onFold={setFolded}
+        foldLabel={m.hidePanel}
         head={
-          <div className="flex items-start gap-2">
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="dock-head-kicker">{m.dockTitle}</span>
-              <h2 className="dock-head-title">{appName ?? ""}</h2>
-              <span className="dock-head-meta">{m.dockSummary(plugins.length, frames.length)}</span>
-            </div>
-            <ToolButton icon="caret-left" label={m.hidePanel} onClick={() => setOpen(false)} />
+          <div className="flex min-w-0 flex-col">
+            <span className="dock-head-kicker">{m.dockTitle}</span>
+            <h2 className="dock-head-title">{appName ?? ""}</h2>
+            <span className="dock-head-meta">{m.dockSummary(plugins.length, frames.length)}</span>
           </div>
         }
       />

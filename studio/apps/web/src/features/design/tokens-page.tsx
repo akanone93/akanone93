@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Button, Icon, TypeTag } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { designMessages } from "./design.messages.ts";
 import { baseRows, contrastOf } from "./design-model.ts";
 import { AddToken, EditTokenDialog, ImportDialog, RemoveToken, show } from "./parts.tsx";
@@ -24,7 +25,7 @@ function Rows(): ReactElement {
         </Button>
       </div>
       {rows.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noTokens}</p>
+        <PageEmpty icon="palette" text={m.noTokens} />
       ) : (
         <table aria-label={m.tokensTable} className="w-full text-body">
           <thead>

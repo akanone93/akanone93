@@ -42,7 +42,7 @@ export const appNavEntries: readonly AppNavEntry[] = [
 ];
 
 /** The icon beside each area in the sidebar. */
-const entryIcons: Readonly<Record<string, IconName>> = {
+export const entryIcons: Readonly<Record<string, IconName>> = {
   releases: "rocket-launch",
   functions: "lightning",
   data: "stack",

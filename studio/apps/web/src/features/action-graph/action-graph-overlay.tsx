@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Icon, Input, Select, TypeTag } from "@plux/ui";
+import { Button, Dialog, Field, Icon, type IconName, Select, TypeTag } from "@plux/ui";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type Problem, scopeAt } from "@plux/validator";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { SheetEmpty, SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
 import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { JSON_DEBOUNCE_MS } from "../json-editor/json-editor-overlay.tsx";
 import { pointerOf } from "../panels/properties-model.ts";
@@ -77,16 +79,29 @@ function CataloguePanel(props: {
   const q = query.trim().toLowerCase();
   const shown = props.catalogue.filter((e) => q === "" || `${e.label} ${e.description}`.toLowerCase().includes(q));
   return (
-    <section aria-label={m.catalogue} className="flex h-full w-72 shrink-0 flex-col gap-2 overflow-y-auto">
-      <h3 className="text-label font-medium">{m.catalogue}</h3>
-      <Input value={query} aria-label={m.search} onChange={(e) => setQuery(e.target.value)} />
-      {shown.length === 0 && <p className="text-body text-muted-foreground">{m.nothingFound}</p>}
+    <section aria-label={m.catalogue} className="flex flex-col gap-2">
+      <SheetNavHead title={m.catalogue} count={shown.length} />
+      <InputGroup>
+        <InputGroupAddon>
+          <Icon name="magnifying-glass" />
+        </InputGroupAddon>
+        <InputGroupInput
+          value={query}
+          aria-label={m.search}
+          placeholder={m.search}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </InputGroup>
+      {shown.length === 0 && <p className="px-2 text-xs text-muted-foreground">{m.nothingFound}</p>}
       {GROUPS.map((g) => {
         const entries = shown.filter((e) => e.group === g);
         return entries.length === 0 ? null : (
-          <section key={g} aria-label={groupLabel(g, m)} className="flex flex-col gap-1">
-            <h4 className="text-caption text-muted-foreground">{groupLabel(g, m)}</h4>
-            <ul className="flex flex-col gap-1">
+          <section key={g} aria-label={groupLabel(g, m)} className="flex flex-col gap-0.5">
+            <h4 className="flex items-center gap-2 px-2 pt-2 pb-1 text-xs font-semibold text-muted-foreground">
+              {groupLabel(g, m)}
+              <span className="sheet-count">{entries.length}</span>
+            </h4>
+            <ul className="flex flex-col gap-0.5">
               {entries.map((e) => (
                 <li
                   key={e.key}
@@ -96,17 +111,25 @@ function CataloguePanel(props: {
                     ev.dataTransfer.effectAllowed = "copy";
                   }}
                 >
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <button
+                    type="button"
+                    className="sheet-item graph-entry"
                     disabled={!props.canEdit}
                     aria-label={m.addNamed(e.label)}
                     title={e.description}
                     onClick={() => props.onAdd(e)}
                   >
-                    <Icon name="plus" />
-                    <span className="truncate font-mono text-data">{e.label}</span>
-                  </Button>
+                    <span className="graph-entry-icon" data-group={g} aria-hidden="true">
+                      <Icon name={groupIcon[g] ?? "lightning"} size="pill" />
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate font-mono text-xs">{e.label}</span>
+                      {e.description !== "" && (
+                        <span className="truncate text-tag text-muted-foreground">{e.description}</span>
+                      )}
+                    </span>
+                    <Icon name="plus" size="pill" />
+                  </button>
                 </li>
               ))}
             </ul>
@@ -116,6 +139,14 @@ function CataloguePanel(props: {
     </section>
   );
 }
+
+/** The icon of a catalogue group. */
+const groupIcon: Readonly<Record<string, IconName>> = {
+  builtin: "lightning",
+  custom: "component",
+  function: "code",
+  flow: "flow-arrow",
+};
 
 /** The documents as the editor shows them: the session's unsaved content over the server's. */
 function useDocs(documents: readonly GraphDocument[]): Readonly<Record<string, unknown>> {
@@ -243,8 +274,11 @@ function noticeOf(t: ReturnType<typeof useTarget>, props: ActionGraphOverlayProp
 
 function ProblemsSection({ problems, m }: { problems: readonly Problem[]; m: ActionGraphMessages }) {
   return problems.length === 0 ? null : (
-    <section aria-label={m.problems} className="max-h-32 overflow-y-auto">
-      <h3 className="text-label font-medium">{m.problems}</h3>
+    <section aria-label={m.problems} className="flex flex-col gap-1.5">
+      <h3 className="flex items-center gap-2 text-xs font-semibold">
+        {m.problems}
+        <span className="sheet-count">{problems.length}</span>
+      </h3>
       <ul className="flex flex-col gap-1">
         {problems.map((p) => (
           <li key={`${p.code}${p.path}${p.message}`} className="text-body">
@@ -309,44 +343,63 @@ export function ActionGraphOverlay(props: ActionGraphOverlayProps) {
       size="full"
       title={m.title}
       labels={{ close: m.close }}
-    >
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          {target.events.length > 0 && (
-            <Select
-              label={m.event}
-              options={target.events.map((e) => ({ value: e, label: e }))}
-              value={target.event ?? ""}
-              onValueChange={target.setEvent}
-            />
+      icon="flow-arrow"
+      flush
+      headerActions={
+        <>
+          {statusOf(verdict, m) !== "" && (
+            <span
+              role="status"
+              aria-live="polite"
+              className="sheet-status"
+              data-tone={verdict.state === "done" ? "ok" : "busy"}
+            >
+              <span className="sheet-status-dot" aria-hidden="true" />
+              {statusOf(verdict, m)}
+            </span>
           )}
           <Button variant="secondary" disabled={steps.length === 0} onClick={() => setLayoutToken((n) => n + 1)}>
-            <Icon name="eye" />
+            <Icon name="sparkle" />
             {m.autoLayout}
           </Button>
-          <span role="status" aria-live="polite" className="text-body text-muted-foreground">
-            {statusOf(verdict, m)}
-          </span>
-        </div>
-        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-        {notice !== undefined && <p className="text-body text-muted-foreground">{notice}</p>}
-        {context !== undefined && (
-          <div className="flex min-h-0 flex-1 gap-3">
-            <CataloguePanel catalogue={catalogue} canEdit={canEdit} m={m} onAdd={add} />
-            <div className="min-h-0 min-w-0 flex-1">
-              {props.open && steps.length === 0 && <p className="text-body text-muted-foreground">{m.empty}</p>}
-              {props.open && steps.length > 0 && (
-                <GraphContext.Provider value={context}>
-                  <Suspense fallback={<p className="text-body text-muted-foreground">{m.checking}</p>}>
-                    <GraphCanvas layoutToken={layoutToken} />
-                  </Suspense>
-                </GraphContext.Provider>
-              )}
+        </>
+      }
+    >
+      <SheetLayout
+        {...(context === undefined
+          ? {}
+          : { nav: <CataloguePanel catalogue={catalogue} canEdit={canEdit} m={m} onAdd={add} /> })}
+        {...(problems.length === 0 ? {} : { foot: <ProblemsSection problems={[...byStep.values()].flat()} m={m} /> })}
+      >
+        {target.events.length > 0 && (
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-72">
+              <Field label={m.event}>
+                <Select
+                  label={m.event}
+                  options={target.events.map((e) => ({ value: e, label: e }))}
+                  value={target.event ?? ""}
+                  onValueChange={target.setEvent}
+                />
+              </Field>
             </div>
+            {!canEdit && <p className="pb-2 text-caption text-muted-foreground">{m.readOnly}</p>}
           </div>
         )}
-        <ProblemsSection problems={[...byStep.values()].flat()} m={m} />
-      </div>
+        {notice !== undefined && <SheetEmpty icon="flow-arrow" title={notice} />}
+        {context !== undefined && (
+          <div className="sheet-code graph-surface">
+            {props.open && steps.length === 0 && <SheetEmpty icon="lightning" title={m.empty} />}
+            {props.open && steps.length > 0 && (
+              <GraphContext.Provider value={context}>
+                <Suspense fallback={<p className="text-body text-muted-foreground">{m.checking}</p>}>
+                  <GraphCanvas layoutToken={layoutToken} />
+                </Suspense>
+              </GraphContext.Provider>
+            )}
+          </div>
+        )}
+      </SheetLayout>
     </Dialog>
   );
 }

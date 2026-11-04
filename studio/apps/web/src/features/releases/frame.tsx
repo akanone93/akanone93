@@ -14,6 +14,8 @@ export function Frame({
   loading,
   failed,
   error,
+  nav,
+  actions,
   children,
 }: {
   readonly id: string;
@@ -22,11 +24,24 @@ export function Frame({
   readonly loading: boolean;
   readonly failed: boolean;
   readonly error?: unknown;
+  /** The area's pages, along the foot of the header. */
+  readonly nav?: ReactNode;
+  readonly actions?: ReactNode;
   readonly children: ReactNode;
 }): ReactElement {
   const m = releasesMessages(useLingui().i18n);
   return (
-    <PageFrame id={id} title={title} caption={caption} loading={loading} failed={failed} error={error} labels={m}>
+    <PageFrame
+      id={id}
+      title={title}
+      caption={caption}
+      loading={loading}
+      failed={failed}
+      error={error}
+      labels={m}
+      {...(nav === undefined ? {} : { nav })}
+      {...(actions === undefined ? {} : { actions })}
+    >
       {children}
     </PageFrame>
   );

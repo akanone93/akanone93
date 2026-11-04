@@ -5,9 +5,10 @@ import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { type Client, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { type DocumentChange, DocumentService, type Snapshot } from "@plux/api";
-import { AlertDialog, Button, Dialog, Select, TypeTag } from "@plux/ui";
+import { AlertDialog, Button, Dialog, Icon, Select, TypeTag } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { SheetEmpty, SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { toServerDocument } from "../editor/document-transport.ts";
 import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
@@ -209,82 +210,103 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
         size="full"
         title={m.title}
         labels={{ close: m.close }}
-      >
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
-          {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-          <span role="status" aria-live="polite" className="text-body text-muted-foreground">
+        icon="history"
+        flush
+        headerActions={
+          <span role="status" aria-live="polite" className={note === "" ? "sr-only" : "sheet-status"} data-tone="ok">
+            {note !== "" && <span className="sheet-status-dot" aria-hidden="true" />}
             {note}
           </span>
-          {listing.state === "loading" && <p className="text-body text-muted-foreground">{m.loading}</p>}
-          {listing.state === "failed" && (
-            <p role="alert" className="text-body">
-              {m.failed}
-            </p>
-          )}
-          {listing.state === "ready" && listing.rows.length === 0 && (
-            <p className="text-body text-muted-foreground">{m.empty}</p>
-          )}
-          <ul aria-label={m.list} className="flex max-h-64 flex-col gap-1 overflow-y-auto">
-            {listing.rows.map((s) => (
-              <li key={s.id} className="flex items-center gap-3 text-body">
-                <input
-                  type="checkbox"
-                  aria-label={m.pickRow(whenOf(s))}
-                  checked={chosen.includes(s.id)}
-                  onChange={() => toggle(s.id)}
-                />
-                <span className="text-data">{whenOf(s)}</span>
-                <span className="text-muted-foreground">
-                  {m.by(s.actor?.display === undefined || s.actor.display === "" ? m.unknownAuthor : s.actor.display)}
-                </span>
-                <TypeTag>{reasonOf(s.reason, m)}</TypeTag>
-                {s.editorSessionId !== "" && (
-                  <span className="text-data text-muted-foreground" title={m.sessionTitle}>
-                    {m.sessionTag(sessionTag(s.editorSessionId))}
-                  </span>
-                )}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={!canEdit}
-                  aria-label={m.restoreRow(whenOf(s))}
-                  onClick={() => setTarget(s)}
-                >
-                  {m.restore}
+        }
+      >
+        <SheetLayout
+          nav={
+            <div className="flex flex-col gap-1">
+              <SheetNavHead title={m.list} count={listing.rows.length} />
+              {!canEdit && <p className="px-2 text-caption text-muted-foreground">{m.readOnly}</p>}
+              {listing.state === "loading" && <p className="px-2 text-xs text-muted-foreground">{m.loading}</p>}
+              {listing.state === "failed" && (
+                <p role="alert" className="px-2 text-xs">
+                  {m.failed}
+                </p>
+              )}
+              {listing.state === "ready" && listing.rows.length === 0 && (
+                <p className="px-2 text-xs text-muted-foreground">{m.empty}</p>
+              )}
+              <ul aria-label={m.list} className="history-list">
+                {listing.rows.map((s) => (
+                  <li key={s.id} className="history-row" data-current={chosen.includes(s.id) || undefined}>
+                    <input
+                      type="checkbox"
+                      aria-label={m.pickRow(whenOf(s))}
+                      checked={chosen.includes(s.id)}
+                      onChange={() => toggle(s.id)}
+                    />
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-xs font-medium">{whenOf(s)}</span>
+                      <span className="truncate text-tag text-muted-foreground">
+                        {m.by(
+                          s.actor?.display === undefined || s.actor.display === "" ? m.unknownAuthor : s.actor.display,
+                        )}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <TypeTag>{reasonOf(s.reason, m)}</TypeTag>
+                        {s.editorSessionId !== "" && (
+                          <span className="text-tag text-muted-foreground" title={m.sessionTitle}>
+                            {m.sessionTag(sessionTag(s.editorSessionId))}
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={!canEdit}
+                      aria-label={m.restoreRow(whenOf(s))}
+                      onClick={() => setTarget(s)}
+                    >
+                      <Icon name="arrow-counter-clockwise" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+              {listing.next !== "" && (
+                <Button variant="secondary" size="sm" onClick={() => void more()}>
+                  {m.more}
                 </Button>
-              </li>
-            ))}
-          </ul>
-          {listing.next !== "" && (
-            <Button variant="secondary" size="sm" onClick={() => void more()}>
-              {m.more}
-            </Button>
-          )}
+              )}
+            </div>
+          }
+        >
           {pair === undefined ? (
-            <p className="text-body text-muted-foreground">{m.compareHint}</p>
+            <SheetEmpty icon="history" title={m.compareHint} />
           ) : (
-            <section aria-label={m.compareTitle} className="flex min-h-0 flex-1 flex-col gap-2">
-              <h3 className="text-label font-medium">{m.compareTitle}</h3>
+            <section aria-label={m.compareTitle} className="flex min-h-0 flex-1 flex-col gap-3">
+              <div className="flex flex-wrap items-end gap-3">
+                <h3 className="me-auto text-sm font-semibold">{m.compareTitle}</h3>
+                {changes.length > 0 && (
+                  <>
+                    <TypeTag>{changeLabel[changes.find((c) => c.path === path)?.change ?? ""] ?? ""}</TypeTag>
+                    <div className="w-80">
+                      <Select
+                        label={m.document}
+                        options={changes.map((c) => ({ value: c.path, label: c.path }))}
+                        value={path}
+                        onValueChange={setPath}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
               {changes.length === 0 && diff.state !== "failed" && (
                 <p className="text-body text-muted-foreground">{m.noChanges}</p>
-              )}
-              {changes.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Select
-                    label={m.document}
-                    options={changes.map((c) => ({ value: c.path, label: c.path }))}
-                    value={path}
-                    onValueChange={setPath}
-                  />
-                  <TypeTag>{changeLabel[changes.find((c) => c.path === path)?.change ?? ""] ?? ""}</TypeTag>
-                </div>
               )}
               {diff.state === "failed" && (
                 <p role="alert" className="text-body">
                   {m.diffFailed}
                 </p>
               )}
-              <div className="min-h-0 flex-1">
+              <div className="sheet-code">
                 {diff.state === "ready" && (
                   <Suspense fallback={<p className="text-body text-muted-foreground">{m.loading}</p>}>
                     <MonacoView
@@ -301,7 +323,7 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
               </div>
             </section>
           )}
-        </div>
+        </SheetLayout>
       </Dialog>
       <AlertDialog
         open={target !== null}

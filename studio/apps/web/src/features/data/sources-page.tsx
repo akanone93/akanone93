@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Dialog } from "@plux/ui";
 import { Link } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { draftDocument, type ImportAnswer, ImportSection, withVariables } from "../designers/data-source-overlay.tsx";
 import { objects } from "../designers/db-schema-overlay.tsx";
 import { designerMessages } from "../designers/designers.messages.ts";
@@ -79,7 +80,7 @@ function Rows(): ReactElement {
   const { value } = usePluginJson();
   const sources = objects(value?.["dataSources"]);
   if (sources.length === 0) {
-    return <p className="text-body text-muted-foreground">{m.noSources}</p>;
+    return <PageEmpty icon="database" text={m.noSources} />;
   }
   return (
     <Table

@@ -9,6 +9,7 @@ import { Frame } from "./frame.tsx";
 import { useGuarded } from "./guarded.tsx";
 import { releasesMessages } from "./releases.messages.ts";
 import { defaultChannel } from "./releases.schema.ts";
+import { ReleasesTabs } from "./tabs.tsx";
 import { useControl, useReleaseActions } from "./use-releases.ts";
 
 /** A5 and D46: the plugins switched off in one environment; both switching off and on go through the step-up D3 (REL-060, SEC-103). */
@@ -26,6 +27,7 @@ export function KillSwitchPage(): ReactElement {
   const id = environmentId ?? "";
   return (
     <Frame
+      nav={<ReleasesTabs />}
       id="kill-title"
       title={m.killTitle}
       caption={m.killCaption}

@@ -8,6 +8,7 @@ import { Button, Icon } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useMemo, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { Table } from "../security/parts.tsx";
 import { analyticsMessages } from "./analytics.messages.ts";
@@ -34,9 +35,9 @@ export function AnalyticsReplaysPage(): ReactElement {
       loading={replays.isPending}
       failed={replays.isError}
       error={replays.error}
+      nav={<AreaNav />}
     >
-      <AreaNav />
-      {rows.length === 0 && <p className="text-body text-muted-foreground">{m.noReplays}</p>}
+      {rows.length === 0 && <PageEmpty icon="pulse" text={m.noReplays} />}
       <Table
         caption={m.replaysTitle}
         heads={[m.replayStarted, m.replayRoute, m.replayDuration, m.replayEvents, m.replayTruncated]}
@@ -144,8 +145,7 @@ export function AnalyticsReplayPage(): ReactElement {
   const { at, setAt, playing, toggle } = usePlayback(end);
   const frame = useMemo(() => frameAt(events ?? [], at), [events, at]);
   return (
-    <Frame id="replay-title" title={m.replayTitle} loading={q.isPending} failed={q.isError}>
-      <AreaNav />
+    <Frame id="replay-title" title={m.replayTitle} loading={q.isPending} failed={q.isError} nav={<AreaNav />}>
       <Link
         to="/o/$org/apps/$app/analytics/replays"
         params={{ org, app }}

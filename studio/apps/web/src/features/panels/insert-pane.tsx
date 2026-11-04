@@ -4,7 +4,8 @@
 import { useLingui } from "@lingui/react";
 import type { WidgetDescriptor } from "@plux/schema";
 import { Icon, type IconName } from "@plux/ui";
-import { type DragEvent, memo, type ReactElement, useState, useSyncExternalStore } from "react";
+import { type CSSProperties, type DragEvent, memo, type ReactElement, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { AnimatedList } from "../../components/animated-list.tsx";
 import { groupOf, insertGroups, kindIcon, kindOf, typeIcon, type WidgetKind, widgetKinds } from "./catalogue.ts";
 import { DockSection } from "./dock-tabs.tsx";
@@ -43,7 +44,32 @@ type Section = {
   readonly list: WidgetDescriptor[];
 };
 
-type Shown = { readonly d: WidgetDescriptor; readonly glyph: string } | null;
+/** Where the card goes, in window pixels: beside the dock at the tile's height, upwards near the window's foot. */
+interface Spot {
+  readonly x: number;
+  readonly y: number;
+  readonly side: "after" | "before";
+  readonly up: boolean;
+}
+
+type Shown = { readonly d: WidgetDescriptor; readonly glyph: string; readonly spot: Spot } | null;
+
+const CARD_ROOM = 220;
+const CARD_GAP = 10;
+
+/** The spot beside the dock for the tile `el`: the side away from the dock, flipping up when the tile is low. */
+export function spotOf(el: Element): Spot {
+  const tile = el.getBoundingClientRect();
+  const dock = (el.closest(".plugin-dock") ?? el).getBoundingClientRect();
+  const rtl = getComputedStyle(el).direction === "rtl";
+  const up = tile.top + CARD_ROOM > window.innerHeight;
+  return {
+    x: rtl ? dock.left - CARD_GAP : dock.right + CARD_GAP,
+    y: up ? tile.bottom : tile.top,
+    side: rtl ? "before" : "after",
+    up,
+  };
+}
 
 /** The widget under the pointer or the focus, in a store of its own: only the details card redraws as it changes. */
 function createDetails() {
@@ -71,16 +97,25 @@ function glyphIcon(d: WidgetDescriptor): IconName {
   return groupOf(d) === "layer1" ? typeIcon(d.type) : "component";
 }
 
-/** The details of the widget under the pointer or the focus, pinned to the foot of the pane. */
+/**
+ * The details of the widget under the pointer or the focus, beside the dock at the tile's height (upwards for the
+ * last tiles), so it never covers the gallery. It lives at the document's end: the dock's glass would clip it.
+ */
 function TileDetails({ store }: { readonly store: ReturnType<typeof createDetails> }): ReactElement | null {
   const m = panelsMessages(useLingui().i18n);
   const shown = useSyncExternalStore(store.subscribe, store.get, store.get);
   if (shown === null) {
     return null;
   }
-  const { d, glyph } = shown;
-  return (
-    <aside aria-hidden="true" className="gallery-details">
+  const { d, glyph, spot } = shown;
+  return createPortal(
+    <aside
+      aria-hidden="true"
+      className="gallery-details"
+      data-side={spot.side}
+      data-up={spot.up || undefined}
+      style={{ "--x": spot.x, "--y": spot.y } as CSSProperties}
+    >
       <div className="flex items-center gap-2">
         <span className="gallery-glyph" data-kind={glyph}>
           <Icon name={glyphIcon(d)} />
@@ -91,7 +126,8 @@ function TileDetails({ store }: { readonly store: ReturnType<typeof createDetail
       {d.description !== "" && <p className="text-muted-foreground">{d.description}</p>}
       <p className="tabular-nums text-muted-foreground">{m.tileFacts(d.props.length, d.events.length)}</p>
       <p className="text-muted-foreground">{m.tileHint}</p>
-    </aside>
+    </aside>,
+    document.body,
   );
 }
 
@@ -166,9 +202,9 @@ export const InsertPane = memo(function InsertPane({
       onDragStart={(e) => startDrag(e, d)}
       aria-label={m.insert(d.type)}
       onClick={() => insert(d)}
-      onPointerEnter={() => details.set({ d, glyph })}
+      onPointerEnter={(e) => details.set({ d, glyph, spot: spotOf(e.currentTarget) })}
       onPointerLeave={() => details.set(null)}
-      onFocus={() => details.set({ d, glyph })}
+      onFocus={(e) => details.set({ d, glyph, spot: spotOf(e.currentTarget) })}
       onBlur={() => details.set(null)}
     >
       <span className="gallery-glyph" data-kind={glyph} aria-hidden="true">

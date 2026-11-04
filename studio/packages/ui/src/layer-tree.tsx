@@ -3,7 +3,16 @@
 
 import { hotkeysCoreFeature, syncDataLoaderFeature } from "@headless-tree/core";
 import { useTree } from "@headless-tree/react";
-import { type DragEvent, type MouseEvent, type ReactElement, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type DragEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cx, focusRing } from "./cx.ts";
 import { Icon } from "./icon.tsx";
 import type { IconName } from "./icons.ts";
@@ -16,6 +25,29 @@ export interface LayerNode extends TreeNode {
   readonly preview?: string;
   /** A short mark after the name, such as "Entry". */
   readonly badge?: string;
+  /** Hidden on the canvas (an editor-only setting): the row is dimmed and shows its eye. */
+  readonly hidden?: boolean;
+  /** Locked against edits: the row shows its lock. */
+  readonly locked?: boolean;
+}
+
+/**
+ * What a person can do to a layer from its row: rename it (double-click the name, or F2), hide it on the canvas
+ * (Ctrl+Shift+H) and lock it (Ctrl+Shift+L). The words come from the caller's catalogue.
+ */
+export interface LayerActions {
+  readonly labels: {
+    readonly name: string;
+    readonly hide: string;
+    readonly show: string;
+    readonly lock: string;
+    readonly unlock: string;
+    readonly hidden: string;
+    readonly locked: string;
+  };
+  readonly onRename: (id: string, name: string) => void;
+  readonly onHidden: (id: string, hidden: boolean) => void;
+  readonly onLocked: (id: string, locked: boolean) => void;
 }
 
 export interface LayerTreeProps {
@@ -33,6 +65,8 @@ export interface LayerTreeProps {
   /** The open rows, when the caller owns them (expand all, collapse all); otherwise the tree keeps its own. */
   readonly expanded?: readonly string[];
   readonly onExpandedChange?: (ids: readonly string[]) => void;
+  /** Rename, hide and lock; the rows offer them only when given (read-only editors leave them out). */
+  readonly actions?: LayerActions | undefined;
 }
 
 const DRAG_TYPE = "application/x-plux-layer";
@@ -172,6 +206,7 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
             onToggle={() => toggle(id, item.isExpanded())}
             onSelect={(toggleSel) => onSelect(id, toggleSel)}
             onDrop={onDrop === undefined ? undefined : (dragged, half) => onDrop(dragged, id, half)}
+            actions={props.actions}
           />
         );
       })}
@@ -200,10 +235,37 @@ function LayerRow(props: {
   readonly onToggle: () => void;
   readonly onSelect: (toggle: boolean) => void;
   readonly onDrop: ((dragged: string, half: "before" | "after") => void) | undefined;
+  readonly actions: LayerActions | undefined;
 }): ReactElement {
-  const { id, data, level, folder, selected, drop } = props;
+  const { id, data, level, folder, selected, drop, actions } = props;
+  const [renaming, setRenaming] = useState(false);
   const additive = (e: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean }) =>
     e.shiftKey || e.ctrlKey || e.metaKey;
+  // Rename, hide or lock the row, from its shortcut or its toggles.
+  const perform = (act: "rename" | "hide" | "lock") => {
+    if (act === "rename") {
+      setRenaming(true);
+    } else if (act === "hide") {
+      actions?.onHidden(id, data.hidden !== true);
+    } else {
+      actions?.onLocked(id, data.locked !== true);
+    }
+  };
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) {
+      return;
+    }
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      props.onSelect(additive(e));
+      return;
+    }
+    const act = actions === undefined ? undefined : layerShortcut(e);
+    if (act !== undefined) {
+      e.preventDefault();
+      perform(act);
+    }
+  };
   return (
     <div
       {...props.rowProps}
@@ -211,21 +273,27 @@ function LayerRow(props: {
       role="treeitem"
       tabIndex={(props.rowProps["tabIndex"] as number | undefined) ?? -1}
       aria-selected={selected}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          props.onSelect(additive(e));
-        }
-      }}
-      draggable={props.onDrop !== undefined}
+      onKeyDown={onKey}
+      draggable={props.onDrop !== undefined && data.locked !== true && !renaming}
       onClick={(e: MouseEvent<HTMLDivElement>) => {
-        if (folder && e.target instanceof Element && e.target.closest("[data-caret]") !== null) {
+        const hit = e.target instanceof Element ? e.target.closest<HTMLElement>("[data-caret],[data-act]") : null;
+        if (hit?.dataset["act"] !== undefined && actions !== undefined) {
+          perform(hit.dataset["act"] === "hide" ? "hide" : "lock");
+          return;
+        }
+        if (folder && hit !== null && hit.dataset["caret"] !== undefined) {
           props.onToggle();
           return;
         }
         props.onSelect(additive(e));
       }}
-      onDoubleClick={() => folder && props.onToggle()}
+      onDoubleClick={(e) => {
+        if (actions !== undefined && e.target instanceof Element && e.target.closest("[data-name]") !== null) {
+          setRenaming(true);
+        } else if (folder) {
+          props.onToggle();
+        }
+      }}
       onDragStart={(e) => e.dataTransfer.setData(DRAG_TYPE, id)}
       onDragOver={(e) => {
         if (props.onDrop !== undefined && e.dataTransfer.types.includes(DRAG_TYPE)) {
@@ -261,6 +329,19 @@ function LayerRow(props: {
         open={props.open}
         selected={selected}
       />
+      {renaming && actions !== undefined && (
+        <RenameField
+          name={props.name}
+          label={actions.labels.name}
+          onDone={(name) => {
+            setRenaming(false);
+            if (name !== null && name !== props.name) {
+              actions.onRename(id, name);
+            }
+          }}
+        />
+      )}
+      {actions !== undefined && <RowToggles data={data} labels={actions.labels} />}
     </div>
   );
 }
@@ -313,10 +394,102 @@ function LayerRowContent(props: {
         {folder && <Icon name={props.open ? "caret-down" : "caret-right"} size="pill" />}
       </span>
       <Icon name={data.icon ?? "cube"} size="pill" className={tone} />
-      <span className={cx("shrink-0 truncate", (level === 0 || selected) && "font-medium")}>{props.name}</span>
+      <span
+        data-name=""
+        className={cx(
+          "shrink-0 truncate",
+          (level === 0 || selected) && "font-medium",
+          data.hidden === true && "opacity-50",
+        )}
+      >
+        {props.name}
+      </span>
       <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{data.preview ?? ""}</span>
       {data.badge !== undefined && (
         <span className="shrink-0 rounded-sm bg-primary/12 px-1.5 text-xs font-medium text-primary">{data.badge}</span>
+      )}
+    </>
+  );
+}
+
+/** The keyboard's way to a row's actions: F2 renames, Ctrl+Shift+H hides, Ctrl+Shift+L locks (as design tools do). */
+function layerShortcut(e: KeyboardEvent): "rename" | "hide" | "lock" | undefined {
+  if (e.key === "F2") {
+    return "rename";
+  }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    const key = e.key.toLowerCase();
+    return key === "h" ? "hide" : key === "l" ? "lock" : undefined;
+  }
+  return undefined;
+}
+
+/** The name field over a row while it is renamed: Enter or leaving it keeps the name, Escape drops it. */
+function RenameField({
+  name,
+  label,
+  onDone,
+}: {
+  readonly name: string;
+  readonly label: string;
+  readonly onDone: (name: string | null) => void;
+}): ReactElement {
+  const [value, setValue] = useState(name);
+  return (
+    <input
+      // biome-ignore lint/a11y/noAutofocus: the field opens on the person's own request to rename the row
+      autoFocus
+      aria-label={label}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        if (e.key === "Enter") {
+          onDone(value);
+        } else if (e.key === "Escape") {
+          onDone(null);
+        }
+      }}
+      onBlur={() => onDone(value)}
+      className="absolute inset-y-0.5 end-1 start-12 rounded-sm border border-primary bg-background px-1.5 text-sm outline-none"
+    />
+  );
+}
+
+/**
+ * The eye and the lock at a row's end: shown on hover and while set; a click toggles them. Assistive technology hears
+ * the state in the row's name and toggles it with the row's shortcuts.
+ */
+function RowToggles({ data, labels }: { readonly data: LayerNode; readonly labels: LayerActions["labels"] }) {
+  const toggle = (act: "hide" | "lock", on: boolean, icon: IconName, title: string, state: string) => (
+    <span
+      data-act={act}
+      title={title}
+      className={cx(
+        "flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground",
+        on ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-aria-selected:opacity-100",
+      )}
+    >
+      <Icon name={icon} size="pill" />
+      {on && <span className="sr-only">{state}</span>}
+    </span>
+  );
+  return (
+    <>
+      {toggle(
+        "hide",
+        data.hidden === true,
+        data.hidden === true ? "eye-slash" : "eye",
+        data.hidden === true ? labels.show : labels.hide,
+        labels.hidden,
+      )}
+      {toggle(
+        "lock",
+        data.locked === true,
+        data.locked === true ? "lock" : "lock-open",
+        data.locked === true ? labels.unlock : labels.lock,
+        labels.locked,
       )}
     </>
   );

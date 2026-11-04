@@ -5,10 +5,12 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { PluginService } from "@plux/api";
 import { limitDefault } from "@plux/schema";
+import { Spinner } from "@plux/ui/components/spinner";
 import type { Problem } from "@plux/validator";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { createContext, type ReactElement, type ReactNode, useContext, useEffect, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import type { DesignerDocument } from "../designers/use-document.ts";
@@ -114,7 +116,14 @@ function Inner(props: { plugin: string; children: ReactNode }): ReactElement {
 }
 
 /** The plugin, its documents and the editing session the pages of the Data area work in (the chosen `?plugin`, else the first plugin of the app). */
-export function DataScope({ children }: { readonly children: ReactNode }): ReactElement {
+export function DataScope({
+  shell,
+  children,
+}: {
+  /** The page around what the scope shows while it loads or has no plugin to show. */
+  readonly shell: (content: ReactNode) => ReactElement;
+  readonly children: ReactNode;
+}): ReactElement {
   const m = dataMessages(useLingui().i18n);
   const app = (useParams({ strict: false }) as { app?: string }).app ?? "";
   const chosen = (useSearch({ strict: false }) as { plugin?: string }).plugin;
@@ -125,14 +134,15 @@ export function DataScope({ children }: { readonly children: ReactNode }): React
   const [editorSessionId] = useState(() => tabEditorSession(tabStorage()));
   const plugin = chosen ?? ids.data?.[0];
   if (ids.isPending) {
-    return (
-      <p role="status" className="text-body text-muted-foreground">
+    return shell(
+      <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Spinner />
         {m.loading}
-      </p>
+      </p>,
     );
   }
   if (plugin === undefined) {
-    return <p className="text-body text-muted-foreground">{m.noPlugin}</p>;
+    return shell(<PageEmpty icon="database" text={m.noPlugin} />);
   }
   return (
     <EditorProvider appId={app} pluginId={plugin} documents={docs.data} undo={undo} editorSessionId={editorSessionId}>

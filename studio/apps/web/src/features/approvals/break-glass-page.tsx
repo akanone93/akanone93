@@ -6,6 +6,7 @@ import { useLingui } from "@lingui/react";
 import type { BreakGlassInvocation } from "@plux/api";
 import { Button, Dialog, Field, StatusPill, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { fmt, Table } from "../security/parts.tsx";
 import { approvalsMessages } from "./approvals.messages.ts";
 import { Frame } from "./parts.tsx";
@@ -75,7 +76,7 @@ export function BreakGlassPage(): ReactElement {
       error={list.error}
     >
       {items.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.empty}</p>
+        <PageEmpty icon="check-circle" text={m.empty} />
       ) : (
         <Table
           caption={m.breakGlassTitle}

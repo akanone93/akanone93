@@ -6,6 +6,8 @@ import { defaultScreenTheme, type WidgetNode } from "@plux/layout";
 import type { CanvasKit } from "canvaskit-wasm";
 import { fontBytes, loadCanvasKit, TestEnvironment } from "../test-support/canvaskit.ts";
 import { type ScreenStyle, PROTOCOL_VERSION as v, type WorkerMessage } from "./protocol.ts";
+import { textLayoutWidth } from "./renderer.ts";
+import { layoutScreens } from "./screens.ts";
 import { CanvasWorkerCore, canvasParagraphEngine, fallbackFamilies } from "./worker.ts";
 
 let ck: CanvasKit;
@@ -78,8 +80,17 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     );
     expect(items.get("overflow:long")).toMatchObject({ kind: "rect", y: 844, h: long - 844 });
     expect(items.has("overflow:short")).toBe(false);
-    expect(items.get("short/a")).toMatchObject({ kind: "text", text: "Hello", x: 516, y: 16, frame: "screen:short" });
+    expect(items.get("short/a")).toMatchObject({
+      kind: "text",
+      text: "Hello",
+      x: 516,
+      y: 16,
+      frame: "screen:short",
+      families: ["Noto Sans"],
+    });
     expect(items.get("short/m")).toMatchObject({ kind: "rect", label: "MapView", fill: 0x44 });
+    // A labelled box draws its label centred on one line inside it.
+    expect(items.get("short/m#label")).toMatchObject({ kind: "text", text: "MapView", align: "center", maxLines: 1 });
     const beyond = items.get("long/t39");
     expect(beyond?.kind === "text" && beyond.color).toBe(0x88);
     expect(beyond && "frame" in beyond).toBe(false);
@@ -205,5 +216,42 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
   test("the renderer's text falls back across every loaded family after the primary", () => {
     const options = { fontFamily: "Roboto", fontFamilies: ["Roboto", "Roboto", "Noto Sans", "Noto Sans"] };
     expect(fallbackFamilies({ ...style.theme, ...options } as never)).toEqual(["Noto Sans"]);
+  });
+
+  test("a text drawn at its laid-out width keeps the lines the layout measured", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const measured = engine.buildParagraph(
+      { fontSize: 16, fontFamily: "Noto Sans" } as never,
+      [{ text: "Personal loan 4.9%", style: null }] as never,
+    );
+    measured.layout(Number.POSITIVE_INFINITY);
+    const width = Math.fround(measured.maxIntrinsicWidth);
+    const mgr = ck.FontMgr.FromData(fontBytes());
+    const builder = ck.ParagraphBuilder.Make(
+      new ck.ParagraphStyle({ textStyle: { color: ck.BLACK, fontSize: 16, fontFamilies: ["Noto Sans"] } }),
+      mgr as never,
+    );
+    builder.addText("Personal loan 4.9%");
+    const drawn = builder.build();
+    drawn.layout(textLayoutWidth(width));
+    expect(drawn.getLineMetrics()).toHaveLength(1);
+    drawn.delete();
+    builder.delete();
+    mgr?.delete();
+    engine.dispose();
+  });
+
+  test("with a title colour, each screen's name is drawn above its frame on one line", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const named = layoutScreens(
+      [{ id: "home", title: "Home", x: 0, y: 0, root: text("a", "Hello") }],
+      { ...style, title: 0xabcdefff },
+      engine,
+    );
+    const title = named.ops.flatMap((op) => (op.op === "add" ? [op.item] : [])).find((i) => i.id === "title:home");
+    expect(title).toMatchObject({ kind: "text", text: "Home", y: -30, weight: "bold", color: 0xabcdefff, maxLines: 1 });
+    const plain = layoutScreens([{ id: "home", title: "Home", x: 0, y: 0, root: text("a", "Hello") }], style, engine);
+    expect(plain.ops.some((op) => op.op === "add" && op.item.id === "title:home")).toBe(false);
+    engine.dispose();
   });
 });

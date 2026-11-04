@@ -7,7 +7,9 @@ import { Field, Icon, Select, StatusPill } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
+import { ExperimentsTabs } from "../releases/tabs.tsx";
 import { Table } from "../security/parts.tsx";
 import { useEnvironment, usePermissions, useScope } from "../security/use-security.ts";
 import { experimentsMessages, stateNames } from "./experiments.messages.ts";
@@ -33,6 +35,7 @@ export function ExperimentsPage(): ReactElement {
   return (
     <Frame
       id="experiments-title"
+      nav={<ExperimentsTabs />}
       title={m.listTitle}
       caption={m.listCaption}
       loading={environment.loading || list.isPending}
@@ -65,17 +68,9 @@ export function ExperimentsPage(): ReactElement {
             {m.newLink}
           </Link>
         )}
-        <Link
-          className={buttonVariants({ variant: "outline", size: "sm" })}
-          to="/o/$org/apps/$app/experiments/flags"
-          params={{ org, app }}
-          search={{ env }}
-        >
-          {m.flagsLink}
-        </Link>
       </div>
       {(list.data?.experiments ?? []).length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noExperiments}</p>
+        <PageEmpty icon="funnel" text={m.noExperiments} />
       ) : (
         <Table
           caption={m.listTitle}

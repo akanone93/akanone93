@@ -4,14 +4,15 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import { Field, Input, StatusPill } from "@plux/ui";
-import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Table } from "../security/parts.tsx";
 import { useEnvironment, useScope } from "../security/use-security.ts";
 import { Frame } from "./frame.tsx";
 import { releasesMessages, stateNames } from "./releases.messages.ts";
 import { defaultChannel } from "./releases.schema.ts";
+import { ReleasesTabs } from "./tabs.tsx";
 import { useReleases, useRollouts } from "./use-releases.ts";
 
 /** A3: the releases of one environment, newest first, with the rollout of each on the channel `?channel`. */
@@ -28,6 +29,7 @@ export function ReleasesPage(): ReactElement {
   return (
     <Frame
       id="releases-title"
+      nav={<ReleasesTabs />}
       title={m.timelineTitle}
       caption={m.timelineCaption}
       loading={environment.loading || releases.isPending || rollouts.isPending}
@@ -51,17 +53,9 @@ export function ReleasesPage(): ReactElement {
             }
           />
         </Field>
-        <Link
-          className={buttonVariants({ variant: "outline", size: "sm" })}
-          to="/o/$org/apps/$app/releases/kill-switch"
-          params={{ org, app }}
-          search={{ env }}
-        >
-          {m.killSwitchLink}
-        </Link>
       </div>
       {(releases.data?.releases ?? []).length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noReleases}</p>
+        <PageEmpty icon="rocket-launch" text={m.noReleases} />
       ) : (
         <Table
           caption={m.timelineTitle}

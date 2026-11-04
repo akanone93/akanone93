@@ -63,8 +63,11 @@ export function DeviceBayHost({
   screenOf,
   entryPage,
   request,
+  live,
   ...input
 }: BridgeInput & {
+  /** Starts the dev session when the editor opens (the person may create one). */
+  readonly live?: boolean;
   readonly appId: string | undefined;
   /** Opens the console on a tab (the top bar's problem counts open Problems). */
   readonly request?: { readonly tab: DrawerTab; readonly n: number } | undefined;
@@ -80,6 +83,7 @@ export function DeviceBayHost({
       problems={<ProblemsContent validation={validation} />}
       problemCount={validation.state === "done" ? validation.problems.length : undefined}
       request={request}
+      live={live === true}
       selectedPath={bridge.selectedPath}
       onInspect={bridge.inspect}
       accepted={bridge.accepted}

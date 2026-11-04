@@ -16,12 +16,13 @@ import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { assetsMessages } from "./assets.messages.ts";
 import { AssetsTab } from "./assets-tab.tsx";
 import { catalogue, search } from "./catalogue.ts";
-import { DockTabs, type Pane } from "./dock-tabs.tsx";
+import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
 import { InsertPane } from "./insert-pane.tsx";
 import { LayersPane, LayersToolbar } from "./layers-pane.tsx";
 import { insertionPoint, insertWidget, modelOf, moveLayer } from "./model.ts";
 import { panelsMessages } from "./panels.messages.ts";
 import { selectIds, treeNodes } from "./selection-model.ts";
+import { metaRecipe } from "./studio-meta.ts";
 import { DataPane } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
 
@@ -113,11 +114,19 @@ export function LeftDock(props: LeftDockProps): ReactElement {
     () => treeNodes(props.screens, index, m.pluginRoot, entry),
     [props.screens, index, m.pluginRoot, entry],
   );
+  // A locked layer stays where it is: it neither moves nor takes another layer into it.
+  const dropLayer = (dragged: string, target: string, half: "before" | "after") => {
+    if (nodes[dragged]?.locked !== true) {
+      moveLayer(model, index, dragged, target, half, edit, docOf, canEdit);
+    }
+  };
+
   // The screens open at first, so their widgets show; the person folds and unfolds from there.
   const roots = useMemo(() => [...(nodes["plugin"]?.children ?? [])], [nodes]);
   const [expanded, setExpanded] = useState<readonly string[] | null>(null);
   const open = expanded ?? roots;
   const rtl = i18n.locale.startsWith("ar");
+  const [folded, setFolded] = useStoredFlag("plux.dock.start.folded", false);
 
   const panes: readonly Pane[] = [
     {
@@ -163,7 +172,17 @@ export function LeftDock(props: LeftDockProps): ReactElement {
           onSelect={select}
           onReveal={(id) => reveal(props.surface(), props.canvas(), docOf(id), id)}
           onClear={() => store.set({ ids: [], anchor: null, scope: null })}
-          onDrop={canEdit ? (d, t, half) => moveLayer(model, index, d, t, half, edit, docOf, canEdit) : undefined}
+          onDrop={canEdit ? (d, t, half) => dropLayer(d, t, half) : undefined}
+          onMeta={
+            canEdit
+              ? (id, change) => {
+                  const doc = docOf(id);
+                  if (doc !== undefined) {
+                    edit(doc, metaRecipe(id, change), { group: `layer:${id}` });
+                  }
+                }
+              : undefined
+          }
         />
       ),
     },
@@ -187,11 +206,18 @@ export function LeftDock(props: LeftDockProps): ReactElement {
 
   const widgets = Math.max(0, index.parent.size - roots.length);
   return (
-    <aside aria-label={m.dock} className="plugin-dock plugin-dock-start canvas-panel canvas-side glass">
+    <aside
+      aria-label={m.dock}
+      className="plugin-dock plugin-dock-start canvas-panel canvas-side glass"
+      data-folded={folded || undefined}
+    >
       <DockTabs
         panes={panes}
         defaultValue="insert"
         mark="puzzle-piece"
+        folded={folded}
+        onFold={setFolded}
+        foldLabel={m.foldDock}
         head={
           <div className="flex min-w-0 flex-col">
             <span className="dock-head-kicker">{m.editorTitle}</span>

@@ -1,13 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { useLingui } from "@lingui/react";
 import type { Document } from "@plux/api";
+import { Dialog } from "@plux/ui";
 import { useMemo } from "react";
+import { SheetEmpty } from "../../components/editor-sheet.tsx";
 import { useEditor } from "../editor/index.ts";
 import type { JsonValue } from "../editor/json-patch.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { readMessages, referencedKeys } from "./l10n-model.ts";
 import { useL10nSessions } from "./l10n-sessions.tsx";
+import { localisationMessages } from "./localisation.messages.ts";
 import { LocalisationOverlay } from "./localisation-overlay.tsx";
 
 export interface LocalisationHostProps {
@@ -64,7 +68,8 @@ export function LocalisationHost(props: LocalisationHostProps) {
     return (v ?? 1) as JsonValue;
   }, [props.appDocuments]);
   if (sessions === null) {
-    return null;
+    // Without the app's languages there is nothing to edit; the editor still opens and says why.
+    return <NotReady open={props.open} onClose={props.onClose} />;
   }
   return (
     <LocalisationOverlay
@@ -83,5 +88,26 @@ export function LocalisationHost(props: LocalisationHostProps) {
       schemaVersion={schemaVersion}
       newId={uuidv7}
     />
+  );
+}
+
+/** The translations editor before the app's languages are loaded: it opens and says what is missing. */
+function NotReady({ open, onClose }: { readonly open: boolean; readonly onClose: () => void }) {
+  const m = localisationMessages(useLingui().i18n);
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) {
+          onClose();
+        }
+      }}
+      size="full"
+      title={m.title}
+      labels={{ close: m.close }}
+      icon="translate"
+    >
+      <SheetEmpty icon="translate" title={m.notReady} />
+    </Dialog>
   );
 }

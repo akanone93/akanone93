@@ -49,6 +49,10 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   The build is reproducible (`CI-006`) and its output is cached immutable.
 - **Text is shaped with SkParagraph** at that revision. This is the deciding reason: CanvasKit
   runs the device's text code in the browser. `STU-006` is reworded to say so.
+  A text the layout measured is drawn with the families it was measured in and laid out again at
+  its measured width rounded up, as Flutter's text painter once did: at the exact floating-point
+  width SkParagraph can find the line a hair too long and break it, and the lines below overlap
+  (amended 2026-11-04).
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with

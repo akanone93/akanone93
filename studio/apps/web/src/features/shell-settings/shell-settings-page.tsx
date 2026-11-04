@@ -8,6 +8,7 @@ import { limitDefault } from "@plux/schema";
 import { StatusPill } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageHeader, PageStatus } from "../../components/page.tsx";
 import { useCan } from "../admin/use-admin.ts";
 import { ProjectDownload } from "./project-download.tsx";
 import { ShellForm } from "./shell-form.tsx";
@@ -94,58 +95,51 @@ export function ShellSettingsPage(): ReactElement {
   const data = status.data;
   const generatedAt = data?.generatedAt === undefined ? undefined : timestampDate(data.generatedAt);
   return (
-    <section aria-labelledby="shell-title" className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <h1 id="shell-title" className="text-screen">
-          {m.title}
-        </h1>
-        <p className="text-body text-muted-foreground">{m.caption}</p>
-      </div>
-      {status.isPending && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.loading}
-        </p>
-      )}
-      {status.isError && (
-        <p role="alert" className="text-body text-danger">
-          {m.loadFailed}
-        </p>
-      )}
-      {data !== undefined && (
-        <>
-          <div className="flex flex-wrap items-center gap-3">
-            {data.updateRequired ? (
-              <StatusPill status="warning" label={m.statusRequired} value={String(data.changes.length)} />
-            ) : data.generated === undefined ? (
-              <StatusPill status="neutral" label={m.statusNever} />
-            ) : (
-              <StatusPill status="success" label={m.statusCurrent} />
-            )}
-            {generatedAt !== undefined && (
-              <p className="text-caption text-muted-foreground">
-                {m.generatedAt(i18n.date(generatedAt, { dateStyle: "medium", timeStyle: "short" }))}
-              </p>
-            )}
-          </div>
-          {data.updateRequired && <Changes changes={data.changes} />}
-          {data.current !== undefined && <ShellForm appId={appId} current={data.current} canManage={canManage} />}
-          <section aria-labelledby="shell-project" className="flex flex-col gap-2">
-            <h2 id="shell-project" className="text-section">
-              {m.projectTitle}
-            </h2>
-            <p className="text-body text-muted-foreground">{m.projectCaption(limitDefault("project.jobsPerHour"))}</p>
-            <div className="flex flex-wrap items-start gap-3">
-              <ProjectDownload appId={appId} label={m.projectRegenerate} disabled={!canManage} />
-              {data.generated !== undefined && data.updateRequired && (
-                <ProjectDownload appId={appId} label={m.projectPatch} format="patch" disabled={!canManage} />
+    <section aria-labelledby="shell-title" className="page-frame">
+      <PageHeader id="shell-title" icon="device-mobile" title={m.title} caption={m.caption} />
+      <div className="page-body">
+        <PageStatus
+          loading={status.isPending}
+          failed={status.isError}
+          error={status.error}
+          labels={{ loading: m.loading, loadFailed: m.loadFailed }}
+        />
+        {data !== undefined && (
+          <>
+            <div className="flex flex-wrap items-center gap-3">
+              {data.updateRequired ? (
+                <StatusPill status="warning" label={m.statusRequired} value={String(data.changes.length)} />
+              ) : data.generated === undefined ? (
+                <StatusPill status="neutral" label={m.statusNever} />
+              ) : (
+                <StatusPill status="success" label={m.statusCurrent} />
+              )}
+              {generatedAt !== undefined && (
+                <p className="text-caption text-muted-foreground">
+                  {m.generatedAt(i18n.date(generatedAt, { dateStyle: "medium", timeStyle: "short" }))}
+                </p>
               )}
             </div>
-            {data.generated !== undefined && data.updateRequired && (
-              <p className="text-caption text-muted-foreground">{m.projectPatchCaption}</p>
-            )}
-          </section>
-        </>
-      )}
+            {data.updateRequired && <Changes changes={data.changes} />}
+            {data.current !== undefined && <ShellForm appId={appId} current={data.current} canManage={canManage} />}
+            <section aria-labelledby="shell-project" className="flex flex-col gap-2">
+              <h2 id="shell-project" className="text-section">
+                {m.projectTitle}
+              </h2>
+              <p className="text-body text-muted-foreground">{m.projectCaption(limitDefault("project.jobsPerHour"))}</p>
+              <div className="flex flex-wrap items-start gap-3">
+                <ProjectDownload appId={appId} label={m.projectRegenerate} disabled={!canManage} />
+                {data.generated !== undefined && data.updateRequired && (
+                  <ProjectDownload appId={appId} label={m.projectPatch} format="patch" disabled={!canManage} />
+                )}
+              </div>
+              {data.generated !== undefined && data.updateRequired && (
+                <p className="text-caption text-muted-foreground">{m.projectPatchCaption}</p>
+              )}
+            </section>
+          </>
+        )}
+      </div>
     </section>
   );
 }

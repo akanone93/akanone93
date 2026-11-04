@@ -9,6 +9,7 @@ import { buttonVariants } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageHeader, PageStatus } from "../../components/page.tsx";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { AdoptDialog } from "./adopt-dialog.tsx";
@@ -90,116 +91,122 @@ export function ComponentDetailPage(): ReactElement {
   };
   const adoptTarget = perApp.data?.find((a) => a.app.id === dialog);
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="component-title">
-      <Link
-        to="/o/$org/library"
-        params={{ org }}
-        className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
-      >
-        <Icon name="arrow-left" data-icon="inline-start" />
-        {m.back}
-      </Link>
-      {detail.isPending && <p className="text-body text-muted-foreground">{m.loading}</p>}
-      {detail.isError && (
-        <p role="alert" className="text-body text-danger">
-          {m.detailLoadFailed}
-        </p>
-      )}
-      {item !== undefined && (
-        <>
-          <h1 id="component-title" className="text-screen">
-            {item.name}
-          </h1>
-          <p className="text-body text-muted-foreground">{item.description}</p>
-          {(canPublish || canManage) && (
-            <div>
-              <Button variant="secondary" onClick={() => setDialog("visibility")}>
-                {m.changeVisibility}
-              </Button>
-            </div>
-          )}
-          {canEdit && (
-            <div>
-              <FileDrop
-                variant="button"
-                label={m.reviseComponent}
-                accept=".json,application/json"
-                testId="revise-component"
-                onFiles={(files) => {
-                  const file = files[0];
-                  if (file !== undefined) {
-                    void readFile(file).then(setRevision);
-                  }
-                }}
-              />
-            </div>
-          )}
-          <h2 className="text-body font-medium">{m.versionsHeading}</h2>
-          <ul>
-            {versions.map((v) => (
-              <li key={v.version} className="flex items-center gap-3 py-1">
-                <span className="text-body">{m.versionRow(v.version, v.createdByName)}</span>
-                <span className="text-caption text-muted-foreground">{v.note}</span>
-                <Button variant="ghost" size="sm" onClick={() => void exportVersion(v.version)}>
-                  {m.exportVersion}
+    <section className="page-frame" aria-labelledby="component-title">
+      <PageHeader
+        id="component-title"
+        icon="component"
+        title={item?.name ?? m.kindComponent}
+        caption={item === undefined || item.description === "" ? undefined : item.description}
+        actions={
+          <Link
+            to="/o/$org/library"
+            params={{ org }}
+            className={buttonVariants({ variant: "ghost", size: "sm", className: "self-start" })}
+          >
+            <Icon name="arrow-left" data-icon="inline-start" />
+            {m.back}
+          </Link>
+        }
+      />
+      <div className="page-body">
+        <PageStatus
+          loading={detail.isPending}
+          failed={detail.isError}
+          error={detail.error}
+          labels={{ loading: m.loading, loadFailed: m.detailLoadFailed }}
+        />
+        {item !== undefined && (
+          <>
+            {(canPublish || canManage) && (
+              <div>
+                <Button variant="secondary" onClick={() => setDialog("visibility")}>
+                  {m.changeVisibility}
                 </Button>
-              </li>
-            ))}
-          </ul>
-          <h2 className="text-body font-medium">{m.usageHeading}</h2>
-          {perApp.data?.every((a) => a.count === 0) === true && (
-            <p className="text-body text-muted-foreground">{m.usageNone}</p>
-          )}
-          <ul>
-            {(perApp.data ?? []).map(({ app, count, adopted }) => (
-              <li key={app.id} className="flex flex-wrap items-center gap-3 py-1">
-                <span className="text-body">{m.usageApp(app.name, count)}</span>
-                <span className="text-caption text-muted-foreground">
-                  {adopted === undefined ? m.notAdopted(app.name) : m.adoptedVersion(app.name, adopted.version)}
-                </span>
-                {canEdit && (
-                  <Button variant="ghost" size="sm" onClick={() => setDialog(app.id)}>
-                    {m.adoptVersion}
+              </div>
+            )}
+            {canEdit && (
+              <div>
+                <FileDrop
+                  variant="button"
+                  label={m.reviseComponent}
+                  accept=".json,application/json"
+                  testId="revise-component"
+                  onFiles={(files) => {
+                    const file = files[0];
+                    if (file !== undefined) {
+                      void readFile(file).then(setRevision);
+                    }
+                  }}
+                />
+              </div>
+            )}
+            <h2 className="text-body font-medium">{m.versionsHeading}</h2>
+            <ul>
+              {versions.map((v) => (
+                <li key={v.version} className="flex items-center gap-3 py-1">
+                  <span className="text-body">{m.versionRow(v.version, v.createdByName)}</span>
+                  <span className="text-caption text-muted-foreground">{v.note}</span>
+                  <Button variant="ghost" size="sm" onClick={() => void exportVersion(v.version)}>
+                    {m.exportVersion}
                   </Button>
-                )}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {dialog === "visibility" && item !== undefined && (
-        <VisibilityDialog
-          current={item.visibility}
-          canPublish={canPublish}
-          apply={async (visibility) => {
-            await clients.components.setComponentVisibility({ id, visibility });
-            await clients.invalidate();
-          }}
-          onClose={() => setDialog(undefined)}
-        />
-      )}
-      {revision !== undefined && (
-        <ComponentImpactDialog
-          rows={impact}
-          removed={removed}
-          save={saveRevision}
-          onClose={() => setRevision(undefined)}
-        />
-      )}
-      {adoptTarget !== undefined && (
-        <AdoptDialog
-          appId={adoptTarget.app.id}
-          appName={adoptTarget.app.name}
-          versions={versions}
-          adopted={adoptTarget.adopted}
-          adopt={async (appId, version) => {
-            const res = await clients.components.adoptComponentVersion({ appId, id, version });
-            await clients.invalidate();
-            return res.conflicts;
-          }}
-          onClose={() => setDialog(undefined)}
-        />
-      )}
+                </li>
+              ))}
+            </ul>
+            <h2 className="text-body font-medium">{m.usageHeading}</h2>
+            {perApp.data?.every((a) => a.count === 0) === true && (
+              <p className="text-body text-muted-foreground">{m.usageNone}</p>
+            )}
+            <ul>
+              {(perApp.data ?? []).map(({ app, count, adopted }) => (
+                <li key={app.id} className="flex flex-wrap items-center gap-3 py-1">
+                  <span className="text-body">{m.usageApp(app.name, count)}</span>
+                  <span className="text-caption text-muted-foreground">
+                    {adopted === undefined ? m.notAdopted(app.name) : m.adoptedVersion(app.name, adopted.version)}
+                  </span>
+                  {canEdit && (
+                    <Button variant="ghost" size="sm" onClick={() => setDialog(app.id)}>
+                      {m.adoptVersion}
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {dialog === "visibility" && item !== undefined && (
+          <VisibilityDialog
+            current={item.visibility}
+            canPublish={canPublish}
+            apply={async (visibility) => {
+              await clients.components.setComponentVisibility({ id, visibility });
+              await clients.invalidate();
+            }}
+            onClose={() => setDialog(undefined)}
+          />
+        )}
+        {revision !== undefined && (
+          <ComponentImpactDialog
+            rows={impact}
+            removed={removed}
+            save={saveRevision}
+            onClose={() => setRevision(undefined)}
+          />
+        )}
+        {adoptTarget !== undefined && (
+          <AdoptDialog
+            appId={adoptTarget.app.id}
+            appName={adoptTarget.app.name}
+            versions={versions}
+            adopted={adoptTarget.adopted}
+            adopt={async (appId, version) => {
+              const res = await clients.components.adoptComponentVersion({ appId, id, version });
+              await clients.invalidate();
+              return res.conflicts;
+            }}
+            onClose={() => setDialog(undefined)}
+          />
+        )}
+      </div>
     </section>
   );
 }

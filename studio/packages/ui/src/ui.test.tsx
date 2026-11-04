@@ -239,4 +239,44 @@ describe("[STU-061] layer tree", () => {
     expect(screen.getByText("Hello")).toBeTruthy();
     expect(screen.queryByText("Pay")).toBeNull();
   });
+
+  test("a row renames on F2, and its eye and lock toggle through the caller", () => {
+    const calls: string[] = [];
+    const actions = {
+      labels: {
+        name: "Layer name",
+        hide: "Hide",
+        show: "Show",
+        lock: "Lock",
+        unlock: "Unlock",
+        hidden: "hidden",
+        locked: "locked",
+      },
+      onRename: (id: string, name: string) => calls.push(`rename ${id} ${name}`),
+      onHidden: (id: string, on: boolean) => calls.push(`hidden ${id} ${on}`),
+      onLocked: (id: string, on: boolean) => calls.push(`locked ${id} ${on}`),
+    };
+    const lockedNodes = { ...nodes, t1: { ...nodes["t1"], locked: true } as LayerNode };
+    render(
+      <LayerTree
+        nodes={lockedNodes}
+        rootId="root"
+        label="Layers"
+        selected={[]}
+        onSelect={() => undefined}
+        expanded={["s1", "col"]}
+        actions={actions}
+      />,
+    );
+    const row = document.querySelector('[data-item-id="t1"]') as HTMLElement;
+    expect(row.textContent).toContain("locked");
+    fireEvent.click(row.querySelector('[data-act="hide"]') as Element);
+    fireEvent.click(row.querySelector('[data-act="lock"]') as Element);
+    fireEvent.keyDown(row, { key: "h", ctrlKey: true, shiftKey: true });
+    fireEvent.keyDown(row, { key: "F2" });
+    const field = screen.getByLabelText("Layer name");
+    fireEvent.change(field, { target: { value: "Greeting" } });
+    fireEvent.keyDown(field, { key: "Enter" });
+    expect(calls).toEqual(["hidden t1 true", "locked t1 false", "hidden t1 true", "rename t1 Greeting"]);
+  });
 });

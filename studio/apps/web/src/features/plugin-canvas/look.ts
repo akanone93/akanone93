@@ -142,3 +142,14 @@ export function dataSourcesOf(documents: readonly DocLike[]): { id: string; name
       : [],
   );
 }
+
+/** Screens named in the previewed locale: a translated title takes its message; others keep their name. */
+export function titledScreens<T extends { readonly title: string; readonly titleKey?: string }>(
+  screens: readonly T[],
+  messages: Readonly<Record<string, string>>,
+): T[] {
+  return screens.map((s) => {
+    const text = s.titleKey === undefined ? undefined : messages[s.titleKey];
+    return text === undefined || text.trim() === "" ? s : { ...s, title: text };
+  });
+}

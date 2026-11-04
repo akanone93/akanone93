@@ -36,6 +36,22 @@ export function stateMessages(i18n: I18n) {
       message: "Add state entry",
       comment: "Button that adds a new state entry to the plugin.",
     }),
+    sectionEntry: i18n._({
+      id: "state.sectionEntry",
+      message: "Entry",
+      comment: "Section of the state designer: the entry's name and where it is kept.",
+    }),
+    sectionType: i18n._({
+      id: "state.sectionType",
+      message: "Type",
+      comment:
+        "Section of the state designer: the value's type, whether it is a list or a map, and whether it may be empty.",
+    }),
+    sectionValue: i18n._({
+      id: "state.sectionValue",
+      message: "Initial value",
+      comment: "Section of the state designer: the entry's initial value and whether it is sensitive.",
+    }),
     remove: i18n._({
       id: "state.remove",
       message: "Remove entry",

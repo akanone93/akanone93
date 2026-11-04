@@ -10,6 +10,7 @@ import { buttonVariants } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { type FormEvent, type ReactElement, useState } from "react";
+import { PageHeader, PageStatus } from "../../components/page.tsx";
 import { isName } from "../../lib/keys.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useCan } from "../admin/use-admin.ts";
@@ -109,72 +110,71 @@ export function AppSettingsPage(): ReactElement {
   });
   const loaded = app.data;
   return (
-    <section aria-labelledby="app-settings-title" className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <h1 id="app-settings-title" className="text-screen">
-          {m.settingsTitle(loaded?.name ?? "")}
-        </h1>
-        <p className="text-body text-muted-foreground">{m.settingsCaption}</p>
-        {loaded !== undefined && <p className="font-mono text-data text-muted-foreground">{m.keyOf(loaded.key)}</p>}
-      </div>
-      {app.isPending && (
-        <p role="status" className="text-body text-muted-foreground">
-          {m.loading}
-        </p>
-      )}
-      {app.isError && (
-        <p role="alert" className="text-body text-danger">
-          {m.settingsLoadFailed}
-        </p>
-      )}
-      {loaded !== undefined && <DetailsForm key={loaded.id} app={loaded} canEdit={canEdit} />}
-      <section aria-labelledby="app-settings-limits" className="flex flex-col gap-3">
-        <h2 id="app-settings-limits" className="text-section">
-          {m.limitsTitle}
-        </h2>
-        <p className="text-body text-muted-foreground">{m.limitsCaption}</p>
-        {limits.isError && (
-          <p role="alert" className="text-body text-danger">
-            {m.limitsLoadFailed}
-          </p>
-        )}
-        {limits.isSuccess && <LimitsTable limits={limits.data} />}
-      </section>
-      <section aria-labelledby="app-settings-shell" className="flex flex-col gap-2">
-        <h2 id="app-settings-shell" className="text-section">
-          {m.shellTitle}
-        </h2>
-        <p className="text-body text-muted-foreground">{m.shellCaption}</p>
-        <ShellSettingsLink org={org} appId={appId} />
-      </section>
-      {canPlugins && <PluginUsage appId={appId} />}
-      <section aria-labelledby="app-settings-fonts" className="flex flex-col gap-2">
-        <h2 id="app-settings-fonts" className="text-section">
-          {m.fontsTitle}
-        </h2>
-        <p className="text-body text-muted-foreground">{m.fontsCaption}</p>
-        <Link
-          to="/o/$org/apps/$app/design/typography"
-          params={{ org, app: appId }}
-          className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
-        >
-          {m.fontsLink}
-        </Link>
-      </section>
-      {canAdmin && (
-        <section aria-labelledby="app-settings-admin" className="flex flex-col gap-2">
-          <h2 id="app-settings-admin" className="text-section">
-            {m.adminTitle}
+    <section aria-labelledby="app-settings-title" className="page-frame">
+      <PageHeader
+        id="app-settings-title"
+        title={m.settingsTitle(loaded?.name ?? "")}
+        caption={m.settingsCaption}
+        actions={
+          loaded !== undefined && <code className="rounded-md bg-muted px-2 py-1 text-xs">{m.keyOf(loaded.key)}</code>
+        }
+      />
+      <div className="page-body">
+        <PageStatus
+          loading={app.isPending}
+          failed={app.isError}
+          error={app.error}
+          labels={{ loading: m.loading, loadFailed: m.settingsLoadFailed }}
+        />
+        {loaded !== undefined && <DetailsForm key={loaded.id} app={loaded} canEdit={canEdit} />}
+        <section aria-labelledby="app-settings-limits" className="flex flex-col gap-3">
+          <h2 id="app-settings-limits" className="text-section">
+            {m.limitsTitle}
           </h2>
+          <p className="text-body text-muted-foreground">{m.limitsCaption}</p>
+          {limits.isError && (
+            <p role="alert" className="text-body text-danger">
+              {m.limitsLoadFailed}
+            </p>
+          )}
+          {limits.isSuccess && <LimitsTable limits={limits.data} />}
+        </section>
+        <section aria-labelledby="app-settings-shell" className="flex flex-col gap-2">
+          <h2 id="app-settings-shell" className="text-section">
+            {m.shellTitle}
+          </h2>
+          <p className="text-body text-muted-foreground">{m.shellCaption}</p>
+          <ShellSettingsLink org={org} appId={appId} />
+        </section>
+        {canPlugins && <PluginUsage appId={appId} />}
+        <section aria-labelledby="app-settings-fonts" className="flex flex-col gap-2">
+          <h2 id="app-settings-fonts" className="text-section">
+            {m.fontsTitle}
+          </h2>
+          <p className="text-body text-muted-foreground">{m.fontsCaption}</p>
           <Link
-            to="/o/$org/admin"
-            params={{ org }}
+            to="/o/$org/apps/$app/design/typography"
+            params={{ org, app: appId }}
             className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
           >
-            {m.adminLink}
+            {m.fontsLink}
           </Link>
         </section>
-      )}
+        {canAdmin && (
+          <section aria-labelledby="app-settings-admin" className="flex flex-col gap-2">
+            <h2 id="app-settings-admin" className="text-section">
+              {m.adminTitle}
+            </h2>
+            <Link
+              to="/o/$org/admin"
+              params={{ org }}
+              className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
+            >
+              {m.adminLink}
+            </Link>
+          </section>
+        )}
+      </div>
     </section>
   );
 }

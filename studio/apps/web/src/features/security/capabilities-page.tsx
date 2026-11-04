@@ -4,7 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
-import { Frame } from "./parts.tsx";
+import { Frame, SecurityTabs } from "./parts.tsx";
 import { securityMessages } from "./security.messages.ts";
 import { useAppDocument, usePermissions, useSaveCapabilities, useScope } from "./use-security.ts";
 
@@ -60,7 +60,14 @@ export function CapabilitiesPage(): ReactElement {
     );
   };
   return (
-    <Frame id="caps-title" title={m.capsTitle} caption={m.capsCaption} loading={doc.isPending} failed={doc.isError}>
+    <Frame
+      id="caps-title"
+      nav={<SecurityTabs />}
+      title={m.capsTitle}
+      caption={m.capsCaption}
+      loading={doc.isPending}
+      failed={doc.isError}
+    >
       <dl className="flex flex-col gap-1 text-body">
         {lists.map((k) => (
           <div key={k} className="flex gap-4">

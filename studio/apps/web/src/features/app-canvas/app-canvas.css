@@ -141,6 +141,7 @@
 /* The app canvas's left dock: as wide as the plugin editor's, its plugins as rows with their mark, key and state. */
 .app-dock {
   inline-size: 21rem;
+  transition: inline-size 160ms ease;
   min-block-size: 0;
   overflow: hidden;
 }
@@ -202,4 +203,13 @@
   font-weight: 500;
   color: var(--muted-foreground);
   background-color: color-mix(in oklch, var(--muted) 80%, transparent);
+}
+
+/* The app's identity is as wide as the dock under it, so the start side reads as one column. */
+.canvas-top > .canvas-panel:first-child {
+  inline-size: 21rem;
+}
+
+.app-dock[data-folded] {
+  inline-size: auto;
 }

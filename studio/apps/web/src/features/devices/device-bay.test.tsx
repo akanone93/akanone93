@@ -86,6 +86,19 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
     expect(sent?.command.value).toMatchObject({ nodePath: "/pages/home/1/0" });
   });
 
+  test("with the editor open the session runs without the console: a tap still selects in Studio [STU-131]", async () => {
+    const inspected: string[] = [];
+    const tap = create(DevEventSchema, {
+      sequence: 1n,
+      deviceId: "d1",
+      payload: { case: "inspect", value: { nodePath: "/pages/home/1/0", widget: "Text" } },
+    });
+    renderBay({ devSession: { devices, events: [tap] } }, { live: true, onInspect: (p) => inspected.push(p) });
+    await waitFor(() => expect(inspected).toEqual(["/pages/home/1/0"]));
+    expect(await screen.findByText("Live")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Developer console" }).getAttribute("aria-expanded")).toBe("false");
+  });
+
   test("a tap on the device selects the node in Studio [STU-131]", async () => {
     const inspected: string[] = [];
     const tap = create(DevEventSchema, {

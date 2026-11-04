@@ -143,6 +143,11 @@ export function analyticsMessages(i18n: I18n) {
       message: "Overview",
       comment: "Link back to the analytics overview.",
     }),
+    rangeLabel: i18n._({
+      id: "analytics.rangeLabel",
+      message: "Range",
+      comment: "Accessible name of the pair of dates that bound every analytics page.",
+    }),
     rangeFrom: i18n._({
       id: "analytics.rangeFrom",
       message: "From",

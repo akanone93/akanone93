@@ -3,7 +3,13 @@
 
 import { useLingui } from "@lingui/react";
 import { Icon } from "@plux/ui";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@plux/ui/components/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@plux/ui/components/breadcrumb";
 import { Button } from "@plux/ui/components/button";
 import { Kbd } from "@plux/ui/components/kbd";
 import { Separator } from "@plux/ui/components/separator";
@@ -12,6 +18,7 @@ import type { ReactElement, ReactNode } from "react";
 import { commandMessages, formatShortcut } from "../../lib/commands/index.ts";
 import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
+import { usePageArea } from "./page-area.ts";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 import { ThemeButton } from "./theme-button.tsx";
 
@@ -39,17 +46,44 @@ export function SiteHeader({
   const { i18n } = useLingui();
   const m = chromeMessages(i18n);
   const c = commandMessages(i18n);
+  const area = usePageArea();
   const apple = typeof navigator !== "undefined" && /mac|iphone|ipad/i.test(navigator.platform);
   return (
-    <header className="site-header sticky top-0 z-20 flex h-(--header-height) shrink-0 items-center gap-2 rounded-t-xl border-b">
+    // The header sits inside shadcn's inset, a main landmark, so it names its banner role itself.
+    // biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: a header inside main is no banner without the role
+    <header
+      role="banner"
+      className="site-header sticky top-0 z-20 flex h-(--header-height) shrink-0 items-center gap-2 rounded-t-xl border-b"
+    >
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ms-1" aria-label={m.toggleSidebar} />
         <Separator orientation="vertical" className="mx-2 h-4 data-vertical:self-auto" />
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbPage className="font-medium">{title}</BreadcrumbPage>
+              <BreadcrumbPage className={area === undefined ? "font-medium" : "text-muted-foreground"}>
+                {title}
+              </BreadcrumbPage>
             </BreadcrumbItem>
+            {area !== undefined && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="hidden md:inline-flex">
+                  <Icon name={area.icon} size="pill" />
+                  <BreadcrumbPage className={area.page === undefined ? "font-medium" : "text-muted-foreground"}>
+                    {area.label}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            )}
+            {area?.page !== undefined && (
+              <>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem className="hidden md:inline-flex">
+                  <BreadcrumbPage className="font-medium">{area.page}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            )}
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ms-auto flex items-center gap-2">

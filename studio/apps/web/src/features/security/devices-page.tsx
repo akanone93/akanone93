@@ -6,6 +6,7 @@ import { useLingui } from "@lingui/react";
 import { Field, Input, StatusPill } from "@plux/ui";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame, fmt, Table } from "./parts.tsx";
 import { securityMessages } from "./security.messages.ts";
 import { useDevices, useEnvironment, useScope } from "./use-security.ts";
@@ -46,7 +47,7 @@ export function DevicesPage(): ReactElement {
         />
       </Field>
       {shown.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noDevices}</p>
+        <PageEmpty icon="device-mobile" text={m.noDevices} />
       ) : (
         <Table
           caption={m.devicesTitle}

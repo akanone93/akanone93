@@ -4,7 +4,28 @@
 import { Icon, type IconName } from "@plux/ui";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
-import type { ReactElement, ReactNode } from "react";
+import { type ReactElement, type ReactNode, useState } from "react";
+
+/** A per-viewer switch kept in this browser (a folded dock, a closed section); it falls back when storage is blocked. */
+export function useStoredFlag(key: string, initial: boolean): [boolean, (next: boolean) => void] {
+  const [value, setValue] = useState(() => {
+    try {
+      const raw = globalThis.localStorage?.getItem(key);
+      return raw === null || raw === undefined ? initial : raw === "1";
+    } catch {
+      return initial;
+    }
+  });
+  const set = (next: boolean) => {
+    setValue(next);
+    try {
+      globalThis.localStorage?.setItem(key, next ? "1" : "0");
+    } catch {
+      // Storage blocked: the switch holds for this page only.
+    }
+  };
+  return [value, set];
+}
 
 /** One pane of a dock: its tab on the rail (icon, short name) and what it shows. */
 export interface Pane {
@@ -30,6 +51,9 @@ export function DockTabs({
   onValueChange,
   mark,
   head,
+  folded = false,
+  onFold,
+  foldLabel,
 }: {
   readonly panes: readonly Pane[];
   readonly value?: string;
@@ -39,11 +63,19 @@ export function DockTabs({
   readonly mark: IconName;
   /** The dock's header: the editor's name and what it edits. */
   readonly head: ReactNode;
+  /** Folded, the dock is its rail alone; a tab on the rail opens it again. */
+  readonly folded?: boolean;
+  readonly onFold?: (folded: boolean) => void;
+  /** The name of the header's fold button. */
+  readonly foldLabel?: string;
 }): ReactElement {
   return (
     <Tabs
       {...(value === undefined ? { defaultValue } : { value })}
-      onValueChange={(v) => onValueChange?.(String(v))}
+      onValueChange={(v) => {
+        onValueChange?.(String(v));
+        onFold?.(false);
+      }}
       orientation="vertical"
       className="dock-tabs"
     >
@@ -53,7 +85,12 @@ export function DockTabs({
         </span>
         <TabsList variant="line" className="dock-rail">
           {panes.map((p) => (
-            <TabsTrigger key={p.value} value={p.value} className="dock-rail-tab">
+            <TabsTrigger
+              key={p.value}
+              value={p.value}
+              className="dock-rail-tab"
+              onClick={() => folded && onFold?.(false)}
+            >
               <Icon name={p.icon} />
               <span className="dock-rail-label">{p.label}</span>
               {p.meta !== undefined && p.meta !== "0" && (
@@ -65,8 +102,21 @@ export function DockTabs({
           ))}
         </TabsList>
       </div>
-      <div className="dock-main">
-        <header className="dock-head">{head}</header>
+      <div className="dock-main" hidden={folded}>
+        <header className="dock-head">
+          <div className="min-w-0 flex-1">{head}</div>
+          {onFold !== undefined && foldLabel !== undefined && (
+            <button
+              type="button"
+              className="dock-fold"
+              aria-label={foldLabel}
+              title={foldLabel}
+              onClick={() => onFold(true)}
+            >
+              <Icon name="panel-start-close" />
+            </button>
+          )}
+        </header>
         {panes.map((p) => (
           <TabsContent key={p.value} value={p.value} className="dock-pane">
             {p.toolbar !== undefined && <div className="dock-pane-toolbar">{p.toolbar}</div>}

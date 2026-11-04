@@ -25,6 +25,7 @@ import { type Capture, ScreenshotPanel } from "./screenshot-panel.tsx";
 import type { ScreenshotStore } from "./screenshots.ts";
 import { SendToDeviceDialog } from "./send-dialog.tsx";
 import { useDevClient, useStudioDevSession } from "./use-dev-session.ts";
+import { useDeviceEvents } from "./use-device-events.ts";
 
 /** What the page gives the bay: the canvas selection and the autosave clock. */
 export interface DeviceBayProps {
@@ -44,6 +45,11 @@ export interface DeviceBayProps {
   readonly store: ScreenshotStore;
   readonly route: string;
   readonly now?: () => number;
+  /**
+   * Starts the dev session as soon as the editor opens (for a person who may create one): a tap on the device selects
+   * in Studio (STU-131) and the autosave time is measured (NFR-030) whether or not the console is open.
+   */
+  readonly live?: boolean;
 }
 
 type Dialog = "pair" | "send" | null;
@@ -219,6 +225,18 @@ function useBayEvents(onInspect: (path: string) => void, meter: LatencyMeter) {
   return { capture, latency, onEvent };
 }
 
+/** The session's events while the console is closed: they still select, capture and time; the console lists them. */
+function QuietStream({
+  sessionId,
+  onEvent,
+}: {
+  readonly sessionId: string;
+  readonly onEvent: (event: DevEvent) => void;
+}): null {
+  useDeviceEvents(sessionId, [], onEvent);
+  return null;
+}
+
 /**
  * The developer console under the canvas (STU-066, STU-131 to STU-134, WGT-031, NFR-030, DEV-020): always there as a
  * slim bar between the docks — its name, whether it streams, the problems and the autosave time — and open, a drawer
@@ -231,7 +249,7 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
   const [height, setHeight] = useState(320);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [highlight, setHighlight] = useState(false);
-  const sessionId = useStudioDevSession(props.appId, shown || dialog !== null);
+  const sessionId = useStudioDevSession(props.appId, props.live === true || shown || dialog !== null);
   const client = useDevClient();
   const [meter] = useState(() => createLatencyMeter(props.now ?? Date.now));
   const open = useCallback((d: Dialog) => setDialog(d), []);
@@ -275,10 +293,11 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
       data-open={shown || undefined}
     >
       <div className="canvas-panel glass dev-console-panel" style={shown ? { blockSize: height } : undefined}>
+        {!shown && sessionId !== undefined && <QuietStream sessionId={sessionId} onEvent={onEvent} />}
         {shown && <ConsoleGrip height={height} onHeight={setHeight} />}
         <ConsoleBar
           shown={shown}
-          live={shown && sessionId !== undefined}
+          live={sessionId !== undefined}
           problemCount={props.problemCount}
           latency={latency}
           highlight={highlight}

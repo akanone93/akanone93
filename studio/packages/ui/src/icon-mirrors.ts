@@ -16,6 +16,10 @@ export const mirroredIcons: ReadonlySet<IconName> = new Set<IconName>([
   "arrow-up-right",
   "caret-left",
   "caret-right",
+  "panel-end-close",
+  "panel-end-open",
+  "panel-start-close",
+  "panel-start-open",
   "paper-plane-tilt",
   "sign-out",
 ]);

@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Icon, Input, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useState } from "react";
+import { FieldGrid, SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
 import { jsonEqual } from "../editor/json-patch.ts";
 import type { LoadPublished } from "../json-editor/use-published.ts";
 import type { ValidatorClient } from "../problems/validator-client.ts";
@@ -183,9 +184,9 @@ export function PreviewPanel({ preview, m }: { preview: Preview; m: DesignerMess
     );
   }
   return (
-    <section aria-label={m.dbPreview} className="max-h-40 overflow-y-auto border-t border-hairline pt-3">
-      <h3 className="text-label font-medium">{m.dbPreview}</h3>
-      {body}
+    <section aria-label={m.dbPreview} className="flex flex-col gap-1.5">
+      <h3 className="text-xs font-semibold">{m.dbPreview}</h3>
+      <div className="text-xs">{body}</div>
     </section>
   );
 }
@@ -195,6 +196,8 @@ function CollectionEditor(props: {
   onChange: (c: Json) => void;
   canEdit: boolean;
   m: DesignerMessages;
+  /** The collection's own actions, in its section's header (remove). */
+  actions?: React.ReactNode;
 }) {
   const { collection: c, onChange, canEdit, m } = props;
   const fields = objects(c["fields"]);
@@ -207,68 +210,42 @@ function CollectionEditor(props: {
     set({ migrations: merged.map(tidyPlan) });
   };
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <Field label={m.dbKey}>
-          <Input value={String(c["key"] ?? "")} disabled={!canEdit} onChange={(e) => set({ key: e.target.value })} />
-        </Field>
-        <Field label={m.dbVersion}>
-          <Input
-            type="number"
-            min={1}
-            value={String(c["version"] ?? 1)}
-            disabled={!canEdit}
-            onChange={(e) => set({ version: Math.max(1, Number.parseInt(e.target.value, 10) || 1) })}
-          />
-        </Field>
-        <Field label={m.dbPrimaryKey}>
-          <Input
-            value={strings(c["primaryKey"]).join(", ")}
-            disabled={!canEdit}
-            onChange={(e) => set({ primaryKey: splitList(e.target.value) })}
-          />
-        </Field>
-      </div>
-      <section aria-label={m.dbFields} className="flex flex-col gap-2">
-        <h3 className="text-label font-medium">{m.dbFields}</h3>
-        {fields.map((f, i) => (
-          // The field's position is its identity: names are edited in place.
-          // biome-ignore lint/suspicious/noArrayIndexKey: rows are edited in place
-          <div key={i} className="flex flex-wrap items-end gap-3">
-            <Field label={m.dbFieldName}>
-              <Input
-                value={String(f["name"] ?? "")}
-                disabled={!canEdit}
-                onChange={(e) => setField(i, { name: e.target.value })}
-              />
-            </Field>
-            <Field label={m.dbFieldType}>
-              <Input
-                value={String(f["type"] ?? "")}
-                disabled={!canEdit}
-                onChange={(e) => setField(i, { type: e.target.value })}
-              />
-            </Field>
-            <label className="flex items-center gap-2 text-body">
-              <input
-                type="checkbox"
-                checked={f["sensitive"] === true}
-                disabled={!canEdit}
-                onChange={(e) => setField(i, { sensitive: e.target.checked ? true : undefined })}
-              />
-              {m.dbSensitive}
-            </label>
-            <Button
-              variant="secondary"
+    <>
+      <SheetSection title={String(c["key"] ?? "")} icon="table" actions={props.actions}>
+        <FieldGrid>
+          <Field label={m.dbKey}>
+            <Input
+              value={String(c["key"] ?? "")}
+              dir="ltr"
               disabled={!canEdit}
-              onClick={() => set({ fields: fields.filter((_, j) => j !== i) })}
-            >
-              {m.dbRemoveField}
-            </Button>
-          </div>
-        ))}
-        <div>
+              onChange={(e) => set({ key: e.target.value })}
+            />
+          </Field>
+          <Field label={m.dbVersion}>
+            <Input
+              type="number"
+              min={1}
+              value={String(c["version"] ?? 1)}
+              disabled={!canEdit}
+              onChange={(e) => set({ version: Math.max(1, Number.parseInt(e.target.value, 10) || 1) })}
+            />
+          </Field>
+          <Field label={m.dbPrimaryKey}>
+            <Input
+              value={strings(c["primaryKey"]).join(", ")}
+              dir="ltr"
+              disabled={!canEdit}
+              onChange={(e) => set({ primaryKey: splitList(e.target.value) })}
+            />
+          </Field>
+        </FieldGrid>
+      </SheetSection>
+      <SheetSection
+        title={m.dbFields}
+        icon="rows"
+        actions={
           <Button
+            size="sm"
             variant="secondary"
             disabled={!canEdit}
             onClick={() => set({ fields: [...fields, { name: "", type: "string" }] })}
@@ -276,54 +253,59 @@ function CollectionEditor(props: {
             <Icon name="plus" />
             {m.dbAddField}
           </Button>
-        </div>
-      </section>
-      <section aria-label={m.dbPlans} className="flex flex-col gap-2">
-        <h3 className="text-label font-medium">{m.dbPlans}</h3>
-        {plans.map((p, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: rows are edited in place
-          <div key={i} className="flex flex-wrap items-end gap-3">
-            <Field label={m.dbPlanFrom}>
-              <Input
-                type="number"
-                min={1}
-                value={String(p["from"] ?? 1)}
-                disabled={!canEdit}
-                onChange={(e) => setPlan(i, { from: Math.max(1, Number.parseInt(e.target.value, 10) || 1) })}
-              />
-            </Field>
-            <Field label={m.dbPlanDrop}>
-              <Input
-                value={strings(p["drop"]).join(", ")}
-                disabled={!canEdit}
-                onChange={(e) => setPlan(i, { drop: splitList(e.target.value) })}
-              />
-            </Field>
-            <Field label={m.dbPlanReset}>
-              <Input
-                value={strings(p["reset"]).join(", ")}
-                disabled={!canEdit}
-                onChange={(e) => setPlan(i, { reset: splitList(e.target.value) })}
-              />
-            </Field>
-            <Field label={m.dbPlanRename}>
-              <Input
-                defaultValue={renameText(p["rename"])}
-                disabled={!canEdit}
-                onChange={(e) => setPlan(i, { rename: parseRename(e.target.value) })}
-              />
-            </Field>
-            <Button
-              variant="secondary"
-              disabled={!canEdit}
-              onClick={() => set({ migrations: plans.filter((_, j) => j !== i) })}
-            >
-              {m.dbRemovePlan}
-            </Button>
+        }
+      >
+        <div className="sheet-table" data-columns="field">
+          <div className="sheet-table-head" aria-hidden="true">
+            <span>{m.dbFieldName}</span>
+            <span>{m.dbFieldType}</span>
+            <span>{m.dbSensitive}</span>
+            <span />
           </div>
-        ))}
-        <div>
+          {fields.map((f, i) => (
+            // The field's position is its identity: names are edited in place.
+            // biome-ignore lint/suspicious/noArrayIndexKey: rows are edited in place
+            <div key={i} className="sheet-table-row">
+              <Input
+                aria-label={m.dbFieldName}
+                value={String(f["name"] ?? "")}
+                dir="ltr"
+                disabled={!canEdit}
+                onChange={(e) => setField(i, { name: e.target.value })}
+              />
+              <Input
+                aria-label={m.dbFieldType}
+                value={String(f["type"] ?? "")}
+                dir="ltr"
+                disabled={!canEdit}
+                onChange={(e) => setField(i, { type: e.target.value })}
+              />
+              <input
+                type="checkbox"
+                aria-label={m.dbSensitive}
+                checked={f["sensitive"] === true}
+                disabled={!canEdit}
+                onChange={(e) => setField(i, { sensitive: e.target.checked ? true : undefined })}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={m.dbRemoveField}
+                disabled={!canEdit}
+                onClick={() => set({ fields: fields.filter((_, j) => j !== i) })}
+              >
+                <Icon name="trash" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </SheetSection>
+      <SheetSection
+        title={m.dbPlans}
+        icon="flow-arrow"
+        actions={
           <Button
+            size="sm"
             variant="secondary"
             disabled={!canEdit}
             onClick={() => set({ migrations: [...plans, { from: Math.max(1, Number(c["version"] ?? 1) - 1) }] })}
@@ -331,9 +313,61 @@ function CollectionEditor(props: {
             <Icon name="plus" />
             {m.dbAddPlan}
           </Button>
-        </div>
-      </section>
-    </div>
+        }
+      >
+        {plans.map((p, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: rows are edited in place
+          <div key={i} className="sheet-card-row">
+            <FieldGrid>
+              <Field label={m.dbPlanFrom}>
+                <Input
+                  type="number"
+                  min={1}
+                  value={String(p["from"] ?? 1)}
+                  disabled={!canEdit}
+                  onChange={(e) => setPlan(i, { from: Math.max(1, Number.parseInt(e.target.value, 10) || 1) })}
+                />
+              </Field>
+              <Field label={m.dbPlanDrop}>
+                <Input
+                  value={strings(p["drop"]).join(", ")}
+                  dir="ltr"
+                  disabled={!canEdit}
+                  onChange={(e) => setPlan(i, { drop: splitList(e.target.value) })}
+                />
+              </Field>
+              <Field label={m.dbPlanReset}>
+                <Input
+                  value={strings(p["reset"]).join(", ")}
+                  dir="ltr"
+                  disabled={!canEdit}
+                  onChange={(e) => setPlan(i, { reset: splitList(e.target.value) })}
+                />
+              </Field>
+              <Field label={m.dbPlanRename}>
+                <Input
+                  defaultValue={renameText(p["rename"])}
+                  dir="ltr"
+                  disabled={!canEdit}
+                  onChange={(e) => setPlan(i, { rename: parseRename(e.target.value) })}
+                />
+              </Field>
+            </FieldGrid>
+            <div>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={!canEdit}
+                onClick={() => set({ migrations: plans.filter((_, j) => j !== i) })}
+              >
+                <Icon name="trash" />
+                {m.dbRemovePlan}
+              </Button>
+            </div>
+          </div>
+        ))}
+      </SheetSection>
+    </>
   );
 }
 
@@ -378,6 +412,19 @@ export function DbSchemaOverlay(props: DbSchemaOverlayProps) {
   const changed = next !== undefined && !jsonEqual(next, value);
   const canApply = canEdit && changed && !hasErrors(check);
   const current = collections[selected];
+  const addCollection = () => {
+    setCollections((all) => [
+      ...all,
+      {
+        id: uuid7(),
+        key: `collection-${all.length + 1}`,
+        version: 1,
+        primaryKey: ["id"],
+        fields: [{ name: "id", type: "string" }],
+      },
+    ]);
+    setSelected(collections.length);
+  };
   return (
     <Dialog
       open={props.open}
@@ -389,39 +436,11 @@ export function DbSchemaOverlay(props: DbSchemaOverlayProps) {
       size="full"
       title={m.dbTitle}
       labels={{ close: m.dbClose }}
-    >
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Button
-            variant="secondary"
-            disabled={!canEdit}
-            onClick={() => {
-              setCollections((all) => [
-                ...all,
-                {
-                  id: uuid7(),
-                  key: `collection-${all.length + 1}`,
-                  version: 1,
-                  primaryKey: ["id"],
-                  fields: [{ name: "id", type: "string" }],
-                },
-              ]);
-              setSelected(collections.length);
-            }}
-          >
-            <Icon name="plus" />
-            {m.dbAdd}
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!canEdit || current === undefined}
-            onClick={() => {
-              setCollections((all) => all.filter((_, i) => i !== selected));
-              setSelected(0);
-            }}
-          >
-            {m.dbRemove}
-          </Button>
+      icon="table"
+      flush
+      headerActions={
+        <>
+          <Status check={check} valid={!hasErrors(check)} changed={changed} note={note} m={m} />
           <Button
             disabled={!canApply}
             onClick={() => {
@@ -433,39 +452,90 @@ export function DbSchemaOverlay(props: DbSchemaOverlayProps) {
           >
             {m.apply}
           </Button>
-          <Status check={check} valid={!hasErrors(check)} changed={changed} note={note} m={m} />
-        </div>
-        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-        <div className="flex min-h-0 flex-1 gap-6 overflow-y-auto">
-          <nav aria-label={m.dbList} className="flex w-56 shrink-0 flex-col gap-1">
-            {collections.length === 0 && <p className="text-body text-muted-foreground">{m.dbNone}</p>}
+        </>
+      }
+    >
+      <SheetLayout
+        nav={
+          <nav aria-label={m.dbList} className="flex flex-col gap-1">
+            <SheetNavHead
+              title={m.dbList}
+              count={collections.length}
+              action={
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  aria-label={m.dbAdd}
+                  title={m.dbAdd}
+                  disabled={!canEdit}
+                  onClick={addCollection}
+                >
+                  <Icon name="plus" />
+                </Button>
+              }
+            />
+            {collections.length === 0 && <p className="px-2 text-xs text-muted-foreground">{m.dbNone}</p>}
             {collections.map((c, i) => (
-              <Button
+              <button
                 key={String(c["id"])}
-                variant={i === selected ? "primary" : "secondary"}
+                type="button"
+                className="sheet-item"
                 aria-pressed={i === selected}
                 onClick={() => setSelected(i)}
               >
-                {String(c["key"] ?? "")}
-              </Button>
+                <Icon name="table" size="pill" />
+                <span className="min-w-0 flex-1 truncate font-mono text-xs" dir="ltr">
+                  {String(c["key"] ?? "")}
+                </span>
+                <span className="sheet-item-meta">{m.versionTag(String(c["version"] ?? 1))}</span>
+              </button>
             ))}
           </nav>
-          <div className="min-w-0 flex-1">
-            {current === undefined ? (
-              <p className="text-body text-muted-foreground">{m.dbSelect}</p>
-            ) : (
-              <CollectionEditor
-                collection={current}
-                canEdit={canEdit}
-                m={m}
-                onChange={(c) => setCollections((all) => all.map((x, i) => (i === selected ? c : x)))}
-              />
-            )}
+        }
+        foot={
+          <div className="grid gap-4 md:grid-cols-2">
+            <PreviewPanel preview={preview} m={m} />
+            <ProblemList problems={check.state === "done" ? check.problems : []} m={m} />
           </div>
-        </div>
-        <PreviewPanel preview={preview} m={m} />
-        <ProblemList problems={check.state === "done" ? check.problems : []} m={m} />
-      </div>
+        }
+      >
+        {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
+        {current === undefined ? (
+          <SheetEmpty
+            icon="table"
+            title={collections.length === 0 ? m.dbNone : m.dbSelect}
+            action={
+              canEdit ? (
+                <Button variant="secondary" onClick={addCollection}>
+                  <Icon name="plus" />
+                  {m.dbAdd}
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <CollectionEditor
+            collection={current}
+            canEdit={canEdit}
+            m={m}
+            onChange={(c) => setCollections((all) => all.map((x, i) => (i === selected ? c : x)))}
+            actions={
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={!canEdit}
+                onClick={() => {
+                  setCollections((all) => all.filter((_, i) => i !== selected));
+                  setSelected(0);
+                }}
+              >
+                <Icon name="trash" />
+                {m.dbRemove}
+              </Button>
+            }
+          />
+        )}
+      </SheetLayout>
     </Dialog>
   );
 }

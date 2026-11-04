@@ -6,6 +6,11 @@ import type { I18n } from "@lingui/core";
 /** Messages of the Experiments and flags area (STU-103, ABT-001, ABT-003). */
 export function experimentsMessages(i18n: I18n) {
   return {
+    areaNav: i18n._({
+      id: "experiments.areaNav",
+      message: "Pages of the experiments area",
+      comment: "Accessible name of the tabs between the experiments pages.",
+    }),
     listTitle: i18n._({
       id: "experiments.listTitle",
       message: "Experiments",

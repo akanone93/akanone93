@@ -6,6 +6,7 @@ import { Button, Dialog, Field, Input, Select } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { objects } from "../designers/db-schema-overlay.tsx";
 import { designerMessages } from "../designers/designers.messages.ts";
 import { isObject, type Json, useDocumentValue } from "../designers/use-document.ts";
@@ -125,7 +126,7 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
       <section aria-label={m.operations} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.operations}</h2>
         {ops.length === 0 ? (
-          <p className="text-body text-muted-foreground">{m.noOperations}</p>
+          <PageEmpty icon="database" text={m.noOperations} />
         ) : (
           <Table
             caption={m.operations}
@@ -146,7 +147,7 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
       <section aria-label={m.schemas} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.schemas}</h2>
         {schemas.length === 0 ? (
-          <p className="text-body text-muted-foreground">{m.noSchemas}</p>
+          <PageEmpty icon="database" text={m.noSchemas} />
         ) : (
           <ul>
             {schemas.map((t) => (
@@ -160,14 +161,14 @@ function Tables(props: { source: Json; types: readonly Json[]; m: DataMessages }
       <section aria-label={m.baseUrl} className="flex flex-col gap-2">
         <h2 className="text-label font-medium">{m.baseUrl}</h2>
         {variable === "" ? (
-          <p className="text-body text-muted-foreground">{m.noBaseUrl}</p>
+          <PageEmpty icon="database" text={m.noBaseUrl} />
         ) : (
           <>
             <p className="text-body">
               {m.baseUrlVariable} <code className="text-code">{variable}</code>
             </p>
             {envValues.length === 0 ? (
-              <p className="text-body text-muted-foreground">{m.noUrls}</p>
+              <PageEmpty icon="database" text={m.noUrls} />
             ) : (
               <Table
                 caption={m.baseUrl}

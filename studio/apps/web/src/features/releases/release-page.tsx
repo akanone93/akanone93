@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, StatusPill } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import type { ReactElement } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { firstError } from "../../components/refusal.tsx";
 import { Table } from "../security/parts.tsx";
 import { useEnvironment, usePermissions, useScope } from "../security/use-security.ts";
@@ -115,7 +116,7 @@ export function ReleasePage(): ReactElement {
       </p>
       <h2 className="text-heading">{m.changelog}</h2>
       {(changelog.data?.entries ?? []).length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noChanges}</p>
+        <PageEmpty icon="rocket-launch" text={m.noChanges} />
       ) : (
         <ul className="text-body">
           {(changelog.data?.entries ?? []).map((e) => (
@@ -132,11 +133,7 @@ export function ReleasePage(): ReactElement {
             {m.stage(String(rollout.stageIndex + 1), String(rollout.stages.length))}
           </p>
           <h2 className="text-heading">{m.health}</h2>
-          {check === undefined ? (
-            <p className="text-body text-muted-foreground">{m.noHealth}</p>
-          ) : (
-            <HealthTable check={check} />
-          )}
+          {check === undefined ? <PageEmpty icon="rocket-launch" text={m.noHealth} /> : <HealthTable check={check} />}
           <RolloutControls app={app} rollout={rollout} allowed={allowed} />
         </>
       )}

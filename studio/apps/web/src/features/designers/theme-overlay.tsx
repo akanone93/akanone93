@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Icon, Input, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { useMemo, useRef, useState } from "react";
+import { FieldGrid, SheetEmpty, SheetLayout, SheetSection } from "../../components/editor-sheet.tsx";
 import { LockBanner } from "../editor/lock-ui.tsx";
 import type { AppSession } from "../localisation/l10n-sessions.tsx";
 import { type DesignerMessages, designerMessages } from "./designers.messages.ts";
@@ -78,30 +79,24 @@ function leafAt(tokens: Json, path: readonly string[]): Json | undefined {
 function Swatches({ rows, m }: { rows: readonly TokenRow[]; m: DesignerMessages }) {
   const colours = rows.filter((r) => r.type === "color" && typeof r.light === "string");
   return (
-    <section aria-label={m.themePreview} className="flex flex-col gap-2">
-      <h3 className="text-label font-medium">{m.themePreview}</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {[m.themeLight, m.themeDark].map((mode, i) => (
-          <div key={mode} className="flex flex-col gap-1">
-            <span className="text-caption text-muted-foreground">{mode}</span>
-            <ul className="flex flex-wrap gap-2">
-              {colours.map((r) => {
-                const value = i === 0 ? r.light : (r.dark ?? r.light);
-                return (
-                  <li key={r.path.join(".")} className="flex items-center gap-1">
-                    <span
-                      aria-hidden="true"
-                      className="inline-block size-4 rounded-sm border border-hairline"
-                      style={{ backgroundColor: String(value) }}
-                    />
-                    <span className="font-mono text-caption">{r.path.join(".")}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
+    <section aria-label={m.themePreview} className="flex flex-col gap-3">
+      <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{m.themePreview}</h3>
+      {[m.themeLight, m.themeDark].map((mode, i) => (
+        <div key={mode} className="theme-preview" data-mode={i === 0 ? "light" : "dark"}>
+          <span className="theme-preview-mode">{mode}</span>
+          <ul className="flex flex-col gap-1.5">
+            {colours.map((r) => {
+              const value = i === 0 ? r.light : (r.dark ?? r.light);
+              return (
+                <li key={r.path.join(".")} className="flex items-center gap-2">
+                  <span aria-hidden="true" className="theme-swatch" style={{ backgroundColor: String(value) }} />
+                  <span className="min-w-0 truncate font-mono text-xs">{r.path.join(".")}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
     </section>
   );
 }
@@ -201,76 +196,117 @@ export function ThemeOverlay(props: ThemeOverlayProps) {
       size="full"
       title={m.themeTitle}
       labels={{ close: m.themeClose }}
+      icon="palette"
+      flush
+      headerActions={
+        <span className="sheet-status" data-tone={value === undefined ? "idle" : "ok"}>
+          <span className="sheet-status-dot" aria-hidden="true" />
+          {value === undefined ? m.themeNone : m.themeLive}
+        </span>
+      }
     >
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <p className="text-caption text-muted-foreground">{value === undefined ? m.themeNone : m.themeLive}</p>
+      <SheetLayout
+        aside={<Swatches rows={rows} m={m} />}
+        foot={<ProblemList problems={check.state === "done" ? check.problems : []} m={m} />}
+      >
         {props.app !== null && <LockBanner lock={props.app.lock} />}
         {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <table aria-label={m.themeTokens} className="w-full text-body">
-            <thead>
-              <tr className="text-start text-caption text-muted-foreground">
-                <th scope="col">{m.themeToken}</th>
-                <th scope="col">{m.themeLight}</th>
-                <th scope="col">{m.themeDark}</th>
-                <td />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                const name = row.path.join(".");
-                return (
-                  <tr key={name}>
-                    <th scope="row" className="text-start font-mono font-normal">
-                      {name} {row.type !== "" && <TypeTag>{row.type}</TypeTag>}
-                    </th>
-                    <td>
-                      <Input
-                        aria-label={m.themeLightValue(name)}
-                        value={show(row.light)}
-                        disabled={!canEdit}
-                        onChange={(e) => setLight(row, e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <Input
-                        aria-label={m.themeDarkValue(name)}
-                        value={show(row.dark)}
-                        disabled={!canEdit}
-                        onChange={(e) => setDark(row, e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <Button
-                        variant="secondary"
-                        aria-label={m.themeRemoveToken(name)}
-                        disabled={!canEdit}
-                        onClick={() => remove(row)}
-                      >
-                        <Icon name="trash" />
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="mt-3 flex flex-wrap items-end gap-3">
+        <SheetSection title={m.themeTokens} icon="palette">
+          {rows.length === 0 ? (
+            <SheetEmpty icon="palette" title={m.themeNone} />
+          ) : (
+            <table aria-label={m.themeTokens} className="sheet-grid-table">
+              <thead>
+                <tr>
+                  <th scope="col">{m.themeToken}</th>
+                  <th scope="col">{m.themeLight}</th>
+                  <th scope="col">{m.themeDark}</th>
+                  <td />
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => {
+                  const name = row.path.join(".");
+                  const colour = row.type === "color";
+                  return (
+                    <tr key={name}>
+                      <th scope="row">
+                        <span className="flex items-center gap-2">
+                          <span className="min-w-0 truncate font-mono text-xs font-normal">{name}</span>
+                          {row.type !== "" && <TypeTag>{row.type}</TypeTag>}
+                        </span>
+                      </th>
+                      <td>
+                        <span className="flex items-center gap-2">
+                          {colour && (
+                            <span
+                              aria-hidden="true"
+                              className="theme-swatch"
+                              style={{ backgroundColor: show(row.light) }}
+                            />
+                          )}
+                          <Input
+                            aria-label={m.themeLightValue(name)}
+                            value={show(row.light)}
+                            dir="ltr"
+                            disabled={!canEdit}
+                            onChange={(e) => setLight(row, e.target.value)}
+                          />
+                        </span>
+                      </td>
+                      <td>
+                        <span className="flex items-center gap-2">
+                          {colour && (
+                            <span
+                              aria-hidden="true"
+                              className="theme-swatch"
+                              style={{ backgroundColor: show(row.dark ?? row.light) }}
+                            />
+                          )}
+                          <Input
+                            aria-label={m.themeDarkValue(name)}
+                            value={show(row.dark)}
+                            dir="ltr"
+                            disabled={!canEdit}
+                            onChange={(e) => setDark(row, e.target.value)}
+                          />
+                        </span>
+                      </td>
+                      <td>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          aria-label={m.themeRemoveToken(name)}
+                          disabled={!canEdit}
+                          onClick={() => remove(row)}
+                        >
+                          <Icon name="trash" />
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </SheetSection>
+        <SheetSection title={m.themeAddToken} icon="plus">
+          <FieldGrid>
             <Field label={m.themeNewPath}>
-              <Input value={newPath} disabled={!canEdit} onChange={(e) => setNewPath(e.target.value)} />
+              <Input value={newPath} dir="ltr" disabled={!canEdit} onChange={(e) => setNewPath(e.target.value)} />
             </Field>
             <Field label={m.themeNewValue}>
-              <Input value={newValue} disabled={!canEdit} onChange={(e) => setNewValue(e.target.value)} />
+              <Input value={newValue} dir="ltr" disabled={!canEdit} onChange={(e) => setNewValue(e.target.value)} />
             </Field>
+          </FieldGrid>
+          <div>
             <Button variant="secondary" disabled={!addable} onClick={add}>
               <Icon name="plus" />
               {m.themeAddToken}
             </Button>
           </div>
-        </div>
-        <Swatches rows={rows} m={m} />
-        <ProblemList problems={check.state === "done" ? check.problems : []} m={m} />
-      </div>
+        </SheetSection>
+      </SheetLayout>
     </Dialog>
   );
 }

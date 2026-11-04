@@ -5,7 +5,9 @@ import { useLingui } from "@lingui/react";
 import { FlagType } from "@plux/api";
 import { Button, Field, Input, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
+import { ExperimentsTabs } from "../releases/tabs.tsx";
 import { Table } from "../security/parts.tsx";
 import { useEnvironment, usePermissions, useScope } from "../security/use-security.ts";
 import { type ExperimentsMessages, experimentsMessages } from "./experiments.messages.ts";
@@ -136,6 +138,7 @@ export function FlagsPage(): ReactElement {
   };
   return (
     <Frame
+      nav={<ExperimentsTabs />}
       id="flags-title"
       title={m.flagsTitle}
       caption={m.flagsCaption}
@@ -144,7 +147,7 @@ export function FlagsPage(): ReactElement {
       error={flags.error}
     >
       {(flags.data?.flags ?? []).length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.noFlags}</p>
+        <PageEmpty icon="funnel" text={m.noFlags} />
       ) : (
         <Table
           caption={m.flagsTitle}

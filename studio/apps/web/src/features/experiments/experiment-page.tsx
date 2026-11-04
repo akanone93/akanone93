@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Field, Input, StatusPill } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { useGuarded } from "../releases/guarded.tsx";
 import { Table } from "../security/parts.tsx";
@@ -120,7 +121,7 @@ type Results = ReturnType<typeof useResults>["data"];
 /** The sample split and the comparison of every primary metric and guardrail. */
 function ResultsPanel({ m, r }: { readonly m: ExperimentsMessages; readonly r: Results }): ReactElement {
   if (r === undefined) {
-    return <p className="text-body text-muted-foreground">{m.noResults}</p>;
+    return <PageEmpty icon="funnel" text={m.noResults} />;
   }
   return (
     <>

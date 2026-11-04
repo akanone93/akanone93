@@ -16,6 +16,8 @@ export interface Screen {
   readonly id: string;
   readonly route: string;
   readonly title: string;
+  /** The translation key of a translated title (`{"$t": key}`), resolved for the previewed locale by the canvas. */
+  readonly titleKey?: string;
   readonly root: Node | undefined;
   /** Routes this screen navigates to. */
   readonly targets: readonly string[];
@@ -125,6 +127,15 @@ export function firstText(node: Node | undefined): string | undefined {
   return undefined;
 }
 
+/** The key of a translated title (`{"$t": key}`), or undefined for a plain or missing one. */
+export function titleKeyOf(title: unknown): string | undefined {
+  if (typeof title !== "object" || title === null) {
+    return undefined;
+  }
+  const key = (title as Record<string, unknown>)["$t"];
+  return typeof key === "string" && key !== "" ? key : undefined;
+}
+
 /**
  * A screen's name: its title when the title is text; otherwise the first text it shows (its app bar's title); otherwise
  * its key or route. A translated title is a reference (`{"$t": …}`) that only the keys document resolves: it used to
@@ -160,7 +171,15 @@ export function readPlugin(documents: readonly DocLike[]): PluginModel {
       const targets: string[] = [];
       navigations(root, targets);
       const route = typeof p.route === "string" ? p.route : String(p.key ?? p.id);
-      return { id: String(p.id), route, title: screenTitle({ ...p }, root, route), root, targets };
+      const key = titleKeyOf(p.title);
+      return {
+        id: String(p.id),
+        route,
+        title: screenTitle({ ...p }, root, route),
+        ...(key === undefined ? {} : { titleKey: key }),
+        root,
+        targets,
+      };
     });
   const byRoute = new Map(screens.map((s) => [s.route, s.id]));
   const edges = new Map<string, readonly string[]>();

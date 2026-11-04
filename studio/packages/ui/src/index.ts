@@ -21,7 +21,14 @@ export { FloatingPanel, GlassCapsule, type GlassProps } from "./glass.tsx";
 export { Icon, type IconProps, type IconSize } from "./icon.tsx";
 export { iconMirrors, mirroredIcons } from "./icon-mirrors.ts";
 export { type IconName, iconNames } from "./icons.ts";
-export { type LayerNode, LayerTree, type LayerTreeProps, layerFolders, layerMatches } from "./layer-tree.tsx";
+export {
+  type LayerActions,
+  type LayerNode,
+  LayerTree,
+  type LayerTreeProps,
+  layerFolders,
+  layerMatches,
+} from "./layer-tree.tsx";
 export { LiveChip, type LiveChipProps } from "./live-chip.tsx";
 export { Menu, type MenuEntry, type MenuProps } from "./menu.tsx";
 export { Meter, type MeterProps } from "./meter.tsx";

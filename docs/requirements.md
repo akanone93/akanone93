@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.13.0
+**Version:** 1.14.0
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-11-01
+**Date:** 2026-11-04
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -1737,7 +1737,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `STU-060` | P11 | MUST | A floating **action bar at the top centre** **MUST** provide: undo/redo, zoom, device frame, theme, locale, text scale, **send to device** (choose paired device), validation status (opens Problems), history, AI assistant (arriving with P12), and **Publish** (primary action, opens the release flow, `STU-100`). | DONE |
-| `STU-061` | P11 | MUST | A floating **left panel** **MUST** provide tabs: **Insert** (Layer 1, Layer 2 and custom widgets, components and templates, searchable, drag-and-drop); **Layers** (tree view with drag-to-reorder and reparent, rename, hide, lock, multi-select); **Screens**; **Assets**; **State** (app/plugin/page state, computed values, forms); **Data** (data sources, mocks, collections); and **Selection** (details of the current multi-selection). | DONE |
+| `STU-061` | P11 | MUST | A floating **left panel** **MUST** provide tabs: **Insert** (Layer 1, Layer 2 and custom widgets, components and templates, searchable, drag-and-drop); **Layers** (the plugin's **screens** as the roots of a tree view with drag-to-reorder and reparent, rename, hide, lock and multi-select, and the details of the current **selection** above the tree); **Assets**; and **Data** (app/plugin/page **state** with computed values and forms, and **data sources** with mocks and collections). | DONE |
 | `STU-062` | P11 | MUST | A floating **right panel** **MUST** provide tabs: **Properties** (grouped editors generated from widget descriptors: layout, style, content, behaviour, responsive overrides, bindings with PXL autocompletion, token pickers, translation pickers); **Actions** (events of the selection and their action graphs); **JSON** (compact JSON of the selection); **Code** (functions used by the selection); **Localisation** (strings of the selection); **Accessibility**; **Performance** (node count, estimated cost, budget status); and **Docs** (widget documentation). | DONE |
 | `STU-063` | P11 | MUST | Heavy editors — **JSON editor**, **Rust function editor**, **action graph editor**, **localisation table**, **state designer**, **data source designer** (with OpenAPI import), **DB schema designer** and **theme editor** — **MUST** be launched from the right panel and open as **full-screen overlays**. Opening an overlay **MUST NOT** unmount or re-render the canvas: the canvas is paused and preserved, and closing the overlay restores zoom, scroll and selection exactly. | DONE |
 | `STU-064` | P11 | MUST | The JSON editor **MUST** validate against the schema as the user types, show diagnostics inline, offer a diff against the last published version, and apply edits only when valid. | DONE |
@@ -3134,10 +3134,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.13.0 |
+| Version | 1.14.0 |
 | Status | Draft (living document) |
-| Date | 2026-11-01 |
-| Supersedes | 1.12.0 |
+| Date | 2026-11-04 |
+| Supersedes | 1.13.0 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3176,3 +3176,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.11.0 | 2026-10-30 | Studio design (maintainer, 2026-10-30; ADR-0103): `STU-010` replaces the Porcelain description (whitish workspace, 18–24 px radii, pill controls, floating panels) with shadcn/ui as it ships — its components, layouts and blocks on Base UI in the `nova` style, its `neutral` theme, Inter and lucide, with light, dark and system themes. Appendix J points Studio's interface at shadcn's theme; the brand accents stay for the wordmark, Plux Canvas and the sign-in sample apps. No `Status` cell changes. |
 | 1.12.0 | 2026-10-31 | Studio colour (maintainer, 2026-10-31; ADR-0103 amended): `STU-010` names shadcn's `mist` base colour with its `indigo` theme in place of `neutral`, with elevation and frosted glass on what floats; Appendix J follows. The Document Control table catches up with the header, which 1.11.0 did not update. No `Status` cell changes. |
 | 1.13.0 | 2026-11-01 | Studio colour, second pass (maintainer, 2026-11-01; ADR-0103 amended): `STU-010` names shadcn's `zinc` base colour with its `indigo` theme in place of `mist`, the shell's surfaces a clear step apart, and colour in small solid marks rather than washes or glows; Appendix J follows. No `Status` cell changes. |
+| 1.14.0 | 2026-11-04 | Studio left panel (maintainer, 2026-11-04; ADR-0103 amended): `STU-061` keeps four tabs — **Layers** holds the screens and the selection with the tree, **Data** holds state and data sources — where it listed seven; a layer's name, hidden and locked are editor-only settings in the node's `x-studio` object (`SCH-004`). No `Status` cell changes. |

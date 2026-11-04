@@ -4,6 +4,8 @@
 import { useLingui } from "@lingui/react";
 import { Button, Dialog, Field, Icon, Input, Select, Tabs } from "@plux/ui";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FieldGrid, SheetLayout, SheetSection } from "../../components/editor-sheet.tsx";
+import { PageHeader } from "../../components/page.tsx";
 import { useCanEdit } from "../editor/editor-provider.tsx";
 import { RustMonacoView } from "./lazy-view.tsx";
 import type { Diagnostic } from "./lsp-client.ts";
@@ -174,73 +176,87 @@ type RustEditor = ReturnType<typeof useRustEditor>;
 function RustEditorBody({ e }: { readonly e: RustEditor }) {
   const { open, m, canEdit, sourceId, setSourceId, text, manifest, setManifest, templateId, setTemplateId } = e;
   const { server, tests, markers, trimmed, busy, edit } = e;
+  const ready = server.state.phase === "ready";
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex flex-wrap items-end gap-3">
-        <Field label={m.source} description={m.sourceHint}>
-          <Input value={sourceId} onChange={(e) => setSourceId(e.target.value)} spellCheck={false} />
-        </Field>
-        <Button onClick={() => server.start(trimmed, text)} disabled={trimmed === "" || busy}>
-          <Icon name="play" />
-          {m.connect}
-        </Button>
-        {server.state.phase === "ready" && (
-          <Button variant="secondary" onClick={server.stop}>
-            {m.stop}
-          </Button>
-        )}
-        <Select
-          label={m.template}
-          options={starterTemplates.map((t) => ({ value: t.id, label: t.title }))}
-          value={templateId}
-          onValueChange={setTemplateId}
+    <SheetLayout
+      aside={
+        <Tabs
+          defaultValue="tests"
+          tabs={[
+            {
+              value: "tests",
+              label: m.tabTests,
+              panel: <TestsPanel run={tests.run} canRun={trimmed !== ""} onRun={() => tests.start(trimmed)} m={m} />,
+            },
+            {
+              value: "dependencies",
+              label: m.tabDependencies,
+              panel: <DependenciesPanel manifest={manifest} canEdit={canEdit} onChange={setManifest} m={m} />,
+            },
+          ]}
         />
-        <Button
-          variant="secondary"
-          disabled={!canEdit}
-          onClick={() => edit(starterTemplates.find((t) => t.id === templateId)?.source ?? text)}
-        >
-          {m.useTemplate}
-        </Button>
-      </div>
-      <p role="status" aria-live="polite" className="text-body text-muted-foreground">
-        {describeSession(server.state, m)}
-      </p>
-      {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-3">
-        <div className="col-span-2 min-h-0">
-          {open && (
-            <Suspense fallback={<p className="text-body text-muted-foreground">{m.starting}</p>}>
-              <RustMonacoView
-                value={text}
-                readOnly={!canEdit}
-                label={m.editorLabel}
-                language={server.language}
-                markers={markers}
-                onChange={edit}
-              />
-            </Suspense>
+      }
+    >
+      <SheetSection
+        title={m.connect}
+        icon="code"
+        actions={
+          <span role="status" aria-live="polite" className="sheet-status" data-tone={ready ? "ok" : "idle"}>
+            <span className="sheet-status-dot" aria-hidden="true" />
+            {describeSession(server.state, m)}
+          </span>
+        }
+      >
+        <FieldGrid>
+          <Field label={m.source} description={m.sourceHint}>
+            <Input value={sourceId} dir="ltr" onChange={(e) => setSourceId(e.target.value)} spellCheck={false} />
+          </Field>
+          <Field label={m.template}>
+            <Select
+              label={m.template}
+              options={starterTemplates.map((t) => ({ value: t.id, label: t.title }))}
+              value={templateId}
+              onValueChange={setTemplateId}
+            />
+          </Field>
+        </FieldGrid>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button onClick={() => server.start(trimmed, text)} disabled={trimmed === "" || busy}>
+            <Icon name="play" />
+            {m.connect}
+          </Button>
+          {ready && (
+            <Button variant="secondary" onClick={server.stop}>
+              <Icon name="pause" />
+              {m.stop}
+            </Button>
           )}
+          <Button
+            variant="secondary"
+            disabled={!canEdit}
+            onClick={() => edit(starterTemplates.find((t) => t.id === templateId)?.source ?? text)}
+          >
+            <Icon name="file" />
+            {m.useTemplate}
+          </Button>
+          {!canEdit && <span className="text-caption text-muted-foreground">{m.readOnly}</span>}
         </div>
-        <div className="min-h-0 overflow-y-auto">
-          <Tabs
-            defaultValue="tests"
-            tabs={[
-              {
-                value: "tests",
-                label: m.tabTests,
-                panel: <TestsPanel run={tests.run} canRun={trimmed !== ""} onRun={() => tests.start(trimmed)} m={m} />,
-              },
-              {
-                value: "dependencies",
-                label: m.tabDependencies,
-                panel: <DependenciesPanel manifest={manifest} canEdit={canEdit} onChange={setManifest} m={m} />,
-              },
-            ]}
-          />
-        </div>
+      </SheetSection>
+      <div className="sheet-code">
+        {open && (
+          <Suspense fallback={<p className="text-body text-muted-foreground">{m.starting}</p>}>
+            <RustMonacoView
+              value={text}
+              readOnly={!canEdit}
+              label={m.editorLabel}
+              language={server.language}
+              markers={markers}
+              onChange={edit}
+            />
+          </Suspense>
+        )}
       </div>
-    </div>
+    </SheetLayout>
   );
 }
 
@@ -258,6 +274,8 @@ export function RustEditorOverlay(props: RustEditorOverlayProps) {
       size="full"
       title={e.m.title}
       labels={{ close: e.m.close }}
+      icon="lightning"
+      flush
     >
       <RustEditorBody e={e} />
     </Dialog>
@@ -268,8 +286,8 @@ export function RustEditorOverlay(props: RustEditorOverlayProps) {
 export function RustEditorPage(props: Omit<RustEditorOverlayProps, "open" | "onClose">) {
   const e = useRustEditor({ ...props, open: true, onClose: () => undefined });
   return (
-    <section className="flex h-full min-h-0 flex-col gap-3" aria-label={e.m.title}>
-      <h1 className="text-screen">{e.m.title}</h1>
+    <section className="page-frame h-full min-h-0" aria-labelledby="rust-editor-title">
+      <PageHeader id="rust-editor-title" icon="code" title={e.m.title} />
       <RustEditorBody e={e} />
     </section>
   );
