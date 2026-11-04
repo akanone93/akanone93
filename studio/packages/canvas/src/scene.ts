@@ -15,6 +15,8 @@ import type { ItemSpec, LinkSpec, Point, SceneOp, StrokeStyle } from "./protocol
 
 /** Extra bounds around a shadowed frame for its pre-rendered shadow. */
 export const SHADOW_MARGIN = 24;
+/** Extra bounds around a box with a soft shadow (RectSpec `shadow`): the shadow's reach and its drop. */
+export const SOFT_SHADOW_MARGIN = 32;
 /** Text height as a multiple of its size, for bounds before layout. */
 export const TEXT_HEIGHT_FACTOR = 1.4;
 
@@ -154,8 +156,8 @@ export function boundsOf(spec: ItemSpec, out: Rect): Rect {
     case "text":
       return setRect(out, spec.x, spec.y, spec.x + spec.w, spec.y + spec.size * TEXT_HEIGHT_FACTOR);
     default: {
-      const pad =
-        (spec.stroke ? spec.stroke.width / 2 : 0) + (spec.kind === "frame" && spec.shadow ? SHADOW_MARGIN : 0);
+      const shadow = spec.kind === "frame" ? (spec.shadow ? SHADOW_MARGIN : 0) : spec.shadow ? SOFT_SHADOW_MARGIN : 0;
+      const pad = (spec.stroke ? spec.stroke.width / 2 : 0) + shadow;
       return setRect(out, spec.x - pad, spec.y - pad, spec.x + spec.w + pad, spec.y + spec.h + pad);
     }
   }
@@ -199,6 +201,10 @@ function sameBoxStyle(a: ItemSpec, b: ItemSpec): boolean {
     return false;
   }
   if (a.kind === "frame" && b.kind === "frame" && (a.shadow || b.shadow || a.name !== b.name)) {
+    return false;
+  }
+  // A shadow reaches past the moved edge's strip: the old and new bounds are damaged whole.
+  if (a.kind === "rect" && b.kind === "rect" && (a.shadow === true || b.shadow === true)) {
     return false;
   }
   return (

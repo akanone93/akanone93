@@ -239,6 +239,50 @@ describe("C1 on Plux Canvas ([STU-030], [STU-040], ADR-0013)", () => {
     await waitFor(() => expect(JSON.stringify(sent)).toContain('"x":500'));
   });
 
+  test("the change after the one that created the canvas document is saved too [STU-032]", async () => {
+    const s = stub();
+    const sent: NonNullable<Upstream["sent"]> = [];
+    renderApp(path, state({ surface: s.factory, sent }));
+    const move = async (x: string, y: string) => {
+      fireEvent.pointerDown(await screen.findByRole("button", { name: /^Loans/ }));
+      fireEvent.click(screen.getByRole("button", { name: "Move to…" }));
+      fireEvent.change(await screen.findByLabelText("X position"), { target: { value: x } });
+      fireEvent.change(screen.getByLabelText("Y position"), { target: { value: y } });
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    };
+    await move("500", "40");
+    await waitFor(() => expect(JSON.stringify(sent)).toContain('"x":500'));
+    await move("600", "60");
+    expect(await screen.findByText("Loans moved to 600, 60")).toBeDefined();
+    await waitFor(() => expect(JSON.stringify(sent)).toContain("600"), { timeout: 4000 });
+    expect(screen.queryByText("The change could not be saved.") === null).toBe(true);
+  });
+
+  test("a document list older than a move does not put the box back [STU-032]", async () => {
+    const s = stub();
+    const { session } = renderApp(path, state({ surface: s.factory }));
+    const key = ["plugin-documents", "app1", ""];
+    await waitFor(() => expect(session.queryClient.getQueryData(key)).toBeDefined());
+    const stale = session.queryClient.getQueryData(key);
+    const xOf = () =>
+      s.patches
+        .flatMap((o) =>
+          (o.op === "add" || o.op === "replace") && o.item.id === "app-box/loans" && o.item.kind === "rect"
+            ? [o.item.x]
+            : [],
+        )
+        .at(-1);
+    fireEvent.pointerDown(await screen.findByRole("button", { name: /^Loans/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Move to…" }));
+    fireEvent.change(await screen.findByLabelText("X position"), { target: { value: "700" } });
+    fireEvent.change(screen.getByLabelText("Y position"), { target: { value: "40" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(xOf()).toBe(700));
+    session.queryClient.setQueryData(key, stale);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(xOf()).toBe(700);
+  });
+
   test("a lane's menu removes the one link as a single change set [STU-046]", async () => {
     const s = stub();
     const changeSets: NonNullable<Upstream["changeSets"]> = [];

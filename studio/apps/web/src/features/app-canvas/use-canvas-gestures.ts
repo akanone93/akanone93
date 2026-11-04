@@ -17,6 +17,9 @@ export type CanvasTool = "select" | "hand";
 export const ZOOM_MIN = 0.1;
 export const ZOOM_MAX = 4;
 
+/** A wheel gesture ends when the wheel has rested this long, in ms. */
+export const WHEEL_REST_MS = 160;
+
 /** The factor a wheel delta zooms by: a mouse notch (100) about 1.6x, a trackpad pinch step a few percent. */
 const wheelZoom = (deltaY: number): number => Math.exp(-deltaY / 220);
 
@@ -44,6 +47,8 @@ export interface GestureInput {
   readonly tool: CanvasTool;
   /** Whether Space is held: the canvas pans while it is. */
   readonly spaceHeld: () => boolean;
+  /** The snap guides of a drag in world units, or null when there are none; the page draws them. */
+  readonly onGuides?: (lines: readonly GuideLine[] | null) => void;
   /** The marquee being drawn, in view pixels, or null when it ends; the page draws it. */
   readonly onMarquee?: (rect: { l: number; t: number; r: number; b: number } | null) => void;
   /** Changes when the canvas element is replaced, so the wheel listener moves to the new one. */
@@ -74,18 +79,35 @@ const rectOf = (a: Point, b: Point) => ({
   b: Math.max(a.y, b.y),
 });
 
-/** The guide lines of a snap, spanning every box, for the canvas overlay. */
-function guideLines(guides: readonly { axis: "x" | "y"; at: number }[], boxes: readonly SceneBox[]): Guides {
-  const top = Math.min(...boxes.map((b) => b.y)) - BOX.height;
-  const bottom = Math.max(...boxes.map((b) => b.y)) + 2 * BOX.height;
-  const left = Math.min(...boxes.map((b) => b.x)) - BOX.width;
-  const right = Math.max(...boxes.map((b) => b.x)) + 2 * BOX.width;
-  return {
-    lines: guides.map((g) =>
-      g.axis === "x" ? { axis: "x", at: g.at, from: top, to: bottom } : { axis: "y", at: g.at, from: left, to: right },
-    ),
-    labels: [],
-  };
+/** A guide line in world units: vertical at `x = at` (axis "x") or horizontal at `y = at`, from `from` to `to`. */
+export type GuideLine = Guides["lines"][number];
+
+/** How far a guide runs past the boxes it aligns, in world units. */
+const GUIDE_OVERHANG = 12;
+
+/**
+ * The guide lines of a snap: each runs along the shared edge or centre from the dragged box to the farthest box it
+ * aligns with, a little past both, as design tools draw them.
+ */
+export function guideLines(
+  guides: readonly { axis: "x" | "y"; at: number }[],
+  moved: Point,
+  others: readonly Point[],
+): GuideLine[] {
+  const on = (start: number, size: number, at: number) =>
+    [start, start + size / 2, start + size].some((v) => Math.abs(v - at) < 0.5);
+  return guides.map((g) => {
+    const vertical = g.axis === "x";
+    const aligned = [moved, ...others.filter((o) => on(vertical ? o.x : o.y, vertical ? BOX.width : BOX.height, g.at))];
+    const starts = aligned.map((b) => (vertical ? b.y : b.x));
+    const size = vertical ? BOX.height : BOX.width;
+    return {
+      axis: g.axis,
+      at: g.at,
+      from: Math.min(...starts) - GUIDE_OVERHANG,
+      to: Math.max(...starts) + size + GUIDE_OVERHANG,
+    };
+  });
 }
 
 /** The pan of a wheel turn: a mouse wheel with Shift scrolls sideways; a trackpad gives both deltas itself. */
@@ -98,11 +120,55 @@ function zoomFactor(zoom: number, deltaY: number): number {
   return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * wheelZoom(deltaY))) / zoom;
 }
 
+type ViewGesture = "pan" | "zoom";
+
+/**
+ * Tells the worker while a pan or zoom gesture runs (M-12). The worker then keeps the base it rendered and the host
+ * moves and scales it, re-rendering only when the gesture ends or nears the edge of what is rendered. Without it every
+ * wheel step was a settled zoom: the worker dropped its tiles and re-rendered the scene at each step, so boxes vanished
+ * and grey tiles showed until it caught up. A wheel gesture ends once the wheel rests for `WHEEL_REST_MS`.
+ */
+export class GestureTracker {
+  private active: { kind: ViewGesture; surface: CanvasSurface } | null = null;
+  private timer: ReturnType<typeof setTimeout> | undefined;
+
+  /** Starts `kind` on `surface`, ending another gesture first; nothing when it already runs. */
+  begin(surface: CanvasSurface, kind: ViewGesture): void {
+    clearTimeout(this.timer);
+    this.timer = undefined;
+    if (this.active?.kind === kind && this.active.surface === surface) {
+      return;
+    }
+    this.end();
+    this.active = { kind, surface };
+    surface.gesture?.(kind, true);
+  }
+
+  /** Starts or continues a wheel gesture of `kind`, ending it when the wheel rests. */
+  wheel(surface: CanvasSurface, kind: ViewGesture): void {
+    this.begin(surface, kind);
+    this.timer = setTimeout(() => this.end(), WHEEL_REST_MS);
+  }
+
+  /** Ends the running gesture, if any. */
+  end(): void {
+    clearTimeout(this.timer);
+    this.timer = undefined;
+    const was = this.active;
+    this.active = null;
+    was?.surface.gesture?.(was.kind, false);
+  }
+}
+
 /**
  * The wheel as a native, non-passive listener: React's is passive, so a pinch would also zoom the whole page. It pans,
  * and with Ctrl or Cmd (a trackpad pinch) zooms about the pointer.
  */
-function useWheel(input: GestureInput, latest: { readonly current: GestureInput }): void {
+function useWheel(
+  input: GestureInput,
+  latest: { readonly current: GestureInput },
+  tracker: { readonly current: GestureTracker },
+): void {
   // biome-ignore lint/correctness/useExhaustiveDependencies: a new canvas element needs the listener again
   useEffect(() => {
     const canvas = input.canvas.current;
@@ -117,16 +183,21 @@ function useWheel(input: GestureInput, latest: { readonly current: GestureInput 
         return;
       }
       if (e.ctrlKey || e.metaKey) {
+        tracker.current.wheel(surface, "zoom");
         const r = (frame?.current ?? canvas).getBoundingClientRect();
         surface.zoomAbout(zoomFactor(surface.viewport.zoom, e.deltaY), e.clientX - r.left, e.clientY - r.top);
       } else {
+        tracker.current.wheel(surface, "pan");
         const [dx, dy] = wheelPan(e);
         surface.pan(dx, dy);
       }
       onView();
     };
     canvas.addEventListener("wheel", onWheel, { passive: false });
-    return () => canvas.removeEventListener("wheel", onWheel);
+    return () => {
+      canvas.removeEventListener("wheel", onWheel);
+      tracker.current.end();
+    };
   }, [input.canvas, input.element]);
 }
 
@@ -143,8 +214,9 @@ export function useCanvasGestures(input: GestureInput) {
   const pan = useRef<Pan | null>(null);
   const latest = useRef(input);
   latest.current = input;
+  const tracker = useRef(new GestureTracker());
 
-  useWheel(input, latest);
+  useWheel(input, latest, tracker);
   const viewRect = () => (input.frame?.current ?? input.canvas.current)?.getBoundingClientRect();
   const local = (e: { clientX: number; clientY: number }): Point => {
     const r = viewRect();
@@ -183,9 +255,12 @@ export function useCanvasGestures(input: GestureInput) {
     d.moved = true;
     const others = input.boxes.filter((b) => !d.origin.has(b.id));
     const s = snap({ x: lead.x + dx, y: lead.y + dy }, others);
-    input.surface()?.setGuides?.(s.guides.length === 0 ? null : guideLines(s.guides, input.boxes));
-    const ox = s.point.x - lead.x;
-    const oy = s.point.y - lead.y;
+    const lines = s.guides.length === 0 ? null : guideLines(s.guides, s.point, others);
+    input.surface()?.setGuides?.(lines === null ? null : { lines, labels: [] });
+    input.onGuides?.(lines);
+    // Whole world units: the document saves positions rounded, so a drop lands exactly where it is saved.
+    const ox = Math.round(s.point.x - lead.x);
+    const oy = Math.round(s.point.y - lead.y);
     input.setPositions((prev) => {
       const next = new Map(prev);
       for (const b of input.boxes) {
@@ -242,6 +317,10 @@ export function useCanvasGestures(input: GestureInput) {
         e.currentTarget.setPointerCapture?.(e.pointerId);
         pan.current = { last: { x: e.clientX, y: e.clientY } };
         e.currentTarget.dataset["panning"] = "true";
+        const surface = input.surface();
+        if (surface !== null) {
+          tracker.current.begin(surface, "pan");
+        }
         return;
       }
       if (e.button !== 0) {
@@ -279,6 +358,7 @@ export function useCanvasGestures(input: GestureInput) {
       if (pan.current !== null) {
         pan.current = null;
         delete e.currentTarget.dataset["panning"];
+        tracker.current.end();
         return;
       }
       const d = drag.current;
@@ -287,6 +367,7 @@ export function useCanvasGestures(input: GestureInput) {
       press.current = null;
       if (d !== null) {
         input.surface()?.setGuides?.(null);
+        input.onGuides?.(null);
         if (d.moved) {
           input.commit(new Map(input.boxes.map((b) => [b.id, { x: b.x, y: b.y }])));
         }

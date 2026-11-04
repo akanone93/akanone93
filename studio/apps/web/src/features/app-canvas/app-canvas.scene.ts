@@ -21,7 +21,7 @@ import {
   type Use,
 } from "../safety/index.ts";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
-import { BOX, type Frame, type PlacedBox } from "./app-canvas.model.ts";
+import { BOX, type Frame, NATIVE_BOX, type PlacedBox } from "./app-canvas.model.ts";
 
 type Messages = ReturnType<typeof appCanvasMessages>;
 
@@ -67,10 +67,12 @@ export interface SceneBox extends PlacedBox {
   readonly native: boolean;
   readonly archived: boolean;
   readonly badges: readonly Badge[];
+  /** The line under the name: the key and the number of screens; the key alone when absent. */
+  readonly subtitle?: string;
 }
 
 /** The id of a native target's box. */
-export const nativeBox = (route: string): string => `native:${route}`;
+export const nativeBox = (route: string): string => `${NATIVE_BOX}${route}`;
 
 /** Scene item ids: the main rectangle of a box, its parts `<id>::<part>`, frames and the focus ring. */
 export const boxItem = (id: string): string => `app-box/${id}`;
@@ -112,6 +114,14 @@ export interface AppSceneStyle {
   readonly stroke: ColorRgba;
   readonly title: ColorRgba;
   readonly secondary: ColorRgba;
+  /** The hairline between a card's head and its status row. */
+  readonly divider: ColorRgba;
+  /** The plugin's solid mark and its letter; muted for native targets and archived plugins. */
+  readonly tile: ColorRgba;
+  readonly tileText: ColorRgba;
+  readonly mutedTile: ColorRgba;
+  readonly mutedTileText: ColorRgba;
+  readonly frameFill: ColorRgba;
   readonly frameStroke: ColorRgba;
   readonly focus: ColorRgba;
   readonly pills: Readonly<Record<BadgeStatus, Pill>>;
@@ -124,7 +134,13 @@ export const appSceneStyle: AppSceneStyle = {
   stroke: rgba(primitives["navy.alpha16"]),
   title: rgba(primitives["navy.900"]),
   secondary: rgba(primitives["navy.500"]),
-  frameStroke: rgba(primitives["navy.900"], 0x60),
+  divider: rgba(primitives["navy.900"], 0x14),
+  tile: rgba(primitives["violet.700"]),
+  tileText: rgba(primitives.white),
+  mutedTile: rgba(primitives["porcelain.100"]),
+  mutedTileText: rgba(primitives["navy.500"]),
+  frameFill: rgba(primitives["navy.900"], 0x08),
+  frameStroke: rgba(primitives["navy.900"], 0x30),
   focus: rgba(primitives["violet.700"]),
   pills: {
     neutral: {
@@ -150,19 +166,77 @@ export const appSceneStyle: AppSceneStyle = {
   },
 };
 
-/** Depths: frames under arrows (z 1), boxes over them, the expanded bundle (z 11) and focus on top. */
+/**
+ * Depths: frames under arrows (z 1), boxes over them, the expanded bundle (z 11) and focus on top. Boxes sit in bands
+ * within [BOX_Z, BOX_Z + BOX_BANDS), each box's parts above its card: a box over another is a band above it and hides
+ * the lower box's text and pills, while boxes that overlap nothing share a band, so their items draw in a few batches.
+ */
 const FRAME_Z = 0;
 const BOX_Z = 4;
+const BOX_BANDS = 6;
 const FOCUS_Z = 20;
-const PAD = 12;
-const PILL_H = 18;
-const PILL_ROW = 20;
-const PILLS_TOP = 52;
+
+/** Where a box draws: the depth of its card and the band its parts sit in above it. */
+export interface BoxDepth {
+  readonly z: number;
+  readonly band: number;
+}
+
+/** The depth of a box in band `layer` of `layers`, all of them under the expanded bundle. */
+export function boxDepth(layer: number, layers: number): BoxDepth {
+  const band = Math.min(1, BOX_BANDS / Math.max(1, layers));
+  return { z: BOX_Z + layer * band, band };
+}
+
+/**
+ * The band of each box, in drawing order: one above the highest band of the earlier boxes it overlaps, the lowest
+ * when it overlaps none. Later boxes therefore draw over earlier ones where they overlap, and nowhere else.
+ */
+export function boxLayers(boxes: readonly PlacedBox[]): number[] {
+  const layers: number[] = [];
+  for (const [i, b] of boxes.entries()) {
+    let layer = 0;
+    for (let j = 0; j < i; j++) {
+      const o = boxes[j];
+      if (
+        o !== undefined &&
+        b.x < o.x + BOX.width &&
+        o.x < b.x + BOX.width &&
+        b.y < o.y + BOX.height &&
+        o.y < b.y + BOX.height
+      ) {
+        layer = Math.max(layer, (layers[j] ?? 0) + 1);
+      }
+    }
+    layers.push(layer);
+  }
+  return layers;
+}
+
+/**
+ * The card's geometry in world units (STU-030), on the 224 × 112 box: a head with the plugin's solid mark (a tile with
+ * its initial), its name and a line of key and screens; a hairline; and a status row of pills.
+ */
+const CARD = {
+  radius: 12,
+  pad: 14,
+  tile: 30,
+  tileRadius: 9,
+  /** Where the name and the line under it start: after the tile and a gap. */
+  text: 14 + 30 + 10,
+  divider: 58,
+  pillsTop: 75,
+  pillHeight: 20,
+} as const;
+
 /** An upper bound of the advance of one character at 11 px; the worker lays the text out exactly. */
 const PILL_CHAR = 6.2;
+/** A pill's padding and its status dot: 8 before the dot, the 6 px dot, 6 after it, 8 after the label. */
+const PILL_CHROME = 28;
+const PILL_GAP = 6;
 
-/** Pill rows that fit in a box; the pill rows cannot hold beyond this. */
-const MAX_PILL_ROWS = 3;
+/** Pill rows that fit in a box's status row. */
+const MAX_PILL_ROWS = 1;
 
 interface PlacedPill extends Badge {
   readonly x: number;
@@ -170,13 +244,14 @@ interface PlacedPill extends Badge {
   readonly w: number;
 }
 
-const pillWidth = (label: string, inner: number): number => Math.min(inner, Math.ceil(16 + label.length * PILL_CHAR));
+const pillWidth = (label: string, inner: number): number =>
+  Math.min(inner, Math.ceil(PILL_CHROME + label.length * PILL_CHAR));
 
 /**
- * Badges wrapped into at most three rows of `inner` width. What does not fit is summed up in a final
- * "+N" pill; the accessible layer and the detail card still name every badge.
+ * Badges wrapped into at most `rows` rows of `inner` width. What does not fit is summed up in a final "+N" pill; the
+ * accessible layer and the detail card still name every badge.
  */
-export function layoutPills(badges: readonly Badge[], inner: number): PlacedPill[] {
+export function layoutPills(badges: readonly Badge[], inner: number, rows: number = MAX_PILL_ROWS): PlacedPill[] {
   const out: PlacedPill[] = [];
   let x = 0;
   let row = 0;
@@ -186,16 +261,16 @@ export function layoutPills(badges: readonly Badge[], inner: number): PlacedPill
       x = 0;
       row++;
     }
-    if (row >= MAX_PILL_ROWS) {
+    if (row >= rows) {
       break;
     }
     out.push({ ...badge, x, row, w });
-    x += w + 4;
+    x += w + PILL_GAP;
   }
   while (out.length < badges.length) {
     const more = `+${badges.length - out.length}`;
     const last = out.at(-1);
-    const at = last === undefined ? 0 : last.x + last.w + 4;
+    const at = last === undefined ? 0 : last.x + last.w + PILL_GAP;
     const w = pillWidth(more, inner);
     if (last === undefined || at + w <= inner) {
       out.push({ status: "neutral", label: more, x: at, row: last?.row ?? 0, w });
@@ -206,13 +281,78 @@ export function layoutPills(badges: readonly Badge[], inner: number): PlacedPill
   return out;
 }
 
+/** The initial on a box's tile: the first character of its title, in capitals. */
+export function initialOf(title: string): string {
+  const [first = ""] = [...title.trim()];
+  return first.toLocaleUpperCase();
+}
+
+/** One status pill of a box: a soft capsule with a solid dot in the status colour and its word. */
+function pillItems(
+  main: string,
+  i: number,
+  p: PlacedPill,
+  at: { readonly x: number; readonly y: number; readonly z: number; readonly band: number },
+  style: AppSceneStyle,
+): ItemSpec[] {
+  const pill = style.pills[p.status];
+  const { x, y, z, band } = at;
+  const h = CARD.pillHeight;
+  return [
+    {
+      kind: "rect",
+      id: `${main}::badge${i}`,
+      x,
+      y,
+      w: p.w,
+      h,
+      radius: h / 2,
+      fill: pill.fill,
+      stroke: { color: pill.stroke, width: 1 },
+      z: z + band / 4,
+    },
+    {
+      kind: "rect",
+      id: `${main}::badge${i}d`,
+      x: x + 8,
+      y: y + (h - 6) / 2,
+      w: 6,
+      h: 6,
+      radius: 3,
+      fill: pill.text,
+      z: z + band / 2,
+    },
+    {
+      kind: "text",
+      id: `${main}::badge${i}t`,
+      x: x + 20,
+      y: y + 3,
+      w: Math.max(0, p.w - 26),
+      text: p.label,
+      size: 11,
+      color: pill.text,
+      maxLines: 1,
+      z: z + band / 2,
+    },
+  ];
+}
+
 /**
- * The items of one box: rectangle, title, key and its badges as pills, wrapped within the box. A selected box has a
- * thicker outline in the focus colour, drawn with the box itself.
+ * The items of one box, a card resting on the canvas with a soft shadow (STU-030): its head (the solid mark with the
+ * plugin's initial, the name in bold on one line, and `subtitle` or the key under it), a hairline, and the badges as
+ * status pills on one row. A selected box has a thicker outline in the focus colour, drawn with the card itself.
  */
-export function boxItems(b: SceneBox, style: AppSceneStyle = appSceneStyle, selected = false): ItemSpec[] {
+export function boxItems(
+  b: SceneBox,
+  style: AppSceneStyle = appSceneStyle,
+  selected = false,
+  depth: BoxDepth = { z: BOX_Z, band: 1 },
+): ItemSpec[] {
+  const { z, band } = depth;
   const main = boxItem(b.id);
-  const inner = BOX.width - 2 * PAD;
+  const { pad } = CARD;
+  const inner = BOX.width - 2 * pad;
+  const muted = b.native || b.archived;
   const items: ItemSpec[] = [
     {
       kind: "rect",
@@ -222,63 +362,76 @@ export function boxItems(b: SceneBox, style: AppSceneStyle = appSceneStyle, sele
       y: b.y,
       w: BOX.width,
       h: BOX.height,
-      radius: 10,
+      radius: CARD.radius,
       fill: b.native ? style.nativeFill : b.archived ? style.archivedFill : style.fill,
       stroke: selected ? { color: style.focus, width: 2 } : { color: style.stroke, width: 1 },
-      z: BOX_Z,
+      shadow: true,
+      z,
+    },
+    {
+      kind: "rect",
+      id: `${main}::tile`,
+      x: b.x + pad,
+      y: b.y + pad,
+      w: CARD.tile,
+      h: CARD.tile,
+      radius: CARD.tileRadius,
+      fill: muted ? style.mutedTile : style.tile,
+      z: z + band / 4,
+    },
+    {
+      kind: "text",
+      id: `${main}::initial`,
+      x: b.x + pad,
+      y: b.y + pad + 5,
+      w: CARD.tile,
+      text: initialOf(b.title),
+      size: 14,
+      weight: "bold",
+      align: "center",
+      color: muted ? style.mutedTileText : style.tileText,
+      z: z + band / 2,
     },
     {
       kind: "text",
       id: `${main}::title`,
-      x: b.x + PAD,
-      y: b.y + 10,
-      w: inner,
+      x: b.x + CARD.text,
+      y: b.y + pad - 1,
+      w: BOX.width - CARD.text - pad,
       text: b.title,
       size: 14,
+      weight: "bold",
+      maxLines: 1,
       color: style.title,
-      z: BOX_Z + 1,
+      z: z + band / 4,
     },
     {
       kind: "text",
       id: `${main}::key`,
-      x: b.x + PAD,
-      y: b.y + 30,
-      w: inner,
-      text: b.key,
+      x: b.x + CARD.text,
+      y: b.y + pad + 18,
+      w: BOX.width - CARD.text - pad,
+      text: b.subtitle ?? b.key,
       size: 12,
+      maxLines: 1,
       color: style.secondary,
-      z: BOX_Z + 1,
+      z: z + band / 4,
+    },
+    {
+      kind: "rect",
+      id: `${main}::divider`,
+      x: b.x + 1,
+      y: b.y + CARD.divider,
+      w: BOX.width - 2,
+      h: 1,
+      radius: 0,
+      fill: style.divider,
+      z: z + band / 4,
     },
   ];
   for (const [i, p] of layoutPills(b.badges, inner).entries()) {
-    const pill = style.pills[p.status];
-    const x = b.x + PAD + p.x;
-    const y = b.y + PILLS_TOP + p.row * PILL_ROW;
-    items.push(
-      {
-        kind: "rect",
-        id: `${main}::badge${i}`,
-        x,
-        y,
-        w: p.w,
-        h: PILL_H,
-        radius: PILL_H / 2,
-        fill: pill.fill,
-        stroke: { color: pill.stroke, width: 1 },
-        z: BOX_Z + 1,
-      },
-      {
-        kind: "text",
-        id: `${main}::badge${i}t`,
-        x: x + 8,
-        y: y + 3,
-        w: p.w - 16,
-        text: p.label,
-        size: 11,
-        color: pill.text,
-        z: BOX_Z + 2,
-      },
-    );
+    const y = b.y + CARD.pillsTop + p.row * (CARD.pillHeight + 4);
+    items.push(...pillItems(main, i, p, { x: b.x + pad + p.x, y, z, band }, style));
   }
   return items;
 }
@@ -295,18 +448,21 @@ export function frameItems(f: Frame, style: AppSceneStyle = appSceneStyle): Item
       y: f.y,
       w: f.width,
       h: f.height,
-      radius: 8,
+      radius: 16,
+      fill: style.frameFill,
       stroke: { color: style.frameStroke, width: 1 },
       z: FRAME_Z,
     },
     {
       kind: "text",
       id: `${id}::label`,
-      x: f.x + 8,
-      y: f.y + 8,
-      w: Math.max(0, f.width - 16),
+      x: f.x + 12,
+      y: f.y + 10,
+      w: Math.max(0, f.width - 24),
       text: f.label,
       size: 12,
+      weight: "bold",
+      maxLines: 1,
       color: style.secondary,
       z: FRAME_Z + 1,
     },
@@ -322,7 +478,7 @@ export function focusItem(b: PlacedBox, style: AppSceneStyle = appSceneStyle): I
     y: b.y - 4,
     w: BOX.width + 8,
     h: BOX.height + 8,
-    radius: 10,
+    radius: CARD.radius + 4,
     stroke: { color: style.focus, width: 2 },
     z: FOCUS_Z,
   };

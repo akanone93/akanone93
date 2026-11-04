@@ -101,7 +101,7 @@ export {
 export * from "./protocol.ts";
 export { MAX_REGIONS, type RendererOptions, SceneRenderer } from "./renderer.ts";
 export { type Deletable, Resources } from "./resources.ts";
-export { boundsOf, moveSpec, Scene, type SceneItem } from "./scene.ts";
+export { boundsOf, moveSpec, Scene, type SceneItem, SOFT_SHADOW_MARGIN } from "./scene.ts";
 export { buildSceneModel } from "./scene-model.ts";
 export { frameId, layoutScreens, overflowId } from "./screens.ts";
 export { chooseRenderer, type GlProbe, isSoftwareGl } from "./select.ts";

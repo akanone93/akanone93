@@ -34,9 +34,10 @@
 import type { Canvas, CanvasKit, FontMgr, Image, Paint, Paragraph, PathBuilder, Surface } from "canvaskit-wasm";
 import { Batches, BatchLayer, color4f } from "./batch.ts";
 import { intersectInto, intersects, makeRect, type Rect, setRect, unionInto } from "./geometry.ts";
+import { gridLevels, gridPoints } from "./grid.ts";
 import { type Lod, lodForZoom, resolutionFor } from "./lod.ts";
 import { type Direction, orderJobs } from "./progressive.ts";
-import type { FrameSpec, FrameStats, ItemSpec, TextSpec } from "./protocol.ts";
+import type { FrameSpec, FrameStats, GridStyle, ItemSpec, RectSpec, TextSpec } from "./protocol.ts";
 import { Resources } from "./resources.ts";
 import { itemMeets, type Scene, type SceneItem } from "./scene.ts";
 import { type Tile, TileCache } from "./tiles.ts";
@@ -47,6 +48,17 @@ export interface RendererOptions {
   readonly tiles: boolean;
   readonly tileSize: number;
   readonly background: number;
+  /** The dot grid drawn on the background; none when absent. */
+  readonly grid?: GridStyle;
+  /** `full`: no level of detail, everything drawn in full at every zoom; adaptive when absent (M-12). */
+  readonly detail?: "adaptive" | "full";
+  /**
+   * The backend the surface draws with. On `webgl` a box's shadow is the soft, blurred shadow image and the grid's dots
+   * are round. Otherwise (the CPU raster path) a shadow is a batched contact shadow of two faint rounded rectangles and
+   * the dots are square: image draws and round points cost the CPU path too much for a whole-view redraw (an image
+   * shadow about 2 ms a box).
+   */
+  readonly backend?: "webgl" | "raster";
   readonly fontFamily: string;
   /** Families after `fontFamily` that glyphs missing from it fall back to, in order. */
   readonly fallbackFamilies?: readonly string[];
@@ -178,8 +190,26 @@ function addClipped(regions: readonly Rect[], count: number, a: Rect, b: Rect, m
   return count;
 }
 
+/** The contact shadow's two rims: spread and drop in world units, and which colour of `CONTACT_COLOURS`. */
+const CONTACT_SHADOW: readonly (readonly [number, number, 0 | 1])[] = [
+  [3, 2, 0],
+  [0.5, 1, 1],
+];
+/** Faint, cool greys: the wide rim, then the tight one. */
+const CONTACT_COLOURS: readonly [number, number] = [0x18181b0a, 0x18181b14];
+const CONTACT_KEYS: readonly [string, string] = ["contact-shadow-wide", "contact-shadow-tight"];
+
+/** Full detail at every zoom: text as text, curved links, shadows. */
+const FULL_DETAIL: Lod = lodForZoom(1);
+
 const SHADOW_SIZE = 64;
 const SHADOW_INSET = 16;
+/** The soft card shadow (RectSpec `shadow`): a larger image, so its wide blur is not clipped. */
+const SOFT_SIZE = 96;
+const SOFT_INSET = 28;
+const SOFT_RADIUS = 14;
+/** How far the soft shadow falls below its box, in world units: light from just above. */
+const SOFT_DROP = 2;
 
 interface CachedParagraph {
   readonly spec: TextSpec;
@@ -216,6 +246,8 @@ export class SceneRenderer {
   private readonly background: Float32Array;
   private readonly backgroundPaint: Paint;
   private readonly shadow: Image | null;
+  private readonly softShadow: Image | null;
+  private readonly gridPaint: Paint | null;
   private readonly items: SceneItem[] = [];
   private readonly texts: SceneItem[] = [];
   private readonly pictures: SceneItem[] = [];
@@ -225,6 +257,7 @@ export class SceneRenderer {
   private readonly regions: Rect[] = Array.from({ length: MAX_REGIONS }, () => makeRect(0, 0, 0, 0));
   private regionCount = 0;
   private readonly view = makeRect(0, 0, 0, 0);
+  private readonly gridRect = makeRect(0, 0, 0, 0);
   private readonly tileWorld = makeRect(0, 0, 0, 0);
   private readonly keep = makeRect(0, 0, 0, 0);
   private readonly merge = makeRect(0, 0, 0, 0);
@@ -233,6 +266,12 @@ export class SceneRenderer {
   private readonly dst = new Float32Array(4);
   private readonly irect = new Int32Array(4);
   private readonly dirty = new Int32Array(4);
+  private readonly softCenter = Int32Array.of(
+    SOFT_INSET + SOFT_RADIUS,
+    SOFT_INSET + SOFT_RADIUS,
+    SOFT_SIZE - SOFT_INSET - SOFT_RADIUS,
+    SOFT_SIZE - SOFT_INSET - SOFT_RADIUS,
+  );
   private readonly shadowCenter = Int32Array.of(
     SHADOW_INSET + 4,
     SHADOW_INSET + 4,
@@ -364,6 +403,8 @@ export class SceneRenderer {
     this.picture = this.resources.own(new ck.Paint());
     this.picture.setAntiAlias(true);
     this.shadow = this.makeShadow();
+    this.softShadow = this.makeSoftShadow();
+    this.gridPaint = this.makeGridPaint();
     this.surface = this.resources.own(surface);
     this.dpr = dpr;
     this.tileSurface = this.makeTileSurface();
@@ -436,6 +477,81 @@ export class SceneRenderer {
   }
 
   /**
+   * The soft shadow of a card resting on the canvas: a tight contact shadow under a wide, faint ambient one, both
+   * low in alpha, as one nine-patch image.
+   */
+  private makeSoftShadow(): Image | null {
+    const ck = this.ck;
+    const surface = ck.MakeSurface(SOFT_SIZE, SOFT_SIZE);
+    if (!surface) {
+      return null;
+    }
+    const canvas = surface.getCanvas();
+    const edge = SOFT_SIZE - SOFT_INSET;
+    const rrect = ck.RRectXY(ck.LTRBRect(SOFT_INSET, SOFT_INSET, edge, edge), SOFT_RADIUS, SOFT_RADIUS);
+    const paint = new ck.Paint();
+    paint.setAntiAlias(true);
+    for (const [sigma, alpha] of [
+      [9, 0.07],
+      [1.5, 0.05],
+    ] as const) {
+      const blur = ck.MaskFilter.MakeBlur(ck.BlurStyle.Normal, sigma, false);
+      paint.setColor(ck.Color4f(0, 0, 0, alpha));
+      paint.setMaskFilter(blur);
+      canvas.drawRRect(rrect, paint);
+      blur.delete();
+    }
+    const image = surface.makeImageSnapshot();
+    paint.delete();
+    surface.delete();
+    return this.resources.own(image);
+  }
+
+  /** The paint of the grid's dots: round points in the grid's colour; null without a grid. */
+  private makeGridPaint(): Paint | null {
+    const grid = this.options.grid;
+    if (grid === undefined) {
+      return null;
+    }
+    const paint = this.resources.own(new this.ck.Paint());
+    paint.setAntiAlias(true);
+    paint.setColor(color4f(this.ck, grid.color));
+    paint.setStyle(this.ck.PaintStyle.Stroke);
+    paint.setStrokeCap(this.options.backend === "webgl" ? this.ck.StrokeCap.Round : this.ck.StrokeCap.Square);
+    return paint;
+  }
+
+  /**
+   * The grid's dots over `rect` (world units) on a canvas scaled to the view's zoom, under every item: each level of
+   * `gridLevels` as one point list, the dots a fixed size in CSS pixels.
+   */
+  private drawGrid(canvas: Canvas, rect: Rect): void {
+    const grid = this.options.grid;
+    const paint = this.gridPaint;
+    const zoom = this.viewport.zoom;
+    if (grid === undefined || paint === null || !(zoom > 0)) {
+      return;
+    }
+    // A dot whose centre lies just outside `rect` still reaches into it: tiles drawn apart meet without a seam.
+    const reach = grid.radius / zoom;
+    const area = setRect(this.gridRect, rect.l - reach, rect.t - reach, rect.r + reach, rect.b + reach);
+    const [coarse, fine] = gridLevels(grid, zoom);
+    paint.setStrokeWidth((2 * grid.radius) / zoom);
+    for (const level of fine === undefined ? [coarse] : [coarse, fine]) {
+      const points =
+        level === undefined ? null : gridPoints(area, level.step, level === fine ? coarse?.step : undefined);
+      if (level === undefined || points === null || points.length === 0) {
+        continue;
+      }
+      const colour = color4f(this.ck, grid.color);
+      colour[3] = (colour[3] ?? 1) * level.alpha;
+      paint.setColor(colour);
+      canvas.drawPoints(this.ck.PointMode.Points, points, paint);
+      this.calls++;
+    }
+  }
+
+  /**
    * Draws one frame and returns its statistics: the base surface when
    * `drawBase`, and the live (dragged) items into `layer` when given — then
    * the base leaves them out (M-12).
@@ -447,7 +563,7 @@ export class SceneRenderer {
     this.patchPixels = 0;
     this.layered = layer !== null;
     this.drainScene();
-    this.lod = lodForZoom(this.viewport.zoom);
+    this.lod = this.options.detail === "full" ? FULL_DETAIL : lodForZoom(this.viewport.zoom);
     this.viewport.worldRect(this.view);
     let flushMs = 0;
     if (drawBase) {
@@ -653,7 +769,7 @@ export class SceneRenderer {
     canvas.save();
     canvas.scale(scale, scale);
     canvas.translate(-layer.x, -layer.y);
-    this.drawScene(canvas, this.view, false, live);
+    this.drawScene(canvas, this.view, false, live, false);
     canvas.restore();
     if (
       shown === null ||
@@ -785,7 +901,7 @@ export class SceneRenderer {
     this.drawRegions(canvas);
     const t2 = this.now();
     if (includeLive) {
-      this.drawScene(canvas, this.view, false, this.scene.liveItems(this.items));
+      this.drawScene(canvas, this.view, false, this.scene.liveItems(this.items), false);
       this.counters.liveItems = this.items.length;
     }
     const t3 = this.now();
@@ -853,7 +969,7 @@ export class SceneRenderer {
       Math.min(u.r, this.view.r),
       Math.min(u.b, this.view.b),
     );
-    this.drawScene(canvas, this.view, false, items);
+    this.drawScene(canvas, this.view, false, items, false);
     items.length = 0;
     return count;
   }
@@ -1074,13 +1190,38 @@ export class SceneRenderer {
     return out;
   }
 
-  private drawScene(canvas: Canvas, rect: Rect, includeLive: boolean, items?: readonly SceneItem[]): void {
+  /**
+   * Draws the items in `rect` (or `items`), over the grid when `ground`: every caller that cleared the background
+   * first draws the grid again; those drawing over the base (drops, live items, the interaction layer) do not.
+   */
+  private drawScene(
+    canvas: Canvas,
+    rect: Rect,
+    includeLive: boolean,
+    items?: readonly SceneItem[],
+    ground = true,
+  ): void {
+    if (ground) {
+      this.drawGrid(canvas, rect);
+    }
     const list = items ?? this.scene.query(rect, this.items, includeLive);
     this.texts.length = 0;
     this.pictures.length = 0;
+    let level = Number.NEGATIVE_INFINITY;
     for (const item of list) {
+      // Items of one depth are batched; a deeper item waits until everything below it is drawn, so a box over another
+      // hides the lower box's text and pills, and boxes hide the arrows under them.
+      if (item.spec.z > level) {
+        this.flushLevel(canvas);
+        level = item.spec.z;
+      }
       this.addItem(canvas, item);
     }
+    this.flushLevel(canvas);
+  }
+
+  /** Draws what one depth batched: its fills, strokes, links and bars, then its pictures, then its text. */
+  private flushLevel(canvas: Canvas): void {
     this.calls += this.batches.flush(canvas);
     for (const item of this.pictures) {
       this.drawPicture(canvas, item.spec);
@@ -1088,6 +1229,8 @@ export class SceneRenderer {
     for (const item of this.texts) {
       this.drawText(canvas, item.spec);
     }
+    this.texts.length = 0;
+    this.pictures.length = 0;
   }
 
   /** Decodes `bytes` and keeps the image under `key`; an existing key is left as it is. */
@@ -1118,7 +1261,7 @@ export class SceneRenderer {
     canvas.clear(this.background);
     canvas.scale(w / (rect.r - rect.l), w / (rect.r - rect.l));
     canvas.translate(-rect.l, -rect.t);
-    this.drawScene(canvas, rect, false);
+    this.drawScene(canvas, rect, false, undefined, false);
     surface.flush();
     const image = surface.makeImageSnapshot();
     const png = image.encodeToBytes();
@@ -1155,6 +1298,9 @@ export class SceneRenderer {
         this.addBox(item, BatchLayer.frameFill, BatchLayer.frameStroke);
         break;
       case "rect":
+        if (spec.shadow && this.lod.shadows) {
+          this.addShadow(canvas, spec);
+        }
         this.addBox(item, BatchLayer.rectFill, BatchLayer.rectStroke);
         if (spec.image !== undefined) {
           this.pictures.push(item);
@@ -1210,6 +1356,51 @@ export class SceneRenderer {
     this.calls++;
   }
 
+  /** A box's shadow: the soft shadow image on a GPU, a batched contact shadow on the CPU raster path. */
+  private addShadow(canvas: Canvas, spec: RectSpec): void {
+    if (this.options.backend === "webgl") {
+      this.drawSoftShadow(canvas, spec);
+    } else {
+      this.addContactShadow(spec);
+    }
+  }
+
+  /**
+   * A box's contact shadow on the CPU path: a faint rim just below and around it and a fainter, wider one, each a ring
+   * round the box (the box covers what it encloses, and blending it would cost most of the frame), batched with every
+   * other box's of the same depth, so a hundred boxes cost two draw calls.
+   */
+  private addContactShadow(spec: RectSpec): void {
+    const inner = [spec.x + 1, spec.y + 1, spec.w - 2, spec.h - 2, Math.max(0, spec.radius - 1)] as const;
+    for (const [spread, drop, colour] of CONTACT_SHADOW) {
+      this.batches.ring(
+        BatchLayer.shadow,
+        CONTACT_KEYS[colour],
+        CONTACT_COLOURS[colour],
+        [spec.x - spread, spec.y - spread + drop, spec.w + 2 * spread, spec.h + 2 * spread, spec.radius + spread],
+        inner,
+      );
+    }
+  }
+
+  private drawSoftShadow(canvas: Canvas, spec: RectSpec): void {
+    if (!this.softShadow) {
+      return;
+    }
+    const dst = this.toArray(
+      setRect(
+        this.tileWorld,
+        spec.x - SOFT_INSET,
+        spec.y - SOFT_INSET + SOFT_DROP,
+        spec.x + spec.w + SOFT_INSET,
+        spec.y + spec.h + SOFT_INSET + SOFT_DROP,
+      ),
+      this.dst,
+    );
+    canvas.drawImageNine(this.softShadow, this.softCenter, dst, this.ck.FilterMode.Linear);
+    this.calls++;
+  }
+
   private drawText(canvas: Canvas, spec: ItemSpec): void {
     if (spec.kind !== "text") {
       return;
@@ -1232,9 +1423,12 @@ export class SceneRenderer {
     }
     const ck = this.ck;
     const style = new ck.ParagraphStyle({
+      ...(spec.align === "center" ? { textAlign: ck.TextAlign.Center } : {}),
+      ...(spec.maxLines === undefined ? {} : { maxLines: spec.maxLines, ellipsis: "…" }),
       textStyle: {
         color: color4f(ck, spec.color),
         fontSize: spec.size,
+        ...(spec.weight === "bold" ? { fontStyle: { weight: ck.FontWeight.Bold } } : {}),
         fontFamilies: [this.options.fontFamily, ...(this.options.fallbackFamilies ?? [])],
       },
     });
@@ -1337,7 +1531,7 @@ export class SceneRenderer {
     }
     setRect(this.focus, focus.l, focus.t, focus.r, focus.b);
     this.drainScene();
-    this.lod = lodForZoom(this.viewport.zoom);
+    this.lod = this.options.detail === "full" ? FULL_DETAIL : lodForZoom(this.viewport.zoom);
     this.viewport.worldRect(this.view);
     if (this.tiles.setScale(this.viewport.zoom * this.dpr)) {
       this.shownTiles.clear();

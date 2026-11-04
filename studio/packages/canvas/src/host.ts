@@ -23,7 +23,7 @@ import {
   centredOrigin,
   type ElementTransform,
   type LayerBox,
-  overscanMargin,
+  presentMargin,
   transformCss,
   type ViewLike,
 } from "./compositor.ts";
@@ -134,6 +134,8 @@ export class CanvasHost {
   private readonly base: CanvasElementLike;
   private readonly layerElement: CanvasElementLike | null;
   private readonly tileSize: number;
+  /** The worker draws the view directly: the base element is the view and is never transformed. */
+  private readonly direct: boolean;
   private margin: number;
   private dpr: number;
   private origin: BaseOrigin;
@@ -204,7 +206,8 @@ export class CanvasHost {
     this.layerElement = layer;
     this.dpr = size.dpr;
     this.tileSize = options.tileSize;
-    this.margin = overscanMargin(options.tileSize, size.dpr);
+    this.direct = options.present === "direct";
+    this.margin = presentMargin(options.present, options.tileSize, size.dpr);
     this.origin = centredOrigin(this.view, this.margin, this.dpr);
     this.styleElements();
     this.layers.overlay?.resize(size.width, size.height, size.dpr);
@@ -247,8 +250,11 @@ export class CanvasHost {
     return this.view;
   }
 
-  /** The current transform of the base element. */
+  /** The current transform of the base element; none when the worker draws the view directly. */
   get transform(): ElementTransform {
+    if (this.direct) {
+      return { tx: 0, ty: 0, scale: 1 };
+    }
     const { x, y, zoom } = this.origin;
     return {
       tx: (x - this.view.x) * this.view.zoom,
@@ -562,7 +568,7 @@ export class CanvasHost {
   resize(width: number, height: number, dpr: number): void {
     this.view.width = width;
     this.view.height = height;
-    this.margin = overscanMargin(this.tileSize, dpr);
+    this.margin = presentMargin(this.direct ? "direct" : "compositor", this.tileSize, dpr);
     this.dpr = dpr;
     this.styleElements();
     this.layers.overlay?.resize(width, height, dpr);

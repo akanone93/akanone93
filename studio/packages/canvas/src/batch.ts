@@ -15,18 +15,20 @@ import type { Resources } from "./resources.ts";
 
 /** Draw order of the batch layers. */
 export const BatchLayer = {
-  frameFill: 0,
-  frameStroke: 1,
-  rectFill: 2,
-  rectStroke: 3,
-  link: 4,
-  bar: 5,
+  /** Contact shadows of boxes (RectSpec `shadow` on the CPU path), under every fill of their depth. */
+  shadow: 0,
+  frameFill: 1,
+  frameStroke: 2,
+  rectFill: 3,
+  rectStroke: 4,
+  link: 5,
+  bar: 6,
 } as const;
 
 /** A batch layer. */
 export type BatchLayer = (typeof BatchLayer)[keyof typeof BatchLayer];
 
-const LAYER_COUNT = 6;
+const LAYER_COUNT = 7;
 
 /** `0xRRGGBBAA` as a CanvasKit colour. */
 export function color4f(ck: CanvasKit, rgba: ColorRgba): Float32Array {
@@ -104,6 +106,32 @@ export class Batches {
     r[3] = y + h;
     r.fill(radius, 4);
     builder.addRRect(r);
+  }
+
+  /**
+   * Adds a rounded ring: the outer rounded rectangle less the inner one, wound the other way so the non-zero rule
+   * leaves it unfilled. Only the ring's pixels are drawn, not the area it encloses.
+   */
+  ring(
+    layer: BatchLayer,
+    key: string,
+    color: ColorRgba,
+    outer: readonly [number, number, number, number, number],
+    inner: readonly [number, number, number, number, number],
+  ): void {
+    const { builder } = this.entry(layer, key, color, 0);
+    for (const [[x, y, w, h, radius], ccw] of [
+      [outer, false],
+      [inner, true],
+    ] as const) {
+      const r = this.rrect;
+      r[0] = x;
+      r[1] = y;
+      r[2] = x + w;
+      r[3] = y + h;
+      r.fill(radius, 4);
+      builder.addRRect(r, ccw);
+    }
   }
 
   /** Adds a link to its stroke style's batch; `straight` draws a segment (LOD). */

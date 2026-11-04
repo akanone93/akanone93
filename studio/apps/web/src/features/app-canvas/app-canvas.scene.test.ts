@@ -11,6 +11,7 @@ import {
   deriveAppBundles,
   type ItemSpec,
   Scene,
+  SOFT_SHADOW_MARGIN,
   Viewport,
 } from "@plux/canvas";
 import type { LoadedDoc } from "../safety/index.ts";
@@ -19,8 +20,10 @@ import { BOX } from "./app-canvas.model.ts";
 import {
   appGraph,
   badgesOf,
+  boxDepth,
   boxItem,
   boxItems,
+  boxLayers,
   boxOfHits,
   FOCUS_ITEM,
   focusItem,
@@ -64,24 +67,31 @@ function model(items: readonly ItemSpec[]) {
 }
 
 describe("C1 scene items [STU-030]", () => {
-  test("a box is a labelled rectangle with title, key and every badge as a pill inside it", () => {
+  test("a box is a labelled card with a soft shadow, its mark, title, key and every badge as a pill inside it", () => {
     const b = box("loans", 100, 40, summary({}));
     const nodes = model(boxItems(b)).nodes;
     const main = nodes.find((n) => n.id === boxItem("loans"));
     expect(main).toMatchObject({
       kind: "rect",
       label: "loans",
-      bounds: { x: 99.5, y: 39.5, w: BOX.width + 1, h: BOX.height + 1 },
+      // The card's bounds take in its shadow: a 1-unit stroke and the shadow's reach on every side.
+      bounds: {
+        x: 99.5 - SOFT_SHADOW_MARGIN,
+        y: 39.5 - SOFT_SHADOW_MARGIN,
+        w: BOX.width + 1 + 2 * SOFT_SHADOW_MARGIN,
+        h: BOX.height + 1 + 2 * SOFT_SHADOW_MARGIN,
+      },
     });
     const texts = nodes.filter((n) => n.kind === "text").map((n) => n.label);
-    // Title and key, then the pills; what does not fit in three rows is counted in a "+N" pill.
-    const pills = texts.filter((t) => t !== "loans");
+    // Title and key, the initial on its tile, then the pills; what does not fit in the status row is counted in a "+N" pill.
+    expect(texts.slice(0, 3)).toEqual(["loans", "loans", "L"]);
+    const pills = texts.slice(3);
     const more = pills.find((t) => t.startsWith("+"));
     const hidden = more === undefined ? 0 : Number(more.slice(1));
     expect(pills.length - (more === undefined ? 0 : 1) + hidden).toBe(b.badges.length);
-    expect(pills.slice(0, 2)).toEqual([m.entryBadge, m.lockedBy("Ada")]);
-    for (const n of nodes) {
-      // Within the box, its 1-unit stroke included.
+    expect(pills[0]).toBe(m.entryBadge);
+    for (const n of nodes.filter((x) => x.id !== boxItem("loans"))) {
+      // Every part within the box, its 1-unit stroke included.
       expect(n.bounds.x).toBeGreaterThanOrEqual(99.5);
       expect(n.bounds.x + n.bounds.w).toBeLessThanOrEqual(100.5 + BOX.width);
       expect(n.bounds.y + n.bounds.h).toBeLessThanOrEqual(40.5 + BOX.height);
@@ -117,8 +127,30 @@ const docs: LoadedDoc[] = [
   page("cards", "terms", [nav("home")]),
 ];
 
+describe("box depth [STU-032]", () => {
+  test("each box draws in its own band, later boxes over earlier ones, all under the expanded bundle", () => {
+    const a = boxItems(box("a", 0, 0), undefined, false, boxDepth(0, 3));
+    const b = boxItems(box("b", 50, 50), undefined, true, boxDepth(2, 3));
+    const top = (items: readonly ItemSpec[]) => Math.max(...items.map((i) => i.z));
+    const bottom = (items: readonly ItemSpec[]) => Math.min(...items.map((i) => i.z));
+    expect(bottom(b)).toBeGreaterThan(top(a));
+    expect(top(b)).toBeLessThan(11);
+    expect(top(boxItems(box("z", 0, 0), undefined, false, boxDepth(99, 100)))).toBeLessThan(11);
+  });
+});
+
+describe("box bands [STU-032] [STU-120]", () => {
+  test("boxes that overlap nothing share the lowest band; a later box over others goes above them", () => {
+    const apart = [box("a", 0, 0), box("b", 300, 0), box("c", 600, 0)];
+    expect(boxLayers(apart)).toEqual([0, 0, 0]);
+    // c is dragged onto a and b, which overlap each other too.
+    const piled = [box("a", 0, 0), box("b", 100, 50), box("c", 50, 20)];
+    expect(boxLayers(piled)).toEqual([0, 1, 2]);
+  });
+});
+
 describe("badge pills [STU-030]", () => {
-  test("short badges share rows; too many end in a +N pill within three rows", () => {
+  test("short badges share a row; too many end in a +N pill within the rows asked for", () => {
     const few = layoutPills(
       [
         { status: "neutral", label: "Entry" },
@@ -135,8 +167,15 @@ describe("badge pills [STU-030]", () => {
       200,
     );
     expect(many.at(-1)?.label).toBe(`+${8 - (many.length - 1)}`);
-    expect(Math.max(...many.map((p) => p.row))).toBeLessThan(3);
+    expect(Math.max(...many.map((p) => p.row))).toBe(0);
     expect(many.every((p) => p.x + p.w <= 200)).toBe(true);
+    const three = layoutPills(
+      Array.from({ length: 8 }, (_, i) => ({ status: "warning" as const, label: `Long badge number ${i}` })),
+      200,
+      3,
+    );
+    expect(Math.max(...three.map((p) => p.row))).toBe(2);
+    expect(three.at(-1)?.label.startsWith("+")).toBe(true);
   });
 });
 

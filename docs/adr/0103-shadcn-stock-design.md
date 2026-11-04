@@ -60,7 +60,18 @@ Chosen option: **shadcn/ui as it ships**.
   (the header, menus, popovers, selects, hover cards, dialogs, sheets and the canvas's panels) is
   frosted glass: a translucent fill, a 28-pixel blur with raised saturation, a hairline edge and a
   light inner highlight. Every text pair stays at WCAG AA, checked by `theme-css.test.ts`. The app
-  canvas reads its scene colours from the same tokens, so it follows light, dark and contrast.
+  canvas reads its scene colours from the same tokens, so it follows light, dark and contrast
+  (amended by the maintainer on 2026-11-02, who found the app canvas "not a canvas at all"): the
+  canvas is a step off the page with a quiet dot grid drawn by Plux Canvas (a dot every 24 world
+  units, the dots one CSS pixel in radius at every zoom, the next finer level fading in as the
+  view zooms so the grid never jumps); a plugin box is a card resting on it with a soft, low
+  shadow (a faint contact ring where the canvas draws without a GPU), the plugin's solid mark (a
+  primary tile with its initial), its name in bold on one line, its key and number of screens, a
+  hairline, and its status pills each with a solid dot; a box over another hides it; text stays
+  text at every zoom. The canvas's glass panels are
+  lighter than the page's: a 64 % fill, a 20-pixel blur and a soft, wide, faint shadow in place
+  of the third elevation; the contrast theme, forced colours and reduced transparency make them
+  solid.
   Earlier text: shadcn's `mist` base colour with its `indigo` theme (amended by the maintainer on
   2026-10-31, who found the stock `neutral` light theme flat: "a little bit of colour and contrasted
   whitish colours"). Studio tints the light page a cool off-white so white cards stand off it, gives

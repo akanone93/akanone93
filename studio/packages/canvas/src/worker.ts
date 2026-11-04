@@ -28,7 +28,7 @@ import {
   type LayerBox,
   layerBox,
   needsRender,
-  overscanMargin,
+  presentMargin,
 } from "./compositor.ts";
 import { intersectInto, makeRect, unionInto } from "./geometry.ts";
 import { BaseJobQueue } from "./progressive.ts";
@@ -135,6 +135,15 @@ interface Running {
 type InitMessage = Extract<HostMessage, { type: "init" }>;
 type InteractionMessage = Extract<HostMessage, { type: "interaction" }>;
 
+/**
+ * The device pixels per CSS pixel the canvas draws at: the screen's, except for a directly presented view on the CPU
+ * raster path, which draws at one. A whole-view redraw there costs in proportion to its pixels (a 2x screen four
+ * times as many) and would not keep up with a gesture; the browser scales the canvas up instead.
+ */
+export function drawRatio(present: CanvasOptions["present"], kind: "webgl" | "raster", dpr: number): number {
+  return present === "direct" && kind === "raster" ? Math.min(1, dpr) : dpr;
+}
+
 function sizeCanvas(canvas: OffscreenCanvasLike, width: number, height: number, dpr: number): void {
   canvas.width = Math.max(1, Math.round(width * dpr));
   canvas.height = Math.max(1, Math.round(height * dpr));
@@ -200,14 +209,26 @@ export class CanvasWorkerCore {
     try {
       const ck = await this.deps.loadCanvasKit();
       const { canvas, options } = message;
-      const margin = overscanMargin(options.tileSize, message.dpr);
+      const margin = presentMargin(options.present, options.tileSize, message.dpr);
       const size = baseSize(message.width, message.height, margin);
       sizeCanvas(canvas, size.width, size.height, message.dpr);
-      const { surface, info } = this.start(ck, canvas, options);
+      const started = this.start(ck, canvas, options);
+      const { info } = started;
+      let { surface } = started;
+      const dpr = drawRatio(options.present, info.kind, message.dpr);
+      if (dpr !== message.dpr) {
+        surface.delete();
+        sizeCanvas(canvas, size.width, size.height, dpr);
+        const resized = this.deps.makeSurface(ck, canvas, info.kind);
+        if (!resized) {
+          throw new Error("no CanvasKit surface for the canvas");
+        }
+        surface = resized;
+      }
       const scene = new Scene();
       const viewport = new Viewport(message.width, message.height);
       const render = new Viewport(size.width, size.height);
-      const renderer = this.makeRenderer(ck, scene, render, surface, message.dpr, info, options);
+      const renderer = this.makeRenderer(ck, scene, render, surface, dpr, info, options);
       const running: Running = {
         ck,
         canvas,
@@ -222,8 +243,8 @@ export class CanvasWorkerCore {
         lost: false,
         layerCanvas: message.layer ?? null,
         margin,
-        dpr: message.dpr,
-        origin: centredOrigin(viewport, margin, message.dpr),
+        dpr,
+        origin: centredOrigin(viewport, margin, dpr),
         baseDirty: true,
         gesture: null,
         dragging: false,
@@ -267,8 +288,11 @@ export class CanvasWorkerCore {
         tiles: info.tiles,
         tileSize: options.tileSize,
         background: options.background,
+        ...(options.grid === undefined ? {} : { grid: options.grid }),
         fontFamily: options.fontFamily,
         fallbackFamilies: fallbackFamilies(options),
+        ...(options.detail === undefined ? {} : { detail: options.detail }),
+        backend: info.kind,
         measureFrames: options.measureFrames,
       },
       () => this.deps.now(),
@@ -348,7 +372,8 @@ export class CanvasWorkerCore {
       glRenderer: probe.renderer,
       software: probe.software,
       majorPerformanceCaveat: probe.majorPerformanceCaveat,
-      tiles: options.tiles ?? true,
+      // A view drawn directly is drawn whole: tiles would fill it in over later frames.
+      tiles: options.present === "direct" ? false : (options.tiles ?? true),
     };
     return { surface, info };
   }
@@ -458,6 +483,11 @@ export class CanvasWorkerCore {
    * gesture nears its edge or the view settles off-centre.
    */
   private place(running: Running): void {
+    if (running.options.present === "direct") {
+      // The whole view is drawn on the next animation frame, at this view; the host does not move the element.
+      this.recentre(running);
+      return;
+    }
     const zooming = running.gesture === "zoom";
     const gesturing = running.gesture !== null;
     if (needsRender(running.viewport, running.origin, running.margin, zooming)) {
@@ -536,10 +566,11 @@ export class CanvasWorkerCore {
     }
   }
 
-  private resize(running: Running, width: number, height: number, dpr: number): void {
+  private resize(running: Running, width: number, height: number, screenDpr: number): void {
+    const dpr = drawRatio(running.options.present, running.info.kind, screenDpr);
     running.viewport.width = width;
     running.viewport.height = height;
-    running.margin = overscanMargin(running.renderer.tileCache.tileSize, dpr);
+    running.margin = presentMargin(running.options.present, running.renderer.tileCache.tileSize, dpr);
     running.dpr = dpr;
     const size = baseSize(width, height, running.margin);
     running.render.width = size.width;

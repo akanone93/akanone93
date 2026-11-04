@@ -14,6 +14,7 @@ import {
   select,
   snap,
 } from "./app-canvas.model.ts";
+import { GestureTracker, guideLines, WHEEL_REST_MS } from "./use-canvas-gestures.ts";
 
 describe("app canvas model [STU-030] [STU-032]", () => {
   test("auto layout ranks linked plugins left to right and is deterministic", () => {
@@ -73,18 +74,22 @@ describe("app canvas model [STU-030] [STU-032]", () => {
     expect(fitViewport([], { width: 1000, height: 600 })).toEqual({ x: 0, y: 0, z: 1 });
   });
 
-  test("the canvas document round-trips and is written in a stable order", () => {
+  test("the canvas document round-trips, is written in a stable order and holds only document ids", () => {
+    const a = "01a0f752-7d75-72a3-9a43-472f6fbc3b6a";
+    const b = "01a0f752-7d75-72a3-9a43-472f6fbc3b6b";
     const saved = readSavedCanvas(
       canvasDocument("id", {
         positions: new Map([
-          ["b", { x: 1.4, y: 2 }],
-          ["a", { x: 3, y: 4 }],
+          [b, { x: 1.4, y: 2 }],
+          ["native:camera", { x: 9, y: 9 }],
+          [a, { x: 3, y: 4 }],
         ]),
         frames: [{ id: "f", label: "Payments", x: 0, y: 0, width: 300, height: 200 }],
       }),
     );
-    expect([...saved.positions.keys()]).toEqual(["a", "b"]);
-    expect(saved.positions.get("b")).toEqual({ x: 1, y: 2 });
+    // A native box has no document id, which the canvas schema refuses: it is left out, not the whole save.
+    expect([...saved.positions.keys()]).toEqual([a, b]);
+    expect(saved.positions.get(b)).toEqual({ x: 1, y: 2 });
     expect(saved.frames[0]?.label).toBe("Payments");
     expect(readSavedCanvas("nonsense").positions.size).toBe(0);
   });
@@ -93,5 +98,44 @@ describe("app canvas model [STU-030] [STU-032]", () => {
     expect(pluginKeyFrom("Loan Products!", new Set())).toBe("loan-products");
     expect(pluginKeyFrom("Loan Products", new Set(["loan-products"]))).toBe("loan-products-2");
     expect(pluginKeyFrom("123", new Set())).toBe("plugin");
+  });
+});
+
+describe("snap guides [STU-032]", () => {
+  test("a guide runs from the dragged box to the boxes it aligns with, a little past both", () => {
+    const moved = { x: 0, y: 300 };
+    const lines = guideLines(
+      [
+        { axis: "x", at: 0 },
+        { axis: "y", at: 300 + BOX.height },
+      ],
+      moved,
+      [
+        { x: 0, y: 0 },
+        { x: 500, y: 300 },
+        { x: 900, y: 900 },
+      ],
+    );
+    expect(lines).toEqual([
+      { axis: "x", at: 0, from: -12, to: 300 + BOX.height + 12 },
+      { axis: "y", at: 300 + BOX.height, from: -12, to: 500 + BOX.width + 12 },
+    ]);
+  });
+});
+
+describe("view gestures reach the worker (M-12) [STU-032]", () => {
+  test("a burst of wheel steps is one gesture, ended once the wheel rests; a new kind ends the old one", async () => {
+    const calls: string[] = [];
+    const surface = { gesture: (kind: string, active: boolean) => calls.push(`${kind}:${active}`) };
+    const tracker = new GestureTracker();
+    const target = surface as unknown as Parameters<GestureTracker["wheel"]>[0];
+    tracker.wheel(target, "zoom");
+    tracker.wheel(target, "zoom");
+    tracker.wheel(target, "zoom");
+    expect(calls).toEqual(["zoom:true"]);
+    tracker.wheel(target, "pan");
+    expect(calls).toEqual(["zoom:true", "zoom:false", "pan:true"]);
+    await new Promise((resolve) => setTimeout(resolve, WHEEL_REST_MS + 40));
+    expect(calls).toEqual(["zoom:true", "zoom:false", "pan:true", "pan:false"]);
   });
 });

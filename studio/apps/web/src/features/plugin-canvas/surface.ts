@@ -3,9 +3,12 @@
 
 import {
   CanvasHost,
+  type CanvasOptions,
   type FontRequest,
   type FontSource,
+  type GridStyle,
   type Guides,
+  type InteractionKind,
   type SceneOp,
   type ScreenDocument,
   type ScreenHeight,
@@ -52,6 +55,11 @@ export interface CanvasSurface {
   setPaused?(paused: boolean): void;
   /** Follows a new size of the canvas element, in CSS pixels. */
   resize?(width: number, height: number, dpr: number): void;
+  /**
+   * Starts (`true`) or ends (`false`) a pan or zoom gesture. While one runs the worker keeps the rendered base and the
+   * host scales and moves it, so a burst of wheel steps does not re-render the scene at every step (M-12).
+   */
+  gesture?(kind: Exclude<InteractionKind, "drag">, active: boolean): void;
   readonly viewport: { readonly x: number; readonly y: number; readonly zoom: number };
   dispose(): void;
 }
@@ -62,6 +70,11 @@ export interface SurfaceSize {
   readonly dpr: number;
   /** The colour under the scene as 0xRRGGBBAA; the plugin canvas's porcelain when absent. */
   readonly background?: number;
+  /** The dot grid drawn on the background; none when absent. */
+  readonly grid?: GridStyle;
+  /** How the view reaches the screen and how much detail low zoom keeps (`CanvasOptions`); the defaults when absent. */
+  readonly present?: CanvasOptions["present"];
+  readonly detail?: CanvasOptions["detail"];
   /** The host app's font files (STU-006), read before the worker starts; absent when the page has none. */
   readonly hostFonts?: () => Promise<readonly FontSource[]>;
   /** The app's own font assets by their declared family (ADR-0032), read before the worker starts; absent when the page has none. */
@@ -129,6 +142,9 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
         renderer: "auto",
         tileSize: 512,
         background: size.background ?? 0xf2f4f9ff,
+        ...(size.grid === undefined ? {} : { grid: size.grid }),
+        ...(size.present === undefined ? {} : { present: size.present }),
+        ...(size.detail === undefined ? {} : { detail: size.detail }),
         fonts: [],
         fontFamily: "Noto Sans",
         measureFrames: false,
@@ -174,6 +190,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     resize: (width, height, dpr) => run((h) => h.resize(width, height, dpr)),
     pan: (dx, dy) => run((h) => h.pan(dx, dy)),
     zoomAbout: (factor, x, y) => run((h) => h.zoomAbout(factor, x, y)),
+    gesture: (kind, active) => run((h) => (active ? h.startInteraction(kind) : h.endInteraction(kind))),
     hitTest: (x, y) => host?.hitTest(x, y) ?? [],
     hitTestRect: (rect, mode) => host?.hitTestRect(rect, mode) ?? [],
     boundsOf: (id) => host?.boundsOf(id),

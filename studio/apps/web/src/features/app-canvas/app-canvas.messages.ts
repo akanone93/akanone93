@@ -155,6 +155,13 @@ export function appCanvasMessages(i18n: I18n) {
         comment: "Count of a plugin's screens.",
         values: { n },
       }),
+    boxSubtitle: (key: string, n: number) =>
+      i18n._({
+        id: "appCanvas.boxSubtitle",
+        message: "{key} · {n, plural, one {# screen} other {# screens}}",
+        comment: "The line under a plugin's name on its box: the plugin's key, then its number of screens.",
+        values: { key, n },
+      }),
     versions: (n: number) =>
       i18n._({
         id: "appCanvas.versions",

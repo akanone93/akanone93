@@ -162,7 +162,10 @@ function surfaceOn(ck: CanvasKit, canvas: OffscreenCanvasLike, kind: "webgl" | "
     // Skia antialiases itself; MSAA on the default framebuffer would only add a resolve pass.
     antialias: 0,
     failIfMajorPerformanceCaveat: 0,
-    preserveDrawingBuffer: 0,
+    // The renderer draws partially over the base it drew before: one tile per progressive job, only the damaged
+    // rectangles after an edit. Without a preserved buffer the browser clears the canvas after presenting each frame,
+    // so every partial draw showed alone on a blank canvas (boxes vanished on zoom and drag; lone tiles showed).
+    preserveDrawingBuffer: 1,
   });
 }
 

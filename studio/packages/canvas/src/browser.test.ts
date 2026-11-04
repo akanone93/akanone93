@@ -64,3 +64,19 @@ describe("[STU-120] software GL detection (M-12)", () => {
     expect(probe(noOffscreen).available).toBe(false);
   });
 });
+
+describe("[STU-120] the WebGL base surface keeps its pixels between frames (M-12)", () => {
+  test("the drawing buffer is preserved, as progressive tiles and damage redraws draw over the last frame", () => {
+    let attributes: Record<string, number> | undefined;
+    const ck = {
+      ColorSpace: { SRGB: "srgb" },
+      MakeWebGLCanvasSurface: (_canvas: unknown, _space: unknown, given: Record<string, number>) => {
+        attributes = given;
+        return null;
+      },
+    } as unknown as CanvasKit;
+    const deps = browserWorkerDeps(scope("ANGLE (NVIDIA, NVIDIA GeForce RTX 3060)"), () => Promise.resolve(ck));
+    deps.makeSurface(ck, { width: 10, height: 10 }, "webgl");
+    expect(attributes?.["preserveDrawingBuffer"]).toBe(1);
+  });
+});

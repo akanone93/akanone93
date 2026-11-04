@@ -149,6 +149,24 @@ describe("[SRV-030] [STU-004] autosave pipeline", () => {
     expect(server.state.content).toEqual({ kind: "page", props: { padding: 12, title: "Login" } });
   });
 
+  test("a copy older than the one held never replaces it; a newer one does", async () => {
+    const { clock, server, session, set } = setup();
+    const before = server.doc();
+    set("padding", 10);
+    clock.advance(debounceMs);
+    await settle();
+    expect(session.store.getState().docs[path]).toMatchObject({ revision: 2n, status: "saved" });
+    // A document list fetched before the save landed, answered after it.
+    session.open(before);
+    expect(session.store.getState().docs[path]?.content).toEqual({
+      kind: "page",
+      props: { padding: 10, title: "Login" },
+    });
+    server.serverEdit({ kind: "page", props: { padding: 4, title: "Login" } });
+    session.open(server.doc());
+    expect(session.store.getState().docs[path]).toMatchObject({ revision: 3n, content: { props: { padding: 4 } } });
+  });
+
   test("one save in flight; edits meanwhile coalesce and go with the confirmed revision", async () => {
     const { clock, server, session, confirmed, firstEdits, set } = setup();
     server.state.hold = true;

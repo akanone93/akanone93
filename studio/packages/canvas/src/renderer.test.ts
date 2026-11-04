@@ -84,6 +84,16 @@ describe("[STU-120] level of detail in the renderer (M-12)", () => {
     renderer.dispose();
   });
 
+  test("with full detail, text stays text and shadows stay at every zoom, as in design tools", () => {
+    const { scene, viewport, renderer } = setup({ detail: "full" });
+    scene.apply(Array.from({ length: 5 }, (_, i) => ({ op: "add" as const, item: text(`t${i}`, 10, i * 30) })));
+    viewport.apply({ op: "set", x: 0, y: 0, zoom: 0.12 });
+    expect(renderer.frame().drawCalls).toBe(1 + 5);
+    scene.apply([{ op: "add", item: { ...screen, stroke: { color: 0xddddddff, width: 1 } } }]);
+    expect(renderer.frame().drawCalls).toBe(1 + 1 + 2 + 5);
+    renderer.dispose();
+  });
+
   test("frame shadows are pre-rendered nine-patch images, dropped when small", () => {
     const { scene, viewport, renderer } = setup();
     scene.apply([{ op: "add", item: { ...screen, stroke: { color: 0xddddddff, width: 1 } } }]);

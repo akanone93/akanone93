@@ -25,8 +25,11 @@ Canvas, and you can drive both from the keyboard.
 ## Arrange the plugins of an app
 
 1. Open the app: its card, or its detail card, on the organisation home. The **App canvas** fills the
-   window, with a box per plugin and arrows for the links between them. Panels float over it as
-   frosted glass, so the plugins stay in view beneath them:
+   window: a dotted surface with a card per plugin and arrows for the links between them. A card
+   shows the plugin's initial on a coloured tile, its name, its key and number of screens, and its
+   status (for example **Valid**, **2 errors** or **Unpublished changes**); a **+N** pill counts the
+   rest, which the detail panel lists. Panels float over the canvas as frosted glass, so the
+   plugins stay in view beneath them:
    - top left, the way back to the organisation and the app's name and number of plugins;
    - top centre, the tools (**Select** and **Hand**), **Frame selection**, **Arrange**, **Trash** and
      **New plugin**;
@@ -46,8 +49,10 @@ Canvas, and you can drive both from the keyboard.
    a plugin to add its actions: **Open plugin**, **Plugin settings**, **Duplicate plugin**, **Make
    entry plugin**, **Move to…**, **Archive plugin** (or **Restore plugin**) and **Delete plugin**.
 4. Choose **New plugin**, give it a name and a key, and save.
-5. Drag a plugin to move it, or use **Move to…** with X and Y positions; drag on the background to
-   select every plugin the rectangle meets. Frame a group with **Frame selection**, then rename or
+5. Drag a plugin to move it, or use **Move to…** with X and Y positions. Near another plugin's edge or
+   centre it snaps into line, and a guide shows what it lines up with; a plugin you drag stays on
+   top of the ones it passes over. Drag on the background to select every plugin the rectangle
+   meets. Frame a group with **Frame selection**, then rename or
    resize the frame from the **Plugins** panel. **Arrange** tidies the layout.
 6. **Plugin settings** changes the description, tags and owning team.
 7. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.

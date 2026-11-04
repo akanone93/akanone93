@@ -7,7 +7,48 @@
  */
 
 .app-canvas {
+  /*
+   * The canvas's own glass: more of the scene shows through than on the page's popovers, and the panels rest on it
+   * with a hairline, a light top edge and a soft, wide, faint shadow rather than the page's third elevation.
+   */
+  --canvas-glass-fill: color-mix(in oklch, var(--popover) 64%, transparent);
+  --canvas-glass-edge: color-mix(in oklch, var(--foreground) 8%, transparent);
+  --canvas-glass-highlight: oklch(1 0 0 / 70%);
+  --canvas-glass-shadow:
+    0 1px 1px oklch(0.2 0.01 286 / 3%), 0 4px 12px -2px oklch(0.2 0.01 286 / 5%),
+    0 16px 40px -12px oklch(0.2 0.01 286 / 8%);
+  --canvas-glass-blur: blur(20px) saturate(1.6);
+
   background-color: var(--background);
+}
+
+[data-theme="dark"] .app-canvas {
+  --canvas-glass-fill: color-mix(in oklch, var(--popover) 60%, transparent);
+  --canvas-glass-edge: oklch(1 0 0 / 9%);
+  --canvas-glass-highlight: oklch(1 0 0 / 6%);
+  --canvas-glass-shadow:
+    0 1px 1px oklch(0 0 0 / 20%), 0 4px 12px -2px oklch(0 0 0 / 22%), 0 16px 40px -12px oklch(0 0 0 / 35%);
+}
+
+/* The contrast theme, forced colours and reduced transparency: solid panels without blur, as on the page. */
+[data-theme="contrast"] .app-canvas {
+  --canvas-glass-fill: var(--popover);
+  --canvas-glass-edge: var(--border);
+  --canvas-glass-highlight: transparent;
+  --canvas-glass-blur: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app-canvas {
+    --canvas-glass-fill: var(--popover);
+    --canvas-glass-blur: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .app-canvas {
+    --canvas-glass-blur: none;
+  }
 }
 
 /* The chrome: a top row, the side panels between, a bottom row. Only the panels take the pointer. */
@@ -19,6 +60,15 @@
 .canvas-panel {
   pointer-events: auto;
   border-radius: var(--radius-xl);
+}
+
+.canvas-panel.glass {
+  background-color: var(--canvas-glass-fill);
+  backdrop-filter: var(--canvas-glass-blur);
+  box-shadow:
+    0 0 0 1px var(--canvas-glass-edge),
+    inset 0 1px 0 0 var(--canvas-glass-highlight),
+    var(--canvas-glass-shadow);
 }
 
 /* The side panels stop short of the bottom row and scroll inside. */
@@ -117,4 +167,22 @@
   border-radius: 2px;
   background-color: color-mix(in oklch, var(--primary) 10%, transparent);
   pointer-events: none;
+}
+
+/* A snap guide (STU-032): a hairline in the primary along the shared edge or centre, placed like the marquee. */
+.canvas-guide {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: calc(var(--w) * 1px);
+  block-size: calc(var(--h) * 1px);
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  pointer-events: none;
+}
+
+.canvas-guide[data-axis="x"] {
+  border-inline-start: 1px solid var(--primary);
+}
+
+.canvas-guide[data-axis="y"] {
+  border-block-start: 1px solid var(--primary);
 }

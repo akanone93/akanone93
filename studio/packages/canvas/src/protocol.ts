@@ -61,6 +61,8 @@ export interface RectSpec {
   readonly stroke?: StrokeStyle;
   /** Key of an image set with `images`: drawn over the box, clipped to its corner radius (STU-052). */
   readonly image?: string;
+  /** A soft, low elevation shadow under the box (a card resting on the canvas). */
+  readonly shadow?: boolean;
   readonly z: number;
 }
 
@@ -75,6 +77,12 @@ export interface TextSpec {
   readonly text: string;
   readonly size: number;
   readonly color: ColorRgba;
+  /** Bold text; regular when absent. */
+  readonly weight?: "bold";
+  /** Centred in `w`; start-aligned when absent. */
+  readonly align?: "center";
+  /** At most this many lines, the last ending in an ellipsis; unlimited when absent. */
+  readonly maxLines?: number;
   readonly z: number;
 }
 
@@ -119,6 +127,18 @@ export interface OffscreenCanvasLike {
   height: number;
 }
 
+/**
+ * The dot grid on the background of a canvas: one dot of `radius` CSS pixels every `spacing` world units. When the
+ * dots would come closer than `minGap` CSS pixels, the spacing doubles until they do not, so the grid stays calm at
+ * every zoom.
+ */
+export interface GridStyle {
+  readonly spacing: number;
+  readonly radius: number;
+  readonly minGap: number;
+  readonly color: ColorRgba;
+}
+
 /** Start-up options of the canvas. */
 export interface CanvasOptions {
   readonly renderer: RendererPreference;
@@ -126,6 +146,21 @@ export interface CanvasOptions {
   readonly tiles?: boolean;
   readonly tileSize: number;
   readonly background: ColorRgba;
+  /** The dot grid drawn on the background; none when absent. */
+  readonly grid?: GridStyle;
+  /**
+   * How the view reaches the screen. `compositor` (the default, M-12): the worker renders an overscanned base, in
+   * tiles when idle, and the host moves and scales it with a CSS transform between renders. `direct`: the worker
+   * redraws the whole view, without tiles, on every animation frame in which it changed, and the element is never
+   * transformed. The pixels then have one source, so nothing jumps when a render lands and nothing shows blank while
+   * one is pending; each changed frame costs a full draw, so it suits scenes that draw within a frame (the app canvas).
+   */
+  readonly present?: "compositor" | "direct";
+  /**
+   * `adaptive` (the default, M-12): below the level-of-detail zooms text is drawn as bars, links straight and frame
+   * shadows not at all. `full`: everything is drawn in full at every zoom, as design tools do.
+   */
+  readonly detail?: "adaptive" | "full";
   readonly fonts: readonly ArrayBuffer[];
   /** The family of each buffer in `fonts`, in order; text layout registers them under these names. */
   readonly fontFamilies?: readonly string[];

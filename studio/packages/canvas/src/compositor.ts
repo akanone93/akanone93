@@ -60,6 +60,11 @@ export function overscanMargin(tileSize: number, dpr: number): number {
   return Math.ceil(tileSize / dpr);
 }
 
+/** The overscan margin of a canvas presented as `present`: none when the worker draws the view directly. */
+export function presentMargin(present: "compositor" | "direct" | undefined, tileSize: number, dpr: number): number {
+  return present === "direct" ? 0 : overscanMargin(tileSize, dpr);
+}
+
 /** The CSS size of the base surface for a view of `width` × `height`. */
 export function baseSize(width: number, height: number, margin: number): { width: number; height: number } {
   return { width: width + 2 * margin, height: height + 2 * margin };

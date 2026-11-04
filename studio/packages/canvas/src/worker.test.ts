@@ -13,7 +13,7 @@ import {
   PROTOCOL_VERSION as v,
   type WorkerMessage,
 } from "./protocol.ts";
-import { CanvasWorkerCore, serveCanvasWorker, type WorkerScopeLike } from "./worker.ts";
+import { CanvasWorkerCore, drawRatio, serveCanvasWorker, type WorkerScopeLike } from "./worker.ts";
 
 let ck: CanvasKit;
 beforeAll(async () => {
@@ -347,6 +347,42 @@ describe("[STU-003] main-thread host", () => {
     expect(model.viewport).toMatchObject({ zoom: 2, width: 220 });
     host.dispose();
     expect(terminated).toBe(true);
+  });
+
+  test("[STU-045] a directly presented view is drawn whole on each frame it changes, and never transformed", async () => {
+    const env = new TestEnvironment(ck);
+    const style: Record<string, string> = {};
+    const canvas = { width: 0, height: 0, style } as unknown as ConstructorParameters<typeof CanvasHost>[0];
+    const host = new CanvasHost(canvas, { width: 200, height: 100, dpr: 2 }, options({ present: "direct" }), {
+      mainThread: () => env.deps(),
+    });
+    const info = await host.ready;
+    // Drawn whole each time: no tiles to fill in later, and the element is exactly the view.
+    expect(info.tiles).toBe(false);
+    expect([style["width"], style["height"]]).toEqual(["200px", "100px"]);
+    // On the CPU raster path a whole-view redraw draws one device pixel per CSS pixel, also on a 2x screen.
+    expect([canvas.width, canvas.height]).toEqual([200, 100]);
+    expect([
+      drawRatio("direct", "webgl", 2),
+      drawRatio("compositor", "raster", 2),
+      drawRatio("direct", "raster", 2),
+    ]).toEqual([2, 2, 1]);
+    host.patch([{ op: "add", item: box("a", 0, 0) }]);
+    const frames: { base: boolean; idleQueue: number }[] = [];
+    const stop = host.onFrame((stats) => frames.push({ base: stats.base, idleQueue: stats.idleQueue }));
+    for (const step of [() => host.zoomAbout(0.5, 100, 50), () => host.pan(30, -10), () => host.zoomAbout(3, 0, 0)]) {
+      step();
+      // The element never moves: what is on screen comes from the worker's pixels alone, so nothing jumps.
+      expect(style["transform"]).toBe("translate3d(0px, 0px, 0)");
+      frames.length = 0;
+      env.drain();
+      expect(frames.some((f) => f.base)).toBe(true);
+      expect(frames.every((f) => f.idleQueue === 0)).toBe(true);
+      expect(host.baseOrigin.zoom).toBeCloseTo(host.viewport.zoom, 9);
+      expect(style["transform"]).toBe("translate3d(0px, 0px, 0)");
+    }
+    stop();
+    host.dispose();
   });
 
   test("runs the same renderer on the main thread without a worker, and reports start-up errors", async () => {

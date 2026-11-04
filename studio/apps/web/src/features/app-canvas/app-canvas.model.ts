@@ -129,8 +129,16 @@ export function readSavedCanvas(content: unknown): SavedCanvas {
 }
 
 /** Positions in a stable order (by ID), so the same canvas always writes the same document. */
+/** The prefix of a native target's box id, `native:<route>`: a box of the canvas's own, with no document behind it. */
+export const NATIVE_BOX = "native:";
+
+/**
+ * The saved positions: plugins only. A native target's box has no document id, which the canvas schema refuses
+ * (SCH-002), so a native box is placed afresh each time rather than make the whole save fail.
+ */
 function positionList(positions: ReadonlyMap<string, Point>): JsonValue[] {
   return [...positions.entries()]
+    .filter(([id]) => !id.startsWith(NATIVE_BOX))
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([id, p]) => ({ id, x: Math.round(p.x), y: Math.round(p.y) }));
 }

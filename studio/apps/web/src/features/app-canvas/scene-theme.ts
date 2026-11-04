@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { ArrowStyle, ColorRgba } from "@plux/canvas";
+import type { ArrowStyle, ColorRgba, GridStyle } from "@plux/canvas";
 import { useEffect, useState } from "react";
 import { arrowStyle } from "../plugin-canvas/scene.ts";
 import { type AppSceneStyle, appSceneStyle } from "./app-canvas.scene.ts";
@@ -11,14 +11,20 @@ export interface SceneTheme {
   /** A key that changes when the theme does, so the surface is made again with the new background. */
   readonly key: string;
   readonly background: ColorRgba;
+  /** The dot grid on the background (STU-032): what boxes snap and align on. */
+  readonly grid: GridStyle;
   readonly style: AppSceneStyle;
   readonly arrows: ArrowStyle;
 }
+
+/** The grid's geometry: a dot every 24 world units, 1 CSS pixel in radius, never closer than 14 CSS pixels. */
+const GRID = { spacing: 24, radius: 1, minGap: 14 } as const;
 
 /** The light theme's colours, for a page that cannot read its own (tests, a browser without a 2D canvas). */
 export const fallbackTheme: SceneTheme = {
   key: "fallback",
   background: 0xf4f4f5ff,
+  grid: { ...GRID, color: 0xd4d4d8ff },
   style: appSceneStyle,
   arrows: arrowStyle,
 };
@@ -54,9 +60,10 @@ function colourReader(): ((css: string, alpha?: number) => ColorRgba) | undefine
 }
 
 /**
- * The scene's colours from the theme's tokens on `root` (ADR-0103): the canvas a step off the page, boxes on the card
- * colour with the border, titles in the foreground, keys muted, the focus ring and selection in the ring colour, the
- * pills in the status colours, and arrows in the muted foreground with the primary for the focused bundle.
+ * The scene's colours from the theme's tokens on `root` (ADR-0103): the canvas a step off the page with a quiet dot
+ * grid, boxes on the card colour with the border, the plugin's solid mark in the primary, titles in the foreground,
+ * keys muted, the focus ring and selection in the ring colour, the pills in the status colours, and arrows in the
+ * muted foreground with the primary for the focused bundle.
  */
 export function readSceneTheme(root: HTMLElement): SceneTheme {
   const colour = colourReader();
@@ -79,7 +86,13 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     stroke: colour(token("border")),
     title: colour(token("card-foreground")),
     secondary: colour(token("muted-foreground")),
-    frameStroke: mix("muted-foreground", 70, "background"),
+    divider: colour(token("border")),
+    tile: colour(token("primary")),
+    tileText: colour(token("primary-foreground")),
+    mutedTile: colour(token("muted")),
+    mutedTileText: colour(token("muted-foreground")),
+    frameFill: colour(`color-mix(in oklch, ${token("foreground")} 3%, transparent)`),
+    frameStroke: mix("muted-foreground", 35, "background"),
     focus: colour(token("ring")),
     pills: {
       neutral: { fill: colour(token("muted")), text: colour(token("foreground")), stroke: colour(token("border")) },
@@ -98,10 +111,12 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     badgeText: colour(token("primary-foreground")),
     labelText: colour(token("foreground")),
   };
-  // A step darker than the page in light (white boxes stand off it) and a step lighter in dark.
-  const background = mix("muted-foreground", 9, "background");
-  const key = [background, style.fill, style.title, line].join(":");
-  return { key, background, style, arrows };
+  // A step darker than the page in light (white cards stand off it) and a step lighter in dark; the grid's dots a
+  // quiet step further, so the canvas reads as a surface without competing with the cards on it.
+  const background = mix("muted-foreground", 7, "background");
+  const grid: GridStyle = { ...GRID, color: mix("muted-foreground", 30, "background") };
+  const key = [background, grid.color, style.fill, style.title, line].join(":");
+  return { key, background, grid, style, arrows };
 }
 
 /** The scene theme of the page, read again whenever the theme or the system's colour scheme changes. */

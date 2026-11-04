@@ -20,8 +20,10 @@ import { BOX, type Frame } from "./app-canvas.model.ts";
 import {
   type AppGraph,
   type AppSceneStyle,
+  boxDepth,
   boxItem,
   boxItems,
+  boxLayers,
   focusItem,
   frameItems,
   type SceneBox,
@@ -103,10 +105,7 @@ export function useAppScene(input: AppSceneInput) {
     if (d === null) {
       return;
     }
-    const items: ItemSpec[] = [
-      ...frames.flatMap((f) => frameItems(f, style)),
-      ...boxes.flatMap((b) => boxItems(b, style, selected.has(b.id))),
-    ];
+    const items: ItemSpec[] = [...frames.flatMap((f) => frameItems(f, style)), ...boxScene(boxes, selected, style)];
     const ring = boxes.find((b) => b.id === focused);
     if (ring !== undefined) {
       items.push(focusItem(ring, style));
@@ -171,6 +170,17 @@ export function useAppScene(input: AppSceneInput) {
 
   const pick = useCallback((hits: readonly string[]): ArrowPick | undefined => drawn.current?.arrows.pick(hits), []);
   return { bundles, expand, zoomed, pick };
+}
+
+/**
+ * The boxes' items in drawing order, their order with the selected ones last, so a box dragged onto another stays on
+ * top of it; each box in the band `boxLayers` gives it.
+ */
+function boxScene(boxes: readonly SceneBox[], selected: ReadonlySet<string>, style: AppSceneStyle): ItemSpec[] {
+  const order = [...boxes.filter((b) => !selected.has(b.id)), ...boxes.filter((b) => selected.has(b.id))];
+  const layers = boxLayers(order);
+  const count = Math.max(0, ...layers) + 1;
+  return order.flatMap((b, i) => boxItems(b, style, selected.has(b.id), boxDepth(layers[i] ?? 0, count)));
 }
 
 /** Arrow patches: a full re-route when the boxes or bundles changed, else only the moved boxes' bundles. */

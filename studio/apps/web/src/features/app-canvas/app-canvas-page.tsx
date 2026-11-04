@@ -14,7 +14,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
-import { EditorProvider, useEditSession } from "../editor/editor-provider.tsx";
+import { EditorProvider, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { useDeviceFonts } from "../plugin-canvas/device-fonts.ts";
 import { useHostFonts } from "../plugin-canvas/host-fonts.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
@@ -59,7 +59,7 @@ import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
 import { useSceneTheme } from "./scene-theme.ts";
 import { TrashDialog } from "./trash-dialog.tsx";
 import { useAppScene } from "./use-app-scene.ts";
-import { type CanvasTool, useCanvasGestures } from "./use-canvas-gestures.ts";
+import { type CanvasTool, type GuideLine, useCanvasGestures } from "./use-canvas-gestures.ts";
 import { useCanvasKeys } from "./use-canvas-keys.ts";
 import { useZoom } from "./use-zoom.ts";
 import "./app-canvas.css";
@@ -123,6 +123,38 @@ function Marquee({ rect }: { readonly rect: { l: number; t: number; r: number; b
   return <div aria-hidden="true" className="canvas-marquee" style={style} />;
 }
 
+/**
+ * The snap guides of a drag over the canvas (STU-032), in view pixels: the browser surface has no overlay layer, and
+ * its overlay would also draw resize handles plugin boxes do not have.
+ */
+function SnapGuides({
+  lines,
+  view,
+}: {
+  readonly lines: readonly GuideLine[] | null;
+  readonly view: { readonly x: number; readonly y: number; readonly zoom: number } | undefined;
+}): ReactNode {
+  if (lines === null || view === undefined) {
+    return null;
+  }
+  return (
+    <div aria-hidden="true">
+      {lines.map((l) => {
+        const vertical = l.axis === "x";
+        const at = vertical ? (l.at - view.x) * view.zoom : (l.at - view.y) * view.zoom;
+        const from = vertical ? (l.from - view.y) * view.zoom : (l.from - view.x) * view.zoom;
+        const length = (l.to - l.from) * view.zoom;
+        const style = (
+          vertical
+            ? { "--x": at, "--y": from, "--w": 0, "--h": length }
+            : { "--x": from, "--y": at, "--w": length, "--h": 0 }
+        ) as React.CSSProperties;
+        return <div key={`${l.axis}:${l.at}`} className="canvas-guide" data-axis={l.axis} style={style} />;
+      })}
+    </div>
+  );
+}
+
 /** The size of the view in CSS pixels, the window's while the page is not laid out yet, and the pixel ratio. */
 function viewSize(view: HTMLElement): { width: number; height: number; dpr: number } {
   return {
@@ -137,6 +169,87 @@ function moved(boxes: readonly SceneBox[], ids: ReadonlySet<string>, delta: Poin
   return new Map(boxes.map((b) => [b.id, ids.has(b.id) ? { x: b.x + delta.x, y: b.y + delta.y } : { x: b.x, y: b.y }]));
 }
 
+/**
+ * Saves the canvas document: created by the first change and edited by every later one. Whether it exists is the edit
+ * session's to say: the loaded document list is not refreshed by the creation, so the second change used to create it
+ * again, which the session refuses ("The change could not be saved"). A change made while the creation is in flight
+ * is applied once it lands. `settled` follows each change once the session holds it (or the creation failed, after
+ * `failed`).
+ */
+function useCanvasPersist(
+  edit: ReturnType<typeof useEditSession>,
+  failed: () => void,
+  settled: () => void,
+): (next: SavedCanvas, group?: string) => void {
+  const creating = useRef(false);
+  const waiting = useRef<{ readonly next: SavedCanvas; readonly group: string } | null>(null);
+  const done = useRef({ failed, settled });
+  done.current = { failed, settled };
+  return useCallback(
+    (next: SavedCanvas, group = "canvas") => {
+      if (edit.store.getState().docs[APP_CANVAS_PATH] !== undefined) {
+        edit.edit(APP_CANVAS_PATH, canvasRecipe(next), { group });
+        done.current.settled();
+      } else if (creating.current) {
+        waiting.current = { next, group };
+      } else {
+        creating.current = true;
+        void edit.create(APP_CANVAS_PATH, canvasDocument(uuidv7(), next)).then((r) => {
+          creating.current = false;
+          const later = waiting.current;
+          waiting.current = null;
+          if (!r.ok) {
+            done.current.failed();
+          } else if (later !== null) {
+            edit.edit(APP_CANVAS_PATH, canvasRecipe(later.next), { group: later.group });
+          }
+          done.current.settled();
+        });
+      }
+    },
+    [edit],
+  );
+}
+
+/**
+ * The plugins' positions and the frames on the canvas. What is saved is the edit session's own copy of the canvas
+ * document, pending edits included, so the server confirming an earlier save, or a refetch of the document list,
+ * cannot move a box back while a later change is on its way (a box used to jump back and return after a drop). The
+ * view runs ahead of it only while a drag moves boxes and until the session holds a change.
+ */
+function useCanvasLayout(documents: ViewProps["documents"], failed: () => void) {
+  const edit = useEditSession();
+  const local = useEditor((s) => s.docs[APP_CANVAS_PATH]?.content);
+  const saved = useMemo(() => {
+    if (local !== undefined) {
+      return readSavedCanvas(local);
+    }
+    const doc = documents?.find((d) => d.path === APP_CANVAS_PATH);
+    return readSavedCanvas(doc === undefined ? undefined : parseJson(doc.content));
+  }, [local, documents]);
+  const [ahead, setAhead] = useState<SavedCanvas | null>(null);
+  const latest = useRef(saved);
+  latest.current = saved;
+  const persist = useCanvasPersist(edit, failed, () => setAhead(null));
+  /** Live positions while a drag runs; nothing is saved until `commit`. */
+  const setLive = useCallback(
+    (update: (prev: ReadonlyMap<string, Point>) => ReadonlyMap<string, Point>) =>
+      setAhead((prev) => ({
+        positions: update(prev?.positions ?? latest.current.positions),
+        frames: prev?.frames ?? latest.current.frames,
+      })),
+    [],
+  );
+  const commit = useCallback(
+    (next: SavedCanvas, group?: string) => {
+      setAhead(next);
+      persist(next, group);
+    },
+    [persist],
+  );
+  return { positions: ahead?.positions ?? saved.positions, frames: ahead?.frames ?? saved.frames, setLive, commit };
+}
+
 /** C1: the app canvas (STU-030 to STU-035), drawn by Plux Canvas with bundled arrows (STU-040 to STU-048). */
 function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const { i18n } = useLingui();
@@ -149,7 +262,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const hostFonts = useHostFonts(appId);
   const deviceFonts = useDeviceFonts(appId);
   const queryClient = useQueryClient();
-  const edit = useEditSession();
   const plugins = useMemo(() => createClient(PluginService, session.transport), [session]);
   const apps = useMemo(() => createClient(AppService, session.transport), [session]);
 
@@ -170,10 +282,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const loaded = useMemo(() => loadedDocs(project.data ?? []), [project.data]);
   const graph = useMemo(() => appGraph(loaded, nativeRoutes), [loaded, nativeRoutes]);
 
-  const saved = useMemo(() => {
-    const doc = documents?.find((d) => d.path === APP_CANVAS_PATH);
-    return readSavedCanvas(doc === undefined ? undefined : parseJson(doc.content));
-  }, [documents]);
+  const [message, setMessage] = useState<string | null>(null);
+  const layout = useCanvasLayout(documents, () => setMessage(m.failed));
+  const { positions, frames } = layout;
   const links = useMemo<BoxLink[]>(() => {
     const idOf = new Map(list.map((s) => [s.plugin?.key ?? "", s.plugin?.id ?? ""]));
     const between = list.flatMap((s) =>
@@ -187,12 +298,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     );
     return [...between, ...natives];
   }, [list, graph]);
-  const [positions, setPositions] = useState<ReadonlyMap<string, Point>>(new Map());
-  const [frames, setFrames] = useState<readonly Frame[]>([]);
-  useEffect(() => {
-    setPositions(saved.positions);
-    setFrames(saved.frames);
-  }, [saved]);
   const summaryOf = useMemo(() => new Map(list.map((s) => [s.plugin?.id ?? "", s])), [list]);
   const boxes = useMemo<SceneBox[]>(() => {
     const nodes = [
@@ -208,6 +313,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         native,
         archived: s?.plugin?.archived === true,
         badges: native ? [] : badgesOf(s, b.key === entryKey, m),
+        subtitle: native ? m.native : m.boxSubtitle(b.key, Number(s?.screens ?? 0n)),
       };
     });
   }, [list, graph.natives, positions, links, summaryOf, entryKey, m]);
@@ -215,7 +321,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [hover, setHover] = useState<string | undefined>();
   const [focused, setFocused] = useState<string | undefined>();
-  const [message, setMessage] = useState<string | null>(null);
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [safety, setSafety] = useState<SafetyMode | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
@@ -241,6 +346,11 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       height,
       dpr,
       background: theme.background,
+      grid: theme.grid,
+      // A few hundred cards draw within a frame: the worker draws the whole view on every frame it changes, crisp and
+      // in one piece, and text stays text at every zoom (studio-development §9.8).
+      present: "direct",
+      detail: "full",
       hostFonts,
       deviceFonts,
     });
@@ -252,7 +362,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface, hostFonts, deviceFonts, theme.background]);
+  }, [createSurface, hostFonts, deviceFonts, theme.background, theme.grid]);
   const surface = useCallback(() => surfaceRef.current, []);
   /** The element whose box is the view: the page, or the canvas before the page is laid out. */
   const viewOf = useCallback(() => sectionRef.current ?? canvasRef.current, []);
@@ -270,28 +380,11 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
 
   const { zoom, setZoom, viewChanged, zoomBy, resetZoom } = useZoom(surface, viewOf, scene.zoomed);
 
-  const persist = useCallback(
-    (next: SavedCanvas, group = "canvas") => {
-      const exists = documents?.some((d) => d.path === APP_CANVAS_PATH) === true;
-      if (exists) {
-        edit.edit(APP_CANVAS_PATH, canvasRecipe(next), { group });
-      } else {
-        void edit.create(APP_CANVAS_PATH, canvasDocument(uuidv7(), next)).then((r) => {
-          if (!r.ok) {
-            setMessage(m.failed);
-          }
-        });
-      }
-    },
-    [documents, edit, m.failed],
-  );
+  const commitLayout = layout.commit;
   const commit = useCallback(
-    (nextPositions: ReadonlyMap<string, Point>, nextFrames: readonly Frame[], group?: string) => {
-      setPositions(nextPositions);
-      setFrames(nextFrames);
-      persist({ positions: nextPositions, frames: nextFrames }, group);
-    },
-    [persist],
+    (nextPositions: ReadonlyMap<string, Point>, nextFrames: readonly Frame[], group?: string) =>
+      commitLayout({ positions: nextPositions, frames: nextFrames }, group),
+    [commitLayout],
   );
   // A frame rename or resize is its own undo step through the editing core (D20, STU-035).
   const changeFrameOf = useCallback(
@@ -347,11 +440,13 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
 
   const [tool, setTool] = useState<CanvasTool>("select");
   const [marquee, setMarquee] = useState<{ l: number; t: number; r: number; b: number } | null>(null);
+  const [guides, setGuides] = useState<readonly GuideLine[] | null>(null);
   const space = useRef(false);
   const gestures = useCanvasGestures({
     tool,
     frame: sectionRef,
     onMarquee: setMarquee,
+    onGuides: setGuides,
     spaceHeld: () => space.current,
     element: generation,
     surface,
@@ -359,7 +454,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     boxes,
     selected,
     setSelected,
-    setPositions,
+    setPositions: layout.setLive,
     commit: (next) => commit(next, frames),
     setHover,
     expand: scene.expand,
@@ -495,6 +590,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         {...gestures.handlers}
       />
       <Marquee rect={marquee} />
+      <SnapGuides lines={guides} view={surfaceRef.current?.viewport} />
       <BoxList
         boxes={boxes}
         bundles={scene.bundles}

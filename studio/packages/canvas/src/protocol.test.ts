@@ -25,6 +25,7 @@ const hostMessages: HostMessage[] = [
       renderer: "auto",
       tileSize: 512,
       background: 0xffffffff,
+      grid: { spacing: 20, radius: 1, minGap: 12, color: 0x00000040 },
       fonts: [new ArrayBuffer(4)],
       fontFamily: "Noto Sans",
       measureFrames: false,
@@ -92,6 +93,14 @@ const workerMessages: WorkerMessage[] = [
     ops: [
       { op: "clear" },
       { op: "add", item: { kind: "text", id: "home/t", x: 1, y: 2, w: 3, text: "Hi", size: 16, color: 5, z: 2 } },
+      {
+        op: "add",
+        item: { kind: "text", id: "home/b", x: 1, y: 2, w: 3, text: "Hi", size: 16, color: 5, weight: "bold", z: 2 },
+      },
+      {
+        op: "add",
+        item: { kind: "rect", id: "home/r", x: 1, y: 2, w: 3, h: 4, radius: 2, fill: 5, shadow: true, z: 1 },
+      },
     ],
     heights: [{ id: "home", contentHeight: 900 }],
   },

@@ -178,10 +178,14 @@ export class EditSession {
     this.store = createStore<EditState>(() => ({ docs: {}, conflict: null, selection: emptySelection }));
   }
 
-  /** Opens a document, or refreshes it from the server when nothing of it is pending. */
+  /**
+   * Opens a document, or refreshes it from the server when nothing of it is pending and the server's copy is not older
+   * than the one held: a document list fetched before a save landed but answered after it would otherwise put the
+   * saved change back (on the app canvas, a dropped box jumped back to where it was).
+   */
   open(doc: ServerDocument): void {
     const t = this.tracks.get(doc.path);
-    if (t !== undefined && (t.queue.length > 0 || t.inFlight !== null || t.paused)) {
+    if (t !== undefined && (t.queue.length > 0 || t.inFlight !== null || t.paused || doc.revision < t.base.revision)) {
       return;
     }
     this.tracks.set(doc.path, {
