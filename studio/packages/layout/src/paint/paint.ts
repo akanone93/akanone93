@@ -140,6 +140,8 @@ export interface PaintTheme {
    * takes those fields over the default text style, as the runtime's `TextStyle` merge does.
    */
   readonly textTokens?: Readonly<Record<string, Partial<TypeSpec>>>;
+  /** The platform the screen is previewed on: on `cupertino`, adaptive controls are drawn the iOS way (WGT-011). */
+  readonly platform?: "material" | "cupertino";
   /** The URL of each image asset of the app by asset id, for the canvas to load (AST-002). */
   readonly assets?: Readonly<Record<string, string>>;
   /** Every dimension token of the theme by path (`space.md`), in logical pixels. */

@@ -12,6 +12,7 @@
 import type { ColorRole } from "../material-color/scheme.ts";
 import { barPainters, barSurface } from "./bars.ts";
 import { checkboxMark, controlForeground, controlPainters } from "./controls.ts";
+import { cupertinoForeground, cupertinoPainterOf, cupertinoPainters } from "./cupertino.ts";
 import { fieldModel, fieldPaint, fieldTypes, type PaintText, type PlacedGlyph, searchBarPaint } from "./fields.ts";
 import {
   argbToRgba,
@@ -391,7 +392,7 @@ const ICON_THEMES: Readonly<Record<string, readonly [ColorRole, number]>> = {
 
 /** The icon theme `node`'s child in `slot` sees: its component's, an app bar's leading icon in `onSurface`. */
 function iconContextOf(node: PaintNode, slot: string | undefined, theme: PaintTheme, above: IconContext): IconContext {
-  const control = controlForeground(node, theme);
+  const control = controlForeground(node, theme) ?? cupertinoForeground(node, theme);
   if (control !== undefined) {
     return {
       color: control.icon ?? above.color,
@@ -437,10 +438,21 @@ function slotEntries(node: PaintNode): [string | undefined, PaintNode][] {
   );
 }
 
-const BAR_SURFACES: ReadonlySet<string> = new Set(["AppBar", "BottomAppBar", "Drawer", "NavigationDrawer"]);
+const BAR_SURFACES: ReadonlySet<string> = new Set([
+  "AppBar",
+  "BottomAppBar",
+  "Drawer",
+  "NavigationDrawer",
+  "CupertinoPageScaffold",
+  "CupertinoTabScaffold",
+]);
 
 /** What a widget paints in its box `r`: a field's parts, a control's boxes, or its painter's. */
 function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
+  const cupertino = cupertinoPainterOf(node, theme);
+  if (cupertino !== undefined) {
+    return cupertino(node, r, theme, (id) => rects.get(id));
+  }
   if (fieldTypes.has(node.type ?? "")) {
     return fieldPaint(fieldModel(node.props ?? {}), node.id, r, theme, (id) => rects.get(id));
   }
@@ -503,7 +515,8 @@ class TreePainter {
         type === "SearchBar" ||
         type === "SearchAnchor" ||
         barPainters.has(type) ||
-        BAR_SURFACES.has(type);
+        BAR_SURFACES.has(type) ||
+        cupertinoPainters.has(type);
       const painterOf = (painters.has(type) || controlPainters.has(type) || parts) && !sourceless;
       const role = icon === undefined || type !== "Icon" ? roleOf(type, painterOf) : "icon";
       this.record(node, role, painted, opacity, clips, { icon, text: icons.text });

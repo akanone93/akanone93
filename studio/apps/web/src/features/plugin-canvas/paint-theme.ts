@@ -207,7 +207,12 @@ export function dimensionsOf(tokens: Obj, dark: boolean, brand: string): Record<
 }
 
 /** What the canvas paints screens with: the scheme and the theme's other colour tokens, resolved. */
-export function paintThemeOf(tokens: Obj, dark: boolean, brand: string): PaintTheme {
+export function paintThemeOf(
+  tokens: Obj,
+  dark: boolean,
+  brand: string,
+  platform: "material" | "cupertino" = "material",
+): PaintTheme {
   const colors: Record<string, Rgba> = {};
   for (const path of tokenPaths(tokens)) {
     const c = colorToken(tokens, path, dark, brand);
@@ -221,6 +226,7 @@ export function paintThemeOf(tokens: Obj, dark: boolean, brand: string): PaintTh
     typography: typographyOf(tokens, dark, brand),
     textTokens: textTokensOf(tokens, dark, brand),
     dimensions: dimensionsOf(tokens, dark, brand),
+    platform,
   };
 }
 

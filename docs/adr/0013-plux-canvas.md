@@ -83,8 +83,11 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   screen a composite reports the parts it makes up itself (`<id>#input`, `#hint` …) so they are drawn where they were
   laid out; the conformance scenes do not. A painted scaffold lays out and paints its own `AppBar`; navigation bars and
   rails, tab bars, drawers and bottom app bars are painted with their surfaces and their selected destination or tab
-  (indicator, colours); list tiles are built by the scene and have no surface of their own. Painting is reviewed by eye
-  against the device, not by pixels.
+  (indicator, colours); list tiles are built by the scene and have no surface of their own. Cupertino widgets are
+  built by the scene (their slots in the scene's slot nodes) and painted with iOS's colours from Flutter's
+  `CupertinoColors`, light or dark, and the runtime's Cupertino theme; under the **Cupertino** preview a Material
+  control marked `adaptive` is painted as its Cupertino counterpart in the box Material lays out. Painting is reviewed
+  by eye against the device, not by pixels.
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with

@@ -165,6 +165,9 @@ export function barSurface(node: BarNode, r: Rect, theme: PaintTheme): BoxPaint[
       return [surface(node, r, theme, "surface")];
     case "BottomAppBar":
       return [surface(node, r, theme, "surfaceContainer")];
+    case "CupertinoPageScaffold":
+    case "CupertinoTabScaffold":
+      return [surface(node, r, theme, "surface")];
     case "Drawer":
     case "NavigationDrawer":
       return [surface(node, r, theme, "surfaceContainerLow", { radii: [0, 16, 16, 0] })];

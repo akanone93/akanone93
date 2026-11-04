@@ -38,8 +38,8 @@ export function usePreviewScene(
   // The screens are painted in the theme's colours for the previewed mode and brand (STU-005, THM-001–THM-003).
   const tokens = useMemo(() => themeTokens(everything), [everything]);
   const paint = useMemo(
-    () => paintThemeOf(tokens, look.theme === "dark", look.brandOverlay),
-    [tokens, look.theme, look.brandOverlay],
+    () => paintThemeOf(tokens, look.theme === "dark", look.brandOverlay, look.platform),
+    [tokens, look.theme, look.brandOverlay, look.platform],
   );
   const styled = useMemo(
     () => ({ ...paintedStyle(lookedStyle(screenStyle, resolveTheme(everything, look), look), paint), title }),

@@ -185,6 +185,19 @@ function sceneProps(type: string, props: Record<string, unknown>): Record<string
   }
 }
 
+/** Cupertino widgets a painted screen builds from scene nodes, their texts and icons with them. */
+export const cupertinoComponents: readonly string[] = [
+  "CupertinoButton",
+  "CupertinoSwitch",
+  "CupertinoSlider",
+  "CupertinoActivityIndicator",
+  "CupertinoNavigationBar",
+  "CupertinoTabBar",
+  "CupertinoTextField",
+  "CupertinoListTile",
+  "CupertinoSlidingSegmentedControl",
+];
+
 /** Material components a painted screen builds from scene nodes, their texts and icons with them. */
 const componentTypes: readonly string[] = [
   "FilledButton",
@@ -199,6 +212,7 @@ const componentTypes: readonly string[] = [
   "InputChip",
   "ListTile",
   "TabBar",
+  ...cupertinoComponents,
 ];
 
 /**
@@ -435,8 +449,29 @@ function faithfulScene(node: WidgetNode, props: Record<string, unknown>, childre
     case "TabBar":
       return { id: node.id, type: "TabBar", props, ...tabsOf(node.id, props, children) };
     default:
-      return { id: node.id, type: node.type ?? "", props, ...own };
+      return {
+        id: node.id,
+        type: node.type ?? "",
+        props,
+        ...(node.type?.startsWith("Cupertino") === true ? cupertinoSlots(node.id, node.type, children) : own),
+      };
   }
+}
+
+/**
+ * A Cupertino widget's slotted children as the scene reads them: each in a slot node naming its slot (a navigation
+ * bar's `CupertinoNavSlot`, else a `CupertinoSlot`).
+ */
+function cupertinoSlots(id: string, type: string, children: SceneNode[]): { children?: SceneNode[] } {
+  const wrapper = type === "CupertinoNavigationBar" ? "CupertinoNavSlot" : "CupertinoSlot";
+  const out = children.map((c): SceneNode => {
+    if (c.slot === undefined) {
+      return c;
+    }
+    const { slot, ...inner } = c;
+    return { id: `${id}#${slot}`, type: wrapper, props: { slot }, children: [inner] };
+  });
+  return out.length === 0 ? {} : { children: out };
 }
 
 /** A tab bar's `tabs` as the scene's `Tab` children (a label and an icon each); children it already has are kept. */

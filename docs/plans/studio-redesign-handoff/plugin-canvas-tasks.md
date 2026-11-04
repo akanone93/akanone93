@@ -67,8 +67,10 @@ Needs.
   rail with the selected destination, tab bar with its indicator, drawers, bottom app bars, cards, list tiles, dividers.
   *Build:* a settings screen. *Check:* change the selected destination or tab; compare with the Dev app. Bars stay
   where the page puts them until PC-12 places the scaffold's parts. `STU-005`.
-- **PC-08 Cupertino.** *See:* with **Cupertino** in Preview, iOS-styled controls and every adaptive widget.
-  *Build:* — *Check:* the device matrix with Material and Cupertino. `WGT-011`.
+- **PC-08 Cupertino.** *See:* Cupertino widgets in iOS's colours (buttons, switches, sliders, text fields, activity
+  indicators, navigation and tab bars, segmented controls); with **Cupertino** as the platform style in Preview,
+  adaptive Material controls drawn the iOS way. *Build:* a Cupertino screen. *Check:* switch the platform style
+  between Material and Cupertino; switch Dark. `WGT-011`.
 - **PC-09 Layer 2 everyday components.** *See:* money, inputs, cards, lists, states, pagers, wizards drawn as on the
   device. *Build:* a components screen. *Check:* compare with the Dev app. `WGT-020`.
 - **PC-10 Charts, media, maps, scanners, native slots.** *See:* charts from mock data, galleries, media posters, map

@@ -34,7 +34,7 @@ import { FontStyle, TextAlign, TextLeadingDistribution } from "../text/paragraph
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
-import { faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
+import { cupertinoComponents, faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
 import { structuralWidgetBuilders } from "./structural.ts";
 
 /** One widget of a screen document: structured-clone data only. */
@@ -660,6 +660,10 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ...sceneWidgetBuilders,
   ...structuralWidgetBuilders,
   ["TabBar", faithful(legacyBuilder(materialWidgetBuilders, "TabBar"))],
+  ...cupertinoComponents.map((type): [string, WidgetBuilder] => [
+    type,
+    faithful(legacyBuilder([...cupertinoWidgetBuilders], type)),
+  ]),
 ]);
 
 /** The builder `list` registers for `type`, as the screen's approximation under a faithful builder. */

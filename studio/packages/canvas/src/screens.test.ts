@@ -534,7 +534,11 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
         appBar: {
           id: "bar",
           type: "AppBar",
-          slots: { title: text("title", "Settings"), actions: [icon("a1", "search"), icon("a2", "more_vert")] },
+          // A list slot, as a document writes an app bar's actions (the type names one widget per slot).
+          slots: {
+            title: text("title", "Settings"),
+            actions: [icon("a1", "search"), icon("a2", "more_vert")] as unknown as WidgetNode,
+          },
         },
         body: { id: "col", type: "Column", children: [text("t", "Body")] },
       },
