@@ -18,7 +18,7 @@ import { RenderIntrinsicWidth } from "../flutter/proxy-boxes.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { TextScaler, type TextStyle } from "../flutter/text-style.ts";
 import { type PaintTheme, resolveColor } from "../paint/paint.ts";
-import { resolveTextStyle } from "../paint/text-style.ts";
+import { type ResolvedText, resolveTextStyle, type TypeRole } from "../paint/text-style.ts";
 import { buildNode, hostType, type SceneNode, type SceneText, supportedTypes } from "../scene/scene.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
@@ -128,6 +128,22 @@ const unusedSlots: ReadonlySet<string> = new Set(["empty", "loading", "error", "
 interface Bridge {
   readonly ctx: WidgetContext;
   readonly hosts: Map<string, RenderBox>;
+  /** The text style the component around a text gives it (its `DefaultTextStyle`), on a painted screen. */
+  readonly text?: ResolvedText;
+}
+
+/** The type-scale role a Material 3 component gives the texts inside it (its `DefaultTextStyle`). */
+const COMPONENT_TEXT: Readonly<Record<string, TypeRole>> = {
+  CircleAvatar: "titleMedium",
+};
+
+/** The bridge the children of `node` are converted with: its component's text style, on a painted screen. */
+function childBridge(node: WidgetNode, bridge: Bridge): Bridge {
+  const role = COMPONENT_TEXT[node.type ?? ""];
+  const paint = bridge.ctx.paint;
+  return role === undefined || paint === undefined
+    ? bridge
+    : { ...bridge, text: resolveTextStyle({ $token: `typography.${role}` }, paint) };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -300,10 +316,14 @@ function convert(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNode {
   const inner = deep || compositeTypes.includes(type);
   const raw = (node.props ?? {}) as Record<string, unknown>;
   if (paint !== undefined && faithfulTypes.has(type)) {
-    return faithfulScene(node, literalProps(raw, paint) as Record<string, unknown>, sceneChildren(node, bridge, inner));
+    return faithfulScene(
+      node,
+      literalProps(raw, paint) as Record<string, unknown>,
+      sceneChildren(node, childBridge(node, bridge), inner),
+    );
   }
   const props = type === "Text" ? textProps(node, sceneProps(type, raw), bridge) : sceneProps(type, raw);
-  const children = sceneChildren(node, bridge, inner);
+  const children = sceneChildren(node, childBridge(node, bridge), inner);
   const scene: SceneNode = { id: node.id, type, props, ...(children.length === 0 ? {} : { children }) };
   return boundedHeight.has(type) ? inViewportHeight(scene, bridge) : scene;
 }
@@ -316,7 +336,7 @@ function textProps(node: WidgetNode, props: Record<string, unknown>, bridge: Bri
     bridge.ctx.mark(node.id, "text", data);
     return props;
   }
-  const { placed, style } = paintedTextOf(node, paint, bridge.ctx.theme);
+  const { placed, style } = paintedTextOf(node, paint, bridge.ctx.theme, bridge.text);
   bridge.ctx.mark(node.id, "text", data, placed);
   return { ...props, style: { ...style, ...(placed.italic ? { fontStyle: "italic" } : {}) } };
 }

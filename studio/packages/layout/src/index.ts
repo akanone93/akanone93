@@ -230,9 +230,11 @@ export { globalRects, goldenBaselines, goldenRects, type LayoutGolden, type Node
 export {
   argbToRgba,
   type BorderPaint,
+  type BoxFitName,
   type BoxPaint,
   type GradientPaint,
   type IconPaint,
+  type ImagePaint,
   type NodePaint,
   type PaintClip,
   type PaintTheme,

@@ -131,7 +131,10 @@ spacing, line height, colour, italic and line, and a text with **maxLines** ends
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or
 container follows its properties, and a page body that does not scroll is as high as the device. Icons are drawn
 from Material Symbols and the Cupertino icons in their colour and size; an icon property opens a picker of every icon
-of both sets, searched by name. The canvas draws Material Symbols at their default fill and weight. The canvas previews with the same layout code the device runs; the device decides. Check anything
+of both sets, searched by name. The canvas draws Material Symbols at their default fill and weight. Images of the
+app's uploaded assets are drawn in their fit and corners, and avatars in their image or colour with their initials;
+drag an image from **Assets** onto a screen to add it, or pick one for an image property. A web image is loaded on the
+device; the canvas shows its placeholder. The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 ## Link screens

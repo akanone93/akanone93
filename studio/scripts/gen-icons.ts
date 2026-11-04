@@ -357,11 +357,13 @@ export function iconFiles(sources: {
       "Plux Cupertino Icons",
     )[0] as Uint8Array,
   );
-  files.set("material.codepoints", sources.materialNames);
-  files.set("cupertino.codepoints", sources.cupertinoNames);
-  files.set("mirrored.txt", sources.mirrored);
-  files.set("LICENSE-material-design-icons", sources.licences.material);
-  files.set("LICENSE-cupertino-icons", sources.licences.cupertino);
+  // Text files end in a newline, as the repository's hooks require.
+  const text = (s: string) => (s.endsWith("\n") ? s : `${s}\n`);
+  files.set("material.codepoints", text(sources.materialNames));
+  files.set("cupertino.codepoints", text(sources.cupertinoNames));
+  files.set("mirrored.txt", text(sources.mirrored));
+  files.set("LICENSE-material-design-icons", text(sources.licences.material));
+  files.set("LICENSE-cupertino-icons", text(sources.licences.cupertino));
   return files;
 }
 

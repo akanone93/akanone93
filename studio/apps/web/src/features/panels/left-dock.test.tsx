@@ -172,6 +172,24 @@ describe("[STU-061] left panels", () => {
     expect(surface.setGuides).toHaveBeenCalled();
     h.onDrop(ev as never);
     expect(edit).toHaveBeenCalledTimes(1);
+    // [AST-002] An image dragged from the Assets tab lands as an Image of that asset.
+    const image = {
+      ...ev,
+      dataTransfer: {
+        types: ["application/x-plux-asset"],
+        getData: (t: string) => (t === "application/x-plux-asset" ? "logo" : ""),
+      },
+    };
+    h.onDrop(image as never);
+    expect(edit).toHaveBeenCalledTimes(2);
+    const root = {
+      id: "r",
+      type: "Column",
+      children: [{ id: "row", type: "Row", children: [{ id: "t1" }, { id: "t2" }] }],
+    };
+    const recipe = edit.mock.calls[1]?.[1] as ((d: unknown) => void) | undefined;
+    recipe?.(root);
+    expect(JSON.stringify(root)).toContain('"source":{"asset":{"$asset":"logo"}}');
   });
 
   test("layer reorder uses reparent indices after removal", () => {

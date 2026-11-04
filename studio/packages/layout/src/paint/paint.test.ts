@@ -172,3 +172,55 @@ describe("[THM-005] icons as Flutter's Icon draws them", () => {
     expect(paints.get("none")?.role).toBe("placeholder");
   });
 });
+
+describe("[AST-002] images as Flutter's paintImage draws them", () => {
+  const rects = (ids: string[]) => new Map(ids.map((id) => [id, { x: 0, y: 0, w: 80, h: 40 }]));
+
+  test("an Image of an asset or a web address, fitted and aligned; without a source, a placeholder", () => {
+    const root: PaintNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        {
+          id: "a",
+          type: "Image",
+          props: { source: { asset: { $asset: "logo" } }, fit: "cover", alignment: "topLeft" },
+        },
+        { id: "w", type: "Image", props: { source: { url: "https://example.com/a.png" } } },
+        { id: "x", type: "Image", props: { source: { asset: { $expr: "page.logo" } } } },
+      ],
+    };
+    const paints = paintTree(root, rects(["col", "a", "w", "x"]), theme);
+    expect(paints.get("a")?.boxes[0]?.image).toEqual({ asset: "logo", fit: "cover", alignX: -1, alignY: -1 });
+    expect(paints.get("w")?.boxes[0]?.image).toEqual({
+      url: "https://example.com/a.png",
+      fit: "scaleDown",
+      alignX: 0,
+      alignY: 0,
+    });
+    expect(paints.get("x")?.role).toBe("placeholder");
+  });
+
+  test("a CircleAvatar is a circle in primaryContainer, its images covering it, its texts in onPrimaryContainer", () => {
+    const root: PaintNode = {
+      id: "av",
+      type: "CircleAvatar",
+      props: { backgroundImage: { asset: { $asset: "face" } } },
+      slots: { child: { id: "t", type: "Text", props: { data: "AB" } } },
+    };
+    const paints = paintTree(
+      root,
+      new Map([
+        ["av", { x: 0, y: 0, w: 40, h: 40 }],
+        ["t", { x: 10, y: 10, w: 20, h: 20 }],
+      ]),
+      theme,
+    );
+    expect(paints.get("av")?.boxes[0]).toMatchObject({
+      oval: true,
+      fill: argbToRgba(scheme.primaryContainer),
+      image: { asset: "face", fit: "cover" },
+    });
+    expect(paints.get("t")?.textColor).toBe(argbToRgba(scheme.onPrimaryContainer));
+  });
+});

@@ -103,7 +103,7 @@ export { MAX_REGIONS, type RendererOptions, SceneRenderer } from "./renderer.ts"
 export { type Deletable, Resources } from "./resources.ts";
 export { boundsOf, moveSpec, Scene, type SceneItem, SOFT_SHADOW_MARGIN } from "./scene.ts";
 export { buildSceneModel } from "./scene-model.ts";
-export { frameId, LABEL_SUFFIX, layoutScreens, overflowId, PAINT_SUFFIX } from "./screens.ts";
+export { assetImageKey, frameId, LABEL_SUFFIX, layoutScreens, overflowId, PAINT_SUFFIX } from "./screens.ts";
 export { chooseRenderer, type GlProbe, isSoftwareGl } from "./select.ts";
 export { DEFAULT_TILE_SIZE, RETILE_THRESHOLD, type Tile, TileCache } from "./tiles.ts";
 export { clampZoom, MAX_ZOOM, MIN_ZOOM, Viewport } from "./viewport.ts";

@@ -12,6 +12,7 @@
 import type { ColorRole } from "../material-color/scheme.ts";
 import {
   argbToRgba,
+  type BoxFitName,
   type BoxPaint,
   borderRadius,
   decorationPaint,
@@ -19,6 +20,7 @@ import {
   edgeInsets,
   elevationShadows,
   type IconPaint,
+  type ImagePaint,
   type NodePaint,
   type PaintClip,
   type PaintTheme,
@@ -153,7 +155,84 @@ function opacity(props: Obj): Painted {
   return o === undefined ? {} : { opacity: Math.min(1, Math.max(0, o)) };
 }
 
+const FITS: ReadonlySet<string> = new Set(["fill", "contain", "cover", "fitWidth", "fitHeight", "none", "scaleDown"]);
+const ALIGNMENTS: Readonly<Record<string, readonly [number, number]>> = {
+  topLeft: [-1, -1],
+  topStart: [-1, -1],
+  topCenter: [0, -1],
+  topRight: [1, -1],
+  topEnd: [1, -1],
+  centerLeft: [-1, 0],
+  centerStart: [-1, 0],
+  center: [0, 0],
+  centerRight: [1, 0],
+  centerEnd: [1, 0],
+  bottomLeft: [-1, 1],
+  bottomStart: [-1, 1],
+  bottomCenter: [0, 1],
+  bottomRight: [1, 1],
+  bottomEnd: [1, 1],
+};
+
+/** An `Alignment` by name or as `{x, y}`, centred when it is neither. */
+function alignmentOf(v: unknown): readonly [number, number] {
+  if (typeof v === "string") {
+    return ALIGNMENTS[v] ?? [0, 0];
+  }
+  return isObj(v) ? [num(v["x"]) ?? 0, num(v["y"]) ?? 0] : [0, 0];
+}
+
+/** An `ImageSource` as the canvas paints it: an asset by id, or a network URL; nothing for an unbound source. */
+export function imageOf(
+  source: unknown,
+  fit: unknown,
+  alignment: unknown,
+  fallback: BoxFitName,
+): ImagePaint | undefined {
+  if (!isObj(source)) {
+    return undefined;
+  }
+  const asset = isObj(source["asset"]) ? source["asset"]["$asset"] : source["asset"];
+  const url = typeof source["url"] === "string" ? source["url"] : undefined;
+  if (typeof asset !== "string" && url === undefined) {
+    return undefined;
+  }
+  const [alignX, alignY] = alignmentOf(alignment);
+  return {
+    ...(typeof asset === "string" ? { asset } : { url: url as string }),
+    fit: typeof fit === "string" && FITS.has(fit) ? (fit as BoxFitName) : fallback,
+    alignX,
+    alignY,
+  };
+}
+
+/** `Image`: its source fitted to its box; Flutter fits an image with no fit by scaling it down. */
+function image(props: Obj, r: Rect): Painted {
+  const paint = imageOf(props["source"], props["fit"], props["alignment"], "scaleDown");
+  return paint === undefined ? {} : { boxes: [{ ...r, image: paint }] };
+}
+
+/**
+ * `CircleAvatar` in Material 3: a circle in `primaryContainer` (its text in `onPrimaryContainer`), its background
+ * image and then its foreground image covering it.
+ */
+function circleAvatar(props: Obj, r: Rect, theme: PaintTheme): Painted {
+  const fill = resolveColor(props["backgroundColor"], theme) ?? roleColor(theme, "primaryContainer");
+  const size = Math.min(r.w, r.h);
+  const circle = { x: r.x + (r.w - size) / 2, y: r.y + (r.h - size) / 2, w: size, h: size, oval: true };
+  const back = imageOf(props["backgroundImage"], "cover", "center", "cover");
+  const front = imageOf(props["foregroundImage"], "cover", "center", "cover");
+  return {
+    boxes: [
+      { ...circle, fill, ...(back === undefined ? {} : { image: back }) },
+      ...(front === undefined ? [] : [{ ...circle, image: front }]),
+    ],
+  };
+}
+
 const painters: ReadonlyMap<string, Painter> = new Map<string, Painter>([
+  ["Image", image],
+  ["CircleAvatar", circleAvatar],
   ["Container", container],
   ["AnimatedContainer", container],
   ["DecoratedBox", decoratedBox],
@@ -239,10 +318,13 @@ const LAYOUT_ONLY: ReadonlySet<string> = new Set([
 
 const TEXT_TYPES: ReadonlySet<string> = new Set(["Text", "RichText", "SelectableText"]);
 
-/** The colour of a text: its style's colour, else the scheme's `onSurface` (Material's default body colour). */
-function textColor(node: PaintNode, theme: PaintTheme): number {
+/**
+ * The colour of a text: its style's colour, else the one its component gives its texts, else the scheme's `onSurface`
+ * (Material's default body colour).
+ */
+function textColor(node: PaintNode, theme: PaintTheme, inherited: Rgba | undefined): number {
   const style = node.props?.["style"];
-  return (isObj(style) ? resolveColor(style["color"], theme) : undefined) ?? roleColor(theme, "onSurface");
+  return (isObj(style) ? resolveColor(style["color"], theme) : undefined) ?? inherited ?? roleColor(theme, "onSurface");
 }
 
 function childrenOf(node: PaintNode): PaintNode[] {
@@ -268,11 +350,20 @@ function hiddenChild(node: PaintNode, i: number): boolean {
   return node.type === "IndexedStack" && i !== (num(node.props?.["index"]) ?? 0);
 }
 
-/** The icon colour and size a widget gives the icons below it (Flutter's `IconTheme` of the Material 3 component). */
+/**
+ * The icon colour and size a widget gives the icons below it (Flutter's `IconTheme` of the Material 3 component), and
+ * the colour it gives their texts (its `DefaultTextStyle`), when it sets one.
+ */
 interface IconContext {
   readonly color: Rgba;
   readonly size: number;
+  readonly text?: Rgba;
 }
+
+/** The text colour of the components that set one for the texts below them. */
+const TEXT_THEMES: Readonly<Record<string, ColorRole>> = {
+  CircleAvatar: "onPrimaryContainer",
+};
 
 const ICON_THEMES: Readonly<Record<string, readonly [ColorRole, number]>> = {
   IconButton: ["onSurfaceVariant", 24],
@@ -300,11 +391,13 @@ const ICON_THEMES: Readonly<Record<string, readonly [ColorRole, number]>> = {
 /** The icon theme `node`'s child in `slot` sees: its component's, an app bar's leading icon in `onSurface`. */
 function iconContextOf(node: PaintNode, slot: string | undefined, theme: PaintTheme, above: IconContext): IconContext {
   const entry = ICON_THEMES[node.type ?? ""];
+  const text = TEXT_THEMES[node.type ?? ""];
+  const withText = text === undefined ? above : { ...above, text: roleColor(theme, text) };
   if (entry === undefined) {
-    return above;
+    return withText;
   }
   const role = node.type === "AppBar" && slot === "leading" ? "onSurface" : entry[0];
-  return { color: roleColor(theme, role), size: entry[1] };
+  return { ...withText, color: roleColor(theme, role), size: entry[1] };
 }
 
 /** Flutter's default icon theme: 24 pixels, black at 87 % in a light theme and white in a dark one. */
@@ -361,14 +454,10 @@ class TreePainter {
     const painted: Painted = r === undefined || painter === undefined ? {} : painter(node.props ?? {}, r, this.theme);
     if (r !== undefined) {
       const icon = type === "Icon" ? iconOf(node.props ?? {}, this.theme, icons) : undefined;
-      this.record(
-        node,
-        icon === undefined ? roleOf(type, painter !== undefined) : "icon",
-        painted,
-        opacity,
-        clips,
-        icon,
-      );
+      // An image with no source the canvas knows is a placeholder, as a widget not painted yet is.
+      const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
+      const role = icon === undefined ? roleOf(type, painter !== undefined && !sourceless) : "icon";
+      this.record(node, role, painted, opacity, clips, { icon, text: icons.text });
     }
     const childOpacity = opacity * (painted.opacity ?? 1);
     const childClips = painted.clip === undefined ? clips : [...clips, painted.clip];
@@ -387,8 +476,9 @@ class TreePainter {
     painted: Painted,
     opacity: number,
     clips: readonly PaintClip[],
-    icon?: IconPaint,
+    own: { readonly icon: IconPaint | undefined; readonly text: Rgba | undefined },
   ): void {
+    const icon = own.icon;
     const draws = role !== "layout" && (role !== "paint" || (painted.boxes?.length ?? 0) > 0);
     this.out.set(node.id, {
       role,
@@ -396,7 +486,7 @@ class TreePainter {
       order: draws ? this.order++ : Math.max(0, this.order - 1),
       opacity,
       clips,
-      ...(role === "text" ? { textColor: textColor(node, this.theme) } : {}),
+      ...(role === "text" ? { textColor: textColor(node, this.theme, own.text) } : {}),
       ...(icon === undefined ? {} : { icon }),
     });
   }

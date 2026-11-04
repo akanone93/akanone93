@@ -31,6 +31,7 @@ import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
 import { DockExpand, useStoredFlag } from "./dock-tabs.tsx";
 import { IconField } from "./icon-field.tsx";
+import { ImageSourceField } from "./image-field.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
 import {
   type Breakpoint,
@@ -372,6 +373,9 @@ function StyleObjectEditor(p: EditorProps & { bare: string }) {
   }
   if (p.bare === "IconData") {
     return <IconField {...own} />;
+  }
+  if (p.bare === "ImageSource") {
+    return <ImageSourceField {...own} />;
   }
   return p.bare === "TextStyle" ? <TextStyleEditor {...own} /> : <ObjectEditor {...p} />;
 }

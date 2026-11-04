@@ -40,6 +40,7 @@ import {
   PROTOCOL_VERSION,
   type RendererInfo,
   readHostMessage,
+  type SceneOp,
   type WorkerMessage,
 } from "./protocol.ts";
 import { type LiveLayer, SceneRenderer } from "./renderer.ts";
@@ -409,12 +410,27 @@ export class CanvasWorkerCore {
           model: buildSceneModel(running.scene, running.viewport),
         });
         return;
-      case "images":
+      case "images": {
+        const keys = new Set<string>();
         for (const image of message.images) {
-          running.renderer.setImage(image.key, image.bytes);
+          if (running.renderer.setImage(image.key, image.bytes)) {
+            keys.add(image.key);
+          }
+        }
+        // The boxes that show an image now loaded are drawn again, their tiles too.
+        const ops = running.scene
+          .items()
+          .flatMap((it): SceneOp[] =>
+            it.spec.kind === "rect" && it.spec.image !== undefined && keys.has(it.spec.image)
+              ? [{ op: "replace", item: it.spec }]
+              : [],
+          );
+        if (ops.length > 0) {
+          running.scene.apply(ops);
         }
         this.markBase(running);
         break;
+      }
       case "thumbnail": {
         const item = running.scene.get(message.id);
         const png = item === undefined ? null : running.renderer.thumbnail(item.bounds, message.width);

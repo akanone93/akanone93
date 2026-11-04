@@ -24,6 +24,7 @@ import type {
   ClipSpec,
   IconNames,
   ItemSpec,
+  RectSpec,
   SceneOp,
   ScreenDocument,
   ScreenHeight,
@@ -230,8 +231,35 @@ function iconItems(
   ];
 }
 
+/** The image key of an app asset: the host sets its bytes under it (`setImages`). */
+export const assetImageKey = (asset: string): string => `asset:${asset}`;
+
+/**
+ * A box's image as the canvas draws it: an asset by its key, fitted, over the surface container while it loads; a
+ * network image is the device's to load, so the box shows the placeholder only.
+ */
+function imageOf(box: BoxPaint, style: ScreenStyle): Partial<RectSpec> {
+  const image = box.image;
+  if (image === undefined) {
+    return {};
+  }
+  const placeholder = box.fill === undefined ? { placeholder: style.box } : {};
+  return {
+    ...(image.asset === undefined ? {} : { image: assetImageKey(image.asset) }),
+    imageFit: { fit: image.fit, alignX: image.alignX, alignY: image.alignY, ...placeholder },
+  };
+}
+
 /** One painted box of a widget as a scene item. */
-function paintedBox(s: ScreenDocument, b: Placed, paint: NodePaint, box: BoxPaint, i: number, frame: object): ItemSpec {
+function paintedBox(
+  s: ScreenDocument,
+  b: Placed,
+  paint: NodePaint,
+  box: BoxPaint,
+  i: number,
+  frame: object,
+  style: ScreenStyle,
+): ItemSpec {
   const border = box.border;
   return {
     kind: "rect",
@@ -254,6 +282,7 @@ function paintedBox(s: ScreenDocument, b: Placed, paint: NodePaint, box: BoxPain
           },
         }),
     ...(box.shadows === undefined ? {} : { shadows: box.shadows }),
+    ...imageOf(box, style),
     ...(border === undefined ? {} : border.kind === "all" ? { stroke: border.side } : { sides: sidesOf(border) }),
     ...(paint.opacity < 1 ? { opacity: paint.opacity } : {}),
     ...clipsOf(s, paint),
@@ -308,8 +337,48 @@ function paintedItems(
   }
   return [
     { kind: "rect", ...own, h: b.h, radius: 0 },
-    ...paint.boxes.map((box, i) => paintedBox(s, b, paint, box, i, frame)),
+    ...paint.boxes.map((box, i) => paintedBox(s, b, paint, box, i, frame, style)),
+    ...webImageGlyphs(s, b, paint, style, glyphs, frame),
   ];
+}
+
+/** A web image's placeholder carries an image glyph: the canvas does not load it (the device does). */
+function webImageGlyphs(
+  s: ScreenDocument,
+  b: Placed,
+  paint: NodePaint,
+  style: ScreenStyle,
+  glyphs: IconGlyphs | undefined,
+  frame: object,
+): ItemSpec[] {
+  return paint.boxes.flatMap((box, i): ItemSpec[] => {
+    const size = Math.min(24, box.w * 0.5, box.h * 0.5);
+    const glyph =
+      box.image?.url === undefined || size < 8
+        ? undefined
+        : glyphs?.glyph({ name: "image", set: "material", size, color: style.text });
+    if (glyph === undefined) {
+      return [];
+    }
+    return [
+      {
+        kind: "text",
+        id: `${s.id}/${b.id}${PAINT_SUFFIX}${i}web`,
+        x: s.x + box.x + (box.w - size) / 2,
+        y: s.y + box.y + (box.h - size) / 2,
+        w: size,
+        text: glyph.text,
+        size,
+        height: 1,
+        align: "center",
+        color: ((style.text & 0xffffff00) | 0x8a) >>> 0,
+        families: glyph.families,
+        ...clipsOf(s, paint),
+        z: PAINT_Z + paint.order + 0.5,
+        ...frame,
+      },
+    ];
+  });
 }
 
 /** The scene items of one laid-out screen. */

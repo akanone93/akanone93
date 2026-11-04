@@ -9,11 +9,11 @@
  */
 
 import { BoxConstraints } from "../flutter/constraints.ts";
-import { EdgeInsets } from "../flutter/geometry.ts";
+import { Alignment, EdgeInsets } from "../flutter/geometry.ts";
 import { kMinInteractiveDimension, MaterialTapTargetSize, VisualDensity } from "../flutter/material/theme.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
-import { RenderPadding } from "../flutter/shifted-box.ts";
+import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
 import type { MaterialContext } from "./material-scene.ts";
 import { padding, type SceneNode } from "./scene.ts";
 
@@ -85,9 +85,15 @@ export const leafBuilders: Readonly<Record<string, LeafBuilder>> = {
   Switch: switchControl,
   Divider: (node) => expanding("horizontal", number(node, "height", 16)),
   VerticalDivider: (node) => expanding("vertical", number(node, "width", 16)),
-  CircleAvatar: (node) => {
+  /** A circle of the radius, its child (initials, an icon) centred in it as Flutter's avatar centres it. */
+  CircleAvatar: (node, ctx) => {
     const side = 2 * number(node, "radius", 20);
-    return tight(side, side);
+    const child = node.children?.find((c) => (c.slot ?? "child") === "child");
+    return new RenderConstrainedBox({
+      additionalConstraints: BoxConstraints.tightFor({ width: side, height: side }),
+      child:
+        child === undefined ? null : new RenderPositionedBox({ alignment: Alignment.center, child: ctx.build(child) }),
+    });
   },
   CircularProgressIndicator: () =>
     new RenderConstrainedBox({ additionalConstraints: new BoxConstraints({ minWidth: 36, minHeight: 36 }) }),

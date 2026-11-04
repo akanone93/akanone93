@@ -8,9 +8,9 @@
  * uniform stroke keep the batched path; these are the ones that cannot be batched.
  */
 
-import type { Canvas, CanvasKit, Paint, ParagraphStyle, Shader, TextStyle } from "canvaskit-wasm";
+import type { Canvas, CanvasKit, Image as CkImage, Paint, ParagraphStyle, Shader, TextStyle } from "canvaskit-wasm";
 import { color4f } from "./batch.ts";
-import type { ClipSpec, ColorRgba, GradientSpec, RectSpec, TextRunSpec, TextSpec } from "./protocol.ts";
+import type { ClipSpec, ColorRgba, GradientSpec, ImageFitSpec, RectSpec, TextRunSpec, TextSpec } from "./protocol.ts";
 
 /** Whether `spec` needs the painted path: anything a batched rounded rectangle cannot draw. */
 export function isPainted(spec: RectSpec): boolean {
@@ -21,8 +21,100 @@ export function isPainted(spec: RectSpec): boolean {
     spec.shadows !== undefined ||
     spec.sides !== undefined ||
     spec.opacity !== undefined ||
-    spec.clips !== undefined
+    spec.clips !== undefined ||
+    spec.imageFit !== undefined
   );
+}
+
+/** The decoded image of a key, or null while it is missing. */
+export type ImageLookup = (key: string) => CkImage | null;
+
+/**
+ * Flutter's `applyBoxFit` and `paintImage`: the part of an image of `iw` by `ih` drawn, and where in the box, for
+ * `fit` and the alignment.
+ */
+export function fitImage(
+  fit: ImageFitSpec["fit"],
+  iw: number,
+  ih: number,
+  box: { x: number; y: number; w: number; h: number },
+  alignX: number,
+  alignY: number,
+): { src: [number, number, number, number]; dst: [number, number, number, number] } {
+  const [sw, sh, dw, dh] = boxFit(fit, iw, ih, box.w, box.h);
+  const halfW = (box.w - dw) / 2;
+  const halfH = (box.h - dh) / 2;
+  const dx = box.x + halfW + alignX * halfW;
+  const dy = box.y + halfH + alignY * halfH;
+  const sx = (iw - sw) / 2 + (alignX * (iw - sw)) / 2;
+  const sy = (ih - sh) / 2 + (alignY * (ih - sh)) / 2;
+  return { src: [sx, sy, sx + sw, sy + sh], dst: [dx, dy, dx + dw, dy + dh] };
+}
+
+/** `applyBoxFit`: the source size taken from the image and the destination size it fills, `[sw, sh, dw, dh]`. */
+type Fitted = readonly [sw: number, sh: number, dw: number, dh: number];
+
+function boxFit(fit: ImageFitSpec["fit"], iw: number, ih: number, w: number, h: number): Fitted {
+  switch (fit) {
+    case "fill":
+      return [iw, ih, w, h];
+    case "contain":
+      return w / h > iw / ih ? [iw, ih, (iw * h) / ih, h] : [iw, ih, w, (ih * w) / iw];
+    case "cover":
+      return w / h > iw / ih ? [iw, (iw * h) / w, w, h] : [(ih * w) / h, ih, w, h];
+    case "fitWidth":
+      return w / h > iw / ih ? [iw, (iw * h) / w, w, h] : [iw, ih, w, (ih * w) / iw];
+    case "fitHeight":
+      return w / h > iw / ih ? [iw, ih, (iw * h) / ih, h] : [(ih * w) / h, ih, w, h];
+    case "none": {
+      const sw = Math.min(iw, w);
+      const sh = Math.min(ih, h);
+      return [sw, sh, sw, sh];
+    }
+    default: {
+      const [, , cw, ch] = boxFit("contain", iw, ih, w, h);
+      return cw > iw || ch > ih ? [iw, ih, iw, ih] : [iw, ih, cw, ch];
+    }
+  }
+}
+
+/** The image of `spec`, fitted, clipped to the box's shape and faded with it. */
+function drawImage(
+  ck: CanvasKit,
+  canvas: Canvas,
+  spec: RectSpec,
+  corners: Corners | "oval",
+  paint: Paint,
+  opacity: number,
+  images: ImageLookup | undefined,
+): number {
+  const fill = spec.imageFit;
+  const image = fill === undefined || spec.image === undefined ? null : (images?.(spec.image) ?? null);
+  if (fill === undefined) {
+    return 0;
+  }
+  if (image === null) {
+    if (fill.placeholder === undefined) {
+      return 0;
+    }
+    paint.setColor(color4f(ck, faded(fill.placeholder, opacity)));
+    drawShape(canvas, spec, corners, paint);
+    return 1;
+  }
+  const { src, dst } = fitImage(fill.fit, image.width(), image.height(), spec, fill.alignX, fill.alignY);
+  canvas.save();
+  canvas.clipRRect(rrect(spec.x, spec.y, spec.w, spec.h, corners), ck.ClipOp.Intersect, true);
+  paint.setColor(color4f(ck, faded(0x000000ff, opacity)));
+  canvas.drawImageRectOptions(
+    image,
+    ck.LTRBRect(...src),
+    ck.LTRBRect(...dst),
+    ck.FilterMode.Linear,
+    ck.MipmapMode.None,
+    paint,
+  );
+  canvas.restore();
+  return 1;
 }
 
 /** Flutter's `Shadow.convertRadiusToSigma`: the blur radius of a box shadow as a Gaussian sigma. */
@@ -172,8 +264,11 @@ function drawBorder(
   strip(sides.right, spec.x + spec.w - (sides.right?.width ?? 0), spec.y, sides.right?.width ?? 0, spec.h);
 }
 
-/** Draws one painted box with `paint`, a scratch paint the caller owns; returns the draw calls made. */
-export function drawPainted(ck: CanvasKit, canvas: Canvas, spec: RectSpec, paint: Paint): number {
+/**
+ * Draws one painted box with `paint`, a scratch paint the caller owns, its image from `images`; returns the draw calls
+ * made.
+ */
+export function drawPainted(ck: CanvasKit, canvas: Canvas, spec: RectSpec, paint: Paint, images?: ImageLookup): number {
   const opacity = spec.opacity ?? 1;
   const corners = cornersOf(spec);
   canvas.save();
@@ -182,9 +277,10 @@ export function drawPainted(ck: CanvasKit, canvas: Canvas, spec: RectSpec, paint
   paint.setStyle(ck.PaintStyle.Fill);
   drawShadows(ck, canvas, spec, corners, paint, opacity);
   drawFill(ck, canvas, spec, corners, paint, opacity);
+  const drawn = drawImage(ck, canvas, spec, corners, paint, opacity, images);
   drawBorder(ck, canvas, spec, corners, paint, opacity);
   canvas.restore();
-  return 1 + (spec.shadows?.length ?? 0);
+  return 1 + drawn + (spec.shadows?.length ?? 0);
 }
 
 /** Whether a text needs clipping or fading before it is drawn. */

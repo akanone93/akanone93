@@ -76,6 +76,23 @@ export interface BoxPaint extends Rect {
   readonly shadows?: readonly ShadowPaint[];
   /** Drawn over the widget's children (a foreground decoration). */
   readonly foreground?: boolean;
+  /** An image painted inside the box's shape, over its fill (`Image`, a `CircleAvatar`'s image). */
+  readonly image?: ImagePaint;
+}
+
+/** Flutter's `BoxFit`. */
+export type BoxFitName = "fill" | "contain" | "cover" | "fitWidth" | "fitHeight" | "none" | "scaleDown";
+
+/**
+ * An image as Flutter's `paintImage` draws it: from an app asset (by id) or a network URL, fitted to the box and
+ * aligned in it (`x` and `y` from -1 to 1). A network image is the device's to load; the canvas shows its placeholder.
+ */
+export interface ImagePaint {
+  readonly asset?: string;
+  readonly url?: string;
+  readonly fit: BoxFitName;
+  readonly alignX: number;
+  readonly alignY: number;
 }
 
 /** How one widget is drawn: its boxes, the opacity and clips of its ancestors, and its text colour. */
@@ -119,6 +136,8 @@ export interface PaintTheme {
    * takes those fields over the default text style, as the runtime's `TextStyle` merge does.
    */
   readonly textTokens?: Readonly<Record<string, Partial<TypeSpec>>>;
+  /** The URL of each image asset of the app by asset id, for the canvas to load (AST-002). */
+  readonly assets?: Readonly<Record<string, string>>;
   /** Every dimension token of the theme by path (`space.md`), in logical pixels. */
   readonly dimensions?: Readonly<Record<string, number>>;
   /** True in a right-to-left screen, where `start` and `end` insets swap. */

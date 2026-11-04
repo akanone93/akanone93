@@ -147,6 +147,24 @@ export function styleMessages(i18n: I18n) {
         values: { count },
         comment: "Below the icon grid when more icons match than it shows.",
       }),
+    imageSource: (kind: string) =>
+      i18n._({
+        id: "style.imageSource",
+        message: "{kind, select, asset {App images} url {Web address} other {Image}}",
+        values: { kind },
+        comment: "Where an image comes from, in the image picker: the app's uploaded images or a web address.",
+      }),
+    imageEmpty: i18n._({
+      id: "style.imageEmpty",
+      message: "No images yet. Upload them in the Assets tab.",
+      comment: "Shown in the image picker when the app has no uploaded images.",
+    }),
+    imageUrlNote: i18n._({
+      id: "style.imageUrlNote",
+      message: "The device loads a web image; the canvas shows its placeholder.",
+      comment: "Below the web address field of the image picker.",
+    }),
+    imageWeb: i18n._({ id: "style.imageWeb", message: "Web image", comment: "An image source that is a web address." }),
   };
 }
 

@@ -514,6 +514,12 @@ msgstr "{kib} KiB"
 msgid "assets.kind"
 msgstr "{kind, select, all {Alle} image {Bilder} vector {Vektoren} font {Schriften} animation {Animationen} other {Sonstige}}"
 
+#. Where an image comes from, in the image picker: the app's uploaded images or a web address.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.imageSource"
+msgstr "{kind, select, asset {App-Bilder} url {Webadresse} other {Bild}}"
+
 #. Choice of the kind of gradient of a decoration.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -9143,6 +9149,12 @@ msgstr "Kein Symbol passt."
 msgid "publish.evidence.thumbNone"
 msgstr "Kein Bild"
 
+#. Shown in the image picker when the app has no uploaded images.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.imageEmpty"
+msgstr "Noch keine Bilder. Lade sie im Tab „Assets“ hoch."
+
 #. Shown when a revised component has no instances.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -14667,6 +14679,12 @@ msgstr "Der Standardwert muss gültiges JSON sein."
 msgid "functions.placementDevice"
 msgstr "dem Gerät"
 
+#. Below the web address field of the image picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.imageUrlNote"
+msgstr "Ein Webbild lädt das Gerät; die Leinwand zeigt seinen Platzhalter."
+
 #. Description of the revoke dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -16941,6 +16959,12 @@ msgstr "Warnung"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.levelWarning"
 msgstr "Warnungen und Fehler"
+
+#. An image source that is a web address.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.imageWeb"
+msgstr "Webbild"
 
 #. Label of a text's font weight (100 to 900).
 #. js-lingui-explicit-id

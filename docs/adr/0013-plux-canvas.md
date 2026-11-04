@@ -70,7 +70,10 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   `Icon` is its glyph in the server's pinned icon fonts — Material Symbols Outlined at its default instance, in two
   parts, and the Cupertino icons, derived by `studio/scripts/gen-icons.ts` — at its size and colour, else its
   component's (Flutter's icon theme), mirrored in right-to-left text when Flutter mirrors it; fill, weight and grade
-  variations are the device's. Painting is reviewed by eye against the device, not by pixels.
+  variations are the device's. An `Image` or a `CircleAvatar`'s image of an app asset is drawn from the asset's
+  raster form, fitted as Flutter's `paintImage` fits it (every `BoxFit`, alignment) and clipped to its shape; the host
+  fetches it and hands it to the worker by key, and it shows a placeholder until it arrives. A web image is the
+  device's to load: the canvas draws its placeholder. Painting is reviewed by eye against the device, not by pixels.
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with

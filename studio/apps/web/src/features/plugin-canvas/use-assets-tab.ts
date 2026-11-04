@@ -3,6 +3,7 @@
 
 import { createClient } from "@connectrpc/connect";
 import { AssetService } from "@plux/api";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useApp } from "../../lib/use-app.tsx";
@@ -11,8 +12,15 @@ import { useApp } from "../../lib/use-app.tsx";
 export function useAssetsTab(editorSessionId: string) {
   const { session } = useApp();
   const { app } = useParams({ strict: false }) as { app?: string };
+  const queries = useQueryClient();
   return useMemo(
-    () => ({ client: createClient(AssetService, session.transport), appId: app ?? "", session: editorSessionId }),
-    [session, app, editorSessionId],
+    () => ({
+      client: createClient(AssetService, session.transport),
+      appId: app ?? "",
+      session: editorSessionId,
+      // The canvas's images and the image picker read the same list.
+      onChanged: () => void queries.invalidateQueries({ queryKey: ["assets", app ?? ""] }),
+    }),
+    [session, app, editorSessionId, queries],
   );
 }

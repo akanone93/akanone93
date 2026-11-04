@@ -55,6 +55,9 @@ export function assetKind(a: Pick<Asset, "mediaType" | "name">): AssetKind {
   return "other";
 }
 
+/** The drag data type of an image dragged from the Assets tab: its asset id; dropped on a screen it becomes an `Image`. */
+export const ASSET_DRAG_TYPE = "application/x-plux-asset";
+
 /** The first URL of an asset's processed forms, for a raster image's thumbnail. */
 function thumbOf(a: Asset): string | undefined {
   return a.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
@@ -69,10 +72,13 @@ export function AssetsTab({
   client,
   appId,
   session,
+  onChanged,
 }: {
   readonly client: AssetClient;
   readonly appId: string;
   readonly session: string;
+  /** Called after the list changed (an upload or a delete), for the canvas and the pickers to see it. */
+  readonly onChanged?: () => void;
 }): ReactElement {
   const m = assetsMessages(useLingui().i18n);
   const [assets, setAssets] = useState<readonly Asset[] | null>(null);
@@ -85,10 +91,11 @@ export function AssetsTab({
     try {
       setAssets((await client.listAssets({ appId })).assets);
       setLoadFailed(false);
+      onChanged?.();
     } catch {
       setLoadFailed(true);
     }
-  }, [client, appId]);
+  }, [client, appId, onChanged]);
   useEffect(() => {
     void refresh();
   }, [refresh]);
@@ -226,7 +233,16 @@ export function AssetsTab({
             const k = assetKind(a);
             const thumb = k === "image" ? thumbOf(a) : undefined;
             return (
-              <li key={a.id} className="asset-card" title={a.name}>
+              <li
+                key={a.id}
+                className="asset-card"
+                title={a.name}
+                draggable={k === "image"}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData(ASSET_DRAG_TYPE, a.id);
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
+              >
                 <span className="asset-thumb" data-kind={k} aria-hidden="true">
                   {thumb === undefined ? <Icon name={kindIcons[k]} /> : <img src={thumb} alt="" loading="lazy" />}
                 </span>

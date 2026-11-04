@@ -75,6 +75,11 @@ export interface RectSpec {
   readonly shadows?: readonly ShadowSpec[];
   readonly sides?: SidesSpec;
   readonly opacity?: number;
+  /**
+   * How the image of `image` sits in a painted box (STU-005, AST-002): fitted inside the box's shape over its fill,
+   * with a placeholder colour drawn while the image is missing.
+   */
+  readonly imageFit?: ImageFitSpec;
   readonly clips?: readonly ClipSpec[];
   readonly z: number;
 }
@@ -154,6 +159,14 @@ export interface TextSpec {
   readonly opacity?: number;
   readonly clips?: readonly ClipSpec[];
   readonly z: number;
+}
+
+/** An image's `BoxFit` and alignment (`x` and `y` from -1 to 1) in its box, and its placeholder's colour. */
+export interface ImageFitSpec {
+  readonly fit: "fill" | "contain" | "cover" | "fitWidth" | "fitHeight" | "none" | "scaleDown";
+  readonly alignX: number;
+  readonly alignY: number;
+  readonly placeholder?: ColorRgba;
 }
 
 /** One run of a rich text: its characters and what differs from the text's own style. */

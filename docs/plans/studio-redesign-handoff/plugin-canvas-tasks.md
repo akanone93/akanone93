@@ -52,8 +52,9 @@ Needs.
 - **PC-03 Icons.** *See:* Material Symbols and Cupertino icons, in their size and colour, in the colour of the
   component around them; an icon picker (buttons and bars draw their icons with PC-05 and PC-07). *Build:* a row of
   icons. *Check:* pick an icon by search; switch to Cupertino; change its size and colour. `THM-005`.
-- **PC-04 Images.** *See:* asset and network images with fit and rounded corners, avatars, placeholders. *Build:* drag
-  an uploaded image onto a screen. *Check:* change the fit; a network image shows its placeholder. `AST-002`.
+- **PC-04 Images.** *See:* asset images in every fit, with rounded corners; avatars with an image, initials or an
+  icon; a web image's placeholder; an image picker. *Build:* drag an uploaded image onto a screen. *Check:* change the
+  fit; pick another image; a web image shows its placeholder. `AST-002`.
 - **PC-05 Buttons and controls.** *See:* Material 3 buttons, FABs, chips, switches, checkboxes, radios, sliders,
   segmented buttons, progress, badges, in their states. *Build:* an actions screen. *Check:* the **State** preview
   switch shows disabled and selected. `STU-005`.

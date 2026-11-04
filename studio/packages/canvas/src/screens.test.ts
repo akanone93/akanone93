@@ -439,4 +439,40 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(lay(TextDirection.rtl).get("s/b#paintglyph")).toMatchObject({ mirror: true });
     engine.dispose();
   });
+
+  test("[AST-002] an image is its asset's key, fitted, over a placeholder; a web image shows its placeholder glyph", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const icons = {
+      material: { image: 0xe3f4 },
+      cupertino: {},
+      families: { material: ["M"], cupertino: [] },
+      mirrored: [],
+    };
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        {
+          id: "a",
+          type: "Image",
+          props: { source: { asset: { $asset: "logo" } }, fit: "cover", width: 80, height: 40 },
+        },
+        { id: "w", type: "Image", props: { source: { url: "https://example.com/a.png" }, width: 80, height: 40 } },
+      ],
+    };
+    const items = new Map(
+      new ScreenLayouts(icons)
+        .replaceAll([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine)
+        .ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])),
+    );
+    expect(items.get("s/a#paint0")).toMatchObject({
+      kind: "rect",
+      image: "asset:logo",
+      imageFit: { fit: "cover", alignX: 0, alignY: 0, placeholder: style.box },
+    });
+    expect(items.get("s/w#paint0")).not.toHaveProperty("image");
+    expect(items.get("s/w#paint0web")).toMatchObject({ kind: "text", text: String.fromCodePoint(0xe3f4) });
+    engine.dispose();
+  });
 });

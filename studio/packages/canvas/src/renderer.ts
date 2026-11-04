@@ -1240,7 +1240,7 @@ export class SceneRenderer {
     this.calls += this.batches.flush(canvas);
     for (const item of this.painted) {
       if (item.spec.kind === "rect") {
-        this.calls += drawPainted(this.ck, canvas, item.spec, this.paintedPaint);
+        this.calls += drawPainted(this.ck, canvas, item.spec, this.paintedPaint, this.imageOf);
       }
     }
     this.painted.length = 0;
@@ -1253,6 +1253,9 @@ export class SceneRenderer {
     this.texts.length = 0;
     this.pictures.length = 0;
   }
+
+  /** The decoded image of `key`, for painted boxes. */
+  private readonly imageOf = (key: string): Image | null => this.images.get(key) ?? null;
 
   /** Decodes `bytes` and keeps the image under `key`; an existing key is left as it is. */
   setImage(key: string, bytes: Uint8Array): boolean {

@@ -13,6 +13,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { ActionGraphHost } from "../action-graph/index.ts";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
+import { useScreenImages } from "./screen-images.ts";
 import "./plugin-editor.css";
 import { CanvasStatus } from "../app-canvas/canvas-chrome.tsx";
 import { DesignersHost } from "../designers/designers-host.tsx";
@@ -435,7 +436,9 @@ function PluginCanvasView({
     appScreens,
     nativeRoutes,
   });
-  const index = useMemo(() => indexNodes(screens.map((s) => s.root)), [screens]);
+  const roots = useMemo(() => screens.map((s) => s.root), [screens]);
+  useScreenImages(params.app, () => surfaceRef.current, roots, heights.size);
+  const index = useMemo(() => indexNodes(roots), [roots]);
   const locked = useMemo(() => lockedIds(screens.map((s) => s.root)), [screens]);
   const screenOf = useMemo(() => {
     const out = new Map<string, string>();

@@ -539,9 +539,10 @@ export function paintedTextOf(
   node: WidgetNode,
   paint: PaintTheme,
   theme: ScreenTheme,
+  base?: ResolvedText,
 ): { placed: PlacedText; style: TextStyle; options: ParagraphOptions } {
   const props = (node.props ?? {}) as Record<string, unknown>;
-  const t = resolveTextStyle(props["style"], paint);
+  const t = resolveTextStyle(props["style"], paint, base);
   const p = textPropsOf(props);
   return { placed: placedTextOf(t, p), style: layoutTextStyle(t, theme), options: paragraphOptionsOf(p) };
 }

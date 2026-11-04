@@ -7,6 +7,7 @@ import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { GestureEnv } from "../plugin-canvas/select/gesture.ts";
 import { itemIdOf, type NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
+import { ASSET_DRAG_TYPE } from "./assets-tab.tsx";
 import { WIDGET_DRAG_TYPE } from "./insert-pane.tsx";
 import { dropTarget, insertWidget, type PanelModel } from "./model.ts";
 
@@ -43,7 +44,8 @@ export function insertDropHandlers(a: Args) {
           y: s.viewport.y + (e.clientY - box.top) / s.viewport.zoom,
         };
   };
-  const mine = (e: DragEvent) => a.canEdit && e.dataTransfer.types.includes(WIDGET_DRAG_TYPE);
+  const mine = (e: DragEvent) =>
+    a.canEdit && (e.dataTransfer.types.includes(WIDGET_DRAG_TYPE) || e.dataTransfer.types.includes(ASSET_DRAG_TYPE));
   return {
     onDragOver(e: DragEvent): void {
       const w = world(e);
@@ -60,7 +62,10 @@ export function insertDropHandlers(a: Args) {
     onDrop(e: DragEvent): void {
       a.surface()?.setGuides?.(null);
       const w = world(e);
-      const d = a.descriptors.find((x) => x.type === e.dataTransfer.getData(WIDGET_DRAG_TYPE));
+      // An image dragged from the Assets tab lands as an `Image` of that asset (AST-002).
+      const asset = e.dataTransfer.getData(ASSET_DRAG_TYPE);
+      const type = asset === "" ? e.dataTransfer.getData(WIDGET_DRAG_TYPE) : "Image";
+      const d = a.descriptors.find((x) => x.type === type);
       if (!mine(e) || w === null || d === undefined) {
         return;
       }
@@ -73,6 +78,8 @@ export function insertDropHandlers(a: Args) {
           a.edit,
           (id) => a.screenOf.get(id),
           a.canEdit,
+          undefined,
+          asset === "" ? undefined : { source: { asset: { $asset: asset } }, fit: "cover" },
         );
       }
     },

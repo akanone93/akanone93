@@ -114,13 +114,15 @@ export function insertWidget(
   docOf: (id: string) => string | undefined,
   canEdit: boolean,
   newId?: IdSource,
+  props?: Readonly<Record<string, unknown>>,
 ): string | null {
   const doc = docOf(place.parent);
   if (!canEdit || doc === undefined) {
     return null;
   }
   const ids = newId ?? uuidv7;
-  const node = buildNode(d, ids);
+  const built = buildNode(d, ids);
+  const node = props === undefined ? built : { ...built, props: { ...(built.props ?? {}), ...props } };
   const placed =
     place.at === undefined
       ? node
