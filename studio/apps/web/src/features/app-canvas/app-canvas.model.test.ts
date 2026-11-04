@@ -6,6 +6,7 @@ import {
   autoLayout,
   BOX,
   canvasDocument,
+  centreViewport,
   fitViewport,
   marquee,
   placeBoxes,
@@ -72,6 +73,15 @@ describe("app canvas model [STU-030] [STU-032]", () => {
     );
     expect(v.z).toBeLessThan(1);
     expect(fitViewport([], { width: 1000, height: 600 })).toEqual({ x: 0, y: 0, z: 1 });
+  });
+
+  test("the opening view is 100 % with the boxes' centre in the middle of the view [STU-067]", () => {
+    const view = { width: 1000, height: 600 };
+    const v = centreViewport([{ x: 100, y: 50 }], view);
+    expect(v.z).toBe(1);
+    expect(v.x + view.width / 2).toBe(100 + BOX.width / 2);
+    expect(v.y + view.height / 2).toBe(50 + BOX.height / 2);
+    expect(centreViewport([], view)).toEqual({ x: -500, y: -300, z: 1 });
   });
 
   test("the canvas document round-trips, is written in a stable order and holds only document ids", () => {

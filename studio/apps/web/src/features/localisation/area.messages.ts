@@ -290,6 +290,11 @@ export function localisationAreaMessages(i18n: I18n) {
       message: "File",
       comment: "Label of the file chooser of the import dialog.",
     }),
+    importTypes: i18n._({
+      id: "l10n.area.importTypes",
+      message: "XLIFF, ARB, JSON or CSV",
+      comment: "Under the file chooser of the import dialog: the kinds of translation file it takes.",
+    }),
     importInto: (v: { locale: string | number }) =>
       i18n._({
         id: "l10n.area.importInto",

@@ -35,7 +35,6 @@ function renderBay(state: UpstreamData, props: Partial<DeviceBayProps> = {}) {
   const full: DeviceBayProps = {
     appId: "a1",
     problems: <p>Problems body</p>,
-    collapsed: <p>Collapsed body</p>,
     selectedPath: undefined,
     onInspect: () => undefined,
     accepted: 0,
@@ -63,7 +62,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
   test("the toolbar opens the drawer, which pauses [DEV-020]", async () => {
     renderBay({ devSession: { devices } });
     expect(screen.queryByRole("complementary")).toBeNull();
-    fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
     expect(await screen.findByRole("button", { name: "Pause" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Pause" }));
     expect(screen.getByRole("button", { name: "Resume" })).toBeTruthy();
@@ -71,7 +70,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
 
   test("pairing and send are not in the bay toolbar: the action bar runs their commands [STU-060]", async () => {
     renderBay({ devSession: { devices } });
-    await screen.findByRole("button", { name: "Devices" });
+    await screen.findByRole("button", { name: "Developer console" });
     expect(screen.queryByRole("button", { name: "Pair a device" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Send to device" })).toBeNull();
   });
@@ -79,7 +78,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
   test("selecting a node in Studio highlights it on the device [STU-131]", async () => {
     const commands: DevSessionServiceSendCommandRequest[] = [];
     const bay = renderBay({ devSession: { devices, commands } });
-    fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
     fireEvent.click(await screen.findByRole("button", { name: "Highlight selection on device" }));
     bay.update({ selectedPath: "/pages/home/1/0" });
     await waitFor(() => expect(commands.map((c) => c.command.case)).toContain("inspectSelect"));
@@ -95,7 +94,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
       payload: { case: "inspect", value: { nodePath: "/pages/home/1/0", widget: "Text" } },
     });
     renderBay({ devSession: { devices, events: [tap] } }, { onInspect: (p) => inspected.push(p) });
-    fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
     await waitFor(() => expect(inspected).toEqual(["/pages/home/1/0"]));
     expect(resolveNodePath(screens, "/pages/home/1/0")).toEqual({ screen: "home", node: "c" });
   });
@@ -103,7 +102,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
   test("device controls send one OpenScreen with locale, theme and text scale [STU-132]", async () => {
     const commands: DevSessionServiceSendCommandRequest[] = [];
     renderBay({ devSession: { devices, commands } });
-    fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
     fireEvent.change(await screen.findByLabelText("Language"), { target: { value: "de" } });
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(commands.length).toBe(1));
@@ -131,7 +130,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
         },
       },
     );
-    fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
     fireEvent.click(await screen.findByRole("button", { name: "Capture screenshot" }));
     await waitFor(() => expect(commands.some((c) => c.command.case === "captureScreenshot")).toBe(true));
     expect(await screen.findByAltText("Screenshot of the paired device")).toBeTruthy();
@@ -152,7 +151,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
     });
     const ticks = [1000, 1180];
     const bay = renderBay({ devSession: { devices, events: [applied], gate } }, { now: () => ticks.shift() ?? 0 });
-    fireEvent.click(await screen.findByRole("button", { name: "Devices" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
     await screen.findByRole("button", { name: "Pause" });
     bay.update({ accepted: 1 });
     await act(async () => release());

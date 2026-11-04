@@ -1339,8 +1339,8 @@ export class SceneRenderer {
       this.batches.rect(fillLayer, item.fillKey, spec.fill, 0, spec.x, spec.y, spec.w, spec.h, spec.radius);
     }
     if (spec.stroke && item.strokeKey) {
-      const { color, width } = spec.stroke;
-      this.batches.rect(strokeLayer, item.strokeKey, color, width, spec.x, spec.y, spec.w, spec.h, spec.radius);
+      const { color, width, dash = 0 } = spec.stroke;
+      this.batches.rect(strokeLayer, item.strokeKey, color, width, spec.x, spec.y, spec.w, spec.h, spec.radius, dash);
     }
   }
 

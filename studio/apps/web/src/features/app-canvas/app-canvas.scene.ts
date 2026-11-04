@@ -117,6 +117,8 @@ export interface AppSceneStyle {
   readonly fill: ColorRgba;
   readonly archivedFill: ColorRgba;
   readonly nativeFill: ColorRgba;
+  /** The dashed outline of a native target (STU-033). */
+  readonly nativeStroke: ColorRgba;
   readonly stroke: ColorRgba;
   readonly title: ColorRgba;
   readonly secondary: ColorRgba;
@@ -154,6 +156,7 @@ export const appSceneStyle: AppSceneStyle = {
   fill: rgba(primitives.white),
   archivedFill: rgba(primitives["porcelain.100"]),
   nativeFill: rgba(primitives["violet.700"], 0x14),
+  nativeStroke: rgba(primitives["violet.700"], 0x8c),
   stroke: rgba(primitives["navy.alpha16"]),
   title: rgba(primitives["navy.900"]),
   secondary: rgba(primitives["navy.500"]),
@@ -393,6 +396,14 @@ function pillItems(
   ];
 }
 
+/** A box's outline: the focus colour when selected; a native target's dashed, so it never reads as a plugin (STU-033). */
+function outlineOf(b: SceneBox, style: AppSceneStyle, selected: boolean) {
+  if (selected) {
+    return { color: style.focus, width: 2, ...(b.native ? { dash: 7 } : {}) };
+  }
+  return b.native ? { color: style.nativeStroke, width: 1.5, dash: 7 } : { color: style.stroke, width: 1 };
+}
+
 /**
  * The items of one box, a card resting on the canvas with a soft shadow (STU-030): its head (the solid mark with the
  * plugin's initial, the name in bold on one line, the key under it, and the release chip at the end), its figures, and
@@ -424,8 +435,8 @@ export function boxItems(
       h: BOX.height,
       radius: CARD.radius,
       fill: b.native ? style.nativeFill : b.archived ? style.archivedFill : style.fill,
-      stroke: selected ? { color: style.focus, width: 2 } : { color: style.stroke, width: 1 },
-      shadow: true,
+      stroke: outlineOf(b, style, selected),
+      shadow: !b.native,
       z,
     },
     {

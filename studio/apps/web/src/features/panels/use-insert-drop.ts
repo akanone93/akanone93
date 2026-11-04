@@ -7,7 +7,7 @@ import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { GestureEnv } from "../plugin-canvas/select/gesture.ts";
 import { itemIdOf, type NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
-import { WIDGET_DRAG_TYPE } from "./left-dock.tsx";
+import { WIDGET_DRAG_TYPE } from "./insert-pane.tsx";
 import { dropTarget, insertWidget, type PanelModel } from "./model.ts";
 
 interface Args {

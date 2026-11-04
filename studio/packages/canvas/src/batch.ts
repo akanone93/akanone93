@@ -62,7 +62,7 @@ export class Batches {
     return this.layers.reduce((sum, layer) => sum + layer.size, 0);
   }
 
-  private entry(layer: BatchLayer, key: string, color: ColorRgba, strokeWidth: number): Entry {
+  private entry(layer: BatchLayer, key: string, color: ColorRgba, strokeWidth: number, dash = 0): Entry {
     const map = this.layers[layer];
     const found = map?.get(key);
     if (found) {
@@ -75,13 +75,17 @@ export class Batches {
     if (strokeWidth > 0) {
       paint.setStyle(this.ck.PaintStyle.Stroke);
       paint.setStrokeWidth(strokeWidth);
+      if (dash > 0) {
+        // Dashes of `dash` with gaps of three quarters of it: an outline that reads as dashed at every zoom.
+        paint.setPathEffect(this.resources.own(this.ck.PathEffect.MakeDash([dash, dash * 0.75], 0)));
+      }
     }
     const entry: Entry = { builder: this.resources.own(new this.ck.PathBuilder()), paint, used: true };
     map?.set(key, entry);
     return entry;
   }
 
-  /** Adds a (rounded) rectangle; `strokeWidth` 0 fills it. */
+  /** Adds a (rounded) rectangle; `strokeWidth` 0 fills it, and `dash` draws its stroke dashed. */
   rect(
     layer: BatchLayer,
     key: string,
@@ -92,8 +96,9 @@ export class Batches {
     w: number,
     h: number,
     radius: number,
+    dash = 0,
   ): void {
-    const { builder } = this.entry(layer, key, color, strokeWidth);
+    const { builder } = this.entry(layer, key, color, strokeWidth, dash);
     if (radius <= 0) {
       this.rect4.set([x, y, x + w, y + h]);
       builder.addRect(this.rect4);

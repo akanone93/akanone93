@@ -6,6 +6,7 @@ import type { CaseDefinition } from "./case.ts";
 import { cases as count } from "./count.cases.tsx";
 import { cases as dialog } from "./dialog.cases.tsx";
 import { cases as field } from "./field.cases.tsx";
+import { cases as fileDrop } from "./file-drop.cases.tsx";
 import { cases as glass } from "./glass.cases.tsx";
 import { cases as icon } from "./icon.cases.tsx";
 import { cases as liveChip } from "./live-chip.cases.tsx";
@@ -30,6 +31,7 @@ export const allCases: Readonly<Record<string, readonly CaseDefinition[]>> = {
   Button: button,
   Dialog: dialog.filter((c) => c.name !== "alert dialog"),
   Field: field,
+  FileDrop: fileDrop,
   Count: count,
   GlassCapsule: glass.filter((c) => c.name === "capsule"),
   FloatingPanel: glass.filter((c) => c.name !== "capsule"),

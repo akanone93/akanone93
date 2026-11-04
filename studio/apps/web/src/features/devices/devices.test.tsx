@@ -130,7 +130,13 @@ describe("S6.4 device drawer [STU-066] [DEV-020]", () => {
 
   test("has the nine tabs and streams log events into Logs", async () => {
     renderHost({ devSession: { devices, events } }, <DeviceDrawer sessionId="s1" problems={problems} />);
-    expect((await screen.findAllByRole("tab")).map((t) => t.textContent)).toEqual([
+    // A tab's name leaves out its live count, which is hidden from assistive technology.
+    const named = (t: HTMLElement) =>
+      [...t.childNodes]
+        .filter((n) => !(n instanceof Element && n.getAttribute("aria-hidden") === "true"))
+        .map((n) => n.textContent)
+        .join("");
+    expect((await screen.findAllByRole("tab")).map(named)).toEqual([
       "Problems",
       "Logs",
       "Process flow",

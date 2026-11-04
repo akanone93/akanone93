@@ -17,7 +17,10 @@ import { LeftDock } from "./left-dock.tsx";
 import { dropTarget, insertionPoint, insertRecipe, insertWidget, layerDrop, modelOf, moveLayer } from "./model.ts";
 import { insertDropHandlers } from "./use-insert-drop.ts";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
 const root: Node = {
   id: "r",
@@ -76,11 +79,27 @@ describe("[STU-061] left panels", () => {
     expect(set.mock.calls[0]?.[0]).toEqual({ ids: ["t2"], anchor: "t2", scope: "r" });
   });
 
-  test("Selection tab summarises a multi-selection", async () => {
-    dock(true, { ids: ["t1", "t2"], anchor: "t2", scope: "r" }, mock(), mock());
-    fireEvent.click(await screen.findByRole("tab", { name: "Selection" }));
+  test("the Layers tab holds the screens and summarises a multi-selection above the tree", async () => {
+    const set = mock((_: Selection) => undefined);
+    dock(true, { ids: ["t1", "t2"], anchor: "t2", scope: "r" }, set, mock());
+    fireEvent.click(await screen.findByRole("tab", { name: "Layers" }));
     await waitFor(() => expect(screen.getByText(/2 nodes selected/)).toBeTruthy());
     expect(screen.getByText("t1")).toBeTruthy();
+    const home = (await screen.findAllByRole("treeitem")).find((r) => r.getAttribute("data-item-id") === "r");
+    expect(home?.textContent).toContain("Home");
+    expect(home?.textContent).toContain("Entry");
+    fireEvent.click(screen.getByRole("button", { name: "Clear selection" }));
+    expect(set.mock.calls[0]?.[0]).toEqual({ ids: [], anchor: null, scope: null });
+  });
+
+  test("the Layers filter keeps the matching rows and their screen", async () => {
+    dock(true, emptySelection, mock(), mock());
+    fireEvent.click(await screen.findByRole("tab", { name: "Layers" }));
+    fireEvent.change(screen.getByLabelText("Filter layers"), { target: { value: "row" } });
+    const ids = (await screen.findAllByRole("treeitem")).map((r) => r.getAttribute("data-item-id"));
+    expect(ids).toEqual(["r", "row"]);
+    fireEvent.change(screen.getByLabelText("Filter layers"), { target: { value: "nothing like it" } });
+    expect(await screen.findByText("No layer matches the filter.")).toBeTruthy();
   });
 
   test("insert builds a valid node from the descriptor with a fresh UUIDv7", () => {

@@ -3,9 +3,9 @@
 
 import { useLingui } from "@lingui/react";
 import type { WidgetDescriptor } from "@plux/schema";
-import { Icon, type IconName, LayerTree, TypeTag } from "@plux/ui";
+import { Icon, type IconName, layerFolders } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
-import { type ComponentProps, type DragEvent, type ReactElement, useMemo, useState } from "react";
+import { type ComponentProps, type ReactElement, useCallback, useMemo, useRef, useState } from "react";
 import type { DesignerDocument } from "../designers/use-document.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
@@ -15,26 +15,21 @@ import { itemIdOf, type NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { assetsMessages } from "./assets.messages.ts";
 import { AssetsTab } from "./assets-tab.tsx";
-import {
-  catalogue,
-  groupOf,
-  insertGroups,
-  kindIcon,
-  kindOf,
-  search,
-  type WidgetKind,
-  widgetKinds,
-} from "./catalogue.ts";
+import { catalogue, search } from "./catalogue.ts";
 import { DockTabs, type Pane } from "./dock-tabs.tsx";
+import { InsertPane } from "./insert-pane.tsx";
+import { LayersPane, LayersToolbar } from "./layers-pane.tsx";
 import { insertionPoint, insertWidget, modelOf, moveLayer } from "./model.ts";
 import { panelsMessages } from "./panels.messages.ts";
 import { selectIds, treeNodes } from "./selection-model.ts";
-import { DataTab, StateTab } from "./tab-panels.tsx";
+import { DataPane } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
 
-export const WIDGET_DRAG_TYPE = "application/x-plux-widget";
+export { WIDGET_DRAG_TYPE } from "./insert-pane.tsx";
 
 export interface LeftDockProps {
+  /** The plugin's name, under the editor's name in the dock's header. */
+  readonly title?: string | undefined;
   readonly screens: readonly PlacedScreen[];
   readonly entryPage: string | undefined;
   readonly index: NodeIndex;
@@ -72,7 +67,11 @@ function reveal(
   surface.setViewport((b.l + b.r) / 2 - canvas.clientWidth / 2 / z, (b.t + b.b) / 2 - canvas.clientHeight / 2 / z, z);
 }
 
-/** The left dock of the plugin canvas (STU-061): Insert, Layers, Screens, State, Data, Selection. Writes go through `edit` and stop when read-only. */
+/**
+ * The left dock of the plugin canvas (STU-061): the editor's rail and header over four panes — Insert, Layers (with the
+ * screens and the selection), Assets and Data (state and data sources). Writes go through `edit` and stop when
+ * read-only.
+ */
 export function LeftDock(props: LeftDockProps): ReactElement {
   const { i18n } = useLingui();
   const m = panelsMessages(i18n);
@@ -80,6 +79,7 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   const { index, screenOf, selection, store, edit, canEdit } = props;
   const [query, setQuery] = useState("");
   const [note, setNote] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
   const model = useMemo(() => modelOf(props.screens.map((s) => s.root)), [props.screens]);
   const all = useMemo(() => catalogue(props.nativeWidgets), [props.nativeWidgets]);
   const found = useMemo(() => search(all, query), [all, query]);
@@ -101,156 +101,70 @@ export function LeftDock(props: LeftDockProps): ReactElement {
       store.set(selectIds(index, store.get(), id, false));
     }
   };
-  const startDrag = (e: DragEvent, d: WidgetDescriptor) => {
-    e.dataTransfer.setData(WIDGET_DRAG_TYPE, d.type);
-    e.dataTransfer.effectAllowed = "copy";
-  };
 
-  const nodes = useMemo(() => treeNodes(props.screens, index, m.pluginRoot), [props.screens, index, m.pluginRoot]);
-  const rtl = i18n.locale.startsWith("ar");
-  const types = selection.ids.map((id) => index.type.get(id) ?? id);
-  const summary = [...new Set(types)].map((t) => `${types.filter((x) => x === t).length} ${t}`).join(", ");
+  // The Insert pane redraws only when its own inputs change: its tiles animate, and measuring them on every edit or
+  // selection of the canvas slowed the whole editor.
+  const insertRef = useRef(insert);
+  insertRef.current = insert;
+  const onInsert = useCallback((d: WidgetDescriptor) => insertRef.current(d), []);
 
-  const [kind, setKind] = useState<WidgetKind | "all">("all");
-  const kindLabel: Record<WidgetKind, string> = {
-    layout: m.kindLayout,
-    content: m.kindContent,
-    input: m.kindInput,
-    interaction: m.kindInteraction,
-    navigation: m.kindNavigation,
-    motion: m.kindMotion,
-    platform: m.kindPlatform,
-    more: m.kindMore,
-  };
-  const basics = found.filter((d) => groupOf(d) === "layer1");
-  const sections = [
-    ...widgetKinds.map((k) => ({
-      key: k as string,
-      label: kindLabel[k],
-      icon: kindIcon[k] as IconName,
-      list: kind === "all" || kind === k ? basics.filter((d) => kindOf(d) === k) : [],
-    })),
-    ...insertGroups
-      .filter((g) => g !== "layer1")
-      .map((g) => ({
-        key: g as string,
-        label: m[g],
-        icon: (g === "layer2" ? "component" : "puzzle-piece") as IconName,
-        list: kind === "all" ? found.filter((d) => groupOf(d) === g) : [],
-      })),
-  ].filter((x) => x.list.length > 0);
-  const tile = (d: WidgetDescriptor, icon: IconName, kind: string) => (
-    <li key={d.type} draggable={canEdit} onDragStart={(e) => startDrag(e, d)}>
-      <button
-        type="button"
-        className="gallery-tile"
-        disabled={!canEdit}
-        aria-label={m.insert(d.type)}
-        title={d.description}
-        onClick={() => insert(d)}
-      >
-        <span className="gallery-glyph" data-kind={kind} aria-hidden="true">
-          <Icon name={icon} />
-        </span>
-        <span className="gallery-name">{d.type}</span>
-      </button>
-    </li>
+  const entry = useMemo(() => ({ page: props.entryPage, label: m.entryScreen }), [props.entryPage, m.entryScreen]);
+  const nodes = useMemo(
+    () => treeNodes(props.screens, index, m.pluginRoot, entry),
+    [props.screens, index, m.pluginRoot, entry],
   );
+  // The screens open at first, so their widgets show; the person folds and unfolds from there.
+  const roots = useMemo(() => [...(nodes["plugin"]?.children ?? [])], [nodes]);
+  const [expanded, setExpanded] = useState<readonly string[] | null>(null);
+  const open = expanded ?? roots;
+  const rtl = i18n.locale.startsWith("ar");
 
   const panes: readonly Pane[] = [
     {
       value: "insert",
       label: m.insertTab,
       icon: "plus",
-      meta: String(found.length),
-      panel: (
-        <div className="flex flex-col gap-3">
-          <InputGroup>
-            <InputGroupAddon>
-              <Icon name="magnifying-glass" />
-            </InputGroupAddon>
-            <InputGroupInput
-              aria-label={m.search}
-              placeholder={m.search}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </InputGroup>
-          {/* biome-ignore lint/a11y/useSemanticElements: a labelled group of filter toggles, not a form's fieldset */}
-          <div role="group" aria-label={m.kindAll} className="gallery-kinds">
-            {(["all", ...widgetKinds] as const).map((k) => (
-              <button
-                key={k}
-                type="button"
-                className="gallery-kind"
-                aria-pressed={kind === k}
-                onClick={() => setKind(k)}
-              >
-                {k === "all" ? m.kindAll : kindLabel[k]}
-              </button>
-            ))}
-          </div>
-          {!canEdit && <p className="text-xs text-muted-foreground">{m.readOnly}</p>}
-          {note !== null && (
-            <p role="status" className="text-xs text-muted-foreground">
-              {note}
-            </p>
-          )}
-          {sections.length === 0 && <p className="text-xs text-muted-foreground">{m.noMatches}</p>}
-          {sections.map((x) => (
-            <section key={x.key} aria-label={x.label} className="flex flex-col gap-2">
-              <h3 className="gallery-heading">
-                <Icon name={x.icon} size="pill" />
-                <span className="flex-1">{x.label}</span>
-                <span className="gallery-count">{x.list.length}</span>
-              </h3>
-              <ul className="gallery-grid">{x.list.map((d) => tile(d, x.icon, x.key))}</ul>
-            </section>
-          ))}
-        </div>
+      toolbar: (
+        <InputGroup>
+          <InputGroupAddon>
+            <Icon name="magnifying-glass" />
+          </InputGroupAddon>
+          <InputGroupInput
+            aria-label={m.search}
+            placeholder={m.search}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </InputGroup>
       ),
+      panel: <InsertPane found={found} all={all} canEdit={canEdit} note={note} onInsert={onInsert} />,
     },
     {
       value: "layers",
       label: m.layersTab,
       icon: "tree-structure",
       meta: String(props.screens.length),
-      panel: (
-        <div className="plugin-layers">
-          <LayerTree
-            nodes={nodes}
-            rootId="plugin"
-            label={m.layersLabel}
-            dir={rtl ? "rtl" : "ltr"}
-            selected={selection.ids}
-            onSelect={select}
-            onDrop={canEdit ? (d, t, half) => moveLayer(model, index, d, t, half, edit, docOf, canEdit) : undefined}
-          />
-        </div>
+      toolbar: (
+        <LayersToolbar
+          filter={filter}
+          onFilter={setFilter}
+          onExpandAll={() => setExpanded(layerFolders(nodes, "plugin"))}
+          onCollapseAll={() => setExpanded([])}
+        />
       ),
-    },
-    {
-      value: "screens",
-      label: m.screensTab,
-      icon: "device-mobile",
-      meta: String(props.screens.length),
       panel: (
-        <ul aria-label={m.screensLabel} className="flex flex-col gap-1">
-          {props.screens.map((s) => (
-            <li key={s.id}>
-              <button
-                type="button"
-                className="screen-row"
-                data-current={selection.ids.some((id) => screenOf.get(id) === s.id) ? "" : undefined}
-                onClick={() => s.root !== undefined && select(s.root.id, false)}
-              >
-                <span className="screen-glyph" aria-hidden="true" />
-                <span className="min-w-0 flex-1 truncate">{s.title}</span>
-                {s.id === props.entryPage && <TypeTag>{m.entryScreen}</TypeTag>}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <LayersPane
+          nodes={nodes}
+          selected={selection.ids}
+          filter={filter}
+          expanded={open}
+          dir={rtl ? "rtl" : "ltr"}
+          onExpanded={setExpanded}
+          onSelect={select}
+          onReveal={(id) => reveal(props.surface(), props.canvas(), docOf(id), id)}
+          onClear={() => store.set({ ids: [], anchor: null, scope: null })}
+          onDrop={canEdit ? (d, t, half) => moveLayer(model, index, d, t, half, edit, docOf, canEdit) : undefined}
+        />
       ),
     },
     ...(props.assets === undefined
@@ -264,48 +178,28 @@ export function LeftDock(props: LeftDockProps): ReactElement {
           },
         ]),
     {
-      value: "state",
-      label: tm.stateTab,
-      icon: "braces",
-      panel: <StateTab documents={props.documents} onOpen={props.onOpenState} />,
-    },
-    {
       value: "data",
       label: tm.dataTab,
       icon: "database",
-      panel: <DataTab documents={props.documents} onOpen={props.onOpenData} />,
-    },
-    {
-      value: "selection",
-      label: m.selectionTab,
-      icon: "cursor",
-      meta: String(selection.ids.length),
-      panel:
-        selection.ids.length === 0 ? (
-          <p className="text-xs text-muted-foreground">{m.noSelection}</p>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {selection.ids.length > 1 && (
-              <p className="text-sm">
-                {m.selectedCount(selection.ids.length)} ({summary})
-              </p>
-            )}
-            <ul aria-label={m.selectionLabel} className="flex flex-col gap-1">
-              {selection.ids.map((id) => (
-                <li key={id} className="screen-row">
-                  <TypeTag>{index.type.get(id) ?? "?"}</TypeTag>
-                  <code className="truncate text-xs text-muted-foreground">{id}</code>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ),
+      panel: <DataPane documents={props.documents} onOpenState={props.onOpenState} onOpenData={props.onOpenData} />,
     },
   ];
 
+  const widgets = Math.max(0, index.parent.size - roots.length);
   return (
     <aside aria-label={m.dock} className="plugin-dock plugin-dock-start canvas-panel canvas-side glass">
-      <DockTabs panes={panes} defaultValue="insert" />
+      <DockTabs
+        panes={panes}
+        defaultValue="insert"
+        mark="puzzle-piece"
+        head={
+          <div className="flex min-w-0 flex-col">
+            <span className="dock-head-kicker">{m.editorTitle}</span>
+            <h2 className="dock-head-title">{props.title ?? m.pluginRoot}</h2>
+            <span className="dock-head-meta">{m.editorSummary(props.screens.length, widgets)}</span>
+          </div>
+        }
+      />
     </aside>
   );
 }

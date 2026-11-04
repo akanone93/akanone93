@@ -127,3 +127,79 @@
 .canvas-guide[data-axis="y"] {
   border-block-start: 1px solid var(--primary);
 }
+
+/* The point a context menu opens from: placed like the marquee, from the physical top left. */
+.canvas-anchor {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: 1px;
+  block-size: 1px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  pointer-events: none;
+}
+
+/* The app canvas's left dock: as wide as the plugin editor's, its plugins as rows with their mark, key and state. */
+.app-dock {
+  inline-size: 21rem;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+.app-dock-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2.5);
+  padding: calc(var(--spacing) * 2);
+  border-radius: var(--radius-lg);
+  cursor: default;
+}
+
+.app-dock-mark {
+  --hue: var(--muted-foreground);
+
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 8);
+  block-size: calc(var(--spacing) * 8);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--primary-foreground);
+  background-color: var(--hue);
+}
+
+.app-dock-mark:not([data-hue]) {
+  color: var(--muted-foreground);
+  background-color: var(--muted);
+}
+
+.app-dock-mark[data-hue="1"] {
+  --hue: var(--chart-1);
+}
+
+.app-dock-mark[data-hue="2"] {
+  --hue: var(--chart-2);
+}
+
+.app-dock-mark[data-hue="3"] {
+  --hue: var(--chart-3);
+}
+
+.app-dock-mark[data-hue="4"] {
+  --hue: var(--chart-4);
+}
+
+.app-dock-mark[data-hue="5"] {
+  --hue: var(--chart-5);
+}
+
+.app-dock-chip {
+  flex: none;
+  padding: 0 calc(var(--spacing) * 1.5);
+  border-radius: var(--radius-sm);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background-color: color-mix(in oklch, var(--muted) 80%, transparent);
+}

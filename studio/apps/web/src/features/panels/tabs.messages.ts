@@ -105,6 +105,11 @@ export function tabMessages(i18n: I18n) {
         values: { count },
         comment: "Summary line of the Data tab; the count is the number of database collections.",
       }),
+    dataMockMark: i18n._({
+      id: "panelTabs.dataMockMark",
+      message: "mock",
+      comment: "Mark on a data source row of the Data tab when the source has a mock response.",
+    }),
     dataEmpty: i18n._({
       id: "panelTabs.dataEmpty",
       message: "The plugin has no data sources or collections yet.",

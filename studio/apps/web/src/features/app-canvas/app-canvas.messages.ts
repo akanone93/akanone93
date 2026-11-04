@@ -443,6 +443,13 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Tools",
       comment: "Accessible name of the group of canvas tools (Select, Hand).",
     }),
+    keyAndOwner: (key: string, team: string) =>
+      i18n._({
+        id: "appCanvas.keyAndOwner",
+        message: "{key} · {team}",
+        values: { key, team },
+        comment: "The line under a plugin's name on its box: its key, then the team that owns it (STU-030).",
+      }),
     zoomIn: i18n._({ id: "appCanvas.zoom.in", message: "Zoom in", comment: "Button that zooms the canvas in." }),
     zoomOut: i18n._({ id: "appCanvas.zoom.out", message: "Zoom out", comment: "Button that zooms the canvas out." }),
     zoomReset: (percent: number) =>
@@ -495,6 +502,76 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Frames",
       comment: "Heading of the frames in the plugins panel.",
     }),
+    dockTitle: i18n._({
+      id: "appCanvas.dockTitle",
+      message: "App canvas",
+      comment: "Header of the app canvas's left dock, above the app's name.",
+    }),
+    dockSummary: (plugins: number, frames: number) =>
+      i18n._({
+        id: "appCanvas.dockSummary",
+        message:
+          "{plugins, plural, one {# plugin} other {# plugins}} · {frames, plural, one {# frame} other {# frames}}",
+        values: { plugins, frames },
+        comment: "Under the app's name in the left dock: how many plugins and frames the canvas has.",
+      }),
+    overviewTab: i18n._({
+      id: "appCanvas.overviewTab",
+      message: "Overview",
+      comment: "Tab of the app canvas's left dock: figures about the whole app.",
+    }),
+    searchPlugins: i18n._({
+      id: "appCanvas.searchPlugins",
+      message: "Search plugins",
+      comment: "Label of the search field of the Plugins tab of the app canvas.",
+    }),
+    pluginFilters: i18n._({
+      id: "appCanvas.pluginFilters",
+      message: "Show plugins",
+      comment: "Accessible name of the row of status filters of the Plugins tab.",
+    }),
+    pluginFilter: (filter: "all" | "draft" | "errors" | "archived") =>
+      i18n._({
+        id: "appCanvas.pluginFilter",
+        message: "{filter, select, all {All} draft {Unpublished} errors {With errors} archived {Archived} other {All}}",
+        values: { filter },
+        comment: "A status filter of the Plugins tab of the app canvas.",
+      }),
+    noPluginMatches: i18n._({
+      id: "appCanvas.noPluginMatches",
+      message: "No plugin matches.",
+      comment: "Shown in the Plugins tab when the search or the filter leaves nothing.",
+    }),
+    noFrames: i18n._({
+      id: "appCanvas.noFrames",
+      message: "No frames yet. Select plugins and press F to frame them.",
+      comment: "Shown in the Frames tab of the app canvas while there is no frame.",
+    }),
+    overviewFigure: (figure: "plugins" | "screens" | "frames" | "draft" | "errors" | "archived") =>
+      i18n._({
+        id: "appCanvas.overviewFigure",
+        message:
+          "{figure, select, plugins {Plugins} screens {Screens} frames {Frames} draft {Unpublished} errors {With errors} archived {Archived} other {Figure}}",
+        values: { figure },
+        comment: "Name of a figure in the app canvas's overview.",
+      }),
+    entryPlugin: i18n._({
+      id: "appCanvas.entryPlugin",
+      message: "Entry plugin",
+      comment: "Label of the app's entry plugin in the overview of the app canvas.",
+    }),
+    noEntry: i18n._({
+      id: "appCanvas.noEntry",
+      message: "None chosen",
+      comment: "Shown in the overview when the app has no entry plugin.",
+    }),
+    problemTotals: (errors: number) =>
+      i18n._({
+        id: "appCanvas.problemTotals",
+        message: "{errors, plural, =0 {No validation errors} one {# validation error} other {# validation errors}}",
+        values: { errors },
+        comment: "The validation errors over every plugin of the app, in the canvas's top bar.",
+      }),
     hidePanel: i18n._({
       id: "appCanvas.layers.hide",
       message: "Hide panel",

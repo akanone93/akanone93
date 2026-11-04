@@ -192,3 +192,55 @@
 [data-slot="dialog-full-head"] {
   background-color: color-mix(in oklch, var(--muted) 45%, var(--popover));
 }
+
+/*
+ * A select's list is at least as wide as its trigger and as wide as its longest option, up to the room left in the
+ * window, so an option is never cut off by a narrow trigger (a two-column form, a toolbar).
+ */
+[data-slot="select-content"] {
+  inline-size: max-content;
+  min-inline-size: max(var(--anchor-width), calc(var(--spacing) * 36));
+  max-inline-size: min(32rem, var(--available-width));
+}
+
+/*
+ * Scrollbars: thin and rounded in the theme's colours, everywhere in Studio. Chromium and WebKit draw the
+ * pseudo-elements; Firefox, which has none, takes the standard properties.
+ */
+:root {
+  --scrollbar-thumb: color-mix(in oklch, var(--foreground) 22%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklch, var(--foreground) 38%, transparent);
+}
+
+[data-theme="contrast"] {
+  --scrollbar-thumb: var(--foreground);
+  --scrollbar-thumb-hover: var(--foreground);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 0.1875rem solid transparent;
+  border-radius: 999px;
+  background-color: var(--scrollbar-thumb);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}

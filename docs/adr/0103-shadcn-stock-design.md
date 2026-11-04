@@ -72,13 +72,30 @@ Chosen option: **shadcn/ui as it ships**.
   one line, its key, a release chip (`v3`, or `Draft`) and its screens and links; a tinted status
   strip along its foot holds the badges as pills, each with a solid dot; a box over another hides
   it; text stays text at every zoom. In dark the canvas is the page's own background, as the
-  content pages have it. The plugin canvas shares the surface and the glass, and its editor
-  is a design tool's shell: a top bar of the screens, history, checks, preview, devices and
-  Publish; a dock on each side with a rail of icon tabs (the Insert gallery of widget tiles by
-  kind, the layer tree by screen, screens, assets, state, data, selection; the inspector with the
-  widget's identity, a row of editor tiles, a two-row grid of tabs and properties in folding
-  sections); the zoom and the device bay at the foot. The full-screen editors open as one sheet
-  inset from the window, rounded, with a header bar. The canvas's glass panels are lighter than the page's:
+  content pages have it. The plugin canvas shares the surface and the glass, and both canvases
+  have a design tool's shell (amended by the maintainer on 2026-11-03, who asked for a leading top
+  bar, a dock with character, a real layer tree and a developer console): a top bar in three
+  parts — who and where at the start (the way back, the app's mark, the app over the plugin or
+  the app), the tools as one toolbar in the centre (on the plugin canvas the screens, history, the
+  preview popover, history and pairing, then Send to device and Publish side by side), and the
+  status at the end (the selection, the save state, the problem counts at a fixed width, and the
+  light and dark switch); a dock at the start whose rail is a bold column on the primary colour
+  with the editor's mark and a labelled tab per pane, the open one raised in white, beside a
+  header naming the editor and what it edits (the plugin editor: Insert with folding Categories,
+  Recently used and kinds of tiles that animate as the search narrows them; Layers, a tree of the
+  screens and their widgets with indentation guides, carets, icons and previews, a filter and a
+  card for the selection; Assets with a drop zone, kind filters and cards; Data with the state and
+  the data sources; the app canvas: Plugins, Frames and Overview); the inspector with the
+  widget's identity, labelled editor tiles, the tabs, a size-class switch and folding property
+  sections, and the plugin's overview when nothing is selected; the zoom controls, identical on
+  both canvases, at the bottom start; and on the plugin canvas the developer console between the
+  docks, a slim bar that opens into a resizable drawer of its tabs. A canvas opens at 100 %,
+  centred in the room the docks leave. A native target on the app canvas is a dashed outline with
+  a "Native" chip, and a secondary click on a plugin opens its context menu. The full-screen
+  editors open as one sheet inset from the window, rounded, with a header bar. Across Studio a
+  select's list is as wide as its longest option, scroll bars are thin and in the theme's
+  colours, and files are taken by one drop zone (`FileDrop`), never the browser's bare file
+  input. The canvas's glass panels are lighter than the page's:
   a 62 % fill with a faint top-down sheen, a 24-pixel blur, a hairline and a bright top edge, and
   a creamy elevation of three soft, faint shadows instead of the third elevation; the bars share
   one height and round less than the side panels; the contrast theme, forced colours and reduced

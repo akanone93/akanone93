@@ -243,9 +243,35 @@ export function devicesMessages(i18n: I18n) {
         comment: "Shown while the drawer is paused: how many events arrived since.",
       }),
     bayToggle: i18n._({
-      id: "devices.bayToggle",
-      message: "Devices",
-      comment: "Button that shows or hides the device drawer under the canvas.",
+      id: "devices.consoleToggle",
+      message: "Developer console",
+      comment:
+        "Button at the bottom of the plugin canvas that opens or closes the developer console: problems, device logs, state, network and the rest.",
+    }),
+    consoleLive: i18n._({
+      id: "devices.consoleLive",
+      message: "Live",
+      comment: "The developer console's state while it streams the paired devices' events.",
+    }),
+    consoleIdle: i18n._({
+      id: "devices.consoleIdle",
+      message: "Not connected",
+      comment: "The developer console's state while it is closed or has no dev session.",
+    }),
+    consoleResize: i18n._({
+      id: "devices.consoleResize",
+      message: "Resize the developer console",
+      comment: "Accessible name of the handle on the top edge of the open console; arrow keys change its height.",
+    }),
+    consoleDevice: i18n._({
+      id: "devices.consoleDevice",
+      message: "On the device",
+      comment: "Heading of the console's row of device controls: highlight, open a screen, screenshot.",
+    }),
+    consoleProblemsOnly: i18n._({
+      id: "devices.consoleProblemsOnly",
+      message: "Device tabs need a dev session; pair a device or check your access.",
+      comment: "Shown in the open console when no dev session could be started: only Problems is available.",
     }),
     pairAction: i18n._({
       id: "devices.pairAction",

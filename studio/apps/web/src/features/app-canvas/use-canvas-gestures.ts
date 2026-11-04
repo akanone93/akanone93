@@ -42,6 +42,8 @@ export interface GestureInput {
   readonly pick: (hits: readonly string[]) => ArrowPick | undefined;
   readonly onLane: (pick: ArrowPick) => void;
   readonly onOpen: (box: SceneBox) => void;
+  /** A secondary click on a plugin: its context menu at that point of the view (STU-034). */
+  readonly onContextMenu?: (box: SceneBox, at: Point) => void;
   readonly onView: () => void;
   /** The tool in use; Space held or the middle button pans whatever the tool. */
   readonly tool: CanvasTool;
@@ -380,6 +382,18 @@ export function useCanvasGestures(input: GestureInput) {
         input.setHover(undefined);
         input.expand(null);
       }
+    },
+    onContextMenu: (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const id = boxOfHits(hitsAt(e));
+      const box = input.boxes.find((b) => b.id === id);
+      if (box === undefined || input.onContextMenu === undefined) {
+        return;
+      }
+      e.preventDefault();
+      if (!input.selected.has(box.id) || input.selected.size > 1) {
+        input.setSelected(new Set([box.id]));
+      }
+      input.onContextMenu(box, local(e));
     },
     onDoubleClick: (e: React.MouseEvent<HTMLCanvasElement>) => {
       const id = boxOfHits(hitsAt(e));

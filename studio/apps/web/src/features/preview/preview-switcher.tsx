@@ -54,13 +54,16 @@ export function PreviewSwitcher({
     >
       {part !== "extra" && (
         <>
-          <Field label={m.frame}>
-            <Select
-              value={state.deviceFrame}
-              options={frames}
-              onValueChange={(v) => (v === CUSTOM ? setDialog(true) : onChange({ ...state, deviceFrame: v }))}
-            />
-          </Field>
+          {/* The frame names are long ("iPhone 15 Pro Max · 430 × 932"): the frame takes the whole row. */}
+          <div className="col-span-2">
+            <Field label={m.frame}>
+              <Select
+                value={state.deviceFrame}
+                options={frames}
+                onValueChange={(v) => (v === CUSTOM ? setDialog(true) : onChange({ ...state, deviceFrame: v }))}
+              />
+            </Field>
+          </div>
           <Field label={m.theme}>
             <Select
               value={state.theme}

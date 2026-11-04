@@ -147,6 +147,84 @@ export function panelsMessages(i18n: I18n) {
       message: "Selected nodes",
       comment: "Accessible name of the list of selected nodes.",
     }),
+    editorTitle: i18n._({
+      id: "panels.editorTitle",
+      message: "Plugin editor",
+      comment: "Header of the plugin editor's left dock, above the plugin's name.",
+    }),
+    editorSummary: (screens: number, widgets: number) =>
+      i18n._({
+        id: "panels.editorSummary",
+        message:
+          "{screens, plural, one {# screen} other {# screens}} · {widgets, plural, one {# widget} other {# widgets}}",
+        values: { screens, widgets },
+        comment: "Under the plugin's name in the left dock: how many screens and widgets the plugin has.",
+      }),
+    categories: i18n._({
+      id: "panels.categories",
+      message: "Categories",
+      comment: "Foldable section of the Insert tab: one tile per kind of widget, to show only that kind.",
+    }),
+    showingKind: (kind: string) =>
+      i18n._({
+        id: "panels.showingKind",
+        message: "Only {kind}",
+        values: { kind },
+        comment: "Chip in the Insert tab while one kind of widget is shown; pressing it shows every kind again.",
+      }),
+    showAllKinds: i18n._({
+      id: "panels.showAllKinds",
+      message: "Show every kind",
+      comment: "Accessible name of the chip that removes the kind filter of the Insert tab.",
+    }),
+    recent: i18n._({
+      id: "panels.recent",
+      message: "Recently used",
+      comment: "Section of the Insert tab: the widgets inserted last.",
+    }),
+    tileHint: i18n._({
+      id: "panels.tileHint",
+      message: "Click to insert into the selection, or drag onto a screen.",
+      comment: "Last line of a widget's details in the Insert tab.",
+    }),
+    tileFacts: (props: number, events: number) =>
+      i18n._({
+        id: "panels.tileFacts",
+        message:
+          "{props, plural, one {# property} other {# properties}} · {events, plural, one {# event} other {# events}}",
+        values: { props, events },
+        comment: "A widget's details in the Insert tab: how many properties and events it has.",
+      }),
+    filterLayers: i18n._({
+      id: "panels.filterLayers",
+      message: "Filter layers",
+      comment: "Label of the field that filters the layer tree by name, type or text.",
+    }),
+    expandAll: i18n._({
+      id: "panels.expandAll",
+      message: "Expand all",
+      comment: "Button of the Layers tab: opens every row of the tree.",
+    }),
+    collapseAll: i18n._({
+      id: "panels.collapseAll",
+      message: "Collapse all",
+      comment: "Button of the Layers tab: closes every row of the tree.",
+    }),
+    noLayers: i18n._({
+      id: "panels.noLayers",
+      message: "No layer matches the filter.",
+      comment: "Shown in the Layers tab when the filter matches no row.",
+    }),
+    clearSelection: i18n._({
+      id: "panels.clearSelection",
+      message: "Clear selection",
+      comment: "Button of the selection card in the Layers tab.",
+    }),
+    showSelection: i18n._({
+      id: "panels.showSelection",
+      message: "Show on canvas",
+      comment: "Button of the selection card in the Layers tab: brings the selected widget into view.",
+    }),
   };
 }
 
@@ -185,6 +263,45 @@ export function panelMessages(i18n: I18n) {
         "Heading of the inspector's row of buttons that open the full-screen editors (JSON, localisation, state, data, theme, action graph, Rust).",
     }),
 
+    editorShort: (editor: "json" | "l10n" | "state" | "data" | "db" | "theme" | "graph" | "rust") =>
+      i18n._({
+        id: "panel.editorShort",
+        message:
+          "{editor, select, json {JSON} l10n {Translations} state {State} data {Data sources} db {Database} theme {Theme} graph {Action graph} rust {Rust} other {Editor}}",
+        values: { editor },
+        comment:
+          "Short name under the icon of a full-screen editor in the inspector; its button's name is the full phrase.",
+      }),
+    overview: i18n._({
+      id: "panel.overview",
+      message: "Plugin overview",
+      comment: "Heading of the inspector while nothing is selected: figures about the whole plugin.",
+    }),
+    overviewFigure: (figure: "screens" | "widgets" | "state" | "data" | "errors" | "warnings") =>
+      i18n._({
+        id: "panel.overviewFigure",
+        message:
+          "{figure, select, screens {Screens} widgets {Widgets} state {State entries} data {Data sources} errors {Errors} warnings {Warnings} other {Figure}}",
+        values: { figure },
+        comment: "Name of a figure in the inspector's plugin overview.",
+      }),
+    overviewScreens: i18n._({
+      id: "panel.overviewScreens",
+      message: "Screens of the plugin",
+      comment: "Heading of the list of the plugin's screens in the inspector's overview.",
+    }),
+    entry: i18n._({
+      id: "panel.entry",
+      message: "Entry",
+      comment: "Mark beside the plugin's entry screen in the inspector's overview.",
+    }),
+    multiTitle: (count: number) =>
+      i18n._({
+        id: "panel.multiTitle",
+        message: "{count, plural, one {# widget} other {# widgets}}",
+        values: { count },
+        comment: "Title of the inspector's header while several widgets are selected.",
+      }),
     dock: i18n._({
       id: "panels.inspector",
       message: "Inspector",

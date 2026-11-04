@@ -347,6 +347,18 @@ export function fitViewport(boxes: readonly Point[], view: Size, size: Size = BO
   };
 }
 
+/** The opening view: 100 % with the boxes' centre in the middle of the view (fit stays a button). */
+export function centreViewport(boxes: readonly Point[], view: Size, size: Size = BOX): Viewport {
+  if (boxes.length === 0 || view.width <= 0 || view.height <= 0) {
+    return { x: -view.width / 2, y: -view.height / 2, z: 1 };
+  }
+  const minX = Math.min(...boxes.map((b) => b.x));
+  const minY = Math.min(...boxes.map((b) => b.y));
+  const maxX = Math.max(...boxes.map((b) => b.x + size.width));
+  const maxY = Math.max(...boxes.map((b) => b.y + size.height));
+  return { z: 1, x: (minX + maxX) / 2 - view.width / 2, y: (minY + maxY) / 2 - view.height / 2 };
+}
+
 /** The key of a new plugin from its name: lower-kebab, starting with a letter (SCH-005). */
 export function pluginKeyFrom(name: string, taken: ReadonlySet<string>): string {
   const base =

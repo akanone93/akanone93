@@ -6,7 +6,7 @@ import { Icon } from "@plux/ui";
 import { Button } from "@plux/ui/components/button";
 import { type ReactElement, useSyncExternalStore } from "react";
 import { isDark } from "../../lib/color-scheme.ts";
-import { useCommands } from "../../lib/commands/index.ts";
+import { useOptionalCommands } from "../../lib/commands/index.ts";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 
 /** Calls `change` whenever the document's theme attribute changes. */
@@ -23,7 +23,7 @@ function subscribe(change: () => void): () => void {
 export function ThemeButton(): ReactElement | null {
   const m = chromeMessages(useLingui().i18n);
   const dark = useSyncExternalStore(subscribe, isDark, () => false);
-  const toggle = useCommands().states.find((s) => s.command.id === "theme.toggle")?.command;
+  const toggle = useOptionalCommands()?.states.find((s) => s.command.id === "theme.toggle")?.command;
   if (toggle === undefined) {
     return null;
   }

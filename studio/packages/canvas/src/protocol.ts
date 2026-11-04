@@ -24,10 +24,11 @@ export interface Point {
   readonly y: number;
 }
 
-/** A stroke: colour and width in world units. */
+/** A stroke: colour and width in world units; `dash` draws it dashed, dashes of that length in world units. */
 export interface StrokeStyle {
   readonly color: ColorRgba;
   readonly width: number;
+  readonly dash?: number;
 }
 
 /** A device frame or screen: a container with an optional pre-rendered shadow. */

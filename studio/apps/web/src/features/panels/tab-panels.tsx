@@ -21,6 +21,7 @@ import {
   type StateEntry,
   setFieldRecipe,
 } from "../state-designer/state-model.ts";
+import { DockSection } from "./dock-tabs.tsx";
 import {
   type BudgetStatus,
   budgetStatus,
@@ -85,8 +86,11 @@ function StateRow({
     }
   };
   return (
-    <li className="flex flex-col gap-1 text-body">
+    <li className="data-row">
       <div className="flex items-center gap-2">
+        <span className="data-row-glyph" data-computed={entry.computed ? "" : undefined} aria-hidden="true">
+          <Icon name={entry.computed ? "lightning" : "variable"} size="pill" />
+        </span>
         <Input
           aria-label={m.stateRename(entry.name)}
           value={name}
@@ -97,7 +101,7 @@ function StateRow({
           onBlur={commitName}
           onKeyDown={onEnter(commitName)}
         />
-        <TypeTag>{entry.type}</TypeTag>
+        <span className="data-row-type">{entry.type}</span>
       </div>
       {!entry.computed && (
         <Input
@@ -141,10 +145,10 @@ export function StateTab({ documents, onOpen }: SummaryTabProps) {
         empty(m.stateEmpty)
       ) : (
         <>
-          <p className="text-body">
+          <p className="dock-note">
             {m.stateSummary(entries.length)}, {m.stateComputed(computed)}
           </p>
-          <ul aria-label={m.stateList} className="flex flex-col gap-2">
+          <ul aria-label={m.stateList} className="flex flex-col gap-1.5">
             {entries.map((e) => (
               <StateRow key={`${e.id}:${e.name}:${e.defaultText}`} entry={e} names={names} path={path} />
             ))}
@@ -167,7 +171,7 @@ export function StateTab({ documents, onOpen }: SummaryTabProps) {
       )}
       {onOpen !== undefined && (
         <Button variant="secondary" size="sm" onClick={onOpen}>
-          <Icon name="list" />
+          <Icon name="sliders" />
           {m.openState}
         </Button>
       )}
@@ -188,13 +192,18 @@ export function DataTab({ documents, onOpen }: SummaryTabProps) {
         empty(m.dataEmpty)
       ) : (
         <>
-          <p className="text-body">
+          <p className="dock-note">
             {m.dataSources(sources.length)}, {m.dataMocks(mocks)}, {m.dataCollections(collections)}
           </p>
-          <ul aria-label={m.dataList} className="flex flex-col gap-0.5">
+          <ul aria-label={m.dataList} className="flex flex-col gap-1.5">
             {sources.map((s, i) => (
-              <li key={String(s["id"] ?? i)} className="text-body">
-                <code>{String(s["name"] ?? s["id"] ?? i)}</code>
+              <li key={String(s["id"] ?? i)} className="data-row flex-row items-center">
+                <span className="data-row-glyph" aria-hidden="true">
+                  <Icon name="database" size="pill" />
+                </span>
+                <code className="min-w-0 flex-1 truncate text-xs">{String(s["name"] ?? s["id"] ?? i)}</code>
+                {typeof s["kind"] === "string" && <span className="data-row-type">{s["kind"]}</span>}
+                {s["mock"] !== undefined && <span className="data-row-type">{m.dataMockMark}</span>}
               </li>
             ))}
           </ul>
@@ -202,10 +211,37 @@ export function DataTab({ documents, onOpen }: SummaryTabProps) {
       )}
       {onOpen !== undefined && (
         <Button variant="secondary" size="sm" onClick={onOpen}>
-          <Icon name="list" />
+          <Icon name="database" />
           {m.openData}
         </Button>
       )}
+    </div>
+  );
+}
+
+/**
+ * The Data pane of the left dock (STU-061): the plugin's state and its data sources in one place, each a section that
+ * folds away, with its count and its way into the full-screen designer.
+ */
+export function DataPane({
+  documents,
+  onOpenState,
+  onOpenData,
+}: {
+  readonly documents: readonly DesignerDocument[] | undefined;
+  readonly onOpenState: (() => void) | undefined;
+  readonly onOpenData: (() => void) | undefined;
+}) {
+  const m = tabMessages(useLingui().i18n);
+  const doc = useDocumentValue(documents, "plugin.json").value;
+  return (
+    <div className="flex flex-col gap-1">
+      <DockSection label={m.stateTab} icon="variable" count={readState(doc).length}>
+        <StateTab documents={documents} onOpen={onOpenState} />
+      </DockSection>
+      <DockSection label={m.dataList} icon="database" count={objects(doc?.["dataSources"]).length}>
+        <DataTab documents={documents} onOpen={onOpenData} />
+      </DockSection>
     </div>
   );
 }

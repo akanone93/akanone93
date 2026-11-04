@@ -12,15 +12,15 @@ page and action needs the matching permission; Studio says so when you lack it.
 
 ## Pair a device
 
-1. Open **Devices** and choose **Pair a device**. Studio shows a QR code, the pairing link and a
+1. In a plugin's top bar choose **Pair a device**. Studio shows a QR code, the pairing link and a
    **Short code**, with the time left. **New code** replaces an expired one.
 2. In the Plux Dev app scan the code, or paste the link or type the code
    ([run it locally](../run-locally.md) §4 step 6).
 3. **Send to device** opens a screen with a **Screen route**, **Language**, **Theme** and **Text
    scale**. **Highlight selection on device** and **Capture screenshot** work on the paired device.
-4. The device drawer has tabs for **Problems**, **Logs**, **Process flow**, **State**, **Network**,
-   **Functions**, **Sync**, **Performance** and **Console**. Filter by level, **Pause**, and **Export
-   trace**. The pairing token is single-use: show it only to the device you are pairing.
+4. The **Developer console** under the plugin canvas has tabs for **Problems**, **Logs**, **Process
+   flow**, **State**, **Network**, **Functions**, **Sync**, **Performance** and **Console**. Filter by
+   device and level, search, **Pause**, and **Export trace**. The pairing token is single-use: show it only to the device you are pairing.
 
 ## Devices and security profile
 

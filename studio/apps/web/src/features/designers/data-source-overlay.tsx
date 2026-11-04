@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Icon, Input, Select, Textarea, TypeTag } from "@plux/ui";
+import { Button, Dialog, Field, FileDrop, Icon, Input, Select, Textarea, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useState } from "react";
 import { jsonEqual } from "../editor/json-patch.ts";
@@ -210,9 +210,12 @@ export function ImportSection(props: {
         disabled={!canEdit}
         onValueChange={(v) => setFormat(v === "graphql" ? "graphql" : "openapi")}
       />
-      <Field label={m.dataChooseFile}>
-        <Input type="file" disabled={!canEdit} onChange={(e) => void readFile(e.target.files?.[0], setText)} />
-      </Field>
+      <FileDrop
+        label={m.dataChooseFile}
+        disabled={!canEdit}
+        icon="file"
+        onFiles={(files) => void readFile(files[0], setText)}
+      />
       <Field label={m.dataSourceText}>
         <Textarea rows={6} value={text} disabled={!canEdit} onChange={(e) => setText(e.target.value)} />
       </Field>

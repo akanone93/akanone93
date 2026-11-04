@@ -73,12 +73,11 @@ const pick = (canvas: HTMLElement) => {
 };
 
 describe("S5.6 panel tabs [STU-061] [STU-062]", () => {
-  test("[STU-061] the left State and Data tabs summarise the plugin and open the designers", async () => {
+  test("[STU-061] the left Data tab summarises the state and the data sources and opens the designers", async () => {
     renderApp(path, { documents, surface: surface("b1") });
-    fireEvent.click(await screen.findByRole("tab", { name: "State" }, { timeout: 5000 }));
+    fireEvent.click(await screen.findByRole("tab", { name: "Data" }, { timeout: 5000 }));
     expect(await screen.findByText("2 state entries, 1 computed value")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open the state designer" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("tab", { name: "Data" }));
     expect(await screen.findByText("1 data source, 1 mock, 0 collections")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Open the data source designer" }));
     expect(await screen.findByRole("dialog")).toBeTruthy();
@@ -87,7 +86,7 @@ describe("S5.6 panel tabs [STU-061] [STU-062]", () => {
   test("[STU-061] the State tab adds, renames and sets the initial value of an entry through the edit pipeline", async () => {
     let edit: EditSession | undefined;
     renderApp(path, { documents, surface: surface("b1"), editor: (e) => (edit = e) });
-    fireEvent.click(await screen.findByRole("tab", { name: "State" }, { timeout: 5000 }));
+    fireEvent.click(await screen.findByRole("tab", { name: "Data" }, { timeout: 5000 }));
     const state = () =>
       ((edit?.store.getState().docs["plugin.json"]?.content ?? {}) as { state?: Record<string, unknown>[] }).state ??
       [];

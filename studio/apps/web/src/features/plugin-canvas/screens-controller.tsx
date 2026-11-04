@@ -79,6 +79,12 @@ export interface ScreensControllerProps {
   readonly canPublish?: boolean | undefined;
   /** Opens the publish flow (A1). */
   readonly onPublish: () => void;
+  readonly onZoomReset?: (() => void) | undefined;
+  /** Brings a screen into view when it is picked in the bar. */
+  readonly onShowScreen?: ((id: string) => void) | undefined;
+  /** The start and the end of the top bar (who and where; what the editor reports). */
+  readonly identity?: ReactNode;
+  readonly status?: ReactNode;
 }
 
 /**
@@ -264,7 +270,13 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         onFit={props.onFit}
         screens={props.screens}
         current={current}
-        onCurrent={setPicked}
+        onCurrent={(id) => {
+          setPicked(id);
+          props.onShowScreen?.(id);
+        }}
+        onZoomReset={props.onZoomReset}
+        identity={props.identity}
+        status={props.status}
         onNewScreen={() => open("new")}
         onScreenAction={open}
         onHistory={props.onHistory}

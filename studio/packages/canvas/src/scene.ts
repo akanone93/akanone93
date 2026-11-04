@@ -40,7 +40,9 @@ export function fillKey(color: number): string {
 
 /** The batching key of a stroke style. */
 export function strokeKey(stroke: StrokeStyle): string {
-  return `s${stroke.color}:${stroke.width}`;
+  return stroke.dash === undefined
+    ? `s${stroke.color}:${stroke.width}`
+    : `s${stroke.color}:${stroke.width}:${stroke.dash}`;
 }
 
 function linkBounds(spec: LinkSpec, out: Rect): Rect {
@@ -213,6 +215,7 @@ function sameBoxStyle(a: ItemSpec, b: ItemSpec): boolean {
     a.fill === b.fill &&
     a.stroke?.color === b.stroke?.color &&
     a.stroke?.width === b.stroke?.width &&
+    a.stroke?.dash === b.stroke?.dash &&
     (a.kind !== "rect" || b.kind !== "rect" || (a.frame === b.frame && a.label === b.label))
   );
 }

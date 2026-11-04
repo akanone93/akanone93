@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { type ReactNode, useCallback, useMemo } from "react";
+import type { DrawerTab } from "../devices/drawer-model.ts";
 import { DeviceBay } from "../devices/index.ts";
 import { nodePathOf, resolveNodePath } from "../devices/inspect-path.ts";
 import type { DocState } from "../editor/edit-session.ts";
 import { uploadAsset } from "../panels/upload-asset.ts";
-import { ProblemsContent, ProblemsDrawer } from "../problems/problems-panel.tsx";
+import { ProblemsContent } from "../problems/problems-panel.tsx";
 import type { Validation } from "../problems/use-validation.ts";
 import type { Node } from "./plugin-model.ts";
 import type { Selection } from "./select/selection.ts";
@@ -61,9 +62,12 @@ export function DeviceBayHost({
   validation,
   screenOf,
   entryPage,
+  request,
   ...input
 }: BridgeInput & {
   readonly appId: string | undefined;
+  /** Opens the console on a tab (the top bar's problem counts open Problems). */
+  readonly request?: { readonly tab: DrawerTab; readonly n: number } | undefined;
   readonly validation: Validation;
   readonly screenOf: ReadonlyMap<string, string>;
   readonly entryPage: string | undefined;
@@ -74,7 +78,8 @@ export function DeviceBayHost({
     <DeviceBay
       appId={appId ?? ""}
       problems={<ProblemsContent validation={validation} />}
-      collapsed={<ProblemsDrawer validation={validation} />}
+      problemCount={validation.state === "done" ? validation.problems.length : undefined}
+      request={request}
       selectedPath={bridge.selectedPath}
       onInspect={bridge.inspect}
       accepted={bridge.accepted}

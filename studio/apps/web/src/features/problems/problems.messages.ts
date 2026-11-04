@@ -11,11 +11,6 @@ export function problemsMessages(i18n: I18n) {
       message: "Problems",
       comment: "Label of the drawer tab that lists the validator's findings.",
     }),
-    drawer: i18n._({
-      id: "problems.drawer",
-      message: "Drawer",
-      comment: "Accessible name of the drawer below the canvas that holds tabs such as Problems.",
-    }),
     none: i18n._({
       id: "problems.none",
       message: "No problems found.",

@@ -3,10 +3,10 @@
 
 import { useLingui } from "@lingui/react";
 import type { LibraryItem } from "@plux/api";
-import { Button, Field, Input, notify, Select } from "@plux/ui";
+import { Field, FileDrop, Input, notify, Select } from "@plux/ui";
 import { Badge } from "@plux/ui/components/badge";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
-import { type ChangeEvent, type ReactElement, useState } from "react";
+import { type ReactElement, useState } from "react";
 import { AnimatedList } from "../../components/animated-list.tsx";
 import { libraryMessages } from "./library.messages.ts";
 import type { LibrarySearch } from "./library.schema.ts";
@@ -96,9 +96,7 @@ function Filters({ search, m }: { readonly search: LibrarySearch; readonly m: Me
 function ImportButton({ kind, m }: { readonly kind: LibraryKind; readonly m: Messages }): ReactElement {
   const clients = useLibraryClients();
   const [busy, setBusy] = useState(false);
-  const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
+  const onFile = async (file: File | undefined) => {
     if (file === undefined) {
       return;
     }
@@ -119,23 +117,14 @@ function ImportButton({ kind, m }: { readonly kind: LibraryKind; readonly m: Mes
   };
   const label = kind === "component" ? m.importComponent : m.importTemplate;
   return (
-    <label className="inline-flex">
-      <span className="sr-only">{label}</span>
-      <input
-        type="file"
-        className="sr-only"
-        data-testid={`import-${kind}`}
-        disabled={busy}
-        onChange={(e) => void onFile(e)}
-      />
-      <Button
-        variant="secondary"
-        disabled={busy}
-        onClick={(e) => (e.currentTarget.previousElementSibling as HTMLInputElement | null)?.click()}
-      >
-        {label}
-      </Button>
-    </label>
+    <FileDrop
+      variant="button"
+      label={label}
+      disabled={busy}
+      testId={`import-${kind}`}
+      icon={kind === "component" ? "component" : "package"}
+      onFiles={(files) => void onFile(files[0])}
+    />
   );
 }
 

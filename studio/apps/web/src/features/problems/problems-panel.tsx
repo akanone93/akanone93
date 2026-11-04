@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Count, Icon, type IconName, Tabs } from "@plux/ui";
+import { Icon, type IconName } from "@plux/ui";
 import type { Problem } from "@plux/validator";
+import { useRef } from "react";
 import { problemsMessages } from "./problems.messages.ts";
 import { countProblems, groupByFile } from "./project-files.ts";
 import type { Validation } from "./use-validation.ts";
@@ -14,22 +15,60 @@ const icons: Record<Problem["severity"], IconName> = {
   info: "info",
 };
 
-/** Error and warning counts for the action bar. */
-export function ProblemCounts({ validation }: { readonly validation: Validation }) {
+/**
+ * Error and warning counts for a canvas's top bar. They keep their place and their last figures while the validator
+ * runs again, so the bar never jumps; with `onOpen` they are a button that opens the Problems tab.
+ */
+export function ProblemCounts({
+  validation,
+  onOpen,
+}: {
+  readonly validation: Validation;
+  readonly onOpen?: (() => void) | undefined;
+}) {
   const m = problemsMessages(useLingui().i18n);
-  if (validation.state !== "done") {
-    return null;
+  const last = useRef<{ readonly error: number; readonly warning: number } | null>(null);
+  if (validation.state === "done") {
+    last.current = countProblems(validation.problems);
   }
-  const n = countProblems(validation.problems);
-  return (
-    <ul aria-label={m.counts} className="flex items-center gap-2">
-      <li>
-        <Count value={n.error} label={m.errors(n.error)} />
-      </li>
-      <li>
-        <Count value={n.warning} tone="warning" label={m.warnings(n.warning)} />
-      </li>
-    </ul>
+  const n = last.current;
+  const busy = validation.state === "idle" || validation.state === "running";
+  const pills = (
+    <>
+      <span
+        className="problem-count"
+        data-tone={n !== null && n.error > 0 ? "error" : undefined}
+        role="img"
+        aria-label={n === null ? m.validating : m.errors(n.error)}
+      >
+        <Icon name="x-circle" size="pill" />
+        {n === null ? "–" : n.error}
+      </span>
+      <span
+        className="problem-count"
+        data-tone={n !== null && n.warning > 0 ? "warning" : undefined}
+        {...(n === null ? { "aria-hidden": true } : { role: "img", "aria-label": m.warnings(n.warning) })}
+      >
+        <Icon name="warning" size="pill" />
+        {n === null ? "–" : n.warning}
+      </span>
+    </>
+  );
+  return onOpen === undefined ? (
+    // biome-ignore lint/a11y/useSemanticElements: a labelled group of two counts, not a form's fieldset
+    <span aria-label={m.counts} role="group" className="problem-counts" data-busy={busy ? "" : undefined}>
+      {pills}
+    </span>
+  ) : (
+    <button
+      type="button"
+      title={m.counts}
+      className="problem-counts"
+      data-busy={busy ? "" : undefined}
+      onClick={onOpen}
+    >
+      {pills}
+    </button>
   );
 }
 
@@ -82,17 +121,4 @@ export function ProblemsContent({ validation }: { readonly validation: Validatio
     }
   };
   return body();
-}
-
-/** The drawer with the Problems tab alone, shown under the canvas until the device drawer is opened. */
-export function ProblemsDrawer({ validation }: { readonly validation: Validation }) {
-  const m = problemsMessages(useLingui().i18n);
-  return (
-    <aside aria-label={m.drawer} className="canvas-panel glass max-h-48 overflow-auto px-3 py-2">
-      <Tabs
-        defaultValue="problems"
-        tabs={[{ value: "problems", label: m.tab, panel: <ProblemsContent validation={validation} /> }]}
-      />
-    </aside>
-  );
 }

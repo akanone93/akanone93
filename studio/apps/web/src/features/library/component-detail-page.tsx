@@ -4,11 +4,11 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppService } from "@plux/api";
-import { Button, Icon } from "@plux/ui";
+import { Button, FileDrop, Icon } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
-import { type ReactElement, useRef, useState } from "react";
+import { type ReactElement, useState } from "react";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { AdoptDialog } from "./adopt-dialog.tsx";
@@ -62,7 +62,6 @@ export function ComponentDetailPage(): ReactElement {
     saveFile(file.fileName, file.file);
   };
   const [revision, setRevision] = useState<Uint8Array | undefined>();
-  const fileInput = useRef<HTMLInputElement>(null);
   const head = versions[0];
   const impact: ImpactRow[] = (perApp.data ?? []).flatMap(({ app, usages }) =>
     usages.map((u, i) => ({
@@ -121,23 +120,18 @@ export function ComponentDetailPage(): ReactElement {
           )}
           {canEdit && (
             <div>
-              <input
-                ref={fileInput}
-                type="file"
+              <FileDrop
+                variant="button"
+                label={m.reviseComponent}
                 accept=".json,application/json"
-                hidden
-                data-testid="revise-component"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
+                testId="revise-component"
+                onFiles={(files) => {
+                  const file = files[0];
                   if (file !== undefined) {
                     void readFile(file).then(setRevision);
                   }
-                  e.target.value = "";
                 }}
               />
-              <Button variant="secondary" onClick={() => fileInput.current?.click()}>
-                {m.reviseComponent}
-              </Button>
             </div>
           )}
           <h2 className="text-body font-medium">{m.versionsHeading}</h2>

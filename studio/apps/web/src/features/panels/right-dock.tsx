@@ -27,7 +27,7 @@ import { rustEditorMessages } from "../rust-editor/rust-editor.messages.ts";
 import type { TestsClient } from "../rust-editor/test-runner.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
-import { kindIcon, kindOf } from "./catalogue.ts";
+import { typeIcon } from "./catalogue.ts";
 import { panelMessages } from "./panels.messages.ts";
 import {
   type Breakpoint,
@@ -612,12 +612,45 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
     <div className="flex flex-col gap-3">
       {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
       {ids.length > 1 && <p className="text-caption text-muted-foreground">{m.multi(ids.length)}</p>}
-      <Select
-        label={m.breakpoint}
-        options={breakpoints.map((b) => ({ value: b, label: labels[b] }))}
-        value={bp}
-        onValueChange={(v) => setBp(v as Breakpoint)}
-      />
+      {/* biome-ignore lint/a11y/useSemanticElements: a labelled radio group of size classes, not a form's fieldset */}
+      <div
+        role="radiogroup"
+        aria-label={m.breakpoint}
+        className="size-classes"
+        onKeyDown={(e) => {
+          const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+          if (step === undefined) {
+            return;
+          }
+          e.preventDefault();
+          const rtl =
+            getComputedStyle(e.currentTarget).direction === "rtl" &&
+            e.key.startsWith("Arrow") &&
+            !e.key.endsWith("Up") &&
+            !e.key.endsWith("Down");
+          const at = (breakpoints.indexOf(bp) + (rtl ? -step : step) + breakpoints.length) % breakpoints.length;
+          setBp(breakpoints[at] ?? bp);
+          e.currentTarget.querySelectorAll<HTMLElement>("[role=radio]")[at]?.focus();
+        }}
+      >
+        <span className="size-classes-label" aria-hidden="true">
+          {m.breakpoint}
+        </span>
+        {breakpoints.map((b) => (
+          // biome-ignore lint/a11y/useSemanticElements: a segmented control's option, styled as a pill
+          <button
+            key={b}
+            type="button"
+            role="radio"
+            aria-checked={bp === b}
+            tabIndex={bp === b ? 0 : -1}
+            className="size-class"
+            onClick={() => setBp(b)}
+          >
+            {labels[b]}
+          </button>
+        ))}
+      </div>
       {ids.length === 1 && (
         <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
       )}
@@ -867,6 +900,72 @@ function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; 
 }
 
 /** The right dock of the plugin canvas (S2.6): Properties, Accessibility and Docs of the selection. */
+/**
+ * The inspector while nothing is selected: the plugin at a glance — how many screens, widgets, state entries and data
+ * sources it has and what validation found — over its screens with the entry marked, and how to start editing.
+ */
+function PluginOverview(props: DockProps & { readonly m: ReturnType<typeof panelMessages> }) {
+  const { m } = props;
+  const model = useMemo(() => readPlugin(props.documents ?? []), [props.documents]);
+  const plugin = useMemo(() => {
+    const doc = (props.documents ?? []).find((d) => d.kind === "plugin");
+    try {
+      return doc === undefined
+        ? undefined
+        : (JSON.parse(new TextDecoder().decode(doc.content)) as Record<string, unknown>);
+    } catch {
+      return undefined;
+    }
+  }, [props.documents]);
+  const count = (v: unknown) => (Array.isArray(v) ? v.length : 0);
+  const errors = props.problems.filter((x) => x.severity === "error").length;
+  const warnings = props.problems.filter((x) => x.severity === "warning").length;
+  const figures: readonly {
+    key: Parameters<typeof m.overviewFigure>[0];
+    value: number;
+    icon: IconName;
+    tone?: string;
+  }[] = [
+    { key: "screens", value: props.screens.length, icon: "device-mobile" },
+    // The widgets inside the screens, as the left dock counts them: a screen's root is the screen, not a widget.
+    { key: "widgets", value: Math.max(0, props.index.parent.size - props.screens.length), icon: "cube" },
+    { key: "state", value: count(plugin?.["state"]), icon: "variable" },
+    { key: "data", value: count(plugin?.["dataSources"]), icon: "database" },
+    { key: "errors", value: errors, icon: "x-circle", ...(errors > 0 ? { tone: "error" } : {}) },
+    { key: "warnings", value: warnings, icon: "warning", ...(warnings > 0 ? { tone: "warning" } : {}) },
+  ];
+  return (
+    <section aria-label={m.overview} className="flex flex-col gap-4">
+      <p className="inspector-empty">{m.nothing}</p>
+      <dl className="overview-figures">
+        {figures.map((f) => (
+          <div key={f.key} className="overview-figure" data-tone={f.tone}>
+            <dt>
+              <Icon name={f.icon} size="pill" />
+              {m.overviewFigure(f.key)}
+            </dt>
+            <dd>{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {props.screens.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <h3 className="inspector-label">{m.overviewScreens}</h3>
+          <ul className="flex flex-col gap-1">
+            {props.screens.map((x) => (
+              <li key={x.id} className="overview-screen">
+                <Icon name="device-mobile" size="pill" />
+                <span className="min-w-0 flex-1 truncate">{x.title}</span>
+                {x.id === model.entryPage && <span className="overview-entry">{m.entry}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function RightDock(props: DockProps) {
   const { i18n } = useLingui();
   const m = panelMessages(i18n);
@@ -889,11 +988,16 @@ export function RightDock(props: DockProps) {
     return own ?? Math.max(0, ...perScreen.values());
   }, [nodes, ids, props.screenOf]);
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
-    ids.length === 0 ? <p className="inspector-empty">{m.nothing}</p> : panel(ids);
-  const tools: readonly { id: string; label: string; icon: IconName; open: (() => void) | undefined }[] = [
+    ids.length === 0 ? <PluginOverview {...props} m={m} /> : panel(ids);
+  const tools: readonly {
+    id: Parameters<typeof m.editorShort>[0];
+    label: string;
+    icon: IconName;
+    open: (() => void) | undefined;
+  }[] = [
     { id: "json", label: jsonLabel, icon: "braces", open: props.onOpenJson },
     { id: "l10n", label: localisationMessages(i18n).open, icon: "translate", open: props.onOpenLocalisation },
-    { id: "state", label: stateMessages(i18n).open, icon: "list", open: props.onOpenState },
+    { id: "state", label: stateMessages(i18n).open, icon: "variable", open: props.onOpenState },
     { id: "data", label: designerLabels.data, icon: "database", open: openOverlay("data") },
     { id: "db", label: designerLabels.db, icon: "table", open: openOverlay("db") },
     { id: "theme", label: designerLabels.theme, icon: "palette", open: openOverlay("theme") },
@@ -967,22 +1071,30 @@ export function RightDock(props: DockProps) {
   })();
   return (
     <aside aria-label={m.dock} className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass">
-      {first !== undefined && (
-        <div className="inspector-head">
-          <span className="inspector-glyph" aria-hidden="true">
-            <Icon name={descriptor === undefined ? "cube" : kindIcon[kindOf(descriptor)]} />
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col">
-            <strong className="truncate text-sm">{type ?? first}</strong>
+      <div className="inspector-head">
+        <span className="inspector-glyph" aria-hidden="true">
+          <Icon
+            name={first === undefined ? "sliders" : descriptor === undefined ? "cube" : typeIcon(descriptor.type)}
+          />
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <strong className="truncate text-sm">
+            {first === undefined ? m.dock : ids.length > 1 ? m.multiTitle(ids.length) : (type ?? first)}
+          </strong>
+          {ids.length === 1 ? (
             <span className="truncate font-mono text-xs text-muted-foreground">{first}</span>
-          </div>
-          {ids.length > 1 ? (
-            <span className="inspector-count">{ids.length}</span>
           ) : (
-            screenTitle !== undefined && <span className="inspector-screen">{screenTitle}</span>
+            <span className="truncate text-xs text-muted-foreground">
+              {first === undefined ? m.overview : [...new Set(ids.map((i) => props.index.type.get(i) ?? i))].join(", ")}
+            </span>
           )}
         </div>
-      )}
+        {ids.length > 1 ? (
+          <span className="inspector-count">{ids.length}</span>
+        ) : (
+          screenTitle !== undefined && <span className="inspector-screen">{screenTitle}</span>
+        )}
+      </div>
       <TooltipProvider delay={tooltipDelayMs}>
         <section aria-label={m.editors} className="inspector-tools">
           <h3 className="inspector-label">{m.editors}</h3>
@@ -995,6 +1107,9 @@ export function RightDock(props: DockProps) {
                     render={<button type="button" className="inspector-tool" aria-label={t.label} onClick={t.open} />}
                   >
                     <Icon name={t.icon} />
+                    <span className="inspector-tool-name" aria-hidden="true">
+                      {m.editorShort(t.id)}
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>{t.label}</TooltipContent>
                 </Tooltip>

@@ -3,12 +3,17 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import type { Problem } from "@plux/validator";
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import { countProblems, groupByFile } from "./project-files.ts";
 import type { ValidatorClient } from "./validator-client.ts";
 
 afterEach(cleanup);
+
+/** The Problems tab is in the developer console under the canvas: its bar opens it on Problems. */
+async function openConsole() {
+  fireEvent.click(await screen.findByRole("button", { name: "Problems" }, { timeout: 5000 }));
+}
 
 const problems: Problem[] = [
   {
@@ -59,6 +64,7 @@ describe("S2.1 validation against the whole project", () => {
       ...documents,
     ];
     renderApp(path, { documents, appDocuments, validator });
+    await openConsole();
     expect(await screen.findByText("No problems found.")).toBeTruthy();
   });
 
@@ -86,6 +92,7 @@ describe("S2.1 validation against the whole project", () => {
       pluginDocuments: { pl: documents, other },
       validator,
     });
+    await openConsole();
     expect(await screen.findByText("No problems found.")).toBeTruthy();
     expect(screen.queryByText("Not listed in app.json")).toBeNull();
     expect(screen.queryByText("Elsewhere")).toBeNull();
@@ -104,6 +111,7 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
       dispose: () => undefined,
     });
     renderApp(path, { documents, validator });
+    await openConsole();
     expect(await screen.findByText("Unknown widget")).toBeTruthy();
     expect(screen.getByText("Low contrast")).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Problems" })).toBeTruthy();
@@ -115,6 +123,7 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
 
   test("says so when nothing is wrong, and when the validator fails", async () => {
     renderApp(path, { documents });
+    await openConsole();
     expect(await screen.findByText("No problems found.")).toBeTruthy();
     cleanup();
     renderApp(path, {
@@ -125,6 +134,7 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
         dispose: () => undefined,
       }),
     });
+    await openConsole();
     expect(await screen.findByText("The validator could not run.")).toBeTruthy();
   });
 

@@ -128,6 +128,37 @@ describe("[STU-032] the renderer draws the grid under the scene", () => {
   });
 });
 
+describe("[STU-033] a native target's dashed outline", () => {
+  test("a dashed stroke leaves gaps along the edge where a solid one does not", () => {
+    const outline = (dash?: number) =>
+      render({}, 1, (scene) =>
+        scene.apply([
+          {
+            op: "add",
+            item: {
+              ...box("n", 10, 20, 0xffffffff),
+              w: 80,
+              h: 40,
+              stroke: { color: 0x000000ff, width: 2, ...(dash === undefined ? {} : { dash: 6 }) },
+            },
+          },
+        ]),
+      );
+    const along = (pixels: Uint8Array) => {
+      let ink = 0;
+      for (let x = 14; x < 86; x++) {
+        ink += red(pixels, x, 20) < 128 ? 1 : 0;
+      }
+      return ink;
+    };
+    const solid = along(outline());
+    const dashed = along(outline(6));
+    expect(solid).toBeGreaterThan(65);
+    expect(dashed).toBeGreaterThan(20);
+    expect(dashed).toBeLessThan(solid - 15);
+  });
+});
+
 describe("[STU-030] the soft shadow of a plugin box", () => {
   test("darkens the canvas just below the box, faintly, and widens its bounds", () => {
     const item = { ...box("b", 20, 20, 0xffffffff), w: 60, h: 40, shadow: true };

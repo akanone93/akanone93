@@ -16,11 +16,12 @@ export {
   type DialogSize,
 } from "./dialog.tsx";
 export { Field, type FieldProps, Input, type InputProps, Textarea, type TextareaProps } from "./field.tsx";
+export { FileDrop, type FileDropProps } from "./file-drop.tsx";
 export { FloatingPanel, GlassCapsule, type GlassProps } from "./glass.tsx";
 export { Icon, type IconProps, type IconSize } from "./icon.tsx";
 export { iconMirrors, mirroredIcons } from "./icon-mirrors.ts";
 export { type IconName, iconNames } from "./icons.ts";
-export { LayerTree, type LayerTreeProps } from "./layer-tree.tsx";
+export { type LayerNode, LayerTree, type LayerTreeProps, layerFolders, layerMatches } from "./layer-tree.tsx";
 export { LiveChip, type LiveChipProps } from "./live-chip.tsx";
 export { Menu, type MenuEntry, type MenuProps } from "./menu.tsx";
 export { Meter, type MeterProps } from "./meter.tsx";

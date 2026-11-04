@@ -14,10 +14,13 @@ import type { RouterContext } from "../../router.tsx";
 import { ActionGraphHost } from "../action-graph/index.ts";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import "./plugin-editor.css";
+import { CanvasStatus } from "../app-canvas/canvas-chrome.tsx";
 import { DesignersHost } from "../designers/designers-host.tsx";
+import type { DrawerTab } from "../devices/drawer-model.ts";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
+import { SaveStateChip } from "../editor/save-state.tsx";
 import { UndoManager } from "../editor/undo-stack.ts";
 import { JsonEditorHost } from "../json-editor/index.ts";
 import { useLibraryActions } from "../library/canvas/use-library-actions.tsx";
@@ -27,10 +30,12 @@ import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { LeftDock } from "../panels/left-dock.tsx";
 import { modelOf } from "../panels/model.ts";
+import { panelsMessages } from "../panels/panels.messages.ts";
 import { RightDock } from "../panels/right-dock.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
-import { useValidation } from "../problems/use-validation.ts";
+import { ProblemCounts } from "../problems/problems-panel.tsx";
+import { useValidation, type Validation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
@@ -49,6 +54,7 @@ import { dataSourcesOf } from "./look.ts";
 import { resolveNodeParam } from "./node-path.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
+import { PluginIdentity } from "./plugin-identity.tsx";
 import { pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
 import {
@@ -118,7 +124,25 @@ function pointerSelect(
   }
 }
 
-/** Fits the first view to the laid-out screens, unless the URL sets it. */
+/** The part of the canvas the docks and the top bar leave free, in canvas pixels. */
+function freeArea(canvas: HTMLCanvasElement, width: number, height: number) {
+  const r = canvas.getBoundingClientRect();
+  const stage = canvas.parentElement;
+  const docks = [".plugin-dock-start", ".plugin-dock-end"].flatMap((q) => {
+    const d = stage?.querySelector(q)?.getBoundingClientRect();
+    return d === undefined || d.width === 0 ? [] : [d];
+  });
+  const middle = r.left + width / 2;
+  const left = Math.max(0, ...docks.filter((d) => d.right <= middle).map((d) => d.right - r.left));
+  const right = Math.min(width, ...docks.filter((d) => d.left >= middle).map((d) => d.left - r.left));
+  const top = Math.max(0, ...docks.map((d) => d.top - r.top));
+  return { left, right: right > left ? right : width, top: top < height / 2 ? top : 0 };
+}
+
+/**
+ * The first view (STU-067): 100 %, the screens centred in the room the docks leave, their tops under the top bar when
+ * they are taller than that room; the URL's view wins when it names one. Fit fits them all on demand.
+ */
 function fitView(
   surface: CanvasSurface,
   canvas: HTMLCanvasElement,
@@ -129,13 +153,90 @@ function fitView(
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
   const b = contentBounds(screens, laidOut);
-  const zoom =
-    s.z !== undefined
-      ? s.z / 100
-      : Math.min(1, Math.max(MIN_ZOOM_PERCENT / 100, Math.min(width / (b.r - b.l + 160), height / (b.b - b.t + 160))));
-  const cx = s.x ?? (b.l + b.r) / 2;
-  const cy = s.y ?? (b.t + b.b) / 2;
-  surface.setViewport(cx - width / 2 / zoom, cy - height / 2 / zoom, zoom);
+  const zoom = s.z !== undefined ? s.z / 100 : 1;
+  if (s.x !== undefined || s.y !== undefined) {
+    const cx = s.x ?? (b.l + b.r) / 2;
+    const cy = s.y ?? (b.t + b.b) / 2;
+    surface.setViewport(cx - width / 2 / zoom, cy - height / 2 / zoom, zoom);
+    return;
+  }
+  const free = freeArea(canvas, width, height);
+  const x = (b.l + b.r) / 2 - (free.left + (free.right - free.left) / 2) / zoom;
+  const room = height - free.top;
+  const tall = (b.b - b.t) * zoom > room - 48;
+  const y = tall ? b.t - (free.top + 24) / zoom : (b.t + b.b) / 2 - (free.top + room / 2) / zoom;
+  surface.setViewport(x, y, zoom);
+}
+
+/** Brings a screen into view at the current zoom, when it is picked in the top bar. */
+function centreOn(
+  surface: CanvasSurface | null,
+  canvas: HTMLCanvasElement | null,
+  target: PlacedScreen | undefined,
+  laidOut: Heights,
+): void {
+  if (surface === null || canvas === null || target === undefined) {
+    return;
+  }
+  const z = surface.viewport.zoom;
+  const h = Math.max(DEVICE.height, laidOut.get(target.id) ?? 0);
+  surface.setViewport(
+    target.at.x + DEVICE.width / 2 - canvas.clientWidth / 2 / z,
+    target.at.y + h / 2 - canvas.clientHeight / 2 / z,
+    z,
+  );
+}
+
+/** The next request to open the console on Problems: a new number, so the same tab opens again. */
+const problemsRequest = (r: { readonly n: number } | undefined) => ({ tab: "problems" as const, n: (r?.n ?? 0) + 1 });
+
+/** The end of the plugin canvas's top bar: the selection, the save state, the problem counts and the theme switch. */
+function PluginStatus(props: {
+  readonly ids: readonly string[];
+  readonly index: NodeIndex;
+  readonly validation: Validation;
+  readonly onProblems: () => void;
+}) {
+  const { i18n } = useLingui();
+  return (
+    <CanvasStatus>
+      <output aria-live="polite" className="canvas-status-text">
+        {selectionText(props.ids, props.index, pluginCanvasMessages(i18n), panelsMessages(i18n))}
+      </output>
+      <SaveStateChip />
+      <ProblemCounts validation={props.validation} onOpen={props.onProblems} />
+    </CanvasStatus>
+  );
+}
+
+/** The top bar's line about the selection: nothing, one widget by its type, or how many. */
+function selectionText(
+  ids: readonly string[],
+  index: NodeIndex,
+  m: ReturnType<typeof pluginCanvasMessages>,
+  pm: ReturnType<typeof panelsMessages>,
+): string {
+  if (ids.length === 0) {
+    return m.nothingSelected;
+  }
+  return ids.length === 1 ? m.oneSelected(index.type.get(ids[0] ?? "") ?? "") : pm.selectedCount(ids.length);
+}
+
+/** Fit: every laid-out screen in view, at most 100 % (STU-067). */
+function fitAll(
+  surface: CanvasSurface,
+  canvas: HTMLCanvasElement,
+  screens: readonly PlacedScreen[],
+  laidOut: Heights,
+): void {
+  const width = canvas.clientWidth || window.innerWidth;
+  const height = canvas.clientHeight || window.innerHeight;
+  const b = contentBounds(screens, laidOut);
+  const zoom = Math.min(
+    1,
+    Math.max(MIN_ZOOM_PERCENT / 100, Math.min(width / (b.r - b.l + 160), height / (b.b - b.t + 160))),
+  );
+  surface.setViewport((b.l + b.r) / 2 - width / 2 / zoom, (b.t + b.b) / 2 - height / 2 / zoom, zoom);
 }
 
 /** C2: the plugin canvas with selection (S2.5); edits stay blocked until the editor reports \`canEdit\` (S2.3). */
@@ -623,7 +724,7 @@ function PluginCanvasView({
     const surface = surfaceRef.current;
     const canvas = canvasRef.current;
     if (surface !== null && canvas !== null) {
-      fitView(surface, canvas, screens, heights, {});
+      fitAll(surface, canvas, screens, heights);
       sync();
     }
   };
@@ -643,9 +744,22 @@ function PluginCanvasView({
       ? undefined
       : { id, screen, node };
   }, [selection, screenOf, screens]);
-  const entryPage = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
+  const pluginInfo = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data)), [docs.data]);
+  const entryPage = pluginInfo?.entryPage;
 
   const { lane, setLane, site: laneSite, routes: laneRoutes } = useLane(screens, linkScreens, appScreens);
+
+  const resetZoom = () => zoomBy(1 / (surfaceRef.current?.viewport.zoom ?? 1));
+  const showScreen = (id: string) => {
+    centreOn(
+      surfaceRef.current,
+      canvasRef.current,
+      screens.find((x) => x.id === id),
+      heights,
+    );
+    sync();
+  };
+  const [consoleRequest, setConsoleRequest] = useState<{ readonly tab: DrawerTab; readonly n: number } | undefined>();
 
   const drag = useRef<{ x: number; y: number } | null>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
@@ -759,6 +873,7 @@ function PluginCanvasView({
         ))}
       </ol>
       <LeftDock
+        title={pluginInfo?.name}
         nativeWidgets={nativeWidgets}
         screens={screens}
         entryPage={entryPage}
@@ -807,6 +922,7 @@ function PluginCanvasView({
       {clipboardDialog}
       <DeviceBayHost
         appId={params.app}
+        request={consoleRequest}
         validation={validation}
         screens={screens}
         store={store}
@@ -889,7 +1005,18 @@ function PluginCanvasView({
           validation={validation}
           percent={percent}
           onZoom={zoomBy}
+          onZoomReset={resetZoom}
           onFit={fit}
+          onShowScreen={showScreen}
+          identity={<PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />}
+          status={
+            <PluginStatus
+              ids={selection.ids}
+              index={index}
+              validation={validation}
+              onProblems={() => setConsoleRequest(problemsRequest)}
+            />
+          }
           onHistory={() => overlays.show("history")}
           preview={
             <>

@@ -67,6 +67,16 @@ function model(items: readonly ItemSpec[]) {
 }
 
 describe("C1 scene items [STU-030]", () => {
+  test("a native target is a dashed outline without a shadow, its chip naming it native [STU-033]", () => {
+    const native = { ...box(nativeBox("camera"), 0, 0), key: "camera", native: true, release: "Native" };
+    const main = boxItems(native).find((i) => i.id === `app-box/${nativeBox("camera")}`);
+    expect(main).toMatchObject({ stroke: { dash: 7 }, shadow: false });
+    expect(boxItems(native).some((i) => i.kind === "text" && i.text === "Native")).toBe(true);
+    const plugin = boxItems(box("loans", 0, 0)).find((i) => i.id === "app-box/loans");
+    expect(plugin).toMatchObject({ shadow: true });
+    expect(plugin?.kind === "rect" ? plugin.stroke?.dash : 0).toBeUndefined();
+  });
+
   test("a box is a labelled card with a soft shadow, its mark, title, key and every badge as a pill inside it", () => {
     const b = box("loans", 100, 40, summary({}));
     const nodes = model(boxItems(b)).nodes;

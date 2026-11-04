@@ -29,13 +29,21 @@ Canvas, and you can drive both from the keyboard.
    shows the plugin's initial on a coloured tile, its name and key, its newest version (**v3**, or
    **Draft** before the first publish), how many screens, versions and links it has, and its status
    along the foot (for example **Valid**, **2 errors** or **Unpublished changes**); a **+N** pill
-   counts the rest, which the detail panel lists. Panels float over the canvas as frosted glass, so the
-   plugins stay in view beneath them:
+   counts the rest, which the detail panel lists; the line under the name adds the owning team. A
+   **native** target (a screen of the host app) is a dashed outline with a **Native** chip. The
+   canvas opens at 100 %, centred beside the dock. Panels float over the canvas as frosted glass, so
+   the plugins stay in view beneath them:
    - top left, the way back to the organisation and the app's name and number of plugins;
    - top centre, the tools (**Select** and **Hand**), **Frame selection**, **Arrange**, **Trash** and
      **New plugin**;
-   - on the start side, **Plugins**: every plugin and frame as a list; choose a row to select the
-     plugin and bring it into view, double-click to open it, or fold the panel away;
+   - top right, what is selected, whether your changes are saved, the validation errors over every
+     plugin, and the light and dark switch;
+   - on the start side, the **App canvas** dock: **Plugins** lists every plugin with its mark, key,
+     owner, version and state — search it, or show only **Unpublished**, **With errors** or
+     **Archived** ones; choose a row to select the plugin and bring it into view, double-click to
+     open it. **Frames** lists the frames to rename or resize them, and **Overview** counts the
+     plugins, screens, frames and problems and names the entry plugin. Fold the dock away with its
+     arrow;
    - on the end side, the plugin's **detail panel**;
    - bottom left, **Zoom out**, the zoom (choose it to go back to 100%), **Zoom in** and **Zoom to
      fit**.
@@ -49,6 +57,7 @@ Canvas, and you can drive both from the keyboard.
    how many links go out and in, the functions it uses, and who published it last and when. Select
    a plugin to add its actions: **Open plugin**, **Plugin settings**, **Duplicate plugin**, **Make
    entry plugin**, **Move to…**, **Archive plugin** (or **Restore plugin**) and **Delete plugin**.
+   Right-click a plugin for the same actions in its context menu.
 4. Choose **New plugin**, give it a name and a key, and save.
 5. Drag a plugin to move it, or use **Move to…** with X and Y positions. Near another plugin's edge or
    centre it snaps into line, and a guide shows what it lines up with; a plugin you drag stays on
@@ -67,20 +76,31 @@ Positions are read-only while someone else is editing the app.
 ## Edit a plugin
 
 1. Double-click a plugin. The **Plugin canvas** shows its screens in navigation order on the same
-   dotted surface as the app canvas, and zooms, pans and draws the same way. The top bar holds the
-   screens (**New screen**, the current screen, its menu), **Undo** and **Redo**, the problem counts,
-   **Preview**, **Send to device**, **Pair a device**, **History** and **Publish**; the zoom is at the
-   bottom start. On the left, a rail of icons opens **Insert**, **Layers**, **Screens**, **Assets**,
-   **State**, **Data** and **Selection**; on the right is the **Inspector**.
-2. Insert a widget from the **Insert** gallery: search it, or pick a kind (**Layout**, **Content**,
-   **Inputs**, **Interaction**, **Navigation**, **Motion**, **Platform**, **More**), then choose a tile
-   or drag it onto a screen. **Layers** lists each screen over its widgets; drag a layer to move it.
-   Select a widget and edit it in the **Inspector**: it names the widget and its screen, opens the
-   **Editors** (JSON, localisation, state, data sources, database schema, theme, action graph, Rust),
-   and holds the tabs **Properties** (in sections: **Content**, **Layout**, **Appearance**,
-   **Behaviour**, **Other**), **Actions**, **JSON**, **Code**, **Localisation**, **Accessibility**,
-   **Performance** and **Docs**. Each editor opens over the canvas; **Close** or Escape returns. **Wrap selection in a column**, **Unwrap selection**, **Duplicate selection** and
-   **Create experiment from selection** are on the selection's menu.
+   dotted surface as the app canvas, and zooms, pans and draws the same way; it opens at 100 %. The
+   top bar has three parts: on the left the way back to the app canvas and the app over the plugin's
+   name; in the centre **New screen**, the current screen (choose another to bring it into view),
+   **Screen menu**, **Undo** and **Redo**, **Preview**, **History**, **Pair a device**, **Send to
+   device** and **Publish**; on the right what is selected, whether your changes are saved, the error
+   and warning counts (choose them to open **Problems**) and the light and dark switch. The zoom is at
+   the bottom start, as on the app canvas. On the left, the **Plugin editor** dock names the plugin
+   and opens **Insert**, **Layers**, **Assets** and **Data** from its coloured rail; on the right is
+   the **Inspector**.
+2. Insert a widget from **Insert**: search it, open **Categories** to show one kind (**Layout**,
+   **Content**, **Inputs**, **Interaction**, **Navigation**, **Motion**, **Platform**, **More**), or
+   use **Recently used**; point at a tile to read what the widget does, then choose it or drag it
+   onto a screen. **Layers** shows each screen over its widgets with their icons and what they show:
+   choose a caret to fold a row, **Expand all** or **Collapse all**, **Filter layers** by name, type
+   or text, and drag a layer to move it. The card at the top of **Layers** lists the selection, with
+   **Show on canvas** and **Clear selection**. **Assets** takes files dropped on its zone (or chosen
+   by clicking it) and shows them as cards you can search and filter by kind; **Data** holds the
+   plugin's **State** and **Data sources**. Select a widget and edit it in the **Inspector**: it
+   names the widget and its screen, opens the **Editors** (JSON, translations, state, data sources,
+   database, theme, action graph, Rust), and holds the tabs **Properties** (with the **Size class**
+   the edit applies to, and sections: **Content**, **Layout**, **Appearance**, **Behaviour**,
+   **Other**), **Actions**, **JSON**, **Code**, **Localisation**, **Accessibility**, **Performance**
+   and **Docs**; with nothing selected it shows the **Plugin overview**. Each editor opens over the
+   canvas; **Close** or Escape returns. **Wrap selection in a column**, **Unwrap selection**,
+   **Duplicate selection** and **Create experiment from selection** are on the selection's menu.
 3. Manage screens with **New screen**, **Duplicate screen**, **Rename screen**, **Delete screen** and
    **Move to plugin**. The entry screen and a screen another screen navigates to cannot be deleted
    until you choose another entry or remove the link.
@@ -88,8 +108,13 @@ Positions are read-only while someone else is editing the app.
    **Light** or **Dark**, in any **Locale**, at a **Text scale**, in **Material** or **Cupertino**
    style, and in the **Success**, **Loading**, **Empty** or **Error** data state. The **Device matrix**
    shows several frames at once.
-5. The **Problems** drawer lists validation errors, warnings and information as you type; the
-   counts also appear on the plugin card.
+5. The **Developer console** at the bottom lists validation errors, warnings and information under
+   **Problems** as you type; the counts also appear on the plugin card. Open it to stream the paired
+   devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,
+   **Performance** and **Console**, with a source device, a level filter, search, **Pause** and
+   **Export trace**; **On the device** opens a screen there, **Highlight selection on device** and
+   **Capture screenshot** work on it. Drag the console's top edge, or use the arrow keys on it, to
+   change its height.
 
 The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).

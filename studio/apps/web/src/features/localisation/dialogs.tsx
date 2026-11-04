@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { limitDefault } from "@plux/schema";
-import { Button, Dialog, Field, Input, Select, Textarea } from "@plux/ui";
+import { Button, Dialog, Field, FileDrop, Input, Select, Textarea } from "@plux/ui";
 import { useNavigate } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { localisationAreaMessages } from "./area.messages.ts";
@@ -120,14 +120,13 @@ export function ImportDialog(props: { readonly open: boolean; readonly onClose: 
           value={format}
           onValueChange={(v) => setFormat(v as TranslationFormat)}
         />
-        <Field label={m.importFile}>
-          <input
-            type="file"
-            accept=".xlf,.xliff,.arb,.json,.csv"
-            aria-label={m.importFile}
-            onChange={(e) => void choose(e.target.files?.[0])}
-          />
-        </Field>
+        <FileDrop
+          label={m.importFile}
+          hint={m.importTypes}
+          accept=".xlf,.xliff,.arb,.json,.csv"
+          icon="translate"
+          onFiles={(files) => void choose(files[0])}
+        />
         {read.state === "error" && (
           <p role="alert" className="text-body text-danger">
             {reasons[read.reason]}

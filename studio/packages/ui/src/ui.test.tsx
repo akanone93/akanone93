@@ -2,16 +2,18 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { cases as buttonCases } from "./button.cases.tsx";
 import { Button } from "./button.tsx";
 import { allCases } from "./cases.ts";
 import { cases as dialogCases } from "./dialog.cases.tsx";
 import { cases as fieldCases } from "./field.cases.tsx";
+import { FileDrop } from "./file-drop.tsx";
 import { cases as iconCases } from "./icon.cases.tsx";
 import { Icon } from "./icon.tsx";
 import { iconMirrors, mirroredIcons } from "./icon-mirrors.ts";
 import { iconNames, icons } from "./icons.ts";
+import { type LayerNode, LayerTree, layerFolders, layerMatches } from "./layer-tree.tsx";
 import { cases as menuCases } from "./menu.cases.tsx";
 import { cases as popoverCases } from "./popover.cases.tsx";
 import { cases as selectCases } from "./select.cases.tsx";
@@ -166,5 +168,75 @@ describe("[STU-011] accessible components", () => {
     render(toastCases[0]?.element ?? <div />);
     expect(screen.getByRole("button", { name: "Save" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Delete" })).toBeTruthy();
+  });
+
+  test("FileDrop: the input is named, a change and a drop hand over the files, one unless multiple", () => {
+    const got: string[][] = [];
+    render(<FileDrop label="Archive file" hint=".plux" onFiles={(f) => got.push(f.map((x) => x.name))} />);
+    const input = screen.getByLabelText("Archive file");
+    fireEvent.change(input, { target: { files: [new File(["a"], "a.plux")] } });
+    const zone = input.closest("[data-slot='file-drop']");
+    if (zone === null) {
+      throw new Error("no zone");
+    }
+    const files = [new File(["b"], "b.plux"), new File(["c"], "c.plux")];
+    fireEvent.drop(zone, { dataTransfer: { files, types: ["Files"] } });
+    expect(got).toEqual([["a.plux"], ["b.plux"]]);
+  });
+});
+
+describe("[STU-061] layer tree", () => {
+  const nodes: Record<string, LayerNode> = {
+    root: { id: "root", name: "", type: "", children: ["s1"] },
+    s1: { id: "s1", name: "Home", type: "Scaffold", badge: "Entry", children: ["col"] },
+    col: { id: "col", name: "Column", type: "Column", children: ["t1", "b1"] },
+    t1: { id: "t1", name: "Text", type: "Text", preview: "Hello" },
+    b1: { id: "b1", name: "Button", type: "Button", preview: "Pay" },
+  };
+
+  test("a filter keeps the matches and their ancestors; folders are the rows with children", () => {
+    expect([...(layerMatches(nodes, "root", "pay") ?? [])].sort()).toEqual(["b1", "col", "s1"]);
+    expect(layerMatches(nodes, "root", " ")).toBeNull();
+    expect(layerFolders(nodes, "root").sort()).toEqual(["col", "s1"]);
+  });
+
+  test("rows show name, preview and mark; the caret folds without selecting, the row selects", () => {
+    const picked: string[] = [];
+    let open: readonly string[] = ["s1", "col"];
+    const view = (o: readonly string[]) => (
+      <LayerTree
+        nodes={nodes}
+        rootId="root"
+        label="Layers"
+        selected={["t1"]}
+        onSelect={(id) => picked.push(id)}
+        expanded={o}
+        onExpandedChange={(next) => (open = next)}
+      />
+    );
+    const { rerender } = render(view(open));
+    expect(screen.getByText("Hello")).toBeTruthy();
+    expect(screen.getByText("Entry")).toBeTruthy();
+    const row = (id: string) => document.querySelector(`[data-item-id="${id}"]`);
+    expect(row("t1")?.getAttribute("aria-selected")).toBe("true");
+    const caret = row("col")?.querySelector("[data-caret]");
+    if (caret === null || caret === undefined) {
+      throw new Error("no caret");
+    }
+    fireEvent.click(caret);
+    expect(open).toEqual(["s1"]);
+    expect(picked).toEqual([]);
+    rerender(view(open));
+    expect(row("t1")).toBeNull();
+    fireEvent.click(row("col") as Element);
+    expect(picked).toEqual(["col"]);
+  });
+
+  test("a filter shows only the matching rows with their ancestors", () => {
+    render(
+      <LayerTree nodes={nodes} rootId="root" label="Layers" selected={[]} onSelect={() => undefined} filter="hello" />,
+    );
+    expect(screen.getByText("Hello")).toBeTruthy();
+    expect(screen.queryByText("Pay")).toBeNull();
   });
 });

@@ -122,6 +122,39 @@ export function assetsMessages(i18n: I18n) {
       message: "Delete",
       comment: "Confirm button of the delete-asset dialog.",
     }),
+    dropHint: i18n._({
+      id: "assets.dropHint",
+      message: "Drag files here, or click to choose them",
+      comment: "Second line of the Assets tab's drop zone.",
+    }),
+    search: i18n._({
+      id: "assets.search",
+      message: "Search assets",
+      comment: "Label of the search field of the Assets tab.",
+    }),
+    kinds: i18n._({
+      id: "assets.kinds",
+      message: "Kinds of asset",
+      comment: "Accessible name of the row of kind filters in the Assets tab.",
+    }),
+    kind: (kind: "all" | "image" | "vector" | "font" | "animation" | "other") =>
+      i18n._({
+        id: "assets.kind",
+        message:
+          "{kind, select, all {All} image {Images} vector {Vectors} font {Fonts} animation {Animations} other {Other}}",
+        values: { kind },
+        comment: "A kind filter of the Assets tab.",
+      }),
+    noMatch: i18n._({
+      id: "assets.noMatch",
+      message: "No asset matches.",
+      comment: "Shown in the Assets tab when the search or the kind leaves nothing.",
+    }),
+    list: i18n._({
+      id: "assets.list",
+      message: "The app's assets",
+      comment: "Accessible name of the grid of asset cards.",
+    }),
     cancel: i18n._({
       id: "assets.cancel",
       message: "Cancel",

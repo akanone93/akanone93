@@ -5,7 +5,7 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppProjectService } from "@plux/api";
 import { limitDefault } from "@plux/schema";
-import { Field, Input, Select, Textarea } from "@plux/ui";
+import { Field, FileDrop, Input, Select, Textarea } from "@plux/ui";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { dialogMessages } from "../../components/dialogs/dialogs.messages.ts";
@@ -117,20 +117,19 @@ function ArchivePicker({ draft, update, attempted, problem }: StepProps): ReactE
         ? m.archiveRequired
         : undefined;
   return (
-    <Field
-      label={m.archiveLabel}
-      description={
-        chosen !== undefined && chosen.issue === undefined
-          ? m.archiveChosen(chosen.name, sizeText(i18n.locale, chosen.bytes.length))
-          : m.archiveHint(sizeText(i18n.locale, limitDefault("archive.bytes")))
-      }
-      error={error}
-    >
-      <Input
-        type="file"
+    <div className="flex flex-col gap-2">
+      <FileDrop
+        label={m.archiveLabel}
+        hint={
+          chosen !== undefined && chosen.issue === undefined
+            ? m.archiveChosen(chosen.name, sizeText(i18n.locale, chosen.bytes.length))
+            : m.archiveHint(sizeText(i18n.locale, limitDefault("archive.bytes")))
+        }
+        chosen={chosen?.name}
         accept=".plux"
-        onChange={async (e) => {
-          const file = e.target.files?.[0];
+        icon="package"
+        onFiles={async (files) => {
+          const file = files[0];
           if (file === undefined) {
             update({ archive: undefined });
             return;
@@ -140,7 +139,12 @@ function ArchivePicker({ draft, update, attempted, problem }: StepProps): ReactE
           update({ archive: { name: file.name, bytes, ...(issue !== undefined && { issue }) } });
         }}
       />
-    </Field>
+      {error !== undefined && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

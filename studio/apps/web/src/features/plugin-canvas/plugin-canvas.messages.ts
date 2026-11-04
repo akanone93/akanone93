@@ -62,13 +62,6 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Duplicate selection",
       comment: "Command that copies the selected canvas elements right after themselves.",
     }),
-    zoom: (percent: number) =>
-      i18n._({
-        id: "pluginCanvas.zoom",
-        message: "Zoom {percent}%",
-        values: { percent },
-        comment: "Current zoom of the canvas in percent.",
-      }),
     empty: i18n._({
       id: "pluginCanvas.empty",
       message: "This plugin has no screens yet.",
@@ -90,15 +83,34 @@ export function pluginCanvasMessages(i18n: I18n) {
       comment:
         "Button of the plugin canvas's top bar that opens the preview switches (device frame, theme, locale, text scale).",
     }),
-    zoomControls: i18n._({
-      id: "pluginCanvas.zoomControls",
-      message: "Zoom",
-      comment: "Accessible name of the zoom controls at the bottom of the plugin canvas.",
-    }),
     actionBar: i18n._({
       id: "pluginCanvas.actionBar",
       message: "Canvas actions",
       comment: "Accessible name of the toolbar under the plugin canvas.",
+    }),
+    backToApp: (app: string) =>
+      i18n._({
+        id: "pluginCanvas.backToApp",
+        message: "Back to {app}",
+        values: { app },
+        comment: "Link at the start of the plugin canvas's top bar to the app canvas.",
+      }),
+    nothingSelected: i18n._({
+      id: "pluginCanvas.nothingSelected",
+      message: "Nothing selected",
+      comment: "Status in the plugin canvas's top bar when no widget is selected.",
+    }),
+    oneSelected: (type: string) =>
+      i18n._({
+        id: "pluginCanvas.oneSelected",
+        message: "{type} selected",
+        values: { type },
+        comment: "Status in the plugin canvas's top bar: one widget of this type is selected.",
+      }),
+    send: i18n._({
+      id: "pluginCanvas.send",
+      message: "Send",
+      comment: "Short visible label of the top bar's Send to device button; its accessible name is the full phrase.",
     }),
     publish: i18n._({
       id: "pluginCanvas.publish",
@@ -114,21 +126,6 @@ export function pluginCanvasMessages(i18n: I18n) {
       id: "pluginCanvas.redo",
       message: "Redo",
       comment: "Button that repeats the last undone edit.",
-    }),
-    zoomOut: i18n._({
-      id: "pluginCanvas.zoomOut",
-      message: "Zoom out",
-      comment: "Button that zooms the canvas out.",
-    }),
-    zoomIn: i18n._({
-      id: "pluginCanvas.zoomIn",
-      message: "Zoom in",
-      comment: "Button that zooms the canvas in.",
-    }),
-    zoomFit: i18n._({
-      id: "pluginCanvas.zoomFit",
-      message: "Fit",
-      comment: "Button that fits all screens into the view.",
     }),
     currentScreen: i18n._({
       id: "pluginCanvas.currentScreen",

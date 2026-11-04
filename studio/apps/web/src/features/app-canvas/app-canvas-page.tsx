@@ -15,6 +15,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import { EditorProvider, useEditor, useEditSession } from "../editor/editor-provider.tsx";
+import { SaveStateChip } from "../editor/save-state.tsx";
 import { useDeviceFonts } from "../plugin-canvas/device-fonts.ts";
 import { useHostFonts } from "../plugin-canvas/host-fonts.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
@@ -29,6 +30,7 @@ import {
   type BoxLink,
   canvasDocument,
   canvasRecipe,
+  centreViewport,
   changeFrame,
   type Frame,
   type FrameChange,
@@ -48,8 +50,17 @@ import {
   removeLink,
   type SceneBox,
 } from "./app-canvas.scene.ts";
+import { AppDock } from "./app-dock.tsx";
 import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
-import { AppBar, CanvasToolbar, LayersPanel, Panel, PluginActions, ZoomControls } from "./canvas-chrome.tsx";
+import {
+  AppBar,
+  CanvasStatus,
+  CanvasToolbar,
+  Panel,
+  PluginActions,
+  PluginContextMenu,
+  ZoomControls,
+} from "./canvas-chrome.tsx";
 import { FrameTools } from "./frame-tools.tsx";
 import { LaneMenu } from "./lane-menu.tsx";
 import { latestPublisher } from "./latest-publisher.ts";
@@ -114,14 +125,19 @@ function followSize(page: HTMLElement, surface: CanvasSurface, initial: string):
   return observer;
 }
 
-/** The screens, figures and release chip of a plugin's box (STU-030): its screens and links, and `v3` or `Draft`. */
+/**
+ * The screens, figures, release chip and owner of a plugin's box (STU-030): its screens and links, `v3` or `Draft`, and
+ * the owning team after its key.
+ */
 function boxFacts(
   s: PluginSummary | undefined,
   m: ReturnType<typeof appCanvasMessages>,
-): Pick<SceneBox, "screens" | "figures" | "release"> {
+  teamName: (id: string) => string | undefined,
+): Pick<SceneBox, "screens" | "figures" | "release" | "subtitle"> {
   if (s === undefined) {
     return {};
   }
+  const owner = teamName(s.plugin?.owningTeamId || s.ownerTeamId);
   const screens = Number(s.screens);
   const versions = Number(s.versions);
   const latest = s.plugin?.latestVersion ?? 0n;
@@ -129,7 +145,51 @@ function boxFacts(
     screens,
     figures: [m.screens(screens), m.linkCount(s.linksOut.length + s.linksIn.length)],
     release: versions === 0 ? m.releaseDraft : m.releaseVersion(String(latest > 0n ? latest : BigInt(versions))),
+    ...(owner === undefined || s.plugin === undefined ? {} : { subtitle: m.keyAndOwner(s.plugin.key, owner) }),
   };
+}
+
+/**
+ * The room the plugins dock takes from the view, in view pixels: `cut` from its width, and `left` the offset of the
+ * free room from the view's physical origin (the dock's width in an LTR page; none in an RTL one).
+ */
+function dockRoom(view: HTMLElement): { readonly left: number; readonly cut: number } {
+  const dock = view.querySelector(".app-dock")?.getBoundingClientRect();
+  const r = view.getBoundingClientRect();
+  if (dock === undefined || dock.width === 0) {
+    return { left: 0, cut: 0 };
+  }
+  const cut = dock.left - r.left < r.width / 2 ? Math.max(0, dock.right - r.left) : Math.max(0, r.right - dock.left);
+  return { left: dock.left - r.left < r.width / 2 ? cut : 0, cut };
+}
+
+/** Top end: what the canvas reports, the save state, the validation errors over every plugin and the theme switch. */
+function AppStatus({
+  text,
+  errors,
+  messages: m,
+}: {
+  readonly text: string;
+  readonly errors: number;
+  readonly messages: ReturnType<typeof appCanvasMessages>;
+}): ReactNode {
+  return (
+    <CanvasStatus>
+      <output aria-live="polite" className="canvas-status-text">
+        {text}
+      </output>
+      <SaveStateChip />
+      <span
+        className="problem-count"
+        data-tone={errors > 0 ? "error" : undefined}
+        role="img"
+        aria-label={m.problemTotals(errors)}
+      >
+        <Icon name="x-circle" size="pill" />
+        {errors}
+      </span>
+    </CanvasStatus>
+  );
 }
 
 /** The marquee being drawn, in view pixels (screen space has no writing direction); nothing when none is. */
@@ -317,6 +377,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     return [...between, ...natives];
   }, [list, graph]);
   const summaryOf = useMemo(() => new Map(list.map((s) => [s.plugin?.id ?? "", s])), [list]);
+  const teams = useTeams();
+  const teamName = useCallback((id: string) => teams.find((t) => t.id === id)?.name, [teams]);
   const boxes = useMemo<SceneBox[]>(() => {
     const nodes = [
       ...list.flatMap((s) => (s.plugin === undefined ? [] : [{ id: s.plugin.id, key: s.plugin.key }])),
@@ -331,10 +393,11 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         native,
         archived: s?.plugin?.archived === true,
         badges: native ? [] : badgesOf(s, b.key === entryKey, m),
-        ...(native ? { subtitle: m.native } : boxFacts(s, m)),
+        // A native target says so in its chip, where a plugin shows its release (STU-033).
+        ...(native ? { release: m.native } : boxFacts(s, m, teamName)),
       };
     });
-  }, [list, graph.natives, positions, links, summaryOf, entryKey, m]);
+  }, [list, graph.natives, positions, links, summaryOf, entryKey, m, teamName]);
 
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [hover, setHover] = useState<string | undefined>();
@@ -409,26 +472,32 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     (id: string, change: FrameChange) => commit(positions, changeFrame(frames, id, change), `frame-${uuidv7()}`),
     [commit, positions, frames],
   );
-  const teams = useTeams();
 
-  const fit = useCallback(() => {
-    const target = surfaceRef.current;
-    const view = viewOf();
-    if (target === null || view === null) {
-      return;
-    }
-    const v = fitViewport(boxes, { width: view.clientWidth, height: view.clientHeight });
-    target.setViewport(v.x, v.y, v.z);
-    scene.zoomed(v.z);
-    setZoom(v.z);
-  }, [boxes, scene, viewOf, setZoom]);
-  const fitted = useRef(0);
+  const place = useCallback(
+    (how: typeof fitViewport) => {
+      const target = surfaceRef.current;
+      const view = viewOf();
+      if (target === null || view === null) {
+        return;
+      }
+      // The boxes go in the room the plugins dock leaves, not under it.
+      const { left, cut } = dockRoom(view);
+      const v = how(boxes, { width: view.clientWidth - cut, height: view.clientHeight });
+      target.setViewport(v.x - left / v.z, v.y, v.z);
+      scene.zoomed(v.z);
+      setZoom(v.z);
+    },
+    [boxes, scene, viewOf, setZoom],
+  );
+  const fit = useCallback(() => place(fitViewport), [place]);
+  // The opening view is 100 % centred on the plugins (STU-067); Fit fits them on demand.
+  const opened = useRef(0);
   useEffect(() => {
-    if (fitted.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
-      fitted.current = generation;
-      fit();
+    if (opened.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
+      opened.current = generation;
+      place(centreViewport);
     }
-  }, [boxes, fit, generation]);
+  }, [boxes, place, generation]);
 
   const arrange = useCallback(() => {
     const laid = placeBoxes(
@@ -460,6 +529,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const [marquee, setMarquee] = useState<{ l: number; t: number; r: number; b: number } | null>(null);
   const [guides, setGuides] = useState<readonly GuideLine[] | null>(null);
   const space = useRef(false);
+  const errorTotal = list.reduce((n, x) => n + Number(x.validationErrors), 0);
+  const [menuAt, setMenuAt] = useState<{ readonly box: SceneBox; readonly x: number; readonly y: number } | null>(null);
+
   const gestures = useCanvasGestures({
     tool,
     frame: sectionRef,
@@ -479,6 +551,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     pick: scene.pick,
     onLane: (p: ArrowPick) => openLane(p.link),
     onOpen: open,
+    onContextMenu: (box, at) => setMenuAt({ box, x: at.x, y: at.y }),
     onView: viewChanged,
   });
 
@@ -637,17 +710,16 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onArrange={arrange}
             onTrash={() => setTrashOpen(true)}
           />
-          <Panel className="canvas-bar flex px-4">
-            <output aria-live="polite" className="text-xs text-muted-foreground">
-              {message ?? m.selected(selected.size)}
-            </output>
-          </Panel>
+          <AppStatus text={message ?? m.selected(selected.size)} errors={errorTotal} messages={m} />
         </div>
         <div className="canvas-middle flex min-h-0 items-start justify-between gap-3">
-          <LayersPanel
+          <AppDock
+            appName={app.data?.name}
             boxes={boxes}
             frames={frames}
             selected={selected}
+            summaries={summaryOf}
+            entryKey={entryKey}
             messages={m}
             onShow={showBox}
             onOpen={open}
@@ -691,6 +763,16 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
           </Panel>
         </div>
       ) : null}
+      <PluginContextMenu
+        at={menuAt}
+        messages={m}
+        onClose={() => setMenuAt(null)}
+        onOpen={open}
+        onDialogue={(kind) => setDialogue({ kind })}
+        onMove={setMovingBox}
+        onArchive={archiveOrRestore}
+        onDelete={() => setSafety("delete")}
+      />
       <MoveToDialog
         box={movingBox}
         messages={m}

@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type WidgetDescriptor, widgets } from "@plux/schema";
+import { type WidgetDescriptor, widget, widgets } from "@plux/schema";
+import type { IconName } from "@plux/ui";
 import { type IdSource, uuidv7 } from "../plugin-canvas/screens.ts";
 
 /** The Insert tab's groups: Layer 1 widgets, Layer 2 components, native slots and custom widgets (WGT-030). */
@@ -98,3 +99,89 @@ export const kindIcon = {
   platform: "device-mobile",
   more: "shapes",
 } as const satisfies Record<WidgetKind, string>;
+
+/** Icons of the widgets a layer tree shows most; any other widget takes its kind's icon. */
+const typeIcons: Readonly<Record<string, IconName>> = {
+  Text: "text-t",
+  RichText: "text-t",
+  Image: "image",
+  Icon: "sparkle",
+  Column: "rows",
+  Row: "columns",
+  Stack: "stack",
+  ListView: "list",
+  GridView: "grid-four",
+  Scaffold: "frame",
+  AppBar: "navigation-arrow",
+  Container: "square-dashed",
+  Padding: "square-dashed",
+  SizedBox: "square-dashed",
+  Card: "squares-four",
+  TextField: "cursor-text",
+  Switch: "toggle-right",
+  Checkbox: "check-circle",
+  Radio: "check-circle",
+  Slider: "sliders",
+  Align: "crosshair",
+  Center: "crosshair",
+  AspectRatio: "frame",
+  ClipRRect: "frame",
+  ClipOval: "frame",
+  DecoratedBox: "palette",
+  ColoredBox: "palette",
+  FittedBox: "fit-view",
+  Expanded: "arrows-up-down",
+  Flexible: "arrows-up-down",
+  Flex: "columns",
+  Wrap: "rows",
+  IndexedStack: "stack",
+  ConstrainedBox: "square-dashed",
+  LimitedBox: "square-dashed",
+  FractionallySizedBox: "square-dashed",
+  Baseline: "minus",
+  Divider: "minus",
+  VerticalDivider: "minus",
+  Spacer: "minus",
+  BottomAppBar: "rows",
+  ForEach: "list",
+  If: "flow-arrow",
+  DataScope: "database",
+  FormScope: "list-checks",
+  CustomScrollView: "arrows-up-down",
+  SingleChildScrollView: "arrows-up-down",
+  ListTile: "list",
+  DataTable: "table",
+  Table: "table",
+  Tooltip: "info",
+  CircleAvatar: "user",
+  FilterChip: "funnel",
+  InputChip: "cursor-text",
+  ExpansionTile: "caret-down",
+  MaterialBanner: "bell",
+  SelectableText: "text-t",
+  CircularProgressIndicator: "refresh",
+  LinearProgressIndicator: "pulse",
+  SafeArea: "shield",
+  GestureDetector: "hand-pointing",
+  InkWell: "hand-pointing",
+  Opacity: "eye",
+  Visibility: "eye",
+  PageView: "columns",
+  TabBar: "columns",
+  NavigationBar: "navigation-arrow",
+  Drawer: "list",
+  Hero: "sparkle",
+};
+
+/** The icon of a widget type in the layer tree. */
+export function typeIcon(type: string): IconName {
+  const own = typeIcons[type];
+  if (own !== undefined) {
+    return own;
+  }
+  if (/Button$/.test(type)) {
+    return "hand-pointing";
+  }
+  const d = widget(type);
+  return d === undefined ? "cube" : kindIcon[kindOf(d)];
+}

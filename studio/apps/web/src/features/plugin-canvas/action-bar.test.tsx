@@ -63,7 +63,7 @@ describe("[STU-050] action bar", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
     fireEvent.click(screen.getByRole("button", { name: "Zoom out" }));
     expect(onZoom.mock.calls.map((c) => c[0])).toEqual([1.25, 1 / 1.25]);
-    fireEvent.click(screen.getByRole("button", { name: "Fit" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zoom to fit" }));
     expect(onFit).toHaveBeenCalledTimes(1);
     expect(screen.getByText("80%")).toBeTruthy();
   });
@@ -110,13 +110,13 @@ const off = (b: HTMLElement) => b.hasAttribute("disabled") || b.getAttribute("ar
 const idle = { send: () => undefined, pair: () => undefined, history: () => undefined };
 
 describe("[STU-060] action bar controls", () => {
-  test("the toolbar holds the preview switches, send, history and Publish in that order; the switches open as a popover", async () => {
+  test("the toolbar holds the preview switches, history, then Send to device beside Publish; the switches open as a popover", async () => {
     mountFull({ canSend: true, canPublish: true, onPublish: () => undefined }, idle);
     const bar = await screen.findByRole("toolbar", { name: "Canvas actions" });
     const buttons = [...bar.querySelectorAll("button")];
     const at = (name: string) =>
       buttons.findIndex((b) => b.getAttribute("aria-label") === name || (b.textContent ?? "").trim() === name);
-    const order = ["Preview", "Send to device", "History", "Publish"].map(at);
+    const order = ["Preview", "History", "Send to device", "Publish"].map(at);
     expect(order.every((x) => x >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     // The preview switches (frame, theme, locale, text scale) are in the Preview popover, in that order.

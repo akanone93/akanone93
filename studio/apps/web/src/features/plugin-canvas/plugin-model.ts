@@ -22,6 +22,8 @@ export interface Screen {
 }
 
 export interface PluginModel {
+  /** The plugin's name, or its key when it has none. */
+  readonly name: string | undefined;
   readonly entryPage: string | undefined;
   readonly screens: readonly Screen[];
   /** Page ID to the page IDs it navigates to. */
@@ -47,6 +49,7 @@ export function parseDocument(content: Uint8Array): unknown {
 interface Doc {
   readonly id?: unknown;
   readonly key?: unknown;
+  readonly name?: unknown;
   readonly kind?: unknown;
   readonly route?: unknown;
   readonly title?: unknown;
@@ -122,6 +125,22 @@ export function firstText(node: Node | undefined): string | undefined {
   return undefined;
 }
 
+/**
+ * A screen's name: its title when the title is text; otherwise the first text it shows (its app bar's title); otherwise
+ * its key or route. A translated title is a reference (`{"$t": …}`) that only the keys document resolves: it used to
+ * print as "[object Object]".
+ */
+export function screenTitle(page: Readonly<Record<string, unknown>>, root: Node | undefined, route: string): string {
+  if (typeof page["title"] === "string" && page["title"].trim() !== "") {
+    return page["title"];
+  }
+  const shown = firstText(root);
+  if (shown !== undefined && shown.trim() !== "") {
+    return shown;
+  }
+  return typeof page["key"] === "string" && page["key"] !== "" ? page["key"] : route;
+}
+
 export function readPlugin(documents: readonly DocLike[]): PluginModel {
   const plugin = documents.map(json).find((d) => d?.kind === "plugin");
   const pages = documents
@@ -141,7 +160,7 @@ export function readPlugin(documents: readonly DocLike[]): PluginModel {
       const targets: string[] = [];
       navigations(root, targets);
       const route = typeof p.route === "string" ? p.route : String(p.key ?? p.id);
-      return { id: String(p.id), route, title: firstText(root) ?? String(p.title ?? route), root, targets };
+      return { id: String(p.id), route, title: screenTitle({ ...p }, root, route), root, targets };
     });
   const byRoute = new Map(screens.map((s) => [s.route, s.id]));
   const edges = new Map<string, readonly string[]>();
@@ -152,5 +171,6 @@ export function readPlugin(documents: readonly DocLike[]): PluginModel {
     );
   }
   const entry = typeof plugin?.entryPage === "string" ? plugin.entryPage : undefined;
-  return { entryPage: entry, screens, edges };
+  const named = (v: unknown) => (typeof v === "string" && v.trim() !== "" ? v : undefined);
+  return { name: named(plugin?.name) ?? named(plugin?.key), entryPage: entry, screens, edges };
 }

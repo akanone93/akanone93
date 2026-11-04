@@ -63,6 +63,14 @@ export function editorMessages(i18n: I18n) {
         values: { count },
         comment: "Status chip: edits not yet saved, kept in memory until the server is reachable.",
       }),
+    saveState: (state: "saved" | "saving" | "offline" | "conflict") =>
+      i18n._({
+        id: "editor.saveState",
+        message:
+          "{state, select, saved {All changes saved} saving {Saving…} offline {Offline, changes kept} conflict {Conflict to resolve} other {Saved}}",
+        values: { state },
+        comment: "The save state in a canvas's top bar: saved, sending edits, no network, or a conflict to resolve.",
+      }),
     offlineWaiting: (count: number) =>
       i18n._({
         id: "chip.offline-waiting",

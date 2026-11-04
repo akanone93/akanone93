@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { TreeNode } from "@plux/ui";
+import type { LayerNode } from "@plux/ui";
+import { firstText, type Node } from "../plugin-canvas/plugin-model.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
-import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
+import { childNodes, type NodeIndex } from "../plugin-canvas/select/tree.ts";
+import { typeIcon } from "./catalogue.ts";
 
 /** Selecting a node from a panel (F5): replaces the selection, or with `toggle` adds or removes it. Scope is its container. */
 export function selectIds(index: NodeIndex, current: Selection, id: string, toggle: boolean): Selection {
@@ -19,13 +21,63 @@ export function selectIds(index: NodeIndex, current: Selection, id: string, togg
   return { ids, anchor: ids.length === 0 ? null : id, scope };
 }
 
-/** The layer tree data: one synthetic root over the screen roots; rows are named by widget type. */
+/** Text a prop shows: a string, or a translation reference's key. */
+function shownText(v: unknown): string | undefined {
+  if (typeof v === "string" && v.trim() !== "") {
+    return v.trim();
+  }
+  if (typeof v === "object" && v !== null && typeof (v as Record<string, unknown>)["$t"] === "string") {
+    return String((v as Record<string, unknown>)["$t"]);
+  }
+  return undefined;
+}
+
+const PREVIEW_PROPS = [
+  "data",
+  "label",
+  "text",
+  "title",
+  "hintText",
+  "labelText",
+  "semanticLabel",
+  "icon",
+  "src",
+  "name",
+];
+
+/** What a node shows, for its layer row: a Text's words, a field's label, a button's text, an image's source. */
+export function nodePreview(node: Node): string | undefined {
+  const props = (node.props ?? {}) as Readonly<Record<string, unknown>>;
+  for (const k of PREVIEW_PROPS) {
+    const t = shownText(props[k]);
+    if (t !== undefined) {
+      return t.length > 48 ? `${t.slice(0, 47)}…` : t;
+    }
+  }
+  if (/Button|Chip|Tab$/.test(node.type ?? "")) {
+    return firstText(node);
+  }
+  return undefined;
+}
+
+function walk(node: Node, visit: (n: Node) => void): void {
+  visit(node);
+  for (const c of childNodes(node)) {
+    walk(c, visit);
+  }
+}
+
+/**
+ * The layer tree data: one synthetic root over the screen roots. A screen's root reads as its screen (its title, the
+ * phone icon, the entry mark); every other row is its widget's type with the widget's icon and what it shows.
+ */
 export function treeNodes(
   screens: readonly PlacedScreen[],
   index: NodeIndex,
   rootName: string,
-): Record<string, TreeNode> {
-  const out: Record<string, TreeNode> = {
+  entry?: { readonly page: string | undefined; readonly label: string },
+): Record<string, LayerNode> {
+  const out: Record<string, LayerNode> = {
     plugin: {
       id: "plugin",
       name: rootName,
@@ -35,13 +87,28 @@ export function treeNodes(
   };
   for (const [id, kids] of index.children) {
     const type = index.type.get(id) ?? "?";
-    out[id] = { id, name: type, type, children: kids };
+    out[id] = { id, name: type, type, icon: typeIcon(type), children: kids };
   }
-  // A screen's root reads as its screen: the tree then lists the plugin's screens, each over its widgets.
   for (const s of screens) {
-    const root = s.root === undefined ? undefined : out[s.root.id];
-    if (root !== undefined && s.title !== "") {
-      out[root.id] = { ...root, name: s.title };
+    if (s.root === undefined) {
+      continue;
+    }
+    walk(s.root, (n) => {
+      const row = out[n.id];
+      const preview = nodePreview(n);
+      if (row !== undefined && preview !== undefined) {
+        out[n.id] = { ...row, preview };
+      }
+    });
+    const root = out[s.root.id];
+    if (root !== undefined) {
+      out[root.id] = {
+        ...root,
+        name: s.title === "" ? root.name : s.title,
+        icon: "device-mobile",
+        preview: root.type,
+        ...(entry !== undefined && s.id === entry.page ? { badge: entry.label } : {}),
+      };
     }
   }
   return out;

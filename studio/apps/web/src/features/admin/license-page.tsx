@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { LicenseService } from "@plux/api";
-import { Button, Field, Input } from "@plux/ui";
+import { Button, FileDrop } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { adminMessages } from "./admin.messages.ts";
@@ -50,7 +50,7 @@ export function LicensePage(): ReactElement {
       {s?.message !== undefined && s.message !== "" && <p className="text-body text-muted-foreground">{s.message}</p>}
       <p className="text-body text-muted-foreground">{m.licenseNote}</p>
       <form
-        className="flex items-end gap-3"
+        className="flex max-w-xl flex-col items-start gap-3"
         onSubmit={async (e) => {
           e.preventDefault();
           if (file !== undefined) {
@@ -59,9 +59,13 @@ export function LicensePage(): ReactElement {
           }
         }}
       >
-        <Field label={m.licenseFile}>
-          <Input type="file" onChange={(e) => setFile(e.target.files?.[0])} />
-        </Field>
+        <FileDrop
+          label={m.licenseFile}
+          chosen={file?.name}
+          icon="key"
+          className="w-full"
+          onFiles={(files) => setFile(files[0])}
+        />
         <Button
           type="submit"
           disabled={user.data?.installationAdmin !== true || file === undefined}
