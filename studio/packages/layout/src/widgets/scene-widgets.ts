@@ -17,6 +17,7 @@ import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import { RenderIntrinsicWidth } from "../flutter/proxy-boxes.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { TextScaler, type TextStyle } from "../flutter/text-style.ts";
+import { fieldModel, fieldSceneProps } from "../paint/fields.ts";
 import { type PaintTheme, resolveColor } from "../paint/paint.ts";
 import { ownTextStyle, resolveTextStyle } from "../paint/text-style.ts";
 import { materialFontFamily } from "../scene/material-scene.ts";
@@ -216,6 +217,8 @@ export const faithfulTypes: ReadonlySet<string> = new Set([
   "SafeArea",
   "SingleChildScrollView",
   "ListView",
+  "TextField",
+  "TextFormField",
   ...componentTypes,
 ]);
 
@@ -421,9 +424,23 @@ function faithfulScene(node: WidgetNode, props: Record<string, unknown>, childre
     case "IconButton":
     case "FloatingActionButton":
       return { id: node.id, type: node.type, props, ...withChild(children) };
+    case "TextField":
+    case "TextFormField":
+      return fieldScene(node.id, props);
     default:
       return { id: node.id, type: node.type ?? "", props, ...own };
   }
+}
+
+/** A text field as the scene's reads it: its decoration flattened, its decoration's icons as icon parts. */
+function fieldScene(id: string, props: Record<string, unknown>): SceneNode {
+  const model = fieldModel(props);
+  const icons = (["prefixIcon", "suffixIcon", "icon"] as const).flatMap((slot): SceneNode[] =>
+    isRecord(model.icons[slot])
+      ? [{ id: `${id}#${slot}`, type: "Icon", slot, props: { icon: model.icons[slot] } }]
+      : [],
+  );
+  return { id, type: "TextField", props: fieldSceneProps(model), ...(icons.length === 0 ? {} : { children: icons }) };
 }
 
 /**
@@ -545,6 +562,8 @@ function sceneBuild(node: WidgetNode, ctx: WidgetContext): RenderBox {
     base,
     hosts: bridge.hosts,
     screen: { width: ctx.available(), height: 0 },
+    // A painted screen draws the texts a composite makes up itself (a field's hint, a segment's label).
+    parts: ctx.paint !== undefined,
     onText: (id, style) => {
       const text = bridge.texts.get(id);
       if (text !== undefined) {

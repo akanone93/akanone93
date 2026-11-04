@@ -136,7 +136,9 @@ app's uploaded assets are drawn in their fit and corners, and avatars in their i
 drag an image from **Assets** onto a screen to add it, or pick one for an image property. A web image is loaded on the
 device; the canvas shows its placeholder. Buttons, chips, checkboxes, radios, switches, sliders and progress
 indicators look as Material 3 draws them, their labels and icons in the component's colours; a control without an
-action is drawn disabled, as it is on the device until you add one. The canvas previews with the same layout code the device runs; the device decides. Check anything
+action is drawn disabled, as it is on the device until you add one. Text fields show their decoration — underline,
+filled or outlined, the label resting or floating over a value, hint, prefix, suffix, icons, and the helper or error
+text, the error in red; search bars are drawn as Material 3's. The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 ## Link screens

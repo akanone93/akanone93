@@ -11,6 +11,7 @@
 
 import { shadowsForElevation } from "../flutter/shadows.ts";
 import type { ColorRole, ColorScheme } from "../material-color/scheme.ts";
+import type { PaintText, PlacedGlyph } from "./fields.ts";
 import type { TypeRole, TypeSpec } from "./text-style.ts";
 
 /** A colour as the canvas takes it: 0xRRGGBBAA. */
@@ -111,6 +112,9 @@ export interface NodePaint {
   readonly textColor?: Rgba;
   /** The glyph an `Icon` draws (THM-005). */
   readonly icon?: IconPaint;
+  /** The texts and icons the widget places itself (a field's label and hint, its icons). */
+  readonly texts?: readonly PaintText[];
+  readonly glyphs?: readonly PlacedGlyph[];
 }
 
 /** An icon as Flutter's `Icon` draws it: a glyph of an icon set, centred in its box at `size`, in `color`. */

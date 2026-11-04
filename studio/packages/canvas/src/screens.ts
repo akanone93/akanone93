@@ -355,7 +355,65 @@ function paintedItems(
     { kind: "rect", ...own, h: b.h, radius: 0 },
     ...paint.boxes.map((box, i) => paintedBox(s, b, paint, box, i, frame, style)),
     ...webImageGlyphs(s, b, paint, style, glyphs, frame),
+    ...partItems(s, b, paint, style, glyphs, frame),
   ];
+}
+
+/** The texts and icons a widget places itself (a field's label, hint and icons), over its boxes. */
+function partItems(
+  s: ScreenDocument,
+  b: Placed,
+  paint: NodePaint,
+  style: ScreenStyle,
+  glyphs: IconGlyphs | undefined,
+  frame: object,
+): ItemSpec[] {
+  const z = PAINT_Z + paint.order + 0.5;
+  const fade = { ...(paint.opacity < 1 ? { opacity: paint.opacity } : {}), ...clipsOf(s, paint) };
+  const texts = (paint.texts ?? []).map(
+    (t, i): ItemSpec => ({
+      kind: "text",
+      id: `${s.id}/${b.id}${PAINT_SUFFIX}t${i}`,
+      x: s.x + t.x,
+      y: s.y + t.y,
+      w: t.w,
+      text: t.text,
+      size: t.style.size,
+      families: t.style.family === undefined ? style.theme.fontFamilies : [t.style.family, ...style.theme.fontFamilies],
+      ...(t.style.weight === 400 ? {} : { weight: t.style.weight }),
+      ...(t.style.letterSpacing === 0 ? {} : { letterSpacing: t.style.letterSpacing }),
+      height: t.style.height,
+      maxLines: 1,
+      color: t.color,
+      ...fade,
+      z,
+      ...frame,
+    }),
+  );
+  const icons = (paint.glyphs ?? []).flatMap((g, i): ItemSpec[] => {
+    const glyph = glyphs?.glyph(g);
+    return glyph === undefined
+      ? []
+      : [
+          {
+            kind: "text",
+            id: `${s.id}/${b.id}${PAINT_SUFFIX}g${i}`,
+            x: s.x + g.x + (g.w - g.size) / 2,
+            y: s.y + g.y + (g.h - g.size) / 2,
+            w: g.size,
+            text: glyph.text,
+            size: g.size,
+            height: 1,
+            align: "center",
+            color: g.color,
+            families: glyph.families,
+            ...fade,
+            z,
+            ...frame,
+          },
+        ];
+  });
+  return [...texts, ...icons];
 }
 
 /** A web image's placeholder carries an image glyph: the canvas does not load it (the device does). */

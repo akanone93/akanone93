@@ -503,4 +503,23 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     });
     engine.dispose();
   });
+
+  test("[STA-020] a text field is laid out by the scene and drawn with its label, value and helper", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      props: { crossAxisAlignment: "stretch" },
+      children: [
+        { id: "f", type: "TextField", props: { value: "Ada", decoration: { labelText: "Name", helperText: "Yours" } } },
+      ],
+    };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    const texts = painted.ops.flatMap((op) =>
+      op.op === "add" && op.item.kind === "text" && op.item.id.startsWith("s/f#") ? [op.item.text] : [],
+    );
+    expect(texts.sort()).toEqual(["Ada", "Name", "Yours"]);
+    engine.dispose();
+  });
 });

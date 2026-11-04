@@ -59,8 +59,10 @@ Needs.
   sliders, progress, badges, in their states; labels in the component's text style and colour. *Build:* an actions
   screen. *Check:* a button without an action is disabled, as on the device — add one and it is enabled; set a
   checkbox, switch, radio or filter chip's value and it shows selected. `STU-005`.
-- **PC-06 Fields and pickers.** *See:* text fields in every state, dropdowns, search bars, steppers, date pickers.
-  *Build:* a form screen. *Check:* preview the error state. `STU-005`, `STA-020`.
+- **PC-06 Fields and pickers.** *See:* text fields in every state (underline, filled, outlined; resting and floating
+  label; hint, prefix, suffix, icons; helper and error), search bars. *Build:* a form screen. *Check:* set an error
+  text and the field turns red; give it a value and the label floats. Steppers, date pickers and labelled dropdown
+  menus follow with PC-09. `STU-005`, `STA-020`.
 - **PC-07 Bars, surfaces and lists.** *See:* app bars, navigation bar, rail and drawer, tab bar, cards, list tiles,
   dividers, expansion tiles. *Build:* a settings screen. *Check:* compare with the Dev app. `STU-005`.
 - **PC-08 Cupertino.** *See:* with **Cupertino** in Preview, iOS-styled controls and every adaptive widget.

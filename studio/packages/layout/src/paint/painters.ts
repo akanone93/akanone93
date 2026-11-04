@@ -11,6 +11,7 @@
 
 import type { ColorRole } from "../material-color/scheme.ts";
 import { checkboxMark, controlForeground, controlPainters } from "./controls.ts";
+import { fieldModel, fieldPaint, fieldTypes, type PaintText, type PlacedGlyph, searchBarPaint } from "./fields.ts";
 import {
   argbToRgba,
   type BoxFitName,
@@ -51,6 +52,8 @@ export interface PaintNode {
 /** What a painter returns: its boxes, and the clip and opacity it puts on its children. */
 interface Painted {
   readonly boxes?: readonly BoxPaint[];
+  readonly texts?: readonly PaintText[];
+  readonly glyphs?: readonly PlacedGlyph[];
   readonly clip?: PaintClip;
   readonly opacity?: number;
 }
@@ -427,8 +430,14 @@ function slotEntries(node: PaintNode): [string | undefined, PaintNode][] {
   );
 }
 
-/** What a widget paints in its box `r`: a control's boxes, or its painter's. */
-function paintOf(node: PaintNode, r: Rect, theme: PaintTheme): Painted {
+/** What a widget paints in its box `r`: a field's parts, a control's boxes, or its painter's. */
+function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
+  if (fieldTypes.has(node.type ?? "")) {
+    return fieldPaint(fieldModel(node.props ?? {}), node.id, r, theme, (id) => rects.get(id));
+  }
+  if (node.type === "SearchBar" || node.type === "SearchAnchor") {
+    return searchBarPaint(node.props ?? {}, r, theme);
+  }
   const control = controlPainters.get(node.type ?? "");
   if (control !== undefined) {
     return { boxes: control(node, r, theme) };
@@ -466,13 +475,14 @@ class TreePainter {
 
   visit(node: PaintNode, opacity: number, clips: readonly PaintClip[], icons: IconContext): void {
     const r = this.rects.get(node.id);
-    const painted: Painted = r === undefined ? {} : paintOf(node, r, this.theme);
+    const painted: Painted = r === undefined ? {} : paintOf(node, r, this.theme, this.rects);
     if (r !== undefined) {
       const type = node.type ?? "";
       const icon = ownIcon(node, this.theme, icons);
       // An image with no source the canvas knows is a placeholder, as a widget not painted yet is.
       const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
-      const painterOf = (painters.has(type) || controlPainters.has(type)) && !sourceless;
+      const parts = fieldTypes.has(type) || type === "SearchBar" || type === "SearchAnchor";
+      const painterOf = (painters.has(type) || controlPainters.has(type) || parts) && !sourceless;
       const role = icon === undefined || type !== "Icon" ? roleOf(type, painterOf) : "icon";
       this.record(node, role, painted, opacity, clips, { icon, text: icons.text });
     }
@@ -505,6 +515,8 @@ class TreePainter {
       clips,
       ...(role === "text" ? { textColor: textColor(node, this.theme, own.text) } : {}),
       ...(icon === undefined ? {} : { icon }),
+      ...(painted.texts === undefined || painted.texts.length === 0 ? {} : { texts: painted.texts }),
+      ...(painted.glyphs === undefined || painted.glyphs.length === 0 ? {} : { glyphs: painted.glyphs }),
     });
   }
 }

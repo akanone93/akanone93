@@ -143,6 +143,8 @@ export interface SceneText {
   screen?: { width: number; height: number };
   /** The render objects of [hostType] nodes, by node id: widgets the host built itself. */
   hosts?: ReadonlyMap<string, RenderBox>;
+  /** Whether a composite reports the rects of the texts and icons it makes up itself, as `<id>#<part>`. */
+  parts?: boolean;
   /** Told the style each `Text` node is laid out in, its component's merged with its own (the canvas draws it so). */
   onText?: (id: string, style: TextStyle) => void;
 }

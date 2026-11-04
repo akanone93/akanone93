@@ -161,7 +161,10 @@ function buildChipNode(node: SceneNode, ctx: MaterialContext): RenderBox {
   });
 }
 
-/** A text the composite makes up itself: a scene node nothing keys, so no rect is reported for it. */
+/**
+ * A text the composite makes up itself: a scene node nothing keys, so no rect is reported for it — except to a canvas
+ * that asks for the parts it draws (`SceneText.parts`), as `<id>#<name>`.
+ */
 function syntheticText(
   node: SceneNode,
   name: string,
@@ -171,14 +174,14 @@ function syntheticText(
   options: TextOptions = {},
 ): RenderBox {
   const box = ctx.build({ id: `${node.id}:${name}`, type: "Text", props: { text } }, base, options);
-  box.debugId = null;
+  box.debugId = ctx.text?.parts === true ? `${node.id}#${name}` : null;
   return box;
 }
 
 /** The trailing arrow of a `DropdownMenu`: an icon no golden id names. */
 function arrowIcon(node: SceneNode, ctx: MaterialContext): RenderBox {
   const arrow = ctx.build({ id: `${node.id}:arrow`, type: "Icon", props: {} });
-  arrow.debugId = null;
+  arrow.debugId = ctx.text?.parts === true ? `${node.id}#arrow` : null;
   return arrow;
 }
 

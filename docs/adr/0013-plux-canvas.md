@@ -77,8 +77,11 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   buttons, chips, checkboxes, radios, switches, sliders, progress indicators and badges — are laid out by the scene
   code and painted with the defaults of Flutter's `_*DefaultsM3`; a text inside a component is laid out in the
   component's text role merged with its own style, and drawn in the style it was measured in. A control with no
-  action is drawn disabled, as Flutter disables a button whose `onPressed` is null. Painting is reviewed by eye against
-  the device, not by pixels.
+  action is drawn disabled, as Flutter disables a button whose `onPressed` is null. Text fields are laid out by the
+  scene's input decorator from their `decoration`, and painted with `_InputDecoratorDefaultsM3`: underline, filled or
+  outlined container, resting or floating label, value or hint, prefix and suffix, helper or error, icons. On a painted
+  screen a composite reports the parts it makes up itself (`<id>#input`, `#hint` …) so they are drawn where they were
+  laid out; the conformance scenes do not. Painting is reviewed by eye against the device, not by pixels.
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with
