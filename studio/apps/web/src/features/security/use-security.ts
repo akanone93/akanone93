@@ -15,6 +15,7 @@ import { useParams, useSearch } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { useCurrentUser } from "../../lib/use-current-user.ts";
+import { lockTransport } from "../editor/lock-transport.ts";
 import { defaultEnvironment } from "./security.schema.ts";
 import { assertionFields, requestOptions } from "./step-up.ts";
 
@@ -150,16 +151,28 @@ export function useAppDocument(app: string) {
   });
 }
 
+/**
+ * Saves the grants into the app document under the app's editing lock, taken for this one write and released after
+ * it: the server refuses a document write without a lock session, so a save sent without one never landed.
+ */
 export function useSaveCapabilities() {
   const { session } = useApp();
   return async (app: string, json: Record<string, unknown>, revision: bigint) => {
-    await createClient(DocumentService, session.transport).putDocument({
-      appId: app,
-      pluginId: "",
-      path: appDocument,
-      content: new TextEncoder().encode(JSON.stringify(json)),
-      ifRevision: revision,
-    });
+    const lock = lockTransport(session.transport, { appId: app, pluginId: "" });
+    const editing = crypto.randomUUID();
+    await lock.acquire(editing, false);
+    try {
+      await createClient(DocumentService, session.transport).putDocument({
+        appId: app,
+        pluginId: "",
+        session: editing,
+        path: appDocument,
+        content: new TextEncoder().encode(JSON.stringify(json)),
+        ifRevision: revision,
+      });
+    } finally {
+      await lock.release(editing, { keepalive: false }).catch(() => undefined);
+    }
     await session.queryClient.invalidateQueries({ queryKey: ["app-document", app] });
   };
 }

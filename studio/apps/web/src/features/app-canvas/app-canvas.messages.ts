@@ -155,13 +155,6 @@ export function appCanvasMessages(i18n: I18n) {
         comment: "Count of a plugin's screens.",
         values: { n },
       }),
-    boxSubtitle: (key: string, n: number) =>
-      i18n._({
-        id: "appCanvas.boxSubtitle",
-        message: "{key} · {n, plural, one {# screen} other {# screens}}",
-        comment: "The line under a plugin's name on its box: the plugin's key, then its number of screens.",
-        values: { key, n },
-      }),
     versions: (n: number) =>
       i18n._({
         id: "appCanvas.versions",
@@ -537,6 +530,23 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Versions",
       comment: "Figure label in the plugin's detail panel.",
     }),
+    statLinks: i18n._({
+      id: "appCanvas.stat.links",
+      message: "Links",
+      comment: "Figure label on a plugin's box: how many navigate links go out of and into the plugin.",
+    }),
+    releaseDraft: i18n._({
+      id: "appCanvas.release.draft",
+      message: "Draft",
+      comment: "Chip on a plugin's box: the plugin has never been published.",
+    }),
+    releaseVersion: (version: string) =>
+      i18n._({
+        id: "appCanvas.release.version",
+        message: "v{version}",
+        comment: "Chip on a plugin's box: the plugin's newest published version, e.g. v3.",
+        values: { version },
+      }),
     pluginActions: i18n._({
       id: "appCanvas.plugin-actions",
       message: "Plugin actions",

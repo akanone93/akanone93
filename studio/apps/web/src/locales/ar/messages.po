@@ -430,12 +430,6 @@ msgstr "يمكن إضافة {imported} رمزًا ويتم تخطي {skipped}."
 msgid "appCanvas.bundleSize"
 msgstr "حزمة بحجم {kb} كيلوبايت"
 
-#. The line under a plugin's name on its box: the plugin's key, then its number of screens.
-#. js-lingui-explicit-id
-#: apps/web/src/features/app-canvas/app-canvas.messages.ts
-msgid "appCanvas.boxSubtitle"
-msgstr "{key} · {n, plural, zero {0 شاشة} one {شاشة واحدة} two {شاشتان} few {# شاشات} many {# شاشة} other {# شاشة}}"
-
 #. Accessible name of the field that holds one message: the key and the locale it is in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -4404,6 +4398,12 @@ msgstr "جارٍ تنزيل المشروع"
 msgid "approvals.simDraft"
 msgstr "مسودة"
 
+#. Chip on a plugin's box: the plugin has never been published.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.release.draft"
+msgstr "مسودة"
+
 #. State of an experiment.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -7330,6 +7330,12 @@ msgstr "الرابط: {title}"
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.dragging"
 msgstr "الربط بـ {target}"
+
+#. Figure label on a plugin's box: how many navigate links go out of and into the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.stat.links"
+msgstr "الروابط"
 
 #. Accessible name of the list of arrows between plugin boxes.
 #. js-lingui-explicit-id
@@ -15825,6 +15831,12 @@ msgstr "معرّف المستخدم"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.detail.functionsUsed"
 msgstr "يستخدم {names}"
+
+#. Chip on a plugin's box: the plugin's newest published version, e.g. v3.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.release.version"
+msgstr "الإصدار {version}"
 
 #. Badge: a plugin has no validation errors.
 #. js-lingui-explicit-id

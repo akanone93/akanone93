@@ -100,7 +100,7 @@ export function AppBar({
   });
   const orgName = orgs.data?.organizations.find((o) => o.key === org || o.id === org)?.name ?? org;
   return (
-    <Panel className="flex items-center gap-2 p-1.5 pe-4">
+    <Panel className="canvas-bar flex gap-2 p-1.5 pe-4">
       <Tooltip>
         <TooltipTrigger
           render={
@@ -147,7 +147,7 @@ export function CanvasToolbar({
   readonly onTrash: () => void;
 }): ReactElement {
   return (
-    <Panel role="toolbar" aria-label={m.toolbar} className="flex items-center gap-1 p-1.5">
+    <Panel role="toolbar" aria-label={m.toolbar} className="canvas-bar flex gap-1 p-1.5">
       <ToggleGroup
         aria-label={m.tools}
         value={[tool]}
@@ -194,7 +194,7 @@ export function ZoomControls({
 }): ReactElement {
   const percent = Math.round(zoom * 100);
   return (
-    <Panel role="group" aria-label={m.zoomControls} className="flex items-center gap-0.5 p-1">
+    <Panel role="group" aria-label={m.zoomControls} className="canvas-bar flex gap-0.5 p-1.5">
       <ToolButton icon="minus" label={m.zoomOut} shortcut="-" onClick={onZoomOut} />
       <Button
         variant="ghost"

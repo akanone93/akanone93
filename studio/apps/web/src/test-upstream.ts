@@ -457,6 +457,16 @@ function libraryVisibility(lib: LibraryItems | undefined, kind: string, id: stri
 }
 
 /** An in-memory upstream for the shell: the same RPCs the BFF forwards. */
+/**
+ * Refuses a document write sent without an editing session, as the server does (document.checkSession): a write the
+ * Studio sent without its lock session once passed here and failed on every server.
+ */
+function requireSession(session: string): void {
+  if (session === "") {
+    throw new ConnectError("an editing session is 1 to 128 characters", Code.InvalidArgument);
+  }
+}
+
 export function createUpstream(state: UpstreamData) {
   // Documents autosave changed, by path; the fixtures themselves stay as given.
   const patched = new Map<string, { kind: string; path: string; json: unknown }>();
@@ -893,6 +903,7 @@ export function createUpstream(state: UpstreamData) {
       }),
       // Autosave: applies the patch to the stored document and returns it one revision on.
       patchDocument: (req) => {
+        requireSession(req.session);
         const stored =
           patched.get(req.path) ??
           [...(state.documents ?? []), ...(state.appDocuments ?? [])].find((d) => d.path === req.path);
@@ -923,6 +934,7 @@ export function createUpstream(state: UpstreamData) {
       },
       // The document a restore brought back: found in the snapshots by path.
       putDocument: (req) => {
+        requireSession(req.session);
         state.security?.putDocuments?.push({
           path: req.path,
           content: new TextDecoder().decode(req.content),
@@ -941,6 +953,7 @@ export function createUpstream(state: UpstreamData) {
         };
       },
       deleteDocument: (req) => {
+        requireSession(req.session);
         state.deletedDocuments?.push(req.path);
         return {};
       },

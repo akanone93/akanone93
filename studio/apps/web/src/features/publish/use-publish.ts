@@ -26,7 +26,9 @@ export function useSummaries(app: string) {
   const { session } = useApp();
   return useQuery({
     queryKey: ["plugin-summaries", app],
-    queryFn: () => createClient(PluginService, session.transport).listPluginSummaries({ appId: app }),
+    // The same key and shape as the app canvas and the panels: one cache entry, one shape.
+    queryFn: async () =>
+      (await createClient(PluginService, session.transport).listPluginSummaries({ appId: app })).summaries,
   });
 }
 

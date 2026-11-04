@@ -8,31 +8,40 @@
 
 .app-canvas {
   /*
-   * The canvas's own glass: more of the scene shows through than on the page's popovers, and the panels rest on it
-   * with a hairline, a light top edge and a soft, wide, faint shadow rather than the page's third elevation.
+   * The canvas surface: the page's background with a breath of cool blue (scene-theme.ts draws the same mix), so the
+   * white cards stand off it without it reading as grey or as colour.
    */
-  --canvas-glass-fill: color-mix(in oklch, var(--popover) 64%, transparent);
-  --canvas-glass-edge: color-mix(in oklch, var(--foreground) 8%, transparent);
-  --canvas-glass-highlight: oklch(1 0 0 / 70%);
+  --canvas-surface: color-mix(in oklch, var(--background) 91%, oklch(0.72 0.06 245));
+  /*
+   * The canvas's own glass, lighter than the page's popovers: a translucent fill with a faint top-down sheen, a strong
+   * blur that turns what passes under it into soft colour, a hairline edge, a bright top edge, and a creamy elevation
+   * — three soft shadows, each faint, the widest far below — instead of the page's third elevation.
+   */
+  --canvas-glass-fill: color-mix(in oklch, var(--popover) 62%, transparent);
+  --canvas-glass-sheen: linear-gradient(to bottom, oklch(1 0 0 / 42%), oklch(1 0 0 / 6%) 60%, transparent);
+  --canvas-glass-edge: color-mix(in oklch, var(--foreground) 7%, transparent);
+  --canvas-glass-highlight: oklch(1 0 0 / 85%);
   --canvas-glass-shadow:
-    0 1px 1px oklch(0.2 0.01 286 / 3%), 0 4px 12px -2px oklch(0.2 0.01 286 / 5%),
-    0 16px 40px -12px oklch(0.2 0.01 286 / 8%);
-  --canvas-glass-blur: blur(20px) saturate(1.6);
+    0 1px 2px oklch(0.3 0.03 250 / 4%), 0 6px 16px -6px oklch(0.3 0.03 250 / 7%),
+    0 22px 48px -18px oklch(0.3 0.03 250 / 10%);
+  --canvas-glass-blur: blur(24px) saturate(1.8);
 
-  background-color: var(--background);
+  background-color: var(--canvas-surface);
 }
 
 [data-theme="dark"] .app-canvas {
-  --canvas-glass-fill: color-mix(in oklch, var(--popover) 60%, transparent);
+  --canvas-glass-fill: color-mix(in oklch, var(--popover) 58%, transparent);
+  --canvas-glass-sheen: linear-gradient(to bottom, oklch(1 0 0 / 5%), transparent 60%);
   --canvas-glass-edge: oklch(1 0 0 / 9%);
-  --canvas-glass-highlight: oklch(1 0 0 / 6%);
+  --canvas-glass-highlight: oklch(1 0 0 / 8%);
   --canvas-glass-shadow:
-    0 1px 1px oklch(0 0 0 / 20%), 0 4px 12px -2px oklch(0 0 0 / 22%), 0 16px 40px -12px oklch(0 0 0 / 35%);
+    0 1px 2px oklch(0 0 0 / 22%), 0 6px 16px -6px oklch(0 0 0 / 30%), 0 22px 48px -18px oklch(0 0 0 / 45%);
 }
 
 /* The contrast theme, forced colours and reduced transparency: solid panels without blur, as on the page. */
 [data-theme="contrast"] .app-canvas {
   --canvas-glass-fill: var(--popover);
+  --canvas-glass-sheen: none;
   --canvas-glass-edge: var(--border);
   --canvas-glass-highlight: transparent;
   --canvas-glass-blur: none;
@@ -57,18 +66,30 @@
   gap: calc(var(--spacing) * 3);
 }
 
+/* Every panel: rounded, the bars a little less than the side panels, which hold lists and figures. */
 .canvas-panel {
   pointer-events: auto;
   border-radius: var(--radius-xl);
 }
 
+.canvas-middle > .canvas-panel {
+  border-radius: var(--radius-2xl);
+}
+
 .canvas-panel.glass {
   background-color: var(--canvas-glass-fill);
+  background-image: var(--canvas-glass-sheen);
   backdrop-filter: var(--canvas-glass-blur);
   box-shadow:
     0 0 0 1px var(--canvas-glass-edge),
     inset 0 1px 0 0 var(--canvas-glass-highlight),
     var(--canvas-glass-shadow);
+}
+
+/* The bars hold controls on one line, all of one height. `display` stays with the utilities (`hidden lg:flex`). */
+.canvas-bar {
+  align-items: center;
+  min-block-size: calc(var(--spacing) * 11);
 }
 
 /* The side panels stop short of the bottom row and scroll inside. */

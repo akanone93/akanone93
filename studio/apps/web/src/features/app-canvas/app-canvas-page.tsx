@@ -4,7 +4,7 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { AppService, PluginService, ReleaseService } from "@plux/api";
+import { AppService, PluginService, type PluginSummary, ReleaseService } from "@plux/api";
 import type { ArrowPick, NavigateEdge } from "@plux/canvas";
 import { Icon } from "@plux/ui";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@plux/ui/components/empty";
@@ -112,6 +112,31 @@ function followSize(page: HTMLElement, surface: CanvasSurface, initial: string):
   });
   observer.observe(page);
   return observer;
+}
+
+/** The figures and release chip of a plugin's box (STU-030): screens, versions and links, and `v3` or `Draft`. */
+function boxFacts(
+  s: PluginSummary | undefined,
+  m: ReturnType<typeof appCanvasMessages>,
+): Pick<SceneBox, "stats" | "release"> {
+  if (s === undefined) {
+    return {};
+  }
+  const versions = Number(s.versions);
+  const latest = s.plugin?.latestVersion ?? 0n;
+  return {
+    stats: [
+      { value: String(Number(s.screens)), label: m.statScreens },
+      { value: String(versions), label: m.statVersions },
+      { value: String(s.linksOut.length + s.linksIn.length), label: m.statLinks },
+    ],
+    release:
+      versions > 0 && latest > 0n
+        ? m.releaseVersion(String(latest))
+        : versions > 0
+          ? m.releaseVersion(String(versions))
+          : m.releaseDraft,
+  };
 }
 
 /** The marquee being drawn, in view pixels (screen space has no writing direction); nothing when none is. */
@@ -313,7 +338,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         native,
         archived: s?.plugin?.archived === true,
         badges: native ? [] : badgesOf(s, b.key === entryKey, m),
-        subtitle: native ? m.native : m.boxSubtitle(b.key, Number(s?.screens ?? 0n)),
+        ...(native ? { subtitle: m.native } : boxFacts(s, m)),
       };
     });
   }, [list, graph.natives, positions, links, summaryOf, entryKey, m]);
@@ -619,7 +644,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onArrange={arrange}
             onTrash={() => setTrashOpen(true)}
           />
-          <Panel className="flex h-11 items-center px-3">
+          <Panel className="canvas-bar flex px-4">
             <output aria-live="polite" className="text-xs text-muted-foreground">
               {message ?? m.selected(selected.size)}
             </output>
@@ -655,7 +680,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onReset={resetZoom}
             onFit={fit}
           />
-          <Panel className="canvas-hint hidden px-3 py-2 text-xs text-muted-foreground lg:block">{m.hint}</Panel>
+          <Panel className="canvas-bar canvas-hint hidden px-4 text-xs text-muted-foreground lg:flex">{m.hint}</Panel>
         </div>
       </div>
       {list.length === 0 && summaries.isSuccess ? (

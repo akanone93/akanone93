@@ -76,9 +76,13 @@ export function documentTransport(
       confirmed(res.document);
       return toServerDocument(res.document);
     },
+    // Every write is sent under the lock session, as the server refuses a write without one: creating a document
+    // without it failed, so the first drop on an app canvas with no canvas document snapped back.
     async put(path, content, options) {
+      const session = lockSession === undefined ? "" : await lockSession();
       const res = await client.putDocument({
         ...ids,
+        session,
         path,
         ifRevision: 0n,
         stepId: options?.step ?? "",
@@ -91,7 +95,8 @@ export function documentTransport(
       return toServerDocument(res.document);
     },
     async remove(path, ifRevision) {
-      await client.deleteDocument({ ...ids, path, ifRevision });
+      const session = lockSession === undefined ? "" : await lockSession();
+      await client.deleteDocument({ ...ids, session, path, ifRevision });
     },
     classify: classifySaveError,
   };

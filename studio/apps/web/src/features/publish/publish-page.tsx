@@ -135,7 +135,7 @@ export function PublishPage(): ReactElement {
         void queryClient.invalidateQueries({ queryKey: ["release-request", app, requestId] });
       });
   };
-  const pluginIds = new Map((summaries.data?.summaries ?? []).map((s) => [s.plugin?.key ?? "", s.plugin?.id ?? ""]));
+  const pluginIds = new Map((summaries.data ?? []).map((s) => [s.plugin?.key ?? "", s.plugin?.id ?? ""]));
   const props: PanelProps = { request, diff: query.data?.visualDiff, api, editable, busy, run, pluginIds };
   return (
     <section className="flex flex-col gap-4" aria-labelledby="publish-title">

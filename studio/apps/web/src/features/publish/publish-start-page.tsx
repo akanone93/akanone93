@@ -20,7 +20,7 @@ export function PublishStartPage(): ReactElement {
   const started = useRef(false);
   const [state, setState] = useState<"working" | "nothing" | "failed">("working");
   const environmentId = environment.environment?.id;
-  const loaded = summaries.data?.summaries;
+  const loaded = summaries.data;
   useEffect(() => {
     if (started.current || environmentId === undefined || loaded === undefined) {
       return;

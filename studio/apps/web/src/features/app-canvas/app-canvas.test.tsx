@@ -258,6 +258,29 @@ describe("C1 on Plux Canvas ([STU-030], [STU-040], ADR-0013)", () => {
     expect(screen.queryByText("The change could not be saved.") === null).toBe(true);
   });
 
+  test("the first move on an app with no canvas document creates it under the lock, and the box stays [STU-032]", async () => {
+    const s = stub();
+    const createdDocuments: string[] = [];
+    renderApp(path, state({ surface: s.factory, appDocuments: [], createdDocuments }));
+    const xOf = () =>
+      s.patches
+        .flatMap((o) =>
+          (o.op === "add" || o.op === "replace") && o.item.id === "app-box/loans" && o.item.kind === "rect"
+            ? [o.item.x]
+            : [],
+        )
+        .at(-1);
+    fireEvent.pointerDown(await screen.findByRole("button", { name: /^Loans/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Move to…" }));
+    fireEvent.change(await screen.findByLabelText("X position"), { target: { value: "640" } });
+    fireEvent.change(screen.getByLabelText("Y position"), { target: { value: "40" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(createdDocuments).toContain("canvas.json"));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(xOf()).toBe(640);
+    expect(screen.queryByText("The change could not be saved.") === null).toBe(true);
+  });
+
   test("a document list older than a move does not put the box back [STU-032]", async () => {
     const s = stub();
     const { session } = renderApp(path, state({ surface: s.factory }));

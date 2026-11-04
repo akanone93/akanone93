@@ -20,10 +20,13 @@ export interface SceneTheme {
 /** The grid's geometry: a dot every 24 world units, 1 CSS pixel in radius, never closer than 14 CSS pixels. */
 const GRID = { spacing: 24, radius: 1, minGap: 14 } as const;
 
+/** The cool blue the canvas surface takes a breath of; the same as `--canvas-surface` in app-canvas.css. */
+const CANVAS_TINT = "oklch(0.72 0.06 245)";
+
 /** The light theme's colours, for a page that cannot read its own (tests, a browser without a 2D canvas). */
 export const fallbackTheme: SceneTheme = {
   key: "fallback",
-  background: 0xf4f4f5ff,
+  background: 0xf3f5f8ff,
   grid: { ...GRID, color: 0xd4d4d8ff },
   style: appSceneStyle,
   arrows: arrowStyle,
@@ -87,6 +90,9 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     title: colour(token("card-foreground")),
     secondary: colour(token("muted-foreground")),
     divider: colour(token("border")),
+    footer: mix("foreground", 3),
+    chip: colour(token("muted")),
+    chipText: colour(token("muted-foreground")),
     tile: colour(token("primary")),
     tileText: colour(token("primary-foreground")),
     mutedTile: colour(token("muted")),
@@ -111,10 +117,16 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     badgeText: colour(token("primary-foreground")),
     labelText: colour(token("foreground")),
   };
-  // A step darker than the page in light (white cards stand off it) and a step lighter in dark; the grid's dots a
-  // quiet step further, so the canvas reads as a surface without competing with the cards on it.
-  const background = mix("muted-foreground", 7, "background");
-  const grid: GridStyle = { ...GRID, color: mix("muted-foreground", 30, "background") };
+  // A step off the page (white cards stand off it in light), and the grid's dots a quiet step further, so the canvas
+  // reads as a surface without competing with the cards on it.
+  // The page's background with a breath of cool blue: app-canvas.css paints the same `--canvas-surface` under it.
+  const background = colour(`color-mix(in oklch, ${token("background")} 91%, ${CANVAS_TINT})`);
+  const grid: GridStyle = {
+    ...GRID,
+    color: colour(
+      `color-mix(in oklch, ${token("muted-foreground")} 28%, color-mix(in oklch, ${token("background")} 91%, ${CANVAS_TINT}))`,
+    ),
+  };
   const key = [background, grid.color, style.fill, style.title, line].join(":");
   return { key, background, grid, style, arrows };
 }

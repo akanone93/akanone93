@@ -22,7 +22,7 @@ export interface Size {
 }
 
 /** World size of a plugin box. */
-export const BOX: Size = { width: 224, height: 112 };
+export const BOX: Size = { width: 260, height: 152 };
 /** Distance in world units within which a box snaps to another box's edge or centre. */
 export const SNAP_DISTANCE = 6;
 export const MIN_ZOOM = 0.1;

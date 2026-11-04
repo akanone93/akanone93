@@ -26,9 +26,10 @@ Canvas, and you can drive both from the keyboard.
 
 1. Open the app: its card, or its detail card, on the organisation home. The **App canvas** fills the
    window: a dotted surface with a card per plugin and arrows for the links between them. A card
-   shows the plugin's initial on a coloured tile, its name, its key and number of screens, and its
-   status (for example **Valid**, **2 errors** or **Unpublished changes**); a **+N** pill counts the
-   rest, which the detail panel lists. Panels float over the canvas as frosted glass, so the
+   shows the plugin's initial on a coloured tile, its name and key, its newest version (**v3**, or
+   **Draft** before the first publish), how many screens, versions and links it has, and its status
+   along the foot (for example **Valid**, **2 errors** or **Unpublished changes**); a **+N** pill
+   counts the rest, which the detail panel lists. Panels float over the canvas as frosted glass, so the
    plugins stay in view beneath them:
    - top left, the way back to the organisation and the app's name and number of plugins;
    - top centre, the tools (**Select** and **Hand**), **Frame selection**, **Arrange**, **Trash** and
