@@ -76,7 +76,7 @@ COPY --from=build /src/studio/apps/web/package.json ./apps/web/package.json
 COPY --from=build /src/studio/apps/web/dist ./apps/web/dist
 COPY --from=prod /out/notices /usr/share/doc/plux-studio/
 COPY --from=build /src/studio/notices/THIRD_PARTY_NOTICES.txt /usr/share/doc/plux-studio/
-COPY --from=build /src/studio/apps/web/src/features/plugin-canvas/fonts/Roboto-OFL.txt /src/studio/apps/web/src/features/plugin-canvas/fonts/NotoSans-OFL.txt /usr/share/doc/plux-studio/fonts/
+COPY --from=build /src/studio/apps/web/src/features/plugin-canvas/fonts/Roboto-OFL.txt /src/studio/apps/web/src/features/plugin-canvas/fonts/NotoSans-OFL.txt /src/studio/apps/web/src/features/plugin-canvas/icons/LICENSE-material-design-icons /src/studio/apps/web/src/features/plugin-canvas/icons/LICENSE-cupertino-icons /usr/share/doc/plux-studio/fonts/
 USER 65532:65532
 EXPOSE 8081
 # /livez checks the process only; /readyz also asks the API upstream.

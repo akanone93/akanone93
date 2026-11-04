@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { beforeAll, describe, expect, test } from "bun:test";
-import { argbToRgba, colorSchemeFromSeed, defaultScreenTheme, type WidgetNode } from "@plux/layout";
+import { argbToRgba, colorSchemeFromSeed, defaultScreenTheme, TextDirection, type WidgetNode } from "@plux/layout";
 import type { CanvasKit } from "canvaskit-wasm";
 import { fontBytes, loadCanvasKit, TestEnvironment } from "../test-support/canvaskit.ts";
 import { blurSigma, faded } from "./painted.ts";
 import { type ScreenStyle, PROTOCOL_VERSION as v, type WorkerMessage } from "./protocol.ts";
 import { textLayoutWidth } from "./renderer.ts";
-import { layoutScreens } from "./screens.ts";
+import { layoutScreens, ScreenLayouts } from "./screens.ts";
 import { CanvasWorkerCore, canvasParagraphEngine, fallbackFamilies } from "./worker.ts";
 
 let ck: CanvasKit;
@@ -394,6 +394,49 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(box("x").y + (box("x").h ?? 0)).toBeCloseTo(844, 5);
     // The parts a Container is built of are neither drawn nor selected.
     expect([...items.keys()].some((id) => id.startsWith("s/c#") && !id.includes("#paint"))).toBe(false);
+    engine.dispose();
+  });
+
+  test("[THM-005] an icon is its glyph in its set's fonts, centred in its box, mirrored in RTL when it asks", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const icons = {
+      material: { home: 0xe9b2, arrow_back: 0xe5c4 },
+      cupertino: {},
+      families: { material: ["M1", "M2"], cupertino: ["C"] },
+      mirrored: ["material arrow_back"],
+    };
+    const root: WidgetNode = {
+      id: "row",
+      type: "Row",
+      children: [
+        { id: "h", type: "Icon", props: { icon: { name: "home" }, size: 32 } },
+        { id: "b", type: "Icon", props: { icon: { name: "arrow_back" } } },
+        { id: "x", type: "Icon", props: { icon: { name: "no_such_icon" } } },
+      ],
+    };
+    const lay = (dir: TextDirection) =>
+      new Map(
+        new ScreenLayouts(icons)
+          .replaceAll(
+            [{ id: "s", title: "S", x: 0, y: 0, root }],
+            { ...style, textDirection: dir, paint: { scheme } },
+            engine,
+          )
+          .ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])),
+      );
+    const ltr = lay(TextDirection.ltr);
+    expect(ltr.get("s/h#paintglyph")).toMatchObject({
+      kind: "text",
+      text: String.fromCodePoint(0xe9b2),
+      size: 32,
+      height: 1,
+      families: ["M1", "M2"],
+      color: argbToRgba(0xdd000000),
+    });
+    expect(ltr.get("s/b#paintglyph")).not.toHaveProperty("mirror");
+    expect(ltr.get("s/x#paintglyph")).toBeUndefined();
+    expect(lay(TextDirection.rtl).get("s/b#paintglyph")).toMatchObject({ mirror: true });
     engine.dispose();
   });
 });

@@ -180,6 +180,12 @@ msgstr "{count, plural, one {# Sperre angefragt} other {# Sperren angefragt}}"
 msgid "panelTabs.dataMocks"
 msgstr "{count, plural, one {# Mock} other {# Mocks}}"
 
+#. Below the icon grid when more icons match than it shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.iconMore"
+msgstr "{count, plural, one {# weiteres Symbol: Suche verfeinern} other {# weitere Symbole: Suche verfeinern}}"
+
 #. Summary of a multiple selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -885,6 +891,12 @@ msgstr "{script} hat keine Ersatzschrift."
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.fallbackOk"
 msgstr "{script}: {n} Schriften"
+
+#. An icon set of the icon picker: Material Symbols or the Cupertino (iOS) icons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.iconSet"
+msgstr "{set, select, material {Material} cupertino {Cupertino} other {Symbole}}"
 
 #. The save state in a canvas's top bar: saved, sending edits, no network, or a conflict to resolve.
 #. js-lingui-explicit-id
@@ -7883,6 +7895,12 @@ msgstr "Wird geladen"
 msgid "assets.loading"
 msgstr "Assets werden geladen…"
 
+#. Shown in the icon picker while the icon names load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.iconLoading"
+msgstr "Symbole werden geladen …"
+
 #. Shown while the plugin's screens load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -9112,6 +9130,12 @@ msgstr "Es sind keine Host-Schriften eingetragen."
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.noIcons"
 msgstr "Noch keine Icon-Sets."
+
+#. Shown in the icon picker when no icon name contains the search.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.iconNoMatch"
+msgstr "Kein Symbol passt."
 
 #. Shown when a screen has no image on this side.
 #. js-lingui-explicit-id
@@ -12783,6 +12807,12 @@ msgstr "Assets durchsuchen"
 msgid "security.search"
 msgstr "Geräte suchen"
 
+#. Placeholder and label of the search field of the icon picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.iconSearch"
+msgstr "Symbole suchen"
+
 #. Accessible name of the palette's filter between everything, commands and screens.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -13395,16 +13425,16 @@ msgstr "Einzelwert"
 msgid "newApp.theme.custom-hint"
 msgstr "Sechs Hexadezimalziffern nach einem Rautenzeichen, etwa {example}. Sie wird im hellen und im dunklen Modus verwendet."
 
-#. Label of a text's font size.
-#. js-lingui-explicit-id
-#: apps/web/src/features/panels/style.messages.ts
-msgid "style.size"
-msgstr "Größe"
-
 #. Name of the size report.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reportSize"
+msgstr "Größe"
+
+#. Label of a text's font size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.size"
 msgstr "Größe"
 
 #. Text in the installation administration area.

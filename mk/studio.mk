@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Studio job on a
 # pull request (ci/affected.json, ADR-0043).
 
-.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-bench-lcp studio-validator zap-studio studio-image-repro studio-build-repro studio-image-inputs
+.PHONY: studio-check studio-bounds studio-dev studio-build studio-size studio-install studio-fmt studio-lint studio-typecheck studio-test studio-cover studio-gen-theme studio-gen-icons studio-e2e studio-design-gate studio-conformance studio-conformance-update studio-i18n-check studio-bench-canvas studio-bench-overlay studio-bench-lcp studio-validator zap-studio studio-image-repro studio-build-repro studio-image-inputs
 
 ##@ Studio (Bun, TypeScript)
 
@@ -52,6 +52,9 @@ studio-dev: studio-gen-theme ## Run Studio for development: the BFF and the Vite
 
 studio-gen-theme: studio-install ## Regenerate Studio's Tailwind theme from the design tokens
 	cd studio && bun run gen:theme
+
+studio-gen-icons: studio-install ## Regenerate the plugin canvas's icon fonts from the server's pinned ones (THM-005)
+	cd studio && bun run gen:icons
 
 # The Go validator in WebAssembly (S2.1, F9) and Go's loader, staged beside the validator worker.
 # Vite emits both as hashed assets; neither is committed.

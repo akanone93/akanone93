@@ -232,6 +232,7 @@ export {
   type BorderPaint,
   type BoxPaint,
   type GradientPaint,
+  type IconPaint,
   type NodePaint,
   type PaintClip,
   type PaintTheme,

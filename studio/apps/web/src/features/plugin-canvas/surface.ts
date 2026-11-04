@@ -17,6 +17,7 @@ import {
 } from "@plux/canvas";
 import { canvasWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import canvasWorkerURL from "./canvas-worker.ts?worker&url";
+import { ICON_FONTS, loadIconNames } from "./icons.ts";
 
 /**
  * The canvas-local CSS point of the page point (`clientX`, `clientY`), for a
@@ -89,6 +90,7 @@ export function fontRequest(device: readonly FontSource[], host: readonly FontSo
     roboto: toSource(FONT_FILES[0] as readonly [string, string]),
     noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
     sfPro: false,
+    icons: ICON_FONTS,
   };
 }
 
@@ -127,9 +129,11 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
       return;
     }
     const none = (): readonly FontSource[] => [];
-    const [deviceFonts, hostFonts] = await Promise.all([
+    const [deviceFonts, hostFonts, icons] = await Promise.all([
       (size.deviceFonts?.() ?? Promise.resolve(none())).catch(none),
       (size.hostFonts?.() ?? Promise.resolve(none())).catch(none),
+      // Without the names, icons stay placeholders.
+      loadIconNames().catch(() => undefined),
     ]);
     if (disposed) {
       return;
@@ -148,6 +152,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
         fonts: [],
         fontFamily: "Noto Sans",
         measureFrames: false,
+        ...(icons === undefined ? {} : { icons }),
       },
       {
         createWorker: () =>

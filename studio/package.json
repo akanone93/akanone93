@@ -16,7 +16,8 @@
     "dev": "bun run --filter './apps/*' dev",
     "build": "bun run --filter @plux/web build",
     "size": "bun scripts/bundle-size.ts",
-    "gen:theme": "bun scripts/gen-theme.ts"
+    "gen:theme": "bun scripts/gen-theme.ts",
+    "gen:icons": "bun scripts/gen-icons.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

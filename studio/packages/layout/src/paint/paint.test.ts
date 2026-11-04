@@ -131,3 +131,44 @@ describe("[STU-005] what each widget paints, in paint order", () => {
     expect(order("text")).toBeLessThan(order("box"));
   });
 });
+
+describe("[THM-005] icons as Flutter's Icon draws them", () => {
+  const rects = (ids: string[]) => new Map(ids.map((id) => [id, { x: 0, y: 0, w: 48, h: 48 }]));
+  const icon = (id: string, props: Record<string, unknown> = {}): PaintNode => ({
+    id,
+    type: "Icon",
+    props: { icon: { name: "home" }, ...props },
+  });
+
+  test("an icon on its own: 24 pixels in Flutter's default icon colour, black at 87 % or white in dark", () => {
+    const light = paintTree(icon("i"), rects(["i"]), theme).get("i");
+    expect(light).toMatchObject({ role: "icon", icon: { name: "home", set: "material", size: 24 } });
+    expect(light?.icon?.color).toBe(argbToRgba(0xdd000000));
+    const dark = paintTree(icon("i"), rects(["i"]), { scheme: colorSchemeFromSeed(0xff6750a4, true) }).get("i");
+    expect(dark?.icon?.color).toBe(0xffffffff);
+  });
+
+  test("its size and colour, else its component's icon theme; an icon without a name is a placeholder", () => {
+    const root: PaintNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        icon("own", { size: 32, color: { $token: "color.primary" }, icon: { name: "heart", set: "cupertino" } }),
+        { id: "b", type: "FilledButton", slots: { child: icon("inFilled") } },
+        { id: "bar", type: "AppBar", slots: { leading: icon("lead"), actions: [icon("act")] } },
+        icon("none", { icon: { $expr: "page.icon" } }),
+      ],
+    };
+    const paints = paintTree(root, rects(["col", "own", "b", "inFilled", "bar", "lead", "act", "none"]), theme);
+    expect(paints.get("own")?.icon).toEqual({
+      name: "heart",
+      set: "cupertino",
+      size: 32,
+      color: argbToRgba(scheme.primary),
+    });
+    expect(paints.get("inFilled")?.icon).toMatchObject({ size: 18, color: argbToRgba(scheme.onPrimary) });
+    expect(paints.get("lead")?.icon?.color).toBe(argbToRgba(scheme.onSurface));
+    expect(paints.get("act")?.icon?.color).toBe(argbToRgba(scheme.onSurfaceVariant));
+    expect(paints.get("none")?.role).toBe("placeholder");
+  });
+});

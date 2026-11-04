@@ -144,12 +144,36 @@ precedence = "override"
 SPDX-FileCopyrightText = "2016 Vladimir Kharlampidi"
 SPDX-License-Identifier = "MIT"
 
+# The plugin canvas's copies of the icon fonts (THM-005), made from the ones
+# above by studio/scripts/gen-icons.ts: the default instance, the named
+# glyphs only, a family name of their own; names and licences verbatim.
+[[annotations]]
+path = [
+    "studio/apps/web/src/features/plugin-canvas/icons/MaterialSymbols-*.ttf",
+    "studio/apps/web/src/features/plugin-canvas/icons/material.codepoints",
+    "studio/apps/web/src/features/plugin-canvas/icons/LICENSE-material-design-icons",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Google LLC"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [
+    "studio/apps/web/src/features/plugin-canvas/icons/CupertinoIcons.ttf",
+    "studio/apps/web/src/features/plugin-canvas/icons/LICENSE-cupertino-icons",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "2016 Vladimir Kharlampidi"
+SPDX-License-Identifier = "MIT"
+
 # Icon names and mirroring flags extracted by import.sh from Flutter's
 # CupertinoIcons and Icons classes.
 [[annotations]]
 path = [
     "backend/internal/icons/fonts/cupertino.codepoints",
     "backend/internal/icons/fonts/mirrored.txt",
+    "studio/apps/web/src/features/plugin-canvas/icons/cupertino.codepoints",
+    "studio/apps/web/src/features/plugin-canvas/icons/mirrored.txt",
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "2014 The Flutter Authors"

@@ -9,18 +9,22 @@
  * `ClipOval`, `Opacity`, `AnimatedOpacity`, `FadeTransition`). Layout widgets draw nothing.
  */
 
+import type { ColorRole } from "../material-color/scheme.ts";
 import {
+  argbToRgba,
   type BoxPaint,
   borderRadius,
   decorationPaint,
   deflate,
   edgeInsets,
   elevationShadows,
+  type IconPaint,
   type NodePaint,
   type PaintClip,
   type PaintTheme,
   type Radii,
   type Rect,
+  type Rgba,
   resolveColor,
   roleColor,
   shapePaint,
@@ -264,6 +268,73 @@ function hiddenChild(node: PaintNode, i: number): boolean {
   return node.type === "IndexedStack" && i !== (num(node.props?.["index"]) ?? 0);
 }
 
+/** The icon colour and size a widget gives the icons below it (Flutter's `IconTheme` of the Material 3 component). */
+interface IconContext {
+  readonly color: Rgba;
+  readonly size: number;
+}
+
+const ICON_THEMES: Readonly<Record<string, readonly [ColorRole, number]>> = {
+  IconButton: ["onSurfaceVariant", 24],
+  FilledButton: ["onPrimary", 18],
+  FilledTonalButton: ["onSecondaryContainer", 18],
+  ElevatedButton: ["primary", 18],
+  OutlinedButton: ["primary", 18],
+  TextButton: ["primary", 18],
+  FloatingActionButton: ["onPrimaryContainer", 24],
+  AppBar: ["onSurfaceVariant", 24],
+  BottomAppBar: ["onSurfaceVariant", 24],
+  NavigationBar: ["onSurfaceVariant", 24],
+  NavigationRail: ["onSurfaceVariant", 24],
+  NavigationDrawer: ["onSurfaceVariant", 24],
+  ListTile: ["onSurfaceVariant", 24],
+  SearchBar: ["onSurfaceVariant", 24],
+  TextField: ["onSurfaceVariant", 24],
+  ActionChip: ["primary", 18],
+  Chip: ["onSurfaceVariant", 18],
+  FilterChip: ["onSurfaceVariant", 18],
+  InputChip: ["onSurfaceVariant", 18],
+  ChoiceChip: ["onSurfaceVariant", 18],
+};
+
+/** The icon theme `node`'s child in `slot` sees: its component's, an app bar's leading icon in `onSurface`. */
+function iconContextOf(node: PaintNode, slot: string | undefined, theme: PaintTheme, above: IconContext): IconContext {
+  const entry = ICON_THEMES[node.type ?? ""];
+  if (entry === undefined) {
+    return above;
+  }
+  const role = node.type === "AppBar" && slot === "leading" ? "onSurface" : entry[0];
+  return { color: roleColor(theme, role), size: entry[1] };
+}
+
+/** Flutter's default icon theme: 24 pixels, black at 87 % in a light theme and white in a dark one. */
+function defaultIcons(theme: PaintTheme): IconContext {
+  return { color: argbToRgba(theme.scheme.brightness === "dark" ? 0xffffffff : 0xdd000000), size: 24 };
+}
+
+/** What an `Icon` draws: its icon of a set, at its size, in its colour, else as its icon theme says. */
+function iconOf(props: Obj, theme: PaintTheme, context: IconContext): IconPaint | undefined {
+  const data = props["icon"];
+  if (!isObj(data) || typeof data["name"] !== "string") {
+    return undefined;
+  }
+  return {
+    name: data["name"],
+    set: data["set"] === "cupertino" ? "cupertino" : "material",
+    size: num(props["size"]) ?? context.size,
+    color: resolveColor(props["color"], theme) ?? context.color,
+  };
+}
+
+function slotEntries(node: PaintNode): [string | undefined, PaintNode][] {
+  const slots = Object.entries(node.slots ?? {}).flatMap(([name, s]) =>
+    (Array.isArray(s) ? s : [s as PaintNode]).map((c): [string | undefined, PaintNode] => [name, c]),
+  );
+  return [...(node.children ?? []).map((c): [string | undefined, PaintNode] => [undefined, c]), ...slots].filter(
+    ([, c]) => isObj(c) && typeof (c as { id?: unknown }).id === "string",
+  );
+}
+
 /** Walks a screen's widgets in paint order and records how each is drawn. */
 class TreePainter {
   readonly out = new Map<string, NodePaint>();
@@ -283,21 +354,29 @@ class TreePainter {
     }
   }
 
-  visit(node: PaintNode, opacity: number, clips: readonly PaintClip[]): void {
+  visit(node: PaintNode, opacity: number, clips: readonly PaintClip[], icons: IconContext): void {
     const r = this.rects.get(node.id);
     const type = node.type ?? "";
     const painter = painters.get(type);
     const painted: Painted = r === undefined || painter === undefined ? {} : painter(node.props ?? {}, r, this.theme);
     if (r !== undefined) {
-      this.record(node, roleOf(type, painter !== undefined), painted, opacity, clips);
+      const icon = type === "Icon" ? iconOf(node.props ?? {}, this.theme, icons) : undefined;
+      this.record(
+        node,
+        icon === undefined ? roleOf(type, painter !== undefined) : "icon",
+        painted,
+        opacity,
+        clips,
+        icon,
+      );
     }
     const childOpacity = opacity * (painted.opacity ?? 1);
     const childClips = painted.clip === undefined ? clips : [...clips, painted.clip];
-    childrenOf(node).forEach((child, i) => {
+    slotEntries(node).forEach(([slot, child], i) => {
       if (hiddenChild(node, i)) {
         this.hide(child);
       } else {
-        this.visit(child, childOpacity, childClips);
+        this.visit(child, childOpacity, childClips, iconContextOf(node, slot, this.theme, icons));
       }
     });
   }
@@ -308,6 +387,7 @@ class TreePainter {
     painted: Painted,
     opacity: number,
     clips: readonly PaintClip[],
+    icon?: IconPaint,
   ): void {
     const draws = role !== "layout" && (role !== "paint" || (painted.boxes?.length ?? 0) > 0);
     this.out.set(node.id, {
@@ -317,6 +397,7 @@ class TreePainter {
       opacity,
       clips,
       ...(role === "text" ? { textColor: textColor(node, this.theme) } : {}),
+      ...(icon === undefined ? {} : { icon }),
     });
   }
 }
@@ -332,7 +413,7 @@ export function paintTree(
 ): Map<string, NodePaint> {
   const painter = new TreePainter(rects, theme);
   if (root !== null && root !== undefined) {
-    painter.visit(root, 1, []);
+    painter.visit(root, 1, [], defaultIcons(theme));
   }
   return painter.out;
 }

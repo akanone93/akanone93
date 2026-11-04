@@ -1439,9 +1439,14 @@ export class SceneRenderer {
     if (!paragraph) {
       return;
     }
-    if (textNeedsLayer(spec)) {
+    if (textNeedsLayer(spec) || spec.mirror === true) {
       canvas.save();
       clipTo(this.ck, canvas, spec.clips);
+      if (spec.mirror === true) {
+        // An icon right-to-left text mirrors, flipped about its centre as Flutter's `Icon` flips it.
+        const centre = spec.x + spec.w / 2;
+        canvas.concat([-1, 0, 2 * centre, 0, 1, 0, 0, 0, 1]);
+      }
       canvas.drawParagraph(paragraph, spec.x, spec.y);
       canvas.restore();
     } else {

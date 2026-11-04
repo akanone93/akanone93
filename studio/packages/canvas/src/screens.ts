@@ -12,6 +12,7 @@
 import {
   type BorderPaint,
   type BoxPaint,
+  type IconPaint,
   layoutScreen,
   type NodePaint,
   type ParagraphEngine,
@@ -21,6 +22,7 @@ import {
 } from "@plux/layout";
 import type {
   ClipSpec,
+  IconNames,
   ItemSpec,
   SceneOp,
   ScreenDocument,
@@ -167,6 +169,67 @@ function runOf(r: PlacedRun): TextRunSpec {
   };
 }
 
+/** Icon names as glyphs: the code point and families of an icon, and whether right-to-left text mirrors it. */
+interface IconGlyphs {
+  glyph(
+    icon: IconPaint,
+  ): { readonly text: string; readonly families: readonly string[]; readonly mirrored: boolean } | undefined;
+}
+
+function iconGlyphs(icons: IconNames): IconGlyphs {
+  const mirrored = new Set(icons.mirrored);
+  return {
+    glyph(icon) {
+      const point = icons[icon.set][icon.name];
+      return point === undefined
+        ? undefined
+        : {
+            text: String.fromCodePoint(point),
+            families: icons.families[icon.set],
+            mirrored: mirrored.has(`${icon.set} ${icon.name}`),
+          };
+    },
+  };
+}
+
+/**
+ * An icon as Flutter's `Icon` draws it: its glyph at its size, a line one size high, centred in the icon's box; an
+ * empty box over the bounds selects it.
+ */
+function iconItems(
+  s: ScreenDocument,
+  b: Placed,
+  paint: NodePaint,
+  icon: IconPaint,
+  glyph: { readonly text: string; readonly families: readonly string[]; readonly mirrored: boolean },
+  style: ScreenStyle,
+): ItemSpec[] {
+  const frame = b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) };
+  const z = PAINT_Z + paint.order;
+  const faded = paint.opacity < 1 ? { opacity: paint.opacity } : {};
+  return [
+    { kind: "rect", id: `${s.id}/${b.id}`, x: s.x + b.x, y: s.y + b.y, w: b.w, h: b.h, radius: 0, z, ...frame },
+    {
+      kind: "text",
+      id: `${s.id}/${b.id}${PAINT_SUFFIX}glyph`,
+      x: s.x + b.x + (b.w - icon.size) / 2,
+      y: s.y + b.y + (b.h - icon.size) / 2,
+      w: icon.size,
+      text: glyph.text,
+      size: icon.size,
+      height: 1,
+      align: "center",
+      color: icon.color,
+      families: glyph.families,
+      ...(glyph.mirrored && style.textDirection === TextDirection.rtl ? { mirror: true } : {}),
+      ...faded,
+      ...clipsOf(s, paint),
+      z: z + 0.5,
+      ...frame,
+    },
+  ];
+}
+
 /** One painted box of a widget as a scene item. */
 function paintedBox(s: ScreenDocument, b: Placed, paint: NodePaint, box: BoxPaint, i: number, frame: object): ItemSpec {
   const border = box.border;
@@ -203,9 +266,19 @@ function paintedBox(s: ScreenDocument, b: Placed, paint: NodePaint, box: BoxPain
  * The scene items of a widget laid out with a paint theme (STU-005): the boxes it paints, its text in its colour, a
  * neutral box for a widget not painted yet, and an empty box over its bounds for selection and hit testing.
  */
-function paintedItems(s: ScreenDocument, b: Placed, paint: NodePaint, style: ScreenStyle): ItemSpec[] {
+function paintedItems(
+  s: ScreenDocument,
+  b: Placed,
+  paint: NodePaint,
+  style: ScreenStyle,
+  glyphs?: IconGlyphs,
+): ItemSpec[] {
   if (paint.role === "hidden") {
     return [];
+  }
+  const glyph = paint.icon === undefined ? undefined : glyphs?.glyph(paint.icon);
+  if (paint.icon !== undefined && glyph !== undefined) {
+    return iconItems(s, b, paint, paint.icon, glyph, style);
   }
   const beyond = b.y >= style.deviceHeight;
   const frame = beyond ? {} : { frame: frameId(s.id) };
@@ -245,6 +318,7 @@ function screenItems(
   boxes: readonly Placed[],
   contentHeight: number,
   style: ScreenStyle,
+  glyphs?: IconGlyphs,
 ): ItemSpec[] {
   const { width } = style.theme;
   const items: ItemSpec[] = [
@@ -300,7 +374,7 @@ function screenItems(
       continue;
     }
     if (b.paint !== undefined) {
-      items.push(...paintedItems(s, b, b.paint, style));
+      items.push(...paintedItems(s, b, b.paint, style, glyphs));
       continue;
     }
     items.push(boxItem(s, b, style));
@@ -321,7 +395,12 @@ export function layoutScreens(
   return new ScreenLayouts().replaceAll(screens, style, engine);
 }
 
-function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine): { items: ItemSpec[]; height: number } {
+function layOut(
+  s: ScreenDocument,
+  style: ScreenStyle,
+  engine: ParagraphEngine,
+  glyphs?: IconGlyphs,
+): { items: ItemSpec[]; height: number } {
   const { boxes, contentHeight } = layoutScreen(s.root, {
     engine,
     theme: style.theme,
@@ -331,7 +410,7 @@ function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine):
     ...(style.textDirection === undefined ? {} : { textDirection: style.textDirection }),
     ...(style.paint === undefined ? {} : { paint: { ...style.paint, rtl: style.textDirection === TextDirection.rtl } }),
   });
-  return { items: screenItems(s, boxes, contentHeight, style), height: contentHeight };
+  return { items: screenItems(s, boxes, contentHeight, style, glyphs), height: contentHeight };
 }
 
 /** Two item specs draw the same: they are plain data from `screenItems`, so their JSON compares them. */
@@ -367,6 +446,11 @@ function diffItems(
  */
 export class ScreenLayouts {
   private readonly byScreen = new Map<string, ReadonlyMap<string, ItemSpec>>();
+  private readonly glyphs: IconGlyphs | undefined;
+
+  constructor(icons?: IconNames) {
+    this.glyphs = icons === undefined ? undefined : iconGlyphs(icons);
+  }
   /** How many screens were laid out since construction; tests read it. */
   laidOut = 0;
 
@@ -380,7 +464,7 @@ export class ScreenLayouts {
     const ops: SceneOp[] = [{ op: "clear" }];
     const heights: ScreenHeight[] = [];
     for (const s of screens) {
-      const { items, height } = layOut(s, style, engine);
+      const { items, height } = layOut(s, style, engine, this.glyphs);
       this.laidOut++;
       heights.push({ id: s.id, contentHeight: height });
       this.byScreen.set(s.id, new Map(items.map((item) => [item.id, item])));
@@ -408,7 +492,7 @@ export class ScreenLayouts {
     }
     const changes: SceneOp[] = [];
     for (const s of screens) {
-      const { items, height } = layOut(s, style, engine);
+      const { items, height } = layOut(s, style, engine, this.glyphs);
       this.laidOut++;
       heights.push({ id: s.id, contentHeight: height });
       const after = new Map(items.map((item) => [item.id, item]));

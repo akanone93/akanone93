@@ -118,6 +118,35 @@ export function styleMessages(i18n: I18n) {
         values: { d },
         comment: "A text's decoration line.",
       }),
+    iconSearch: i18n._({
+      id: "style.iconSearch",
+      message: "Search icons",
+      comment: "Placeholder and label of the search field of the icon picker.",
+    }),
+    iconSet: (set: string) =>
+      i18n._({
+        id: "style.iconSet",
+        message: "{set, select, material {Material} cupertino {Cupertino} other {Icons}}",
+        values: { set },
+        comment: "An icon set of the icon picker: Material Symbols or the Cupertino (iOS) icons.",
+      }),
+    iconLoading: i18n._({
+      id: "style.iconLoading",
+      message: "Loading icons…",
+      comment: "Shown in the icon picker while the icon names load.",
+    }),
+    iconNoMatch: i18n._({
+      id: "style.iconNoMatch",
+      message: "No icons match.",
+      comment: "Shown in the icon picker when no icon name contains the search.",
+    }),
+    iconMore: (count: number) =>
+      i18n._({
+        id: "style.iconMore",
+        message: "{count, plural, one {# more icon: refine the search} other {# more icons: refine the search}}",
+        values: { count },
+        comment: "Below the icon grid when more icons match than it shows.",
+      }),
   };
 }
 

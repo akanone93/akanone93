@@ -30,6 +30,7 @@ import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
 import { DockExpand, useStoredFlag } from "./dock-tabs.tsx";
+import { IconField } from "./icon-field.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
 import {
   type Breakpoint,
@@ -368,6 +369,9 @@ function StyleObjectEditor(p: EditorProps & { bare: string }) {
   const own = { name: p.name, value: p.value, readOnly: p.readOnly, onChange: p.onChange, onEnd: p.onEnd };
   if (p.bare === "BoxDecoration") {
     return <DecorationEditor {...own} />;
+  }
+  if (p.bare === "IconData") {
+    return <IconField {...own} />;
   }
   return p.bare === "TextStyle" ? <TextStyleEditor {...own} /> : <ObjectEditor {...p} />;
 }

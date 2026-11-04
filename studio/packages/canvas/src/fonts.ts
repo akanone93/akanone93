@@ -41,6 +41,8 @@ export interface FontRequest {
   readonly noto: readonly FontSource[];
   /** Whether the canvas shows iOS frames, which use SF Pro. */
   readonly sfPro: boolean;
+  /** The icon fonts (THM-005), loaded last: their glyphs are in the private use area, never a text's fallback. */
+  readonly icons?: readonly FontSource[];
 }
 
 /** A font returned by Local Font Access (`FontData` in the browser). */
@@ -141,6 +143,7 @@ export async function loadCanvasFonts(
     loaded.push(...sf);
   }
   await fetchAll([...(request.roboto ? [request.roboto] : []), ...request.noto], deps, loaded, notices);
+  await fetchAll(request.icons ?? [], deps, loaded, notices);
   const families = [...new Set(loaded.map((font) => font.family))];
   return {
     buffers: loaded.map((font) => font.bytes),

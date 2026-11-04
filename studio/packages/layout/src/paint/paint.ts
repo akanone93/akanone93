@@ -84,7 +84,7 @@ export interface NodePaint {
    * `paint` draws boxes; `layout` draws nothing of its own (rows, padding, scroll views); `placeholder` is not painted
    * yet; `hidden` is not painted at all (the children an `IndexedStack` does not show).
    */
-  readonly role: "paint" | "layout" | "placeholder" | "text" | "hidden";
+  readonly role: "paint" | "layout" | "placeholder" | "text" | "icon" | "hidden";
   readonly boxes: readonly BoxPaint[];
   /** Paint order among the screen's widgets, from 0; later is drawn over earlier. */
   readonly order: number;
@@ -92,6 +92,16 @@ export interface NodePaint {
   readonly clips: readonly PaintClip[];
   /** The colour of the widget's text when it is a text. */
   readonly textColor?: Rgba;
+  /** The glyph an `Icon` draws (THM-005). */
+  readonly icon?: IconPaint;
+}
+
+/** An icon as Flutter's `Icon` draws it: a glyph of an icon set, centred in its box at `size`, in `color`. */
+export interface IconPaint {
+  readonly name: string;
+  readonly set: "material" | "cupertino";
+  readonly size: number;
+  readonly color: Rgba;
 }
 
 /** What painters read colours from: the scheme of the previewed brightness and the theme's other colour tokens. */

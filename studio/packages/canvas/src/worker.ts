@@ -239,7 +239,7 @@ export class CanvasWorkerCore {
         renderer,
         options,
         layoutEngine: null,
-        screens: new ScreenLayouts(),
+        screens: new ScreenLayouts(options.icons),
         lost: false,
         layerCanvas: message.layer ?? null,
         margin,

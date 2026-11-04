@@ -66,8 +66,11 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   as the device lays it out: edge to edge, with no design-time page padding or gaps; `Column`, `Row`, `Padding`,
   `SizedBox`, `Center`, `Align`, `Expanded`, `Flexible`, `Container`, `ListView` and `SingleChildScrollView` are
   built by the same scene code the conformance suite verifies, with token values resolved and values only the device
-  knows left at their defaults; a `Scaffold` body is as high as the device below the app bar unless it scrolls. Painting
-  is reviewed by eye against the device, not by pixels.
+  knows left at their defaults; a `Scaffold` body is as high as the device below the app bar unless it scrolls. An
+  `Icon` is its glyph in the server's pinned icon fonts — Material Symbols Outlined at its default instance, in two
+  parts, and the Cupertino icons, derived by `studio/scripts/gen-icons.ts` — at its size and colour, else its
+  component's (Flutter's icon theme), mirrored in right-to-left text when Flutter mirrors it; fill, weight and grade
+  variations are the device's. Painting is reviewed by eye against the device, not by pixels.
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with

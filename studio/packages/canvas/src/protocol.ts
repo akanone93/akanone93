@@ -146,6 +146,8 @@ export interface TextSpec {
    * Drawing with the measuring fonts keeps a line the layout fitted on one line from wrapping onto the next.
    */
   readonly families?: readonly string[];
+  /** Drawn mirrored left to right about its centre: an icon right-to-left text mirrors. */
+  readonly mirror?: boolean;
   /** A rich text's runs, each drawn in its own style over the text's; `text` is then their characters together. */
   readonly spans?: readonly TextRunSpec[];
   /** The opacity and the clips of the widget's ancestors on a screen (STU-005). */
@@ -249,6 +251,20 @@ export interface CanvasOptions {
   readonly fontFamily: string;
   /** Wait for the GPU at the end of each frame so frame times include it (benchmarks only). */
   readonly measureFrames: boolean;
+  /** The icon sets screens draw their `Icon` widgets with (THM-005); icons are placeholders without them. */
+  readonly icons?: IconNames;
+}
+
+/**
+ * The icon sets of the canvas (THM-005): each icon's code point by name, the font families that hold the set's glyphs
+ * (one family per part of a split font, in fallback order), and the icons right-to-left text mirrors, as
+ * `<set> <name>`.
+ */
+export interface IconNames {
+  readonly material: Readonly<Record<string, number>>;
+  readonly cupertino: Readonly<Record<string, number>>;
+  readonly families: { readonly material: readonly string[]; readonly cupertino: readonly string[] };
+  readonly mirrored: readonly string[];
 }
 
 /** How the renderer was chosen, reported once at start-up. */
