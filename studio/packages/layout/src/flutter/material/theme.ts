@@ -69,6 +69,11 @@ const englishLike2021: Readonly<Record<TextRole, Metrics>> = {
   bodySmall: [12, 400, 0.4, 1.33],
 };
 
+/** The metrics of `role` in Material 3's type scale: size, weight, tracking, line height (a multiple of the size). */
+export function m3Metrics(role: TextRole): Metrics {
+  return englishLike2021[role];
+}
+
 /** The theme's text style for `role` in `fontFamily` (`ThemeData.textTheme`). */
 export function m3TextStyle(role: TextRole, fontFamily?: string): TextStyle {
   const [fontSize, fontWeight, letterSpacing, height] = englishLike2021[role];

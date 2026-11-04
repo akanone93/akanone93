@@ -8,7 +8,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import type { ReactNode } from "react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
-import { ColorField, DecorationEditor, PaintThemeContext } from "./style-editors.tsx";
+import { ColorField, DecorationEditor, PaintThemeContext, TextStyleEditor } from "./style-editors.tsx";
 
 afterEach(cleanup);
 
@@ -43,5 +43,27 @@ describe("[STU-062] [THM-001] style editors", () => {
     fireEvent.click(screen.getAllByRole("switch")[0] as HTMLElement);
     expect(onChange).toHaveBeenLastCalledWith({ shape: "circle" });
     await waitFor(() => expect(screen.getAllByRole("combobox").length).toBeGreaterThan(1));
+  });
+
+  test("[STU-006] [THM-004] the text style editor shows a role's metrics and writes a TextStyle", async () => {
+    const onChange = mock((_: unknown) => undefined);
+    renderI18n(
+      <TextStyleEditor
+        name="style"
+        value={{ $token: "typography.titleLarge" }}
+        onChange={onChange}
+        onEnd={() => undefined}
+      />,
+    );
+    const size = (await screen.findAllByRole("spinbutton"))[0] as HTMLInputElement;
+    expect(size.value).toBe("22");
+    fireEvent.click(screen.getAllByRole("switch")[0] as HTMLElement);
+    expect(onChange).toHaveBeenLastCalledWith({
+      fontSize: 22,
+      fontWeight: "w400",
+      height: 1.27,
+      letterSpacing: 0,
+      fontStyle: "italic",
+    });
   });
 });

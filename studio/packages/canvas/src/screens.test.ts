@@ -284,4 +284,116 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(faded(0x112233ff, 0.5)).toBe(0x11223380);
     engine.dispose();
   });
+
+  test("[STU-006] a painted text keeps the style it was measured in: role, weight, line height, lines and alignment", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        {
+          id: "h",
+          type: "Text",
+          props: {
+            data: "A headline",
+            style: { $token: "typography.headlineSmall", fontWeight: "w700", decoration: "underline" },
+            textAlign: "center",
+            maxLines: 1,
+          },
+        },
+        text("b", "Body"),
+      ],
+    };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    const items = new Map(painted.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])));
+    expect(items.get("s/h")).toMatchObject({
+      kind: "text",
+      size: 24,
+      weight: 700,
+      height: 1.33,
+      decoration: "underline",
+      align: "center",
+      maxLines: 1,
+    });
+    expect(items.get("s/b")).toMatchObject({ kind: "text", size: 14, height: 1.43, letterSpacing: 0.25 });
+    engine.dispose();
+  });
+
+  test("[STU-006] a rich text is drawn run by run, each span in its style over its parent's", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "r",
+      type: "RichText",
+      props: {
+        textSpan: {
+          text: "Pay ",
+          children: [
+            { text: "now", style: { fontWeight: "w700", color: { $token: "color.primary" } } },
+            { text: " or later", style: { fontStyle: "italic" } },
+          ],
+        },
+      },
+    };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    const item = painted.ops.flatMap((op) => (op.op === "add" ? [op.item] : [])).find((i) => i.id === "s/r");
+    expect(item).toMatchObject({ kind: "text", text: "Pay now or later" });
+    const spans = (item as { spans?: readonly Record<string, unknown>[] }).spans ?? [];
+    expect(spans.map((r) => r["text"])).toEqual(["Pay ", "now", " or later"]);
+    expect(spans[1]).toMatchObject({ weight: 700, color: argbToRgba(scheme.primary) });
+    expect(spans[2]).toMatchObject({ italic: true, weight: 400 });
+    engine.dispose();
+  });
+
+  test("[STU-005] a painted screen is laid out as Flutter lays it out: edge to edge, flex, padding, containers", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "sc",
+      type: "Scaffold",
+      slots: {
+        appBar: { id: "ab", type: "AppBar" },
+        body: {
+          id: "col",
+          type: "Column",
+          props: { crossAxisAlignment: "stretch" },
+          children: [
+            {
+              id: "p",
+              type: "Padding",
+              props: { padding: { all: { $token: "space.md" } } },
+              slots: { child: { id: "t", type: "Text", props: { data: "Centred", textAlign: "center" } } },
+            },
+            {
+              id: "c",
+              type: "Container",
+              props: { height: 40, margin: { all: 8 }, color: { $token: "color.primary" } },
+            },
+            {
+              id: "r",
+              type: "Row",
+              props: { mainAxisAlignment: "spaceBetween" },
+              children: [text("a", "Left"), text("b", "Right")],
+            },
+            { id: "e", type: "Expanded", slots: { child: { id: "x", type: "Container" } } },
+          ],
+        },
+      },
+    };
+    const paint = { scheme, dimensions: { "space.md": 12 } };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint }, engine);
+    const items = new Map(painted.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])));
+    const box = (id: string) => items.get(`s/${id}`) as { x: number; y: number; w: number; h?: number };
+    expect(box("col")).toMatchObject({ x: 0, y: 56, w: 390, h: 844 - 56 });
+    expect(box("t")).toMatchObject({ x: 12, y: 68, w: 366, align: "center" });
+    expect(box("c")).toMatchObject({ y: 100, h: 56 });
+    expect(items.get("s/c#paint0")).toMatchObject({ x: 8, y: 108, w: 374, h: 40 });
+    expect(box("a").x).toBe(0);
+    expect(box("b").x + box("b").w).toBeCloseTo(390, 5);
+    expect(box("x").y + (box("x").h ?? 0)).toBeCloseTo(844, 5);
+    // The parts a Container is built of are neither drawn nor selected.
+    expect([...items.keys()].some((id) => id.startsWith("s/c#") && !id.includes("#paint"))).toBe(false);
+    engine.dispose();
+  });
 });

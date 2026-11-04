@@ -334,6 +334,12 @@ msgstr "تم تحديد {count} عناصر؛ تُعرض الخصائص المش�
 msgid "style.directionName"
 msgstr "{d, select, down {من الأعلى إلى الأسفل} across {من البداية إلى النهاية} diagonal {قطري نزولًا} rising {قطري صعودًا} other {الاتجاه}}"
 
+#. A text's decoration line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.decoration"
+msgstr "{d, select, none {بلا خط} underline {خط سفلي} lineThrough {يتوسطه خط} overline {خط علوي} other {خط}}"
+
 #. Change of the bundle size against the previous version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -849,6 +855,12 @@ msgstr "{received} من {total}"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.converted.item"
 msgstr "يصبح {reference} المعامل {parameter}"
+
+#. A role of Material 3's type scale, or a custom text style.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.typeRole"
+msgstr "{role, select, custom {مخصص} displayLarge {عرض كبير} displayMedium {عرض متوسط} displaySmall {عرض صغير} headlineLarge {عنوان رئيسي كبير} headlineMedium {عنوان رئيسي متوسط} headlineSmall {عنوان رئيسي صغير} titleLarge {عنوان كبير} titleMedium {عنوان متوسط} titleSmall {عنوان صغير} bodyLarge {نص كبير} bodyMedium {نص متوسط} bodySmall {نص صغير} labelLarge {تسمية كبيرة} labelMedium {تسمية متوسطة} labelSmall {تسمية صغيرة} other {نمط}}"
 
 #. Body of the confirmation that opens the canvas of the plugin a ghost screen belongs to.
 #. js-lingui-explicit-id
@@ -3311,6 +3323,12 @@ msgstr "المجموعات"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbList"
 msgstr "مجموعات الإضافة"
+
+#. Label of a text's colour.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.color"
+msgstr "اللون"
 
 #. Heading of the swatches that show the colour tokens in both modes.
 #. js-lingui-explicit-id
@@ -6990,6 +7008,12 @@ msgstr "إنها شاشة الدخول؛ اختر نقطة دخول أخرى أ�
 msgid "pluginCanvas.moveReasonPrivate"
 msgstr "تستخدم مكوّنًا خاصًا بهذه الإضافة."
 
+#. Switch that makes a text italic.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.italic"
+msgstr "مائل"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -7512,6 +7536,12 @@ msgstr "يسار"
 msgid "panels.dock"
 msgstr "اللوحات اليسرى"
 
+#. Label of a text's letter spacing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.tracking"
+msgstr "تباعد الأحرف"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -7660,6 +7690,18 @@ msgstr "استخدام الحدود"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.limits"
 msgstr "استخدام الحدود"
+
+#. Label of a text's decoration line select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.line"
+msgstr "الخط"
+
+#. Label of a text's line height, as a multiple of its size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.lineHeight"
+msgstr "ارتفاع السطر"
 
 #. Text in a sample app screen drawn beside the sign-in form. A product name.
 #. js-lingui-explicit-id
@@ -9347,12 +9389,6 @@ msgstr "العقد"
 msgid "panelTabs.perfPage"
 msgstr "العقد في الصفحة"
 
-#. A colour or decoration field with nothing set.
-#. js-lingui-explicit-id
-#: apps/web/src/features/panels/style.messages.ts
-msgid "style.none"
-msgstr "لا شيء"
-
 #. Shown for a setting that has no value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -9369,6 +9405,12 @@ msgstr "بلا"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.none"
+msgstr "لا شيء"
+
+#. A colour or decoration field with nothing set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.none"
 msgstr "لا شيء"
 
 #. Shown when a list of grants is empty.
@@ -13353,6 +13395,12 @@ msgstr "قيمة واحدة"
 msgid "newApp.theme.custom-hint"
 msgstr "ستة أرقام سداسية عشرية بعد علامة #، مثل {example}. يُستخدم في الوضعين الفاتح والداكن."
 
+#. Label of a text's font size.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.size"
+msgstr "الحجم"
+
 #. Name of the size report.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -13916,6 +13964,12 @@ msgstr "التنقل في الاستوديو"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "banner.updated"
 msgstr "تم تحديث Studio. أعد التحميل لاستخدام الإصدار الجديد."
+
+#. Label of the text style select: a role of the type scale or a custom style.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.textPreset"
+msgstr "النمط"
 
 #. Label of the field that names the varied nodes, page or prop.
 #. js-lingui-explicit-id
@@ -16857,6 +16911,12 @@ msgstr "تحذير"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.levelWarning"
 msgstr "التحذيرات والأخطاء"
+
+#. Label of a text's font weight (100 to 900).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.weight"
+msgstr "السماكة"
 
 #. Note under the crash-free rate: each app counts by its active devices.
 #. js-lingui-explicit-id

@@ -36,7 +36,7 @@ import { Batches, BatchLayer, color4f } from "./batch.ts";
 import { intersectInto, intersects, makeRect, type Rect, setRect, unionInto } from "./geometry.ts";
 import { gridLevels, gridPoints } from "./grid.ts";
 import { type Lod, lodForZoom, resolutionFor } from "./lod.ts";
-import { clipTo, drawPainted, faded, isPainted, textNeedsLayer } from "./painted.ts";
+import { clipTo, drawPainted, isPainted, paragraphStyleOf, runStyleOf, textNeedsLayer } from "./painted.ts";
 import { type Direction, orderJobs } from "./progressive.ts";
 import type { FrameSpec, FrameStats, GridStyle, ItemSpec, RectSpec, TextSpec } from "./protocol.ts";
 import { Resources } from "./resources.ts";
@@ -1466,19 +1466,17 @@ export class SceneRenderer {
       return null;
     }
     const ck = this.ck;
-    const style = new ck.ParagraphStyle({
-      ...(spec.align === "center" ? { textAlign: ck.TextAlign.Center } : {}),
-      ...(spec.align === "end" ? { textAlign: ck.TextAlign.End } : {}),
-      ...(spec.maxLines === undefined ? {} : { maxLines: spec.maxLines, ellipsis: "…" }),
-      textStyle: {
-        color: color4f(ck, faded(spec.color, spec.opacity ?? 1)),
-        fontSize: spec.size,
-        ...(spec.weight === "bold" ? { fontStyle: { weight: ck.FontWeight.Bold } } : {}),
-        fontFamilies: this.familiesOf(spec),
-      },
-    });
+    const families = this.familiesOf(spec);
+    const style = new ck.ParagraphStyle(paragraphStyleOf(ck, spec, families));
     const builder = ck.ParagraphBuilder.Make(style, this.fontMgr);
-    builder.addText(spec.text);
+    if (spec.spans === undefined) {
+      builder.addText(spec.text);
+    }
+    for (const run of spec.spans ?? []) {
+      builder.pushStyle(new ck.TextStyle(runStyleOf(ck, spec, run, families)));
+      builder.addText(run.text);
+      builder.pop();
+    }
     const paragraph = this.resources.own(builder.build());
     builder.delete();
     paragraph.layout(textLayoutWidth(spec.w));

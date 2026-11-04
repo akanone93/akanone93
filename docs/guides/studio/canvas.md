@@ -125,7 +125,11 @@ Each screen's name is shown above its device frame, and a button or a field show
 box. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and
-a shadow by Material elevation. The canvas previews with the same layout code the device runs; the device decides. Check anything
+a shadow by Material elevation. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
+spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
+span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or
+container follows its properties, and a page body that does not scroll is as high as the device. The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 ## Link screens

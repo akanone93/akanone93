@@ -16,6 +16,7 @@ import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPositionedBox } from "../flutter/shifted-box.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
+import { paintedRichTextOf } from "./screen.ts";
 
 /** A box that takes no space: what a widget with nothing to show lays out as. */
 export function emptyBox(): RenderBox {
@@ -138,8 +139,15 @@ function spanText(span: unknown): string {
   return own + children.map(spanText).join("");
 }
 
-/** `RichText`: the spans' characters as one paragraph in the screen's text style; span styles have no design-time effect. */
+/** `RichText`: the spans as one paragraph; on a painted screen each span in its own style, else in the screen's. */
 const richText: WidgetBuilder = (node, ctx) => {
+  if (ctx.paint !== undefined) {
+    const { text, placed, style, options } = paintedRichTextOf(node, ctx.paint, ctx.theme);
+    ctx.mark(node.id, "text", text, placed);
+    const box = ctx.paragraph(text, style, options);
+    box.debugId = node.id;
+    return box;
+  }
   const text = spanText(prop(node, "textSpan"));
   ctx.mark(node.id, "text", text);
   const box = ctx.paragraph(text);

@@ -3,7 +3,15 @@
 
 import { describe, expect, test } from "bun:test";
 import { argbToRgba, colorSchemeFromSeed } from "@plux/layout";
-import { brandsOf, paintThemeOf, schemeOf, tokenValue } from "./paint-theme.ts";
+import {
+  brandsOf,
+  dimensionsOf,
+  paintThemeOf,
+  schemeOf,
+  textTokensOf,
+  tokenValue,
+  typographyOf,
+} from "./paint-theme.ts";
 
 const hex = (digits: string) => `#${digits}`;
 const tokens = {
@@ -39,5 +47,25 @@ describe("[THM-001] [THM-002] [THM-003] the theme's colours as the runtime reads
   test("the paint theme carries the theme's other colour tokens, resolved", () => {
     const paint = paintThemeOf(tokens, false, "");
     expect(paint.tokens?.["color.accent"]).toBe(argbToRgba(0xff6750a4));
+  });
+
+  test("[THM-004] typography tokens replace the type scale's roles, in pixels or multiples", () => {
+    const type = {
+      typography: {
+        bodyMedium: { $value: { fontFamily: ["Inter", "sans-serif"], fontSize: "15px", lineHeight: 1.4 } },
+        titleLarge: { $value: { fontSize: { value: 20, unit: "px" }, fontWeight: 600, lineHeight: "28px" } },
+      },
+    };
+    const scale = typographyOf(type, false, "");
+    expect(scale.bodyMedium).toMatchObject({ size: 15, height: 1.4, family: "Inter", weight: 400 });
+    // The runtime takes a line height as a multiple only; a dimension leaves Material's.
+    expect(scale.titleLarge).toMatchObject({ size: 20, weight: 600, height: 1.27 });
+    expect(scale.labelSmall).toBeUndefined();
+    const named = { type: { $type: "typography", hero: { $value: { fontSize: "32px", fontWeight: "semi-bold" } } } };
+    expect(textTokensOf(named, false, "")).toEqual({ "type.hero": { size: 32, weight: 600 } });
+    const space = {
+      space: { $type: "dimension", md: { $value: { value: 12, unit: "px" } }, lg: { $value: "1.5rem" } },
+    };
+    expect(dimensionsOf({ ...space, ...tokens }, false, "")).toEqual({ "space.md": 12 });
   });
 });

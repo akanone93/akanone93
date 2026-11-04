@@ -8,9 +8,9 @@
  * uniform stroke keep the batched path; these are the ones that cannot be batched.
  */
 
-import type { Canvas, CanvasKit, Paint, Shader } from "canvaskit-wasm";
+import type { Canvas, CanvasKit, Paint, ParagraphStyle, Shader, TextStyle } from "canvaskit-wasm";
 import { color4f } from "./batch.ts";
-import type { ClipSpec, ColorRgba, GradientSpec, RectSpec, TextSpec } from "./protocol.ts";
+import type { ClipSpec, ColorRgba, GradientSpec, RectSpec, TextRunSpec, TextSpec } from "./protocol.ts";
 
 /** Whether `spec` needs the painted path: anything a batched rounded rectangle cannot draw. */
 export function isPainted(spec: RectSpec): boolean {
@@ -190,4 +190,95 @@ export function drawPainted(ck: CanvasKit, canvas: Canvas, spec: RectSpec, paint
 /** Whether a text needs clipping or fading before it is drawn. */
 export function textNeedsLayer(spec: TextSpec): boolean {
   return spec.clips !== undefined || (spec.opacity !== undefined && spec.opacity < 1);
+}
+
+const WEIGHTS = [
+  "Thin",
+  "ExtraLight",
+  "Light",
+  "Normal",
+  "Medium",
+  "SemiBold",
+  "Bold",
+  "ExtraBold",
+  "ExtraBlack",
+] as const;
+
+const fontWeightName = (weight: TextSpec["weight"]): (typeof WEIGHTS)[number] => {
+  const n = weight === "bold" ? 700 : (weight ?? 400);
+  return WEIGHTS[Math.min(Math.max(Math.round(n / 100), 1), 9) - 1] ?? "Normal";
+};
+
+function decorationOf(ck: CanvasKit, d: TextSpec["decoration"]): number {
+  switch (d) {
+    case "underline":
+      return ck.UnderlineDecoration;
+    case "lineThrough":
+      return ck.LineThroughDecoration;
+    case "overline":
+      return ck.OverlineDecoration;
+    default:
+      return ck.NoDecoration;
+  }
+}
+
+function alignOf(ck: CanvasKit, a: TextSpec["align"]) {
+  switch (a) {
+    case "center":
+      return ck.TextAlign.Center;
+    case "end":
+      return ck.TextAlign.End;
+    case "justify":
+      return ck.TextAlign.Justify;
+    default:
+      return ck.TextAlign.Start;
+  }
+}
+
+/** Lines past `maxLines` are cut, with an ellipsis unless the text asks to clip or fade. */
+function linesOf(spec: TextSpec): Pick<ParagraphStyle, "maxLines" | "ellipsis"> {
+  if (spec.maxLines === undefined) {
+    return {};
+  }
+  return spec.overflow === undefined || spec.overflow === "ellipsis"
+    ? { maxLines: spec.maxLines, ellipsis: "…" }
+    : { maxLines: spec.maxLines };
+}
+
+type TextFields = Pick<TextSpec, "size" | "color" | "weight" | "italic" | "letterSpacing" | "height" | "decoration">;
+
+/** A text style of the fields a text or one of its runs sets. */
+function textStyleOf(ck: CanvasKit, t: TextFields, opacity: number, fontFamilies: string[]): TextStyle {
+  const color = color4f(ck, faded(t.color, opacity));
+  return {
+    color,
+    fontSize: t.size,
+    fontFamilies,
+    fontStyle: {
+      weight: ck.FontWeight[fontWeightName(t.weight)],
+      slant: t.italic === true ? ck.FontSlant.Italic : ck.FontSlant.Upright,
+    },
+    ...(t.letterSpacing === undefined ? {} : { letterSpacing: t.letterSpacing }),
+    ...(t.height === undefined ? {} : { heightMultiplier: t.height, halfLeading: true }),
+    decoration: decorationOf(ck, t.decoration),
+    decorationColor: color,
+  };
+}
+
+/** The style of one run of a rich text: the text's style with what the run sets. */
+export function runStyleOf(ck: CanvasKit, spec: TextSpec, run: TextRunSpec, fontFamilies: string[]): TextStyle {
+  const families = run.family === undefined ? fontFamilies : [run.family, ...fontFamilies];
+  const own = Object.fromEntries(
+    Object.entries(run).filter(([k, v]) => k !== "text" && k !== "family" && v !== undefined),
+  );
+  return textStyleOf(ck, { ...spec, ...own } as TextFields, spec.opacity ?? 1, families);
+}
+
+/** A text item's paragraph style: alignment, lines and ellipsis, and its text style as it was measured (STU-006). */
+export function paragraphStyleOf(ck: CanvasKit, spec: TextSpec, fontFamilies: string[]): ParagraphStyle {
+  return {
+    textAlign: alignOf(ck, spec.align),
+    ...linesOf(spec),
+    textStyle: textStyleOf(ck, spec, spec.opacity ?? 1, fontFamilies),
+  };
 }

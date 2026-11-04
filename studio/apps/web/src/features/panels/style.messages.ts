@@ -86,6 +86,38 @@ export function styleMessages(i18n: I18n) {
         values: { level },
         comment: "A shadow preset of the decoration editor, by Material elevation, e.g. Elevation 3.",
       }),
+    textPreset: i18n._({
+      id: "style.textPreset",
+      message: "Style",
+      comment: "Label of the text style select: a role of the type scale or a custom style.",
+    }),
+    typeRole: (role: string) =>
+      i18n._({
+        id: "style.typeRole",
+        message:
+          "{role, select, custom {Custom} displayLarge {Display large} displayMedium {Display medium} displaySmall {Display small} headlineLarge {Headline large} headlineMedium {Headline medium} headlineSmall {Headline small} titleLarge {Title large} titleMedium {Title medium} titleSmall {Title small} bodyLarge {Body large} bodyMedium {Body medium} bodySmall {Body small} labelLarge {Label large} labelMedium {Label medium} labelSmall {Label small} other {Style}}",
+        values: { role },
+        comment: "A role of Material 3's type scale, or a custom text style.",
+      }),
+    size: i18n._({ id: "style.size", message: "Size", comment: "Label of a text's font size." }),
+    weight: i18n._({ id: "style.weight", message: "Weight", comment: "Label of a text's font weight (100 to 900)." }),
+    italic: i18n._({ id: "style.italic", message: "Italic", comment: "Switch that makes a text italic." }),
+    color: i18n._({ id: "style.color", message: "Colour", comment: "Label of a text's colour." }),
+    tracking: i18n._({ id: "style.tracking", message: "Letter spacing", comment: "Label of a text's letter spacing." }),
+    lineHeight: i18n._({
+      id: "style.lineHeight",
+      message: "Line height",
+      comment: "Label of a text's line height, as a multiple of its size.",
+    }),
+    line: i18n._({ id: "style.line", message: "Line", comment: "Label of a text's decoration line select." }),
+    decoration: (d: string) =>
+      i18n._({
+        id: "style.decoration",
+        message:
+          "{d, select, none {No line} underline {Underline} lineThrough {Strikethrough} overline {Overline} other {Line}}",
+        values: { d },
+        comment: "A text's decoration line.",
+      }),
   };
 }
 

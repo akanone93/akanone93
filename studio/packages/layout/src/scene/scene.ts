@@ -31,6 +31,7 @@ import {
   FlexColumnWidth,
   FlexFit,
   FlexParentData,
+  FontStyle,
   FractionColumnWidth,
   flipAxisDirection,
   IntrinsicColumnWidth,
@@ -486,6 +487,9 @@ function buildText(node: SceneNode, textDirection: TextDirection, text: SceneTex
   const distribution = field(style, "leadingDistribution");
   if (distribution !== undefined) {
     textStyle.leadingDistribution = distribution as TextLeadingDistribution;
+  }
+  if (field(style, "fontStyle") === "italic") {
+    textStyle.fontStyle = FontStyle.italic;
   }
   const maxLines = optionalNum(props, "maxLines") ?? text.defaults?.maxLines ?? null;
   return new RenderParagraph({

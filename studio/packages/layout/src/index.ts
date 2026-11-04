@@ -244,6 +244,16 @@ export {
   type SidePaint,
 } from "./paint/paint.ts";
 export { type PaintNode, paintTree } from "./paint/painters.ts";
+export {
+  M3_TYPE_SCALE,
+  type ResolvedText,
+  resolveTextStyle,
+  type TypeRole,
+  type TypeSpec,
+  typeRoleOf,
+  typeRoles,
+  weightOf,
+} from "./paint/text-style.ts";
 export { RenderTestBox, type RenderTestBoxOptions } from "./test-box.ts";
 export { CanvasKitParagraphEngine } from "./text/canvaskit-engine.ts";
 export {
@@ -267,6 +277,8 @@ export {
   layoutScreen,
   type Placed,
   type PlacedKind,
+  type PlacedRun,
+  type PlacedText,
   type ScreenLayout,
   type ScreenTheme,
   type WidgetBuilder,

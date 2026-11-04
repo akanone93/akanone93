@@ -8,9 +8,14 @@ import {
   type ColorScheme,
   colorRoleNames,
   colorSchemeFromSeed,
+  M3_TYPE_SCALE,
   type PaintTheme,
   parseHexColor,
   type Rgba,
+  type TypeRole,
+  type TypeSpec,
+  typeRoles,
+  weightOf,
   withColorRoles,
 } from "@plux/layout";
 import { useMemo } from "react";
@@ -94,8 +99,8 @@ function colorToken(tokens: Obj, path: string, dark: boolean, brand: string): Rg
   return typeof v === "string" ? parseHexColor(v) : undefined;
 }
 
-/** Every colour token path of the tree outside the brand and contrast groups. */
-function colorPaths(node: unknown, prefix = ""): string[] {
+/** Every token path of the tree outside the brand and contrast groups. */
+function tokenPaths(node: unknown, prefix = ""): string[] {
   if (!isObj(node)) {
     return [];
   }
@@ -105,7 +110,7 @@ function colorPaths(node: unknown, prefix = ""): string[] {
   return Object.entries(node).flatMap(([k, v]) =>
     k.startsWith("$") || (prefix === "" && (k === "brands" || k === "brand" || k === "contrast"))
       ? []
-      : colorPaths(v, prefix === "" ? k : `${prefix}.${k}`),
+      : tokenPaths(v, prefix === "" ? k : `${prefix}.${k}`),
   );
 }
 
@@ -123,16 +128,100 @@ export function schemeOf(tokens: Obj, dark: boolean, brand: string): ColorScheme
   return withColorRoles(base, overrides);
 }
 
+const dimension = (v: unknown): number | undefined => {
+  if (typeof v === "number") {
+    return v;
+  }
+  if (typeof v === "string") {
+    // As the runtime's `double.tryParse` after dropping a px, dp or pt unit.
+    const digits = v.trim().replace(/(px|dp|pt)$/, "");
+    const n = digits === "" ? Number.NaN : Number(digits);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  if (isObj(v) && typeof v["value"] === "number") {
+    return v["unit"] === "rem" ? v["value"] * 16 : v["value"];
+  }
+  return undefined;
+};
+
+/**
+ * The theme's `typography.<role>` tokens (W3C typography composites) as type specs: a role the theme defines replaces
+ * Material 3's metrics of that role (the runtime's `textTheme.merge`); a field it leaves out keeps Material's.
+ */
+export function typographyOf(tokens: Obj, dark: boolean, brand: string): Partial<Record<TypeRole, TypeSpec>> {
+  const out: Partial<Record<TypeRole, TypeSpec>> = {};
+  for (const role of typeRoles) {
+    const v = tokenValue(tokens, `typography.${role}`, dark, brand);
+    if (isObj(v)) {
+      out[role] = { ...M3_TYPE_SCALE[role], ...typeFieldsOf(v) };
+    }
+  }
+  return out;
+}
+
+const TYPE_FIELDS = ["fontFamily", "fontSize", "fontWeight", "letterSpacing", "lineHeight"];
+
+/**
+ * The fields a W3C typography composite sets, as the runtime reads them (`tokens.dart` `_typography`): the first
+ * family, dimensions in pixels (a rem is 16), a weight by number or name, and a line height as a multiple only.
+ */
+function typeFieldsOf(v: Obj): Partial<TypeSpec> {
+  const families = Array.isArray(v["fontFamily"]) ? v["fontFamily"] : [v["fontFamily"]];
+  const family = typeof families[0] === "string" ? families[0] : undefined;
+  const size = dimension(v["fontSize"]);
+  const weight = weightOf(v["fontWeight"]);
+  const letterSpacing = dimension(v["letterSpacing"]);
+  const height = v["lineHeight"];
+  return {
+    ...(family === undefined ? {} : { family }),
+    ...(size === undefined ? {} : { size }),
+    ...(weight === undefined ? {} : { weight }),
+    ...(letterSpacing === undefined ? {} : { letterSpacing }),
+    ...(typeof height === "number" ? { height } : {}),
+  };
+}
+
+/** Every typography token of the theme by path, with the fields it sets (a text style bound to one, THM-004). */
+export function textTokensOf(tokens: Obj, dark: boolean, brand: string): Record<string, Partial<TypeSpec>> {
+  const out: Record<string, Partial<TypeSpec>> = {};
+  for (const path of tokenPaths(tokens)) {
+    const v = tokenValue(tokens, path, dark, brand);
+    if (isObj(v) && TYPE_FIELDS.some((f) => f in v)) {
+      out[path] = typeFieldsOf(v);
+    }
+  }
+  return out;
+}
+
+/** Every dimension token of the theme by path, in logical pixels (a padding or a size bound to `space.md`). */
+export function dimensionsOf(tokens: Obj, dark: boolean, brand: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const path of tokenPaths(tokens)) {
+    const v = tokenValue(tokens, path, dark, brand);
+    const n = typeof v === "string" && v.startsWith("#") ? undefined : dimension(v);
+    if (n !== undefined) {
+      out[path] = n;
+    }
+  }
+  return out;
+}
+
 /** What the canvas paints screens with: the scheme and the theme's other colour tokens, resolved. */
 export function paintThemeOf(tokens: Obj, dark: boolean, brand: string): PaintTheme {
   const colors: Record<string, Rgba> = {};
-  for (const path of colorPaths(tokens)) {
+  for (const path of tokenPaths(tokens)) {
     const c = colorToken(tokens, path, dark, brand);
     if (c !== undefined) {
       colors[path] = c;
     }
   }
-  return { scheme: schemeOf(tokens, dark, brand), tokens: colors };
+  return {
+    scheme: schemeOf(tokens, dark, brand),
+    tokens: colors,
+    typography: typographyOf(tokens, dark, brand),
+    textTokens: textTokensOf(tokens, dark, brand),
+    dimensions: dimensionsOf(tokens, dark, brand),
+  };
 }
 
 /**

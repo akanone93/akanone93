@@ -127,10 +127,18 @@ export interface TextSpec {
   readonly text: string;
   readonly size: number;
   readonly color: ColorRgba;
-  /** Bold text; regular when absent. */
-  readonly weight?: "bold";
-  /** Centred in `w`, or against its end; start-aligned when absent. */
-  readonly align?: "center" | "end";
+  /** Bold text, or a weight from 100 to 900; regular when absent. */
+  readonly weight?: "bold" | number;
+  /** The rest of a screen text's style, as it was measured (STU-006): slant, tracking, line height (a multiple of the
+   * size, with the leading spread evenly as Material 3 does), a decoration line. */
+  readonly italic?: boolean;
+  readonly letterSpacing?: number;
+  readonly height?: number;
+  readonly decoration?: "underline" | "lineThrough" | "overline";
+  /** How a text longer than `maxLines` ends: an ellipsis (the default) or cut off. */
+  readonly overflow?: "clip" | "ellipsis" | "fade" | "visible";
+  /** Centred in `w`, against its end, or justified; start-aligned when absent. */
+  readonly align?: "center" | "end" | "justify";
   /** At most this many lines, the last ending in an ellipsis; unlimited when absent. */
   readonly maxLines?: number;
   /**
@@ -138,10 +146,26 @@ export interface TextSpec {
    * Drawing with the measuring fonts keeps a line the layout fitted on one line from wrapping onto the next.
    */
   readonly families?: readonly string[];
+  /** A rich text's runs, each drawn in its own style over the text's; `text` is then their characters together. */
+  readonly spans?: readonly TextRunSpec[];
   /** The opacity and the clips of the widget's ancestors on a screen (STU-005). */
   readonly opacity?: number;
   readonly clips?: readonly ClipSpec[];
   readonly z: number;
+}
+
+/** One run of a rich text: its characters and what differs from the text's own style. */
+export interface TextRunSpec {
+  readonly text: string;
+  readonly size?: number;
+  readonly color?: ColorRgba;
+  readonly weight?: "bold" | number;
+  readonly italic?: boolean;
+  readonly letterSpacing?: number;
+  readonly height?: number;
+  readonly decoration?: "underline" | "lineThrough" | "overline";
+  /** The run's own family, before the text's families. */
+  readonly family?: string;
 }
 
 /** A link: a segment, or a cubic Bézier when both control points are given. */

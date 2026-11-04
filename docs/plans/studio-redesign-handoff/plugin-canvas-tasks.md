@@ -17,7 +17,7 @@ Requirement IDs are from `docs/requirements.md`. Paths are relative to the repos
 studio-typecheck studio-cover studio-build studio-size trace spec-lint reuse-lint` pass; strings in English, German and
 Arabic; light, dark, RTL and 200 % text work; the docs that describe it change in the same patch.
 
-**Decisions (maintainer, 2026-11-05):** `STU-005` and `STU-068` are `WIP` until PC-01 and PC-15/PC-30 land. The
+**Decisions (maintainer, 2026-11-04):** `STU-005` and `STU-068` are `WIP` until PC-01 and PC-15/PC-30 land. The
 Material Symbols (Apache-2.0) and Cupertino icons (MIT) fonts are bundled for the canvas (PC-03). Painting is reviewed by
 eye against the device; no pixel gate (ADR-0013, amended).
 
@@ -45,8 +45,10 @@ Needs.
   the theme's Material colour scheme, recoloured by **Dark** and **Brand**. *Build:* a screen with a Container, a
   DecoratedBox, a Card and a ColoredBox. *Check:* set a fill, a gradient, corners and a shadow in the decoration
   editor; pick colours from the theme; switch Dark. `STU-005`, `THM-001`–`THM-003`.
-- **PC-02 Text.** *See:* the type scale (display to label), sizes, weights, colours, alignment, ellipsis, rich text.
-  *Build:* a typography screen. *Check:* set a style preset; long text ellipsises at max lines. `STU-006`, `THM-004`.
+- **PC-02 Text and true layout.** *See:* the type scale (display to label), the theme's typography tokens, sizes,
+  weights, colours, alignment, ellipsis, rich text; screens laid out edge to edge as on the device (columns, rows,
+  padding, containers, expanded). *Build:* a typography screen. *Check:* set a style preset; long text ellipsises at
+  max lines; centre a text in a stretched column. `STU-005`, `STU-006`, `THM-004`.
 - **PC-03 Icons.** *See:* Material Symbols and Cupertino icons in icons, buttons and bars; an icon picker. *Build:* a
   row of icon buttons. *Check:* pick an icon by search; change its size and colour. `THM-005`.
 - **PC-04 Images.** *See:* asset and network images with fit and rounded corners, avatars, placeholders. *Build:* drag

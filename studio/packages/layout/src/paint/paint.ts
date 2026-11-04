@@ -11,6 +11,7 @@
 
 import { shadowsForElevation } from "../flutter/shadows.ts";
 import type { ColorRole, ColorScheme } from "../material-color/scheme.ts";
+import type { TypeRole, TypeSpec } from "./text-style.ts";
 
 /** A colour as the canvas takes it: 0xRRGGBBAA. */
 export type Rgba = number;
@@ -101,6 +102,15 @@ export interface PaintTheme {
    * the theme travels to the canvas worker in a message.
    */
   readonly tokens?: Readonly<Record<string, Rgba>>;
+  /** The theme's `typography.<role>` tokens, resolved; the other roles keep Material 3's type scale. */
+  readonly typography?: Readonly<Partial<Record<TypeRole, TypeSpec>>>;
+  /**
+   * Every typography token of the theme by path (`type.headline`), with the fields it sets: a text style bound to one
+   * takes those fields over the default text style, as the runtime's `TextStyle` merge does.
+   */
+  readonly textTokens?: Readonly<Record<string, Partial<TypeSpec>>>;
+  /** Every dimension token of the theme by path (`space.md`), in logical pixels. */
+  readonly dimensions?: Readonly<Record<string, number>>;
   /** True in a right-to-left screen, where `start` and `end` insets swap. */
   readonly rtl?: boolean;
 }

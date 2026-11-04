@@ -16,9 +16,19 @@ import {
   type NodePaint,
   type ParagraphEngine,
   type Placed,
+  type PlacedRun,
   TextDirection,
 } from "@plux/layout";
-import type { ClipSpec, ItemSpec, SceneOp, ScreenDocument, ScreenHeight, ScreenStyle, SidesSpec } from "./protocol.ts";
+import type {
+  ClipSpec,
+  ItemSpec,
+  SceneOp,
+  ScreenDocument,
+  ScreenHeight,
+  ScreenStyle,
+  SidesSpec,
+  TextRunSpec,
+} from "./protocol.ts";
 
 /** The scene id of a screen's device frame. */
 export const frameId = (screen: string) => `screen:${screen}`;
@@ -121,6 +131,42 @@ function sidesOf(border: Extract<BorderPaint, { kind: "sides" }>): SidesSpec {
   };
 }
 
+/** The style fields of a screen text's item: the style it was measured in, else the theme's. */
+function textStyleOf(b: Placed, style: ScreenStyle) {
+  const t = b.textStyle;
+  if (t === undefined) {
+    return { size: style.theme.fontSize, families: style.theme.fontFamilies };
+  }
+  return {
+    size: t.size,
+    families: t.family === undefined ? style.theme.fontFamilies : [t.family, ...style.theme.fontFamilies],
+    ...(t.weight === 400 ? {} : { weight: t.weight }),
+    ...(t.italic ? { italic: true } : {}),
+    ...(t.letterSpacing === 0 ? {} : { letterSpacing: t.letterSpacing }),
+    height: t.height,
+    ...(t.decoration === undefined ? {} : { decoration: t.decoration }),
+    ...(t.align === undefined ? {} : { align: t.align }),
+    ...(t.maxLines === undefined ? {} : { maxLines: t.maxLines }),
+    ...(t.overflow === undefined ? {} : { overflow: t.overflow }),
+    ...(t.spans === undefined ? {} : { spans: t.spans.map(runOf) }),
+  };
+}
+
+/** A rich text's run as the canvas draws it; a run without a colour takes the text's. */
+function runOf(r: PlacedRun): TextRunSpec {
+  return {
+    text: r.text,
+    size: r.size,
+    weight: r.weight,
+    italic: r.italic,
+    letterSpacing: r.letterSpacing,
+    height: r.height,
+    ...(r.color === undefined ? {} : { color: r.color }),
+    ...(r.decoration === undefined ? {} : { decoration: r.decoration }),
+    ...(r.family === undefined ? {} : { family: r.family }),
+  };
+}
+
 /** One painted box of a widget as a scene item. */
 function paintedBox(s: ScreenDocument, b: Placed, paint: NodePaint, box: BoxPaint, i: number, frame: object): ItemSpec {
   const border = box.border;
@@ -171,8 +217,7 @@ function paintedItems(s: ScreenDocument, b: Placed, paint: NodePaint, style: Scr
         kind: "text",
         ...own,
         text: b.text,
-        size: style.theme.fontSize,
-        families: style.theme.fontFamilies,
+        ...textStyleOf(b, style),
         color: paint.textColor ?? style.text,
         ...(paint.opacity < 1 ? { opacity: paint.opacity } : {}),
         ...clipsOf(s, paint),
@@ -250,6 +295,10 @@ function screenItems(
     });
   }
   for (const b of boxes) {
+    // A part the scene built in a widget's place (`Container`'s padding, say) is neither drawn nor selected.
+    if (style.paint !== undefined && typeof b.id === "string" && b.id.includes("#")) {
+      continue;
+    }
     if (b.paint !== undefined) {
       items.push(...paintedItems(s, b, b.paint, style));
       continue;

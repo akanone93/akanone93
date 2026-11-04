@@ -2,7 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { type ColorRole, type PaintTheme, resolveColor, roleColor } from "@plux/layout";
+import {
+  type ColorRole,
+  type PaintTheme,
+  type ResolvedText,
+  resolveColor,
+  resolveTextStyle,
+  roleColor,
+  typeRoleOf,
+  typeRoles,
+} from "@plux/layout";
 import { Select } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@plux/ui/components/popover";
@@ -545,6 +554,146 @@ export function DecorationEditor({
           }}
         />
       </fieldset>
+    </fieldset>
+  );
+}
+
+/** The text style presets: a custom style, the type scale's roles, then the theme's other typography tokens. */
+function textPresets(theme: PaintTheme | null, token: string | undefined): string[] {
+  const own = Object.keys(theme?.textTokens ?? {}).filter((p) => typeRoleOf(p) === undefined);
+  const known = ["custom", ...typeRoles.map((r) => `typography.${r}`), ...own.sort()];
+  return token === undefined || known.includes(token) ? known : [...known, token];
+}
+
+function presetLabel(m: StyleMessages, path: string): string {
+  if (path === "custom") {
+    return m.typeRole("custom");
+  }
+  const role = typeRoleOf(path);
+  return role === undefined ? path : m.typeRole(role);
+}
+
+/** A custom TextStyle with the measured fields of `t`, as a document writes them (`fontWeight: "w500"`). */
+function customFrom(t: ResolvedText): Obj {
+  return {
+    ...(t.family === undefined ? {} : { fontFamily: t.family }),
+    fontSize: t.size,
+    fontWeight: `w${t.weight}`,
+    height: t.height,
+    letterSpacing: t.letterSpacing,
+  };
+}
+
+/**
+ * A TextStyle: a role of the theme's type scale (a `typography.<role>` token) or another typography token of the theme,
+ * or a custom style — size, weight, italic, colour, tracking, line height and a decoration line. Editing a field of a
+ * token-bound style starts a custom style from what the token resolves to.
+ */
+export function TextStyleEditor({
+  name,
+  value,
+  readOnly = false,
+  onChange,
+  onEnd,
+}: {
+  readonly name: string;
+  readonly value: unknown;
+  readonly readOnly?: boolean;
+  readonly onChange: (value: unknown) => void;
+  readonly onEnd: () => void;
+}): ReactElement {
+  const m = styleMessages(useLingui().i18n);
+  const theme = useContext(PaintThemeContext);
+  const token = isObj(value) && typeof value["$token"] === "string" ? value["$token"] : undefined;
+  const custom: Obj = isObj(value) && token === undefined ? value : {};
+  const shown = resolveTextStyle(value, theme ?? undefined);
+  const set = (field: string, v: unknown) => {
+    const from: Obj = token === undefined ? { ...custom } : customFrom(shown);
+    if (v === undefined) {
+      delete from[field];
+    } else {
+      from[field] = v;
+    }
+    onChange(Object.keys(from).length === 0 ? undefined : from);
+  };
+  return (
+    <fieldset className="deco-editor" aria-label={name} disabled={readOnly}>
+      <Select
+        label={m.textPreset}
+        value={token ?? "custom"}
+        options={textPresets(theme, token).map((path) => ({ value: path, label: presetLabel(m, path) }))}
+        onValueChange={(path) => {
+          onChange(path === "custom" ? customFrom(shown) : { $token: path });
+          onEnd();
+        }}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+          {m.size}
+          <NumberBox
+            label={m.size}
+            value={token === undefined ? num(custom["fontSize"]) : shown.size}
+            onChange={(v) => set("fontSize", v)}
+            onEnd={onEnd}
+          />
+        </div>
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+          {m.weight}
+          <Select
+            label={m.weight}
+            value={String(shown.weight)}
+            options={[100, 200, 300, 400, 500, 600, 700, 800, 900].map((w) => ({ value: String(w), label: String(w) }))}
+            onValueChange={(w) => {
+              set("fontWeight", `w${w}`);
+              onEnd();
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+          {m.tracking}
+          <NumberBox
+            label={m.tracking}
+            value={shown.letterSpacing}
+            onChange={(v) => set("letterSpacing", v)}
+            onEnd={onEnd}
+          />
+        </div>
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+          {m.lineHeight}
+          <NumberBox
+            label={m.lineHeight}
+            value={Math.round(shown.height * 100) / 100}
+            onChange={(v) => set("height", v)}
+            onEnd={onEnd}
+          />
+        </div>
+      </div>
+      <Row label={m.color}>
+        <ColorField
+          name={`${name} ${m.color}`}
+          value={custom["color"]}
+          onChange={(c) => set("color", c)}
+          onEnd={onEnd}
+        />
+      </Row>
+      <Row label={m.italic}>
+        <Switch
+          checked={shown.italic}
+          onCheckedChange={(on) => {
+            set("fontStyle", on ? "italic" : undefined);
+            onEnd();
+          }}
+        />
+      </Row>
+      <Select
+        label={m.line}
+        value={shown.decoration ?? "none"}
+        options={["none", "underline", "lineThrough", "overline"].map((d) => ({ value: d, label: m.decoration(d) }))}
+        onValueChange={(d) => {
+          set("decoration", d === "none" ? undefined : d);
+          onEnd();
+        }}
+      />
     </fieldset>
   );
 }

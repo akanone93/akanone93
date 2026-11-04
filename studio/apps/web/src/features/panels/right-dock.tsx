@@ -53,7 +53,7 @@ import {
 import type { PxlEditorSource } from "./pxl-editor.tsx";
 import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
 import { lockedIds } from "./studio-meta.ts";
-import { ColorField, DecorationEditor } from "./style-editors.tsx";
+import { ColorField, DecorationEditor, TextStyleEditor } from "./style-editors.tsx";
 import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
 
@@ -363,6 +363,15 @@ function emptyItem(type: string): unknown {
   return kind === "object" ? {} : kind === "number" || kind === "int" ? 0 : kind === "bool" ? false : "";
 }
 
+/** A value type with an editor of its own (decorations, text styles); every other one edits its fields. */
+function StyleObjectEditor(p: EditorProps & { bare: string }) {
+  const own = { name: p.name, value: p.value, readOnly: p.readOnly, onChange: p.onChange, onEnd: p.onEnd };
+  if (p.bare === "BoxDecoration") {
+    return <DecorationEditor {...own} />;
+  }
+  return p.bare === "TextStyle" ? <TextStyleEditor {...own} /> : <ObjectEditor {...p} />;
+}
+
 /** A colour property: the swatch field with the theme's roles and tokens (STU-062, THM-001). */
 function StyleColor(p: EditorProps) {
   const b = bindingOf(p.value);
@@ -444,11 +453,7 @@ export function ValueEditor(p: EditorProps) {
     case "list":
       return <ListEditor {...p} />;
     case "object":
-      return bare === "BoxDecoration" ? (
-        <DecorationEditor name={p.name} value={p.value} readOnly={p.readOnly} onChange={p.onChange} onEnd={p.onEnd} />
-      ) : (
-        <ObjectEditor {...p} />
-      );
+      return <StyleObjectEditor {...p} bare={bare} />;
     default:
       return <TextEditor {...p} />;
   }

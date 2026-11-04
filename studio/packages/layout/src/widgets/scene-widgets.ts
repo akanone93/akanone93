@@ -17,9 +17,12 @@ import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import { RenderIntrinsicWidth } from "../flutter/proxy-boxes.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { TextScaler, type TextStyle } from "../flutter/text-style.ts";
+import { type PaintTheme, resolveColor } from "../paint/paint.ts";
+import { resolveTextStyle } from "../paint/text-style.ts";
 import { buildNode, hostType, type SceneNode, type SceneText, supportedTypes } from "../scene/scene.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
+import { layoutTextStyle, paintedTextOf } from "./screen.ts";
 import { placeholder } from "./structural.ts";
 
 /** Types built from a scene node wherever they appear in a screen. */
@@ -177,10 +180,33 @@ function sceneProps(type: string, props: Record<string, unknown>): Record<string
   }
 }
 
-/** Whether `type` is built from a scene node, given whether its parent is a composite. */
-function converts(type: string | undefined, deep: boolean): boolean {
+/**
+ * The types a painted screen builds from scene nodes too, as Flutter lays them out (STU-005): the flex, padding, size
+ * and alignment widgets every screen is made of, and the containers and scroll views the scene spells otherwise.
+ */
+export const faithfulTypes: ReadonlySet<string> = new Set([
+  "Column",
+  "Row",
+  "Padding",
+  "SizedBox",
+  "Center",
+  "Align",
+  "Expanded",
+  "Flexible",
+  "Container",
+  "ColoredBox",
+  "SafeArea",
+  "SingleChildScrollView",
+  "ListView",
+]);
+
+/** Whether `type` is built from a scene node, given whether its parent is a composite and the screen is painted. */
+function converts(type: string | undefined, deep: boolean, painted: boolean): boolean {
   if (type === undefined) {
     return false;
+  }
+  if (painted && faithfulTypes.has(type)) {
+    return true;
   }
   return bridged.has(type) || (deep && (type === "Text" || supportedTypes().has(type)) && !hostOnly.has(type));
 }
@@ -267,17 +293,132 @@ function inViewportHeight(scene: SceneNode, bridge: Bridge): SceneNode {
 /** The scene node of `node`, its descendants converted or built by the screen. */
 function convert(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNode {
   const type = node.type;
-  if (!converts(type, deep) || type === undefined) {
+  const paint = bridge.ctx.paint;
+  if (!converts(type, deep, paint !== undefined) || type === undefined) {
     return host(node, bridge);
   }
   const inner = deep || compositeTypes.includes(type);
-  const props = sceneProps(type, (node.props ?? {}) as Record<string, unknown>);
-  if (type === "Text") {
-    bridge.ctx.mark(node.id, "text", typeof props["data"] === "string" ? props["data"] : "");
+  const raw = (node.props ?? {}) as Record<string, unknown>;
+  if (paint !== undefined && faithfulTypes.has(type)) {
+    return faithfulScene(node, literalProps(raw, paint) as Record<string, unknown>, sceneChildren(node, bridge, inner));
   }
+  const props = type === "Text" ? textProps(node, sceneProps(type, raw), bridge) : sceneProps(type, raw);
   const children = sceneChildren(node, bridge, inner);
   const scene: SceneNode = { id: node.id, type, props, ...(children.length === 0 ? {} : { children }) };
   return boundedHeight.has(type) ? inViewportHeight(scene, bridge) : scene;
+}
+
+/** A text's scene props, marking it as a text; on a painted screen, in the style it is drawn in (STU-006). */
+function textProps(node: WidgetNode, props: Record<string, unknown>, bridge: Bridge): Record<string, unknown> {
+  const data = typeof props["data"] === "string" ? props["data"] : "";
+  const paint = bridge.ctx.paint;
+  if (paint === undefined) {
+    bridge.ctx.mark(node.id, "text", data);
+    return props;
+  }
+  const { placed, style } = paintedTextOf(node, paint, bridge.ctx.theme);
+  bridge.ctx.mark(node.id, "text", data, placed);
+  return { ...props, style: { ...style, ...(placed.italic ? { fontStyle: "italic" } : {}) } };
+}
+
+/**
+ * A prop value as a painted screen lays it out: a dimension token as its pixels, a colour token as its colour, and a
+ * value only the device knows (an expression, a binding, an unknown token) left out, so the widget's default applies.
+ */
+function literalProps(value: unknown, paint: PaintTheme): unknown {
+  if (Array.isArray(value)) {
+    return value.map((v) => literalProps(v, paint));
+  }
+  if (!isRecord(value)) {
+    return value;
+  }
+  if (typeof value["$token"] === "string") {
+    return paint.dimensions?.[value["$token"]] ?? resolveColor(value, paint);
+  }
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (k.startsWith("$")) {
+      return undefined;
+    }
+    const literal = literalProps(v, paint);
+    if (literal !== undefined) {
+      out[k] = literal;
+    }
+  }
+  return out;
+}
+
+const ZERO = { all: 0 };
+
+/** A part of a widget the scene builds in its place: an id the canvas neither draws nor selects (`#` marks it). */
+const part = (id: string, name: string): string => `${id}#${name}`;
+
+/**
+ * A faithful type as scene nodes: most are the scene's own; a `Container` is what Flutter's `build` makes of it
+ * (margin, constraints, padding, alignment), and a scroll view, safe area or coloured box lays its child out padded.
+ */
+function faithfulScene(node: WidgetNode, props: Record<string, unknown>, children: SceneNode[]): SceneNode {
+  const own = children.length === 0 ? {} : { children };
+  switch (node.type) {
+    case "Container":
+      return containerScene(node.id, props, children);
+    case "SingleChildScrollView":
+      return { id: node.id, type: "Padding", props: { padding: props["padding"] ?? ZERO }, ...own };
+    case "SafeArea":
+    case "ColoredBox":
+      return { id: node.id, type: "Padding", props: { padding: ZERO }, ...own };
+    case "ListView":
+      return { id: node.id, type: "ListView", props: { ...props, shrinkWrap: true }, ...own };
+    default:
+      return { id: node.id, type: node.type ?? "", props, ...own };
+  }
+}
+
+/** Flutter's `Container.build`: margin, then the size and constraints, then padding, then alignment, then the child. */
+function containerScene(id: string, props: Record<string, unknown>, children: SceneNode[]): SceneNode {
+  let inner = children;
+  if (props["alignment"] !== undefined) {
+    inner = [{ id: part(id, "align"), type: "Align", props: { alignment: props["alignment"] }, children: inner }];
+  }
+  if (props["padding"] !== undefined) {
+    inner = [{ id: part(id, "pad"), type: "Padding", props: { padding: props["padding"] }, children: inner }];
+  }
+  const size = containerConstraints(props);
+  if (size !== undefined) {
+    inner = [{ id: part(id, "size"), type: "ConstrainedBox", props: size, children: inner }];
+  } else if (children.length === 0) {
+    // A container with no child and no size fills its parent where it is bounded and is empty where it is not.
+    const expand = { minWidth: Number.POSITIVE_INFINITY, minHeight: Number.POSITIVE_INFINITY };
+    inner = [
+      {
+        id: part(id, "limit"),
+        type: "LimitedBox",
+        props: { maxWidth: 0, maxHeight: 0 },
+        children: [{ id: part(id, "size"), type: "ConstrainedBox", props: expand }],
+      },
+    ];
+  }
+  return {
+    id,
+    type: "Padding",
+    props: { padding: props["margin"] ?? ZERO },
+    ...(inner.length === 0 ? {} : { children: inner }),
+  };
+}
+
+/** A container's `constraints`, tightened to its `width` and `height`; undefined when it sets neither. */
+function containerConstraints(props: Record<string, unknown>): Record<string, number> | undefined {
+  const base = isRecord(props["constraints"]) ? (props["constraints"] as Record<string, number>) : undefined;
+  const width = typeof props["width"] === "number" ? props["width"] : undefined;
+  const height = typeof props["height"] === "number" ? props["height"] : undefined;
+  if (base === undefined && width === undefined && height === undefined) {
+    return undefined;
+  }
+  return {
+    ...(base ?? {}),
+    ...(width === undefined ? {} : { minWidth: width, maxWidth: width }),
+    ...(height === undefined ? {} : { minHeight: height, maxHeight: height }),
+  };
 }
 
 /** The family the scene's Material styles name, mapped to the first family of the screen theme (the canvas has no "NotoSans"). */
@@ -297,24 +438,49 @@ function themedEngine(engine: ParagraphEngine, family: string | undefined): Para
 /** Builds `node` from its scene node; a node the scene cannot build is drawn as its labelled placeholder. */
 function sceneBuilder(root: (node: WidgetNode) => WidgetNode): WidgetBuilder {
   return (node, ctx) => {
-    const bridge: Bridge = { ctx, hosts: new Map() };
-    const [family, ...fallback] = ctx.theme.fontFamilies;
-    const base: TextStyle = { fontSize: ctx.theme.fontSize, fontFamily: family, fontFamilyFallback: fallback };
-    const text: SceneText = {
-      engine: themedEngine(ctx.engine, family),
-      textScaler: TextScaler.linear(ctx.textScale ?? 1),
-      base,
-      hosts: bridge.hosts,
-      screen: { width: ctx.available(), height: 0 },
-    };
     try {
-      const box = buildNode(convert(root(node), bridge, false), ctx.textDirection ?? TextDirection.ltr, text);
-      ctx.mark(node.id, "box");
-      return box;
+      return sceneBuild(root(node), ctx);
     } catch {
       return placeholder(node, ctx, node.type ?? "");
     }
   };
+}
+
+/**
+ * The builder of a faithful type: on a painted screen, the scene's (as Flutter lays it out), else `legacy`, the
+ * screen's own approximation; `legacy` too when the scene cannot build the node, so a screen never collapses.
+ */
+export function faithful(legacy: WidgetBuilder): WidgetBuilder {
+  return (node, ctx) => {
+    if (ctx.paint === undefined) {
+      return legacy(node, ctx);
+    }
+    try {
+      return sceneBuild(node, ctx);
+    } catch {
+      return legacy(node, ctx);
+    }
+  };
+}
+
+/** Builds `node` from its scene node; throws when the scene cannot build it. */
+function sceneBuild(node: WidgetNode, ctx: WidgetContext): RenderBox {
+  const bridge: Bridge = { ctx, hosts: new Map() };
+  const [family, ...fallback] = ctx.theme.fontFamilies;
+  const base: TextStyle =
+    ctx.paint === undefined
+      ? { fontSize: ctx.theme.fontSize, fontFamily: family, fontFamilyFallback: fallback }
+      : layoutTextStyle(resolveTextStyle(undefined, ctx.paint), ctx.theme);
+  const text: SceneText = {
+    engine: themedEngine(ctx.engine, family),
+    textScaler: TextScaler.linear(ctx.textScale ?? 1),
+    base,
+    hosts: bridge.hosts,
+    screen: { width: ctx.available(), height: 0 },
+  };
+  const box = buildNode(convert(node, bridge, false), ctx.textDirection ?? TextDirection.ltr, text);
+  ctx.mark(node.id, "box");
+  return box;
 }
 
 /**
