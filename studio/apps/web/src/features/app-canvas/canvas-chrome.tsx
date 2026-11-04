@@ -243,7 +243,7 @@ export function LayersPanel({
   }
   const sorted = [...boxes].sort((a, b) => a.title.localeCompare(b.title));
   return (
-    <Panel className="canvas-layers flex w-60 flex-col">
+    <Panel className="canvas-layers canvas-side flex w-60 flex-col">
       <div className="flex items-center justify-between gap-2 py-1.5 ps-3 pe-1.5">
         <h2 className="text-xs font-medium text-muted-foreground">{m.layers}</h2>
         <ToolButton icon="caret-left" label={m.hidePanel} onClick={() => setOpen(false)} />

@@ -84,6 +84,17 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "The screens could not be loaded.",
       comment: "Shown when loading the plugin's screens failed.",
     }),
+    preview: i18n._({
+      id: "pluginCanvas.preview",
+      message: "Preview",
+      comment:
+        "Button of the plugin canvas's top bar that opens the preview switches (device frame, theme, locale, text scale).",
+    }),
+    zoomControls: i18n._({
+      id: "pluginCanvas.zoomControls",
+      message: "Zoom",
+      comment: "Accessible name of the zoom controls at the bottom of the plugin canvas.",
+    }),
     actionBar: i18n._({
       id: "pluginCanvas.actionBar",
       message: "Canvas actions",

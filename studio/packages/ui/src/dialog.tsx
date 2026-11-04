@@ -24,14 +24,18 @@ import {
 } from "./components/dialog";
 import { Icon } from "./icon.tsx";
 
-/** `full` is the full-screen overlay of the heavy editors (STU-063): it fills the viewport and has no corners. */
+/**
+ * `full` is the full-screen overlay of the heavy editors (STU-063): a sheet inset from the window's edges with a header
+ * bar (title, description, close) over a body that fills the rest; its place and elevation are in the app's stylesheet
+ * (`[data-size="full"]`).
+ */
 export type DialogSize = "sm" | "md" | "lg" | "full";
 
 const sizeClass: Readonly<Record<DialogSize, string>> = {
   sm: "sm:max-w-sm",
   md: "sm:max-w-lg",
   lg: "sm:max-w-3xl",
-  full: "top-0 start-0 h-full w-full max-w-none translate-x-0 translate-y-0 rounded-none sm:max-w-none rtl:translate-x-0",
+  full: "flex max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden p-0 sm:max-w-none rtl:translate-x-0",
 };
 
 export interface DialogLabels {
@@ -61,6 +65,27 @@ export function Dialog({
   children,
   ...root
 }: DialogProps): ReactElement {
+  if (size === "full") {
+    return (
+      <ShadcnDialog {...root}>
+        {trigger !== undefined && <DialogTrigger render={trigger} />}
+        <DialogContent showCloseButton={false} className={sizeClass.full} data-size="full">
+          <div data-slot="dialog-full-head" className="flex items-center gap-3 border-b px-5 py-3">
+            <DialogHeader className="min-w-0 flex-1 gap-0.5">
+              <DialogTitle className="truncate">{title}</DialogTitle>
+              {description !== undefined && <DialogDescription>{description}</DialogDescription>}
+            </DialogHeader>
+            <DialogClose render={<Button variant="ghost" size="icon-sm" aria-label={labels.close} />}>
+              <Icon name="x" />
+            </DialogClose>
+          </div>
+          <div data-slot="dialog-full-body" className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-5">
+            {children}
+          </div>
+        </DialogContent>
+      </ShadcnDialog>
+    );
+  }
   return (
     <ShadcnDialog {...root}>
       {trigger !== undefined && <DialogTrigger render={trigger} />}

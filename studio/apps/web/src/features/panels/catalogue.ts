@@ -50,3 +50,51 @@ export function buildNode(
   }
   return Object.keys(props).length === 0 ? { id: newId(), type: d.type } : { id: newId(), type: d.type, props };
 }
+
+/** The kinds the Insert gallery sorts widgets into, from their registry category, each with its icon. */
+export const widgetKinds = [
+  "layout",
+  "content",
+  "input",
+  "interaction",
+  "navigation",
+  "motion",
+  "platform",
+  "more",
+] as const;
+
+export type WidgetKind = (typeof widgetKinds)[number];
+
+const kindOfCategory: Readonly<Record<string, WidgetKind>> = {
+  layout: "layout",
+  structure: "layout",
+  scrolling: "layout",
+  display: "content",
+  input: "input",
+  forms: "input",
+  control: "input",
+  interaction: "interaction",
+  feedback: "interaction",
+  navigation: "navigation",
+  animation: "motion",
+  cupertino: "platform",
+  device: "platform",
+  host: "platform",
+};
+
+/** The gallery kind of a widget; widgets of a category without one are under "more". */
+export function kindOf(d: WidgetDescriptor): WidgetKind {
+  return kindOfCategory[d.category] ?? "more";
+}
+
+/** The icon of a gallery kind. */
+export const kindIcon = {
+  layout: "grid-four",
+  content: "text-t",
+  input: "cursor-text",
+  interaction: "hand-pointing",
+  navigation: "navigation-arrow",
+  motion: "sparkle",
+  platform: "device-mobile",
+  more: "shapes",
+} as const satisfies Record<WidgetKind, string>;

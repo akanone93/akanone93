@@ -114,28 +114,21 @@ function followSize(page: HTMLElement, surface: CanvasSurface, initial: string):
   return observer;
 }
 
-/** The figures and release chip of a plugin's box (STU-030): screens, versions and links, and `v3` or `Draft`. */
+/** The screens, figures and release chip of a plugin's box (STU-030): its screens and links, and `v3` or `Draft`. */
 function boxFacts(
   s: PluginSummary | undefined,
   m: ReturnType<typeof appCanvasMessages>,
-): Pick<SceneBox, "stats" | "release"> {
+): Pick<SceneBox, "screens" | "figures" | "release"> {
   if (s === undefined) {
     return {};
   }
+  const screens = Number(s.screens);
   const versions = Number(s.versions);
   const latest = s.plugin?.latestVersion ?? 0n;
   return {
-    stats: [
-      { value: String(Number(s.screens)), label: m.statScreens },
-      { value: String(versions), label: m.statVersions },
-      { value: String(s.linksOut.length + s.linksIn.length), label: m.statLinks },
-    ],
-    release:
-      versions > 0 && latest > 0n
-        ? m.releaseVersion(String(latest))
-        : versions > 0
-          ? m.releaseVersion(String(versions))
-          : m.releaseDraft,
+    screens,
+    figures: [m.screens(screens), m.linkCount(s.linksOut.length + s.linksIn.length)],
+    release: versions === 0 ? m.releaseDraft : m.releaseVersion(String(latest > 0n ? latest : BigInt(versions))),
   };
 }
 
@@ -604,7 +597,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     <section
       ref={sectionRef}
       aria-label={m.title}
-      className="app-canvas relative h-full w-full overflow-hidden"
+      className="app-canvas canvas-stage relative h-full w-full overflow-hidden"
       data-tool={tool}
     >
       {/* A canvas hands its drawing to the worker once: a new theme gets a new element, and a new surface on it. */}

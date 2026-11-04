@@ -27,7 +27,7 @@ export function PreviewBarView({
 }): ReactElement {
   const m = previewMessages(useLingui().i18n);
   return (
-    <div className="absolute start-3 top-16 z-10 flex flex-wrap items-end gap-3">
+    <div className="flex flex-col gap-3">
       {switcher}
       <Button variant="secondary" aria-pressed={matrix} onClick={() => onMatrix(!matrix)}>
         {m.matrix}

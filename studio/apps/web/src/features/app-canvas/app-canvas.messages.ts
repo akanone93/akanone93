@@ -530,11 +530,13 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Versions",
       comment: "Figure label in the plugin's detail panel.",
     }),
-    statLinks: i18n._({
-      id: "appCanvas.stat.links",
-      message: "Links",
-      comment: "Figure label on a plugin's box: how many navigate links go out of and into the plugin.",
-    }),
+    linkCount: (n: number) =>
+      i18n._({
+        id: "appCanvas.linkCount",
+        message: "{n, plural, one {# link} other {# links}}",
+        comment: "On a plugin's box: how many navigate links go out of and into the plugin.",
+        values: { n },
+      }),
     releaseDraft: i18n._({
       id: "appCanvas.release.draft",
       message: "Draft",

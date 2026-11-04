@@ -43,6 +43,51 @@ export function panelsMessages(i18n: I18n) {
       message: "Native and custom",
       comment: "Group of the Insert tab: widgets of the host app (native slots) and custom widgets.",
     }),
+    kindAll: i18n._({
+      id: "panels.kind.all",
+      message: "All",
+      comment: "Filter of the Insert gallery: every kind of widget.",
+    }),
+    kindLayout: i18n._({
+      id: "panels.kind.layout",
+      message: "Layout",
+      comment: "Kind of widget in the Insert gallery: rows, columns, stacks, scrolling and structure.",
+    }),
+    kindContent: i18n._({
+      id: "panels.kind.content",
+      message: "Content",
+      comment: "Kind of widget in the Insert gallery: text, images, icons and other display widgets.",
+    }),
+    kindInput: i18n._({
+      id: "panels.kind.input",
+      message: "Inputs",
+      comment: "Kind of widget in the Insert gallery: fields, switches, sliders and forms.",
+    }),
+    kindInteraction: i18n._({
+      id: "panels.kind.interaction",
+      message: "Interaction",
+      comment: "Kind of widget in the Insert gallery: buttons, gestures, dialogs and feedback.",
+    }),
+    kindNavigation: i18n._({
+      id: "panels.kind.navigation",
+      message: "Navigation",
+      comment: "Kind of widget in the Insert gallery: app bars, tabs, drawers and navigation bars.",
+    }),
+    kindMotion: i18n._({
+      id: "panels.kind.motion",
+      message: "Motion",
+      comment: "Kind of widget in the Insert gallery: animations and transitions.",
+    }),
+    kindPlatform: i18n._({
+      id: "panels.kind.platform",
+      message: "Platform",
+      comment: "Kind of widget in the Insert gallery: iOS-style, device and host-app widgets.",
+    }),
+    kindMore: i18n._({
+      id: "panels.kind.more",
+      message: "More",
+      comment: "Kind of widget in the Insert gallery: everything without another kind.",
+    }),
     noMatches: i18n._({
       id: "panels.noMatches",
       message: "No widget matches.",
@@ -108,6 +153,38 @@ export function panelsMessages(i18n: I18n) {
 /** Messages of the right dock: Properties, Accessibility and Docs (S2.6, STU-121). */
 export function panelMessages(i18n: I18n) {
   return {
+    groupLayout: i18n._({
+      id: "panel.group.layout",
+      message: "Layout",
+      comment: "Section of the inspector's properties: size, spacing, alignment and position.",
+    }),
+    groupAppearance: i18n._({
+      id: "panel.group.appearance",
+      message: "Appearance",
+      comment: "Section of the inspector's properties: colour, decoration, style and type.",
+    }),
+    groupContent: i18n._({
+      id: "panel.group.content",
+      message: "Content",
+      comment: "Section of the inspector's properties: text, values, icons, images and children.",
+    }),
+    groupBehaviour: i18n._({
+      id: "panel.group.behaviour",
+      message: "Behaviour",
+      comment: "Section of the inspector's properties: enabled, input rules, limits and events.",
+    }),
+    groupOther: i18n._({
+      id: "panel.group.other",
+      message: "Other",
+      comment: "Section of the inspector's properties: everything without another section.",
+    }),
+    editors: i18n._({
+      id: "panel.editors",
+      message: "Editors",
+      comment:
+        "Heading of the inspector's row of buttons that open the full-screen editors (JSON, localisation, state, data, theme, action graph, Rust).",
+    }),
+
     dock: i18n._({
       id: "panels.inspector",
       message: "Inspector",

@@ -66,16 +66,25 @@ Positions are read-only while someone else is editing the app.
 
 ## Edit a plugin
 
-1. Double-click a plugin. The **Plugin canvas** shows its screens in
-   navigation order, with panels for **Insert**, **Layers**, **Screens**, **Selection** and **Assets**
-   on the left.
-2. Insert a widget from **Widgets**, **Components** or a template, select it, and edit its
-   properties. **Wrap selection in a column**, **Unwrap selection**, **Duplicate selection** and
+1. Double-click a plugin. The **Plugin canvas** shows its screens in navigation order on the same
+   dotted surface as the app canvas, and zooms, pans and draws the same way. The top bar holds the
+   screens (**New screen**, the current screen, its menu), **Undo** and **Redo**, the problem counts,
+   **Preview**, **Send to device**, **Pair a device**, **History** and **Publish**; the zoom is at the
+   bottom start. On the left, a rail of icons opens **Insert**, **Layers**, **Screens**, **Assets**,
+   **State**, **Data** and **Selection**; on the right is the **Inspector**.
+2. Insert a widget from the **Insert** gallery: search it, or pick a kind (**Layout**, **Content**,
+   **Inputs**, **Interaction**, **Navigation**, **Motion**, **Platform**, **More**), then choose a tile
+   or drag it onto a screen. **Layers** lists each screen over its widgets; drag a layer to move it.
+   Select a widget and edit it in the **Inspector**: it names the widget and its screen, opens the
+   **Editors** (JSON, localisation, state, data sources, database schema, theme, action graph, Rust),
+   and holds the tabs **Properties** (in sections: **Content**, **Layout**, **Appearance**,
+   **Behaviour**, **Other**), **Actions**, **JSON**, **Code**, **Localisation**, **Accessibility**,
+   **Performance** and **Docs**. Each editor opens over the canvas; **Close** or Escape returns. **Wrap selection in a column**, **Unwrap selection**, **Duplicate selection** and
    **Create experiment from selection** are on the selection's menu.
 3. Manage screens with **New screen**, **Duplicate screen**, **Rename screen**, **Delete screen** and
    **Move to plugin**. The entry screen and a screen another screen navigates to cannot be deleted
    until you choose another entry or remove the link.
-4. Use the preview switches to see the screen on a **Device frame** (or a **Custom frame**), in
+4. Under **Preview**, use the preview switches to see the screen on a **Device frame** (or a **Custom frame**), in
    **Light** or **Dark**, in any **Locale**, at a **Text scale**, in **Material** or **Cupertino**
    style, and in the **Success**, **Loading**, **Empty** or **Error** data state. The **Device matrix**
    shows several frames at once.

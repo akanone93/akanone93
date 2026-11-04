@@ -3,7 +3,8 @@
 
 import { useLingui } from "@lingui/react";
 import type { WidgetDescriptor } from "@plux/schema";
-import { Button, Input, LayerTree, Tabs, TypeTag } from "@plux/ui";
+import { Icon, type IconName, LayerTree, TypeTag } from "@plux/ui";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ComponentProps, type DragEvent, type ReactElement, useMemo, useState } from "react";
 import type { DesignerDocument } from "../designers/use-document.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
@@ -14,7 +15,17 @@ import { itemIdOf, type NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { assetsMessages } from "./assets.messages.ts";
 import { AssetsTab } from "./assets-tab.tsx";
-import { catalogue, groupOf, insertGroups, search } from "./catalogue.ts";
+import {
+  catalogue,
+  groupOf,
+  insertGroups,
+  kindIcon,
+  kindOf,
+  search,
+  type WidgetKind,
+  widgetKinds,
+} from "./catalogue.ts";
+import { DockTabs, type Pane } from "./dock-tabs.tsx";
 import { insertionPoint, insertWidget, modelOf, moveLayer } from "./model.ts";
 import { panelsMessages } from "./panels.messages.ts";
 import { selectIds, treeNodes } from "./selection-model.ts";
@@ -100,78 +111,141 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   const types = selection.ids.map((id) => index.type.get(id) ?? id);
   const summary = [...new Set(types)].map((t) => `${types.filter((x) => x === t).length} ${t}`).join(", ");
 
-  const tabs = [
+  const [kind, setKind] = useState<WidgetKind | "all">("all");
+  const kindLabel: Record<WidgetKind, string> = {
+    layout: m.kindLayout,
+    content: m.kindContent,
+    input: m.kindInput,
+    interaction: m.kindInteraction,
+    navigation: m.kindNavigation,
+    motion: m.kindMotion,
+    platform: m.kindPlatform,
+    more: m.kindMore,
+  };
+  const basics = found.filter((d) => groupOf(d) === "layer1");
+  const sections = [
+    ...widgetKinds.map((k) => ({
+      key: k as string,
+      label: kindLabel[k],
+      icon: kindIcon[k] as IconName,
+      list: kind === "all" || kind === k ? basics.filter((d) => kindOf(d) === k) : [],
+    })),
+    ...insertGroups
+      .filter((g) => g !== "layer1")
+      .map((g) => ({
+        key: g as string,
+        label: m[g],
+        icon: (g === "layer2" ? "component" : "puzzle-piece") as IconName,
+        list: kind === "all" ? found.filter((d) => groupOf(d) === g) : [],
+      })),
+  ].filter((x) => x.list.length > 0);
+  const tile = (d: WidgetDescriptor, icon: IconName, kind: string) => (
+    <li key={d.type} draggable={canEdit} onDragStart={(e) => startDrag(e, d)}>
+      <button
+        type="button"
+        className="gallery-tile"
+        disabled={!canEdit}
+        aria-label={m.insert(d.type)}
+        title={d.description}
+        onClick={() => insert(d)}
+      >
+        <span className="gallery-glyph" data-kind={kind} aria-hidden="true">
+          <Icon name={icon} />
+        </span>
+        <span className="gallery-name">{d.type}</span>
+      </button>
+    </li>
+  );
+
+  const panes: readonly Pane[] = [
     {
       value: "insert",
       label: m.insertTab,
+      icon: "plus",
+      meta: String(found.length),
       panel: (
         <div className="flex flex-col gap-3">
-          <Input
-            aria-label={m.search}
-            placeholder={m.search}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          {!canEdit && <p className="text-body text-muted-foreground">{m.readOnly}</p>}
+          <InputGroup>
+            <InputGroupAddon>
+              <Icon name="magnifying-glass" />
+            </InputGroupAddon>
+            <InputGroupInput
+              aria-label={m.search}
+              placeholder={m.search}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </InputGroup>
+          {/* biome-ignore lint/a11y/useSemanticElements: a labelled group of filter toggles, not a form's fieldset */}
+          <div role="group" aria-label={m.kindAll} className="gallery-kinds">
+            {(["all", ...widgetKinds] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                className="gallery-kind"
+                aria-pressed={kind === k}
+                onClick={() => setKind(k)}
+              >
+                {k === "all" ? m.kindAll : kindLabel[k]}
+              </button>
+            ))}
+          </div>
+          {!canEdit && <p className="text-xs text-muted-foreground">{m.readOnly}</p>}
           {note !== null && (
-            <p role="status" className="text-body text-muted-foreground">
+            <p role="status" className="text-xs text-muted-foreground">
               {note}
             </p>
           )}
-          {found.length === 0 && <p className="text-body text-muted-foreground">{m.noMatches}</p>}
-          {insertGroups.map((g) => {
-            const list = found.filter((d) => groupOf(d) === g);
-            return list.length === 0 ? null : (
-              <section key={g} aria-label={m[g]} className="flex flex-col gap-1">
-                <h3 className="text-label font-medium text-muted-foreground">{m[g]}</h3>
-                <ul className="flex flex-col gap-0.5">
-                  {list.map((d) => (
-                    <li key={d.type} draggable={canEdit} onDragStart={(e) => startDrag(e, d)}>
-                      <Button
-                        disabled={!canEdit}
-                        aria-label={m.insert(d.type)}
-                        title={d.description}
-                        onClick={() => insert(d)}
-                      >
-                        {d.type}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
+          {sections.length === 0 && <p className="text-xs text-muted-foreground">{m.noMatches}</p>}
+          {sections.map((x) => (
+            <section key={x.key} aria-label={x.label} className="flex flex-col gap-2">
+              <h3 className="gallery-heading">
+                <Icon name={x.icon} size="pill" />
+                <span className="flex-1">{x.label}</span>
+                <span className="gallery-count">{x.list.length}</span>
+              </h3>
+              <ul className="gallery-grid">{x.list.map((d) => tile(d, x.icon, x.key))}</ul>
+            </section>
+          ))}
         </div>
       ),
     },
     {
       value: "layers",
       label: m.layersTab,
+      icon: "tree-structure",
+      meta: String(props.screens.length),
       panel: (
-        <LayerTree
-          nodes={nodes}
-          rootId="plugin"
-          label={m.layersLabel}
-          dir={rtl ? "rtl" : "ltr"}
-          selected={selection.ids}
-          onSelect={select}
-          onDrop={canEdit ? (d, t, half) => moveLayer(model, index, d, t, half, edit, docOf, canEdit) : undefined}
-        />
+        <div className="plugin-layers">
+          <LayerTree
+            nodes={nodes}
+            rootId="plugin"
+            label={m.layersLabel}
+            dir={rtl ? "rtl" : "ltr"}
+            selected={selection.ids}
+            onSelect={select}
+            onDrop={canEdit ? (d, t, half) => moveLayer(model, index, d, t, half, edit, docOf, canEdit) : undefined}
+          />
+        </div>
       ),
     },
     {
       value: "screens",
       label: m.screensTab,
+      icon: "device-mobile",
+      meta: String(props.screens.length),
       panel: (
-        <ul aria-label={m.screensLabel} className="flex flex-col gap-0.5">
+        <ul aria-label={m.screensLabel} className="flex flex-col gap-1">
           {props.screens.map((s) => (
             <li key={s.id}>
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-start text-body hover:bg-hover"
+                className="screen-row"
+                data-current={selection.ids.some((id) => screenOf.get(id) === s.id) ? "" : undefined}
                 onClick={() => s.root !== undefined && select(s.root.id, false)}
               >
-                <span className="truncate">{s.title}</span>
+                <span className="screen-glyph" aria-hidden="true" />
+                <span className="min-w-0 flex-1 truncate">{s.title}</span>
                 {s.id === props.entryPage && <TypeTag>{m.entryScreen}</TypeTag>}
               </button>
             </li>
@@ -181,35 +255,46 @@ export function LeftDock(props: LeftDockProps): ReactElement {
     },
     ...(props.assets === undefined
       ? []
-      : [{ value: "assets", label: assetsMessages(i18n).tab, panel: <AssetsTab {...props.assets} /> }]),
+      : [
+          {
+            value: "assets",
+            label: assetsMessages(i18n).tab,
+            icon: "image" as IconName,
+            panel: <AssetsTab {...props.assets} />,
+          },
+        ]),
     {
       value: "state",
       label: tm.stateTab,
+      icon: "braces",
       panel: <StateTab documents={props.documents} onOpen={props.onOpenState} />,
     },
     {
       value: "data",
       label: tm.dataTab,
+      icon: "database",
       panel: <DataTab documents={props.documents} onOpen={props.onOpenData} />,
     },
     {
       value: "selection",
       label: m.selectionTab,
+      icon: "cursor",
+      meta: String(selection.ids.length),
       panel:
         selection.ids.length === 0 ? (
-          <p className="text-body text-muted-foreground">{m.noSelection}</p>
+          <p className="text-xs text-muted-foreground">{m.noSelection}</p>
         ) : (
           <div className="flex flex-col gap-2">
             {selection.ids.length > 1 && (
-              <p className="text-body">
+              <p className="text-sm">
                 {m.selectedCount(selection.ids.length)} ({summary})
               </p>
             )}
-            <ul aria-label={m.selectionLabel} className="flex flex-col gap-0.5">
+            <ul aria-label={m.selectionLabel} className="flex flex-col gap-1">
               {selection.ids.map((id) => (
-                <li key={id} className="flex items-center gap-2 text-body">
+                <li key={id} className="screen-row">
                   <TypeTag>{index.type.get(id) ?? "?"}</TypeTag>
-                  <code className="truncate text-muted-foreground">{id}</code>
+                  <code className="truncate text-xs text-muted-foreground">{id}</code>
                 </li>
               ))}
             </ul>
@@ -219,11 +304,8 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   ];
 
   return (
-    <aside
-      aria-label={m.dock}
-      className="absolute start-3 top-3 bottom-16 z-10 flex w-1/5 flex-col gap-2 overflow-y-auto rounded-lg bg-raised p-3 shadow-e1"
-    >
-      <Tabs defaultValue="insert" tabs={tabs} />
+    <aside aria-label={m.dock} className="plugin-dock plugin-dock-start canvas-panel canvas-side glass">
+      <DockTabs panes={panes} defaultValue="insert" />
     </aside>
   );
 }

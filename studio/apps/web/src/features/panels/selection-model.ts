@@ -37,5 +37,12 @@ export function treeNodes(
     const type = index.type.get(id) ?? "?";
     out[id] = { id, name: type, type, children: kids };
   }
+  // A screen's root reads as its screen: the tree then lists the plugin's screens, each over its widgets.
+  for (const s of screens) {
+    const root = s.root === undefined ? undefined : out[s.root.id];
+    if (root !== undefined && s.title !== "") {
+      out[root.id] = { ...root, name: s.title };
+    }
+  }
   return out;
 }

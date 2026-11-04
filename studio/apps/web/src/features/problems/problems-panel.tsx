@@ -88,7 +88,7 @@ export function ProblemsContent({ validation }: { readonly validation: Validatio
 export function ProblemsDrawer({ validation }: { readonly validation: Validation }) {
   const m = problemsMessages(useLingui().i18n);
   return (
-    <aside aria-label={m.drawer} className="max-h-64 overflow-auto rounded-lg bg-raised p-3 shadow-e1">
+    <aside aria-label={m.drawer} className="canvas-panel glass max-h-48 overflow-auto px-3 py-2">
       <Tabs
         defaultValue="problems"
         tabs={[{ value: "problems", label: m.tab, panel: <ProblemsContent validation={validation} /> }]}

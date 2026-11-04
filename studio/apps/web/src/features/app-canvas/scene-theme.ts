@@ -91,6 +91,13 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     secondary: colour(token("muted-foreground")),
     divider: colour(token("border")),
     footer: mix("foreground", 3),
+    sheen: colour(`color-mix(in oklch, white 7%, ${token("card")})`),
+    hues: [1, 2, 3, 4, 5].map((i) => ({
+      solid: colour(token(`chart-${i}`)),
+      soft: mix(`chart-${i}`, 12),
+      strong: mix(`chart-${i}`, 30),
+      line: mix(`chart-${i}`, 48),
+    })),
     chip: colour(token("muted")),
     chipText: colour(token("muted-foreground")),
     tile: colour(token("primary")),
@@ -119,13 +126,16 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
   };
   // A step off the page (white cards stand off it in light), and the grid's dots a quiet step further, so the canvas
   // reads as a surface without competing with the cards on it.
-  // The page's background with a breath of cool blue: app-canvas.css paints the same `--canvas-surface` under it.
-  const background = colour(`color-mix(in oklch, ${token("background")} 91%, ${CANVAS_TINT})`);
+  // In light, the page's background with a breath of cool blue; in dark the page's own background, as the content
+  // pages have it. app-canvas.css paints the same `--canvas-surface` under the canvas.
+  const surface =
+    root.dataset["theme"] === "dark"
+      ? token("background")
+      : `color-mix(in oklch, ${token("background")} 91%, ${CANVAS_TINT})`;
+  const background = colour(surface);
   const grid: GridStyle = {
     ...GRID,
-    color: colour(
-      `color-mix(in oklch, ${token("muted-foreground")} 28%, color-mix(in oklch, ${token("background")} 91%, ${CANVAS_TINT}))`,
-    ),
+    color: colour(`color-mix(in oklch, ${token("muted-foreground")} 28%, ${surface})`),
   };
   const key = [background, grid.color, style.fill, style.title, line].join(":");
   return { key, background, grid, style, arrows };

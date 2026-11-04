@@ -1,0 +1,492 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * The plugin editor's shell over the canvas (STU-050, ADR-0103): the top bar across the top, the docks below it on
+ * either side (a rail of icon tabs and the open pane), the zoom at the bottom start and the device bay between the
+ * docks, all on the canvas's glass (styles/canvas.css).
+ */
+
+.plugin-canvas {
+  --dock-top: calc(var(--spacing) * 17);
+  --dock-gap: calc(var(--spacing) * 3);
+  --dock-start-width: 19.5rem;
+  --dock-end-width: 22rem;
+}
+
+/* The docks: full height below the top bar, a rail and a pane each. */
+.plugin-dock {
+  position: absolute;
+  inset-block: var(--dock-top) var(--dock-gap);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.plugin-dock-start {
+  inset-inline-start: var(--dock-gap);
+  inline-size: var(--dock-start-width);
+}
+
+.plugin-dock-end {
+  inset-inline-end: var(--dock-gap);
+  inline-size: var(--dock-end-width);
+}
+
+.plugin-zoom {
+  inset-inline-start: calc(var(--dock-gap) * 2 + var(--dock-start-width));
+}
+
+/* The device bay and the problems: between the docks, clear of the zoom, centred and never wider than a column. */
+.plugin-bay {
+  inset-inline: calc(var(--dock-gap) * 2 + var(--dock-start-width) + 13rem)
+    calc(var(--dock-gap) * 2 + var(--dock-end-width));
+  align-items: center;
+}
+
+.plugin-bay > * {
+  inline-size: 100%;
+  max-inline-size: 38rem;
+}
+
+.plugin-bay > .canvas-bar {
+  inline-size: auto;
+}
+
+/* A dock's tabs: the rail of icons along the start, the pane beside it. */
+.dock-tabs {
+  flex: 1;
+  min-block-size: 0;
+  gap: 0;
+}
+
+.dock-tabs > .dock-rail {
+  block-size: 100%;
+  justify-content: flex-start;
+  gap: calc(var(--spacing) * 1);
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 1.5);
+  border-inline-end: 1px solid var(--canvas-glass-edge);
+  border-radius: 0;
+  background-color: color-mix(in oklch, var(--muted) 35%, transparent);
+}
+
+.dock-rail-tab {
+  flex: none;
+  inline-size: calc(var(--spacing) * 9);
+  block-size: calc(var(--spacing) * 9);
+  justify-content: center;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  color: var(--muted-foreground);
+}
+
+.dock-rail-tab:hover {
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--foreground) 6%, transparent);
+}
+
+.dock-rail-tab[data-active] {
+  color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 13%, transparent);
+}
+
+.dock-rail-tab::after {
+  display: none;
+}
+
+.dock-pane {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.dock-pane-head {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3.5) calc(var(--spacing) * 2);
+}
+
+.dock-pane-head h2 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.dock-pane-meta,
+.gallery-count,
+.inspector-count,
+.prop-section-count {
+  padding: 0 calc(var(--spacing) * 1.75);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+  background-color: color-mix(in oklch, var(--muted) 80%, transparent);
+}
+
+.dock-pane-body {
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3) calc(var(--spacing) * 3);
+  scrollbar-width: thin;
+}
+
+/* The Insert gallery: kind chips, then a section per kind of two-column tiles, each draggable onto a screen. */
+.gallery-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.gallery-kind {
+  padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 2.5);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  color: var(--muted-foreground);
+  transition:
+    color var(--duration-fast, 120ms) ease,
+    background-color var(--duration-fast, 120ms) ease;
+}
+
+.gallery-kind:hover {
+  color: var(--foreground);
+}
+
+.gallery-kind[aria-pressed="true"] {
+  border-color: transparent;
+  color: var(--background);
+  background-color: var(--foreground);
+}
+
+.gallery-heading {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.gallery-tile {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 1.5);
+  border: 1px solid color-mix(in oklch, var(--foreground) 7%, transparent);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-xs);
+  text-align: start;
+  background-color: color-mix(in oklch, var(--card) 70%, transparent);
+  cursor: grab;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    translate 120ms ease;
+}
+
+.gallery-tile:hover {
+  border-color: color-mix(in oklch, var(--primary) 40%, transparent);
+  background-color: var(--card);
+  box-shadow: var(--elevation-1);
+  translate: 0 -1px;
+}
+
+.gallery-tile:active {
+  cursor: grabbing;
+}
+
+.gallery-tile:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gallery-tile:focus-visible,
+.gallery-kind:focus-visible,
+.screen-row:focus-visible,
+.inspector-tool:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.gallery-glyph {
+  --hue: var(--primary);
+
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 6.5);
+  block-size: calc(var(--spacing) * 6.5);
+  border-radius: calc(var(--radius-lg) - 2px);
+  color: var(--hue);
+  background-color: color-mix(in oklch, var(--hue) 13%, transparent);
+}
+
+.gallery-glyph[data-kind="layout"] {
+  --hue: var(--chart-1);
+}
+
+.gallery-glyph[data-kind="content"] {
+  --hue: var(--chart-2);
+}
+
+.gallery-glyph[data-kind="input"] {
+  --hue: var(--chart-3);
+}
+
+.gallery-glyph[data-kind="interaction"] {
+  --hue: var(--chart-4);
+}
+
+.gallery-glyph[data-kind="navigation"] {
+  --hue: var(--chart-5);
+}
+
+.gallery-glyph[data-kind="motion"] {
+  --hue: var(--chart-2);
+}
+
+.gallery-name {
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Screens and the selection: rows with a phone glyph; the screen of the selection is marked. */
+.screen-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2.5);
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 2);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  text-align: start;
+}
+
+button.screen-row:hover {
+  background-color: color-mix(in oklch, var(--foreground) 6%, transparent);
+}
+
+.screen-row[data-current] {
+  color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 11%, transparent);
+}
+
+.screen-glyph {
+  flex: none;
+  inline-size: calc(var(--spacing) * 3.5);
+  block-size: calc(var(--spacing) * 5.5);
+  border: 1.5px solid currentColor;
+  border-radius: calc(var(--spacing) * 1);
+  opacity: 0.6;
+}
+
+/* The inspector: who is selected, the editors, the tabs as a two-row grid, and the open tab. */
+.inspector-head {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2.5);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3.5);
+  border-block-end: 1px solid var(--canvas-glass-edge);
+}
+
+.inspector-glyph {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 9);
+  block-size: calc(var(--spacing) * 9);
+  border-radius: var(--radius-lg);
+  color: var(--primary-foreground);
+  background-color: var(--primary);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 25%),
+    var(--elevation-1);
+}
+
+.inspector-count {
+  color: var(--primary-foreground);
+  background-color: var(--primary);
+}
+
+.inspector-screen {
+  max-inline-size: 7rem;
+  overflow: hidden;
+  padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 2);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--muted-foreground);
+  background-color: color-mix(in oklch, var(--muted) 80%, transparent);
+}
+
+.inspector-tools {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 3.5);
+  border-block-end: 1px solid var(--canvas-glass-edge);
+}
+
+.inspector-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.inspector-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: calc(var(--spacing) * 1);
+}
+
+.inspector-tool {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  color: color-mix(in oklch, var(--foreground) 75%, transparent);
+  background-color: color-mix(in oklch, var(--muted) 55%, transparent);
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.inspector-tool:hover {
+  border-color: color-mix(in oklch, var(--primary) 25%, transparent);
+  color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+.inspector-tabs-root {
+  flex: 1;
+  min-block-size: 0;
+  gap: 0;
+}
+
+.inspector-tabs-root > .inspector-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: calc(var(--spacing) * 1);
+  inline-size: auto;
+  block-size: auto;
+  margin: calc(var(--spacing) * 2.5) calc(var(--spacing) * 3) 0;
+  padding: calc(var(--spacing) * 1);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in oklch, var(--muted) 60%, transparent);
+}
+
+.inspector-tabs > .inspector-tab {
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.75);
+  min-inline-size: 0;
+  block-size: auto;
+  padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 0.5);
+  border-radius: calc(var(--radius-lg) - 2px);
+  font-size: 0.6875rem;
+  letter-spacing: -0.01em;
+}
+
+.inspector-tab > span {
+  max-inline-size: 100%;
+}
+
+.inspector-tabs > .inspector-tab[data-active] {
+  color: var(--foreground);
+  background-color: var(--background);
+  box-shadow: var(--elevation-1);
+}
+
+.inspector-body {
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3.5) calc(var(--spacing) * 3.5);
+  scrollbar-width: thin;
+}
+
+.inspector-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 10) calc(var(--spacing) * 4);
+  font-size: var(--text-sm);
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+.inspector-empty::before {
+  content: "";
+  inline-size: calc(var(--spacing) * 12);
+  block-size: calc(var(--spacing) * 12);
+  border: 1.5px dashed color-mix(in oklch, var(--muted-foreground) 45%, transparent);
+  border-radius: var(--radius-xl);
+  background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+}
+
+/* The properties in sections that fold away: Content, Layout, Appearance, Behaviour, Other. */
+.prop-section {
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--foreground) 7%, transparent);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in oklch, var(--card) 55%, transparent);
+}
+
+.prop-section-head {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2.5);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.prop-section-head:hover {
+  background-color: color-mix(in oklch, var(--foreground) 4%, transparent);
+}
+
+.prop-section-caret {
+  transition: rotate 150ms ease;
+}
+
+.prop-section-head:not([data-panel-open]) .prop-section-caret {
+  rotate: -90deg;
+}
+
+.prop-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2.5);
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2.5) calc(var(--spacing) * 3);
+}
+
+/*
+ * The docks are large and the screens under them are bright: a light fill let a white screen turn a dark dock grey.
+ * The docks keep the blur and the edge, on a fill that lets only a breath of the canvas through.
+ */
+.plugin-dock.glass {
+  background-color: color-mix(in oklch, var(--popover) 90%, transparent);
+  background-image: none;
+}
+
+[data-theme="dark"] .plugin-dock.glass {
+  background-color: color-mix(in oklch, var(--popover) 95%, transparent);
+}

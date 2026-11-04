@@ -100,8 +100,8 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
     }
   };
   return (
-    <div className="absolute inset-x-4 bottom-12 flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="plugin-bay absolute bottom-3 z-10 flex flex-col gap-2">
+      <div className="canvas-panel canvas-bar glass flex items-center gap-2 self-center px-2">
         <Button size="sm" variant="secondary" aria-expanded={shown} onClick={() => setShown(!shown)}>
           {m.bayToggle}
         </Button>
@@ -114,7 +114,7 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
       {!shown && props.collapsed}
       {shown && sessionId !== undefined && (
         <>
-          <div className="flex flex-wrap items-center gap-2 rounded-lg bg-raised p-2 shadow-e1">
+          <div className="canvas-panel glass flex flex-wrap items-center gap-2 p-2">
             <Button
               size="sm"
               variant={highlight ? "primary" : "ghost"}

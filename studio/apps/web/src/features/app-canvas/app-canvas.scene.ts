@@ -69,8 +69,10 @@ export interface SceneBox extends PlacedBox {
   readonly badges: readonly Badge[];
   /** The line under the name; the key when absent. */
   readonly subtitle?: string;
-  /** The figures of the card's middle row, each a number over its label; none for a native target. */
-  readonly stats?: readonly { readonly value: string; readonly label: string }[];
+  /** How many screens the plugin has: the strip shows one miniature each, the entry screen first; none when absent. */
+  readonly screens?: number;
+  /** The figures beside the strip, one per line at the card's end (how many screens, how many links). */
+  readonly figures?: readonly string[];
   /** The release chip: the newest version (`v3`) or `Draft`; none for a native target. */
   readonly release?: string;
 }
@@ -133,6 +135,19 @@ export interface AppSceneStyle {
   readonly frameStroke: ColorRgba;
   readonly focus: ColorRgba;
   readonly pills: Readonly<Record<BadgeStatus, Pill>>;
+  /** A light line along the card's top edge: lit glass in dark, the card itself in light. */
+  readonly sheen: ColorRgba;
+  /** The plugin hues (the theme's five chart colours): each box takes one, by its key, for its mark and screens. */
+  readonly hues: readonly Hue[];
+}
+
+/** One plugin hue: the solid mark, and its tints into the card for the screens of the strip. */
+export interface Hue {
+  readonly solid: ColorRgba;
+  /** A screen: its fill and outline; the entry screen is filled a step stronger. */
+  readonly soft: ColorRgba;
+  readonly strong: ColorRgba;
+  readonly line: ColorRgba;
 }
 
 export const appSceneStyle: AppSceneStyle = {
@@ -153,6 +168,15 @@ export const appSceneStyle: AppSceneStyle = {
   frameFill: rgba(primitives["navy.900"], 0x08),
   frameStroke: rgba(primitives["navy.900"], 0x30),
   focus: rgba(primitives["violet.700"]),
+  sheen: rgba(primitives.white),
+  hues: [
+    {
+      solid: rgba(primitives["violet.700"]),
+      soft: rgba(primitives["violet.700"], 0x1c),
+      strong: rgba(primitives["violet.700"], 0x40),
+      line: rgba(primitives["violet.700"], 0x70),
+    },
+  ],
   pills: {
     neutral: {
       fill: rgba(primitives["porcelain.100"]),
@@ -225,23 +249,30 @@ export function boxLayers(boxes: readonly PlacedBox[]): number[] {
 }
 
 /**
- * The card's geometry in world units (STU-030), on the 260 × 152 box: a head with the plugin's solid mark (a tile with
- * its initial), its name and key and the release chip; a row of figures (screens, versions, links); and a status strip
- * along the foot with the badges as pills.
+ * The card's geometry in world units (STU-030), on the 260 × 152 box: a head with the plugin's mark (a tile in its hue
+ * with its initial), its name and key and the release chip; a strip of miniature screens in its hue with the figures at
+ * its end; and a status strip along the foot with the badges as pills.
  */
 const CARD = {
   radius: 16,
   pad: 16,
   tile: 36,
-  tileRadius: 10,
+  tileRadius: 11,
   /** Where the name and the line under it start: after the tile and a gap. */
   text: 16 + 36 + 12,
   chipWidth: 52,
   chipHeight: 20,
-  statsTop: 66,
+  /** The strip of screens: its top, and one miniature's size, corner and step. */
+  stripTop: 64,
+  phoneWidth: 20,
+  phoneHeight: 34,
+  phoneRadius: 5,
+  phoneStep: 26,
+  /** At most this many miniatures; the rest are counted. */
+  phones: 5,
   /** The status strip: its top edge, and the pills' top within the card. */
-  footer: 108,
-  pillsTop: 120,
+  footer: 112,
+  pillsTop: 122,
   pillHeight: 20,
 } as const;
 
@@ -295,6 +326,15 @@ export function layoutPills(badges: readonly Badge[], inner: number, rows: numbe
     out.pop();
   }
   return out;
+}
+
+/** The hue a box takes, by its key: stable across sessions and machines, spread over the theme's hues. */
+export function hueOf(key: string, hues: number): number {
+  let h = 0;
+  for (const c of key) {
+    h = (h * 31 + (c.codePointAt(0) ?? 0)) % 9973;
+  }
+  return hues > 0 ? h % hues : 0;
 }
 
 /** The initial on a box's tile: the first character of its title, in capitals. */
@@ -369,6 +409,7 @@ export function boxItems(
   const main = boxItem(b.id);
   const { pad } = CARD;
   const muted = b.native || b.archived;
+  const hue = style.hues[hueOf(b.key, style.hues.length)] ?? style.hues[0];
   const over = z + band / 4;
   const top = z + band / 2;
   const chip = b.release === undefined ? 0 : CARD.chipWidth + 8;
@@ -395,7 +436,18 @@ export function boxItems(
       w: CARD.tile,
       h: CARD.tile,
       radius: CARD.tileRadius,
-      fill: muted ? style.mutedTile : style.tile,
+      fill: muted || hue === undefined ? style.mutedTile : hue.solid,
+      z: over,
+    },
+    {
+      kind: "rect",
+      id: `${main}::sheen`,
+      x: b.x + CARD.radius,
+      y: b.y + 1,
+      w: BOX.width - 2 * CARD.radius,
+      h: 1,
+      radius: 0,
+      fill: style.sheen,
       z: over,
     },
     {
@@ -467,44 +519,89 @@ export function boxItems(
       },
     );
   }
-  items.push(...statItems(main, b, over, style));
+  if (hue !== undefined && !muted) {
+    items.push(...stripItems(main, b, { over, top }, hue, style));
+  }
   if (b.badges.length > 0) {
     items.push(...footerItems(main, b, { z, band, over, top }, style));
   }
   return items;
 }
 
-/** The card's figures: up to three columns, each its number in bold over its label. */
-function statItems(main: string, b: SceneBox, z: number, style: AppSceneStyle): ItemSpec[] {
-  const stats = b.stats ?? [];
-  const column = (BOX.width - 2 * CARD.pad) / 3;
-  return stats.slice(0, 3).flatMap((stat, i): ItemSpec[] => [
-    {
+/**
+ * The strip of miniature screens: one phone per screen in the plugin's hue, the entry screen filled a step stronger,
+ * each with a notch along its top; beyond `CARD.phones` a count; and the figures at the card's end, one per line.
+ */
+function stripItems(
+  main: string,
+  b: SceneBox,
+  at: { readonly over: number; readonly top: number },
+  hue: Hue,
+  style: AppSceneStyle,
+): ItemSpec[] {
+  const count = b.screens ?? 0;
+  const shown = Math.min(count, CARD.phones);
+  const y = b.y + CARD.stripTop;
+  const items: ItemSpec[] = [];
+  for (let i = 0; i < shown; i++) {
+    const x = b.x + CARD.pad + i * CARD.phoneStep;
+    items.push(
+      {
+        kind: "rect",
+        id: `${main}::phone${i}`,
+        x,
+        y,
+        w: CARD.phoneWidth,
+        h: CARD.phoneHeight,
+        radius: CARD.phoneRadius,
+        fill: i === 0 ? hue.strong : hue.soft,
+        stroke: { color: hue.line, width: 1 },
+        z: at.over,
+      },
+      {
+        kind: "rect",
+        id: `${main}::phone${i}n`,
+        x: x + 6,
+        y: y + 4,
+        w: CARD.phoneWidth - 12,
+        h: 2,
+        radius: 1,
+        fill: hue.line,
+        z: at.top,
+      },
+    );
+  }
+  if (count > shown) {
+    items.push({
       kind: "text",
-      id: `${main}::stat${i}`,
-      x: b.x + CARD.pad + i * column,
-      y: b.y + CARD.statsTop,
-      w: column - 8,
-      text: stat.value,
-      size: 15,
+      id: `${main}::more`,
+      x: b.x + CARD.pad + shown * CARD.phoneStep,
+      y: y + 10,
+      w: 40,
+      text: `+${count - shown}`,
+      size: 12,
       weight: "bold",
-      maxLines: 1,
-      color: style.title,
-      z,
-    },
-    {
-      kind: "text",
-      id: `${main}::stat${i}l`,
-      x: b.x + CARD.pad + i * column,
-      y: b.y + CARD.statsTop + 20,
-      w: column - 8,
-      text: stat.label,
-      size: 11,
-      maxLines: 1,
       color: style.secondary,
-      z,
-    },
-  ]);
+      z: at.over,
+    });
+  }
+  for (const [i, figure] of (b.figures ?? []).slice(0, 2).entries()) {
+    items.push({
+      kind: "text",
+      id: `${main}::figure${i}`,
+      x: b.x + BOX.width - CARD.pad - 96,
+      y: y + 2 + i * 17,
+      w: 96,
+      text: figure,
+      size: i === 0 ? 12 : 11,
+      ...(i === 0 ? { weight: "bold" as const } : {}),
+      align: "end",
+      maxLines: 1,
+      color: i === 0 ? style.title : style.secondary,
+      z: at.over,
+    });
+  }
+  return items;
 }
 
 /**

@@ -3,7 +3,7 @@
 
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import { createStudioI18n } from "@plux/i18n";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { type Command, CommandsProvider, createRegistry } from "../../lib/commands/index.ts";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
@@ -110,19 +110,22 @@ const off = (b: HTMLElement) => b.hasAttribute("disabled") || b.getAttribute("ar
 const idle = { send: () => undefined, pair: () => undefined, history: () => undefined };
 
 describe("[STU-060] action bar controls", () => {
-  test("the toolbar holds frame, theme, locale, text scale, send, history and Publish in that order", async () => {
+  test("the toolbar holds the preview switches, send, history and Publish in that order; the switches open as a popover", async () => {
     mountFull({ canSend: true, canPublish: true, onPublish: () => undefined }, idle);
     const bar = await screen.findByRole("toolbar", { name: "Canvas actions" });
-    const text = bar.textContent ?? "";
-    const marks = ["Device frame", "Theme", "Locale", "Text scale", "Send to device", "Publish"].map((t) =>
-      text.indexOf(t),
-    );
+    const buttons = [...bar.querySelectorAll("button")];
+    const at = (name: string) =>
+      buttons.findIndex((b) => b.getAttribute("aria-label") === name || (b.textContent ?? "").trim() === name);
+    const order = ["Preview", "Send to device", "History", "Publish"].map(at);
+    expect(order.every((x) => x >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    // The preview switches (frame, theme, locale, text scale) are in the Preview popover, in that order.
+    fireEvent.click(within(bar).getByRole("button", { name: "Preview" }));
+    const popover = await screen.findByRole("dialog");
+    const text = popover.textContent ?? "";
+    const marks = ["Device frame", "Theme", "Locale", "Text scale"].map((t) => text.indexOf(t));
     expect(marks.every((x) => x >= 0)).toBe(true);
     expect([...marks].sort((a, b) => a - b)).toEqual(marks);
-    const buttons = [...bar.querySelectorAll("button")];
-    const at = (name: string) => buttons.findIndex((b) => (b.textContent || b.getAttribute("aria-label")) === name);
-    expect(at("Send to device")).toBeLessThan(at("History"));
-    expect(at("History")).toBeLessThan(at("Publish"));
   });
 
   test("send, pair, history and Publish each fire their action", async () => {
@@ -160,12 +163,16 @@ describe("[STU-060] action bar controls", () => {
 });
 
 describe("action bar layout (S6.5)", () => {
-  test("the bar lane leaves the dock columns clear and does not catch pointer events", async () => {
+  test("the bar lane runs across the top, above the docks, and does not catch pointer events; the zoom sits apart", async () => {
     mount([]);
     const bar = await screen.findByRole("toolbar", { name: "Canvas actions" });
     const lane = bar.parentElement as HTMLElement;
     expect(lane.className).toContain("pointer-events-none");
-    expect(lane.className).toContain("inset-x-1/4");
+    expect(lane.className).toContain("plugin-topbar");
+    expect(lane.className).toContain("top-3");
     expect(bar.className).toContain("pointer-events-auto");
+    const zoom = screen.getByRole("group", { name: "Zoom" });
+    expect(bar.contains(zoom)).toBe(false);
+    expect(within(zoom).getByRole("button", { name: "Zoom in" })).toBeTruthy();
   });
 });

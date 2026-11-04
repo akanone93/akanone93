@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, GlassCapsule, Icon, Menu, Select } from "@plux/ui";
+import { Button, Icon, Menu, Popover, Select } from "@plux/ui";
+import { Separator } from "@plux/ui/components/separator";
 import type { KeyboardEvent, ReactNode } from "react";
 import { commandMessages } from "../../lib/commands/commands.messages.ts";
 import { useOptionalCommands } from "../../lib/commands/index.ts";
@@ -55,6 +56,16 @@ function rove(event: KeyboardEvent<HTMLElement>): void {
 }
 
 /** Undo and redo run the registered `edit.undo` and `edit.redo` commands and stay disabled while none is registered. */
+/** A thin rule between the groups of a bar. */
+function Divider(): ReactNode {
+  return <Separator orientation="vertical" className="mx-1 h-6" />;
+}
+
+/**
+ * The plugin canvas's top bar (STU-060), one toolbar in four groups on the canvas's glass: the screens (new, the
+ * current one, its menu), history (undo, redo), the checks (problem counts), and the way out (the preview switches in a
+ * popover, send to and pair a device, the history overlay, Publish). The zoom sits apart, at the bottom start.
+ */
 export function ActionBar(props: ActionBarProps) {
   const { i18n } = useLingui();
   const m = pluginCanvasMessages(i18n);
@@ -69,61 +80,124 @@ export function ActionBar(props: ActionBarProps) {
   const needs = commandMessages(i18n).missing;
   const publishReason = props.canPublish ? undefined : needs("release.publish");
   return (
-    <div className="pointer-events-none absolute inset-x-1/4 top-3 z-10 flex justify-center">
-      <GlassCapsule
-        role="toolbar"
-        label={m.actionBar}
-        className="pointer-events-auto h-auto max-w-full flex-nowrap overflow-x-auto py-1 px-3"
-        onKeyDown={rove}
+    <>
+      <div className="plugin-topbar pointer-events-none absolute inset-x-3 top-3 z-10 flex justify-center">
+        <div
+          role="toolbar"
+          aria-label={m.actionBar}
+          onKeyDown={rove}
+          className="canvas-panel canvas-bar glass pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto p-1.5"
+        >
+          <Button size="sm" variant="ghost" onClick={props.onNewScreen}>
+            <Icon name="plus" size="capsule" />
+            {m.newScreen}
+          </Button>
+          {props.screens.length > 0 && (
+            <Select
+              label={m.currentScreen}
+              value={props.current ?? ""}
+              options={props.screens.map((s) => ({ value: s.id, label: s.title }))}
+              onValueChange={props.onCurrent}
+            />
+          )}
+          {props.onScreenAction !== undefined && props.current !== undefined && (
+            <Menu
+              trigger={
+                <Button size="sm" variant="ghost" aria-label={m.screenMenu}>
+                  <Icon name="dots-three" size="capsule" />
+                </Button>
+              }
+              entries={[
+                { kind: "item", id: "rename", label: m.renameScreen, onSelect: () => props.onScreenAction?.("rename") },
+                { kind: "item", id: "move", label: m.moveScreen, onSelect: () => props.onScreenAction?.("move") },
+                { kind: "item", id: "delete", label: m.deleteScreen, onSelect: () => props.onScreenAction?.("delete") },
+              ]}
+            />
+          )}
+          <Divider />
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={m.undo}
+            disabled={undo?.enabled !== true}
+            onClick={() => void undo?.command.run()}
+          >
+            <Icon name="arrow-counter-clockwise" size="capsule" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={m.redo}
+            disabled={redo?.enabled !== true}
+            onClick={() => void redo?.command.run()}
+          >
+            <Icon name="arrow-clockwise" size="capsule" />
+          </Button>
+          <Divider />
+          <ProblemCounts validation={props.validation} />
+          <Divider />
+          {props.preview !== undefined && (
+            <Popover
+              title={m.preview}
+              trigger={
+                <Button size="sm" variant="ghost">
+                  <Icon name="device-mobile" size="capsule" />
+                  {m.preview}
+                  <Icon name="caret-down" size="capsule" />
+                </Button>
+              }
+            >
+              <div className="flex flex-col gap-3">{props.preview}</div>
+            </Popover>
+          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={devices.sendAction}
+            disabled={!props.canSend || send === undefined}
+            title={props.canSend ? devices.sendAction : needs("devsession.create")}
+            onClick={() => void send?.command.run()}
+          >
+            <Icon name="paper-plane-tilt" size="capsule" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={devices.pairAction}
+            title={devices.pairAction}
+            disabled={!props.canSend || pair === undefined}
+            onClick={() => void pair?.command.run()}
+          >
+            <Icon name="key" size="capsule" />
+          </Button>
+          {props.onHistory !== undefined && (
+            <Button size="sm" variant="ghost" aria-label={history} title={history} onClick={props.onHistory}>
+              <Icon name="clock" size="capsule" />
+            </Button>
+          )}
+          <Divider />
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={!props.canPublish}
+            title={publishReason}
+            onClick={props.onPublish}
+          >
+            <Icon name="rocket-launch" size="capsule" />
+            {m.publish}
+          </Button>
+        </div>
+      </div>
+      {/* biome-ignore lint/a11y/useSemanticElements: a labelled group of zoom controls, as on the app canvas */}
+      <div
+        role="group"
+        aria-label={m.zoomControls}
+        className="plugin-zoom canvas-panel canvas-bar glass absolute bottom-3 z-10 flex gap-0.5 p-1.5"
       >
-        <Button size="sm" variant="ghost" onClick={props.onNewScreen}>
-          <Icon name="plus" size="capsule" />
-          {m.newScreen}
-        </Button>
-        {props.screens.length > 0 && (
-          <Select
-            label={m.currentScreen}
-            value={props.current ?? ""}
-            options={props.screens.map((s) => ({ value: s.id, label: s.title }))}
-            onValueChange={props.onCurrent}
-          />
-        )}
-        {props.onScreenAction !== undefined && props.current !== undefined && (
-          <Menu
-            trigger={
-              <Button size="sm" variant="ghost" aria-label={m.screenMenu}>
-                <Icon name="dots-three" size="capsule" />
-              </Button>
-            }
-            entries={[
-              { kind: "item", id: "rename", label: m.renameScreen, onSelect: () => props.onScreenAction?.("rename") },
-              { kind: "item", id: "move", label: m.moveScreen, onSelect: () => props.onScreenAction?.("move") },
-              { kind: "item", id: "delete", label: m.deleteScreen, onSelect: () => props.onScreenAction?.("delete") },
-            ]}
-          />
-        )}
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={m.undo}
-          disabled={undo?.enabled !== true}
-          onClick={() => void undo?.command.run()}
-        >
-          <Icon name="arrow-counter-clockwise" size="capsule" />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={m.redo}
-          disabled={redo?.enabled !== true}
-          onClick={() => void redo?.command.run()}
-        >
-          <Icon name="arrow-clockwise" size="capsule" />
-        </Button>
         <Button size="sm" variant="ghost" aria-label={m.zoomOut} onClick={() => props.onZoom(1 / 1.25)}>
           <Icon name="minus" size="capsule" />
         </Button>
-        <output aria-label={m.zoom(props.percent)} className="text-data text-foreground">
+        <output aria-label={m.zoom(props.percent)} className="w-12 text-center text-data text-foreground tabular-nums">
           {props.percent}%
         </output>
         <Button size="sm" variant="ghost" aria-label={m.zoomIn} onClick={() => props.onZoom(1.25)}>
@@ -132,40 +206,7 @@ export function ActionBar(props: ActionBarProps) {
         <Button size="sm" variant="ghost" onClick={props.onFit}>
           {m.zoomFit}
         </Button>
-        <ProblemCounts validation={props.validation} />
-        {props.preview}
-        <Button
-          size="sm"
-          variant="ghost"
-          disabled={!props.canSend || send === undefined}
-          title={props.canSend ? undefined : needs("devsession.create")}
-          onClick={() => void send?.command.run()}
-        >
-          {devices.sendAction}
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          disabled={!props.canSend || pair === undefined}
-          onClick={() => void pair?.command.run()}
-        >
-          {devices.pairAction}
-        </Button>
-        {props.onHistory !== undefined && (
-          <Button size="sm" variant="ghost" aria-label={history} onClick={props.onHistory}>
-            <Icon name="clock" size="capsule" />
-          </Button>
-        )}
-        <Button
-          size="sm"
-          variant="primary"
-          disabled={!props.canPublish}
-          title={publishReason}
-          onClick={props.onPublish}
-        >
-          {m.publish}
-        </Button>
-      </GlassCapsule>
-    </div>
+      </div>
+    </>
   );
 }

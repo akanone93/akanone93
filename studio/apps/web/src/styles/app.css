@@ -9,6 +9,8 @@
 @import "./theme.gen.css";
 /* Studio's colour wash, elevation and frosted glass on shadcn's surfaces. */
 @import "./surfaces.css";
+/* The canvases' surface and floating glass panels. */
+@import "./canvas.css";
 /* sonner's own stylesheet: its runtime <style> injection is disabled (vite.config.ts, CSP §11.2). */
 @import "@plux/ui/toast.css";
 

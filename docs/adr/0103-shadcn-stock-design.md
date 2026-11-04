@@ -66,11 +66,19 @@ Chosen option: **shadcn/ui as it ships**.
   (`--canvas-surface`, barely noticeable) and a quiet dot grid drawn by Plux Canvas (a dot every
   24 world units, the dots one CSS pixel in radius at every zoom, the next finer level fading in as
   the view zooms so the grid never jumps); a plugin box is a card resting on it with a soft, low
-  shadow (a faint contact ring where the canvas draws without a GPU): a head with the plugin's
-  solid mark (a primary tile with its initial), its name in bold on one line, its key and a
-  release chip (`v3`, or `Draft`), a row of figures (screens, versions, links), and a tinted
-  status strip along its foot with the badges as pills, each with a solid dot; a box over another
-  hides it; text stays text at every zoom. The canvas's glass panels are lighter than the page's:
+  shadow (a faint contact ring where the canvas draws without a GPU): each plugin takes one of the
+  five chart hues by its key, for its mark (a tile with its initial) and a strip of miniature
+  screens (one per screen, the entry screen filled, the rest counted), beside its name in bold on
+  one line, its key, a release chip (`v3`, or `Draft`) and its screens and links; a tinted status
+  strip along its foot holds the badges as pills, each with a solid dot; a box over another hides
+  it; text stays text at every zoom. In dark the canvas is the page's own background, as the
+  content pages have it. The plugin canvas shares the surface and the glass, and its editor
+  is a design tool's shell: a top bar of the screens, history, checks, preview, devices and
+  Publish; a dock on each side with a rail of icon tabs (the Insert gallery of widget tiles by
+  kind, the layer tree by screen, screens, assets, state, data, selection; the inspector with the
+  widget's identity, a row of editor tiles, a two-row grid of tabs and properties in folding
+  sections); the zoom and the device bay at the foot. The full-screen editors open as one sheet
+  inset from the window, rounded, with a header bar. The canvas's glass panels are lighter than the page's:
   a 62 % fill with a faint top-down sheen, a 24-pixel blur, a hairline and a bright top edge, and
   a creamy elevation of three soft, faint shadows instead of the third elevation; the bars share
   one height and round less than the side panels; the contrast theme, forced colours and reduced

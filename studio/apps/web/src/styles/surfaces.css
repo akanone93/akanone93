@@ -170,3 +170,25 @@
     cursor: pointer;
   }
 }
+
+/*
+ * The full-screen overlay of the heavy editors (JSON, localisation, state, data sources, database schema, theme,
+ * action graph, Rust; STU-063): a sheet inset from the window's edges, rounded, on the third elevation, with a header
+ * bar on a faint band and a body that fills the rest and scrolls inside.
+ */
+[data-slot="dialog-content"][data-size="full"] {
+  inset: calc(var(--spacing) * 3);
+  inline-size: auto;
+  block-size: auto;
+  max-inline-size: none;
+  transform: none;
+  border-radius: var(--radius-2xl);
+  background-color: var(--popover);
+  box-shadow:
+    0 0 0 1px var(--glass-edge),
+    var(--elevation-3);
+}
+
+[data-slot="dialog-full-head"] {
+  background-color: color-mix(in oklch, var(--muted) 45%, var(--popover));
+}

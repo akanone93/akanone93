@@ -3,7 +3,10 @@
 
 import { useLingui } from "@lingui/react";
 import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
-import { Button, Field, FloatingPanel, Icon, Input, Select, Tabs, TypeTag } from "@plux/ui";
+import { Button, Field, Icon, type IconName, Input, Select, TypeTag, tooltipDelayMs } from "@plux/ui";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
+import { Tabs as ShadcnTabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@plux/ui/components/tooltip";
 import type { Problem } from "@plux/validator";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { actionGraphMessages } from "../action-graph/action-graph.messages.ts";
@@ -24,6 +27,7 @@ import { rustEditorMessages } from "../rust-editor/rust-editor.messages.ts";
 import type { TestsClient } from "../rust-editor/test-runner.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
+import { kindIcon, kindOf } from "./catalogue.ts";
 import { panelMessages } from "./panels.messages.ts";
 import {
   type Breakpoint,
@@ -420,7 +424,7 @@ export function ValueEditor(p: EditorProps) {
 }
 
 interface DockProps {
-  readonly screens: readonly { readonly id: string; readonly root: unknown }[];
+  readonly screens: readonly { readonly id: string; readonly root: unknown; readonly title?: string }[];
   readonly index: NodeIndex;
   readonly screenOf: ReadonlyMap<string, string>;
   readonly edit: EditFn;
@@ -497,6 +501,70 @@ function pageCheck(
   };
 }
 
+/** The sections the inspector sorts a widget's properties into, by the property's name. */
+type PropGroup = "layout" | "appearance" | "content" | "behaviour" | "other";
+
+const groupOrder: readonly PropGroup[] = ["content", "layout", "appearance", "behaviour", "other"];
+
+const groupIcons: Record<PropGroup, IconName> = {
+  layout: "grid-four",
+  appearance: "palette",
+  content: "text-t",
+  behaviour: "hand-pointing",
+  other: "sliders",
+};
+
+const groupPatterns: readonly (readonly [PropGroup, RegExp])[] = [
+  [
+    "layout",
+    /^(width|height|size|padding|margin|align|alignment|mainAxis|crossAxis|spacing|runSpacing|gap|flex|fit|aspectRatio|constraints|position|top|bottom|left|right|start|end|direction|axis|clip|expand|scroll|physics|itemExtent|shrinkWrap|reverse|verticalDirection|textDirection)/i,
+  ],
+  [
+    "appearance",
+    /(color|colour|background|decoration|border|radius|elevation|shadow|style|theme|opacity|gradient|font|weight|outline|shape|tint|overlay|splash|highlight|filter|blend)/i,
+  ],
+  [
+    "content",
+    /^(data|text|label|title|subtitle|child|children|icon|image|src|url|value|placeholder|hint|items|leading|trailing|content|semanticsLabel|tooltip|message|actions|body|header|footer)/i,
+  ],
+  [
+    "behaviour",
+    /^(on[A-Z]|enabled|disabled|readOnly|autofocus|keyboard|obscure|max|min|divisions|validator|autovalidate|selected|checked|tristate|duration|curve|delay|repeat|loop|interactive|controller)/i,
+  ],
+];
+
+/** The group of a property: the first whose pattern its name matches, else "other". */
+function propGroupOf(name: string): PropGroup {
+  return groupPatterns.find(([, pattern]) => pattern.test(name))?.[0] ?? "other";
+}
+
+/** The properties in their sections, in the inspector's order; empty sections are left out. */
+function propGroups(props: readonly PropDescriptor[]): { id: PropGroup; props: PropDescriptor[] }[] {
+  return groupOrder
+    .map((id) => ({ id, props: props.filter((p) => propGroupOf(p.name) === id) }))
+    .filter((g) => g.props.length > 0);
+}
+
+/** A collapsible section of the inspector's properties: its icon, name and count, open at first. */
+function PropSection(props: {
+  readonly label: string;
+  readonly icon: IconName;
+  readonly count: number;
+  readonly children: React.ReactNode;
+}) {
+  return (
+    <Collapsible defaultOpen className="prop-section">
+      <CollapsibleTrigger className="prop-section-head">
+        <Icon name={props.icon} size="pill" />
+        <span className="flex-1 text-start">{props.label}</span>
+        <span className="prop-section-count">{props.count}</span>
+        <Icon name="caret-down" size="pill" className="prop-section-caret" />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="prop-section-body">{props.children}</CollapsibleContent>
+    </Collapsible>
+  );
+}
+
 function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const { m, ids } = p;
   const canEdit = useCanEdit();
@@ -533,6 +601,13 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
     pageCheck(p.validatePage, file, file === undefined ? undefined : docsState[file]?.content, first, bp, name);
 
   const labels: Record<Breakpoint, string> = { compact: m.compact, medium: m.medium, expanded: m.expanded };
+  const groupLabels: Record<PropGroup, string> = {
+    layout: m.groupLayout,
+    appearance: m.groupAppearance,
+    content: m.groupContent,
+    behaviour: m.groupBehaviour,
+    other: m.groupOther,
+  };
   return (
     <div className="flex flex-col gap-3">
       {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
@@ -546,75 +621,84 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
       {ids.length === 1 && (
         <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
       )}
-      {props.map((prop: PropDescriptor) => {
-        const sv = sharedValue(selected, prop.name, bp);
-        const mixed = sv.mixed;
-        return (
-          <Field key={prop.name} label={prop.name}>
-            <ValueEditor
-              type={prop.type}
-              name={prop.name}
-              value={mixed ? undefined : sv.value}
-              mixed={mixed}
-              unit={unitOf(prop)}
-              readOnly={!canEdit}
-              sources={{
-                tokens,
-                keys,
-                check: makeCheck(prop.name),
-                pxl: pxlSource(
-                  p.language,
-                  file,
-                  file === undefined ? undefined : docsState[file]?.content,
-                  first,
-                  bp,
-                  prop.name,
-                  scopes.current,
-                ),
-              }}
-              m={m}
-              onChange={(v) => apply(prop.name, v)}
-              onEnd={() => {
-                burst.current += 1;
-              }}
-            />
-            {l10n !== null &&
-              canEdit &&
-              ids.length === 1 &&
-              isTranslatable(prop) &&
-              !mixed &&
-              typeof sv.value === "string" &&
-              sv.value !== "" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setExtracting({ name: prop.name, text: sv.value as string })}
-                >
-                  <Icon name="globe" />
-                  {lm.extract}
-                </Button>
-              )}
-            {!mixed && sv.overridden && (
-              <div className="flex items-center gap-2 text-caption text-muted-foreground">
-                <span>{m.overridden}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={!canEdit}
-                  aria-label={m.resetOf(prop.name)}
-                  onClick={() => {
-                    apply(prop.name, undefined);
+      {propGroups(props).map((group) => (
+        <PropSection
+          key={group.id}
+          label={groupLabels[group.id]}
+          icon={groupIcons[group.id]}
+          count={group.props.length}
+        >
+          {group.props.map((prop: PropDescriptor) => {
+            const sv = sharedValue(selected, prop.name, bp);
+            const mixed = sv.mixed;
+            return (
+              <Field key={prop.name} label={prop.name}>
+                <ValueEditor
+                  type={prop.type}
+                  name={prop.name}
+                  value={mixed ? undefined : sv.value}
+                  mixed={mixed}
+                  unit={unitOf(prop)}
+                  readOnly={!canEdit}
+                  sources={{
+                    tokens,
+                    keys,
+                    check: makeCheck(prop.name),
+                    pxl: pxlSource(
+                      p.language,
+                      file,
+                      file === undefined ? undefined : docsState[file]?.content,
+                      first,
+                      bp,
+                      prop.name,
+                      scopes.current,
+                    ),
+                  }}
+                  m={m}
+                  onChange={(v) => apply(prop.name, v)}
+                  onEnd={() => {
                     burst.current += 1;
                   }}
-                >
-                  <Icon name="arrow-counter-clockwise" />
-                  {m.reset}
-                </Button>
-              </div>
-            )}
-          </Field>
-        );
-      })}
+                />
+                {l10n !== null &&
+                  canEdit &&
+                  ids.length === 1 &&
+                  isTranslatable(prop) &&
+                  !mixed &&
+                  typeof sv.value === "string" &&
+                  sv.value !== "" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setExtracting({ name: prop.name, text: sv.value as string })}
+                    >
+                      <Icon name="globe" />
+                      {lm.extract}
+                    </Button>
+                  )}
+                {!mixed && sv.overridden && (
+                  <div className="flex items-center gap-2 text-caption text-muted-foreground">
+                    <span>{m.overridden}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={!canEdit}
+                      aria-label={m.resetOf(prop.name)}
+                      onClick={() => {
+                        apply(prop.name, undefined);
+                        burst.current += 1;
+                      }}
+                    >
+                      <Icon name="arrow-counter-clockwise" />
+                      {m.reset}
+                    </Button>
+                  </div>
+                )}
+              </Field>
+            );
+          })}
+        </PropSection>
+      ))}
       {l10n !== null && extracting !== null && (
         <ExtractKeyDialog
           open
@@ -790,6 +874,8 @@ export function RightDock(props: DockProps) {
   const jsonLabel = jsonEditorMessages(i18n).open;
   const dm = designerMessages(i18n);
   const designerLabels = { data: dm.dataOpen, db: dm.dbOpen, theme: dm.themeOpen };
+  const openOverlay = (id: "data" | "db" | "theme") =>
+    props.onOpenOverlay === undefined ? undefined : () => props.onOpenOverlay?.(id);
   const graphLabel = actionGraphMessages(i18n).open;
   const tm = tabMessages(i18n);
   const nodes = useLiveNodes(props);
@@ -803,93 +889,134 @@ export function RightDock(props: DockProps) {
     return own ?? Math.max(0, ...perScreen.values());
   }, [nodes, ids, props.screenOf]);
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
-    ids.length === 0 ? <p className="text-body text-muted-foreground">{m.nothing}</p> : panel(ids);
+    ids.length === 0 ? <p className="inspector-empty">{m.nothing}</p> : panel(ids);
+  const tools: readonly { id: string; label: string; icon: IconName; open: (() => void) | undefined }[] = [
+    { id: "json", label: jsonLabel, icon: "braces", open: props.onOpenJson },
+    { id: "l10n", label: localisationMessages(i18n).open, icon: "translate", open: props.onOpenLocalisation },
+    { id: "state", label: stateMessages(i18n).open, icon: "list", open: props.onOpenState },
+    { id: "data", label: designerLabels.data, icon: "database", open: openOverlay("data") },
+    { id: "db", label: designerLabels.db, icon: "table", open: openOverlay("db") },
+    { id: "theme", label: designerLabels.theme, icon: "palette", open: openOverlay("theme") },
+    { id: "graph", label: graphLabel, icon: "flow-arrow", open: props.onOpenGraph },
+    { id: "rust", label: rustEditorMessages(i18n).open, icon: "lightning", open: props.onOpenRust },
+  ];
+  const tabs: readonly { value: string; label: string; icon: IconName; panel: React.ReactNode }[] = [
+    {
+      value: "properties",
+      label: m.tabProperties,
+      icon: "sliders",
+      panel: body((i) => <PropertiesTab {...props} ids={i} m={m} />),
+    },
+    {
+      value: "actions",
+      label: linkMessages(i18n).tab,
+      icon: "hand-pointing",
+      panel: <ActionsPanel {...props} ids={ids} />,
+    },
+    {
+      value: "json",
+      label: tm.tabJson,
+      icon: "braces",
+      panel: body((i) => <JsonTab ids={i} nodes={nodes} onOpen={props.onOpenJson} />),
+    },
+    {
+      value: "code",
+      label: tm.tabCode,
+      icon: "code",
+      panel: (
+        <CodeTab
+          ids={ids}
+          nodes={nodes}
+          documents={props.documents}
+          onOpenFunction={props.onOpenFunction}
+          tests={props.tests}
+        />
+      ),
+    },
+    {
+      value: "localisation",
+      label: tm.tabLocalisation,
+      icon: "translate",
+      panel: body((i) => <LocalisationTab ids={i} nodes={nodes} onOpen={props.onOpenLocalisation} />),
+    },
+    {
+      value: "accessibility",
+      label: m.tabAccessibility,
+      icon: "accessibility",
+      panel: body((i) => <AccessibilityTab {...props} ids={i} m={m} />),
+    },
+    {
+      value: "performance",
+      label: tm.tabPerformance,
+      icon: "gauge",
+      panel: <PerformanceTab ids={ids} nodes={nodes} pageNodes={pageNodes} />,
+    },
+    {
+      value: "docs",
+      label: m.tabDocs,
+      icon: "book",
+      panel: body((i) => <DocsTab ids={i} index={props.index} m={m} />),
+    },
+  ];
+  const first = ids[0];
+  const type = first === undefined ? undefined : props.index.type.get(first);
+  const descriptor = type === undefined ? undefined : widget(type);
+  const screenTitle = (() => {
+    const screen = first === undefined ? undefined : props.screenOf.get(first);
+    return props.screens.find((x) => x.id === screen)?.title;
+  })();
   return (
-    <FloatingPanel label={m.dock} className="absolute end-4 top-16 bottom-16 w-1/5 overflow-y-auto">
-      {props.onOpenJson !== undefined && (
-        <Button variant="secondary" size="sm" onClick={props.onOpenJson}>
-          <Icon name="pencil-simple" />
-          {jsonLabel}
-        </Button>
-      )}
-      {props.onOpenLocalisation !== undefined && (
-        <Button variant="secondary" size="sm" onClick={props.onOpenLocalisation}>
-          <Icon name="globe" />
-          {localisationMessages(i18n).open}
-        </Button>
-      )}
-      {props.onOpenState !== undefined && (
-        <Button variant="secondary" size="sm" onClick={props.onOpenState}>
-          <Icon name="list" />
-          {stateMessages(i18n).open}
-        </Button>
-      )}
-      {props.onOpenOverlay !== undefined && (
-        <div className="flex flex-wrap gap-2">
-          {(["data", "db", "theme"] as const).map((id) => (
-            <Button key={id} variant="secondary" size="sm" onClick={() => props.onOpenOverlay?.(id)}>
-              {designerLabels[id]}
-            </Button>
-          ))}
+    <aside aria-label={m.dock} className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass">
+      {first !== undefined && (
+        <div className="inspector-head">
+          <span className="inspector-glyph" aria-hidden="true">
+            <Icon name={descriptor === undefined ? "cube" : kindIcon[kindOf(descriptor)]} />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <strong className="truncate text-sm">{type ?? first}</strong>
+            <span className="truncate font-mono text-xs text-muted-foreground">{first}</span>
+          </div>
+          {ids.length > 1 ? (
+            <span className="inspector-count">{ids.length}</span>
+          ) : (
+            screenTitle !== undefined && <span className="inspector-screen">{screenTitle}</span>
+          )}
         </div>
       )}
-      {props.onOpenGraph !== undefined && (
-        <Button variant="secondary" size="sm" onClick={props.onOpenGraph}>
-          <Icon name="pencil-simple" />
-          {graphLabel}
-        </Button>
-      )}
-      {props.onOpenRust !== undefined && (
-        <Button variant="secondary" size="sm" onClick={props.onOpenRust}>
-          <Icon name="pencil-simple" />
-          {rustEditorMessages(i18n).open}
-        </Button>
-      )}
-      <Tabs
-        defaultValue="properties"
-        tabs={[
-          {
-            value: "properties",
-            label: m.tabProperties,
-            panel: body((i) => <PropertiesTab {...props} ids={i} m={m} />),
-          },
-          { value: "actions", label: linkMessages(i18n).tab, panel: <ActionsPanel {...props} ids={ids} /> },
-          {
-            value: "json",
-            label: tm.tabJson,
-            panel: body((i) => <JsonTab ids={i} nodes={nodes} onOpen={props.onOpenJson} />),
-          },
-          {
-            value: "code",
-            label: tm.tabCode,
-            panel: (
-              <CodeTab
-                ids={ids}
-                nodes={nodes}
-                documents={props.documents}
-                onOpenFunction={props.onOpenFunction}
-                tests={props.tests}
-              />
-            ),
-          },
-          {
-            value: "localisation",
-            label: tm.tabLocalisation,
-            panel: body((i) => <LocalisationTab ids={i} nodes={nodes} onOpen={props.onOpenLocalisation} />),
-          },
-          {
-            value: "accessibility",
-            label: m.tabAccessibility,
-            panel: body((i) => <AccessibilityTab {...props} ids={i} m={m} />),
-          },
-          {
-            value: "performance",
-            label: tm.tabPerformance,
-            panel: <PerformanceTab ids={ids} nodes={nodes} pageNodes={pageNodes} />,
-          },
-          { value: "docs", label: m.tabDocs, panel: body((i) => <DocsTab ids={i} index={props.index} m={m} />) },
-        ]}
-      />
-    </FloatingPanel>
+      <TooltipProvider delay={tooltipDelayMs}>
+        <section aria-label={m.editors} className="inspector-tools">
+          <h3 className="inspector-label">{m.editors}</h3>
+          <div className="inspector-tool-grid">
+            {tools
+              .filter((t) => t.open !== undefined)
+              .map((t) => (
+                <Tooltip key={t.id}>
+                  <TooltipTrigger
+                    render={<button type="button" className="inspector-tool" aria-label={t.label} onClick={t.open} />}
+                  >
+                    <Icon name={t.icon} />
+                  </TooltipTrigger>
+                  <TooltipContent>{t.label}</TooltipContent>
+                </Tooltip>
+              ))}
+          </div>
+        </section>
+      </TooltipProvider>
+      <ShadcnTabs defaultValue="properties" className="inspector-tabs-root">
+        <TabsList className="inspector-tabs">
+          {tabs.map((t) => (
+            <TabsTrigger key={t.value} value={t.value} className="inspector-tab">
+              <Icon name={t.icon} size="pill" />
+              <span className="truncate">{t.label}</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {tabs.map((t) => (
+          <TabsContent key={t.value} value={t.value} className="inspector-body">
+            {t.panel}
+          </TabsContent>
+        ))}
+      </ShadcnTabs>
+    </aside>
   );
 }

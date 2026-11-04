@@ -79,8 +79,8 @@ export interface TextSpec {
   readonly color: ColorRgba;
   /** Bold text; regular when absent. */
   readonly weight?: "bold";
-  /** Centred in `w`; start-aligned when absent. */
-  readonly align?: "center";
+  /** Centred in `w`, or against its end; start-aligned when absent. */
+  readonly align?: "center" | "end";
   /** At most this many lines, the last ending in an ellipsis; unlimited when absent. */
   readonly maxLines?: number;
   readonly z: number;

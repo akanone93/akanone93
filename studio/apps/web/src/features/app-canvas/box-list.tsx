@@ -158,7 +158,7 @@ export function DetailCard(props: {
   return (
     <aside
       aria-label={s.plugin?.name}
-      className="canvas-panel canvas-inspector glass flex w-80 flex-col gap-4 overflow-y-auto p-4"
+      className="canvas-panel canvas-side canvas-inspector glass flex w-80 flex-col gap-4 overflow-y-auto p-4"
     >
       <header className="flex flex-col gap-2">
         <div className="flex items-start gap-3">

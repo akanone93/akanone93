@@ -50,7 +50,7 @@ export function PreviewSwitcher({
   return (
     <div
       {...(part === "main" ? {} : { role: "toolbar", "aria-label": m.switcher })}
-      className="flex flex-wrap items-end gap-3"
+      className="grid grid-cols-2 items-end gap-3"
     >
       {part !== "extra" && (
         <>

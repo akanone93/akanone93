@@ -1424,6 +1424,7 @@ export class SceneRenderer {
     const ck = this.ck;
     const style = new ck.ParagraphStyle({
       ...(spec.align === "center" ? { textAlign: ck.TextAlign.Center } : {}),
+      ...(spec.align === "end" ? { textAlign: ck.TextAlign.End } : {}),
       ...(spec.maxLines === undefined ? {} : { maxLines: spec.maxLines, ellipsis: "…" }),
       textStyle: {
         color: color4f(ck, spec.color),

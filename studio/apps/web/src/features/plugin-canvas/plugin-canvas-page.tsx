@@ -12,6 +12,8 @@ import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/comm
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { ActionGraphHost } from "../action-graph/index.ts";
+import { useSceneTheme } from "../app-canvas/scene-theme.ts";
+import "./plugin-editor.css";
 import { DesignersHost } from "../designers/designers-host.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import type { EditSession } from "../editor/edit-session.ts";
@@ -172,6 +174,23 @@ function UndoCommands(props: {
   }, [i18n, undo, stack, canEdit]);
   useScopedCommands("plugin-undo", list);
   return null;
+}
+
+/** Follows a change of the page's size: the surface draws the view at the page's size (the canvas element is the view). */
+function followPage(page: HTMLElement, surface: CanvasSurface): ResizeObserver | undefined {
+  if (typeof ResizeObserver === "undefined") {
+    return undefined;
+  }
+  let size = `${page.clientWidth}x${page.clientHeight}`;
+  const observer = new ResizeObserver(() => {
+    const next = `${page.clientWidth}x${page.clientHeight}`;
+    if (page.clientWidth > 0 && page.clientHeight > 0 && next !== size) {
+      size = next;
+      surface.resize?.(page.clientWidth, page.clientHeight, window.devicePixelRatio || 1);
+    }
+  });
+  observer.observe(page);
+  return observer;
 }
 
 export function PluginCanvasPage() {
@@ -422,20 +441,38 @@ function PluginCanvasView({
   const searchRef = useRef(search);
   searchRef.current = search;
 
+  // The surface, as on the app canvas (studio-development §9.8): drawn whole on every frame it changes, in full detail,
+  // on the theme's canvas surface with its dot grid, and following the page's size. A canvas element is handed to the
+  // worker once, so a change of theme makes a new element (`key`) and a new surface on it.
+  const theme = useSceneTheme();
+  const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas === null) {
       return undefined;
     }
-    const width = canvas.clientWidth || window.innerWidth;
-    const height = canvas.clientHeight || window.innerHeight;
-    const surface = createSurface(canvas, { width, height, dpr: window.devicePixelRatio || 1, hostFonts, deviceFonts });
+    const page = sectionRef.current ?? canvas;
+    const width = page.clientWidth || window.innerWidth;
+    const height = page.clientHeight || window.innerHeight;
+    const surface = createSurface(canvas, {
+      width,
+      height,
+      dpr: window.devicePixelRatio || 1,
+      background: theme.background,
+      grid: theme.grid,
+      present: "direct",
+      detail: "full",
+      hostFonts,
+      deviceFonts,
+    });
     surfaceRef.current = surface;
+    const observer = followPage(page, surface);
     return () => {
+      observer?.disconnect();
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface, hostFonts, deviceFonts]);
+  }, [createSurface, hostFonts, deviceFonts, theme.background, theme.grid]);
 
   const focusRef = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -523,7 +560,19 @@ function PluginCanvasView({
     };
   }, [screens, shown, styled]);
 
+  // The view's place in the URL and the ghosts' level of detail follow the view at most once a frame: a router update
+  // per wheel step or pointer move re-rendered the whole editor on each, and the canvas stuttered.
+  const syncFrame = useRef(0);
+  useEffect(() => () => cancelAnimationFrame(syncFrame.current), []);
   const sync = () => {
+    if (syncFrame.current === 0) {
+      syncFrame.current = requestAnimationFrame(() => {
+        syncFrame.current = 0;
+        syncNow();
+      });
+    }
+  };
+  const syncNow = () => {
     const surface = surfaceRef.current;
     const canvas = canvasRef.current;
     if (surface === null || canvas === null) {
@@ -536,6 +585,29 @@ function PluginCanvasView({
     ghostLayer.zoomed(v.zoom);
     void navigate({ to: ".", search: (prev: object) => ({ ...prev, x, y, z }), replace: true });
   };
+
+  // The wheel as a native, non-passive listener: React's is passive, so Ctrl + wheel (a pinch) zoomed the whole page.
+  const syncRef = useRef(sync);
+  syncRef.current = sync;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new canvas element (a new theme) needs the listener again
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) {
+      return undefined;
+    }
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) {
+        const p = canvasPoint(canvas.getBoundingClientRect(), e.clientX, e.clientY);
+        surfaceRef.current?.zoomAbout(Math.exp(-e.deltaY / 200), p.x, p.y);
+      } else {
+        surfaceRef.current?.pan(-e.deltaX, -e.deltaY);
+      }
+      syncRef.current();
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheel);
+  }, [theme.key]);
 
   const zoomBy = (factor: number) => {
     const canvas = canvasRef.current;
@@ -581,16 +653,17 @@ function PluginCanvasView({
 
   return (
     <section
-      className="relative h-full w-full overflow-hidden"
+      ref={sectionRef}
+      className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
       dir={look.direction}
       data-preview-theme={look.theme}
       data-preview-platform={look.platform}
       style={{ fontSize: `${look.textScale}em` }}
     >
-      {bar}
       <MatrixOverlay show={matrix} render={look} screen={shown[0]} style={styled} createSurface={createSurface} />
       {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
       <canvas
+        key={theme.key}
         role="application"
         aria-label={m.title}
         ref={canvasRef}
@@ -644,15 +717,6 @@ function PluginCanvasView({
               }
               return true;
             });
-          }
-          sync();
-        }}
-        onWheel={(e) => {
-          if (e.ctrlKey || e.metaKey) {
-            const p = canvasPoint(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY);
-            surfaceRef.current?.zoomAbout(Math.exp(-e.deltaY / 200), p.x, p.y);
-          } else {
-            surfaceRef.current?.pan(-e.deltaX, -e.deltaY);
           }
           sync();
         }}
@@ -827,7 +891,12 @@ function PluginCanvasView({
           onZoom={zoomBy}
           onFit={fit}
           onHistory={() => overlays.show("history")}
-          preview={switcher}
+          preview={
+            <>
+              {switcher}
+              {bar}
+            </>
+          }
           canSend={canSend}
           canPublish={canPublish}
           onPublish={() =>
