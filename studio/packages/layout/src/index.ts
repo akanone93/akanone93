@@ -218,7 +218,32 @@ export {
   WrapCrossAlignment,
   WrapParentData,
 } from "./flutter/wrap.ts";
+export {
+  BASELINE_SEED,
+  type ColorRole,
+  type ColorScheme,
+  colorRoleNames,
+  colorSchemeFromSeed,
+  withColorRoles,
+} from "./material-color/scheme.ts";
 export { globalRects, goldenBaselines, goldenRects, type LayoutGolden, type NodeRect } from "./node-rects.ts";
+export {
+  argbToRgba,
+  type BorderPaint,
+  type BoxPaint,
+  type GradientPaint,
+  type NodePaint,
+  type PaintClip,
+  type PaintTheme,
+  parseHexColor,
+  type Radii,
+  type Rgba,
+  resolveColor,
+  roleColor,
+  type ShadowPaint,
+  type SidePaint,
+} from "./paint/paint.ts";
+export { type PaintNode, paintTree } from "./paint/painters.ts";
 export { RenderTestBox, type RenderTestBoxOptions } from "./test-box.ts";
 export { CanvasKitParagraphEngine } from "./text/canvaskit-engine.ts";
 export {

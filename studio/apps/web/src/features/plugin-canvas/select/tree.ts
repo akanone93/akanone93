@@ -4,6 +4,9 @@
 import { LABEL_SUFFIX } from "@plux/canvas";
 import type { Node } from "../plugin-model.ts";
 
+/** Where the part of a widget's item id begins (`LABEL_SUFFIX`, `PAINT_SUFFIX`). */
+const PART_MARK = LABEL_SUFFIX[0] as string;
+
 /** Parent, children and depth of every node of a screen tree, by ID (F5: IDs, not positions). */
 export interface NodeIndex {
   readonly parent: ReadonlyMap<string, string | null>;
@@ -63,6 +66,8 @@ export const itemIdOf = (screen: string, node: string): string => `${screen}/${n
 export function nodeIdOfHit(hit: string): string {
   const i = hit.indexOf("/");
   const id = i < 0 ? hit : hit.slice(i + 1);
-  // A box's label is drawn as its own item; a hit on it is a hit on the box.
-  return id.endsWith(LABEL_SUFFIX) ? id.slice(0, -LABEL_SUFFIX.length) : id;
+  // A box's label and the boxes a widget paints are items of their own (`#label`, `#paint0`…); a hit on one is a hit on
+  // the widget.
+  const part = id.indexOf(PART_MARK);
+  return part < 0 ? id : id.slice(0, part);
 }

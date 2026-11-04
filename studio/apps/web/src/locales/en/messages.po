@@ -73,6 +73,12 @@ msgstr "{apps, plural, one {of # app} other {of # apps}}"
 msgid "design.brandOverrides"
 msgstr "{brand}: {n} overrides"
 
+#. Label of one corner's radius.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.corner"
+msgstr "{c, select, topLeft {Top start} topRight {Top end} bottomRight {Bottom end} bottomLeft {Bottom start} other {Corner}}"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -322,6 +328,12 @@ msgstr "{count} warnings acknowledged"
 msgid "panels.multi"
 msgstr "{count} widgets selected; showing shared properties."
 
+#. A linear gradient's direction.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.directionName"
+msgstr "{d, select, down {Top to bottom} across {Start to end} diagonal {Diagonal down} rising {Diagonal up} other {Direction}}"
+
 #. Change of the bundle size against the previous version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -489,6 +501,18 @@ msgstr "{kib} KiB"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.kind"
 msgstr "{kind, select, all {All} image {Images} vector {Vectors} font {Fonts} animation {Animations} other {Other}}"
+
+#. Choice of the kind of gradient of a decoration.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.gradientKind"
+msgstr "{kind, select, none {No gradient} linear {Linear} radial {Radial} sweep {Sweep} other {Gradient}}"
+
+#. A shadow preset of the decoration editor, by Material elevation, e.g. Elevation 3.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.elevation"
+msgstr "{level, select, none {No shadow} custom {Custom shadow} other {Elevation {level}}}"
 
 #. Summary of a parsed import file.
 #. js-lingui-explicit-id
@@ -2396,11 +2420,23 @@ msgstr "Blue"
 msgid "experiments.typeBool"
 msgstr "Boolean"
 
+#. Section of the decoration editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.border"
+msgstr "Border"
+
 #. Edge inset at the bottom.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.bottom"
 msgstr "Bottom"
+
+#. Label of the preview select of the theme's brand overlay (THM-003).
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.brand"
+msgstr "Brand"
 
 #. Field label.
 #. js-lingui-explicit-id
@@ -2922,6 +2958,12 @@ msgstr "Checking…"
 msgid "onboarding.steps"
 msgstr "Checklist"
 
+#. Accessible name of a colour field's button; {field} is the property, e.g. color.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.pick"
+msgstr "Choose {field}"
+
 #. Error when Next is pressed without choosing an archive.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -2987,6 +3029,18 @@ msgstr "Choose what reaches your inbox. Approval and security notifications are 
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.navIssuers"
 msgstr "CI issuers"
+
+#. Switch that makes the decoration a circle.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.circle"
+msgstr "Circle"
+
+#. Button that removes the colour or decoration.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.clear"
+msgstr "Clear"
 
 #. Accessible name of the button that removes a property value.
 #. js-lingui-explicit-id
@@ -3263,6 +3317,12 @@ msgstr "Collections of the plugin"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themePreview"
 msgstr "Colour preview"
+
+#. Heading of the app theme's other colour tokens in the colour picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.tokenColors"
+msgstr "Colour tokens"
 
 #. Accessible name of a swatch list.
 #. js-lingui-explicit-id
@@ -3600,6 +3660,12 @@ msgstr "Copy over"
 msgid "auth.scene.bank-coffee"
 msgstr "Corner Café"
 
+#. Section of the decoration editor: the radii.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.corners"
+msgstr "Corners"
+
 #. Label of the crash-free rate over all active devices.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -3791,6 +3857,12 @@ msgstr "Cupertino"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.currentScreen"
 msgstr "Current screen"
+
+#. Heading of the custom colour in the colour picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.custom"
+msgstr "Custom"
 
 #. Choice: enter a primary colour instead of a ready-made theme.
 #. js-lingui-explicit-id
@@ -4458,6 +4530,12 @@ msgstr "Differences between the two snapshots"
 msgid "approvals.simDistinctTeams"
 msgstr "different teams"
 
+#. Label of a linear gradient's direction.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.direction"
+msgstr "Direction"
+
 #. D37 button: drop the unsaved changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -4655,6 +4733,12 @@ msgstr "Duration (minutes)"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayDuration"
 msgstr "Duration (ms)"
+
+#. Switch that sets a radius per corner instead of one for all.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.eachCorner"
+msgstr "Each corner"
 
 #. Explains environments on the last step of the wizard.
 #. js-lingui-explicit-id
@@ -5615,6 +5699,12 @@ msgstr "File"
 msgid "shell.api.files"
 msgstr "Files"
 
+#. Section of the decoration editor: the box's colour.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.fill"
+msgstr "Fill"
+
 #. Accessible name of the group of search, filter and sort controls above the apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -5824,6 +5914,12 @@ msgstr "Freeze and build"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.onboard-title"
 msgstr "Fresh, every morning"
+
+#. The first colour of a gradient.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.from"
+msgstr "From"
 
 #. Label of the first day of the range.
 #. js-lingui-explicit-id
@@ -6076,6 +6172,12 @@ msgstr "Golden baselines per plugin"
 msgid "approvals.goldenHeading"
 msgstr "Golden-image differences"
 
+#. Section of the decoration editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.gradient"
+msgstr "Gradient"
+
 #. Capability is granted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -6261,6 +6363,12 @@ msgstr "Help"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.footer.label"
 msgstr "Help links"
+
+#. Label of the hexadecimal colour field, e.g. 6750A4.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.hex"
+msgstr "Hex"
 
 #. Read out after a layer's name when it is hidden on the canvas.
 #. js-lingui-explicit-id
@@ -9017,6 +9125,12 @@ msgstr "No migration problems: devices can update without losing data."
 msgid "notify.empty"
 msgstr "No notifications"
 
+#. Option of the brand select: the theme without a brand overlay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.brandNone"
+msgstr "No overlay"
+
 #. Option in the owning-team picker: the plugin has no owning team.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -9232,6 +9346,12 @@ msgstr "Nodes"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfPage"
 msgstr "Nodes in the page"
+
+#. A colour or decoration field with nothing set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.none"
+msgstr "None"
 
 #. Shown for a setting that has no value.
 #. js-lingui-explicit-id
@@ -9610,6 +9730,12 @@ msgstr "Only {kind}"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.licenseNote"
 msgstr "Only installation administrators upload a licence. The server verifies it offline."
+
+#. Label of the colour's opacity slider.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.opacity"
+msgstr "Opacity"
 
 #. Palette footer: Enter opens.
 #. js-lingui-explicit-id
@@ -10929,6 +11055,12 @@ msgstr "Queued"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffQueued"
 msgstr "Queued. Rendering waits for earlier jobs and is rate-limited."
+
+#. Label of the radius of every corner.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.radius"
+msgstr "Radius"
 
 #. Accessible name of the pair of dates that bound every analytics page.
 #. js-lingui-explicit-id
@@ -12944,6 +13076,12 @@ msgstr "Settings"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.changes.table"
 msgstr "Settings that changed since the project was generated"
+
+#. Section of the decoration editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.shadow"
+msgstr "Shadow"
 
 #. Label of the list that chooses whether a state entry is a single value, a list or a map.
 #. js-lingui-explicit-id
@@ -15388,6 +15526,12 @@ msgstr "Theme"
 msgid "designers.themeOpen"
 msgstr "Theme"
 
+#. Heading of the colour roles of the app's Material colour scheme in the colour picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.themeColors"
+msgstr "Theme colours"
+
 #. Title of the full-screen theme editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -15837,6 +15981,12 @@ msgstr "Time"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayTimeline"
 msgstr "Timeline"
+
+#. The last colour of a gradient.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.to"
+msgstr "To"
 
 #. Label of the last day of the range.
 #. js-lingui-explicit-id
@@ -16821,6 +16971,12 @@ msgstr "Why it needs a store build"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layer1"
 msgstr "Widgets"
+
+#. Label of a border's width.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.width"
+msgstr "Width"
 
 #. Field label for the width of a frame.
 #. js-lingui-explicit-id

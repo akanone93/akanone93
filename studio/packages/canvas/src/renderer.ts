@@ -36,6 +36,7 @@ import { Batches, BatchLayer, color4f } from "./batch.ts";
 import { intersectInto, intersects, makeRect, type Rect, setRect, unionInto } from "./geometry.ts";
 import { gridLevels, gridPoints } from "./grid.ts";
 import { type Lod, lodForZoom, resolutionFor } from "./lod.ts";
+import { clipTo, drawPainted, faded, isPainted, textNeedsLayer } from "./painted.ts";
 import { type Direction, orderJobs } from "./progressive.ts";
 import type { FrameSpec, FrameStats, GridStyle, ItemSpec, RectSpec, TextSpec } from "./protocol.ts";
 import { Resources } from "./resources.ts";
@@ -254,12 +255,15 @@ export class SceneRenderer {
   private readonly fontMgr: FontMgr | null;
   private readonly background: Float32Array;
   private readonly backgroundPaint: Paint;
+  private readonly paintedPaint: Paint;
   private readonly shadow: Image | null;
   private readonly softShadow: Image | null;
   private readonly gridPaint: Paint | null;
   private readonly items: SceneItem[] = [];
   private readonly texts: SceneItem[] = [];
   private readonly pictures: SceneItem[] = [];
+  /** Boxes a screen's widgets paint (STU-005), drawn one at a time after the batches of their depth. */
+  private readonly painted: SceneItem[] = [];
   private readonly visible: Tile<Image>[] = [];
   private readonly scratchTiles: Tile<Image>[] = [];
   private readonly pendingTiles: Tile<Image>[] = [];
@@ -408,6 +412,7 @@ export class SceneRenderer {
     this.background = color4f(ck, options.background);
     this.patchPath = this.resources.own(new ck.PathBuilder());
     this.backgroundPaint = this.resources.own(new ck.Paint());
+    this.paintedPaint = this.resources.own(new ck.Paint());
     this.backgroundPaint.setColor(this.background);
     this.picture = this.resources.own(new ck.Paint());
     this.picture.setAntiAlias(true);
@@ -1216,6 +1221,7 @@ export class SceneRenderer {
     const list = items ?? this.scene.query(rect, this.items, includeLive);
     this.texts.length = 0;
     this.pictures.length = 0;
+    this.painted.length = 0;
     let level = Number.NEGATIVE_INFINITY;
     for (const item of list) {
       // Items of one depth are batched; a deeper item waits until everything below it is drawn, so a box over another
@@ -1232,6 +1238,12 @@ export class SceneRenderer {
   /** Draws what one depth batched: its fills, strokes, links and bars, then its pictures, then its text. */
   private flushLevel(canvas: Canvas): void {
     this.calls += this.batches.flush(canvas);
+    for (const item of this.painted) {
+      if (item.spec.kind === "rect") {
+        this.calls += drawPainted(this.ck, canvas, item.spec, this.paintedPaint);
+      }
+    }
+    this.painted.length = 0;
     for (const item of this.pictures) {
       this.drawPicture(canvas, item.spec);
     }
@@ -1297,6 +1309,21 @@ export class SceneRenderer {
     this.calls++;
   }
 
+  /** A box: painted one at a time when it needs more than a batch draws (STU-005), else batched. */
+  private addRect(canvas: Canvas, item: SceneItem, spec: RectSpec): void {
+    if (isPainted(spec)) {
+      this.painted.push(item);
+      return;
+    }
+    if (spec.shadow && this.lod.shadows) {
+      this.addShadow(canvas, spec);
+    }
+    this.addBox(item, BatchLayer.rectFill, BatchLayer.rectStroke);
+    if (spec.image !== undefined) {
+      this.pictures.push(item);
+    }
+  }
+
   private addItem(canvas: Canvas, item: SceneItem): void {
     const spec = item.spec;
     switch (spec.kind) {
@@ -1307,13 +1334,7 @@ export class SceneRenderer {
         this.addBox(item, BatchLayer.frameFill, BatchLayer.frameStroke);
         break;
       case "rect":
-        if (spec.shadow && this.lod.shadows) {
-          this.addShadow(canvas, spec);
-        }
-        this.addBox(item, BatchLayer.rectFill, BatchLayer.rectStroke);
-        if (spec.image !== undefined) {
-          this.pictures.push(item);
-        }
+        this.addRect(canvas, item, spec);
         break;
       case "link":
         this.batches.link(item.strokeKey ?? "", spec, this.lod.straightLinks);
@@ -1415,10 +1436,18 @@ export class SceneRenderer {
       return;
     }
     const paragraph = this.paragraph(spec);
-    if (paragraph) {
-      canvas.drawParagraph(paragraph, spec.x, spec.y);
-      this.calls++;
+    if (!paragraph) {
+      return;
     }
+    if (textNeedsLayer(spec)) {
+      canvas.save();
+      clipTo(this.ck, canvas, spec.clips);
+      canvas.drawParagraph(paragraph, spec.x, spec.y);
+      canvas.restore();
+    } else {
+      canvas.drawParagraph(paragraph, spec.x, spec.y);
+    }
+    this.calls++;
   }
 
   /** The families `spec` draws with: the ones it was measured with, then the canvas's for glyphs they lack. */
@@ -1442,7 +1471,7 @@ export class SceneRenderer {
       ...(spec.align === "end" ? { textAlign: ck.TextAlign.End } : {}),
       ...(spec.maxLines === undefined ? {} : { maxLines: spec.maxLines, ellipsis: "…" }),
       textStyle: {
-        color: color4f(ck, spec.color),
+        color: color4f(ck, faded(spec.color, spec.opacity ?? 1)),
         fontSize: spec.size,
         ...(spec.weight === "bold" ? { fontStyle: { weight: ck.FontWeight.Bold } } : {}),
         fontFamilies: this.familiesOf(spec),

@@ -122,7 +122,10 @@ Positions are read-only while someone else is editing the app.
    change its height.
 
 Each screen's name is shown above its device frame, and a button or a field shows its text inside its
-box. The canvas previews with the same layout code the device runs; the device decides. Check anything
+box. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
+**Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
+custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and
+a shadow by Material elevation. The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 ## Link screens

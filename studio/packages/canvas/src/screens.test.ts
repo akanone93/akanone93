@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { beforeAll, describe, expect, test } from "bun:test";
-import { defaultScreenTheme, type WidgetNode } from "@plux/layout";
+import { argbToRgba, colorSchemeFromSeed, defaultScreenTheme, type WidgetNode } from "@plux/layout";
 import type { CanvasKit } from "canvaskit-wasm";
 import { fontBytes, loadCanvasKit, TestEnvironment } from "../test-support/canvaskit.ts";
+import { blurSigma, faded } from "./painted.ts";
 import { type ScreenStyle, PROTOCOL_VERSION as v, type WorkerMessage } from "./protocol.ts";
 import { textLayoutWidth } from "./renderer.ts";
 import { layoutScreens } from "./screens.ts";
@@ -252,6 +253,35 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(title).toMatchObject({ kind: "text", text: "Home", y: -30, weight: "bold", color: 0xabcdefff, maxLines: 1 });
     const plain = layoutScreens([{ id: "home", title: "Home", x: 0, y: 0, root: text("a", "Hello") }], style, engine);
     expect(plain.ops.some((op) => op.op === "add" && op.item.id === "title:home")).toBe(false);
+    engine.dispose();
+  });
+
+  test("[STU-005] with a paint theme, widgets are drawn as they paint: boxes, texts in onSurface, layout widgets empty", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        {
+          id: "box",
+          type: "Container",
+          props: { height: 40, decoration: { color: { $token: "color.primary" }, borderRadius: { all: 8 } } },
+        },
+        text("t", "Hello"),
+      ],
+    };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    const items = new Map(painted.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])));
+    expect(items.get("s/col")).toMatchObject({ kind: "rect" });
+    expect(items.get("s/col")).not.toHaveProperty("fill");
+    const box = items.get("s/box#paint0");
+    expect(box).toMatchObject({ kind: "rect", fill: argbToRgba(scheme.primary), radii: [8, 8, 8, 8] });
+    expect(items.get("s/t")).toMatchObject({ kind: "text", color: argbToRgba(scheme.onSurface) });
+    expect((items.get("s/t")?.z ?? 0) > (box?.z ?? 0)).toBe(true);
+    expect(blurSigma(0)).toBe(0);
+    expect(blurSigma(10)).toBeCloseTo(6.2735);
+    expect(faded(0x112233ff, 0.5)).toBe(0x11223380);
     engine.dispose();
   });
 });

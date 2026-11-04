@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ScreenStyle } from "@plux/canvas";
+import type { PaintTheme } from "@plux/layout";
 import { useMemo, useRef } from "react";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { withoutHidden } from "../panels/studio-meta.ts";
 import type { PreviewRender } from "../preview/switches.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
 import { bindMocks } from "./mock-bindings.ts";
+import { paintedStyle, paintThemeOf, themeTokens } from "./paint-theme.ts";
 import type { Node } from "./plugin-model.ts";
 import type { PlacedScreen } from "./scene.ts";
 import { screenStyle } from "./scene.ts";
@@ -29,13 +31,19 @@ export function usePreviewScene(
   appDocs: readonly DocLike[] | undefined,
   pluginDocs: readonly DocLike[] | undefined,
   look: PreviewRender,
-): { shown: readonly PlacedScreen[]; styled: ScreenStyle } {
+): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
   const title = useSceneTheme().arrows.labelText;
+  // The screens are painted in the theme's colours for the previewed mode and brand (STU-005, THM-001–THM-003).
+  const tokens = useMemo(() => themeTokens(everything), [everything]);
+  const paint = useMemo(
+    () => paintThemeOf(tokens, look.theme === "dark", look.brandOverlay),
+    [tokens, look.theme, look.brandOverlay],
+  );
   const styled = useMemo(
-    () => ({ ...lookedStyle(screenStyle, resolveTheme(everything, look), look), title }),
-    [everything, look, title],
+    () => ({ ...paintedStyle(lookedStyle(screenStyle, resolveTheme(everything, look), look), paint), title }),
+    [everything, paint, look, title],
   );
   const cache = useRef<LocalizedRoots | undefined>(undefined);
   const shown = useMemo(() => {
@@ -59,5 +67,5 @@ export function usePreviewScene(
       return { ...s, root: byRoot.get(s.root) };
     });
   }, [screens, everything, look]);
-  return { shown, styled };
+  return { shown, styled, paint };
 }

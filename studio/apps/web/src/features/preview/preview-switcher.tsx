@@ -12,12 +12,16 @@ import { type MockState, mockStates, type PreviewState, textScales, withMock } f
 
 const CUSTOM = "custom";
 
+/** The brand select's value for the theme without an overlay. */
+const NO_BRAND = "-";
+
 /** The preview switches of the canvas (STU-058) and the device frame select (STU-057). */
 export function PreviewSwitcher({
   state,
   dataSources,
   onChange,
   includePseudo,
+  brands = [],
   part = "all",
 }: {
   readonly state: PreviewState;
@@ -25,6 +29,8 @@ export function PreviewSwitcher({
   readonly dataSources: readonly string[];
   readonly onChange: (next: PreviewState) => void;
   readonly includePseudo: boolean;
+  /** The theme's brand overlays the screens can be previewed in (THM-003); the select shows only when there are some. */
+  readonly brands?: readonly string[];
   /** `main` renders the frame, theme, locale and text scale (the action bar); `extra` the rest; `all` both. */
   readonly part?: "all" | "main" | "extra";
 }): ReactElement {
@@ -103,6 +109,15 @@ export function PreviewSwitcher({
               onValueChange={(v) => onChange({ ...state, platform: v === "material" || v === "cupertino" ? v : "" })}
             />
           </Field>
+          {brands.length > 0 && (
+            <Field label={m.brand}>
+              <Select
+                value={state.brandOverlay === "" ? NO_BRAND : state.brandOverlay}
+                options={[{ value: NO_BRAND, label: m.brandNone }, ...brands.map((b) => ({ value: b, label: b }))]}
+                onValueChange={(v) => onChange({ ...state, brandOverlay: v === NO_BRAND ? "" : v })}
+              />
+            </Field>
+          )}
           <Field label={m.mock}>
             <Select
               value={mock}

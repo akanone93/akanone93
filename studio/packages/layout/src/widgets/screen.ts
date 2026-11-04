@@ -26,6 +26,8 @@ import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
 import { TextScaler, type TextStyle } from "../flutter/text-style.ts";
 import { RenderView } from "../flutter/view.ts";
 import { globalRects } from "../node-rects.ts";
+import type { NodePaint, PaintTheme } from "../paint/paint.ts";
+import { type PaintNode, paintTree } from "../paint/painters.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { layer2WidgetBuilders } from "./layer2.ts";
@@ -110,6 +112,8 @@ export interface Placed {
   readonly y: number;
   readonly w: number;
   readonly h: number;
+  /** How the box is painted, when the screen was laid out with a paint theme (`LayoutScreenOptions.paint`). */
+  readonly paint?: NodePaint;
 }
 
 /** A laid-out screen. */
@@ -409,6 +413,27 @@ export interface LayoutScreenOptions {
   readonly textDirection?: TextDirection;
   /** The height of the device frame the screen is drawn in; widgets sized by a share of it use it. */
   readonly deviceHeight?: number | undefined;
+  /** The colours to paint with; without it the boxes carry no paint (STU-005). */
+  readonly paint?: PaintTheme | undefined;
+}
+
+/** The laid-out boxes of a screen, with how each is drawn and, when painted, its paint. */
+function placedBoxes(
+  rects: ReadonlyMap<string, { x: number; y: number; w: number; h: number }>,
+  marks: ReadonlyMap<string, { kind: PlacedKind; text?: string }>,
+  paints: ReadonlyMap<string, NodePaint> | undefined,
+  rootId: string,
+): Placed[] {
+  const boxes: Placed[] = [];
+  for (const [id, r] of rects) {
+    if (id === rootId) {
+      continue;
+    }
+    const mark = marks.get(id) ?? { kind: "box" as const };
+    const paint = paints?.get(id);
+    boxes.push({ id, ...mark, x: r.x, y: r.y, w: r.w, h: r.h, ...(paint === undefined ? {} : { paint }) });
+  }
+  return boxes;
 }
 
 /** Lays one screen out at the theme's device width, text by the paragraph engine. */
@@ -512,15 +537,9 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
   try {
     owner.flushLayout();
     const rects = globalRects(view);
-    const boxes: Placed[] = [];
-    for (const [id, r] of rects) {
-      if (id === rootId) {
-        continue;
-      }
-      const mark = marks.get(id) ?? { kind: "box" as const };
-      boxes.push({ id, ...mark, x: r.x, y: r.y, w: r.w, h: r.h });
-    }
-    return { boxes, contentHeight: rects.get(rootId)?.h ?? 0 };
+    const paints =
+      options.paint === undefined ? undefined : paintTree(root as PaintNode | null | undefined, rects, options.paint);
+    return { boxes: placedBoxes(rects, marks, paints, rootId), contentHeight: rects.get(rootId)?.h ?? 0 };
   } finally {
     for (const p of paragraphs) {
       p.dispose();

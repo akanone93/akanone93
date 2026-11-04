@@ -9,7 +9,7 @@
  * (base and interaction layer) and the font buffers in `init`.
  */
 
-import type { ScreenTheme, TextDirection, WidgetNode } from "@plux/layout";
+import type { PaintTheme, ScreenTheme, TextDirection, WidgetNode } from "@plux/layout";
 import type { BaseOrigin, LayerBox } from "./compositor.ts";
 
 /** The protocol version; a message with another version is rejected. */
@@ -64,7 +64,56 @@ export interface RectSpec {
   readonly image?: string;
   /** A soft, low elevation shadow under the box (a card resting on the canvas). */
   readonly shadow?: boolean;
+  /**
+   * What a screen's widget paints (STU-005), drawn one box at a time rather than batched: per-corner radii (top left,
+   * top right, bottom right, bottom left) in place of `radius`, an ellipse, a gradient fill, box shadows, a border side
+   * per edge in place of `stroke`, the opacity and the clips of the widget's ancestors.
+   */
+  readonly radii?: readonly [number, number, number, number];
+  readonly oval?: boolean;
+  readonly gradient?: GradientSpec;
+  readonly shadows?: readonly ShadowSpec[];
+  readonly sides?: SidesSpec;
+  readonly opacity?: number;
+  readonly clips?: readonly ClipSpec[];
   readonly z: number;
+}
+
+/** A gradient in world units: along `from` → `to` (linear) or round `from` with `radius` (radial, sweep). */
+export interface GradientSpec {
+  readonly kind: "linear" | "radial" | "sweep";
+  readonly colors: readonly ColorRgba[];
+  readonly stops?: readonly number[];
+  readonly from: readonly [number, number];
+  readonly to: readonly [number, number];
+  readonly radius: number;
+}
+
+/** A box shadow in world units: offset, blur radius and spread, as Flutter's `BoxShadow`. */
+export interface ShadowSpec {
+  readonly color: ColorRgba;
+  readonly dx: number;
+  readonly dy: number;
+  readonly blur: number;
+  readonly spread: number;
+}
+
+/** A border side per edge. */
+export interface SidesSpec {
+  readonly top?: { readonly color: ColorRgba; readonly width: number };
+  readonly right?: { readonly color: ColorRgba; readonly width: number };
+  readonly bottom?: { readonly color: ColorRgba; readonly width: number };
+  readonly left?: { readonly color: ColorRgba; readonly width: number };
+}
+
+/** A shape an item is clipped to, in world units. */
+export interface ClipSpec {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+  readonly radii?: readonly [number, number, number, number];
+  readonly oval?: boolean;
 }
 
 /** A text run laid out as one paragraph of width `w`. */
@@ -89,6 +138,9 @@ export interface TextSpec {
    * Drawing with the measuring fonts keeps a line the layout fitted on one line from wrapping onto the next.
    */
   readonly families?: readonly string[];
+  /** The opacity and the clips of the widget's ancestors on a screen (STU-005). */
+  readonly opacity?: number;
+  readonly clips?: readonly ClipSpec[];
   readonly z: number;
 }
 
@@ -266,6 +318,8 @@ export interface ScreenStyle {
   readonly overflowBox: ColorRgba;
   readonly overflowText: ColorRgba;
   readonly overflowStroke: ColorRgba;
+  /** The colours to paint widgets with; without it, every widget is drawn as a neutral box (STU-005). */
+  readonly paint?: PaintTheme;
   /** The colour of each screen's name, drawn above its device frame as a design tool names its frames; none when absent. */
   readonly title?: ColorRgba;
 }

@@ -33,6 +33,7 @@ import { modelOf } from "../panels/model.ts";
 import { panelsMessages } from "../panels/panels.messages.ts";
 import { RightDock } from "../panels/right-dock.tsx";
 import { lockedIds } from "../panels/studio-meta.ts";
+import { PaintThemeContext } from "../panels/style-editors.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
@@ -53,6 +54,7 @@ import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
 import { dataSourcesOf, messagesFor, titledScreens } from "./look.ts";
 import { resolveNodeParam } from "./node-path.ts";
+import { useBrands } from "./paint-theme.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
@@ -369,9 +371,11 @@ function PluginCanvasView({
     [parsed, local],
   );
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
+  const brands = useBrands(appDocs.data);
   const { look, bar, switcher, matrix } = usePreviewBar(
     params.app,
     sources.map((x) => x.id),
+    brands,
   );
   // A translated title reads in the previewed locale, as the screen itself does.
   const placed = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
@@ -380,7 +384,7 @@ function PluginCanvasView({
     [appDocs.data, docs.data, look],
   );
   const screens = useMemo(() => titledScreens(placed, titleMessages), [placed, titleMessages]);
-  const { shown, styled } = usePreviewScene(screens, appDocs.data, docs.data, look);
+  const { shown, styled, paint } = usePreviewScene(screens, appDocs.data, docs.data, look);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const fittedRef = useRef<CanvasSurface | null>(null);
@@ -781,286 +785,291 @@ function PluginCanvasView({
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
-    <section
-      ref={sectionRef}
-      className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
-      dir={look.direction}
-      data-preview-theme={look.theme}
-      data-preview-platform={look.platform}
-      style={{ fontSize: `${look.textScale}em` }}
-    >
-      <MatrixOverlay show={matrix} render={look} screen={shown[0]} style={styled} createSurface={createSurface} />
-      {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
-      <canvas
-        key={theme.key}
-        role="application"
-        aria-label={m.title}
-        ref={canvasRef}
-        className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
-        tabIndex={0}
-        {...dropHandlers}
-        onKeyDown={(e) => {
-          // A selection with a locked layer still moves the selection, but edits nothing.
-          const frozen = selection.ids.some((id) => locked.has(id));
-          const handled = handleKey(
-            { store, index, edit: frozen ? () => undefined : edit, docOf: (id) => screenOf.get(id) },
-            e,
-          );
-          if (handled) {
-            e.preventDefault();
-          }
-        }}
-        onDoubleClick={() => store.set(sel.enter(index, store.get()))}
-        onPointerDown={(e) => {
-          if (!e.shiftKey && !e.ctrlKey && !e.metaKey && gestures.down(e)) {
-            start.current = { x: e.clientX, y: e.clientY };
-            return;
-          }
-          drag.current = { x: e.clientX, y: e.clientY };
-          start.current = { x: e.clientX, y: e.clientY };
-        }}
-        onPointerMove={(e) => {
-          if (gestures.move(e)) {
-            return;
-          }
-          const d = drag.current;
-          if (d !== null && !e.shiftKey) {
-            surfaceRef.current?.pan(e.clientX - d.x, e.clientY - d.y);
-            drag.current = { x: e.clientX, y: e.clientY };
-          }
-        }}
-        onPointerUp={(e) => {
-          drag.current = null;
-          const moved = gestures.up(e);
-          const from = moved ? null : start.current;
-          start.current = null;
-          const box = canvasRef.current?.getBoundingClientRect();
-          if (from !== null && surfaceRef.current && box) {
-            pointerSelect(
-              surfaceRef.current,
-              store,
-              index,
-              box,
-              from,
+    <PaintThemeContext.Provider value={paint}>
+      <section
+        ref={sectionRef}
+        className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
+        dir={look.direction}
+        data-preview-theme={look.theme}
+        data-preview-platform={look.platform}
+        style={{ fontSize: `${look.textScale}em` }}
+      >
+        <MatrixOverlay show={matrix} render={look} screen={shown[0]} style={styled} createSurface={createSurface} />
+        {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
+        <canvas
+          key={theme.key}
+          role="application"
+          aria-label={m.title}
+          ref={canvasRef}
+          className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
+          tabIndex={0}
+          {...dropHandlers}
+          onKeyDown={(e) => {
+            // A selection with a locked layer still moves the selection, but edits nothing.
+            const frozen = selection.ids.some((id) => locked.has(id));
+            const handled = handleKey(
+              { store, index, edit: frozen ? () => undefined : edit, docOf: (id) => screenOf.get(id) },
               e,
-              (hits) => {
-                const lane = ghostLayer.pick(hits)?.link;
-                if (lane !== undefined) {
-                  setLane(lane);
-                  return true;
-                }
-                const ghost = ghostOfHit(hits, ghostLayer.placed);
-                if (ghost === undefined) {
-                  return false;
-                }
-                if (ghost.kind === "screen") {
-                  setLeaving(ghost);
-                }
-                return true;
-              },
-              locked,
             );
-          }
-          sync();
-        }}
-      />
-      {docs.isPending && <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>}
-      {docs.isError && (
-        <p role="alert" className="absolute start-4 top-4 text-body">
-          {m.failed}
-        </p>
-      )}
-      {docs.isSuccess && screens.length === 0 && (
-        <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.empty}</p>
-      )}
-      <p role="status" aria-live="polite" className="sr-only">
-        {announcement}
-      </p>
-      <p role="status" aria-live="polite" className="sr-only">
-        {focusNote}
-      </p>
-      <GhostLeaveDialog
-        ghost={leaving}
-        onCancel={() => setLeaving(null)}
-        onOpen={(ghost) => {
-          setLeaving(null);
-          if (ghost.pluginId !== undefined && ghost.screenId !== undefined) {
-            void navigate({
-              to: "/o/$org/apps/$app/plugins/$plugin",
-              params: { org: params.org ?? "", app: params.app ?? "", plugin: ghost.pluginId },
-              search: { focus: ghost.screenId },
-            });
-          }
-        }}
-      />
-      <ol aria-label={m.screens} className="sr-only">
-        {screens.map((s) => (
-          <li key={s.id}>
-            {s.title}
-            {(heights.get(s.id) ?? 0) > DEVICE.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
-          </li>
-        ))}
-      </ol>
-      <LeftDock
-        title={pluginInfo?.name}
-        nativeWidgets={nativeWidgets}
-        screens={screens}
-        entryPage={entryPage}
-        index={index}
-        screenOf={screenOf}
-        selection={selection}
-        store={store}
-        edit={edit}
-        canEdit={canEdit}
-        surface={() => surfaceRef.current}
-        canvas={() => canvasRef.current}
-        documents={docs.data}
-        onOpenState={() => overlays.show("state")}
-        onOpenData={() => overlays.show("data")}
-        assets={assets}
-      />
-      <LinkLayer
-        surface={() => surfaceRef.current}
-        canvas={() => canvasRef.current}
-        widget={linkWidget}
-        screens={linkScreens}
-        canEdit={canEdit}
-        edit={edit}
-      />
-      {lane !== null && (
-        <LaneDialog
-          title={lane.title}
-          site={laneSite}
-          routes={laneRoutes}
-          canEdit={canEdit}
-          onClose={() => setLane(null)}
-          onRedirect={(route) => {
-            if (laneSite !== undefined) {
-              edit(lane.source, redirectRecipe(laneSite.nodeId, laneSite.link, route));
+            if (handled) {
+              e.preventDefault();
             }
-            setLane(null);
           }}
-          onRemove={() => {
-            if (laneSite !== undefined) {
-              edit(lane.source, removeLinkRecipe(laneSite.nodeId, laneSite.link));
+          onDoubleClick={() => store.set(sel.enter(index, store.get()))}
+          onPointerDown={(e) => {
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && gestures.down(e)) {
+              start.current = { x: e.clientX, y: e.clientY };
+              return;
             }
-            setLane(null);
+            drag.current = { x: e.clientX, y: e.clientY };
+            start.current = { x: e.clientX, y: e.clientY };
+          }}
+          onPointerMove={(e) => {
+            if (gestures.move(e)) {
+              return;
+            }
+            const d = drag.current;
+            if (d !== null && !e.shiftKey) {
+              surfaceRef.current?.pan(e.clientX - d.x, e.clientY - d.y);
+              drag.current = { x: e.clientX, y: e.clientY };
+            }
+          }}
+          onPointerUp={(e) => {
+            drag.current = null;
+            const moved = gestures.up(e);
+            const from = moved ? null : start.current;
+            start.current = null;
+            const box = canvasRef.current?.getBoundingClientRect();
+            if (from !== null && surfaceRef.current && box) {
+              pointerSelect(
+                surfaceRef.current,
+                store,
+                index,
+                box,
+                from,
+                e,
+                (hits) => {
+                  const lane = ghostLayer.pick(hits)?.link;
+                  if (lane !== undefined) {
+                    setLane(lane);
+                    return true;
+                  }
+                  const ghost = ghostOfHit(hits, ghostLayer.placed);
+                  if (ghost === undefined) {
+                    return false;
+                  }
+                  if (ghost.kind === "screen") {
+                    setLeaving(ghost);
+                  }
+                  return true;
+                },
+                locked,
+              );
+            }
+            sync();
           }}
         />
-      )}
-      {clipboardDialog}
-      <DeviceBayHost
-        appId={params.app}
-        request={consoleRequest}
-        live={canSend}
-        validation={validation}
-        screens={screens}
-        store={store}
-        index={index}
-        selection={selection}
-        local={local}
-        assets={assets}
-        screenOf={screenOf}
-        entryPage={entryPage}
-      />
-      {libraryDialog}
-      <RightDock
-        tests={tests}
-        screens={screens}
-        index={index}
-        screenOf={screenOf}
-        edit={edit}
-        pathOf={pathOf}
-        problems={checked?.problems ?? []}
-        documents={docs.data}
-        appDocuments={appDocs.data}
-        validatePage={checked?.validatePage}
-        language={checked?.language}
-        onOpenJson={() => overlays.show("json")}
-        onOpenLocalisation={() => overlays.show("l10n")}
-        onOpenState={() => overlays.show("state")}
-        schemaVersion={stateTarget.schemaVersion}
-        onOpenOverlay={overlays.show}
-        onOpenGraph={() => overlays.show("graph")}
-        onOpenRust={() => {
-          setRustSource(undefined);
-          overlays.show("rust");
-        }}
-        onOpenFunction={(name) => {
-          setRustSource(name);
-          overlays.show("rust");
-        }}
-      />
-      <DesignersHost
-        open={overlays.open}
-        onClose={overlays.hide}
-        documents={docs.data}
-        appDocuments={appDocs.data}
-        validation={validation}
-      />
-      <JsonEditorHost
-        open={overlays.open === "json"}
-        onClose={overlays.hide}
-        documents={docs.data}
-        screenOf={screenOf}
-        pathOf={pathOf}
-        validation={validation}
-      />
-      <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} sourceId={rustSource} />
-      <ExtraOverlays
-        open={overlays.open}
-        onClose={overlays.hide}
-        documents={docs.data}
-        appDocuments={appDocs.data}
-        target={stateTarget}
-        validatePage={checked?.validatePage}
-      />
-      <ActionGraphHost
-        open={overlays.open === "graph"}
-        onClose={overlays.hide}
-        documents={docs.data}
-        screenOf={screenOf}
-        pathOf={pathOf}
-        validation={validation}
-      />
-      {docs.data !== undefined && (
-        <ScreensController
-          appId={params.app ?? ""}
-          pluginId={params.plugin ?? ""}
-          editorSessionId={editorSessionId}
+        {docs.isPending && <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>}
+        {docs.isError && (
+          <p role="alert" className="absolute start-4 top-4 text-body">
+            {m.failed}
+          </p>
+        )}
+        {docs.isSuccess && screens.length === 0 && (
+          <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.empty}</p>
+        )}
+        <p role="status" aria-live="polite" className="sr-only">
+          {announcement}
+        </p>
+        <p role="status" aria-live="polite" className="sr-only">
+          {focusNote}
+        </p>
+        <GhostLeaveDialog
+          ghost={leaving}
+          onCancel={() => setLeaving(null)}
+          onOpen={(ghost) => {
+            setLeaving(null);
+            if (ghost.pluginId !== undefined && ghost.screenId !== undefined) {
+              void navigate({
+                to: "/o/$org/apps/$app/plugins/$plugin",
+                params: { org: params.org ?? "", app: params.app ?? "", plugin: ghost.pluginId },
+                search: { focus: ghost.screenId },
+              });
+            }
+          }}
+        />
+        <ol aria-label={m.screens} className="sr-only">
+          {screens.map((s) => (
+            <li key={s.id}>
+              {s.title}
+              {(heights.get(s.id) ?? 0) > DEVICE.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
+            </li>
+          ))}
+        </ol>
+        <LeftDock
+          title={pluginInfo?.name}
+          nativeWidgets={nativeWidgets}
+          screens={screens}
+          entryPage={entryPage}
+          index={index}
+          screenOf={screenOf}
+          selection={selection}
+          store={store}
+          edit={edit}
+          canEdit={canEdit}
+          surface={() => surfaceRef.current}
+          canvas={() => canvasRef.current}
+          documents={docs.data}
+          onOpenState={() => overlays.show("state")}
+          onOpenData={() => overlays.show("data")}
+          assets={assets}
+        />
+        <LinkLayer
+          surface={() => surfaceRef.current}
+          canvas={() => canvasRef.current}
+          widget={linkWidget}
+          screens={linkScreens}
+          canEdit={canEdit}
+          edit={edit}
+        />
+        {lane !== null && (
+          <LaneDialog
+            title={lane.title}
+            site={laneSite}
+            routes={laneRoutes}
+            canEdit={canEdit}
+            onClose={() => setLane(null)}
+            onRedirect={(route) => {
+              if (laneSite !== undefined) {
+                edit(lane.source, redirectRecipe(laneSite.nodeId, laneSite.link, route));
+              }
+              setLane(null);
+            }}
+            onRemove={() => {
+              if (laneSite !== undefined) {
+                edit(lane.source, removeLinkRecipe(laneSite.nodeId, laneSite.link));
+              }
+              setLane(null);
+            }}
+          />
+        )}
+        {clipboardDialog}
+        <DeviceBayHost
+          appId={params.app}
+          request={consoleRequest}
+          live={canSend}
+          validation={validation}
+          screens={screens}
+          store={store}
+          index={index}
+          selection={selection}
+          local={local}
+          assets={assets}
+          screenOf={screenOf}
+          entryPage={entryPage}
+        />
+        {libraryDialog}
+        <RightDock
+          tests={tests}
+          screens={screens}
+          index={index}
+          screenOf={screenOf}
+          edit={edit}
+          pathOf={pathOf}
+          problems={checked?.problems ?? []}
           documents={docs.data}
           appDocuments={appDocs.data}
-          screens={screens.map((x) => ({ id: x.id, title: x.title }))}
-          entryPage={entryPage}
-          validation={validation}
-          percent={percent}
-          onZoom={zoomBy}
-          onZoomReset={resetZoom}
-          onFit={fit}
-          onShowScreen={showScreen}
-          identity={<PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />}
-          status={
-            <PluginStatus
-              ids={selection.ids}
-              index={index}
-              validation={validation}
-              onProblems={() => setConsoleRequest(problemsRequest)}
-            />
-          }
-          onHistory={() => overlays.show("history")}
-          preview={
-            <>
-              {switcher}
-              {bar}
-            </>
-          }
-          canSend={canSend}
-          canPublish={canPublish}
-          onPublish={() =>
-            void navigate({ to: "/o/$org/apps/$app/publish", params: { org: params.org ?? "", app: params.app ?? "" } })
-          }
+          validatePage={checked?.validatePage}
+          language={checked?.language}
+          onOpenJson={() => overlays.show("json")}
+          onOpenLocalisation={() => overlays.show("l10n")}
+          onOpenState={() => overlays.show("state")}
+          schemaVersion={stateTarget.schemaVersion}
+          onOpenOverlay={overlays.show}
+          onOpenGraph={() => overlays.show("graph")}
+          onOpenRust={() => {
+            setRustSource(undefined);
+            overlays.show("rust");
+          }}
+          onOpenFunction={(name) => {
+            setRustSource(name);
+            overlays.show("rust");
+          }}
         />
-      )}
-    </section>
+        <DesignersHost
+          open={overlays.open}
+          onClose={overlays.hide}
+          documents={docs.data}
+          appDocuments={appDocs.data}
+          validation={validation}
+        />
+        <JsonEditorHost
+          open={overlays.open === "json"}
+          onClose={overlays.hide}
+          documents={docs.data}
+          screenOf={screenOf}
+          pathOf={pathOf}
+          validation={validation}
+        />
+        <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} sourceId={rustSource} />
+        <ExtraOverlays
+          open={overlays.open}
+          onClose={overlays.hide}
+          documents={docs.data}
+          appDocuments={appDocs.data}
+          target={stateTarget}
+          validatePage={checked?.validatePage}
+        />
+        <ActionGraphHost
+          open={overlays.open === "graph"}
+          onClose={overlays.hide}
+          documents={docs.data}
+          screenOf={screenOf}
+          pathOf={pathOf}
+          validation={validation}
+        />
+        {docs.data !== undefined && (
+          <ScreensController
+            appId={params.app ?? ""}
+            pluginId={params.plugin ?? ""}
+            editorSessionId={editorSessionId}
+            documents={docs.data}
+            appDocuments={appDocs.data}
+            screens={screens.map((x) => ({ id: x.id, title: x.title }))}
+            entryPage={entryPage}
+            validation={validation}
+            percent={percent}
+            onZoom={zoomBy}
+            onZoomReset={resetZoom}
+            onFit={fit}
+            onShowScreen={showScreen}
+            identity={<PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />}
+            status={
+              <PluginStatus
+                ids={selection.ids}
+                index={index}
+                validation={validation}
+                onProblems={() => setConsoleRequest(problemsRequest)}
+              />
+            }
+            onHistory={() => overlays.show("history")}
+            preview={
+              <>
+                {switcher}
+                {bar}
+              </>
+            }
+            canSend={canSend}
+            canPublish={canPublish}
+            onPublish={() =>
+              void navigate({
+                to: "/o/$org/apps/$app/publish",
+                params: { org: params.org ?? "", app: params.app ?? "" },
+              })
+            }
+          />
+        )}
+      </section>
+    </PaintThemeContext.Provider>
   );
 }

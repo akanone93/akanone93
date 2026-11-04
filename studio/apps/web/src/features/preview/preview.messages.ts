@@ -66,6 +66,16 @@ export function previewMessages(i18n: I18n) {
       comment: "Accessible name of the close button of the custom frame dialog.",
     }),
     theme: i18n._({ id: "preview.theme", message: "Theme", comment: "Label of the preview theme select." }),
+    brand: i18n._({
+      id: "preview.brand",
+      message: "Brand",
+      comment: "Label of the preview select of the theme's brand overlay (THM-003).",
+    }),
+    brandNone: i18n._({
+      id: "preview.brandNone",
+      message: "No overlay",
+      comment: "Option of the brand select: the theme without a brand overlay.",
+    }),
     themeLight: i18n._({ id: "preview.themeLight", message: "Light", comment: "Preview theme option." }),
     themeDark: i18n._({ id: "preview.themeDark", message: "Dark", comment: "Preview theme option." }),
     locale: i18n._({ id: "preview.locale", message: "Locale", comment: "Label of the preview locale select." }),

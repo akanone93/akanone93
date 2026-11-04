@@ -9,8 +9,16 @@
  * device (STU-056).
  */
 
-import { layoutScreen, type ParagraphEngine, type Placed } from "@plux/layout";
-import type { ItemSpec, SceneOp, ScreenDocument, ScreenHeight, ScreenStyle } from "./protocol.ts";
+import {
+  type BorderPaint,
+  type BoxPaint,
+  layoutScreen,
+  type NodePaint,
+  type ParagraphEngine,
+  type Placed,
+  TextDirection,
+} from "@plux/layout";
+import type { ClipSpec, ItemSpec, SceneOp, ScreenDocument, ScreenHeight, ScreenStyle, SidesSpec } from "./protocol.ts";
 
 /** The scene id of a screen's device frame. */
 export const frameId = (screen: string) => `screen:${screen}`;
@@ -81,6 +89,111 @@ function labelItem(s: ScreenDocument, b: Placed, style: ScreenStyle): ItemSpec |
   };
 }
 
+/** The suffix of the scene ids of the boxes a widget paints; a hit on one is a hit on the widget. */
+export const PAINT_SUFFIX = "#paint";
+
+/** The depth a painted widget's items are drawn at: its paint order above the frame; foreground decorations above all. */
+const PAINT_Z = 2;
+const FOREGROUND_Z = 5000;
+
+function clipsOf(s: ScreenDocument, paint: NodePaint): { clips?: ClipSpec[] } {
+  return paint.clips.length === 0
+    ? {}
+    : {
+        clips: paint.clips.map((c) => ({
+          x: s.x + c.x,
+          y: s.y + c.y,
+          w: c.w,
+          h: c.h,
+          ...(c.radii === undefined ? {} : { radii: c.radii }),
+          ...(c.oval === true ? { oval: true } : {}),
+        })),
+      };
+}
+
+function sidesOf(border: Extract<BorderPaint, { kind: "sides" }>): SidesSpec {
+  const { top, right, bottom, left } = border;
+  return {
+    ...(top === undefined ? {} : { top }),
+    ...(right === undefined ? {} : { right }),
+    ...(bottom === undefined ? {} : { bottom }),
+    ...(left === undefined ? {} : { left }),
+  };
+}
+
+/** One painted box of a widget as a scene item. */
+function paintedBox(s: ScreenDocument, b: Placed, paint: NodePaint, box: BoxPaint, i: number, frame: object): ItemSpec {
+  const border = box.border;
+  return {
+    kind: "rect",
+    id: `${s.id}/${b.id}${PAINT_SUFFIX}${i}`,
+    x: s.x + box.x,
+    y: s.y + box.y,
+    w: box.w,
+    h: box.h,
+    radius: 0,
+    ...(box.radii === undefined ? {} : { radii: box.radii }),
+    ...(box.oval === true ? { oval: true } : {}),
+    ...(box.fill === undefined ? {} : { fill: box.fill }),
+    ...(box.gradient === undefined
+      ? {}
+      : {
+          gradient: {
+            ...box.gradient,
+            from: [s.x + box.gradient.from[0], s.y + box.gradient.from[1]],
+            to: [s.x + box.gradient.to[0], s.y + box.gradient.to[1]],
+          },
+        }),
+    ...(box.shadows === undefined ? {} : { shadows: box.shadows }),
+    ...(border === undefined ? {} : border.kind === "all" ? { stroke: border.side } : { sides: sidesOf(border) }),
+    ...(paint.opacity < 1 ? { opacity: paint.opacity } : {}),
+    ...clipsOf(s, paint),
+    z: box.foreground === true ? FOREGROUND_Z + paint.order : PAINT_Z + paint.order,
+    ...frame,
+  };
+}
+
+/**
+ * The scene items of a widget laid out with a paint theme (STU-005): the boxes it paints, its text in its colour, a
+ * neutral box for a widget not painted yet, and an empty box over its bounds for selection and hit testing.
+ */
+function paintedItems(s: ScreenDocument, b: Placed, paint: NodePaint, style: ScreenStyle): ItemSpec[] {
+  if (paint.role === "hidden") {
+    return [];
+  }
+  const beyond = b.y >= style.deviceHeight;
+  const frame = beyond ? {} : { frame: frameId(s.id) };
+  const z = PAINT_Z + paint.order;
+  const own = { id: `${s.id}/${b.id}`, x: s.x + b.x, y: s.y + b.y, w: b.w, z, ...frame };
+  if (paint.role === "text" && b.text !== undefined) {
+    return [
+      {
+        kind: "text",
+        ...own,
+        text: b.text,
+        size: style.theme.fontSize,
+        families: style.theme.fontFamilies,
+        color: paint.textColor ?? style.text,
+        ...(paint.opacity < 1 ? { opacity: paint.opacity } : {}),
+        ...clipsOf(s, paint),
+      },
+    ];
+  }
+  if (paint.role === "placeholder") {
+    const placeholder = boxItem(s, b, style);
+    const label = labelItem(s, b, style);
+    const faded = { z, ...(paint.opacity < 1 ? { opacity: paint.opacity } : {}), ...clipsOf(s, paint) };
+    return [
+      { ...placeholder, ...faded } as ItemSpec,
+      ...(label === null ? [] : [{ ...label, ...faded, z: z + 0.5 } as ItemSpec]),
+    ];
+  }
+  return [
+    { kind: "rect", ...own, h: b.h, radius: 0 },
+    ...paint.boxes.map((box, i) => paintedBox(s, b, paint, box, i, frame)),
+  ];
+}
+
 /** The scene items of one laid-out screen. */
 function screenItems(
   s: ScreenDocument,
@@ -137,6 +250,10 @@ function screenItems(
     });
   }
   for (const b of boxes) {
+    if (b.paint !== undefined) {
+      items.push(...paintedItems(s, b, b.paint, style));
+      continue;
+    }
     items.push(boxItem(s, b, style));
     const label = labelItem(s, b, style);
     if (label !== null) {
@@ -163,6 +280,7 @@ function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine):
     deviceHeight: style.deviceHeight,
     ...(style.textScale === undefined ? {} : { textScale: style.textScale }),
     ...(style.textDirection === undefined ? {} : { textDirection: style.textDirection }),
+    ...(style.paint === undefined ? {} : { paint: { ...style.paint, rtl: style.textDirection === TextDirection.rtl } }),
   });
   return { items: screenItems(s, boxes, contentHeight, style), height: contentHeight };
 }

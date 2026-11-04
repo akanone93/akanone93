@@ -53,6 +53,7 @@ import {
 import type { PxlEditorSource } from "./pxl-editor.tsx";
 import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
 import { lockedIds } from "./studio-meta.ts";
+import { ColorField, DecorationEditor } from "./style-editors.tsx";
 import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
 
@@ -346,13 +347,36 @@ function ListEditor(p: EditorProps) {
         size="sm"
         disabled={p.readOnly}
         onClick={() => {
-          set([...items, ""]);
+          set([...items, emptyItem(item)]);
           p.onEnd();
         }}
       >
         {p.m.addItem}
       </Button>
     </div>
+  );
+}
+
+/** A new list item of `type`: an empty object for a value type, zero for a number, else an empty string. */
+function emptyItem(type: string): unknown {
+  const kind = editorKind(type, enumNames);
+  return kind === "object" ? {} : kind === "number" || kind === "int" ? 0 : kind === "bool" ? false : "";
+}
+
+/** A colour property: the swatch field with the theme's roles and tokens (STU-062, THM-001). */
+function StyleColor(p: EditorProps) {
+  const b = bindingOf(p.value);
+  return b?.kind === "expr" ? (
+    <ColorEditor {...p} />
+  ) : (
+    <ColorField
+      name={p.name}
+      value={p.value}
+      mixed={p.mixed}
+      readOnly={p.readOnly}
+      onChange={p.onChange}
+      onEnd={p.onEnd}
+    />
   );
 }
 
@@ -398,7 +422,7 @@ export function ValueEditor(p: EditorProps) {
     case "bool":
       return <BoolEditor {...p} />;
     case "color":
-      return <ColorEditor {...p} />;
+      return <StyleColor {...p} />;
     case "insets":
       return <InsetsEditor {...p} />;
     case "alignment":
@@ -420,7 +444,11 @@ export function ValueEditor(p: EditorProps) {
     case "list":
       return <ListEditor {...p} />;
     case "object":
-      return <ObjectEditor {...p} />;
+      return bare === "BoxDecoration" ? (
+        <DecorationEditor name={p.name} value={p.value} readOnly={p.readOnly} onChange={p.onChange} onEnd={p.onEnd} />
+      ) : (
+        <ObjectEditor {...p} />
+      );
     default:
       return <TextEditor {...p} />;
   }

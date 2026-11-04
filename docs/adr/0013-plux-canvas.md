@@ -53,6 +53,14 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   its measured width rounded up, as Flutter's text painter once did: at the exact floating-point
   width SkParagraph can find the line a hair too long and break it, and the lines below overlap
   (amended 2026-11-04).
+- **Screens are painted, not only placed** (amended 2026-11-05, maintainer). The layout engine stays layout-only;
+  a paint module beside it (`studio/packages/layout/src/paint/`) says what each widget draws from its props, as
+  Flutter's painters do — fills, gradients, borders, per-corner radii, circles, Material elevation shadows (Flutter's
+  `kElevationToShadow`), and the clips and opacity its ancestors apply — in paint order. Colours come from the theme
+  as the runtime reads it: token paths, dark values, brands and aliases, and the Material 3 scheme from
+  `ColorScheme.fromSeed` with the tonal spot variant, ported from material_color_utilities 0.13.0 (the version the
+  pinned Flutter uses) and tested role by role against vectors from that library. Layout-only widgets draw nothing;
+  widgets not painted yet keep a neutral box. Painting is reviewed by eye against the device, not by pixels.
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with
