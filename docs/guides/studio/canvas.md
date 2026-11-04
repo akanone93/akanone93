@@ -94,7 +94,8 @@ Positions are read-only while someone else is editing the app.
    eye hides it on the canvas (Ctrl+Shift+H) and the lock keeps it from being selected, moved or edited
    (Ctrl+Shift+L). Names, hiding and locks are Studio's own: the device still shows the widget. The
    card at the top of **Layers** lists the selection, with **Show on canvas** and **Clear selection**.
-   The fold button in each dock's header folds it to its rail; a tab on the rail opens it again. In
+   The fold button in each dock's header folds it; the button beside the folded dock (or a tab on its
+   rail) opens it again, on both canvases and both sides. In
    the **Inspector**, **Editors** and **Details** fold separately. **Assets** takes files dropped on its zone (or chosen
    by clicking it) and shows them as cards you can search and filter by kind; **Data** holds the
    plugin's **State** and **Data sources**. Select a widget and edit it in the **Inspector**: it

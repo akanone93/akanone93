@@ -9737,6 +9737,12 @@ msgstr "Open the inspector"
 msgid "panelTabs.l10nOpen"
 msgstr "Open the localisation table"
 
+#. Button beside a canvas's folded left dock: opens the dock again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.unfoldDock"
+msgstr "Open the panel"
+
 #. Button of the State tab that opens the full-screen state designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts

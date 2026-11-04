@@ -218,6 +218,7 @@ export function LeftDock(props: LeftDockProps): ReactElement {
         folded={folded}
         onFold={setFolded}
         foldLabel={m.foldDock}
+        unfoldLabel={m.unfoldDock}
         head={
           <div className="flex min-w-0 flex-col">
             <span className="dock-head-kicker">{m.editorTitle}</span>

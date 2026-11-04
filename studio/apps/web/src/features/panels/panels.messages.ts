@@ -225,6 +225,11 @@ export function panelsMessages(i18n: I18n) {
       message: "Fold the panel to its rail",
       comment: "Button in the header of a canvas's left dock: hides the pane and keeps the rail; a tab opens it again.",
     }),
+    unfoldDock: i18n._({
+      id: "panels.unfoldDock",
+      message: "Open the panel",
+      comment: "Button beside a canvas's folded left dock: opens the dock again.",
+    }),
     layerName: i18n._({
       id: "panels.layerName",
       message: "Layer name",

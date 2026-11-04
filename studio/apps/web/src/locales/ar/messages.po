@@ -9737,6 +9737,12 @@ msgstr "فتح المفتش"
 msgid "panelTabs.l10nOpen"
 msgstr "فتح جدول التوطين"
 
+#. Button beside a canvas's folded left dock: opens the dock again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.unfoldDock"
+msgstr "فتح اللوحة"
+
 #. Button of the State tab that opens the full-screen state designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts

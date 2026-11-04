@@ -54,6 +54,7 @@ export function DockTabs({
   folded = false,
   onFold,
   foldLabel,
+  unfoldLabel,
 }: {
   readonly panes: readonly Pane[];
   readonly value?: string;
@@ -68,6 +69,8 @@ export function DockTabs({
   readonly onFold?: (folded: boolean) => void;
   /** The name of the header's fold button. */
   readonly foldLabel?: string;
+  /** The name of the button outside the folded dock that opens it again. */
+  readonly unfoldLabel?: string;
 }): ReactElement {
   return (
     <Tabs
@@ -102,6 +105,9 @@ export function DockTabs({
           ))}
         </TabsList>
       </div>
+      {folded && onFold !== undefined && unfoldLabel !== undefined && (
+        <DockExpand side="start" label={unfoldLabel} onExpand={() => onFold(false)} />
+      )}
       <div className="dock-main" hidden={folded}>
         <header className="dock-head">
           <div className="min-w-0 flex-1">{head}</div>
@@ -125,6 +131,26 @@ export function DockTabs({
         ))}
       </div>
     </Tabs>
+  );
+}
+
+/**
+ * The button outside a folded dock, beside its rail, that opens the dock again: the dock's own fold button stays in its
+ * header, so folding is done from inside and unfolding from outside, on both sides and both canvases.
+ */
+export function DockExpand({
+  side,
+  label,
+  onExpand,
+}: {
+  readonly side: "start" | "end";
+  readonly label: string;
+  readonly onExpand: () => void;
+}): ReactElement {
+  return (
+    <button type="button" className="dock-expand" data-side={side} aria-label={label} title={label} onClick={onExpand}>
+      <Icon name={side === "start" ? "panel-start-open" : "panel-end-open"} />
+    </button>
   );
 }
 

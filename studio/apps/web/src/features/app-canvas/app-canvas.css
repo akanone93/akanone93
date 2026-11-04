@@ -140,6 +140,7 @@
 
 /* The app canvas's left dock: as wide as the plugin editor's, its plugins as rows with their mark, key and state. */
 .app-dock {
+  position: relative;
   inline-size: 21rem;
   transition: inline-size 160ms ease;
   min-block-size: 0;
@@ -212,4 +213,10 @@
 
 .app-dock[data-folded] {
   inline-size: auto;
+  overflow: visible;
+}
+
+.app-dock[data-folded] .dock-tabs,
+.app-dock[data-folded] .dock-rail-column {
+  border-radius: inherit;
 }

@@ -225,6 +225,7 @@ export function AppDock({
         folded={folded}
         onFold={setFolded}
         foldLabel={m.hidePanel}
+        unfoldLabel={m.showPanel}
         head={
           <div className="flex min-w-0 flex-col">
             <span className="dock-head-kicker">{m.dockTitle}</span>

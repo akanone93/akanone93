@@ -798,31 +798,30 @@
 }
 
 .inspector-fold,
-.inspector-unfold {
-  display: grid;
-  flex: none;
-  place-items: center;
-  inline-size: calc(var(--spacing) * 8);
-  block-size: calc(var(--spacing) * 8);
-  border-radius: var(--radius-lg);
-  color: var(--primary-foreground);
-}
-
-.inspector-fold:hover,
-.inspector-unfold:hover {
+.inspector-fold:hover {
   background-color: oklch(1 0 0 / 16%);
 }
 
 .inspector-fold:focus-visible,
-.inspector-unfold:focus-visible,
 .inspector-section-head:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 1px;
 }
 
-/* Folded, the inspector is a strip on the primary colour: open it, see what is selected. */
+/* Folded, the inspector is a strip on the primary colour that shows what is selected; the button beside it opens it. */
 .plugin-dock-end[data-folded] {
   inline-size: calc(var(--spacing) * 14);
+}
+
+/* A folded dock lets its open button stand outside it; the rail or strip keeps the dock's rounded corners itself. */
+.plugin-dock[data-folded] {
+  overflow: visible;
+}
+
+.plugin-dock[data-folded] .dock-tabs,
+.plugin-dock[data-folded] .dock-rail-column,
+.plugin-dock-end[data-folded] .inspector-strip {
+  border-radius: inherit;
 }
 
 .inspector-strip {

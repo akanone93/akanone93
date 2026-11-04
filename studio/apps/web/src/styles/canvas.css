@@ -557,6 +557,54 @@ button.problem-counts:focus-visible {
   background-color: color-mix(in oklch, var(--foreground) 7%, transparent);
 }
 
+/*
+ * The button beside a folded dock that opens it again, outside the dock at its header's height: a small glass tile
+ * with the primary's open-panel mark that fills with the primary under the pointer. Folding stays in the dock's header.
+ */
+.dock-expand {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: calc(var(--spacing) * 3);
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 9);
+  block-size: calc(var(--spacing) * 9);
+  border-radius: var(--radius-lg);
+  color: var(--primary);
+  background-color: var(--canvas-glass-fill, var(--popover));
+  background-image: var(--canvas-glass-sheen, none);
+  backdrop-filter: var(--canvas-glass-blur, none);
+  box-shadow:
+    0 0 0 1px var(--canvas-glass-edge, var(--border)),
+    inset 0 1px 0 0 var(--canvas-glass-highlight, transparent),
+    var(--elevation-2);
+  transition:
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.dock-expand[data-side="start"] {
+  inset-inline-start: calc(100% + var(--spacing) * 2);
+}
+
+.dock-expand[data-side="end"] {
+  inset-inline-end: calc(100% + var(--spacing) * 2);
+}
+
+.dock-expand:hover {
+  color: var(--primary-foreground);
+  background-color: var(--primary);
+}
+
+.dock-expand:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] .dock-expand:not(:hover) {
+  color: var(--link);
+}
+
 .dock-fold:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 1px;

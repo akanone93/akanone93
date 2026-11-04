@@ -29,7 +29,7 @@ import type { TestsClient } from "../rust-editor/test-runner.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
-import { useStoredFlag } from "./dock-tabs.tsx";
+import { DockExpand, useStoredFlag } from "./dock-tabs.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
 import {
   type Breakpoint,
@@ -1025,16 +1025,8 @@ function FoldedInspector({
       className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass"
       data-folded=""
     >
+      <DockExpand side="end" label={m.openInspector} onExpand={onOpen} />
       <div className="inspector-strip">
-        <button
-          type="button"
-          className="inspector-unfold"
-          aria-label={m.openInspector}
-          title={m.openInspector}
-          onClick={onOpen}
-        >
-          <Icon name="panel-end-open" />
-        </button>
         <span className="inspector-glyph" aria-hidden="true">
           <Icon name={glyph} />
         </span>
