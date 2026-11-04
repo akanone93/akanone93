@@ -522,4 +522,29 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(texts.sort()).toEqual(["Ada", "Name", "Yours"]);
     engine.dispose();
   });
+
+  test("[STU-005] a painted scaffold draws its own app bar, its actions included, and no part boxes", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const icon = (id: string, name: string): WidgetNode => ({ id, type: "Icon", props: { icon: { name } } });
+    const root: WidgetNode = {
+      id: "sc",
+      type: "Scaffold",
+      slots: {
+        appBar: {
+          id: "bar",
+          type: "AppBar",
+          slots: { title: text("title", "Settings"), actions: [icon("a1", "search"), icon("a2", "more_vert")] },
+        },
+        body: { id: "col", type: "Column", children: [text("t", "Body")] },
+      },
+    };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    const items = new Map(painted.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])));
+    expect(items.get("s/bar#paint0")).toMatchObject({ kind: "rect", fill: argbToRgba(scheme.surface) });
+    expect(items.get("s/title")).toMatchObject({ kind: "text", size: 22 });
+    expect(items.has("s/a1") && items.has("s/a2")).toBe(true);
+    expect(items.has("s/appBar")).toBe(false);
+    engine.dispose();
+  });
 });

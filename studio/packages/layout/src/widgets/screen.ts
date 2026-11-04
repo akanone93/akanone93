@@ -279,6 +279,31 @@ function bodyConstraints(node: WidgetNode | undefined, width: number, height: nu
     : new BoxConstraints({ minWidth: width, maxWidth: width, maxHeight: height });
 }
 
+/**
+ * The page's app bar: on a painted screen the scaffold's own `AppBar`, laid out and painted as Flutter's; elsewhere a
+ * stand-in of the theme's app bar height that shows the screen's title.
+ */
+function appBarOf(
+  root: WidgetNode | null | undefined,
+  ctx: WidgetContext,
+  theme: ScreenTheme,
+  painted: boolean,
+): RenderBox {
+  const bar = root?.slots?.["appBar"];
+  if (painted && bar !== undefined && !Array.isArray(bar)) {
+    return new RenderConstrainedBox({
+      additionalConstraints: BoxConstraints.tightFor({ width: theme.width }),
+      child: ctx.build(bar as WidgetNode),
+    });
+  }
+  return named(
+    "appBar",
+    new RenderConstrainedBox({
+      additionalConstraints: BoxConstraints.tightFor({ width: theme.width, height: theme.appBarHeight }),
+    }),
+  );
+}
+
 /** The root's constraints: as a route gives them on a painted screen, else the width inside the page padding. */
 function rootConstraints(
   root: WidgetNode | undefined,
@@ -620,7 +645,7 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ["TextButton", faithful(materialButton("text"))],
   ["IconButton", faithful(materialButton("icon"))],
   ["FloatingActionButton", faithful(floatingActionButton)],
-  ["ListTile", listTile],
+  ["ListTile", faithful(listTile)],
   ["Chip", faithful(chip)],
   ["FilterChip", faithful(chip)],
   ["InputChip", faithful(chip)],
@@ -634,7 +659,13 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ...cupertinoWidgetBuilders,
   ...sceneWidgetBuilders,
   ...structuralWidgetBuilders,
+  ["TabBar", faithful(legacyBuilder(materialWidgetBuilders, "TabBar"))],
 ]);
+
+/** The builder `list` registers for `type`, as the screen's approximation under a faithful builder. */
+function legacyBuilder(list: ReadonlyArray<readonly [string, WidgetBuilder]>, type: string): WidgetBuilder {
+  return list.find(([t]) => t === type)?.[1] ?? wrapper;
+}
 
 /** Options of [layoutScreen]. */
 export interface LayoutScreenOptions {
@@ -750,16 +781,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
       crossAxisAlignment: CrossAxisAlignment.start,
       textDirection: ctx.textDirection ?? TextDirection.ltr,
       children: [
-        ...(hasBar
-          ? [
-              named(
-                "appBar",
-                new RenderConstrainedBox({
-                  additionalConstraints: BoxConstraints.tightFor({ width: theme.width, height: theme.appBarHeight }),
-                }),
-              ),
-            ]
-          : []),
+        ...(hasBar ? [appBarOf(root, ctx, theme, options.paint !== undefined)] : []),
         new RenderPadding({
           padding: EdgeInsets.all(pagePadding),
           child: new RenderConstrainedBox({

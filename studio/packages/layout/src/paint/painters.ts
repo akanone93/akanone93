@@ -10,6 +10,7 @@
  */
 
 import type { ColorRole } from "../material-color/scheme.ts";
+import { barPainters, barSurface } from "./bars.ts";
 import { checkboxMark, controlForeground, controlPainters } from "./controls.ts";
 import { fieldModel, fieldPaint, fieldTypes, type PaintText, type PlacedGlyph, searchBarPaint } from "./fields.ts";
 import {
@@ -256,6 +257,12 @@ const painters: ReadonlyMap<string, Painter> = new Map<string, Painter>([
 
 /** Widgets that place, scroll, animate or listen, and draw nothing of their own. */
 const LAYOUT_ONLY: ReadonlySet<string> = new Set([
+  // List tiles have no surface of their own in Material 3.
+  "ListTile",
+  "ExpansionTile",
+  "CheckboxListTile",
+  "SwitchListTile",
+  "RadioListTile",
   "Align",
   "AspectRatio",
   "Baseline",
@@ -430,6 +437,8 @@ function slotEntries(node: PaintNode): [string | undefined, PaintNode][] {
   );
 }
 
+const BAR_SURFACES: ReadonlySet<string> = new Set(["AppBar", "BottomAppBar", "Drawer", "NavigationDrawer"]);
+
 /** What a widget paints in its box `r`: a field's parts, a control's boxes, or its painter's. */
 function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
   if (fieldTypes.has(node.type ?? "")) {
@@ -437,6 +446,14 @@ function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap
   }
   if (node.type === "SearchBar" || node.type === "SearchAnchor") {
     return searchBarPaint(node.props ?? {}, r, theme);
+  }
+  const bar = barPainters.get(node.type ?? "");
+  if (bar !== undefined) {
+    return bar(node, r, theme, (id) => rects.get(id));
+  }
+  const surface = barSurface(node, r, theme);
+  if (surface !== undefined) {
+    return { boxes: surface };
   }
   const control = controlPainters.get(node.type ?? "");
   if (control !== undefined) {
@@ -481,7 +498,12 @@ class TreePainter {
       const icon = ownIcon(node, this.theme, icons);
       // An image with no source the canvas knows is a placeholder, as a widget not painted yet is.
       const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
-      const parts = fieldTypes.has(type) || type === "SearchBar" || type === "SearchAnchor";
+      const parts =
+        fieldTypes.has(type) ||
+        type === "SearchBar" ||
+        type === "SearchAnchor" ||
+        barPainters.has(type) ||
+        BAR_SURFACES.has(type);
       const painterOf = (painters.has(type) || controlPainters.has(type) || parts) && !sourceless;
       const role = icon === undefined || type !== "Icon" ? roleOf(type, painterOf) : "icon";
       this.record(node, role, painted, opacity, clips, { icon, text: icons.text });

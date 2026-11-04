@@ -197,6 +197,8 @@ const componentTypes: readonly string[] = [
   "Chip",
   "FilterChip",
   "InputChip",
+  "ListTile",
+  "TabBar",
 ];
 
 /**
@@ -275,8 +277,11 @@ function slotChildren(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNod
     if (unusedSlots.has(name) && node.type !== "NavigationDrawer") {
       continue;
     }
-    const converted = convert(child, bridge, deep);
-    out.push(name === "child" || templateSlots.has(name) ? converted : { ...converted, slot: name });
+    // A list slot (an app bar's `actions`) holds its widgets in order, each in the slot.
+    for (const one of Array.isArray(child) ? (child as WidgetNode[]) : [child]) {
+      const converted = convert(one, bridge, deep);
+      out.push(name === "child" || templateSlots.has(name) ? converted : { ...converted, slot: name });
+    }
   }
   return out;
 }
@@ -427,9 +432,26 @@ function faithfulScene(node: WidgetNode, props: Record<string, unknown>, childre
     case "TextField":
     case "TextFormField":
       return fieldScene(node.id, props);
+    case "TabBar":
+      return { id: node.id, type: "TabBar", props, ...tabsOf(node.id, props, children) };
     default:
       return { id: node.id, type: node.type ?? "", props, ...own };
   }
+}
+
+/** A tab bar's `tabs` as the scene's `Tab` children (a label and an icon each); children it already has are kept. */
+function tabsOf(id: string, props: Record<string, unknown>, children: SceneNode[]): { children?: SceneNode[] } {
+  const tabs = Array.isArray(props["tabs"]) ? props["tabs"].filter(isRecord) : [];
+  const made = tabs.map(
+    (t, i): SceneNode => ({
+      id: `${id}.${i}`,
+      type: "Tab",
+      props: typeof t["label"] === "string" ? { text: t["label"] } : {},
+      ...(isRecord(t["icon"]) ? { children: [{ id: `${id}.${i}.icon`, type: "Icon", slot: "icon", props: {} }] } : {}),
+    }),
+  );
+  const all = [...children, ...made];
+  return all.length === 0 ? {} : { children: all };
 }
 
 /** A text field as the scene's reads it: its decoration flattened, its decoration's icons as icon parts. */

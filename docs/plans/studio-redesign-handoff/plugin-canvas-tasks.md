@@ -63,8 +63,10 @@ Needs.
   label; hint, prefix, suffix, icons; helper and error), search bars. *Build:* a form screen. *Check:* set an error
   text and the field turns red; give it a value and the label floats. Steppers, date pickers and labelled dropdown
   menus follow with PC-09. `STU-005`, `STA-020`.
-- **PC-07 Bars, surfaces and lists.** *See:* app bars, navigation bar, rail and drawer, tab bar, cards, list tiles,
-  dividers, expansion tiles. *Build:* a settings screen. *Check:* compare with the Dev app. `STU-005`.
+- **PC-07 Bars, surfaces and lists.** *See:* the page's own app bar (title, leading, actions), navigation bar and
+  rail with the selected destination, tab bar with its indicator, drawers, bottom app bars, cards, list tiles, dividers.
+  *Build:* a settings screen. *Check:* change the selected destination or tab; compare with the Dev app. Bars stay
+  where the page puts them until PC-12 places the scaffold's parts. `STU-005`.
 - **PC-08 Cupertino.** *See:* with **Cupertino** in Preview, iOS-styled controls and every adaptive widget.
   *Build:* — *Check:* the device matrix with Material and Cupertino. `WGT-011`.
 - **PC-09 Layer 2 everyday components.** *See:* money, inputs, cards, lists, states, pagers, wizards drawn as on the

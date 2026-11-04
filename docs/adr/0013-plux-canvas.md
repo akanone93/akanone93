@@ -81,7 +81,10 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   scene's input decorator from their `decoration`, and painted with `_InputDecoratorDefaultsM3`: underline, filled or
   outlined container, resting or floating label, value or hint, prefix and suffix, helper or error, icons. On a painted
   screen a composite reports the parts it makes up itself (`<id>#input`, `#hint` …) so they are drawn where they were
-  laid out; the conformance scenes do not. Painting is reviewed by eye against the device, not by pixels.
+  laid out; the conformance scenes do not. A painted scaffold lays out and paints its own `AppBar`; navigation bars and
+  rails, tab bars, drawers and bottom app bars are painted with their surfaces and their selected destination or tab
+  (indicator, colours); list tiles are built by the scene and have no surface of their own. Painting is reviewed by eye
+  against the device, not by pixels.
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with

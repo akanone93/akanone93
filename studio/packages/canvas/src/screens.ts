@@ -512,8 +512,13 @@ function screenItems(
     });
   }
   for (const b of boxes) {
-    // A part the scene built in a widget's place (`Container`'s padding, say) is neither drawn nor selected.
-    if (style.paint !== undefined && typeof b.id === "string" && b.id.includes("#")) {
+    // On a painted screen a box no widget of the document owns — a part the scene built in a widget's place
+    // (`Container`'s padding, a destination's icon) — is neither drawn nor selected; its widget draws it.
+    if (
+      style.paint !== undefined &&
+      b.paint === undefined &&
+      (typeof b.id !== "string" || b.id.includes("#") || b.kind !== "text")
+    ) {
       continue;
     }
     if (b.paint !== undefined) {
