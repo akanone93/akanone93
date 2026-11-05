@@ -503,7 +503,25 @@ const SCRIM: Rgba = 0x0000008a;
 function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
   const scrim = rects.get(`${node.id}#scrim`);
   const own = ownPaintOf(node, r, theme, rects);
-  return scrim === undefined ? own : { ...own, boxes: [{ ...scrim, fill: SCRIM }, ...(own.boxes ?? [])] };
+  if (scrim === undefined) {
+    return own;
+  }
+  return { ...own, boxes: [{ ...scrim, fill: SCRIM }, ...routeSurface(node.id, theme, rects), ...(own.boxes ?? [])] };
+}
+
+/**
+ * The surface a dialog or sheet page is presented on (PC-13): Material 3's dialog card (`surfaceContainerHigh`, 28
+ * corners) or modal sheet (`surfaceContainerLow`, its top corners 28), from its route's `#dialog` or `#sheet` part.
+ */
+function routeSurface(id: string, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): BoxPaint[] {
+  const dialog = rects.get(`${id}#dialog`);
+  if (dialog !== undefined) {
+    return [{ ...dialog, fill: roleColor(theme, "surfaceContainerHigh"), radii: [28, 28, 28, 28] }];
+  }
+  const sheet = rects.get(`${id}#sheet`);
+  return sheet === undefined
+    ? []
+    : [{ ...sheet, fill: roleColor(theme, "surfaceContainerLow"), radii: [28, 28, 0, 0] }];
 }
 
 /** What a widget paints in its box `r`: its parts, a surface, a Layer 2 component's, a control's, or its painter's. */
@@ -580,6 +598,10 @@ class TreePainter {
     const type = node.type ?? "";
     if (icon !== undefined && type === "Icon") {
       return "icon";
+    }
+    if (this.rects.has(`${node.id}#scrim`)) {
+      // A drawer or a page on a route paints its scrim and surface, whatever it is.
+      return "paint";
     }
     const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
     const role = roleOf(type, paintsItself(type) && !sourceless);

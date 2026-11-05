@@ -275,6 +275,7 @@ export {
   type TextHeightBehavior,
   TextLeadingDistribution,
 } from "./text/paragraph-engine.ts";
+export { ROUTE_TYPE, type RouteKind } from "./widgets/page-route.ts";
 export {
   defaultScreenTheme,
   defaultWidgetBuilders,

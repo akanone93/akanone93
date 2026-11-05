@@ -94,7 +94,10 @@ export function pageStates(
   return out;
 }
 
-/** Every `navigate` step's route below `value`, in document order. */
+/** The actions that open a page by its route. */
+const OPENING: ReadonlySet<string> = new Set(["navigate", "openDialog", "openBottomSheet"]);
+
+/** Every route `value` opens (`navigate`, `openDialog`, `openBottomSheet`), in document order. */
 function navigations(value: unknown, out: string[]): void {
   if (Array.isArray(value)) {
     for (const v of value) {
@@ -103,7 +106,8 @@ function navigations(value: unknown, out: string[]): void {
   } else if (value !== null && typeof value === "object") {
     const o = value as Record<string, unknown>;
     const route = (o["input"] as { route?: unknown } | undefined)?.route;
-    if (o["action"] === "navigate" && typeof route === "string") {
+    // A screen opens another by `navigate`, a dialog page by `openDialog` and a sheet page by `openBottomSheet`.
+    if (OPENING.has(String(o["action"])) && typeof route === "string") {
       out.push(route);
     }
     for (const v of Object.values(o)) {
@@ -154,6 +158,30 @@ export function screenTitle(page: Readonly<Record<string, unknown>>, root: Node 
   return typeof page["key"] === "string" && page["key"] !== "" ? page["key"] : route;
 }
 
+/** A page's kind (SCH-022): a screen unless it says otherwise. */
+export function pageKindOf(value: unknown): Screen["kind"] {
+  return value === "dialog" || value === "bottomSheet" || value === "fullscreenDialog" ? value : "screen";
+}
+
+/**
+ * The page that opens each dialog or sheet page: the first screen, in plugin order, that navigates to its route. A
+ * page nobody opens has none; the canvas then shows it over an empty screen.
+ */
+export function openersOf(screens: readonly Screen[]): ReadonlyMap<string, string> {
+  const out = new Map<string, string>();
+  for (const s of screens) {
+    if (s.kind === "dialog" || s.kind === "bottomSheet") {
+      const opener = screens.find(
+        (o) => o.kind !== "dialog" && o.kind !== "bottomSheet" && o.targets.includes(s.route),
+      );
+      if (opener !== undefined) {
+        out.set(s.id, opener.id);
+      }
+    }
+  }
+  return out;
+}
+
 export function readPlugin(documents: readonly DocLike[]): PluginModel {
   const plugin = documents.map(json).find((d) => d?.kind === "plugin");
   const pages = documents
@@ -166,24 +194,23 @@ export function readPlugin(documents: readonly DocLike[]): PluginModel {
     return i < 0 ? listed.length : i;
   };
   pages.sort((a, b) => rank(String(a.id)) - rank(String(b.id)));
-  const screens: Screen[] = pages
-    .filter((p) => p.pageKind === undefined || p.pageKind === "screen")
-    .map((p) => {
-      const root = p.root as Node | undefined;
-      const targets: string[] = [];
-      navigations(root, targets);
-      const route = typeof p.route === "string" ? p.route : String(p.key ?? p.id);
-      const key = titleKeyOf(p.title);
-      return {
-        id: String(p.id),
-        route,
-        kind: "screen" as const,
-        title: screenTitle({ ...p }, root, route),
-        ...(key === undefined ? {} : { titleKey: key }),
-        root,
-        targets,
-      };
-    });
+  // Every page is on the canvas: a screen as itself, a dialog or a sheet over the page that opens it (PC-13).
+  const screens: Screen[] = pages.map((p) => {
+    const root = p.root as Node | undefined;
+    const targets: string[] = [];
+    navigations(root, targets);
+    const route = typeof p.route === "string" ? p.route : String(p.key ?? p.id);
+    const key = titleKeyOf(p.title);
+    return {
+      id: String(p.id),
+      route,
+      kind: pageKindOf(p.pageKind),
+      title: screenTitle({ ...p }, root, route),
+      ...(key === undefined ? {} : { titleKey: key }),
+      root,
+      targets,
+    };
+  });
   const byRoute = new Map(screens.map((s) => [s.route, s.id]));
   const edges = new Map<string, readonly string[]>();
   for (const s of screens) {

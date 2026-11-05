@@ -11,6 +11,7 @@ import type { TextStyle } from "../flutter/text-style.ts";
 import type { CanvasKitParagraphEngine } from "../text/canvaskit-engine.ts";
 import { TextAlign } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
+import { ROUTE_TYPE } from "./page-route.ts";
 import {
   defaultScreenTheme,
   defaultWidgetBuilders,
@@ -582,7 +583,8 @@ describe("builder coverage [STU-005]", () => {
   });
 
   test("the builders name no type the schema lacks, besides the screen's own", () => {
-    const own = ["FilledTonalButton", "AlertDialog", "BottomSheet", "PopupMenu"];
+    // The route node is the canvas's own: it presents a dialog or sheet page and is never in a document (PC-13).
+    const own = ["FilledTonalButton", "AlertDialog", "BottomSheet", "PopupMenu", ROUTE_TYPE];
     const known = new Set([...schemaWidgetTypes(), ...own]);
     const extra = [...defaultWidgetBuilders.keys()].filter((type) => !known.has(type) && !type.startsWith("Cupertino"));
     expect(extra).toEqual([]);

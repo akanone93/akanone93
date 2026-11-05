@@ -61,7 +61,7 @@ import { useBrands } from "./paint-theme.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
-import { pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
+import { openersOf, pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
 import {
   contentBounds,
@@ -108,6 +108,7 @@ export function placeModel(
   const widths = new Map(ids.map((id) => [id, width]));
   const at = placeScreens(order, widths, saved ?? readSavedPositions(documents));
   const byId = new Map(model.screens.map((s) => [s.id, s]));
+  const openers = openersOf(model.screens);
   return order.flatMap((id) => {
     const s = byId.get(id);
     const p = at.get(id);
@@ -119,6 +120,7 @@ export function placeModel(
             title: s.title,
             route: s.route,
             kind: s.kind,
+            ...openerOf(openers, id),
             ...(s.titleKey === undefined ? {} : { titleKey: s.titleKey }),
             at: p,
             root: s.root,
@@ -140,6 +142,12 @@ function headerMeta(
 
 /** The size of the device frame the screens are drawn in. */
 type Device = ReturnType<typeof deviceOf>;
+
+/** The page a dialog or sheet page is shown over, as a placed screen's field. */
+function openerOf(openers: ReadonlyMap<string, string>, id: string): { opener?: string } {
+  const opener = openers.get(id);
+  return opener === undefined ? {} : { opener };
+}
 
 /** The zoom factor of a wheel step with Ctrl or Cmd, kept within the zoom range (10–400 %). */
 function wheelFactor(zoom: number, deltaY: number): number {
@@ -804,7 +812,7 @@ function PluginCanvasView({
     () =>
       docs.data === undefined
         ? []
-        : readPlugin(live).screens.map((s) => ({ id: s.id, title: s.title, route: s.route })),
+        : readPlugin(live).screens.map((s) => ({ id: s.id, title: s.title, route: s.route, kind: s.kind })),
     [docs.data, live],
   );
   const linkWidget = useMemo(() => {

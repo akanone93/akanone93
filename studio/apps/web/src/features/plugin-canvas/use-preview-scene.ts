@@ -10,6 +10,7 @@ import type { PreviewRender } from "../preview/switches.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
 import { bindMocks } from "./mock-bindings.ts";
 import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
+import { presented, RouteCache } from "./page-routes.ts";
 import { paintedStyle, paintThemeOf, themeTokens } from "./paint-theme.ts";
 import type { Node } from "./plugin-model.ts";
 import type { PlacedScreen } from "./scene.ts";
@@ -44,6 +45,18 @@ function shownWith(
   return node;
 }
 
+/** Dialog and sheet pages wrapped in their routes over the pages that open them (PC-13). */
+function presentRoutes(drawn: readonly PlacedScreen[], routes: RouteCache): PlacedScreen[] {
+  const byId = new Map(drawn.map((s) => [s.id, s]));
+  return drawn.map((s) => {
+    if (s.root === undefined || !presented(s.kind)) {
+      return s;
+    }
+    const opener = s.opener === undefined ? undefined : byId.get(s.opener)?.root;
+    return { ...s, root: routes.wrap(s.kind, s.root, opener) };
+  });
+}
+
 interface LocalizedRoots {
   readonly everything: readonly DocLike[];
   readonly look: PreviewRender;
@@ -73,6 +86,7 @@ export function usePreviewScene(
   );
   const cache = useRef<LocalizedRoots | undefined>(undefined);
   const [opened] = useState(() => new WeakMap<Node, { side: DrawerSide; node: Node }>());
+  const [routes] = useState(() => new RouteCache());
   const shown = useMemo(() => {
     const kept = cache.current;
     const byRoot =
@@ -82,7 +96,7 @@ export function usePreviewScene(
     cache.current = { everything, look, byRoot };
     const messages = messagesFor(everything, look);
     const mocks = new Map(dataSourcesOf(everything).map((src) => [src.id, src.mock]));
-    return screens.map((s) => {
+    const drawn = screens.map((s) => {
       if (s.root === undefined) {
         return s;
       }
@@ -93,6 +107,7 @@ export function usePreviewScene(
       }
       return { ...s, root: shownWith(byRoot.get(s.root), drawers, opened) };
     });
-  }, [screens, everything, look, drawers, opened]);
+    return presentRoutes(drawn, routes);
+  }, [screens, everything, look, drawers, opened, routes]);
   return { shown, styled, paint };
 }

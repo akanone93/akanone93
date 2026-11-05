@@ -90,7 +90,10 @@ export function ActionsTab(props: ActionsTabProps) {
           disabled={!props.canEdit || event === undefined || target === undefined}
           onClick={() => {
             if (event !== undefined && target !== undefined) {
-              props.apply(linkRecipe(props.nodeId, event, target, newId(), issue === undefined ? "replace" : mode));
+              const kind = props.routes.find((r) => r.route === target)?.kind;
+              props.apply(
+                linkRecipe(props.nodeId, event, target, newId(), issue === undefined ? "replace" : mode, kind),
+              );
             }
           }}
         >

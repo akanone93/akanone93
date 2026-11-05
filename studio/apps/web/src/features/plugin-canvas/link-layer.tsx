@@ -21,7 +21,13 @@ export interface LinkLayerProps {
   readonly widget:
     | { readonly id: string; readonly screen: string; readonly node: { readonly type?: unknown } }
     | undefined;
-  readonly screens: readonly { readonly id: string; readonly title: string; readonly route: string }[];
+  readonly screens: readonly {
+    readonly id: string;
+    readonly title: string;
+    readonly route: string;
+    /** The page's kind: a link to a dialog or sheet page opens it as one (PC-13). */
+    readonly kind?: string;
+  }[];
   readonly canEdit: boolean;
   readonly edit: EditFn;
   readonly newId?: () => string;
@@ -134,7 +140,11 @@ export function LinkLayer(props: LinkLayerProps) {
     if (props.widget === undefined || drop === undefined) {
       return;
     }
-    props.edit(props.widget.screen, linkRecipe(props.widget.id, event, drop.route, (props.newId ?? uuidv7)(), mode));
+    const kind = props.screens.find((s) => s.route === drop.route)?.kind;
+    props.edit(
+      props.widget.screen,
+      linkRecipe(props.widget.id, event, drop.route, (props.newId ?? uuidv7)(), mode, kind),
+    );
     setSaid(m.created(event, drop.title));
     setDrop(undefined);
   };

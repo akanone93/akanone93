@@ -71,8 +71,82 @@ export function takenNames(pages: readonly { readonly json: unknown }[]): Screen
   return { keys, routes };
 }
 
-/** A valid empty page (SCH-022): a `Scaffold` root, key and route unique among the names given. */
-export function blankPage(title: string, names: ScreenNames, newId: IdSource = uuidv7): PageDoc {
+/** A page's kind (SCH-022). */
+export type NewPageKind = "screen" | "dialog" | "bottomSheet" | "fullscreenDialog";
+
+/** A title in the type scale's `role` (a `typography.<role>` token, THM-004). */
+const titleText = (newId: IdSource, title: string, role: string): JsonValue => ({
+  id: newId(),
+  type: "Text",
+  props: { data: title, style: { $token: `typography.${role}` } },
+});
+
+/**
+ * The root a new page of `kind` starts with (PC-13): a screen's `Scaffold`; a dialog's padded column with its title
+ * (the runtime puts it in a `Dialog`); a sheet's padded column inside a `SafeArea` that keeps the home indicator clear;
+ * a full-screen dialog's `Scaffold` with an app bar and its close button.
+ */
+function rootOf(kind: NewPageKind, title: string, newId: IdSource): JsonValue {
+  const column = (role: string): JsonValue => ({
+    id: newId(),
+    type: "Column",
+    props: { mainAxisSize: "min", crossAxisAlignment: "start" },
+    children: [titleText(newId, title, role)],
+  });
+  switch (kind) {
+    case "dialog":
+      return {
+        id: newId(),
+        type: "Padding",
+        props: { padding: { all: 24 } },
+        slots: { child: column("headlineSmall") },
+      };
+    case "bottomSheet":
+      return {
+        id: newId(),
+        type: "SafeArea",
+        props: { top: false },
+        slots: {
+          child: {
+            id: newId(),
+            type: "Padding",
+            props: { padding: { all: 24 } },
+            slots: { child: column("titleLarge") },
+          },
+        },
+      };
+    case "fullscreenDialog":
+      return {
+        id: newId(),
+        type: "Scaffold",
+        slots: {
+          appBar: {
+            id: newId(),
+            type: "AppBar",
+            slots: {
+              leading: {
+                id: newId(),
+                type: "IconButton",
+                events: { onPressed: { steps: [{ action: "pop", id: "close" }] } },
+                slots: { icon: { id: newId(), type: "Icon", props: { icon: { name: "close" } } } },
+              },
+              title: { id: newId(), type: "Text", props: { data: title } },
+            },
+          },
+        },
+      };
+    default:
+      return { id: newId(), type: "Scaffold" };
+  }
+}
+
+/** A valid empty page (SCH-022) of `kind`: its starting root, key and route unique among the names given. */
+export function blankPage(
+  title: string,
+  names: ScreenNames,
+  newId: IdSource = uuidv7,
+  kind: NewPageKind = "screen",
+): PageDoc {
   const key = uniqueName(slug(title), names.keys);
   return {
     schemaVersion: "1.0.0",
@@ -80,9 +154,9 @@ export function blankPage(title: string, names: ScreenNames, newId: IdSource = u
     id: newId(),
     key,
     route: uniqueName(key, names.routes),
-    pageKind: "screen",
+    pageKind: kind,
     title,
-    root: { id: newId(), type: "Scaffold" },
+    root: rootOf(kind, title, newId),
   };
 }
 
@@ -169,7 +243,8 @@ function navigatesTo(value: unknown, route: string): boolean {
   }
   if (value !== null && typeof value === "object") {
     const o = value as Record<string, unknown>;
-    if (o["action"] === "navigate" && (o["input"] as { route?: unknown } | undefined)?.route === route) {
+    const opens = o["action"] === "navigate" || o["action"] === "openDialog" || o["action"] === "openBottomSheet";
+    if (opens && (o["input"] as { route?: unknown } | undefined)?.route === route) {
       return true;
     }
     return Object.values(o).some((v) => navigatesTo(v, route));

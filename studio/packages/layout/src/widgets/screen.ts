@@ -35,6 +35,7 @@ import { FontStyle, TextAlign, TextLeadingDistribution } from "../text/paragraph
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { layer2Types, layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
+import { buildPageRoute, ROUTE_TYPE, routeParts } from "./page-route.ts";
 import { buildPageScaffold } from "./page-scaffold.ts";
 import { cupertinoComponents, faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
 import { structuralWidgetBuilders } from "./structural.ts";
@@ -679,6 +680,7 @@ export function paintedRichTextOf(
 
 /** The builders of the widget types the canvas draws; extend with new types. */
 export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map<string, WidgetBuilder>([
+  [ROUTE_TYPE, (node, ctx) => buildPageRoute(node, ctx)],
   [
     "Text",
     (node, ctx) => {
@@ -797,7 +799,9 @@ function contentHeightOf(
 
 /** The root's id when it is a `Scaffold` on a painted screen: the page's own scaffold (PC-12). */
 function pageScaffoldOf(root: WidgetNode | null | undefined, options: LayoutScreenOptions): string | undefined {
-  return options.paint !== undefined && root?.type === "Scaffold" ? root.id : undefined;
+  // Under a dialog or sheet page, the page that opens it is the device's page (PC-13).
+  const page = root === null || root === undefined ? undefined : (routeParts(root)?.below ?? root);
+  return options.paint !== undefined && page?.type === "Scaffold" ? page.id : undefined;
 }
 
 /**

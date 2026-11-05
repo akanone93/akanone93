@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import type { Document } from "@plux/api";
-import { AlertDialog, Button, Dialog, Field, Input } from "@plux/ui";
+import { AlertDialog, Button, Dialog, Field, Input, Select } from "@plux/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -42,6 +42,7 @@ import {
   type ScreenContext,
   type ScreenResult,
 } from "./screen-actions.ts";
+import type { NewPageKind } from "./screens.ts";
 
 /** What renaming `page` to `title` breaks outside Studio: its route may change with it (D27). */
 function renameEffects(ctx: ScreenContext, page: PageInfo | undefined, id: string | undefined, title: string) {
@@ -113,6 +114,43 @@ export interface ScreenRequest {
   readonly n: number;
 }
 
+const PAGE_KINDS: readonly NewPageKind[] = ["screen", "dialog", "bottomSheet", "fullscreenDialog"];
+
+/** A new page's start: its kind for a blank page, or a template (STU-084). */
+function NewPageFields(p: {
+  readonly template: string;
+  readonly onTemplate: (id: string) => void;
+  readonly kind: NewPageKind;
+  readonly onKind: (kind: NewPageKind) => void;
+}) {
+  return (
+    <>
+      {p.template === "" && <PageKindField value={p.kind} onChange={p.onKind} />}
+      <TemplateStartField value={p.template} onChange={p.onTemplate} />
+    </>
+  );
+}
+
+/** The kind of a new page (SCH-022, PC-13): a screen, a dialog, a bottom sheet or a full-screen dialog. */
+function PageKindField({
+  value,
+  onChange,
+}: {
+  readonly value: NewPageKind;
+  readonly onChange: (kind: NewPageKind) => void;
+}) {
+  const m = pluginCanvasMessages(useLingui().i18n);
+  return (
+    <Field label={m.pageKindLabel}>
+      <Select
+        value={value}
+        options={PAGE_KINDS.map((k) => ({ value: k, label: m.pageKind(k) }))}
+        onValueChange={(v) => onChange(PAGE_KINDS.find((k) => k === v) ?? "screen")}
+      />
+    </Field>
+  );
+}
+
 /**
  * The action bar, the screen dialogs and the screen commands of one open plugin (S2.7), with the
  * safety rules of F13: every delete checks the where-used index and opens the blocked-delete panel
@@ -139,6 +177,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [title, setTitle] = useState("");
   const [templateId, setTemplateId] = useState("");
+  const [newKind, setNewKind] = useState<NewPageKind>("screen");
   const [message, setMessage] = useState<string | null>(null);
   const current = currentScreen(props, picked);
   const currentTitle = props.screens.find((s) => s.id === current)?.title ?? "";
@@ -232,7 +271,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
       dialogue?.kind === "new"
         ? await finish(
             templateId === ""
-              ? createScreen(session, ctx, text)
+              ? createScreen(session, ctx, text, undefined, newKind)
               : instantiateScreen(transport, {
                   templateId,
                   appId: props.appId,
@@ -291,7 +330,9 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
       <Field label={m.screenTitle}>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
       </Field>
-      {dialogue?.kind === "new" && <TemplateStartField value={templateId} onChange={setTemplateId} />}
+      {dialogue?.kind === "new" && (
+        <NewPageFields template={templateId} onTemplate={setTemplateId} kind={newKind} onKind={setNewKind} />
+      )}
       <RenameWarning effects={effects} />
       <Button type="submit">{dialogue?.kind === "new" ? m.create : m.rename}</Button>
     </form>

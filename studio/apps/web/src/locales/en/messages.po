@@ -7404,6 +7404,12 @@ msgstr "Kind"
 msgid "security.colKind"
 msgstr "Kind"
 
+#. Label of the select in the New screen dialog: a page, a dialog, a bottom sheet or a full-screen dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.pageKindLabel"
+msgstr "Kind"
+
 #. Label of the filter for components or templates.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts

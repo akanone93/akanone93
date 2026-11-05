@@ -6,6 +6,12 @@ import type { I18n } from "@lingui/core";
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
   return {
+    pageKindLabel: i18n._({
+      id: "pluginCanvas.pageKindLabel",
+      message: "Kind",
+      comment:
+        "Label of the select in the New screen dialog: a page, a dialog, a bottom sheet or a full-screen dialog.",
+    }),
     pageParts: i18n._({
       id: "pluginCanvas.pageParts",
       message: "Page parts",

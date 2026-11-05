@@ -11,6 +11,7 @@ import {
   deleteBlockers,
   duplicatePage,
   type IdSource,
+  type NewPageKind,
   type PageDoc,
   slug,
   takenNames,
@@ -83,9 +84,10 @@ export async function createScreen(
   ctx: ScreenContext,
   title: string,
   newId: IdSource = uuidv7,
+  kind: NewPageKind = "screen",
 ): Promise<ScreenResult> {
   const c = context(ctx);
-  const page = blankPage(title, c.names, newId);
+  const page = blankPage(title, c.names, newId, kind);
   const written = await session.create(`${c.prefix}pages/${String(page["key"])}.page.json`, page as JsonValue);
   if (written.ok) {
     await register(session, c.pluginDoc?.path, String(page["id"]));

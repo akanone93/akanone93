@@ -71,6 +71,8 @@ export interface PlacedScreen {
   /** The page's route name and kind (SCH-022, SCH-025), shown above its frame (PC-11). */
   readonly route?: string;
   readonly kind?: PageKind;
+  /** The page a dialog or sheet page is shown over: the screen that opens it (PC-13). */
+  readonly opener?: string;
   /** The translation key of a translated title; the page shows it in the previewed locale. */
   readonly titleKey?: string;
   readonly at: Point;

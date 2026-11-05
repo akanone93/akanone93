@@ -21,6 +21,8 @@ export interface RouteOption {
   readonly route: string;
   readonly title: string;
   readonly own: boolean;
+  /** The page's kind; a link to a dialog or sheet page opens it as one (PC-13). */
+  readonly kind?: string;
 }
 
 /** The events the widget type declares in its descriptor, in descriptor order; empty for an unknown type. */
@@ -41,8 +43,11 @@ function handlerSteps(handler: unknown): unknown[] {
   return isObj(handler) && Array.isArray(handler["steps"]) ? (handler["steps"] as unknown[]) : [];
 }
 
+/** The steps that open a page by its route: a screen by `navigate`, a dialog or a sheet page by its own action. */
+export const OPENING_ACTIONS: ReadonlySet<string> = new Set(["navigate", "openDialog", "openBottomSheet"]);
+
 function routeOf(step: unknown): string | undefined {
-  if (!isObj(step) || step["action"] !== "navigate" || !isObj(step["input"])) {
+  if (!isObj(step) || !OPENING_ACTIONS.has(String(step["action"])) || !isObj(step["input"])) {
     return undefined;
   }
   const route = step["input"]["route"];
@@ -94,9 +99,13 @@ export function bindIssue(node: unknown, event: string): LinkIssue | undefined {
   return binding === "free" ? undefined : { kind: "event-bound", event, binding };
 }
 
-/** The navigate step; its identifier is passed in so the recipe stays deterministic and testable. */
-export function navigateStep(route: string, id: string): Record<string, unknown> {
-  return { action: "navigate", id, input: { route } };
+/**
+ * The step that opens `route`: `navigate` to a screen, `openDialog` to a dialog page, `openBottomSheet` to a sheet page
+ * (PC-13). Its identifier is passed in so the recipe stays deterministic and testable.
+ */
+export function navigateStep(route: string, id: string, kind?: string): Record<string, unknown> {
+  const action = kind === "dialog" ? "openDialog" : kind === "bottomSheet" ? "openBottomSheet" : "navigate";
+  return { action, id, input: { route } };
 }
 
 function eventsOfNode(node: Obj): Obj {
@@ -116,6 +125,7 @@ export function linkRecipe(
   route: string,
   stepId: string,
   mode: ApplyMode = "replace",
+  kind?: string,
 ): (root: unknown) => void {
   return (root) => {
     const at = findNode(root, nodeId);
@@ -123,7 +133,7 @@ export function linkRecipe(
       return;
     }
     const events = eventsOfNode(at.node as Obj);
-    const step = navigateStep(route, stepId);
+    const step = navigateStep(route, stepId, kind);
     const existing = events[event];
     if (mode === "append" && isObj(existing) && Array.isArray(existing["steps"])) {
       existing["steps"].push(step);
@@ -167,12 +177,17 @@ export function removeLinkRecipe(nodeId: string, link: NavigateLink): (root: unk
 
 /** Routes of the plugin's own pages first, then other plugins' pages; `app` may include the own ones. */
 export function routeOptions(
-  own: readonly { readonly route: string; readonly title: string }[],
+  own: readonly { readonly route: string; readonly title: string; readonly kind?: string }[],
   app: readonly { readonly route: string; readonly title: string }[],
 ): RouteOption[] {
   const ownRoutes = new Set(own.map((s) => s.route));
   return [
-    ...own.map((s) => ({ route: s.route, title: s.title, own: true })),
+    ...own.map((s) => ({
+      route: s.route,
+      title: s.title,
+      own: true,
+      ...(s.kind === undefined ? {} : { kind: s.kind }),
+    })),
     ...app.filter((s) => !ownRoutes.has(s.route)).map((s) => ({ route: s.route, title: s.title, own: false })),
   ];
 }
@@ -206,7 +221,7 @@ function collectNavigates(
     }
   } else if (isObj(value)) {
     const route = isObj(value["input"]) ? value["input"]["route"] : undefined;
-    if (value["action"] === "navigate" && typeof route === "string") {
+    if (OPENING_ACTIONS.has(String(value["action"])) && typeof route === "string") {
       out.push({ step: value, node, route });
     }
     const here = typeof value["id"] === "string" ? value : node;

@@ -155,7 +155,11 @@ footer buttons at the bottom above the home indicator, the floating action butto
 above the bottom bar; a scrolling body keeps all its content, past the frame. Select a page to add what its scaffold
 lacks from the chips on its frame — **App bar**, **Navigation bar**, **Action button** and **Drawer** — each as one
 undo step; **Show drawer** draws the drawer open over its scrim, and selecting anything inside a drawer opens it too.
-Showing a drawer changes only the canvas, never the page. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
+Showing a drawer changes only the canvas, never the page. **New screen** asks for its **Kind**: a **Page**, a
+**Dialog**, a **Bottom sheet** or a **Full-screen dialog**, each starting from a fitting layout. A dialog page is drawn
+as the device presents it — over the page that opens it, dimmed by a scrim, on Material 3's dialog card — and a bottom
+sheet page at the bottom of that page on its sheet; a full-screen dialog is drawn as a page. A link to a dialog or
+sheet page opens it as one (`openDialog`, `openBottomSheet`), and its arrow comes from the page that opens it. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and
 a shadow by Material elevation. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
