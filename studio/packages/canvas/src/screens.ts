@@ -298,6 +298,7 @@ function paintedBox(
           },
         }),
     ...(box.shadows === undefined ? {} : { shadows: box.shadows }),
+    ...(box.arc === undefined ? {} : { arc: box.arc }),
     ...imageOf(box, style),
     ...(border === undefined ? {} : border.kind === "all" ? { stroke: border.side } : { sides: sidesOf(border) }),
     ...(paint.opacity < 1 ? { opacity: paint.opacity } : {}),
@@ -445,7 +446,17 @@ function partItems(
           },
         ];
   });
-  return [...texts, ...icons];
+  const lines = (paint.lines ?? []).map(
+    (l, i): ItemSpec => ({
+      kind: "link",
+      id: `${s.id}/${b.id}${PAINT_SUFFIX}l${i}`,
+      from: { x: s.x + l.x1, y: s.y + l.y1 },
+      to: { x: s.x + l.x2, y: s.y + l.y2 },
+      stroke: { color: l.color, width: l.width },
+      z,
+    }),
+  );
+  return [...texts, ...icons, ...lines];
 }
 
 /** A web image's placeholder carries an image glyph: the canvas does not load it (the device does). */

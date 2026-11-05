@@ -19,7 +19,8 @@ Arabic; light, dark, RTL and 200 % text work; the docs that describe it change i
 
 **Decisions (maintainer, 2026-11-04):** `STU-005` and `STU-068` are `WIP` until PC-01 and PC-15/PC-30 land. The
 Material Symbols (Apache-2.0) and Cupertino icons (MIT) fonts are bundled for the canvas (PC-03). Painting is reviewed by
-eye against the device; no pixel gate (ADR-0013, amended).
+eye against the device, as ADR-0013 compares positions and sizes, never pixels; whether to add a pixel gate is open for
+the maintainer.
 
 ## 2. What the research found
 
@@ -74,9 +75,10 @@ Needs.
 - **PC-09 Layer 2 everyday components.** *See:* their content (money, card numbers, totals, list items, state texts)
   on their surfaces: gradient account and payment cards, product and ETA cards, promo banners, skeletons, underlined
   inputs. *Build:* a components screen. *Check:* compare with the Dev app; change an account card's name. `WGT-020`.
-- **PC-10 Charts, media, maps, scanners, native slots.** *See:* charts from mock data, galleries, media posters, map
-  and scanner previews, native slot screenshots. *Build:* a dashboard screen. *Check:* change the chart's mock data.
-  `WGT-021`, `WGT-031`.
+- **PC-10 Charts, media, maps, scanners, native slots.** *See:* bar, line, pie and sparkline charts from their data in
+  the scheme's colours; progress arcs; map, scanner, video, audio, QR, animation and gallery previews; native slots
+  outlined with their name. *Build:* a dashboard screen. *Check:* change the chart's data; a progress value fills its
+  arc. Native slot screenshots follow with the device round trip (PC-38). `WGT-021`, `WGT-031`.
 
 ### B. Screens as device screens
 

@@ -15,6 +15,7 @@ import { checkboxMark, controlForeground, controlPainters } from "./controls.ts"
 import { cupertinoForeground, cupertinoPainterOf, cupertinoPainters } from "./cupertino.ts";
 import { fieldModel, fieldPaint, fieldTypes, type PaintText, type PlacedGlyph, searchBarPaint } from "./fields.ts";
 import { layer2Paint, layer2Parts } from "./layer2.ts";
+import { mediaPaint } from "./media.ts";
 import {
   argbToRgba,
   type BoxFitName,
@@ -26,6 +27,7 @@ import {
   elevationShadows,
   type IconPaint,
   type ImagePaint,
+  type LinePaint,
   type NodePaint,
   type PaintClip,
   type PaintTheme,
@@ -55,6 +57,7 @@ export interface PaintNode {
 /** What a painter returns: its boxes, and the clip and opacity it puts on its children. */
 interface Painted {
   readonly boxes?: readonly BoxPaint[];
+  readonly lines?: readonly LinePaint[];
   readonly parts?: { readonly title: Rgba; readonly body: Rgba };
   readonly texts?: readonly PaintText[];
   readonly glyphs?: readonly PlacedGlyph[];
@@ -449,6 +452,26 @@ const BAR_SURFACES: ReadonlySet<string> = new Set([
   "CupertinoTabScaffold",
 ]);
 
+/** The data and media components `mediaPaint` draws. */
+const MEDIA_TYPES: ReadonlySet<string> = new Set([
+  "BarChart",
+  "LineChart",
+  "Sparkline",
+  "PieChart",
+  "MapView",
+  "OrderTrackerMap",
+  "QrScanner",
+  "BarcodeScanner",
+  "KycCameraCapture",
+  "VideoPlayer",
+  "AudioPlayer",
+  "QrCodeView",
+  "LottieView",
+  "RiveView",
+  "NativeSlot",
+  "ImageGallery",
+]);
+
 /** What a widget that places its own parts paints: a Cupertino widget, a field, a search bar, a bar. */
 function partsPaintOf(
   node: PaintNode,
@@ -467,7 +490,7 @@ function partsPaintOf(
   if (node.type === "SearchBar" || node.type === "SearchAnchor") {
     return searchBarPaint(node.props ?? {}, r, theme);
   }
-  return barPainters.get(node.type ?? "")?.(node, r, theme, rectOf);
+  return barPainters.get(node.type ?? "")?.(node, r, theme, rectOf) ?? mediaPaint(node, r, theme);
 }
 
 /** What a widget paints in its box `r`: its parts, a surface, a Layer 2 component's, a control's, or its painter's. */
@@ -496,7 +519,8 @@ function paintsItself(type: string): boolean {
     type === "SearchAnchor" ||
     barPainters.has(type) ||
     BAR_SURFACES.has(type) ||
-    cupertinoPainters.has(type)
+    cupertinoPainters.has(type) ||
+    MEDIA_TYPES.has(type)
   );
 }
 
@@ -596,6 +620,7 @@ class TreePainter {
       ...(painted.texts === undefined || painted.texts.length === 0 ? {} : { texts: painted.texts }),
       ...(painted.glyphs === undefined || painted.glyphs.length === 0 ? {} : { glyphs: painted.glyphs }),
       ...(painted.parts === undefined ? {} : { partColors: painted.parts }),
+      ...(painted.lines === undefined || painted.lines.length === 0 ? {} : { lines: painted.lines }),
     });
   }
 }

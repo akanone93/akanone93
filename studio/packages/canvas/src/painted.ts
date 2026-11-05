@@ -22,7 +22,8 @@ export function isPainted(spec: RectSpec): boolean {
     spec.sides !== undefined ||
     spec.opacity !== undefined ||
     spec.clips !== undefined ||
-    spec.imageFit !== undefined
+    spec.imageFit !== undefined ||
+    spec.arc !== undefined
   );
 }
 
@@ -226,10 +227,32 @@ function drawFill(
     drawShape(canvas, spec, corners, paint);
     paint.setShader(null);
     shader.delete();
+  } else if (spec.fill !== undefined && spec.arc !== undefined) {
+    drawArc(ck, canvas, spec, spec.arc, paint, faded(spec.fill, opacity));
   } else if (spec.fill !== undefined) {
     paint.setColor(color4f(ck, faded(spec.fill, opacity)));
     drawShape(canvas, spec, corners, paint);
   }
+}
+
+/** An arc of the box's oval: a filled wedge, or a stroke of `arc.width` centred on the oval inset by half of it. */
+function drawArc(
+  ck: CanvasKit,
+  canvas: Canvas,
+  spec: RectSpec,
+  arc: NonNullable<RectSpec["arc"]>,
+  paint: Paint,
+  color: ColorRgba,
+): void {
+  paint.setColor(color4f(ck, color));
+  const inset = arc.width === undefined ? 0 : arc.width / 2;
+  const oval = ck.LTRBRect(spec.x + inset, spec.y + inset, spec.x + spec.w - inset, spec.y + spec.h - inset);
+  if (arc.width !== undefined) {
+    paint.setStyle(ck.PaintStyle.Stroke);
+    paint.setStrokeWidth(arc.width);
+  }
+  canvas.drawArc(oval, arc.start, arc.sweep, arc.width === undefined, paint);
+  paint.setStyle(ck.PaintStyle.Fill);
 }
 
 /** The border inside the box: a uniform stroke along its shape, or a strip per side. */

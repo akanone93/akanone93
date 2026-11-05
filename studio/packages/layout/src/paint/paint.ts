@@ -77,8 +77,20 @@ export interface BoxPaint extends Rect {
   readonly shadows?: readonly ShadowPaint[];
   /** Drawn over the widget's children (a foreground decoration). */
   readonly foreground?: boolean;
+  /** Only an arc of the box's oval: a filled wedge, or a stroke `width` wide (degrees clockwise from 3 o'clock). */
+  readonly arc?: { readonly start: number; readonly sweep: number; readonly width?: number };
   /** An image painted inside the box's shape, over its fill (`Image`, a `CircleAvatar`'s image). */
   readonly image?: ImagePaint;
+}
+
+/** A line segment of `width` in `color`. */
+export interface LinePaint {
+  readonly x1: number;
+  readonly y1: number;
+  readonly x2: number;
+  readonly y2: number;
+  readonly color: Rgba;
+  readonly width: number;
 }
 
 /** Flutter's `BoxFit`. */
@@ -115,6 +127,8 @@ export interface NodePaint {
   /** The texts and icons the widget places itself (a field's label and hint, its icons). */
   readonly texts?: readonly PaintText[];
   readonly glyphs?: readonly PlacedGlyph[];
+  /** Line segments the widget draws (a line chart's series), in screen coordinates. */
+  readonly lines?: readonly LinePaint[];
   /** The colours of the texts the widget lays out itself (`<id>#p<n>`): its titles (16 pixels and more) and the rest. */
   readonly partColors?: { readonly title: Rgba; readonly body: Rgba };
 }

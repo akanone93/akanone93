@@ -79,6 +79,11 @@ export interface RectSpec {
    * How the image of `image` sits in a painted box (STU-005, AST-002): fitted inside the box's shape over its fill,
    * with a placeholder colour drawn while the image is missing.
    */
+  /**
+   * Only an arc of the box's oval is drawn: from `start` degrees (clockwise from 3 o'clock) through `sweep` degrees,
+   * a wedge filled with `fill`, or with `width` a stroke in the fill's colour (STU-005: pie charts, progress).
+   */
+  readonly arc?: { readonly start: number; readonly sweep: number; readonly width?: number };
   readonly imageFit?: ImageFitSpec;
   readonly clips?: readonly ClipSpec[];
   readonly z: number;

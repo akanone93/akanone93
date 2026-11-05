@@ -143,7 +143,9 @@ button and actions; navigation bars, rails and tab bars show their selected dest
 dividers are drawn as on the device. Cupertino widgets — buttons, switches, sliders, text fields, activity indicators,
 navigation and tab bars, segmented controls — are drawn with iOS's colours; choose **Cupertino** as the platform style
 under **Preview** and a control marked adaptive is drawn the iOS way. Layer 2 components show their content — money
-amounts, card numbers, totals, list items — on their surfaces, as on the device. The canvas previews with the same layout code the device runs; the device decides. Check anything
+amounts, card numbers, totals, list items — on their surfaces, as on the device. Charts are drawn from their data;
+maps, scanners, videos, audio players, QR codes, animations and native slots show a preview of what the device draws.
+The canvas previews with the same layout code the device runs; the device decides. Check anything
 that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 ## Link screens

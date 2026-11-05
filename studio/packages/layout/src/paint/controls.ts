@@ -286,15 +286,21 @@ function linearProgress(node: ControlNode, r: Rect, theme: PaintTheme): BoxPaint
   ];
 }
 
-/** A circular progress indicator: a ring of its stroke width in primary (the canvas draws no arc). */
+/**
+ * A circular progress indicator: with a value, an arc of its stroke width in primary from 12 o'clock; without one, a
+ * moment of its animation, a quarter of the ring.
+ */
 function circularProgress(node: ControlNode, r: Rect, theme: PaintTheme): BoxPaint[] {
   const size = Math.min(r.w, r.h);
   const stroke = num(node.props?.["strokeWidth"]) ?? 4;
+  const value = num(node.props?.["value"]);
+  const sweep = value === undefined ? 90 : Math.min(1, Math.max(0, value)) * 360;
   return [
     {
       ...centred(r, size, size),
       oval: true,
-      border: { kind: "all", side: { color: roleColor(theme, "primary"), width: stroke } },
+      fill: roleColor(theme, "primary"),
+      arc: { start: -90, sweep, width: stroke },
     },
   ];
 }
