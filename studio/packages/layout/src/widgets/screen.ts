@@ -36,7 +36,7 @@ import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { layer2Types, layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
 import { buildPageRoute, ROUTE_TYPE, routeParts } from "./page-route.ts";
-import { buildPageScaffold } from "./page-scaffold.ts";
+import { SCROLLING as BODY_SCROLLS, buildPageScaffold, pageBody, type ScrollExtent } from "./page-scaffold.ts";
 import { cupertinoComponents, faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
 import { structuralWidgetBuilders } from "./structural.ts";
 
@@ -140,6 +140,11 @@ export interface WidgetContext {
   withViewPadding?<T>(padding: ViewPadding | undefined, build: () => T): T;
   /** The id of the page's own `Scaffold` (the painted screen's root): laid out at the device's size, parts in place. */
   readonly pageScaffold?: string | undefined;
+  /**
+   * On a live screen (PC-15), where the screen's scroll views report how far they scroll; their content is clipped to
+   * the device instead of running on into the overflow region. Absent on a design screen.
+   */
+  readonly live?: ScrollExtent[] | undefined;
 }
 
 /** Builds the render object of one widget type. */
@@ -168,6 +173,8 @@ export interface ScreenLayout {
   readonly boxes: readonly Placed[];
   /** Height of the content; beyond the device height the screen overflows (STU-056). */
   readonly contentHeight: number;
+  /** On a live screen, each scroll view's node and how far it scrolls (PC-15). */
+  readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
 }
 
 /** Slots that are drawn by the screen itself, not by the widget tree. */
@@ -758,6 +765,8 @@ export interface LayoutScreenOptions {
   readonly paint?: PaintTheme | undefined;
   /** The device's system areas (status bar, cutouts, home indicator) on a painted screen; none when absent (PC-11). */
   readonly viewPadding?: ViewPadding | undefined;
+  /** A live screen (PC-15): scroll views scroll inside the device, by their `x-studio.scroll` offsets. */
+  readonly live?: boolean | undefined;
 }
 
 /** The laid-out boxes of a screen, with how each is drawn and, when painted, its paint. */
@@ -795,6 +804,35 @@ function contentHeightOf(
     }
   }
   return height;
+}
+
+/**
+ * The root's box: built as it is, or on a live screen a root scroll view in a viewport as high as the device (PC-15).
+ */
+function rootBox(root: WidgetNode, ctx: WidgetContext, theme: ScreenTheme): RenderBox {
+  const built = ctx.build(root);
+  if (ctx.live === undefined || !BODY_SCROLLS.has(root.type ?? "")) {
+    return built;
+  }
+  return new RenderConstrainedBox({
+    additionalConstraints: BoxConstraints.tightFor({
+      width: ctx.available(),
+      height: ctx.deviceHeight ?? theme.viewportHeight,
+    }),
+    child: pageBody(built, root, ctx),
+  });
+}
+
+/** Where a painted, live screen's scroll views report (PC-15); none on a design screen. */
+function liveOf(options: LayoutScreenOptions, sink: ScrollExtent[]): ScrollExtent[] | undefined {
+  return options.live === true && options.paint !== undefined ? sink : undefined;
+}
+
+/** A laid-out screen; a live one is the device's view, nothing running past the frame, with its scroll extents. */
+function screenResult(boxes: Placed[], height: number, ctx: WidgetContext, options: LayoutScreenOptions): ScreenLayout {
+  return ctx.live === undefined
+    ? { boxes, contentHeight: height }
+    : { boxes, contentHeight: options.deviceHeight ?? height, scrolls: ctx.live };
 }
 
 /** The root's id when it is a `Scaffold` on a painted screen: the page's own scaffold (PC-12). */
@@ -843,6 +881,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
   const owners: { id: string; count: number }[] = [];
   const textScale = options.textScale ?? 1;
   const rootId = "root";
+  const live: ScrollExtent[] = [];
   const insets = pageInsets(root, options);
   const hasBar = insets.hasBar;
   // The page's app bar is laid out under the whole view padding; the body below it has none at the top.
@@ -853,6 +892,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     },
     pageBar: insets.pageBar,
     pageScaffold: pageScaffoldOf(root, options),
+    live: liveOf(options, live),
     withViewPadding(next, build) {
       const kept = padding;
       padding = next;
@@ -925,7 +965,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
           padding: EdgeInsets.all(pagePadding),
           child: new RenderConstrainedBox({
             additionalConstraints: rootConstraints(root ?? undefined, theme, options),
-            child: root ? ctx.build(root) : null,
+            child: root ? rootBox(root, ctx, theme) : null,
           }),
         }),
       ],
@@ -950,7 +990,12 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     const rects = globalRects(view);
     const paints =
       options.paint === undefined ? undefined : paintTree(root as PaintNode | null | undefined, rects, options.paint);
-    return { boxes: placedBoxes(rects, marks, paints, rootId), contentHeight: contentHeightOf(rects, rootId, paints) };
+    return screenResult(
+      placedBoxes(rects, marks, paints, rootId),
+      contentHeightOf(rects, rootId, paints),
+      ctx,
+      options,
+    );
   } finally {
     for (const p of paragraphs) {
       p.dispose();

@@ -272,3 +272,56 @@
   transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
   pointer-events: none;
 }
+
+/* The Interact tool (PC-15): the screens take clicks as on a device. */
+.plugin-canvas canvas[data-tool="interact"] {
+  cursor: pointer;
+}
+
+.pc-live-hint {
+  position: absolute;
+  inset-block-end: 4.75rem;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: color-mix(in oklch, var(--primary) 92%, transparent);
+  color: var(--primary-foreground);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+  box-shadow: 0 2px 8px color-mix(in oklch, black 18%, transparent);
+}
+
+.pc-live-hint svg {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+/* The hint says what Interact does, then gets out of the way. */
+.pc-live-hint {
+  animation: pc-live-hint 5s ease forwards;
+}
+
+@keyframes pc-live-hint {
+  0% {
+    opacity: 0;
+  }
+  6%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-live-hint {
+    animation: none;
+  }
+}

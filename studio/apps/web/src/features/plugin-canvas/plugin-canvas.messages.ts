@@ -6,6 +6,32 @@ import type { I18n } from "@lingui/core";
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
   return {
+    toolInteract: i18n._({
+      id: "pluginCanvas.toolInteract",
+      message: "Interact",
+      comment:
+        "Canvas tool: the screens behave as on a device — scroll lists, switch tabs, open the drawer, follow links — without changing the plugin.",
+    }),
+    liveOpened: (title: string) =>
+      i18n._({
+        id: "pluginCanvas.liveOpened",
+        message: "Opened {title}.",
+        values: { title },
+        comment: "Announced when a link is followed with the Interact tool: the canvas shows the screen it opens.",
+      }),
+    liveRuns: (actions: string) =>
+      i18n._({
+        id: "pluginCanvas.liveRuns",
+        message: "Runs on a device: {actions}.",
+        values: { actions },
+        comment:
+          "Announced when a widget whose actions only a device runs (network calls, functions) is clicked with the Interact tool.",
+      }),
+    liveHint: i18n._({
+      id: "pluginCanvas.liveHint",
+      message: "Interact: scroll, switch tabs, open the drawer and follow links. Press V to edit.",
+      comment: "Hint shown while the Interact tool is on.",
+    }),
     pageKindLabel: i18n._({
       id: "pluginCanvas.pageKindLabel",
       message: "Kind",

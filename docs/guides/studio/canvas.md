@@ -164,7 +164,14 @@ Showing a drawer changes only the canvas, never the page. **New screen** asks fo
 **Dialog**, a **Bottom sheet** or a **Full-screen dialog**, each starting from a fitting layout. A dialog page is drawn
 as the device presents it — over the page that opens it, dimmed by a scrim, on Material 3's dialog card — and a bottom
 sheet page at the bottom of that page on its sheet; a full-screen dialog is drawn as a page. A link to a dialog or
-sheet page opens it as one (`openDialog`, `openBottomSheet`), and its arrow comes from the page that opens it. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
+sheet page opens it as one (`openDialog`, `openBottomSheet`), and its arrow comes from the page that opens it. Choose
+**Interact** in the tool bar (or press I) to use the screens as on a device: the wheel scrolls a screen's list or
+scroll view inside its frame, a click switches a tab, a navigation destination or a segment (a choice bound to page
+state switches everything bound to it, as a tab bar switches its view), the app bar's menu button opens the drawer and
+its scrim closes it, back and close go to the page that opens the screen, and a button that opens a page brings that
+page into view. Actions that call networks or functions are not run; the canvas names them — they run on a device.
+Nothing you do there changes the plugin; V or Escape returns to editing. An app bar shows the button it implies on the
+device: the menu with a drawer, back on a page another opens, close on a full-screen dialog. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and
 a shadow by Material elevation. Texts take Material 3's type scale, or the theme's `typography` tokens where it has

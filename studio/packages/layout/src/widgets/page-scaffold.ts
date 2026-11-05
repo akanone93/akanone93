@@ -24,7 +24,7 @@ import type { WidgetContext, WidgetNode } from "./screen.ts";
 const STUDIO_KEY = "x-studio";
 
 /** Scroll views: a body of one of these shows its whole content, past the frame. */
-const SCROLLING: ReadonlySet<string> = new Set([
+export const SCROLLING: ReadonlySet<string> = new Set([
   "SingleChildScrollView",
   "ListView",
   "CustomScrollView",
@@ -42,11 +42,29 @@ export function shownDrawer(node: WidgetNode): "drawer" | "endDrawer" | undefine
   return open === "drawer" || open === "endDrawer" ? open : undefined;
 }
 
-/** A box as big as its parent allows; its child as wide, and as high as allowed unless it scrolls. */
-class RenderPageBody extends RenderShiftedBox {
+/** How far a live screen's scroll view is scrolled and how far it can be (PC-15). */
+export interface ScrollExtent {
+  readonly node: string;
+  max: number;
+}
+
+/** The design-time scroll offset the preview marks a scroll view with (`x-studio.scroll`), 0 when none. */
+export function scrollOf(node: WidgetNode): number {
+  const meta = (node as unknown as Record<string, unknown>)[STUDIO_KEY];
+  const v = typeof meta === "object" && meta !== null ? (meta as Record<string, unknown>)["scroll"] : undefined;
+  return typeof v === "number" && Number.isFinite(v) && v > 0 ? v : 0;
+}
+
+/**
+ * A box as big as its parent allows; its child as wide, and as high as allowed unless it scrolls. On a live screen
+ * (PC-15) a scroll view's content is shifted up by its offset, at most to its end, inside a viewport its painter clips
+ * to (`#viewport`); its extent is reported.
+ */
+export class RenderPageBody extends RenderShiftedBox {
   constructor(
     child: RenderBox,
     private readonly scrolls: boolean,
+    private readonly live?: { readonly offset: number; readonly extent: ScrollExtent },
   ) {
     super(child);
   }
@@ -66,9 +84,29 @@ class RenderPageBody extends RenderShiftedBox {
           : new BoxConstraints({ minWidth: width, maxWidth: width, maxHeight: this.size.height }),
         { parentUsesSize: true },
       );
-      setChildOffset(child, Offset.zero);
+      const max = Math.max(0, child.size.height - this.size.height);
+      if (this.live !== undefined) {
+        this.live.extent.max = max;
+      }
+      setChildOffset(child, new Offset(0, -Math.min(this.live?.offset ?? 0, max)));
     }
   }
+}
+
+/**
+ * A scroll view's body on a live screen: shifted by its offset in a viewport named `<node>#viewport`, which its
+ * painter clips its content to; off a live screen, the plain body that shows its whole content.
+ */
+export function pageBody(child: RenderBox, node: WidgetNode, ctx: WidgetContext): RenderBox {
+  const scrolls = SCROLLING.has(node.type ?? "");
+  if (ctx.live === undefined || !scrolls) {
+    return new RenderPageBody(child, scrolls);
+  }
+  const extent: ScrollExtent = { node: node.id, max: 0 };
+  ctx.live.push(extent);
+  const body = new RenderPageBody(child, true, { offset: scrollOf(node), extent });
+  body.debugId = `${node.id}#viewport`;
+  return body;
 }
 
 /** Lays its child out at any height and takes the child's height: an app bar's `Align` shrinks to its toolbar. */
@@ -250,7 +288,7 @@ function scaffoldParts(
   const sheet = build(sheetNode, bodyPad);
   return {
     appBar: bar === null ? null : new RenderOwnHeight(bar),
-    body: body === null ? null : new RenderPageBody(body, SCROLLING.has(bodyNode?.type ?? "")),
+    body: body === null || bodyNode === undefined ? null : pageBody(body, bodyNode, ctx),
     bottomNavigationBar: bottomOf(build(navNode, pad), footer, direction),
     bottomSheet: sheet === null ? null : new RenderOwnHeight(sheet),
     floatingActionButton: build(fabNode, bodyPad),

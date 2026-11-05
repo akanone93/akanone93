@@ -54,6 +54,11 @@ export interface InteractionInput {
   readonly messages: Messages;
   /** The overlay's state: the page makes it, so its surface can route guides to it (`guidesToOverlay`). */
   readonly overlay: OverlayStore;
+  /** With the Interact tool, a click on the screens (PC-15). */
+  readonly onInteract?: (world: Point, hits: readonly string[]) => void;
+  /** The tool, when the page holds it. */
+  readonly tool?: PointerTool;
+  readonly setTool?: (tool: PointerTool) => void;
 }
 
 /** The layer names of every node of `roots`, by id; nodes without one are left out. */
@@ -195,7 +200,10 @@ function useDeleteCommand(input: InteractionInput): () => void {
  */
 export function useCanvasInteraction(input: InteractionInput) {
   const { overlay } = input;
-  const [tool, setTool] = useState<PointerTool>("select");
+  const [ownTool, setOwnTool] = useState<PointerTool>("select");
+  // The page may hold the tool, so the screens' style can follow the Interact tool (PC-15).
+  const tool = input.tool ?? ownTool;
+  const setTool = input.setTool ?? setOwnTool;
   const [menu, setMenu] = useState<MenuAt | null>(null);
   const space = useRef(false);
   const { index, screenOf, screens, store, selection, surface } = input;
@@ -285,6 +293,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       }
       input.requestScreen("rename", screen);
     },
+    ...(input.onInteract === undefined ? {} : { onInteract: input.onInteract }),
   });
 
   useCanvasKeys({
@@ -294,9 +303,12 @@ export function useCanvasInteraction(input: InteractionInput) {
     zoomBy: input.zoomBy,
     resetZoom: input.resetZoom,
     setTool,
-    // Escape on the canvas walks up the selection (its own keys); elsewhere it clears.
+    interact: () => setTool("interact"),
+    // Escape on the canvas walks up the selection (its own keys); elsewhere it clears. It leaves Interact first.
     clear: () => {
-      if (document.activeElement !== input.canvas.current) {
+      if (tool === "interact") {
+        setTool("select");
+      } else if (document.activeElement !== input.canvas.current) {
         store.set(sel.emptySelection);
       }
     },
@@ -333,7 +345,7 @@ export function useCanvasInteraction(input: InteractionInput) {
     </>
   );
   const selectedScreen = selection.anchor === null ? undefined : screenOf.get(selection.anchor);
-  return { handlers, element, tool, setTool, overlay, remove, selectedScreen };
+  return { handlers, element, tool, setTool, overlay, remove, selectedScreen, boxOf };
 }
 
 /** Routes a surface's guides to the overlay too, so every drag (inserting from the panel included) shows them. */

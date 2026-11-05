@@ -669,12 +669,7 @@ export function layoutScreens(
   return new ScreenLayouts().replaceAll(screens, style, engine);
 }
 
-function layOut(
-  s: ScreenDocument,
-  style: ScreenStyle,
-  engine: ParagraphEngine,
-  glyphs?: IconGlyphs,
-): { items: ItemSpec[]; height: number } {
+function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine, glyphs?: IconGlyphs): Laid {
   try {
     return layOutContent(s, style, engine, glyphs);
   } catch {
@@ -683,13 +678,22 @@ function layOut(
   }
 }
 
-function layOutContent(
-  s: ScreenDocument,
-  style: ScreenStyle,
-  engine: ParagraphEngine,
-  glyphs?: IconGlyphs,
-): { items: ItemSpec[]; height: number } {
-  const { boxes, contentHeight } = layoutScreen(s.root, {
+/** A laid-out screen: its items, its content height and, live, its scroll views' extents. */
+interface Laid {
+  readonly items: ItemSpec[];
+  readonly height: number;
+  readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
+}
+
+/** A screen's height entry, with its scroll extents when it has any. */
+function heightOf(id: string, laid: Laid): ScreenHeight {
+  return laid.scrolls === undefined || laid.scrolls.length === 0
+    ? { id, contentHeight: laid.height }
+    : { id, contentHeight: laid.height, scrolls: laid.scrolls };
+}
+
+function layOutContent(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine, glyphs?: IconGlyphs): Laid {
+  const { boxes, contentHeight, scrolls } = layoutScreen(s.root, {
     engine,
     theme: style.theme,
     title: s.title,
@@ -698,8 +702,13 @@ function layOutContent(
     ...(style.textDirection === undefined ? {} : { textDirection: style.textDirection }),
     ...(style.paint === undefined ? {} : { paint: { ...style.paint, rtl: style.textDirection === TextDirection.rtl } }),
     ...(style.chrome === undefined ? {} : { viewPadding: viewPaddingOf(style.chrome) }),
+    ...(style.live === true ? { live: true } : {}),
   });
-  return { items: screenItems(s, boxes, contentHeight, style, glyphs), height: contentHeight };
+  return {
+    items: screenItems(s, boxes, contentHeight, style, glyphs),
+    height: contentHeight,
+    ...(scrolls === undefined ? {} : { scrolls }),
+  };
 }
 
 /** The insets the device's system areas take from the page (`MediaQuery.padding`). */
@@ -758,9 +767,10 @@ export class ScreenLayouts {
     const ops: SceneOp[] = [{ op: "clear" }];
     const heights: ScreenHeight[] = [];
     for (const s of screens) {
-      const { items, height } = layOut(s, style, engine, this.glyphs);
+      const laid = layOut(s, style, engine, this.glyphs);
+      const { items } = laid;
       this.laidOut++;
-      heights.push({ id: s.id, contentHeight: height });
+      heights.push(heightOf(s.id, laid));
       this.byScreen.set(s.id, new Map(items.map((item) => [item.id, item])));
       for (const item of items) {
         ops.push({ op: "add", item });
@@ -802,9 +812,10 @@ export class ScreenLayouts {
     }
     const changes: SceneOp[] = [];
     for (const s of screens) {
-      const { items, height } = layOut(s, style, engine, this.glyphs);
+      const laid = layOut(s, style, engine, this.glyphs);
+      const { items } = laid;
       this.laidOut++;
-      heights.push({ id: s.id, contentHeight: height });
+      heights.push(heightOf(s.id, laid));
       const after = new Map(items.map((item) => [item.id, item]));
       diffItems(this.byScreen.get(s.id) ?? new Map<string, ItemSpec>(), after, ops, changes);
       this.byScreen.set(s.id, after);

@@ -413,12 +413,16 @@ export interface ScreenStyle {
   readonly meta?: ColorRgba;
   /** The device's system areas; a plain frame with the default corners when absent. */
   readonly chrome?: DeviceChromeSpec;
+  /** Live screens (PC-15, Interact): scroll views scroll inside the device, by their offsets, with no overflow region. */
+  readonly live?: boolean;
 }
 
 /** The laid-out height of one screen's content (STU-056). */
 export interface ScreenHeight {
   readonly id: string;
   readonly contentHeight: number;
+  /** On a live screen, each scroll view and how far it scrolls (PC-15). */
+  readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
 }
 
 /** An encoded image and the key scene items refer to it by. */

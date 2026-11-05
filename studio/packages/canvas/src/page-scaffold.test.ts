@@ -164,6 +164,48 @@ describe("PC-12 a page's scaffold laid out in place [STU-005]", () => {
     expect(closed.has("s/dr#paint0")).toBe(false);
   });
 
+  test("[STU-068] live: a scroll view scrolls inside the device by its offset, clipped, with no overflow region", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const page = (offset: number): WidgetNode =>
+      ({
+        id: "sc",
+        type: "Scaffold",
+        slots: {
+          body: { id: "list", type: "ListView", "x-studio": { scroll: offset }, children: rows(30) },
+          bottomNavigationBar: nav,
+        },
+      }) as unknown as WidgetNode;
+    try {
+      const at = (offset: number) => {
+        const out = layoutScreens(
+          [{ id: "s", title: "S", x: 0, y: 0, root: page(offset) }],
+          { ...style, live: true },
+          engine,
+        );
+        const items = new Map(
+          out.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item as ItemSpec & Box] as const] : [])),
+        );
+        return { items, height: out.heights[0] };
+      };
+      const top = at(0);
+      expect(top.height?.contentHeight).toBe(844);
+      expect(top.items.has("overflow:s")).toBe(false);
+      const max = top.height?.scrolls?.[0]?.max ?? 0;
+      expect(top.height?.scrolls?.[0]?.node).toBe("list");
+      expect(max).toBeGreaterThan(400);
+      const r0 = top.items.get("s/t0") as Box;
+      const scrolled = at(200).items.get("s/t0") as Box & { clips?: unknown[] };
+      expect(scrolled.y).toBeCloseTo(r0.y - 200, 0);
+      // The list's content is clipped to the viewport between the status bar and the navigation bar.
+      expect(scrolled.clips?.length).toBeGreaterThan(0);
+      // Past its end it stops at its end.
+      const last = at(100000).items.get("s/t29") as Box;
+      expect(last.y).toBeLessThan(844 - 114);
+    } finally {
+      engine.dispose();
+    }
+  });
+
   test("persistent footer buttons sit at the bottom, ending the row, above the home indicator", () => {
     const button = (id: string, label: string): WidgetNode => ({
       id,

@@ -502,7 +502,12 @@ const SCRIM: Rgba = 0x0000008a;
  */
 function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
   const scrim = rects.get(`${node.id}#scrim`);
-  const own = ownPaintOf(node, r, theme, rects);
+  const viewport = rects.get(`${node.id}#viewport`);
+  // A scroll view of a live screen shows its content only inside its viewport (PC-15).
+  const own =
+    viewport === undefined
+      ? ownPaintOf(node, r, theme, rects)
+      : { ...ownPaintOf(node, r, theme, rects), clip: viewport };
   if (scrim === undefined) {
     return own;
   }

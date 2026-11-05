@@ -73,6 +73,8 @@ export interface PlacedScreen {
   readonly kind?: PageKind;
   /** The page a dialog or sheet page is shown over: the screen that opens it (PC-13). */
   readonly opener?: string;
+  /** Another page opens this screen, so its app bar shows a back button (PC-15); the entry has none. */
+  readonly back?: boolean;
   /** The translation key of a translated title; the page shows it in the previewed locale. */
   readonly titleKey?: string;
   readonly at: Point;

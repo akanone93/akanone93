@@ -20,7 +20,8 @@ export const CLICK_PX = 3;
 export const HANDLE_PX = 6;
 
 /** The pointer tools: select (pick, drag, marquee) or hand (the whole canvas pans). */
-export type PointerTool = "select" | "hand";
+/** The canvas's tools: select and edit, pan, and interact with the screens as on a device (PC-15). */
+export type PointerTool = "select" | "hand" | "interact";
 
 /** What a secondary click opened its menu on. */
 export type MenuTarget = "node" | "screen" | "canvas";
@@ -62,6 +63,8 @@ export interface PointerInput {
   readonly onContextMenu: (at: Point, target: MenuTarget) => void;
   /** A double-click on a screen's title renames it. */
   readonly onRenameScreen: (screen: string) => void;
+  /** With the Interact tool, a click is the screens' (PC-15): the world point and what is under it, topmost first. */
+  readonly onInteract?: (world: Point, hits: readonly string[]) => void;
 }
 
 type Mode =
@@ -262,6 +265,12 @@ export function pointerHandlers(
       startPan(e);
       return;
     }
+    if (button === 0 && i.tool === "interact") {
+      // A live screen takes the click; nothing is selected or moved.
+      const p = local(e);
+      i.onInteract?.(toWorld(p), rawHits(p));
+      return;
+    }
     if (button === 0) {
       capture(e);
       mode.current = pressAt(e, local(e));
@@ -348,6 +357,10 @@ export function pointerHandlers(
 
   const hover = (e: PointerLike, p: Point): void => {
     const i = get();
+    if (i.tool === "interact") {
+      i.overlay.set({ hover: null });
+      return;
+    }
     const w = toWorld(p);
     const canvas = i.canvas();
     const handle = handleUnder(w);

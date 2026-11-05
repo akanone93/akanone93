@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from "react";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { withoutHidden } from "../panels/studio-meta.ts";
 import type { PreviewRender } from "../preview/switches.ts";
+import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
 import { bindMocks } from "./mock-bindings.ts";
 import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
@@ -45,6 +46,27 @@ function shownWith(
   return node;
 }
 
+/**
+ * A screen's root as the device shows it (PC-15): the buttons its app bar implies (kept per root, so an unchanged
+ * screen is not laid out again) and the live surface's values.
+ */
+function livened(
+  root: Node,
+  s: PlacedScreen,
+  live: LiveState,
+  platform: "material" | "cupertino",
+  cache: WeakMap<Node, { key: string; node: Node }>,
+): Node {
+  const leading = s.kind === "fullscreenDialog" ? "close" : s.back === true ? "back" : undefined;
+  const key = `${leading ?? ""}:${platform}`;
+  let kept = cache.get(root);
+  if (kept?.key !== key) {
+    kept = { key, node: withImpliedButtons(root, leading, platform) };
+    cache.set(root, kept);
+  }
+  return applyLive(kept.node, live);
+}
+
 /** Dialog and sheet pages wrapped in their routes over the pages that open them (PC-13). */
 function presentRoutes(drawn: readonly PlacedScreen[], routes: RouteCache): PlacedScreen[] {
   const byId = new Map(drawn.map((s) => [s.id, s]));
@@ -70,6 +92,7 @@ export function usePreviewScene(
   pluginDocs: readonly DocLike[] | undefined,
   look: PreviewRender,
   drawers: ReadonlyMap<string, DrawerSide> = NO_DRAWERS,
+  live: LiveState = emptyLive,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
@@ -87,6 +110,7 @@ export function usePreviewScene(
   const cache = useRef<LocalizedRoots | undefined>(undefined);
   const [opened] = useState(() => new WeakMap<Node, { side: DrawerSide; node: Node }>());
   const [routes] = useState(() => new RouteCache());
+  const [implied] = useState(() => new WeakMap<Node, { key: string; node: Node }>());
   const shown = useMemo(() => {
     const kept = cache.current;
     const byRoot =
@@ -105,9 +129,10 @@ export function usePreviewScene(
         const drawn = withoutHidden(s.root);
         byRoot.set(s.root, bindMocks(localizeTree(drawn, messages, look.localize), mocks, look.mockStates));
       }
-      return { ...s, root: shownWith(byRoot.get(s.root), drawers, opened) };
+      const drawer = shownWith(byRoot.get(s.root), drawers, opened);
+      return { ...s, root: drawer === undefined ? drawer : livened(drawer, s, live, look.platform, implied) };
     });
     return presentRoutes(drawn, routes);
-  }, [screens, everything, look, drawers, opened, routes]);
+  }, [screens, everything, look, drawers, opened, routes, live, implied]);
   return { shown, styled, paint };
 }

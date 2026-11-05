@@ -15,6 +15,8 @@ export interface CanvasKeys {
   readonly clear: () => void;
   /** Shift+2: zooms to the selection, where the canvas has one. */
   readonly fitSelection?: () => void;
+  /** I: the Interact tool, where the canvas has one (the plugin canvas's live surface, PC-15). */
+  readonly interact?: () => void;
 }
 
 /** Typing in a field or working in a dialog keeps its keys. */
@@ -39,6 +41,7 @@ function plain(e: KeyboardEvent, keys: CanvasKeys): (() => void) | undefined {
   const actions: Record<string, () => void> = {
     v: () => keys.setTool("select"),
     h: () => keys.setTool("hand"),
+    ...(keys.interact === undefined ? {} : { i: keys.interact }),
     "+": () => keys.zoomBy(1.25),
     "=": () => keys.zoomBy(1.25),
     "-": () => keys.zoomBy(0.8),

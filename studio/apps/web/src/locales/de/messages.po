@@ -7102,6 +7102,18 @@ msgstr "Zustand der Installation"
 msgid "library.usage"
 msgstr "Instanzen in allen Apps"
 
+#. Canvas tool: the screens behave as on a device — scroll lists, switch tabs, open the drawer, follow links — without changing the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.toolInteract"
+msgstr "Interagieren"
+
+#. Hint shown while the Interact tool is on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.liveHint"
+msgstr "Interagieren: scrollen, Tabs wechseln, das Seitenmenü öffnen und Links folgen. V zum Bearbeiten."
+
 #. Kind of widget in the Insert gallery: buttons, gestures, dialogs and feedback.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -10271,6 +10283,12 @@ msgstr "Zustands-Designer öffnen"
 msgid "designers.dataOpenApi"
 msgstr "OpenAPI"
 
+#. Announced when a link is followed with the Interact tool: the canvas shows the screen it opens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.liveOpened"
+msgstr "{title} geöffnet."
+
 #. Status while the publish flow looks for the open release request.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -12740,6 +12758,12 @@ msgstr "Führt Aktionen aus"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.capPlacement"
 msgstr "Läuft auf"
+
+#. Announced when a widget whose actions only a device runs (network calls, functions) is clicked with the Interact tool.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.liveRuns"
+msgstr "Läuft auf einem Gerät: {actions}."
 
 #. Label.
 #. js-lingui-explicit-id

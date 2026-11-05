@@ -26,8 +26,8 @@ import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 
 export interface ActionBarProps {
   /** The pointer tool (select or hand) and its switch; the bar shows the switch only when given. */
-  readonly tool?: "select" | "hand";
-  readonly onTool?: (tool: "select" | "hand") => void;
+  readonly tool?: "select" | "hand" | "interact";
+  readonly onTool?: (tool: "select" | "hand" | "interact") => void;
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
@@ -147,7 +147,7 @@ export function ActionBar(props: ActionBarProps) {
                 value={[props.tool]}
                 onValueChange={(v) => {
                   const next = v[0];
-                  if (next === "select" || next === "hand") {
+                  if (next === "select" || next === "hand" || next === "interact") {
                     props.onTool?.(next);
                   }
                 }}
@@ -168,6 +168,9 @@ export function ActionBar(props: ActionBarProps) {
                   size="sm"
                 >
                   <Icon name="hand" size="capsule" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="interact" aria-label={m.toolInteract} title={`${m.toolInteract} (I)`} size="sm">
+                  <Icon name="play" size="capsule" />
                 </ToggleGroupItem>
               </ToggleGroup>
               <Divider />

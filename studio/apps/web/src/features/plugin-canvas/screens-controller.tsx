@@ -103,8 +103,8 @@ export interface ScreensControllerProps {
   /** A screen action asked for on the canvas (a double-click on a title, Delete on a selected screen); `n` repeats it. */
   readonly request?: ScreenRequest | undefined;
   /** The pointer tool and its switch in the bar. */
-  readonly tool?: "select" | "hand";
-  readonly onTool?: (tool: "select" | "hand") => void;
+  readonly tool?: "select" | "hand" | "interact";
+  readonly onTool?: (tool: "select" | "hand" | "interact") => void;
 }
 
 /** A screen action the canvas asks the controller for. */

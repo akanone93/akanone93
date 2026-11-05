@@ -129,7 +129,7 @@ export class CanvasHost {
   /** The screens last handed to the worker and their style; an update sends only what differs (STU-121). */
   private sent: { readonly style: ScreenStyle; readonly screens: ReadonlyMap<string, ScreenDocument> } | null = null;
   /** Each laid-out screen's content height, by screen id. */
-  private readonly contentHeights = new Map<string, number>();
+  private readonly contentHeights = new Map<string, ScreenHeight>();
   private settle: { resolve(info: RendererInfo): void; reject(error: Error): void } | null = null;
   private readonly view: Viewport;
   private readonly base: CanvasElementLike;
@@ -387,9 +387,10 @@ export class CanvasHost {
     const promise = new Promise<readonly ScreenHeight[]>((resolve) => {
       this.layouts.set(requestId, (heights) => {
         for (const h of heights) {
-          this.contentHeights.set(h.id, h.contentHeight);
+          this.contentHeights.set(h.id, h);
         }
-        resolve(screens.map((s) => ({ id: s.id, contentHeight: this.contentHeights.get(s.id) ?? 0 })));
+        // A screen not laid out again keeps its last entry, its scroll extents with it (PC-15).
+        resolve(screens.map((s) => this.contentHeights.get(s.id) ?? { id: s.id, contentHeight: 0 }));
       });
     });
     if (previous === null || previous.style !== style) {

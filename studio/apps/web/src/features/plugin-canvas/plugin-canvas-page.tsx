@@ -4,8 +4,9 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { FunctionAdminService } from "@plux/api";
-import { frameId, overflowId } from "@plux/canvas";
+import { frameId, overflowId, type ScreenHeight } from "@plux/canvas";
 import { limitDefault } from "@plux/schema";
+import { Icon } from "@plux/ui";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
@@ -54,6 +55,8 @@ import { useHostFonts } from "./host-fonts.ts";
 import { LaneDialog, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
+import { emptyLive, type LiveState } from "./live.ts";
+import { useLiveSurface } from "./live-surface.ts";
 import { dataSourcesOf, messagesFor, titledScreens } from "./look.ts";
 import { resolveNodeParam } from "./node-path.ts";
 import { PagePartsHost, useShownDrawers } from "./page-parts.tsx";
@@ -77,6 +80,7 @@ import type { ScreenRequest } from "./screens-controller.tsx";
 import { ScreensController } from "./screens-controller.tsx";
 import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
 import { type EditFn, findNode } from "./select/edits.ts";
+import type { Box } from "./select/geometry.ts";
 import { structureEdit } from "./select/gesture.ts";
 import { handleKey } from "./select/keys.ts";
 import { announce } from "./select/live-region.ts";
@@ -84,6 +88,7 @@ import { createOverlayStore } from "./select/overlay-store.ts";
 import * as sel from "./select/selection.ts";
 import { useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
+import type { PointerTool } from "./select/use-canvas-pointer.ts";
 import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
 import { useAssetsTab } from "./use-assets-tab.ts";
 import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
@@ -109,6 +114,7 @@ export function placeModel(
   const at = placeScreens(order, widths, saved ?? readSavedPositions(documents));
   const byId = new Map(model.screens.map((s) => [s.id, s]));
   const openers = openersOf(model.screens);
+  const opened = new Set([...model.edges.values()].flat());
   return order.flatMap((id) => {
     const s = byId.get(id);
     const p = at.get(id);
@@ -121,6 +127,7 @@ export function placeModel(
             route: s.route,
             kind: s.kind,
             ...openerOf(openers, id),
+            ...(opened.has(id) && id !== model.entryPage && s.kind === "screen" ? { back: true } : {}),
             ...(s.titleKey === undefined ? {} : { titleKey: s.titleKey }),
             at: p,
             root: s.root,
@@ -138,6 +145,38 @@ function headerMeta(
 ): (s: PlacedScreen) => string | undefined {
   return (s) =>
     s.route === undefined ? undefined : m.screenMeta(s.route, m.pageKind(s.kind ?? "screen"), s.id === entry);
+}
+
+/** The screens' style: live with the Interact tool (PC-15). */
+function liveStyle<T extends object>(style: T, tool: PointerTool): T {
+  return tool === "interact" ? { ...style, live: true } : style;
+}
+
+/** Pulses a screen's frame for two seconds, as a screen a link opened (PC-15). */
+function pulseScreen(
+  surface: CanvasSurface | null,
+  target: PlacedScreen | undefined,
+  height: number,
+  width: number,
+  timers: ReturnType<typeof setTimeout>[],
+): void {
+  if (surface === null || target === undefined) {
+    return;
+  }
+  const rect = { l: target.at.x, t: target.at.y, r: target.at.x + width, b: target.at.y + height };
+  for (const step of pulseSteps(`pulse:${frameId(target.id)}`, rect, ghostStyle.pulse)) {
+    timers.push(setTimeout(() => surface.patch?.(step.ops), step.at));
+  }
+}
+
+/** The hint shown while the Interact tool is on. */
+function LiveHint({ on, text }: { readonly on: boolean; readonly text: string }) {
+  return on ? (
+    <output className="pc-live-hint">
+      <Icon name="play" />
+      {text}
+    </output>
+  ) : null;
 }
 
 /** The size of the device frame the screens are drawn in. */
@@ -440,13 +479,24 @@ function PluginCanvasView({
     () => headerMeta(pluginCanvasMessages(i18n), entryId, i18n.locale),
     [i18n, i18n.locale, entryId],
   );
+  // The tool is the page's: with Interact the screens are live (PC-15), and their live values are drawn.
+  const [tool, setTool] = useState<PointerTool>("select");
+  const [liveValues, setLive] = useState<LiveState>(emptyLive);
   // A drawer is drawn open when the user shows it or the selection is inside it (PC-12).
   const picked = useEditor((st) => st.selection);
   const shownRoots = useMemo(() => screens.map((s) => s.root), [screens]);
   const { drawers, toggle: toggleDrawer } = useShownDrawers(shownRoots, picked.ids);
-  const { shown, styled, paint } = usePreviewScene(screens, appDocs.data, docs.data, look, drawers);
+  const {
+    shown,
+    styled: designStyled,
+    paint,
+  } = usePreviewScene(screens, appDocs.data, docs.data, look, drawers, liveValues);
+  const styled = useMemo(() => liveStyle(designStyled, tool), [designStyled, tool]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
+  const liveHeights = useRef<((heights: readonly ScreenHeight[]) => void) | undefined>(undefined);
+  const liveWheel = useRef<((e: WheelEvent) => boolean) | undefined>(undefined);
+  const boxRef = useRef<((id: string) => Box | undefined) | undefined>(undefined);
   const [overlay] = useState(createOverlayStore);
   const fittedRef = useRef<CanvasSurface | null>(null);
   const [heights, setHeights] = useState<Heights>(new Map());
@@ -724,6 +774,7 @@ function PluginCanvasView({
       }
       const byId = heightsById(laidOut);
       setHeights(byId);
+      liveHeights.current?.(laidOut);
       // Only the first layout on a surface fits the view; an edit keeps where the user looks.
       if (fittedRef.current !== surface) {
         fittedRef.current = surface;
@@ -778,6 +829,10 @@ function PluginCanvasView({
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const surface = surfaceRef.current;
+      // With the Interact tool the wheel scrolls the screen under the pointer (PC-15).
+      if (liveWheel.current?.(e) === true) {
+        return;
+      }
       if (surface !== null) {
         wheelStep(surface, tracker, canvas, e);
         syncRef.current();
@@ -845,6 +900,22 @@ function PluginCanvasView({
     );
     sync();
   };
+  /** A link followed on the live surface: its screen comes into view, pulsing, and is announced (PC-15). */
+  const followTo = (id: string) => {
+    const target = screens.find((x) => x.id === id);
+    centreOn(surfaceRef.current, canvasRef.current, target, heights, device);
+    pulseScreen(
+      surfaceRef.current,
+      target,
+      Math.max(device.height, heights.get(id) ?? 0),
+      device.width,
+      pulses.current,
+    );
+    if (target !== undefined) {
+      setFocusNote(m.liveOpened(target.title));
+    }
+    sync();
+  };
   const [consoleRequest, setConsoleRequest] = useState<{ readonly tab: DrawerTab; readonly n: number } | undefined>();
 
   const [screenRequest, setScreenRequest] = useState<ScreenRequest | undefined>();
@@ -868,7 +939,28 @@ function PluginCanvasView({
     }
     return true;
   };
+  const liveSurface = useLiveSurface({
+    on: tool === "interact",
+    surface: () => surfaceRef.current,
+    canvas: () => canvasRef.current,
+    screens,
+    index,
+    screenOf,
+    drawers,
+    toggleDrawer,
+    boxOf: () => boxRef.current,
+    rtl: look.direction === "rtl",
+    follow: (id) => followTo(id),
+    announce: setFocusNote,
+    runsText: m.liveRuns,
+    setLive,
+  });
+  liveHeights.current = liveSurface.setHeights;
+  liveWheel.current = liveSurface.wheel;
   const interaction = useCanvasInteraction({
+    tool,
+    setTool,
+    onInteract: liveSurface.interact,
     surface: () => surfaceRef.current,
     canvas: canvasRef,
     store,
@@ -892,6 +984,7 @@ function PluginCanvasView({
     messages: m,
     overlay,
   });
+  boxRef.current = interaction.boxOf;
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
@@ -931,6 +1024,7 @@ function PluginCanvasView({
           {...interaction.handlers}
         />
         {interaction.element}
+        <LiveHint on={tool === "interact"} text={m.liveHint} />
         <PagePartsHost
           store={overlay}
           surface={() => surfaceRef.current}
