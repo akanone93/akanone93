@@ -149,7 +149,13 @@ Each screen's name is shown above its device frame, with its route name and kind
 sheet** or **Full-screen dialog**) after it and **Entry** on the plugin's entry screen; drag the screen by either. A
 button or a field shows its text inside its box. A page's app bar reaches under the status bar and keeps its title
 below it, a `SafeArea` keeps its content clear of the status bar, the cutout and the home indicator, and the status
-bar's icons turn light over a dark app bar or header, as the device draws them. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
+bar's icons turn light over a dark app bar or header, as the device draws them. A page's `Scaffold` is laid out at the
+device's size with its parts where the device puts them: the app bar at the top, the navigation bar and persistent
+footer buttons at the bottom above the home indicator, the floating action button at its location and the bottom sheet
+above the bottom bar; a scrolling body keeps all its content, past the frame. Select a page to add what its scaffold
+lacks from the chips on its frame — **App bar**, **Navigation bar**, **Action button** and **Drawer** — each as one
+undo step; **Show drawer** draws the drawer open over its scrim, and selecting anything inside a drawer opens it too.
+Showing a drawer changes only the canvas, never the page. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and
 a shadow by Material elevation. Texts take Material 3's type scale, or the theme's `typography` tokens where it has

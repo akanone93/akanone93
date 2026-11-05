@@ -6,6 +6,61 @@ import type { I18n } from "@lingui/core";
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
   return {
+    pageParts: i18n._({
+      id: "pluginCanvas.pageParts",
+      message: "Page parts",
+      comment:
+        "Accessible name of the buttons on a selected page that add its app bar, navigation bar, action button or drawer.",
+    }),
+    addAppBar: i18n._({
+      id: "pluginCanvas.addAppBar",
+      message: "App bar",
+      comment: "Button on a selected page with no app bar: adds one at the top of the page.",
+    }),
+    addNavigationBar: i18n._({
+      id: "pluginCanvas.addNavigationBar",
+      message: "Navigation bar",
+      comment: "Button on a selected page with no bottom navigation bar: adds one with three destinations.",
+    }),
+    addActionButton: i18n._({
+      id: "pluginCanvas.addActionButton",
+      message: "Action button",
+      comment: "Button on a selected page with no floating action button: adds one at the bottom end.",
+    }),
+    addDrawer: i18n._({
+      id: "pluginCanvas.addDrawer",
+      message: "Drawer",
+      comment: "Button on a selected page with no drawer: adds a side drawer (a menu that slides in from the edge).",
+    }),
+    drawerToggle: (side: "drawer" | "endDrawer", shown: boolean) =>
+      i18n._({
+        id: "pluginCanvas.drawerToggle",
+        message:
+          "{side, select, endDrawer {{shown, select, yes {Hide end drawer} other {Show end drawer}}} other {{shown, select, yes {Hide drawer} other {Show drawer}}}}",
+        values: { side, shown: shown ? "yes" : "no" },
+        comment:
+          "Button on a page with a drawer: shows the drawer open on the canvas, or hides it again. The end drawer slides in from the other edge.",
+      }),
+    partHome: i18n._({
+      id: "pluginCanvas.partHome",
+      message: "Home",
+      comment: "Label of the first destination of a navigation bar or drawer added to a page; the user can change it.",
+    }),
+    partSearch: i18n._({
+      id: "pluginCanvas.partSearch",
+      message: "Search",
+      comment: "Label of the second destination of a navigation bar added to a page.",
+    }),
+    partProfile: i18n._({
+      id: "pluginCanvas.partProfile",
+      message: "Profile",
+      comment: "Label of the third destination of a navigation bar added to a page.",
+    }),
+    partSettings: i18n._({
+      id: "pluginCanvas.partSettings",
+      message: "Settings",
+      comment: "Label of the second entry of a drawer added to a page.",
+    }),
     screenMeta: (route: string, kind: string, entry: boolean) =>
       i18n._({
         id: "pluginCanvas.screenMeta",

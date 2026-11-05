@@ -493,8 +493,21 @@ function partsPaintOf(
   return barPainters.get(node.type ?? "")?.(node, r, theme, rectOf) ?? mediaPaint(node, r, theme);
 }
 
-/** What a widget paints in its box `r`: its parts, a surface, a Layer 2 component's, a control's, or its painter's. */
+/** `Colors.black54`: the scrim under a drawer or a modal route (Material's `DrawerThemeData` and `ModalBarrier`). */
+const SCRIM: Rgba = 0x0000008a;
+
+/**
+ * What a widget paints in its box `r`; a widget laid out over a scrim (a drawer shown open, a dialog or sheet page)
+ * paints the scrim first, over everything below it (PC-12, PC-13).
+ */
 function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
+  const scrim = rects.get(`${node.id}#scrim`);
+  const own = ownPaintOf(node, r, theme, rects);
+  return scrim === undefined ? own : { ...own, boxes: [{ ...scrim, fill: SCRIM }, ...(own.boxes ?? [])] };
+}
+
+/** What a widget paints in its box `r`: its parts, a surface, a Layer 2 component's, a control's, or its painter's. */
+function ownPaintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
   const type = node.type ?? "";
   const surface = barSurface(node, r, theme);
   const layer2 = layer2Paint(type, r, theme);

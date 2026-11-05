@@ -23,7 +23,7 @@ import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
 import { IntrinsicColumnWidth, RenderTable, TableCellVerticalAlignment } from "../flutter/table.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import type { MaterialContext } from "./material-scene.ts";
-import { padding, type SceneNode } from "./scene.ts";
+import { padding, type SceneNode, type ViewPadding } from "./scene.ts";
 
 type Builder = (node: SceneNode, ctx: MaterialContext) => RenderBox;
 
@@ -81,6 +81,20 @@ function scaledSides(scale: number, one: Steb, two: Steb, three: Steb): readonly
 }
 
 /** `BottomAppBar`: 80 high (M3), as wide as allowed, its child between 16 and 12 of padding, tight to the rest. */
+/**
+ * A bottom bar's `SafeArea`: its content above the home indicator and inside the side cutouts, its surface under
+ * them (`NavigationBar`, `BottomAppBar`); nothing without view padding (the conformance goldens).
+ */
+export function safeBottom(box: RenderBox, padding: ViewPadding | undefined): RenderBox {
+  if (padding === undefined || (padding.bottom === 0 && padding.left === 0 && padding.right === 0)) {
+    return box;
+  }
+  return new RenderPadding({
+    padding: EdgeInsets.only({ left: padding.left, right: padding.right, bottom: padding.bottom }),
+    child: box,
+  });
+}
+
 const bottomAppBar: Builder = (node, ctx) => {
   const height = num(node, "height", 80);
   const child = slotOf(node, "child")[0];
@@ -88,7 +102,7 @@ const bottomAppBar: Builder = (node, ctx) => {
     node.props["padding"] === undefined
       ? EdgeInsets.symmetric({ horizontal: 16, vertical: 12 })
       : padding(node.props["padding"]);
-  return new RenderConstrainedBox({
+  const bar = new RenderConstrainedBox({
     additionalConstraints: new BoxConstraints({
       minWidth: Number.POSITIVE_INFINITY,
       minHeight: height,
@@ -99,6 +113,7 @@ const bottomAppBar: Builder = (node, ctx) => {
         ? null
         : new RenderPadding({ padding: inset, textDirection: ctx.direction, child: ctx.build(child) }),
   });
+  return safeBottom(bar, ctx.text?.viewPadding);
 };
 
 /** `CalendarDatePicker`: the sub-header and seven 48-px rows, taller once the text scale passes 1.3. */

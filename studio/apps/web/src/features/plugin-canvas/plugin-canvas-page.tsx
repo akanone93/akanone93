@@ -56,6 +56,7 @@ import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
 import { dataSourcesOf, messagesFor, titledScreens } from "./look.ts";
 import { resolveNodeParam } from "./node-path.ts";
+import { PagePartsHost, useShownDrawers } from "./page-parts.tsx";
 import { useBrands } from "./paint-theme.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
@@ -431,7 +432,11 @@ function PluginCanvasView({
     () => headerMeta(pluginCanvasMessages(i18n), entryId, i18n.locale),
     [i18n, i18n.locale, entryId],
   );
-  const { shown, styled, paint } = usePreviewScene(screens, appDocs.data, docs.data, look);
+  // A drawer is drawn open when the user shows it or the selection is inside it (PC-12).
+  const picked = useEditor((st) => st.selection);
+  const shownRoots = useMemo(() => screens.map((s) => s.root), [screens]);
+  const { drawers, toggle: toggleDrawer } = useShownDrawers(shownRoots, picked.ids);
+  const { shown, styled, paint } = usePreviewScene(screens, appDocs.data, docs.data, look, drawers);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const [overlay] = useState(createOverlayStore);
@@ -918,6 +923,20 @@ function PluginCanvasView({
           {...interaction.handlers}
         />
         {interaction.element}
+        <PagePartsHost
+          store={overlay}
+          surface={() => surfaceRef.current}
+          roots={roots}
+          screens={screens}
+          selection={selection}
+          selectionStore={store}
+          screenOf={screenOf}
+          edit={edit}
+          canEdit={canEdit}
+          look={look}
+          drawers={drawers}
+          onToggleDrawer={toggleDrawer}
+        />
         {docs.isPending && <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>}
         {docs.isError && (
           <p role="alert" className="absolute start-4 top-4 text-body">

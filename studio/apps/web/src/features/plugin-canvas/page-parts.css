@@ -1,0 +1,110 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * The parts a selected page's scaffold can still have (PC-12): small chips on its frame where each part would
+ * stand, placed from the physical top left by `--x` and `--y` in canvas pixels and anchored by `data-anchor`.
+ */
+
+.pc-parts {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Over the interaction overlay, under the docks and bars. */
+  z-index: 2;
+}
+
+.pc-part {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  border: 1px dashed color-mix(in oklch, var(--primary) 60%, transparent);
+  background-color: color-mix(in oklch, var(--background) 92%, transparent);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: 0 1px 3px color-mix(in oklch, black 14%, transparent);
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.pc-part svg {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+.pc-part:hover {
+  background-color: color-mix(in oklch, var(--primary) 12%, var(--background));
+  border-style: solid;
+}
+
+.pc-part:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.pc-part[data-kind="toggle"] {
+  border-style: solid;
+  color: var(--foreground);
+}
+
+.pc-part[data-kind="toggle"][aria-pressed="true"] {
+  color: var(--primary-foreground);
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* The anchor: which point of the chip stands on its spot. */
+.pc-part[data-anchor="top"] {
+  transform: translate(calc(var(--x) * 1px - 50%), calc(var(--y) * 1px));
+}
+
+.pc-part[data-anchor="bottom"] {
+  transform: translate(calc(var(--x) * 1px - 50%), calc(var(--y) * 1px - 100%));
+}
+
+.pc-part[data-anchor="bottom-end"] {
+  transform: translate(calc(var(--x) * 1px - 100%), calc(var(--y) * 1px - 100%));
+}
+
+.pc-parts[data-rtl] .pc-part[data-anchor="bottom-end"] {
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px - 100%));
+}
+
+.pc-part[data-anchor="start"] {
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px - 50%));
+}
+
+.pc-parts[data-rtl] .pc-part[data-anchor="start"],
+.pc-part[data-anchor="end"] {
+  transform: translate(calc(var(--x) * 1px - 100%), calc(var(--y) * 1px - 50%));
+}
+
+.pc-parts[data-rtl] .pc-part[data-anchor="end"] {
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px - 50%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-part {
+    transition: none;
+  }
+}
+
+/* A fieldset of chips: none of a fieldset's own frame. */
+fieldset.pc-parts {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  min-inline-size: 0;
+}

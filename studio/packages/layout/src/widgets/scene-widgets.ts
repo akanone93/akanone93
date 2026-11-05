@@ -348,13 +348,21 @@ function convert(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNode {
   const inner = deep || compositeTypes.includes(type) || (paint !== undefined && componentTypes.includes(type));
   const raw = (node.props ?? {}) as Record<string, unknown>;
   if (paint !== undefined && faithfulTypes.has(type)) {
-    const literal = literalProps(raw, paint) as Record<string, unknown>;
+    const literal = withScrollPadding(
+      type,
+      literalProps(raw, paint) as Record<string, unknown>,
+      bridge.ctx.viewPadding,
+    );
     if (type === "SafeArea") {
       return safeAreaScene(node.id, literal, sceneChildren(node, bridge, inner), bridge.ctx.viewPadding);
     }
     return faithfulScene(node, literal, sceneChildren(node, bridge, inner));
   }
-  const props = type === "Text" ? textProps(node, sceneProps(type, raw), bridge) : sceneProps(type, raw);
+  const props = withScrollPadding(
+    type,
+    type === "Text" ? textProps(node, sceneProps(type, raw), bridge) : sceneProps(type, raw),
+    bridge.ctx.viewPadding,
+  );
   const children = sceneChildren(node, bridge, inner);
   const scene: SceneNode = { id: node.id, type, props, ...(children.length === 0 ? {} : { children }) };
   return boundedHeight.has(type) ? inViewportHeight(scene, bridge) : scene;
@@ -431,6 +439,28 @@ function literalProps(value: unknown, paint: PaintTheme): unknown {
 }
 
 const ZERO = { all: 0 };
+
+/** `BoxScrollView`s: without a padding of their own they pad by the view padding along their axis. */
+const BOX_SCROLL_VIEWS: ReadonlySet<string> = new Set(["ListView", "GridView", "ReorderableListView"]);
+
+/**
+ * `BoxScrollView.build`: a list or grid without `padding` takes the view padding along its scroll axis (the status
+ * bar and the home indicator of a vertical one), so a drawer's list starts below the status bar (PC-12).
+ */
+function withScrollPadding(
+  type: string,
+  props: Record<string, unknown>,
+  padding: ViewPadding | undefined,
+): Record<string, unknown> {
+  if (padding === undefined || props["padding"] !== undefined || !BOX_SCROLL_VIEWS.has(type)) {
+    return props;
+  }
+  const horizontal = props["scrollDirection"] === "horizontal";
+  const sides = horizontal
+    ? { left: padding.left, right: padding.right, top: 0, bottom: 0 }
+    : { top: padding.top, bottom: padding.bottom, left: 0, right: 0 };
+  return sides.top + sides.bottom + sides.left + sides.right === 0 ? props : { ...props, padding: sides };
+}
 
 /** A side of an `EdgeInsets` prop (`{all}`, `{horizontal, vertical}` or per side), 0 when absent. */
 function insetSide(value: unknown, side: "top" | "right" | "bottom" | "left"): number {

@@ -35,6 +35,7 @@ import { FontStyle, TextAlign, TextLeadingDistribution } from "../text/paragraph
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { layer2Types, layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
+import { buildPageScaffold } from "./page-scaffold.ts";
 import { cupertinoComponents, faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
 import { structuralWidgetBuilders } from "./structural.ts";
 
@@ -134,6 +135,10 @@ export interface WidgetContext {
   readonly viewPadding?: ViewPadding | undefined;
   /** The screen's root (whose `appBar` the screen lays out) and the status bar height its app bar reaches under. */
   readonly pageBar?: { readonly root: string; readonly top: number } | undefined;
+  /** Builds with `padding` as the view padding, as a `MediaQuery` below a scaffold's part gives it (PC-12). */
+  withViewPadding?<T>(padding: ViewPadding | undefined, build: () => T): T;
+  /** The id of the page's own `Scaffold` (the painted screen's root): laid out at the device's size, parts in place. */
+  readonly pageScaffold?: string | undefined;
 }
 
 /** Builds the render object of one widget type. */
@@ -335,6 +340,9 @@ function topInset(node: WidgetNode, ctx: WidgetContext): number {
 const scaffold: WidgetBuilder = (node, ctx) => {
   if (ctx.paint === undefined) {
     return wrapper(node, ctx);
+  }
+  if (ctx.withViewPadding !== undefined && ctx.pageScaffold === node.id) {
+    return buildPageScaffold(node, ctx, named);
   }
   const body = node.slots?.["body"];
   const rest = nested(node).filter((c) => c !== body);
@@ -770,6 +778,29 @@ function placedBoxes(
 }
 
 /**
+ * How high a screen's content reaches: its root's height, or on a painted screen the lowest box — a page scaffold is
+ * as high as the device while its scroll view's content runs on below it (PC-12, STU-056).
+ */
+function contentHeightOf(
+  rects: ReadonlyMap<string, { y: number; h: number }>,
+  rootId: string,
+  paints: ReadonlyMap<string, NodePaint> | undefined,
+): number {
+  let height = rects.get(rootId)?.h ?? 0;
+  if (paints !== undefined) {
+    for (const r of rects.values()) {
+      height = Math.max(height, r.y + r.h);
+    }
+  }
+  return height;
+}
+
+/** The root's id when it is a `Scaffold` on a painted screen: the page's own scaffold (PC-12). */
+function pageScaffoldOf(root: WidgetNode | null | undefined, options: LayoutScreenOptions): string | undefined {
+  return options.paint !== undefined && root?.type === "Scaffold" ? root.id : undefined;
+}
+
+/**
  * The view padding of a painted screen (PC-11): the whole of it for the page's app bar, the body's (none at the top
  * below an app bar), and the root the app bar belongs to with the status bar it reaches under.
  */
@@ -782,7 +813,8 @@ function pageInsets(
   readonly body?: ViewPadding;
   readonly pageBar?: { root: string; top: number };
 } {
-  const hasBar = root?.slots?.["appBar"] !== undefined;
+  // A painted page's own Scaffold places its app bar itself (PC-12); elsewhere the screen lays the app bar out above.
+  const hasBar = root?.slots?.["appBar"] !== undefined && pageScaffoldOf(root, options) === undefined;
   const full = options.paint === undefined ? undefined : options.viewPadding;
   if (full === undefined) {
     return { hasBar };
@@ -816,6 +848,16 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
       return padding;
     },
     pageBar: insets.pageBar,
+    pageScaffold: pageScaffoldOf(root, options),
+    withViewPadding(next, build) {
+      const kept = padding;
+      padding = next;
+      try {
+        return build();
+      } finally {
+        padding = kept;
+      }
+    },
     engine: options.engine,
     theme,
     textScale,
@@ -904,7 +946,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     const rects = globalRects(view);
     const paints =
       options.paint === undefined ? undefined : paintTree(root as PaintNode | null | undefined, rects, options.paint);
-    return { boxes: placedBoxes(rects, marks, paints, rootId), contentHeight: rects.get(rootId)?.h ?? 0 };
+    return { boxes: placedBoxes(rects, marks, paints, rootId), contentHeight: contentHeightOf(rects, rootId, paints) };
   } finally {
     for (const p of paragraphs) {
       p.dispose();

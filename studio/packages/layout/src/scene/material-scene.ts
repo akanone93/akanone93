@@ -60,7 +60,7 @@ import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding } from "../flutter/shifted-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { leafBuilders } from "./material-leaves.ts";
-import { moreBuilders } from "./material-more.ts";
+import { moreBuilders, safeBottom } from "./material-more.ts";
 import type { SceneNode, SceneText, TextDefaults, ViewPadding } from "./scene.ts";
 
 /** The theme's font family, as `ThemeData(fontFamily:)` in the golden writer. */
@@ -341,11 +341,14 @@ function buildNavigationBarNode(node: SceneNode, ctx: MaterialContext): RenderBo
     row.debugId = destination.id;
     return row;
   });
-  return buildNavigationBar({
-    destinations,
-    height: num(p, "height", kNavigationBarHeight),
-    textDirection: ctx.direction,
-  });
+  return safeBottom(
+    buildNavigationBar({
+      destinations,
+      height: num(p, "height", kNavigationBarHeight),
+      textDirection: ctx.direction,
+    }),
+    ctx.text?.viewPadding,
+  );
 }
 
 /** `NavigationRail` with `NavigationRailDestination` children: an `icon` slot and a `label` prop each. */

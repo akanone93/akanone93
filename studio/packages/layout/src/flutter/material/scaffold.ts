@@ -45,6 +45,8 @@ export interface ScaffoldSlots {
 export interface ScaffoldOptions extends ScaffoldSlots {
   fabLocation: FabLocation;
   textDirection: TextDirection;
+  /** `minViewPadding.bottom`: the home indicator a floating button keeps clear of; 0 when absent. */
+  minViewPaddingBottom?: number;
 }
 
 /** `_ScaffoldLayout` in a `CustomMultiChildLayout`: as big as allowed. */
@@ -130,7 +132,9 @@ export class RenderScaffold extends ContainerRenderBox<RenderBox> {
     if (location.endsWith("Top")) {
       y = contentTop > 0 ? contentTop - fab.height / 2 : 0;
     } else if (location.endsWith("Float")) {
-      y = contentBottom - fab.height - kFloatingActionButtonMargin;
+      // `safeMargin`: the margin, or the view padding the bottom widgets leave uncovered plus the margin.
+      const uncovered = (this.o.minViewPaddingBottom ?? 0) - (size.height - contentBottom);
+      y = contentBottom - fab.height - Math.max(kFloatingActionButtonMargin, uncovered + kFloatingActionButtonMargin);
       if (sheet > 0) {
         y = Math.min(y, contentBottom - sheet - fab.height / 2);
       }

@@ -916,6 +916,12 @@ msgstr "{script}: {n} خطوط"
 msgid "style.iconSet"
 msgstr "{set, select, material {Material} cupertino {Cupertino} other {الأيقونات}}"
 
+#. Button on a page with a drawer: shows the drawer open on the canvas, or hides it again. The end drawer slides in from the other edge.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.drawerToggle"
+msgstr "{side, select, endDrawer {{shown, select, yes {إخفاء القائمة الجانبية الأخرى} other {إظهار القائمة الجانبية الأخرى}}} other {{shown, select, yes {إخفاء القائمة الجانبية} other {إظهار القائمة الجانبية}}}}"
+
 #. The save state in a canvas's top bar: saved, sending edits, no network, or a conflict to resolve.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -1125,6 +1131,12 @@ msgstr "الإجراء"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colAction"
 msgstr "الإجراء"
+
+#. Button on a selected page with no floating action button: adds one at the bottom end.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.addActionButton"
+msgstr "زر الإجراء"
 
 #. Button in the right panel that opens the full-screen action graph editor for the selected widget.
 #. js-lingui-explicit-id
@@ -1796,6 +1808,12 @@ msgstr "التطبيق"
 #: apps/web/src/features/shell/app-nav.messages.ts
 msgid "appnav.label"
 msgstr "مجالات التطبيق"
+
+#. Button on a selected page with no app bar: adds one at the top of the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.addAppBar"
+msgstr "شريط التطبيق"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -4752,6 +4770,12 @@ msgstr "اسحب الملفات إلى هنا، أو انقر لاختيارها
 msgid "appCanvas.hint"
 msgstr "اسحب للنقل · المسافة + السحب للتحريك · Ctrl + التمرير للتكبير · انقر مرتين للفتح"
 
+#. Button on a selected page with no drawer: adds a side drawer (a menu that slides in from the edge).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.addDrawer"
+msgstr "قائمة جانبية"
+
 #. Choice for a missing item in the paste report: remove the reference from the pasted elements.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -6573,6 +6597,12 @@ msgstr "السجل"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.holdoutLabel"
 msgstr "نسبة الاستبعاد"
+
+#. Label of the first destination of a navigation bar or drawer added to a page; the user can change it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partHome"
+msgstr "الرئيسية"
 
 #. Name of the personal home page.
 #. js-lingui-explicit-id
@@ -8789,6 +8819,12 @@ msgstr "تم الانتقال إلى"
 msgid "panels.kind.navigation"
 msgstr "التنقل"
 
+#. Button on a selected page with no bottom navigation bar: adds one with three destinations.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.addNavigationBar"
+msgstr "شريط التنقل"
+
 #. Badge on a limit whose usage has reached 80 percent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -10343,6 +10379,12 @@ msgstr "الصفحة غير موجودة"
 msgid "tests.colTarget"
 msgstr "الصفحة أو التدفق"
 
+#. Accessible name of the buttons on a selected page that add its app bar, navigation bar, action button or drawer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.pageParts"
+msgstr "أجزاء الصفحة"
+
 #. Label: the route of the page under test.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -11068,6 +11110,12 @@ msgstr "بيئات الإنتاج"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.productionOnly"
 msgstr "الإنتاج فقط"
+
+#. Label of the third destination of a navigation bar added to a page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partProfile"
+msgstr "الملف الشخصي"
 
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
@@ -12885,6 +12933,12 @@ msgstr "لقطة شاشة: {screens}"
 msgid "tests.stepScroll"
 msgstr "تمرير"
 
+#. Label of the second destination of a navigation bar added to a page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partSearch"
+msgstr "بحث"
+
 #. Label of the top bar button that opens the search and command palette.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -13262,6 +13316,12 @@ msgstr "الإعداد"
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colSetting"
 msgstr "الإعداد"
+
+#. Label of the second entry of a drawer added to a page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partSettings"
+msgstr "الإعدادات"
 
 #. Heading of the form that edits the shell settings.
 #. js-lingui-explicit-id
