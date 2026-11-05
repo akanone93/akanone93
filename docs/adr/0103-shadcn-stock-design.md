@@ -87,7 +87,10 @@ Chosen option: **shadcn/ui as it ships**.
   card for the selection; Assets with a drop zone, kind filters and cards; Data with the state and
   the data sources; the app canvas: Plugins, Frames and Overview); the inspector with the
   widget's identity, labelled editor tiles, the tabs, a size-class switch and folding property
-  sections, and the plugin's overview when nothing is selected; the zoom controls, identical on
+  sections, and the plugin's overview when nothing is selected (amended 2026-11-05, maintainer: the inspector mirrors
+  the left dock — a rail along the canvas's outer edge with Properties first and open, then Editors, Actions, JSON,
+  Code, Localisation, Accessibility, Performance and Docs, and the open pane takes the dock's whole height; properties
+  are one compact row each, a name and its editor, under a sticky filter, size-class switch and "Set only"); the zoom controls, identical on
   both canvases, at the bottom start; and on the plugin canvas the developer console between the
   docks, a slim bar that opens into a resizable drawer of its tabs. A canvas opens at 100 %,
   centred in the room the docks leave. A native target on the app canvas is a dashed outline with

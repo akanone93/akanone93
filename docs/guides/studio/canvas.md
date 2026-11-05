@@ -112,16 +112,19 @@ Positions are read-only while someone else is editing the app.
    (Ctrl+Shift+L). Names, hiding and locks are Studio's own: the device still shows the widget. The
    card at the top of **Layers** lists the selection, with **Show on canvas** and **Clear selection**.
    The fold button in each dock's header folds it; the button beside the folded dock (or a tab on its
-   rail) opens it again, on both canvases and both sides. In
-   the **Inspector**, **Editors** and **Details** fold separately. **Assets** takes files dropped on its zone (or chosen
+   rail) opens it again, on both canvases and both sides. **Assets** takes files dropped on its zone (or chosen
    by clicking it) and shows them as cards you can search and filter by kind; **Data** holds the
-   plugin's **State** and **Data sources**. Select a widget and edit it in the **Inspector**: it
-   names the widget and its screen, opens the **Editors** (JSON, translations, state, data sources,
-   database, theme, action graph, Rust), and holds the tabs **Properties** (with the **Size class**
-   the edit applies to, and sections: **Content**, **Layout**, **Appearance**, **Behaviour**,
-   **Other**), **Actions**, **JSON**, **Code**, **Localisation**, **Accessibility**, **Performance**
-   and **Docs**; with nothing selected it shows the **Plugin overview**. Each editor opens over the
-   canvas; **Close** or Escape returns. **Wrap selection in a column**, **Unwrap selection**,
+   plugin's **State** and **Data sources**. Select a widget and edit it in the **Inspector** on the right: its header
+   names the widget, its screen and its id, and its rail on the outer edge holds **Properties** (open at first),
+   **Editors** (JSON, translations, theme, state, data sources, database, action graph, Rust), **Actions**, **JSON**,
+   **Code**, **Localisation**, **Accessibility**, **Performance** and **Docs**. **Properties** lists one property per
+   row — its name, a dot when it is set, and its editor — in the sections **Content**, **Layout**, **Appearance**,
+   **Behaviour** and **Other**; filter them by name, show **Set only**, pick the **Size class** an edit applies to
+   (**M** or **E** marks an override), and point at a name to reset it. A text switches between a literal, a
+   translation key and a PXL expression from the button at its end; short choices are segmented, an alignment is a
+   3×3 grid of points, a padding is four sides in one row, and a decoration, a text style or a constraint opens its
+   fields under its name. With nothing selected the **Inspector** shows the **Plugin overview**. Each editor opens over
+   the canvas; **Close** or Escape returns. **Wrap selection in a column**, **Unwrap selection**,
    **Duplicate selection** and **Create experiment from selection** are on the selection's menu.
 4. Manage screens with **New screen**, **Duplicate screen**, **Rename screen**, **Delete screen** and
    **Move to plugin**. The entry screen and a screen another screen navigates to cannot be deleted

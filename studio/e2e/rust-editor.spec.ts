@@ -91,6 +91,8 @@ test("the Rust editor opens under the strict CSP and Trusted Types without a vio
     history.pushState({}, "", to);
     dispatchEvent(new PopStateEvent("popstate"));
   }, `/o/${org}/apps/app1/plugins/pl`);
+  // The full-screen editors are in the inspector's Editors pane (STU-063).
+  await page.getByRole("tab", { name: /^Editors/ }).click();
   await page.getByRole("button", { name: "Rust editor" }).click();
   const editor = page.getByRole("textbox", { name: /Rust source of the function/ });
   await expect(editor).toBeAttached({ timeout: 30_000 });

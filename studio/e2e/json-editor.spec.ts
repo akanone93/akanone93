@@ -91,6 +91,8 @@ test("the JSON editor opens under the strict CSP and Trusted Types without a vio
     history.pushState({}, "", to);
     dispatchEvent(new PopStateEvent("popstate"));
   }, `/o/${org}/apps/app1/plugins/pl`);
+  // The full-screen editors are in the inspector's Editors pane (STU-063).
+  await page.getByRole("tab", { name: /^Editors/ }).click();
   await page.getByRole("button", { name: "JSON editor" }).click();
   const editor = page.getByRole("textbox", { name: /JSON of the document/ });
   await expect(editor).toBeAttached({ timeout: 30_000 });

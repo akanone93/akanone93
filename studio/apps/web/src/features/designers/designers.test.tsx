@@ -89,6 +89,8 @@ const validator =
   });
 
 const open = async (name: string) => {
+  // The full-screen editors are in the inspector's Editors pane (STU-063).
+  fireEvent.click(await screen.findByRole("tab", { name: /^Editors/ }, { timeout: 10000 }));
   const buttons = await screen.findAllByRole("button", { name }, { timeout: 10000 });
   const dock =
     buttons.find((b) => b.closest("[aria-label]")?.getAttribute("aria-label") === "Properties and accessibility") ??

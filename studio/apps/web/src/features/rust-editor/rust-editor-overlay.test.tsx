@@ -85,8 +85,15 @@ function languageServer(received: string[]) {
   };
 }
 
-const openOverlay = async () =>
+const openOverlay = async () => {
+  await openEditors();
   fireEvent.click(await screen.findByRole("button", { name: "Rust editor" }, { timeout: 5000 }));
+};
+
+/** The full-screen editors are in the inspector's Editors pane (STU-063): open it first. */
+async function openEditors(): Promise<void> {
+  fireEvent.click(await screen.findByRole("tab", { name: /^Editors/ }, { timeout: 20_000 }));
+}
 
 describe("[FN-033] Rust editor V3", () => {
   test("starts the language server on an uploaded source, shows its diagnostics and answers hovers", async () => {

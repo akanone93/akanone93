@@ -349,8 +349,8 @@ async function viewing(p: Page): Promise<void> {
   await p.mouse.wheel(0, 250);
   await p.keyboard.up("Control");
   await p.waitForTimeout(800);
-  // From the empty canvas above the console to the top left: both screens are inside at this zoom.
-  await drag(p, { x: 1215, y: 925 }, { x: 400, y: 75 });
+  // From the empty canvas above the console, left of the inspector, to the top left: both screens are inside.
+  await drag(p, { x: 1180, y: 925 }, { x: 400, y: 75 });
   check("a marquee selects both screens", (await selectedText(p)).startsWith("2 "), await selectedText(p));
   const before = p.url();
   await canvas(p).focus();

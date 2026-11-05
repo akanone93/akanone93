@@ -281,6 +281,61 @@ export function panelsMessages(i18n: I18n) {
 /** Messages of the right dock: Properties, Accessibility and Docs (S2.6, STU-121). */
 export function panelMessages(i18n: I18n) {
   return {
+    filterProps: i18n._({
+      id: "panels.filterProps",
+      message: "Filter properties",
+      comment: "Placeholder and accessible name of the field that narrows the inspector's properties by name.",
+    }),
+    setOnly: i18n._({
+      id: "panels.setOnly",
+      message: "Set only",
+      comment: "Toggle that shows only the properties that have a value.",
+    }),
+    noPropMatch: i18n._({
+      id: "panels.noPropMatch",
+      message: "No property matches.",
+      comment: "Shown when the property filter or Set only leaves nothing to show.",
+    }),
+    modeOf: (name: string, mode: string) =>
+      i18n._({
+        id: "panels.modeOf",
+        message: "How {name} is given: {mode}",
+        comment:
+          "Accessible name of the button beside a text property that switches it between a literal value, a translation key and a PXL expression; mode is the current one.",
+        values: { name, mode },
+      }),
+    clearProp: (name: string) =>
+      i18n._({
+        id: "panels.clearProp",
+        message: "Clear {name}",
+        comment: "Accessible name of the button that removes a property's value, so the widget uses its default.",
+        values: { name },
+      }),
+    editorsTab: i18n._({
+      id: "panels.editorsTab",
+      message: "Editors",
+      comment: "Tab of the inspector's rail that lists the full-screen editors.",
+    }),
+    editorsIntro: i18n._({
+      id: "panels.editorsIntro",
+      message: "Each editor opens over the canvas; Close or Escape returns here.",
+      comment: "Line above the list of full-screen editors in the inspector.",
+    }),
+    editorGroupData: i18n._({
+      id: "panels.editorGroup.data",
+      message: "Data",
+      comment: "Heading of the editors for state, data sources and the database.",
+    }),
+    editorGroupLogic: i18n._({
+      id: "panels.editorGroup.logic",
+      message: "Logic",
+      comment: "Heading of the editors for action graphs and Rust functions.",
+    }),
+    editorGroupContent: i18n._({
+      id: "panels.editorGroup.content",
+      message: "Content and look",
+      comment: "Heading of the editors for JSON, translations and the theme.",
+    }),
     groupLayout: i18n._({
       id: "panel.group.layout",
       message: "Layout",

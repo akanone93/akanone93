@@ -4,10 +4,11 @@
 import type { I18n } from "@lingui/core";
 import { useLingui } from "@lingui/react";
 import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
-import { Button, Field, Icon, type IconName, Input, Select, TypeTag, tooltipDelayMs } from "@plux/ui";
+import { Button, Icon, type IconName, Input, Menu, Select, TypeTag, tooltipDelayMs } from "@plux/ui";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
-import { Tabs as ShadcnTabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@plux/ui/components/tooltip";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
+import { Switch } from "@plux/ui/components/switch";
+import { TooltipProvider } from "@plux/ui/components/tooltip";
 import type { Problem } from "@plux/validator";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { actionGraphMessages } from "../action-graph/action-graph.messages.ts";
@@ -29,10 +30,11 @@ import type { TestsClient } from "../rust-editor/test-runner.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
-import { DockExpand, useStoredFlag } from "./dock-tabs.tsx";
+import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
 import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
+import { AlignmentPicker, PropGroupHead, PropRow, propLabel, SegmentedChoice, segmentable } from "./prop-row.tsx";
 import {
   type Breakpoint,
   bindingOf,
@@ -58,6 +60,7 @@ import { lockedIds } from "./studio-meta.ts";
 import { ColorField, DecorationEditor, TextStyleEditor } from "./style-editors.tsx";
 import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
+import "./inspector.css";
 
 /** Milliseconds a PXL field waits after the last keystroke before the validator worker checks it (F9). */
 export const PXL_DEBOUNCE_MS = 300;
@@ -133,7 +136,7 @@ function PxlField(p: EditorProps & { expr: string }) {
   );
   const description = busy ? p.m.pxlChecking : type === "" || p.expr === "" ? undefined : p.m.pxlResultType(type);
   return (
-    <Field label={p.m.pxl} error={errors[0]} description={description}>
+    <div className="prop-pxl">
       {p.sources.pxl === undefined ? (
         plain
       ) : (
@@ -149,50 +152,99 @@ function PxlField(p: EditorProps & { expr: string }) {
           />
         </Suspense>
       )}
-    </Field>
+      {errors[0] !== undefined ? (
+        <p className="prop-pxl-error" role="alert">
+          {errors[0]}
+        </p>
+      ) : (
+        description !== undefined && <p className="prop-pxl-note">{description}</p>
+      )}
+    </div>
   );
 }
 
-/** A binding-aware text editor: literal, translation key or PXL expression. */
+type TextMode = "literal" | "t" | "expr";
+
+const modeIcons: Record<TextMode, IconName> = { literal: "text-t", t: "translate", expr: "code" };
+
+/** The button at the end of a text field that turns it into a literal, a translation key or a PXL expression. */
+function ModeMenu(p: {
+  readonly label: string;
+  readonly shown: TextMode;
+  readonly modes: readonly { readonly value: TextMode; readonly label: string }[];
+  readonly disabled: boolean;
+  readonly onMode: (mode: TextMode) => void;
+}) {
+  const current = p.modes.find((x) => x.value === p.shown)?.label ?? "";
+  return (
+    <Menu
+      trigger={
+        <button
+          type="button"
+          className="prop-mode"
+          data-mode={p.shown}
+          aria-label={p.label}
+          title={current}
+          disabled={p.disabled}
+        >
+          <Icon name={modeIcons[p.shown]} size="pill" />
+        </button>
+      }
+      entries={p.modes.map((x) => ({
+        kind: "item" as const,
+        id: x.value,
+        label: x.label,
+        onSelect: () => p.onMode(x.value),
+      }))}
+    />
+  );
+}
+
+/**
+ * A binding-aware text editor in one row: the literal (or the translation key) with a button at its end that switches
+ * between a literal, a translation key and a PXL expression; an expression opens its editor under the row.
+ */
 function TextEditor(p: EditorProps) {
   const b = bindingOf(p.value);
-  const mode = b?.kind === "t" ? "t" : b?.kind === "expr" ? "expr" : "literal";
-  const [forced, setForced] = useState<"t" | "expr" | null>(null);
+  const mode: TextMode = b?.kind === "t" ? "t" : b?.kind === "expr" ? "expr" : "literal";
+  const [forced, setForced] = useState<TextMode | null>(null);
   const shown = forced ?? mode;
-  const options = [
+  const modes: { value: TextMode; label: string }[] = [
     { value: "literal", label: p.m.literal },
-    ...(p.sources.keys.length > 0 ? [{ value: "t", label: p.m.useKey }] : []),
+    ...(p.sources.keys.length > 0 ? [{ value: "t" as const, label: p.m.useKey }] : []),
     { value: "expr", label: p.m.pxl },
   ];
   return (
-    <div className="flex flex-col gap-1">
-      <Select
-        label={`${p.name}: ${p.m.literal}`}
-        options={options}
-        value={shown}
-        disabled={p.readOnly}
-        onValueChange={(v) => setForced(v === "literal" ? null : v === "t" ? "t" : "expr")}
-      />
-      {shown === "literal" && (
-        <Input
-          value={typeof p.value === "string" ? p.value : ""}
-          placeholder={p.mixed ? p.m.mixed : undefined}
-          aria-label={p.name}
-          readOnly={p.readOnly}
-          onChange={(e) => p.onChange(e.target.value === "" ? undefined : e.target.value)}
-          onBlur={p.onEnd}
-        />
-      )}
-      {shown === "t" && (
-        <Select
-          label={`${p.name}: ${p.m.useKey}`}
-          options={p.sources.keys.map((k) => ({ value: k.id, label: k.key }))}
-          value={b?.kind === "t" ? b.text : ""}
+    <div className="prop-text" data-mode={shown}>
+      <div className="prop-inline">
+        {shown === "literal" && (
+          <Input
+            value={typeof p.value === "string" ? p.value : ""}
+            placeholder={p.mixed ? p.m.mixed : undefined}
+            aria-label={p.name}
+            readOnly={p.readOnly}
+            onChange={(e) => p.onChange(e.target.value === "" ? undefined : e.target.value)}
+            onBlur={p.onEnd}
+          />
+        )}
+        {shown === "t" && (
+          <Select
+            label={`${p.name}: ${p.m.useKey}`}
+            options={p.sources.keys.map((k) => ({ value: k.id, label: k.key }))}
+            value={b?.kind === "t" ? b.text : ""}
+            disabled={p.readOnly}
+            onValueChange={(v) => p.onChange({ $t: v })}
+          />
+        )}
+        {shown === "expr" && <PxlField {...p} expr={b?.kind === "expr" ? b.text : ""} />}
+        <ModeMenu
+          label={p.m.modeOf(p.name, modes.find((x) => x.value === shown)?.label ?? "")}
+          shown={shown}
+          modes={modes}
           disabled={p.readOnly}
-          onValueChange={(v) => p.onChange({ $t: v })}
+          onMode={(next) => setForced(next === mode ? null : next)}
         />
-      )}
-      {shown === "expr" && <PxlField {...p} expr={b?.kind === "expr" ? b.text : ""} />}
+      </div>
     </div>
   );
 }
@@ -226,7 +278,7 @@ function ColorEditor(p: EditorProps) {
 
 function NumberEditor(p: EditorProps & { integer: boolean }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="prop-number">
       <Input
         type="number"
         step={p.integer ? 1 : "any"}
@@ -237,31 +289,26 @@ function NumberEditor(p: EditorProps & { integer: boolean }) {
         onChange={(e) => p.onChange(numberOrUndefined(e.target.value))}
         onBlur={p.onEnd}
       />
-      {p.unit !== "" && <span className="text-caption text-tertiary">{p.unit}</span>}
+      {p.unit !== "" && <span className="prop-unit">{p.unit}</span>}
     </div>
   );
 }
 
 function BoolEditor(p: EditorProps) {
   return (
-    <label className="flex items-center gap-2 text-body">
-      <input
-        type="checkbox"
+    <span className="prop-switch">
+      <Switch
+        size="sm"
         aria-label={p.name}
         checked={p.value === true}
-        ref={(el) => {
-          if (el) {
-            el.indeterminate = p.mixed;
-          }
-        }}
         disabled={p.readOnly}
-        onChange={(e) => {
-          p.onChange(e.target.checked);
+        onCheckedChange={(on) => {
+          p.onChange(on);
           p.onEnd();
         }}
       />
       {p.mixed && <span className="text-caption text-tertiary">{p.m.mixed}</span>}
-    </label>
+    </span>
   );
 }
 
@@ -279,25 +326,43 @@ function InsetsEditor(p: EditorProps) {
     p.onChange(Object.keys(next).length === 0 ? undefined : next);
   };
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="prop-insets">
       {insetSides.map((side) => (
-        <Input
-          key={side}
-          type="number"
-          aria-label={`${p.name} ${labels[side]}`}
-          value={typeof o[side] === "number" ? o[side] : ""}
-          placeholder={p.mixed ? p.m.mixed : labels[side]}
-          readOnly={p.readOnly}
-          onChange={(e) => change(side, e.target.value)}
-          onBlur={p.onEnd}
-        />
+        <span key={side} className="prop-inset" title={labels[side]}>
+          <span className="prop-inset-side" aria-hidden="true">
+            {labels[side].charAt(0)}
+          </span>
+          <Input
+            type="number"
+            aria-label={`${p.name} ${labels[side]}`}
+            value={typeof o[side] === "number" ? o[side] : ""}
+            placeholder={p.mixed ? p.m.mixed : "0"}
+            readOnly={p.readOnly}
+            onChange={(e) => change(side, e.target.value)}
+            onBlur={p.onEnd}
+          />
+        </span>
       ))}
     </div>
   );
 }
 
-/** Alignment constants and enum values are both a pick from named options. */
+/** Alignment constants and enum values are both a pick from named options: a segmented control when they are few. */
 function ChoiceEditor(p: EditorProps & { names: readonly string[]; label: string }) {
+  if (segmentable(p.names) && !p.mixed) {
+    return (
+      <SegmentedChoice
+        label={p.label}
+        names={p.names}
+        value={typeof p.value === "string" ? p.value : undefined}
+        readOnly={p.readOnly}
+        onChange={(v) => {
+          p.onChange(v);
+          p.onEnd();
+        }}
+      />
+    );
+  }
   return (
     <Select
       label={p.label}
@@ -345,14 +410,16 @@ function ListEditor(p: EditorProps) {
         </div>
       ))}
       <Button
-        variant="secondary"
+        variant="ghost"
         size="sm"
+        className="prop-add"
         disabled={p.readOnly}
         onClick={() => {
           set([...items, emptyItem(item)]);
           p.onEnd();
         }}
       >
+        <Icon name="plus" size="pill" />
         {p.m.addItem}
       </Button>
     </div>
@@ -410,9 +477,16 @@ function ObjectEditor(p: EditorProps) {
     p.onChange(Object.keys(next).length === 0 ? undefined : next);
   };
   return (
-    <div className="flex flex-col gap-2 ps-3">
+    <div className="prop-grid prop-grid-nested">
       {fields.map((f) => (
-        <Field key={f.name} label={f.name}>
+        <PropRow
+          key={f.name}
+          name={f.name}
+          set={o[f.name] !== undefined}
+          wide={wideType(f.type)}
+          resetLabel={p.m.clearProp(f.name)}
+          onReset={p.readOnly ? undefined : () => change(f.name, undefined)}
+        >
           <ValueEditor
             {...p}
             type={f.type}
@@ -422,7 +496,7 @@ function ObjectEditor(p: EditorProps) {
             unit=""
             onChange={(nv) => change(f.name, nv)}
           />
-        </Field>
+        </PropRow>
       ))}
     </div>
   );
@@ -442,14 +516,23 @@ export function ValueEditor(p: EditorProps) {
       return <StyleColor {...p} />;
     case "insets":
       return <InsetsEditor {...p} />;
-    case "alignment":
+    case "alignment": {
+      const names = constantsOf("Alignment").map((c) => c.name);
+      const label = `${p.name}: ${p.m.alignment}`;
       return (
-        <ChoiceEditor
-          {...p}
-          label={`${p.name}: ${p.m.alignment}`}
-          names={constantsOf("Alignment").map((c) => c.name)}
+        <AlignmentPicker
+          label={label}
+          names={names}
+          value={typeof p.value === "string" ? p.value : undefined}
+          readOnly={p.readOnly}
+          onChange={(v) => {
+            p.onChange(v);
+            p.onEnd();
+          }}
+          more={<ChoiceEditor {...p} label={label} names={names} />}
         />
       );
+    }
     case "enum":
       return (
         <ChoiceEditor
@@ -589,26 +672,6 @@ function propGroups(props: readonly PropDescriptor[]): { id: PropGroup; props: P
     .filter((g) => g.props.length > 0);
 }
 
-/** A collapsible section of the inspector's properties: its icon, name and count, open at first. */
-function PropSection(props: {
-  readonly label: string;
-  readonly icon: IconName;
-  readonly count: number;
-  readonly children: React.ReactNode;
-}) {
-  return (
-    <Collapsible defaultOpen className="prop-section">
-      <CollapsibleTrigger className="prop-section-head">
-        <Icon name={props.icon} size="pill" />
-        <span className="flex-1 text-start">{props.label}</span>
-        <span className="prop-section-count">{props.count}</span>
-        <Icon name="caret-down" size="pill" className="prop-section-caret" />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="prop-section-body">{props.children}</CollapsibleContent>
-    </Collapsible>
-  );
-}
-
 /** Whether the selection may be edited: the editor can edit and no selected widget is locked in Layers (STU-061). */
 function useSelectionEditable(p: DockProps, ids: readonly string[]): { canEdit: boolean; lockedNote: string | null } {
   const canEdit = useCanEdit();
@@ -625,6 +688,129 @@ function LockedNote({ text }: { readonly text: string | null }) {
       <Icon name="lock" size="pill" />
       {text}
     </p>
+  );
+}
+
+/** One property of the selection in the inspector: its row, its editor, its reset and its "extract to a key". */
+function PropertyField(p: {
+  readonly prop: PropDescriptor;
+  readonly sv: ReturnType<typeof sharedValue>;
+  readonly set: boolean;
+  readonly bp: Breakpoint;
+  readonly canEdit: boolean;
+  /** Whether a translatable literal may be moved to a translation key here (one widget, editable, catalogues open). */
+  readonly extractable: boolean;
+  readonly m: Messages;
+  readonly extractLabel: string;
+  readonly sources: Sources;
+  readonly onApply: (value: unknown) => void;
+  readonly onEnd: () => void;
+  readonly onExtract: (text: string) => void;
+}) {
+  const { prop, sv, m } = p;
+  const value = sv.mixed ? undefined : sv.value;
+  const overridden = !sv.mixed && sv.overridden;
+  const literal = typeof value === "string" && value !== "" ? value : undefined;
+  return (
+    <PropRow
+      name={prop.name}
+      set={p.set}
+      override={overridden ? overrideMark[p.bp] : undefined}
+      wide={wideType(prop.type)}
+      resetLabel={overridden ? m.resetOf(prop.name) : m.clearProp(prop.name)}
+      onReset={
+        p.canEdit
+          ? () => {
+              p.onApply(undefined);
+              p.onEnd();
+            }
+          : undefined
+      }
+      extra={
+        p.extractable && isTranslatable(prop) && literal !== undefined ? (
+          <button
+            type="button"
+            className="prop-mode"
+            aria-label={p.extractLabel}
+            title={p.extractLabel}
+            onClick={() => p.onExtract(literal)}
+          >
+            <Icon name="globe" size="pill" />
+          </button>
+        ) : undefined
+      }
+    >
+      <ValueEditor
+        type={prop.type}
+        name={prop.name}
+        value={value}
+        mixed={sv.mixed}
+        unit={unitOf(prop)}
+        readOnly={!p.canEdit}
+        sources={p.sources}
+        m={m}
+        onChange={p.onApply}
+        onEnd={p.onEnd}
+      />
+    </PropRow>
+  );
+}
+
+/** The mark of a size class whose override a property shows. */
+const overrideMark: Record<Breakpoint, string | undefined> = { compact: undefined, medium: "M", expanded: "E" };
+
+/** A property whose editor takes the inspector's width under its name: decorations, text styles, objects, lists. */
+function wideType(type: string): boolean {
+  const kind = editorKind(type, enumNames);
+  const bare = type.replace(/\?$/, "");
+  return kind === "list" || (kind === "object" && bare !== "IconData" && bare !== "ImageSource");
+}
+
+/** The size class an edit applies to, as a segmented control (WCAG radio group; arrows move, in reading order). */
+function SizeClasses(props: {
+  readonly bp: Breakpoint;
+  readonly labels: Record<Breakpoint, string>;
+  readonly label: string;
+  readonly onChange: (bp: Breakpoint) => void;
+}) {
+  const icons: Record<Breakpoint, IconName> = { compact: "device-mobile", medium: "columns", expanded: "monitor" };
+  return (
+    // biome-ignore lint/a11y/useSemanticElements: a labelled radio group of size classes, not a form's fieldset
+    <div
+      role="radiogroup"
+      aria-label={props.label}
+      className="size-classes"
+      onKeyDown={(e) => {
+        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (step === undefined) {
+          return;
+        }
+        e.preventDefault();
+        const horizontal = e.key === "ArrowLeft" || e.key === "ArrowRight";
+        const rtl = horizontal && getComputedStyle(e.currentTarget).direction === "rtl";
+        const at = (breakpoints.indexOf(props.bp) + (rtl ? -step : step) + breakpoints.length) % breakpoints.length;
+        props.onChange(breakpoints[at] ?? props.bp);
+        e.currentTarget.querySelectorAll<HTMLElement>("[role=radio]")[at]?.focus();
+      }}
+    >
+      {breakpoints.map((b) => (
+        // biome-ignore lint/a11y/useSemanticElements: a segmented control's option, styled as a pill
+        <button
+          key={b}
+          type="button"
+          role="radio"
+          aria-checked={props.bp === b}
+          aria-label={props.labels[b]}
+          title={`${props.label}: ${props.labels[b]}`}
+          tabIndex={props.bp === b ? 0 : -1}
+          className="size-class"
+          onClick={() => props.onChange(b)}
+        >
+          <Icon name={icons[b]} size="pill" />
+          <span className="size-class-name">{props.labels[b]}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -649,6 +835,8 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const l10n = useL10nSessions();
   const lm = localisationMessages(useLingui().i18n);
   const [extracting, setExtracting] = useState<{ readonly name: string; readonly text: string } | null>(null);
+  const [filter, setFilter] = useState("");
+  const [setOnly, setSetOnly] = useStoredFlag("plux.inspector.setOnly", false);
 
   const apply = (name: string, value: unknown) => {
     for (const id of ids) {
@@ -671,130 +859,93 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
     behaviour: m.groupBehaviour,
     other: m.groupOther,
   };
+  const q = filter.trim().toLowerCase();
+  const rows = props.flatMap((prop) => {
+    const sv = sharedValue(selected, prop.name, bp);
+    const set = !sv.mixed && sv.value !== undefined;
+    const shown =
+      (q === "" || prop.name.toLowerCase().includes(q) || propLabel(prop.name).toLowerCase().includes(q)) &&
+      (!setOnly || set || sv.mixed);
+    return shown ? [{ prop, sv, set }] : [];
+  });
+  const sections = propGroups(rows.map((r) => r.prop)).map((g) => ({
+    ...g,
+    rows: g.props.flatMap((pr) => rows.find((r) => r.prop === pr) ?? []),
+  }));
   return (
-    <div className="flex flex-col gap-3">
-      <LockedNote text={lockedNote} />
-      {!canEdit && lockedNote === null && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-      {ids.length > 1 && <p className="text-caption text-muted-foreground">{m.multi(ids.length)}</p>}
-      {/* biome-ignore lint/a11y/useSemanticElements: a labelled radio group of size classes, not a form's fieldset */}
-      <div
-        role="radiogroup"
-        aria-label={m.breakpoint}
-        className="size-classes"
-        onKeyDown={(e) => {
-          const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
-          if (step === undefined) {
-            return;
-          }
-          e.preventDefault();
-          const rtl =
-            getComputedStyle(e.currentTarget).direction === "rtl" &&
-            e.key.startsWith("Arrow") &&
-            !e.key.endsWith("Up") &&
-            !e.key.endsWith("Down");
-          const at = (breakpoints.indexOf(bp) + (rtl ? -step : step) + breakpoints.length) % breakpoints.length;
-          setBp(breakpoints[at] ?? bp);
-          e.currentTarget.querySelectorAll<HTMLElement>("[role=radio]")[at]?.focus();
-        }}
-      >
-        <span className="size-classes-label" aria-hidden="true">
-          {m.breakpoint}
-        </span>
-        {breakpoints.map((b) => (
-          // biome-ignore lint/a11y/useSemanticElements: a segmented control's option, styled as a pill
-          <button
-            key={b}
-            type="button"
-            role="radio"
-            aria-checked={bp === b}
-            tabIndex={bp === b ? 0 : -1}
-            className="size-class"
-            onClick={() => setBp(b)}
-          >
-            {labels[b]}
+    <div className="prop-pane">
+      <div className="prop-toolbar">
+        <InputGroup className="prop-filter">
+          <InputGroupAddon>
+            <Icon name="magnifying-glass" />
+          </InputGroupAddon>
+          <InputGroupInput
+            aria-label={m.filterProps}
+            placeholder={m.filterProps}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
+        </InputGroup>
+        <div className="prop-toolbar-row">
+          <SizeClasses bp={bp} labels={labels} label={m.breakpoint} onChange={setBp} />
+          <button type="button" className="prop-set-only" aria-pressed={setOnly} onClick={() => setSetOnly(!setOnly)}>
+            <span className="prop-dot" aria-hidden="true" />
+            {m.setOnly}
           </button>
-        ))}
+        </div>
       </div>
-      {ids.length === 1 && (
+      <LockedNote text={lockedNote} />
+      {!canEdit && lockedNote === null && <p className="prop-note">{m.readOnly}</p>}
+      {ids.length > 1 && <p className="prop-note">{m.multi(ids.length)}</p>}
+      {ids.length === 1 && q === "" && !setOnly && (
         <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
       )}
-      {propGroups(props).map((group) => (
-        <PropSection
-          key={group.id}
-          label={groupLabels[group.id]}
-          icon={groupIcons[group.id]}
-          count={group.props.length}
-        >
-          {group.props.map((prop: PropDescriptor) => {
-            const sv = sharedValue(selected, prop.name, bp);
-            const mixed = sv.mixed;
-            return (
-              <Field key={prop.name} label={prop.name}>
-                <ValueEditor
-                  type={prop.type}
-                  name={prop.name}
-                  value={mixed ? undefined : sv.value}
-                  mixed={mixed}
-                  unit={unitOf(prop)}
-                  readOnly={!canEdit}
-                  sources={{
-                    tokens,
-                    keys,
-                    check: makeCheck(prop.name),
-                    pxl: pxlSource(
-                      p.language,
-                      file,
-                      file === undefined ? undefined : docsState[file]?.content,
-                      first,
-                      bp,
-                      prop.name,
-                      scopes.current,
-                    ),
-                  }}
-                  m={m}
-                  onChange={(v) => apply(prop.name, v)}
-                  onEnd={() => {
-                    burst.current += 1;
-                  }}
-                />
-                {l10n !== null &&
-                  canEdit &&
-                  ids.length === 1 &&
-                  isTranslatable(prop) &&
-                  !mixed &&
-                  typeof sv.value === "string" &&
-                  sv.value !== "" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setExtracting({ name: prop.name, text: sv.value as string })}
-                    >
-                      <Icon name="globe" />
-                      {lm.extract}
-                    </Button>
-                  )}
-                {!mixed && sv.overridden && (
-                  <div className="flex items-center gap-2 text-caption text-muted-foreground">
-                    <span>{m.overridden}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!canEdit}
-                      aria-label={m.resetOf(prop.name)}
-                      onClick={() => {
-                        apply(prop.name, undefined);
-                        burst.current += 1;
-                      }}
-                    >
-                      <Icon name="arrow-counter-clockwise" />
-                      {m.reset}
-                    </Button>
-                  </div>
-                )}
-              </Field>
-            );
-          })}
-        </PropSection>
+      {sections.length === 0 && <p className="prop-note">{m.noPropMatch}</p>}
+      {sections.map((group) => (
+        <Collapsible key={group.id} defaultOpen className="prop-section">
+          <CollapsibleTrigger className="prop-section-head">
+            <PropGroupHead
+              icon={groupIcons[group.id]}
+              label={groupLabels[group.id]}
+              set={group.rows.filter((r) => r.set).length}
+              count={group.rows.length}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="prop-grid">
+            {group.rows.map(({ prop, sv, set }) => (
+              <PropertyField
+                key={prop.name}
+                prop={prop}
+                sv={sv}
+                set={set}
+                bp={bp}
+                canEdit={canEdit}
+                extractable={l10n !== null && canEdit && ids.length === 1}
+                m={m}
+                extractLabel={lm.extract}
+                sources={{
+                  tokens,
+                  keys,
+                  check: makeCheck(prop.name),
+                  pxl: pxlSource(
+                    p.language,
+                    file,
+                    file === undefined ? undefined : docsState[file]?.content,
+                    first,
+                    bp,
+                    prop.name,
+                    scopes.current,
+                  ),
+                }}
+                onApply={(v) => apply(prop.name, v)}
+                onEnd={() => {
+                  burst.current += 1;
+                }}
+                onExtract={(text) => setExtracting({ name: prop.name, text })}
+              />
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
       ))}
       {l10n !== null && extracting !== null && (
         <ExtractKeyDialog
@@ -847,50 +998,62 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
     ["excludeSemantics", m.semExclude],
   ];
   return (
-    <div className="flex flex-col gap-3">
+    <div className="prop-pane">
       <LockedNote text={lockedNote} />
-      {!canEdit && lockedNote === null && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-      <p className="text-body">
-        {m.role}: <TypeTag>{descriptor.accessibility.role}</TypeTag>{" "}
-        {descriptor.accessibility.interactive ? m.interactive : m.notInteractive}
-      </p>
-      {descriptor.accessibility.minTarget === true && (
-        <p className="text-caption text-muted-foreground">{m.minTarget}</p>
-      )}
-      {(["label", "hint"] as const).map((f) => (
-        <Field key={f} label={f === "label" ? m.semLabel : m.semHint}>
-          <Input
-            value={typeof sem[f] === "string" ? sem[f] : ""}
-            readOnly={!canEdit}
-            onChange={(e) => set(f, e.target.value)}
-            onBlur={() => {
-              burst.current += 1;
-            }}
-          />
-        </Field>
-      ))}
-      {flags.map(([f, label]) => (
-        <label key={f} className="flex items-center gap-2 text-body">
-          <input
-            type="checkbox"
-            checked={sem[f] === true}
-            disabled={!canEdit}
-            onChange={(e) => {
-              set(f, e.target.checked ? true : undefined);
-              burst.current += 1;
-            }}
-          />
-          {label}
-        </label>
-      ))}
-      <h3 className="text-label font-medium">{m.a11yProblems}</h3>
+      {!canEdit && lockedNote === null && <p className="prop-note">{m.readOnly}</p>}
+      <div className="a11y-role">
+        <span className="a11y-role-name">{descriptor.accessibility.role}</span>
+        <span className="text-xs text-muted-foreground">
+          {m.role} · {descriptor.accessibility.interactive ? m.interactive : m.notInteractive}
+        </span>
+      </div>
+      {descriptor.accessibility.minTarget === true && <p className="prop-note">{m.minTarget}</p>}
+      <div className="prop-grid">
+        {(["label", "hint"] as const).map((f) => (
+          <PropRow
+            key={f}
+            name={f}
+            label={f === "label" ? m.semLabel : m.semHint}
+            set={typeof sem[f] === "string"}
+            resetLabel=""
+          >
+            <Input
+              aria-label={f === "label" ? m.semLabel : m.semHint}
+              value={typeof sem[f] === "string" ? sem[f] : ""}
+              readOnly={!canEdit}
+              onChange={(e) => set(f, e.target.value === "" ? undefined : e.target.value)}
+              onBlur={() => {
+                burst.current += 1;
+              }}
+            />
+          </PropRow>
+        ))}
+        {flags.map(([f, label]) => (
+          <PropRow key={f} name={f} label={label} set={sem[f] === true} resetLabel="">
+            <span className="prop-switch">
+              <Switch
+                size="sm"
+                aria-label={label}
+                checked={sem[f] === true}
+                disabled={!canEdit}
+                onCheckedChange={(on) => {
+                  set(f, on ? true : undefined);
+                  burst.current += 1;
+                }}
+              />
+            </span>
+          </PropRow>
+        ))}
+      </div>
+      <h3 className="pane-head">{m.a11yProblems}</h3>
       {found.length === 0 ? (
-        <p className="text-body text-muted-foreground">{m.a11yNone}</p>
+        <p className="prop-note">{m.a11yNone}</p>
       ) : (
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-1.5">
           {found.map((x) => (
-            <li key={`${x.code}${x.path}`} className="text-body">
-              <TypeTag>{x.code}</TypeTag> {x.message}
+            <li key={`${x.code}${x.path}`} className="a11y-problem">
+              <TypeTag>{x.code}</TypeTag>
+              <span>{x.message}</span>
             </li>
           ))}
         </ul>
@@ -934,20 +1097,21 @@ function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; 
   }
   const section = (
     title: string,
-    rows: readonly { name: string; description?: string; required?: boolean; deprecated?: unknown }[],
+    rows: readonly { name: string; type?: string; description?: string; required?: boolean; deprecated?: unknown }[],
   ) =>
     rows.length === 0 ? null : (
       <section className="flex flex-col gap-1">
-        <h3 className="text-label font-medium">{title}</h3>
-        <ul className="flex flex-col gap-1">
+        <h3 className="pane-head">{title}</h3>
+        <ul className="doc-list">
           {rows.map((r) => (
-            <li key={r.name} className="text-body">
-              <TypeTag>{r.name}</TypeTag>
-              {r.required === true && <span className="text-caption text-muted-foreground"> {m.docsRequired}</span>}
-              {r.deprecated !== undefined && (
-                <span className="text-caption text-muted-foreground"> {m.docsDeprecated}</span>
-              )}
-              {r.description !== undefined && <p className="text-caption text-muted-foreground">{r.description}</p>}
+            <li key={r.name} className="doc-item">
+              <div className="doc-line">
+                <code className="doc-name">{r.name}</code>
+                {"type" in r && typeof r.type === "string" && <span className="doc-type">{r.type}</span>}
+                {r.required === true && <span className="doc-flag">{m.docsRequired}</span>}
+                {r.deprecated !== undefined && <span className="doc-flag">{m.docsDeprecated}</span>}
+              </div>
+              {r.description !== undefined && <p className="doc-what">{r.description}</p>}
             </li>
           ))}
         </ul>
@@ -955,8 +1119,10 @@ function DocsTab({ ids, index, m }: { ids: readonly string[]; index: NodeIndex; 
     );
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-section">{d.type}</h2>
-      <p className="text-body">{d.description}</p>
+      <div className="doc-intro">
+        <h2 className="doc-title">{d.type}</h2>
+        <p className="text-sm">{d.description}</p>
+      </div>
       {section(m.docsProps, d.props)}
       {section(m.docsEvents, d.events)}
       {section(m.docsSlots, d.slots)}
@@ -1049,34 +1215,6 @@ function usePageNodeCount(
 }
 
 /** The inspector folded to a strip: the button that opens it, the selection's mark and how many are selected. */
-function FoldedInspector({
-  m,
-  glyph,
-  count,
-  onOpen,
-}: {
-  readonly m: ReturnType<typeof panelMessages>;
-  readonly glyph: IconName;
-  readonly count: number;
-  readonly onOpen: () => void;
-}) {
-  return (
-    <aside
-      aria-label={m.dock}
-      className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass"
-      data-folded=""
-    >
-      <DockExpand side="end" label={m.openInspector} onExpand={onOpen} />
-      <div className="inspector-strip">
-        <span className="inspector-glyph" aria-hidden="true">
-          <Icon name={glyph} />
-        </span>
-        {count > 0 && <span className="inspector-count">{count}</span>}
-      </div>
-    </aside>
-  );
-}
-
 /** The full-screen editors the inspector opens, with their labels and marks; a missing opener disables one. */
 function editorTools(props: DockProps, i18n: I18n) {
   const jsonLabel = jsonEditorMessages(i18n).open;
@@ -1103,6 +1241,83 @@ function editorTools(props: DockProps, i18n: I18n) {
   return tools;
 }
 
+type Tool = ReturnType<typeof editorTools>[number];
+
+/** The full-screen editors, grouped: data (JSON, state, data sources, database), logic, content and look. */
+const editorGroups: readonly { readonly id: "data" | "logic" | "content"; readonly tools: readonly Tool["id"][] }[] = [
+  { id: "content", tools: ["json", "l10n", "theme"] },
+  { id: "data", tools: ["state", "data", "db"] },
+  { id: "logic", tools: ["graph", "rust"] },
+];
+
+/** The Editors pane: every full-screen editor as a row with its mark, name and what it edits, in three groups. */
+function EditorsPane({ tools, m }: { readonly tools: readonly Tool[]; readonly m: Messages }) {
+  const heads = { data: m.editorGroupData, logic: m.editorGroupLogic, content: m.editorGroupContent };
+  return (
+    <div className="editors-pane">
+      <p className="prop-note">{m.editorsIntro}</p>
+      {editorGroups.map((g) => {
+        const items = g.tools.flatMap((id) => tools.find((t) => t.id === id && t.open !== undefined) ?? []);
+        return items.length === 0 ? null : (
+          <section key={g.id} aria-label={heads[g.id]} className="editors-group">
+            <h3 className="editors-head">{heads[g.id]}</h3>
+            {items.map((t) => (
+              <button key={t.id} type="button" className="editor-launch" aria-label={t.label} onClick={t.open}>
+                <span className="editor-launch-mark" aria-hidden="true">
+                  <Icon name={t.icon} />
+                </span>
+                <span className="editor-launch-text">
+                  <span className="editor-launch-name">{m.editorShort(t.id)}</span>
+                  <span className="editor-launch-what">{t.label}</span>
+                </span>
+                <Icon name="arrow-up-right" size="pill" className="editor-launch-go" />
+              </button>
+            ))}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+/** The inspector's header: what is selected (its mark, type or count, id) and the screen it is on. */
+function InspectorHead(props: {
+  readonly ids: readonly string[];
+  readonly index: NodeIndex;
+  readonly type: string | undefined;
+  readonly screenTitle: string | undefined;
+  readonly m: Messages;
+}) {
+  const { ids, m } = props;
+  const first = ids[0];
+  const title = first === undefined ? m.overview : ids.length > 1 ? m.multiTitle(ids.length) : (props.type ?? first);
+  const sub =
+    first === undefined
+      ? undefined
+      : ids.length === 1
+        ? first
+        : [...new Set(ids.map((i) => props.index.type.get(i) ?? i))].join(", ");
+  return (
+    <div className="inspector-id">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="dock-head-kicker">{first === undefined ? m.dock : (props.screenTitle ?? m.dock)}</span>
+        <strong className="dock-head-title">{title}</strong>
+        {sub !== undefined && (
+          <span className={ids.length === 1 ? "inspector-sub truncate font-mono" : "inspector-sub truncate"}>
+            {sub}
+          </span>
+        )}
+      </div>
+      {ids.length > 1 && <span className="inspector-count">{ids.length}</span>}
+    </div>
+  );
+}
+
+/**
+ * The inspector (STU-062): a dock along the canvas's end whose rail lists its panes — Properties first and open, then
+ * Editors (the full-screen editors, STU-063), Actions, JSON, Code, Localisation, Accessibility, Performance and Docs —
+ * beside a header naming the selection, as the left dock does on its side. The open pane takes the dock's whole height.
+ */
 export function RightDock(props: DockProps) {
   const { i18n } = useLingui();
   const m = panelMessages(i18n);
@@ -1113,12 +1328,19 @@ export function RightDock(props: DockProps) {
   const body = (panel: (ids: readonly string[]) => React.ReactNode) =>
     ids.length === 0 ? <PluginOverview {...props} m={m} /> : panel(ids);
   const tools = editorTools(props, i18n);
-  const tabs: readonly { value: string; label: string; icon: IconName; panel: React.ReactNode }[] = [
+  const panes: readonly Pane[] = [
     {
       value: "properties",
       label: m.tabProperties,
       icon: "sliders",
       panel: body((i) => <PropertiesTab {...props} ids={i} m={m} />),
+    },
+    {
+      value: "editors",
+      label: m.editorsTab,
+      icon: "stack",
+      meta: String(tools.filter((t) => t.open !== undefined).length),
+      panel: <EditorsPane tools={tools} m={m} />,
     },
     {
       value: "actions",
@@ -1172,8 +1394,6 @@ export function RightDock(props: DockProps) {
     },
   ];
   const [folded, setFolded] = useStoredFlag("plux.dock.end.folded", false);
-  const [toolsOpen, setToolsOpen] = useStoredFlag("plux.inspector.editors", true);
-  const [tabsOpen, setTabsOpen] = useStoredFlag("plux.inspector.details", true);
   const first = ids[0];
   const type = first === undefined ? undefined : props.index.type.get(first);
   const descriptor = type === undefined ? undefined : widget(type);
@@ -1183,93 +1403,25 @@ export function RightDock(props: DockProps) {
   })();
   const glyph: IconName =
     first === undefined ? "sliders" : descriptor === undefined ? "cube" : typeIcon(descriptor.type);
-  if (folded) {
-    return <FoldedInspector m={m} glyph={glyph} count={ids.length} onOpen={() => setFolded(false)} />;
-  }
   return (
-    <aside aria-label={m.dock} className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass">
-      <div className="inspector-head">
-        <span className="inspector-glyph" aria-hidden="true">
-          <Icon name={glyph} />
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <strong className="truncate text-sm">
-            {first === undefined ? m.dock : ids.length > 1 ? m.multiTitle(ids.length) : (type ?? first)}
-          </strong>
-          {ids.length === 1 ? (
-            <span className="inspector-sub truncate font-mono">{first}</span>
-          ) : (
-            <span className="inspector-sub truncate">
-              {first === undefined ? m.overview : [...new Set(ids.map((i) => props.index.type.get(i) ?? i))].join(", ")}
-            </span>
-          )}
-        </div>
-        {ids.length > 1 ? (
-          <span className="inspector-count">{ids.length}</span>
-        ) : (
-          screenTitle !== undefined && <span className="inspector-screen">{screenTitle}</span>
-        )}
-        <button
-          type="button"
-          className="inspector-fold"
-          aria-label={m.foldInspector}
-          title={m.foldInspector}
-          onClick={() => setFolded(true)}
-        >
-          <Icon name="panel-end-close" />
-        </button>
-      </div>
+    <aside
+      aria-label={m.dock}
+      className="plugin-dock plugin-dock-end plugin-inspector canvas-panel canvas-side glass"
+      data-folded={folded ? "" : undefined}
+    >
       <TooltipProvider delay={tooltipDelayMs}>
-        <Collapsible open={toolsOpen} onOpenChange={setToolsOpen} className="inspector-tools">
-          <CollapsibleTrigger className="inspector-section-head">
-            <Icon name="caret-down" size="pill" className="inspector-section-caret" />
-            <span className="flex-1 text-start">{m.editors}</span>
-            <span className="inspector-section-count">{tools.filter((t) => t.open !== undefined).length}</span>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <section aria-label={m.editors} className="inspector-tool-grid">
-              {tools
-                .filter((t) => t.open !== undefined)
-                .map((t) => (
-                  <Tooltip key={t.id}>
-                    <TooltipTrigger
-                      render={<button type="button" className="inspector-tool" aria-label={t.label} onClick={t.open} />}
-                    >
-                      <Icon name={t.icon} />
-                      <span className="inspector-tool-name" aria-hidden="true">
-                        {m.editorShort(t.id)}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>{t.label}</TooltipContent>
-                  </Tooltip>
-                ))}
-            </section>
-          </CollapsibleContent>
-        </Collapsible>
+        <DockTabs
+          side="end"
+          panes={panes}
+          defaultValue="properties"
+          mark={glyph}
+          folded={folded}
+          onFold={setFolded}
+          foldLabel={m.foldInspector}
+          unfoldLabel={m.openInspector}
+          head={<InspectorHead ids={ids} index={props.index} type={type} screenTitle={screenTitle} m={m} />}
+        />
       </TooltipProvider>
-      <Collapsible open={tabsOpen} onOpenChange={setTabsOpen} className="inspector-details">
-        <CollapsibleTrigger className="inspector-section-head">
-          <Icon name="caret-down" size="pill" className="inspector-section-caret" />
-          <span className="flex-1 text-start">{m.detailsSection}</span>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="inspector-details-body">
-          <ShadcnTabs defaultValue="properties" className="inspector-tabs-root">
-            <TabsList className="inspector-tabs">
-              {tabs.map((t) => (
-                <TabsTrigger key={t.value} value={t.value} className="inspector-tab">
-                  <Icon name={t.icon} size="pill" />
-                  <span className="truncate">{t.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {tabs.map((t) => (
-              <TabsContent key={t.value} value={t.value} className="inspector-body">
-                {t.panel}
-              </TabsContent>
-            ))}
-          </ShadcnTabs>
-        </CollapsibleContent>
-      </Collapsible>
     </aside>
   );
 }

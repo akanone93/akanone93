@@ -55,6 +55,7 @@ export function DockTabs({
   onFold,
   foldLabel,
   unfoldLabel,
+  side = "start",
 }: {
   readonly panes: readonly Pane[];
   readonly value?: string;
@@ -71,6 +72,8 @@ export function DockTabs({
   readonly foldLabel?: string;
   /** The name of the button outside the folded dock that opens it again. */
   readonly unfoldLabel?: string;
+  /** The dock's side: its rail runs along the canvas's outer edge, the start (left dock) or the end (right dock). */
+  readonly side?: "start" | "end";
 }): ReactElement {
   return (
     <Tabs
@@ -81,6 +84,7 @@ export function DockTabs({
       }}
       orientation="vertical"
       className="dock-tabs"
+      data-side={side}
     >
       <div className="dock-rail-column">
         <span className="dock-mark" aria-hidden="true">
@@ -106,7 +110,7 @@ export function DockTabs({
         </TabsList>
       </div>
       {folded && onFold !== undefined && unfoldLabel !== undefined && (
-        <DockExpand side="start" label={unfoldLabel} onExpand={() => onFold(false)} />
+        <DockExpand side={side} label={unfoldLabel} onExpand={() => onFold(false)} />
       )}
       <div className="dock-main" hidden={folded}>
         <header className="dock-head">
@@ -119,7 +123,7 @@ export function DockTabs({
               title={foldLabel}
               onClick={() => onFold(true)}
             >
-              <Icon name="panel-start-close" />
+              <Icon name={side === "start" ? "panel-start-close" : "panel-end-close"} />
             </button>
           )}
         </header>

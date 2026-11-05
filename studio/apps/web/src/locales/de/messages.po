@@ -3078,6 +3078,12 @@ msgstr "Kreis"
 msgid "style.clear"
 msgstr "Entfernen"
 
+#. Accessible name of the button that removes a property's value, so the widget uses its default.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.clearProp"
+msgstr "{name} leeren"
+
 #. Accessible name of the button that removes a property value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3618,6 +3624,12 @@ msgstr "Inhalt"
 msgid "publish.hash"
 msgstr "Inhalt {hash}"
 
+#. Heading of the editors for JSON, translations and the theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.editorGroup.content"
+msgstr "Inhalt und Aussehen"
+
 #. Column heading: the screenshot context of a key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -3983,6 +3995,12 @@ msgstr "Dunkler Wert von {token}"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.field.package"
 msgstr "Dart-Paketname"
+
+#. Heading of the editors for state, data sources and the database.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.editorGroup.data"
+msgstr "Daten"
 
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
@@ -4788,6 +4806,12 @@ msgstr "Dauer (ms)"
 msgid "style.eachCorner"
 msgstr "Jede Ecke einzeln"
 
+#. Line above the list of full-screen editors in the inspector.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.editorsIntro"
+msgstr "Jeder Editor öffnet sich über der Leinwand; Schließen oder Escape kehrt hierher zurück."
+
 #. Explains environments on the last step of the wizard.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -4900,6 +4924,12 @@ msgstr "Du kannst weiterarbeiten; die Builds frieren den Entwurf in seinem jetzi
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.sessionTitle"
 msgstr "Editor-Sitzung, die diesen Snapshot erstellt hat"
+
+#. Tab of the inspector's rail that lists the full-screen editors.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.editorsTab"
+msgstr "Editoren"
 
 #. Heading of the inspector's row of buttons that open the full-screen editors (JSON, localisation, state, data, theme, action graph, Rust).
 #. js-lingui-explicit-id
@@ -5765,6 +5795,12 @@ msgstr "Apps filtern und sortieren"
 msgid "panels.filterLayers"
 msgstr "Ebenen filtern"
 
+#. Placeholder and accessible name of the field that narrows the inspector's properties by name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.filterProps"
+msgstr "Eigenschaften filtern"
+
 #. Label of the scenario filter box.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -6549,6 +6585,12 @@ msgstr "Host-Schriften"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.project.title"
 msgstr "Host-Projekt"
+
+#. Accessible name of the button beside a text property that switches it between a literal value, a translation key and a PXL expression; mode is the current one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.modeOf"
+msgstr "Wie {name} angegeben wird: {mode}"
 
 #. Legend of the choice between a blank app, a template and an archive.
 #. js-lingui-explicit-id
@@ -8117,6 +8159,12 @@ msgstr "Gesperrt von {who}"
 msgid "functions.logsTitle"
 msgstr "Protokollzeilen"
 
+#. Heading of the editors for action graphs and Rust functions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.editorGroup.logic"
+msgstr "Logik"
+
 #. Tab label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -9298,6 +9346,12 @@ msgstr "Keine Probleme."
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.status.never"
 msgstr "Noch kein Projekt erzeugt"
+
+#. Shown when the property filter or Set only leaves nothing to show.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.noPropMatch"
+msgstr "Keine Eigenschaft passt."
 
 #. Shown when the environment has no release.
 #. js-lingui-explicit-id
@@ -13148,6 +13202,12 @@ msgstr "Sitzungen"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelChart"
 msgstr "Sitzungen pro Trichterschritt"
+
+#. Toggle that shows only the properties that have a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.setOnly"
+msgstr "Nur gesetzte"
 
 #. Column head: the setting's name.
 #. js-lingui-explicit-id

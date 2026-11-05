@@ -80,6 +80,7 @@ async function openEditor(handler: unknown, extra: Parameters<typeof renderApp>[
     editor: (e) => (edit = e),
     ...extra,
   });
+  await openEditors();
   const open = await screen.findByRole("button", { name: "Action graph" }, { timeout: 20_000 });
   const session = edit as unknown as EditSession;
   session.store.setState({ selection: { ids: ["btn"], anchor: "btn", scope: null } });
@@ -94,6 +95,11 @@ const steps = (s: EditSession) =>
     nodeId: "btn",
     event: "onPressed",
   });
+
+/** The full-screen editors are in the inspector's Editors pane (STU-063): open it first. */
+async function openEditors(): Promise<void> {
+  fireEvent.click(await screen.findByRole("tab", { name: /^Editors/ }, { timeout: 20_000 }));
+}
 
 describe("[STU-065] action graph editor", () => {
   test("lists the catalogue, adds steps through the edit pipeline as a JSON Patch, and keeps them undoable", async () => {

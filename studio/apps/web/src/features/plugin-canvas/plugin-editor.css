@@ -13,7 +13,7 @@
   --dock-top: calc(var(--spacing) * 18);
   --dock-gap: calc(var(--spacing) * 3);
   --dock-start-width: 23rem;
-  --dock-end-width: 22rem;
+  --dock-end-width: 24rem;
 }
 
 /* The docks: full height below the top bar, a rail and a pane each. */

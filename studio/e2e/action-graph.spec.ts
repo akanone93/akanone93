@@ -114,6 +114,8 @@ test("the action graph editor opens under the strict CSP and edits by keyboard [
   }, `/o/${orgA}/apps/app1/plugins/pl`);
   await p.getByRole("tab", { name: "Layers" }).click();
   await p.locator('[role="treeitem"][data-item-id="home-root"]').click();
+  // The full-screen editors are in the inspector's Editors pane (STU-063).
+  await p.getByRole("tab", { name: /^Editors/ }).click();
   await p.getByRole("button", { name: "Action graph" }).click();
 
   const nodes = p.locator(".react-flow__node");

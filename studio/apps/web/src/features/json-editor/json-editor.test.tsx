@@ -69,6 +69,11 @@ const area = async () => (await screen.findByLabelText("JSON of the document")) 
 const apply = () => screen.getByRole("button", { name: "Apply" });
 const disabled = (el: HTMLElement) => el.matches(":disabled, [aria-disabled=true]");
 
+/** The full-screen editors are in the inspector's Editors pane (STU-063): open it first. */
+async function openEditors(): Promise<void> {
+  fireEvent.click(await screen.findByRole("tab", { name: /^Editors/ }, { timeout: 20_000 }));
+}
+
 describe("[STU-064] JSON editor V1", () => {
   test("validates as you type, blocks Apply while invalid, and applies only a valid change as a minimal patch", async () => {
     let edit: EditSession | undefined;
@@ -89,6 +94,7 @@ describe("[STU-064] JSON editor V1", () => {
     });
     // The first find waits for the whole app to boot (router, documents, validator), which under the
     // full coverage run can exceed the 1 s default; later waits keep the default.
+    await openEditors();
     fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
     const text = await area();
     expect(text.value).toContain('"route": "home"');
@@ -121,6 +127,7 @@ describe("[STU-064] JSON editor V1", () => {
 
   test("a document that is not an object, and an unready validator, cannot be applied", async () => {
     renderApp(path, { documents, surface: surface().factory });
+    await openEditors();
     fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
     const text = await area();
     fireEvent.change(text, { target: { value: "[1]" } });
@@ -131,6 +138,7 @@ describe("[STU-064] JSON editor V1", () => {
   test("the diff compares with the last published version, or says there is none", async () => {
     const published = [{ path: "pages/home.page.json", json: { id: "home", route: "old" } }];
     renderApp(path, { documents, surface: surface().factory, published });
+    await openEditors();
     fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
     await area();
     fireEvent.click(screen.getByRole("button", { name: "Compare with the last published version" }));
@@ -139,6 +147,7 @@ describe("[STU-064] JSON editor V1", () => {
     cleanup();
 
     renderApp(path, { documents, surface: surface().factory });
+    await openEditors();
     fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
     await area();
     fireEvent.click(screen.getByRole("button", { name: "Compare with the last published version" }));
@@ -148,6 +157,7 @@ describe("[STU-064] JSON editor V1", () => {
 
   test("read-only while someone else holds the lock: the text is read-only and Apply is off", async () => {
     renderApp(path, { documents, surface: surface().factory, lockHeldElsewhere: true });
+    await openEditors();
     fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
     const text = await area();
     await waitFor(() => expect(text.readOnly).toBe(true));
@@ -163,6 +173,7 @@ describe("[STU-063] overlay host", () => {
     const canvas = await screen.findByRole("application");
     canvas.focus();
     expect(document.activeElement).toBe(canvas);
+    await openEditors();
     fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
     await area();
     expect(s.calls.filter((c) => c === "pause")).toHaveLength(1);
