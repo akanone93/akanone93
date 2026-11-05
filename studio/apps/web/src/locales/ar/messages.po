@@ -6598,16 +6598,16 @@ msgstr "السجل"
 msgid "experiments.holdoutLabel"
 msgstr "نسبة الاستبعاد"
 
-#. Label of the first destination of a navigation bar or drawer added to a page; the user can change it.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.partHome"
-msgstr "الرئيسية"
-
 #. Name of the personal home page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.home"
+msgstr "الرئيسية"
+
+#. Label of the first destination of a navigation bar or drawer added to a page; the user can change it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partHome"
 msgstr "الرئيسية"
 
 #. Label.
@@ -11111,12 +11111,6 @@ msgstr "بيئات الإنتاج"
 msgid "approvals.productionOnly"
 msgstr "الإنتاج فقط"
 
-#. Label of the third destination of a navigation bar added to a page.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.partProfile"
-msgstr "الملف الشخصي"
-
 #. Label of the profile menu button and its first entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -11139,6 +11133,12 @@ msgstr "الملف الشخصي"
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.nav.profile"
+msgstr "الملف الشخصي"
+
+#. Label of the third destination of a navigation bar added to a page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partProfile"
 msgstr "الملف الشخصي"
 
 #. Accessible name of the tabs of the profile page.
@@ -12933,16 +12933,16 @@ msgstr "لقطة شاشة: {screens}"
 msgid "tests.stepScroll"
 msgstr "تمرير"
 
-#. Label of the second destination of a navigation bar added to a page.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.partSearch"
-msgstr "بحث"
-
 #. Label of the top bar button that opens the search and command palette.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.trigger"
+msgstr "بحث"
+
+#. Label of the second destination of a navigation bar added to a page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partSearch"
 msgstr "بحث"
 
 #. Label of the library search field.
@@ -13317,12 +13317,6 @@ msgstr "الإعداد"
 msgid "security.colSetting"
 msgstr "الإعداد"
 
-#. Label of the second entry of a drawer added to a page.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.partSettings"
-msgstr "الإعدادات"
-
 #. Heading of the form that edits the shell settings.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -13333,6 +13327,12 @@ msgstr "الإعدادات"
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
 msgid "appnav.settings"
+msgstr "الإعدادات"
+
+#. Label of the second entry of a drawer added to a page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.partSettings"
 msgstr "الإعدادات"
 
 #. Menu entry that opens the app's settings.
