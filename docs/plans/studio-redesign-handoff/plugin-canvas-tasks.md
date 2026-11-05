@@ -71,8 +71,9 @@ Needs.
   indicators, navigation and tab bars, segmented controls); with **Cupertino** as the platform style in Preview,
   adaptive Material controls drawn the iOS way. *Build:* a Cupertino screen. *Check:* switch the platform style
   between Material and Cupertino; switch Dark. `WGT-011`.
-- **PC-09 Layer 2 everyday components.** *See:* money, inputs, cards, lists, states, pagers, wizards drawn as on the
-  device. *Build:* a components screen. *Check:* compare with the Dev app. `WGT-020`.
+- **PC-09 Layer 2 everyday components.** *See:* their content (money, card numbers, totals, list items, state texts)
+  on their surfaces: gradient account and payment cards, product and ETA cards, promo banners, skeletons, underlined
+  inputs. *Build:* a components screen. *Check:* compare with the Dev app; change an account card's name. `WGT-020`.
 - **PC-10 Charts, media, maps, scanners, native slots.** *See:* charts from mock data, galleries, media posters, map
   and scanner previews, native slot screenshots. *Build:* a dashboard screen. *Check:* change the chart's mock data.
   `WGT-021`, `WGT-031`.

@@ -115,6 +115,8 @@ export interface NodePaint {
   /** The texts and icons the widget places itself (a field's label and hint, its icons). */
   readonly texts?: readonly PaintText[];
   readonly glyphs?: readonly PlacedGlyph[];
+  /** The colours of the texts the widget lays out itself (`<id>#p<n>`): its titles (16 pixels and more) and the rest. */
+  readonly partColors?: { readonly title: Rgba; readonly body: Rgba };
 }
 
 /** An icon as Flutter's `Icon` draws it: a glyph of an icon set, centred in its box at `size`, in `color`. */

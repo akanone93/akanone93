@@ -359,6 +359,38 @@ function paintedItems(
   ];
 }
 
+/**
+ * A text a component laid out itself (`<id>#p<n>`, a Layer 2 component's), drawn in the style it was measured in and
+ * in its owner's colour for titles or the rest; undefined for any other box.
+ */
+function textPartItem(
+  s: ScreenDocument,
+  b: Placed,
+  paints: ReadonlyMap<string, NodePaint>,
+  style: ScreenStyle,
+): ItemSpec | undefined {
+  const cut = typeof b.id === "string" ? b.id.indexOf("#p") : -1;
+  if (cut < 0 || b.kind !== "text" || b.text === undefined || b.textStyle === undefined) {
+    return undefined;
+  }
+  const owner = paints.get(b.id.slice(0, cut));
+  const colors = owner?.partColors;
+  const color = colors === undefined ? style.text : b.textStyle.size >= 16 ? colors.title : colors.body;
+  return {
+    kind: "text",
+    id: `${s.id}/${b.id}`,
+    x: s.x + b.x,
+    y: s.y + b.y,
+    w: b.w,
+    text: b.text,
+    ...textStyleOf(b, style),
+    color,
+    ...(owner === undefined ? {} : { z: PAINT_Z + owner.order + 0.5, ...clipsOf(s, owner) }),
+    ...(b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) }),
+    z: PAINT_Z + (owner?.order ?? 0) + 0.5,
+  } as ItemSpec;
+}
+
 /** The texts and icons a widget places itself (a field's label, hint and icons), over its boxes. */
 function partItems(
   s: ScreenDocument,
@@ -511,27 +543,35 @@ function screenItems(
       z: 1,
     });
   }
+  const paints = new Map(boxes.flatMap((b) => (b.paint === undefined ? [] : [[b.id, b.paint] as const])));
   for (const b of boxes) {
-    // On a painted screen a box no widget of the document owns — a part the scene built in a widget's place
-    // (`Container`'s padding, a destination's icon) — is neither drawn nor selected; its widget draws it.
-    if (
-      style.paint !== undefined &&
-      b.paint === undefined &&
-      (typeof b.id !== "string" || b.id.includes("#") || b.kind !== "text")
-    ) {
-      continue;
-    }
-    if (b.paint !== undefined) {
-      items.push(...paintedItems(s, b, b.paint, style, glyphs));
-      continue;
-    }
-    items.push(boxItem(s, b, style));
-    const label = labelItem(s, b, style);
-    if (label !== null) {
-      items.push(label);
-    }
+    items.push(...boxItems(s, b, paints, style, glyphs));
   }
   return items;
+}
+
+/** The scene items of one laid-out box of a screen. */
+function boxItems(
+  s: ScreenDocument,
+  b: Placed,
+  paints: ReadonlyMap<string, NodePaint>,
+  style: ScreenStyle,
+  glyphs: IconGlyphs | undefined,
+): ItemSpec[] {
+  const part = style.paint === undefined ? undefined : textPartItem(s, b, paints, style);
+  if (part !== undefined) {
+    return [part];
+  }
+  if (b.paint !== undefined) {
+    return paintedItems(s, b, b.paint, style, glyphs);
+  }
+  // On a painted screen a box no widget of the document owns — a part the scene built in a widget's place
+  // (`Container`'s padding, a destination's icon) — is neither drawn nor selected; its widget draws it.
+  if (style.paint !== undefined && (typeof b.id !== "string" || b.id.includes("#") || b.kind !== "text")) {
+    return [];
+  }
+  const label = labelItem(s, b, style);
+  return [boxItem(s, b, style), ...(label === null ? [] : [label])];
 }
 
 /** Lays `screens` out with `engine` and returns the ops that replace the scene with them. */
@@ -544,6 +584,20 @@ export function layoutScreens(
 }
 
 function layOut(
+  s: ScreenDocument,
+  style: ScreenStyle,
+  engine: ParagraphEngine,
+  glyphs?: IconGlyphs,
+): { items: ItemSpec[]; height: number } {
+  try {
+    return layOutContent(s, style, engine, glyphs);
+  } catch {
+    // A screen the layout cannot lay out keeps its frame and title; the others are drawn as ever.
+    return { items: screenItems(s, [], 0, style, glyphs), height: 0 };
+  }
+}
+
+function layOutContent(
   s: ScreenDocument,
   style: ScreenStyle,
   engine: ParagraphEngine,

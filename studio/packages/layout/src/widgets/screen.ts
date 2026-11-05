@@ -32,7 +32,7 @@ import { type ResolvedText, resolveTextStyle } from "../paint/text-style.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { FontStyle, TextAlign, TextLeadingDistribution } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
-import { layer2WidgetBuilders } from "./layer2.ts";
+import { layer2Types, layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
 import { cupertinoComponents, faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
 import { structuralWidgetBuilders } from "./structural.ts";
@@ -559,6 +559,52 @@ function paragraphOptionsOf(p: TextProps): ParagraphOptions {
   };
 }
 
+/** Builds `node` with its type's builder; an untyped node by its structure, an unknown type as a placeholder. */
+function buildWith(builders: ReadonlyMap<string, WidgetBuilder>, node: WidgetNode, ctx: WidgetContext): RenderBox {
+  const builder = node.type === undefined ? undefined : builders.get(node.type);
+  if (builder !== undefined) {
+    return builder(node, ctx);
+  }
+  // An untyped node is drawn by its structure: a control when it handles events, else its content.
+  if (node.type === undefined) {
+    return node.events === undefined ? wrapper(node, ctx) : control(node, ctx);
+  }
+  return labelled(node, ctx, node.type, "placeholder");
+}
+
+/** A paragraph of `text` in `style`, with the screen's direction and scale and the builder's options. */
+function paragraphOf(
+  text: string,
+  style: TextStyle,
+  o: ParagraphOptions | undefined,
+  screen: LayoutScreenOptions,
+  textScale: number,
+): RenderParagraph {
+  return new RenderParagraph({
+    text: o?.spans === undefined ? { text, style } : { style, children: o.spans },
+    textDirection: o?.textDirection ?? screen.textDirection ?? TextDirection.ltr,
+    textScaler: textScale === 1 ? undefined : TextScaler.linear(textScale),
+    engine: screen.engine,
+    ...(o?.maxLines === undefined ? {} : { maxLines: o.maxLines }),
+    ...(o?.textAlign === undefined ? {} : { textAlign: o.textAlign }),
+    ...(o?.overflow === undefined ? {} : { overflow: o.overflow }),
+    ...(o?.softWrap === undefined ? {} : { softWrap: o.softWrap }),
+  });
+}
+
+/** How a paragraph a component lays out itself is drawn: the style it was measured in. */
+function placedOfStyle(s: TextStyle, options: ParagraphOptions | undefined): PlacedText {
+  const size = s.fontSize ?? 14;
+  return {
+    size,
+    weight: s.fontWeight ?? 400,
+    height: s.height ?? 1.2,
+    letterSpacing: s.letterSpacing ?? 0,
+    italic: s.fontStyle === FontStyle.italic,
+    ...(options?.maxLines === undefined ? {} : { maxLines: options.maxLines }),
+  };
+}
+
 /** What a painted screen's `Text` is laid out with and drawn in: its resolved style and its paragraph settings. */
 export function paintedTextOf(
   node: WidgetNode,
@@ -718,6 +764,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
   // A painted screen is laid out as the device lays it out, edge to edge; otherwise with a design-time page padding.
   const pagePadding = options.paint === undefined ? theme.pagePadding : 0;
   const widths: number[] = [theme.width - 2 * pagePadding];
+  const owners: { id: string; count: number }[] = [];
   const textScale = options.textScale ?? 1;
   const ctx: WidgetContext = {
     engine: options.engine,
@@ -726,41 +773,34 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     textDirection: options.textDirection ?? TextDirection.ltr,
     deviceHeight: options.deviceHeight,
     build(node, width) {
-      const builder = node.type === undefined ? undefined : builders.get(node.type);
       if (width !== undefined) {
         widths.push(width);
       }
+      // On a painted screen the texts a Layer 2 component lays out itself are its parts, drawn where they sit.
+      const owns = options.paint !== undefined && layer2Types.has(node.type ?? "");
+      if (owns) {
+        owners.push({ id: node.id, count: 0 });
+      }
       try {
-        if (builder !== undefined) {
-          return builder(node, ctx);
-        }
-        // An untyped node is drawn by its structure: a control when it handles events, else its content.
-        if (node.type === undefined) {
-          return node.events === undefined ? wrapper(node, ctx) : control(node, ctx);
-        }
-        return labelled(node, ctx, node.type, "placeholder");
+        return buildWith(builders, node, ctx);
       } finally {
         if (width !== undefined) {
           widths.pop();
+        }
+        if (owns) {
+          owners.pop();
         }
       }
     },
     available: () => widths.at(-1) ?? theme.width,
     paragraph(text, override, paragraphOptions) {
-      const p = new RenderParagraph({
-        text:
-          paragraphOptions?.spans === undefined
-            ? { text, style: override ?? style }
-            : { style: override ?? style, children: paragraphOptions.spans },
-        textDirection: paragraphOptions?.textDirection ?? options.textDirection ?? TextDirection.ltr,
-        textScaler: textScale === 1 ? undefined : TextScaler.linear(textScale),
-        engine: options.engine,
-        ...(paragraphOptions?.maxLines === undefined ? {} : { maxLines: paragraphOptions.maxLines }),
-        ...(paragraphOptions?.textAlign === undefined ? {} : { textAlign: paragraphOptions.textAlign }),
-        ...(paragraphOptions?.overflow === undefined ? {} : { overflow: paragraphOptions.overflow }),
-        ...(paragraphOptions?.softWrap === undefined ? {} : { softWrap: paragraphOptions.softWrap }),
-      });
+      const p = paragraphOf(text, override ?? style, paragraphOptions, options, textScale);
       paragraphs.push(p);
+      const owner = owners.at(-1);
+      if (owner !== undefined) {
+        p.debugId = `${owner.id}#p${owner.count++}`;
+        marks.set(p.debugId, { kind: "text", text, textStyle: placedOfStyle(override ?? style, paragraphOptions) });
+      }
       return p;
     },
     mark(id, kind, text, textStyle) {

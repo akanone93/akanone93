@@ -86,8 +86,11 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   (indicator, colours); list tiles are built by the scene and have no surface of their own. Cupertino widgets are
   built by the scene (their slots in the scene's slot nodes) and painted with iOS's colours from Flutter's
   `CupertinoColors`, light or dark, and the runtime's Cupertino theme; under the **Cupertino** preview a Material
-  control marked `adaptive` is painted as its Cupertino counterpart in the box Material lays out. Painting is reviewed
-  by eye against the device, not by pixels.
+  control marked `adaptive` is painted as its Cupertino counterpart in the box Material lays out. On a painted screen
+  the texts a Layer 2 component lays out itself are reported as its parts (`<id>#p<n>`) and drawn in its colours, over
+  the surfaces `plux_components` gives it (gradient account and payment cards, Material cards, banners, skeletons,
+  underlined inputs); a screen the layout cannot lay out keeps its frame. Painting is reviewed by eye against the device,
+  not by pixels.
 - Painting follows Skia's model; the device paints with Impeller, so pixels differ slightly.
   Conformance therefore compares positions and sizes, never pixels.
 - The canvas module loads on demand, is prefetched while the apps grid is open, is compiled with

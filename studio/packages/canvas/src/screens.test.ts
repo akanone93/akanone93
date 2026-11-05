@@ -551,4 +551,21 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(items.has("s/appBar")).toBe(false);
     engine.dispose();
   });
+
+  test("[WGT-020] a Layer 2 component's own texts are drawn in its colours; a failing screen keeps its frame", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "card",
+      type: "AccountCard",
+      props: { name: "Everyday", last4: "4821", balance: { $expr: 'money("1234.56", "EUR")' } },
+    };
+    const painted = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    const parts = painted.ops.flatMap((op) =>
+      op.op === "add" && op.item.kind === "text" && op.item.id.startsWith("s/card#p") ? [op.item] : [],
+    );
+    expect(parts.length).toBeGreaterThan(0);
+    expect(parts.every((t) => t.kind === "text" && t.color === argbToRgba(scheme.onPrimary))).toBe(true);
+    engine.dispose();
+  });
 });

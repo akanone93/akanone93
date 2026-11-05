@@ -14,6 +14,7 @@ import { barPainters, barSurface } from "./bars.ts";
 import { checkboxMark, controlForeground, controlPainters } from "./controls.ts";
 import { cupertinoForeground, cupertinoPainterOf, cupertinoPainters } from "./cupertino.ts";
 import { fieldModel, fieldPaint, fieldTypes, type PaintText, type PlacedGlyph, searchBarPaint } from "./fields.ts";
+import { layer2Paint, layer2Parts } from "./layer2.ts";
 import {
   argbToRgba,
   type BoxFitName,
@@ -54,6 +55,7 @@ export interface PaintNode {
 /** What a painter returns: its boxes, and the clip and opacity it puts on its children. */
 interface Painted {
   readonly boxes?: readonly BoxPaint[];
+  readonly parts?: { readonly title: Rgba; readonly body: Rgba };
   readonly texts?: readonly PaintText[];
   readonly glyphs?: readonly PlacedGlyph[];
   readonly clip?: PaintClip;
@@ -447,31 +449,55 @@ const BAR_SURFACES: ReadonlySet<string> = new Set([
   "CupertinoTabScaffold",
 ]);
 
-/** What a widget paints in its box `r`: a field's parts, a control's boxes, or its painter's. */
-function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
+/** What a widget that places its own parts paints: a Cupertino widget, a field, a search bar, a bar. */
+function partsPaintOf(
+  node: PaintNode,
+  r: Rect,
+  theme: PaintTheme,
+  rects: ReadonlyMap<string, Rect>,
+): Painted | undefined {
+  const rectOf = (id: string) => rects.get(id);
   const cupertino = cupertinoPainterOf(node, theme);
   if (cupertino !== undefined) {
-    return cupertino(node, r, theme, (id) => rects.get(id));
+    return cupertino(node, r, theme, rectOf);
   }
   if (fieldTypes.has(node.type ?? "")) {
-    return fieldPaint(fieldModel(node.props ?? {}), node.id, r, theme, (id) => rects.get(id));
+    return fieldPaint(fieldModel(node.props ?? {}), node.id, r, theme, rectOf);
   }
   if (node.type === "SearchBar" || node.type === "SearchAnchor") {
     return searchBarPaint(node.props ?? {}, r, theme);
   }
-  const bar = barPainters.get(node.type ?? "");
-  if (bar !== undefined) {
-    return bar(node, r, theme, (id) => rects.get(id));
-  }
+  return barPainters.get(node.type ?? "")?.(node, r, theme, rectOf);
+}
+
+/** What a widget paints in its box `r`: its parts, a surface, a Layer 2 component's, a control's, or its painter's. */
+function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
+  const type = node.type ?? "";
   const surface = barSurface(node, r, theme);
-  if (surface !== undefined) {
-    return { boxes: surface };
-  }
-  const control = controlPainters.get(node.type ?? "");
-  if (control !== undefined) {
-    return { boxes: control(node, r, theme) };
-  }
-  return painters.get(node.type ?? "")?.(node.props ?? {}, r, theme) ?? {};
+  const layer2 = layer2Paint(type, r, theme);
+  const control = controlPainters.get(type);
+  return (
+    partsPaintOf(node, r, theme, rects) ??
+    (surface === undefined ? undefined : { boxes: surface }) ??
+    (layer2 === undefined ? undefined : { boxes: layer2.boxes, parts: layer2.parts }) ??
+    (control === undefined ? undefined : { boxes: control(node, r, theme) }) ??
+    painters.get(type)?.(node.props ?? {}, r, theme) ??
+    {}
+  );
+}
+
+/** Whether a widget of `type` has a painter of its own (a placeholder is drawn for one that has none). */
+function paintsItself(type: string): boolean {
+  return (
+    painters.has(type) ||
+    controlPainters.has(type) ||
+    fieldTypes.has(type) ||
+    type === "SearchBar" ||
+    type === "SearchAnchor" ||
+    barPainters.has(type) ||
+    BAR_SURFACES.has(type) ||
+    cupertinoPainters.has(type)
+  );
 }
 
 /** The glyph a widget draws: an `Icon`'s, or the check of a checked checkbox. */
@@ -488,10 +514,17 @@ class TreePainter {
   readonly out = new Map<string, NodePaint>();
   private order = 0;
 
+  /** The widgets that lay out texts of their own (`<id>#p<n>`): Layer 2 components. */
+  private readonly partOwners: ReadonlySet<string>;
+
   constructor(
     private readonly rects: ReadonlyMap<string, Rect>,
     private readonly theme: PaintTheme,
-  ) {}
+  ) {
+    // A box built for a list slot has no id; it owns nothing.
+    const parts = [...rects.keys()].filter((k) => typeof k === "string" && k.includes("#p"));
+    this.partOwners = new Set(parts.map((k) => k.slice(0, k.indexOf("#"))));
+  }
 
   hide(node: PaintNode): void {
     if (this.rects.has(node.id)) {
@@ -502,24 +535,34 @@ class TreePainter {
     }
   }
 
+  /**
+   * How `node` is drawn: an icon, a text, a painted widget, a layout widget, or a placeholder; an image with no source
+   * the canvas knows is a placeholder, and a component that lays out its own texts is drawn by them.
+   */
+  private roleOf(node: PaintNode, painted: Painted, icon: IconPaint | undefined): NodePaint["role"] {
+    const type = node.type ?? "";
+    if (icon !== undefined && type === "Icon") {
+      return "icon";
+    }
+    const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
+    const role = roleOf(type, paintsItself(type) && !sourceless);
+    return role === "placeholder" && this.partOwners.has(node.id) ? "layout" : role;
+  }
+
   visit(node: PaintNode, opacity: number, clips: readonly PaintClip[], icons: IconContext): void {
     const r = this.rects.get(node.id);
     const painted: Painted = r === undefined ? {} : paintOf(node, r, this.theme, this.rects);
     if (r !== undefined) {
-      const type = node.type ?? "";
       const icon = ownIcon(node, this.theme, icons);
-      // An image with no source the canvas knows is a placeholder, as a widget not painted yet is.
-      const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
-      const parts =
-        fieldTypes.has(type) ||
-        type === "SearchBar" ||
-        type === "SearchAnchor" ||
-        barPainters.has(type) ||
-        BAR_SURFACES.has(type) ||
-        cupertinoPainters.has(type);
-      const painterOf = (painters.has(type) || controlPainters.has(type) || parts) && !sourceless;
-      const role = icon === undefined || type !== "Icon" ? roleOf(type, painterOf) : "icon";
-      this.record(node, role, painted, opacity, clips, { icon, text: icons.text });
+      const parts = painted.parts ?? (this.partOwners.has(node.id) ? layer2Parts(this.theme) : undefined);
+      this.record(
+        node,
+        this.roleOf(node, painted, icon),
+        { ...painted, ...(parts === undefined ? {} : { parts }) },
+        opacity,
+        clips,
+        { icon, text: icons.text },
+      );
     }
     const childOpacity = opacity * (painted.opacity ?? 1);
     const childClips = painted.clip === undefined ? clips : [...clips, painted.clip];
@@ -552,6 +595,7 @@ class TreePainter {
       ...(icon === undefined ? {} : { icon }),
       ...(painted.texts === undefined || painted.texts.length === 0 ? {} : { texts: painted.texts }),
       ...(painted.glyphs === undefined || painted.glyphs.length === 0 ? {} : { glyphs: painted.glyphs }),
+      ...(painted.parts === undefined ? {} : { partColors: painted.parts }),
     });
   }
 }
