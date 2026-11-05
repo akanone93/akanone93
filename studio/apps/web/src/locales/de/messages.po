@@ -3996,16 +3996,16 @@ msgstr "Dunkler Wert von {token}"
 msgid "shell.field.package"
 msgstr "Dart-Paketname"
 
-#. Heading of the editors for state, data sources and the database.
-#. js-lingui-explicit-id
-#: apps/web/src/features/panels/panels.messages.ts
-msgid "panels.editorGroup.data"
-msgstr "Daten"
-
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
 msgid "appnav.data"
+msgstr "Daten"
+
+#. Heading of the editors for state, data sources and the database.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.editorGroup.data"
 msgstr "Daten"
 
 #. Tab of the left panel: the plugin's data sources and collections.
