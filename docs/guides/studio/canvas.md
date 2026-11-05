@@ -85,7 +85,23 @@ Positions are read-only while someone else is editing the app.
    the bottom start, as on the app canvas. On the left, the **Plugin editor** dock names the plugin
    and opens **Insert**, **Layers**, **Assets** and **Data** from its coloured rail; on the right is
    the **Inspector**.
-2. Insert a widget from **Insert**: search it, open **Categories** to show one kind (**Layout**,
+2. Work on the canvas as in a design tool. **Select** (V) picks and moves, **Hand** (H) pans; Space held, the middle
+   mouse button, the wheel or two fingers pan with either tool, and Ctrl or Cmd with the wheel (a pinch) zooms.
+   Point at a screen and the widget a click selects is outlined with its name. A click selects the top-level widget
+   under the pointer; Ctrl-click (Cmd-click) selects the innermost; Shift-click adds or removes; double-click goes one
+   level in at the pointer, Esc one level out (from a top-level widget to its screen, then nothing); Enter selects the
+   first child and Tab the next sibling. The selection is outlined with its name, its size and, where it has a width
+   and a height, eight handles that resize it. Drag a selected widget to move it: in a column, row or wrap a line
+   shows where it lands among its siblings or in another container (outlined in green); in a stack it moves to where
+   you drop it, with guides and distances to its siblings; the arrow keys nudge by 1 (Shift: 10). Click a screen's
+   name above its frame to select the screen, and drag the name — or a selected screen's body — to move it with every
+   selected screen; it snaps to the others and stays where you drop it (Undo puts it back). Double-click the name to
+   rename the screen. Drag on the empty canvas, or across a screen that is not selected, to select the screens or the
+   widgets the rectangle meets (Alt: only those inside it). Right-click a widget, a screen or the empty canvas for its
+   actions: copy, cut, paste, duplicate, wrap, unwrap, select the parent or the first child, zoom to the selection
+   (Shift+2) and delete (Delete or Backspace); a screen's rename, duplicate, move and delete; a new screen and fit all
+   (Shift+1). The current screen in the top bar follows the selection.
+3. Insert a widget from **Insert**: search it, open **Categories** to show one kind (**Layout**,
    **Content**, **Inputs**, **Interaction**, **Navigation**, **Motion**, **Platform**, **More**), or
    use **Recently used**; point at a tile to read what the widget does, then choose it or drag it
    onto a screen. **Layers** shows each screen over its widgets with their icons and what they show:
@@ -106,14 +122,14 @@ Positions are read-only while someone else is editing the app.
    and **Docs**; with nothing selected it shows the **Plugin overview**. Each editor opens over the
    canvas; **Close** or Escape returns. **Wrap selection in a column**, **Unwrap selection**,
    **Duplicate selection** and **Create experiment from selection** are on the selection's menu.
-3. Manage screens with **New screen**, **Duplicate screen**, **Rename screen**, **Delete screen** and
+4. Manage screens with **New screen**, **Duplicate screen**, **Rename screen**, **Delete screen** and
    **Move to plugin**. The entry screen and a screen another screen navigates to cannot be deleted
    until you choose another entry or remove the link.
-4. Under **Preview**, use the preview switches to see the screen on a **Device frame** (or a **Custom frame**), in
+5. Under **Preview**, use the preview switches to see the screen on a **Device frame** (or a **Custom frame**), in
    **Light** or **Dark**, in any **Locale**, at a **Text scale**, in **Material** or **Cupertino**
    style, and in the **Success**, **Loading**, **Empty** or **Error** data state. The **Device matrix**
    shows several frames at once.
-5. The **Developer console** at the bottom lists validation errors, warnings and information under
+6. The **Developer console** at the bottom lists validation errors, warnings and information under
    **Problems** as you type; the counts also appear on the plugin card. Open it to stream the paired
    devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,
    **Performance** and **Console**, with a source device, a level filter, search, **Pause** and

@@ -26,7 +26,7 @@ the maintainer.
 
 **Works:** layout of all 149 Layer 1 and 58 Layer 2 widgets, conformance-tested (`STU-005`); screens on one canvas,
 arrows, ghost screens, native nodes (`STU-040`–`STU-056`); device presets and matrix, preview switches (`STU-057`,
-`STU-058`); insert, drag, reparent, wrap, copy and paste (`STU-067`); Layers, inspector, the nine editors, console,
+`STU-058`); insert, wrap, copy and paste (`STU-067`; selecting and dragging on the canvas did not work, see PC-I1); Layers, inspector, the nine editors, console,
 history (`STU-061`–`STU-069`); safety rules, components and templates (`STU-070`–`STU-086`); send to device, publish.
 
 **Gaps** (each closed by a task): screens drawn as grey boxes (PC-01–PC-10); theme colours unused (PC-01); no text
@@ -80,6 +80,19 @@ Needs.
   outlined with their name. *Build:* a dashboard screen. *Check:* change the chart's data; a progress value fills its
   arc. Native slot screenshots follow with the device round trip (PC-38). `WGT-021`, `WGT-031`.
 
+### A2. Interaction (found after PC-10)
+
+- **PC-I1 Canvas interaction.** The research listed selection and dragging as working; on the canvas nothing could
+  be selected or moved, because the hit index answers with item ids that the click never mapped to nodes, no overlay
+  drew the selection, and screens could not be moved at all. *See:* hover outlines with names; the selection with
+  its name, size and handles; screens selected by their name and dragged, snapping and saved; widgets dragged within
+  and between containers with an insertion indicator, in stacks with guides and distances; resize from eight
+  handles; marquee; double-click in, Esc out; a context menu; Select and Hand tools; Delete. *Build:* move the
+  All-in-one screens into rows by flow; reorder a form's fields by dragging. *Check:* select a widget, a nested one
+  (Ctrl-click, double-click) and a screen; drag a screen by its name and reload — it stays; drag a field above
+  another; resize a sized box; right-click for the menu; delete with Delete and undo. `STU-050`, `STU-067`. Later
+  tasks build on this patch.
+
 ### B. Screens as device screens
 
 - **PC-11 Device chrome.** Status bar, notch or island, home indicator, safe areas; the screen's name, route and kind
@@ -92,9 +105,10 @@ Needs.
 
 ### C. Direct manipulation
 
-- **PC-16 Feedback.** Hover outlines, names and sizes, padding and gaps, problem dots. `STU-067`.
+- **PC-16 Feedback.** Padding and gaps, problem dots (hover outlines, names and sizes came with PC-I1). `STU-067`.
 - **PC-17 Inline text.** Double-click to edit a text in place; it becomes a translation key. `I18N-007`.
-- **PC-18 Handles.** Resize, padding and gap handles snapping to tokens; nudging. `STU-067`.
+- **PC-18 Handles.** Padding and gap handles; resize snapping to tokens (resize handles and nudging came with
+  PC-I1). `STU-067`.
 - **PC-19 Context toolbar.** Wrap, convert, add sibling, align, duplicate, add event. `STU-067`.
 - **PC-20 Drag and drop everywhere.** Into slots, stacks, other screens; assets as images. `STU-067`.
 

@@ -12,6 +12,7 @@ import {
   Select as ShadcnSelect,
 } from "@plux/ui/components/select";
 import { Separator } from "@plux/ui/components/separator";
+import { ToggleGroup, ToggleGroupItem } from "@plux/ui/components/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@plux/ui/components/tooltip";
 import type { KeyboardEvent, ReactNode } from "react";
 import { commandMessages } from "../../lib/commands/commands.messages.ts";
@@ -24,6 +25,9 @@ import type { Validation } from "../problems/use-validation.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 
 export interface ActionBarProps {
+  /** The pointer tool (select or hand) and its switch; the bar shows the switch only when given. */
+  readonly tool?: "select" | "hand";
+  readonly onTool?: (tool: "select" | "hand") => void;
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
@@ -136,6 +140,39 @@ export function ActionBar(props: ActionBarProps) {
           onKeyDown={rove}
           className="canvas-panel canvas-bar glass pointer-events-auto flex min-w-0 items-center gap-0.5 overflow-x-auto p-1.5"
         >
+          {props.tool !== undefined && props.onTool !== undefined && (
+            <>
+              <ToggleGroup
+                aria-label={zoomLabels.tools}
+                value={[props.tool]}
+                onValueChange={(v) => {
+                  const next = v[0];
+                  if (next === "select" || next === "hand") {
+                    props.onTool?.(next);
+                  }
+                }}
+                className="gap-0.5"
+              >
+                <ToggleGroupItem
+                  value="select"
+                  aria-label={zoomLabels.toolSelect}
+                  title={`${zoomLabels.toolSelect} (V)`}
+                  size="sm"
+                >
+                  <Icon name="cursor" size="capsule" />
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="hand"
+                  aria-label={zoomLabels.toolHand}
+                  title={`${zoomLabels.toolHand} (H)`}
+                  size="sm"
+                >
+                  <Icon name="hand" size="capsule" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+              <Divider />
+            </>
+          )}
           <BarButton icon="plus" label={m.newScreen} onClick={props.onNewScreen} />
           {props.screens.length > 0 && (
             <ShadcnSelect

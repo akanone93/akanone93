@@ -14,7 +14,7 @@ import {
   wrapRecipe,
 } from "./edits.ts";
 import { type Box, distances, type Handle, resizeBox, snapBox, translate } from "./geometry.ts";
-import { type Container, resolveDrop } from "./reparent.ts";
+import { type Container, type DropTarget, resolveDrop } from "./reparent.ts";
 import type { NodeIndex } from "./tree.ts";
 
 export type GestureKind = "move" | "resize";
@@ -53,12 +53,16 @@ export interface GestureEnv {
 
 const FLOW_TYPES = new Set(["Row", "Column", "Wrap", "Flex", "Stack"]);
 
-export function containersOf(env: GestureEnv): Container[] {
+/** The flow containers that take a drop, with their children's boxes; only those of screen `doc` when given. */
+export function containersOf(env: GestureEnv, doc?: string): Container[] {
   const out: Container[] = [];
   for (const [id, kids] of env.index.children) {
     const type = env.typeOf(id);
     const box = env.boxOf(id);
     if (box === undefined || type === undefined || !FLOW_TYPES.has(type)) {
+      continue;
+    }
+    if (doc !== undefined && env.docOf(id) !== doc) {
       continue;
     }
     const children = kids.flatMap((k) => {
@@ -70,9 +74,15 @@ export function containersOf(env: GestureEnv): Container[] {
   return out;
 }
 
+/** Where dragging \`ids\` to world point (x, y) drops them: a flow container of their own screen, or null. */
+export function dropAt(env: GestureEnv, ids: readonly string[], x: number, y: number): DropTarget | null {
+  const doc = ids[0] === undefined ? undefined : env.docOf(ids[0]);
+  return resolveDrop(env.index, containersOf(env, doc), ids, x, y);
+}
+
 /** The insertion indicator while dragging \`ids\` over flow containers at world point (x, y). */
 export function reparentPreview(env: GestureEnv, ids: readonly string[], x: number, y: number): Guides | null {
-  const drop = resolveDrop(env.index, containersOf(env), ids, x, y);
+  const drop = dropAt(env, ids, x, y);
   return drop === null ? null : { lines: [], labels: [], indicator: drop.indicator };
 }
 
@@ -89,21 +99,30 @@ export function finishMove(
   if (doc === undefined) {
     return;
   }
-  const drop = resolveDrop(env.index, containersOf(env), [id], x, y);
+  const drop = dropAt(env, [id], x, y);
   const parent = env.index.parent.get(id);
   const sameStack = parent === drop?.parent || (parent != null && env.index.parent.get(parent) === drop?.parent);
   if (drop?.position !== undefined && !sameStack) {
     env.edit(doc, stackDropRecipe(id, drop.parent, drop.position, fresh), { group: "move" });
     return;
   }
-  if (drop !== null && drop.position === undefined && drop.parent !== parent) {
+  // Into another flow container, or to another place among its siblings: the insertion indicator's index counts the
+  // children without the dragged one, as the recipe inserts after taking it out.
+  if (drop !== null && drop.position === undefined && (drop.parent !== parent || movesAmongSiblings(env, id, drop))) {
     env.edit(doc, reparentRecipe([id], drop.parent, drop.index), { group: "move" });
     return;
   }
   env.edit(doc, moveRecipe(id, delta.x, delta.y), { group: "move" });
 }
 
-/** Ends a resize from the south-east handle. */
+/** Whether a drop into the dragged node's own list puts it at another place than where it is. */
+function movesAmongSiblings(env: GestureEnv, id: string, drop: DropTarget): boolean {
+  const kids = (env.index.children.get(drop.parent) ?? []).filter((k) => k !== id);
+  const at = (env.index.children.get(drop.parent) ?? []).indexOf(id);
+  return at >= 0 && drop.index !== at && drop.index <= kids.length;
+}
+
+/** Ends a resize from `handle` (the south-east corner when absent). */
 export function finishResize(
   env: GestureEnv,
   id: string,

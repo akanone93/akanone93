@@ -73,16 +73,34 @@ export function marquee(index: NodeIndex, s: Selection, hits: readonly string[],
   return { ids, anchor: ids[ids.length - 1] ?? null, scope: level };
 }
 
-/** Esc: select the parent of the anchor; at the top level, clear. */
+/** Esc: select the parent of the anchor — from the top level, the screen (its root); from the screen, clear. */
 export function toParent(index: NodeIndex, s: Selection): Selection {
   if (s.anchor === null) {
     return emptySelection;
   }
   const p = index.parent.get(s.anchor) ?? null;
-  if (p === null || (index.depth.get(p) ?? 0) === 0) {
+  if (p === null) {
     return emptySelection;
   }
   return { ids: [p], anchor: p, scope: index.parent.get(p) ?? null };
+}
+
+/**
+ * Double-click: one level into the anchor at the pointer — the anchor's child on the way to the innermost hit, with the
+ * anchor as the scope, so later clicks pick its children. A hit outside the anchor is a plain click; a leaf stays.
+ */
+export function drill(index: NodeIndex, s: Selection, hits: readonly string[]): Selection {
+  const inner = hits.find((h) => index.parent.has(h));
+  if (inner === undefined) {
+    return s;
+  }
+  const chain = lineage(index, inner);
+  const anchor = s.anchor;
+  if (anchor === null || !chain.includes(anchor)) {
+    return click(index, s, hits);
+  }
+  const child = chain.find((c) => index.parent.get(c) === anchor);
+  return child === undefined ? s : { ids: [child], anchor: child, scope: anchor };
 }
 
 /** Enter: select the first child of the anchor and go into it. */

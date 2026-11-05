@@ -16,6 +16,7 @@ import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { useScreenImages } from "./screen-images.ts";
 import "./plugin-editor.css";
 import { CanvasStatus } from "../app-canvas/canvas-chrome.tsx";
+import { GestureTracker } from "../app-canvas/use-canvas-gestures.ts";
 import { DesignersHost } from "../designers/designers-host.tsx";
 import type { DrawerTab } from "../devices/drawer-model.ts";
 import { tabEditorSession } from "../editor/document-transport.ts";
@@ -60,7 +61,7 @@ import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
 import { pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
-import { flowOrder, placeScreens, readSavedPositions } from "./positions.ts";
+import { flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
 import {
   contentBounds,
   DEVICE,
@@ -70,32 +71,39 @@ import {
   type PlacedScreen,
   screenDocuments,
 } from "./scene.ts";
+import type { ScreenRequest } from "./screens-controller.tsx";
 import { ScreensController } from "./screens-controller.tsx";
 import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
 import { type EditFn, findNode } from "./select/edits.ts";
 import { structureEdit } from "./select/gesture.ts";
 import { handleKey } from "./select/keys.ts";
 import { announce } from "./select/live-region.ts";
+import { createOverlayStore } from "./select/overlay-store.ts";
 import * as sel from "./select/selection.ts";
-import { type SelectionStore, useSelectionStore } from "./select/store.ts";
-import { indexNodes, itemIdOf, type NodeIndex, nodeIdOfHit } from "./select/tree.ts";
-import { useGestures } from "./select/use-gestures.ts";
+import { useSelectionStore } from "./select/store.ts";
+import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
 import { useAssetsTab } from "./use-assets-tab.ts";
+import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
 import { useGhostLayer } from "./use-ghost-layer.ts";
 import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 import { usePreviewScene } from "./use-preview-scene.ts";
+import { useScreenPositions } from "./use-screen-positions.ts";
 
-const MARQUEE_PX = 4;
-
-/** Screens placed: saved positions, else flow order (STU-050); the canvas worker lays them out. */
-export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedScreen[] {
+/**
+ * Screens placed: saved positions, else flow order (STU-050); the canvas worker lays them out. `saved` — the edit
+ * session's copy of the positions, or a drop on its way — wins over the documents' own.
+ */
+export function placeModel(
+  documents: Parameters<typeof readPlugin>[0],
+  saved?: ReadonlyMap<string, Point>,
+): PlacedScreen[] {
   const model = readPlugin(documents);
   const ids = model.screens.map((s) => s.id);
   const order = flowOrder(ids, model.entryPage ?? ids[0], model.edges);
   const widths = new Map(ids.map((id) => [id, DEVICE.width]));
-  const at = placeScreens(order, widths, readSavedPositions(documents));
+  const at = placeScreens(order, widths, saved ?? readSavedPositions(documents));
   const byId = new Map(model.screens.map((s) => [s.id, s]));
   return order.flatMap((id) => {
     const s = byId.get(id);
@@ -106,33 +114,26 @@ export function placeModel(documents: Parameters<typeof readPlugin>[0]): PlacedS
   });
 }
 
-/** A pointer gesture ended: a click selects, Shift+drag is a marquee (Alt: contain). */
-function pointerSelect(
-  surface: CanvasSurface,
-  store: SelectionStore,
-  index: NodeIndex,
-  box: { left: number; top: number },
-  from: { x: number; y: number },
-  e: { clientX: number; clientY: number; shiftKey: boolean; altKey: boolean; ctrlKey: boolean; metaKey: boolean },
-  onGhost: (hits: readonly string[]) => boolean,
-  locked: ReadonlySet<string> = new Set(),
-): void {
-  const a = { x: from.x - box.left, y: from.y - box.top };
-  const z = { x: e.clientX - box.left, y: e.clientY - box.top };
-  // A locked layer is not picked on the canvas (STU-061): the pointer reaches what is under it.
-  const free = (hits: readonly string[]) => hits.filter((h) => !locked.has(nodeIdOfHit(h)));
-  if (Math.hypot(z.x - a.x, z.y - a.y) <= MARQUEE_PX) {
-    const hits = free(surface.hitTest?.(z.x, z.y) ?? []);
-    if (onGhost(hits)) {
-      return;
-    }
-    store.set(sel.click(index, store.get(), hits, { toggle: e.shiftKey, deep: e.ctrlKey || e.metaKey }));
-  } else if (e.shiftKey) {
-    const rect = { l: Math.min(a.x, z.x), t: Math.min(a.y, z.y), r: Math.max(a.x, z.x), b: Math.max(a.y, z.y) };
-    store.set(
-      sel.marquee(index, store.get(), free(surface.hitTestRect?.(rect, e.altKey ? "contain" : "intersect") ?? [])),
-    );
+/** The zoom factor of a wheel step with Ctrl or Cmd, kept within the zoom range (10–400 %). */
+function wheelFactor(zoom: number, deltaY: number): number {
+  const next = Math.min(MAX_ZOOM_PERCENT / 100, Math.max(MIN_ZOOM_PERCENT / 100, zoom * Math.exp(-deltaY / 200)));
+  return next / zoom;
+}
+
+/**
+ * One wheel step: with Ctrl or Cmd (a trackpad pinch) a zoom about the pointer, else a pan — a mouse wheel with Shift
+ * scrolls sideways, a trackpad gives both deltas itself. A burst of steps is one gesture for the worker (M-12).
+ */
+function wheelStep(surface: CanvasSurface, tracker: GestureTracker, canvas: HTMLCanvasElement, e: WheelEvent): void {
+  if (e.ctrlKey || e.metaKey) {
+    tracker.wheel(surface, "zoom");
+    const p = canvasPoint(canvas.getBoundingClientRect(), e.clientX, e.clientY);
+    surface.zoomAbout(wheelFactor(surface.viewport.zoom, e.deltaY), p.x, p.y);
+    return;
   }
+  tracker.wheel(surface, "pan");
+  const sideways = e.shiftKey && e.deltaX === 0;
+  surface.pan(sideways ? -e.deltaY : -e.deltaX, sideways ? 0 : -e.deltaY);
 }
 
 /** The part of the canvas the docks and the top bar leave free, in canvas pixels. */
@@ -379,7 +380,11 @@ function PluginCanvasView({
     brands,
   );
   // A translated title reads in the previewed locale, as the screen itself does.
-  const placed = useMemo(() => (docs.data === undefined ? [] : placeModel(live)), [docs.data, live]);
+  const screenPositions = useScreenPositions(docs.data, useCanEdit());
+  const placed = useMemo(
+    () => (docs.data === undefined ? [] : placeModel(live, screenPositions.positions)),
+    [docs.data, live, screenPositions.positions],
+  );
   const titleMessages = useMemo(
     () => messagesFor([...(appDocs.data ?? []), ...(docs.data ?? [])], look),
     [appDocs.data, docs.data, look],
@@ -388,6 +393,7 @@ function PluginCanvasView({
   const { shown, styled, paint } = usePreviewScene(screens, appDocs.data, docs.data, look);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
+  const [overlay] = useState(createOverlayStore);
   const fittedRef = useRef<CanvasSurface | null>(null);
   const [heights, setHeights] = useState<Heights>(new Map());
   const nativeRoutes = useNativeRoutes(params.app ?? "");
@@ -452,7 +458,8 @@ function PluginCanvasView({
   const announcement = announce(
     { none: () => m.selectionNone, one: m.selectionOne, many: m.selectionMany },
     selection,
-    (id) => id,
+    // Announced by what it is, not by its id (WCAG 4.1.3).
+    (id) => index.type.get(id) ?? id,
   );
   useEffect(() => {
     store.set(sel.prune(index, store.get()));
@@ -537,14 +544,6 @@ function PluginCanvasView({
   };
   const clipboardDialog = useClipboard(clipboardInput);
   const libraryDialog = useLibraryActions(clipboardInput);
-  const gestures = useGestures({
-    surface: () => surfaceRef.current,
-    canvas: () => canvasRef.current,
-    store,
-    index,
-    edit,
-    screenOf,
-  });
   const dropHandlers = useMemo(
     () =>
       insertDropHandlers({
@@ -588,14 +587,14 @@ function PluginCanvasView({
       hostFonts,
       deviceFonts,
     });
-    surfaceRef.current = surface;
+    surfaceRef.current = guidesToOverlay(surface, overlay);
     const observer = followPage(page, surface);
     return () => {
       observer?.disconnect();
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface, hostFonts, deviceFonts, theme.background, theme.grid]);
+  }, [createSurface, hostFonts, deviceFonts, theme.background, theme.grid, overlay]);
 
   const focusRef = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -688,6 +687,7 @@ function PluginCanvasView({
   const syncFrame = useRef(0);
   useEffect(() => () => cancelAnimationFrame(syncFrame.current), []);
   const sync = () => {
+    overlay.viewChanged();
     if (syncFrame.current === 0) {
       syncFrame.current = requestAnimationFrame(() => {
         syncFrame.current = 0;
@@ -718,18 +718,21 @@ function PluginCanvasView({
     if (canvas === null) {
       return undefined;
     }
+    // A burst of wheel steps is one pan or zoom gesture for the worker (M-12), as on the app canvas.
+    const tracker = new GestureTracker();
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (e.ctrlKey || e.metaKey) {
-        const p = canvasPoint(canvas.getBoundingClientRect(), e.clientX, e.clientY);
-        surfaceRef.current?.zoomAbout(Math.exp(-e.deltaY / 200), p.x, p.y);
-      } else {
-        surfaceRef.current?.pan(-e.deltaX, -e.deltaY);
+      const surface = surfaceRef.current;
+      if (surface !== null) {
+        wheelStep(surface, tracker, canvas, e);
+        syncRef.current();
       }
-      syncRef.current();
     };
     canvas.addEventListener("wheel", onWheel, { passive: false });
-    return () => canvas.removeEventListener("wheel", onWheel);
+    return () => {
+      canvas.removeEventListener("wheel", onWheel);
+      tracker.end();
+    };
   }, [theme.key]);
 
   const zoomBy = (factor: number) => {
@@ -773,6 +776,11 @@ function PluginCanvasView({
 
   const resetZoom = () => zoomBy(1 / (surfaceRef.current?.viewport.zoom ?? 1));
   const showScreen = (id: string) => {
+    // Picking a screen in the bar selects it, so the bar, the screen actions and the selection agree.
+    const root = screens.find((x) => x.id === id)?.root?.id;
+    if (root !== undefined) {
+      store.set({ ids: [root], anchor: root, scope: null });
+    }
     centreOn(
       surfaceRef.current,
       canvasRef.current,
@@ -783,8 +791,50 @@ function PluginCanvasView({
   };
   const [consoleRequest, setConsoleRequest] = useState<{ readonly tab: DrawerTab; readonly n: number } | undefined>();
 
-  const drag = useRef<{ x: number; y: number } | null>(null);
-  const start = useRef<{ x: number; y: number } | null>(null);
+  const [screenRequest, setScreenRequest] = useState<ScreenRequest | undefined>();
+  const requestScreen = useCallback(
+    (kind: ScreenRequest["kind"], screen: string) => setScreenRequest((r) => ({ kind, screen, n: (r?.n ?? 0) + 1 })),
+    [],
+  );
+  /** Ghost screens and lanes take a click before the nodes (STU-052, STU-053). */
+  const pickGhost = (hits: readonly string[]): boolean => {
+    const picked = ghostLayer.pick(hits)?.link;
+    if (picked !== undefined) {
+      setLane(picked);
+      return true;
+    }
+    const ghost = ghostOfHit(hits, ghostLayer.placed);
+    if (ghost === undefined) {
+      return false;
+    }
+    if (ghost.kind === "screen") {
+      setLeaving(ghost);
+    }
+    return true;
+  };
+  const interaction = useCanvasInteraction({
+    surface: () => surfaceRef.current,
+    canvas: canvasRef,
+    store,
+    selection,
+    index,
+    screenOf,
+    edit,
+    canEdit,
+    locked,
+    screens,
+    shown,
+    styled,
+    positions: screenPositions,
+    onPick: pickGhost,
+    onView: sync,
+    fit,
+    zoomBy,
+    resetZoom,
+    requestScreen,
+    messages: m,
+    overlay,
+  });
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (
@@ -807,6 +857,7 @@ function PluginCanvasView({
           className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
           tabIndex={0}
           {...dropHandlers}
+          data-tool={interaction.tool}
           onKeyDown={(e) => {
             // A selection with a locked layer still moves the selection, but edits nothing.
             const frozen = selection.ids.some((id) => locked.has(id));
@@ -816,62 +867,15 @@ function PluginCanvasView({
             );
             if (handled) {
               e.preventDefault();
+            } else if (e.key === "Backspace" && canEdit && selection.ids.length > 0) {
+              // Delete is the registered command; Backspace deletes too, while the canvas has the focus.
+              e.preventDefault();
+              interaction.remove();
             }
           }}
-          onDoubleClick={() => store.set(sel.enter(index, store.get()))}
-          onPointerDown={(e) => {
-            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && gestures.down(e)) {
-              start.current = { x: e.clientX, y: e.clientY };
-              return;
-            }
-            drag.current = { x: e.clientX, y: e.clientY };
-            start.current = { x: e.clientX, y: e.clientY };
-          }}
-          onPointerMove={(e) => {
-            if (gestures.move(e)) {
-              return;
-            }
-            const d = drag.current;
-            if (d !== null && !e.shiftKey) {
-              surfaceRef.current?.pan(e.clientX - d.x, e.clientY - d.y);
-              drag.current = { x: e.clientX, y: e.clientY };
-            }
-          }}
-          onPointerUp={(e) => {
-            drag.current = null;
-            const moved = gestures.up(e);
-            const from = moved ? null : start.current;
-            start.current = null;
-            const box = canvasRef.current?.getBoundingClientRect();
-            if (from !== null && surfaceRef.current && box) {
-              pointerSelect(
-                surfaceRef.current,
-                store,
-                index,
-                box,
-                from,
-                e,
-                (hits) => {
-                  const lane = ghostLayer.pick(hits)?.link;
-                  if (lane !== undefined) {
-                    setLane(lane);
-                    return true;
-                  }
-                  const ghost = ghostOfHit(hits, ghostLayer.placed);
-                  if (ghost === undefined) {
-                    return false;
-                  }
-                  if (ghost.kind === "screen") {
-                    setLeaving(ghost);
-                  }
-                  return true;
-                },
-                locked,
-              );
-            }
-            sync();
-          }}
+          {...interaction.handlers}
         />
+        {interaction.element}
         {docs.isPending && <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>}
         {docs.isError && (
           <p role="alert" className="absolute start-4 top-4 text-body">
@@ -887,6 +891,7 @@ function PluginCanvasView({
         <p role="status" aria-live="polite" className="sr-only">
           {focusNote}
         </p>
+
         <GhostLeaveDialog
           ghost={leaving}
           onCancel={() => setLeaving(null)}
@@ -1039,6 +1044,10 @@ function PluginCanvasView({
             documents={docs.data}
             appDocuments={appDocs.data}
             screens={screens.map((x) => ({ id: x.id, title: x.title }))}
+            selectedScreen={interaction.selectedScreen}
+            tool={interaction.tool}
+            onTool={interaction.setTool}
+            request={screenRequest}
             entryPage={entryPage}
             validation={validation}
             percent={percent}

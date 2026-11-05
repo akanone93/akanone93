@@ -15,9 +15,11 @@ export interface NodeIndex {
   readonly type: ReadonlyMap<string, string>;
 }
 
-/** Children of a node in document order: slots (in key order) then `children`. */
+/** Children of a node in document order: slots (in key order; a list slot such as an app bar's `actions` in its own order) then `children`. */
 export function childNodes(node: Node): readonly Node[] {
-  return [...Object.values(node.slots ?? {}), ...(node.children ?? [])];
+  // A slot holds one widget or, in documents, a list of them; the `Node` type names only the first.
+  const slots = Object.values(node.slots ?? {}) as readonly (Node | readonly Node[])[];
+  return [...slots.flatMap((v) => (Array.isArray(v) ? v : [v as Node])), ...(node.children ?? [])];
 }
 
 /** Indexes the trees rooted at `roots`. */
@@ -70,4 +72,35 @@ export function nodeIdOfHit(hit: string): string {
   // the widget.
   const part = id.indexOf(PART_MARK);
   return part < 0 ? id : id.slice(0, part);
+}
+
+/** The screen whose device frame, title or overflow band item `hit` is (`screen:`, `title:`, `overflow:`), if any. */
+export function screenOfItem(hit: string): string | undefined {
+  for (const prefix of ["screen:", "title:", "overflow:"]) {
+    if (hit.startsWith(prefix)) {
+      return hit.slice(prefix.length);
+    }
+  }
+  return undefined;
+}
+
+/**
+ * The document nodes under the pointer, topmost first and once each: item ids (`<screen>/<node>`, a widget's parts)
+ * become node ids, and a screen's frame, title or overflow band stands for the screen's root. Anything else (ghosts,
+ * arrows) is left out.
+ */
+export function nodesOfHits(
+  hits: readonly string[],
+  index: NodeIndex,
+  rootOf: (screen: string) => string | undefined,
+): string[] {
+  const out: string[] = [];
+  for (const hit of hits) {
+    const screen = screenOfItem(hit);
+    const id = screen === undefined ? nodeIdOfHit(hit) : rootOf(screen);
+    if (id !== undefined && index.parent.has(id) && !out.includes(id)) {
+      out.push(id);
+    }
+  }
+  return out;
 }

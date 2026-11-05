@@ -399,5 +399,45 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "This link is not set directly on a widget event, so it cannot be changed here.",
       comment: "Shown when a picked link cannot be redirected or removed from the canvas.",
     }),
+    deleteSelection: i18n._({
+      id: "pluginCanvas.deleteSelection",
+      message: "Delete",
+      comment: "Command and context-menu item that deletes the selected widgets from their screen.",
+    }),
+    selectParent: i18n._({
+      id: "pluginCanvas.selectParent",
+      message: "Select parent",
+      comment: "Context-menu item that selects the widget around the selected one.",
+    }),
+    selectChildren: i18n._({
+      id: "pluginCanvas.selectChildren",
+      message: "Select first child",
+      comment: "Context-menu item that selects the first widget inside the selected one.",
+    }),
+    zoomToSelection: i18n._({
+      id: "pluginCanvas.zoomToSelection",
+      message: "Zoom to selection",
+      comment: "Context-menu item that zooms and pans the canvas so the selection fills the view.",
+    }),
+    zoomToScreen: i18n._({
+      id: "pluginCanvas.zoomToScreen",
+      message: "Zoom to screen",
+      comment: "Context-menu item that zooms and pans the canvas so the screen fills the view.",
+    }),
+    fitAll: i18n._({
+      id: "pluginCanvas.fitAll",
+      message: "Fit all screens",
+      comment: "Context-menu item that zooms the canvas out so every screen is in view.",
+    }),
+    canvasMenu: i18n._({
+      id: "pluginCanvas.canvasMenu",
+      message: "Canvas actions",
+      comment: "Accessible name of the menu a secondary click opens on the plugin canvas.",
+    }),
+    positionsFailed: i18n._({
+      id: "pluginCanvas.positionsFailed",
+      message: "The screen's new place could not be saved. It is back where it was.",
+      comment: "Shown when moving a screen on the canvas could not be saved, for example offline.",
+    }),
   };
 }

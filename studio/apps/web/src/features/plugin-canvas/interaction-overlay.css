@@ -1,0 +1,267 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * The plugin canvas's interaction overlay (STU-067): selection, hover, scope, drop target, marquee, guides, distances
+ * and the insertion indicator, placed from the physical top left by `--x`, `--y`, `--w` and `--h` in canvas pixels.
+ * The selection takes the theme's primary colour; guides and distances take a measuring magenta, as design tools do.
+ */
+
+.pc-overlay {
+  --pc-select: var(--primary);
+  --pc-select-ink: var(--primary-foreground);
+  --pc-measure: oklch(0.63 0.25 350);
+  --pc-measure-ink: oklch(0.99 0 0);
+  --pc-drop: oklch(0.7 0.17 150);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Over the canvas, under the docks and bars. */
+  z-index: 1;
+}
+
+.pc-outline,
+.pc-marquee,
+.pc-guide,
+.pc-indicator {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: calc(var(--w) * 1px);
+  block-size: calc(var(--h) * 1px);
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  box-sizing: border-box;
+}
+
+.pc-outline[data-kind="selected"] {
+  outline: 1.5px solid var(--pc-select);
+  outline-offset: 0;
+}
+
+.pc-outline[data-kind="screen"] {
+  outline: 2px solid var(--pc-select);
+  outline-offset: 2px;
+  border-radius: calc(var(--r, 0) * 1px);
+  box-shadow: 0 0 0 6px color-mix(in oklch, var(--pc-select) 14%, transparent);
+}
+
+.pc-outline[data-kind="hover"] {
+  outline: 1px solid color-mix(in oklch, var(--pc-select) 80%, transparent);
+}
+
+.pc-outline[data-kind="screen-hover"] {
+  outline: 1.5px solid color-mix(in oklch, var(--pc-select) 60%, transparent);
+  outline-offset: 2px;
+  border-radius: calc(var(--r, 0) * 1px);
+}
+
+.pc-outline[data-kind="scope"] {
+  outline: 1px dashed color-mix(in oklch, var(--pc-select) 55%, transparent);
+}
+
+.pc-outline[data-kind="drop"] {
+  outline: 2px solid var(--pc-drop);
+  background-color: color-mix(in oklch, var(--pc-drop) 8%, transparent);
+}
+
+.pc-outline[data-kind="ghost"] {
+  outline: 1.5px dashed var(--pc-select);
+  background-color: color-mix(in oklch, var(--pc-select) 10%, transparent);
+}
+
+/* A name tag sits above its box's top left; the drop target's in its own colour. */
+.pc-tag,
+.pc-size,
+.pc-distance,
+.pc-handle {
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  white-space: nowrap;
+}
+
+.pc-tag {
+  translate: 0 calc(-100% - 4px);
+  max-inline-size: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--pc-select-ink);
+  background-color: var(--pc-select);
+  box-shadow: 0 1px 2px color-mix(in oklch, black 18%, transparent);
+}
+
+.pc-tag[data-kind="hover"] {
+  color: var(--pc-select);
+  background-color: color-mix(in oklch, var(--background) 92%, transparent);
+  outline: 1px solid color-mix(in oklch, var(--pc-select) 50%, transparent);
+  font-weight: 500;
+}
+
+.pc-tag[data-kind="drop"] {
+  background-color: var(--pc-drop);
+}
+
+/* A screen's name, marked over the name the canvas draws above its frame, at its size (`--z` is the zoom). */
+.pc-title {
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  max-inline-size: calc(var(--z) * 390px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: calc(var(--z) * 5px);
+  padding-inline: calc(var(--z) * 4px);
+  font-size: calc(var(--z) * 15px);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--pc-select-ink);
+  background-color: var(--pc-select);
+}
+
+.pc-title[data-kind="hover"] {
+  color: var(--pc-select);
+  background-color: color-mix(in oklch, var(--pc-select) 12%, var(--background));
+}
+
+.pc-size {
+  translate: -50% 6px;
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+  color: var(--pc-select-ink);
+  background-color: var(--pc-select);
+}
+
+.pc-handle {
+  inline-size: 8px;
+  block-size: 8px;
+  translate: -50% -50%;
+  border: 1.5px solid var(--pc-select);
+  border-radius: 2px;
+  background-color: var(--background);
+  box-shadow: 0 1px 2px color-mix(in oklch, black 20%, transparent);
+}
+
+.pc-marquee {
+  border: 1px solid var(--pc-select);
+  background-color: color-mix(in oklch, var(--pc-select) 10%, transparent);
+}
+
+.pc-guide[data-axis="x"] {
+  inline-size: 0;
+  border-inline-start: 1px solid var(--pc-measure);
+}
+
+.pc-guide[data-axis="y"] {
+  block-size: 0;
+  border-block-start: 1px solid var(--pc-measure);
+}
+
+.pc-distance {
+  translate: -50% -50%;
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 15px;
+  color: var(--pc-measure-ink);
+  background-color: var(--pc-measure);
+}
+
+/* The insertion indicator: a bar where the drop lands, with round ends; a point drop in a stack is a cross-hair. */
+.pc-indicator[data-shape="row"] {
+  block-size: 3px;
+  translate: 0 -1.5px;
+  border-radius: 2px;
+  background-color: var(--pc-select);
+}
+
+.pc-indicator[data-shape="column"] {
+  inline-size: 3px;
+  translate: -1.5px 0;
+  border-radius: 2px;
+  background-color: var(--pc-select);
+}
+
+.pc-indicator[data-shape="box"] {
+  border: 1px solid var(--pc-select);
+  background-color: color-mix(in oklch, var(--pc-select) 8%, transparent);
+}
+
+.pc-indicator[data-shape="row"]::before,
+.pc-indicator[data-shape="row"]::after,
+.pc-indicator[data-shape="column"]::before,
+.pc-indicator[data-shape="column"]::after {
+  content: "";
+  position: absolute;
+  inline-size: 7px;
+  block-size: 7px;
+  border: 2px solid var(--pc-select);
+  border-radius: 50%;
+  background-color: var(--background);
+}
+
+.pc-indicator[data-shape="row"]::before {
+  inset: -2px auto auto -4px;
+}
+
+.pc-indicator[data-shape="row"]::after {
+  inset: -2px -4px auto auto;
+}
+
+.pc-indicator[data-shape="column"]::before {
+  inset: -4px auto auto -2px;
+}
+
+.pc-indicator[data-shape="column"]::after {
+  inset: auto auto -4px -2px;
+}
+
+/* While the pointer works, the canvas tells what a press does. */
+.plugin-canvas canvas[data-tool="hand"],
+.plugin-canvas canvas[data-space] {
+  cursor: grab;
+}
+
+.plugin-canvas canvas[data-panning] {
+  cursor: grabbing;
+}
+
+.plugin-canvas canvas[data-cursor] {
+  cursor: var(--pc-cursor);
+}
+
+@media (forced-colors: active) {
+  .pc-outline,
+  .pc-marquee,
+  .pc-handle {
+    forced-color-adjust: none;
+    outline-color: Highlight;
+    border-color: Highlight;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pc-outline[data-kind="hover"],
+  .pc-outline[data-kind="screen-hover"] {
+    transition: outline-color 80ms ease-out;
+  }
+}
+
+/* The point the context menu opens from, placed like the overlay's marks. */
+.pc-anchor {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: 1px;
+  block-size: 1px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  pointer-events: none;
+}

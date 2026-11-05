@@ -13,6 +13,8 @@ export interface CanvasKeys {
   readonly resetZoom: () => void;
   readonly setTool: (tool: CanvasTool) => void;
   readonly clear: () => void;
+  /** Shift+2: zooms to the selection, where the canvas has one. */
+  readonly fitSelection?: () => void;
 }
 
 /** Typing in a field or working in a dialog keeps its keys. */
@@ -45,12 +47,15 @@ function plain(e: KeyboardEvent, keys: CanvasKeys): (() => void) | undefined {
   if (e.shiftKey && (e.key === "!" || e.code === "Digit1")) {
     return keys.fit;
   }
+  if (e.shiftKey && (e.key === "@" || e.code === "Digit2") && keys.fitSelection !== undefined) {
+    return keys.fitSelection;
+  }
   return actions[k];
 }
 
 /**
  * The canvas's keys, as design tools have them: V and H pick the tool, Space held pans, + and - zoom, Shift+1 fits,
- * Ctrl+0 resets the zoom and Escape clears the selection. Typing in a field or a dialog is left alone.
+ * Shift+2 zooms to the selection, Ctrl+0 resets the zoom and Escape clears the selection. Typing in a field or a dialog is left alone.
  */
 export function useCanvasKeys(input: CanvasKeys): void {
   const keys = useRef(input);

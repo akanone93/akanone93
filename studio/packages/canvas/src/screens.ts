@@ -28,10 +28,12 @@ import type {
   SceneOp,
   ScreenDocument,
   ScreenHeight,
+  ScreenMove,
   ScreenStyle,
   SidesSpec,
   TextRunSpec,
 } from "./protocol.ts";
+import { moveSpec } from "./scene.ts";
 
 /** The scene id of a screen's device frame. */
 export const frameId = (screen: string) => `screen:${screen}`;
@@ -688,12 +690,16 @@ export class ScreenLayouts {
     return { ops, heights };
   }
 
-  /** Lays out only `screens` and drops `removed`; the ops change only the items that differ. */
+  /**
+   * Lays out only `screens`, drops `removed` and translates the items of the screens that only `moved`; the ops change
+   * only the items that differ.
+   */
   update(
     screens: readonly ScreenDocument[],
     removed: readonly string[],
     style: ScreenStyle,
     engine: ParagraphEngine,
+    moved: readonly ScreenMove[] = [],
   ): { ops: SceneOp[]; heights: ScreenHeight[] } {
     const ops: SceneOp[] = [];
     const heights: ScreenHeight[] = [];
@@ -702,6 +708,18 @@ export class ScreenLayouts {
         ops.push({ op: "remove", id: itemId });
       }
       this.byScreen.delete(id);
+    }
+    for (const m of moved) {
+      const items = this.byScreen.get(m.id);
+      if (items === undefined || (m.dx === 0 && m.dy === 0)) {
+        continue;
+      }
+      const after = new Map<string, ItemSpec>();
+      for (const [id, item] of items) {
+        after.set(id, moveSpec(item, m.dx, m.dy));
+        ops.push({ op: "move", id, dx: m.dx, dy: m.dy });
+      }
+      this.byScreen.set(m.id, after);
     }
     const changes: SceneOp[] = [];
     for (const s of screens) {

@@ -2712,6 +2712,12 @@ msgstr "Abgebrochen"
 msgid "pluginCanvas.actionBar"
 msgstr "Canvas-Aktionen"
 
+#. Accessible name of the menu a secondary click opens on the plugin canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.canvasMenu"
+msgstr "Aktionen der Leinwand"
+
 #. Accessible name of the toolbar above the app canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4198,6 +4204,12 @@ msgstr "Beeinträchtigt"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.delete"
+msgstr "Löschen"
+
+#. Command and context-menu item that deletes the selected widgets from their screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.deleteSelection"
 msgstr "Löschen"
 
 #. Confirm button of the delete-asset dialog.
@@ -5782,6 +5794,12 @@ msgstr "Erste Version"
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.jsonDiffFirst"
 msgstr "Erste Version: Jedes Dokument ist neu."
+
+#. Context-menu item that zooms the canvas out so every screen is in view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.fitAll"
+msgstr "Alle Bildschirme einpassen"
 
 #. Accessible name of the button that fits the whole graph in view.
 #. js-lingui-explicit-id
@@ -12969,6 +12987,18 @@ msgstr "Wähle ein Widget aus, um einen Link hinzuzufügen."
 msgid "l10n.area.selectAll"
 msgstr "Alle angezeigten Schlüssel auswählen"
 
+#. Context-menu item that selects the first widget inside the selected one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectChildren"
+msgstr "Erstes untergeordnetes Element auswählen"
+
+#. Context-menu item that selects the widget around the selected one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectParent"
+msgstr "Übergeordnetes Element auswählen"
+
 #. Name of the first publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -15255,6 +15285,12 @@ msgstr "Der Bildschirm kann nicht verschoben werden: {reason}"
 msgid "pluginCanvas.moveReasonOther"
 msgstr "der Bildschirm oder das Ziel ist unbekannt."
 
+#. Shown when moving a screen on the canvas could not be saved, for example offline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.positionsFailed"
+msgstr "Die neue Position des Bildschirms konnte nicht gespeichert werden. Er steht wieder an seiner alten Stelle."
+
 #. Shown when loading the plugin's screens failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -17433,6 +17469,18 @@ msgstr "Verkleinern"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.zoomToFit"
 msgstr "Einpassen"
+
+#. Context-menu item that zooms and pans the canvas so the screen fills the view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomToScreen"
+msgstr "Auf Bildschirm zoomen"
+
+#. Context-menu item that zooms and pans the canvas so the selection fills the view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomToSelection"
+msgstr "Auf Auswahl zoomen"
 
 #. Unit symbol for microseconds.
 #. js-lingui-explicit-id

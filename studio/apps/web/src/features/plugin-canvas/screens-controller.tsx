@@ -6,7 +6,7 @@ import type { Document } from "@plux/api";
 import { AlertDialog, Button, Dialog, Field, Input } from "@plux/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { type ReactNode, useCallback, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useEditSession, useLock } from "../editor/editor-provider.tsx";
@@ -51,6 +51,18 @@ function renameEffects(ctx: ScreenContext, page: PageInfo | undefined, id: strin
   return routeChangeEffects(page.route, renamedRoute(ctx, id, title) ?? page.route);
 }
 
+/** The screen the bar and the screen actions act on: the selection's, else the one picked in the bar, else the entry. */
+function currentScreen(
+  props: Pick<ScreensControllerProps, "screens" | "selectedScreen" | "entryPage">,
+  picked: string | undefined,
+): string | undefined {
+  const known = (id: string | undefined) => id !== undefined && props.screens.some((s) => s.id === id);
+  if (known(props.selectedScreen)) {
+    return props.selectedScreen;
+  }
+  return known(picked) ? picked : (props.entryPage ?? props.screens[0]?.id);
+}
+
 type Dialogue =
   | { kind: "new" }
   | { kind: "rename" }
@@ -85,6 +97,20 @@ export interface ScreensControllerProps {
   /** The start and the end of the top bar (who and where; what the editor reports). */
   readonly identity?: ReactNode;
   readonly status?: ReactNode;
+  /** The screen of the canvas selection: the bar and the screen actions follow it. */
+  readonly selectedScreen?: string | undefined;
+  /** A screen action asked for on the canvas (a double-click on a title, Delete on a selected screen); `n` repeats it. */
+  readonly request?: ScreenRequest | undefined;
+  /** The pointer tool and its switch in the bar. */
+  readonly tool?: "select" | "hand";
+  readonly onTool?: (tool: "select" | "hand") => void;
+}
+
+/** A screen action the canvas asks the controller for. */
+export interface ScreenRequest {
+  readonly kind: "rename" | "delete";
+  readonly screen: string;
+  readonly n: number;
 }
 
 /**
@@ -114,7 +140,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
   const [title, setTitle] = useState("");
   const [templateId, setTemplateId] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const current = props.screens.some((s) => s.id === picked) ? picked : (props.entryPage ?? props.screens[0]?.id);
+  const current = currentScreen(props, picked);
   const currentTitle = props.screens.find((s) => s.id === current)?.title ?? "";
   const ctx: ScreenContext = useMemo(
     () => ({ plugin: [...props.documents], app: props.appDocuments ?? [] }),
@@ -160,14 +186,24 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
   );
 
   const open = useCallback(
-    (kind: "new" | "rename" | "delete" | "move") => {
+    (kind: "new" | "rename" | "delete" | "move", screen?: string) => {
       setMessage(null);
       setTemplateId("");
-      setTitle(kind === "new" ? m.untitled : kind === "rename" ? currentTitle : "");
+      const named = screen === undefined ? currentTitle : (props.screens.find((x) => x.id === screen)?.title ?? "");
+      setTitle(kind === "new" ? m.untitled : kind === "rename" ? named : "");
       setDialogue({ kind });
     },
-    [m.untitled, currentTitle],
+    [m.untitled, currentTitle, props.screens],
   );
+  const request = props.request;
+  // Only a new request opens a dialogue; the screens changing under an open one must not reopen it.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed by the request alone
+  useEffect(() => {
+    if (request !== undefined && props.screens.some((x) => x.id === request.screen)) {
+      setPicked(request.screen);
+      open(request.kind, request.screen);
+    }
+  }, [request]);
 
   const duplicate = useCallback(() => {
     if (current !== undefined) {
@@ -264,6 +300,8 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
   return (
     <>
       <ActionBar
+        {...(props.tool === undefined ? {} : { tool: props.tool })}
+        {...(props.onTool === undefined ? {} : { onTool: props.onTool })}
         validation={props.validation}
         percent={props.percent}
         onZoom={props.onZoom}
@@ -271,8 +309,11 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         screens={props.screens}
         current={current}
         onCurrent={(id) => {
-          setPicked(id);
-          props.onShowScreen?.(id);
+          // The picker reports its value again as it settles: only a different screen is a pick.
+          if (id !== current) {
+            setPicked(id);
+            props.onShowScreen?.(id);
+          }
         }}
         onZoomReset={props.onZoomReset}
         identity={props.identity}

@@ -133,7 +133,12 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   host keeps a grid index of item bounds, fed from the same patch stream, so a hover or click
   answers without a worker round trip; the selection outline and handles are drawn on a small
   main-thread canvas above the base, so selecting never re-renders the base. The cost is a
-  second copy of the item bounds in memory.
+  second copy of the item bounds in memory. The canvases of Studio draw that feedback in the page's DOM over the
+  canvas instead (amended 2026-11-05): the plugin canvas's overlay — selection with its name, size and handles,
+  hover, marquee, snap guides, distances, insertion indicator and drop target — follows every pan and zoom from the
+  host's view and the hit index's bounds, so it too never re-renders the base. A screen that only moved (its tree and
+  title the same) is translated in the worker with `move` ops (`ScreenMove`), not laid out again, so dragging a screen
+  costs no layout; moving an item moves the world points it paints by (its ancestors' clips, its gradient).
 - One worker, not two: layout needs SkParagraph, and splitting would load CanvasKit and fonts twice.
 - The module talks only through its message interface, so the same code runs on the main thread
   as the fallback where worker WebGL is missing. No WebGL2 shows an "unsupported browser" message.

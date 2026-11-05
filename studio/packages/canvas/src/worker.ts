@@ -443,7 +443,13 @@ export class CanvasWorkerCore {
         const { ops, heights } =
           message.type === "screens"
             ? running.screens.replaceAll(message.screens, message.style, running.layoutEngine)
-            : running.screens.update(message.screens, message.removed, message.style, running.layoutEngine);
+            : running.screens.update(
+                message.screens,
+                message.removed,
+                message.style,
+                running.layoutEngine,
+                message.moved,
+              );
         running.scene.apply(ops);
         this.markBase(running);
         this.post({ v: PROTOCOL_VERSION, type: "screens", requestId: message.requestId, ops, heights });

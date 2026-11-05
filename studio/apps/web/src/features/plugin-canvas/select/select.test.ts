@@ -63,14 +63,26 @@ describe("selection rules [STU-067]", () => {
     const inside = sel.enter(index, sel.click(index, empty, ["a"]));
     expect(sel.marquee(index, inside, ["a1", "a2", "b1"]).ids).toEqual(["a1", "a2"]);
   });
-  test("[STU-067] Esc goes to the parent, then clears; Enter goes to the first child", () => {
+  test("[STU-067] Esc goes to the parent, then the screen, then clears; Enter goes to the first child", () => {
     const deep = sel.click(index, empty, ["a1"], { deep: true });
     const up = sel.toParent(index, deep);
     expect(up.ids).toEqual(["a"]);
-    expect(sel.toParent(index, up).ids).toEqual([]);
+    const screen = sel.toParent(index, up);
+    expect(screen.ids).toEqual(["root"]);
+    expect(sel.toParent(index, screen).ids).toEqual([]);
     const into = sel.enter(index, up);
     expect(into.ids).toEqual(["a1"]);
     expect(into.scope).toBe("a");
+  });
+  test("[STU-067] double-click drills one level into the selection at the pointer", () => {
+    const a = sel.click(index, empty, ["a2", "a", "root"]);
+    expect(a.ids).toEqual(["a"]);
+    const into = sel.drill(index, a, ["a2", "a", "root"]);
+    expect(into).toEqual({ ids: ["a2"], anchor: "a2", scope: "a" });
+    // A leaf stays; a hit outside the selection is a plain click.
+    expect(sel.drill(index, into, ["a2", "a", "root"])).toBe(into);
+    expect(sel.drill(index, into, ["b1", "b", "root"]).ids).toEqual(["b"]);
+    expect(sel.drill(index, a, [])).toBe(a);
   });
   test("[STU-067] Tab walks siblings and deleted nodes drop out", () => {
     const a = sel.click(index, empty, ["a"]);

@@ -51,6 +51,7 @@ import {
   type SceneOp,
   type ScreenDocument,
   type ScreenHeight,
+  type ScreenMove,
   type ScreenStyle,
 } from "./protocol.ts";
 import { Viewport } from "./viewport.ts";
@@ -396,12 +397,33 @@ export class CanvasHost {
       this.send({ v: PROTOCOL_VERSION, type: "screens", requestId, screens, style });
       return promise;
     }
-    const changed = screens.filter((s) => !sameScreen(previous.screens.get(s.id), s));
+    const changed: ScreenDocument[] = [];
+    const moved: ScreenMove[] = [];
+    for (const s of screens) {
+      const before = previous.screens.get(s.id);
+      if (sameScreen(before, s)) {
+        continue;
+      }
+      // A screen dragged on the canvas changes only its place: the worker moves its items (STU-050).
+      if (before !== undefined && before.root === s.root && before.title === s.title) {
+        moved.push({ id: s.id, dx: s.x - before.x, dy: s.y - before.y });
+      } else {
+        changed.push(s);
+      }
+    }
     const removed = [...previous.screens.keys()].filter((id) => !next.has(id));
     for (const id of removed) {
       this.contentHeights.delete(id);
     }
-    this.send({ v: PROTOCOL_VERSION, type: "screensUpdate", requestId, screens: changed, removed, style });
+    this.send({
+      v: PROTOCOL_VERSION,
+      type: "screensUpdate",
+      requestId,
+      screens: changed,
+      removed,
+      ...(moved.length === 0 ? {} : { moved }),
+      style,
+    });
     return promise;
   }
 

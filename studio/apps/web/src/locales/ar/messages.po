@@ -2712,6 +2712,12 @@ msgstr "ملغى"
 msgid "pluginCanvas.actionBar"
 msgstr "إجراءات اللوحة"
 
+#. Accessible name of the menu a secondary click opens on the plugin canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.canvasMenu"
+msgstr "إجراءات اللوحة"
+
 #. Accessible name of the toolbar above the app canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -4198,6 +4204,12 @@ msgstr "متراجع"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.delete"
+msgstr "حذف"
+
+#. Command and context-menu item that deletes the selected widgets from their screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.deleteSelection"
 msgstr "حذف"
 
 #. Confirm button of the delete-asset dialog.
@@ -5782,6 +5794,12 @@ msgstr "الإصدار الأول"
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.jsonDiffFirst"
 msgstr "الإصدار الأول: كل مستند جديد."
+
+#. Context-menu item that zooms the canvas out so every screen is in view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.fitAll"
+msgstr "ملاءمة كل الشاشات"
 
 #. Accessible name of the button that fits the whole graph in view.
 #. js-lingui-explicit-id
@@ -12969,6 +12987,18 @@ msgstr "حدّد عنصرًا لإضافة رابط."
 msgid "l10n.area.selectAll"
 msgstr "تحديد كل المفاتيح المعروضة"
 
+#. Context-menu item that selects the first widget inside the selected one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectChildren"
+msgstr "تحديد أول عنصر فرعي"
+
+#. Context-menu item that selects the widget around the selected one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.selectParent"
+msgstr "تحديد العنصر الأب"
+
 #. Name of the first publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -15255,6 +15285,12 @@ msgstr "لا يمكن نقل الشاشة: {reason}"
 msgid "pluginCanvas.moveReasonOther"
 msgstr "الشاشة أو الهدف غير معروف."
 
+#. Shown when moving a screen on the canvas could not be saved, for example offline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.positionsFailed"
+msgstr "تعذّر حفظ الموضع الجديد للشاشة. عادت إلى مكانها السابق."
+
 #. Shown when loading the plugin's screens failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -17433,6 +17469,18 @@ msgstr "تصغير"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.zoomToFit"
 msgstr "ملاءمة العرض"
+
+#. Context-menu item that zooms and pans the canvas so the screen fills the view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomToScreen"
+msgstr "التكبير إلى الشاشة"
+
+#. Context-menu item that zooms and pans the canvas so the selection fills the view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.zoomToSelection"
+msgstr "التكبير إلى التحديد"
 
 #. Unit symbol for microseconds.
 #. js-lingui-explicit-id

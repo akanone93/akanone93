@@ -455,11 +455,20 @@ export type HostMessage =
       readonly requestId: number;
       readonly screens: readonly ScreenDocument[];
       readonly removed: readonly string[];
+      /** Screens that only moved: their laid-out items are translated, not laid out again. */
+      readonly moved?: readonly ScreenMove[];
       readonly style: ScreenStyle;
     }
   /** Pauses (`true`) or resumes (`false`) all drawing; the scene and view keep their state (STU-063). */
   | { readonly v: number; readonly type: "pause"; readonly paused: boolean }
   | { readonly v: number; readonly type: "dispose" };
+
+/** A screen that moved by `dx`, `dy` and changed in nothing else. */
+export interface ScreenMove {
+  readonly id: string;
+  readonly dx: number;
+  readonly dy: number;
+}
 
 /** Worker → main thread. */
 export type WorkerMessage =

@@ -34,23 +34,52 @@ export function readSavedPositions(documents: readonly KindedDocument[]): Readon
     return undefined;
   }
   try {
-    const parsed: unknown = doc.parsed !== undefined ? doc.parsed : JSON.parse(new TextDecoder().decode(doc.content));
-    const list = (parsed as { positions?: unknown }).positions;
-    if (!Array.isArray(list)) {
-      return undefined;
-    }
-    const out = new Map<string, Point>();
-    for (const p of list as { id?: unknown; x?: unknown; y?: unknown }[]) {
-      if (typeof p?.id === "string" && typeof p.x === "number" && typeof p.y === "number") {
-        if (Number.isFinite(p.x) && Number.isFinite(p.y)) {
-          out.set(p.id, { x: p.x, y: p.y });
-        }
-      }
-    }
-    return out.size > 0 ? out : undefined;
+    return positionsOf(doc.parsed !== undefined ? doc.parsed : JSON.parse(new TextDecoder().decode(doc.content)));
   } catch {
     return undefined;
   }
+}
+
+/** The positions of a parsed `canvas` document, or undefined when it holds none. */
+export function positionsOf(parsed: unknown): ReadonlyMap<string, Point> | undefined {
+  const list =
+    typeof parsed === "object" && parsed !== null ? (parsed as { positions?: unknown }).positions : undefined;
+  if (!Array.isArray(list)) {
+    return undefined;
+  }
+  const out = new Map<string, Point>();
+  for (const p of list as { id?: unknown; x?: unknown; y?: unknown }[]) {
+    if (typeof p?.id === "string" && typeof p.x === "number" && typeof p.y === "number") {
+      if (Number.isFinite(p.x) && Number.isFinite(p.y)) {
+        out.set(p.id, { x: p.x, y: p.y });
+      }
+    }
+  }
+  return out.size > 0 ? out : undefined;
+}
+
+/** The path of a plugin's `canvas` document beside its `plugin.json` (`plugins/<key>/canvas.json`, canvas schema). */
+export function canvasPathOf(pluginPath: string): string {
+  return `${pluginPath.slice(0, pluginPath.length - "plugin.json".length)}canvas.json`;
+}
+
+/** The saved form of `positions`: whole world units, in ID order, so the document does not churn. */
+export function positionList(positions: ReadonlyMap<string, Point>): { id: string; x: number; y: number }[] {
+  return [...positions.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([id, p]) => ({ id, x: Math.round(p.x), y: Math.round(p.y) }));
+}
+
+/** A new plugin `canvas` document holding `positions`. */
+export function positionsDocument(id: string, positions: ReadonlyMap<string, Point>) {
+  return { schemaVersion: "1.0.0", kind: CANVAS_KIND, id, positions: positionList(positions) };
+}
+
+/** The edit that stores `positions` in an existing `canvas` document, keeping everything else in it. */
+export function positionsRecipe(positions: ReadonlyMap<string, Point>): (draft: Record<string, unknown>) => void {
+  return (draft) => {
+    draft["positions"] = positionList(positions);
+  };
 }
 
 /**

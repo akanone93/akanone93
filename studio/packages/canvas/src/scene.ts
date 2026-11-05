@@ -11,7 +11,7 @@
  */
 
 import { copyRect, intersects, makeRect, type Rect, setRect } from "./geometry.ts";
-import type { ItemSpec, LinkSpec, Point, SceneOp, StrokeStyle } from "./protocol.ts";
+import type { ClipSpec, GradientSpec, ItemSpec, LinkSpec, Point, SceneOp, StrokeStyle } from "./protocol.ts";
 
 /** Extra bounds around a shadowed frame for its pre-rendered shadow. */
 export const SHADOW_MARGIN = 24;
@@ -284,8 +284,32 @@ function area(rect: Rect): number {
   return Math.max(0, rect.r - rect.l) * Math.max(0, rect.b - rect.t);
 }
 
-/** `spec` moved by `dx`, `dy`. */
+/** Clip rectangles moved by `dx`, `dy`; none stays none. */
+function movedClips(clips: readonly ClipSpec[] | undefined, dx: number, dy: number): { clips?: readonly ClipSpec[] } {
+  return clips === undefined ? {} : { clips: clips.map((c) => ({ ...c, x: c.x + dx, y: c.y + dy })) };
+}
+
+/** A gradient's world points moved by `dx`, `dy`. */
+function movedGradient(g: GradientSpec | undefined, dx: number, dy: number): { gradient?: GradientSpec } {
+  return g === undefined
+    ? {}
+    : { gradient: { ...g, from: [g.from[0] + dx, g.from[1] + dy], to: [g.to[0] + dx, g.to[1] + dy] } };
+}
+
+/** `spec` moved by `dx`, `dy`, with the world points it paints by (its ancestors' clips, its gradient). */
 export function moveSpec(spec: ItemSpec, dx: number, dy: number): ItemSpec {
+  if (spec.kind === "rect") {
+    return {
+      ...spec,
+      x: spec.x + dx,
+      y: spec.y + dy,
+      ...movedClips(spec.clips, dx, dy),
+      ...movedGradient(spec.gradient, dx, dy),
+    };
+  }
+  if (spec.kind === "text") {
+    return { ...spec, x: spec.x + dx, y: spec.y + dy, ...movedClips(spec.clips, dx, dy) };
+  }
   if (spec.kind !== "link") {
     return { ...spec, x: spec.x + dx, y: spec.y + dy };
   }
