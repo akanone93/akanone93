@@ -129,6 +129,13 @@
   background-color: color-mix(in oklch, var(--pc-select) 12%, var(--background));
 }
 
+/* Sizes and distances are numbers read left to right in any locale ("358 × 56", never "56 × 358"). */
+.pc-size,
+.pc-distance {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 .pc-size {
   translate: -50% 6px;
   border-radius: 4px;

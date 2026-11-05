@@ -842,10 +842,8 @@ function PluginCanvasView({
       <section
         ref={sectionRef}
         className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
-        dir={look.direction}
         data-preview-theme={look.theme}
         data-preview-platform={look.platform}
-        style={{ fontSize: `${look.textScale}em` }}
       >
         <MatrixOverlay show={matrix} render={look} screen={shown[0]} style={styled} createSurface={createSurface} />
         {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
@@ -906,7 +904,9 @@ function PluginCanvasView({
             }
           }}
         />
-        <ol aria-label={m.screens} className="sr-only">
+        {/* The previewed locale's direction and text scale are the screens' (the canvas draws them so); Studio's own
+            panels keep Studio's. The screen list read to assistive technology is in the previewed locale. */}
+        <ol aria-label={m.screens} className="sr-only" dir={look.direction} lang={look.locale}>
           {screens.map((s) => (
             <li key={s.id}>
               {s.title}

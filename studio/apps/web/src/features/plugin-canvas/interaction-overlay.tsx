@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Guides } from "@plux/canvas";
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
@@ -153,6 +153,34 @@ function GuideMarks({ guides, view }: { guides: Guides; view: View }): ReactNode
 }
 
 /**
+ * Redraws the overlay whenever the view moves, whatever moved it — the pointer, the wheel, the zoom buttons, a panel
+ * revealing a node, the URL — by comparing the view once a frame. Without it a pan made outside the canvas left the
+ * marks where the view had been.
+ */
+function useFollowView(store: OverlayStore, surface: () => CanvasSurface | null): void {
+  const latest = useRef(surface);
+  latest.current = surface;
+  useEffect(() => {
+    if (typeof requestAnimationFrame === "undefined") {
+      return undefined;
+    }
+    let last = "";
+    let frame = 0;
+    const tick = () => {
+      const v = latest.current()?.viewport;
+      const now = v === undefined ? "" : `${v.x}:${v.y}:${v.zoom}`;
+      if (now !== last) {
+        last = now;
+        store.viewChanged();
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [store]);
+}
+
+/**
  * The interaction overlay of the plugin canvas (STU-067), in the page's DOM above the canvas and below the docks: the
  * selection with its tag, size and handles (a screen as its device frame), the node under the pointer, the container
  * the selection is inside, the marquee, the box of a drag or resize, snap guides with distances, the insertion
@@ -166,6 +194,7 @@ export function InteractionOverlay(props: {
   readonly nodes: OverlayNodes;
 }): ReactNode {
   const state = useOverlayState(props.store);
+  useFollowView(props.store, props.surface);
   const surface = props.surface();
   if (surface === null) {
     return null;

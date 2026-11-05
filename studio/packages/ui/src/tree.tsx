@@ -3,7 +3,7 @@
 
 import { hotkeysCoreFeature, selectionFeature, syncDataLoaderFeature } from "@headless-tree/core";
 import { useTree } from "@headless-tree/react";
-import type { ReactElement } from "react";
+import { type ReactElement, useRef } from "react";
 import { cx, focusRing } from "./cx.ts";
 import { Icon } from "./icon.tsx";
 import { TypeTag } from "./type-tag.tsx";
@@ -14,6 +14,24 @@ export interface TreeNode {
   /** Node type shown in the type tag column. */
   readonly type: string;
   readonly children?: readonly string[];
+}
+
+/** A row that left the data between two renders: shown as nothing until the rows are rebuilt. */
+export function goneNode(id: string): TreeNode {
+  return { id, name: "", type: "", children: [] };
+}
+
+/**
+ * Rebuilds a Headless Tree's rows when its data changes. Headless Tree rebuilds them only when the open rows change,
+ * so a node removed from the data (a widget deleted) was still listed and read: "sync dataLoader returned undefined";
+ * a node added stayed out of the tree. The rebuild is scheduled before the rows are read, in the same render.
+ */
+export function useRebuildOnData(tree: { scheduleRebuildTree(): void }, data: unknown): void {
+  const built = useRef(data);
+  if (built.current !== data) {
+    built.current = data;
+    tree.scheduleRebuildTree();
+  }
 }
 
 export interface TreeProps {
@@ -34,7 +52,7 @@ export function Tree({ nodes, rootId, label, dir = "ltr" }: TreeProps): ReactEle
     getItemName: (item) => item.getItemData().name,
     isItemFolder: (item) => (item.getItemData().children?.length ?? 0) > 0,
     dataLoader: {
-      getItem: (id) => nodes[id] as TreeNode,
+      getItem: (id) => nodes[id] ?? goneNode(id),
       getChildren: (id) => [...(nodes[id]?.children ?? [])],
     },
     indent: 0,
@@ -44,6 +62,7 @@ export function Tree({ nodes, rootId, label, dir = "ltr" }: TreeProps): ReactEle
     },
     features: [syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature],
   });
+  useRebuildOnData(tree, nodes);
 
   return (
     <div {...tree.getContainerProps(label)} dir={dir} className="flex flex-col outline-none">

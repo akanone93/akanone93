@@ -74,9 +74,38 @@ export function containersOf(env: GestureEnv, doc?: string): Container[] {
   return out;
 }
 
+/**
+ * The Stack that places `id` through a `Positioned` (the node is the `Positioned`, or its child), or undefined. Such a
+ * node moves by its offset inside that Stack wherever the pointer goes: a `Positioned` anywhere else is an error on the
+ * device (Flutter's parent-data rule), and a Stack's box can be smaller than its positioned children.
+ */
+export function placingStack(env: GestureEnv, id: string): string | undefined {
+  const parent = env.index.parent.get(id) ?? undefined;
+  const positioned =
+    env.typeOf(id) === "Positioned"
+      ? id
+      : parent !== undefined && env.typeOf(parent) === "Positioned"
+        ? parent
+        : undefined;
+  const stack = positioned === undefined ? undefined : (env.index.parent.get(positioned) ?? undefined);
+  return stack !== undefined && env.typeOf(stack) === "Stack" ? stack : undefined;
+}
+
 /** Where dragging \`ids\` to world point (x, y) drops them: a flow container of their own screen, or null. */
 export function dropAt(env: GestureEnv, ids: readonly string[], x: number, y: number): DropTarget | null {
-  const doc = ids[0] === undefined ? undefined : env.docOf(ids[0]);
+  const first = ids[0];
+  const stack = first === undefined ? undefined : placingStack(env, first);
+  const box = stack === undefined ? undefined : env.boxOf(stack);
+  if (stack !== undefined && box !== undefined) {
+    const [px, py] = [Math.round(x), Math.round(y)];
+    return {
+      parent: stack,
+      index: env.index.children.get(stack)?.length ?? 0,
+      indicator: { l: px, t: py, r: px, b: py },
+      position: { left: px - Math.round(box.l), top: py - Math.round(box.t) },
+    };
+  }
+  const doc = first === undefined ? undefined : env.docOf(first);
   return resolveDrop(env.index, containersOf(env, doc), ids, x, y);
 }
 

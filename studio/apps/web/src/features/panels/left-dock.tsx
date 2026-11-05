@@ -53,8 +53,14 @@ export interface LeftDockProps {
   readonly assets?: ComponentProps<typeof AssetsTab> | undefined;
 }
 
-/** F5: selecting from a panel pans the canvas to the node. */
-function reveal(
+/** The room above the canvas's content that the top bar and a screen's name take, in CSS pixels. */
+const REVEAL_TOP = 120;
+
+/**
+ * F5: selecting from a panel pans the canvas to the node: centred, or — for a node taller than the room, a whole
+ * screen — with its top (and a screen's name above it) just below the top bar, where it can be grabbed.
+ */
+export function reveal(
   surface: CanvasSurface | null,
   canvas: HTMLCanvasElement | null,
   screen: string | undefined,
@@ -65,7 +71,9 @@ function reveal(
     return;
   }
   const z = surface.viewport.zoom;
-  surface.setViewport((b.l + b.r) / 2 - canvas.clientWidth / 2 / z, (b.t + b.b) / 2 - canvas.clientHeight / 2 / z, z);
+  const tall = (b.b - b.t) * z > canvas.clientHeight - 2 * REVEAL_TOP;
+  const y = tall ? b.t - REVEAL_TOP / z : (b.t + b.b) / 2 - canvas.clientHeight / 2 / z;
+  surface.setViewport((b.l + b.r) / 2 - canvas.clientWidth / 2 / z, y, z);
 }
 
 /**

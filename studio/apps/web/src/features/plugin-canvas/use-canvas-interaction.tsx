@@ -80,6 +80,23 @@ function sizedType(type: string | undefined): boolean {
   return names.includes("width") && names.includes("height");
 }
 
+/**
+ * The world box of node `id`: its own item's, or — for a node that lays out no box of its own, a parent-data wrapper
+ * such as `Positioned`, `Expanded` or `Flexible` — the box around its children's. Undefined while nothing is laid out.
+ */
+export function nodeBox(
+  id: string,
+  index: NodeIndex,
+  own: (id: string) => Box | undefined,
+  depth = 0,
+): Box | undefined {
+  const box = own(id);
+  if (box !== undefined || depth > 8) {
+    return box;
+  }
+  return unionOf((index.children.get(id) ?? []).flatMap((k) => nodeBox(k, index, own, depth + 1) ?? []));
+}
+
 /** The smallest box around `boxes`, or undefined for none. */
 function unionOf(boxes: readonly Box[]): Box | undefined {
   if (boxes.length === 0) {
@@ -187,10 +204,11 @@ export function useCanvasInteraction(input: InteractionInput) {
   const names = useMemo(() => layerNames(screens.map((s) => s.root)), [screens]);
   const titles = useMemo(() => new Map(screens.map((s) => [s.id, s.title])), [screens]);
   const boxOf = useCallback(
-    (id: string): Box | undefined => {
-      const item = boxItemOf(index, screenOf, id);
-      return item === undefined ? undefined : surface()?.boundsOf?.(item);
-    },
+    (id: string): Box | undefined =>
+      nodeBox(id, index, (n) => {
+        const item = boxItemOf(index, screenOf, n);
+        return item === undefined ? undefined : surface()?.boundsOf?.(item);
+      }),
     [index, screenOf, surface],
   );
   const isScreen = useCallback((id: string) => (index.depth.get(id) ?? 1) === 0, [index]);

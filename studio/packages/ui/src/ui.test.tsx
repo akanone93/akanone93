@@ -232,6 +232,37 @@ describe("[STU-061] layer tree", () => {
     expect(picked).toEqual(["col"]);
   });
 
+  test("[STU-061] a row deleted or added with the same rows open is dropped or shown, never read when gone", () => {
+    const open: readonly string[] = ["s1", "col"];
+    const view = (n: Record<string, LayerNode>, selected: readonly string[]) => (
+      <LayerTree
+        nodes={n}
+        rootId="root"
+        label="Layers"
+        selected={selected}
+        onSelect={() => undefined}
+        expanded={open}
+      />
+    );
+    const { rerender } = render(view(nodes, ["b1"]));
+    const row = (id: string) => document.querySelector(`[data-item-id="${id}"]`);
+    expect(row("b1") === null).toBe(false);
+    // The selected button is deleted: its row goes, and nothing reads it ("sync dataLoader returned undefined").
+    const { b1: _gone, ...rest } = nodes;
+    const without = { ...rest, col: { ...nodes["col"], children: ["t1"] } } as Record<string, LayerNode>;
+    rerender(view(without, []));
+    expect(row("b1") === null).toBe(true);
+    expect(row("t1") === null).toBe(false);
+    // A widget inserted shows at once, with the same rows open.
+    const added = {
+      ...without,
+      col: { ...nodes["col"], children: ["t1", "t2"] },
+      t2: { id: "t2", name: "Text", type: "Text", preview: "New" },
+    } as Record<string, LayerNode>;
+    rerender(view(added, []));
+    expect(screen.getByText("New")).toBeTruthy();
+  });
+
   test("a filter shows only the matching rows with their ancestors", () => {
     render(
       <LayerTree nodes={nodes} rootId="root" label="Layers" selected={[]} onSelect={() => undefined} filter="hello" />,

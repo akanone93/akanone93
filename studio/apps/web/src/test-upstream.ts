@@ -470,6 +470,8 @@ function requireSession(session: string): void {
 export function createUpstream(state: UpstreamData) {
   // Documents autosave changed, by path; the fixtures themselves stay as given.
   const patched = new Map<string, { kind: string; path: string; json: unknown }>();
+  // Documents created by PutDocument, by path with their plugin: a later list returns them, as the server does.
+  const created = new Map<string, { pluginId: string; kind: string; path: string; json: unknown }>();
   const stored = state.stored ?? { theme: "", language: "", density: "" };
   // What the creation RPCs made, so the lists and the memberships show it afterwards.
   const createdOrganisations: { id: string; key: string; name: string }[] = [];
@@ -906,6 +908,7 @@ export function createUpstream(state: UpstreamData) {
         requireSession(req.session);
         const stored =
           patched.get(req.path) ??
+          created.get(req.path) ??
           [...(state.documents ?? []), ...(state.appDocuments ?? [])].find((d) => d.path === req.path);
         const doc = stored === undefined ? undefined : { ...stored };
         const ops = req.patch.map((o) => ({
@@ -942,6 +945,13 @@ export function createUpstream(state: UpstreamData) {
         });
         if (req.ifRevision === 0n) {
           state.createdDocuments?.push(req.path);
+          try {
+            const json = JSON.parse(new TextDecoder().decode(req.content)) as { kind?: unknown };
+            const kind = typeof json.kind === "string" ? json.kind : "";
+            created.set(req.path, { pluginId: req.pluginId, kind, path: req.path, json });
+          } catch {
+            // Not JSON: not a document the lists show.
+          }
         }
         return {
           document: create(DocumentSchema, {
@@ -974,11 +984,15 @@ export function createUpstream(state: UpstreamData) {
                 }),
         };
       },
+      // The fixtures as autosave changed them, and the documents created since (a reload sees both, as on the server).
       listDocuments: (req) => ({
-        documents: (req.pluginId === ""
-          ? (state.appDocuments ?? state.documents ?? [])
-          : (state.pluginDocuments?.[req.pluginId] ?? state.documents ?? [])
-        ).map((d) =>
+        documents: [
+          ...(req.pluginId === ""
+            ? (state.appDocuments ?? state.documents ?? [])
+            : (state.pluginDocuments?.[req.pluginId] ?? state.documents ?? [])
+          ).map((d) => patched.get(d.path) ?? d),
+          ...[...created.values()].filter((d) => d.pluginId === req.pluginId).map((d) => patched.get(d.path) ?? d),
+        ].map((d) =>
           create(DocumentSchema, {
             pluginId: req.pluginId,
             kind: d.kind,

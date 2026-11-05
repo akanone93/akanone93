@@ -93,7 +93,8 @@ Positions are read-only while someone else is editing the app.
    first child and Tab the next sibling. The selection is outlined with its name, its size and, where it has a width
    and a height, eight handles that resize it. Drag a selected widget to move it: in a column, row or wrap a line
    shows where it lands among its siblings or in another container (outlined in green); in a stack it moves to where
-   you drop it, with guides and distances to its siblings; the arrow keys nudge by 1 (Shift: 10). Click a screen's
+   you drop it (always inside its stack), with guides and distances to its siblings; the arrow keys nudge by 1
+   (Shift: 10). Click a screen's
    name above its frame to select the screen, and drag the name — or a selected screen's body — to move it with every
    selected screen; it snaps to the others and stays where you drop it (Undo puts it back). Double-click the name to
    rename the screen. Drag on the empty canvas, or across a screen that is not selected, to select the screens or the
@@ -128,7 +129,8 @@ Positions are read-only while someone else is editing the app.
 5. Under **Preview**, use the preview switches to see the screen on a **Device frame** (or a **Custom frame**), in
    **Light** or **Dark**, in any **Locale**, at a **Text scale**, in **Material** or **Cupertino**
    style, and in the **Success**, **Loading**, **Empty** or **Error** data state. The **Device matrix**
-   shows several frames at once.
+   shows several frames at once. A right-to-left locale and the text scale change the screens only; Studio's own
+   panels keep your Studio language and size.
 6. The **Developer console** at the bottom lists validation errors, warnings and information under
    **Problems** as you type; the counts also appear on the plugin card. Open it to stream the paired
    devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,

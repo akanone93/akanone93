@@ -90,8 +90,9 @@ Needs.
   handles; marquee; double-click in, Esc out; a context menu; Select and Hand tools; Delete. *Build:* move the
   All-in-one screens into rows by flow; reorder a form's fields by dragging. *Check:* select a widget, a nested one
   (Ctrl-click, double-click) and a screen; drag a screen by its name and reload — it stays; drag a field above
-  another; resize a sized box; right-click for the menu; delete with Delete and undo. `STU-050`, `STU-067`. Later
-  tasks build on this patch.
+  another; resize a sized box; right-click for the menu; delete with Delete and undo. `STU-050`, `STU-067`. Round 2
+  (`pc-i2`) fixed the delete crash in Layers and what a browser audit of every interaction found. Later tasks build on
+  these patches.
 
 ### B. Screens as device screens
 

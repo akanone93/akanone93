@@ -16,7 +16,7 @@ import {
 import { cx, focusRing } from "./cx.ts";
 import { Icon } from "./icon.tsx";
 import type { IconName } from "./icons.ts";
-import type { TreeNode } from "./tree.tsx";
+import { goneNode, type TreeNode, useRebuildOnData } from "./tree.tsx";
 
 /** A row of the layer tree: a node with its icon, what it shows and an optional mark (the entry screen). */
 export interface LayerNode extends TreeNode {
@@ -150,7 +150,7 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
     getItemName: (item) => item.getItemData().name,
     isItemFolder: (item) => (item.getItemData().children?.length ?? 0) > 0,
     dataLoader: {
-      getItem: (id) => nodes[id] as LayerNode,
+      getItem: (id) => nodes[id] ?? goneNode(id),
       getChildren: (id) => [...(nodes[id]?.children ?? [])],
     },
     state: { expandedItems: open },
@@ -162,6 +162,7 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
     },
     features: [syncDataLoaderFeature, hotkeysCoreFeature],
   });
+  useRebuildOnData(tree, nodes);
   const anchor = selected[selected.length - 1];
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the selection or expansion changes, reading the current nodes
   useEffect(() => {

@@ -52,7 +52,8 @@ export function useScreenPositions(
         return true;
       }
       creating.current = true;
-      void session.create(path, positionsDocument(uuidv7(), positions)).then((r) => {
+      // The creation is an undo step of its own: undoing the first move deletes the document, and the screens go back.
+      void session.create(path, positionsDocument(uuidv7(), positions), { step: `screens-${uuidv7()}` }).then((r) => {
         creating.current = false;
         const later = waiting.current;
         waiting.current = null;

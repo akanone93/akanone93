@@ -260,6 +260,15 @@ describe("[STU-067] dragging widgets", () => {
     expect(r.draft.children[0]?.children?.[0]?.props as unknown).toEqual({ left: 10, top: 15 });
   });
 
+  test("[STU-067] a stack child dragged beyond its Stack still moves by its offset, never into another container", () => {
+    const r = rig();
+    r.select("t");
+    // Over the Row: a Positioned there would break Flutter's parent-data rule.
+    drag(r, [20, 20], [220, 220]);
+    expect(r.draft.children[0]?.children?.[0]?.props as unknown).toEqual({ left: 200, top: 200 });
+    expect((r.draft.children[2]?.children ?? []).map((n) => n.id)).toEqual(["x"]);
+  });
+
   test("[STU-067] dragging a Column child into a Row reparents it at the insertion indicator", () => {
     const r = rig();
     r.select("a");
