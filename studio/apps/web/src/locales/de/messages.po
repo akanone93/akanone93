@@ -79,6 +79,18 @@ msgstr "{brand}: {n} Überschreibungen"
 msgid "style.corner"
 msgstr "{c, select, topLeft {Oben Anfang} topRight {Oben Ende} bottomRight {Unten Ende} bottomLeft {Unten Anfang} other {Ecke}}"
 
+#. How many data sources the page declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.dataCount"
+msgstr "{count, plural, =0 {Keine Datenquellen} one {# Datenquelle} other {# Datenquellen}}"
+
+#. How many state entries the page declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.stateCount"
+msgstr "{count, plural, =0 {Keine Zustandseinträge} one {# Zustandseintrag} other {# Zustandseinträge}}"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -156,6 +168,12 @@ msgstr "{count, plural, one {# Funktion schlägt fehl} other {# Funktionen schla
 #: apps/web/src/features/notifications/notification-kinds.ts
 msgid "notify.type.licence.expiring"
 msgstr "{count, plural, one {# Lizenz läuft ab} other {# Lizenzen laufen ab}}"
+
+#. Note under the route name field: the links to the page are updated with it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeFollows"
+msgstr "{count, plural, one {# Link in diesem Plugin folgt dem neuen Namen.} other {# Links in diesem Plugin folgen dem neuen Namen.}}"
 
 #. STU-070: heading of the list of links from a plugin to other plugins.
 #. js-lingui-explicit-id
@@ -399,6 +417,12 @@ msgstr "{environment} Release {sequence}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.problemTotals"
 msgstr "{errors, plural, =0 {Keine Validierungsfehler} one {# Validierungsfehler} other {# Validierungsfehler}}"
+
+#. A page lifecycle event: created (onInit), shown (onEnter), resumed (onResume), left (onLeave), disposed (onDispose).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.lifecycleEvent"
+msgstr "{event, select, onInit {Beim Erstellen} onEnter {Beim Anzeigen} onResume {Beim Fortsetzen} onLeave {Beim Verlassen} other {Beim Verwerfen}}"
 
 #. Shown when the chosen event already has steps; event is the event name.
 #. js-lingui-explicit-id
@@ -928,6 +952,12 @@ msgstr "{side, select, endDrawer {{shown, select, yes {Hinteres Seitenmenü ausb
 msgid "editor.saveState"
 msgstr "{state, select, saved {Alle Änderungen gespeichert} saving {Wird gespeichert…} offline {Offline, Änderungen bleiben erhalten} conflict {Konflikt zu lösen} other {Gespeichert}}"
 
+#. A page transition (NAV-010).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.transitionName"
+msgstr "{t, select, platform {Plattformstandard} fade {Überblenden} slideLeft {Vom Ende hereinschieben} slideRight {Vom Anfang hereinschieben} slideUp {Nach oben schieben} slideDown {Nach unten schieben} scale {Skalieren} sharedAxis {Gemeinsame Achse} custom {Eigene Zeitleiste} other {Keiner}}"
+
 #. A screen in the list of targets; title is the screen's title and scope says which plugin it is in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -1288,6 +1318,12 @@ msgstr "Hinzufügen"
 msgid "actionGraph.addNamed"
 msgstr "{name} zum Graphen hinzufügen"
 
+#. Select placeholder.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.addGuard"
+msgstr "Wächter hinzufügen"
+
 #. Button that opens the dialog that adds a locale to the app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -1407,6 +1443,12 @@ msgstr "Migrationsplan hinzufügen"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.addDependency"
 msgstr "Abhängigkeit hinzufügen oder aktualisieren"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.addParam"
+msgstr "Parameter hinzufügen"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -1730,6 +1772,18 @@ msgstr "Android-Tablet"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.problem.taken"
 msgstr "Ein anderer Eintrag hat diesen Namen."
+
+#. Error under the route name field: route names are unique across the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeTaken"
+msgstr "Eine andere Seite der App hat diesen Routennamen."
+
+#. Error under a parameter's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramNameTaken"
+msgstr "Ein anderer Parameter hat diesen Namen."
 
 #. Notice when the plugin's draft lock is held by someone else.
 #. js-lingui-explicit-id
@@ -2461,6 +2515,12 @@ msgstr "Leere App"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.blank"
 msgstr "Leerer Bildschirm"
+
+#. Switch: the page blocks screenshots and screen recording (SEC-090).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.secure"
+msgstr "Bildschirmfotos sperren"
 
 #. Hold of a request that waits because a report has errors.
 #. js-lingui-explicit-id
@@ -4194,6 +4254,12 @@ msgstr "Deep-Link-Hosts"
 msgid "shell.field.deep-link-schemes"
 msgstr "Deep-Link-Schemata"
 
+#. Parameter field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramDefault"
+msgstr "Standard"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -4373,6 +4439,12 @@ msgstr "Plugin als veraltet markieren"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsDeprecated"
 msgstr "veraltet"
+
+#. Label of the page's description field (for developers, not shown in the app).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.description"
+msgstr "Beschreibung"
 
 #. Label of the optional description of a new app.
 #. js-lingui-explicit-id
@@ -4914,6 +4986,12 @@ msgstr "Bildschirm bearbeiten"
 msgid "security.editGrants"
 msgstr "Berechtigungen bearbeiten"
 
+#. Button that opens the action graph editor for the page's lifecycle handlers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.editActions"
+msgstr "Im Aktionsgraphen bearbeiten"
+
 #. Link to the full-page Rust editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -5194,6 +5272,12 @@ msgstr "Eintrag"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.entry"
 msgstr "Einstieg"
+
+#. Switch: the page is the one the plugin opens first.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.entry"
+msgstr "Einstiegsseite"
 
 #. Label of the app's entry plugin in the overview of the app canvas.
 #. js-lingui-explicit-id
@@ -6406,6 +6490,12 @@ msgstr "Leitplanke ausgelöst"
 msgid "experiments.guardrails"
 msgstr "Leitplanken"
 
+#. Label of the action graphs run before the page opens; any of them can stop or redirect it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.guards"
+msgstr "Wächter"
+
 #. Canvas tool that pans the canvas by dragging.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -7254,6 +7344,12 @@ msgstr "Diese Änderungen lassen sich beim Behalten deiner Version nicht anwende
 msgid "security.colKeyId"
 msgstr "Schlüssel"
 
+#. Label of the page's key, which names its file and cannot change here.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.key"
+msgstr "Schlüssel"
+
 #. Column heading of the table: the name of the translation key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -7408,6 +7504,12 @@ msgstr "Art"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.pageKindLabel"
+msgstr "Art"
+
+#. Label of the page kind select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.kind"
 msgstr "Art"
 
 #. Label of the filter for components or templates.
@@ -7744,6 +7846,12 @@ msgstr "Lizenz-ID"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.licenseOrg"
 msgstr "Lizenziert für"
+
+#. Section heading: what runs when the page is created, shown, resumed, left and disposed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionLifecycle"
+msgstr "Lebenszyklus"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -8255,6 +8363,12 @@ msgstr "Niedrig"
 msgid "dialog.create.key-hint"
 msgstr "Kleinbuchstaben, Ziffern und Bindestriche, höchstens 64 Zeichen. Der Schlüssel lässt sich später nicht ändern."
 
+#. Note beside the entry switch of the entry page, which cannot be switched off.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.entryNote"
+msgstr "Machen Sie eine andere Seite zum Einstieg, um dies zu ändern."
+
 #. Button that makes a step the first step of the graph.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -8507,6 +8621,12 @@ msgstr "Gemischt"
 msgid "panelTabs.dataMockMark"
 msgstr "Mock"
 
+#. Parameter field label: the value Studio and tests use while designing (SCH-024).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramMock"
+msgstr "Mock"
+
 #. Heading of the mock section.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -8637,6 +8757,12 @@ msgstr "Name"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.name"
+msgstr "Name"
+
+#. Parameter field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramName"
 msgstr "Name"
 
 #. Field label.
@@ -9257,6 +9383,12 @@ msgstr "Noch keine Rahmen. Wählen Sie Plugins aus und drücken Sie F, um sie zu
 msgid "functions.noFunctions"
 msgstr "In dieser Umgebung ist keine Funktion bereitgestellt."
 
+#. The page has no guards.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.noGuards"
+msgstr "Keine Wächter"
+
 #. Shown while a rollout has no health figures.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -9352,6 +9484,12 @@ msgstr "Kein Overlay"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.noOwner"
 msgstr "Kein zuständiges Team"
+
+#. Shown when a page has no parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.noParams"
+msgstr "Keine Parameter: Die Seite öffnet ohne Werte."
 
 #. Shown when there is nothing to publish.
 #. js-lingui-explicit-id
@@ -9587,6 +9725,12 @@ msgstr "Keiner"
 msgid "security.none"
 msgstr "Keine"
 
+#. No assurance level required.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.assuranceNone"
+msgstr "Keine"
+
 #. A colour or decoration field with nothing set.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -9604,6 +9748,12 @@ msgstr "Keine"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.noEntry"
 msgstr "Keines gewählt"
+
+#. Error under a type field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.typeForm"
+msgstr "Kein Typ, etwa string, int?, list<Item>."
 
 #. Cell value when the app has no version of the component.
 #. js-lingui-explicit-id
@@ -9694,6 +9844,12 @@ msgstr "Kein gültiges JSON: {message}"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colNotes"
 msgstr "Hinweise"
+
+#. A lifecycle event has no handler.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.handlerNone"
+msgstr "Nichts"
 
 #. Result after a restore that changed nothing.
 #. js-lingui-explicit-id
@@ -10019,6 +10175,12 @@ msgstr "App öffnen"
 msgid "cmd.palette.open"
 msgstr "Befehlspalette öffnen"
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.openData"
+msgstr "Datenquellen öffnen"
+
 #. Button of the JSON tab that opens the full-screen JSON editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -10054,6 +10216,12 @@ msgstr "Screen öffnen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneOpenSource"
 msgstr "Ausgangsbildschirm öffnen"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.openState"
+msgstr "Zustandsdesigner öffnen"
 
 #. Lane menu action: open the plugin canvas at the screen the link goes to.
 #. js-lingui-explicit-id
@@ -10277,6 +10445,12 @@ msgstr "Andere Verweise auf Seitenzustand bleiben unverändert; prüfe sie nach 
 msgid "links.otherPlugin"
 msgstr "Anderes Plugin"
 
+#. Error under the route name field: pages of other plugins link to the route, so it cannot change here.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeExternal"
+msgstr "Andere Plugins öffnen diese Route ({plugins}); ändern Sie zuerst diese."
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -10360,6 +10534,18 @@ msgstr "Verantwortliches Team"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colP"
 msgstr "p-Wert"
+
+#. Inspector tab with the settings of the selected screen's page: title, route, parameters, transition.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.tab"
+msgstr "Seite"
+
+#. Section heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionPage"
+msgstr "Seite"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -10462,6 +10648,12 @@ msgstr "Gerät koppeln"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.link"
 msgstr "Kopplungslink"
+
+#. Section heading: the typed values a page is opened with.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionParams"
+msgstr "Parameter"
 
 #. Heading of a template's parameters.
 #. js-lingui-explicit-id
@@ -11662,6 +11854,12 @@ msgstr "{family} entfernen"
 msgid "rustEditor.removeDependency"
 msgstr "{name} entfernen"
 
+#. Accessible name of the button that removes a parameter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.removeParam"
+msgstr "{name} entfernen"
+
 #. Button that removes a token.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -11697,6 +11895,12 @@ msgstr "Eintrag entfernen"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbRemoveField"
 msgstr "Feld entfernen"
+
+#. Accessible name of the button that removes a guard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.removeGuard"
+msgstr "Wächter {name} entfernen"
 
 #. Button.
 #. js-lingui-explicit-id
@@ -12004,6 +12208,18 @@ msgstr "erforderlich"
 msgid "actionGraph.required"
 msgstr "erforderlich"
 
+#. Parameter switch label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramRequired"
+msgstr "Erforderlich"
+
+#. Label of the authentication assurance level a user needs to open the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.assurance"
+msgstr "Erforderliche Vertrauensstufe"
+
 #. Label of the assurance level a device must hold to invoke the version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -12153,6 +12369,12 @@ msgstr "Ergebnis"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.colResult"
 msgstr "Ergebnis"
+
+#. Label of the type of value a dialog or sheet page returns when it closes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.result"
+msgstr "Ergebnistyp"
 
 #. Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.
 #. js-lingui-explicit-id
@@ -12417,6 +12639,12 @@ msgstr "Rotieren"
 msgid "tests.routeLabel"
 msgstr "Route"
 
+#. Section heading: how the page is opened — its transition and its guards.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionRoute"
+msgstr "Route"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -12434,6 +12662,12 @@ msgstr "Route"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.routeColumn"
 msgstr "Route"
+
+#. Label of the page's route name field: the app-wide name other screens and native code open it by.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.route"
+msgstr "Routenname"
 
 #. Label: the router adapter the app's navigation runs on.
 #. js-lingui-explicit-id
@@ -12494,6 +12728,12 @@ msgstr "Tests laufen …"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.runsHeading"
 msgstr "Läufe"
+
+#. A lifecycle event has a handler.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.handlerSet"
+msgstr "Führt Aktionen aus"
 
 #. Label of where the function runs.
 #. js-lingui-explicit-id
@@ -13065,6 +13305,12 @@ msgstr "Lesbare Geheimnisse"
 msgid "appnav.security"
 msgstr "Sicherheit"
 
+#. Section heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionSecurity"
+msgstr "Sicherheit"
+
 #. Name of the wizard step that asks for the app's security profile.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -13118,6 +13364,12 @@ msgstr "Wähle eine Collection zum Bearbeiten."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataSelect"
 msgstr "Wähle eine Datenquelle zum Bearbeiten."
+
+#. Shown in the Page tab when nothing on a screen is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.none"
+msgstr "Wählen Sie einen Bildschirm oder etwas darauf, um seine Seite zu bearbeiten."
 
 #. Hint in the right dock when nothing is selected.
 #. js-lingui-explicit-id
@@ -13905,6 +14157,12 @@ msgstr "Language-Server starten"
 msgid "state.problem.invalid"
 msgstr "Beginne mit einem Kleinbuchstaben und verwende nur Buchstaben und Ziffern, etwa loanAmount."
 
+#. Error under a parameter's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramNameForm"
+msgstr "Beginnen Sie mit einem Kleinbuchstaben; nur Buchstaben und Ziffern."
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -13976,6 +14234,12 @@ msgstr "Zustand"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.licenseState"
 msgstr "Zustand"
+
+#. Section heading: the page's state entries and data sources.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionData"
+msgstr "Zustand und Daten"
 
 #. Button in the right panel that opens the full-screen designer of the plugin's state entries.
 #. js-lingui-explicit-id
@@ -16288,11 +16552,23 @@ msgstr "Zeit"
 msgid "admin.colTime"
 msgstr "Zeit"
 
+#. Label of the route timeline a custom transition plays.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.timeline"
+msgstr "Zeitleiste"
+
 #. Label of the slider that moves through a replay.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayTimeline"
 msgstr "Zeitleiste"
+
+#. Label of the page's title field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.title"
+msgstr "Titel"
 
 #. The last colour of a gradient.
 #. js-lingui-explicit-id
@@ -16414,6 +16690,18 @@ msgstr "Bestellung verfolgen"
 msgid "data.transaction"
 msgstr "Transaktionszeiger (JSON)"
 
+#. Label of the page transition select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.transition"
+msgstr "Übergang"
+
+#. Shown in place of the title field when the title is a translation key; edit it in Localisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.titleKey"
+msgstr "Übersetzt: {key}"
+
 #. Column heading: the message of the locale being edited.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -16496,6 +16784,12 @@ msgstr "Typ"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.base"
+msgstr "Typ"
+
+#. Parameter field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramType"
 msgstr "Typ"
 
 #. Label of the flag type select.
@@ -16749,6 +17043,12 @@ msgstr "Verwenden Sie mindestens 12 Zeichen."
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.customFrameAdd"
 msgstr "Rahmen verwenden"
+
+#. Error under the route name field when its form is wrong.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeForm"
+msgstr "Verwenden Sie Kleinbuchstaben, Ziffern und einzelne Bindestriche, beginnend mit einem Buchstaben."
 
 #. Error under the key name field when the name does not follow the key pattern.
 #. js-lingui-explicit-id

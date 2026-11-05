@@ -33,6 +33,8 @@ import { typeIcon } from "./catalogue.ts";
 import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
 import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
+import { pageSettingsMessages } from "./page-settings.messages.ts";
+import { PageSettingsTab } from "./page-settings.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
 import { AlignmentPicker, PropGroupHead, PropRow, propLabel, SegmentedChoice, segmentable } from "./prop-row.tsx";
 import {
@@ -1313,6 +1315,12 @@ function InspectorHead(props: {
   );
 }
 
+/** With nothing selected, the Page pane shows the first screen's page. */
+function firstRoot(screens: DockProps["screens"]): readonly string[] {
+  const root = screens[0]?.root;
+  return isObj(root) && typeof root["id"] === "string" ? [root["id"]] : [];
+}
+
 /**
  * The inspector (STU-062): a dock along the canvas's end whose rail lists its panes — Properties first and open, then
  * Editors (the full-screen editors, STU-063), Actions, JSON, Code, Localisation, Accessibility, Performance and Docs —
@@ -1334,6 +1342,23 @@ export function RightDock(props: DockProps) {
       label: m.tabProperties,
       icon: "sliders",
       panel: body((i) => <PropertiesTab {...props} ids={i} m={m} />),
+    },
+    {
+      value: "page",
+      label: pageSettingsMessages(i18n).tab,
+      icon: "file",
+      panel: (
+        <PageSettingsTab
+          ids={ids.length > 0 ? ids : firstRoot(props.screens)}
+          screenOf={props.screenOf}
+          pathOf={props.pathOf}
+          documents={props.documents}
+          appDocuments={props.appDocuments}
+          onOpenState={props.onOpenState}
+          onOpenData={props.onOpenOverlay === undefined ? undefined : () => props.onOpenOverlay?.("data")}
+          onOpenGraph={props.onOpenGraph}
+        />
+      ),
     },
     {
       value: "editors",

@@ -795,3 +795,102 @@
   gap: calc(var(--spacing) * 2);
   font-size: var(--text-xs);
 }
+
+/* The Page pane (PC-14): fields that commit on blur, parameter cards, plain lines and notes. */
+.page-field {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-field-error {
+  color: var(--destructive);
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.page-note {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.page-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-block-size: 28px;
+  font-size: 12px;
+}
+
+.page-line[data-set] > span:first-child {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.page-params {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-param {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background-color: color-mix(in oklch, var(--muted) 40%, transparent);
+}
+
+.page-param-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.page-param-head > .page-field {
+  flex: 1;
+}
+
+.page-param-grid {
+  display: grid;
+  grid-template-columns: minmax(4rem, auto) 1fr;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.page-param-label {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.page-guards {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-field[data-mono] input {
+  font-family: var(--font-mono);
+}
+
+/* In the Page pane, what is not a property row spans the grid: notes, parameter cards, lines and buttons. */
+.page-settings .prop-grid > :not(.prop-row) {
+  grid-column: 1 / -1;
+}
+
+.page-settings .prop-grid > button {
+  justify-self: start;
+}
+
+.page-line > span:first-child {
+  min-inline-size: 0;
+  flex: 1;
+}

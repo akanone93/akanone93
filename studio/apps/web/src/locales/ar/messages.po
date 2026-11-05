@@ -79,6 +79,18 @@ msgstr "{brand}: {n} استبدالات"
 msgid "style.corner"
 msgstr "{c, select, topLeft {أعلى البداية} topRight {أعلى النهاية} bottomRight {أسفل النهاية} bottomLeft {أسفل البداية} other {زاوية}}"
 
+#. How many data sources the page declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.dataCount"
+msgstr "{count, plural, =0 {لا مصادر بيانات} one {مصدر بيانات واحد} two {مصدرا بيانات} few {# مصادر بيانات} many {# مصدرًا للبيانات} other {# مصدر بيانات}}"
+
+#. How many state entries the page declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.stateCount"
+msgstr "{count, plural, =0 {لا مدخلات حالة} one {مدخل حالة واحد} two {مدخلا حالة} few {# مدخلات حالة} many {# مدخلًا للحالة} other {# مدخل حالة}}"
+
 #. D37: edits kept in memory that were not sent.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -156,6 +168,12 @@ msgstr "{count, plural, zero {لا دالة تفشل} one {دالة تفشل} tw
 #: apps/web/src/features/notifications/notification-kinds.ts
 msgid "notify.type.licence.expiring"
 msgstr "{count, plural, zero {لا ترخيص قارب على الانتهاء} one {ترخيص قارب على الانتهاء} two {ترخيصان قاربا على الانتهاء} few {# تراخيص قاربت على الانتهاء} many {# ترخيصًا قارب على الانتهاء} other {# ترخيصًا قارب على الانتهاء}}"
+
+#. Note under the route name field: the links to the page are updated with it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeFollows"
+msgstr "{count, plural, zero {لا روابط في هذه الإضافة تتبع الاسم الجديد.} one {رابط واحد في هذه الإضافة يتبع الاسم الجديد.} two {رابطان في هذه الإضافة يتبعان الاسم الجديد.} few {# روابط في هذه الإضافة تتبع الاسم الجديد.} many {# رابطًا في هذه الإضافة يتبع الاسم الجديد.} other {# رابط في هذه الإضافة يتبع الاسم الجديد.}}"
 
 #. STU-070: heading of the list of links from a plugin to other plugins.
 #. js-lingui-explicit-id
@@ -399,6 +417,12 @@ msgstr "{environment} الإصدار {sequence}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.problemTotals"
 msgstr "{errors, plural, =0 {لا أخطاء تحقق} zero {لا أخطاء تحقق} one {خطأ تحقق واحد} two {خطآ تحقق} few {# أخطاء تحقق} many {# خطأ تحقق} other {# خطأ تحقق}}"
+
+#. A page lifecycle event: created (onInit), shown (onEnter), resumed (onResume), left (onLeave), disposed (onDispose).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.lifecycleEvent"
+msgstr "{event, select, onInit {عند الإنشاء} onEnter {عند الظهور} onResume {عند الاستئناف} onLeave {عند المغادرة} other {عند الإزالة}}"
 
 #. Shown when the chosen event already has steps; event is the event name.
 #. js-lingui-explicit-id
@@ -928,6 +952,12 @@ msgstr "{side, select, endDrawer {{shown, select, yes {إخفاء القائمة
 msgid "editor.saveState"
 msgstr "{state, select, saved {حُفظت كل التغييرات} saving {جارٍ الحفظ…} offline {غير متصل، التغييرات محفوظة} conflict {تعارض يجب حله} other {محفوظ}}"
 
+#. A page transition (NAV-010).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.transitionName"
+msgstr "{t, select, platform {افتراضي المنصة} fade {تلاشٍ} slideLeft {انزلاق من النهاية} slideRight {انزلاق من البداية} slideUp {انزلاق للأعلى} slideDown {انزلاق للأسفل} scale {تكبير} sharedAxis {محور مشترك} custom {خط زمني مخصص} other {بلا}}"
+
 #. A screen in the list of targets; title is the screen's title and scope says which plugin it is in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -1288,6 +1318,12 @@ msgstr "إضافة"
 msgid "actionGraph.addNamed"
 msgstr "إضافة {name} إلى المخطط"
 
+#. Select placeholder.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.addGuard"
+msgstr "إضافة حارس"
+
 #. Button that opens the dialog that adds a locale to the app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -1407,6 +1443,12 @@ msgstr "إضافة خطة ترحيل"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.addDependency"
 msgstr "إضافة الاعتمادية أو تحديثها"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.addParam"
+msgstr "إضافة معامل"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -1730,6 +1772,18 @@ msgstr "جهاز لوحي أندرويد"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.problem.taken"
 msgstr "عنصر آخر يحمل هذا الاسم."
+
+#. Error under the route name field: route names are unique across the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeTaken"
+msgstr "صفحة أخرى في التطبيق تستخدم اسم المسار هذا."
+
+#. Error under a parameter's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramNameTaken"
+msgstr "معامل آخر يحمل هذا الاسم."
 
 #. Notice when the plugin's draft lock is held by someone else.
 #. js-lingui-explicit-id
@@ -2461,6 +2515,12 @@ msgstr "تطبيق فارغ"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.blank"
 msgstr "شاشة فارغة"
+
+#. Switch: the page blocks screenshots and screen recording (SEC-090).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.secure"
+msgstr "منع لقطات الشاشة"
 
 #. Hold of a request that waits because a report has errors.
 #. js-lingui-explicit-id
@@ -4194,6 +4254,12 @@ msgstr "مضيفو الروابط العميقة"
 msgid "shell.field.deep-link-schemes"
 msgstr "مخططات الروابط العميقة"
 
+#. Parameter field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramDefault"
+msgstr "الافتراضي"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -4373,6 +4439,12 @@ msgstr "وسم الإضافة كمتقادمة"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsDeprecated"
 msgstr "متقادم"
+
+#. Label of the page's description field (for developers, not shown in the app).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.description"
+msgstr "الوصف"
 
 #. Label of the optional description of a new app.
 #. js-lingui-explicit-id
@@ -4914,6 +4986,12 @@ msgstr "تحرير شاشة"
 msgid "security.editGrants"
 msgstr "تحرير المنح"
 
+#. Button that opens the action graph editor for the page's lifecycle handlers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.editActions"
+msgstr "تحرير في مخطط الإجراءات"
+
 #. Link to the full-page Rust editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -5194,6 +5272,12 @@ msgstr "الإدخال"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.entry"
 msgstr "البداية"
+
+#. Switch: the page is the one the plugin opens first.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.entry"
+msgstr "صفحة البداية"
 
 #. Label of the app's entry plugin in the overview of the app canvas.
 #. js-lingui-explicit-id
@@ -6406,6 +6490,12 @@ msgstr "تم تجاوز حاجز الأمان"
 msgid "experiments.guardrails"
 msgstr "حواجز الأمان"
 
+#. Label of the action graphs run before the page opens; any of them can stop or redirect it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.guards"
+msgstr "الحراس"
+
 #. Canvas tool that pans the canvas by dragging.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -7254,6 +7344,12 @@ msgstr "لا يمكن تطبيق هذه التغييرات عند الإبقاء
 msgid "security.colKeyId"
 msgstr "المفتاح"
 
+#. Label of the page's key, which names its file and cannot change here.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.key"
+msgstr "المفتاح"
+
 #. Column heading of the table: the name of the translation key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -7408,6 +7504,12 @@ msgstr "النوع"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.pageKindLabel"
+msgstr "النوع"
+
+#. Label of the page kind select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.kind"
 msgstr "النوع"
 
 #. Label of the filter for components or templates.
@@ -7744,6 +7846,12 @@ msgstr "معرّف الترخيص"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.licenseOrg"
 msgstr "مرخّص لـ"
+
+#. Section heading: what runs when the page is created, shown, resumed, left and disposed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionLifecycle"
+msgstr "دورة الحياة"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -8255,6 +8363,12 @@ msgstr "منخفضة"
 msgid "dialog.create.key-hint"
 msgstr "أحرف صغيرة وأرقام وواصلات، بحد أقصى 64 حرفًا. لا يمكن تغيير المفتاح لاحقًا."
 
+#. Note beside the entry switch of the entry page, which cannot be switched off.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.entryNote"
+msgstr "اجعل صفحة أخرى هي البداية لتغيير ذلك."
+
 #. Button that makes a step the first step of the graph.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -8507,6 +8621,12 @@ msgstr "مختلط"
 msgid "panelTabs.dataMockMark"
 msgstr "محاكاة"
 
+#. Parameter field label: the value Studio and tests use while designing (SCH-024).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramMock"
+msgstr "قيمة تجريبية"
+
 #. Heading of the mock section.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -8637,6 +8757,12 @@ msgstr "الاسم"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.name"
+msgstr "الاسم"
+
+#. Parameter field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramName"
 msgstr "الاسم"
 
 #. Field label.
@@ -9257,6 +9383,12 @@ msgstr "لا إطارات بعد. حدد إضافات واضغط F لتأطير�
 msgid "functions.noFunctions"
 msgstr "لا توجد دالة منشورة في هذه البيئة."
 
+#. The page has no guards.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.noGuards"
+msgstr "لا حراس"
+
 #. Shown while a rollout has no health figures.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -9352,6 +9484,12 @@ msgstr "بلا طبقة"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.noOwner"
 msgstr "لا يوجد فريق مالك"
+
+#. Shown when a page has no parameters.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.noParams"
+msgstr "لا معاملات: تُفتح الصفحة دون قيم."
 
 #. Shown when there is nothing to publish.
 #. js-lingui-explicit-id
@@ -9587,6 +9725,12 @@ msgstr "بلا"
 msgid "security.none"
 msgstr "لا شيء"
 
+#. No assurance level required.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.assuranceNone"
+msgstr "بلا"
+
 #. A colour or decoration field with nothing set.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -9604,6 +9748,12 @@ msgstr "لا شيء"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.noEntry"
 msgstr "لم يُختر شيء"
+
+#. Error under a type field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.typeForm"
+msgstr "ليس نوعًا، مثل string أو int? أو list<Item>."
 
 #. Cell value when the app has no version of the component.
 #. js-lingui-explicit-id
@@ -9694,6 +9844,12 @@ msgstr "JSON غير صالح: {message}"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.colNotes"
 msgstr "ملاحظات"
+
+#. A lifecycle event has no handler.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.handlerNone"
+msgstr "لا شيء"
 
 #. Result after a restore that changed nothing.
 #. js-lingui-explicit-id
@@ -10019,6 +10175,12 @@ msgstr "فتح التطبيق"
 msgid "cmd.palette.open"
 msgstr "فتح لوحة الأوامر"
 
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.openData"
+msgstr "فتح مصادر البيانات"
+
 #. Button of the JSON tab that opens the full-screen JSON editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -10054,6 +10216,12 @@ msgstr "فتح الشاشة"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.laneOpenSource"
 msgstr "فتح الشاشة المصدر"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.openState"
+msgstr "فتح مصمم الحالة"
 
 #. Lane menu action: open the plugin canvas at the screen the link goes to.
 #. js-lingui-explicit-id
@@ -10277,6 +10445,12 @@ msgstr "تبقى المراجع الأخرى إلى حالة الصفحة كما
 msgid "links.otherPlugin"
 msgstr "إضافة أخرى"
 
+#. Error under the route name field: pages of other plugins link to the route, so it cannot change here.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeExternal"
+msgstr "إضافات أخرى تفتح هذا المسار ({plugins})؛ غيّرها أولًا."
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -10360,6 +10534,18 @@ msgstr "الفريق المالك"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colP"
 msgstr "قيمة p"
+
+#. Inspector tab with the settings of the selected screen's page: title, route, parameters, transition.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.tab"
+msgstr "الصفحة"
+
+#. Section heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionPage"
+msgstr "الصفحة"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -10462,6 +10648,12 @@ msgstr "إقران جهاز"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.link"
 msgstr "رابط الإقران"
+
+#. Section heading: the typed values a page is opened with.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionParams"
+msgstr "المعاملات"
 
 #. Heading of a template's parameters.
 #. js-lingui-explicit-id
@@ -11662,6 +11854,12 @@ msgstr "إزالة {family}"
 msgid "rustEditor.removeDependency"
 msgstr "إزالة {name}"
 
+#. Accessible name of the button that removes a parameter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.removeParam"
+msgstr "إزالة {name}"
+
 #. Button that removes a token.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -11697,6 +11895,12 @@ msgstr "إزالة العنصر"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbRemoveField"
 msgstr "إزالة الحقل"
+
+#. Accessible name of the button that removes a guard.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.removeGuard"
+msgstr "إزالة الحارس {name}"
 
 #. Button.
 #. js-lingui-explicit-id
@@ -12004,6 +12208,18 @@ msgstr "مطلوب"
 msgid "actionGraph.required"
 msgstr "مطلوب"
 
+#. Parameter switch label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramRequired"
+msgstr "مطلوب"
+
+#. Label of the authentication assurance level a user needs to open the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.assurance"
+msgstr "مستوى الضمان المطلوب"
+
 #. Label of the assurance level a device must hold to invoke the version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -12153,6 +12369,12 @@ msgstr "النتيجة"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.colResult"
 msgstr "النتيجة"
+
+#. Label of the type of value a dialog or sheet page returns when it closes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.result"
+msgstr "نوع النتيجة"
 
 #. Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.
 #. js-lingui-explicit-id
@@ -12417,6 +12639,12 @@ msgstr "تدوير"
 msgid "tests.routeLabel"
 msgstr "المسار"
 
+#. Section heading: how the page is opened — its transition and its guards.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionRoute"
+msgstr "المسار"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -12434,6 +12662,12 @@ msgstr "المسار"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.routeColumn"
 msgstr "المسار"
+
+#. Label of the page's route name field: the app-wide name other screens and native code open it by.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.route"
+msgstr "اسم المسار"
 
 #. Label: the router adapter the app's navigation runs on.
 #. js-lingui-explicit-id
@@ -12494,6 +12728,12 @@ msgstr "جارٍ تشغيل الاختبارات…"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.runsHeading"
 msgstr "التشغيلات"
+
+#. A lifecycle event has a handler.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.handlerSet"
+msgstr "ينفّذ إجراءات"
 
 #. Label of where the function runs.
 #. js-lingui-explicit-id
@@ -13065,6 +13305,12 @@ msgstr "الأسرار التي يمكنها قراءتها"
 msgid "appnav.security"
 msgstr "الأمان"
 
+#. Section heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionSecurity"
+msgstr "الأمان"
+
 #. Name of the wizard step that asks for the app's security profile.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -13118,6 +13364,12 @@ msgstr "اختر مجموعة لتحريرها."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataSelect"
 msgstr "اختر مصدر بيانات لتحريره."
+
+#. Shown in the Page tab when nothing on a screen is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.none"
+msgstr "اختر شاشة أو أي عنصر عليها لتحرير صفحتها."
 
 #. Hint in the right dock when nothing is selected.
 #. js-lingui-explicit-id
@@ -13905,6 +14157,12 @@ msgstr "تشغيل خادم اللغة"
 msgid "state.problem.invalid"
 msgstr "ابدأ بحرف صغير واستخدم الحروف والأرقام فقط، مثل loanAmount."
 
+#. Error under a parameter's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramNameForm"
+msgstr "ابدأ بحرف لاتيني صغير؛ أحرف وأرقام فقط."
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -13976,6 +14234,12 @@ msgstr "الحالة"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.licenseState"
 msgstr "الحالة"
+
+#. Section heading: the page's state entries and data sources.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.sectionData"
+msgstr "الحالة والبيانات"
 
 #. Button in the right panel that opens the full-screen designer of the plugin's state entries.
 #. js-lingui-explicit-id
@@ -16288,11 +16552,23 @@ msgstr "الوقت"
 msgid "admin.colTime"
 msgstr "الوقت"
 
+#. Label of the route timeline a custom transition plays.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.timeline"
+msgstr "الخط الزمني"
+
 #. Label of the slider that moves through a replay.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayTimeline"
 msgstr "الخط الزمني"
+
+#. Label of the page's title field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.title"
+msgstr "العنوان"
 
 #. The last colour of a gradient.
 #. js-lingui-explicit-id
@@ -16414,6 +16690,18 @@ msgstr "تتبّع الطلب"
 msgid "data.transaction"
 msgstr "مؤشرات المعاملة (JSON)"
 
+#. Label of the page transition select.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.transition"
+msgstr "الانتقال"
+
+#. Shown in place of the title field when the title is a translation key; edit it in Localisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.titleKey"
+msgstr "مترجم: {key}"
+
 #. Column heading: the message of the locale being edited.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -16496,6 +16784,12 @@ msgstr "النوع"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.base"
+msgstr "النوع"
+
+#. Parameter field label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.paramType"
 msgstr "النوع"
 
 #. Label of the flag type select.
@@ -16749,6 +17043,12 @@ msgstr "استخدم 12 حرفًا على الأقل."
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.customFrameAdd"
 msgstr "استخدم الإطار"
+
+#. Error under the route name field when its form is wrong.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/page-settings.messages.ts
+msgid "pageSettings.routeForm"
+msgstr "استخدم أحرفًا لاتينية صغيرة وأرقامًا وشرطات مفردة، مع البدء بحرف."
 
 #. Error under the key name field when the name does not follow the key pattern.
 #. js-lingui-explicit-id

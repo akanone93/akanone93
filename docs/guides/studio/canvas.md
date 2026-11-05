@@ -117,7 +117,12 @@ Positions are read-only while someone else is editing the app.
    plugin's **State** and **Data sources**. Select a widget and edit it in the **Inspector** on the right: its header
    names the widget, its screen and its id, and its rail on the outer edge holds **Properties** (open at first),
    **Editors** (JSON, translations, theme, state, data sources, database, action graph, Rust), **Actions**, **JSON**,
-   **Code**, **Localisation**, **Accessibility**, **Performance** and **Docs**. **Properties** lists one property per
+   **Code**, **Localisation**, **Accessibility**, **Performance** and **Docs**. **Page** holds the settings of the
+   page the selection is on: its title, description, kind, route name (a new name takes this plugin's links with it;
+   links from other plugins block it), key, whether it is the plugin's entry, a dialog's result type, its typed
+   parameters with defaults and design-time mocks, its state and data sources (each opens its editor), its lifecycle
+   handlers, its transition, timeline and guards, and whether it blocks screenshots or needs an assurance level. A
+   text field there changes the page when you leave it or press Enter; Escape takes the change back. **Properties** lists one property per
    row — its name, a dot when it is set, and its editor — in the sections **Content**, **Layout**, **Appearance**,
    **Behaviour** and **Other**; filter them by name, show **Set only**, pick the **Size class** an edit applies to
    (**M** or **E** marks an override), and point at a name to reset it. A text switches between a literal, a
