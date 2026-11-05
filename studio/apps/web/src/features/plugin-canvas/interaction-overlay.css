@@ -325,3 +325,84 @@
     animation: none;
   }
 }
+
+/*
+ * Spacing of the selected widget (PC-16): padding around its child and the gaps between its children, striped in the
+ * measuring colour with their size, as design tools show auto layout.
+ */
+.pc-spacing {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: calc(var(--w) * 1px);
+  block-size: calc(var(--h) * 1px);
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  display: grid;
+  place-items: center;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklch, var(--pc-measure) 34%, transparent) 0 1.5px,
+    color-mix(in oklch, var(--pc-measure) 10%, transparent) 1.5px 6px
+  );
+}
+
+.pc-spacing[data-kind="gap"] {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in oklch, var(--pc-select) 34%, transparent) 0 1.5px,
+    color-mix(in oklch, var(--pc-select) 10%, transparent) 1.5px 6px
+  );
+}
+
+.pc-spacing-value {
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  color: var(--pc-measure-ink);
+  background-color: var(--pc-measure);
+}
+
+.pc-spacing[data-kind="gap"] .pc-spacing-value {
+  color: var(--pc-select-ink);
+  background-color: var(--pc-select);
+}
+
+/* A widget's problem: a dot on its corner, and under the selection's size its first message. */
+.pc-problem-dot {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--background);
+  transform: translate(calc(var(--x) * 1px - 5px), calc(var(--y) * 1px - 5px));
+  background-color: var(--destructive);
+  box-shadow: 0 1px 2px color-mix(in oklch, black 25%, transparent);
+}
+
+.pc-problem-dot[data-severity="warning"] {
+  background-color: oklch(0.78 0.16 75);
+}
+
+.pc-problem-tag {
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  translate: -50% 26px;
+  max-inline-size: 18rem;
+  white-space: nowrap;
+  font-size: 10.5px;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--destructive-foreground, white);
+  background-color: var(--destructive);
+}
+
+.pc-problem-tag[data-severity="warning"] {
+  color: oklch(0.25 0.05 75);
+  background-color: oklch(0.85 0.14 80);
+}

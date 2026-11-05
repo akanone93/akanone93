@@ -7,6 +7,7 @@ import { type ReactNode, type RefObject, useCallback, useMemo, useRef, useState 
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
 import { useCanvasKeys } from "../app-canvas/use-canvas-keys.ts";
 import { metaOf } from "../panels/studio-meta.ts";
+import type { NodeProblem } from "../problems/problem-nodes.ts";
 import { CanvasMenu, type MenuAt } from "./canvas-menu.tsx";
 import { removeRecipe } from "./clipboard/use-clipboard.tsx";
 import { InteractionOverlay, type OverlayNodes } from "./interaction-overlay.tsx";
@@ -56,6 +57,8 @@ export interface InteractionInput {
   readonly overlay: OverlayStore;
   /** With the Interact tool, a click on the screens (PC-15). */
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
+  /** The problems pinned to each widget, drawn as dots (PC-16). */
+  readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
   /** The tool, when the page holds it. */
   readonly tool?: PointerTool;
   readonly setTool?: (tool: PointerTool) => void;
@@ -233,10 +236,12 @@ export function useCanvasInteraction(input: InteractionInput) {
       resizable,
       scope: selection.scope,
       ...(input.styled.chrome === undefined ? {} : { frameRadius: input.styled.chrome.radius }),
+      childrenOf: (id) => index.children.get(id) ?? [],
+      ...(input.problems === undefined ? {} : { problems: input.problems }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
-    [boxOf, isScreen, resizable, selection.scope, titles, screenOf, names, index, input.styled.chrome],
+    [boxOf, isScreen, resizable, selection.scope, titles, screenOf, names, index, input.styled.chrome, input.problems],
   );
   const preview = useScreenPreview(input, overlay);
   const view = input.onView;

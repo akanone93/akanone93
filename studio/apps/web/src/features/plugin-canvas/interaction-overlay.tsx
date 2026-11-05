@@ -3,6 +3,7 @@
 
 import type { Guides } from "@plux/canvas";
 import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
+import type { NodeProblem } from "../problems/problem-nodes.ts";
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
@@ -24,6 +25,10 @@ export interface OverlayNodes {
   readonly scope: string | null;
   /** The device frame's corner radius in world units (PC-11); a generic phone's when absent. */
   readonly frameRadius?: number;
+  /** A node's children, in order, whose padding and gaps the selection shows (PC-16). */
+  readonly childrenOf?: (id: string) => readonly string[];
+  /** The problems pinned to each node, the most severe first (PC-16). */
+  readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
 }
 
 interface View {
@@ -78,6 +83,99 @@ function ScreenName({ box, view, text, kind }: { box: Box; view: View; text: str
   );
 }
 
+/** A band of padding or gap, in world units, with the size it shows. */
+interface Band {
+  readonly box: Box;
+  readonly value: number;
+  readonly kind: "padding" | "gap";
+}
+
+const band = (box: Box, value: number, kind: Band["kind"]): Band[] =>
+  value >= 0.5 && box.r > box.l && box.b > box.t ? [{ box, value, kind }] : [];
+
+/** The padding around a single child: the four bands between the box and the child's. */
+function paddingBands(box: Box, kid: Box): Band[] {
+  if (kid.l < box.l - 0.5 || kid.t < box.t - 0.5 || kid.r > box.r + 0.5 || kid.b > box.b + 0.5) {
+    return [];
+  }
+  return [
+    ...band({ l: box.l, t: box.t, r: box.r, b: kid.t }, kid.t - box.t, "padding"),
+    ...band({ l: box.l, t: kid.b, r: box.r, b: box.b }, box.b - kid.b, "padding"),
+    ...band({ l: box.l, t: kid.t, r: kid.l, b: kid.b }, kid.l - box.l, "padding"),
+    ...band({ l: kid.r, t: kid.t, r: box.r, b: kid.b }, box.r - kid.r, "padding"),
+  ];
+}
+
+/** Whether `kids`, in order, follow one another along an axis without overlapping. */
+function inLine(kids: readonly Box[], axis: "x" | "y"): boolean {
+  return kids.every((k, i) => {
+    const prev = kids[i - 1];
+    return prev === undefined || (axis === "x" ? k.l >= prev.r - 0.5 : k.t >= prev.b - 0.5);
+  });
+}
+
+/** The gaps between children laid out in a row or a column. */
+function gapBands(kids: readonly Box[]): Band[] {
+  const byX = [...kids].sort((a, b) => a.l - b.l);
+  const byY = [...kids].sort((a, b) => a.t - b.t);
+  const axis = inLine(byY, "y") ? "y" : inLine(byX, "x") ? "x" : undefined;
+  if (axis === undefined) {
+    return [];
+  }
+  const sorted = axis === "y" ? byY : byX;
+  return sorted.flatMap((k, i) => {
+    const next = sorted[i + 1];
+    if (next === undefined) {
+      return [];
+    }
+    return axis === "y"
+      ? band({ l: Math.min(k.l, next.l), t: k.b, r: Math.max(k.r, next.r), b: next.t }, next.t - k.b, "gap")
+      : band({ l: k.r, t: Math.min(k.t, next.t), r: next.l, b: Math.max(k.b, next.b) }, next.l - k.r, "gap");
+  });
+}
+
+/** The spacing a selected widget shows (PC-16): its padding around one child, or the gaps between several. */
+export function spacingBands(box: Box, kids: readonly Box[]): Band[] {
+  if (kids.length === 1) {
+    return paddingBands(box, kids[0] as Box);
+  }
+  return kids.length > 1 ? gapBands(kids) : [];
+}
+
+function Spacing({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+  const kids = (nodes.childrenOf?.(id) ?? []).flatMap((k) => nodes.boxOf(k) ?? []);
+  return spacingBands(box, kids).map((b, i) => {
+    const big = (b.box.r - b.box.l) * view.zoom >= 14 && (b.box.b - b.box.t) * view.zoom >= 10;
+    return (
+      // biome-ignore lint/suspicious/noArrayIndexKey: the bands of one selection, in a fixed order
+      <div key={i} className="pc-spacing" data-kind={b.kind} style={place(b.box, view)}>
+        {big && <span className="pc-spacing-value">{Math.round(b.value)}</span>}
+      </div>
+    );
+  });
+}
+
+/** A dot on every widget with a problem, red for an error and amber for a warning (PC-16). */
+function ProblemDots({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  return [...(nodes.problems ?? new Map<string, readonly NodeProblem[]>())].flatMap(([id, list]) => {
+    const box = nodes.boxOf(id);
+    const first = list[0];
+    return box === undefined || first === undefined || first.severity === "info"
+      ? []
+      : [<span key={id} className="pc-problem-dot" data-severity={first.severity} style={point(box.r, box.t, view)} />];
+  });
+}
+
+/** The selected widget's first problem, under its size. */
+function ProblemTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+  const first = nodes.problems?.get(id)?.[0];
+  return first === undefined ? null : (
+    <span className="pc-problem-tag" data-severity={first.severity} style={point((box.l + box.r) / 2, box.b, view)}>
+      {first.message}
+    </span>
+  );
+}
+
 function Selected(props: {
   readonly id: string;
   readonly box: Box;
@@ -96,11 +194,13 @@ function Selected(props: {
       />
       {screen && <ScreenName box={box} view={view} text={nodes.nameOf(id)} kind="selected" />}
       {single && !screen && <Tag box={box} view={view} text={nodes.nameOf(id)} kind="selected" />}
+      {single && !screen && <Spacing id={id} box={box} view={view} nodes={nodes} />}
       {single && (
         <span className="pc-size" style={point((box.l + box.r) / 2, box.b, view)}>
           {sizeText(box)}
         </span>
       )}
+      {single && !screen && <ProblemTag id={id} box={box} view={view} nodes={nodes} />}
       {single &&
         !screen &&
         nodes.resizable(id) &&
@@ -247,6 +347,7 @@ export function InteractionOverlay(props: {
           </span>
         </>
       )}
+      <ProblemDots view={view} nodes={nodes} />
       {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}
       {state.marquee !== null && (
         <div

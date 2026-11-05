@@ -170,7 +170,10 @@ scroll view inside its frame, a click switches a tab, a navigation destination o
 state switches everything bound to it, as a tab bar switches its view), the app bar's menu button opens the drawer and
 its scrim closes it, back and close go to the page that opens the screen, and a button that opens a page brings that
 page into view. Actions that call networks or functions are not run; the canvas names them — they run on a device.
-Nothing you do there changes the plugin; V or Escape returns to editing. An app bar shows the button it implies on the
+Nothing you do there changes the plugin; V or Escape returns to editing. A selected widget shows its spacing: the
+padding around its child striped in magenta and the gaps between its children in violet, each with its size. A widget
+with an error or a warning has a red or amber dot on its corner, and its first problem shows under its size when it is
+selected. An app bar shows the button it implies on the
 device: the menu with a drawer, back on a page another opens, close on a full-screen dialog. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and

@@ -39,6 +39,7 @@ import { lockedIds } from "../panels/studio-meta.ts";
 import { PaintThemeContext } from "../panels/style-editors.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
+import { problemsByNode } from "../problems/problem-nodes.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
 import { useValidation, type Validation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
@@ -939,6 +940,11 @@ function PluginCanvasView({
     }
     return true;
   };
+  // Problems pinned to their widgets on the canvas (PC-16).
+  const nodeProblems = useMemo(
+    () => problemsByNode(checked?.problems ?? [], new Map(live.map((d) => [d.path, d.parsed]))),
+    [checked?.problems, live],
+  );
   const liveSurface = useLiveSurface({
     on: tool === "interact",
     surface: () => surfaceRef.current,
@@ -958,6 +964,7 @@ function PluginCanvasView({
   liveHeights.current = liveSurface.setHeights;
   liveWheel.current = liveSurface.wheel;
   const interaction = useCanvasInteraction({
+    problems: nodeProblems,
     tool,
     setTool,
     onInteract: liveSurface.interact,
