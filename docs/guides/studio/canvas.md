@@ -131,9 +131,12 @@ Positions are read-only while someone else is editing the app.
    until you choose another entry or remove the link.
 5. Under **Preview**, use the preview switches to see the screen on a **Device frame** (or a **Custom frame**), in
    **Light** or **Dark**, in any **Locale**, at a **Text scale**, in **Material** or **Cupertino**
-   style, and in the **Success**, **Loading**, **Empty** or **Error** data state. The **Device matrix**
-   shows several frames at once. A right-to-left locale and the text scale change the screens only; Studio's own
-   panels keep your Studio language and size.
+   style, and in the **Success**, **Loading**, **Empty** or **Error** data state. Every screen is drawn at the chosen
+   device's size, in **Portrait** or **Landscape** (**Orientation**), with the device's status bar, camera cutout
+   (a punch hole, a notch or an island) and home indicator, gesture handle or navigation buttons; set **Device
+   chrome** to **Hidden** to draw the screens without them (their space stays, as on the device). The **Device
+   matrix** shows several frames at once, each with its own chrome. A right-to-left locale and the text scale change
+   the screens only; Studio's own panels keep your Studio language and size.
 6. The **Developer console** at the bottom lists validation errors, warnings and information under
    **Problems** as you type; the counts also appear on the plugin card. Open it to stream the paired
    devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,
@@ -142,8 +145,11 @@ Positions are read-only while someone else is editing the app.
    **Capture screenshot** work on it. Drag the console's top edge, or use the arrow keys on it, to
    change its height.
 
-Each screen's name is shown above its device frame, and a button or a field shows its text inside its
-box. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
+Each screen's name is shown above its device frame, with its route name and kind (**Page**, **Dialog**, **Bottom
+sheet** or **Full-screen dialog**) after it and **Entry** on the plugin's entry screen; drag the screen by either. A
+button or a field shows its text inside its box. A page's app bar reaches under the status bar and keeps its title
+below it, a `SafeArea` keeps its content clear of the status bar, the cutout and the home indicator, and the status
+bar's icons turn light over a dark app bar or header, as the device draws them. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and
 a shadow by Material elevation. Texts take Material 3's type scale, or the theme's `typography` tokens where it has

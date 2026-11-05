@@ -74,11 +74,16 @@ export function nodeIdOfHit(hit: string): string {
   return part < 0 ? id : id.slice(0, part);
 }
 
-/** The screen whose device frame, title or overflow band item `hit` is (`screen:`, `title:`, `overflow:`), if any. */
+/**
+ * The screen whose device frame, header or overflow band item `hit` is (`screen:`, `title:`, `overflow:`), if any; a
+ * part of the header (`title:<screen>#meta`, its route and kind) is the header.
+ */
 export function screenOfItem(hit: string): string | undefined {
   for (const prefix of ["screen:", "title:", "overflow:"]) {
     if (hit.startsWith(prefix)) {
-      return hit.slice(prefix.length);
+      const rest = hit.slice(prefix.length);
+      const part = rest.indexOf(PART_MARK);
+      return part < 0 ? rest : rest.slice(0, part);
     }
   }
   return undefined;

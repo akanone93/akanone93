@@ -61,7 +61,7 @@ import { RenderPadding } from "../flutter/shifted-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { leafBuilders } from "./material-leaves.ts";
 import { moreBuilders } from "./material-more.ts";
-import type { SceneNode, SceneText, TextDefaults } from "./scene.ts";
+import type { SceneNode, SceneText, TextDefaults, ViewPadding } from "./scene.ts";
 
 /** The theme's font family, as `ThemeData(fontFamily:)` in the golden writer. */
 export const materialFontFamily = "NotoSans";
@@ -133,6 +133,17 @@ const buttonKinds: Readonly<Record<string, ButtonKind>> = {
 };
 
 type Builder = (node: SceneNode, ctx: MaterialContext) => RenderBox;
+
+/** A primary app bar (the default) keeps its toolbar out of the status bar and the side cutouts. */
+function appBarSafeArea(
+  p: Record<string, unknown>,
+  padding: ViewPadding | undefined,
+): { safeArea?: { top: number; left: number; right: number } } {
+  if (padding === undefined || prop(p, "primary") === false) {
+    return {};
+  }
+  return { safeArea: { top: padding.top, left: padding.left, right: padding.right } };
+}
 
 /** `PreferredSizeWidget.preferredSize.height` of an app bar's bottom. */
 function preferredHeight(node: SceneNode | null): number {
@@ -543,6 +554,7 @@ const builders: Record<string, Builder> = {
       titleSpacing: num(p, "titleSpacing", kMiddleSpacing),
       leadingWidth: num(p, "leadingWidth", kLeadingWidth),
       textDirection: ctx.direction,
+      ...appBarSafeArea(p, ctx.text?.viewPadding),
     });
   },
   Scaffold: (node, ctx) => {

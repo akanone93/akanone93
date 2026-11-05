@@ -6,11 +6,47 @@ import { availableLocales } from "@plux/i18n";
 import { Field, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { CustomFrameDialog } from "./custom-frame-dialog.tsx";
+import type { FrameView } from "./frame-view.ts";
 import { type DeviceFrame, decodeCustom, frameCatalogue } from "./frames.ts";
 import { previewMessages } from "./preview.messages.ts";
 import { type MockState, mockStates, type PreviewState, textScales, withMock } from "./switches.ts";
 
 const CUSTOM = "custom";
+
+/** The frame's orientation and whether its status bar, cutout and home indicator are drawn (STU-057, PC-11). */
+function FrameViewSwitches({
+  view,
+  onView,
+}: {
+  readonly view: FrameView;
+  readonly onView: (next: FrameView) => void;
+}): ReactElement {
+  const m = previewMessages(useLingui().i18n);
+  return (
+    <>
+      <Field label={m.orientation}>
+        <Select
+          value={view.orientation}
+          options={[
+            { value: "portrait", label: m.portrait },
+            { value: "landscape", label: m.landscape },
+          ]}
+          onValueChange={(v) => onView({ ...view, orientation: v === "landscape" ? "landscape" : "portrait" })}
+        />
+      </Field>
+      <Field label={m.chrome}>
+        <Select
+          value={view.chrome ? "on" : "off"}
+          options={[
+            { value: "on", label: m.chromeShown },
+            { value: "off", label: m.chromeHidden },
+          ]}
+          onValueChange={(v) => onView({ ...view, chrome: v === "on" })}
+        />
+      </Field>
+    </>
+  );
+}
 
 /** The brand select's value for the theme without an overlay. */
 const NO_BRAND = "-";
@@ -23,6 +59,8 @@ export function PreviewSwitcher({
   includePseudo,
   brands = [],
   part = "all",
+  view,
+  onView,
 }: {
   readonly state: PreviewState;
   /** Data sources of the plugin whose mock state can be set; one select sets them all when several. */
@@ -33,6 +71,9 @@ export function PreviewSwitcher({
   readonly brands?: readonly string[];
   /** `main` renders the frame, theme, locale and text scale (the action bar); `extra` the rest; `all` both. */
   readonly part?: "all" | "main" | "extra";
+  /** The frame's orientation and chrome (PC-11); their switches show with the frame when given. */
+  readonly view?: FrameView;
+  readonly onView?: (next: FrameView) => void;
 }): ReactElement {
   const m = previewMessages(useLingui().i18n);
   const [dialog, setDialog] = useState(false);
@@ -70,6 +111,7 @@ export function PreviewSwitcher({
               />
             </Field>
           </div>
+          {view !== undefined && onView !== undefined && <FrameViewSwitches view={view} onView={onView} />}
           <Field label={m.theme}>
             <Select
               value={state.theme}

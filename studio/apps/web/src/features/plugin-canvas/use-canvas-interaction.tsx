@@ -41,6 +41,8 @@ export interface InteractionInput {
   readonly screens: readonly PlacedScreen[];
   readonly shown: readonly PlacedScreen[];
   readonly styled: ScreenStyle;
+  /** What each screen's header shows after its name (PC-11), as the page lays the screens out. */
+  readonly meta?: (s: PlacedScreen) => string | undefined;
   readonly positions: ScreenPositions;
   readonly onPick: (hits: readonly string[]) => boolean;
   /** The view moved: the URL and the ghosts follow it. */
@@ -132,7 +134,7 @@ function useScreenPreview(input: InteractionInput, overlay: OverlayStore) {
           const p = at.get(x.id);
           return p === undefined ? x : { ...x, at: p };
         });
-        void surface.layoutScreens(screenDocuments(placed), latest.current.styled).then(() => {
+        void surface.layoutScreens(screenDocuments(placed, latest.current.meta), latest.current.styled).then(() => {
           overlay.viewChanged();
           send();
         });
@@ -222,10 +224,11 @@ export function useCanvasInteraction(input: InteractionInput) {
       isScreen,
       resizable,
       scope: selection.scope,
+      ...(input.styled.chrome === undefined ? {} : { frameRadius: input.styled.chrome.radius }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
-    [boxOf, isScreen, resizable, selection.scope, titles, screenOf, names, index],
+    [boxOf, isScreen, resizable, selection.scope, titles, screenOf, names, index, input.styled.chrome],
   );
   const preview = useScreenPreview(input, overlay);
   const view = input.onView;

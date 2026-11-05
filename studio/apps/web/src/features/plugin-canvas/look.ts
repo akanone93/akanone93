@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { ScreenStyle } from "@plux/canvas";
+import type { DeviceChromeSpec, ScreenStyle } from "@plux/canvas";
 import { defaultScreenTheme, type ScreenTheme, TextDirection } from "@plux/layout";
 import { readLocales, readMessages } from "../localisation/l10n-model.ts";
-import type { PreviewRender } from "../preview/switches.ts";
+import { genericDevice, type PreviewDevice, type PreviewRender } from "../preview/switches.ts";
 import { type Node, parseDocument } from "./plugin-model.ts";
 
 /** Reads the preview switches into what the canvas draws (STU-058, I18N-010, A11Y-005, THM-001). */
@@ -122,11 +122,36 @@ export function localizeTree(
 
 /** The canvas style under the preview switches: theme, text scale and text direction. */
 export function lookedStyle(base: ScreenStyle, theme: ScreenTheme, look: PreviewRender): ScreenStyle {
+  const d = look.device;
   return {
     ...base,
-    theme,
+    theme: { ...theme, width: d.width },
+    deviceHeight: d.height,
     textScale: look.textScale,
     textDirection: look.direction === "rtl" ? TextDirection.rtl : TextDirection.ltr,
+    ...(d === genericDevice ? {} : { chrome: chromeSpec(d, look.platform) }),
+  };
+}
+
+/** The status bar's icons over a light and a dark backdrop, and the camera's black: the device's, not the theme's. */
+const CHROME_ON_LIGHT = 0x000000e6;
+const CHROME_ON_DARK = 0xffffffff;
+const CHROME_CUTOUT = 0x000000ff;
+
+/** The device's system areas as the canvas draws them (PC-11). */
+export function chromeSpec(d: PreviewDevice, platform: PreviewRender["platform"]): DeviceChromeSpec {
+  return {
+    ...d.padding,
+    cutout: d.cutout,
+    indicator: d.indicator,
+    platform,
+    radius: d.radius,
+    landscape: d.landscape,
+    time: "9:41",
+    visible: d.chrome,
+    onLight: CHROME_ON_LIGHT,
+    onDark: CHROME_ON_DARK,
+    cutoutColor: CHROME_CUTOUT,
   };
 }
 

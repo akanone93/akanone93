@@ -36,6 +36,27 @@ describe("[STU-058] switcher UI", () => {
   });
 });
 
+describe("[STU-057] PC-11 frame orientation and chrome", () => {
+  test("with the frame, the orientation and the device chrome can be set", async () => {
+    renderI18n(
+      <PreviewSwitcher
+        part="main"
+        state={defaultPreview}
+        dataSources={[]}
+        onChange={() => {}}
+        includePseudo={false}
+        view={{ orientation: "landscape", chrome: false }}
+        onView={() => {}}
+      />,
+    );
+    expect((await screen.findAllByText("Orientation")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Device chrome").length).toBeGreaterThan(0);
+    const boxes = screen.getAllByRole("combobox").map((c) => c.textContent ?? "");
+    expect(boxes.some((t) => t.includes("Landscape"))).toBe(true);
+    expect(boxes.some((t) => t.includes("Hidden"))).toBe(true);
+  });
+});
+
 describe("[STU-057] custom frame dialog D40", () => {
   test("a valid size is handed over, an invalid one shows the error", async () => {
     const used: unknown[] = [];

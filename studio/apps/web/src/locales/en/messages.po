@@ -376,6 +376,12 @@ msgstr "{done}/{total}"
 msgid "panel.editorShort"
 msgstr "{editor, select, json {JSON} l10n {Translations} state {State} data {Data sources} db {Database} theme {Theme} graph {Action graph} rust {Rust} other {Editor}}"
 
+#. Shown above a screen on the plugin canvas, after its name: its route name and page kind; the plugin's entry screen starts with 'Entry'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.screenMeta"
+msgstr "{entry, select, yes {Entry · {route} · {kind}} other {{route} · {kind}}}"
+
 #. Badge on an app's card: an environment that serves no release yet; environment is its key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -519,6 +525,12 @@ msgstr "{kind, select, all {All} image {Images} vector {Vectors} font {Fonts} an
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.imageSource"
 msgstr "{kind, select, asset {App images} url {Web address} other {Image}}"
+
+#. The kind of a page (a full page, a dialog, a bottom sheet or a full-screen dialog), shown above it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.pageKind"
+msgstr "{kind, select, dialog {Dialog} bottomSheet {Bottom sheet} fullscreenDialog {Full-screen dialog} other {Page}}"
 
 #. Choice of the kind of gradient of a decoration.
 #. js-lingui-explicit-id
@@ -4518,6 +4530,12 @@ msgstr "Device {id}"
 msgid "security.deviceApis"
 msgstr "Device APIs"
 
+#. Label of the select that shows or hides the device's status bar, camera cutout and home indicator on the screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.chrome"
+msgstr "Device chrome"
+
 #. Heading of the controls that change a paired device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -6466,6 +6484,12 @@ msgstr "Hex"
 msgid "panels.layerHidden"
 msgstr "hidden"
 
+#. Option: the status bar, camera cutout and home indicator are not drawn (their space stays).
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.chromeHidden"
+msgstr "Hidden"
+
 #. Label on a node whose content is never recorded.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -7403,6 +7427,12 @@ msgstr "Label"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.label"
 msgstr "Label (optional)"
+
+#. Device orientation option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.landscape"
+msgstr "Landscape"
 
 #. Label of the language choice.
 #. js-lingui-explicit-id
@@ -10175,6 +10205,12 @@ msgstr "Organisations"
 msgid "installation.organisationsTitle"
 msgstr "Organisations"
 
+#. Label of the select that turns the device frame between portrait and landscape.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.orientation"
+msgstr "Orientation"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -10834,6 +10870,12 @@ msgstr "Policy"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.saved"
 msgstr "Policy saved."
+
+#. Device orientation option.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.portrait"
+msgstr "Portrait"
 
 #. Shown when the app-level lock is held by another person.
 #. js-lingui-explicit-id
@@ -13406,6 +13448,12 @@ msgstr "Show two versions to two halves of your users, then keep the one that wo
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.ghostPulse"
 msgstr "Showing {screen}"
+
+#. Option: the status bar, camera cutout and home indicator are drawn on the screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.chromeShown"
+msgstr "Shown"
 
 #. Heading of the sign-in page.
 #. js-lingui-explicit-id

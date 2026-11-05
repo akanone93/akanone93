@@ -178,6 +178,11 @@ export interface AppBarOptions {
   titleSpacing: number;
   leadingWidth: number;
   textDirection: TextDirection;
+  /**
+   * The `SafeArea(bottom: false)` around the toolbar of a primary app bar: the device's view padding at the top (the
+   * status bar) and the sides. The bar's own colour reaches under the status bar, its toolbar starts below it.
+   */
+  safeArea?: { readonly top: number; readonly left: number; readonly right: number };
 }
 
 /** The height `AppBar.preferredSize` gives: the toolbar plus the bottom. */
@@ -233,6 +238,12 @@ export function buildAppBar(o: AppBarOptions): RenderBox {
   return new RenderPositionedBox({
     alignment: Alignment.topCenter,
     textDirection: o.textDirection,
-    child: new RenderPadding({ padding: EdgeInsets.zero, child: appBar }),
+    child: new RenderPadding({
+      padding:
+        o.safeArea === undefined
+          ? EdgeInsets.zero
+          : EdgeInsets.only({ top: o.safeArea.top, left: o.safeArea.left, right: o.safeArea.right }),
+      child: appBar,
+    }),
   });
 }

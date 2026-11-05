@@ -15,6 +15,8 @@ export interface Node {
 export interface Screen {
   readonly id: string;
   readonly route: string;
+  /** The page's kind (SCH-022); a page without one is a screen. */
+  readonly kind: "screen" | "dialog" | "bottomSheet" | "fullscreenDialog";
   readonly title: string;
   /** The translation key of a translated title (`{"$t": key}`), resolved for the previewed locale by the canvas. */
   readonly titleKey?: string;
@@ -175,6 +177,7 @@ export function readPlugin(documents: readonly DocLike[]): PluginModel {
       return {
         id: String(p.id),
         route,
+        kind: "screen" as const,
         title: screenTitle({ ...p }, root, route),
         ...(key === undefined ? {} : { titleKey: key }),
         root,

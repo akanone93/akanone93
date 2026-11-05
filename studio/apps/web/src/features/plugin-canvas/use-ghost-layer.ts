@@ -46,6 +46,8 @@ export interface GhostLayerInput {
   readonly heights: Heights;
   readonly appScreens: readonly AppScreen[];
   readonly nativeRoutes: readonly string[];
+  /** The device frame the screens are drawn in (PC-11); the generic phone when absent. */
+  readonly device?: { readonly width: number; readonly height: number };
 }
 
 /**
@@ -62,6 +64,7 @@ export function useGhostLayer(input: GhostLayerInput): {
   readonly pick: (hits: readonly string[]) => ArrowPick | undefined;
 } {
   const { appId, pluginId, editorSessionId, canEdit, surface, screens, own, heights, appScreens, nativeRoutes } = input;
+  const device = input.device ?? DEVICE;
   const m = pluginCanvasMessages(useLingui().i18n);
   const { session } = useApp();
   const queryClient = useQueryClient();
@@ -74,9 +77,9 @@ export function useGhostLayer(input: GhostLayerInput): {
     if (screens.length === 0 || heights.size === 0) {
       return [];
     }
-    const b = contentBounds(screens, heights);
+    const b = contentBounds(screens, heights, device);
     return placeGhosts(graph.targets, b.r, b.t);
-  }, [graph.targets, screens, heights]);
+  }, [graph.targets, screens, heights, device]);
 
   const listed = useQuery({
     queryKey: ["assets", appId],
@@ -147,14 +150,14 @@ export function useGhostLayer(input: GhostLayerInput): {
         id: s.id,
         x: s.at.x,
         y: s.at.y,
-        w: DEVICE.width,
-        h: Math.max(DEVICE.height, heights.get(s.id) ?? 0),
+        w: device.width,
+        h: Math.max(device.height, heights.get(s.id) ?? 0),
       })),
       ...placed,
     ];
     d.router.setGraph(boxes, deriveBundles(graph.edges));
     target.patch([...d.ghosts.sync(items), ...d.arrows.render()]);
-  }, [surface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks]);
+  }, [surface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device]);
 
   const known = useRef(new Map<string, string>());
   useEffect(() => {

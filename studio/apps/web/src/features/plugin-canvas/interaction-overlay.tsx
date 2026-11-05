@@ -22,6 +22,8 @@ export interface OverlayNodes {
   readonly resizable: (id: string) => boolean;
   /** The container the selection is inside (its scope), drawn faintly; null at the top level. */
   readonly scope: string | null;
+  /** The device frame's corner radius in world units (PC-11); a generic phone's when absent. */
+  readonly frameRadius?: number;
 }
 
 interface View {
@@ -54,8 +56,11 @@ function Tag({ box, view, text, kind }: { box: Box; view: View; text: string; ki
   );
 }
 
-/** The corner radius of a device frame, in world units, as the canvas draws it. */
+/** The corner radius of a device frame without chrome, in world units, as the canvas draws it. */
 const FRAME_RADIUS = 32;
+
+/** A screen's outline radius at the view's zoom: its device's corners. */
+const frameCorner = (nodes: OverlayNodes, view: View): number => (nodes.frameRadius ?? FRAME_RADIUS) * view.zoom;
 
 /** The world offset of a screen's name above its frame, as the canvas draws it (`titleId`: 30 above, 15 high). */
 const TITLE_ABOVE = 32;
@@ -87,7 +92,7 @@ function Selected(props: {
       <div
         className="pc-outline"
         data-kind={screen ? "screen" : "selected"}
-        style={{ ...place(box, view), "--r": screen ? FRAME_RADIUS * view.zoom : 0 } as CSSProperties}
+        style={{ ...place(box, view), "--r": screen ? frameCorner(nodes, view) : 0 } as CSSProperties}
       />
       {screen && <ScreenName box={box} view={view} text={nodes.nameOf(id)} kind="selected" />}
       {single && !screen && <Tag box={box} view={view} text={nodes.nameOf(id)} kind="selected" />}
@@ -114,7 +119,7 @@ function Hover({ id, box, view, nodes }: { id: string; box: Box; view: View; nod
       <div
         className="pc-outline"
         data-kind={screen ? "screen-hover" : "hover"}
-        style={{ ...place(box, view), "--r": screen ? FRAME_RADIUS * view.zoom : 0 } as CSSProperties}
+        style={{ ...place(box, view), "--r": screen ? frameCorner(nodes, view) : 0 } as CSSProperties}
       />
       {screen ? (
         <ScreenName box={box} view={view} text={nodes.nameOf(id)} kind="hover" />

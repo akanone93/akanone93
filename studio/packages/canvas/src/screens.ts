@@ -19,9 +19,12 @@ import {
   type Placed,
   type PlacedRun,
   TextDirection,
+  type ViewPadding,
 } from "@plux/layout";
+import { chromeItems } from "./chrome.ts";
 import type {
   ClipSpec,
+  DeviceChromeSpec,
   IconNames,
   ItemSpec,
   RectSpec,
@@ -500,6 +503,56 @@ function webImageGlyphs(
   });
 }
 
+/** The corner radius of a device frame without chrome: a generic phone's. */
+export const DEFAULT_FRAME_RADIUS = 32;
+
+/** The header above a frame (PC-11): the screen's name at the start, its route and kind after it, muted. */
+function headerItems(s: ScreenDocument, style: ScreenStyle): ItemSpec[] {
+  const { width } = style.theme;
+  if (style.title === undefined || s.title === "") {
+    return [];
+  }
+  const meta = s.meta === undefined || s.meta === "" ? undefined : s.meta;
+  // The name takes what the meta leaves, at least half the width; the meta ends at the frame's end.
+  const metaWidth = meta === undefined ? 0 : Math.min(width * 0.5, meta.length * 7 + 8);
+  const items: ItemSpec[] = [
+    {
+      kind: "text",
+      id: titleId(s.id),
+      x: s.x + 4,
+      y: s.y - 30,
+      w: width - 8 - metaWidth,
+      text: s.title,
+      size: 15,
+      weight: "bold",
+      color: style.title,
+      maxLines: 1,
+      families: style.theme.fontFamilies,
+      z: 2,
+    },
+  ];
+  if (meta !== undefined) {
+    items.push({
+      kind: "text",
+      id: `${titleId(s.id)}${META_SUFFIX}`,
+      x: s.x + width - 4 - metaWidth,
+      y: s.y - 28,
+      w: metaWidth,
+      text: meta,
+      size: 12,
+      color: style.meta ?? style.title,
+      align: "end",
+      maxLines: 1,
+      families: style.theme.fontFamilies,
+      z: 2,
+    });
+  }
+  return items;
+}
+
+/** The suffix of the scene id of a screen's route and kind after its name; a hit on it is a hit on the header. */
+export const META_SUFFIX = "#meta";
+
 /** The scene items of one laid-out screen. */
 function screenItems(
   s: ScreenDocument,
@@ -518,28 +571,27 @@ function screenItems(
       y: s.y,
       w: width,
       h: style.deviceHeight,
-      radius: 32,
+      radius: style.chrome?.radius ?? DEFAULT_FRAME_RADIUS,
       fill: style.frame,
       stroke: { color: style.frameStroke, width: 2 },
       shadow: true,
       z: 1,
     },
+    ...headerItems(s, style),
   ];
-  if (style.title !== undefined && s.title !== "") {
-    items.push({
-      kind: "text",
-      id: titleId(s.id),
-      x: s.x + 4,
-      y: s.y - 30,
-      w: width - 8,
-      text: s.title,
-      size: 15,
-      weight: "bold",
-      color: style.title,
-      maxLines: 1,
-      families: style.theme.fontFamilies,
-      z: 2,
-    });
+  if (style.chrome !== undefined) {
+    items.push(
+      ...chromeItems(
+        s,
+        style.chrome,
+        frameId(s.id),
+        { width, height: style.deviceHeight },
+        boxes,
+        style.frame,
+        style.theme.fontFamilies,
+        style.textDirection === TextDirection.rtl,
+      ),
+    );
   }
   const overflow = Math.max(0, contentHeight - style.deviceHeight);
   if (overflow > 0) {
@@ -557,10 +609,31 @@ function screenItems(
     });
   }
   const paints = new Map(boxes.flatMap((b) => (b.paint === undefined ? [] : [[b.id, b.paint] as const])));
+  const radius = style.chrome?.radius ?? DEFAULT_FRAME_RADIUS;
+  const corners = { x: s.x, y: s.y, w: width, h: style.deviceHeight, r: radius };
   for (const b of boxes) {
-    items.push(...boxItems(s, b, paints, style, glyphs));
+    items.push(...boxItems(s, b, paints, style, glyphs).map((item) => inCorners(item, corners)));
   }
   return items;
+}
+
+/**
+ * A page's box that reaches into a corner of its device frame is clipped to the frame's rounded corners, as the
+ * display cuts it (an app bar's or an image's full-bleed fill); the others keep the batched path.
+ */
+function inCorners(item: ItemSpec, f: { x: number; y: number; w: number; h: number; r: number }): ItemSpec {
+  if (item.kind !== "rect" || item.frame === undefined || f.r <= 0) {
+    return item;
+  }
+  const left = item.x < f.x + f.r;
+  const right = item.x + item.w > f.x + f.w - f.r;
+  const top = item.y < f.y + f.r;
+  const bottom = item.y + item.h > f.y + f.h - f.r;
+  if (!((left || right) && (top || bottom))) {
+    return item;
+  }
+  const clip: ClipSpec = { x: f.x, y: f.y, w: f.w, h: f.h, radii: [f.r, f.r, f.r, f.r] };
+  return { ...item, clips: [clip, ...(item.clips ?? [])] };
 }
 
 /** The scene items of one laid-out box of a screen. */
@@ -624,8 +697,14 @@ function layOutContent(
     ...(style.textScale === undefined ? {} : { textScale: style.textScale }),
     ...(style.textDirection === undefined ? {} : { textDirection: style.textDirection }),
     ...(style.paint === undefined ? {} : { paint: { ...style.paint, rtl: style.textDirection === TextDirection.rtl } }),
+    ...(style.chrome === undefined ? {} : { viewPadding: viewPaddingOf(style.chrome) }),
   });
   return { items: screenItems(s, boxes, contentHeight, style, glyphs), height: contentHeight };
+}
+
+/** The insets the device's system areas take from the page (`MediaQuery.padding`). */
+function viewPaddingOf(chrome: DeviceChromeSpec): ViewPadding {
+  return { top: chrome.top, right: chrome.right, bottom: chrome.bottom, left: chrome.left };
 }
 
 /** Two item specs draw the same: they are plain data from `screenItems`, so their JSON compares them. */

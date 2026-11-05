@@ -4,7 +4,16 @@
 import { create } from "@bufbuild/protobuf";
 import { type PreviewSwitches, PreviewSwitchesSchema } from "@plux/api";
 import { type Direction, directionOf, pseudoAccent, pseudoMirror } from "@plux/i18n";
-import type { FramePlatform } from "./frames.ts";
+import {
+  type Cutout,
+  type DeviceFrame,
+  type FramePlatform,
+  frameChrome,
+  framePadding,
+  type NavIndicator,
+  type Orientation,
+  orientedSize,
+} from "./frames.ts";
 
 /** Canvas-wide preview switches (STU-058); they change how screens look while designing, not the document. */
 
@@ -66,8 +75,54 @@ export function writePreview(state: PreviewState): PreviewSwitches {
   });
 }
 
+/**
+ * The device the screens are drawn in (STU-057, PC-11): its size in the chosen orientation, the insets its system
+ * areas take (`MediaQuery.viewPadding`), and how its chrome looks.
+ */
+export interface PreviewDevice {
+  readonly width: number;
+  readonly height: number;
+  readonly padding: { readonly top: number; readonly right: number; readonly bottom: number; readonly left: number };
+  readonly cutout: Cutout;
+  readonly indicator: NavIndicator;
+  readonly radius: number;
+  readonly landscape: boolean;
+  /** Whether the status bar, cutout and indicator are drawn; the insets apply either way. */
+  readonly chrome: boolean;
+}
+
+/** The device of the canvas before a frame is chosen: the generic phone the canvas has always drawn, without chrome. */
+export const genericDevice: PreviewDevice = {
+  width: 390,
+  height: 844,
+  padding: { top: 0, right: 0, bottom: 0, left: 0 },
+  cutout: "none",
+  indicator: "none",
+  radius: 32,
+  landscape: false,
+  chrome: false,
+};
+
+/** The device of `frame` in `orientation`, its chrome shown or not. */
+export function previewDevice(frame: DeviceFrame, orientation: Orientation, chrome: boolean): PreviewDevice {
+  const { width, height } = orientedSize(frame, orientation);
+  const c = frameChrome(frame);
+  return {
+    width,
+    height,
+    padding: framePadding(frame, orientation),
+    cutout: c.cutout,
+    indicator: c.indicator,
+    radius: c.radius,
+    landscape: orientation === "landscape",
+    chrome,
+  };
+}
+
 /** What the canvas render applies from the switches. */
 export interface PreviewRender {
+  /** The device the screens are drawn in. */
+  readonly device: PreviewDevice;
   readonly direction: Direction;
   readonly textScale: number;
   readonly theme: PreviewTheme;
@@ -80,10 +135,15 @@ export interface PreviewRender {
   readonly localize: (text: string) => string;
 }
 
-export function previewRender(state: PreviewState, framePlatform: FramePlatform): PreviewRender {
+export function previewRender(
+  state: PreviewState,
+  framePlatform: FramePlatform,
+  device: PreviewDevice = genericDevice,
+): PreviewRender {
   const localize =
     state.locale === "en-XA" ? pseudoAccent : state.locale === "ar-XB" ? pseudoMirror : (text: string) => text;
   return {
+    device,
     direction: directionOf(state.locale),
     textScale: state.textScale,
     theme: state.theme,

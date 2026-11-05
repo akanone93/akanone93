@@ -6,6 +6,22 @@ import type { I18n } from "@lingui/core";
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
   return {
+    screenMeta: (route: string, kind: string, entry: boolean) =>
+      i18n._({
+        id: "pluginCanvas.screenMeta",
+        message: "{entry, select, yes {Entry · {route} · {kind}} other {{route} · {kind}}}",
+        values: { route, kind, entry: entry ? "yes" : "no" },
+        comment:
+          "Shown above a screen on the plugin canvas, after its name: its route name and page kind; the plugin's entry screen starts with 'Entry'.",
+      }),
+    pageKind: (kind: "screen" | "dialog" | "bottomSheet" | "fullscreenDialog") =>
+      i18n._({
+        id: "pluginCanvas.pageKind",
+        message:
+          "{kind, select, dialog {Dialog} bottomSheet {Bottom sheet} fullscreenDialog {Full-screen dialog} other {Page}}",
+        values: { kind },
+        comment: "The kind of a page (a full page, a dialog, a bottom sheet or a full-screen dialog), shown above it.",
+      }),
     title: i18n._({
       id: "pluginCanvas.title",
       message: "Plugin canvas",

@@ -29,6 +29,7 @@ import { globalRects } from "../node-rects.ts";
 import type { NodePaint, PaintTheme } from "../paint/paint.ts";
 import { type PaintNode, paintTree } from "../paint/painters.ts";
 import { type ResolvedText, resolveTextStyle } from "../paint/text-style.ts";
+import type { ViewPadding } from "../scene/scene.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { FontStyle, TextAlign, TextLeadingDistribution } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
@@ -126,6 +127,13 @@ export interface WidgetContext {
   mark(id: string, kind: PlacedKind, text?: string, style?: PlacedText): void;
   /** The colours and type scale to paint with, when the screen is painted (STU-005). */
   readonly paint?: PaintTheme | undefined;
+  /**
+   * `MediaQuery.padding` where the widget sits (PC-11): the device's status bar, cutouts and home indicator. The page's
+   * app bar takes the top; below an app bar, the scaffold's body has none at the top, as Flutter's `Scaffold` removes it.
+   */
+  readonly viewPadding?: ViewPadding | undefined;
+  /** The screen's root (whose `appBar` the screen lays out) and the status bar height its app bar reaches under. */
+  readonly pageBar?: { readonly root: string; readonly top: number } | undefined;
 }
 
 /** Builds the render object of one widget type. */
@@ -315,6 +323,11 @@ function rootConstraints(
     : bodyConstraints(root, theme.width, options.deviceHeight ?? theme.viewportHeight);
 }
 
+/** The status bar the page's app bar reaches under, for the screen's root scaffold; 0 for any other. */
+function topInset(node: WidgetNode, ctx: WidgetContext): number {
+  return ctx.pageBar?.root === node.id ? ctx.pageBar.top : 0;
+}
+
 /**
  * `Scaffold`: on a painted screen its body takes the device height below the app bar, as Flutter's scaffold gives it;
  * its other parts follow the body until they are placed. Elsewhere, its parts in a column.
@@ -325,7 +338,8 @@ const scaffold: WidgetBuilder = (node, ctx) => {
   }
   const body = node.slots?.["body"];
   const rest = nested(node).filter((c) => c !== body);
-  const bar = node.slots?.["appBar"] === undefined ? 0 : ctx.theme.appBarHeight;
+  // The page's app bar is as high as the toolbar plus the status bar it reaches under (PC-11).
+  const bar = node.slots?.["appBar"] === undefined ? 0 : ctx.theme.appBarHeight + topInset(node, ctx);
   const height = (ctx.deviceHeight ?? ctx.theme.viewportHeight) - bar;
   return named(
     node.id,
@@ -732,6 +746,8 @@ export interface LayoutScreenOptions {
   readonly deviceHeight?: number | undefined;
   /** The colours to paint with; without it the boxes carry no paint (STU-005). */
   readonly paint?: PaintTheme | undefined;
+  /** The device's system areas (status bar, cutouts, home indicator) on a painted screen; none when absent (PC-11). */
+  readonly viewPadding?: ViewPadding | undefined;
 }
 
 /** The laid-out boxes of a screen, with how each is drawn and, when painted, its paint. */
@@ -753,6 +769,30 @@ function placedBoxes(
   return boxes;
 }
 
+/**
+ * The view padding of a painted screen (PC-11): the whole of it for the page's app bar, the body's (none at the top
+ * below an app bar), and the root the app bar belongs to with the status bar it reaches under.
+ */
+function pageInsets(
+  root: WidgetNode | null | undefined,
+  options: LayoutScreenOptions,
+): {
+  readonly hasBar: boolean;
+  readonly full?: ViewPadding;
+  readonly body?: ViewPadding;
+  readonly pageBar?: { root: string; top: number };
+} {
+  const hasBar = root?.slots?.["appBar"] !== undefined;
+  const full = options.paint === undefined ? undefined : options.viewPadding;
+  if (full === undefined) {
+    return { hasBar };
+  }
+  if (!hasBar || root === null || root === undefined) {
+    return { hasBar, full, body: full };
+  }
+  return { hasBar, full, body: { ...full, top: 0 }, pageBar: { root: root.id, top: full.top } };
+}
+
 /** Lays one screen out at the theme's device width, text by the paragraph engine. */
 export function layoutScreen(root: WidgetNode | null | undefined, options: LayoutScreenOptions): ScreenLayout {
   const theme = options.theme ?? defaultScreenTheme;
@@ -766,7 +806,16 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
   const widths: number[] = [theme.width - 2 * pagePadding];
   const owners: { id: string; count: number }[] = [];
   const textScale = options.textScale ?? 1;
+  const rootId = "root";
+  const insets = pageInsets(root, options);
+  const hasBar = insets.hasBar;
+  // The page's app bar is laid out under the whole view padding; the body below it has none at the top.
+  let padding = insets.full;
   const ctx: WidgetContext = {
+    get viewPadding() {
+      return padding;
+    },
+    pageBar: insets.pageBar,
     engine: options.engine,
     theme,
     textScale,
@@ -812,11 +861,11 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     },
     ...(options.paint === undefined ? {} : { paint: options.paint }),
   };
-  const rootId = "root";
-  const hasBar = root?.slots?.["appBar"] !== undefined;
   if (hasBar) {
     ctx.mark("appBar", "box", options.title);
   }
+  const bar = hasBar ? [appBarOf(root, ctx, theme, options.paint !== undefined)] : [];
+  padding = insets.body;
   const content = named(
     rootId,
     new RenderFlex({
@@ -825,7 +874,7 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
       crossAxisAlignment: CrossAxisAlignment.start,
       textDirection: ctx.textDirection ?? TextDirection.ltr,
       children: [
-        ...(hasBar ? [appBarOf(root, ctx, theme, options.paint !== undefined)] : []),
+        ...bar,
         new RenderPadding({
           padding: EdgeInsets.all(pagePadding),
           child: new RenderConstrainedBox({

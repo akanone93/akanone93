@@ -68,15 +68,42 @@ export const arrowStyle: ArrowStyle = {
 export interface PlacedScreen {
   readonly id: string;
   readonly title: string;
+  /** The page's route name and kind (SCH-022, SCH-025), shown above its frame (PC-11). */
+  readonly route?: string;
+  readonly kind?: PageKind;
   /** The translation key of a translated title; the page shows it in the previewed locale. */
   readonly titleKey?: string;
   readonly at: Point;
   readonly root: Node | undefined;
 }
 
-/** The documents the worker lays out (ADR-0013): each screen's tree and where it stands. */
-export function screenDocuments(screens: readonly PlacedScreen[]): ScreenDocument[] {
-  return screens.map((s) => ({ id: s.id, title: s.title, x: s.at.x, y: s.at.y, root: s.root ?? null }));
+/** A page's kind (SCH-022). */
+export type PageKind = "screen" | "dialog" | "bottomSheet" | "fullscreenDialog";
+
+/**
+ * The documents the worker lays out (ADR-0013): each screen's tree and where it stands, with what its header shows
+ * after the name (`meta`, PC-11).
+ */
+export function screenDocuments(
+  screens: readonly PlacedScreen[],
+  meta?: (s: PlacedScreen) => string | undefined,
+): ScreenDocument[] {
+  return screens.map((s) => {
+    const line = meta?.(s);
+    return {
+      id: s.id,
+      title: s.title,
+      ...(line === undefined || line === "" ? {} : { meta: line }),
+      x: s.at.x,
+      y: s.at.y,
+      root: s.root ?? null,
+    };
+  });
+}
+
+/** The size of the device frame a style draws screens in. */
+export function deviceOf(style: ScreenStyle): { readonly width: number; readonly height: number } {
+  return { width: style.theme.width, height: style.deviceHeight };
 }
 
 /** Each screen's laid-out content height, by screen id. */
@@ -89,19 +116,20 @@ export const heightsById = (heights: readonly ScreenHeight[]): Heights =>
 export function contentBounds(
   screens: readonly PlacedScreen[],
   heights: Heights,
+  device: { readonly width: number; readonly height: number } = DEVICE,
 ): { l: number; t: number; r: number; b: number } {
   let l = 0;
   let t = 0;
-  let r: number = DEVICE.width;
-  let b: number = DEVICE.height;
+  let r: number = device.width;
+  let b: number = device.height;
   screens.forEach((s, i) => {
-    const bottom = s.at.y + Math.max(DEVICE.height, heights.get(s.id) ?? 0);
+    const bottom = s.at.y + Math.max(device.height, heights.get(s.id) ?? 0);
     if (i === 0) {
-      [l, t, r, b] = [s.at.x, s.at.y, s.at.x + DEVICE.width, bottom];
+      [l, t, r, b] = [s.at.x, s.at.y, s.at.x + device.width, bottom];
     } else {
       l = Math.min(l, s.at.x);
       t = Math.min(t, s.at.y);
-      r = Math.max(r, s.at.x + DEVICE.width);
+      r = Math.max(r, s.at.x + device.width);
       b = Math.max(b, bottom);
     }
   });

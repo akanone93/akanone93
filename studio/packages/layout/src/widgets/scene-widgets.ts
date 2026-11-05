@@ -21,7 +21,14 @@ import { fieldModel, fieldSceneProps } from "../paint/fields.ts";
 import { type PaintTheme, resolveColor } from "../paint/paint.ts";
 import { ownTextStyle, resolveTextStyle } from "../paint/text-style.ts";
 import { materialFontFamily } from "../scene/material-scene.ts";
-import { buildNode, hostType, type SceneNode, type SceneText, supportedTypes } from "../scene/scene.ts";
+import {
+  buildNode,
+  hostType,
+  type SceneNode,
+  type SceneText,
+  supportedTypes,
+  type ViewPadding,
+} from "../scene/scene.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { FontStyle } from "../text/paragraph-engine.ts";
 import type { PlacedText, WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
@@ -341,7 +348,11 @@ function convert(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNode {
   const inner = deep || compositeTypes.includes(type) || (paint !== undefined && componentTypes.includes(type));
   const raw = (node.props ?? {}) as Record<string, unknown>;
   if (paint !== undefined && faithfulTypes.has(type)) {
-    return faithfulScene(node, literalProps(raw, paint) as Record<string, unknown>, sceneChildren(node, bridge, inner));
+    const literal = literalProps(raw, paint) as Record<string, unknown>;
+    if (type === "SafeArea") {
+      return safeAreaScene(node.id, literal, sceneChildren(node, bridge, inner), bridge.ctx.viewPadding);
+    }
+    return faithfulScene(node, literal, sceneChildren(node, bridge, inner));
   }
   const props = type === "Text" ? textProps(node, sceneProps(type, raw), bridge) : sceneProps(type, raw);
   const children = sceneChildren(node, bridge, inner);
@@ -421,6 +432,41 @@ function literalProps(value: unknown, paint: PaintTheme): unknown {
 
 const ZERO = { all: 0 };
 
+/** A side of an `EdgeInsets` prop (`{all}`, `{horizontal, vertical}` or per side), 0 when absent. */
+function insetSide(value: unknown, side: "top" | "right" | "bottom" | "left"): number {
+  if (!isRecord(value)) {
+    return 0;
+  }
+  const axis = side === "top" || side === "bottom" ? "vertical" : "horizontal";
+  for (const key of [side, axis, "all"]) {
+    const v = value[key];
+    if (typeof v === "number") {
+      return v;
+    }
+  }
+  return 0;
+}
+
+/**
+ * `SafeArea`: its child padded by the device's view padding on each side it keeps (`top`, `bottom`, `left`, `right`,
+ * all on by default), but by at least `minimum`, as Flutter's `SafeArea.build` pads it.
+ */
+function safeAreaScene(
+  id: string,
+  props: Record<string, unknown>,
+  children: SceneNode[],
+  padding: ViewPadding | undefined,
+): SceneNode {
+  const side = (name: "top" | "right" | "bottom" | "left") =>
+    Math.max(props[name] === false ? 0 : (padding?.[name] ?? 0), insetSide(props["minimum"], name));
+  return {
+    id,
+    type: "Padding",
+    props: { padding: { top: side("top"), right: side("right"), bottom: side("bottom"), left: side("left") } },
+    ...(children.length === 0 ? {} : { children }),
+  };
+}
+
 /** A part of a widget the scene builds in its place: an id the canvas neither draws nor selects (`#` marks it). */
 const part = (id: string, name: string): string => `${id}#${name}`;
 
@@ -435,7 +481,6 @@ function faithfulScene(node: WidgetNode, props: Record<string, unknown>, childre
       return containerScene(node.id, props, children);
     case "SingleChildScrollView":
       return { id: node.id, type: "Padding", props: { padding: props["padding"] ?? ZERO }, ...own };
-    case "SafeArea":
     case "ColoredBox":
       return { id: node.id, type: "Padding", props: { padding: ZERO }, ...own };
     case "ListView":
@@ -619,6 +664,7 @@ function sceneBuild(node: WidgetNode, ctx: WidgetContext): RenderBox {
     base,
     hosts: bridge.hosts,
     screen: { width: ctx.available(), height: 0 },
+    ...(ctx.viewPadding === undefined ? {} : { viewPadding: ctx.viewPadding }),
     // A painted screen draws the texts a composite makes up itself (a field's hint, a segment's label).
     parts: ctx.paint !== undefined,
     onText: (id, style) => {

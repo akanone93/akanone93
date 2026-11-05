@@ -105,6 +105,29 @@ export function previewMessages(i18n: I18n) {
     mockLoading: i18n._({ id: "preview.mockLoading", message: "Loading", comment: "Mock data state option." }),
     mockEmpty: i18n._({ id: "preview.mockEmpty", message: "Empty", comment: "Mock data state option." }),
     mockError: i18n._({ id: "preview.mockError", message: "Error", comment: "Mock data state option." }),
+    orientation: i18n._({
+      id: "preview.orientation",
+      message: "Orientation",
+      comment: "Label of the select that turns the device frame between portrait and landscape.",
+    }),
+    portrait: i18n._({ id: "preview.portrait", message: "Portrait", comment: "Device orientation option." }),
+    landscape: i18n._({ id: "preview.landscape", message: "Landscape", comment: "Device orientation option." }),
+    chrome: i18n._({
+      id: "preview.chrome",
+      message: "Device chrome",
+      comment:
+        "Label of the select that shows or hides the device's status bar, camera cutout and home indicator on the screens.",
+    }),
+    chromeShown: i18n._({
+      id: "preview.chromeShown",
+      message: "Shown",
+      comment: "Option: the status bar, camera cutout and home indicator are drawn on the screens.",
+    }),
+    chromeHidden: i18n._({
+      id: "preview.chromeHidden",
+      message: "Hidden",
+      comment: "Option: the status bar, camera cutout and home indicator are not drawn (their space stays).",
+    }),
     matrix: i18n._({
       id: "preview.matrix",
       message: "Device matrix",

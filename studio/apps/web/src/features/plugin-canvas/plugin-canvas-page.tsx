@@ -65,6 +65,7 @@ import { flowOrder, type Point, placeScreens, readSavedPositions } from "./posit
 import {
   contentBounds,
   DEVICE,
+  type deviceOf,
   ghostStyle,
   type Heights,
   heightsById,
@@ -98,11 +99,12 @@ import { useScreenPositions } from "./use-screen-positions.ts";
 export function placeModel(
   documents: Parameters<typeof readPlugin>[0],
   saved?: ReadonlyMap<string, Point>,
+  width: number = DEVICE.width,
 ): PlacedScreen[] {
   const model = readPlugin(documents);
   const ids = model.screens.map((s) => s.id);
   const order = flowOrder(ids, model.entryPage ?? ids[0], model.edges);
-  const widths = new Map(ids.map((id) => [id, DEVICE.width]));
+  const widths = new Map(ids.map((id) => [id, width]));
   const at = placeScreens(order, widths, saved ?? readSavedPositions(documents));
   const byId = new Map(model.screens.map((s) => [s.id, s]));
   return order.flatMap((id) => {
@@ -110,9 +112,33 @@ export function placeModel(
     const p = at.get(id);
     return s === undefined || p === undefined
       ? []
-      : [{ id, title: s.title, ...(s.titleKey === undefined ? {} : { titleKey: s.titleKey }), at: p, root: s.root }];
+      : [
+          {
+            id,
+            title: s.title,
+            route: s.route,
+            kind: s.kind,
+            ...(s.titleKey === undefined ? {} : { titleKey: s.titleKey }),
+            at: p,
+            root: s.root,
+          },
+        ];
   });
 }
+
+/** What a screen's header shows after its name: the route, the page kind and the entry mark (PC-11). */
+function headerMeta(
+  m: ReturnType<typeof pluginCanvasMessages>,
+  entry: string | undefined,
+  // The locale the strings are in: a new locale is a new function, so the headers are drawn again.
+  _locale: string,
+): (s: PlacedScreen) => string | undefined {
+  return (s) =>
+    s.route === undefined ? undefined : m.screenMeta(s.route, m.pageKind(s.kind ?? "screen"), s.id === entry);
+}
+
+/** The size of the device frame the screens are drawn in. */
+type Device = ReturnType<typeof deviceOf>;
 
 /** The zoom factor of a wheel step with Ctrl or Cmd, kept within the zoom range (10–400 %). */
 function wheelFactor(zoom: number, deltaY: number): number {
@@ -161,10 +187,11 @@ function fitView(
   screens: readonly PlacedScreen[],
   laidOut: Heights,
   s: { x?: number; y?: number; z?: number },
+  device: Device,
 ): void {
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
-  const b = contentBounds(screens, laidOut);
+  const b = contentBounds(screens, laidOut, device);
   const zoom = s.z !== undefined ? s.z / 100 : 1;
   if (s.x !== undefined || s.y !== undefined) {
     const cx = s.x ?? (b.l + b.r) / 2;
@@ -186,14 +213,15 @@ function centreOn(
   canvas: HTMLCanvasElement | null,
   target: PlacedScreen | undefined,
   laidOut: Heights,
+  device: Device,
 ): void {
   if (surface === null || canvas === null || target === undefined) {
     return;
   }
   const z = surface.viewport.zoom;
-  const h = Math.max(DEVICE.height, laidOut.get(target.id) ?? 0);
+  const h = Math.max(device.height, laidOut.get(target.id) ?? 0);
   surface.setViewport(
-    target.at.x + DEVICE.width / 2 - canvas.clientWidth / 2 / z,
+    target.at.x + device.width / 2 - canvas.clientWidth / 2 / z,
     target.at.y + h / 2 - canvas.clientHeight / 2 / z,
     z,
   );
@@ -240,10 +268,11 @@ function fitAll(
   canvas: HTMLCanvasElement,
   screens: readonly PlacedScreen[],
   laidOut: Heights,
+  device: Device,
 ): void {
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
-  const b = contentBounds(screens, laidOut);
+  const b = contentBounds(screens, laidOut, device);
   const zoom = Math.min(
     1,
     Math.max(MIN_ZOOM_PERCENT / 100, Math.min(width / (b.r - b.l + 160), height / (b.b - b.t + 160))),
@@ -379,17 +408,29 @@ function PluginCanvasView({
     sources.map((x) => x.id),
     brands,
   );
+  // The device the screens are drawn in (STU-057, PC-11): the frame chosen in the action bar, in its orientation.
+  const device = useMemo<Device>(
+    () => ({ width: look.device.width, height: look.device.height }),
+    [look.device.width, look.device.height],
+  );
   // A translated title reads in the previewed locale, as the screen itself does.
   const screenPositions = useScreenPositions(docs.data, useCanEdit());
   const placed = useMemo(
-    () => (docs.data === undefined ? [] : placeModel(live, screenPositions.positions)),
-    [docs.data, live, screenPositions.positions],
+    () => (docs.data === undefined ? [] : placeModel(live, screenPositions.positions, device.width)),
+    [docs.data, live, screenPositions.positions, device.width],
   );
   const titleMessages = useMemo(
     () => messagesFor([...(appDocs.data ?? []), ...(docs.data ?? [])], look),
     [appDocs.data, docs.data, look],
   );
   const screens = useMemo(() => titledScreens(placed, titleMessages), [placed, titleMessages]);
+  // Each screen's header names its route and kind, and marks the plugin's entry (PC-11).
+  const entryId = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
+  const { i18n } = useLingui();
+  const meta = useMemo(
+    () => headerMeta(pluginCanvasMessages(i18n), entryId, i18n.locale),
+    [i18n, i18n.locale, entryId],
+  );
   const { shown, styled, paint } = usePreviewScene(screens, appDocs.data, docs.data, look);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -441,6 +482,7 @@ function PluginCanvasView({
     heights,
     appScreens,
     nativeRoutes,
+    device,
   });
   const roots = useMemo(() => screens.map((s) => s.root), [screens]);
   useScreenImages(params.app, () => surfaceRef.current, roots, heights.size);
@@ -636,16 +678,16 @@ function PluginCanvasView({
       return;
     }
     focusRef.current = undefined;
-    const h = Math.max(DEVICE.height, laidOut.get(id) ?? 0);
+    const h = Math.max(device.height, laidOut.get(id) ?? 0);
     const zoom = Math.min(1, (canvas.clientHeight || window.innerHeight) / (h + 160));
     const width = canvas.clientWidth || window.innerWidth;
     const height = canvas.clientHeight || window.innerHeight;
     surface.setViewport(
-      target.at.x + DEVICE.width / 2 - width / 2 / zoom,
+      target.at.x + device.width / 2 - width / 2 / zoom,
       target.at.y + h / 2 - height / 2 / zoom,
       zoom,
     );
-    const rect = { l: target.at.x, t: target.at.y, r: target.at.x + DEVICE.width, b: target.at.y + h };
+    const rect = { l: target.at.x, t: target.at.y, r: target.at.x + device.width, b: target.at.y + h };
     for (const step of pulseSteps(`pulse:${frameId(id)}`, rect, ghostStyle.pulse)) {
       pulses.current.push(setTimeout(() => surface.patch?.(step.ops), step.at));
     }
@@ -663,7 +705,7 @@ function PluginCanvasView({
       return;
     }
     let current = true;
-    void surface.layoutScreens(screenDocuments(shown), styled).then((laidOut) => {
+    void surface.layoutScreens(screenDocuments(shown, meta), styled).then((laidOut) => {
       if (!current) {
         return;
       }
@@ -672,7 +714,7 @@ function PluginCanvasView({
       // Only the first layout on a surface fits the view; an edit keeps where the user looks.
       if (fittedRef.current !== surface) {
         fittedRef.current = surface;
-        fitView(surface, canvas, screens, byId, searchRef.current);
+        fitView(surface, canvas, screens, byId, searchRef.current, device);
         focusRef.current = searchRef.current.focus;
       }
       showFocusRef.current(surface, canvas, byId);
@@ -680,7 +722,7 @@ function PluginCanvasView({
     return () => {
       current = false;
     };
-  }, [screens, shown, styled]);
+  }, [screens, shown, styled, meta, device]);
 
   // The view's place in the URL and the ghosts' level of detail follow the view at most once a frame: a router update
   // per wheel step or pointer move re-rendered the whole editor on each, and the canvas stuttered.
@@ -749,7 +791,7 @@ function PluginCanvasView({
     const surface = surfaceRef.current;
     const canvas = canvasRef.current;
     if (surface !== null && canvas !== null) {
-      fitAll(surface, canvas, screens, heights);
+      fitAll(surface, canvas, screens, heights, device);
       sync();
     }
   };
@@ -786,6 +828,7 @@ function PluginCanvasView({
       canvasRef.current,
       screens.find((x) => x.id === id),
       heights,
+      device,
     );
     sync();
   };
@@ -825,6 +868,7 @@ function PluginCanvasView({
     screens,
     shown,
     styled,
+    meta,
     positions: screenPositions,
     onPick: pickGhost,
     onView: sync,
@@ -910,7 +954,7 @@ function PluginCanvasView({
           {screens.map((s) => (
             <li key={s.id}>
               {s.title}
-              {(heights.get(s.id) ?? 0) > DEVICE.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
+              {(heights.get(s.id) ?? 0) > device.height && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
             </li>
           ))}
         </ol>

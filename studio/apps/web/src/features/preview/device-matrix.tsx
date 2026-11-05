@@ -20,7 +20,7 @@ export function DeviceMatrix({
   readonly frames: readonly DeviceFrame[];
   readonly orientation: Orientation;
   readonly render: PreviewRender;
-  readonly renderScreen: (cell: { width: number; height: number; sizeClass: string }) => ReactNode;
+  readonly renderScreen: (cell: { frame: DeviceFrame; width: number; height: number; sizeClass: string }) => ReactNode;
 }): ReactElement {
   const m = previewMessages(useLingui().i18n);
   return (

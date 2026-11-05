@@ -353,9 +353,38 @@ export interface SceneModel {
 export interface ScreenDocument {
   readonly id: string;
   readonly title: string;
+  /** What the header shows after the name (PC-11): the route, the page kind, the entry mark; none when absent. */
+  readonly meta?: string;
   readonly x: number;
   readonly y: number;
   readonly root: WidgetNode | null;
+}
+
+/**
+ * A device's system areas, drawn over every screen as the device draws them (PC-11, STU-057): the status bar with its
+ * time and icons, a camera cutout, and the home indicator or navigation buttons. The layout pads the page's app bar and
+ * `SafeArea` by the same insets. Insets are logical pixels.
+ */
+export interface DeviceChromeSpec {
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly left: number;
+  readonly cutout: "none" | "punch" | "notch" | "island";
+  readonly indicator: "none" | "gesture" | "home" | "buttons";
+  readonly platform: "material" | "cupertino";
+  /** The display's corner radius. */
+  readonly radius: number;
+  /** Landscape: the cutout sits on the left edge and the status bar is hidden on iOS. */
+  readonly landscape: boolean;
+  /** The time the status bar shows. */
+  readonly time: string;
+  /** Whether the chrome is drawn; the insets apply either way, as they do on the device. */
+  readonly visible: boolean;
+  /** Status bar and indicator colours over a light and over a dark backdrop; the cutout's colour. */
+  readonly onLight: ColorRgba;
+  readonly onDark: ColorRgba;
+  readonly cutoutColor: ColorRgba;
 }
 
 /** How laid-out screens are drawn: colours, the device height and the layout theme. */
@@ -380,6 +409,10 @@ export interface ScreenStyle {
   readonly paint?: PaintTheme;
   /** The colour of each screen's name, drawn above its device frame as a design tool names its frames; none when absent. */
   readonly title?: ColorRgba;
+  /** The colour of the header's route and kind after the name; the name's when absent. */
+  readonly meta?: ColorRgba;
+  /** The device's system areas; a plain frame with the default corners when absent. */
+  readonly chrome?: DeviceChromeSpec;
 }
 
 /** The laid-out height of one screen's content (STU-056). */

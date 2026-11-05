@@ -258,6 +258,7 @@ export {
   typeRoles,
   weightOf,
 } from "./paint/text-style.ts";
+export type { ViewPadding } from "./scene/scene.ts";
 export { RenderTestBox, type RenderTestBoxOptions } from "./test-box.ts";
 export { CanvasKitParagraphEngine } from "./text/canvaskit-engine.ts";
 export {
