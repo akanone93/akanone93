@@ -176,7 +176,11 @@ with an error or a warning has a red or amber dot on its corner, and its first p
 selected. Double-click down to a text to edit it in place: type, then press Enter (Shift+Enter breaks the line) or click
 away to save, Escape to cancel. A text you write this way becomes a translation key named after the page and its
 words, with your text as the default locale's message, when you may edit the app's keys and messages; a text already
-bound to a key changes its message in the default locale. An app bar shows the button it implies on the
+bound to a key changes its message in the default locale. A selected widget that pads its child shows a short magenta
+bar on each side of the child, and a row or column one in each gap between its children: drag a bar to change that
+padding (with Alt both sides of the axis, with Shift all four) or the gap, live and as one undo step. A value near one
+of the theme's spacing tokens snaps to it and is saved as that token (`space.md`), so the design keeps to the theme;
+resizing a widget snaps its width and height to a dimension token near them the same way. An app bar shows the button it implies on the
 device: the menu with a drawer, back on a page another opens, close on a full-screen dialog. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and

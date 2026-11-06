@@ -6,6 +6,19 @@ import type { I18n } from "@lingui/core";
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
   return {
+    paddingHandle: (side: "top" | "right" | "bottom" | "left") =>
+      i18n._({
+        id: "pluginCanvas.paddingHandle",
+        message:
+          "{side, select, top {Drag to change the top padding} bottom {Drag to change the bottom padding} left {Drag to change the left padding} other {Drag to change the right padding}}. Alt: both sides; Shift: all sides.",
+        values: { side },
+        comment: "Tooltip of a handle on the canvas that changes a widget's padding by dragging.",
+      }),
+    gapHandle: i18n._({
+      id: "pluginCanvas.gapHandle",
+      message: "Drag to change the gap between the children.",
+      comment: "Tooltip of a handle on the canvas that changes a row's or column's spacing by dragging.",
+    }),
     inlineText: i18n._({
       id: "pluginCanvas.inlineText",
       message: "Edit text",

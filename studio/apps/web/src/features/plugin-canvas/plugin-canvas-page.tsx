@@ -66,7 +66,7 @@ import { useBrands } from "./paint-theme.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
-import { openersOf, pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
+import { openersOf, type Node as PluxNode, pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
 import {
   contentBounds,
@@ -92,6 +92,8 @@ import { useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import type { PointerTool } from "./select/use-canvas-pointer.ts";
 import { useWithSessionDocs } from "./session-docs.ts";
+import { snapSize } from "./spacing-handles.ts";
+import { SpacingHandles } from "./spacing-handles.tsx";
 import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
 import { useAssetsTab } from "./use-assets-tab.ts";
 import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
@@ -170,6 +172,31 @@ function pulseScreen(
   for (const step of pulseSteps(`pulse:${frameId(target.id)}`, rect, ghostStyle.pulse)) {
     timers.push(setTimeout(() => surface.patch?.(step.ops), step.at));
   }
+}
+
+const NO_DIMENSIONS: Readonly<Record<string, number>> = Object.freeze({});
+
+/** The theme's dimension tokens in pixels (`space.md`), as the canvas paints with them. */
+const dimensionsOf = (paint: { readonly dimensions?: Readonly<Record<string, number>> }) =>
+  paint.dimensions ?? NO_DIMENSIONS;
+
+/** A resize snaps to a dimension token within 4 screen pixels, else to a whole pixel (PC-18). */
+function sizeSnapper(
+  paint: { readonly dimensions?: Readonly<Record<string, number>> },
+  surface: () => CanvasSurface | null,
+): (value: number) => number {
+  return (v) => snapSize(v, dimensionsOf(paint), 4 / (surface()?.viewport.zoom ?? 1));
+}
+
+/** The node `id` of the screen that holds it. */
+function nodeIn(
+  screens: readonly PlacedScreen[],
+  screenOf: ReadonlyMap<string, string>,
+  id: string,
+): PluxNode | undefined {
+  const root = screens.find((s) => s.id === screenOf.get(id))?.root;
+  const found = root === undefined ? null : findNode(root, id);
+  return found === null ? undefined : (found.node as unknown as PluxNode);
 }
 
 /** The hint shown while the Interact tool is on. */
@@ -969,6 +996,7 @@ function PluginCanvasView({
   liveHeights.current = liveSurface.setHeights;
   liveWheel.current = liveSurface.wheel;
   const interaction = useCanvasInteraction({
+    snapSize: sizeSnapper(paint, () => surfaceRef.current),
     onEditText: (id) => {
       const screen = screenOf.get(id);
       if (screen !== undefined) {
@@ -1043,6 +1071,20 @@ function PluginCanvasView({
         />
         {interaction.element}
         <LiveHint on={tool === "interact"} text={m.liveHint} />
+        <SpacingHandles
+          store={overlay}
+          surface={() => surfaceRef.current}
+          selection={selection}
+          index={index}
+          boxOf={(id) => boxRef.current?.(id)}
+          nodeOf={(id) => nodeIn(screens, screenOf, id)}
+          docOf={(id) => screenOf.get(id)}
+          edit={edit}
+          canEdit={canEdit}
+          locked={locked}
+          dims={dimensionsOf(paint)}
+          rtl={look.direction === "rtl"}
+        />
         <InlineTextHost
           editing={inlineEdit}
           onDone={() => setInlineEdit(null)}

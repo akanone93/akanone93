@@ -1,0 +1,52 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * Padding and gap handles of the selected widget (PC-18): short bars at the middle of each padding side or gap,
+ * dragged across them; placed from the physical top left by `--x` and `--y` in canvas pixels.
+ */
+
+.pc-spacing-handles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pc-spacing-handle {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: 16px;
+  block-size: 4px;
+  transform: translate(calc(var(--x) * 1px - 50%), calc(var(--y) * 1px - 50%));
+  border-radius: 2px;
+  background-color: var(--pc-handle, oklch(0.63 0.25 350));
+  box-shadow:
+    0 0 0 1.5px var(--background),
+    0 1px 3px color-mix(in oklch, black 30%, transparent);
+  pointer-events: auto;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+/* A wider reach than the bar itself. */
+.pc-spacing-handle::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+
+.pc-spacing-handle[data-axis="x"] {
+  inline-size: 4px;
+  block-size: 16px;
+  cursor: ew-resize;
+}
+
+/* A ring, not a scale: `scale` would apply over the translate and move the handle away from the pointer. */
+.pc-spacing-handle:hover {
+  box-shadow:
+    0 0 0 1.5px var(--background),
+    0 0 0 4px color-mix(in oklch, var(--pc-handle, oklch(0.63 0.25 350)) 35%, transparent),
+    0 1px 3px color-mix(in oklch, black 30%, transparent);
+}

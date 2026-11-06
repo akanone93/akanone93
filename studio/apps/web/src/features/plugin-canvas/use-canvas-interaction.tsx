@@ -61,6 +61,8 @@ export interface InteractionInput {
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
+  /** A resized width or height snapped to a dimension token near it (PC-18). */
+  readonly snapSize?: (value: number) => number;
   /** The tool, when the page holds it. */
   readonly tool?: PointerTool;
   readonly setTool?: (tool: PointerTool) => void;
@@ -316,6 +318,7 @@ export function useCanvasInteraction(input: InteractionInput) {
     },
     ...(input.onInteract === undefined ? {} : { onInteract: input.onInteract }),
     ...(input.onEditText === undefined ? {} : { onEditText: input.onEditText }),
+    ...(input.snapSize === undefined ? {} : { snapSize: input.snapSize }),
   });
 
   useCanvasKeys({

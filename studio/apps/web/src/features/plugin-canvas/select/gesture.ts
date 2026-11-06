@@ -49,6 +49,8 @@ export interface GestureEnv {
   readonly docOf: (id: string) => string | undefined;
   readonly boxOf: (id: string) => Box | undefined;
   readonly typeOf: (id: string) => string | undefined;
+  /** A resized width or height snapped to a dimension token near it (PC-18); a whole pixel when absent. */
+  readonly snapSize?: (value: number) => number;
 }
 
 const FLOW_TYPES = new Set(["Row", "Column", "Wrap", "Flex", "Stack"]);
@@ -164,7 +166,8 @@ export function finishResize(
     return;
   }
   const next = resizeBox(box, handle, delta);
-  env.edit(doc, resizeRecipe(id, Math.round(next.r - next.l), Math.round(next.b - next.t)), { group: "resize" });
+  const snap = env.snapSize ?? Math.round;
+  env.edit(doc, resizeRecipe(id, snap(next.r - next.l), snap(next.b - next.t)), { group: "resize" });
 }
 
 /** Wrap, unwrap and duplicate for the commands; IDs are fresh per call. */

@@ -65,6 +65,8 @@ export interface PointerInput {
   readonly onRenameScreen: (screen: string) => void;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
+  /** A resized width or height snapped to a dimension token near it, else to a whole pixel (PC-18). */
+  readonly snapSize?: (value: number) => number;
   /** With the Interact tool, a click is the screens' (PC-15): the world point and what is under it, topmost first. */
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
 }
@@ -183,6 +185,7 @@ export function pointerHandlers(
       docOf: (id) => i.screenOf.get(id),
       boxOf: (id) => (isRoot(id) ? undefined : i.boxOf(id)),
       typeOf: (id) => i.index.type.get(id),
+      ...(i.snapSize === undefined ? {} : { snapSize: i.snapSize }),
     };
   };
 

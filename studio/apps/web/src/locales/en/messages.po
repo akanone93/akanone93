@@ -946,6 +946,12 @@ msgstr "{set, select, material {Material} cupertino {Cupertino} other {Icons}}"
 msgid "pluginCanvas.drawerToggle"
 msgstr "{side, select, endDrawer {{shown, select, yes {Hide end drawer} other {Show end drawer}}} other {{shown, select, yes {Hide drawer} other {Show drawer}}}}"
 
+#. Tooltip of a handle on the canvas that changes a widget's padding by dragging.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.paddingHandle"
+msgstr "{side, select, top {Drag to change the top padding} bottom {Drag to change the bottom padding} left {Drag to change the left padding} other {Drag to change the right padding}}. Alt: both sides; Shift: all sides."
+
 #. The save state in a canvas's top bar: saved, sending edits, no network, or a conflict to resolve.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -4835,6 +4841,12 @@ msgstr "Draft"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.dropHint"
 msgstr "Drag files here, or click to choose them"
+
+#. Tooltip of a handle on the canvas that changes a row's or column's spacing by dragging.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.gapHandle"
+msgstr "Drag to change the gap between the children."
 
 #. Short help at the foot of the canvas for the pointer gestures.
 #. js-lingui-explicit-id

@@ -946,6 +946,12 @@ msgstr "{set, select, material {Material} cupertino {Cupertino} other {Symbole}}
 msgid "pluginCanvas.drawerToggle"
 msgstr "{side, select, endDrawer {{shown, select, yes {Hinteres Seitenmenü ausblenden} other {Hinteres Seitenmenü anzeigen}}} other {{shown, select, yes {Seitenmenü ausblenden} other {Seitenmenü anzeigen}}}}"
 
+#. Tooltip of a handle on the canvas that changes a widget's padding by dragging.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.paddingHandle"
+msgstr "{side, select, top {Ziehen, um den oberen Innenabstand zu ändern} bottom {Ziehen, um den unteren Innenabstand zu ändern} left {Ziehen, um den linken Innenabstand zu ändern} other {Ziehen, um den rechten Innenabstand zu ändern}}. Alt: beide Seiten; Umschalt: alle Seiten."
+
 #. The save state in a canvas's top bar: saved, sending edits, no network, or a conflict to resolve.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -4835,6 +4841,12 @@ msgstr "Entwurf"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.dropHint"
 msgstr "Dateien hierher ziehen oder klicken, um sie auszuwählen"
+
+#. Tooltip of a handle on the canvas that changes a row's or column's spacing by dragging.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.gapHandle"
+msgstr "Ziehen, um den Abstand zwischen den Kindelementen zu ändern."
 
 #. Short help at the foot of the canvas for the pointer gestures.
 #. js-lingui-explicit-id
