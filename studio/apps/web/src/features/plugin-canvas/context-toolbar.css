@@ -1,0 +1,77 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * The context toolbar of the selected widget (PC-19): a compact bar centred above it (below it near the top), placed
+ * by `--x` and `--y` in canvas pixels.
+ */
+
+.pc-toolbar {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-color: color-mix(in oklch, var(--popover, var(--background)) 94%, transparent);
+  color: var(--foreground);
+  box-shadow:
+    0 6px 20px color-mix(in oklch, black 16%, transparent),
+    0 1px 3px color-mix(in oklch, black 10%, transparent);
+  backdrop-filter: blur(10px);
+  transform: translate(calc(var(--x) * 1px - 50%), calc(var(--y) * 1px - 100% - 30px));
+  white-space: nowrap;
+}
+
+.pc-toolbar[data-place="below"] {
+  transform: translate(calc(var(--x) * 1px - 50%), calc(var(--y) * 1px + 34px));
+}
+
+.pc-toolbar-name {
+  padding-inline: 8px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.pc-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  block-size: 28px;
+  min-inline-size: 28px;
+  justify-content: center;
+  padding-inline: 6px;
+  border-radius: 7px;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.pc-tool svg {
+  inline-size: 16px;
+  block-size: 16px;
+}
+
+.pc-tool .pc-tool-caret {
+  inline-size: 10px;
+  block-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.pc-tool:hover,
+.pc-tool[data-popup-open] {
+  background-color: var(--accent);
+}
+
+.pc-tool:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.pc-tool[data-danger]:hover {
+  color: var(--destructive);
+  background-color: color-mix(in oklch, var(--destructive) 12%, transparent);
+}

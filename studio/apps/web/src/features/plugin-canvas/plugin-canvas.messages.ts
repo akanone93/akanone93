@@ -6,6 +6,62 @@ import type { I18n } from "@lingui/core";
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
   return {
+    contextToolbar: i18n._({
+      id: "pluginCanvas.contextToolbar",
+      message: "Selected widget",
+      comment: "Accessible name of the bar of quick actions shown above the selected widget on the canvas.",
+    }),
+    wrapIn: i18n._({
+      id: "pluginCanvas.wrapIn",
+      message: "Wrap in",
+      comment: "Toolbar menu: wrap the widget in a container.",
+    }),
+    convertTo: i18n._({
+      id: "pluginCanvas.convertTo",
+      message: "Convert to",
+      comment:
+        "Toolbar menu: turn the widget into a related one (a column into a row, a filled button into an outlined one).",
+    }),
+    addSibling: i18n._({
+      id: "pluginCanvas.addSibling",
+      message: "Add after",
+      comment: "Toolbar menu: add a new widget right after the selected one.",
+    }),
+    alignInParent: i18n._({
+      id: "pluginCanvas.alignInParent",
+      message: "Align in row or column",
+      comment: "Toolbar menu: how the children of the selected widget's row or column line up across it.",
+    }),
+    crossAlign: (a: "start" | "center" | "end" | "stretch") =>
+      i18n._({
+        id: "pluginCanvas.crossAlign",
+        message: "{a, select, start {Start} center {Centre} end {End} other {Stretch}}",
+        values: { a },
+        comment: "A cross-axis alignment of a row's or column's children.",
+      }),
+    addAction: i18n._({
+      id: "pluginCanvas.addAction",
+      message: "Add an action",
+      comment: "Toolbar button: opens the Actions pane to give the widget an action (what a tap does).",
+    }),
+    siblingName: (type: string) =>
+      i18n._({
+        id: "pluginCanvas.siblingName",
+        message:
+          "{type, select, Text {Text} FilledButton {Button} Icon {Icon} SizedBox {Space} Divider {Divider} Image {Image} other {Box}}",
+        values: { type },
+        comment: "A widget the toolbar adds after the selected one.",
+      }),
+    siblingText: i18n._({
+      id: "pluginCanvas.siblingText",
+      message: "New text",
+      comment: "Starting text of a text added with the toolbar; the user changes it.",
+    }),
+    siblingButton: i18n._({
+      id: "pluginCanvas.siblingButton",
+      message: "Button",
+      comment: "Starting label of a button added with the toolbar; the user changes it.",
+    }),
     paddingHandle: (side: "top" | "right" | "bottom" | "left") =>
       i18n._({
         id: "pluginCanvas.paddingHandle",

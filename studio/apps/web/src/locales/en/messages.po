@@ -13,6 +13,12 @@ msgstr ""
 msgid "pluginCanvas.copySuffix"
 msgstr "(copy)"
 
+#. A cross-axis alignment of a row's or column's children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.crossAlign"
+msgstr "{a, select, start {Start} center {Centre} end {End} other {Stretch}}"
+
 #. Says where an alias points.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -970,6 +976,12 @@ msgstr "{t, select, platform {Platform default} fade {Fade} slideLeft {Slide fro
 msgid "links.targetOption"
 msgstr "{title} ({scope})"
 
+#. A widget the toolbar adds after the selected one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.siblingName"
+msgstr "{type, select, Text {Text} FilledButton {Button} Icon {Icon} SizedBox {Space} Divider {Divider} Image {Image} other {Box}}"
+
 #. Status in the plugin canvas's top bar: one widget of this type is selected.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1360,6 +1372,18 @@ msgstr "Add a state entry"
 msgid "links.append"
 msgstr "Add after"
 
+#. Toolbar menu: add a new widget right after the selected one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.addSibling"
+msgstr "Add after"
+
+#. Toolbar button: opens the Actions pane to give the widget an action (what a tap does).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.addAction"
+msgstr "Add an action"
+
 #. Validation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -1628,6 +1652,12 @@ msgstr "Alias"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.aliasLabel"
 msgstr "Alias"
+
+#. Toolbar menu: how the children of the selected widget's row or column line up across it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.alignInParent"
+msgstr "Align in row or column"
 
 #. Label of the alignment picker.
 #. js-lingui-explicit-id
@@ -2651,6 +2681,12 @@ msgstr "Bundle size"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.perfBundle"
 msgstr "Bundle size"
+
+#. Starting label of a button added with the toolbar; the user changes it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.siblingButton"
+msgstr "Button"
 
 #. Checkbox that marks the widget as a button.
 #. js-lingui-explicit-id
@@ -3755,6 +3791,12 @@ msgstr "Continue with {name}"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.variantControl"
 msgstr "Control"
+
+#. Toolbar menu: turn the widget into a related one (a column into a row, a filled button into an outlined one).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.convertTo"
+msgstr "Convert to"
 
 #. Confirmation after copying your version as JSON.
 #. js-lingui-explicit-id
@@ -9191,6 +9233,12 @@ msgstr "New target screen"
 msgid "appCanvas.redirectTarget"
 msgstr "New target screen"
 
+#. Starting text of a text added with the toolbar; the user changes it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.siblingText"
+msgstr "New text"
+
 #. Label of the field for the path of a new token.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -13473,6 +13521,12 @@ msgstr "Selected from the device."
 msgid "panels.selectionLabel"
 msgstr "Selected nodes"
 
+#. Accessible name of the bar of quick actions shown above the selected widget on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.contextToolbar"
+msgstr "Selected widget"
+
 #. Tab: the selected nodes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -17703,6 +17757,12 @@ msgstr "Works offline"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.worsened"
 msgstr "Worsened"
+
+#. Toolbar menu: wrap the widget in a container.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.wrapIn"
+msgstr "Wrap in"
 
 #. Command that wraps the selected canvas elements in a new column.
 #. js-lingui-explicit-id

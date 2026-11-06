@@ -47,6 +47,7 @@ import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { useCopyOver } from "./clipboard/use-copy-over.ts";
+import { ContextToolbar } from "./context-toolbar.tsx";
 import { DeviceBayHost } from "./device-bay-host.tsx";
 import { useDeviceFonts } from "./device-fonts.ts";
 import { ExtraOverlays } from "./extra-overlays.tsx";
@@ -187,6 +188,9 @@ function sizeSnapper(
 ): (value: number) => number {
   return (v) => snapSize(v, dimensionsOf(paint), 4 / (surface()?.viewport.zoom ?? 1));
 }
+
+/** The next request to show a pane of the inspector: a new number, so the same pane opens again. */
+const tabRequest = (tab: string, r: { readonly n: number } | undefined) => ({ tab, n: (r?.n ?? 0) + 1 });
 
 /** The node `id` of the screen that holds it. */
 function nodeIn(
@@ -515,6 +519,7 @@ function PluginCanvasView({
   const [tool, setTool] = useState<PointerTool>("select");
   const [liveValues, setLive] = useState<LiveState>(emptyLive);
   const [inlineEdit, setInlineEdit] = useState<InlineEdit | null>(null);
+  const [dockTab, setDockTab] = useState<{ readonly tab: string; readonly n: number } | undefined>();
   // A drawer is drawn open when the user shows it or the selection is inside it (PC-12).
   const picked = useEditor((st) => st.selection);
   const shownRoots = useMemo(() => screens.map((s) => s.root), [screens]);
@@ -1085,6 +1090,22 @@ function PluginCanvasView({
           dims={dimensionsOf(paint)}
           rtl={look.direction === "rtl"}
         />
+        <ContextToolbar
+          active={tool === "select"}
+          store={overlay}
+          surface={() => surfaceRef.current}
+          selectionStore={store}
+          ids={selection.ids}
+          index={index}
+          boxOf={(id) => boxRef.current?.(id)}
+          nodeOf={(id) => nodeIn(screens, screenOf, id)}
+          docOf={(id) => screenOf.get(id)}
+          edit={edit}
+          canEdit={canEdit}
+          locked={locked}
+          onAction={() => setDockTab((r) => tabRequest("actions", r))}
+          onDelete={interaction.remove}
+        />
         <InlineTextHost
           editing={inlineEdit}
           onDone={() => setInlineEdit(null)}
@@ -1214,6 +1235,7 @@ function PluginCanvasView({
         />
         {libraryDialog}
         <RightDock
+          tabRequest={dockTab}
           tests={tests}
           screens={screens}
           index={index}

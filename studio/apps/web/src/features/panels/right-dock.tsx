@@ -585,6 +585,8 @@ interface DockProps {
   readonly onOpenFunction?: ((name: string) => void) | undefined;
   /** Runs a function's stored tests from the Code tab (FN-034). */
   readonly tests?: TestsClient | undefined;
+  /** A request to show a pane (the canvas's toolbar opens Actions, PC-19): a new `n` shows it again. */
+  readonly tabRequest?: { readonly tab: string; readonly n: number } | undefined;
 }
 
 /** The registry marks string props whose text the user sees (`translatable`, I18N-007). */
@@ -1419,6 +1421,14 @@ export function RightDock(props: DockProps) {
     },
   ];
   const [folded, setFolded] = useStoredFlag("plux.dock.end.folded", false);
+  const [tab, setTab] = useState("properties");
+  const request = props.tabRequest;
+  useEffect(() => {
+    if (request !== undefined) {
+      setTab(request.tab);
+      setFolded(false);
+    }
+  }, [request, setFolded]);
   const first = ids[0];
   const type = first === undefined ? undefined : props.index.type.get(first);
   const descriptor = type === undefined ? undefined : widget(type);
@@ -1439,6 +1449,8 @@ export function RightDock(props: DockProps) {
           side="end"
           panes={panes}
           defaultValue="properties"
+          value={tab}
+          onValueChange={setTab}
           mark={glyph}
           folded={folded}
           onFold={setFolded}
