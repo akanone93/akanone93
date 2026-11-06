@@ -406,3 +406,26 @@
   color: oklch(0.25 0.05 75);
   background-color: oklch(0.85 0.14 80);
 }
+
+/* A text edited in place (PC-17): a field over the text, at its size on screen. */
+.pc-inline-text {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 4;
+  inline-size: calc(var(--w) * 1px);
+  min-block-size: 1.6em;
+  transform: translate(calc(var(--x) * 1px - 4px), calc(var(--y) * 1px - 3px));
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 4px;
+  outline: 2px solid var(--primary);
+  box-shadow: 0 4px 16px color-mix(in oklch, black 18%, transparent);
+  background-color: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: calc(var(--fs) * 1px);
+  line-height: 1.25;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+}

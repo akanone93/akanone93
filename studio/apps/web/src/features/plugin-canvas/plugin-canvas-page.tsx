@@ -28,7 +28,7 @@ import { UndoManager } from "../editor/undo-stack.ts";
 import { JsonEditorHost } from "../json-editor/index.ts";
 import { useLibraryActions } from "../library/canvas/use-library-actions.tsx";
 import { useCan } from "../library/use-library.ts";
-import { L10nSessionsProvider } from "../localisation/index.ts";
+import { L10nSessionsProvider, useL10nSessions } from "../localisation/index.ts";
 import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { LeftDock } from "../panels/left-dock.tsx";
@@ -53,6 +53,7 @@ import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
 import { useHostFonts } from "./host-fonts.ts";
+import { type InlineEdit, InlineTextHost } from "./inline-text.tsx";
 import { LaneDialog, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
@@ -90,6 +91,7 @@ import * as sel from "./select/selection.ts";
 import { useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
 import type { PointerTool } from "./select/use-canvas-pointer.ts";
+import { useWithSessionDocs } from "./session-docs.ts";
 import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
 import { useAssetsTab } from "./use-assets-tab.ts";
 import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
@@ -452,6 +454,8 @@ function PluginCanvasView({
   );
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
   const brands = useBrands(appDocs.data);
+  // The screens are drawn with the translations as the localisation session holds them, unsaved edits included.
+  const drawnAppDocs = useWithSessionDocs(appDocs.data, useL10nSessions()?.messages);
   const { look, bar, switcher, matrix } = usePreviewBar(
     params.app,
     sources.map((x) => x.id),
@@ -469,8 +473,8 @@ function PluginCanvasView({
     [docs.data, live, screenPositions.positions, device.width],
   );
   const titleMessages = useMemo(
-    () => messagesFor([...(appDocs.data ?? []), ...(docs.data ?? [])], look),
-    [appDocs.data, docs.data, look],
+    () => messagesFor([...(drawnAppDocs ?? []), ...(docs.data ?? [])], look),
+    [drawnAppDocs, docs.data, look],
   );
   const screens = useMemo(() => titledScreens(placed, titleMessages), [placed, titleMessages]);
   // Each screen's header names its route and kind, and marks the plugin's entry (PC-11).
@@ -483,6 +487,7 @@ function PluginCanvasView({
   // The tool is the page's: with Interact the screens are live (PC-15), and their live values are drawn.
   const [tool, setTool] = useState<PointerTool>("select");
   const [liveValues, setLive] = useState<LiveState>(emptyLive);
+  const [inlineEdit, setInlineEdit] = useState<InlineEdit | null>(null);
   // A drawer is drawn open when the user shows it or the selection is inside it (PC-12).
   const picked = useEditor((st) => st.selection);
   const shownRoots = useMemo(() => screens.map((s) => s.root), [screens]);
@@ -491,7 +496,7 @@ function PluginCanvasView({
     shown,
     styled: designStyled,
     paint,
-  } = usePreviewScene(screens, appDocs.data, docs.data, look, drawers, liveValues);
+  } = usePreviewScene(screens, drawnAppDocs, docs.data, look, drawers, liveValues);
   const styled = useMemo(() => liveStyle(designStyled, tool), [designStyled, tool]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -964,6 +969,12 @@ function PluginCanvasView({
   liveHeights.current = liveSurface.setHeights;
   liveWheel.current = liveSurface.wheel;
   const interaction = useCanvasInteraction({
+    onEditText: (id) => {
+      const screen = screenOf.get(id);
+      if (screen !== undefined) {
+        setInlineEdit({ id, screen });
+      }
+    },
     problems: nodeProblems,
     tool,
     setTool,
@@ -1032,6 +1043,17 @@ function PluginCanvasView({
         />
         {interaction.element}
         <LiveHint on={tool === "interact"} text={m.liveHint} />
+        <InlineTextHost
+          editing={inlineEdit}
+          onDone={() => setInlineEdit(null)}
+          store={overlay}
+          surface={() => surfaceRef.current}
+          boxOf={(id) => boxRef.current?.(id)}
+          screens={screens}
+          edit={edit}
+          schemaVersion={stateTarget.schemaVersion}
+          announce={setFocusNote}
+        />
         <PagePartsHost
           store={overlay}
           surface={() => surfaceRef.current}

@@ -173,7 +173,10 @@ page into view. Actions that call networks or functions are not run; the canvas 
 Nothing you do there changes the plugin; V or Escape returns to editing. A selected widget shows its spacing: the
 padding around its child striped in magenta and the gaps between its children in violet, each with its size. A widget
 with an error or a warning has a red or amber dot on its corner, and its first problem shows under its size when it is
-selected. An app bar shows the button it implies on the
+selected. Double-click down to a text to edit it in place: type, then press Enter (Shift+Enter breaks the line) or click
+away to save, Escape to cancel. A text you write this way becomes a translation key named after the page and its
+words, with your text as the default locale's message, when you may edit the app's keys and messages; a text already
+bound to a key changes its message in the default locale. An app bar shows the button it implies on the
 device: the menu with a drawer, back on a page another opens, close on a full-screen dialog. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and

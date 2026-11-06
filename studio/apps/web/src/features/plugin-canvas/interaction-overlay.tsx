@@ -27,6 +27,8 @@ export interface OverlayNodes {
   readonly frameRadius?: number;
   /** A node's children, in order, whose padding and gaps the selection shows (PC-16). */
   readonly childrenOf?: (id: string) => readonly string[];
+  /** Whether the space around a node's single child is its padding (not an alignment's free space). */
+  readonly padded?: (id: string) => boolean;
   /** The problems pinned to each node, the most severe first (PC-16). */
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
 }
@@ -135,16 +137,16 @@ function gapBands(kids: readonly Box[]): Band[] {
 }
 
 /** The spacing a selected widget shows (PC-16): its padding around one child, or the gaps between several. */
-export function spacingBands(box: Box, kids: readonly Box[]): Band[] {
+export function spacingBands(box: Box, kids: readonly Box[], padded = true): Band[] {
   if (kids.length === 1) {
-    return paddingBands(box, kids[0] as Box);
+    return padded ? paddingBands(box, kids[0] as Box) : [];
   }
   return kids.length > 1 ? gapBands(kids) : [];
 }
 
 function Spacing({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
   const kids = (nodes.childrenOf?.(id) ?? []).flatMap((k) => nodes.boxOf(k) ?? []);
-  return spacingBands(box, kids).map((b, i) => {
+  return spacingBands(box, kids, nodes.padded?.(id) ?? true).map((b, i) => {
     const big = (b.box.r - b.box.l) * view.zoom >= 14 && (b.box.b - b.box.t) * view.zoom >= 10;
     return (
       // biome-ignore lint/suspicious/noArrayIndexKey: the bands of one selection, in a fixed order

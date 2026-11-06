@@ -12,6 +12,8 @@ import { type Node, parseDocument } from "./plugin-model.ts";
 interface DocLike {
   readonly kind: string;
   readonly content: Uint8Array;
+  /** The document already parsed (an edit session's unsaved copy); wins over `content`. */
+  readonly parsed?: unknown;
 }
 
 type Obj = Record<string, unknown>;
@@ -21,7 +23,9 @@ const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !
 const CUPERTINO = { appBarHeight: 44, controlHeight: 44 } as const;
 
 const jsonOf = (docs: readonly DocLike[], kind: string): Obj[] =>
-  docs.map((d) => parseDocument(d.content)).filter((d): d is Obj => isObj(d) && d["kind"] === kind);
+  docs
+    .map((d) => (d.parsed !== undefined ? d.parsed : parseDocument(d.content)))
+    .filter((d): d is Obj => isObj(d) && d["kind"] === kind);
 
 /** The value of a design token at `name`, in dark mode from `$extensions.dev.plux.dark` when `dark`. */
 function tokenValue(tokens: unknown, name: string, dark: boolean): unknown {

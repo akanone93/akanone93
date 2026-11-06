@@ -4998,6 +4998,12 @@ msgstr "Edit in action graph"
 msgid "functions.openEditor"
 msgstr "Edit in the Rust editor"
 
+#. Accessible name of the field that edits a text in place on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.inlineText"
+msgstr "Edit text"
+
 #. Button that opens the mock dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -12932,6 +12938,12 @@ msgstr "Saved in secure storage"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.persistence.persisted"
 msgstr "Saved on the device"
+
+#. Announced after a text edited on the canvas is saved as a translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.inlineSaved"
+msgstr "Saved under the translation key {key}."
 
 #. Shown after the name and description were saved.
 #. js-lingui-explicit-id

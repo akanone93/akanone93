@@ -16,6 +16,8 @@ describe("PC-16 a selected widget's padding and gaps [STU-067]", () => {
       ["padding", 16],
     ]);
     expect(spacingBands(box(0, 0, 100, 60), [box(0, 0, 100, 60)])).toEqual([]);
+    // A Center's free space around its child is not padding.
+    expect(spacingBands(box(0, 0, 100, 60), [box(16, 8, 84, 52)], false)).toEqual([]);
   });
 
   test("children in a column or a row: the gaps between them; a stack has none", () => {

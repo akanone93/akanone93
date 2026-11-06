@@ -6,6 +6,18 @@ import type { I18n } from "@lingui/core";
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
   return {
+    inlineText: i18n._({
+      id: "pluginCanvas.inlineText",
+      message: "Edit text",
+      comment: "Accessible name of the field that edits a text in place on the canvas.",
+    }),
+    inlineSaved: (key: string) =>
+      i18n._({
+        id: "pluginCanvas.inlineSaved",
+        message: "Saved under the translation key {key}.",
+        values: { key },
+        comment: "Announced after a text edited on the canvas is saved as a translation key.",
+      }),
     toolInteract: i18n._({
       id: "pluginCanvas.toolInteract",
       message: "Interact",

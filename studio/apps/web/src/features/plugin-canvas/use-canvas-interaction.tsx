@@ -59,10 +59,25 @@ export interface InteractionInput {
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
   /** The problems pinned to each widget, drawn as dots (PC-16). */
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
+  /** A double-click that reaches a text edits it in place (PC-17). */
+  readonly onEditText?: (id: string) => void;
   /** The tool, when the page holds it. */
   readonly tool?: PointerTool;
   readonly setTool?: (tool: PointerTool) => void;
 }
+
+/** Widgets whose space around their child is padding; an `Align` or a `Center` has free space instead (PC-16). */
+const PADDED: ReadonlySet<string> = new Set([
+  "Padding",
+  "AnimatedPadding",
+  "SafeArea",
+  "Container",
+  "AnimatedContainer",
+  "Card",
+  "SingleChildScrollView",
+  "ListView",
+  "GridView",
+]);
 
 /** The layer names of every node of `roots`, by id; nodes without one are left out. */
 function layerNames(roots: readonly (Node | undefined)[]): ReadonlyMap<string, string> {
@@ -237,6 +252,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       scope: selection.scope,
       ...(input.styled.chrome === undefined ? {} : { frameRadius: input.styled.chrome.radius }),
       childrenOf: (id) => index.children.get(id) ?? [],
+      padded: (id) => PADDED.has(index.type.get(id) ?? ""),
       ...(input.problems === undefined ? {} : { problems: input.problems }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
@@ -299,6 +315,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       input.requestScreen("rename", screen);
     },
     ...(input.onInteract === undefined ? {} : { onInteract: input.onInteract }),
+    ...(input.onEditText === undefined ? {} : { onEditText: input.onEditText }),
   });
 
   useCanvasKeys({

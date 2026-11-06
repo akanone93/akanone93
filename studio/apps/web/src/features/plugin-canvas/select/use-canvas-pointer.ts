@@ -63,6 +63,8 @@ export interface PointerInput {
   readonly onContextMenu: (at: Point, target: MenuTarget) => void;
   /** A double-click on a screen's title renames it. */
   readonly onRenameScreen: (screen: string) => void;
+  /** A double-click that reaches a text edits it in place (PC-17). */
+  readonly onEditText?: (id: string) => void;
   /** With the Interact tool, a click is the screens' (PC-15): the world point and what is under it, topmost first. */
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
 }
@@ -537,7 +539,13 @@ export function pointerHandlers(
         i.onRenameScreen(screenOfItem(title) ?? "");
         return;
       }
-      i.store.set(sel.drill(i.index, i.store.get(), nodesAt(hits)));
+      const next = sel.drill(i.index, i.store.get(), nodesAt(hits));
+      i.store.set(next);
+      // Drilling down to a text opens it for editing in place, as design tools do.
+      const only = next.ids.length === 1 ? next.ids[0] : undefined;
+      if (only !== undefined && i.index.type.get(only) === "Text" && i.canEdit && !i.locked.has(only)) {
+        i.onEditText?.(only);
+      }
     },
     onContextMenu: (e: PointerLike) => {
       e.preventDefault?.();

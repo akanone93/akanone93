@@ -4998,6 +4998,12 @@ msgstr "تحرير في مخطط الإجراءات"
 msgid "functions.openEditor"
 msgstr "التحرير في محرر Rust"
 
+#. Accessible name of the field that edits a text in place on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.inlineText"
+msgstr "تحرير النص"
+
 #. Button that opens the mock dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -12932,6 +12938,12 @@ msgstr "محفوظ في التخزين الآمن"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.persistence.persisted"
 msgstr "محفوظ على الجهاز"
+
+#. Announced after a text edited on the canvas is saved as a translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.inlineSaved"
+msgstr "حُفظ تحت مفتاح الترجمة {key}."
 
 #. Shown after the name and description were saved.
 #. js-lingui-explicit-id
