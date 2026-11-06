@@ -8,6 +8,7 @@ import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
 import { useCanvasKeys } from "../app-canvas/use-canvas-keys.ts";
 import { metaOf } from "../panels/studio-meta.ts";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
+import type { BindingMark } from "./binding-marks.ts";
 import { CanvasMenu, type MenuAt } from "./canvas-menu.tsx";
 import { removeRecipe } from "./clipboard/use-clipboard.tsx";
 import { InteractionOverlay, type OverlayNodes } from "./interaction-overlay.tsx";
@@ -59,6 +60,8 @@ export interface InteractionInput {
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
   /** The problems pinned to each widget, drawn as dots (PC-16). */
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
+  /** The bound props of each widget, drawn as badges (PC-23). */
+  readonly bindings?: ReadonlyMap<string, readonly BindingMark[]>;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -256,10 +259,23 @@ export function useCanvasInteraction(input: InteractionInput) {
       childrenOf: (id) => index.children.get(id) ?? [],
       padded: (id) => PADDED.has(index.type.get(id) ?? ""),
       ...(input.problems === undefined ? {} : { problems: input.problems }),
+      ...(input.bindings === undefined ? {} : { bindings: input.bindings }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
-    [boxOf, isScreen, resizable, selection.scope, titles, screenOf, names, index, input.styled.chrome, input.problems],
+    [
+      boxOf,
+      isScreen,
+      resizable,
+      selection.scope,
+      titles,
+      screenOf,
+      names,
+      index,
+      input.styled.chrome,
+      input.problems,
+      input.bindings,
+    ],
   );
   const preview = useScreenPreview(input, overlay);
   const view = input.onView;

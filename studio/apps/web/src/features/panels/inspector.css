@@ -894,3 +894,29 @@
   min-inline-size: 0;
   flex: 1;
 }
+
+/* Under a bound expression: the value the canvas draws for it (PC-23). */
+.prop-pxl-drawn {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  min-inline-size: 0;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+
+.prop-pxl-drawn code {
+  overflow: hidden;
+  padding: 0 calc(var(--spacing) * 1.5);
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  background-color: color-mix(in oklch, oklch(0.6 0.12 195) 14%, transparent);
+  font-family: var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prop-pxl-drawn > span {
+  flex: none;
+  white-space: nowrap;
+}

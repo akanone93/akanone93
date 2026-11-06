@@ -101,6 +101,13 @@ export function previewMessages(i18n: I18n) {
       message: "Data state",
       comment: "Label of the select that sets the mock state of the data sources.",
     }),
+    mockOf: (source: string) =>
+      i18n._({
+        id: "preview.mockOf",
+        message: "Data: {source}",
+        values: { source },
+        comment: "Label of one data source's mock state select; {source} is the source's name.",
+      }),
     mockSuccess: i18n._({ id: "preview.mockSuccess", message: "Success", comment: "Mock data state option." }),
     mockLoading: i18n._({ id: "preview.mockLoading", message: "Loading", comment: "Mock data state option." }),
     mockEmpty: i18n._({ id: "preview.mockEmpty", message: "Empty", comment: "Mock data state option." }),

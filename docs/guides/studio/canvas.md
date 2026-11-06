@@ -211,7 +211,13 @@ its edges from a box of four bars, with **Set the width** and **Set the height**
 and taking off the last pin takes it out. A box's **Constraints** edit their least and most width and height (an empty
 most is unbounded). Pick **Medium** or **Expanded** above the properties to edit what the widget does on wider windows:
 a value set there overrides the smaller classes, and the widget lists the classes it overrides — click one to edit it,
-or clear it. **Reset layout** clears the layout properties at the class you edit. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+or clear it. **Reset layout** clears the layout properties at the class you edit. A widget bound to an expression is
+drawn with the value it would have on the device at design time: a page parameter's mock (else its default), the
+default of the page's, plugin's or app's state, or a data source's mock in the state chosen under **Preview** — one
+**Data state** for all sources, or one for each source (**Data: orders**). A bound widget has a small teal badge on its
+corner (with a count when several of its properties are bound); select it to see each binding, its expression and the
+value drawn, and the inspector shows **The canvas shows** under a bound field. A value only the device knows (a
+computed state, a flag, an event) is drawn as the widget's default and marked with a dash. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

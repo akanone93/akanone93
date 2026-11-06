@@ -7,8 +7,9 @@ import { useMemo, useRef, useState } from "react";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { withoutHidden } from "../panels/studio-meta.ts";
 import type { PreviewRender } from "../preview/switches.ts";
+import { designScopes } from "./design-scope.ts";
 import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
-import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme } from "./look.ts";
+import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, namedMocks, resolveTheme } from "./look.ts";
 import { bindMocks } from "./mock-bindings.ts";
 import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
 import { presented, RouteCache } from "./page-routes.ts";
@@ -119,7 +120,8 @@ export function usePreviewScene(
         : new WeakMap<Node, Node | undefined>();
     cache.current = { everything, look, byRoot };
     const messages = messagesFor(everything, look);
-    const mocks = new Map(dataSourcesOf(everything).map((src) => [src.id, src.mock]));
+    const { mocks, states } = namedMocks(dataSourcesOf(everything), look.mockStates);
+    const scopes = designScopes(everything);
     const drawn = screens.map((s) => {
       if (s.root === undefined) {
         return s;
@@ -127,7 +129,7 @@ export function usePreviewScene(
       if (!byRoot.has(s.root)) {
         // A layer hidden in Layers is left out of what the canvas draws (STU-061); the device still shows it.
         const drawn = withoutHidden(s.root);
-        byRoot.set(s.root, bindMocks(localizeTree(drawn, messages, look.localize), mocks, look.mockStates));
+        byRoot.set(s.root, bindMocks(localizeTree(drawn, messages, look.localize), mocks, states, scopes.get(s.id)));
       }
       const drawer = shownWith(byRoot.get(s.root), drawers, opened);
       return { ...s, root: drawer === undefined ? drawer : livened(drawer, s, live, look.platform, implied) };

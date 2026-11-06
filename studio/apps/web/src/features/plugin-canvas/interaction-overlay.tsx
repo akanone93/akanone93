@@ -4,6 +4,7 @@
 import type { Guides } from "@plux/canvas";
 import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
+import type { BindingMark } from "./binding-marks.ts";
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
@@ -31,6 +32,8 @@ export interface OverlayNodes {
   readonly padded?: (id: string) => boolean;
   /** The problems pinned to each node, the most severe first (PC-16). */
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
+  /** The props of each node bound to expressions, with the values the canvas shows (PC-23). */
+  readonly bindings?: ReadonlyMap<string, readonly BindingMark[]>;
 }
 
 interface View {
@@ -168,6 +171,49 @@ function ProblemDots({ view, nodes }: { view: View; nodes: OverlayNodes }): Reac
   });
 }
 
+/** A badge on the top-end corner of every bound widget (PC-23); its count when it binds several props. */
+function BindingBadges({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  return [...(nodes.bindings ?? new Map<string, readonly BindingMark[]>())].flatMap(([id, list]) => {
+    const box = nodes.boxOf(id);
+    return box === undefined || nodes.isScreen(id)
+      ? []
+      : [
+          <span
+            key={id}
+            className="pc-bind-badge"
+            style={point(box.r, box.t, view)}
+            title={list.map((b) => b.expr).join("\n")}
+          >
+            {list.length > 1 ? list.length : ""}
+          </span>,
+        ];
+  });
+}
+
+const MAX_BINDINGS = 3;
+
+/** The selected widget's bindings over its top-end corner: each prop, its expression and the value drawn. */
+function BindingTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+  const list = nodes.bindings?.get(id) ?? [];
+  if (list.length === 0) {
+    return null;
+  }
+  return (
+    <span className="pc-bind-tag" style={point(box.r, box.b, view)}>
+      {list.slice(0, MAX_BINDINGS).map((b) => (
+        <span key={b.prop} className="pc-bind-line">
+          <span className="pc-bind-prop">{b.prop}</span>
+          <span className="pc-bind-expr">{b.expr}</span>
+          <span className="pc-bind-value" data-unknown={b.shown === undefined || undefined}>
+            {b.shown ?? "—"}
+          </span>
+        </span>
+      ))}
+      {list.length > MAX_BINDINGS && <span className="pc-bind-more">+{list.length - MAX_BINDINGS}</span>}
+    </span>
+  );
+}
+
 /** The selected widget's first problem, under its size. */
 function ProblemTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
   const first = nodes.problems?.get(id)?.[0];
@@ -203,6 +249,7 @@ function Selected(props: {
         </span>
       )}
       {single && !screen && <ProblemTag id={id} box={box} view={view} nodes={nodes} />}
+      {single && !screen && <BindingTag id={id} box={box} view={view} nodes={nodes} />}
       {single &&
         !screen &&
         nodes.resizable(id) &&
@@ -349,6 +396,7 @@ export function InteractionOverlay(props: {
           </span>
         </>
       )}
+      <BindingBadges view={view} nodes={nodes} />
       <ProblemDots view={view} nodes={nodes} />
       {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}
       {state.marquee !== null && (

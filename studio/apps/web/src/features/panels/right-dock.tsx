@@ -86,6 +86,8 @@ export interface Sources {
   readonly check: Check | undefined;
   /** The language service for the field's expression; undefined without the validator module. */
   readonly pxl?: PxlEditorSource | undefined;
+  /** What the canvas draws for an expression of this field (PC-23): a mock or a default; undefined if unknown. */
+  readonly drawn?: ((expr: string) => string | undefined) | undefined;
 }
 
 export interface EditorProps {
@@ -141,6 +143,7 @@ function PxlField(p: EditorProps & { expr: string }) {
     />
   );
   const description = busy ? p.m.pxlChecking : type === "" || p.expr === "" ? undefined : p.m.pxlResultType(type);
+  const drawn = p.expr === "" ? undefined : p.sources.drawn?.(p.expr);
   return (
     <div className="prop-pxl">
       {p.sources.pxl === undefined ? (
@@ -164,6 +167,13 @@ function PxlField(p: EditorProps & { expr: string }) {
         </p>
       ) : (
         description !== undefined && <p className="prop-pxl-note">{description}</p>
+      )}
+      {drawn !== undefined && (
+        <p className="prop-pxl-drawn">
+          <Icon name="eye" size="pill" />
+          <span>{p.m.pxlDrawn}</span>
+          <code>{drawn}</code>
+        </p>
       )}
     </div>
   );
@@ -604,6 +614,8 @@ interface DockProps {
   readonly validatePage?: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   /** The PXL language service of the loaded project (PXL-007); the inline PXL fields use it. */
   readonly language?: PxlLanguage | undefined;
+  /** What the canvas draws for a widget's bound expression (PC-23), from page mocks, state defaults and data mocks. */
+  readonly drawnValue?: ((id: string, expr: string) => string | undefined) | undefined;
   /** Opens the full-screen JSON editor (STU-064); the button shows only when given. */
   readonly onOpenJson?: (() => void) | undefined;
   /** Opens the localisation table (STU-063) and the state designer (STU-063); each button shows only when given. */
@@ -986,6 +998,7 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
                   tokens,
                   keys,
                   check: makeCheck(prop.name),
+                  drawn: p.drawnValue === undefined ? undefined : (expr: string) => p.drawnValue?.(first, expr),
                   pxl: pxlSource(
                     p.language,
                     file,

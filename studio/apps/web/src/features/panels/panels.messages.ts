@@ -521,6 +521,11 @@ export function panelMessages(i18n: I18n) {
         values: { type },
         comment: "Shown under a valid PXL expression: the type it evaluates to, e.g. int or list<string>.",
       }),
+    pxlDrawn: i18n._({
+      id: "panels.pxlDrawn",
+      message: "The canvas shows",
+      comment: "Under a bound expression, before the design-time value the canvas draws for it (a mock or a default).",
+    }),
     pxlChecking: i18n._({
       id: "panels.pxlChecking",
       message: "Checking...",

@@ -47,9 +47,11 @@ import { useValidation, type Validation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
+import { bindingMarks } from "./binding-marks.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { useCopyOver } from "./clipboard/use-copy-over.ts";
 import { ContextToolbar } from "./context-toolbar.tsx";
+import { designScopes } from "./design-scope.ts";
 import { DeviceBayHost } from "./device-bay-host.tsx";
 import { useDeviceFonts } from "./device-fonts.ts";
 import { ExtraOverlays } from "./extra-overlays.tsx";
@@ -62,7 +64,7 @@ import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
 import { emptyLive, type LiveState } from "./live.ts";
 import { useLiveSurface } from "./live-surface.ts";
-import { dataSourcesOf, messagesFor, titledScreens } from "./look.ts";
+import { dataSourcesOf, messagesFor, namedMocks, titledScreens } from "./look.ts";
 import { resolveNodeParam } from "./node-path.ts";
 import { PagePartsHost, useShownDrawers } from "./page-parts.tsx";
 import { useBrands } from "./paint-theme.ts";
@@ -491,11 +493,9 @@ function PluginCanvasView({
   const brands = useBrands(appDocs.data);
   // The screens are drawn with the translations as the localisation session holds them, unsaved edits included.
   const drawnAppDocs = useWithSessionDocs(appDocs.data, useL10nSessions()?.messages);
-  const { look, bar, switcher, matrix } = usePreviewBar(
-    params.app,
-    sources.map((x) => x.id),
-    brands,
-  );
+  const sourceIds = useMemo(() => sources.map((x) => x.id), [sources]);
+  const sourceNames = useMemo(() => Object.fromEntries(sources.map((x) => [x.id, x.name])), [sources]);
+  const { look, bar, switcher, matrix } = usePreviewBar(params.app, sourceIds, brands, sourceNames);
   // The device the screens are drawn in (STU-057, PC-11): the frame chosen in the action bar, in its orientation.
   const device = useMemo<Device>(
     () => ({ width: look.device.width, height: look.device.height }),
@@ -1016,6 +1016,12 @@ function PluginCanvasView({
     () => problemsByNode(checked?.problems ?? [], new Map(live.map((d) => [d.path, d.parsed]))),
     [checked?.problems, live],
   );
+  // Bound widgets carry a badge and the selection lists its bindings with the values drawn (PC-23).
+  const allDocs = useMemo(() => [...(drawnAppDocs ?? []), ...(docs.data ?? [])], [drawnAppDocs, docs.data]);
+  const boundMarks = useMemo(() => {
+    const named = namedMocks(dataSourcesOf(allDocs), look.mockStates);
+    return bindingMarks(screens, named.mocks, named.states, designScopes(allDocs));
+  }, [screens, allDocs, look.mockStates]);
   const liveSurface = useLiveSurface({
     on: tool === "interact",
     surface: () => surfaceRef.current,
@@ -1043,6 +1049,7 @@ function PluginCanvasView({
       }
     },
     problems: nodeProblems,
+    bindings: boundMarks,
     tool,
     setTool,
     onInteract: liveSurface.interact,
@@ -1282,6 +1289,7 @@ function PluginCanvasView({
             appDocuments={appDocs.data}
             validatePage={checked?.validatePage}
             language={checked?.language}
+            drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
             onOpenJson={() => overlays.show("json")}
             onOpenLocalisation={() => overlays.show("l10n")}
             onOpenState={() => overlays.show("state")}

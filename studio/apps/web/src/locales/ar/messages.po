@@ -4290,6 +4290,12 @@ msgstr "مصادر بيانات الإضافة"
 msgid "preview.mock"
 msgstr "حالة البيانات"
 
+#. Label of one data source's mock state select; {source} is the source's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.mockOf"
+msgstr "البيانات: {source}"
+
 #. Column heading: a calendar day.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -15374,6 +15380,12 @@ msgstr "تعذّر تحميل تفاصيل البناء."
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.stack.label"
 msgstr "أكثر تطبيقات المؤسسة استخدامًا، مكدّسة كطبقات."
+
+#. Under a bound expression, before the design-time value the canvas draws for it (a mock or a default).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.pxlDrawn"
+msgstr "تعرض اللوحة"
 
 #. Below a state's editor: the selected widget is drawn in the state being edited.
 #. js-lingui-explicit-id

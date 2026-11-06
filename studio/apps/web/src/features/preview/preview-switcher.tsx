@@ -55,6 +55,7 @@ const NO_BRAND = "-";
 export function PreviewSwitcher({
   state,
   dataSources,
+  sourceNames = {},
   onChange,
   includePseudo,
   brands = [],
@@ -65,6 +66,8 @@ export function PreviewSwitcher({
   readonly state: PreviewState;
   /** Data sources of the plugin whose mock state can be set; one select sets them all when several. */
   readonly dataSources: readonly string[];
+  /** Each source's name; with several sources each gets its own state select too (PC-23). */
+  readonly sourceNames?: Readonly<Record<string, string>>;
   readonly onChange: (next: PreviewState) => void;
   readonly includePseudo: boolean;
   /** The theme's brand overlays the screens can be previewed in (THM-003); the select shows only when there are some. */
@@ -169,6 +172,16 @@ export function PreviewSwitcher({
               }
             />
           </Field>
+          {dataSources.length > 1 &&
+            dataSources.map((src) => (
+              <Field key={src} label={m.mockOf(sourceNames[src] ?? src)}>
+                <Select
+                  value={state.mockStates[src] ?? "success"}
+                  options={mockStates.map((s) => ({ value: s, label: mockLabel[s] }))}
+                  onValueChange={(v) => onChange(withMock(state, src, v as MockState))}
+                />
+              </Field>
+            ))}
         </>
       )}
       <CustomFrameDialog open={dialog} onClose={() => setDialog(false)} onUse={useFrame} />

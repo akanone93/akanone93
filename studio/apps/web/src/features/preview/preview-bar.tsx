@@ -46,6 +46,7 @@ export function usePreviewBar(
   app: string | undefined,
   dataSources: readonly string[],
   brands: readonly string[] = [],
+  sourceNames: Readonly<Record<string, string>> = {},
 ): { look: PreviewRender; bar: ReactElement; switcher: ReactElement; matrix: boolean } {
   const preview = usePreviewSwitches(app ?? "");
   const [matrix, setMatrix] = useState(false);
@@ -81,6 +82,7 @@ export function usePreviewBar(
             part="extra"
             state={preview.state}
             dataSources={dataSources}
+            sourceNames={sourceNames}
             brands={brands}
             includePseudo={import.meta.env.DEV}
             onChange={(next) => void preview.set(next)}

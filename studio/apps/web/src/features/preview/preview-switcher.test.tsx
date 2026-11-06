@@ -36,6 +36,26 @@ describe("[STU-058] switcher UI", () => {
   });
 });
 
+describe("PC-23 a data state per source [DAT-080]", () => {
+  test("with several sources each has its own state select, named after the source", async () => {
+    renderI18n(
+      <PreviewSwitcher
+        part="extra"
+        state={{ ...defaultPreview, mockStates: { orders: "loading" } }}
+        dataSources={["orders", "user"]}
+        sourceNames={{ orders: "Orders", user: "Profile" }}
+        onChange={() => {}}
+        includePseudo={false}
+      />,
+    );
+    expect((await screen.findAllByText("Data: Orders")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Data: Profile").length).toBeGreaterThan(0);
+    const boxes = screen.getAllByRole("combobox").map((c) => c.textContent ?? "");
+    expect(boxes.filter((t) => t.includes("Loading")).length).toBe(2);
+    expect(boxes.some((t) => t.includes("Success"))).toBe(true);
+  });
+});
+
 describe("[STU-057] PC-11 frame orientation and chrome", () => {
   test("with the frame, the orientation and the device chrome can be set", async () => {
     renderI18n(

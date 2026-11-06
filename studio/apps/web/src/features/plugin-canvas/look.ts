@@ -4,12 +4,12 @@
 import type { DeviceChromeSpec, ScreenStyle } from "@plux/canvas";
 import { defaultScreenTheme, type ScreenTheme, TextDirection } from "@plux/layout";
 import { readLocales, readMessages } from "../localisation/l10n-model.ts";
-import { genericDevice, type PreviewDevice, type PreviewRender } from "../preview/switches.ts";
+import { genericDevice, type MockState, type PreviewDevice, type PreviewRender } from "../preview/switches.ts";
 import { type Node, parseDocument } from "./plugin-model.ts";
 
 /** Reads the preview switches into what the canvas draws (STU-058, I18N-010, A11Y-005, THM-001). */
 
-interface DocLike {
+export interface DocLike {
   readonly kind: string;
   readonly content: Uint8Array;
   /** The document already parsed (an edit session's unsaved copy); wins over `content`. */
@@ -22,7 +22,8 @@ const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !
 /** The Cupertino control and bar heights; Material keeps the theme's. */
 const CUPERTINO = { appBarHeight: 44, controlHeight: 44 } as const;
 
-const jsonOf = (docs: readonly DocLike[], kind: string): Obj[] =>
+/** The parsed documents of `kind`. */
+export const jsonOf = (docs: readonly DocLike[], kind: string): Obj[] =>
   docs
     .map((d) => (d.parsed !== undefined ? d.parsed : parseDocument(d.content)))
     .filter((d): d is Obj => isObj(d) && d["kind"] === kind);
@@ -170,6 +171,28 @@ export function dataSourcesOf(documents: readonly DocLike[]): { id: string; name
         )
       : [],
   );
+}
+
+/**
+ * The data sources' mocks and preview states as expressions name them (`data.<name>`, PC-23): the preview switch keys
+ * a source's state by its id, PXL by its name. A source is found by its id too, for documents that name it so.
+ */
+export function namedMocks(
+  sources: readonly { readonly id: string; readonly name: string; readonly mock: unknown }[],
+  states: Readonly<Record<string, MockState>>,
+): { readonly mocks: ReadonlyMap<string, unknown>; readonly states: Readonly<Record<string, MockState>> } {
+  const mocks = new Map<string, unknown>();
+  const named: Record<string, MockState> = {};
+  for (const src of sources) {
+    for (const key of [src.id, src.name]) {
+      mocks.set(key, src.mock);
+      const state = states[src.id];
+      if (state !== undefined) {
+        named[key] = state;
+      }
+    }
+  }
+  return { mocks, states: named };
 }
 
 /** Screens named in the previewed locale: a translated title takes its message; others keep their name. */
