@@ -13,6 +13,7 @@ import { CanvasMenu, type MenuAt } from "./canvas-menu.tsx";
 import { removeRecipe } from "./clipboard/use-clipboard.tsx";
 import type { A11yMarks } from "./interaction-overlay.tsx";
 import { InteractionOverlay, type OverlayNodes } from "./interaction-overlay.tsx";
+import type { L10nOverlay } from "./l10n-marks.ts";
 import type { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import type { Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
@@ -71,6 +72,8 @@ export interface InteractionInput {
   readonly heroes?: (id: string) => readonly string[];
   /** The Accessibility view's marks, when it is on (PC-31). */
   readonly a11y?: A11yMarks | undefined;
+  /** The Localisation view's marks, when it is on (PC-32). */
+  readonly l10n?: L10nOverlay | undefined;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -285,6 +288,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       ...(input.a11y === undefined
         ? {}
         : { a11y: input.a11y, a11yText: { target: input.messages.a11yTarget, contrast: input.messages.a11yContrast } }),
+      ...(input.l10n === undefined ? {} : { l10n: input.l10n }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
@@ -303,6 +307,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       input.events,
       input.heroes,
       input.a11y,
+      input.l10n,
       input.messages,
       input.screens,
     ],

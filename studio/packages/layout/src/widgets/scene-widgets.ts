@@ -639,15 +639,23 @@ function containerConstraints(props: Record<string, unknown>): Record<string, nu
 }
 
 /** The family the scene's Material styles name, mapped to the first family of the screen theme (the canvas has no "NotoSans"). */
-function themedEngine(engine: ParagraphEngine, family: string | undefined): ParagraphEngine {
+function themedEngine(
+  engine: ParagraphEngine,
+  family: string | undefined,
+  fallback: readonly string[],
+): ParagraphEngine {
   const map = (name: string | undefined): string | undefined => (name === "NotoSans" ? family : name);
+  // A scene text names one family; it falls back to the theme's others, as the drawn text does (Arabic: PC-32).
+  const withFallback = <
+    T extends { fontFamily?: string | undefined; fontFamilyFallback?: readonly string[] | undefined },
+  >(
+    style: T,
+  ): T => ({ ...style, fontFamily: map(style.fontFamily), fontFamilyFallback: style.fontFamilyFallback ?? fallback });
   return {
     buildParagraph: (style, runs) =>
       engine.buildParagraph(
-        { ...style, fontFamily: map(style.fontFamily) },
-        runs.map((run) =>
-          run.style === null ? run : { ...run, style: { ...run.style, fontFamily: map(run.style.fontFamily) } },
-        ),
+        withFallback(style),
+        runs.map((run) => (run.style === null ? run : { ...run, style: withFallback(run.style) })),
       ),
   };
 }
@@ -689,7 +697,7 @@ function sceneBuild(node: WidgetNode, ctx: WidgetContext): RenderBox {
       ? { fontSize: ctx.theme.fontSize, fontFamily: family, fontFamilyFallback: fallback }
       : layoutTextStyle(resolveTextStyle(undefined, ctx.paint), ctx.theme);
   const text: SceneText = {
-    engine: themedEngine(ctx.engine, family),
+    engine: themedEngine(ctx.engine, family, fallback),
     textScaler: TextScaler.linear(ctx.textScale ?? 1),
     base,
     hosts: bridge.hosts,

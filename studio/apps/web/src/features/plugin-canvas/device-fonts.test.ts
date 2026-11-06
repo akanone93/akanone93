@@ -80,4 +80,10 @@ describe("[STU-006] device fonts for the canvas", () => {
     expect(request.host).toEqual(host);
     expect(request.roboto?.family).toBe("Roboto");
   });
+
+  test("Arabic text falls back to Noto Sans Arabic after Noto Sans (PC-32) [STU-006] [I18N-002]", () => {
+    const families = fontRequest([], []).noto.map((f) => f.family);
+    expect(families.indexOf("Noto Sans Arabic")).toBeGreaterThan(families.indexOf("Noto Sans"));
+    expect(families.filter((f) => f === "Noto Sans Arabic")).toHaveLength(2);
+  });
 });

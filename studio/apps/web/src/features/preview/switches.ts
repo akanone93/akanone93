@@ -3,7 +3,7 @@
 
 import { create } from "@bufbuild/protobuf";
 import { type PreviewSwitches, PreviewSwitchesSchema } from "@plux/api";
-import { type Direction, directionOf, pseudoAccent, pseudoMirror } from "@plux/i18n";
+import { type Direction, directionOf, pseudoAccent, pseudoLocales, pseudoMirror, supportedLocales } from "@plux/i18n";
 import {
   type Cutout,
   type DeviceFrame,
@@ -162,4 +162,35 @@ export function mockStateOf(state: PreviewState, source: string): MockState {
 
 export function withMock(state: PreviewState, source: string, mock: MockState): PreviewState {
   return { ...state, mockStates: { ...state.mockStates, [source]: mock } };
+}
+
+/** A locale's name in itself with its tag, e.g. "Deutsch (Deutschland) · de-DE"; a pseudo-locale by its own name. */
+function localeLabel(tag: string): string {
+  const pseudo = pseudoLocales.find((l) => l.tag === tag);
+  if (pseudo !== undefined) {
+    return pseudo.nativeName;
+  }
+  try {
+    const name = new Intl.DisplayNames([tag], { type: "language" }).of(tag);
+    return name === undefined || name === tag ? tag : `${name} · ${tag}`;
+  } catch {
+    return tag;
+  }
+}
+
+/**
+ * The locales the screens can be previewed in (STU-058): the app's own (I18N-002), else Studio's; the pseudo-locales
+ * when they are offered (I18N-010); and the current one, so a stored choice the app no longer has stays shown.
+ */
+export function localeChoices(
+  app: readonly string[],
+  pseudo: boolean,
+  current: string,
+): { readonly value: string; readonly label: string }[] {
+  const own = app.length > 0 ? app : supportedLocales.map((l) => l.tag);
+  const tags = [...new Set([...own, ...(pseudo ? pseudoLocales.map((l) => l.tag) : [])])];
+  return [...tags, ...(tags.includes(current) ? [] : [current])].map((tag) => ({
+    value: tag,
+    label: localeLabel(tag),
+  }));
 }

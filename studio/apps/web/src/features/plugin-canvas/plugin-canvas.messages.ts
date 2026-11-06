@@ -260,6 +260,29 @@ export function pluginCanvasMessages(i18n: I18n) {
         values: { ratio, needed },
         comment: "A text whose colour does not stand out enough from its background.",
       }),
+    l10nView: i18n._({
+      id: "pluginCanvas.l10nView",
+      message: "Localisation view",
+      comment: "Toggle that marks missing translations, untranslated texts and overflowing texts on the screens.",
+    }),
+    l10nMissing: (locale: string) =>
+      i18n._({
+        id: "pluginCanvas.l10nMissing",
+        message: "Missing in {locale}",
+        values: { locale },
+        comment:
+          "Canvas mark: the text's translation key has no message in the previewed locale, e.g. Missing in de-DE.",
+      }),
+    l10nLiteral: i18n._({
+      id: "pluginCanvas.l10nLiteral",
+      message: "Not translated",
+      comment: "Canvas mark: a text written in the page itself rather than as a translation key.",
+    }),
+    l10nOverflow: i18n._({
+      id: "pluginCanvas.l10nOverflow",
+      message: "Overflows",
+      comment: "Canvas mark: the text does not fit its box in the previewed locale.",
+    }),
     duplicateCommand: i18n._({
       id: "pluginCanvas.command.duplicate",
       message: "Duplicate selection",

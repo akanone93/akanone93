@@ -7,7 +7,7 @@ import { PluginService } from "@plux/api";
 import { Button, Icon, Input, Meter, MetricStrip, type StatusKind, StatusPill, TypeTag } from "@plux/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { type FormEvent, type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { extrasOf } from "../action-graph/graph-model.ts";
 import { type DesignerDocument, useDocumentValue } from "../designers/use-document.ts";
@@ -22,6 +22,7 @@ import {
   setFieldRecipe,
 } from "../state-designer/state-model.ts";
 import { DockSection } from "./dock-tabs.tsx";
+import { LocalePreviewContext } from "./locale-tools.tsx";
 import {
   type BudgetStatus,
   budgetStatus,
@@ -357,6 +358,8 @@ export function LocalisationTab({
 }: SelectionTabProps & { readonly onOpen: (() => void) | undefined }) {
   const m = tabMessages(useLingui().i18n);
   const strings = stringsIn(ids.flatMap((id) => subtreeOf(nodes.get(id))));
+  // A translated text shows its message in the previewed locale (PC-32), its key when it has none.
+  const textOf = useContext(LocalePreviewContext)?.textOf;
   return (
     <div className="flex flex-col gap-2">
       {strings.length === 0 ? (
@@ -365,7 +368,7 @@ export function LocalisationTab({
         <ul aria-label={m.l10nList} className="flex flex-col gap-1">
           {strings.map((s) => (
             <li key={`${s.node}:${s.prop}`} className="flex items-center gap-2 text-body">
-              <code className="truncate">{s.text}</code>
+              <code className="truncate">{s.key === undefined ? s.text : (textOf?.(s.key) ?? s.text)}</code>
               {s.key === undefined && <TypeTag>{m.l10nLiteral}</TypeTag>}
             </li>
           ))}

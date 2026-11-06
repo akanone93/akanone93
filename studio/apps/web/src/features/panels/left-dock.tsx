@@ -5,7 +5,7 @@ import { useLingui } from "@lingui/react";
 import type { WidgetDescriptor } from "@plux/schema";
 import { Icon, type IconName, layerFolders } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
-import { type ComponentProps, type ReactElement, useCallback, useMemo, useRef, useState } from "react";
+import { type ComponentProps, type ReactElement, useCallback, useContext, useMemo, useRef, useState } from "react";
 import type { DesignerDocument } from "../designers/use-document.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
@@ -19,6 +19,7 @@ import { catalogue, search } from "./catalogue.ts";
 import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
 import { InsertPane } from "./insert-pane.tsx";
 import { LayersPane, LayersToolbar } from "./layers-pane.tsx";
+import { LocalePreviewContext } from "./locale-tools.tsx";
 import { insertionPoint, insertWidget, modelOf, moveLayer } from "./model.ts";
 import { panelsMessages } from "./panels.messages.ts";
 import { selectIds, treeNodes } from "./selection-model.ts";
@@ -118,9 +119,11 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   const onInsert = useCallback((d: WidgetDescriptor) => insertRef.current(d), []);
 
   const entry = useMemo(() => ({ page: props.entryPage, label: m.entryScreen }), [props.entryPage, m.entryScreen]);
+  // A translated text's row shows its message in the previewed locale (PC-32).
+  const textOf = useContext(LocalePreviewContext)?.textOf;
   const nodes = useMemo(
-    () => treeNodes(props.screens, index, m.pluginRoot, entry),
-    [props.screens, index, m.pluginRoot, entry],
+    () => treeNodes(props.screens, index, m.pluginRoot, entry, textOf),
+    [props.screens, index, m.pluginRoot, entry, textOf],
   );
   // A locked layer stays where it is: it neither moves nor takes another layer into it.
   const dropLayer = (dragged: string, target: string, half: "before" | "after") => {

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { LayerNode } from "@plux/ui";
-import { firstText, type Node } from "../plugin-canvas/plugin-model.ts";
+import type { Node } from "../plugin-canvas/plugin-model.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
 import { childNodes, type NodeIndex } from "../plugin-canvas/select/tree.ts";
@@ -22,13 +22,34 @@ export function selectIds(index: NodeIndex, current: Selection, id: string, togg
   return { ids, anchor: ids.length === 0 ? null : id, scope };
 }
 
-/** Text a prop shows: a string, or a translation reference's key. */
-function shownText(v: unknown): string | undefined {
+/** A translation key's message as a row shows it (PC-32); undefined when the key has none. */
+export type TextOf = (key: string) => string | undefined;
+
+/** Text a prop shows: a string, or a translation reference's message (its key when it has none). */
+function shownText(v: unknown, textOf: TextOf | undefined): string | undefined {
   if (typeof v === "string" && v.trim() !== "") {
     return v.trim();
   }
   if (typeof v === "object" && v !== null && typeof (v as Record<string, unknown>)["$t"] === "string") {
-    return String((v as Record<string, unknown>)["$t"]);
+    const key = String((v as Record<string, unknown>)["$t"]);
+    return textOf?.(key) ?? key;
+  }
+  return undefined;
+}
+
+/** The first text under a node, translated texts included. */
+function firstShown(node: Node, textOf: TextOf | undefined): string | undefined {
+  if (node.type === "Text") {
+    const t = shownText(node.props?.data, textOf);
+    if (t !== undefined) {
+      return t;
+    }
+  }
+  for (const child of childNodes(node)) {
+    const t = firstShown(child, textOf);
+    if (t !== undefined) {
+      return t;
+    }
   }
   return undefined;
 }
@@ -47,16 +68,18 @@ const PREVIEW_PROPS = [
 ];
 
 /** What a node shows, for its layer row: a Text's words, a field's label, a button's text, an image's source. */
-export function nodePreview(node: Node): string | undefined {
+export function nodePreview(node: Node, textOf?: TextOf): string | undefined {
   const props = (node.props ?? {}) as Readonly<Record<string, unknown>>;
+  const clip = (t: string) => (t.length > 48 ? `${t.slice(0, 47)}…` : t);
   for (const k of PREVIEW_PROPS) {
-    const t = shownText(props[k]);
+    const t = shownText(props[k], textOf);
     if (t !== undefined) {
-      return t.length > 48 ? `${t.slice(0, 47)}…` : t;
+      return clip(t);
     }
   }
   if (/Button|Chip|Tab$/.test(node.type ?? "")) {
-    return firstText(node);
+    const t = firstShown(node, textOf);
+    return t === undefined ? undefined : clip(t);
   }
   return undefined;
 }
@@ -77,6 +100,7 @@ export function treeNodes(
   index: NodeIndex,
   rootName: string,
   entry?: { readonly page: string | undefined; readonly label: string },
+  textOf?: TextOf,
 ): Record<string, LayerNode> {
   const out: Record<string, LayerNode> = {
     plugin: {
@@ -99,7 +123,7 @@ export function treeNodes(
       if (row === undefined) {
         return;
       }
-      const preview = nodePreview(n);
+      const preview = nodePreview(n, textOf);
       const meta = metaOf(n);
       out[n.id] = {
         ...row,

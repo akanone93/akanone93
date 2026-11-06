@@ -6737,6 +6737,12 @@ msgstr "من وصف بالذكاء الاصطناعي"
 msgid "onboarding.caption"
 msgstr "من مؤسسة فارغة إلى أول إصدار. يتبع التقدم ما تفعله فعلًا."
 
+#. Option: the count comes from the page's data.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.fromData"
+msgstr "من البيانات"
+
 #. Label of the field that holds the version a migration plan starts from.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -7527,6 +7533,12 @@ msgstr "تحسن"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.directionLabel"
 msgstr "التحسن"
+
+#. Heading of the selected widget's texts in the previewed locale, e.g. In de-DE.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.title"
+msgstr "في {locale}"
 
 #. Heading of the edges a widget is pinned to in the stack it is in.
 #. js-lingui-explicit-id
@@ -8945,6 +8957,12 @@ msgstr "صفحات التوطين"
 msgid "l10n.open"
 msgstr "جدول الترجمة"
 
+#. Toggle that marks missing translations, untranslated texts and overflowing texts on the screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.l10nView"
+msgstr "عرض الترجمة"
+
 #. A device API.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -9268,6 +9286,12 @@ msgstr "ناقصة"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.missing"
 msgstr "مفقود"
+
+#. Canvas mark: the text's translation key has no message in the previewed locale, e.g. Missing in de-DE.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.l10nMissing"
+msgstr "مفقود في {locale}"
 
 #. Heading of the heatmap page: translations missing per plugin and locale.
 #. js-lingui-explicit-id
@@ -10151,6 +10175,12 @@ msgstr "لا توجد حدود لعرضها."
 msgid "functions.noLogs"
 msgstr "لا توجد أسطر سجل."
 
+#. The text's key has no message in the previewed locale and falls back (I18N-006).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.missing"
+msgstr "لا توجد رسالة في {locale}: يعرض الجهاز رسالة {fallback}"
+
 #. Empty state.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -10541,6 +10571,12 @@ msgstr "غير موقّع"
 msgid "approvals.simDistinctFromAuthor"
 msgstr "ليس صاحب التغيير"
 
+#. Canvas mark: a text written in the page itself rather than as a translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.l10nLiteral"
+msgstr "غير مترجم"
+
 #. Tag beside a string of the Localisation tab that is a literal and has no translation key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -10822,6 +10858,12 @@ msgstr "إضافة واحدة بشاشة دخول فارغة، جاهزة للت
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.showingKind"
 msgstr "{kind} فقط"
+
+#. Heading of the props the widget sets differently in the previewed locale (I18N-012).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.overrides"
+msgstr "فقط في {locale}"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -11224,6 +11266,12 @@ msgstr "تجاوز حد التحذير"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.overdue"
 msgstr "متأخرة"
+
+#. Canvas mark: the text does not fit its box in the previewed locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.l10nOverflow"
+msgstr "يتجاوز الحدود"
 
 #. Marks a property whose value differs from the base for the chosen size class.
 #. js-lingui-explicit-id
@@ -11837,6 +11885,12 @@ msgstr "الإضافات هي لبنات بناء التطبيق. أضف أول 
 msgid "appCanvas.boxes"
 msgstr "الإضافات على اللوحة"
 
+#. The count a plural message is shown with on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.sample"
+msgstr "مثال صيغة الجمع"
+
 #. Name of the application, shown as the browser tab title.
 #. js-lingui-explicit-id
 #: apps/web/src/shell.messages.ts
@@ -12171,6 +12225,12 @@ msgstr "الخصائص"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/timelines.messages.ts
 msgid "timeline.prop"
+msgstr "الخاصية"
+
+#. Select of the widget's props.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.prop"
 msgstr "الخاصية"
 
 #. Shown when the diff is empty.
@@ -12801,6 +12861,12 @@ msgstr "إزالة الخطوة"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.removeNamed"
 msgstr "إزالة الخطوة {id}"
+
+#. Button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.removeOverride"
+msgstr "إزالة تجاوز {prop}"
 
 #. Button that removes a form field.
 #. js-lingui-explicit-id
@@ -14486,6 +14552,12 @@ msgstr "الجلسات"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.funnelChart"
 msgstr "الجلسات لكل خطوة من المسار"
+
+#. Button that sets the prop differently in the previewed locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.addOverride"
+msgstr "تعيين لـ {locale}"
 
 #. Toggle that shows only the properties that have a value.
 #. js-lingui-explicit-id
@@ -17734,6 +17806,12 @@ msgstr "مؤشرات المعاملة (JSON)"
 msgid "pageSettings.transition"
 msgstr "الانتقال"
 
+#. The text's key has a message in the previewed locale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.translated"
+msgstr "مترجم في هذه اللغة"
+
 #. Shown in place of the title field when the title is a translation key; edit it in Localisation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -18273,6 +18351,12 @@ msgstr "القيمة للعلامة"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentValueLabel"
 msgstr "قيمة الشريحة (JSON)"
+
+#. A prop's value in this locale, as JSON or text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/locale-tools.messages.ts
+msgid "localeTools.value"
+msgstr "القيمة في هذه اللغة"
 
 #. Label of the field that holds the value of a token to add.
 #. js-lingui-explicit-id

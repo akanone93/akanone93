@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import arabicRegular from "@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-400-normal.woff2?url";
+import arabicBold from "@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-700-normal.woff2?url";
 import {
   CanvasHost,
   type CanvasOptions,
@@ -105,6 +107,10 @@ const FONT_FILES: readonly (readonly [string, string])[] = [
 const NOTO_FILES: readonly (readonly [string, string])[] = [
   ["Noto Sans", new URL("./fonts/NotoSans_400Regular.ttf", import.meta.url).href],
   ["Noto Sans", new URL("./fonts/NotoSans_700Bold.ttf", import.meta.url).href],
+  // Arabic, which Noto Sans does not cover (PC-32): the Noto Sans Arabic files Studio's own interface ships. The
+  // device draws Arabic in its system face, so an Arabic text raises the "device preview is authoritative" notice.
+  ["Noto Sans Arabic", arabicRegular],
+  ["Noto Sans Arabic", arabicBold],
 ];
 
 const toSource = ([family, url]: readonly [string, string]): FontSource => ({ family, url });

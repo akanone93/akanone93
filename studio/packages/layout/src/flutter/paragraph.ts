@@ -54,6 +54,7 @@ export class RenderParagraph extends RenderBox {
   private _softWrap: boolean;
   private _overflow: TextOverflow;
   private _needsClipping = false;
+  private _overflowed = false;
   private _hasOverflowShader = false;
 
   constructor(options: RenderParagraphOptions) {
@@ -194,6 +195,11 @@ export class RenderParagraph extends RenderBox {
     this.markNeedsLayout();
   }
 
+  /** Whether the text did not fit its box in the last layout, whatever its overflow does (Studio's marks, PC-32). */
+  get overflowed(): boolean {
+    return this._overflowed;
+  }
+
   /** Whether the last layout overflowed and painting clips (`_needsClipping`). */
   get needsClipping(): boolean {
     return this._needsClipping;
@@ -276,6 +282,7 @@ export class RenderParagraph extends RenderBox {
     const didOverflowHeight = this.size.height < textSize.height || this._textPainter.didExceedMaxLines;
     const didOverflowWidth = this.size.width < textSize.width;
     const hasVisualOverflow = didOverflowWidth || didOverflowHeight;
+    this._overflowed = hasVisualOverflow;
     if (!hasVisualOverflow) {
       this._needsClipping = false;
       this._hasOverflowShader = false;

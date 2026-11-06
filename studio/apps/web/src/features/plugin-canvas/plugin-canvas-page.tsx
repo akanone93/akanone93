@@ -29,6 +29,7 @@ import { JsonEditorHost } from "../json-editor/index.ts";
 import { useLibraryActions } from "../library/canvas/use-library-actions.tsx";
 import { useCan } from "../library/use-library.ts";
 import { L10nSessionsProvider, useL10nSessions } from "../localisation/index.ts";
+import { readLocales } from "../localisation/l10n-model.ts";
 import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { type BranchPreview, BranchPreviewContext } from "../panels/condition-panel.tsx";
@@ -38,6 +39,7 @@ import { FormPreviewContext, type FormPreviewControl } from "../panels/forms-sec
 import { LeftDock } from "../panels/left-dock.tsx";
 import { listMessages } from "../panels/list-panel.messages.ts";
 import { type ListPreview, ListPreviewContext } from "../panels/list-panel.tsx";
+import { LocalePreviewContext } from "../panels/locale-tools.tsx";
 import { modelOf } from "../panels/model.ts";
 import { MotionPreviewContext } from "../panels/motion-panel.tsx";
 import { panelsMessages } from "../panels/panels.messages.ts";
@@ -70,13 +72,14 @@ import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghos
 import { useHostFonts } from "./host-fonts.ts";
 import { type InlineEdit, InlineTextHost } from "./inline-text.tsx";
 import type { A11yMarks } from "./interaction-overlay.tsx";
+import { overflowKeyOf } from "./l10n-marks.ts";
 import { LaneDialog, type LaneTarget, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
 import type { ListState } from "./list-preview.ts";
 import { emptyLive, type LiveState } from "./live.ts";
 import { useLiveSurface } from "./live-surface.ts";
-import { dataSourcesOf, messagesFor, namedMocks, titledScreens } from "./look.ts";
+import { dataSourcesOf, jsonOf, messagesFor, namedMocks, titledScreens } from "./look.ts";
 import { animationOf, heroMatches } from "./motion.ts";
 import { useMotionPlayer } from "./motion-player.ts";
 import { navigationMessages } from "./navigation.messages.ts";
@@ -140,6 +143,7 @@ import {
 import { useAssetsTab } from "./use-assets-tab.ts";
 import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
 import { useGhostLayer } from "./use-ghost-layer.ts";
+import { useLocalePreview, usePluralSamples } from "./use-locale-preview.ts";
 import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 import { usePreviewScene } from "./use-preview-scene.ts";
@@ -604,7 +608,9 @@ function PluginCanvasView({
   const drawnAppDocs = useWithSessionDocs(appDocs.data, useL10nSessions()?.messages);
   const sourceIds = useMemo(() => sources.map((x) => x.id), [sources]);
   const sourceNames = useMemo(() => Object.fromEntries(sources.map((x) => [x.id, x.name])), [sources]);
-  const { look, bar, switcher, matrix } = usePreviewBar(params.app, sourceIds, brands, sourceNames);
+  // The screens are previewed in the app's own locales (I18N-002, PC-32).
+  const appLocales = useMemo(() => readLocales(jsonOf(appDocs.data ?? [], "app")[0])?.supported ?? [], [appDocs.data]);
+  const { look, bar, switcher, matrix } = usePreviewBar(params.app, sourceIds, brands, sourceNames, appLocales);
   // The device the screens are drawn in (STU-057, PC-11): the frame chosen in the action bar, in its orientation.
   const device = useMemo<Device>(
     () => ({ width: look.device.width, height: look.device.height }),
@@ -645,6 +651,10 @@ function PluginCanvasView({
   );
   // The Accessibility view (PC-31): focus order, small touch targets and low-contrast texts marked on the screens.
   const [a11yView, setA11yView] = useState(false);
+  // The Localisation view (PC-32): missing, untranslated and overflowing texts marked; plural samples by node.
+  const [l10nView, setL10nView] = useState(false);
+  const [overflowKey, setOverflowKey] = useState("");
+  const pluralSamples = usePluralSamples();
   // A widget's enter or exit transition played on the canvas (PC-29).
   const motion = useMotionPlayer();
   // A page's timeline open on the canvas, and its playhead (PC-30).
@@ -743,8 +753,9 @@ function PluginCanvasView({
       branches: branchPicks,
       listText,
       forms: { modes: formModes, text: validatorTexts(i18n) },
+      samples: pluralSamples.samples,
     }),
-    [listStates, branchPicks, listText, formModes, i18n],
+    [listStates, branchPicks, listText, formModes, i18n, pluralSamples.samples],
   );
   const {
     shown,
@@ -1099,6 +1110,7 @@ function PluginCanvasView({
       }
       const byId = heightsById(laidOut);
       setHeights(byId);
+      setOverflowKey(overflowKeyOf(laidOut));
       liveHeights.current?.(laidOut);
       // Only the first layout on a surface fits the view; an edit keeps where the user looks.
       if (fittedRef.current !== surface) {
@@ -1304,6 +1316,19 @@ function PluginCanvasView({
     () => (a11yView ? a11yMarksOf(shown, paint, index.type, look.platform) : undefined),
     [a11yView, shown, paint, index, look.platform],
   );
+  const l10nText = useMemo(() => {
+    const pm = pluginCanvasMessages(i18n);
+    return { missing: pm.l10nMissing, literal: pm.l10nLiteral, overflow: pm.l10nOverflow };
+  }, [i18n]);
+  const locale = useLocalePreview({
+    documents: allDocs,
+    look,
+    roots: screenRoots,
+    view: l10nView,
+    overflowKey,
+    samples: pluralSamples,
+    text: l10nText,
+  });
   const heroesOf = useCallback((id: string) => heroMatches(screenRoots, id), [screenRoots]);
   const playMotion = useCallback(
     (id: string, phase: "enter" | "exit") => {
@@ -1352,6 +1377,7 @@ function PluginCanvasView({
     events: eventBadges,
     heroes: heroesOf,
     a11y: a11yMarks,
+    l10n: locale.marks,
     tool,
     setTool,
     onInteract: liveSurface.interact,
@@ -1388,336 +1414,340 @@ function PluginCanvasView({
           <BranchPreviewContext.Provider value={branchPreview}>
             <FormPreviewContext.Provider value={formPreview}>
               <MotionPreviewContext.Provider value={playMotion}>
-                <TimelineOpenContext.Provider value={openTimelineOn}>
-                  <section
-                    ref={sectionRef}
-                    className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
-                    data-preview-theme={look.theme}
-                    data-preview-platform={look.platform}
-                  >
-                    <MatrixOverlay
-                      show={matrix}
-                      render={look}
-                      screen={shown[0]}
-                      style={styled}
-                      createSurface={createSurface}
-                    />
-                    {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
-                    <canvas
-                      key={theme.key}
-                      role="application"
-                      aria-label={m.title}
-                      ref={canvasRef}
-                      className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
-                      tabIndex={0}
-                      {...dropHandlers}
-                      data-tool={interaction.tool}
-                      onKeyDown={(e) => {
-                        // A selection with a locked layer still moves the selection, but edits nothing.
-                        const frozen = selection.ids.some((id) => locked.has(id));
-                        const handled = handleKey(
-                          { store, index, edit: frozen ? () => undefined : edit, docOf: (id) => screenOf.get(id) },
-                          e,
-                        );
-                        if (handled) {
-                          e.preventDefault();
-                        } else if (e.key === "Backspace" && canEdit && selection.ids.length > 0) {
-                          // Delete is the registered command; Backspace deletes too, while the canvas has the focus.
-                          e.preventDefault();
-                          interaction.remove();
-                        }
-                      }}
-                      {...interaction.handlers}
-                    />
-                    {interaction.element}
-                    <CanvasTimeline
-                      timeline={timeline}
-                      page={timelinePage}
-                      scrubbed={scrubbed}
-                      setMs={setTimelineMs}
-                      canEdit={canEdit}
-                      names={index.type}
-                      selection={picked.ids}
-                      screens={screens}
-                      edit={editTimeline}
-                      onClose={() => setOpenTimeline(undefined)}
-                    />
-                    <LiveHint on={tool === "interact"} text={m.liveHint} />
-                    <SpacingHandles
-                      store={overlay}
-                      surface={() => surfaceRef.current}
-                      selection={selection}
-                      index={index}
-                      boxOf={(id) => boxRef.current?.(id)}
-                      nodeOf={(id) => nodeIn(screens, screenOf, id)}
-                      docOf={(id) => screenOf.get(id)}
-                      edit={edit}
-                      canEdit={canEdit}
-                      locked={locked}
-                      dims={dimensionsOf(paint)}
-                      rtl={look.direction === "rtl"}
-                    />
-                    <ContextToolbar
-                      active={tool === "select"}
-                      store={overlay}
-                      surface={() => surfaceRef.current}
-                      selectionStore={store}
-                      ids={selection.ids}
-                      index={index}
-                      boxOf={(id) => boxRef.current?.(id)}
-                      nodeOf={(id) => nodeIn(screens, screenOf, id)}
-                      docOf={(id) => screenOf.get(id)}
-                      edit={edit}
-                      canEdit={canEdit}
-                      locked={locked}
-                      onAction={() => setDockTab((r) => tabRequest("actions", r))}
-                      onDelete={interaction.remove}
-                    />
-                    <InlineTextHost
-                      editing={inlineEdit}
-                      onDone={() => setInlineEdit(null)}
-                      store={overlay}
-                      surface={() => surfaceRef.current}
-                      boxOf={(id) => boxRef.current?.(id)}
-                      screens={screens}
-                      edit={edit}
-                      schemaVersion={stateTarget.schemaVersion}
-                      announce={setFocusNote}
-                    />
-                    <PagePartsHost
-                      store={overlay}
-                      surface={() => surfaceRef.current}
-                      roots={roots}
-                      screens={screens}
-                      selection={selection}
-                      selectionStore={store}
-                      screenOf={screenOf}
-                      edit={edit}
-                      canEdit={canEdit}
-                      look={look}
-                      drawers={drawers}
-                      onToggleDrawer={toggleDrawer}
-                    />
-                    {docs.isPending && (
-                      <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>
-                    )}
-                    {docs.isError && (
-                      <p role="alert" className="absolute start-4 top-4 text-body">
-                        {m.failed}
-                      </p>
-                    )}
-                    {docs.isSuccess && screens.length === 0 && (
-                      <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.empty}</p>
-                    )}
-                    <p role="status" aria-live="polite" className="sr-only">
-                      {announcement}
-                    </p>
-                    <p role="status" aria-live="polite" className="sr-only">
-                      {focusNote}
-                    </p>
-
-                    <GhostLeaveDialog
-                      ghost={leaving}
-                      onCancel={() => setLeaving(null)}
-                      onOpen={(ghost) => {
-                        setLeaving(null);
-                        if (ghost.pluginId !== undefined && ghost.screenId !== undefined) {
-                          void navigate({
-                            to: "/o/$org/apps/$app/plugins/$plugin",
-                            params: { org: params.org ?? "", app: params.app ?? "", plugin: ghost.pluginId },
-                            search: { focus: ghost.screenId },
-                          });
-                        }
-                      }}
-                    />
-                    {/* The previewed locale's direction and text scale are the screens' (the canvas draws them so); Studio's own
-            panels keep Studio's. The screen list read to assistive technology is in the previewed locale. */}
-                    <ol aria-label={m.screens} className="sr-only" dir={look.direction} lang={look.locale}>
-                      {screens.map((s) => (
-                        <li key={s.id}>
-                          {s.title}
-                          {(heights.get(s.id) ?? 0) > device.height && (
-                            <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>
-                          )}
-                        </li>
-                      ))}
-                    </ol>
-                    <LeftDock
-                      title={pluginInfo?.name}
-                      nativeWidgets={nativeWidgets}
-                      screens={screens}
-                      entryPage={entryPage}
-                      index={index}
-                      screenOf={screenOf}
-                      selection={selection}
-                      store={store}
-                      edit={edit}
-                      canEdit={canEdit}
-                      surface={() => surfaceRef.current}
-                      canvas={() => canvasRef.current}
-                      documents={docs.data}
-                      onOpenState={() => overlays.show("state")}
-                      onOpenData={() => overlays.show("data")}
-                      assets={assets}
-                    />
-                    <LinkLayer
-                      surface={() => surfaceRef.current}
-                      canvas={() => canvasRef.current}
-                      widget={linkWidget}
-                      screens={linkScreens}
-                      canEdit={canEdit}
-                      edit={edit}
-                    />
-                    {lane !== null && (
-                      <LaneDialog
-                        title={lane.title}
-                        site={laneSite}
-                        routes={laneRoutes}
-                        canEdit={canEdit}
-                        target={laneTarget}
-                        onClose={() => setLane(null)}
-                        onRedirect={(route) => {
-                          if (laneSite !== undefined) {
-                            edit(lane.source, redirectRecipe(laneSite.nodeId, laneSite.link, route));
+                <LocalePreviewContext.Provider value={locale.preview}>
+                  <TimelineOpenContext.Provider value={openTimelineOn}>
+                    <section
+                      ref={sectionRef}
+                      className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
+                      data-preview-theme={look.theme}
+                      data-preview-platform={look.platform}
+                    >
+                      <MatrixOverlay
+                        show={matrix}
+                        render={look}
+                        screen={shown[0]}
+                        style={styled}
+                        createSurface={createSurface}
+                      />
+                      {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
+                      <canvas
+                        key={theme.key}
+                        role="application"
+                        aria-label={m.title}
+                        ref={canvasRef}
+                        className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
+                        tabIndex={0}
+                        {...dropHandlers}
+                        data-tool={interaction.tool}
+                        onKeyDown={(e) => {
+                          // A selection with a locked layer still moves the selection, but edits nothing.
+                          const frozen = selection.ids.some((id) => locked.has(id));
+                          const handled = handleKey(
+                            { store, index, edit: frozen ? () => undefined : edit, docOf: (id) => screenOf.get(id) },
+                            e,
+                          );
+                          if (handled) {
+                            e.preventDefault();
+                          } else if (e.key === "Backspace" && canEdit && selection.ids.length > 0) {
+                            // Delete is the registered command; Backspace deletes too, while the canvas has the focus.
+                            e.preventDefault();
+                            interaction.remove();
                           }
-                          setLane(null);
                         }}
-                        onRemove={() => {
-                          if (laneSite !== undefined) {
-                            edit(lane.source, removeLinkRecipe(laneSite.nodeId, laneSite.link));
+                        {...interaction.handlers}
+                      />
+                      {interaction.element}
+                      <CanvasTimeline
+                        timeline={timeline}
+                        page={timelinePage}
+                        scrubbed={scrubbed}
+                        setMs={setTimelineMs}
+                        canEdit={canEdit}
+                        names={index.type}
+                        selection={picked.ids}
+                        screens={screens}
+                        edit={editTimeline}
+                        onClose={() => setOpenTimeline(undefined)}
+                      />
+                      <LiveHint on={tool === "interact"} text={m.liveHint} />
+                      <SpacingHandles
+                        store={overlay}
+                        surface={() => surfaceRef.current}
+                        selection={selection}
+                        index={index}
+                        boxOf={(id) => boxRef.current?.(id)}
+                        nodeOf={(id) => nodeIn(screens, screenOf, id)}
+                        docOf={(id) => screenOf.get(id)}
+                        edit={edit}
+                        canEdit={canEdit}
+                        locked={locked}
+                        dims={dimensionsOf(paint)}
+                        rtl={look.direction === "rtl"}
+                      />
+                      <ContextToolbar
+                        active={tool === "select"}
+                        store={overlay}
+                        surface={() => surfaceRef.current}
+                        selectionStore={store}
+                        ids={selection.ids}
+                        index={index}
+                        boxOf={(id) => boxRef.current?.(id)}
+                        nodeOf={(id) => nodeIn(screens, screenOf, id)}
+                        docOf={(id) => screenOf.get(id)}
+                        edit={edit}
+                        canEdit={canEdit}
+                        locked={locked}
+                        onAction={() => setDockTab((r) => tabRequest("actions", r))}
+                        onDelete={interaction.remove}
+                      />
+                      <InlineTextHost
+                        editing={inlineEdit}
+                        onDone={() => setInlineEdit(null)}
+                        store={overlay}
+                        surface={() => surfaceRef.current}
+                        boxOf={(id) => boxRef.current?.(id)}
+                        screens={screens}
+                        edit={edit}
+                        schemaVersion={stateTarget.schemaVersion}
+                        announce={setFocusNote}
+                      />
+                      <PagePartsHost
+                        store={overlay}
+                        surface={() => surfaceRef.current}
+                        roots={roots}
+                        screens={screens}
+                        selection={selection}
+                        selectionStore={store}
+                        screenOf={screenOf}
+                        edit={edit}
+                        canEdit={canEdit}
+                        look={look}
+                        drawers={drawers}
+                        onToggleDrawer={toggleDrawer}
+                      />
+                      {docs.isPending && (
+                        <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>
+                      )}
+                      {docs.isError && (
+                        <p role="alert" className="absolute start-4 top-4 text-body">
+                          {m.failed}
+                        </p>
+                      )}
+                      {docs.isSuccess && screens.length === 0 && (
+                        <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.empty}</p>
+                      )}
+                      <p role="status" aria-live="polite" className="sr-only">
+                        {announcement}
+                      </p>
+                      <p role="status" aria-live="polite" className="sr-only">
+                        {focusNote}
+                      </p>
+
+                      <GhostLeaveDialog
+                        ghost={leaving}
+                        onCancel={() => setLeaving(null)}
+                        onOpen={(ghost) => {
+                          setLeaving(null);
+                          if (ghost.pluginId !== undefined && ghost.screenId !== undefined) {
+                            void navigate({
+                              to: "/o/$org/apps/$app/plugins/$plugin",
+                              params: { org: params.org ?? "", app: params.app ?? "", plugin: ghost.pluginId },
+                              search: { focus: ghost.screenId },
+                            });
                           }
-                          setLane(null);
                         }}
                       />
-                    )}
-                    {clipboardDialog}
-                    <DeviceBayHost
-                      appId={params.app}
-                      request={consoleRequest}
-                      live={canSend}
-                      validation={validation}
-                      screens={screens}
-                      store={store}
-                      index={index}
-                      selection={selection}
-                      local={local}
-                      assets={assets}
-                      screenOf={screenOf}
-                      entryPage={entryPage}
-                    />
-                    {libraryDialog}
-                    <RightDock
-                      tabRequest={dockTab}
-                      tests={tests}
-                      screens={screens}
-                      index={index}
-                      screenOf={screenOf}
-                      edit={edit}
-                      pathOf={pathOf}
-                      problems={checked?.problems ?? []}
-                      documents={docs.data}
-                      appDocuments={appDocs.data}
-                      validatePage={checked?.validatePage}
-                      language={checked?.language}
-                      drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
-                      decide={decide}
-                      heroCount={(id) => heroesOf(id).length}
-                      onOpenJson={() => overlays.show("json")}
-                      onOpenLocalisation={() => overlays.show("l10n")}
-                      onOpenState={() => overlays.show("state")}
-                      schemaVersion={stateTarget.schemaVersion}
-                      onOpenOverlay={overlays.show}
-                      onOpenGraph={() => overlays.show("graph")}
-                      onOpenRust={() => {
-                        setRustSource(undefined);
-                        overlays.show("rust");
-                      }}
-                      onOpenFunction={(name) => {
-                        setRustSource(name);
-                        overlays.show("rust");
-                      }}
-                    />
-                    <DesignersHost
-                      open={overlays.open}
-                      onClose={overlays.hide}
-                      documents={docs.data}
-                      appDocuments={appDocs.data}
-                      validation={validation}
-                    />
-                    <JsonEditorHost
-                      open={overlays.open === "json"}
-                      onClose={overlays.hide}
-                      documents={docs.data}
-                      screenOf={screenOf}
-                      pathOf={pathOf}
-                      validation={validation}
-                    />
-                    <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} sourceId={rustSource} />
-                    <ExtraOverlays
-                      open={overlays.open}
-                      onClose={overlays.hide}
-                      documents={docs.data}
-                      appDocuments={appDocs.data}
-                      target={stateTarget}
-                      validatePage={checked?.validatePage}
-                    />
-                    <ActionGraphHost
-                      open={overlays.open === "graph"}
-                      onClose={overlays.hide}
-                      documents={docs.data}
-                      screenOf={screenOf}
-                      pathOf={pathOf}
-                      validation={validation}
-                    />
-                    {docs.data !== undefined && (
-                      <ScreensController
-                        a11y={a11yView}
-                        onA11y={setA11yView}
-                        appId={params.app ?? ""}
-                        pluginId={params.plugin ?? ""}
-                        editorSessionId={editorSessionId}
+                      {/* The previewed locale's direction and text scale are the screens' (the canvas draws them so); Studio's own
+            panels keep Studio's. The screen list read to assistive technology is in the previewed locale. */}
+                      <ol aria-label={m.screens} className="sr-only" dir={look.direction} lang={look.locale}>
+                        {screens.map((s) => (
+                          <li key={s.id}>
+                            {s.title}
+                            {(heights.get(s.id) ?? 0) > device.height && (
+                              <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ol>
+                      <LeftDock
+                        title={pluginInfo?.name}
+                        nativeWidgets={nativeWidgets}
+                        screens={screens}
+                        entryPage={entryPage}
+                        index={index}
+                        screenOf={screenOf}
+                        selection={selection}
+                        store={store}
+                        edit={edit}
+                        canEdit={canEdit}
+                        surface={() => surfaceRef.current}
+                        canvas={() => canvasRef.current}
+                        documents={docs.data}
+                        onOpenState={() => overlays.show("state")}
+                        onOpenData={() => overlays.show("data")}
+                        assets={assets}
+                      />
+                      <LinkLayer
+                        surface={() => surfaceRef.current}
+                        canvas={() => canvasRef.current}
+                        widget={linkWidget}
+                        screens={linkScreens}
+                        canEdit={canEdit}
+                        edit={edit}
+                      />
+                      {lane !== null && (
+                        <LaneDialog
+                          title={lane.title}
+                          site={laneSite}
+                          routes={laneRoutes}
+                          canEdit={canEdit}
+                          target={laneTarget}
+                          onClose={() => setLane(null)}
+                          onRedirect={(route) => {
+                            if (laneSite !== undefined) {
+                              edit(lane.source, redirectRecipe(laneSite.nodeId, laneSite.link, route));
+                            }
+                            setLane(null);
+                          }}
+                          onRemove={() => {
+                            if (laneSite !== undefined) {
+                              edit(lane.source, removeLinkRecipe(laneSite.nodeId, laneSite.link));
+                            }
+                            setLane(null);
+                          }}
+                        />
+                      )}
+                      {clipboardDialog}
+                      <DeviceBayHost
+                        appId={params.app}
+                        request={consoleRequest}
+                        live={canSend}
+                        validation={validation}
+                        screens={screens}
+                        store={store}
+                        index={index}
+                        selection={selection}
+                        local={local}
+                        assets={assets}
+                        screenOf={screenOf}
+                        entryPage={entryPage}
+                      />
+                      {libraryDialog}
+                      <RightDock
+                        tabRequest={dockTab}
+                        tests={tests}
+                        screens={screens}
+                        index={index}
+                        screenOf={screenOf}
+                        edit={edit}
+                        pathOf={pathOf}
+                        problems={checked?.problems ?? []}
                         documents={docs.data}
                         appDocuments={appDocs.data}
-                        screens={screens.map((x) => ({ id: x.id, title: x.title }))}
-                        selectedScreen={interaction.selectedScreen}
-                        tool={interaction.tool}
-                        onTool={interaction.setTool}
-                        request={screenRequest}
-                        entryPage={entryPage}
-                        validation={validation}
-                        percent={percent}
-                        onZoom={zoomBy}
-                        onZoomReset={resetZoom}
-                        onFit={fit}
-                        onShowScreen={showScreen}
-                        identity={<PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />}
-                        status={
-                          <PluginStatus
-                            ids={selection.ids}
-                            index={index}
-                            validation={validation}
-                            onProblems={() => setConsoleRequest(problemsRequest)}
-                          />
-                        }
-                        onHistory={() => overlays.show("history")}
-                        preview={
-                          <>
-                            {switcher}
-                            {bar}
-                          </>
-                        }
-                        canSend={canSend}
-                        canPublish={canPublish}
-                        onPublish={() =>
-                          void navigate({
-                            to: "/o/$org/apps/$app/publish",
-                            params: { org: params.org ?? "", app: params.app ?? "" },
-                          })
-                        }
+                        validatePage={checked?.validatePage}
+                        language={checked?.language}
+                        drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
+                        decide={decide}
+                        heroCount={(id) => heroesOf(id).length}
+                        onOpenJson={() => overlays.show("json")}
+                        onOpenLocalisation={() => overlays.show("l10n")}
+                        onOpenState={() => overlays.show("state")}
+                        schemaVersion={stateTarget.schemaVersion}
+                        onOpenOverlay={overlays.show}
+                        onOpenGraph={() => overlays.show("graph")}
+                        onOpenRust={() => {
+                          setRustSource(undefined);
+                          overlays.show("rust");
+                        }}
+                        onOpenFunction={(name) => {
+                          setRustSource(name);
+                          overlays.show("rust");
+                        }}
                       />
-                    )}
-                  </section>
-                </TimelineOpenContext.Provider>
+                      <DesignersHost
+                        open={overlays.open}
+                        onClose={overlays.hide}
+                        documents={docs.data}
+                        appDocuments={appDocs.data}
+                        validation={validation}
+                      />
+                      <JsonEditorHost
+                        open={overlays.open === "json"}
+                        onClose={overlays.hide}
+                        documents={docs.data}
+                        screenOf={screenOf}
+                        pathOf={pathOf}
+                        validation={validation}
+                      />
+                      <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} sourceId={rustSource} />
+                      <ExtraOverlays
+                        open={overlays.open}
+                        onClose={overlays.hide}
+                        documents={docs.data}
+                        appDocuments={appDocs.data}
+                        target={stateTarget}
+                        validatePage={checked?.validatePage}
+                      />
+                      <ActionGraphHost
+                        open={overlays.open === "graph"}
+                        onClose={overlays.hide}
+                        documents={docs.data}
+                        screenOf={screenOf}
+                        pathOf={pathOf}
+                        validation={validation}
+                      />
+                      {docs.data !== undefined && (
+                        <ScreensController
+                          a11y={a11yView}
+                          onA11y={setA11yView}
+                          l10n={l10nView}
+                          onL10n={setL10nView}
+                          appId={params.app ?? ""}
+                          pluginId={params.plugin ?? ""}
+                          editorSessionId={editorSessionId}
+                          documents={docs.data}
+                          appDocuments={appDocs.data}
+                          screens={screens.map((x) => ({ id: x.id, title: x.title }))}
+                          selectedScreen={interaction.selectedScreen}
+                          tool={interaction.tool}
+                          onTool={interaction.setTool}
+                          request={screenRequest}
+                          entryPage={entryPage}
+                          validation={validation}
+                          percent={percent}
+                          onZoom={zoomBy}
+                          onZoomReset={resetZoom}
+                          onFit={fit}
+                          onShowScreen={showScreen}
+                          identity={<PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />}
+                          status={
+                            <PluginStatus
+                              ids={selection.ids}
+                              index={index}
+                              validation={validation}
+                              onProblems={() => setConsoleRequest(problemsRequest)}
+                            />
+                          }
+                          onHistory={() => overlays.show("history")}
+                          preview={
+                            <>
+                              {switcher}
+                              {bar}
+                            </>
+                          }
+                          canSend={canSend}
+                          canPublish={canPublish}
+                          onPublish={() =>
+                            void navigate({
+                              to: "/o/$org/apps/$app/publish",
+                              params: { org: params.org ?? "", app: params.app ?? "" },
+                            })
+                          }
+                        />
+                      )}
+                    </section>
+                  </TimelineOpenContext.Provider>
+                </LocalePreviewContext.Provider>
               </MotionPreviewContext.Provider>
             </FormPreviewContext.Provider>
           </BranchPreviewContext.Provider>

@@ -267,7 +267,20 @@ minimum (48 × 48 on Android, 44 × 44 on iOS, outlined with its size) and each 
 enough from what is behind it (4.5:1, 3:1 for large text, with its ratio), worked out from the theme's colours. The
 inspector's **Accessibility** tab edits a widget's label and hint, **Header** with its **Heading level**, **Button**,
 **Live region**, **Group**, **Decorative**, **Exclude semantics** and **Focus order**, and lists its accessibility
-problems. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+problems.
+
+The **Locale** switch previews the screens in the app's own locales (and the pseudo-locales in development). Each
+text takes its message along the fallback chain the device uses (`de-AT`, then `de`, then the app's default locale), a
+plural, `select`, `number`, `date` or `time` message is formatted with its arguments' design-time values, with Latin
+digits as on the device, and a node's **localeOverrides** for the locale replace its props (the language's first,
+the exact locale's over them). **Localisation view** in the tool bar marks every text whose key has no message in the
+locale (the device shows the default locale's), every text written in the page rather than as a key in an app with
+more than one locale, and every text that does not fit its box in this locale (a cut line included). The inspector's
+**Localisation** tab shows the selected widget's messages in the locale and whether each is translated, a plural
+message's **Plural sample** (from the data, or 0, 1, 2, 5 or 21) the canvas draws it with, and the props it sets
+**Only in** this locale, added and removed in place.
+
+Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

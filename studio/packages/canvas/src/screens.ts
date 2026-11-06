@@ -683,17 +683,21 @@ interface Laid {
   readonly items: ItemSpec[];
   readonly height: number;
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
+  readonly overflowing?: readonly string[];
 }
 
 /** A screen's height entry, with its scroll extents when it has any. */
 function heightOf(id: string, laid: Laid): ScreenHeight {
-  return laid.scrolls === undefined || laid.scrolls.length === 0
-    ? { id, contentHeight: laid.height }
-    : { id, contentHeight: laid.height, scrolls: laid.scrolls };
+  return {
+    id,
+    contentHeight: laid.height,
+    ...(laid.scrolls === undefined || laid.scrolls.length === 0 ? {} : { scrolls: laid.scrolls }),
+    ...(laid.overflowing === undefined ? {} : { overflowing: laid.overflowing }),
+  };
 }
 
 function layOutContent(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine, glyphs?: IconGlyphs): Laid {
-  const { boxes, contentHeight, scrolls } = layoutScreen(s.root, {
+  const { boxes, contentHeight, scrolls, overflowing } = layoutScreen(s.root, {
     engine,
     theme: style.theme,
     title: s.title,
@@ -708,6 +712,7 @@ function layOutContent(s: ScreenDocument, style: ScreenStyle, engine: ParagraphE
     items: screenItems(s, boxes, contentHeight, style, glyphs),
     height: contentHeight,
     ...(scrolls === undefined ? {} : { scrolls }),
+    ...(overflowing === undefined ? {} : { overflowing }),
   };
 }
 

@@ -285,6 +285,31 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     engine.dispose();
   });
 
+  test("[I18N-010] a painted screen reports the widgets whose text does not fit its box, a cut line included (PC-32)", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const label = { data: "A label far too long for its box", maxLines: 1, overflow: "ellipsis" };
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        {
+          id: "box",
+          type: "SizedBox",
+          props: { width: 80 },
+          slots: { child: { id: "cut", type: "Text", props: label } },
+        },
+        text("fits", "OK"),
+      ],
+    };
+    const painted = { ...style, paint: { scheme } };
+    const laid = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], painted, engine);
+    expect(laid.heights[0]?.overflowing).toEqual(["cut"]);
+    const fits = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root: text("fits", "OK") }], painted, engine);
+    expect(fits.heights[0]).not.toHaveProperty("overflowing");
+    engine.dispose();
+  });
+
   test("[STU-006] a painted text keeps the style it was measured in: role, weight, line height, lines and alignment", () => {
     const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
     const scheme = colorSchemeFromSeed(0xff6750a4, false);

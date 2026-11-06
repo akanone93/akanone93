@@ -18,7 +18,7 @@ import { buildChip } from "../flutter/material/chip.ts";
 import { buildInputDecorator, RenderEditableLine } from "../flutter/material/input-decorator.ts";
 import { buildListTile } from "../flutter/material/list-tile.ts";
 import { MaterialTapTargetSize, m3TextStyle, type TextRole, VisualDensity } from "../flutter/material/theme.ts";
-import { PipelineOwner } from "../flutter/object.ts";
+import { PipelineOwner, type RenderObject } from "../flutter/object.ts";
 import { RenderParagraph, TextOverflow } from "../flutter/paragraph.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
@@ -65,10 +65,13 @@ export interface ScreenTheme {
   readonly spacing: number;
 }
 
-/** The default theme: a 390-pt phone, 16-pt Roboto with Noto Sans fallback. */
+/**
+ * The default theme: a 390-pt phone, 16-pt Roboto with the Noto fallbacks the canvas loads — Noto Sans, then Noto Sans
+ * Arabic for the Arabic script (PC-32) — so text is measured in the faces it is drawn in.
+ */
 export const defaultScreenTheme: ScreenTheme = {
   width: 390,
-  fontFamilies: ["Roboto", "Noto Sans"],
+  fontFamilies: ["Roboto", "Noto Sans", "Noto Sans Arabic"],
   fontSize: 16,
   pagePadding: 16,
   appBarHeight: 56,
@@ -175,6 +178,8 @@ export interface ScreenLayout {
   readonly contentHeight: number;
   /** On a live screen, each scroll view's node and how far it scrolls (PC-15). */
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
+  /** The widgets whose text did not fit its box: the nearest named owner of each overflowing paragraph (PC-32). */
+  readonly overflowing?: readonly string[];
 }
 
 /** Slots that are drawn by the screen itself, not by the widget tree. */
@@ -835,6 +840,21 @@ function screenResult(boxes: Placed[], height: number, ctx: WidgetContext, optio
     : { boxes, contentHeight: options.deviceHeight ?? height, scrolls: ctx.live };
 }
 
+/** The named owners (nearest ancestor with a debug id) of the paragraphs that overflowed, once each (PC-32). */
+function overflowingOwners(paragraphs: readonly RenderParagraph[]): string[] {
+  const out = new Set<string>();
+  for (const p of paragraphs) {
+    let at: RenderObject | null = p;
+    while (p.overflowed && at !== null && at.debugId === null) {
+      at = at.parent;
+    }
+    if (p.overflowed && at?.debugId != null) {
+      out.add(at.debugId.split("#")[0] as string);
+    }
+  }
+  return [...out];
+}
+
 /** The root's id when it is a `Scaffold` on a painted screen: the page's own scaffold (PC-12). */
 function pageScaffoldOf(root: WidgetNode | null | undefined, options: LayoutScreenOptions): string | undefined {
   // Under a dialog or sheet page, the page that opens it is the device's page (PC-13).
@@ -990,12 +1010,14 @@ export function layoutScreen(root: WidgetNode | null | undefined, options: Layou
     const rects = globalRects(view);
     const paints =
       options.paint === undefined ? undefined : paintTree(root as PaintNode | null | undefined, rects, options.paint);
-    return screenResult(
+    const result = screenResult(
       placedBoxes(rects, marks, paints, rootId),
       contentHeightOf(rects, rootId, paints),
       ctx,
       options,
     );
+    const overflowing = overflowingOwners(paragraphs);
+    return overflowing.length === 0 ? result : { ...result, overflowing };
   } finally {
     for (const p of paragraphs) {
       p.dispose();

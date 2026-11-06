@@ -6,6 +6,7 @@ import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
 import { type LowContrast, smallTarget } from "./a11y-marks.ts";
 import type { BindingMark } from "./binding-marks.ts";
+import type { L10nOverlay } from "./l10n-marks.ts";
 import type { HandlerStep } from "./quick-actions.ts";
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
@@ -42,6 +43,8 @@ export interface OverlayNodes {
   readonly heroes?: (id: string) => readonly string[];
   /** The Accessibility view's marks, when it is on (PC-31). */
   readonly a11y?: A11yMarks;
+  /** The Localisation view's marks, when it is on (PC-32), with their words. */
+  readonly l10n?: L10nOverlay;
   /** The words of the marks. */
   readonly a11yText?: {
     readonly target: (w: number, h: number, min: number) => string;
@@ -311,6 +314,25 @@ function A11yView({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNo
   return [...small, ...low, ...order];
 }
 
+/** The Localisation view (PC-32): missing, untranslated and overflowing texts tagged and outlined. */
+function L10nView({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  const l = nodes.l10n;
+  if (l === undefined) {
+    return null;
+  }
+  return [...l.marks].flatMap(([id, mark]) => {
+    const b = nodes.boxOf(id);
+    return b === undefined
+      ? []
+      : [
+          <div key={`o${id}`} className="pc-outline" data-kind={`l10n-${mark}`} style={place(b, view)} />,
+          <span key={`t${id}`} className="pc-l10n-tag" data-kind={mark} style={point(b.l, b.t, view)}>
+            {l.text(mark)}
+          </span>,
+        ];
+  });
+}
+
 /** The widgets the selected one flies to in a hero transition (PC-29): dashed outlines on the other screens. */
 function HeroLinks({ id, view, nodes }: { id: string; view: View; nodes: OverlayNodes }): ReactNode {
   return (nodes.heroes?.(id) ?? []).flatMap((other) => {
@@ -504,6 +526,7 @@ export function InteractionOverlay(props: {
         </>
       )}
       <A11yView view={view} nodes={nodes} />
+      <L10nView view={view} nodes={nodes} />
       <BindingBadges view={view} nodes={nodes} />
       <EventBadges view={view} nodes={nodes} />
       <ProblemDots view={view} nodes={nodes} />

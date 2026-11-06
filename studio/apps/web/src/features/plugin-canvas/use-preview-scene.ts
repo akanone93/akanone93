@@ -6,13 +6,13 @@ import type { PaintTheme } from "@plux/layout";
 import { useMemo, useRef, useState } from "react";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { withoutHidden } from "../panels/studio-meta.ts";
-import type { PreviewRender } from "../preview/switches.ts";
+import type { MockState, PreviewRender } from "../preview/switches.ts";
 import { applyConditions, type BranchPick } from "./conditions.ts";
 import { designScopes, type FormPreview } from "./design-scope.ts";
 import { expandLists, type ListState, type StateTexts } from "./list-preview.ts";
 import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, namedMocks, resolveTheme } from "./look.ts";
-import { bindMocks } from "./mock-bindings.ts";
+import { bindMocks, type DesignScope, evaluateMockBinding } from "./mock-bindings.ts";
 import { withMotion } from "./motion.ts";
 import type { Playing } from "./motion-player.ts";
 import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
@@ -41,6 +41,8 @@ export interface DesignPicks {
   readonly branches: ReadonlyMap<string, BranchPick>;
   readonly forms?: FormPreview;
   readonly listText?: StateTexts;
+  /** The count each plural text is shown with, by node (PC-32). */
+  readonly samples?: ReadonlyMap<string, number>;
 }
 
 const NO_PICKS: DesignPicks = { lists: new Map(), branches: new Map() };
@@ -93,6 +95,21 @@ export interface Scrubbed {
   readonly page: string;
   readonly timeline: Timeline;
   readonly ms: number;
+}
+
+/** A message argument's design-time value: an expression resolved where it can be, a literal as it is. */
+function argValue(
+  v: unknown,
+  mocks: ReadonlyMap<string, unknown>,
+  states: Readonly<Record<string, MockState>>,
+  scope: DesignScope | undefined,
+): unknown {
+  const expr = typeof v === "object" && v !== null && "$expr" in v ? (v as { $expr: unknown }).$expr : undefined;
+  if (typeof expr !== "string") {
+    return v;
+  }
+  const value = evaluateMockBinding(expr, mocks, states, scope);
+  return value === null ? undefined : value;
 }
 
 /** A page's root drawn at the moment of its open timeline; other pages are kept. */
@@ -197,13 +214,13 @@ export function usePreviewScene(
         // Conditions pick their branches (PC-25) and lists are drawn from their data (PC-24) first; then every other
         // binding takes its design-time value.
         const scope = scopes.get(s.id);
-        const decided = applyConditions(
-          localizeTree(drawn, messages, look.localize),
-          mocks,
-          states,
-          scope,
-          design.branches,
-        );
+        // Texts take the previewed locale's messages, with their arguments' design-time values (PC-32).
+        const localized = localizeTree(drawn, messages, look.localize, {
+          locale: look.locale,
+          ...(design.samples === undefined ? {} : { samples: design.samples }),
+          arg: (v) => argValue(v, mocks, states, scope),
+        });
+        const decided = applyConditions(localized, mocks, states, scope, design.branches);
         const listed = expandLists(decided, mocks, states, scope, design.lists, design.listText);
         byRoot.set(s.root, bindMocks(listed, mocks, states, scope));
       }

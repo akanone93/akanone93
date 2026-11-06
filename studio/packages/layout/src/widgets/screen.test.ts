@@ -8,6 +8,7 @@ import { loadCanvasKit, testParagraphEngine } from "../../test-support/canvaskit
 import { TextDirection } from "../flutter/geometry.ts";
 import { RenderParagraph } from "../flutter/paragraph.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
+import { colorSchemeFromSeed } from "../material-color/scheme.ts";
 import type { CanvasKitParagraphEngine } from "../text/canvaskit-engine.ts";
 import { TextAlign } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
@@ -126,6 +127,25 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     const last = layout.boxes.find((b) => b.id === "t39");
     expect(layout.contentHeight).toBeCloseTo((last?.y ?? 0) + (last?.h ?? 0) + 16, 5);
     expect(layout.contentHeight).toBeGreaterThan(844);
+  });
+
+  test("a painted app bar measures an Arabic title in the theme's fallback face, on one line (PC-32) [STU-006]", () => {
+    const title = "سلة التسوق";
+    const root: WidgetNode = {
+      id: "s",
+      type: "Scaffold",
+      slots: { appBar: { id: "bar", type: "AppBar", slots: { title: text("title", title) } } },
+    };
+    const painted = layoutScreen(root, {
+      engine,
+      theme,
+      paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) },
+      textDirection: TextDirection.rtl,
+    });
+    const box = painted.boxes.find((b) => b.id === "title");
+    const alone = measure(title, theme.fontFamilies);
+    expect(box?.w).toBeCloseTo((alone.w * 22) / 16, 0);
+    expect(box?.h ?? 0).toBeLessThan(alone.h * 2);
   });
 
   test("sizes Material buttons, the FAB and list tiles as Flutter does (S4.3)", () => {

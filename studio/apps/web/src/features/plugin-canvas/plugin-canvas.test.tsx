@@ -115,7 +115,7 @@ describe("[STU-050] plugin canvas C2", () => {
     const fs = frames(s.patches[0]);
     expect(fs.map((f) => f.title)).toEqual(["Home", "Detail", "Tall"]);
     expect(fs[0]?.root?.slots?.["body"]?.children?.[0]?.id).toBe("b1");
-    expect(s.patches[0]?.style.theme.fontFamilies).toEqual(["Roboto", "Noto Sans"]);
+    expect(s.patches[0]?.style.theme.fontFamilies).toEqual(["Roboto", "Noto Sans", "Noto Sans Arabic"]);
     const xs = fs.map((f) => f.x);
     expect(xs).toEqual([...xs].sort((a, b) => a - b));
     expect(new Set(xs).size).toBe(3);

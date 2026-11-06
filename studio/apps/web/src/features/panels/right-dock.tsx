@@ -21,6 +21,7 @@ import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../loca
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
 import { LIST_TYPES } from "../plugin-canvas/list-preview.ts";
+import { setOverrideRecipe } from "../plugin-canvas/locale-overrides.ts";
 import { setAnimationRecipe } from "../plugin-canvas/motion.ts";
 import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
@@ -41,6 +42,7 @@ import { ImageSourceField } from "./image-field.tsx";
 import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingRecipe } from "./layout-model.ts";
 import { ConstraintsEditor, LayoutPanel } from "./layout-panel.tsx";
 import { addStateRecipe, ListPanel } from "./list-panel.tsx";
+import { LocaleTools } from "./locale-tools.tsx";
 import { MotionPanel } from "./motion-panel.tsx";
 import { pageSettingsMessages } from "./page-settings.messages.ts";
 import { PageSettingsTab } from "./page-settings.tsx";
@@ -1135,6 +1137,30 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   );
 }
 
+/** The Localisation tab: the selection's texts, and the previewed locale's messages, samples and overrides (PC-32). */
+function SelectionLocalisation(p: DockProps & { ids: readonly string[] }) {
+  const { canEdit } = useSelectionEditable(p, p.ids);
+  const nodes = useLiveNodes(p);
+  const id = p.ids[0];
+  const node = id === undefined ? undefined : nodes.get(id);
+  const doc = id === undefined ? undefined : p.screenOf.get(id);
+  return (
+    <div className="flex flex-col gap-3">
+      <LocalisationTab ids={p.ids} nodes={nodes} onOpen={p.onOpenLocalisation} />
+      {id !== undefined && node !== undefined && doc !== undefined && p.ids.length === 1 && (
+        <LocaleTools
+          id={id}
+          node={node}
+          canEdit={canEdit}
+          setOverride={(locale, prop, value) =>
+            p.edit(doc, setOverrideRecipe(id, locale, prop, value), { group: `l10n:${id}:${locale}:${prop}` })
+          }
+        />
+      )}
+    </div>
+  );
+}
+
 function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const { m, ids } = p;
   const { canEdit, lockedNote } = useSelectionEditable(p, ids);
@@ -1606,7 +1632,7 @@ export function RightDock(props: DockProps) {
       value: "localisation",
       label: tm.tabLocalisation,
       icon: "translate",
-      panel: body((i) => <LocalisationTab ids={i} nodes={nodes} onOpen={props.onOpenLocalisation} />),
+      panel: body((i) => <SelectionLocalisation {...props} ids={i} />),
     },
     {
       value: "accessibility",

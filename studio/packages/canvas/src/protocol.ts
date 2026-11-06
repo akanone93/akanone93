@@ -423,6 +423,8 @@ export interface ScreenHeight {
   readonly contentHeight: number;
   /** On a live screen, each scroll view and how far it scrolls (PC-15). */
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
+  /** The widgets whose text does not fit its box (PC-32). */
+  readonly overflowing?: readonly string[];
 }
 
 /** An encoded image and the key scene items refer to it by. */

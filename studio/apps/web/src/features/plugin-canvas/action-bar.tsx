@@ -31,6 +31,9 @@ export interface ActionBarProps {
   /** The Accessibility view (PC-31): focus order, touch targets and contrast marked on the screens. */
   readonly a11y?: boolean | undefined;
   readonly onA11y?: ((on: boolean) => void) | undefined;
+  /** The Localisation view (PC-32): missing, untranslated and overflowing texts marked on the screens. */
+  readonly l10n?: boolean | undefined;
+  readonly onL10n?: ((on: boolean) => void) | undefined;
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
@@ -187,6 +190,15 @@ export function ActionBar(props: ActionBarProps) {
                   title={m.a11yView}
                   pressed={props.a11y === true}
                   onClick={() => props.onA11y?.(props.a11y !== true)}
+                />
+              )}
+              {props.onL10n !== undefined && (
+                <BarButton
+                  icon="translate"
+                  label={m.l10nView}
+                  title={m.l10nView}
+                  pressed={props.l10n === true}
+                  onClick={() => props.onL10n?.(props.l10n !== true)}
                 />
               )}
               <Divider />

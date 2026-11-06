@@ -16,7 +16,15 @@ import {
   resolveFrame,
   sizeClassOf,
 } from "./frames.ts";
-import { defaultPreview, mockStateOf, previewRender, readPreview, withMock, writePreview } from "./switches.ts";
+import {
+  defaultPreview,
+  localeChoices,
+  mockStateOf,
+  previewRender,
+  readPreview,
+  withMock,
+  writePreview,
+} from "./switches.ts";
 
 describe("[STU-057] device frames", () => {
   test("the catalogue has the named presets with unique IDs", () => {
@@ -99,5 +107,26 @@ describe("[STU-058] preview switches", () => {
     const r = previewRender({ ...defaultPreview, textScale: 1.3 }, "cupertino");
     expect(r).toMatchObject({ textScale: 1.3, platform: "cupertino" });
     expect(previewRender({ ...defaultPreview, platform: "material" }, "cupertino").platform).toBe("material");
+  });
+});
+
+describe("PC-32 the locales the screens are previewed in [STU-058] [I18N-002]", () => {
+  test("the app's own locales, then the pseudo-locales when offered, the current one kept", () => {
+    const tags = (app: readonly string[], pseudo: boolean, current: string) =>
+      localeChoices(app, pseudo, current).map((c) => c.value);
+    expect(tags(["en", "de-DE", "ar", "am-ET"], true, "de-DE")).toEqual([
+      "en",
+      "de-DE",
+      "ar",
+      "am-ET",
+      "en-XA",
+      "ar-XB",
+    ]);
+    expect(tags(["en", "de-DE"], false, "fr")).toEqual(["en", "de-DE", "fr"]);
+    expect(tags([], false, "en")).toEqual(["en", "de", "ar"]);
+    const labels = localeChoices(["de-DE", "en-XA", "x-bad-tag!"], false, "de-DE").map((c) => c.label);
+    expect(labels[0]).toBe("Deutsch (Deutschland) · de-DE");
+    expect(labels[1]).toBe("English (accented)");
+    expect(labels[2]).toBe("x-bad-tag!");
   });
 });

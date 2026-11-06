@@ -1,0 +1,55 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The previewed locale's tools (PC-32): each text's message and status, plural samples and per-locale overrides. */
+
+.locale-key {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+  padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid color-mix(in oklch, oklch(0.6 0.14 150) 70%, var(--border));
+  border-radius: var(--radius-md);
+}
+
+.locale-key[data-missing="true"] {
+  border-inline-start-color: oklch(0.72 0.15 75);
+  background-color: color-mix(in oklch, oklch(0.85 0.14 80) 10%, transparent);
+}
+
+.locale-message {
+  overflow-wrap: anywhere;
+  color: var(--foreground);
+  font-size: var(--text-xs);
+}
+
+.locale-status {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  color: color-mix(in oklch, oklch(0.6 0.14 150) 80%, var(--foreground));
+  font-size: 0.6875rem;
+}
+
+.locale-key[data-missing="true"] .locale-status {
+  color: color-mix(in oklch, oklch(0.62 0.16 60) 85%, var(--foreground));
+}
+
+.locale-overrides {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.locale-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: calc(var(--spacing) * 1.5);
+  align-items: center;
+}
+
+.locale-add > .form-add {
+  grid-column: 1 / -1;
+  justify-self: start;
+}

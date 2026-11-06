@@ -5,6 +5,8 @@ import type { DeviceChromeSpec, ScreenStyle } from "@plux/canvas";
 import { defaultScreenTheme, type ScreenTheme, TextDirection } from "@plux/layout";
 import { readLocales, readMessages } from "../localisation/l10n-model.ts";
 import { genericDevice, type MockState, type PreviewDevice, type PreviewRender } from "../preview/switches.ts";
+import { format as formatIcu, pluralArgs } from "./icu.ts";
+import { withLocaleOverrides } from "./locale-overrides.ts";
 import { type Node, parseDocument } from "./plugin-model.ts";
 
 /** Reads the preview switches into what the canvas draws (STU-058, I18N-010, A11Y-005, THM-001). */
@@ -81,15 +83,22 @@ export function resolveTheme(documents: readonly DocLike[], look: PreviewRender)
   };
 }
 
-/** The messages of `look.locale` by key id; the app's default locale fills what is missing, and pseudo-locales read it. */
+/** The locales a message is looked up in, most specific first (I18N-006): `de-AT`, then `de`, then the app's default. */
+export function localeChain(locale: string, fallback: string): string[] {
+  return [...new Set([locale, locale.split("-")[0] ?? locale, fallback])];
+}
+
+/** The messages of `look.locale` by key id, along its fallback chain; pseudo-locales read the default locale's. */
 export function messagesFor(documents: readonly DocLike[], look: PreviewRender): Record<string, string> {
   const app = jsonOf(documents, "app")[0];
   const fallback = readLocales(app)?.defaultLocale ?? "en";
   const byLocale = new Map(jsonOf(documents, "translations").map((d) => [String(d["locale"]), readMessages(d)]));
-  return { ...byLocale.get(fallback), ...byLocale.get(look.locale) };
+  const chain = localeChain(look.locale, fallback).reverse();
+  return Object.assign({}, ...chain.map((l) => byLocale.get(l) ?? {})) as Record<string, string>;
 }
 
-const TEXT_PROPS: ReadonlySet<string> = new Set(["data", "text", "label", "title", "hint", "tooltip"]);
+/** The props whose strings are visible texts. */
+export const TEXT_PROPS: ReadonlySet<string> = new Set(["data", "text", "label", "title", "hint", "tooltip"]);
 
 /** A Text node's `text` prop is read as the layout's `data` when `data` is absent. */
 function withData(node: Obj): Obj {
@@ -100,29 +109,75 @@ function withData(node: Obj): Obj {
   return { ...node, props: { ...props, data: props["text"] } };
 }
 
-/** `value` with `{"$t": id}` resolved to the locale's message and visible texts passed through `localize`. */
-function localizeValue(value: unknown, key: string, messages: Readonly<Record<string, string>>, fn: Fn): unknown {
-  if (Array.isArray(value)) {
-    return value.map((v) => localizeValue(v, key, messages, fn));
+/** How texts are localised on the canvas (PC-32): the previewed locale, plural samples by node, argument values. */
+export interface LocalizeOptions {
+  readonly locale: string;
+  /** The count a plural message of a node is shown with, picked in the inspector. */
+  readonly samples?: ReadonlyMap<string, number>;
+  /** An argument's design-time value: an expression resolved, a literal as it is; undefined when unknown. */
+  readonly arg?: (value: unknown) => unknown;
+}
+
+interface Walk {
+  readonly messages: Readonly<Record<string, string>>;
+  readonly fn: Fn;
+  readonly options: LocalizeOptions | undefined;
+  /** The node the value belongs to, for its plural sample. */
+  readonly node: string | undefined;
+}
+
+/** A translation reference's text: its message in the locale with its arguments (and the node's sample) filled. */
+function translated(ref: Obj, w: Walk): string {
+  const id = String(ref["$t"]);
+  const message = w.messages[id] ?? id;
+  if (!message.includes("{") || w.options === undefined) {
+    return message;
   }
-  if (isObj(value)) {
-    const id = value["$t"];
-    if (typeof id === "string") {
-      return fn(messages[id] ?? id);
+  const args: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(isObj(ref["args"]) ? ref["args"] : {})) {
+    const value = w.options.arg === undefined ? v : w.options.arg(v);
+    if (value !== undefined) {
+      args[k] = value;
     }
-    return Object.fromEntries(Object.entries(withData(value)).map(([k, v]) => [k, localizeValue(v, k, messages, fn)]));
   }
-  return typeof value === "string" && TEXT_PROPS.has(key) ? fn(value) : value;
+  const sample = w.node === undefined ? undefined : w.options.samples?.get(w.node);
+  if (sample !== undefined) {
+    for (const name of pluralArgs(message)) {
+      args[name] = sample;
+    }
+  }
+  return formatIcu(message, args, w.options.locale);
+}
+
+/** `value` with `{"$t": id}` resolved to the locale's message and visible texts passed through `localize`. */
+function localizeValue(value: unknown, key: string, w: Walk): unknown {
+  if (Array.isArray(value)) {
+    return value.map((v) => localizeValue(v, key, w));
+  }
+  if (!isObj(value)) {
+    return typeof value === "string" && TEXT_PROPS.has(key) ? w.fn(value) : value;
+  }
+  if (typeof value["$t"] === "string") {
+    return w.fn(translated(value, w));
+  }
+  // A node takes its overrides for the previewed locale (I18N-012) and is the owner of the texts below it.
+  const isNode = typeof value["id"] === "string" && typeof value["type"] === "string";
+  const own = isNode && w.options !== undefined ? withLocaleOverrides(value, w.options.locale) : value;
+  const walk = isNode ? { ...w, node: String(value["id"]) } : w;
+  return Object.fromEntries(Object.entries(withData(own)).map(([k, v]) => [k, localizeValue(v, k, walk)]));
 }
 type Fn = (text: string) => string;
 
-/** The widget tree with its texts in the previewed locale (I18N-010). */
+/** The widget tree with its texts in the previewed locale (I18N-010, PC-32). */
 export function localizeTree(
   root: Node | undefined,
   messages: Readonly<Record<string, string>>,
   localize: Fn,
+  options?: LocalizeOptions,
 ): Node | undefined {
-  return root === undefined ? undefined : (localizeValue(root, "", messages, localize) as Node);
+  return root === undefined
+    ? undefined
+    : (localizeValue(root, "", { messages, fn: localize, options, node: undefined }) as Node);
 }
 
 /** The canvas style under the preview switches: theme, text scale and text direction. */

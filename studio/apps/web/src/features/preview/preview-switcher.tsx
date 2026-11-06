@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { availableLocales } from "@plux/i18n";
 import { Field, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { CustomFrameDialog } from "./custom-frame-dialog.tsx";
 import type { FrameView } from "./frame-view.ts";
 import { type DeviceFrame, decodeCustom, frameCatalogue } from "./frames.ts";
 import { previewMessages } from "./preview.messages.ts";
-import { type MockState, mockStates, type PreviewState, textScales, withMock } from "./switches.ts";
+import { localeChoices, type MockState, mockStates, type PreviewState, textScales, withMock } from "./switches.ts";
 
 const CUSTOM = "custom";
 
@@ -58,6 +57,7 @@ export function PreviewSwitcher({
   sourceNames = {},
   onChange,
   includePseudo,
+  locales = [],
   brands = [],
   part = "all",
   view,
@@ -70,6 +70,8 @@ export function PreviewSwitcher({
   readonly sourceNames?: Readonly<Record<string, string>>;
   readonly onChange: (next: PreviewState) => void;
   readonly includePseudo: boolean;
+  /** The app's locales the screens are previewed in (I18N-002); Studio's own when the app names none. */
+  readonly locales?: readonly string[];
   /** The theme's brand overlays the screens can be previewed in (THM-003); the select shows only when there are some. */
   readonly brands?: readonly string[];
   /** `main` renders the frame, theme, locale and text scale (the action bar); `extra` the rest; `all` both. */
@@ -128,7 +130,7 @@ export function PreviewSwitcher({
           <Field label={m.locale}>
             <Select
               value={state.locale}
-              options={availableLocales(includePseudo).map((l) => ({ value: l.tag, label: l.nativeName }))}
+              options={localeChoices(locales, includePseudo, state.locale)}
               onValueChange={(v) => onChange({ ...state, locale: v })}
             />
           </Field>
