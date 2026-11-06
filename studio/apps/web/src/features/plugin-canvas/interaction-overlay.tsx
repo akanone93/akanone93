@@ -5,6 +5,7 @@ import type { Guides } from "@plux/canvas";
 import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
 import type { BindingMark } from "./binding-marks.ts";
+import type { HandlerStep } from "./quick-actions.ts";
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
@@ -34,6 +35,8 @@ export interface OverlayNodes {
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
   /** The props of each node bound to expressions, with the values the canvas shows (PC-23). */
   readonly bindings?: ReadonlyMap<string, readonly BindingMark[]>;
+  /** The steps each node's events run (PC-27). */
+  readonly events?: ReadonlyMap<string, readonly HandlerStep[]>;
 }
 
 interface View {
@@ -192,6 +195,40 @@ function BindingBadges({ view, nodes }: { view: View; nodes: OverlayNodes }): Re
 
 const MAX_BINDINGS = 3;
 
+/** An amber badge beside the binding badge of every widget whose events run steps (PC-27). */
+function EventBadges({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  return [...(nodes.events ?? new Map<string, readonly HandlerStep[]>())].flatMap(([id, steps]) => {
+    const box = nodes.boxOf(id);
+    return box === undefined || nodes.isScreen(id)
+      ? []
+      : [
+          <span key={id} className="pc-event-badge" style={point(box.r, box.t, view)}>
+            {steps.length > 1 ? steps.length : ""}
+          </span>,
+        ];
+  });
+}
+
+/** The selected widget's event handlers under its start corner: each event and the steps it runs. */
+function EventTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+  const steps = nodes.events?.get(id) ?? [];
+  if (steps.length === 0) {
+    return null;
+  }
+  return (
+    <span className="pc-event-tag" style={point(box.l, box.b, view)}>
+      {steps.slice(0, MAX_BINDINGS).map((s) => (
+        <span key={`${s.event}:${s.index}`} className="pc-bind-line">
+          <span className="pc-bind-prop">{s.event}</span>
+          <span className="pc-event-action">{s.action}</span>
+          {s.detail !== undefined && <span className="pc-bind-value">{s.detail}</span>}
+        </span>
+      ))}
+      {steps.length > MAX_BINDINGS && <span className="pc-bind-more">+{steps.length - MAX_BINDINGS}</span>}
+    </span>
+  );
+}
+
 /** The selected widget's bindings over its top-end corner: each prop, its expression and the value drawn. */
 function BindingTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
   const list = nodes.bindings?.get(id) ?? [];
@@ -250,6 +287,7 @@ function Selected(props: {
       )}
       {single && !screen && <ProblemTag id={id} box={box} view={view} nodes={nodes} />}
       {single && !screen && <BindingTag id={id} box={box} view={view} nodes={nodes} />}
+      {single && !screen && <EventTag id={id} box={box} view={view} nodes={nodes} />}
       {single &&
         !screen &&
         nodes.resizable(id) &&
@@ -397,6 +435,7 @@ export function InteractionOverlay(props: {
         </>
       )}
       <BindingBadges view={view} nodes={nodes} />
+      <EventBadges view={view} nodes={nodes} />
       <ProblemDots view={view} nodes={nodes} />
       {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}
       {state.marquee !== null && (

@@ -1230,6 +1230,8 @@ function ActionsPanel(p: DockProps & { ids: readonly string[] }) {
     return routeOptions(own, readPlugin(p.appDocuments ?? []).screens);
   }, [p.documents, p.appDocuments]);
   const doc = id === undefined ? undefined : p.screenOf.get(id);
+  const docsState = useEditor((st) => st.docs);
+  const file = doc === undefined ? undefined : p.pathOf.get(doc);
   if (id === undefined || node === undefined || doc === undefined) {
     return <p className="text-body text-muted-foreground">{m.nothing}</p>;
   }
@@ -1241,6 +1243,7 @@ function ActionsPanel(p: DockProps & { ids: readonly string[] }) {
       routes={routes}
       canEdit={canEdit}
       apply={(recipe) => p.edit(doc, recipe)}
+      forms={formsOf(file === undefined ? undefined : docsState[file]?.content).map((f) => f.name)}
     />
   );
 }

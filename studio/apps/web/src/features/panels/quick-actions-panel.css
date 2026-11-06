@@ -1,0 +1,96 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* Quick actions (PC-27): a grid of action tiles, their fields, and the steps the events run. */
+
+.quick {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 4);
+  padding-block-start: calc(var(--spacing) * 3);
+  border-block-start: 1px solid var(--border);
+}
+
+.quick-kinds {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.quick-kind {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  min-inline-size: 0;
+  block-size: calc(var(--spacing) * 8);
+  padding-inline: calc(var(--spacing) * 2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  text-align: start;
+  transition:
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.quick-kind > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-kind:hover:not(:disabled) {
+  border-color: color-mix(in oklch, var(--primary) 45%, var(--border));
+  color: var(--foreground);
+}
+
+.quick-kind[aria-checked="true"] {
+  border-color: var(--primary);
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--primary) 10%, var(--background));
+}
+
+.quick-input {
+  block-size: calc(var(--spacing) * 8);
+  font-size: var(--text-xs);
+}
+
+.quick-steps {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1);
+}
+
+.quick-step {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  min-inline-size: 0;
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+}
+
+.quick-step-event {
+  flex: none;
+  color: var(--muted-foreground);
+}
+
+.quick-step-action {
+  flex: none;
+  color: color-mix(in oklch, oklch(0.6 0.15 65) 75%, var(--foreground));
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.quick-step-detail {
+  overflow: hidden;
+  flex: 1;
+  min-inline-size: 0;
+  font-family: var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

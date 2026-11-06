@@ -271,6 +271,8 @@ function scaffoldParts(
   const footerNodes = many(node, "persistentFooterButtons");
   const fabNode = one(node, "floatingActionButton");
   const sheetNode = one(node, "bottomSheet");
+  // A snackbar the canvas shows for the selected widget (PC-27): a design-time slot, never in a document.
+  const snackNode = one(node, "snackBar");
   const bottomBar = navNode !== undefined || footerNodes.length > 0;
   const bodyPad: ViewPadding = { ...pad, top: barNode === undefined ? pad.top : 0, bottom: bottomBar ? 0 : pad.bottom };
   const build = (n: WidgetNode | undefined, padding: ViewPadding): RenderBox | null =>
@@ -286,12 +288,14 @@ function scaffoldParts(
   const bar = build(barNode, pad);
   const body = build(bodyNode, bodyPad);
   const sheet = build(sheetNode, bodyPad);
+  const snack = build(snackNode, { ...bodyPad, top: 0 });
   return {
     appBar: bar === null ? null : new RenderOwnHeight(bar),
     body: body === null || bodyNode === undefined ? null : pageBody(body, bodyNode, ctx),
     bottomNavigationBar: bottomOf(build(navNode, pad), footer, direction),
     bottomSheet: sheet === null ? null : new RenderOwnHeight(sheet),
     floatingActionButton: build(fabNode, bodyPad),
+    ...(snack === null ? {} : { snackBar: new RenderOwnHeight(snack) }),
   };
 }
 

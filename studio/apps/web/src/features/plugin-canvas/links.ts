@@ -25,6 +25,21 @@ export interface RouteOption {
   readonly kind?: string;
 }
 
+/** What a step id must look like: a name (`common.schema.json#/$defs/name`). */
+export const STEP_NAME = /^[a-z][a-zA-Z0-9]*$/;
+
+/** A step id for `action` no step of `steps` has: the action's name, else it followed by 2, 3… */
+export function stepName(steps: readonly unknown[], action: string): string {
+  const taken = new Set(steps.flatMap((s) => (isObj(s) && typeof s["id"] === "string" ? [s["id"]] : [])));
+  let n = 1;
+  let name = action;
+  while (taken.has(name)) {
+    n += 1;
+    name = `${action}${n}`;
+  }
+  return name;
+}
+
 /** The events the widget type declares in its descriptor, in descriptor order; empty for an unknown type. */
 export function eventsOf(type: string | undefined): readonly string[] {
   const d = type === undefined ? undefined : widget(type);
@@ -133,8 +148,10 @@ export function linkRecipe(
       return;
     }
     const events = eventsOfNode(at.node as Obj);
-    const step = navigateStep(route, stepId, kind);
     const existing = events[event];
+    // A step id is a name (lowerCamelCase), unique among the handler's steps.
+    const taken = mode === "append" ? handlerSteps(existing) : [];
+    const step = navigateStep(route, STEP_NAME.test(stepId) ? stepId : stepName(taken, "navigate"), kind);
     if (mode === "append" && isObj(existing) && Array.isArray(existing["steps"])) {
       existing["steps"].push(step);
     } else {

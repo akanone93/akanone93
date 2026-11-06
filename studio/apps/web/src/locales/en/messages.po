@@ -568,6 +568,12 @@ msgstr "{kb} KB bundle"
 msgid "forms.option"
 msgstr "{key, select, min {Min} max {Max} pattern {Pattern} region {Region} maxScale {Decimals} maxIntegerDigits {Whole digits} rule {Rule} debounceMs {Delay (ms)} message {Message} other {Option}}"
 
+#. A field of a quick action, e.g. the message a snackbar shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.field"
+msgstr "{key, select, route {Page} message {Message} actionLabel {Button (optional)} url {Web address} path {State path} value {Value} form {Form} other {Value}}"
+
 #. The line under a plugin's name on its box: its key, then the team that owns it (STU-030).
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -604,11 +610,23 @@ msgstr "{kind, select, asset {App images} url {Web address} other {Image}}"
 msgid "pluginCanvas.pageKind"
 msgstr "{kind, select, dialog {Dialog} bottomSheet {Bottom sheet} fullscreenDialog {Full-screen dialog} other {Page}}"
 
+#. Shown when the app has no dialog or sheet page to open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.noPages"
+msgstr "{kind, select, dialog {No dialog page yet: add one with New screen › Dialog.} other {No bottom sheet page yet: add one with New screen › Bottom sheet.}}"
+
 #. Choice of the kind of gradient of a decoration.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.gradientKind"
 msgstr "{kind, select, none {No gradient} linear {Linear} radial {Radial} sweep {Sweep} other {Gradient}}"
+
+#. A quick action an event can run.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.kind"
+msgstr "{kind, select, page {Go to page} dialog {Open a dialog} sheet {Open a sheet} message {Show a message} link {Open a link} back {Go back} state {Set state} submit {Submit a form} other {Action}}"
 
 #. A built-in validator of a form field (STA-020).
 #. js-lingui-explicit-id
@@ -1491,6 +1509,12 @@ msgstr "Add a member so you can work together."
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateAddForm"
 msgstr "Add a state entry"
+
+#. Button that writes the quick action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.add"
+msgstr "Add action"
 
 #. Choice that adds the navigation after the steps an event already has.
 #. js-lingui-explicit-id
@@ -7668,6 +7692,18 @@ msgstr "Italic"
 msgid "list.items"
 msgstr "Items"
 
+#. Shown when the widget's events have no steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.none"
+msgstr "Its events run nothing yet."
+
+#. Note under a widget whose event shows a snackbar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.snackShown"
+msgstr "Its message shows at the bottom of the screen while it is selected."
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -12016,6 +12052,12 @@ msgstr "Queued"
 msgid "publish.diffQueued"
 msgstr "Queued. Rendering waits for earlier jobs and is rate-limited."
 
+#. Heading of the buttons that give an event a common action in one step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.title"
+msgstr "Quick actions"
+
 #. Label of the radius of every corner.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -12364,6 +12406,12 @@ msgstr "Remove"
 msgid "admin.remove"
 msgstr "Remove"
 
+#. Button that removes one step of an event.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.removeStep"
+msgstr "Remove {action}"
+
 #. Accessible name of the button that removes a host font from the list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -12657,6 +12705,12 @@ msgstr "Replace"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.useTemplate"
 msgstr "Replace the source with the template"
+
+#. Option: the new action replaces the event's steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.replace"
+msgstr "Replace what it runs"
 
 #. Label of the drawing that shows the recorded layout.
 #. js-lingui-explicit-id
@@ -13232,6 +13286,12 @@ msgstr "Row"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.colRun"
 msgstr "Run"
+
+#. Option: the new action runs after the event's steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.append"
+msgstr "Run after what it runs"
 
 #. Space between the lines (runs) of a wrap.
 #. js-lingui-explicit-id
@@ -18214,6 +18274,12 @@ msgstr "What changes"
 msgid "analytics.overviewCaption"
 msgstr "What happened in your apps over the chosen days. Personal data is redacted before it reaches this page."
 
+#. Heading of the list of the selected widget's event steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.handlers"
+msgstr "What its events run"
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -18231,6 +18297,12 @@ msgstr "What the app uses of each limit in force. A limit shows a warning from 8
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.actionFor"
 msgstr "What to do with {id}"
+
+#. Label of the event a quick action runs on, e.g. onPressed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.event"
+msgstr "When"
 
 #. Label of what a failed health gate does.
 #. js-lingui-explicit-id

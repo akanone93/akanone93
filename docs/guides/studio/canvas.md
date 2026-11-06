@@ -239,7 +239,13 @@ data**, a branch, **Shown** or **Hidden** — to design a branch the data does n
 a field under **Form field** to bind it in one step: its value reads the field, a change writes it, leaving it marks it
 touched, and a text field shows the field's error under it. Preview a form **Pristine**, with its **Errors** (the
 checks run on the initial values, as the device would), **Valid** (filled with values every check accepts) or
-**Submitting**; widgets bound to `page.<form>.status` or `.valid` follow. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+**Submitting**; widgets bound to `page.<form>.status` or `.valid` follow. A widget whose events run actions has an
+amber badge on its corner (with their count), and the selected one lists each event, its action and what it acts on.
+Under **Actions › Quick actions**, pick the event and a common action — **Open a dialog**, **Open a sheet**, **Show a
+message** (with an optional button), **Open a link**, **Go back**, **Set state** or **Submit a form** — and **Add
+action**: it replaces what the event runs, or runs after it. **What its events run** lists every step, each with a
+button to remove it. A selected widget that shows a message draws it at the bottom of its screen as the device's
+snackbar shows it, above the navigation bar, with the action button lifted over it. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

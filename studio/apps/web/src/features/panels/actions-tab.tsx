@@ -18,6 +18,7 @@ import {
   targetIssues,
 } from "../plugin-canvas/links.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
+import { QuickActions } from "./quick-actions-panel.tsx";
 
 export interface ActionsTabProps {
   readonly nodeId: string;
@@ -28,6 +29,8 @@ export interface ActionsTabProps {
   /** Writes a recipe over the page's root through the edit pipeline (JSON Patch, one undo step). */
   readonly apply: (recipe: (root: unknown) => void) => void;
   readonly newId?: () => string;
+  /** The forms of the widget's page, for Submit a form (PC-27). */
+  readonly forms?: readonly string[];
 }
 
 /** F6 primary path: add a navigate action to an event of the selected widget, and fix links that broke. */
@@ -137,6 +140,16 @@ export function ActionsTab(props: ActionsTabProps) {
           </ul>
         )}
       </section>
+      <QuickActions
+        nodeId={props.nodeId}
+        node={props.node}
+        events={events}
+        routes={props.routes}
+        forms={props.forms}
+        canEdit={props.canEdit}
+        apply={props.apply}
+        newId={newId}
+      />
     </div>
   );
 }

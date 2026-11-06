@@ -483,6 +483,51 @@
   color: var(--muted-foreground);
 }
 
+/* Widgets whose events run steps (PC-27): an amber badge beside the binding badge, and the selection's handlers. */
+.pc-event-badge {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: grid;
+  place-items: center;
+  min-inline-size: 12px;
+  block-size: 12px;
+  padding-inline: 2px;
+  border: 1.5px solid var(--background);
+  border-radius: 999px;
+  transform: translate(calc(var(--x) * 1px - 40px), calc(var(--y) * 1px - 6px));
+  color: oklch(0.25 0.05 70);
+  background-color: oklch(0.82 0.15 80);
+  box-shadow: 0 1px 2px color-mix(in oklch, black 25%, transparent);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pc-event-tag {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-inline-size: 22rem;
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklch, oklch(0.75 0.15 75) 55%, var(--border));
+  border-radius: 6px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  translate: 0 48px;
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--background) 92%, oklch(0.8 0.15 80));
+  box-shadow: 0 4px 14px color-mix(in oklch, black 14%, transparent);
+  font-size: 10.5px;
+  line-height: 15px;
+}
+
+.pc-event-action {
+  color: color-mix(in oklch, oklch(0.6 0.15 65) 75%, var(--foreground));
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
 /* A text edited in place (PC-17): a field over the text, at its size on screen. */
 .pc-inline-text {
   position: absolute;

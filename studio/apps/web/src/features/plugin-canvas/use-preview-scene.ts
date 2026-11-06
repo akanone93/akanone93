@@ -17,6 +17,7 @@ import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
 import { presented, RouteCache } from "./page-routes.ts";
 import { paintedStyle, paintThemeOf, themeTokens } from "./paint-theme.ts";
 import type { Node } from "./plugin-model.ts";
+import { withSnackbar } from "./quick-actions.ts";
 import type { PlacedScreen } from "./scene.ts";
 import { screenStyle } from "./scene.ts";
 
@@ -83,6 +84,24 @@ function livened(
   return applyLive(kept.node, live);
 }
 
+/** A page's root with the snackbar the selected widget shows (PC-27), kept per root and owner. */
+function snackbarOn(
+  root: Node | undefined,
+  owner: string | undefined,
+  cache: WeakMap<Node, { owner: string; node: Node }>,
+): Node | undefined {
+  if (root === undefined || owner === undefined) {
+    return root;
+  }
+  const kept = cache.get(root);
+  if (kept?.owner === owner) {
+    return kept.node;
+  }
+  const node = withSnackbar(root, owner) as Node;
+  cache.set(root, { owner, node });
+  return node;
+}
+
 /** Dialog and sheet pages wrapped in their routes over the pages that open them (PC-13). */
 function presentRoutes(drawn: readonly PlacedScreen[], routes: RouteCache): PlacedScreen[] {
   const byId = new Map(drawn.map((s) => [s.id, s]));
@@ -111,6 +130,7 @@ export function usePreviewScene(
   drawers: ReadonlyMap<string, DrawerSide> = NO_DRAWERS,
   live: LiveState = emptyLive,
   design: DesignPicks = NO_PICKS,
+  snackOwner?: string,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
@@ -129,6 +149,7 @@ export function usePreviewScene(
   const [opened] = useState(() => new WeakMap<Node, { side: DrawerSide; node: Node }>());
   const [routes] = useState(() => new RouteCache());
   const [implied] = useState(() => new WeakMap<Node, { key: string; node: Node }>());
+  const [snacked] = useState(() => new WeakMap<Node, { owner: string; node: Node }>());
   const shown = useMemo(() => {
     const kept = cache.current;
     const byRoot =
@@ -159,10 +180,10 @@ export function usePreviewScene(
         const listed = expandLists(decided, mocks, states, scope, design.lists, design.listText);
         byRoot.set(s.root, bindMocks(listed, mocks, states, scope));
       }
-      const drawer = shownWith(byRoot.get(s.root), drawers, opened);
+      const drawer = snackbarOn(shownWith(byRoot.get(s.root), drawers, opened), snackOwner, snacked);
       return { ...s, root: drawer === undefined ? drawer : livened(drawer, s, live, look.platform, implied) };
     });
     return presentRoutes(drawn, routes);
-  }, [screens, everything, look, drawers, opened, routes, live, implied, design]);
+  }, [screens, everything, look, drawers, opened, routes, live, implied, design, snackOwner, snacked]);
   return { shown, styled, paint };
 }

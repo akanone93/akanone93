@@ -81,6 +81,7 @@ import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
 import { openersOf, type Node as PluxNode, pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
+import { eventMarks, snackbarOf } from "./quick-actions.ts";
 import {
   contentBounds,
   DEVICE,
@@ -215,6 +216,17 @@ function nodeIn(
   const root = screens.find((s) => s.id === screenOf.get(id))?.root;
   const found = root === undefined ? null : findNode(root, id);
   return found === null ? undefined : (found.node as unknown as PluxNode);
+}
+
+/** Node `id` of whichever screen holds it. */
+function nodeAcross(screens: readonly PlacedScreen[], id: string): unknown {
+  for (const s of screens) {
+    const found = s.root === undefined ? null : findNode(s.root, id);
+    if (found !== null) {
+      return found.node;
+    }
+  }
+  return undefined;
 }
 
 /** The hint shown while the Interact tool is on. */
@@ -542,6 +554,12 @@ function PluginCanvasView({
     () => withStates(liveValues, picked.ids, statePreview.state),
     [liveValues, picked.ids, statePreview.state],
   );
+  // A selected widget that shows a snackbar draws it on its screen (PC-27).
+  const snackOwner = useMemo(() => {
+    const [id] = picked.ids;
+    const node = id === undefined || picked.ids.length > 1 ? undefined : nodeAcross(screens, id);
+    return node !== undefined && snackbarOf(node) !== undefined ? id : undefined;
+  }, [picked.ids, screens]);
   // The state picked for each list in the inspector (PC-24), and the words of a list's default views.
   const [listStates, setListStates] = useState<ReadonlyMap<string, ListState>>(new Map());
   const listPreview = useMemo<ListPreview>(
@@ -613,7 +631,7 @@ function PluginCanvasView({
     shown,
     styled: designStyled,
     paint,
-  } = usePreviewScene(screens, drawnAppDocs, docs.data, look, drawers, drawnLive, design);
+  } = usePreviewScene(screens, drawnAppDocs, docs.data, look, drawers, drawnLive, design, snackOwner);
   const styled = useMemo(() => liveStyle(designStyled, tool), [designStyled, tool]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -1096,6 +1114,7 @@ function PluginCanvasView({
   const named = useMemo(() => namedMocks(dataSourcesOf(allDocs), look.mockStates), [allDocs, look.mockStates]);
   const scopes = useMemo(() => designScopes(allDocs, design.forms), [allDocs, design.forms]);
   const boundMarks = useMemo(() => bindingMarks(screens, named.mocks, named.states, scopes), [screens, named, scopes]);
+  const eventBadges = useMemo(() => eventMarks(screens.map((s) => s.root)), [screens]);
   const decide = useCallback(
     (id: string, expr: string) =>
       evaluateCondition(expr, named.mocks, named.states, scopes.get(screenOf.get(id) ?? "")),
@@ -1129,6 +1148,7 @@ function PluginCanvasView({
     },
     problems: nodeProblems,
     bindings: boundMarks,
+    events: eventBadges,
     tool,
     setTool,
     onInteract: liveSurface.interact,

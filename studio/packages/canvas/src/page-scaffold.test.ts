@@ -109,6 +109,21 @@ describe("PC-12 a page's scaffold laid out in place [STU-005]", () => {
     expect(hi.y).toBeLessThan(centre);
   });
 
+  test("PC-27 a snackbar shown on the canvas spans the width above the navigation bar; the button rises over it", () => {
+    const snack = {
+      id: "snk",
+      type: "Container",
+      props: { height: 48, decoration: { color: "#313033FF" } },
+    };
+    const { items } = lay({
+      id: "sc",
+      type: "Scaffold",
+      slots: { body: text("b", "Body"), bottomNavigationBar: nav, floatingActionButton: fab, snackBar: snack } as never,
+    });
+    expect(items.get("s/snk#paint0")).toMatchObject({ x: 0, y: 844 - 114 - 48, w: 390, h: 48 });
+    expect(items.get("s/fab#paint0")?.y).toBe(844 - 114 - 48 - 16 - 56);
+  });
+
   test("without a bottom bar the button keeps clear of the home indicator", () => {
     const { items } = lay({
       id: "sc",

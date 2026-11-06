@@ -15,6 +15,7 @@ import { InteractionOverlay, type OverlayNodes } from "./interaction-overlay.tsx
 import type { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import type { Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
+import type { HandlerStep } from "./quick-actions.ts";
 import { type PlacedScreen, screenDocuments } from "./scene.ts";
 import type { ScreenRequest } from "./screens-controller.tsx";
 import type { EditFn } from "./select/edits.ts";
@@ -63,6 +64,8 @@ export interface InteractionInput {
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
   /** The bound props of each widget, drawn as badges (PC-23). */
   readonly bindings?: ReadonlyMap<string, readonly BindingMark[]>;
+  /** The steps each widget's events run, drawn as badges (PC-27). */
+  readonly events?: ReadonlyMap<string, readonly HandlerStep[]>;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -272,6 +275,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       padded: (id) => PADDED.has(index.type.get(id) ?? "") && !repeats(input.screens, screenOf.get(id), id),
       ...(input.problems === undefined ? {} : { problems: input.problems }),
       ...(input.bindings === undefined ? {} : { bindings: input.bindings }),
+      ...(input.events === undefined ? {} : { events: input.events }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
@@ -287,6 +291,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       input.styled.chrome,
       input.problems,
       input.bindings,
+      input.events,
       input.screens,
     ],
   );

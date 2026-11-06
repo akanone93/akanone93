@@ -40,6 +40,8 @@ export interface ScaffoldSlots {
   bottomNavigationBar: RenderBox | null;
   bottomSheet: RenderBox | null;
   floatingActionButton: RenderBox | null;
+  /** `_ScaffoldSlot.snackBar` with `SnackBarBehavior.fixed`: full width above the bottom bar; the FAB rises over it. */
+  snackBar?: RenderBox | null;
 }
 
 export interface ScaffoldOptions extends ScaffoldSlots {
@@ -53,7 +55,14 @@ export interface ScaffoldOptions extends ScaffoldSlots {
 export class RenderScaffold extends ContainerRenderBox<RenderBox> {
   constructor(private readonly o: ScaffoldOptions) {
     super();
-    for (const child of [o.body, o.appBar, o.bottomNavigationBar, o.bottomSheet, o.floatingActionButton]) {
+    for (const child of [
+      o.body,
+      o.appBar,
+      o.bottomNavigationBar,
+      o.bottomSheet,
+      o.snackBar ?? null,
+      o.floatingActionButton,
+    ]) {
       if (child !== null) {
         this.add(child);
       }
@@ -105,10 +114,23 @@ export class RenderScaffold extends ContainerRenderBox<RenderBox> {
         new Offset((size.width - o.bottomSheet.size.width) / 2, contentBottom - bottomSheetHeight),
       );
     }
+    let snackBarHeight = 0;
+    const snack = o.snackBar ?? null;
+    if (snack !== null) {
+      snack.layout(fullWidth, { parentUsesSize: true });
+      snackBarHeight = snack.size.height;
+      setChildOffset(snack, new Offset(0, contentBottom - snackBarHeight));
+    }
     const fab = o.floatingActionButton;
     if (fab !== null) {
       fab.layout(loose, { parentUsesSize: true });
-      setChildOffset(fab, this.fabOffset(fab.size, size, contentBottom, appBarHeight, bottomSheetHeight));
+      const at = this.fabOffset(fab.size, size, contentBottom, appBarHeight, bottomSheetHeight);
+      // `StandardFabLocation.getOffsetY`: a snackbar lifts the button above it by the margin.
+      const lifted =
+        snackBarHeight > 0
+          ? Math.min(at.dy, contentBottom - snackBarHeight - fab.size.height - kFloatingActionButtonMargin)
+          : at.dy;
+      setChildOffset(fab, new Offset(at.dx, lifted));
     }
   }
 

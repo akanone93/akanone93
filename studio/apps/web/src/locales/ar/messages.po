@@ -568,6 +568,12 @@ msgstr "حزمة بحجم {kb} كيلوبايت"
 msgid "forms.option"
 msgstr "{key, select, min {الأدنى} max {الأقصى} pattern {النمط} region {المنطقة} maxScale {الخانات العشرية} maxIntegerDigits {الخانات الصحيحة} rule {القاعدة} debounceMs {التأخير (ms)} message {الرسالة} other {خيار}}"
 
+#. A field of a quick action, e.g. the message a snackbar shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.field"
+msgstr "{key, select, route {الصفحة} message {الرسالة} actionLabel {الزر (اختياري)} url {عنوان الويب} path {مسار الحالة} value {القيمة} form {النموذج} other {القيمة}}"
+
 #. The line under a plugin's name on its box: its key, then the team that owns it (STU-030).
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -604,11 +610,23 @@ msgstr "{kind, select, asset {صور التطبيق} url {عنوان ويب} oth
 msgid "pluginCanvas.pageKind"
 msgstr "{kind, select, dialog {مربع حوار} bottomSheet {لوحة سفلية} fullscreenDialog {مربع حوار بملء الشاشة} other {صفحة}}"
 
+#. Shown when the app has no dialog or sheet page to open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.noPages"
+msgstr "{kind, select, dialog {لا توجد صفحة حوار بعد: أضف واحدة عبر شاشة جديدة › حوار.} other {لا توجد صفحة لوحة سفلية بعد: أضف واحدة عبر شاشة جديدة › لوحة سفلية.}}"
+
 #. Choice of the kind of gradient of a decoration.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.gradientKind"
 msgstr "{kind, select, none {بلا تدرّج} linear {خطي} radial {شعاعي} sweep {دائري} other {تدرّج}}"
+
+#. A quick action an event can run.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.kind"
+msgstr "{kind, select, page {الانتقال إلى صفحة} dialog {فتح حوار} sheet {فتح لوحة} message {عرض رسالة} link {فتح رابط} back {رجوع} state {تعيين حالة} submit {إرسال نموذج} other {إجراء}}"
 
 #. A built-in validator of a form field (STA-020).
 #. js-lingui-explicit-id
@@ -1491,6 +1509,12 @@ msgstr "أضف عضوًا لتعملا معًا."
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateAddForm"
 msgstr "إضافة إدخال حالة"
+
+#. Button that writes the quick action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.add"
+msgstr "إضافة إجراء"
 
 #. Choice that adds the navigation after the steps an event already has.
 #. js-lingui-explicit-id
@@ -7668,6 +7692,18 @@ msgstr "مائل"
 msgid "list.items"
 msgstr "العناصر"
 
+#. Shown when the widget's events have no steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.none"
+msgstr "لا تشغّل أحداثه شيئًا بعد."
+
+#. Note under a widget whose event shows a snackbar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.snackShown"
+msgstr "تظهر رسالته أسفل الشاشة ما دام محددًا."
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -12016,6 +12052,12 @@ msgstr "في الانتظار"
 msgid "publish.diffQueued"
 msgstr "في الانتظار. ينتظر الإنشاء المهام السابقة وهو محدود المعدل."
 
+#. Heading of the buttons that give an event a common action in one step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.title"
+msgstr "إجراءات سريعة"
+
 #. Label of the radius of every corner.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -12364,6 +12406,12 @@ msgstr "إزالة"
 msgid "admin.remove"
 msgstr "إزالة"
 
+#. Button that removes one step of an event.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.removeStep"
+msgstr "إزالة {action}"
+
 #. Accessible name of the button that removes a host font from the list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -12657,6 +12705,12 @@ msgstr "استبدال"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.useTemplate"
 msgstr "استبدال المصدر بالقالب"
+
+#. Option: the new action replaces the event's steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.replace"
+msgstr "استبدال ما يشغّله"
 
 #. Label of the drawing that shows the recorded layout.
 #. js-lingui-explicit-id
@@ -13232,6 +13286,12 @@ msgstr "صف"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.colRun"
 msgstr "التشغيل"
+
+#. Option: the new action runs after the event's steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.append"
+msgstr "التشغيل بعد ما يشغّله"
 
 #. Space between the lines (runs) of a wrap.
 #. js-lingui-explicit-id
@@ -18214,6 +18274,12 @@ msgstr "ما الذي يتغير"
 msgid "analytics.overviewCaption"
 msgstr "ما حدث في تطبيقاتك خلال الأيام المحددة. تُحجب البيانات الشخصية قبل وصولها إلى هذه الصفحة."
 
+#. Heading of the list of the selected widget's event steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.handlers"
+msgstr "ما تشغّله أحداثه"
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -18231,6 +18297,12 @@ msgstr "ما يستخدمه التطبيق من كل حد معمول به. يظ�
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.actionFor"
 msgstr "ما سيُفعل بـ {id}"
+
+#. Label of the event a quick action runs on, e.g. onPressed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.event"
+msgstr "عند"
 
 #. Label of what a failed health gate does.
 #. js-lingui-explicit-id

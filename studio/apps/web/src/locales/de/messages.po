@@ -568,6 +568,12 @@ msgstr "{kb} KB Bundle"
 msgid "forms.option"
 msgstr "{key, select, min {Min} max {Max} pattern {Muster} region {Region} maxScale {Dezimalstellen} maxIntegerDigits {Ganzzahlstellen} rule {Regel} debounceMs {Verzögerung (ms)} message {Meldung} other {Option}}"
 
+#. A field of a quick action, e.g. the message a snackbar shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.field"
+msgstr "{key, select, route {Seite} message {Meldung} actionLabel {Schaltfläche (optional)} url {Webadresse} path {Zustandspfad} value {Wert} form {Formular} other {Wert}}"
+
 #. The line under a plugin's name on its box: its key, then the team that owns it (STU-030).
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -604,11 +610,23 @@ msgstr "{kind, select, asset {App-Bilder} url {Webadresse} other {Bild}}"
 msgid "pluginCanvas.pageKind"
 msgstr "{kind, select, dialog {Dialog} bottomSheet {Bottom Sheet} fullscreenDialog {Vollbilddialog} other {Seite}}"
 
+#. Shown when the app has no dialog or sheet page to open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.noPages"
+msgstr "{kind, select, dialog {Noch keine Dialogseite: Fügen Sie eine mit Neuer Bildschirm › Dialog hinzu.} other {Noch keine Blattseite: Fügen Sie eine mit Neuer Bildschirm › Unteres Blatt hinzu.}}"
+
 #. Choice of the kind of gradient of a decoration.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.gradientKind"
 msgstr "{kind, select, none {Kein Verlauf} linear {Linear} radial {Radial} sweep {Kreisförmig} other {Verlauf}}"
+
+#. A quick action an event can run.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.kind"
+msgstr "{kind, select, page {Zur Seite} dialog {Dialog öffnen} sheet {Blatt öffnen} message {Meldung zeigen} link {Link öffnen} back {Zurück} state {Zustand setzen} submit {Formular senden} other {Aktion}}"
 
 #. A built-in validator of a form field (STA-020).
 #. js-lingui-explicit-id
@@ -1491,6 +1509,12 @@ msgstr "Fügen Sie ein Mitglied hinzu, damit Sie gemeinsam arbeiten können."
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.stateAddForm"
 msgstr "Zustandseintrag hinzufügen"
+
+#. Button that writes the quick action.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.add"
+msgstr "Aktion hinzufügen"
 
 #. Choice that adds the navigation after the steps an event already has.
 #. js-lingui-explicit-id
@@ -7668,6 +7692,18 @@ msgstr "Kursiv"
 msgid "list.items"
 msgstr "Einträge"
 
+#. Shown when the widget's events have no steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.none"
+msgstr "Seine Ereignisse führen noch nichts aus."
+
+#. Note under a widget whose event shows a snackbar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.snackShown"
+msgstr "Seine Meldung erscheint unten im Bildschirm, solange es ausgewählt ist."
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -12016,6 +12052,12 @@ msgstr "In der Warteschlange"
 msgid "publish.diffQueued"
 msgstr "In der Warteschlange. Das Rendern wartet auf frühere Aufträge und ist begrenzt."
 
+#. Heading of the buttons that give an event a common action in one step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.title"
+msgstr "Schnellaktionen"
+
 #. Label of the radius of every corner.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -12364,6 +12406,12 @@ msgstr "Entfernen"
 msgid "admin.remove"
 msgstr "Entfernen"
 
+#. Button that removes one step of an event.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.removeStep"
+msgstr "{action} entfernen"
+
 #. Accessible name of the button that removes a host font from the list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -12657,6 +12705,12 @@ msgstr "Ersetzen"
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.useTemplate"
 msgstr "Quellcode durch die Vorlage ersetzen"
+
+#. Option: the new action replaces the event's steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.replace"
+msgstr "Bisheriges ersetzen"
 
 #. Label of the drawing that shows the recorded layout.
 #. js-lingui-explicit-id
@@ -13232,6 +13286,12 @@ msgstr "Zeile"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.colRun"
 msgstr "Lauf"
+
+#. Option: the new action runs after the event's steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.append"
+msgstr "Nach dem Bisherigen ausführen"
 
 #. Space between the lines (runs) of a wrap.
 #. js-lingui-explicit-id
@@ -18214,6 +18274,12 @@ msgstr "Was sich ändert"
 msgid "analytics.overviewCaption"
 msgstr "Was in Ihren Apps an den gewählten Tagen passiert ist. Personenbezogene Daten werden geschwärzt, bevor sie diese Seite erreichen."
 
+#. Heading of the list of the selected widget's event steps.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.handlers"
+msgstr "Was seine Ereignisse ausführen"
+
 #. Caption.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -18231,6 +18297,12 @@ msgstr "Was die App von jedem geltenden Limit verbraucht. Ab 80 Prozent erschein
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.actionFor"
 msgstr "Was mit {id} geschehen soll"
+
+#. Label of the event a quick action runs on, e.g. onPressed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/quick-actions.messages.ts
+msgid "quick.event"
+msgstr "Wenn"
 
 #. Label of what a failed health gate does.
 #. js-lingui-explicit-id
