@@ -217,7 +217,15 @@ default of the page's, plugin's or app's state, or a data source's mock in the s
 **Data state** for all sources, or one for each source (**Data: orders**). A bound widget has a small teal badge on its
 corner (with a count when several of its properties are bound); select it to see each binding, its expression and the
 value drawn, and the inspector shows **The canvas shows** under a bound field. A value only the device knows (a
-computed state, a flag, an event) is drawn as the widget's default and marked with a dash. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+computed state, a flag, an event) is drawn as the widget's default and marked with a dash. A list, grid or page view
+with an item template is drawn as the device builds it: one copy of the template for each of its items (up to 24),
+each with `item` and `index` bound to that item, from a list written in the page or the data source the items are
+bound to. Click any copy to select the template. A list follows its data's state — a loading or failed source shows
+the list's **loading** or **error** view, an empty one its **empty** view (a default view when it has none), and a
+list that `hasMore` ends in a progress row. Select the list to see its **Items** and pick the state drawn under
+**Show** (**From data**, **Items**, **Empty**, **Loading**, **Error**, **Loading more**); **Add an empty view**, **Add a
+loading view** and **Add an error view** give the list a view for that state from a template — an error view's **Try
+again** reloads the list's source — which you then design like any widget. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

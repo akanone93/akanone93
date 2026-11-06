@@ -51,7 +51,8 @@
   font-weight: 500;
 }
 
-.state-chip[aria-selected="true"] {
+.state-chip[aria-selected="true"],
+.state-chip[aria-checked="true"] {
   border-color: var(--primary);
   color: var(--primary-foreground);
   background-color: var(--primary);

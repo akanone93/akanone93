@@ -1,0 +1,56 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The list panel of the inspector (PC-24): items, the state drawn, and the state views. */
+
+.list-items {
+  display: grid;
+  grid-template-columns: calc(var(--spacing) * 16) minmax(0, 1fr);
+  align-items: baseline;
+  gap: calc(var(--spacing) * 2);
+}
+
+.list-items-value {
+  overflow: hidden;
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-show,
+.list-states {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.list-states {
+  align-items: flex-start;
+}
+
+.list-state {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  block-size: calc(var(--spacing) * 7);
+  padding-inline: calc(var(--spacing) * 2.5);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  transition:
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.list-state:hover:not(:disabled) {
+  border-color: color-mix(in oklch, var(--primary) 50%, var(--border));
+  color: var(--foreground);
+}
+
+.list-state[data-designed] {
+  border-style: solid;
+  color: var(--foreground);
+}

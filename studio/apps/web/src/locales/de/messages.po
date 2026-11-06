@@ -478,6 +478,12 @@ msgstr "{event} führt zu {route}"
 msgid "links.created"
 msgstr "{event} führt jetzt zu {target}"
 
+#. A list's items: the expression they are bound to and what the canvas draws, e.g. data.orders.value · [12].
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.itemsFrom"
+msgstr "{expr} · {shown}"
+
 #. A page-state reference inside a larger expression; it cannot become a template parameter.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -663,6 +669,12 @@ msgstr "{n, plural, one {# Fehler} other {# Fehler}}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.functions"
 msgstr "{n, plural, one {# Funktion} other {# Funktionen}}"
+
+#. A list's items are a literal list in the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.itemsLiteral"
+msgstr "{n, plural, one {# Eintrag in der Seite} other {# Einträge in der Seite}}"
 
 #. Count of plugins that link to this plugin.
 #. js-lingui-explicit-id
@@ -999,6 +1011,18 @@ msgstr "{side, select, endDrawer {{shown, select, yes {Hinteres Seitenmenü ausb
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.paddingHandle"
 msgstr "{side, select, top {Ziehen, um den oberen Innenabstand zu ändern} bottom {Ziehen, um den unteren Innenabstand zu ändern} left {Ziehen, um den linken Innenabstand zu ändern} other {Ziehen, um den rechten Innenabstand zu ändern}}. Alt: beide Seiten; Umschalt: alle Seiten."
+
+#. A state a list is drawn in; From data follows the Preview's data state; Loading more is the end of a paged list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.stateName"
+msgstr "{state, select, auto {Aus Daten} items {Einträge} empty {Leer} loading {Lädt} error {Fehler} more {Lädt mehr} other {Zustand}}"
+
+#. Button that gives a list a view for one of its states, starting from a template.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.add"
+msgstr "{state, select, empty {Leeransicht hinzufügen} loading {Ladeansicht hinzufügen} other {Fehleransicht hinzufügen}}"
 
 #. The save state in a canvas's top bar: saved, sending edits, no network, or a conflict to resolve.
 #. js-lingui-explicit-id
@@ -2606,6 +2630,12 @@ msgstr "Vorher"
 msgid "panel.group.behaviour"
 msgstr "Verhalten"
 
+#. Shown when a list's items are not set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.itemsNone"
+msgstr "Binden Sie Einträge an eine Liste oder Datenquelle, um die Eintragsvorlage zu wiederholen."
+
 #. A device API.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -3948,6 +3978,12 @@ msgstr "Eckcafé"
 msgid "style.corners"
 msgstr "Ecken"
 
+#. The text of a list's error view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.defaultError"
+msgstr "Laden fehlgeschlagen"
+
 #. Label of the crash-free rate over all active devices.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -4673,6 +4709,12 @@ msgstr "Design-Tokens"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.importLabel"
 msgstr "Design-Tokens-Datei (DTCG-JSON, etwa ein Figma-Variablenexport)"
+
+#. A state of the list has a view of its own.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.designed"
+msgstr "Gestaltet"
 
 #. Name of a device frame preset.
 #. js-lingui-explicit-id
@@ -7470,6 +7512,12 @@ msgstr "es verwendet eine Komponente, die privat für dieses Plugin ist."
 msgid "style.italic"
 msgstr "Kursiv"
 
+#. The list value a list's item template is repeated for.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.items"
+msgstr "Einträge"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -8260,6 +8308,12 @@ msgstr "Liste"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.view.list"
 msgstr "Liste"
+
+#. Heading of the editor of a list, grid or page view's items and states.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.title"
+msgstr "Liste aus Daten"
 
 #. Option that sets a fixed value instead of a binding.
 #. js-lingui-explicit-id
@@ -10144,6 +10198,12 @@ msgstr "Nichts geändert: Das Plugin entspricht bereits diesem Snapshot."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImportNothing"
 msgstr "Aus dieser Quelle konnte nichts importiert werden."
+
+#. The text of a list's empty view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.defaultEmpty"
+msgstr "Noch nichts hier"
 
 #. Shown when the library list is empty.
 #. js-lingui-explicit-id
@@ -14055,6 +14115,12 @@ msgstr "Als Veröffentlichungsauftrag ausgeliefert."
 msgid "devices.code"
 msgstr "Kurzcode"
 
+#. Which state of the list the canvas draws.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.show"
+msgstr "Anzeigen"
+
 #. Accessible name of a row of the plugins panel: selects the plugin and brings it into view.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -14642,6 +14708,12 @@ msgstr "Zustandseinträge"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayState"
 msgstr "Zustand bis hierhin"
+
+#. Heading of a list's empty, loading and error views.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.states"
+msgstr "Zustände"
 
 #. Accessible name of the row of state chips (Default, Pressed, Hovered…) of a property; {field} is the property.
 #. js-lingui-explicit-id
@@ -17169,6 +17241,12 @@ msgstr "Verlauf"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.issuersTitle"
 msgstr "Vertrauenswürdige CI-Aussteller"
+
+#. The button of a list's error view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/list-panel.messages.ts
+msgid "list.retry"
+msgstr "Erneut versuchen"
 
 #. Button that loads a page's data again.
 #. js-lingui-explicit-id

@@ -18,6 +18,7 @@ import type { Point } from "./positions.ts";
 import { type PlacedScreen, screenDocuments } from "./scene.ts";
 import type { ScreenRequest } from "./screens-controller.tsx";
 import type { EditFn } from "./select/edits.ts";
+import { findNode } from "./select/edits.ts";
 import type { Box } from "./select/geometry.ts";
 import type { OverlayStore } from "./select/overlay-store.ts";
 import * as sel from "./select/selection.ts";
@@ -83,6 +84,17 @@ const PADDED: ReadonlySet<string> = new Set([
   "ListView",
   "GridView",
 ]);
+
+/**
+ * Whether node `id` of screen `screen` repeats an item template (PC-24): the canvas draws its items there, so the space
+ * around its first item is not padding.
+ */
+function repeats(screens: readonly PlacedScreen[], screen: string | undefined, id: string): boolean {
+  const root = screens.find((s) => s.id === screen)?.root;
+  const node =
+    root === undefined ? undefined : (findNode(root, id)?.node as { slots?: Record<string, unknown> } | undefined);
+  return node?.slots?.["item"] !== undefined;
+}
 
 /** The layer names of every node of `roots`, by id; nodes without one are left out. */
 function layerNames(roots: readonly (Node | undefined)[]): ReadonlyMap<string, string> {
@@ -257,7 +269,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       scope: selection.scope,
       ...(input.styled.chrome === undefined ? {} : { frameRadius: input.styled.chrome.radius }),
       childrenOf: (id) => index.children.get(id) ?? [],
-      padded: (id) => PADDED.has(index.type.get(id) ?? ""),
+      padded: (id) => PADDED.has(index.type.get(id) ?? "") && !repeats(input.screens, screenOf.get(id), id),
       ...(input.problems === undefined ? {} : { problems: input.problems }),
       ...(input.bindings === undefined ? {} : { bindings: input.bindings }),
       nameOf: (id) =>
@@ -275,6 +287,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       input.styled.chrome,
       input.problems,
       input.bindings,
+      input.screens,
     ],
   );
   const preview = useScreenPreview(input, overlay);

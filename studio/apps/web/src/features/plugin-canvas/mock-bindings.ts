@@ -18,6 +18,8 @@ export type SourceMocks = ReadonlyMap<string, unknown>;
 
 /** `data.<source>.<value|loading|error>` then member steps, optionally `?? <JSON literal>`. */
 const binding = /^\s*data\.(\w+)\.(value|loading|error)((?:\??\.\w+|\[\d+\])*)(?:\s*\?\?\s*(.+?))?\s*$/;
+/** `item` (then member steps) or `index`, inside an item template, optionally `?? <JSON literal>`. */
+const itemPath = /^\s*(item|index)((?:\??\.\w+|\[\d+\])*)(?:\s*\?\?\s*(.+?))?\s*$/;
 /** `params`, `page`, `plugin` or `app` then member steps, optionally `?? <JSON literal>`. */
 const scoped = /^\s*(params|page|plugin|app)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
 
@@ -27,6 +29,9 @@ export interface DesignScope {
   readonly page: Readonly<Obj>;
   readonly plugin: Readonly<Obj>;
   readonly app: Readonly<Obj>;
+  /** Inside a list's item template (PC-24): the item a copy is built for, and its index. */
+  readonly item?: unknown;
+  readonly index?: number;
 }
 
 export const emptyScope: DesignScope = { params: {}, page: {}, plugin: {}, app: {} };
@@ -75,25 +80,29 @@ function literal(text: string | undefined): unknown {
   }
 }
 
-/**
- * The value of one binding expression under the selected mock states, `undefined` when the expression is not a
- * plain data-source path (it is left as it is) and `null` when the path reaches nothing.
- */
-export function evaluateMockBinding(
-  expr: string,
-  mocks: SourceMocks,
-  states: Readonly<Record<string, MockState>>,
-  scope: DesignScope = emptyScope,
-): unknown {
-  const inScope = scoped.exec(expr);
-  if (inScope !== null) {
-    const root = scope[inScope[1] as keyof DesignScope];
-    const first = /^\??\.(\w+)/.exec(inScope[2] ?? "")?.[1];
-    if (first === undefined || !(first in root)) {
-      return undefined;
-    }
-    return walk(root, inScope[2] ?? "") ?? literal(inScope[3]) ?? null;
+/** An `item…` or `index` path inside an item template; undefined when `expr` is not one. */
+function itemValue(expr: string, scope: DesignScope): unknown {
+  const m = scope.index === undefined ? null : itemPath.exec(expr);
+  if (m === null) {
+    return undefined;
   }
+  const value = m[1] === "index" ? (m[2] === "" ? scope.index : null) : walk(scope.item, m[2] ?? "");
+  return value ?? literal(m[3]) ?? null;
+}
+
+/** A `params`, `page`, `plugin` or `app` path; undefined when `expr` is not one or names nothing the scope has. */
+function scopeValue(expr: string, scope: DesignScope): unknown {
+  const m = scoped.exec(expr);
+  if (m === null) {
+    return undefined;
+  }
+  const root = scope[m[1] as "params" | "page" | "plugin" | "app"];
+  const first = /^\??\.(\w+)/.exec(m[2] ?? "")?.[1];
+  return first === undefined || !(first in root) ? undefined : (walk(root, m[2] ?? "") ?? literal(m[3]) ?? null);
+}
+
+/** A `data.<source>` path under the source's mock state; undefined when `expr` is not one of a known source. */
+function dataValue(expr: string, mocks: SourceMocks, states: Readonly<Record<string, MockState>>): unknown {
   const match = binding.exec(expr);
   const id = match?.[1];
   if (match === null || id === undefined || !mocks.has(id)) {
@@ -101,6 +110,25 @@ export function evaluateMockBinding(
   }
   const current = walk(stateOf(mocks.get(id), states[id] ?? "success")[match[2] as "value"], match[3] ?? "");
   return current ?? literal(match[4]) ?? null;
+}
+
+/**
+ * The value of one binding expression under the selected mock states, `undefined` when the expression is not a
+ * plain path this module reads (it is left as it is) and `null` when the path reaches nothing.
+ */
+export function evaluateMockBinding(
+  expr: string,
+  mocks: SourceMocks,
+  states: Readonly<Record<string, MockState>>,
+  scope: DesignScope = emptyScope,
+): unknown {
+  // `null` (a path reaching nothing) is an answer; only `undefined` passes the expression to the next reader.
+  const item = itemValue(expr, scope);
+  if (item !== undefined) {
+    return item;
+  }
+  const scoped = scopeValue(expr, scope);
+  return scoped !== undefined ? scoped : dataValue(expr, mocks, states);
 }
 
 /** The mock value of a `{"$expr": "…"}` prop, `undefined` when `value` is not a binding this module can read. */

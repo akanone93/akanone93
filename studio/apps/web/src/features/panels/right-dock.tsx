@@ -20,6 +20,7 @@ import { InstanceOverrides } from "../library/canvas/instance-overrides.tsx";
 import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../localisation/index.ts";
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
+import { LIST_TYPES } from "../plugin-canvas/list-preview.ts";
 import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
@@ -35,6 +36,7 @@ import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
 import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingRecipe } from "./layout-model.ts";
 import { ConstraintsEditor, LayoutPanel } from "./layout-panel.tsx";
+import { addStateRecipe, ListPanel } from "./list-panel.tsx";
 import { pageSettingsMessages } from "./page-settings.messages.ts";
 import { PageSettingsTab } from "./page-settings.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
@@ -969,6 +971,21 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
           canEdit={canEdit}
           layoutNames={props.filter((pr) => propGroupOf(pr.name) === "layout").map((pr) => pr.name)}
           onBp={setBp}
+        />
+      )}
+      {ids.length === 1 && q === "" && !setOnly && selected[0] !== undefined && LIST_TYPES.has(types[0] ?? "") && (
+        <ListPanel
+          id={first}
+          node={selected[0]}
+          canEdit={canEdit}
+          drawn={(expr) => p.drawnValue?.(first, expr)}
+          newId={uuidv7}
+          addState={(state, view) => {
+            const doc = p.screenOf.get(first);
+            if (doc !== undefined) {
+              p.edit(doc, addStateRecipe(first, state, view), { group: `list-state:${first}:${state}` });
+            }
+          }}
         />
       )}
       {sections.length === 0 && <p className="prop-note">{m.noPropMatch}</p>}

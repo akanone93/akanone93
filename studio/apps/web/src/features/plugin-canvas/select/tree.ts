@@ -69,8 +69,9 @@ export function nodeIdOfHit(hit: string): string {
   const i = hit.indexOf("/");
   const id = i < 0 ? hit : hit.slice(i + 1);
   // A box's label and the boxes a widget paints are items of their own (`#label`, `#paint0`…); a hit on one is a hit on
-  // the widget.
-  const part = id.indexOf(PART_MARK);
+  // the widget. A copy the canvas draws of a list's item template (`~item3`, PC-24), a list's default state view or an
+  // app bar's implied button (`~…`) is a hit on the widget it stands for.
+  const part = id.search(/[#~]/);
   return part < 0 ? id : id.slice(0, part);
 }
 
