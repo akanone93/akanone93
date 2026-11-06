@@ -191,7 +191,17 @@ onto an image or an avatar replaces its picture; dropped anywhere else it adds a
 device: the menu with a drawer, back on a page another opens, close on a full-screen dialog. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and
-a shadow by Material elevation. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+a shadow by Material elevation. A property set per interaction state — a button's background, content colour,
+outline, shape, elevation or padding — shows a chip for each state (**Default**, **Pressed**, **Hovered**,
+**Focused**, **Disabled**, **Selected**, **Error**, **Dragged**), marked in its colour when it is set: pick one to edit
+it, and the canvas draws the selected widget in that state, with Material 3's state layer over it, until you pick
+**Default** again or select something else. A state left unset uses **Default**, as on the device. A shape has its
+kind (rounded, pill, circle, bevelled or smooth rectangle), its corner radius and its outline. A number offers the
+theme's dimension tokens beside it — radii first for a radius, spacing first for a gap or a padding — and a number bound
+to a token shows the token with its pixels; **Unlink** keeps the pixels instead. **Copy style** (Ctrl+Alt+C,
+Cmd+Option+C on a Mac) and **Paste style** (Ctrl+Alt+V) in a widget's menu carry its colours, decoration, borders,
+shape, elevation and text style to other widgets, all in one undo step: each takes the properties it has of the same
+type, so a button's style lands on buttons and a container's colour on boxes. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or
@@ -201,7 +211,8 @@ of both sets, searched by name. The canvas draws Material Symbols at their defau
 app's uploaded assets are drawn in their fit and corners, and avatars in their image or colour with their initials;
 drag an image from **Assets** onto a screen to add it, or pick one for an image property. A web image is loaded on the
 device; the canvas shows its placeholder. Buttons, chips, checkboxes, radios, switches, sliders and progress
-indicators look as Material 3 draws them, their labels and icons in the component's colours; a control without an
+indicators look as Material 3 draws them, their labels and icons in the component's colours, and a button in its own
+style where it sets one; a control without an
 action is drawn disabled, as it is on the device until you add one. Text fields show their decoration — underline,
 filled or outlined, the label resting or floating over a value, hint, prefix, suffix, icons, and the helper or error
 text, the error in red; search bars are drawn as Material 3's. A page's app bar is its own, with its title, leading

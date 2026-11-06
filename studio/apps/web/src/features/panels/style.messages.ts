@@ -165,6 +165,118 @@ export function styleMessages(i18n: I18n) {
       comment: "Below the web address field of the image picker.",
     }),
     imageWeb: i18n._({ id: "style.imageWeb", message: "Web image", comment: "An image source that is a web address." }),
+    statesOf: (field: string) =>
+      i18n._({
+        id: "style.statesOf",
+        message: "States of {field}",
+        values: { field },
+        comment:
+          "Accessible name of the row of state chips (Default, Pressed, Hovered…) of a property; {field} is the property.",
+      }),
+    stateName: (state: string) =>
+      i18n._({
+        id: "style.stateName",
+        message:
+          "{state, select, value {Default} pressed {Pressed} hovered {Hovered} focused {Focused} disabled {Disabled} selected {Selected} error {Error} dragged {Dragged} other {State}}",
+        values: { state },
+        comment:
+          "An interaction state of a widget, as Flutter's WidgetState names it; Default applies when no other does.",
+      }),
+    stateUnset: (state: string) =>
+      i18n._({
+        id: "style.stateUnset",
+        message: "{state}: not set, uses Default",
+        values: { state },
+        comment: "Tooltip of a state chip whose state has no value of its own; {state} is the state's name.",
+      }),
+    stateShown: i18n._({
+      id: "style.stateShown",
+      message: "The canvas shows the widget in this state.",
+      comment: "Below a state's editor: the selected widget is drawn in the state being edited.",
+    }),
+    stateFallsBack: i18n._({
+      id: "style.stateFallsBack",
+      message: "Not set: this state uses Default. The canvas shows it.",
+      comment: "Below the editor of a state with no value of its own; the widget is drawn in that state.",
+    }),
+    shapeOf: (field: string) =>
+      i18n._({
+        id: "style.shapeOf",
+        message: "Shape of {field}",
+        values: { field },
+        comment: "Accessible name of the shape kind menu; {field} is the property, e.g. shape.",
+      }),
+    shapeKind: (kind: string) =>
+      i18n._({
+        id: "style.shapeKind",
+        message:
+          "{kind, select, roundedRectangle {Rounded rectangle} stadium {Pill} circle {Circle} beveledRectangle {Bevelled rectangle} continuousRectangle {Smooth rectangle} other {Shape}}",
+        values: { kind },
+        comment: "A kind of shape of a button or card, as Flutter's ShapeBorder kinds; Pill is a stadium.",
+      }),
+    eachCornerSet: i18n._({
+      id: "style.eachCornerSet",
+      message: "Set per corner",
+      comment: "Shown instead of the radius field when the corners have different radii.",
+    }),
+    eccentricity: i18n._({
+      id: "style.eccentricity",
+      message: "Eccentricity",
+      comment: "How elliptical a circle shape may become, from 0 (a circle) to 1.",
+    }),
+    outline: i18n._({
+      id: "style.outline",
+      message: "Outline",
+      comment: "A shape's border line: its colour and width.",
+    }),
+    outlineWidth: i18n._({
+      id: "style.outlineWidth",
+      message: "Outline width",
+      comment: "Accessible name of the width field of a shape's outline.",
+    }),
+    bindToken: (field: string) =>
+      i18n._({
+        id: "style.bindToken",
+        message: "Use a theme token for {field}",
+        values: { field },
+        comment: "Button beside a number that binds it to a dimension token of the theme, e.g. space.md.",
+      }),
+    unbindToken: (token: string) =>
+      i18n._({
+        id: "style.unbindToken",
+        message: "Unlink {token}: keep its value",
+        values: { token },
+        comment: "Button that replaces a bound theme token by its value in pixels; {token} is its path, e.g. space.md.",
+      }),
+    copyStyle: i18n._({
+      id: "style.copyStyle",
+      message: "Copy style",
+      comment: "Command: copy the selected widget's colours, decoration, shape and text style.",
+    }),
+    pasteStyle: i18n._({
+      id: "style.pasteStyle",
+      message: "Paste style",
+      comment: "Command: apply the copied style to the selected widgets.",
+    }),
+    styleCopied: (type: string) =>
+      i18n._({
+        id: "style.styleCopied",
+        message: "Style of {type} copied",
+        values: { type },
+        comment: "Status after copying a widget's style; {type} is the widget type, e.g. FilledButton.",
+      }),
+    stylePasted: (n: number) =>
+      i18n._({
+        id: "style.stylePasted",
+        message: "{n, plural, one {Style pasted on # widget} other {Style pasted on # widgets}}",
+        values: { n },
+        comment: "Status after pasting a copied style.",
+      }),
+    styleNotTaken: i18n._({
+      id: "style.styleNotTaken",
+      message: "None of the copied style fits the selection",
+      comment: "Status when the selected widgets declare none of the copied style's properties.",
+    }),
   };
 }
 

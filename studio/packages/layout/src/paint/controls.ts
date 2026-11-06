@@ -17,8 +17,11 @@ import {
   type Radii,
   type Rect,
   type Rgba,
+  resolveColor,
   roleColor,
+  shapePaint,
 } from "./paint.ts";
+import { previewedState, resolveState, STATE_LAYER_OPACITY, type WidgetStateName } from "./widget-state.ts";
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -30,6 +33,8 @@ export interface ControlNode {
   readonly props?: Obj;
   readonly events?: unknown;
   readonly slots?: unknown;
+  /** Editor-only marks; `state` is the interaction state Studio previews (PC-21). */
+  readonly "x-studio"?: unknown;
 }
 
 /** The actions that enable each control; a control handling none of them is disabled. */
@@ -53,6 +58,9 @@ const ACTIONS: Readonly<Record<string, readonly string[]>> = {
 
 /** Whether `node` is a control with no action: Flutter draws it disabled. */
 export function disabledControl(node: ControlNode): boolean {
+  if (previewedState(node as Obj) === "disabled") {
+    return true;
+  }
   const actions = ACTIONS[node.type ?? ""];
   if (actions === undefined) {
     return false;
@@ -108,7 +116,7 @@ export function controlForeground(node: ControlNode, theme: PaintTheme): Foregro
     disabled ? withAlpha(roleColor(theme, "onSurface"), DISABLED_CONTENT) : roleColor(theme, r);
   const button = BUTTON_CONTENT[type];
   if (button !== undefined) {
-    return { text: role(button), icon: role(button), iconSize: 18 };
+    return styledForeground(node, theme, { text: role(button), icon: role(button), iconSize: 18 });
   }
   switch (type) {
     case "IconButton":
@@ -129,9 +137,88 @@ export function controlForeground(node: ControlNode, theme: PaintTheme): Foregro
   }
 }
 
-/** A Material 3 common button: a pill 40 high in its tap target. */
+/** The states a control is in on the canvas: disabled without an action, selected, and the one Studio previews. */
+export function controlStates(node: ControlNode): ReadonlySet<WidgetStateName> {
+  const states = new Set<WidgetStateName>();
+  if (disabledControl(node)) {
+    states.add("disabled");
+  }
+  if (node.props?.["selected"] === true) {
+    states.add("selected");
+  }
+  const shown = previewedState(node as Obj);
+  if (shown !== undefined) {
+    states.add(shown);
+  }
+  return states;
+}
+
+const styleOf = (node: ControlNode): Obj => (isObj(node.props?.["style"]) ? (node.props["style"] as Obj) : {});
+
+/** A control's content colours with its `style`'s foreground and icon colours and icon size for its states. */
+function styledForeground(node: ControlNode, theme: PaintTheme, base: Foreground): Foreground {
+  const style = styleOf(node);
+  const states = controlStates(node);
+  const fg = resolveColor(resolveState(style["foregroundColor"], states), theme);
+  const icon = resolveColor(resolveState(style["iconColor"], states), theme) ?? fg;
+  const size = num(resolveState(style["iconSize"], states));
+  return {
+    ...base,
+    ...(fg === undefined ? {} : { text: fg }),
+    ...(icon === undefined ? {} : { icon }),
+    ...(size === undefined ? {} : { iconSize: size }),
+  };
+}
+
+/**
+ * A button's own look from its `style` (a `ButtonStyle`), over the defaults of its kind: background, outline, shape
+ * and elevation for its states, and the state layer of a previewed pointer state — the overlay colour, else the
+ * content colour, at the opacity Material 3 gives the state.
+ */
+function styledButton(node: ControlNode, theme: PaintTheme, box: BoxPaint, painted: boolean): BoxPaint[] {
+  const style = styleOf(node);
+  if (Object.keys(style).length === 0 && previewedState(node as Obj) === undefined) {
+    return painted ? [box] : [];
+  }
+  const states = controlStates(node);
+  const fill = resolveColor(resolveState(style["backgroundColor"], states), theme);
+  const shape = resolveState(style["shape"], states);
+  const outline = shapePaint({ side: resolveState(style["side"], states) }, box, theme, pill(box)).border;
+  const elevation = num(resolveState(style["elevation"], states));
+  const own: BoxPaint = {
+    ...box,
+    ...(fill === undefined ? {} : { fill }),
+    ...(shape === undefined ? {} : shapePaint(shape, box, theme, box.radii ?? pill(box))),
+    ...(outline === undefined ? {} : { border: outline }),
+    ...(elevation === undefined ? {} : { shadows: elevationShadows(elevation, roleColor(theme, "shadow")) }),
+  };
+  const layer = stateLayer(node, theme, own);
+  return layer === undefined ? [own] : [own, layer];
+}
+
+/** The state layer over a control in the pointer state Studio previews, if any. */
+function stateLayer(node: ControlNode, theme: PaintTheme, box: BoxPaint): BoxPaint | undefined {
+  const shown = previewedState(node as Obj);
+  const opacity = shown === undefined ? undefined : STATE_LAYER_OPACITY[shown];
+  if (opacity === undefined) {
+    return undefined;
+  }
+  const states = controlStates(node);
+  const overlay = resolveColor(resolveState(styleOf(node)["overlayColor"], states), theme);
+  const base = overlay ?? controlForeground(node, theme)?.text ?? roleColor(theme, "primary");
+  const { fill: _fill, gradient: _gradient, shadows: _shadows, border: _border, ...shape } = box;
+  return { ...shape, fill: withAlpha(base, Math.round(255 * opacity)) };
+}
+
+/** A Material 3 common button: a pill 40 high in its tap target, then its own `style`. */
 function button(kind: string, node: ControlNode, r: Rect, theme: PaintTheme): BoxPaint[] {
   const b = centred(r, r.w, 40);
+  const [box] = defaultButton(kind, node, b, theme);
+  return styledButton(node, theme, box ?? { ...b, radii: pill(b) }, box !== undefined);
+}
+
+/** A common button's default look by its kind. */
+function defaultButton(kind: string, node: ControlNode, b: Rect, theme: PaintTheme): BoxPaint[] {
   const shape = { ...b, radii: pill(b) };
   if (disabledControl(node)) {
     const off = withAlpha(roleColor(theme, "onSurface"), DISABLED_CONTAINER);

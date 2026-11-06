@@ -22,6 +22,8 @@ export interface LiveState {
   readonly picks: ReadonlyMap<string, unknown>;
   /** The value of page state a click set, by the PXL expression bound to it (`page.tab`). */
   readonly exprs: ReadonlyMap<string, unknown>;
+  /** The interaction state the inspector previews on a widget (PC-21), by node: drawn as `x-studio.state`. */
+  readonly states?: ReadonlyMap<string, string>;
 }
 
 export const emptyLive: LiveState = { scroll: new Map(), picks: new Map(), exprs: new Map() };
@@ -138,7 +140,8 @@ function touches(root: Node, live: LiveState): boolean {
   if (live.exprs.size > 0) {
     return true;
   }
-  const visit = (n: Node): boolean => live.scroll.has(n.id) || live.picks.has(n.id) || childNodes(n).some(visit);
+  const visit = (n: Node): boolean =>
+    live.scroll.has(n.id) || live.picks.has(n.id) || live.states?.has(n.id) === true || childNodes(n).some(visit);
   return visit(root);
 }
 
@@ -169,8 +172,13 @@ export function applyLive(root: Node, live: LiveState): Node {
       out["props"] = props;
     }
     const offset = live.scroll.get(node.id);
-    if (offset !== undefined) {
-      out["x-studio"] = { ...(isObj(out["x-studio"]) ? out["x-studio"] : {}), scroll: offset };
+    const state = live.states?.get(node.id);
+    if (offset !== undefined || state !== undefined) {
+      out["x-studio"] = {
+        ...(isObj(out["x-studio"]) ? out["x-studio"] : {}),
+        ...(offset === undefined ? {} : { scroll: offset }),
+        ...(state === undefined ? {} : { state }),
+      };
     }
     copyKids(node, out, copy);
     return out as unknown as Node;

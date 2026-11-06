@@ -60,7 +60,7 @@ const SWATCH_ROLES: readonly ColorRole[] = [
 const hex2 = (n: number) => n.toString(16).padStart(2, "0");
 /** RGBA as a CSS colour, built from its digits (no literal in the source). */
 const cssOf = (rgba: number) => `#${(rgba >>> 0).toString(16).padStart(8, "0")}`;
-const swatch = (rgba: number | undefined): CSSProperties =>
+export const swatch = (rgba: number | undefined): CSSProperties =>
   ({ "--swatch": rgba === undefined ? "transparent" : cssOf(rgba) }) as CSSProperties;
 
 /** The RRGGBB digits and the opacity in percent of a literal colour value. */

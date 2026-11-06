@@ -568,6 +568,12 @@ msgstr "{kind, select, dialog {Dialog} bottomSheet {Bottom Sheet} fullscreenDial
 msgid "style.gradientKind"
 msgstr "{kind, select, none {Kein Verlauf} linear {Linear} radial {Radial} sweep {Kreisförmig} other {Verlauf}}"
 
+#. A kind of shape of a button or card, as Flutter's ShapeBorder kinds; Pill is a stadium.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.shapeKind"
+msgstr "{kind, select, roundedRectangle {Abgerundetes Rechteck} stadium {Pille} circle {Kreis} beveledRectangle {Abgeschrägtes Rechteck} continuousRectangle {Weiches Rechteck} other {Form}}"
+
 #. A shadow preset of the decoration editor, by Material elevation, e.g. Elevation 3.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -669,6 +675,12 @@ msgstr "{n, plural, one {# Bildschirm} other {# Bildschirme}}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.versions"
 msgstr "{n, plural, one {# Version} other {# Versionen}}"
+
+#. Status after pasting a copied style.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.stylePasted"
+msgstr "{n, plural, one {Stil auf # Widget eingefügt} other {Stil auf # Widgets eingefügt}}"
 
 #. The number of approvals a policy requires.
 #. js-lingui-explicit-id
@@ -963,6 +975,18 @@ msgstr "{side, select, top {Ziehen, um den oberen Innenabstand zu ändern} botto
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.saveState"
 msgstr "{state, select, saved {Alle Änderungen gespeichert} saving {Wird gespeichert…} offline {Offline, Änderungen bleiben erhalten} conflict {Konflikt zu lösen} other {Gespeichert}}"
+
+#. An interaction state of a widget, as Flutter's WidgetState names it; Default applies when no other does.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.stateName"
+msgstr "{state, select, value {Standard} pressed {Gedrückt} hovered {Überfahren} focused {Fokussiert} disabled {Deaktiviert} selected {Ausgewählt} error {Fehler} dragged {Gezogen} other {Zustand}}"
+
+#. Tooltip of a state chip whose state has no value of its own; {state} is the state's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.stateUnset"
+msgstr "{state}: nicht gesetzt, nutzt Standard"
 
 #. A page transition (NAV-010).
 #. js-lingui-explicit-id
@@ -3846,6 +3870,12 @@ msgstr "Kopieren Sie eine der Beispiel-Apps dieses Servers."
 msgid "clipboard.actionCopy"
 msgstr "Übernehmen"
 
+#. Command: copy the selected widget's colours, decoration, shape and text style.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.copyStyle"
+msgstr "Stil kopieren"
+
 #. Text in a sample app screen drawn beside the sign-in form. Name of a shop in a payment list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -4991,6 +5021,12 @@ msgstr "Jede Umgebung hat eigene Variablen, Geheimnisse, Signaturschlüssel und 
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.badSegmentValue"
 msgstr "Jedes Segment braucht einen Schlüssel, und sein Wert muss gültiges JSON sein."
+
+#. How elliptical a circle shape may become, from 0 (a circle) to 1.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.eccentricity"
+msgstr "Exzentrizität"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -9827,6 +9863,12 @@ msgstr "Keine"
 msgid "appCanvas.noEntry"
 msgstr "Keines gewählt"
 
+#. Status when the selected widgets declare none of the copied style's properties.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.styleNotTaken"
+msgstr "Nichts vom kopierten Stil passt zur Auswahl"
+
 #. Error under a type field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -9892,6 +9934,12 @@ msgstr "nicht gemeldet"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.unset"
 msgstr "Nicht gesetzt"
+
+#. Below the editor of a state with no value of its own; the widget is drawn in that state.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.stateFallsBack"
+msgstr "Nicht gesetzt: Dieser Zustand nutzt Standard. Die Arbeitsfläche zeigt ihn."
 
 #. Says the version carries no signature.
 #. js-lingui-explicit-id
@@ -10535,6 +10583,18 @@ msgstr "Anderes Plugin"
 msgid "pageSettings.routeExternal"
 msgstr "Andere Plugins öffnen diese Route ({plugins}); ändern Sie zuerst diese."
 
+#. A shape's border line: its colour and width.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.outline"
+msgstr "Umriss"
+
+#. Accessible name of the width field of a shape's outline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.outlineWidth"
+msgstr "Umrissbreite"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -10786,6 +10846,12 @@ msgstr "Passwort"
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.paste"
 msgstr "Einfügen"
+
+#. Command: apply the copied style to the selected widgets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.pasteStyle"
+msgstr "Stil einfügen"
 
 #. Button that applies the paste with the choices made for the missing items.
 #. js-lingui-explicit-id
@@ -13665,6 +13731,12 @@ msgstr "Sitzungen pro Trichterschritt"
 msgid "panels.setOnly"
 msgstr "Nur gesetzte"
 
+#. Shown instead of the radius field when the corners have different radii.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.eachCornerSet"
+msgstr "Pro Ecke gesetzt"
+
 #. Column head: the setting's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -13724,6 +13796,12 @@ msgstr "Schatten"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.container"
 msgstr "Form"
+
+#. Accessible name of the shape kind menu; {field} is the property, e.g. shape.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.shapeOf"
+msgstr "Form von {field}"
 
 #. A device API.
 #. js-lingui-explicit-id
@@ -14373,6 +14451,12 @@ msgstr "Zustandseinträge"
 msgid "analytics.replayState"
 msgstr "Zustand bis hierhin"
 
+#. Accessible name of the row of state chips (Default, Pressed, Hovered…) of a property; {field} is the property.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.statesOf"
+msgstr "Zustände von {field}"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -14582,6 +14666,12 @@ msgstr "Studio wurde aktualisiert. Laden Sie neu, um die neue Version zu nutzen.
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.textPreset"
 msgstr "Stil"
+
+#. Status after copying a widget's style; {type} is the widget type, e.g. FilledButton.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.styleCopied"
+msgstr "Stil von {type} kopiert"
 
 #. Label of the field that names the varied nodes, page or prop.
 #. js-lingui-explicit-id
@@ -15092,6 +15182,12 @@ msgstr "Die Build-Details konnten nicht geladen werden."
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.stack.label"
 msgstr "Die meistgenutzten Apps der Organisation, als Ebenen gestapelt."
+
+#. Below a state's editor: the selected widget is drawn in the state being edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.stateShown"
+msgstr "Die Arbeitsfläche zeigt das Widget in diesem Zustand."
 
 #. Shown when saving fails.
 #. js-lingui-explicit-id
@@ -16996,6 +17092,12 @@ msgstr "Fehlerhaft"
 msgid "history.unknownAuthor"
 msgstr "unbekannter Autor"
 
+#. Button that replaces a bound theme token by its value in pixels; {token} is its path, e.g. space.md.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.unbindToken"
+msgstr "{token} lösen: Wert behalten"
+
 #. Tooltip of a locked layer's lock.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -17121,6 +17223,12 @@ msgstr "Passkey verwenden"
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.percentRange"
 msgstr "Geben Sie einen Anteil von 0,01 bis 100 an."
+
+#. Button beside a number that binds it to a dimension token of the theme, e.g. space.md.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.bindToken"
+msgstr "Theme-Token für {field} verwenden"
 
 #. Shown beside a state entry name that is empty, malformed or already taken.
 #. js-lingui-explicit-id

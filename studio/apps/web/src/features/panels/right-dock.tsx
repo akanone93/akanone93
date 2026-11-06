@@ -36,6 +36,7 @@ import { ImageSourceField } from "./image-field.tsx";
 import { pageSettingsMessages } from "./page-settings.messages.ts";
 import { PageSettingsTab } from "./page-settings.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
+import { groupIcons, groupOrder, type PropGroup, propGroupOf } from "./prop-groups.ts";
 import { AlignmentPicker, PropGroupHead, PropRow, propLabel, SegmentedChoice, segmentable } from "./prop-row.tsx";
 import {
   type Breakpoint,
@@ -58,6 +59,7 @@ import {
 } from "./properties-model.ts";
 import type { PxlEditorSource } from "./pxl-editor.tsx";
 import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
+import { ShapeEditor, StateValueEditor, stateInnerOf, TokenNumber } from "./state-editors.tsx";
 import { lockedIds } from "./studio-meta.ts";
 import { ColorField, DecorationEditor, TextStyleEditor } from "./style-editors.tsx";
 import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
@@ -278,21 +280,24 @@ function ColorEditor(p: EditorProps) {
   );
 }
 
+/** A number, bound to the theme's dimension tokens first (PC-21): a bound token shows as a chip. */
 function NumberEditor(p: EditorProps & { integer: boolean }) {
   return (
-    <div className="prop-number">
-      <Input
-        type="number"
-        step={p.integer ? 1 : "any"}
-        aria-label={p.name}
-        value={typeof p.value === "number" ? p.value : ""}
-        placeholder={p.mixed ? p.m.mixed : undefined}
-        readOnly={p.readOnly}
-        onChange={(e) => p.onChange(numberOrUndefined(e.target.value))}
-        onBlur={p.onEnd}
-      />
-      {p.unit !== "" && <span className="prop-unit">{p.unit}</span>}
-    </div>
+    <TokenNumber name={p.name} value={p.value} readOnly={p.readOnly} onChange={p.onChange} onEnd={p.onEnd}>
+      <div className="prop-number">
+        <Input
+          type="number"
+          step={p.integer ? 1 : "any"}
+          aria-label={p.name}
+          value={typeof p.value === "number" ? p.value : ""}
+          placeholder={p.mixed ? p.m.mixed : undefined}
+          readOnly={p.readOnly}
+          onChange={(e) => p.onChange(numberOrUndefined(e.target.value))}
+          onBlur={p.onEnd}
+        />
+        {p.unit !== "" && <span className="prop-unit">{p.unit}</span>}
+      </div>
+    </TokenNumber>
   );
 }
 
@@ -434,9 +439,34 @@ function emptyItem(type: string): unknown {
   return kind === "object" ? {} : kind === "number" || kind === "int" ? 0 : kind === "bool" ? false : "";
 }
 
-/** A value type with an editor of its own (decorations, text styles); every other one edits its fields. */
+/** A `WidgetState…` value: one state at a time, each edited as the type it holds (PC-21). */
+function StateEditor(p: EditorProps & { inner: string }) {
+  return (
+    <StateValueEditor
+      name={p.name}
+      inner={p.inner}
+      value={p.value}
+      readOnly={p.readOnly}
+      onChange={p.onChange}
+      onEnd={p.onEnd}
+    >
+      {(state, value, set) => (
+        <ValueEditor {...p} type={p.inner} name={`${p.name}.${state}`} value={value} mixed={false} onChange={set} />
+      )}
+    </StateValueEditor>
+  );
+}
+
+/** A value type with an editor of its own (states, shapes, decorations, text styles); others edit their fields. */
 function StyleObjectEditor(p: EditorProps & { bare: string }) {
   const own = { name: p.name, value: p.value, readOnly: p.readOnly, onChange: p.onChange, onEnd: p.onEnd };
+  const inner = stateInnerOf(p.bare);
+  if (inner !== undefined) {
+    return <StateEditor {...p} inner={inner} />;
+  }
+  if (p.bare === "ShapeBorder") {
+    return <ShapeEditor {...own} />;
+  }
   if (p.bare === "BoxDecoration") {
     return <DecorationEditor {...own} />;
   }
@@ -633,42 +663,6 @@ function pageCheck(
 }
 
 /** The sections the inspector sorts a widget's properties into, by the property's name. */
-type PropGroup = "layout" | "appearance" | "content" | "behaviour" | "other";
-
-const groupOrder: readonly PropGroup[] = ["content", "layout", "appearance", "behaviour", "other"];
-
-const groupIcons: Record<PropGroup, IconName> = {
-  layout: "grid-four",
-  appearance: "palette",
-  content: "text-t",
-  behaviour: "hand-pointing",
-  other: "sliders",
-};
-
-const groupPatterns: readonly (readonly [PropGroup, RegExp])[] = [
-  [
-    "layout",
-    /^(width|height|size|padding|margin|align|alignment|mainAxis|crossAxis|spacing|runSpacing|gap|flex|fit|aspectRatio|constraints|position|top|bottom|left|right|start|end|direction|axis|clip|expand|scroll|physics|itemExtent|shrinkWrap|reverse|verticalDirection|textDirection)/i,
-  ],
-  [
-    "appearance",
-    /(color|colour|background|decoration|border|radius|elevation|shadow|style|theme|opacity|gradient|font|weight|outline|shape|tint|overlay|splash|highlight|filter|blend)/i,
-  ],
-  [
-    "content",
-    /^(data|text|label|title|subtitle|child|children|icon|image|src|url|value|placeholder|hint|items|leading|trailing|content|semanticsLabel|tooltip|message|actions|body|header|footer)/i,
-  ],
-  [
-    "behaviour",
-    /^(on[A-Z]|enabled|disabled|readOnly|autofocus|keyboard|obscure|max|min|divisions|validator|autovalidate|selected|checked|tristate|duration|curve|delay|repeat|loop|interactive|controller)/i,
-  ],
-];
-
-/** The group of a property: the first whose pattern its name matches, else "other". */
-function propGroupOf(name: string): PropGroup {
-  return groupPatterns.find(([, pattern]) => pattern.test(name))?.[0] ?? "other";
-}
-
 /** The properties in their sections, in the inspector's order; empty sections are left out. */
 function propGroups(props: readonly PropDescriptor[]): { id: PropGroup; props: PropDescriptor[] }[] {
   return groupOrder
