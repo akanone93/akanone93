@@ -28,6 +28,7 @@ import type { ScreenCost } from "../plugin-canvas/screen-costs.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { type EditFn, findNode } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
+import { setStyleRecipe } from "../plugin-canvas/theme-round-trip.ts";
 import type { PxlLanguage } from "../problems/use-validation.ts";
 import { rustEditorMessages } from "../rust-editor/rust-editor.messages.ts";
 import type { TestsClient } from "../rust-editor/test-runner.ts";
@@ -79,6 +80,7 @@ import { lockedIds } from "./studio-meta.ts";
 import { ColorField, DecorationEditor, TextStyleEditor } from "./style-editors.tsx";
 import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
+import { ThemeCard } from "./theme-card.tsx";
 import "./inspector.css";
 
 /** Milliseconds a PXL field waits after the last keystroke before the validator worker checks it (F9). */
@@ -955,6 +957,11 @@ function SelectionPanels(props: {
         canEdit={canEdit}
         heroCount={p.heroCount?.(first) ?? 0}
         set={(key, value) => edit(setAnimationRecipe(first, key, value), `motion:${first}:${key}:${Date.now()}`)}
+      />
+      <ThemeCard
+        node={node}
+        canEdit={canEdit}
+        bind={(v, token) => edit(setStyleRecipe(first, v.path, { $token: token }), `token:${first}:${Date.now()}`)}
       />
       {INPUT_TYPES[props.type] !== undefined && (
         <FormFieldPanel

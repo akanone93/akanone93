@@ -802,6 +802,12 @@ msgstr "{n, plural, one {# warning} other {# warnings}}"
 msgid "style.stylePasted"
 msgstr "{n, plural, one {Style pasted on # widget} other {Style pasted on # widgets}}"
 
+#. How many widgets on the plugin's screens use the token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.usedBy"
+msgstr "{n, plural, one {Used by # widget} other {Used by # widgets}}"
+
 #. The number of approvals a policy requires.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -1275,6 +1281,12 @@ msgstr "A square PNG, 1024 to 4096 pixels a side, from the app's assets."
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.percentFalls"
 msgstr "A stage cannot lower the share of the stage before it."
+
+#. Hint under the Theme card heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.live"
+msgstr "A token's value changes every widget that uses it, on every screen."
 
 #. One of five short stories under the sample screen on the sign-in page. Its title.
 #. js-lingui-explicit-id
@@ -9107,6 +9119,12 @@ msgstr "Low"
 msgid "dialog.create.key-hint"
 msgstr "Lower-case letters, digits and hyphens, up to 64 characters. It cannot be changed later."
 
+#. Button that adds the raw value to the theme as a new token and uses it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.makeToken"
+msgstr "Make a token"
+
 #. Note beside the entry switch of the entry page, which cannot be switched off.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -10558,6 +10576,12 @@ msgstr "None chosen"
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.styleNotTaken"
 msgstr "None of the copied style fits the selection"
+
+#. Badge: the value is written in the widget, not taken from the theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.raw"
+msgstr "Not a token"
 
 #. Error under a type field.
 #. js-lingui-explicit-id
@@ -14493,6 +14517,12 @@ msgstr "Select parent"
 msgid "publish.stepSelect"
 msgstr "Select plugins"
 
+#. Button that selects every widget using the token on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.select"
+msgstr "Select the widgets that use {token}"
+
 #. Announced when a tap on the device selected a node in Studio.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -17128,6 +17158,12 @@ msgstr "The text becomes the {locale} message of the key and the property refers
 msgid "safety.confirm.mismatch"
 msgstr "The text does not match yet"
 
+#. Shown when the app's theme cannot be edited from the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.themeLocked"
+msgstr "The theme is being edited elsewhere: its tokens are read-only here."
+
 #. Confirmation after the import.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -17264,6 +17300,12 @@ msgstr "Theme"
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.theme"
+msgstr "Theme"
+
+#. Heading of the selected widget's colours and sizes, with their design tokens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.title"
 msgstr "Theme"
 
 #. Name of the wizard step that asks for the app's theme.
@@ -17710,6 +17752,12 @@ msgstr "This widget has no links yet."
 msgid "panels.lockedNote"
 msgstr "This widget is locked. Unlock it in Layers to edit it."
 
+#. Shown when the widget has no colour or size props set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.none"
+msgstr "This widget sets no colours or sizes of its own."
+
 #. Route option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -17829,6 +17877,12 @@ msgstr "Token"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.colToken"
 msgstr "Token"
+
+#. Field: the new token's dotted name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.tokenName"
+msgstr "Token name"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -18244,6 +18298,12 @@ msgstr "Usage"
 msgid "forms.v.length"
 msgstr "Use {min} to {max} characters"
 
+#. Button that replaces the raw value with the theme's token of the same value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.bindTo"
+msgstr "Use {token}"
+
 #. Error under the key field of the create dialogs.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -18459,6 +18519,12 @@ msgstr "Value for the segment (JSON)"
 #: apps/web/src/features/panels/locale-tools.messages.ts
 msgid "localeTools.value"
 msgstr "Value in this locale"
+
+#. Field that edits the token's value in the theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.value"
+msgstr "Value of {token}"
 
 #. Label of the field that holds the value of a token to add.
 #. js-lingui-explicit-id

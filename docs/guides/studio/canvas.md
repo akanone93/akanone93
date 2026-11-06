@@ -296,6 +296,13 @@ landscape). On a page's navigation bar, **Make navigation adaptive** in the sele
 compact screens and puts a navigation rail with the same destinations, selection and handler beside the body from
 600 dp, extended from 840 dp.
 
+The selection's **Theme** card lists each colour and size the widget sets. A value bound to a design token shows the
+token, its value and how many widgets on the plugin's screens use it (choose it to select them all); change the value
+there and every widget using the token changes on every screen at once, as do edits in the theme editors — the canvas
+draws the theme as it is being edited, before it is saved. A value written in the widget shows **Not a token**, with
+**Use** the theme's token of that same value or **Make a token**, which adds it to the theme under a name you can change
+(`space.18`, `color.custom1`) and binds the widget to it.
+
 Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each

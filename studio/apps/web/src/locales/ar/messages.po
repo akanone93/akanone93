@@ -802,6 +802,12 @@ msgstr "{n, plural, zero {لا تحذيرات} one {تحذير واحد} two {ت
 msgid "style.stylePasted"
 msgstr "{n, plural, zero {لم يُلصق النمط على أي عنصر} one {تم لصق النمط على عنصر واحد} two {تم لصق النمط على عنصرين} few {تم لصق النمط على # عناصر} many {تم لصق النمط على # عنصرًا} other {تم لصق النمط على # عنصر}}"
 
+#. How many widgets on the plugin's screens use the token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.usedBy"
+msgstr "{n, plural, zero {لا يستخدمه أي عنصر} one {يستخدمه عنصر واحد} two {يستخدمه عنصران} few {تستخدمه # عناصر} many {يستخدمه # عنصرًا} other {يستخدمه # عنصر}}"
+
 #. The number of approvals a policy requires.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -1275,6 +1281,12 @@ msgstr "صورة PNG مربعة، من 1024 إلى 4096 بكسل لكل ضلع،
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.percentFalls"
 msgstr "لا يجوز أن تخفض المرحلة نسبة المرحلة السابقة."
+
+#. Hint under the Theme card heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.live"
+msgstr "قيمة الرمز تغيّر كل عنصر يستخدمه في كل شاشة."
 
 #. One of five short stories under the sample screen on the sign-in page. Its title.
 #. js-lingui-explicit-id
@@ -9107,6 +9119,12 @@ msgstr "منخفضة"
 msgid "dialog.create.key-hint"
 msgstr "أحرف صغيرة وأرقام وواصلات، بحد أقصى 64 حرفًا. لا يمكن تغيير المفتاح لاحقًا."
 
+#. Button that adds the raw value to the theme as a new token and uses it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.makeToken"
+msgstr "إنشاء رمز"
+
 #. Note beside the entry switch of the entry page, which cannot be switched off.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -10558,6 +10576,12 @@ msgstr "لم يُختر شيء"
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.styleNotTaken"
 msgstr "لا يناسب أي جزء من النمط المنسوخ التحديد"
+
+#. Badge: the value is written in the widget, not taken from the theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.raw"
+msgstr "ليس رمزًا"
 
 #. Error under a type field.
 #. js-lingui-explicit-id
@@ -14493,6 +14517,12 @@ msgstr "تحديد العنصر الأب"
 msgid "publish.stepSelect"
 msgstr "اختيار الإضافات"
 
+#. Button that selects every widget using the token on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.select"
+msgstr "حدّد العناصر التي تستخدم {token}"
+
 #. Announced when a tap on the device selected a node in Studio.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -17128,6 +17158,12 @@ msgstr "يصبح النص رسالة المفتاح في {locale} وتشير ا�
 msgid "safety.confirm.mismatch"
 msgstr "النص لا يطابق بعد"
 
+#. Shown when the app's theme cannot be edited from the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.themeLocked"
+msgstr "تُحرَّر السمة في مكان آخر: رموزها للقراءة فقط هنا."
+
 #. Confirmation after the import.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -17264,6 +17300,12 @@ msgstr "السمة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.theme"
+msgstr "السمة"
+
+#. Heading of the selected widget's colours and sizes, with their design tokens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.title"
 msgstr "السمة"
 
 #. Name of the wizard step that asks for the app's theme.
@@ -17710,6 +17752,12 @@ msgstr "لا توجد روابط لهذا العنصر بعد."
 msgid "panels.lockedNote"
 msgstr "هذه الأداة مقفلة. ألغِ قفلها في الطبقات لتعديلها."
 
+#. Shown when the widget has no colour or size props set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.none"
+msgstr "لا يحدد هذا العنصر ألوانًا أو أحجامًا خاصة به."
+
 #. Route option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -17829,6 +17877,12 @@ msgstr "الرمز"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.colToken"
 msgstr "الرمز"
+
+#. Field: the new token's dotted name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.tokenName"
+msgstr "اسم الرمز"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -18244,6 +18298,12 @@ msgstr "الاستخدام"
 msgid "forms.v.length"
 msgstr "استخدم من {min} إلى {max} حرفًا"
 
+#. Button that replaces the raw value with the theme's token of the same value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.bindTo"
+msgstr "استخدم {token}"
+
 #. Error under the key field of the create dialogs.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -18459,6 +18519,12 @@ msgstr "قيمة الشريحة (JSON)"
 #: apps/web/src/features/panels/locale-tools.messages.ts
 msgid "localeTools.value"
 msgstr "القيمة في هذه اللغة"
+
+#. Field that edits the token's value in the theme.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/theme-card.messages.ts
+msgid "themeCard.value"
+msgstr "قيمة {token}"
 
 #. Label of the field that holds the value of a token to add.
 #. js-lingui-explicit-id

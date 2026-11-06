@@ -1,0 +1,100 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The selection's Theme card (PC-35): each colour and size, its token and where it is used, or its raw value. */
+
+.theme-hint {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+
+.theme-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+  align-items: center;
+  padding-block: calc(var(--spacing) * 1.5);
+  border-block-start: 1px solid var(--border);
+}
+
+.theme-prop {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theme-token {
+  display: flex;
+  gap: calc(var(--spacing) * 1.5);
+  align-items: center;
+  min-inline-size: 0;
+  font-size: var(--text-xs);
+}
+
+.theme-swatch {
+  flex: none;
+  inline-size: 14px;
+  block-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.theme-raw {
+  flex: none;
+  padding-inline: 4px;
+  border-radius: 4px;
+  color: var(--muted-foreground);
+  background-color: var(--muted);
+  font-size: 0.625rem;
+}
+
+.theme-color {
+  flex: none;
+  inline-size: 22px;
+  block-size: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.theme-px {
+  inline-size: calc(var(--spacing) * 14);
+  block-size: calc(var(--spacing) * 7);
+  font-size: var(--text-xs);
+}
+
+.theme-users,
+.theme-action {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 1);
+  align-items: center;
+  justify-self: end;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  color: var(--primary);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+
+.theme-users:hover,
+.theme-action:hover {
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+}
+
+.theme-make {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: calc(var(--spacing) * 1.5);
+  align-items: center;
+}
+
+.theme-name {
+  block-size: calc(var(--spacing) * 7);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}

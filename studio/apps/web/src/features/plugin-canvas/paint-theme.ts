@@ -32,14 +32,19 @@ import { parseDocument } from "./plugin-model.ts";
 interface DocLike {
   readonly kind: string;
   readonly content: Uint8Array;
+  /** The document as an edit session holds it, unsaved edits included; absent for the server's copy. */
+  readonly parsed?: unknown;
 }
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** The token tree of the app's theme: the theme the app document names, else the only theme there is. */
+/**
+ * The token tree of the app's theme: the theme the app document names, else the only theme there is — as an edit
+ * session holds it when one has it (`parsed`), so the canvas draws a theme edit at once (PC-35).
+ */
 export function themeTokens(documents: readonly DocLike[]): Obj {
-  const docs = documents.map((d) => parseDocument(d.content)).filter(isObj);
+  const docs = documents.map((d) => (d.parsed !== undefined ? d.parsed : parseDocument(d.content))).filter(isObj);
   const app = docs.find((d) => d["kind"] === "app");
   const themes = docs.filter((d) => d["kind"] === "theme");
   const ref = typeof app?.["theme"] === "string" ? app["theme"] : undefined;

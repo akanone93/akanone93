@@ -9,6 +9,7 @@ import {
   paintThemeOf,
   schemeOf,
   textTokensOf,
+  themeTokens,
   tokenValue,
   typographyOf,
 } from "./paint-theme.ts";
@@ -67,5 +68,15 @@ describe("[THM-001] [THM-002] [THM-003] the theme's colours as the runtime reads
       space: { $type: "dimension", md: { $value: { value: 12, unit: "px" } }, lg: { $value: "1.5rem" } },
     };
     expect(dimensionsOf({ ...space, ...tokens }, false, "")).toEqual({ "space.md": 12 });
+  });
+});
+
+describe("PC-35 the theme as an edit session holds it [THM-001]", () => {
+  test("a document's unsaved copy wins over its saved bytes, so a theme edit is drawn at once", () => {
+    const saved = { kind: "theme", tokens: { color: { primary: { $value: hex("6750A4") } } } };
+    const edited = { kind: "theme", tokens: { color: { primary: { $value: hex("00897B") } } } };
+    const bytes = new TextEncoder().encode(JSON.stringify(saved));
+    expect(themeTokens([{ kind: "theme", content: bytes }])).toEqual(saved.tokens);
+    expect(themeTokens([{ kind: "theme", content: bytes, parsed: edited }])).toEqual(edited.tokens);
   });
 });
