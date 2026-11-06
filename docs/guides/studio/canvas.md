@@ -201,7 +201,17 @@ theme's dimension tokens beside it — radii first for a radius, spacing first f
 to a token shows the token with its pixels; **Unlink** keeps the pixels instead. **Copy style** (Ctrl+Alt+C,
 Cmd+Option+C on a Mac) and **Paste style** (Ctrl+Alt+V) in a widget's menu carry its colours, decoration, borders,
 shape, elevation and text style to other widgets, all in one undo step: each takes the properties it has of the same
-type, so a button's style lands on buttons and a container's colour on boxes. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+type, so a button's style lands on buttons and a container's colour on boxes. A selected row, column, flex or wrap
+shows **Auto layout** above its properties: its **Direction** (a row becomes a column keeping its settings), a grid of
+nine points that aligns its children along and across it, **Distribute** (packed, space between, around or evenly),
+**Stretch children**, the **Gap** (and a wrap's **Run gap**) and its **Size** (hug its children or fill its parent). A
+widget in a row or column is sized **Hug** (by its content), **Fill** (it takes the free space, in an `Expanded`, with
+its **Share** of it) or **Fixed** (its own width or height, or a `SizedBox` around it); a widget in a stack is pinned to
+its edges from a box of four bars, with **Set the width** and **Set the height** — pinning puts it in a `Positioned`,
+and taking off the last pin takes it out. A box's **Constraints** edit their least and most width and height (an empty
+most is unbounded). Pick **Medium** or **Expanded** above the properties to edit what the widget does on wider windows:
+a value set there overrides the smaller classes, and the widget lists the classes it overrides — click one to edit it,
+or clear it. **Reset layout** clears the layout properties at the class you edit. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

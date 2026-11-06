@@ -1,0 +1,399 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The layout editors of the inspector (PC-22): auto layout, sizing in a row or column, pins in a stack, overrides. */
+
+.lay-panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+}
+
+.lay-card {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 2.5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--card);
+}
+
+.lay-title {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  color: var(--foreground);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.lay-type {
+  margin-inline-start: auto;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+
+.lay-row,
+.lay-sizing {
+  display: grid;
+  grid-template-columns: calc(var(--spacing) * 16) minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+}
+
+.lay-sizing {
+  grid-template-columns: calc(var(--spacing) * 16) minmax(0, 1fr);
+  row-gap: calc(var(--spacing) * 1.5);
+}
+
+.lay-sizing > :nth-child(n + 3) {
+  grid-column: 2;
+}
+
+.lay-label {
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lay-control {
+  min-inline-size: 0;
+}
+
+/* A segmented control: equal pills in a track, the picked one raised. */
+.lay-segments {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklch, var(--muted) 85%, transparent);
+}
+
+.lay-segment {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 1);
+  min-inline-size: 0;
+  block-size: calc(var(--spacing) * 7);
+  padding-inline: calc(var(--spacing) * 1.5);
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.lay-segment:hover:not(:disabled) {
+  color: var(--foreground);
+}
+
+.lay-segment[aria-checked="true"] {
+  color: var(--foreground);
+  background-color: var(--background);
+  box-shadow: 0 1px 2px color-mix(in oklch, var(--foreground) 14%, transparent);
+  font-weight: 600;
+}
+
+.lay-segment:focus-visible,
+.lay-pad-cell:focus-visible,
+.lay-pin:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* The alignment pad: nine points; the picked one a bar along the axis, as design tools draw it. */
+.lay-pad-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: calc(var(--spacing) * 3);
+}
+
+.lay-pad {
+  display: grid;
+  min-inline-size: 0;
+  margin: 0;
+  grid-template-columns: repeat(3, calc(var(--spacing) * 7));
+  grid-template-rows: repeat(3, calc(var(--spacing) * 7));
+  padding: calc(var(--spacing) * 1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklch, var(--muted) 60%, transparent);
+}
+
+.lay-pad-cell {
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+}
+
+.lay-pad-cell:hover:not(:disabled) {
+  background-color: color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+.lay-pad-dot {
+  inline-size: 4px;
+  block-size: 4px;
+  border-radius: 999px;
+  background-color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  transition:
+    inline-size var(--duration-fast) ease,
+    block-size var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.lay-pad-cell[aria-pressed="true"] .lay-pad-dot {
+  border-radius: 2px;
+  background-color: var(--primary);
+}
+
+.lay-pad[data-axis="horizontal"] .lay-pad-cell[aria-pressed="true"] .lay-pad-dot {
+  inline-size: 6px;
+  block-size: 14px;
+}
+
+.lay-pad[data-axis="vertical"] .lay-pad-cell[aria-pressed="true"] .lay-pad-dot {
+  inline-size: 14px;
+  block-size: 6px;
+}
+
+.lay-pad-side {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  min-inline-size: 0;
+}
+
+.lay-stack-label {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.lay-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing) * 2);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.lay-number {
+  block-size: calc(var(--spacing) * 7);
+  font-variant-numeric: tabular-nums;
+}
+
+.lay-flex {
+  inline-size: calc(var(--spacing) * 16);
+}
+
+.lay-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing) * 2);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.lay-inline > :last-child {
+  inline-size: calc(var(--spacing) * 20);
+}
+
+/* The pin box: a frame with a bar on each edge, filled when the widget is pinned to that edge. */
+.lay-pins {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: calc(var(--spacing) * 3);
+}
+
+.lay-pin-box {
+  position: relative;
+  direction: ltr;
+  inline-size: calc(var(--spacing) * 22);
+  block-size: calc(var(--spacing) * 22);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklch, var(--muted) 60%, transparent);
+}
+
+.lay-pin-core {
+  position: absolute;
+  inset: 32%;
+  border: 1px dashed color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+  border-radius: var(--radius-sm);
+  background-color: var(--background);
+}
+
+.lay-pin {
+  position: absolute;
+  border-radius: 999px;
+  background-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent);
+  transition: background-color var(--duration-fast) ease;
+}
+
+.lay-pin::after {
+  position: absolute;
+  inset: calc(var(--spacing) * -1.5);
+  content: "";
+}
+
+.lay-pin:hover:not(:disabled) {
+  background-color: color-mix(in oklch, var(--primary) 55%, transparent);
+}
+
+.lay-pin[aria-pressed="true"] {
+  background-color: var(--primary);
+}
+
+.lay-pin[data-edge="top"],
+.lay-pin[data-edge="bottom"] {
+  inset-inline-start: calc(50% - 1.5px);
+  inline-size: 3px;
+  block-size: 22%;
+}
+
+.lay-pin[data-edge="top"] {
+  inset-block-start: 6%;
+}
+
+.lay-pin[data-edge="bottom"] {
+  inset-block-end: 6%;
+}
+
+.lay-pin[data-edge="left"],
+.lay-pin[data-edge="right"] {
+  inset-block-start: calc(50% - 1.5px);
+  inline-size: 22%;
+  block-size: 3px;
+}
+
+/* Positioned's left and right are physical, so the box is always laid out left to right (see .lay-pin-box). */
+.lay-pin[data-edge="left"] {
+  inset-inline-start: 6%;
+}
+
+.lay-pin[data-edge="right"] {
+  inset-inline-end: 6%;
+}
+
+.lay-pin-values {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+  min-inline-size: 0;
+}
+
+.lay-pin-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 1);
+}
+
+.lay-chip {
+  block-size: calc(var(--spacing) * 6);
+  padding-inline: calc(var(--spacing) * 2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+
+.lay-chip[aria-pressed="true"] {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background-color: var(--primary);
+}
+
+.lay-note {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+}
+
+/* The size classes the widget overrides: a chip each, to switch to it or clear it. */
+.lay-overrides {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2.5);
+  border: 1px solid color-mix(in oklch, var(--primary) 30%, var(--border));
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in oklch, var(--primary) 6%, var(--background));
+}
+
+.lay-override-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.lay-override {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background-color: var(--background);
+  font-size: 0.6875rem;
+}
+
+.lay-override[data-current] {
+  border-color: var(--primary);
+}
+
+.lay-override-name {
+  padding-block: calc(var(--spacing) * 0.75);
+  padding-inline: calc(var(--spacing) * 2) calc(var(--spacing) * 1);
+  color: var(--foreground);
+}
+
+.lay-override-clear {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 5);
+  block-size: calc(var(--spacing) * 5);
+  margin-inline-end: 2px;
+  border-radius: 999px;
+  color: var(--muted-foreground);
+}
+
+.lay-override-clear:hover {
+  color: var(--destructive);
+}
+
+.lay-reset {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.lay-reset:hover {
+  color: var(--foreground);
+  background-color: var(--muted);
+}
+
+/* A box's constraints: least and most width and height in a small table. */
+.lay-constraints {
+  display: grid;
+  grid-template-columns: calc(var(--spacing) * 14) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
+}

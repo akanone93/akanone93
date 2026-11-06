@@ -33,6 +33,8 @@ import { typeIcon } from "./catalogue.ts";
 import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
 import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
+import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingRecipe } from "./layout-model.ts";
+import { ConstraintsEditor, LayoutPanel } from "./layout-panel.tsx";
 import { pageSettingsMessages } from "./page-settings.messages.ts";
 import { PageSettingsTab } from "./page-settings.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
@@ -467,6 +469,9 @@ function StyleObjectEditor(p: EditorProps & { bare: string }) {
   if (p.bare === "ShapeBorder") {
     return <ShapeEditor {...own} />;
   }
+  if (p.bare === "BoxConstraints") {
+    return <ConstraintsEditor {...own} />;
+  }
   if (p.bare === "BoxDecoration") {
     return <DecorationEditor {...own} />;
   }
@@ -812,6 +817,51 @@ function SizeClasses(props: {
   );
 }
 
+/** The layout editors of the one selected widget (PC-22), editing its page through the dock's edit function. */
+function SelectionLayout(props: {
+  readonly dock: DockProps;
+  readonly id: string;
+  readonly node: Obj;
+  readonly bp: Breakpoint;
+  readonly canEdit: boolean;
+  readonly layoutNames: readonly string[];
+  readonly onBp: (bp: Breakpoint) => void;
+}) {
+  const { dock, id, bp } = props;
+  const doc = dock.screenOf.get(id);
+  const root = dock.screens.find((s) => s.id === doc)?.root;
+  if (doc === undefined || root === undefined) {
+    return null;
+  }
+  const step = `layout:${id}:${Date.now()}`;
+  const structure = (recipe: (root: unknown) => void) => dock.edit(doc, recipe, { group: step });
+  return (
+    <LayoutPanel
+      node={props.node}
+      root={root}
+      id={id}
+      bp={bp}
+      canEdit={props.canEdit}
+      layoutNames={props.layoutNames}
+      onBp={props.onBp}
+      applyProps={(values) => {
+        const group = `layout-props:${id}:${bp}:${Object.keys(values).join(",")}`;
+        for (const [name, value] of Object.entries(values)) {
+          dock.edit(doc, setPropRecipe(id, bp, name, value), { group });
+        }
+      }}
+      structure={structure}
+      onClearOverrides={(c) => structure(clearOverridesRecipe(id, c))}
+      recipes={{
+        flip: (box) => flipRecipe(id, box),
+        sizing: (axis, sizing, size) => sizingRecipe(id, axis, sizing, uuidv7(), size),
+        pin: (pin, value) => pinRecipe(id, pin, value, uuidv7()),
+        flex: (wrapper, flex) => setPropsRecipe(wrapper, { flex: flex === 1 ? undefined : flex }),
+      }}
+    />
+  );
+}
+
 function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const { m, ids } = p;
   const { canEdit, lockedNote } = useSelectionEditable(p, ids);
@@ -897,6 +947,17 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
       {ids.length > 1 && <p className="prop-note">{m.multi(ids.length)}</p>}
       {ids.length === 1 && q === "" && !setOnly && (
         <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
+      )}
+      {ids.length === 1 && q === "" && !setOnly && selected[0] !== undefined && (
+        <SelectionLayout
+          dock={p}
+          id={first}
+          node={selected[0]}
+          bp={bp}
+          canEdit={canEdit}
+          layoutNames={props.filter((pr) => propGroupOf(pr.name) === "layout").map((pr) => pr.name)}
+          onBp={setBp}
+        />
       )}
       {sections.length === 0 && <p className="prop-note">{m.noPropMatch}</p>}
       {sections.map((group) => (

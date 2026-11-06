@@ -73,6 +73,18 @@ msgstr "{apps, plural, one {in # App} other {in # Apps}}"
 msgid "home.pulse.live-note"
 msgstr "{apps, plural, one {von # App} other {von # Apps}}"
 
+#. Heading of how a widget is sized by the row or column it is in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.inRowOrColumn"
+msgstr "{axis, select, horizontal {In einer Zeile} other {In einer Spalte}}"
+
+#. A size class and how many properties it overrides, e.g. Medium: 2.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.overrideCount"
+msgstr "{bp, select, medium {Mittel} other {Erweitert}}: {n}"
+
 #. A brand overlay and the number of tokens it replaces.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -370,6 +382,12 @@ msgstr "{d, select, down {Oben nach unten} across {Anfang nach Ende} diagonal {D
 msgid "style.decoration"
 msgstr "{d, select, none {Keine Linie} underline {Unterstrichen} lineThrough {Durchgestrichen} overline {Überstrichen} other {Linie}}"
 
+#. Flutter's MainAxisAlignment: packed by the alignment grid, or the free space between children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.distributionOf"
+msgstr "{d, select, packed {Gepackt} spaceBetween {Abstand dazwischen} spaceAround {Abstand ringsum} spaceEvenly {Gleichmäßig} other {Gepackt}}"
+
 #. Change of the bundle size against the previous version.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -393,6 +411,18 @@ msgstr "{done} von {total} Schritten"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.progress.short"
 msgstr "{done}/{total}"
+
+#. Label of the distance to an edge, or of the size, of a pinned widget in a stack.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.pinValue"
+msgstr "{edge, select, left {Links} top {Oben} right {Rechts} bottom {Unten} width {Breite} other {Höhe}}"
+
+#. A button of the stack pin editor; the widget keeps its distance to that edge.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.pin"
+msgstr "{edge, select, left {Links anheften} top {Oben anheften} right {Rechts anheften} bottom {Unten anheften} width {Breite festlegen} other {Höhe festlegen}}"
 
 #. Short name under the icon of a full-screen editor in the inspector; its button's name is the full phrase.
 #. js-lingui-explicit-id
@@ -1677,6 +1707,18 @@ msgstr "Alias"
 msgid "functions.aliasLabel"
 msgstr "Alias"
 
+#. One point of the alignment grid; start and end follow the reading direction.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.alignAt"
+msgstr "{v, select, start {Oben} center {Mitte} other {Unten}} {h, select, start {am Anfang} center {zentriert} other {am Ende}} ausrichten"
+
+#. Accessible name of the 3×3 grid that aligns a row's or column's children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.alignPad"
+msgstr "Kinder ausrichten"
+
 #. Toolbar menu: how the children of the selected widget's row or column line up across it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -2431,6 +2473,12 @@ msgstr "Authentifizierungscode"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.owner"
 msgstr "Autor"
+
+#. Heading of the editor of how a row, column, flex or wrap lays out its children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.autoLayout"
+msgstr "Auto-Layout"
 
 #. Measured time from the server accepting an autosave to the device applying it (NFR-030).
 #. js-lingui-explicit-id
@@ -3258,6 +3306,12 @@ msgstr "Filter zurücksetzen"
 msgid "panels.clearSelection"
 msgstr "Auswahl aufheben"
 
+#. Button that removes every property a size class overrides.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.clearOverrides"
+msgstr "Überschreibungen für {bp, select, medium {Mittel} other {Erweitert}} löschen"
+
 #. Last line of a widget's details in the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3533,6 +3587,12 @@ msgstr "Farb-Tokens"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.swatches"
 msgstr "Farben im Modus {mode}"
+
+#. Children one under the other.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.column"
+msgstr "Spalte"
 
 #. Density option.
 #. js-lingui-explicit-id
@@ -4782,6 +4842,12 @@ msgstr "Unterschiede zwischen den beiden Snapshots"
 msgid "approvals.simDistinctTeams"
 msgstr "verschiedene Teams"
 
+#. Whether children go in a row or a column.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.direction"
+msgstr "Richtung"
+
 #. Label of a linear gradient's direction.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -4811,6 +4877,12 @@ msgstr "Schließen"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.dismiss"
 msgstr "Checkliste ausblenden"
+
+#. How a row's or column's free space is shared between its children.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.distribution"
+msgstr "Verteilen"
 
 #. Label of the right dock tab that documents the selected widget.
 #. js-lingui-explicit-id
@@ -5094,6 +5166,12 @@ msgstr "Im Rust-Editor bearbeiten"
 msgid "pluginCanvas.inlineText"
 msgstr "Text bearbeiten"
 
+#. Button that switches the inspector to a size class.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.editOverrides"
+msgstr "Überschreibungen für {bp, select, medium {Mittel} other {Erweitert}} bearbeiten"
+
 #. Button that opens the mock dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -5123,6 +5201,12 @@ msgstr "Variablen im App-Dokument bearbeiten"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.editTitle"
 msgstr "Token {token} bearbeiten"
+
+#. Shown while the inspector edits a size class's overrides (WGT-010).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.editingClass"
+msgstr "Bearbeitung von {bp, select, medium {Mittel (600–839 dp)} other {Erweitert (ab 840 dp)}}: Ein hier gesetzter Wert überschreibt die kleineren Klassen."
 
 #. js-lingui-explicit-id
 #: apps/web/src/features/notifications/notification-kinds.ts
@@ -5999,6 +6083,12 @@ msgstr "Datei"
 msgid "shell.api.files"
 msgstr "Dateien"
 
+#. Takes the free space of its row or column.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.fill"
+msgstr "Füllen"
+
 #. Section of the decoration editor: the box's colour.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -6076,6 +6166,12 @@ msgstr "Korrigieren Sie die markierten Felder, bevor Sie das Experiment erstelle
 #: apps/web/src/features/json-editor/json-editor.messages.ts
 msgid "jsonEditor.invalid"
 msgstr "Behebe die folgenden Probleme, um zu übernehmen."
+
+#. Has a set size in pixels.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.fixed"
+msgstr "Fest"
 
 #. Label of the flag key field.
 #. js-lingui-explicit-id
@@ -6394,6 +6490,12 @@ msgstr "Trichter zählen die Sitzungen, die jeden Schritt erreichen und die Schr
 msgid "preview.frame.galaxy-a"
 msgstr "Galaxy A-Serie"
 
+#. Space between the children of a row, column or wrap.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.gap"
+msgstr "Abstand"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -6658,6 +6760,12 @@ msgstr "Gesund"
 msgid "l10n.area.heatmapLink"
 msgstr "Heatmap"
 
+#. A widget's height.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.height"
+msgstr "Höhe"
+
 #. Field label for the height of a frame.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -6856,6 +6964,12 @@ msgstr "Wie viel Platz Datenbank und Objektspeicher belegen."
 msgid "profile.appearance.caption"
 msgstr "Wie Studio aussieht und sich liest. Eine Änderung gilt sofort."
 
+#. Sized by its content.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.hug"
+msgstr "Anpassen"
+
 #. Field label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -7023,6 +7137,12 @@ msgstr "Verbessert"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.directionLabel"
 msgstr "Verbesserung"
+
+#. Heading of the edges a widget is pinned to in the stack it is in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.inStack"
+msgstr "In einem Stapel"
 
 #. Option: lost when the plugin closes.
 #. js-lingui-explicit-id
@@ -7860,6 +7980,12 @@ msgstr "Layout"
 msgid "panel.group.layout"
 msgstr "Layout"
 
+#. Accessible name of a constraint field; {what} is Width or Height.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.minOf"
+msgstr "Kleinste {what}"
+
 #. Button that leaves and discards changes.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -8543,6 +8669,12 @@ msgstr "Wie System folgt der hellen oder dunklen Einstellung Ihres Geräts."
 msgid "preview.material"
 msgstr "Material"
 
+#. Column heading: the most width or height; empty is unbounded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.most"
+msgstr "Max"
+
 #. Profile name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -8693,6 +8825,12 @@ msgstr "Migrationsvorschau"
 msgid "data.previewTitle"
 msgstr "Migrationsvorschau"
 
+#. Column heading: the least width or height.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.least"
+msgstr "Min"
+
 #. Status: the locale has no message for the key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -8782,6 +8920,12 @@ msgstr "Mehr"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.primariesLabel"
 msgstr "Weitere primäre Messgrößen (Ereignisse)"
+
+#. Accessible name of a constraint field; {what} is Width or Height.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.maxOf"
+msgstr "Größte {what}"
 
 #. Kind of widget in the Insert gallery: animations and transitions.
 #. js-lingui-explicit-id
@@ -9910,6 +10054,12 @@ msgstr "Nicht in deiner Lizenz enthalten"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.notInteractive"
 msgstr "Nicht interaktiv"
+
+#. Shown when a widget in a stack has no pins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.unpinned"
+msgstr "Nicht angeheftet: Die Ausrichtung des Stapels platziert es."
 
 #. Option.
 #. js-lingui-explicit-id
@@ -12400,6 +12550,12 @@ msgstr "{name} auf Basis zurücksetzen"
 msgid "designers.dbPlanReset"
 msgstr "Felder zurücksetzen (durch Komma getrennt)"
 
+#. Button that clears the widget's layout properties at the size class being edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.resetLayout"
+msgstr "Layout zurücksetzen"
+
 #. Button that removes a size class override.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -12825,11 +12981,23 @@ msgstr "Routenname"
 msgid "shell.field.router"
 msgstr "Router"
 
+#. Children side by side, along the reading direction.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.row"
+msgstr "Zeile"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.colRun"
 msgstr "Lauf"
+
+#. Space between the lines (runs) of a wrap.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.runGap"
+msgstr "Zeilenabstand"
 
 #. Button that builds the source and runs its stored test cases.
 #. js-lingui-explicit-id
@@ -13809,6 +13977,12 @@ msgstr "Form von {field}"
 msgid "shell.api.share"
 msgstr "Teilen"
 
+#. The flex factor: how much of the free space a filling child takes, relative to the others.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.flex"
+msgstr "Anteil"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -14079,6 +14253,12 @@ msgstr "Sechs Hexadezimalziffern nach einem Rautenzeichen, etwa {example}. Sie w
 msgid "publish.reportSize"
 msgstr "Größe"
 
+#. Whether a row or column is as long as its children (Hug) or as long as it may be (Fill).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.size"
+msgstr "Größe"
+
 #. Label of a text's font size.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -14102,6 +14282,12 @@ msgstr "Größenklasse"
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.sizeUnknown"
 msgstr "Größe nicht gemeldet"
+
+#. Heading of the properties a widget sets differently on medium or expanded windows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.overrides"
+msgstr "Überschreibungen je Größenklasse"
 
 #. Status.
 #. js-lingui-explicit-id
@@ -14606,6 +14792,12 @@ msgstr "Gespeicherte Tests"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.routeDirect"
 msgstr "Direkt zum Ursprung"
+
+#. Switch: every child takes the row's height or the column's width.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.stretch"
+msgstr "Kinder strecken"
 
 #. Profile name.
 #. js-lingui-explicit-id
@@ -17805,6 +17997,12 @@ msgstr "Warum ein Store-Build nötig ist"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layer1"
 msgstr "Widgets"
+
+#. A widget's width.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/layout-panel.messages.ts
+msgid "layout.width"
+msgstr "Breite"
 
 #. Label of a border's width.
 #. js-lingui-explicit-id

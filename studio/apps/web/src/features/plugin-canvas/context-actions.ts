@@ -51,7 +51,7 @@ const wrapperProps: Readonly<Record<string, Obj>> = {
 };
 
 /** Puts `child` into a fresh `type` node: as its list of children, or in its `child` slot. */
-function wrapperOf(type: string, id: string, child: unknown): Obj {
+export function wrapperOf(type: string, id: string, child: unknown): Obj {
   const d = widget(type);
   const props = wrapperProps[type];
   const base: Obj = { id, type, ...(props === undefined ? {} : { props }) };
@@ -63,7 +63,7 @@ function wrapperOf(type: string, id: string, child: unknown): Obj {
 }
 
 /** Puts `node` where `id` stands (a list or a slot). */
-function replaceAt(draft: unknown, id: string, make: (node: Obj) => Obj): void {
+export function replaceAt(draft: unknown, id: string, make: (node: Obj) => Obj): void {
   const p = findNode(draft, id);
   if (p === null || p.parent === null) {
     return;
