@@ -66,13 +66,22 @@ import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
 import { useHostFonts } from "./host-fonts.ts";
 import { type InlineEdit, InlineTextHost } from "./inline-text.tsx";
-import { LaneDialog, useLane } from "./lane-dialog.tsx";
+import { LaneDialog, type LaneTarget, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
 import type { ListState } from "./list-preview.ts";
 import { emptyLive, type LiveState } from "./live.ts";
 import { useLiveSurface } from "./live-surface.ts";
 import { dataSourcesOf, messagesFor, namedMocks, titledScreens } from "./look.ts";
+import { navigationMessages } from "./navigation.messages.ts";
+import {
+  declaredParams,
+  flowLayout,
+  linkParams,
+  setLinkParamRecipe,
+  setTransitionRecipe,
+  transitionOf,
+} from "./navigation.ts";
 import { resolveNodeParam } from "./node-path.ts";
 import { PagePartsHost, useShownDrawers } from "./page-parts.tsx";
 import { useBrands } from "./paint-theme.ts";
@@ -217,6 +226,12 @@ function nodeIn(
   const found = root === undefined ? null : findNode(root, id);
   return found === null ? undefined : (found.node as unknown as PluxNode);
 }
+
+/** The id of a parsed page document. */
+const pageIdOf = (parsed: unknown): string | undefined =>
+  typeof parsed === "object" && parsed !== null && typeof (parsed as { id?: unknown }).id === "string"
+    ? (parsed as { id: string }).id
+    : undefined;
 
 /** Node `id` of whichever screen holds it. */
 function nodeAcross(screens: readonly PlacedScreen[], id: string): unknown {
@@ -786,6 +801,28 @@ function PluginCanvasView({
     [store, screens, screenOf, edit, heldStyle, styleText],
   );
   useScopedCommands("plugin-style", styleCommandList);
+  // Arrange by flow (PC-28): a column per step from the entry screen, each screen at its laid-out height.
+  const navText = useMemo(() => navigationMessages(i18n), [i18n]);
+  const flowCommands = useMemo(
+    () => [
+      {
+        id: "canvas.arrangeFlow",
+        title: navText.arrange,
+        group: "screens" as const,
+        permission: null,
+        run: () => {
+          const model = readPlugin(live);
+          const ids = model.screens.map((s) => s.id);
+          const size = (id: string) => ({ w: device.width, h: Math.max(device.height, heights.get(id) ?? 0) + 48 });
+          if (screenPositions.commit(flowLayout(ids, model.entryPage, model.edges, size, 120))) {
+            setFocusNote(navText.arranged);
+          }
+        },
+      },
+    ],
+    [navText, live, device.width, device.height, heights, screenPositions],
+  );
+  useScopedCommands("plugin-flow", flowCommands);
   const clipboardSource = useMemo(
     () => ({
       ...(params.org === undefined ? {} : { organisation: params.org }),
@@ -1048,6 +1085,30 @@ function PluginCanvasView({
   const entryPage = pluginInfo?.entryPage;
 
   const { lane, setLane, site: laneSite, routes: laneRoutes } = useLane(screens, linkScreens, appScreens);
+  // The page a lane opens, when it is this plugin's: its parameters and transition, edited from the lane (PC-28).
+  const laneTarget = useMemo<LaneTarget | undefined>(() => {
+    const page = lane === null ? undefined : live.find((d) => d.kind === "page" && pageIdOf(d.parsed) === lane.target);
+    const source = lane === null ? undefined : screens.find((s) => s.id === lane.source)?.root;
+    if (lane === null || page === undefined || laneSite === undefined || source === undefined) {
+      return undefined;
+    }
+    return {
+      declared: declaredParams(page.parsed),
+      passed: linkParams(source, laneSite.nodeId, laneSite.link),
+      transition: transitionOf(page.parsed),
+      onParam: (name, value) =>
+        edit(lane.source, setLinkParamRecipe(laneSite.nodeId, laneSite.link, name, value), {
+          group: `lane-param:${lane.id}:${name}:${Date.now()}`,
+        }),
+      onTransition: (t) => {
+        if (canEdit) {
+          session.edit(page.path, (d) => setTransitionRecipe(t)(d as Record<string, unknown>), {
+            group: `transition:${lane.target}:${Date.now()}`,
+          });
+        }
+      },
+    };
+  }, [lane, live, screens, laneSite, edit, canEdit, session]);
 
   const resetZoom = () => zoomBy(1 / (surfaceRef.current?.viewport.zoom ?? 1));
   const showScreen = (id: string) => {
@@ -1357,6 +1418,7 @@ function PluginCanvasView({
                     site={laneSite}
                     routes={laneRoutes}
                     canEdit={canEdit}
+                    target={laneTarget}
                     onClose={() => setLane(null)}
                     onRedirect={(route) => {
                       if (laneSite !== undefined) {

@@ -73,6 +73,8 @@ export interface OwnScreen {
   readonly title: string;
   /** Routes this screen navigates to, in document order. */
   readonly targets: readonly string[];
+  /** The parameters each navigation passes, in the order of `targets` (PC-28). */
+  readonly targetParams?: readonly (Readonly<Record<string, unknown>> | undefined)[];
 }
 
 export interface GhostGraph {
@@ -140,7 +142,26 @@ function outsideTarget(
 }
 
 function edge(s: OwnScreen, index: number, target: string, targetTitle: string): NavigateEdge {
-  return { id: `${s.id}#${index}`, source: s.id, target, trigger: "navigate", title: `${s.title} → ${targetTitle}` };
+  const params = paramsLine(s.targetParams?.[index]);
+  const title = `${s.title} → ${targetTitle}${params === "" ? "" : ` (${params})`}`;
+  return { id: `${s.id}#${index}`, source: s.id, target, trigger: "navigate", title };
+}
+
+/**
+ * A link's parameters as its lane shows them (PC-28, NAV-001): each name with its value — a literal, or an
+ * expression as written — as `orderId: item.id, tab: 2`.
+ */
+export function paramsLine(params: Readonly<Record<string, unknown>> | undefined): string {
+  return Object.entries(params ?? {})
+    .map(([k, v]) => `${k}: ${paramText(v)}`)
+    .join(", ");
+}
+
+function paramText(v: unknown): string {
+  if (typeof v === "object" && v !== null && "$expr" in v) {
+    return String((v as { $expr: unknown }).$expr);
+  }
+  return typeof v === "string" ? `"${v}"` : JSON.stringify(v);
 }
 
 /** Ghost cards are the device frame at half size; a native node is a short card. */

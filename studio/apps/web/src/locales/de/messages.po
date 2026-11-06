@@ -1947,6 +1947,12 @@ msgstr "Immer (z. B. page.items.isNotEmpty)"
 msgid "notify.mute.locked"
 msgstr "Immer aktiv"
 
+#. Placeholder of a link parameter's value field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.paramHint"
+msgstr "Ein Ausdruck (item.id), eine Zahl, true oder false, oder \"Text\" in Anführungszeichen"
+
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -2431,6 +2437,12 @@ msgstr "Anordnen"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.autoLayout"
 msgstr "Anordnen"
+
+#. Command: lay the screens out in columns, a column per step from the entry screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.arrange"
+msgstr "Nach Ablauf anordnen"
 
 #. Explains why the AI prompt choice is disabled.
 #. js-lingui-explicit-id
@@ -9101,6 +9113,12 @@ msgstr "Fehlende Übersetzungen"
 msgid "l10n.area.heatTable"
 msgstr "Fehlende Übersetzungen nach Plugin und Sprache"
 
+#. Shown when a link leaves out parameters its page requires.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.missing"
+msgstr "Fehlt: {names}. Die Seite braucht sie zum Öffnen."
+
 #. Shown in a property field when the selected widgets have different values.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -10811,6 +10829,12 @@ msgstr "{title} geöffnet."
 msgid "publish.starting"
 msgstr "Die Release-Anfrage wird geöffnet"
 
+#. Label of the transition the opened page plays.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.opensWith"
+msgstr "Öffnet mit"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -11194,6 +11218,12 @@ msgstr "Gerät koppeln"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.link"
 msgstr "Kopplungslink"
+
+#. Heading of what a link passes to the page it opens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.params"
+msgstr "Parameter"
 
 #. Section heading: the typed values a page is opened with.
 #. js-lingui-explicit-id
@@ -12790,6 +12820,12 @@ msgstr "Anfragen sind an den Hardwareschlüssel des Geräts gebunden, und das Se
 msgid "approvals.historyCaption"
 msgstr "Anfragen, die freigegeben, abgelehnt, verwendet wurden oder abgelaufen sind."
 
+#. Marks a parameter the page requires.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.required"
+msgstr "erforderlich"
+
 #. Marks a required property in the docs tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -13760,6 +13796,12 @@ msgstr "Bildschirme"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.story.offline.body"
 msgstr "Bildschirme und Daten bleiben auf dem Gerät, sodass die App auch ohne Verbindung funktioniert."
+
+#. Status after Arrange by flow.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.arranged"
+msgstr "Bildschirme nach Ablauf angeordnet"
 
 #. Label of the list of the plugin's screens, in the order the navigation flow reaches them.
 #. js-lingui-explicit-id
@@ -16262,6 +16304,12 @@ msgstr "Die Seite hat noch kein Formular. Fügen Sie eines unter Seite › Formu
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.problemPage"
 msgstr "Die Seite braucht einen Routennamen."
+
+#. Shown when the opened page declares none.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/navigation.messages.ts
+msgid "nav.noParams"
+msgstr "Die Seite nimmt keine Parameter."
 
 #. Shown when the passkey prompt fails or is cancelled.
 #. js-lingui-explicit-id

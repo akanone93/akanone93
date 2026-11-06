@@ -62,7 +62,13 @@ export function menuEntries(
   const c = (id: string, danger = false) => commandItem(states, id, danger);
   const item = (id: string, label: string, onSelect: () => void): Item => ({ kind: "item", id, label, onSelect });
   if (target === "canvas") {
-    return [...c("screen.new"), ...c("edit.paste"), sep("view"), item("fit", m.fitAll, actions.fitAll)];
+    return [
+      ...c("screen.new"),
+      ...c("edit.paste"),
+      sep("view"),
+      item("fit", m.fitAll, actions.fitAll),
+      ...c("canvas.arrangeFlow"),
+    ];
   }
   if (target === "screen") {
     return [

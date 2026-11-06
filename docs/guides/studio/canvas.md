@@ -245,7 +245,12 @@ Under **Actions › Quick actions**, pick the event and a common action — **Op
 message** (with an optional button), **Open a link**, **Go back**, **Set state** or **Submit a form** — and **Add
 action**: it replaces what the event runs, or runs after it. **What its events run** lists every step, each with a
 button to remove it. A selected widget that shows a message draws it at the bottom of its screen as the device's
-snackbar shows it, above the navigation bar, with the action button lifted over it. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+snackbar shows it, above the navigation bar, with the action button lifted over it. An arrow's lane names the
+parameters its link passes (`Orders → Order (orderId: item.id)`); pick a lane to give the page it opens each parameter
+the page declares — an expression such as `item.id`, a number, `true` or `false`, or `"text"` in quotes — with the
+required ones it misses named, and choose the transition the page **Opens with**. **Arrange by flow** (in the canvas
+menu and the command palette) lays the screens out in columns, a column per step from the entry screen, the screens
+no link reaches last. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

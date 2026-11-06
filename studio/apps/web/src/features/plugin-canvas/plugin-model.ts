@@ -23,6 +23,8 @@ export interface Screen {
   readonly root: Node | undefined;
   /** Routes this screen navigates to. */
   readonly targets: readonly string[];
+  /** The parameters each navigation passes, in the order of `targets` (PC-28). */
+  readonly targetParams?: readonly (Readonly<Record<string, unknown>> | undefined)[];
 }
 
 export interface PluginModel {
@@ -98,20 +100,24 @@ export function pageStates(
 const OPENING: ReadonlySet<string> = new Set(["navigate", "openDialog", "openBottomSheet"]);
 
 /** Every route `value` opens (`navigate`, `openDialog`, `openBottomSheet`), in document order. */
-function navigations(value: unknown, out: string[]): void {
+function navigations(value: unknown, out: string[], params?: (Readonly<Record<string, unknown>> | undefined)[]): void {
   if (Array.isArray(value)) {
     for (const v of value) {
-      navigations(v, out);
+      navigations(v, out, params);
     }
   } else if (value !== null && typeof value === "object") {
     const o = value as Record<string, unknown>;
-    const route = (o["input"] as { route?: unknown } | undefined)?.route;
+    const input = o["input"] as { route?: unknown; params?: unknown } | undefined;
     // A screen opens another by `navigate`, a dialog page by `openDialog` and a sheet page by `openBottomSheet`.
-    if (OPENING.has(String(o["action"])) && typeof route === "string") {
-      out.push(route);
+    if (OPENING.has(String(o["action"])) && typeof input?.route === "string") {
+      out.push(input.route);
+      const p = input.params;
+      params?.push(
+        p !== null && typeof p === "object" && !Array.isArray(p) ? (p as Record<string, unknown>) : undefined,
+      );
     }
     for (const v of Object.values(o)) {
-      navigations(v, out);
+      navigations(v, out, params);
     }
   }
 }
@@ -198,7 +204,8 @@ export function readPlugin(documents: readonly DocLike[]): PluginModel {
   const screens: Screen[] = pages.map((p) => {
     const root = p.root as Node | undefined;
     const targets: string[] = [];
-    navigations(root, targets);
+    const targetParams: (Readonly<Record<string, unknown>> | undefined)[] = [];
+    navigations(root, targets, targetParams);
     const route = typeof p.route === "string" ? p.route : String(p.key ?? p.id);
     const key = titleKeyOf(p.title);
     return {
@@ -209,6 +216,7 @@ export function readPlugin(documents: readonly DocLike[]): PluginModel {
       ...(key === undefined ? {} : { titleKey: key }),
       root,
       targets,
+      targetParams,
     };
   });
   const byRoute = new Map(screens.map((s) => [s.route, s.id]));
