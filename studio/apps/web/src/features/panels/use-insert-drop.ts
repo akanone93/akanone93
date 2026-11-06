@@ -5,11 +5,12 @@ import type { WidgetDescriptor } from "@plux/schema";
 import type { DragEvent } from "react";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { GestureEnv } from "../plugin-canvas/select/gesture.ts";
-import { itemIdOf, type NodeIndex } from "../plugin-canvas/select/tree.ts";
+import { itemIdOf, type NodeIndex, nodeIdOfHit } from "../plugin-canvas/select/tree.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { ASSET_DRAG_TYPE } from "./assets-tab.tsx";
 import { WIDGET_DRAG_TYPE } from "./insert-pane.tsx";
 import { dropTarget, insertWidget, type PanelModel } from "./model.ts";
+import { setPropRecipe } from "./properties-model.ts";
 
 interface Args {
   readonly surface: () => CanvasSurface | null;
@@ -20,6 +21,43 @@ interface Args {
   readonly screenOf: ReadonlyMap<string, string>;
   readonly canEdit: boolean;
   readonly descriptors: readonly WidgetDescriptor[];
+}
+
+/** Where a drop target puts a new widget: at its index, in its slot, or at a Stack position. */
+function placeOf(t: NonNullable<ReturnType<typeof dropTarget>>) {
+  return {
+    parent: t.parent,
+    index: t.index,
+    slot: t.slot ?? null,
+    ...(t.position === undefined ? {} : { at: t.position }),
+  };
+}
+
+/** The props of an `Image` dragged in from the Assets tab: the asset, covering its box (AST-002). */
+const assetProps = (asset: string) =>
+  asset === "" ? undefined : { source: { asset: { $asset: asset } }, fit: "cover" };
+
+/** The image props of the widgets an asset can be dropped on. */
+const IMAGE_PROPS: Readonly<Record<string, string>> = { Image: "source", CircleAvatar: "backgroundImage" };
+
+/** Sets the picture of the image or avatar under world point `w` to `asset`; false when there is none. */
+function replaceImage(a: Args, w: { x: number; y: number }, asset: string): boolean {
+  const s = a.surface();
+  const box = a.canvas()?.getBoundingClientRect();
+  if (s === null || box === undefined || !a.canEdit) {
+    return false;
+  }
+  const hits = s.hitTest?.((w.x - s.viewport.x) * s.viewport.zoom, (w.y - s.viewport.y) * s.viewport.zoom) ?? [];
+  for (const hit of hits) {
+    const id = nodeIdOfHit(hit);
+    const prop = IMAGE_PROPS[a.index.type.get(id) ?? ""];
+    const doc = a.screenOf.get(id);
+    if (prop !== undefined && doc !== undefined) {
+      a.edit(doc, setPropRecipe(id, "compact", prop, { asset: { $asset: asset } }), { group: `asset:${id}` });
+      return true;
+    }
+  }
+  return false;
 }
 
 /** Drag-over and drop handlers for the canvas element: a dragged widget shows the S2.5 insertion indicator and lands at it. */
@@ -70,17 +108,13 @@ export function insertDropHandlers(a: Args) {
         return;
       }
       e.preventDefault();
+      // An asset dropped on an image or an avatar replaces its picture (PC-20).
+      if (asset !== "" && replaceImage(a, w, asset)) {
+        return;
+      }
       const t = dropTarget(env(), w.x, w.y);
       if (t !== null) {
-        insertWidget(
-          d,
-          { parent: t.parent, index: t.index, slot: null, ...(t.position === undefined ? {} : { at: t.position }) },
-          a.edit,
-          (id) => a.screenOf.get(id),
-          a.canEdit,
-          undefined,
-          asset === "" ? undefined : { source: { asset: { $asset: asset } }, fit: "cover" },
-        );
+        insertWidget(d, placeOf(t), a.edit, (id) => a.screenOf.get(id), a.canEdit, undefined, assetProps(asset));
       }
     },
   };

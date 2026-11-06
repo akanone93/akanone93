@@ -184,7 +184,10 @@ resizing a widget snaps its width and height to a dimension token near them the 
 above the selected widget: **Wrap in** a container (a column, a row, a container, a padding, a card…), **Convert to** a
 related widget (a column to a row, a filled button to an outlined one; the props both have and the children are kept),
 **Add after** it a text, a button, an icon, a space, a divider, an image or a box, **Align in row or column** to line up
-the children of the row or column it is in, **Duplicate**, **Add an action** (opens **Actions**) and **Delete**. An app bar shows the button it implies on the
+the children of the row or column it is in, **Duplicate**, **Add an action** (opens **Actions**) and **Delete**. Drag a widget anywhere: among its siblings, into
+another row, column or stack, into an empty padding, centre, card, box or any other widget that holds one child, or
+onto another screen, where it lands at the drop as one undo step across both pages. An image dragged from **Assets**
+onto an image or an avatar replaces its picture; dropped anywhere else it adds an image. An app bar shows the button it implies on the
 device: the menu with a drawer, back on a page another opens, close on a full-screen dialog. Screens are drawn in the app theme's colours: switch **Theme** to **Dark**, or choose a **Brand** under
 **Preview**, and they recolour. A colour property opens a picker with the theme's colours, its colour tokens and a
 custom colour with its opacity; a decoration has its own editor for fill, gradient, corners (or a circle), border and

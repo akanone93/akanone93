@@ -2,14 +2,19 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Guides } from "@plux/canvas";
+import { widget } from "@plux/schema";
 import { uuidv7 } from "../screens.ts";
 import {
   duplicateRecipe,
   type EditFn,
+  intoSlotRecipe,
   moveRecipe,
+  putAtRecipe,
+  putInSlotRecipe,
   reparentRecipe,
   resizeRecipe,
   stackDropRecipe,
+  takeOutRecipe,
   unwrapRecipe,
   wrapRecipe,
 } from "./edits.ts";
@@ -55,25 +60,52 @@ export interface GestureEnv {
 
 const FLOW_TYPES = new Set(["Row", "Column", "Wrap", "Flex", "Stack"]);
 
+/** The slot an empty single-child holder (a `Padding`, a `Center`, a `Card`, a `SizedBox`…) takes a drop in (PC-20). */
+function emptySlotOf(type: string, kids: readonly string[]): string | undefined {
+  const d = widget(type);
+  if (d === undefined || d.children !== undefined || kids.length > 0) {
+    return undefined;
+  }
+  return d.slots.some((s) => s.name === "child") ? "child" : undefined;
+}
+
 /** The flow containers that take a drop, with their children's boxes; only those of screen `doc` when given. */
 export function containersOf(env: GestureEnv, doc?: string): Container[] {
   const out: Container[] = [];
   for (const [id, kids] of env.index.children) {
-    const type = env.typeOf(id);
-    const box = env.boxOf(id);
-    if (box === undefined || type === undefined || !FLOW_TYPES.has(type)) {
-      continue;
+    const c = containerOf(env, id, kids, doc);
+    if (c !== undefined) {
+      out.push(c);
     }
-    if (doc !== undefined && env.docOf(id) !== doc) {
-      continue;
-    }
-    const children = kids.flatMap((k) => {
-      const b = env.boxOf(k);
-      return b === undefined ? [] : [{ id: k, box: b }];
-    });
-    out.push({ id, box, axis: type === "Row" ? "row" : type === "Stack" ? "stack" : "column", children });
   }
   return out;
+}
+
+/** Node `id` as a container that takes a drop: a flow container, or an empty single-child holder; else undefined. */
+function containerOf(
+  env: GestureEnv,
+  id: string,
+  kids: readonly string[],
+  doc: string | undefined,
+): Container | undefined {
+  const type = env.typeOf(id);
+  const box = env.boxOf(id);
+  if (box === undefined || type === undefined || (doc !== undefined && env.docOf(id) !== doc)) {
+    return undefined;
+  }
+  const flow = FLOW_TYPES.has(type);
+  const slot = flow ? undefined : emptySlotOf(type, kids);
+  if (!flow && slot === undefined) {
+    return undefined;
+  }
+  const children = kids.flatMap((k) => {
+    const b = env.boxOf(k);
+    return b === undefined ? [] : [{ id: k, box: b }];
+  });
+  if (slot !== undefined) {
+    return { id, box, axis: "slot", children, slot };
+  }
+  return { id, box, axis: type === "Row" ? "row" : type === "Stack" ? "stack" : "column", children };
 }
 
 /**
@@ -107,8 +139,8 @@ export function dropAt(env: GestureEnv, ids: readonly string[], x: number, y: nu
       position: { left: px - Math.round(box.l), top: py - Math.round(box.t) },
     };
   }
-  const doc = first === undefined ? undefined : env.docOf(first);
-  return resolveDrop(env.index, containersOf(env, doc), ids, x, y);
+  // Any screen's containers take a drop: a widget moves onto another screen as well (PC-20).
+  return resolveDrop(env.index, containersOf(env), ids, x, y);
 }
 
 /** The insertion indicator while dragging \`ids\` over flow containers at world point (x, y). */
@@ -131,6 +163,15 @@ export function finishMove(
     return;
   }
   const drop = dropAt(env, [id], x, y);
+  const to = drop === null ? undefined : env.docOf(drop.parent);
+  if (drop !== null && to !== undefined && to !== doc && drop.position === undefined) {
+    moveAcross(env, id, doc, to, drop);
+    return;
+  }
+  if (drop?.slot !== undefined) {
+    env.edit(doc, intoSlotRecipe(id, drop.parent, drop.slot), { group: "move" });
+    return;
+  }
   const parent = env.index.parent.get(id);
   const sameStack = parent === drop?.parent || (parent != null && env.index.parent.get(parent) === drop?.parent);
   if (drop?.position !== undefined && !sameStack) {
@@ -144,6 +185,35 @@ export function finishMove(
     return;
   }
   env.edit(doc, moveRecipe(id, delta.x, delta.y), { group: "move" });
+}
+
+/**
+ * A widget moved onto another screen: taken out of its page and put into the other at the drop, one undo step across
+ * the two pages (PC-20). Its ids are kept: they are unique in the app.
+ */
+function moveAcross(env: GestureEnv, id: string, from: string, to: string, drop: DropTarget): void {
+  const group = `move-across:${id}:${Date.now()}`;
+  let taken: unknown;
+  env.edit(
+    from,
+    takeOutRecipe(id, (node) => {
+      taken = node;
+    }),
+    { group },
+  );
+  if (taken === undefined) {
+    return;
+  }
+  const node = taken;
+  env.edit(
+    to,
+    drop.slot !== undefined
+      ? putInSlotRecipe(node, drop.parent, drop.slot)
+      : putAtRecipe(node, drop.parent, drop.index),
+    {
+      group,
+    },
+  );
 }
 
 /** Whether a drop into the dragged node's own list puts it at another place than where it is. */

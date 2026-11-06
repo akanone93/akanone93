@@ -301,3 +301,64 @@ export function duplicateRecipe(id: string, fresh: (oldId: string) => string): (
     p.list.splice(p.index + 1, 0, cloneWithFreshIds(JSON.parse(JSON.stringify(p.node)), fresh).node);
   };
 }
+
+/** Takes node `id` out of its list or slot and hands it to `taken` (a move to another page, PC-20). */
+export function takeOutRecipe(id: string, taken: (node: unknown) => void): (draft: unknown) => void {
+  return (draft) => {
+    const p = findNode(draft, id);
+    if (p === null || p.parent === null) {
+      return;
+    }
+    if (p.list !== null) {
+      p.list.splice(p.index, 1);
+    } else if (p.slot !== null && isObj(p.parent.slots)) {
+      delete p.parent.slots[p.slot];
+    } else {
+      return;
+    }
+    // A plain copy: the draft the recipe runs on is gone once the edit ends, and the node goes to another page.
+    taken(JSON.parse(JSON.stringify(p.node)) as unknown);
+  };
+}
+
+/** Puts `node` into `parent`'s children at `index`. */
+export function putAtRecipe(node: unknown, parent: string, index: number): (draft: unknown) => void {
+  return (draft) => {
+    const target = findNode(draft, parent);
+    if (target === null) {
+      return;
+    }
+    const kids = Array.isArray(target.node.children) ? (target.node.children as unknown[]) : [];
+    kids.splice(Math.min(index, kids.length), 0, node);
+    target.node.children = kids;
+  };
+}
+
+/** Puts `node` into `parent`'s `slot`. */
+export function putInSlotRecipe(node: unknown, parent: string, slot: string): (draft: unknown) => void {
+  return (draft) => {
+    const target = findNode(draft, parent);
+    if (target === null) {
+      return;
+    }
+    const slots = isObj(target.node.slots) ? target.node.slots : {};
+    slots[slot] = node;
+    target.node.slots = slots;
+  };
+}
+
+/** Moves node `id` into the empty `slot` of `parent` in the same page (PC-20); nothing when `parent` is inside it. */
+export function intoSlotRecipe(id: string, parent: string, slot: string): (draft: unknown) => void {
+  return (draft) => {
+    if (findNode(findNode(draft, id)?.node, parent) !== null) {
+      return;
+    }
+    let taken: unknown;
+    takeOutRecipe(id, (node) => {
+      taken = node;
+    })(draft);
+    if (taken !== undefined) {
+      putInSlotRecipe(taken, parent, slot)(draft);
+    }
+  };
+}

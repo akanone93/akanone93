@@ -8,7 +8,9 @@ import { lineage, type NodeIndex } from "./tree.ts";
 export interface Container {
   readonly id: string;
   readonly box: Box;
-  readonly axis: "row" | "column" | "stack";
+  readonly axis: "row" | "column" | "stack" | "slot";
+  /** For an empty single-child holder (`axis` "slot"): the slot a drop fills (PC-20). */
+  readonly slot?: string;
   /** Child boxes in order. */
   readonly children: readonly { readonly id: string; readonly box: Box }[];
 }
@@ -20,6 +22,8 @@ export interface DropTarget {
   readonly indicator: Box;
   /** Set for a Stack: the drop point in the Stack's coordinates, rounded to 1 px (F5). */
   readonly position?: { readonly left: number; readonly top: number };
+  /** Set for an empty single-child holder: the slot the drop fills (PC-20). */
+  readonly slot?: string;
 }
 
 const inside = (b: Box, x: number, y: number): boolean => x >= b.l && x <= b.r && y >= b.t && y <= b.b;
@@ -42,6 +46,10 @@ export function resolveDrop(
   const c = candidates[0];
   if (c === undefined) {
     return null;
+  }
+  if (c.axis === "slot") {
+    // An empty slot takes the drop whole: the indicator is the holder's box.
+    return { parent: c.id, index: 0, indicator: c.box, slot: c.slot ?? "child" };
   }
   if (c.axis === "stack") {
     const [px, py] = [Math.round(x), Math.round(y)];
