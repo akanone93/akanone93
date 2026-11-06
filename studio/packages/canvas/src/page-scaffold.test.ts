@@ -124,6 +124,24 @@ describe("PC-12 a page's scaffold laid out in place [STU-005]", () => {
     expect(items.get("s/fab#paint0")?.y).toBe(844 - 114 - 48 - 16 - 56);
   });
 
+  test("PC-29 a Transform aligned by a named alignment lays its child out and moves it", () => {
+    const card = { id: "card", type: "Card", slots: { child: text("t", "Ada") } };
+    const { items } = lay({
+      id: "col",
+      type: "Column",
+      children: [
+        {
+          id: "tr",
+          type: "Transform",
+          props: { offset: { dx: 0, dy: 20 }, scale: 1, alignment: "center" },
+          slots: { child: card },
+        },
+      ],
+    } as never);
+    expect(items.has("s/card#paint0")).toBe(true);
+    expect(items.has("s/t")).toBe(true);
+  });
+
   test("without a bottom bar the button keeps clear of the home indicator", () => {
     const { items } = lay({
       id: "sc",

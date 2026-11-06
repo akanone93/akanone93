@@ -21,6 +21,7 @@ import { ExtractKeyDialog, localisationMessages, useL10nSessions } from "../loca
 import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
 import { LIST_TYPES } from "../plugin-canvas/list-preview.ts";
+import { setAnimationRecipe } from "../plugin-canvas/motion.ts";
 import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { type EditFn, findNode } from "../plugin-canvas/select/edits.ts";
@@ -40,6 +41,7 @@ import { ImageSourceField } from "./image-field.tsx";
 import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingRecipe } from "./layout-model.ts";
 import { ConstraintsEditor, LayoutPanel } from "./layout-panel.tsx";
 import { addStateRecipe, ListPanel } from "./list-panel.tsx";
+import { MotionPanel } from "./motion-panel.tsx";
 import { pageSettingsMessages } from "./page-settings.messages.ts";
 import { PageSettingsTab } from "./page-settings.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
@@ -619,6 +621,8 @@ interface DockProps {
   readonly validatePage?: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   /** The PXL language service of the loaded project (PXL-007); the inline PXL fields use it. */
   readonly language?: PxlLanguage | undefined;
+  /** How many widgets of other screens share a widget's hero tag (PC-29). */
+  readonly heroCount?: ((id: string) => number) | undefined;
   /** A condition's design-time value for a widget (PC-25); undefined when only a device knows it. */
   readonly decide?: ((id: string, expr: string) => boolean | undefined) | undefined;
   /** What the canvas draws for a widget's bound expression (PC-23), from page mocks, state defaults and data mocks. */
@@ -942,6 +946,13 @@ function SelectionPanels(props: {
         canEdit={canEdit}
         decide={(expr) => p.decide?.(first, expr)}
         setVisible={(value) => edit(setVisibleRecipe(first, value), `visible:${first}:${Date.now()}`)}
+      />
+      <MotionPanel
+        id={first}
+        node={node}
+        canEdit={canEdit}
+        heroCount={p.heroCount?.(first) ?? 0}
+        set={(key, value) => edit(setAnimationRecipe(first, key, value), `motion:${first}:${key}:${Date.now()}`)}
       />
       {INPUT_TYPES[props.type] !== undefined && (
         <FormFieldPanel

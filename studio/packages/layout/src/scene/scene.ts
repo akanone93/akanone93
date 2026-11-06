@@ -411,13 +411,20 @@ const directionalPresets: Readonly<Record<string, readonly [number, number]>> = 
   bottomEnd: [1, 1],
 };
 
-/** An alignment as a scene (`[x, y]`, `{start, y}`) or a document (`{x, y}`, `{start, y}`, a named preset) spells it. */
+/**
+ * An alignment as a scene (`[x, y]`, `{start, y}`) or a document (`{x, y}`, `{start, y}`, a named preset, or the
+ * preset's name) spells it.
+ */
 export function alignment(value: unknown): AlignmentGeometry {
   if (value === undefined) {
     return Alignment.center;
   }
   if (Array.isArray(value)) {
     return new Alignment(num(value[0], "x"), num(value[1], "y"));
+  }
+  // A document names an alignment by its constant (`"center"`, `"topEnd"`), as the inspector writes it.
+  if (typeof value === "string") {
+    return namedAlignment(value) ?? Alignment.center;
   }
   const parts = value as Record<string, unknown>;
   if ("start" in parts) {
@@ -427,16 +434,22 @@ export function alignment(value: unknown): AlignmentGeometry {
     return new Alignment(num(field(parts, "x"), "x"), num(field(parts, "y") ?? 0, "y"));
   }
   for (const name of Object.keys(parts)) {
-    const flat = alignmentPresets[name];
-    if (flat !== undefined) {
-      return new Alignment(flat[0], flat[1]);
-    }
-    const directional = directionalPresets[name];
-    if (directional !== undefined) {
-      return new AlignmentDirectional(directional[0], directional[1]);
+    const named = namedAlignment(name);
+    if (named !== undefined) {
+      return named;
     }
   }
   return Alignment.center;
+}
+
+/** The alignment a preset names (`center`, `topEnd`), if it is one. */
+function namedAlignment(name: string): AlignmentGeometry | undefined {
+  const flat = alignmentPresets[name];
+  if (flat !== undefined) {
+    return new Alignment(flat[0], flat[1]);
+  }
+  const directional = directionalPresets[name];
+  return directional === undefined ? undefined : new AlignmentDirectional(directional[0], directional[1]);
 }
 
 function singleChild(node: SceneNode, children: RenderBox[]): RenderBox | null {

@@ -66,6 +66,8 @@ export interface InteractionInput {
   readonly bindings?: ReadonlyMap<string, readonly BindingMark[]>;
   /** The steps each widget's events run, drawn as badges (PC-27). */
   readonly events?: ReadonlyMap<string, readonly HandlerStep[]>;
+  /** The widgets of other screens that share a widget's hero tag (PC-29). */
+  readonly heroes?: (id: string) => readonly string[];
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -276,6 +278,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       ...(input.problems === undefined ? {} : { problems: input.problems }),
       ...(input.bindings === undefined ? {} : { bindings: input.bindings }),
       ...(input.events === undefined ? {} : { events: input.events }),
+      ...(input.heroes === undefined ? {} : { heroes: input.heroes }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
@@ -292,6 +295,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       input.problems,
       input.bindings,
       input.events,
+      input.heroes,
       input.screens,
     ],
   );

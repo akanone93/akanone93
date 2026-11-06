@@ -96,3 +96,49 @@
 .cond-worked[data-result="false"] {
   color: color-mix(in oklch, oklch(0.62 0.16 40) 80%, var(--foreground));
 }
+
+/* The motion panel (PC-29): transitions with their play buttons, implicit animation, hero tag. */
+.motion-block {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.motion-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing) * 2);
+}
+
+.motion-play {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  block-size: calc(var(--spacing) * 6);
+  padding-inline: calc(var(--spacing) * 2);
+  border-radius: 999px;
+  color: var(--primary-foreground);
+  background-color: var(--primary);
+  font-size: 0.6875rem;
+}
+
+.motion-play:hover {
+  background-color: color-mix(in oklch, var(--primary) 85%, black);
+}
+
+.motion-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.motion-pair > :nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.motion-ms,
+.motion-hero {
+  block-size: calc(var(--spacing) * 8);
+  font-size: var(--text-xs);
+}

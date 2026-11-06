@@ -250,7 +250,12 @@ parameters its link passes (`Orders → Order (orderId: item.id)`); pick a lane 
 the page declares — an expression such as `item.id`, a number, `true` or `false`, or `"text"` in quotes — with the
 required ones it misses named, and choose the transition the page **Opens with**. **Arrange by flow** (in the canvas
 menu and the command palette) lays the screens out in columns, a column per step from the entry screen, the screens
-no link reaches last. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+no link reaches last. Every widget has **Motion** in its properties: an **Enter** and an **Exit** transition (fade,
+scale, or a slide in any direction) with its duration and curve — **Play enter** and **Play exit** play it on the
+canvas, as the device would — **Animate changes** (its numbers and colours animate when their bound value changes,
+with a duration, a delay and a curve), a **Hero tag** (widgets of other screens with the same tag are outlined while
+it is selected: it flies to them when one opens the other), and what it does when the device asks to **Reduce
+motion**. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

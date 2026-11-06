@@ -370,6 +370,12 @@ msgstr "{count} warnings acknowledged"
 msgid "panels.multi"
 msgstr "{count} widgets selected; showing shared properties."
 
+#. An animation curve, as Flutter's Curves name them; Standard is Material's fastOutSlowIn.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.curve"
+msgstr "{curve, select, linear {Linear} easeIn {Ease in} easeOut {Ease out} easeInOut {Ease in and out} fastOutSlowIn {Standard} decelerate {Decelerate} bounceIn {Bounce in} bounceOut {Bounce out} elasticOut {Elastic} overshoot {Overshoot} other {Curve}}"
+
 #. A linear gradient's direction.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -622,6 +628,12 @@ msgstr "{kind, select, dialog {No dialog page yet: add one with New screen › D
 msgid "style.gradientKind"
 msgstr "{kind, select, none {No gradient} linear {Linear} radial {Radial} sweep {Sweep} other {Gradient}}"
 
+#. An enter or exit transition of a widget (ANI-003).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.kind"
+msgstr "{kind, select, none {None} fade {Fade} scale {Scale} slideUp {Slide up} slideDown {Slide down} slideLeft {Slide left} slideRight {Slide right} other {Transition}}"
+
 #. A quick action an event can run.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/quick-actions.messages.ts
@@ -639,6 +651,12 @@ msgstr "{kind, select, required {Required} length {Length} range {Range} regex {
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.shapeKind"
 msgstr "{kind, select, roundedRectangle {Rounded rectangle} stadium {Pill} circle {Circle} beveledRectangle {Bevelled rectangle} continuousRectangle {Smooth rectangle} other {Shape}}"
+
+#. Skip jumps to the end, Shorten plays a quarter of the duration, Play as declared keeps the motion.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.reduceKind"
+msgstr "{kind, select, skip {Skip} shorten {Shorten} ignore {Play as declared} other {Default}}"
 
 #. A shadow preset of the decoration editor, by Material elevation, e.g. Elevation 3.
 #. js-lingui-explicit-id
@@ -687,6 +705,12 @@ msgstr "{mode}: {n} colours"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.loan-months"
 msgstr "{months} months"
+
+#. How many widgets of other screens share the hero tag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.heroMatches"
+msgstr "{n, plural, =0 {No other widget has this tag yet} one {Flies to # widget, outlined on the canvas} other {Flies to # widgets, outlined on the canvas}}"
 
 #. Number of apps shown after the filters; announced politely when it changes.
 #. js-lingui-explicit-id
@@ -933,6 +957,12 @@ msgstr "{percent}%"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.buildProgress"
 msgstr "{percent}% {stage}"
+
+#. Button that plays the widget's transition on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.play"
+msgstr "{phase, select, enter {Play enter} other {Play exit}}"
 
 #. A branch the canvas draws; From data follows the condition's design-time value.
 #. js-lingui-explicit-id
@@ -1976,6 +2006,12 @@ msgstr "Android application ID"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.frame.android-tablet"
 msgstr "Android tablet"
+
+#. Switch: the widget's numbers and colours animate when their bound value changes (ANI-001).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.animate"
+msgstr "Animate changes"
 
 #. Error under the name field when the name is in use.
 #. js-lingui-explicit-id
@@ -4296,6 +4332,12 @@ msgstr "Cupertino"
 msgid "pluginCanvas.currentScreen"
 msgstr "Current screen"
 
+#. Label of an animation's curve.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.curveLabel"
+msgstr "Curve"
+
 #. Heading of the custom colour in the colour picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -4613,6 +4655,12 @@ msgstr "Definition"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.health.warn"
 msgstr "Degraded"
+
+#. Label of an implicit animation's delay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.delay"
+msgstr "Delay (ms)"
 
 #. Button that confirms deleting a screen.
 #. js-lingui-explicit-id
@@ -5238,6 +5286,12 @@ msgstr "Duration"
 msgid "publish.rollout.stageMinutes"
 msgstr "Duration (minutes)"
 
+#. Label of an animation's duration in milliseconds.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.duration"
+msgstr "Duration (ms)"
+
 #. Column: how long a replay lasted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -5494,6 +5548,12 @@ msgstr "Ended"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.abortHint"
 msgstr "Ends the rollout and returns the channel to its previous release. A security check is required."
+
+#. The transition a widget plays when it appears.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.enter"
+msgstr "Enter"
 
 #. Error for a custom colour that is not six hexadecimal digits after a hash sign.
 #. js-lingui-explicit-id
@@ -5962,6 +6022,12 @@ msgstr "Exclude from semantics"
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.mapTarget"
 msgstr "Existing item to use for {id}"
+
+#. The transition a widget plays when it goes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.exit"
+msgstr "Exit"
 
 #. Button of the Layers tab: opens every row of the tree.
 #. js-lingui-explicit-id
@@ -7017,6 +7083,12 @@ msgstr "Help"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.footer.label"
 msgstr "Help links"
+
+#. Label of the tag of a shared-element transition (ANI-004).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.hero"
+msgstr "Hero tag"
 
 #. Label of the hexadecimal colour field, e.g. 6750A4.
 #. js-lingui-explicit-id
@@ -9190,6 +9262,12 @@ msgstr "More primary metric events"
 #: apps/web/src/features/panels/layout-panel.messages.ts
 msgid "layout.maxOf"
 msgstr "Most {what}"
+
+#. Heading of a widget's animations.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.title"
+msgstr "Motion"
 
 #. Kind of widget in the Insert gallery: animations and transitions.
 #. js-lingui-explicit-id
@@ -12261,6 +12339,12 @@ msgstr "Redo"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.edit.redo.alt"
 msgstr "Redo (Ctrl+Y)"
+
+#. What the animation does when the device asks to reduce motion (ANI-007).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.reduce"
+msgstr "Reduce motion"
 
 #. Button that generates the host project again from the current settings.
 #. js-lingui-explicit-id

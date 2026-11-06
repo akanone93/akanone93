@@ -13,6 +13,8 @@ import { expandLists, type ListState, type StateTexts } from "./list-preview.ts"
 import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, namedMocks, resolveTheme } from "./look.ts";
 import { bindMocks } from "./mock-bindings.ts";
+import { withMotion } from "./motion.ts";
+import type { Playing } from "./motion-player.ts";
 import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
 import { presented, RouteCache } from "./page-routes.ts";
 import { paintedStyle, paintThemeOf, themeTokens } from "./paint-theme.ts";
@@ -20,6 +22,7 @@ import type { Node } from "./plugin-model.ts";
 import { withSnackbar } from "./quick-actions.ts";
 import type { PlacedScreen } from "./scene.ts";
 import { screenStyle } from "./scene.ts";
+import { findNode } from "./select/edits.ts";
 
 interface DocLike {
   readonly kind: string;
@@ -84,6 +87,13 @@ function livened(
   return applyLive(kept.node, live);
 }
 
+/** A page's root with the transition being played drawn on its widget (PC-29); other roots are kept. */
+function moving(root: Node | undefined, playing: Playing | undefined): Node | undefined {
+  return root === undefined || playing === undefined || findNode(root, playing.id) === null
+    ? root
+    : (withMotion(root, playing.id, playing.frame) as Node);
+}
+
 /** A page's root with the snackbar the selected widget shows (PC-27), kept per root and owner. */
 function snackbarOn(
   root: Node | undefined,
@@ -131,6 +141,7 @@ export function usePreviewScene(
   live: LiveState = emptyLive,
   design: DesignPicks = NO_PICKS,
   snackOwner?: string,
+  playing?: Playing,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
@@ -180,10 +191,10 @@ export function usePreviewScene(
         const listed = expandLists(decided, mocks, states, scope, design.lists, design.listText);
         byRoot.set(s.root, bindMocks(listed, mocks, states, scope));
       }
-      const drawer = snackbarOn(shownWith(byRoot.get(s.root), drawers, opened), snackOwner, snacked);
+      const drawer = moving(snackbarOn(shownWith(byRoot.get(s.root), drawers, opened), snackOwner, snacked), playing);
       return { ...s, root: drawer === undefined ? drawer : livened(drawer, s, live, look.platform, implied) };
     });
     return presentRoutes(drawn, routes);
-  }, [screens, everything, look, drawers, opened, routes, live, implied, design, snackOwner, snacked]);
+  }, [screens, everything, look, drawers, opened, routes, live, implied, design, snackOwner, snacked, playing]);
   return { shown, styled, paint };
 }

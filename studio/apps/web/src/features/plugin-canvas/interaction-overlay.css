@@ -550,3 +550,10 @@
   overflow: hidden;
   white-space: pre-wrap;
 }
+
+/* A widget the selection flies to in a hero transition (PC-29). */
+.pc-outline[data-kind="hero"] {
+  outline: 2px dashed oklch(0.6 0.12 195);
+  outline-offset: 2px;
+  background-color: color-mix(in oklch, oklch(0.6 0.12 195) 8%, transparent);
+}

@@ -37,6 +37,8 @@ export interface OverlayNodes {
   readonly bindings?: ReadonlyMap<string, readonly BindingMark[]>;
   /** The steps each node's events run (PC-27). */
   readonly events?: ReadonlyMap<string, readonly HandlerStep[]>;
+  /** The widgets of other screens that share a node's hero tag (PC-29). */
+  readonly heroes?: (id: string) => readonly string[];
 }
 
 interface View {
@@ -251,6 +253,14 @@ function BindingTag({ id, box, view, nodes }: { id: string; box: Box; view: View
   );
 }
 
+/** The widgets the selected one flies to in a hero transition (PC-29): dashed outlines on the other screens. */
+function HeroLinks({ id, view, nodes }: { id: string; view: View; nodes: OverlayNodes }): ReactNode {
+  return (nodes.heroes?.(id) ?? []).flatMap((other) => {
+    const b = nodes.boxOf(other);
+    return b === undefined ? [] : [<div key={other} className="pc-outline" data-kind="hero" style={place(b, view)} />];
+  });
+}
+
 /** The selected widget's first problem, under its size. */
 function ProblemTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
   const first = nodes.problems?.get(id)?.[0];
@@ -288,6 +298,7 @@ function Selected(props: {
       {single && !screen && <ProblemTag id={id} box={box} view={view} nodes={nodes} />}
       {single && !screen && <BindingTag id={id} box={box} view={view} nodes={nodes} />}
       {single && !screen && <EventTag id={id} box={box} view={view} nodes={nodes} />}
+      {single && !screen && <HeroLinks id={id} view={view} nodes={nodes} />}
       {single &&
         !screen &&
         nodes.resizable(id) &&
