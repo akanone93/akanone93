@@ -33,6 +33,8 @@ import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
 import { ConditionPanel } from "./condition-panel.tsx";
 import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
+import { FormFieldPanel } from "./form-field-panel.tsx";
+import { bindFieldRecipe, formsOf, INPUT_TYPES } from "./forms-model.ts";
 import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
 import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingRecipe } from "./layout-model.ts";
@@ -894,6 +896,66 @@ function SelectionLayout(props: {
   );
 }
 
+/** The panels above the properties of one selected widget (PC-22–PC-26): layout, list, conditions, form field. */
+function SelectionPanels(props: {
+  readonly dock: DockProps;
+  readonly id: string;
+  readonly node: Obj;
+  readonly type: string;
+  readonly bp: Breakpoint;
+  readonly canEdit: boolean;
+  readonly layoutNames: readonly string[];
+  readonly onBp: (bp: Breakpoint) => void;
+  readonly page: unknown;
+}) {
+  const { dock: p, id: first, node, canEdit } = props;
+  const screen = p.screenOf.get(first);
+  const edit = (recipe: (root: unknown) => void, group: string) => {
+    if (screen !== undefined) {
+      p.edit(screen, recipe, { group });
+    }
+  };
+  return (
+    <>
+      <SelectionLayout
+        dock={p}
+        id={first}
+        node={node}
+        bp={props.bp}
+        canEdit={canEdit}
+        layoutNames={props.layoutNames}
+        onBp={props.onBp}
+      />
+      {LIST_TYPES.has(props.type) && (
+        <ListPanel
+          id={first}
+          node={node}
+          canEdit={canEdit}
+          drawn={(expr) => p.drawnValue?.(first, expr)}
+          newId={uuidv7}
+          addState={(state, view) => edit(addStateRecipe(first, state, view), `list-state:${first}:${state}`)}
+        />
+      )}
+      <ConditionPanel
+        id={first}
+        node={node}
+        canEdit={canEdit}
+        decide={(expr) => p.decide?.(first, expr)}
+        setVisible={(value) => edit(setVisibleRecipe(first, value), `visible:${first}:${Date.now()}`)}
+      />
+      {INPUT_TYPES[props.type] !== undefined && (
+        <FormFieldPanel
+          node={node}
+          pageId={screen ?? ""}
+          forms={formsOf(props.page)}
+          canEdit={canEdit}
+          bind={(form, field) => edit(bindFieldRecipe(first, form, field), `bind-field:${first}:${Date.now()}`)}
+        />
+      )}
+    </>
+  );
+}
+
 function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const { m, ids } = p;
   const { canEdit, lockedNote } = useSelectionEditable(p, ids);
@@ -981,43 +1043,16 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
         <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
       )}
       {ids.length === 1 && q === "" && !setOnly && selected[0] !== undefined && (
-        <SelectionLayout
+        <SelectionPanels
           dock={p}
           id={first}
           node={selected[0]}
+          type={types[0] ?? ""}
           bp={bp}
           canEdit={canEdit}
           layoutNames={props.filter((pr) => propGroupOf(pr.name) === "layout").map((pr) => pr.name)}
           onBp={setBp}
-        />
-      )}
-      {ids.length === 1 && q === "" && !setOnly && selected[0] !== undefined && LIST_TYPES.has(types[0] ?? "") && (
-        <ListPanel
-          id={first}
-          node={selected[0]}
-          canEdit={canEdit}
-          drawn={(expr) => p.drawnValue?.(first, expr)}
-          newId={uuidv7}
-          addState={(state, view) => {
-            const doc = p.screenOf.get(first);
-            if (doc !== undefined) {
-              p.edit(doc, addStateRecipe(first, state, view), { group: `list-state:${first}:${state}` });
-            }
-          }}
-        />
-      )}
-      {ids.length === 1 && q === "" && !setOnly && selected[0] !== undefined && (
-        <ConditionPanel
-          id={first}
-          node={selected[0]}
-          canEdit={canEdit}
-          decide={(expr) => p.decide?.(first, expr)}
-          setVisible={(value) => {
-            const doc = p.screenOf.get(first);
-            if (doc !== undefined) {
-              p.edit(doc, setVisibleRecipe(first, value), { group: `visible:${first}:${Date.now()}` });
-            }
-          }}
+          page={file === undefined ? undefined : docsState[file]?.content}
         />
       )}
       {sections.length === 0 && <p className="prop-note">{m.noPropMatch}</p>}

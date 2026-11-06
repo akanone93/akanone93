@@ -7,6 +7,7 @@
  * no value until it runs on a device). The canvas binds widgets to these values; the device binds them to real ones.
  */
 
+import { type FormMode, formStatesOf, type ValidatorTexts } from "../panels/forms-model.ts";
 import { type DocLike, jsonOf } from "./look.ts";
 import type { DesignScope } from "./mock-bindings.ts";
 
@@ -36,14 +37,33 @@ export function paramMocks(params: unknown): Obj {
   return out;
 }
 
-/** The design-time scope of every page of `documents`, by page id. */
-export function designScopes(documents: readonly DocLike[]): ReadonlyMap<string, DesignScope> {
+/** How the canvas previews forms (PC-26): the mode picked per page and form, and the validators' messages. */
+export interface FormPreview {
+  readonly modes: ReadonlyMap<string, FormMode>;
+  readonly text: ValidatorTexts;
+}
+
+/** The key of a form's preview mode: its page and its name. */
+export const formKey = (page: string, form: string): string => `${page}/${form}`;
+
+/**
+ * The design-time scope of every page of `documents`, by page id; with `forms`, each page's forms are in its scope
+ * under their names, in the mode previewed (PC-26).
+ */
+export function designScopes(documents: readonly DocLike[], forms?: FormPreview): ReadonlyMap<string, DesignScope> {
   const app = stateDefaults(jsonOf(documents, "app")[0]?.["state"]);
   const plugin = stateDefaults(jsonOf(documents, "plugin")[0]?.["state"]);
   const out = new Map<string, DesignScope>();
   for (const page of jsonOf(documents, "page")) {
     if (typeof page["id"] === "string") {
-      out.set(page["id"], { params: paramMocks(page["params"]), page: stateDefaults(page["state"]), plugin, app });
+      const id = page["id"];
+      const own = forms === undefined ? {} : formStatesOf(page, (f) => forms.modes.get(formKey(id, f)), forms.text);
+      out.set(id, {
+        params: paramMocks(page["params"]),
+        page: { ...stateDefaults(page["state"]), ...own },
+        plugin,
+        app,
+      });
     }
   }
   return out;

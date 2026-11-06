@@ -562,6 +562,12 @@ msgstr "يمكن إضافة {imported} رمزًا ويتم تخطي {skipped}."
 msgid "appCanvas.bundleSize"
 msgstr "حزمة بحجم {kb} كيلوبايت"
 
+#. An option of a validator, e.g. the least length or the regular expression.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.option"
+msgstr "{key, select, min {الأدنى} max {الأقصى} pattern {النمط} region {المنطقة} maxScale {الخانات العشرية} maxIntegerDigits {الخانات الصحيحة} rule {القاعدة} debounceMs {التأخير (ms)} message {الرسالة} other {خيار}}"
+
 #. The line under a plugin's name on its box: its key, then the team that owns it (STU-030).
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -604,6 +610,12 @@ msgstr "{kind, select, dialog {مربع حوار} bottomSheet {لوحة سفلي
 msgid "style.gradientKind"
 msgstr "{kind, select, none {بلا تدرّج} linear {خطي} radial {شعاعي} sweep {دائري} other {تدرّج}}"
 
+#. A built-in validator of a form field (STA-020).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.validatorName"
+msgstr "{kind, select, required {مطلوب} length {الطول} range {النطاق} regex {النمط} email {البريد الإلكتروني} phone {الهاتف} iban {IBAN} dateRange {نطاق التاريخ} decimalPrecision {الخانات العشرية} custom {قاعدة مخصصة} async {تحقق الخادم} other {تحقق}}"
+
 #. A kind of shape of a button or card, as Flutter's ShapeBorder kinds; Pill is a stadium.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -633,6 +645,12 @@ msgstr "{minutes} دقيقة"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.heatCell"
 msgstr "{missing} من {total} ناقصة"
+
+#. A state a form is previewed in: untouched, showing its validation errors, filled with valid values, or being sent.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.mode"
+msgstr "{mode, select, pristine {أولي} errors {أخطاء} valid {صالح} submitting {قيد الإرسال} other {حالة}}"
 
 #. Label of a token value field; {mode} is the mode.
 #. js-lingui-explicit-id
@@ -1425,6 +1443,24 @@ msgstr "إضافة"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.addNamed"
 msgstr "إضافة {name} إلى المخطط"
+
+#. Menu that adds a validator to a field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.addValidator"
+msgstr "إضافة تحقق"
+
+#. Button that adds a field to a form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.addField"
+msgstr "إضافة حقل"
+
+#. Button that adds a form to the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.addForm"
+msgstr "إضافة نموذج"
 
 #. Select placeholder.
 #. js-lingui-explicit-id
@@ -2654,6 +2690,12 @@ msgstr "السلوك"
 msgid "list.itemsNone"
 msgstr "اربط العناصر بقائمة أو مصدر بيانات لتكرار قالب العنصر."
 
+#. Label of the select of form fields an input can be bound to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.bindTo"
+msgstr "ربط بحقل"
+
 #. A device API.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -2707,6 +2749,12 @@ msgstr "الحدّ"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.bottom"
 msgstr "أسفل"
+
+#. An input bound to a form field: its value reads it, a change writes it and its error shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.bound"
+msgstr "مرتبط بـ {form}.{field}"
 
 #. Label of the preview select of the theme's brand overlay (THM-003).
 #. js-lingui-explicit-id
@@ -3191,6 +3239,12 @@ msgstr "الفحص"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.invalidTargeting"
 msgstr "تحقق من الشرائح (مفاتيح بأحرف صغيرة، كل مفتاح مرة واحدة) ومن شروط السمات (السمة، العامل، القيمة)."
+
+#. Validator message: a pattern does not match.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.v.invalid"
+msgstr "تحقق من هذه القيمة"
 
 #. Shown while the explanation loads.
 #. js-lingui-explicit-id
@@ -5459,11 +5513,35 @@ msgstr "أدخل حداً أكبر من الصفر."
 msgid "publish.rollout.dateInvalid"
 msgstr "أدخل تاريخاً ووقتاً صالحين."
 
+#. Validator message.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.v.email"
+msgstr "أدخل بريدًا إلكترونيًا صالحًا"
+
 #. Validation error of the email field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.error.email"
 msgstr "أدخل عنوان بريد إلكتروني صالحًا."
+
+#. Validator message.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.v.iban"
+msgstr "أدخل رقم IBAN صالحًا"
+
+#. Validator message.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.v.phone"
+msgstr "أدخل رقم هاتف صالحًا"
+
+#. Validator message: the number is out of range.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.v.range"
+msgstr "أدخل قيمة من {min} إلى {max}"
 
 #. Step kind.
 #. js-lingui-explicit-id
@@ -6107,11 +6185,23 @@ msgstr "الميزات"
 msgid "publish.rollout.minSample"
 msgstr "الحد الأدنى من الجلسات قبل إصدار الحكم"
 
+#. A field of a form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.field"
+msgstr "حقل"
+
 #. Accessible name of a nested field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.field"
 msgstr "الحقل {name}"
+
+#. Label of a form field's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.fieldName"
+msgstr "اسم الحقل"
 
 #. Label of the field that holds the name of a collection field.
 #. js-lingui-explicit-id
@@ -6347,11 +6437,29 @@ msgstr "عدد مفاتيح الترجمة التي يستخدمها كل مكو
 msgid "state.persistence.session"
 msgstr "للجلسة"
 
+#. Heading of the panel that binds an input to a form field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.formField"
+msgstr "حقل النموذج"
+
+#. Label of a form's name; bindings read it as page.<name>.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.formName"
+msgstr "اسم النموذج"
+
 #. Label of the list that chooses the format of an import or export.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.importFormat"
 msgstr "الصيغة"
+
+#. Section of the page settings: the page's forms.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.forms"
+msgstr "النماذج"
 
 #. Accessible name of a frame around plugin boxes.
 #. js-lingui-explicit-id
@@ -7304,6 +7412,12 @@ msgstr "معلومة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.sectionValue"
+msgstr "القيمة الأولية"
+
+#. Label of a form field's initial value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.initial"
 msgstr "القيمة الأولية"
 
 #. Accessible name of the field that edits a state entry's initial value; the placeholder is its name.
@@ -11579,6 +11693,12 @@ msgstr "اضغط Enter أو Space لتحديد الخطوة. اربطها عبر
 msgid "pluginCanvas.preview"
 msgstr "المعاينة"
 
+#. Which state of the form the canvas draws.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.preview"
+msgstr "معاينة"
+
 #. Accessible name of the preview of an image in the icon picker; name is the image's file name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -12381,6 +12501,24 @@ msgstr "إزالة الخطوة"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.removeNamed"
 msgstr "إزالة الخطوة {id}"
+
+#. Button that removes a form field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.removeField"
+msgstr "إزالة الحقل {name}"
+
+#. Button that removes a form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.removeForm"
+msgstr "إزالة النموذج {name}"
+
+#. Button in a validator's options.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.removeValidator"
+msgstr "إزالة هذا التحقق"
 
 #. Accessible name of the button that removes a token; {token} is its path.
 #. js-lingui-explicit-id
@@ -16053,6 +16191,12 @@ msgstr "مكونات المؤسسة المقفلة والإصدار الذي ي�
 msgid "admin.ownerFloor"
 msgstr "ينطبق حد المالك: يحتفظ المالك الأخير بهذه الصلاحية."
 
+#. Shown in the form field panel when the page declares no form.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.noForms"
+msgstr "لا تحتوي الصفحة على نموذج بعد. أضف واحدًا من الصفحة › النماذج."
+
 #. Validation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -16852,6 +16996,12 @@ msgstr "يشير هذا الحدث إلى مخطط إجراءات غير موج�
 msgid "refusal.licence.body"
 msgstr "هذه الميزة جزء من إصدار المؤسسات. أضف ترخيصًا يشملها لاستخدام هذه الصفحة."
 
+#. Validator message.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.v.required"
+msgstr "هذا الحقل مطلوب"
+
 #. Reason a screen cannot be deleted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -17302,6 +17452,12 @@ msgstr "النوع"
 msgid "state.base"
 msgstr "النوع"
 
+#. Label of a form field's type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.fieldType"
+msgstr "النوع"
+
 #. Parameter field label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -17523,6 +17679,12 @@ msgstr "الاستخدام"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.usageTitle"
 msgstr "الاستخدام"
+
+#. Validator message: the text's length is out of range.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/forms.messages.ts
+msgid "forms.v.length"
+msgstr "استخدم من {min} إلى {max} حرفًا"
 
 #. Error under the key field of the create dialogs.
 #. js-lingui-explicit-id

@@ -8,7 +8,7 @@ import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { withoutHidden } from "../panels/studio-meta.ts";
 import type { PreviewRender } from "../preview/switches.ts";
 import { applyConditions, type BranchPick } from "./conditions.ts";
-import { designScopes } from "./design-scope.ts";
+import { designScopes, type FormPreview } from "./design-scope.ts";
 import { expandLists, type ListState, type StateTexts } from "./list-preview.ts";
 import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, namedMocks, resolveTheme } from "./look.ts";
@@ -26,8 +26,19 @@ interface DocLike {
 }
 
 const NO_DRAWERS: ReadonlyMap<string, DrawerSide> = new Map();
-const NO_LISTS: ReadonlyMap<string, ListState> = new Map();
-const NO_BRANCHES: ReadonlyMap<string, BranchPick> = new Map();
+
+/**
+ * What the inspector picks for the canvas to draw (PC-24–PC-26): each list's state, each condition's branch, each
+ * form's preview mode, and the words of the default views and the validators.
+ */
+export interface DesignPicks {
+  readonly lists: ReadonlyMap<string, ListState>;
+  readonly branches: ReadonlyMap<string, BranchPick>;
+  readonly forms?: FormPreview;
+  readonly listText?: StateTexts;
+}
+
+const NO_PICKS: DesignPicks = { lists: new Map(), branches: new Map() };
 
 /**
  * A page's root as shown with its drawer open when `drawers` names its scaffold (PC-12): a shallow copy marked
@@ -87,8 +98,7 @@ function presentRoutes(drawn: readonly PlacedScreen[], routes: RouteCache): Plac
 interface LocalizedRoots {
   readonly everything: readonly DocLike[];
   readonly look: PreviewRender;
-  readonly lists: ReadonlyMap<string, ListState>;
-  readonly branches: ReadonlyMap<string, BranchPick>;
+  readonly design: DesignPicks;
   readonly byRoot: WeakMap<Node, Node | undefined>;
 }
 
@@ -100,9 +110,7 @@ export function usePreviewScene(
   look: PreviewRender,
   drawers: ReadonlyMap<string, DrawerSide> = NO_DRAWERS,
   live: LiveState = emptyLive,
-  lists: ReadonlyMap<string, ListState> = NO_LISTS,
-  listText?: StateTexts,
-  branches: ReadonlyMap<string, BranchPick> = NO_BRANCHES,
+  design: DesignPicks = NO_PICKS,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
@@ -124,17 +132,13 @@ export function usePreviewScene(
   const shown = useMemo(() => {
     const kept = cache.current;
     const byRoot =
-      kept !== undefined &&
-      kept.everything === everything &&
-      kept.look === look &&
-      kept.lists === lists &&
-      kept.branches === branches
+      kept !== undefined && kept.everything === everything && kept.look === look && kept.design === design
         ? kept.byRoot
         : new WeakMap<Node, Node | undefined>();
-    cache.current = { everything, look, lists, branches, byRoot };
+    cache.current = { everything, look, design, byRoot };
     const messages = messagesFor(everything, look);
     const { mocks, states } = namedMocks(dataSourcesOf(everything), look.mockStates);
-    const scopes = designScopes(everything);
+    const scopes = designScopes(everything, design.forms);
     const drawn = screens.map((s) => {
       if (s.root === undefined) {
         return s;
@@ -145,14 +149,20 @@ export function usePreviewScene(
         // Conditions pick their branches (PC-25) and lists are drawn from their data (PC-24) first; then every other
         // binding takes its design-time value.
         const scope = scopes.get(s.id);
-        const decided = applyConditions(localizeTree(drawn, messages, look.localize), mocks, states, scope, branches);
-        const listed = expandLists(decided, mocks, states, scope, lists, listText);
+        const decided = applyConditions(
+          localizeTree(drawn, messages, look.localize),
+          mocks,
+          states,
+          scope,
+          design.branches,
+        );
+        const listed = expandLists(decided, mocks, states, scope, design.lists, design.listText);
         byRoot.set(s.root, bindMocks(listed, mocks, states, scope));
       }
       const drawer = shownWith(byRoot.get(s.root), drawers, opened);
       return { ...s, root: drawer === undefined ? drawer : livened(drawer, s, live, look.platform, implied) };
     });
     return presentRoutes(drawn, routes);
-  }, [screens, everything, look, drawers, opened, routes, live, implied, lists, listText, branches]);
+  }, [screens, everything, look, drawers, opened, routes, live, implied, design]);
   return { shown, styled, paint };
 }

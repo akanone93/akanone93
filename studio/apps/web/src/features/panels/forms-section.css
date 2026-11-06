@@ -1,0 +1,142 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The forms of a page (PC-26): a card per form with its preview modes, its fields and their checks. */
+
+.forms-section {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  grid-column: 1 / -1;
+}
+
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 2.5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--card);
+}
+
+.form-card-head,
+.form-field-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  min-inline-size: 0;
+}
+
+.form-card-head > :nth-child(2),
+.form-field-row > :first-child {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.form-type {
+  flex: none;
+  inline-size: calc(var(--spacing) * 24);
+}
+
+.form-input {
+  block-size: calc(var(--spacing) * 7);
+  font-size: var(--text-xs);
+}
+
+.form-input[data-mono] {
+  font-family: var(--font-mono);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+  padding-block-start: calc(var(--spacing) * 2);
+  border-block-start: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+}
+
+.form-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 1);
+}
+
+.form-check {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  block-size: calc(var(--spacing) * 6);
+  padding-inline: calc(var(--spacing) * 2);
+  border: 1px solid color-mix(in oklch, var(--primary) 35%, var(--border));
+  border-radius: 999px;
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--primary) 8%, var(--background));
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+
+.form-check[data-add] {
+  border-style: dashed;
+  border-color: var(--border);
+  color: var(--muted-foreground);
+  background-color: transparent;
+}
+
+.form-check:hover {
+  border-color: var(--primary);
+}
+
+.form-check-pop {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  inline-size: calc(var(--spacing) * 64);
+  padding: calc(var(--spacing) * 3);
+}
+
+.form-option {
+  display: grid;
+  grid-template-columns: calc(var(--spacing) * 20) minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.form-remove-check,
+.form-add {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.form-remove-check:hover {
+  color: var(--destructive);
+  background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+}
+
+.form-add:hover {
+  color: var(--foreground);
+  background-color: var(--muted);
+}
+
+.form-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 7);
+  block-size: calc(var(--spacing) * 7);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+}
+
+.form-icon:hover {
+  color: var(--destructive);
+  background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+}

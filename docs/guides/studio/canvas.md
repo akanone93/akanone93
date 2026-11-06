@@ -232,7 +232,14 @@ out. The canvas works out comparisons (`page.count > 0`, `params.tab == "paid"`)
 `isNotEmpty`, joined by `&&` or `||`, from the same design-time values as bindings; anything else draws the first
 branch and keeps the widget. Select a widget to edit its **Visible when** under **Conditions**, see what it is now
 (**Now true**, **Now false**, or **Only the device can work this out**), and pick what the canvas draws — **From
-data**, a branch, **Shown** or **Hidden** — to design a branch the data does not show. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+data**, a branch, **Shown** or **Hidden** — to design a branch the data does not show. A page's forms are edited under **Page › Forms**: **Add a form**, name it
+(bindings read it as `page.<form>`), and give it fields — a name, a type, an initial value and checks (**Required**,
+**Length**, **Range**, **Pattern**, **Email**, **Phone**, **IBAN**, **Date range**, **Decimals**, **Custom rule**,
+**Server check**), each with its options and message. Select a text field, a checkbox, a switch or a slider and pick
+a field under **Form field** to bind it in one step: its value reads the field, a change writes it, leaving it marks it
+touched, and a text field shows the field's error under it. Preview a form **Pristine**, with its **Errors** (the
+checks run on the initial values, as the device would), **Valid** (filled with values every check accepts) or
+**Submitting**; widgets bound to `page.<form>.status` or `.valid` follow. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

@@ -9,6 +9,10 @@ import { type ReactElement, type ReactNode, useEffect, useId, useMemo, useRef, u
 import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { pluginCanvasMessages } from "../plugin-canvas/plugin-canvas.messages.ts";
 import { parseDocument } from "../plugin-canvas/plugin-model.ts";
+import { uuidv7 } from "../plugin-canvas/screens.ts";
+import { formsMessages } from "./forms.messages.ts";
+import { formsOf } from "./forms-model.ts";
+import { FormsSection } from "./forms-section.tsx";
 import { pageSettingsMessages } from "./page-settings.messages.ts";
 import {
   addParam,
@@ -551,7 +555,9 @@ export function PageSettingsTab(props: {
   readonly onOpenData?: (() => void) | undefined;
   readonly onOpenGraph?: (() => void) | undefined;
 }): ReactElement {
-  const m = pageSettingsMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = pageSettingsMessages(i18n);
+  const formsLabel = formsMessages(i18n).forms;
   const canEdit = useCanEdit();
   const session = useEditSession();
   const docs = useLiveDocs(props.documents);
@@ -613,6 +619,7 @@ export function PageSettingsTab(props: {
     },
   };
   const graphs = graphsOf(docs.map((d) => d.json));
+  const pageJson = docs.find((d) => d.path === path)?.json;
   return (
     <div className="prop-pane page-settings">
       <datalist id="page-types">
@@ -638,6 +645,9 @@ export function PageSettingsTab(props: {
       <LifecycleSection page={page} m={m} onOpenGraph={props.onOpenGraph} />
       <RouteSection page={page} m={m} canEdit={canEdit} change={change} graphs={graphs} />
       <SecuritySection page={page} m={m} canEdit={canEdit} change={change} />
+      <Section icon="list-checks" label={formsLabel} set={formsOf(pageJson).length} count={formsOf(pageJson).length}>
+        <FormsSection pageId={page.id} page={pageJson} canEdit={canEdit} change={change} newId={uuidv7} />
+      </Section>
     </div>
   );
 }
