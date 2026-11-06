@@ -209,6 +209,7 @@ export function chromeSpec(d: PreviewDevice, platform: PreviewRender["platform"]
     landscape: d.landscape,
     time: "9:41",
     visible: d.chrome,
+    ...(d.fold === undefined ? {} : { fold: d.fold }),
     onLight: CHROME_ON_LIGHT,
     onDark: CHROME_ON_DARK,
     cutoutColor: CHROME_CUTOUT,

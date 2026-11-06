@@ -645,3 +645,49 @@
   color: var(--foreground);
   background-color: var(--muted);
 }
+
+/* The Size classes view (PC-33): a tag over each screen, and widgets a size class changes, shows or puts on a fold. */
+/* Centred above the frame, between the screen's name and its route: it never covers the page. */
+.pc-size-screen {
+  position: absolute;
+  inset: 0 auto auto 0;
+  padding: 1px 7px;
+  border-radius: 999px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  translate: -50% calc(-100% - 4px);
+  color: white;
+  background-color: oklch(0.55 0.2 290);
+  box-shadow: 0 1px 3px color-mix(in oklch, black 25%, transparent);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.pc-outline[data-kind^="size-"] {
+  outline: 1.5px dashed oklch(0.6 0.18 290);
+  outline-offset: 1px;
+}
+
+.pc-outline[data-kind="size-fold"] {
+  outline-color: var(--destructive);
+  background-color: color-mix(in oklch, var(--destructive) 8%, transparent);
+}
+
+.pc-size-tag {
+  position: absolute;
+  inset: 0 auto auto 0;
+  padding: 0 5px;
+  border-radius: 4px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px + 2px));
+  color: oklch(0.98 0.02 290);
+  background-color: oklch(0.55 0.2 290);
+  font-size: 10px;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.pc-size-tag[data-kind="fold"] {
+  color: white;
+  background-color: var(--destructive);
+}

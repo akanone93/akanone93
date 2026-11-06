@@ -92,6 +92,20 @@ describe("PC-11 device chrome drawn over each screen [STU-057]", () => {
     expect(parts.get("battery")).toMatchObject({ w: 8, h: 14 });
   });
 
+  test("a foldable's crease: a shaded band and a hairline down the middle, across it in landscape (PC-33)", () => {
+    const fold = { ...pixel, fold: "vertical" as const };
+    const parts = byPart(
+      chromeItems(doc, fold, "screen:s", { width: 600, height: 800 }, [], 0xffffffff, ["Noto Sans"]),
+    );
+    expect(parts.get("fold-line")).toMatchObject({ kind: "rect", x: 399.5, y: 200, w: 1, h: 800 });
+    expect(parts.get("fold")).toMatchObject({ x: 388, w: 24, h: 800 });
+    const flat = byPart(
+      chromeItems(doc, { ...pixel, fold: "horizontal" }, "screen:s", { width: 800, height: 600 }, [], 0xffffffff, []),
+    );
+    expect(flat.get("fold-line")).toMatchObject({ x: 100, y: 499.5, w: 800, h: 1 });
+    expect(byPart(chromeItems(doc, pixel, "screen:s", size, [], 0xffffffff, [])).has("fold")).toBe(false);
+  });
+
   test("the icons read over the page: light over a dark app bar, dark over a light page", () => {
     const dark = 0x1d1b20ff;
     const bar = {

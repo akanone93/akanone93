@@ -237,6 +237,36 @@ function materialStatus(p: Painter, width: number, colour: number): void {
   wifi(p, end - bw - 6 - sw - 6 - 7, mid + 5.5, colour, 0.9);
 }
 
+/** A foldable's crease: a soft shade either side of a hairline down (or across) the middle of the display. */
+function fold(p: Painter, width: number, height: number, along: "vertical" | "horizontal"): void {
+  const { s } = p;
+  const band = 24;
+  const shade = [0x00000000, 0x00000014, 0x00000000] as const;
+  if (along === "vertical") {
+    const x = s.x + width / 2;
+    rect(p, "fold", {
+      x: x - band / 2,
+      y: s.y,
+      w: band,
+      h: height,
+      radius: 0,
+      gradient: { kind: "linear", colors: shade, from: [x - band / 2, s.y], to: [x + band / 2, s.y], radius: 0 },
+    });
+    rect(p, "fold-line", { x: x - 0.5, y: s.y, w: 1, h: height, radius: 0, fill: 0x0000001f });
+    return;
+  }
+  const y = s.y + height / 2;
+  rect(p, "fold", {
+    x: s.x,
+    y: y - band / 2,
+    w: width,
+    h: band,
+    radius: 0,
+    gradient: { kind: "linear", colors: shade, from: [s.x, y - band / 2], to: [s.x, y + band / 2], radius: 0 },
+  });
+  rect(p, "fold-line", { x: s.x, y: y - 0.5, w: width, h: 1, radius: 0, fill: 0x0000001f });
+}
+
 /** The home indicator, the gesture handle or the three buttons, centred in the bottom inset. */
 function indicator(p: Painter, width: number, height: number, colour: number): void {
   const { chrome, s } = p;
@@ -330,6 +360,9 @@ export function chromeItems(
       // A right-to-left system mirrors its status bar: the time at the end, the battery at the start.
       mirror(p.items, s.x, width);
     }
+  }
+  if (chrome.fold !== undefined) {
+    fold(p, width, height, chrome.fold);
   }
   if (chrome.cutout !== "none") {
     cutout(p, width, height);

@@ -20,6 +20,7 @@ import { presented, RouteCache } from "./page-routes.ts";
 import { paintedStyle, paintThemeOf, themeTokens } from "./paint-theme.ts";
 import type { Node } from "./plugin-model.ts";
 import { withSnackbar } from "./quick-actions.ts";
+import { deviceRoot } from "./responsive.ts";
 import type { PlacedScreen } from "./scene.ts";
 import { screenStyle } from "./scene.ts";
 import { findNode } from "./select/edits.ts";
@@ -203,7 +204,8 @@ export function usePreviewScene(
     cache.current = { everything, look, design, byRoot };
     const messages = messagesFor(everything, look);
     const { mocks, states } = namedMocks(dataSourcesOf(everything), look.mockStates);
-    const scopes = designScopes(everything, design.forms);
+    // Conditions read the `device` root as the frame and the switches set it (PC-33).
+    const scopes = designScopes(everything, design.forms, deviceRoot(look));
     const drawn = screens.map((s) => {
       if (s.root === undefined) {
         return s;

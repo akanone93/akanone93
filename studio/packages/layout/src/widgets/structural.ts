@@ -17,6 +17,7 @@ import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPositionedBox } from "../flutter/shifted-box.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 import { paintedRichTextOf } from "./screen.ts";
+import { RESPONSIVE_FALLBACK, sizeClassOf } from "./size-class.ts";
 
 /** A box that takes no space: what a widget with nothing to show lays out as. */
 export function emptyBox(): RenderBox {
@@ -83,8 +84,9 @@ const forEachBuilder: WidgetBuilder = (node, ctx) => show(slot(node, "item") ?? 
 /** `Slot`: its `fallback`, the content an instance that fills nothing shows. */
 const slotBuilder: WidgetBuilder = (node, ctx) => show(slot(node, "fallback"), ctx);
 
-/** `Responsive`: the compact variant, the phone the canvas draws; else the next wider one. */
-const responsive: WidgetBuilder = (node, ctx) => show(firstFilled(node, ["compact", "medium", "expanded"]), ctx);
+/** `Responsive`: the variant of the screen's size class, else the next narrower one, as the device picks it (WGT-010). */
+const responsive: WidgetBuilder = (node, ctx) =>
+  show(firstFilled(node, RESPONSIVE_FALLBACK[sizeClassOf(ctx.theme.width)]), ctx);
 
 /** `DataScope`: the loaded state, else the first state that has a widget. */
 const dataScope: WidgetBuilder = (node, ctx) => show(firstFilled(node, ["success", "loading", "empty", "error"]), ctx);

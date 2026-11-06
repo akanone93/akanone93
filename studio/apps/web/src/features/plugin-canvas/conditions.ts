@@ -8,6 +8,7 @@
  * cannot work out draws the first branch and keeps the widget. The inspector can pick a branch to draw instead.
  */
 
+import { SIZE_CLASSES, type SizeClass } from "@plux/layout";
 import type { MockState } from "../preview/switches.ts";
 import { COPY_MARK, MAX_DRAWN_ITEMS, templateCopy } from "./list-preview.ts";
 import { type DesignScope, emptyScope, evaluateMockBinding, type SourceMocks } from "./mock-bindings.ts";
@@ -29,9 +30,15 @@ interface Env {
 const exprOf = (v: unknown): string | undefined =>
   typeof v === "string" ? v : isObj(v) && typeof v["$expr"] === "string" ? v["$expr"] : undefined;
 
+/** A literal operand: JSON, or a PXL string in single quotes (`'compact'`); undefined when it is not one. */
 function literalOf(text: string): unknown {
+  const t = text.trim();
+  const single = /^'((?:[^'\\]|\\.)*)'$/.exec(t);
+  if (single !== null) {
+    return (single[1] ?? "").replace(/\\(.)/g, "$1");
+  }
   try {
-    return JSON.parse(text.trim());
+    return JSON.parse(t);
   } catch {
     return undefined;
   }
@@ -121,19 +128,65 @@ const conditionOf = (value: unknown, env: Env): boolean | undefined =>
       ? undefined
       : evaluateCondition(exprOf(value) as string, env.mocks, env.states, env.scope);
 
+const READS_SIZE_CLASS = /\bdevice\??\.sizeClass\b/;
+
+/**
+ * The size classes a condition holds in, when it reads `device.sizeClass` and is not the same in all three (PC-33):
+ * the layout, which knows each frame's width, then draws what that frame's size class shows. Undefined otherwise.
+ */
+function sizeClassesOf(value: unknown, env: Env): SizeClass[] | undefined {
+  const expr = exprOf(value);
+  if (expr === undefined || !READS_SIZE_CLASS.test(expr)) {
+    return undefined;
+  }
+  const at = SIZE_CLASSES.map((sc) =>
+    conditionOf(value, { ...env, scope: { ...env.scope, device: { ...env.scope.device, sizeClass: sc } } }),
+  );
+  return at.every((v) => v === at[0]) ? undefined : SIZE_CLASSES.filter((_, i) => at[i] !== false);
+}
+
+/** The size classes a widget is shown in, when its `visible` depends on the size class and no pick decides it. */
+function onlyInOf(node: Obj, env: Env): SizeClass[] | undefined {
+  const pick = env.picks.get(String(node["id"]));
+  return pick === "shown" || pick === "hidden" || node["visible"] === undefined
+    ? undefined
+    : sizeClassesOf(node["visible"], env);
+}
+
 /** Whether a widget is drawn: its pick, else its `visible` when the canvas can work it out, else shown. */
 function shown(node: Obj, env: Env): boolean {
   const pick = env.picks.get(String(node["id"]));
   if (pick === "shown" || pick === "hidden") {
     return pick === "shown";
   }
+  const only = onlyInOf(node, env);
+  if (only !== undefined) {
+    return only.length > 0;
+  }
   return node["visible"] === undefined || conditionOf(node["visible"], env) !== false;
+}
+
+/** An `If` on the size class as a `Responsive`: each size class draws the branch its condition picks there. */
+function responsiveIf(node: Obj, thenIn: readonly SizeClass[]): Obj {
+  const slots = isObj(node["slots"]) ? node["slots"] : {};
+  const variants: Obj = {};
+  for (const sc of SIZE_CLASSES) {
+    const branch = thenIn.includes(sc) ? slots["then"] : slots["else"];
+    if (branch !== undefined) {
+      variants[sc] = branch;
+    }
+  }
+  return { id: node["id"], type: "Responsive", slots: variants };
 }
 
 /** An `If` as drawn: its condition the branch picked, or worked out (true when unknown). */
 function drawnIf(node: Obj, env: Env): Obj {
   const pick = env.picks.get(String(node["id"]));
   const props = isObj(node["props"]) ? node["props"] : {};
+  const thenIn = pick === undefined ? sizeClassesOf(props["condition"], env) : undefined;
+  if (thenIn !== undefined) {
+    return responsiveIf(node, thenIn);
+  }
   const value = pick === "then" || pick === "else" ? pick === "then" : (conditionOf(props["condition"], env) ?? true);
   return { ...node, props: { ...props, condition: value } };
 }
@@ -240,7 +293,8 @@ export function applyConditions(
       return n;
     }
     const node = drawn(n, parent, env);
-    const out: Obj = { ...node };
+    const only = onlyInOf(n, env);
+    const out: Obj = only === undefined ? { ...node } : { ...node, onlyIn: only };
     if (Array.isArray(node["children"])) {
       out["children"] = keptOf(node["children"], env).map((c) => visit(c, node));
     }

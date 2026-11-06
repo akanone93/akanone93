@@ -50,7 +50,11 @@ export const formKey = (page: string, form: string): string => `${page}/${form}`
  * The design-time scope of every page of `documents`, by page id; with `forms`, each page's forms are in its scope
  * under their names, in the mode previewed (PC-26).
  */
-export function designScopes(documents: readonly DocLike[], forms?: FormPreview): ReadonlyMap<string, DesignScope> {
+export function designScopes(
+  documents: readonly DocLike[],
+  forms?: FormPreview,
+  device?: Readonly<Record<string, unknown>>,
+): ReadonlyMap<string, DesignScope> {
   const app = stateDefaults(jsonOf(documents, "app")[0]?.["state"]);
   const plugin = stateDefaults(jsonOf(documents, "plugin")[0]?.["state"]);
   const out = new Map<string, DesignScope>();
@@ -63,6 +67,7 @@ export function designScopes(documents: readonly DocLike[], forms?: FormPreview)
         page: { ...stateDefaults(page["state"]), ...own },
         plugin,
         app,
+        ...(device === undefined ? {} : { device }),
       });
     }
   }

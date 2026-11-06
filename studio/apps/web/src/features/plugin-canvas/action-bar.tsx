@@ -34,6 +34,9 @@ export interface ActionBarProps {
   /** The Localisation view (PC-32): missing, untranslated and overflowing texts marked on the screens. */
   readonly l10n?: boolean | undefined;
   readonly onL10n?: ((on: boolean) => void) | undefined;
+  /** The Size classes view (PC-33): each screen's size class and the widgets that change with it. */
+  readonly sizes?: boolean | undefined;
+  readonly onSizes?: ((on: boolean) => void) | undefined;
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
@@ -199,6 +202,15 @@ export function ActionBar(props: ActionBarProps) {
                   title={m.l10nView}
                   pressed={props.l10n === true}
                   onClick={() => props.onL10n?.(props.l10n !== true)}
+                />
+              )}
+              {props.onSizes !== undefined && (
+                <BarButton
+                  icon="monitor"
+                  label={m.sizesView}
+                  title={m.sizesView}
+                  pressed={props.sizes === true}
+                  onClick={() => props.onSizes?.(props.sizes !== true)}
                 />
               )}
               <Divider />

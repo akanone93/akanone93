@@ -18,6 +18,7 @@ import type { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import type { Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
 import type { HandlerStep } from "./quick-actions.ts";
+import type { SizesOverlay } from "./responsive.ts";
 import { type PlacedScreen, screenDocuments } from "./scene.ts";
 import type { ScreenRequest } from "./screens-controller.tsx";
 import type { EditFn } from "./select/edits.ts";
@@ -74,6 +75,8 @@ export interface InteractionInput {
   readonly a11y?: A11yMarks | undefined;
   /** The Localisation view's marks, when it is on (PC-32). */
   readonly l10n?: L10nOverlay | undefined;
+  /** The Size classes view's marks, when it is on (PC-33). */
+  readonly sizes?: SizesOverlay | undefined;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -244,6 +247,25 @@ function useDeleteCommand(input: InteractionInput): () => void {
  * menu, the tool and view keys (V, H, Space, +, −, Shift+1, Shift+2, Ctrl+0) and Delete. The page renders `element`
  * over its canvas and spreads `handlers` on it.
  */
+/** The badges and the views' marks the overlay draws, each only when the canvas gives it (PC-23 to PC-33). */
+type MarkKey = "problems" | "bindings" | "events" | "heroes" | "a11y" | "l10n" | "sizes";
+
+function marksOf(
+  input: { readonly [K in MarkKey]: InteractionInput[K] | undefined } & Pick<InteractionInput, "messages">,
+): Partial<OverlayNodes> {
+  return {
+    ...(input.problems === undefined ? {} : { problems: input.problems }),
+    ...(input.bindings === undefined ? {} : { bindings: input.bindings }),
+    ...(input.events === undefined ? {} : { events: input.events }),
+    ...(input.heroes === undefined ? {} : { heroes: input.heroes }),
+    ...(input.a11y === undefined
+      ? {}
+      : { a11y: input.a11y, a11yText: { target: input.messages.a11yTarget, contrast: input.messages.a11yContrast } }),
+    ...(input.l10n === undefined ? {} : { l10n: input.l10n }),
+    ...(input.sizes === undefined ? {} : { sizes: input.sizes }),
+  };
+}
+
 export function useCanvasInteraction(input: InteractionInput) {
   const { overlay } = input;
   const [ownTool, setOwnTool] = useState<PointerTool>("select");
@@ -272,6 +294,11 @@ export function useCanvasInteraction(input: InteractionInput) {
     (id: string) => input.canEdit && !input.locked.has(id) && sizedType(index.type.get(id)),
     [input.canEdit, input.locked, index],
   );
+  const { problems, bindings, events, heroes, a11y, l10n, sizes, messages } = input;
+  const marks = useMemo(
+    () => marksOf({ problems, bindings, events, heroes, a11y, l10n, sizes, messages }),
+    [problems, bindings, events, heroes, a11y, l10n, sizes, messages],
+  );
   const nodes: OverlayNodes = useMemo(
     () => ({
       boxOf,
@@ -280,37 +307,12 @@ export function useCanvasInteraction(input: InteractionInput) {
       scope: selection.scope,
       ...(input.styled.chrome === undefined ? {} : { frameRadius: input.styled.chrome.radius }),
       childrenOf: (id) => index.children.get(id) ?? [],
-      padded: (id) => PADDED.has(index.type.get(id) ?? "") && !repeats(input.screens, screenOf.get(id), id),
-      ...(input.problems === undefined ? {} : { problems: input.problems }),
-      ...(input.bindings === undefined ? {} : { bindings: input.bindings }),
-      ...(input.events === undefined ? {} : { events: input.events }),
-      ...(input.heroes === undefined ? {} : { heroes: input.heroes }),
-      ...(input.a11y === undefined
-        ? {}
-        : { a11y: input.a11y, a11yText: { target: input.messages.a11yTarget, contrast: input.messages.a11yContrast } }),
-      ...(input.l10n === undefined ? {} : { l10n: input.l10n }),
+      padded: (id) => PADDED.has(index.type.get(id) ?? "") && !repeats(screens, screenOf.get(id), id),
+      ...marks,
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
-    [
-      boxOf,
-      isScreen,
-      resizable,
-      selection.scope,
-      titles,
-      screenOf,
-      names,
-      index,
-      input.styled.chrome,
-      input.problems,
-      input.bindings,
-      input.events,
-      input.heroes,
-      input.a11y,
-      input.l10n,
-      input.messages,
-      input.screens,
-    ],
+    [boxOf, isScreen, resizable, selection.scope, titles, screenOf, names, index, input.styled.chrome, marks, screens],
   );
   const preview = useScreenPreview(input, overlay);
   const view = input.onView;

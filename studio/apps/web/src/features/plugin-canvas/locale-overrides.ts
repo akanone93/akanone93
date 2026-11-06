@@ -26,10 +26,29 @@ export function ownOverrides(node: unknown, locale: string): Obj {
   return isObj(all[locale]) ? all[locale] : {};
 }
 
-/** A node's props with its overrides for `locale` over them; the node itself when it has none. */
+/** Each size-class layer with the locale's values over the props it sets too: the locale layer applies after them. */
+function stamped(responsive: Obj, own: Obj): Obj {
+  return Object.fromEntries(
+    Object.entries(responsive).map(([k, layer]) => [
+      k,
+      isObj(layer)
+        ? { ...layer, ...Object.fromEntries(Object.keys(layer).flatMap((p) => (p in own ? [[p, own[p]]] : []))) }
+        : layer,
+    ]),
+  );
+}
+
+/**
+ * A node's props with its overrides for `locale` over them; the node itself when it has none. The runtime applies the
+ * locale layer after the size-class layers (PC-33), so a prop both set keeps the locale's value in every size class.
+ */
 export function withLocaleOverrides(node: Obj, locale: string): Obj {
   const own = overridesFor(node, locale);
-  return own === undefined ? node : { ...node, props: { ...(isObj(node["props"]) ? node["props"] : {}), ...own } };
+  if (own === undefined) {
+    return node;
+  }
+  const responsive = isObj(node["responsive"]) ? { responsive: stamped(node["responsive"], own) } : {};
+  return { ...node, props: { ...(isObj(node["props"]) ? node["props"] : {}), ...own }, ...responsive };
 }
 
 /** The recipe that sets (or, with undefined, removes) node `id`'s override of `prop` for `locale`. */

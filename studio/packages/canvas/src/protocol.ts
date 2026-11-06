@@ -381,6 +381,8 @@ export interface DeviceChromeSpec {
   readonly time: string;
   /** Whether the chrome is drawn; the insets apply either way, as they do on the device. */
   readonly visible: boolean;
+  /** A foldable's fold, drawn as a crease: down the middle (`vertical`) or across it (`horizontal`) (PC-33). */
+  readonly fold?: "vertical" | "horizontal";
   /** Status bar and indicator colours over a light and over a dark backdrop; the cutout's colour. */
   readonly onLight: ColorRgba;
   readonly onDark: ColorRgba;

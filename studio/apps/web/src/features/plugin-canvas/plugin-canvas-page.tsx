@@ -16,6 +16,7 @@ import { ActionGraphHost } from "../action-graph/index.ts";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { useScreenImages } from "./screen-images.ts";
 import "./plugin-editor.css";
+import { sizeClassOf } from "@plux/layout";
 import { CanvasStatus } from "../app-canvas/canvas-chrome.tsx";
 import { GestureTracker } from "../app-canvas/use-canvas-gestures.ts";
 import { DesignersHost } from "../designers/designers-host.tsx";
@@ -100,6 +101,7 @@ import { PluginIdentity } from "./plugin-identity.tsx";
 import { openersOf, type Node as PluxNode, pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
 import { flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
 import { eventMarks, snackbarOf } from "./quick-actions.ts";
+import { deviceRoot } from "./responsive.ts";
 import {
   contentBounds,
   DEVICE,
@@ -148,6 +150,7 @@ import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 import { usePreviewScene } from "./use-preview-scene.ts";
 import { useScreenPositions } from "./use-screen-positions.ts";
+import { useSizesView } from "./use-sizes-view.ts";
 
 /**
  * Screens placed: saved positions, else flow order (STU-050); the canvas worker lays them out. `saved` — the edit
@@ -653,6 +656,8 @@ function PluginCanvasView({
   const [a11yView, setA11yView] = useState(false);
   // The Localisation view (PC-32): missing, untranslated and overflowing texts marked; plural samples by node.
   const [l10nView, setL10nView] = useState(false);
+  // The Size classes view (PC-33): each screen's size class, and the widgets that change with it or cross a fold.
+  const [sizesView, setSizesView] = useState(false);
   const [overflowKey, setOverflowKey] = useState("");
   const pluralSamples = usePluralSamples();
   // A widget's enter or exit transition played on the canvas (PC-29).
@@ -1308,7 +1313,7 @@ function PluginCanvasView({
   // Bound widgets carry a badge and the selection lists its bindings with the values drawn (PC-23).
   const allDocs = useMemo(() => [...(drawnAppDocs ?? []), ...(docs.data ?? [])], [drawnAppDocs, docs.data]);
   const named = useMemo(() => namedMocks(dataSourcesOf(allDocs), look.mockStates), [allDocs, look.mockStates]);
-  const scopes = useMemo(() => designScopes(allDocs, design.forms), [allDocs, design.forms]);
+  const scopes = useMemo(() => designScopes(allDocs, design.forms, deviceRoot(look)), [allDocs, design.forms, look]);
   const boundMarks = useMemo(() => bindingMarks(screens, named.mocks, named.states, scopes), [screens, named, scopes]);
   const eventBadges = useMemo(() => eventMarks(screens.map((s) => s.root)), [screens]);
   const screenRoots = useMemo(() => screens.map((s) => s.root), [screens]);
@@ -1328,6 +1333,17 @@ function PluginCanvasView({
     overflowKey,
     samples: pluralSamples,
     text: l10nText,
+  });
+  const boxOfNow = useCallback(() => boxRef.current, []);
+  const sizes = useSizesView({
+    on: sizesView,
+    screens: shown,
+    device: look.device,
+    types: index.type,
+    screenOf,
+    boxOf: boxOfNow,
+    laidOut: heights,
+    i18n,
   });
   const heroesOf = useCallback((id: string) => heroMatches(screenRoots, id), [screenRoots]);
   const playMotion = useCallback(
@@ -1378,6 +1394,7 @@ function PluginCanvasView({
     heroes: heroesOf,
     a11y: a11yMarks,
     l10n: locale.marks,
+    sizes,
     tool,
     setTool,
     onInteract: liveSurface.interact,
@@ -1634,6 +1651,7 @@ function PluginCanvasView({
                       />
                       {libraryDialog}
                       <RightDock
+                        sizeClass={sizeClassOf(look.device.width)}
                         tabRequest={dockTab}
                         tests={tests}
                         screens={screens}
@@ -1702,6 +1720,8 @@ function PluginCanvasView({
                           onA11y={setA11yView}
                           l10n={l10nView}
                           onL10n={setL10nView}
+                          sizes={sizesView}
+                          onSizes={setSizesView}
                           appId={params.app ?? ""}
                           pluginId={params.plugin ?? ""}
                           editorSessionId={editorSessionId}

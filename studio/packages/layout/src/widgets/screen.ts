@@ -38,6 +38,7 @@ import { materialWidgetBuilders } from "./material.ts";
 import { buildPageRoute, ROUTE_TYPE, routeParts } from "./page-route.ts";
 import { SCROLLING as BODY_SCROLLS, buildPageScaffold, pageBody, type ScrollExtent } from "./page-scaffold.ts";
 import { cupertinoComponents, faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
+import { atSizeClass } from "./size-class.ts";
 import { structuralWidgetBuilders } from "./structural.ts";
 
 /** One widget of a screen document: structured-clone data only. */
@@ -45,6 +46,10 @@ export interface WidgetNode {
   readonly id: string;
   readonly type?: string | undefined;
   readonly props?: { readonly data?: unknown; readonly [name: string]: unknown } | undefined;
+  /** Prop overrides per window size class, applied at the screen's width (WGT-010). */
+  readonly responsive?: unknown;
+  /** Design time only: the size classes Studio found the node shown in, when its visibility depends on them. */
+  readonly onlyIn?: readonly string[] | undefined;
   readonly events?: unknown;
   readonly children?: readonly WidgetNode[] | undefined;
   readonly slots?: Readonly<Record<string, WidgetNode>> | undefined;
@@ -888,8 +893,10 @@ function pageInsets(
 }
 
 /** Lays one screen out at the theme's device width, text by the paragraph engine. */
-export function layoutScreen(root: WidgetNode | null | undefined, options: LayoutScreenOptions): ScreenLayout {
+export function layoutScreen(input: WidgetNode | null | undefined, options: LayoutScreenOptions): ScreenLayout {
   const theme = options.theme ?? defaultScreenTheme;
+  // The tree as the device draws it at this width: its size-class layers applied (WGT-010, PC-33).
+  const root = atSizeClass(input, theme.width);
   const builders = options.builders ?? defaultWidgetBuilders;
   const marks = new Map<string, { kind: PlacedKind; text?: string; textStyle?: PlacedText }>();
   const paragraphs: RenderParagraph[] = [];

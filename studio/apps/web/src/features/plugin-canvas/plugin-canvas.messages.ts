@@ -283,6 +283,59 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Overflows",
       comment: "Canvas mark: the text does not fit its box in the previewed locale.",
     }),
+    sizesView: i18n._({
+      id: "pluginCanvas.sizesView",
+      message: "Size classes view",
+      comment: "Toggle that marks each screen's window size class and the widgets that change with it.",
+    }),
+    sizeClassName: {
+      compact: i18n._({
+        id: "pluginCanvas.sizeCompact",
+        message: "Compact",
+        comment: "Window size class below 600 dp.",
+      }),
+      medium: i18n._({
+        id: "pluginCanvas.sizeMedium",
+        message: "Medium",
+        comment: "Window size class from 600 to 839 dp.",
+      }),
+      expanded: i18n._({
+        id: "pluginCanvas.sizeExpanded",
+        message: "Expanded",
+        comment: "Window size class from 840 dp.",
+      }),
+    },
+    sizeScreen: (sizeClass: string, width: number) =>
+      i18n._({
+        id: "pluginCanvas.sizeScreen",
+        message: "{sizeClass} · {width} dp",
+        values: { sizeClass, width },
+        comment: "Tag over a screen: its window size class and width, e.g. Medium · 673 dp.",
+      }),
+    sizeLayer: (sizeClass: string, props: string) =>
+      i18n._({
+        id: "pluginCanvas.sizeLayer",
+        message: "{sizeClass}: {props}",
+        values: { sizeClass, props },
+        comment: "Canvas mark: the props a size class changes on this widget, e.g. Medium: padding, width.",
+      }),
+    sizeOnly: (sizeClasses: string) =>
+      i18n._({
+        id: "pluginCanvas.sizeOnly",
+        message: "Only {sizeClasses}",
+        values: { sizeClasses },
+        comment: "Canvas mark: the widget is shown only in these size classes, e.g. Only Medium, Expanded.",
+      }),
+    sizeFold: i18n._({
+      id: "pluginCanvas.sizeFold",
+      message: "Crosses the fold",
+      comment: "Canvas mark on a foldable: a control or image sits across the display's fold.",
+    }),
+    adaptiveNavigation: i18n._({
+      id: "pluginCanvas.adaptiveNavigation",
+      message: "Make navigation adaptive",
+      comment: "Toolbar button on a navigation bar: a navigation rail replaces it on medium and expanded screens.",
+    }),
     duplicateCommand: i18n._({
       id: "pluginCanvas.command.duplicate",
       message: "Duplicate selection",

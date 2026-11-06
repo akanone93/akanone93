@@ -283,6 +283,46 @@ export function tokenPaths(tokens: unknown, prefix = ""): string[] {
 
 /** Names of the EdgeInsets fields in order. */
 export const insetSides = ["left", "top", "right", "bottom"] as const;
+export type InsetSide = (typeof insetSides)[number];
+
+const numAt = (o: Readonly<Record<string, unknown>>, k: string): number | undefined =>
+  typeof o[k] === "number" ? (o[k] as number) : undefined;
+
+/**
+ * A side's inset as the device lays it out: the side itself, else `start`/`end` (read as left/right), else
+ * `horizontal`/`vertical`, else `all` — the forms an `EdgeInsets` may take.
+ */
+export function insetOf(o: Readonly<Record<string, unknown>>, side: InsetSide): number | undefined {
+  const horizontal = side === "left" || side === "right";
+  const directional = side === "left" ? numAt(o, "start") : side === "right" ? numAt(o, "end") : undefined;
+  return numAt(o, side) ?? directional ?? numAt(o, horizontal ? "horizontal" : "vertical") ?? numAt(o, "all");
+}
+
+/**
+ * The insets with one side set, or cleared with undefined: a shorthand is spread into the sides it set, so the other
+ * sides keep their values, and insets written with `start`/`end` stay directional (they mirror in right-to-left).
+ */
+export function withInset(
+  o: Readonly<Record<string, unknown>>,
+  side: InsetSide,
+  value: number | undefined,
+): Record<string, unknown> | undefined {
+  const directional = o["start"] !== undefined || o["end"] !== undefined;
+  const keyOf = (s: InsetSide) => (directional && s === "left" ? "start" : directional && s === "right" ? "end" : s);
+  const out: Record<string, unknown> = {};
+  for (const s of insetSides) {
+    const v = insetOf(o, s);
+    if (v !== undefined) {
+      out[keyOf(s)] = v;
+    }
+  }
+  if (value === undefined) {
+    delete out[keyOf(side)];
+  } else {
+    out[keyOf(side)] = value;
+  }
+  return Object.keys(out).length === 0 ? undefined : out;
+}
 
 // Colour literals are document data, not styling; the "#" is kept apart from the digits for the raw-value lint.
 const hash = "#";

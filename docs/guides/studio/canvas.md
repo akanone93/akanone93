@@ -280,6 +280,18 @@ more than one locale, and every text that does not fit its box in this locale (a
 message's **Plural sample** (from the data, or 0, 1, 2, 5 or 21) the canvas draws it with, and the props it sets
 **Only in** this locale, added and removed in place.
 
+Each screen is drawn in the window size class of its frame, as the device draws it (Material 3: **Compact** below
+600 dp, **Medium** to 839 dp, **Expanded** from 840 dp): a widget's **responsive** props for medium apply from 600 dp and
+those for expanded over them from 840 dp, a **Responsive** shows the variant of the size class (else the next narrower
+one), and a widget whose **Visible when** or an **If** reads `device.sizeClass` shows what that size class shows — in
+the device matrix too, where each frame is drawn in its own. The inspector's **Properties** edits the layer of the
+frame's size class. **Size classes view** in the tool bar tags each screen with its size class and width, and marks
+the widgets a size-class layer changes there and the widgets shown only in some size classes; on a foldable it also
+marks the controls and images that cross the fold, which the frame draws as a crease down the middle (across it in
+landscape). On a page's navigation bar, **Make navigation adaptive** in the selection's toolbar keeps the bar on
+compact screens and puts a navigation rail with the same destinations, selection and handler beside the body from
+600 dp, extended from 840 dp.
+
 Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each

@@ -21,7 +21,7 @@ const binding = /^\s*data\.(\w+)\.(value|loading|error)((?:\??\.\w+|\[\d+\])*)(?
 /** `item` (then member steps) or `index`, inside an item template, optionally `?? <JSON literal>`. */
 const itemPath = /^\s*(item|index)((?:\??\.\w+|\[\d+\])*)(?:\s*\?\?\s*(.+?))?\s*$/;
 /** `params`, `page`, `plugin` or `app` then member steps, optionally `?? <JSON literal>`. */
-const scoped = /^\s*(params|page|plugin|app)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
+const scoped = /^\s*(params|page|plugin|app|device)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
 
 /** The values the scopes hold at design time: page parameters and the page's, plugin's and app's state. */
 export interface DesignScope {
@@ -29,6 +29,8 @@ export interface DesignScope {
   readonly page: Readonly<Obj>;
   readonly plugin: Readonly<Obj>;
   readonly app: Readonly<Obj>;
+  /** PXL's `device` root at design time (PC-33): the frame's size class and the preview's switches. */
+  readonly device?: Readonly<Obj>;
   /** Inside a list's item template (PC-24): the item a copy is built for, and its index. */
   readonly item?: unknown;
   readonly index?: number;
@@ -90,15 +92,17 @@ function itemValue(expr: string, scope: DesignScope): unknown {
   return value ?? literal(m[3]) ?? null;
 }
 
-/** A `params`, `page`, `plugin` or `app` path; undefined when `expr` is not one or names nothing the scope has. */
+/** A `params`, `page`, `plugin`, `app` or `device` path; undefined when `expr` is not one or names nothing there. */
 function scopeValue(expr: string, scope: DesignScope): unknown {
   const m = scoped.exec(expr);
   if (m === null) {
     return undefined;
   }
-  const root = scope[m[1] as "params" | "page" | "plugin" | "app"];
+  const root = scope[m[1] as "params" | "page" | "plugin" | "app" | "device"];
   const first = /^\??\.(\w+)/.exec(m[2] ?? "")?.[1];
-  return first === undefined || !(first in root) ? undefined : (walk(root, m[2] ?? "") ?? literal(m[3]) ?? null);
+  return root === undefined || first === undefined || !(first in root)
+    ? undefined
+    : (walk(root, m[2] ?? "") ?? literal(m[3]) ?? null);
 }
 
 /** A `data.<source>` path under the source's mock state; undefined when `expr` is not one of a known source. */

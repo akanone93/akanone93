@@ -110,6 +110,8 @@ export interface ScreensControllerProps {
   readonly onA11y?: (on: boolean) => void;
   readonly l10n?: boolean;
   readonly onL10n?: (on: boolean) => void;
+  readonly sizes?: boolean;
+  readonly onSizes?: (on: boolean) => void;
 }
 
 /** A screen action the canvas asks the controller for. */
@@ -352,6 +354,8 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         onA11y={props.onA11y}
         l10n={props.l10n}
         onL10n={props.onL10n}
+        sizes={props.sizes}
+        onSizes={props.onSizes}
         validation={props.validation}
         percent={props.percent}
         onZoom={props.onZoom}

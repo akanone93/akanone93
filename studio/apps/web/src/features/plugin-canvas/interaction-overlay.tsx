@@ -8,6 +8,7 @@ import { type LowContrast, smallTarget } from "./a11y-marks.ts";
 import type { BindingMark } from "./binding-marks.ts";
 import type { L10nOverlay } from "./l10n-marks.ts";
 import type { HandlerStep } from "./quick-actions.ts";
+import type { SizesOverlay } from "./responsive.ts";
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
@@ -45,6 +46,8 @@ export interface OverlayNodes {
   readonly a11y?: A11yMarks;
   /** The Localisation view's marks, when it is on (PC-32), with their words. */
   readonly l10n?: L10nOverlay;
+  /** The Size classes view's marks, when it is on (PC-33). */
+  readonly sizes?: SizesOverlay;
   /** The words of the marks. */
   readonly a11yText?: {
     readonly target: (w: number, h: number, min: number) => string;
@@ -333,6 +336,49 @@ function L10nView({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNo
   });
 }
 
+/** The Size classes view (PC-33): each screen's size class, and the widgets that change with it or cross a fold. */
+function SizesView({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  const z = nodes.sizes;
+  if (z === undefined) {
+    return null;
+  }
+  const screens = z.screens.flatMap(({ root, label }) => {
+    const b = nodes.boxOf(root);
+    return b === undefined
+      ? []
+      : [
+          <span key={`s${root}`} className="pc-size-screen" style={point((b.l + b.r) / 2, b.t, view)}>
+            {label}
+          </span>,
+        ];
+  });
+  // A tag whose words already stand at the same corner (a rail and its divider) is drawn once.
+  const placed: { readonly text: string; readonly x: number; readonly y: number }[] = [];
+  const fresh = (text: string, x: number, y: number) => {
+    const near = placed.some((t) => t.text === text && Math.abs(t.x - x) < 120 && Math.abs(t.y - y) < 8);
+    placed.push({ text, x, y });
+    return !near;
+  };
+  const marks = [...z.marks].flatMap(([id, mark]) => {
+    const b = nodes.boxOf(id);
+    if (b === undefined) {
+      return [];
+    }
+    const text = z.text(mark);
+    return [
+      <div key={`o${id}`} className="pc-outline" data-kind={`size-${mark.kind}`} style={place(b, view)} />,
+      ...(fresh(text, b.l, b.b)
+        ? [
+            <span key={`t${id}`} className="pc-size-tag" data-kind={mark.kind} style={point(b.l, b.b, view)}>
+              {text}
+            </span>,
+          ]
+        : []),
+    ];
+  });
+  return [...screens, ...marks];
+}
+
 /** The widgets the selected one flies to in a hero transition (PC-29): dashed outlines on the other screens. */
 function HeroLinks({ id, view, nodes }: { id: string; view: View; nodes: OverlayNodes }): ReactNode {
   return (nodes.heroes?.(id) ?? []).flatMap((other) => {
@@ -527,6 +573,7 @@ export function InteractionOverlay(props: {
       )}
       <A11yView view={view} nodes={nodes} />
       <L10nView view={view} nodes={nodes} />
+      <SizesView view={view} nodes={nodes} />
       <BindingBadges view={view} nodes={nodes} />
       <EventBadges view={view} nodes={nodes} />
       <ProblemDots view={view} nodes={nodes} />

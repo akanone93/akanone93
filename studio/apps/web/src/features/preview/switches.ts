@@ -89,6 +89,8 @@ export interface PreviewDevice {
   readonly landscape: boolean;
   /** Whether the status bar, cutout and indicator are drawn; the insets apply either way. */
   readonly chrome: boolean;
+  /** A foldable's fold: down the middle of the portrait display, across the landscape one (PC-33). */
+  readonly fold?: "vertical" | "horizontal";
 }
 
 /** The device of the canvas before a frame is chosen: the generic phone the canvas has always drawn, without chrome. */
@@ -116,6 +118,7 @@ export function previewDevice(frame: DeviceFrame, orientation: Orientation, chro
     radius: c.radius,
     landscape: orientation === "landscape",
     chrome,
+    ...(c.fold === true ? { fold: orientation === "landscape" ? "horizontal" : "vertical" } : {}),
   };
 }
 

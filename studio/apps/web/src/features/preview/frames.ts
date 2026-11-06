@@ -53,6 +53,8 @@ export interface FrameChrome {
   readonly cutout: Cutout;
   readonly indicator: NavIndicator;
   readonly radius: number;
+  /** A foldable's inner display folds down its middle (PC-33). */
+  readonly fold?: boolean;
 }
 
 const chromeById: Readonly<Record<string, FrameChrome>> = {
@@ -63,7 +65,7 @@ const chromeById: Readonly<Record<string, FrameChrome>> = {
   "iphone-se": { top: 20, bottom: 0, cutout: "none", indicator: "none", radius: 0 },
   iphone: { top: 47, bottom: 34, cutout: "notch", indicator: "home", radius: 47 },
   "iphone-pro-max": { top: 59, bottom: 34, cutout: "island", indicator: "home", radius: 55 },
-  foldable: { top: 32, bottom: 24, cutout: "punch", indicator: "gesture", radius: 20 },
+  foldable: { top: 32, bottom: 24, cutout: "punch", indicator: "gesture", radius: 20, fold: true },
   ipad: { top: 24, bottom: 20, cutout: "none", indicator: "home", radius: 18 },
   "android-tablet": { top: 24, bottom: 24, cutout: "none", indicator: "gesture", radius: 16 },
   desktop: { top: 0, bottom: 0, cutout: "none", indicator: "none", radius: 8 },

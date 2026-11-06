@@ -22,6 +22,7 @@ import {
 } from "./context-actions.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import type { Node } from "./plugin-model.ts";
+import { adaptiveNavigationRecipe, adaptiveState } from "./responsive.ts";
 import { uuidv7 } from "./screens.ts";
 import { duplicateRecipe, type EditFn } from "./select/edits.ts";
 import type { Box } from "./select/geometry.ts";
@@ -195,6 +196,13 @@ export function ContextToolbar(props: {
       <MenuTool icon="columns" label={m.alignInParent} entries={align} />
       {inList && (
         <ToolButton icon="copy" label={m.duplicateCommand} onClick={() => act(duplicateRecipe(id, () => uuidv7()))} />
+      )}
+      {node.type === "NavigationBar" && parent !== undefined && adaptiveState(parent, id) === "ready" && (
+        <ToolButton
+          icon="panel-start-open"
+          label={m.adaptiveNavigation}
+          onClick={() => act(adaptiveNavigationRecipe(id, () => uuidv7()))}
+        />
       )}
       {events.length > 0 && <ToolButton icon="lightning" label={m.addAction} onClick={props.onAction} />}
       <ToolButton icon="trash" label={m.deleteSelection} danger onClick={props.onDelete} />

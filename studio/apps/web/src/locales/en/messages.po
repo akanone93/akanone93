@@ -1096,6 +1096,18 @@ msgstr "{side, select, endDrawer {{shown, select, yes {Hide end drawer} other {S
 msgid "pluginCanvas.paddingHandle"
 msgstr "{side, select, top {Drag to change the top padding} bottom {Drag to change the bottom padding} left {Drag to change the left padding} other {Drag to change the right padding}}. Alt: both sides; Shift: all sides."
 
+#. Tag over a screen: its window size class and width, e.g. Medium · 673 dp.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizeScreen"
+msgstr "{sizeClass} · {width} dp"
+
+#. Canvas mark: the props a size class changes on this widget, e.g. Medium: padding, width.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizeLayer"
+msgstr "{sizeClass}: {props}"
+
 #. A state a list is drawn in; From data follows the Preview's data state; Loading more is the end of a paged list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/list-panel.messages.ts
@@ -3840,6 +3852,12 @@ msgstr "Comment"
 msgid "profile.density.compact"
 msgstr "Compact"
 
+#. Window size class below 600 dp.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizeCompact"
+msgstr "Compact"
+
 #. Window size class under 600 dp; the base values.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -4367,6 +4385,12 @@ msgstr "Creating"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.create.working"
 msgstr "Creating"
+
+#. Canvas mark on a foldable: a control or image sits across the display's fold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizeFold"
+msgstr "Crosses the fold"
 
 #. Platform style option.
 #. js-lingui-explicit-id
@@ -6106,6 +6130,12 @@ msgstr "Exit"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.expandAll"
 msgstr "Expand all"
+
+#. Window size class from 840 dp.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizeExpanded"
+msgstr "Expanded"
 
 #. Window size class from 840 dp.
 #. js-lingui-explicit-id
@@ -9059,6 +9089,12 @@ msgstr "Make entry"
 msgid "appCanvas.setEntry"
 msgstr "Make entry plugin"
 
+#. Toolbar button on a navigation bar: a navigation rail replaces it on medium and expanded screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.adaptiveNavigation"
+msgstr "Make navigation adaptive"
+
 #. Link to the typography page of the design area, where the host fonts are managed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -9154,6 +9190,12 @@ msgstr "Mean"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.kindMean"
 msgstr "Mean of a property"
+
+#. Window size class from 600 to 839 dp.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizeMedium"
+msgstr "Medium"
 
 #. Window size class from 600 to 839 dp.
 #. js-lingui-explicit-id
@@ -10858,6 +10900,12 @@ msgstr "One plugin with an empty entry screen, ready to design."
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.showingKind"
 msgstr "Only {kind}"
+
+#. Canvas mark: the widget is shown only in these size classes, e.g. Only Medium, Expanded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizeOnly"
+msgstr "Only {sizeClasses}"
 
 #. Heading of the props the widget sets differently in the previewed locale (I18N-012).
 #. js-lingui-explicit-id
@@ -14948,6 +14996,12 @@ msgstr "Size"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.breakpoint"
 msgstr "Size class"
+
+#. Toggle that marks each screen's window size class and the widgets that change with it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.sizesView"
+msgstr "Size classes view"
 
 #. Shown when the build reports no size.
 #. js-lingui-explicit-id

@@ -54,6 +54,8 @@ import {
   bindingOf,
   breakpoints,
   editorKind,
+  type InsetSide,
+  insetOf,
   insetSides,
   isAccessibility,
   nodesById,
@@ -67,6 +69,7 @@ import {
   sharedProps,
   sharedValue,
   unitOf,
+  withInset,
 } from "./properties-model.ts";
 import type { PxlEditorSource } from "./pxl-editor.tsx";
 import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
@@ -343,16 +346,8 @@ function BoolEditor(p: EditorProps) {
 function InsetsEditor(p: EditorProps) {
   const o = isObj(p.value) ? p.value : {};
   const labels = { left: p.m.left, top: p.m.top, right: p.m.right, bottom: p.m.bottom };
-  const change = (side: (typeof insetSides)[number], text: string) => {
-    const n = numberOrUndefined(text);
-    const next = { ...o };
-    if (n === undefined) {
-      delete next[side];
-    } else {
-      next[side] = n;
-    }
-    p.onChange(Object.keys(next).length === 0 ? undefined : next);
-  };
+  // `{ all: 16 }` shows 16 on every side; editing one side keeps the others (PC-33).
+  const change = (side: InsetSide, text: string) => p.onChange(withInset(o, side, numberOrUndefined(text)));
   return (
     <div className="prop-insets">
       {insetSides.map((side) => (
@@ -363,7 +358,7 @@ function InsetsEditor(p: EditorProps) {
           <Input
             type="number"
             aria-label={`${p.name} ${labels[side]}`}
-            value={typeof o[side] === "number" ? o[side] : ""}
+            value={insetOf(o, side) ?? ""}
             placeholder={p.mixed ? p.m.mixed : "0"}
             readOnly={p.readOnly}
             onChange={(e) => change(side, e.target.value)}
@@ -633,6 +628,8 @@ interface DockProps {
   readonly onOpenJson?: (() => void) | undefined;
   /** Opens the localisation table (STU-063) and the state designer (STU-063); each button shows only when given. */
   readonly onOpenLocalisation?: (() => void) | undefined;
+  /** The frame's window size class: the Properties tab edits its layer, so what is edited is what is drawn (PC-33). */
+  readonly sizeClass?: Breakpoint | undefined;
   readonly onOpenState?: (() => void) | undefined;
   /** The app's schema version, for the documents that key extraction creates (I18N-007). */
   readonly schemaVersion?: JsonValue | undefined;
@@ -972,7 +969,9 @@ function SelectionPanels(props: {
 function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const { m, ids } = p;
   const { canEdit, lockedNote } = useSelectionEditable(p, ids);
-  const [bp, setBp] = useState<Breakpoint>("compact");
+  const [bp, setBp] = useState<Breakpoint>(p.sizeClass ?? "compact");
+  // A frame of another size class shows that class's layer: the inspector follows it, and can still pick another.
+  useEffect(() => setBp(p.sizeClass ?? "compact"), [p.sizeClass]);
   const burst = useRef(0);
   const scopes = useRef<PxlScopeCache>(new Map());
   const nodes = useLiveNodes(p);

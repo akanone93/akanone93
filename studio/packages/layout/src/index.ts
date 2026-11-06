@@ -291,3 +291,11 @@ export {
   type WidgetContext,
   type WidgetNode,
 } from "./widgets/screen.ts";
+export {
+  ACTIVE_LAYERS,
+  atSizeClass,
+  RESPONSIVE_FALLBACK,
+  SIZE_CLASSES,
+  type SizeClass,
+  sizeClassOf,
+} from "./widgets/size-class.ts";
