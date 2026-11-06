@@ -8,6 +8,7 @@
  */
 
 import type { MockState } from "../preview/switches.ts";
+import { evaluateCondition } from "./conditions.ts";
 import {
   type BoundProp,
   boundPropsOf,
@@ -23,6 +24,9 @@ export interface BindingMark extends BoundProp {
 }
 
 const MAX_SHOWN = 28;
+
+/** The props whose expressions are conditions. */
+const CONDITIONS: ReadonlySet<string> = new Set(["visible", "condition"]);
 
 /** A design-time value as a short text: a string quoted, a list by its length, an object by its fields. */
 export function shortValue(value: unknown): string {
@@ -55,7 +59,9 @@ export function bindingMarks(
         id,
         list.map((b) => {
           const v = evaluateMockBinding(b.expr, mocks, states, scope);
-          return v === undefined || v === null ? b : { ...b, shown: shortValue(v) };
+          // A condition the plain reader cannot read may still work out as true or false (PC-25).
+          const c = v === undefined && CONDITIONS.has(b.prop) ? evaluateCondition(b.expr, mocks, states, scope) : v;
+          return c === undefined || c === null ? b : { ...b, shown: shortValue(c) };
         }),
       );
     }

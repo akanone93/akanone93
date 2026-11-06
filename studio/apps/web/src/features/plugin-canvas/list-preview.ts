@@ -122,6 +122,28 @@ function bindItem(value: unknown, scope: DesignScope, env: Env): unknown {
   return out;
 }
 
+/**
+ * Copy `index` of an item template for `item` (PC-24, PC-25): ids suffixed after the first copy, `item…` and `index`
+ * bound to the item's design-time values.
+ */
+export function templateCopy(
+  template: unknown,
+  item: unknown,
+  index: number,
+  base: {
+    readonly mocks: SourceMocks;
+    readonly states: Readonly<Record<string, MockState>>;
+    readonly scope: DesignScope;
+  },
+): unknown {
+  const env: Env = { ...base, picked: new Map() };
+  return bindItem(
+    withIds(template, index === 0 ? "" : `${COPY_MARK}item${index}`),
+    { ...base.scope, item, index },
+    env,
+  );
+}
+
 const centred = (id: string, child: Obj): Obj => ({
   id: `${id}${COPY_MARK}pad`,
   type: "Padding",
@@ -166,10 +188,7 @@ function drawnState(node: Node, state: "loading" | "error" | "empty", text: Stat
 function drawnItems(node: Node, items: readonly unknown[], more: boolean, env: Env, text: StateTexts): Node {
   const slots = (node.slots ?? {}) as Obj;
   const template = slots["item"];
-  const copies = items.slice(0, MAX_DRAWN_ITEMS).map((item, index) => {
-    const scope = { ...env.scope, item, index };
-    return bindItem(withIds(template, index === 0 ? "" : `${COPY_MARK}item${index}`), scope, env);
-  });
+  const copies = items.slice(0, MAX_DRAWN_ITEMS).map((item, index) => templateCopy(template, item, index, env));
   const { item: _item, prototypeItem: _p, empty: _e, loading: _l, error: _x, ...rest } = slots;
   const tail = more ? [defaultView(node.id, "more", text)] : [];
   return { ...node, slots: rest, children: [...copies, ...tail] } as unknown as Node;

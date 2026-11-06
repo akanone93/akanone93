@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from "react";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { withoutHidden } from "../panels/studio-meta.ts";
 import type { PreviewRender } from "../preview/switches.ts";
+import { applyConditions, type BranchPick } from "./conditions.ts";
 import { designScopes } from "./design-scope.ts";
 import { expandLists, type ListState, type StateTexts } from "./list-preview.ts";
 import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
@@ -26,6 +27,7 @@ interface DocLike {
 
 const NO_DRAWERS: ReadonlyMap<string, DrawerSide> = new Map();
 const NO_LISTS: ReadonlyMap<string, ListState> = new Map();
+const NO_BRANCHES: ReadonlyMap<string, BranchPick> = new Map();
 
 /**
  * A page's root as shown with its drawer open when `drawers` names its scaffold (PC-12): a shallow copy marked
@@ -86,6 +88,7 @@ interface LocalizedRoots {
   readonly everything: readonly DocLike[];
   readonly look: PreviewRender;
   readonly lists: ReadonlyMap<string, ListState>;
+  readonly branches: ReadonlyMap<string, BranchPick>;
   readonly byRoot: WeakMap<Node, Node | undefined>;
 }
 
@@ -99,6 +102,7 @@ export function usePreviewScene(
   live: LiveState = emptyLive,
   lists: ReadonlyMap<string, ListState> = NO_LISTS,
   listText?: StateTexts,
+  branches: ReadonlyMap<string, BranchPick> = NO_BRANCHES,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
@@ -120,10 +124,14 @@ export function usePreviewScene(
   const shown = useMemo(() => {
     const kept = cache.current;
     const byRoot =
-      kept !== undefined && kept.everything === everything && kept.look === look && kept.lists === lists
+      kept !== undefined &&
+      kept.everything === everything &&
+      kept.look === look &&
+      kept.lists === lists &&
+      kept.branches === branches
         ? kept.byRoot
         : new WeakMap<Node, Node | undefined>();
-    cache.current = { everything, look, lists, byRoot };
+    cache.current = { everything, look, lists, branches, byRoot };
     const messages = messagesFor(everything, look);
     const { mocks, states } = namedMocks(dataSourcesOf(everything), look.mockStates);
     const scopes = designScopes(everything);
@@ -134,15 +142,17 @@ export function usePreviewScene(
       if (!byRoot.has(s.root)) {
         // A layer hidden in Layers is left out of what the canvas draws (STU-061); the device still shows it.
         const drawn = withoutHidden(s.root);
-        // Lists are drawn from their data first (PC-24), then every other binding takes its design-time value.
+        // Conditions pick their branches (PC-25) and lists are drawn from their data (PC-24) first; then every other
+        // binding takes its design-time value.
         const scope = scopes.get(s.id);
-        const listed = expandLists(localizeTree(drawn, messages, look.localize), mocks, states, scope, lists, listText);
+        const decided = applyConditions(localizeTree(drawn, messages, look.localize), mocks, states, scope, branches);
+        const listed = expandLists(decided, mocks, states, scope, lists, listText);
         byRoot.set(s.root, bindMocks(listed, mocks, states, scope));
       }
       const drawer = shownWith(byRoot.get(s.root), drawers, opened);
       return { ...s, root: drawer === undefined ? drawer : livened(drawer, s, live, look.platform, implied) };
     });
     return presentRoutes(drawn, routes);
-  }, [screens, everything, look, drawers, opened, routes, live, implied, lists, listText]);
+  }, [screens, everything, look, drawers, opened, routes, live, implied, lists, listText, branches]);
   return { shown, styled, paint };
 }

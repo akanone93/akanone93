@@ -210,8 +210,9 @@ function kidsOf(n: Obj): unknown[] {
 function boundOf(n: Obj): BoundProp[] {
   const list: BoundProp[] = [];
   collectBound(n["props"], "", list);
-  if (typeof n["visible"] === "string") {
-    list.push({ prop: "visible", expr: n["visible"] });
+  const visible = n["visible"];
+  if (isObj(visible) && typeof visible["$expr"] === "string") {
+    list.push({ prop: "visible", expr: visible["$expr"] });
   }
   return list;
 }

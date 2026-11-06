@@ -64,7 +64,7 @@ describe("PC-23 design-time values of bound widgets [STA-001] [DAT-080]", () => 
           id: "b",
           type: "Badge",
           props: { label: { $expr: "page.count" }, color: { $expr: "flags.x" } },
-          visible: "page.count > 0",
+          visible: { $expr: "page.count > 0" },
         },
       ],
     } as unknown as Node;

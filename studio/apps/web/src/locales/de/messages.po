@@ -898,6 +898,12 @@ msgstr "{percent} %"
 msgid "publish.buildProgress"
 msgstr "{percent} % {stage}"
 
+#. A branch the canvas draws; From data follows the condition's design-time value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.pick"
+msgstr "{pick, select, auto {Aus Daten} then {Dann} else {Sonst} otherwise {Andernfalls} shown {Sichtbar} hidden {Ausgeblendet} other {Zweig}}"
+
 #. Row of the visual diff: plugin, screen and device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -963,6 +969,12 @@ msgstr "{received} von {total}"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.converted.item"
 msgstr "{reference} wird zum Parameter {parameter}"
+
+#. What a condition is at design time, from page mocks and state defaults.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.worked"
+msgstr "{result, select, true {Jetzt wahr: Das Gerät zeigt es} false {Jetzt falsch: Das Gerät blendet es aus} other {Nur das Gerät kann das ermitteln}}"
 
 #. A role of Material 3's type scale, or a custom text style.
 #. js-lingui-explicit-id
@@ -1862,6 +1874,12 @@ msgstr "Aufteilung"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.allowed"
 msgstr "Erlaubt"
+
+#. Placeholder of the visibility condition field when it is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.visiblePlaceholder"
+msgstr "Immer (z. B. page.items.isNotEmpty)"
 
 #. Shown next to approval and security types that cannot be muted.
 #. js-lingui-explicit-id
@@ -3786,6 +3804,18 @@ msgstr "Migration wird berechnet …"
 msgid "experiments.stateConcluded"
 msgstr "Abgeschlossen"
 
+#. An If widget's condition.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.condition"
+msgstr "Bedingung"
+
+#. Heading of the editor of when a widget shows and which branch it draws.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.title"
+msgstr "Bedingungen"
+
 #. Field label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -5045,6 +5075,12 @@ msgstr "Ziehen, um den Abstand zwischen den Kindelementen zu ändern."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.hint"
 msgstr "Ziehen zum Verschieben · Leertaste + Ziehen zum Schwenken · Strg + Scrollen zum Zoomen · Doppelklick zum Öffnen"
+
+#. Which branch or visibility the canvas draws.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.draw"
+msgstr "Zeichnen"
 
 #. Button on a selected page with no drawer: adds a side drawer (a menu that slides in from the edge).
 #. js-lingui-explicit-id
@@ -17656,6 +17692,12 @@ msgstr "Validierungsfehler"
 msgid "security.colValue"
 msgstr "Wert"
 
+#. A Match widget's value, compared with its cases.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.value"
+msgstr "Wert"
+
 #. Label of the field for the value of a new token.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -17919,6 +17961,12 @@ msgstr "Sichtbarkeit"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.visibility"
 msgstr "Sichtbarkeit"
+
+#. Label of a widget's visibility condition, a PXL expression such as page.count > 0.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.visibleWhen"
+msgstr "Sichtbar wenn"
 
 #. Name of the visual diff publish step.
 #. js-lingui-explicit-id

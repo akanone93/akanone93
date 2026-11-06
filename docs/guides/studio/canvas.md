@@ -225,7 +225,14 @@ the list's **loading** or **error** view, an empty one its **empty** view (a def
 list that `hasMore` ends in a progress row. Select the list to see its **Items** and pick the state drawn under
 **Show** (**From data**, **Items**, **Empty**, **Loading**, **Error**, **Loading more**); **Add an empty view**, **Add a
 loading view** and **Add an error view** give the list a view for that state from a template — an error view's **Try
-again** reloads the list's source — which you then design like any widget. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+again** reloads the list's source — which you then design like any widget. Conditions are drawn the way the device
+would decide them now: an `If` draws its **then** or **else** branch, a `Match` the branch of its value (or
+**otherwise**), a `ForEach` one copy of its template per item, and a widget whose **Visible when** is false is left
+out. The canvas works out comparisons (`page.count > 0`, `params.tab == "paid"`), negations, `isEmpty` and
+`isNotEmpty`, joined by `&&` or `||`, from the same design-time values as bindings; anything else draws the first
+branch and keeps the widget. Select a widget to edit its **Visible when** under **Conditions**, see what it is now
+(**Now true**, **Now false**, or **Only the device can work this out**), and pick what the canvas draws — **From
+data**, a branch, **Shown** or **Hidden** — to design a branch the data does not show. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

@@ -23,7 +23,7 @@ import { routeOptions } from "../plugin-canvas/links.ts";
 import { LIST_TYPES } from "../plugin-canvas/list-preview.ts";
 import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
-import type { EditFn } from "../plugin-canvas/select/edits.ts";
+import { type EditFn, findNode } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
 import type { PxlLanguage } from "../problems/use-validation.ts";
 import { rustEditorMessages } from "../rust-editor/rust-editor.messages.ts";
@@ -31,6 +31,7 @@ import type { TestsClient } from "../rust-editor/test-runner.ts";
 import { stateMessages } from "../state-designer/index.ts";
 import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
+import { ConditionPanel } from "./condition-panel.tsx";
 import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
 import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
@@ -616,6 +617,8 @@ interface DockProps {
   readonly validatePage?: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   /** The PXL language service of the loaded project (PXL-007); the inline PXL fields use it. */
   readonly language?: PxlLanguage | undefined;
+  /** A condition's design-time value for a widget (PC-25); undefined when only a device knows it. */
+  readonly decide?: ((id: string, expr: string) => boolean | undefined) | undefined;
   /** What the canvas draws for a widget's bound expression (PC-23), from page mocks, state defaults and data mocks. */
   readonly drawnValue?: ((id: string, expr: string) => string | undefined) | undefined;
   /** Opens the full-screen JSON editor (STU-064); the button shows only when given. */
@@ -831,6 +834,21 @@ function SizeClasses(props: {
   );
 }
 
+/** The recipe that sets node `id`'s `visible` (a boolean or an expression) or, with undefined, removes it (PC-25). */
+function setVisibleRecipe(id: string, value: unknown): (root: unknown) => void {
+  return (root) => {
+    const node = findNode(root, id)?.node as Obj | undefined;
+    if (node === undefined) {
+      return;
+    }
+    if (value === undefined) {
+      delete node["visible"];
+    } else {
+      node["visible"] = value;
+    }
+  };
+}
+
 /** The layout editors of the one selected widget (PC-22), editing its page through the dock's edit function. */
 function SelectionLayout(props: {
   readonly dock: DockProps;
@@ -984,6 +1002,20 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
             const doc = p.screenOf.get(first);
             if (doc !== undefined) {
               p.edit(doc, addStateRecipe(first, state, view), { group: `list-state:${first}:${state}` });
+            }
+          }}
+        />
+      )}
+      {ids.length === 1 && q === "" && !setOnly && selected[0] !== undefined && (
+        <ConditionPanel
+          id={first}
+          node={selected[0]}
+          canEdit={canEdit}
+          decide={(expr) => p.decide?.(first, expr)}
+          setVisible={(value) => {
+            const doc = p.screenOf.get(first);
+            if (doc !== undefined) {
+              p.edit(doc, setVisibleRecipe(first, value), { group: `visible:${first}:${Date.now()}` });
             }
           }}
         />

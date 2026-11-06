@@ -56,8 +56,14 @@ function firstFilled(node: WidgetNode, names: readonly string[]): WidgetNode | u
 /** A widget that lays out its `child`: behaviour (taps, drags, hero flights, tooltips) and animation end values. */
 const passThrough: WidgetBuilder = (node, ctx) => show(firstChild(node), ctx);
 
-/** `If`: the `then` slot, as when its condition holds; the `else` slot has no design-time view. */
-const ifBuilder: WidgetBuilder = (node, ctx) => show(slot(node, "then") ?? node.children?.[0], ctx);
+/**
+ * `If`: the `else` slot when its condition is the literal `false` (nothing when it has none), else the `then` slot —
+ * a condition only the device can work out draws `then` (PC-25).
+ */
+const ifBuilder: WidgetBuilder = (node, ctx) =>
+  prop(node, "condition") === false
+    ? show(slot(node, "else"), ctx)
+    : show(slot(node, "then") ?? node.children?.[0], ctx);
 
 /**
  * `Match`: the branch of the literal `value` when the document gives a literal

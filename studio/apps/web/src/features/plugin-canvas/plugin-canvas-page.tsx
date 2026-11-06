@@ -31,6 +31,7 @@ import { useCan } from "../library/use-library.ts";
 import { L10nSessionsProvider, useL10nSessions } from "../localisation/index.ts";
 import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
+import { type BranchPreview, BranchPreviewContext } from "../panels/condition-panel.tsx";
 import { LeftDock } from "../panels/left-dock.tsx";
 import { listMessages } from "../panels/list-panel.messages.ts";
 import { type ListPreview, ListPreviewContext } from "../panels/list-panel.tsx";
@@ -52,6 +53,7 @@ import { useStateTarget } from "../state-designer/index.ts";
 import { bindingMarks } from "./binding-marks.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { useCopyOver } from "./clipboard/use-copy-over.ts";
+import { evaluateCondition } from "./conditions.ts";
 import { ContextToolbar } from "./context-toolbar.tsx";
 import { designScopes } from "./design-scope.ts";
 import { DeviceBayHost } from "./device-bay-host.tsx";
@@ -555,6 +557,24 @@ function PluginCanvasView({
     }),
     [listStates],
   );
+  // The branch picked for each condition in the inspector (PC-25).
+  const [branchPicks, setBranchPicks] = useState<ReadonlyMap<string, string>>(new Map());
+  const branchPreview = useMemo<BranchPreview>(
+    () => ({
+      pickOf: (id) => branchPicks.get(id),
+      pick: (id, pick) =>
+        setBranchPicks((prev) => {
+          const next = new Map(prev);
+          if (pick === undefined) {
+            next.delete(id);
+          } else {
+            next.set(id, pick);
+          }
+          return next;
+        }),
+    }),
+    [branchPicks],
+  );
   const listText = useMemo(() => {
     const lm = listMessages(i18n);
     return { empty: lm.defaultEmpty, error: lm.defaultError };
@@ -563,7 +583,7 @@ function PluginCanvasView({
     shown,
     styled: designStyled,
     paint,
-  } = usePreviewScene(screens, drawnAppDocs, docs.data, look, drawers, drawnLive, listStates, listText);
+  } = usePreviewScene(screens, drawnAppDocs, docs.data, look, drawers, drawnLive, listStates, listText, branchPicks);
   const styled = useMemo(() => liveStyle(designStyled, tool), [designStyled, tool]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
@@ -1043,10 +1063,14 @@ function PluginCanvasView({
   );
   // Bound widgets carry a badge and the selection lists its bindings with the values drawn (PC-23).
   const allDocs = useMemo(() => [...(drawnAppDocs ?? []), ...(docs.data ?? [])], [drawnAppDocs, docs.data]);
-  const boundMarks = useMemo(() => {
-    const named = namedMocks(dataSourcesOf(allDocs), look.mockStates);
-    return bindingMarks(screens, named.mocks, named.states, designScopes(allDocs));
-  }, [screens, allDocs, look.mockStates]);
+  const named = useMemo(() => namedMocks(dataSourcesOf(allDocs), look.mockStates), [allDocs, look.mockStates]);
+  const scopes = useMemo(() => designScopes(allDocs), [allDocs]);
+  const boundMarks = useMemo(() => bindingMarks(screens, named.mocks, named.states, scopes), [screens, named, scopes]);
+  const decide = useCallback(
+    (id: string, expr: string) =>
+      evaluateCondition(expr, named.mocks, named.states, scopes.get(screenOf.get(id) ?? "")),
+    [named, scopes, screenOf],
+  );
   const liveSurface = useLiveSurface({
     on: tool === "interact",
     surface: () => surfaceRef.current,
@@ -1108,309 +1132,318 @@ function PluginCanvasView({
     <PaintThemeContext.Provider value={paint}>
       <StatePreviewContext.Provider value={statePreview}>
         <ListPreviewContext.Provider value={listPreview}>
-          <section
-            ref={sectionRef}
-            className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
-            data-preview-theme={look.theme}
-            data-preview-platform={look.platform}
-          >
-            <MatrixOverlay show={matrix} render={look} screen={shown[0]} style={styled} createSurface={createSurface} />
-            {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
-            <canvas
-              key={theme.key}
-              role="application"
-              aria-label={m.title}
-              ref={canvasRef}
-              className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
-              tabIndex={0}
-              {...dropHandlers}
-              data-tool={interaction.tool}
-              onKeyDown={(e) => {
-                // A selection with a locked layer still moves the selection, but edits nothing.
-                const frozen = selection.ids.some((id) => locked.has(id));
-                const handled = handleKey(
-                  { store, index, edit: frozen ? () => undefined : edit, docOf: (id) => screenOf.get(id) },
-                  e,
-                );
-                if (handled) {
-                  e.preventDefault();
-                } else if (e.key === "Backspace" && canEdit && selection.ids.length > 0) {
-                  // Delete is the registered command; Backspace deletes too, while the canvas has the focus.
-                  e.preventDefault();
-                  interaction.remove();
-                }
-              }}
-              {...interaction.handlers}
-            />
-            {interaction.element}
-            <LiveHint on={tool === "interact"} text={m.liveHint} />
-            <SpacingHandles
-              store={overlay}
-              surface={() => surfaceRef.current}
-              selection={selection}
-              index={index}
-              boxOf={(id) => boxRef.current?.(id)}
-              nodeOf={(id) => nodeIn(screens, screenOf, id)}
-              docOf={(id) => screenOf.get(id)}
-              edit={edit}
-              canEdit={canEdit}
-              locked={locked}
-              dims={dimensionsOf(paint)}
-              rtl={look.direction === "rtl"}
-            />
-            <ContextToolbar
-              active={tool === "select"}
-              store={overlay}
-              surface={() => surfaceRef.current}
-              selectionStore={store}
-              ids={selection.ids}
-              index={index}
-              boxOf={(id) => boxRef.current?.(id)}
-              nodeOf={(id) => nodeIn(screens, screenOf, id)}
-              docOf={(id) => screenOf.get(id)}
-              edit={edit}
-              canEdit={canEdit}
-              locked={locked}
-              onAction={() => setDockTab((r) => tabRequest("actions", r))}
-              onDelete={interaction.remove}
-            />
-            <InlineTextHost
-              editing={inlineEdit}
-              onDone={() => setInlineEdit(null)}
-              store={overlay}
-              surface={() => surfaceRef.current}
-              boxOf={(id) => boxRef.current?.(id)}
-              screens={screens}
-              edit={edit}
-              schemaVersion={stateTarget.schemaVersion}
-              announce={setFocusNote}
-            />
-            <PagePartsHost
-              store={overlay}
-              surface={() => surfaceRef.current}
-              roots={roots}
-              screens={screens}
-              selection={selection}
-              selectionStore={store}
-              screenOf={screenOf}
-              edit={edit}
-              canEdit={canEdit}
-              look={look}
-              drawers={drawers}
-              onToggleDrawer={toggleDrawer}
-            />
-            {docs.isPending && <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>}
-            {docs.isError && (
-              <p role="alert" className="absolute start-4 top-4 text-body">
-                {m.failed}
-              </p>
-            )}
-            {docs.isSuccess && screens.length === 0 && (
-              <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.empty}</p>
-            )}
-            <p role="status" aria-live="polite" className="sr-only">
-              {announcement}
-            </p>
-            <p role="status" aria-live="polite" className="sr-only">
-              {focusNote}
-            </p>
-
-            <GhostLeaveDialog
-              ghost={leaving}
-              onCancel={() => setLeaving(null)}
-              onOpen={(ghost) => {
-                setLeaving(null);
-                if (ghost.pluginId !== undefined && ghost.screenId !== undefined) {
-                  void navigate({
-                    to: "/o/$org/apps/$app/plugins/$plugin",
-                    params: { org: params.org ?? "", app: params.app ?? "", plugin: ghost.pluginId },
-                    search: { focus: ghost.screenId },
-                  });
-                }
-              }}
-            />
-            {/* The previewed locale's direction and text scale are the screens' (the canvas draws them so); Studio's own
-            panels keep Studio's. The screen list read to assistive technology is in the previewed locale. */}
-            <ol aria-label={m.screens} className="sr-only" dir={look.direction} lang={look.locale}>
-              {screens.map((s) => (
-                <li key={s.id}>
-                  {s.title}
-                  {(heights.get(s.id) ?? 0) > device.height && (
-                    <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>
-                  )}
-                </li>
-              ))}
-            </ol>
-            <LeftDock
-              title={pluginInfo?.name}
-              nativeWidgets={nativeWidgets}
-              screens={screens}
-              entryPage={entryPage}
-              index={index}
-              screenOf={screenOf}
-              selection={selection}
-              store={store}
-              edit={edit}
-              canEdit={canEdit}
-              surface={() => surfaceRef.current}
-              canvas={() => canvasRef.current}
-              documents={docs.data}
-              onOpenState={() => overlays.show("state")}
-              onOpenData={() => overlays.show("data")}
-              assets={assets}
-            />
-            <LinkLayer
-              surface={() => surfaceRef.current}
-              canvas={() => canvasRef.current}
-              widget={linkWidget}
-              screens={linkScreens}
-              canEdit={canEdit}
-              edit={edit}
-            />
-            {lane !== null && (
-              <LaneDialog
-                title={lane.title}
-                site={laneSite}
-                routes={laneRoutes}
-                canEdit={canEdit}
-                onClose={() => setLane(null)}
-                onRedirect={(route) => {
-                  if (laneSite !== undefined) {
-                    edit(lane.source, redirectRecipe(laneSite.nodeId, laneSite.link, route));
+          <BranchPreviewContext.Provider value={branchPreview}>
+            <section
+              ref={sectionRef}
+              className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
+              data-preview-theme={look.theme}
+              data-preview-platform={look.platform}
+            >
+              <MatrixOverlay
+                show={matrix}
+                render={look}
+                screen={shown[0]}
+                style={styled}
+                createSurface={createSurface}
+              />
+              {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: the pan and zoom surface; its content is the screen list below */}
+              <canvas
+                key={theme.key}
+                role="application"
+                aria-label={m.title}
+                ref={canvasRef}
+                className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
+                tabIndex={0}
+                {...dropHandlers}
+                data-tool={interaction.tool}
+                onKeyDown={(e) => {
+                  // A selection with a locked layer still moves the selection, but edits nothing.
+                  const frozen = selection.ids.some((id) => locked.has(id));
+                  const handled = handleKey(
+                    { store, index, edit: frozen ? () => undefined : edit, docOf: (id) => screenOf.get(id) },
+                    e,
+                  );
+                  if (handled) {
+                    e.preventDefault();
+                  } else if (e.key === "Backspace" && canEdit && selection.ids.length > 0) {
+                    // Delete is the registered command; Backspace deletes too, while the canvas has the focus.
+                    e.preventDefault();
+                    interaction.remove();
                   }
-                  setLane(null);
                 }}
-                onRemove={() => {
-                  if (laneSite !== undefined) {
-                    edit(lane.source, removeLinkRecipe(laneSite.nodeId, laneSite.link));
+                {...interaction.handlers}
+              />
+              {interaction.element}
+              <LiveHint on={tool === "interact"} text={m.liveHint} />
+              <SpacingHandles
+                store={overlay}
+                surface={() => surfaceRef.current}
+                selection={selection}
+                index={index}
+                boxOf={(id) => boxRef.current?.(id)}
+                nodeOf={(id) => nodeIn(screens, screenOf, id)}
+                docOf={(id) => screenOf.get(id)}
+                edit={edit}
+                canEdit={canEdit}
+                locked={locked}
+                dims={dimensionsOf(paint)}
+                rtl={look.direction === "rtl"}
+              />
+              <ContextToolbar
+                active={tool === "select"}
+                store={overlay}
+                surface={() => surfaceRef.current}
+                selectionStore={store}
+                ids={selection.ids}
+                index={index}
+                boxOf={(id) => boxRef.current?.(id)}
+                nodeOf={(id) => nodeIn(screens, screenOf, id)}
+                docOf={(id) => screenOf.get(id)}
+                edit={edit}
+                canEdit={canEdit}
+                locked={locked}
+                onAction={() => setDockTab((r) => tabRequest("actions", r))}
+                onDelete={interaction.remove}
+              />
+              <InlineTextHost
+                editing={inlineEdit}
+                onDone={() => setInlineEdit(null)}
+                store={overlay}
+                surface={() => surfaceRef.current}
+                boxOf={(id) => boxRef.current?.(id)}
+                screens={screens}
+                edit={edit}
+                schemaVersion={stateTarget.schemaVersion}
+                announce={setFocusNote}
+              />
+              <PagePartsHost
+                store={overlay}
+                surface={() => surfaceRef.current}
+                roots={roots}
+                screens={screens}
+                selection={selection}
+                selectionStore={store}
+                screenOf={screenOf}
+                edit={edit}
+                canEdit={canEdit}
+                look={look}
+                drawers={drawers}
+                onToggleDrawer={toggleDrawer}
+              />
+              {docs.isPending && <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>}
+              {docs.isError && (
+                <p role="alert" className="absolute start-4 top-4 text-body">
+                  {m.failed}
+                </p>
+              )}
+              {docs.isSuccess && screens.length === 0 && (
+                <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.empty}</p>
+              )}
+              <p role="status" aria-live="polite" className="sr-only">
+                {announcement}
+              </p>
+              <p role="status" aria-live="polite" className="sr-only">
+                {focusNote}
+              </p>
+
+              <GhostLeaveDialog
+                ghost={leaving}
+                onCancel={() => setLeaving(null)}
+                onOpen={(ghost) => {
+                  setLeaving(null);
+                  if (ghost.pluginId !== undefined && ghost.screenId !== undefined) {
+                    void navigate({
+                      to: "/o/$org/apps/$app/plugins/$plugin",
+                      params: { org: params.org ?? "", app: params.app ?? "", plugin: ghost.pluginId },
+                      search: { focus: ghost.screenId },
+                    });
                   }
-                  setLane(null);
                 }}
               />
-            )}
-            {clipboardDialog}
-            <DeviceBayHost
-              appId={params.app}
-              request={consoleRequest}
-              live={canSend}
-              validation={validation}
-              screens={screens}
-              store={store}
-              index={index}
-              selection={selection}
-              local={local}
-              assets={assets}
-              screenOf={screenOf}
-              entryPage={entryPage}
-            />
-            {libraryDialog}
-            <RightDock
-              tabRequest={dockTab}
-              tests={tests}
-              screens={screens}
-              index={index}
-              screenOf={screenOf}
-              edit={edit}
-              pathOf={pathOf}
-              problems={checked?.problems ?? []}
-              documents={docs.data}
-              appDocuments={appDocs.data}
-              validatePage={checked?.validatePage}
-              language={checked?.language}
-              drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
-              onOpenJson={() => overlays.show("json")}
-              onOpenLocalisation={() => overlays.show("l10n")}
-              onOpenState={() => overlays.show("state")}
-              schemaVersion={stateTarget.schemaVersion}
-              onOpenOverlay={overlays.show}
-              onOpenGraph={() => overlays.show("graph")}
-              onOpenRust={() => {
-                setRustSource(undefined);
-                overlays.show("rust");
-              }}
-              onOpenFunction={(name) => {
-                setRustSource(name);
-                overlays.show("rust");
-              }}
-            />
-            <DesignersHost
-              open={overlays.open}
-              onClose={overlays.hide}
-              documents={docs.data}
-              appDocuments={appDocs.data}
-              validation={validation}
-            />
-            <JsonEditorHost
-              open={overlays.open === "json"}
-              onClose={overlays.hide}
-              documents={docs.data}
-              screenOf={screenOf}
-              pathOf={pathOf}
-              validation={validation}
-            />
-            <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} sourceId={rustSource} />
-            <ExtraOverlays
-              open={overlays.open}
-              onClose={overlays.hide}
-              documents={docs.data}
-              appDocuments={appDocs.data}
-              target={stateTarget}
-              validatePage={checked?.validatePage}
-            />
-            <ActionGraphHost
-              open={overlays.open === "graph"}
-              onClose={overlays.hide}
-              documents={docs.data}
-              screenOf={screenOf}
-              pathOf={pathOf}
-              validation={validation}
-            />
-            {docs.data !== undefined && (
-              <ScreensController
-                appId={params.app ?? ""}
-                pluginId={params.plugin ?? ""}
-                editorSessionId={editorSessionId}
+              {/* The previewed locale's direction and text scale are the screens' (the canvas draws them so); Studio's own
+            panels keep Studio's. The screen list read to assistive technology is in the previewed locale. */}
+              <ol aria-label={m.screens} className="sr-only" dir={look.direction} lang={look.locale}>
+                {screens.map((s) => (
+                  <li key={s.id}>
+                    {s.title}
+                    {(heights.get(s.id) ?? 0) > device.height && (
+                      <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+              <LeftDock
+                title={pluginInfo?.name}
+                nativeWidgets={nativeWidgets}
+                screens={screens}
+                entryPage={entryPage}
+                index={index}
+                screenOf={screenOf}
+                selection={selection}
+                store={store}
+                edit={edit}
+                canEdit={canEdit}
+                surface={() => surfaceRef.current}
+                canvas={() => canvasRef.current}
+                documents={docs.data}
+                onOpenState={() => overlays.show("state")}
+                onOpenData={() => overlays.show("data")}
+                assets={assets}
+              />
+              <LinkLayer
+                surface={() => surfaceRef.current}
+                canvas={() => canvasRef.current}
+                widget={linkWidget}
+                screens={linkScreens}
+                canEdit={canEdit}
+                edit={edit}
+              />
+              {lane !== null && (
+                <LaneDialog
+                  title={lane.title}
+                  site={laneSite}
+                  routes={laneRoutes}
+                  canEdit={canEdit}
+                  onClose={() => setLane(null)}
+                  onRedirect={(route) => {
+                    if (laneSite !== undefined) {
+                      edit(lane.source, redirectRecipe(laneSite.nodeId, laneSite.link, route));
+                    }
+                    setLane(null);
+                  }}
+                  onRemove={() => {
+                    if (laneSite !== undefined) {
+                      edit(lane.source, removeLinkRecipe(laneSite.nodeId, laneSite.link));
+                    }
+                    setLane(null);
+                  }}
+                />
+              )}
+              {clipboardDialog}
+              <DeviceBayHost
+                appId={params.app}
+                request={consoleRequest}
+                live={canSend}
+                validation={validation}
+                screens={screens}
+                store={store}
+                index={index}
+                selection={selection}
+                local={local}
+                assets={assets}
+                screenOf={screenOf}
+                entryPage={entryPage}
+              />
+              {libraryDialog}
+              <RightDock
+                tabRequest={dockTab}
+                tests={tests}
+                screens={screens}
+                index={index}
+                screenOf={screenOf}
+                edit={edit}
+                pathOf={pathOf}
+                problems={checked?.problems ?? []}
                 documents={docs.data}
                 appDocuments={appDocs.data}
-                screens={screens.map((x) => ({ id: x.id, title: x.title }))}
-                selectedScreen={interaction.selectedScreen}
-                tool={interaction.tool}
-                onTool={interaction.setTool}
-                request={screenRequest}
-                entryPage={entryPage}
-                validation={validation}
-                percent={percent}
-                onZoom={zoomBy}
-                onZoomReset={resetZoom}
-                onFit={fit}
-                onShowScreen={showScreen}
-                identity={<PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />}
-                status={
-                  <PluginStatus
-                    ids={selection.ids}
-                    index={index}
-                    validation={validation}
-                    onProblems={() => setConsoleRequest(problemsRequest)}
-                  />
-                }
-                onHistory={() => overlays.show("history")}
-                preview={
-                  <>
-                    {switcher}
-                    {bar}
-                  </>
-                }
-                canSend={canSend}
-                canPublish={canPublish}
-                onPublish={() =>
-                  void navigate({
-                    to: "/o/$org/apps/$app/publish",
-                    params: { org: params.org ?? "", app: params.app ?? "" },
-                  })
-                }
+                validatePage={checked?.validatePage}
+                language={checked?.language}
+                drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
+                decide={decide}
+                onOpenJson={() => overlays.show("json")}
+                onOpenLocalisation={() => overlays.show("l10n")}
+                onOpenState={() => overlays.show("state")}
+                schemaVersion={stateTarget.schemaVersion}
+                onOpenOverlay={overlays.show}
+                onOpenGraph={() => overlays.show("graph")}
+                onOpenRust={() => {
+                  setRustSource(undefined);
+                  overlays.show("rust");
+                }}
+                onOpenFunction={(name) => {
+                  setRustSource(name);
+                  overlays.show("rust");
+                }}
               />
-            )}
-          </section>
+              <DesignersHost
+                open={overlays.open}
+                onClose={overlays.hide}
+                documents={docs.data}
+                appDocuments={appDocs.data}
+                validation={validation}
+              />
+              <JsonEditorHost
+                open={overlays.open === "json"}
+                onClose={overlays.hide}
+                documents={docs.data}
+                screenOf={screenOf}
+                pathOf={pathOf}
+                validation={validation}
+              />
+              <RustEditorHost open={overlays.open === "rust"} onClose={overlays.hide} sourceId={rustSource} />
+              <ExtraOverlays
+                open={overlays.open}
+                onClose={overlays.hide}
+                documents={docs.data}
+                appDocuments={appDocs.data}
+                target={stateTarget}
+                validatePage={checked?.validatePage}
+              />
+              <ActionGraphHost
+                open={overlays.open === "graph"}
+                onClose={overlays.hide}
+                documents={docs.data}
+                screenOf={screenOf}
+                pathOf={pathOf}
+                validation={validation}
+              />
+              {docs.data !== undefined && (
+                <ScreensController
+                  appId={params.app ?? ""}
+                  pluginId={params.plugin ?? ""}
+                  editorSessionId={editorSessionId}
+                  documents={docs.data}
+                  appDocuments={appDocs.data}
+                  screens={screens.map((x) => ({ id: x.id, title: x.title }))}
+                  selectedScreen={interaction.selectedScreen}
+                  tool={interaction.tool}
+                  onTool={interaction.setTool}
+                  request={screenRequest}
+                  entryPage={entryPage}
+                  validation={validation}
+                  percent={percent}
+                  onZoom={zoomBy}
+                  onZoomReset={resetZoom}
+                  onFit={fit}
+                  onShowScreen={showScreen}
+                  identity={<PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />}
+                  status={
+                    <PluginStatus
+                      ids={selection.ids}
+                      index={index}
+                      validation={validation}
+                      onProblems={() => setConsoleRequest(problemsRequest)}
+                    />
+                  }
+                  onHistory={() => overlays.show("history")}
+                  preview={
+                    <>
+                      {switcher}
+                      {bar}
+                    </>
+                  }
+                  canSend={canSend}
+                  canPublish={canPublish}
+                  onPublish={() =>
+                    void navigate({
+                      to: "/o/$org/apps/$app/publish",
+                      params: { org: params.org ?? "", app: params.app ?? "" },
+                    })
+                  }
+                />
+              )}
+            </section>
+          </BranchPreviewContext.Provider>
         </ListPreviewContext.Provider>
       </StatePreviewContext.Provider>
     </PaintThemeContext.Provider>

@@ -54,3 +54,45 @@
   border-style: solid;
   color: var(--foreground);
 }
+
+/* The conditions panel (PC-25): the condition, what it is now, and the branch drawn. */
+.cond-block {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+  min-inline-size: 0;
+}
+
+.cond-expr {
+  overflow: hidden;
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--muted) 70%, transparent);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cond-input {
+  block-size: calc(var(--spacing) * 8);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.cond-worked {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+
+.cond-worked[data-result="true"] {
+  color: color-mix(in oklch, oklch(0.6 0.14 150) 80%, var(--foreground));
+}
+
+.cond-worked[data-result="false"] {
+  color: color-mix(in oklch, oklch(0.62 0.16 40) 80%, var(--foreground));
+}
