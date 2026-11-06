@@ -61,6 +61,7 @@ import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
 import { a11yMarksOf } from "./a11y-marks.ts";
+import { assetUses, replaceAssetRecipe } from "./asset-uses.ts";
 import { bindingMarks } from "./binding-marks.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { useCopyOver } from "./clipboard/use-copy-over.ts";
@@ -1389,6 +1390,22 @@ function PluginCanvasView({
       addToken: (name, value) => writeTheme(`add:${name}`, addTokenRecipe(name, value)),
     };
   }, [appSession, screenRoots, store, look.theme]);
+  // The Assets tab knows where each asset is used, selects its uses and moves them to a replacement (PC-36).
+  const assetsTab = useMemo(
+    () => ({
+      ...assets,
+      uses: assetUses(screens),
+      onSelectUses: (ids: readonly string[]) => store.set({ ids, anchor: ids[0] ?? null, scope: null }),
+      onReplaceUses: (from: string, to: string) => {
+        for (const s of screens) {
+          if (assetUses([s]).has(from)) {
+            edit(s.id, replaceAssetRecipe(from, to), { group: `replace-asset:${from}:${to}` });
+          }
+        }
+      },
+    }),
+    [assets, screens, store, edit],
+  );
   const boxOfNow = useCallback(() => boxRef.current, []);
   const sizes = useSizesView({
     on: sizesView,
@@ -1659,7 +1676,7 @@ function PluginCanvasView({
                           documents={docs.data}
                           onOpenState={() => overlays.show("state")}
                           onOpenData={() => overlays.show("data")}
-                          assets={assets}
+                          assets={assetsTab}
                         />
                         <LinkLayer
                           surface={() => surfaceRef.current}

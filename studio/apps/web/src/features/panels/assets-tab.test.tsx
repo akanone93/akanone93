@@ -124,3 +124,69 @@ describe("S2.6 the Assets tab [SRV-060]", () => {
     expect(await screen.findByText("No assets yet.")).toBeDefined();
   });
 });
+
+describe("PC-36 an asset's uses, details, replacement and limits [AST-001] [AST-003]", () => {
+  const uses = new Map([
+    [
+      "a1",
+      [
+        { node: "n1", page: "p1" },
+        { node: "n2", page: "p1" },
+      ],
+    ],
+  ]);
+  function renderWithUses(server: Server) {
+    const selected: (readonly string[])[] = [];
+    const replaced: [string, string][] = [];
+    const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });
+    render(
+      <I18nProvider studio={studio}>
+        <AssetsTab
+          client={stub(server)}
+          appId="app1"
+          session="tab-1"
+          uses={uses}
+          onSelectUses={(ids) => selected.push(ids)}
+          onReplaceUses={(from, to) => replaced.push([from, to])}
+        />
+      </I18nProvider>,
+    );
+    return { selected, replaced };
+  }
+
+  test("each asset shows how many widgets use it, and the plugin's asset bytes against its limit", async () => {
+    renderWithUses(fresh());
+    expect(await screen.findByRole("meter", { name: "Assets this plugin uses" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Show the details of images/old.png" }).textContent).toContain("2");
+  });
+
+  test("a file above asset.fileSize is refused before any byte is sent", async () => {
+    const server = fresh();
+    renderWithUses(server);
+    await screen.findByRole("button", { name: "Show the details of images/old.png" });
+    const big = new File([new Uint8Array(10 * 1024 * 1024 + 1)], "huge.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("Upload file"), { target: { files: [big] } });
+    expect((await screen.findByRole("alert")).textContent).toContain("asset.fileSize");
+    expect(server.calls).toEqual([]);
+  });
+
+  test("the details select the asset's uses, and Replace uploads a file and moves the uses to it", async () => {
+    const server = fresh();
+    const { selected, replaced } = renderWithUses(server);
+    fireEvent.click(await screen.findByRole("button", { name: "Show the details of images/old.png" }));
+    expect(screen.getByRole("region", { name: "Details of images/old.png" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Select its uses" }));
+    expect(selected).toEqual([["n1", "n2"]]);
+    const file = new File([new Uint8Array([1, 2, 3, 4, 5, 6])], "logo.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("Replace…", { selector: "input" }), { target: { files: [file] } });
+    await waitFor(() => expect(replaced).toEqual([["a1", "new"]]));
+    expect(await screen.findByText("Its uses now show images/logo.png.")).toBeTruthy();
+    expect(server.calls).toContain("finish");
+  });
+
+  test("deleting a used asset says its widgets lose their image", async () => {
+    renderWithUses(fresh());
+    fireEvent.click(await screen.findByRole("button", { name: "Delete images/old.png" }));
+    expect((await screen.findByRole("alertdialog")).textContent).toContain("Deleting it leaves them without an image");
+  });
+});

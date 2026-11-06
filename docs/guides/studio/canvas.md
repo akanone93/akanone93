@@ -311,7 +311,13 @@ container follows its properties, and a page body that does not scroll is as hig
 from Material Symbols and the Cupertino icons in their colour and size; an icon property opens a picker of every icon
 of both sets, searched by name. The canvas draws Material Symbols at their default fill and weight. Images of the
 app's uploaded assets are drawn in their fit and corners, and avatars in their image or colour with their initials;
-drag an image from **Assets** onto a screen to add it, or pick one for an image property. A web image is loaded on the
+drag an image from **Assets** onto a screen to add it, or pick one for an image property. In **Assets** each file shows how many
+widgets of the plugin use it (or **Unused**), and a meter shows what the plugin's used files weigh against the limit
+publish enforces (`plugin.assetBytes`, amber from 80 %); a file above `asset.fileSize` is refused before it is sent.
+Choose a file for its details — preview, type, pixels, bytes, content hash, processing and variants, the server's
+findings — then **Select its uses** on the canvas or **Replace…** it: the new file is uploaded and the plugin's uses
+point at it, the old file staying until you delete it. Deleting a file the plugin uses says how many widgets lose
+their image. A web image is loaded on the
 device; the canvas shows its placeholder. Buttons, chips, checkboxes, radios, switches, sliders and progress
 indicators look as Material 3 draws them, their labels and icons in the component's colours, and a button in its own
 style where it sets one; a control without an

@@ -8,6 +8,8 @@ import { AlertDialog, Button, FileDrop, Icon, type IconName, Meter } from "@plux
 import { Button as IconButton } from "@plux/ui/components/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import { type AssetUse, assetBudget, assetFileLimit } from "../plugin-canvas/asset-uses.ts";
+import { AssetDetails } from "./asset-details.tsx";
 import { assetsMessages } from "./assets.messages.ts";
 import { type UploadFailure, type UploadState, uploadAsset, uploadFailure } from "./upload-asset.ts";
 
@@ -23,8 +25,19 @@ interface Pending {
   failure: UploadFailure | null;
 }
 
+const MB = 1024 * 1024;
+
+/** A file size as people read it: kilobytes below a megabyte, megabytes with a decimal below ten. */
 function kb(n: number): string {
-  return `${Math.max(1, Math.round(n / 1024))} KB`;
+  if (n < MB) {
+    return `${Math.max(1, Math.round(n / 1024))} KB`;
+  }
+  return `${(n / MB).toFixed(n < 10 * MB ? 1 : 0)} MB`;
+}
+
+/** Two sizes that must read as different: exact bytes when the rounded sizes would look the same. */
+function apart(a: number, b: number): [string, string] {
+  return kb(a) === kb(b) ? [`${a.toLocaleString("en")} B`, `${b.toLocaleString("en")} B`] : [kb(a), kb(b)];
 }
 
 type AssetKind = "image" | "vector" | "font" | "animation" | "other";
@@ -68,23 +81,110 @@ function thumbOf(a: Asset): string | undefined {
  * failed chunk) and delete with confirmation (S2.6, SRV-060). `client` is AssetService; `session`
  * is the editor session that holds the lock.
  */
+/** One asset of the grid: open its details, drag it onto a screen, delete it; how many widgets use it (PC-36). */
+function AssetCard(p: {
+  readonly a: Asset;
+  readonly uses: number | undefined;
+  readonly onOpen: () => void;
+  readonly onDelete: () => void;
+}) {
+  const m = assetsMessages(useLingui().i18n);
+  const { a } = p;
+  const k = assetKind(a);
+  const thumb = k === "image" ? thumbOf(a) : undefined;
+  return (
+    <li
+      className="asset-card"
+      title={a.name}
+      draggable={k === "image"}
+      onDragStart={(e) => {
+        e.dataTransfer.setData(ASSET_DRAG_TYPE, a.id);
+        e.dataTransfer.effectAllowed = "copy";
+      }}
+    >
+      <button type="button" className="asset-open" aria-label={m.open(a.name)} onClick={p.onOpen}>
+        <span className="asset-thumb" data-kind={k} aria-hidden="true">
+          {thumb === undefined ? <Icon name={kindIcons[k]} /> : <img src={thumb} alt="" loading="lazy" />}
+        </span>
+        <span className="asset-name font-mono" dir="ltr">
+          {a.name}
+        </span>
+        <span className="asset-meta" dir="ltr">
+          {a.mediaType.split("/")[1] ?? a.mediaType} · {kb(Number(a.size))}
+        </span>
+        {p.uses !== undefined && (
+          <span className="asset-uses" data-unused={p.uses === 0 || undefined}>
+            {p.uses === 0 ? m.unused : m.uses(p.uses)}
+          </span>
+        )}
+      </button>
+      <IconButton
+        size="icon-xs"
+        variant="secondary"
+        className="asset-delete"
+        aria-label={m.delete(a.name)}
+        onClick={p.onDelete}
+      >
+        <Icon name="trash" size="pill" />
+      </IconButton>
+    </li>
+  );
+}
+
+/** What the plugin's used assets weigh against `plugin.assetBytes`, the limit publish enforces (AST-003). */
+function AssetBudget(p: { readonly assets: readonly Asset[]; readonly used: ReadonlySet<string> }) {
+  const m = assetsMessages(useLingui().i18n);
+  const budget = assetBudget(
+    p.assets.map((a) => ({ id: a.id, size: Number(a.size) })),
+    p.used,
+  );
+  const text = m.budgetText(kb(budget.total), kb(budget.limit));
+  return (
+    <div className="asset-budget" data-state={budget.state}>
+      <span className="asset-budget-head">
+        <span>{m.budget}</span>
+        <span className="tabular-nums">{text}</span>
+      </span>
+      <Meter value={budget.total} max={budget.limit} label={m.budget} valueText={text} layout="bar" />
+      {budget.state !== "within" && (
+        <p className="asset-budget-note" role="status">
+          {budget.state === "over" ? m.budgetOver : m.budgetNear}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function AssetsTab({
   client,
   appId,
   session,
   onChanged,
+  uses,
+  onSelectUses,
+  onReplaceUses,
 }: {
   readonly client: AssetClient;
   readonly appId: string;
   readonly session: string;
   /** Called after the list changed (an upload or a delete), for the canvas and the pickers to see it. */
   readonly onChanged?: () => void;
+  /** The widgets of the plugin's pages that show each asset, by asset id (PC-36). */
+  readonly uses?: ReadonlyMap<string, readonly AssetUse[]>;
+  /** Selects widgets on the canvas. */
+  readonly onSelectUses?: (nodes: readonly string[]) => void;
+  /** Points the plugin's uses of one asset at another, after a replacement was uploaded. */
+  readonly onReplaceUses?: (from: string, to: string) => void;
 }): ReactElement {
   const m = assetsMessages(useLingui().i18n);
   const [assets, setAssets] = useState<readonly Asset[] | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [pending, setPending] = useState<readonly Pending[]>([]);
   const [toDelete, setToDelete] = useState<Asset | null>(null);
+  const [open, setOpen] = useState<Asset | null>(null);
+  const [refused, setRefused] = useState<readonly string[]>([]);
+  const [replacing, setReplacing] = useState(false);
+  const [note, setNote] = useState<string | undefined>();
   const keys = useRef(0);
 
   const refresh = useCallback(async () => {
@@ -121,13 +221,17 @@ export function AssetsTab({
     }
   };
 
+  const nameOf = (file: File) => `images/${file.name.toLowerCase().replaceAll(/[^a-z0-9._-]/g, "-")}`;
+  // A file above asset.fileSize is refused here, before its bytes are sent (AST-003).
+  const fits = (file: File) => file.size <= assetFileLimit();
   const pick = (files: readonly File[]) => {
-    for (const file of files) {
+    setRefused(files.filter((f) => !fits(f)).map((f) => m.tooBig(f.name, ...apart(f.size, assetFileLimit()))));
+    for (const file of files.filter(fits)) {
       keys.current += 1;
       const p: Pending = {
         key: keys.current,
         file,
-        name: `images/${file.name.toLowerCase().replaceAll(/[^a-z0-9._-]/g, "-")}`,
+        name: nameOf(file),
         state: { current: null },
         received: 0,
         failed: false,
@@ -140,8 +244,37 @@ export function AssetsTab({
 
   const remove = async (a: Asset) => {
     await client.deleteAsset({ id: a.id, session });
+    setOpen((o) => (o?.id === a.id ? null : o));
     await refresh();
   };
+
+  // Replace (PC-36): the new file is uploaded, then the plugin's uses of the old one point at it; the old file stays.
+  const replace = async (old: Asset, file: File) => {
+    if (!fits(file)) {
+      setNote(m.tooBig(file.name, ...apart(file.size, assetFileLimit())));
+      return;
+    }
+    setReplacing(true);
+    try {
+      const made = await uploadAsset(
+        client,
+        { appId, name: nameOf(file), session, file },
+        { current: null },
+        () => undefined,
+      );
+      if (made !== undefined) {
+        onReplaceUses?.(old.id, made.id);
+        setNote(m.replaced(made.name));
+      }
+      await refresh();
+    } catch (err) {
+      const failure = uploadFailure(err);
+      setNote(failure === null ? m.failed(file.name) : m.failure(failure));
+    } finally {
+      setReplacing(false);
+    }
+  };
+  const usesOf = (id: string) => uses?.get(id) ?? [];
 
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<AssetKind | "all">("all");
@@ -152,6 +285,30 @@ export function AssetsTab({
   return (
     <section aria-label={m.tab} className="flex flex-col gap-3">
       <FileDrop label={m.upload} hint={m.dropHint} multiple onFiles={pick} />
+      {refused.map((r) => (
+        <p key={r} role="alert" className="asset-refused">
+          <Icon name="warning" size="pill" />
+          {r}
+        </p>
+      ))}
+      {assets !== null && uses !== undefined && <AssetBudget assets={assets} used={new Set(uses.keys())} />}
+      {open !== null && (
+        <AssetDetails
+          asset={open}
+          thumb={assetKind(open) === "image" ? thumbOf(open) : undefined}
+          size={kb(Number(open.size))}
+          uses={usesOf(open.id).length}
+          canReplace={onReplaceUses !== undefined}
+          busy={replacing}
+          note={note}
+          onClose={() => {
+            setOpen(null);
+            setNote(undefined);
+          }}
+          onSelectUses={() => onSelectUses?.(usesOf(open.id).map((u) => u.node))}
+          onReplace={(file) => void replace(open, file)}
+        />
+      )}
       {pending.length > 0 && (
         <ul className="flex flex-col gap-2">
           {pending.map((p) => (
@@ -229,41 +386,18 @@ export function AssetsTab({
       {assets !== null && assets.length > 0 && shown.length === 0 && <p className="dock-note">{m.noMatch}</p>}
       {shown.length > 0 && (
         <ul aria-label={m.list} className="asset-grid">
-          {shown.map((a) => {
-            const k = assetKind(a);
-            const thumb = k === "image" ? thumbOf(a) : undefined;
-            return (
-              <li
-                key={a.id}
-                className="asset-card"
-                title={a.name}
-                draggable={k === "image"}
-                onDragStart={(e) => {
-                  e.dataTransfer.setData(ASSET_DRAG_TYPE, a.id);
-                  e.dataTransfer.effectAllowed = "copy";
-                }}
-              >
-                <span className="asset-thumb" data-kind={k} aria-hidden="true">
-                  {thumb === undefined ? <Icon name={kindIcons[k]} /> : <img src={thumb} alt="" loading="lazy" />}
-                </span>
-                <span className="asset-name font-mono" dir="ltr">
-                  {a.name}
-                </span>
-                <span className="asset-meta" dir="ltr">
-                  {a.mediaType.split("/")[1] ?? a.mediaType} · {kb(Number(a.size))}
-                </span>
-                <IconButton
-                  size="icon-xs"
-                  variant="secondary"
-                  className="asset-delete"
-                  aria-label={m.delete(a.name)}
-                  onClick={() => setToDelete(a)}
-                >
-                  <Icon name="trash" size="pill" />
-                </IconButton>
-              </li>
-            );
-          })}
+          {shown.map((a) => (
+            <AssetCard
+              key={a.id}
+              a={a}
+              uses={uses === undefined ? undefined : usesOf(a.id).length}
+              onOpen={() => {
+                setOpen(a);
+                setNote(undefined);
+              }}
+              onDelete={() => setToDelete(a)}
+            />
+          ))}
         </ul>
       )}
       <AlertDialog
@@ -274,7 +408,13 @@ export function AssetsTab({
           }
         }}
         title={m.deleteTitle}
-        description={toDelete === null ? "" : m.deleteBody(toDelete.name)}
+        description={
+          toDelete === null
+            ? ""
+            : usesOf(toDelete.id).length > 0
+              ? m.deleteUsed(toDelete.name, usesOf(toDelete.id).length)
+              : m.deleteBody(toDelete.name)
+        }
         labels={{ cancel: m.cancel, confirm: m.confirm }}
         onConfirm={() => {
           if (toDelete !== null) {

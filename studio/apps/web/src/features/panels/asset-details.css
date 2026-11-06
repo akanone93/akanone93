@@ -1,0 +1,170 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The Assets tab's details, uses, budget and refusals (PC-36). */
+
+.asset-open {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+  min-inline-size: 0;
+  text-align: start;
+  border-radius: var(--radius-md);
+}
+
+.asset-open:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.asset-uses {
+  align-self: flex-start;
+  padding-inline: 5px;
+  border-radius: 999px;
+  color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  font-size: 0.625rem;
+  line-height: 15px;
+}
+
+.asset-uses[data-unused] {
+  color: var(--muted-foreground);
+  background-color: var(--muted);
+}
+
+.asset-budget {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1);
+}
+
+.asset-budget-head {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  justify-content: space-between;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.asset-budget-note,
+.asset-refused {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  align-items: flex-start;
+  font-size: 0.6875rem;
+}
+
+.asset-budget[data-state="warning"] .asset-budget-note {
+  color: color-mix(in oklch, oklch(0.62 0.16 60) 85%, var(--foreground));
+}
+
+.asset-budget[data-state="over"] .asset-budget-head {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  justify-content: space-between;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.asset-budget-note,
+.asset-refused {
+  color: var(--destructive);
+}
+
+.asset-details {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 2.5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in oklch, var(--card) 85%, transparent);
+}
+
+.asset-details-head {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.asset-details-close {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 6);
+  block-size: calc(var(--spacing) * 6);
+  border-radius: var(--radius-sm);
+  color: var(--muted-foreground);
+}
+
+.asset-details-close:hover {
+  color: var(--foreground);
+  background-color: var(--muted);
+}
+
+.asset-details-preview {
+  display: grid;
+  place-items: center;
+  block-size: calc(var(--spacing) * 36);
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  background-color: var(--muted);
+  background-image: conic-gradient(
+    color-mix(in oklch, var(--foreground) 6%, transparent) 25%,
+    transparent 0 50%,
+    color-mix(in oklch, var(--foreground) 6%, transparent) 0 75%,
+    transparent 0
+  );
+  background-size: 16px 16px;
+}
+
+.asset-details-preview img {
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  object-fit: contain;
+}
+
+.asset-details-facts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+  font-size: var(--text-xs);
+}
+
+.asset-details-facts dt {
+  overflow: hidden;
+  color: var(--muted-foreground);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-details-facts dd {
+  justify-self: end;
+  text-align: end;
+}
+
+.asset-details-findings {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1);
+  color: color-mix(in oklch, oklch(0.62 0.16 60) 85%, var(--foreground));
+  font-size: 0.6875rem;
+}
+
+.asset-details-findings li {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+}
+
+.asset-details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 1.5);
+  align-items: center;
+}
+
+.asset-details-hint {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}

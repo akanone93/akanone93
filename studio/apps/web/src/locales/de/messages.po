@@ -784,6 +784,12 @@ msgstr "{n, plural, one {# Plugin ausgewählt} other {# Plugins ausgewählt}}"
 msgid "appCanvas.screens"
 msgstr "{n, plural, one {# Bildschirm} other {# Bildschirme}}"
 
+#. How many widgets of the plugin's pages show the asset (PC-36).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uses"
+msgstr "{n, plural, one {# Verwendung} other {# Verwendungen}}"
+
 #. Count of a plugin's published versions.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -862,6 +868,12 @@ msgstr "{name} ({type})"
 msgid "library.parameterRequired"
 msgstr "{name} ({type}), erforderlich"
 
+#. A file larger than the per-asset limit is refused before it is uploaded (AST-003).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.tooBig"
+msgstr "{name} ist {size} groß, mehr als die {max}, die eine Datei haben darf (asset.fileSize). Sie wurde nicht hochgeladen."
+
 #. Explains why deleting a screen needs typing its name (STU-074).
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -891,6 +903,12 @@ msgstr "{name} veröffentlicht gerade. Du kannst diese Anfrage ansehen."
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.deleteBody"
 msgstr "{name} wird aus der App entfernt. Seiten, die es verwenden, zeigen ein fehlendes Bild, bis Sie ein anderes wählen."
+
+#. Delete confirmation of an asset that the plugin's pages use.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.deleteUsed"
+msgstr "{name} wird von {n, plural, one {# Widget} other {# Widgets}} dieses Plugins angezeigt. Löschen lässt sie ohne Bild, bis du ein anderes wählst."
 
 #. Announced after a box was moved with the keyboard; x and y are canvas coordinates.
 #. js-lingui-explicit-id
@@ -1162,6 +1180,12 @@ msgstr "{state, select, auto {Aus Daten} items {Einträge} empty {Leer} loading 
 msgid "list.add"
 msgstr "{state, select, empty {Leeransicht hinzufügen} loading {Ladeansicht hinzufügen} other {Fehleransicht hinzufügen}}"
 
+#. Whether the server has made the asset's variants.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.processing"
+msgstr "{state, select, pending {In Verarbeitung} failed {Verarbeitung fehlgeschlagen} other {Bereit}}"
+
 #. The save state in a canvas's top bar: saved, sending edits, no network, or a conflict to resolve.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/editor.messages.ts
@@ -1192,6 +1216,12 @@ msgstr "{t, select, platform {Plattformstandard} fade {Überblenden} slideLeft {
 msgid "links.targetOption"
 msgstr "{title} ({scope})"
 
+#. The plugin's asset bytes against plugin.assetBytes, e.g. 1.2 MB of 20 MB.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.budgetText"
+msgstr "{total} von {max}"
+
 #. A widget the toolbar adds after the selected one.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -1209,6 +1239,12 @@ msgstr "{type} ausgewählt"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.limits.usage-text"
 msgstr "{used} von {limit}"
+
+#. An image's size in pixels.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.pixels"
+msgstr "{w} × {h} px"
 
 #. A touch target smaller than the minimum, e.g. 32 × 32, under 48.
 #. js-lingui-explicit-id
@@ -1305,6 +1341,12 @@ msgstr "Rollout abbrechen"
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.stateAborted"
 msgstr "Abgebrochen"
+
+#. Shown when the plugin's assets weigh more than the limit (AST-003).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.budgetOver"
+msgstr "Über plugin.assetBytes: Das Veröffentlichen dieses Plugins schlägt fehl, bis es weniger oder kleinere Assets nutzt."
 
 #. Button that accepts the invitation.
 #. js-lingui-explicit-id
@@ -2612,6 +2654,12 @@ msgstr "Assets"
 msgid "apps.limit.assets"
 msgstr "Assets pro Plugin"
 
+#. Label of the meter of the bytes of the assets the plugin's pages use against the plugin limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.budget"
+msgstr "Assets, die dieses Plugin nutzt"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -3654,6 +3702,12 @@ msgstr "Schließen"
 msgid "clipboard.close"
 msgstr "Schließen"
 
+#. Closes an asset's details.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.close"
+msgstr "Schließen"
+
 #. Button that closes the wizard after the app was created.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -3791,6 +3845,12 @@ msgstr "Theme-Editor schließen"
 #: apps/web/src/features/plugin-canvas/timelines.messages.ts
 msgid "timeline.close"
 msgstr "Zeitleiste schließen"
+
+#. Shown when the plugin's assets pass the warning threshold of the limit.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.budgetNear"
+msgstr "Nahe an plugin.assetBytes: Das Veröffentlichen warnt davor."
 
 #. State of a rollout.
 #. js-lingui-explicit-id
@@ -5051,6 +5111,12 @@ msgstr "Details"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.details"
 msgstr "Details"
+
+#. Accessible name of an asset's details panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.details"
+msgstr "Details von {name}"
 
 #. Name of a script.
 #. js-lingui-explicit-id
@@ -7967,6 +8033,12 @@ msgstr "Seine Ereignisse führen noch nichts aus."
 #: apps/web/src/features/panels/quick-actions.messages.ts
 msgid "quick.snackShown"
 msgstr "Seine Meldung erscheint unten im Bildschirm, solange es ausgewählt ist."
+
+#. Shown after an asset was replaced; name is the new file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.replaced"
+msgstr "Die Verwendungen zeigen jetzt {name}."
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -13144,6 +13216,18 @@ msgstr "Quellcode durch die Vorlage ersetzen"
 msgid "quick.replace"
 msgstr "Bisheriges ersetzen"
 
+#. Button that uploads another file and points the asset's uses at it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.replace"
+msgstr "Ersetzen…"
+
+#. Explains what Replace does.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.replaceHint"
+msgstr "Ersetzen lässt die Verwendungen in diesem Plugin auf die neue Datei zeigen; die alte Datei bleibt, bis du sie löschst."
+
 #. Label of the drawing that shows the recorded layout.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -14505,6 +14589,12 @@ msgstr "Alle angezeigten Schlüssel auswählen"
 msgid "pluginCanvas.selectChildren"
 msgstr "Erstes untergeordnetes Element auswählen"
 
+#. Button that selects every widget showing the asset on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.selectUses"
+msgstr "Verwendungen auswählen"
+
 #. Context-menu item that selects the widget around the selected one.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -14739,6 +14829,12 @@ msgstr "Einstellungen"
 msgid "shell.changes.table"
 msgstr "Einstellungen, die sich seit dem Erzeugen des Projekts geändert haben"
 
+#. Label of an asset's content hash (AST-001).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.hash"
+msgstr "SHA-256"
+
 #. Section of the decoration editor.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -14900,6 +14996,12 @@ msgstr "Plugins zeigen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.layers.show-panel"
 msgstr "Plugin-Bereich einblenden"
+
+#. Accessible name of an asset card's button that opens its details.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.open"
+msgstr "Details von {name} anzeigen"
 
 #. One of five short stories under the sample screen on the sign-in page. Its sentence.
 #. js-lingui-explicit-id
@@ -18214,6 +18316,12 @@ msgstr "Unveröffentlichte Änderungen"
 msgid "notify.inbox.unread-only"
 msgstr "Nur ungelesene"
 
+#. Badge: no widget of the plugin's pages shows the asset.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.unused"
+msgstr "Unbenutzt"
+
 #. Command that replaces the selected container on the canvas by its children.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -18573,6 +18681,12 @@ msgstr "Variante B"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.variantName"
 msgstr "Name der Variante"
+
+#. Label of the processed forms of an image, such as WebP at 1x, 2x and 3x.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.variants"
+msgstr "Varianten"
 
 #. Wizard step and heading.
 #. js-lingui-explicit-id
