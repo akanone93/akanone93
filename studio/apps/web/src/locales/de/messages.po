@@ -460,6 +460,12 @@ msgstr "{environment} Release {sequence}"
 msgid "appCanvas.problemTotals"
 msgstr "{errors, plural, =0 {Keine Validierungsfehler} one {# Validierungsfehler} other {# Validierungsfehler}}"
 
+#. A screen's problems in the Performance tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfScreenProblems"
+msgstr "{errors, plural, one {# Fehler} other {# Fehler}}, {warnings, plural, one {# Warnung} other {# Warnungen}}"
+
 #. A page lifecycle event: created (onInit), shown (onEnter), resumed (onResume), left (onLeave), disposed (onDispose).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -718,6 +724,12 @@ msgstr "{n, plural, =0 {Noch kein anderes Widget hat diesen Tag} one {Fliegt zu 
 msgid "apps.count"
 msgstr "{n, plural, one {# App} other {# Apps}}"
 
+#. Under a screen: the errors of its page document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costErrors"
+msgstr "{n, plural, one {# Fehler} other {# Fehler}}"
+
 #. Badge: validation errors in a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -777,6 +789,12 @@ msgstr "{n, plural, one {# Bildschirm} other {# Bildschirme}}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.versions"
 msgstr "{n, plural, one {# Version} other {# Versionen}}"
+
+#. Under a screen: the warnings of its page document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costWarnings"
+msgstr "{n, plural, one {# Warnung} other {# Warnungen}}"
 
 #. Status after pasting a copied style.
 #. js-lingui-explicit-id
@@ -928,6 +946,18 @@ msgstr "{name}: PXL-Ausdruck"
 msgid "lock.requests.body"
 msgstr "{names} möchte dieses Plugin bearbeiten."
 
+#. A screen's widgets against the page's node budget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfScreenNodes"
+msgstr "{nodes} von {limit}"
+
+#. Under a screen: its widgets against the page's node budget, e.g. 142 of 5000 nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costNodes"
+msgstr "{nodes} von {limit} Knoten"
+
 #. Summary of a finished test run: the number of tests that passed and failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -1047,6 +1077,12 @@ msgstr "{result, select, true {Jetzt wahr: Das Gerät zeigt es} false {Jetzt fal
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.typeRole"
 msgstr "{role, select, custom {Eigener} displayLarge {Display groß} displayMedium {Display mittel} displaySmall {Display klein} headlineLarge {Überschrift groß} headlineMedium {Überschrift mittel} headlineSmall {Überschrift klein} titleLarge {Titel groß} titleMedium {Titel mittel} titleSmall {Titel klein} bodyLarge {Fließtext groß} bodyMedium {Fließtext mittel} bodySmall {Fließtext klein} labelLarge {Label groß} labelMedium {Label mittel} labelSmall {Label klein} other {Stil}}"
+
+#. Under a screen: more timelines autoplay or follow a scroll than the compiler accepts without a warning.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costTimelines"
+msgstr "{running} Zeitleisten laufen gleichzeitig, mehr als {limit}"
 
 #. Body of the confirmation that opens the canvas of the plugin a ghost screen belongs to.
 #. js-lingui-explicit-id
@@ -14133,6 +14169,12 @@ msgstr "Bildschirme"
 msgid "panelTabs.perfScreens"
 msgstr "Bildschirme"
 
+#. Heading of the list of the plugin's screens with their node counts and problems (PC-34).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfScreensCost"
+msgstr "Bildschirme"
+
 #. Figure label in the plugin's detail panel.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -16208,6 +16250,12 @@ msgstr "Die Sammlungen der Datenbank dieses Plugins auf dem Gerät."
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.tokensCaption"
 msgstr "Die Farben, Größen und weiteren Werte der App mit ihren Werten für hell, dunkel und hohen Kontrast."
+
+#. Tooltip of a screen's node count: the page budget from the limits registry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costTitle"
+msgstr "Der Compiler meldet eine Seite über {warning} Knoten; {limit} ist das Höchste, was eine Seite enthalten darf."
 
 #. Field error.
 #. js-lingui-explicit-id

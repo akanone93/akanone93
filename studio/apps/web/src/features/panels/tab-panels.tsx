@@ -12,6 +12,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import { extrasOf } from "../action-graph/graph-model.ts";
 import { type DesignerDocument, useDocumentValue } from "../designers/use-document.ts";
 import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
+import type { ScreenCost } from "../plugin-canvas/screen-costs.ts";
 import { idleRun, runStoredTests, type TestRunState, type TestsClient } from "../rust-editor/test-runner.ts";
 import {
   addEntryRecipe,
@@ -389,7 +390,16 @@ const statusKind: Record<BudgetStatus, StatusKind> = { within: "success", warnin
 const kilobytes = (bytes: bigint) => `${(Number(bytes) / 1024).toFixed(1)} KB`;
 
 /** The Performance tab (STU-062): node count, cost and budget status, and the plugin's summary numbers. */
-export function PerformanceTab({ ids, nodes, pageNodes }: SelectionTabProps & { readonly pageNodes: number }) {
+export function PerformanceTab({
+  ids,
+  nodes,
+  pageNodes,
+  screens = [],
+}: SelectionTabProps & {
+  readonly pageNodes: number;
+  /** Each screen of the plugin with what it costs (PC-34). */
+  readonly screens?: readonly { readonly id: string; readonly title: string; readonly cost: ScreenCost }[];
+}) {
   const m = tabMessages(useLingui().i18n);
   const { session } = useApp();
   const { app, plugin } = useParams({ strict: false }) as { app?: string; plugin?: string };
@@ -425,6 +435,30 @@ export function PerformanceTab({ ids, nodes, pageNodes }: SelectionTabProps & { 
           valueText={m.perfBudgetText(pageNodes, budget.limit)}
         />
       </section>
+      {screens.length > 0 && (
+        <section aria-label={m.perfScreensCost} className="flex flex-col gap-2">
+          <h3 className="text-label font-medium">{m.perfScreensCost}</h3>
+          <ul className="flex flex-col gap-2">
+            {screens.map((s) => (
+              <li key={s.id} className="flex flex-col gap-1">
+                <span className="truncate text-body">{s.title}</span>
+                <Meter
+                  value={s.cost.nodes}
+                  max={s.cost.budget.limit}
+                  label={s.title}
+                  valueText={m.perfScreenNodes(s.cost.nodes, s.cost.budget.limit)}
+                />
+                {s.cost.errors + s.cost.warnings > 0 && (
+                  <StatusPill
+                    status={s.cost.errors > 0 ? "danger" : "warning"}
+                    label={m.perfScreenProblems(s.cost.errors, s.cost.warnings)}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <section aria-label={m.perfPlugin} className="flex flex-col gap-2">
         <h3 className="text-label font-medium">{m.perfPlugin}</h3>
         <MetricStrip

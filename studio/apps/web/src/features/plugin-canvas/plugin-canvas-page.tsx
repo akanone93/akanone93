@@ -54,6 +54,7 @@ import { insertDropHandlers } from "../panels/use-insert-drop.ts";
 import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
 import { problemsByNode } from "../problems/problem-nodes.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
+import { usePageChecks } from "../problems/use-page-checks.ts";
 import { useValidation, type Validation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
@@ -112,6 +113,7 @@ import {
   type PlacedScreen,
   screenDocuments,
 } from "./scene.ts";
+import { type CostsOverlay, costWords, screenCosts } from "./screen-costs.ts";
 import type { ScreenRequest } from "./screens-controller.tsx";
 import { ScreensController } from "./screens-controller.tsx";
 import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
@@ -594,8 +596,7 @@ function PluginCanvasView({
   const deviceFonts = useDeviceFonts(params.app);
   const tests = useMemo(() => createClient(FunctionAdminService, app.transport), [app.transport]);
   const nativeWidgets = useNativeWidgets(params.app ?? "");
-  const validation = useValidation(createValidator, appDocs.data, docs.data);
-  const checked = validation.state === "done" ? validation : undefined;
+  const loaded = useValidation(createValidator, appDocs.data, docs.data);
   const stateTarget = useStateTarget(docs.data, appDocs.data);
   const local = useEditor((st) => st.docs);
   const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: parseDocument(d.content) })), [docs.data]);
@@ -605,6 +606,10 @@ function PluginCanvasView({
     () => parsed.map((d) => (local[d.path] === undefined ? d : { ...d, parsed: local[d.path]?.content })),
     [parsed, local],
   );
+  // Each page checked in full — semantic and policy checks, budgets, expensive animations — and again after an edit:
+  // the counts, the Problems panel and the problems pinned to widgets show them (PC-34, SCH-040).
+  const validation = usePageChecks(loaded, live);
+  const checked = validation.state === "done" ? validation : undefined;
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
   const brands = useBrands(appDocs.data);
   // The screens are drawn with the translations as the localisation session holds them, unsaved edits included.
@@ -1334,6 +1339,26 @@ function PluginCanvasView({
     samples: pluralSamples,
     text: l10nText,
   });
+  // What each screen costs: its widgets against the page budget, running timelines and problems (PC-34).
+  const costsByScreen = useMemo(() => {
+    const parsed = new Map(live.map((d) => [d.path, d.parsed]));
+    return screenCosts(
+      screens,
+      (id) => parsed.get(pathOf.get(id) ?? ""),
+      (id) => pathOf.get(id),
+      checked?.problems ?? [],
+    );
+  }, [screens, live, pathOf, checked?.problems]);
+  const costs = useMemo<CostsOverlay>(() => {
+    const words = pluginCanvasMessages(i18n);
+    const byRoot = new Map(
+      screens.flatMap((s) => {
+        const c = costsByScreen.get(s.id);
+        return s.root === undefined || c === undefined ? [] : [[s.root.id, c] as const];
+      }),
+    );
+    return { byRoot, text: (c) => costWords(c, words) };
+  }, [screens, costsByScreen, i18n]);
   const boxOfNow = useCallback(() => boxRef.current, []);
   const sizes = useSizesView({
     on: sizesView,
@@ -1395,6 +1420,7 @@ function PluginCanvasView({
     a11y: a11yMarks,
     l10n: locale.marks,
     sizes,
+    costs,
     tool,
     setTool,
     onInteract: liveSurface.interact,
@@ -1652,6 +1678,7 @@ function PluginCanvasView({
                       {libraryDialog}
                       <RightDock
                         sizeClass={sizeClassOf(look.device.width)}
+                        screenCosts={costsByScreen}
                         tabRequest={dockTab}
                         tests={tests}
                         screens={screens}

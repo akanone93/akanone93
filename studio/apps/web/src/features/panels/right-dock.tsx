@@ -24,6 +24,7 @@ import { LIST_TYPES } from "../plugin-canvas/list-preview.ts";
 import { setOverrideRecipe } from "../plugin-canvas/locale-overrides.ts";
 import { setAnimationRecipe } from "../plugin-canvas/motion.ts";
 import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
+import type { ScreenCost } from "../plugin-canvas/screen-costs.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { type EditFn, findNode } from "../plugin-canvas/select/edits.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
@@ -630,6 +631,8 @@ interface DockProps {
   readonly onOpenLocalisation?: (() => void) | undefined;
   /** The frame's window size class: the Properties tab edits its layer, so what is edited is what is drawn (PC-33). */
   readonly sizeClass?: Breakpoint | undefined;
+  /** What each screen costs, by screen id (PC-34); the Performance tab lists them. */
+  readonly screenCosts?: ReadonlyMap<string, ScreenCost> | undefined;
   readonly onOpenState?: (() => void) | undefined;
   /** The app's schema version, for the documents that key extraction creates (I18N-007). */
   readonly schemaVersion?: JsonValue | undefined;
@@ -1643,7 +1646,17 @@ export function RightDock(props: DockProps) {
       value: "performance",
       label: tm.tabPerformance,
       icon: "gauge",
-      panel: <PerformanceTab ids={ids} nodes={nodes} pageNodes={pageNodes} />,
+      panel: (
+        <PerformanceTab
+          ids={ids}
+          nodes={nodes}
+          pageNodes={pageNodes}
+          screens={props.screens.flatMap((s) => {
+            const cost = props.screenCosts?.get(s.id);
+            return cost === undefined ? [] : [{ id: s.id, title: s.title ?? s.id, cost }];
+          })}
+        />
+      ),
     },
     {
       value: "docs",

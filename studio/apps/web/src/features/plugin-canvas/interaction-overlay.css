@@ -691,3 +691,77 @@
   color: white;
   background-color: var(--destructive);
 }
+
+/* A selected widget's problems (PC-34): one line each, the message and its code. */
+.pc-problem-line {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  min-inline-size: 0;
+}
+
+.pc-problem-tag:has(.pc-problem-line + .pc-problem-line) {
+  display: flex;
+  flex-direction: column;
+  white-space: normal;
+}
+
+.pc-problem-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pc-problem-code {
+  flex: none;
+  opacity: 0.75;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+}
+
+/* What each screen costs (PC-34): under its end corner, muted while within budget, amber near it, red over it. */
+.pc-cost {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  translate: -100% 8px;
+  color: var(--muted-foreground);
+  background-color: color-mix(in oklch, var(--background) 85%, transparent);
+  border: 1px solid var(--border);
+  font-size: 10px;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.pc-cost[data-status="warning"] {
+  color: oklch(0.45 0.12 70);
+  border-color: oklch(0.78 0.16 75);
+}
+
+.pc-cost[data-status="over"] {
+  color: var(--destructive);
+  border-color: var(--destructive);
+}
+
+.pc-cost-part {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.pc-cost-part::before {
+  content: "";
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background-color: oklch(0.78 0.16 75);
+}
+
+.pc-cost-part[data-kind="error"]::before {
+  background-color: var(--destructive);
+}

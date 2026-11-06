@@ -283,6 +283,42 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Overflows",
       comment: "Canvas mark: the text does not fit its box in the previewed locale.",
     }),
+    costNodes: (nodes: number, limit: number) =>
+      i18n._({
+        id: "pluginCanvas.costNodes",
+        message: "{nodes} of {limit} nodes",
+        values: { nodes, limit },
+        comment: "Under a screen: its widgets against the page's node budget, e.g. 142 of 5000 nodes.",
+      }),
+    costTitle: (warning: number, limit: number) =>
+      i18n._({
+        id: "pluginCanvas.costTitle",
+        message: "The compiler reports a page above {warning} nodes; {limit} is the most a page may hold.",
+        values: { warning, limit },
+        comment: "Tooltip of a screen's node count: the page budget from the limits registry.",
+      }),
+    costTimelines: (running: number, limit: number) =>
+      i18n._({
+        id: "pluginCanvas.costTimelines",
+        message: "{running} timelines run at once, more than {limit}",
+        values: { running, limit },
+        comment:
+          "Under a screen: more timelines autoplay or follow a scroll than the compiler accepts without a warning.",
+      }),
+    costErrors: (n: number) =>
+      i18n._({
+        id: "pluginCanvas.costErrors",
+        message: "{n, plural, one {# error} other {# errors}}",
+        values: { n },
+        comment: "Under a screen: the errors of its page document.",
+      }),
+    costWarnings: (n: number) =>
+      i18n._({
+        id: "pluginCanvas.costWarnings",
+        message: "{n, plural, one {# warning} other {# warnings}}",
+        values: { n },
+        comment: "Under a screen: the warnings of its page document.",
+      }),
     sizesView: i18n._({
       id: "pluginCanvas.sizesView",
       message: "Size classes view",

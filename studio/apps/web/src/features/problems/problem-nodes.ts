@@ -4,8 +4,9 @@
 import type { Problem } from "@plux/validator";
 
 /**
- * Problems pinned to the widgets they are about (PC-16): a problem's JSON Pointer is followed into its page document,
- * and the deepest widget node on the way (an object with an `id` and a `type`) owns it.
+ * Problems pinned to the widgets they are about (PC-16, PC-34): a problem's JSON Pointer is followed into its page
+ * document, and the deepest widget node on the way (an object with an `id` and a `type`) owns it; in a page's timelines,
+ * the widget a track animates or a driver follows does.
  */
 
 type Obj = Record<string, unknown>;
@@ -21,18 +22,30 @@ function segments(pointer: string): string[] {
         .map((s) => s.replace(/~1/g, "/").replace(/~0/g, "~"));
 }
 
-/** The id of the deepest widget node `pointer` passes through in `doc`, if any. */
+/** The widget a value is about: a widget node itself, or in a timeline a track or driver naming its widget. */
+function ownerOf(at: unknown, timeline: boolean): string | undefined {
+  if (!isObj(at) || Array.isArray(at)) {
+    return undefined;
+  }
+  if (typeof at["id"] === "string" && typeof at["type"] === "string") {
+    return at["id"];
+  }
+  return timeline && typeof at["node"] === "string" ? at["node"] : undefined;
+}
+
+/** The id of the deepest widget node `pointer` passes through in `doc`, or the widget a timeline's part names. */
 export function nodeOfPointer(doc: unknown, pointer: string): string | undefined {
   let at: unknown = doc;
   let node: string | undefined;
-  for (const seg of segments(pointer)) {
+  const path = segments(pointer);
+  // A page's timelines name the widgets their tracks animate and their drivers follow (PC-34, ANI-008).
+  const timeline = path[0] === "animations";
+  for (const seg of path) {
     if (!isObj(at)) {
       break;
     }
     at = Array.isArray(at) ? at[Number(seg)] : at[seg];
-    if (isObj(at) && !Array.isArray(at) && typeof at["id"] === "string" && typeof at["type"] === "string") {
-      node = at["id"];
-    }
+    node = ownerOf(at, timeline) ?? node;
   }
   return node;
 }

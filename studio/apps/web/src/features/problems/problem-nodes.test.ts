@@ -49,3 +49,29 @@ describe("PC-16 problems pinned to widgets [STU-067]", () => {
     expect(byNode.size).toBe(1);
   });
 });
+
+describe("PC-34 animation problems pinned to the widgets they animate [ANI-008] [SCH-040]", () => {
+  test("a timeline's track and driver pin to the widget they name; an action's input does not", () => {
+    const page = {
+      ...doc,
+      animations: [
+        {
+          id: "tl",
+          tracks: [{ node: "t1", prop: "opacity", keyframes: [{ at: 0 }, { at: 1 }] }],
+          driver: { kind: "scroll", node: "col" },
+        },
+      ],
+    };
+    expect(nodeOfPointer(page, "/animations/0/tracks/0/keyframes/1")).toBe("t1");
+    expect(nodeOfPointer(page, "/animations/0/driver")).toBe("col");
+    expect(nodeOfPointer(page, "/animations/0/id")).toBeUndefined();
+    const acting = {
+      root: {
+        id: "b",
+        type: "FilledButton",
+        events: { onPressed: { steps: [{ id: "s", action: "focus", input: { node: "t1" } }] } },
+      },
+    };
+    expect(nodeOfPointer(acting, "/root/events/onPressed/steps/0/input")).toBe("b");
+  });
+});

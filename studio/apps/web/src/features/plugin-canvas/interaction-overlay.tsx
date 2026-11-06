@@ -9,6 +9,7 @@ import type { BindingMark } from "./binding-marks.ts";
 import type { L10nOverlay } from "./l10n-marks.ts";
 import type { HandlerStep } from "./quick-actions.ts";
 import type { SizesOverlay } from "./responsive.ts";
+import type { CostsOverlay } from "./screen-costs.ts";
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
@@ -48,6 +49,8 @@ export interface OverlayNodes {
   readonly l10n?: L10nOverlay;
   /** The Size classes view's marks, when it is on (PC-33). */
   readonly sizes?: SizesOverlay;
+  /** What each screen costs, by its root's id, with its words (PC-34). */
+  readonly costs?: CostsOverlay;
   /** The words of the marks. */
   readonly a11yText?: {
     readonly target: (w: number, h: number, min: number) => string;
@@ -388,13 +391,56 @@ function HeroLinks({ id, view, nodes }: { id: string; view: View; nodes: Overlay
 }
 
 /** The selected widget's first problem, under its size. */
+/** The selected widget's problems under it, the most severe first, each with its code (PC-16, PC-34). */
 function ProblemTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
-  const first = nodes.problems?.get(id)?.[0];
+  const list = nodes.problems?.get(id) ?? [];
+  const first = list[0];
   return first === undefined ? null : (
     <span className="pc-problem-tag" data-severity={first.severity} style={point((box.l + box.r) / 2, box.b, view)}>
-      {first.message}
+      {list.slice(0, MAX_BINDINGS).map((p) => (
+        <span key={`${p.code}:${p.message}`} className="pc-problem-line" data-severity={p.severity}>
+          <span className="pc-problem-message">{p.message}</span>
+          <span className="pc-problem-code">{p.code}</span>
+        </span>
+      ))}
+      {list.length > MAX_BINDINGS && <span className="pc-bind-more">+{list.length - MAX_BINDINGS}</span>}
     </span>
   );
+}
+
+/** Under each screen's end corner, what it costs: its widgets against the page budget, and its problems (PC-34). */
+function ScreenCosts({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  const c = nodes.costs;
+  if (c === undefined) {
+    return null;
+  }
+  return [...c.byRoot].flatMap(([root, cost]) => {
+    const b = nodes.boxOf(root);
+    if (b === undefined) {
+      return [];
+    }
+    const words = c.text(cost);
+    return [
+      <span key={root} className="pc-cost" data-status={cost.status} title={words.title} style={point(b.r, b.b, view)}>
+        <span className="pc-cost-nodes">{words.nodes}</span>
+        {words.timelines !== undefined && (
+          <span className="pc-cost-part" data-kind="warning">
+            {words.timelines}
+          </span>
+        )}
+        {words.errors !== undefined && (
+          <span className="pc-cost-part" data-kind="error">
+            {words.errors}
+          </span>
+        )}
+        {words.warnings !== undefined && (
+          <span className="pc-cost-part" data-kind="warning">
+            {words.warnings}
+          </span>
+        )}
+      </span>,
+    ];
+  });
 }
 
 function Selected(props: {
@@ -574,6 +620,7 @@ export function InteractionOverlay(props: {
       <A11yView view={view} nodes={nodes} />
       <L10nView view={view} nodes={nodes} />
       <SizesView view={view} nodes={nodes} />
+      <ScreenCosts view={view} nodes={nodes} />
       <BindingBadges view={view} nodes={nodes} />
       <EventBadges view={view} nodes={nodes} />
       <ProblemDots view={view} nodes={nodes} />

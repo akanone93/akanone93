@@ -293,6 +293,26 @@ export function tabMessages(i18n: I18n) {
       message: "Not available",
       comment: "Shown for a plugin number the server did not return.",
     }),
+    perfScreensCost: i18n._({
+      id: "panelTabs.perfScreensCost",
+      message: "Screens",
+      comment: "Heading of the list of the plugin's screens with their node counts and problems (PC-34).",
+    }),
+    perfScreenNodes: (nodes: number, limit: number) =>
+      i18n._({
+        id: "panelTabs.perfScreenNodes",
+        message: "{nodes} of {limit}",
+        values: { nodes, limit },
+        comment: "A screen's widgets against the page's node budget.",
+      }),
+    perfScreenProblems: (errors: number, warnings: number) =>
+      i18n._({
+        id: "panelTabs.perfScreenProblems",
+        message:
+          "{errors, plural, one {# error} other {# errors}}, {warnings, plural, one {# warning} other {# warnings}}",
+        values: { errors, warnings },
+        comment: "A screen's problems in the Performance tab.",
+      }),
     perfPlugin: i18n._({
       id: "panelTabs.perfPlugin",
       message: "Plugin",

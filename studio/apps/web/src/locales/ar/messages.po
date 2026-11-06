@@ -460,6 +460,12 @@ msgstr "{environment} الإصدار {sequence}"
 msgid "appCanvas.problemTotals"
 msgstr "{errors, plural, =0 {لا أخطاء تحقق} zero {لا أخطاء تحقق} one {خطأ تحقق واحد} two {خطآ تحقق} few {# أخطاء تحقق} many {# خطأ تحقق} other {# خطأ تحقق}}"
 
+#. A screen's problems in the Performance tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfScreenProblems"
+msgstr "{errors, plural, zero {لا أخطاء} one {خطأ واحد} two {خطآن} few {# أخطاء} many {# خطأً} other {# خطأ}}، {warnings, plural, zero {لا تحذيرات} one {تحذير واحد} two {تحذيران} few {# تحذيرات} many {# تحذيرًا} other {# تحذير}}"
+
 #. A page lifecycle event: created (onInit), shown (onEnter), resumed (onResume), left (onLeave), disposed (onDispose).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -718,6 +724,12 @@ msgstr "{n, plural, =0 {لا يحمل أي عنصر آخر هذا الوسم ب�
 msgid "apps.count"
 msgstr "{n, plural, zero {لا تطبيقات} one {تطبيق واحد} two {تطبيقان} few {# تطبيقات} many {# تطبيقًا} other {# تطبيق}}"
 
+#. Under a screen: the errors of its page document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costErrors"
+msgstr "{n, plural, zero {لا أخطاء} one {خطأ واحد} two {خطآن} few {# أخطاء} many {# خطأً} other {# خطأ}}"
+
 #. Badge: validation errors in a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -777,6 +789,12 @@ msgstr "{n, plural, zero {0 شاشة} one {شاشة واحدة} two {شاشتا�
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.versions"
 msgstr "{n, plural, zero {0 إصدار} one {إصدار واحد} two {إصداران} few {# إصدارات} many {# إصدارًا} other {# إصدار}}"
+
+#. Under a screen: the warnings of its page document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costWarnings"
+msgstr "{n, plural, zero {لا تحذيرات} one {تحذير واحد} two {تحذيران} few {# تحذيرات} many {# تحذيرًا} other {# تحذير}}"
 
 #. Status after pasting a copied style.
 #. js-lingui-explicit-id
@@ -928,6 +946,18 @@ msgstr "{name}: تعبير PXL"
 msgid "lock.requests.body"
 msgstr "طلب {names} تحرير هذه الإضافة."
 
+#. A screen's widgets against the page's node budget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfScreenNodes"
+msgstr "{nodes} من {limit}"
+
+#. Under a screen: its widgets against the page's node budget, e.g. 142 of 5000 nodes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costNodes"
+msgstr "{nodes} من {limit} عقدة"
+
 #. Summary of a finished test run: the number of tests that passed and failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
@@ -1047,6 +1077,12 @@ msgstr "{result, select, true {صحيح الآن: يعرضه الجهاز} false
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.typeRole"
 msgstr "{role, select, custom {مخصص} displayLarge {عرض كبير} displayMedium {عرض متوسط} displaySmall {عرض صغير} headlineLarge {عنوان رئيسي كبير} headlineMedium {عنوان رئيسي متوسط} headlineSmall {عنوان رئيسي صغير} titleLarge {عنوان كبير} titleMedium {عنوان متوسط} titleSmall {عنوان صغير} bodyLarge {نص كبير} bodyMedium {نص متوسط} bodySmall {نص صغير} labelLarge {تسمية كبيرة} labelMedium {تسمية متوسطة} labelSmall {تسمية صغيرة} other {نمط}}"
+
+#. Under a screen: more timelines autoplay or follow a scroll than the compiler accepts without a warning.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costTimelines"
+msgstr "{running} خطوط زمنية تعمل معًا، أكثر من {limit}"
 
 #. Body of the confirmation that opens the canvas of the plugin a ghost screen belongs to.
 #. js-lingui-explicit-id
@@ -14133,6 +14169,12 @@ msgstr "الشاشات"
 msgid "panelTabs.perfScreens"
 msgstr "الشاشات"
 
+#. Heading of the list of the plugin's screens with their node counts and problems (PC-34).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.perfScreensCost"
+msgstr "الشاشات"
+
 #. Figure label in the plugin's detail panel.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -16208,6 +16250,12 @@ msgstr "مجموعات قاعدة البيانات على الجهاز لهذه 
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.tokensCaption"
 msgstr "ألوان التطبيق وأحجامه وقيمه الأخرى مع قيمها للوضع الفاتح والداكن والتباين العالي."
+
+#. Tooltip of a screen's node count: the page budget from the limits registry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.costTitle"
+msgstr "يُبلغ المترجم عن الصفحة التي تتجاوز {warning} عقدة؛ والحد الأقصى للصفحة هو {limit}."
 
 #. Field error.
 #. js-lingui-explicit-id

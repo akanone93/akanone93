@@ -20,6 +20,7 @@ import type { Point } from "./positions.ts";
 import type { HandlerStep } from "./quick-actions.ts";
 import type { SizesOverlay } from "./responsive.ts";
 import { type PlacedScreen, screenDocuments } from "./scene.ts";
+import type { CostsOverlay } from "./screen-costs.ts";
 import type { ScreenRequest } from "./screens-controller.tsx";
 import type { EditFn } from "./select/edits.ts";
 import { findNode } from "./select/edits.ts";
@@ -77,6 +78,8 @@ export interface InteractionInput {
   readonly l10n?: L10nOverlay | undefined;
   /** The Size classes view's marks, when it is on (PC-33). */
   readonly sizes?: SizesOverlay | undefined;
+  /** What each screen costs (PC-34). */
+  readonly costs?: CostsOverlay | undefined;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -248,7 +251,7 @@ function useDeleteCommand(input: InteractionInput): () => void {
  * over its canvas and spreads `handlers` on it.
  */
 /** The badges and the views' marks the overlay draws, each only when the canvas gives it (PC-23 to PC-33). */
-type MarkKey = "problems" | "bindings" | "events" | "heroes" | "a11y" | "l10n" | "sizes";
+type MarkKey = "problems" | "bindings" | "events" | "heroes" | "a11y" | "l10n" | "sizes" | "costs";
 
 function marksOf(
   input: { readonly [K in MarkKey]: InteractionInput[K] | undefined } & Pick<InteractionInput, "messages">,
@@ -263,6 +266,7 @@ function marksOf(
       : { a11y: input.a11y, a11yText: { target: input.messages.a11yTarget, contrast: input.messages.a11yContrast } }),
     ...(input.l10n === undefined ? {} : { l10n: input.l10n }),
     ...(input.sizes === undefined ? {} : { sizes: input.sizes }),
+    ...(input.costs === undefined ? {} : { costs: input.costs }),
   };
 }
 
@@ -294,10 +298,10 @@ export function useCanvasInteraction(input: InteractionInput) {
     (id: string) => input.canEdit && !input.locked.has(id) && sizedType(index.type.get(id)),
     [input.canEdit, input.locked, index],
   );
-  const { problems, bindings, events, heroes, a11y, l10n, sizes, messages } = input;
+  const { problems, bindings, events, heroes, a11y, l10n, sizes, costs, messages } = input;
   const marks = useMemo(
-    () => marksOf({ problems, bindings, events, heroes, a11y, l10n, sizes, messages }),
-    [problems, bindings, events, heroes, a11y, l10n, sizes, messages],
+    () => marksOf({ problems, bindings, events, heroes, a11y, l10n, sizes, costs, messages }),
+    [problems, bindings, events, heroes, a11y, l10n, sizes, costs, messages],
   );
   const nodes: OverlayNodes = useMemo(
     () => ({
