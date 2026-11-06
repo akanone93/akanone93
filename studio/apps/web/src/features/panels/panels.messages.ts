@@ -580,6 +580,31 @@ export function panelMessages(i18n: I18n) {
       message: "Live region",
       comment: "Checkbox that makes screen readers announce changes.",
     }),
+    semGroup: i18n._({
+      id: "panels.semGroup",
+      message: "Group",
+      comment: "Switch: screen readers read the widget and its children as one (A11Y-006).",
+    }),
+    semDecorative: i18n._({
+      id: "panels.semDecorative",
+      message: "Decorative",
+      comment: "Switch: an image that carries no meaning, which screen readers skip (A11Y-002).",
+    }),
+    semFocusOrder: i18n._({
+      id: "panels.semFocusOrder",
+      message: "Focus order",
+      comment: "Where the widget comes in the order focus moves through the screen (A11Y-006).",
+    }),
+    semFocusAuto: i18n._({
+      id: "panels.semFocusAuto",
+      message: "Reading order",
+      comment: "Placeholder: no explicit focus order.",
+    }),
+    semHeadingLevel: i18n._({
+      id: "panels.semHeadingLevel",
+      message: "Heading level",
+      comment: "A heading's level, 1 to 6.",
+    }),
     semExclude: i18n._({
       id: "panels.semExclude",
       message: "Exclude from semantics",

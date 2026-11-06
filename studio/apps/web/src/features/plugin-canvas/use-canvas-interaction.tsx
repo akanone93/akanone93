@@ -11,6 +11,7 @@ import type { NodeProblem } from "../problems/problem-nodes.ts";
 import type { BindingMark } from "./binding-marks.ts";
 import { CanvasMenu, type MenuAt } from "./canvas-menu.tsx";
 import { removeRecipe } from "./clipboard/use-clipboard.tsx";
+import type { A11yMarks } from "./interaction-overlay.tsx";
 import { InteractionOverlay, type OverlayNodes } from "./interaction-overlay.tsx";
 import type { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import type { Node } from "./plugin-model.ts";
@@ -68,6 +69,8 @@ export interface InteractionInput {
   readonly events?: ReadonlyMap<string, readonly HandlerStep[]>;
   /** The widgets of other screens that share a widget's hero tag (PC-29). */
   readonly heroes?: (id: string) => readonly string[];
+  /** The Accessibility view's marks, when it is on (PC-31). */
+  readonly a11y?: A11yMarks | undefined;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -279,6 +282,9 @@ export function useCanvasInteraction(input: InteractionInput) {
       ...(input.bindings === undefined ? {} : { bindings: input.bindings }),
       ...(input.events === undefined ? {} : { events: input.events }),
       ...(input.heroes === undefined ? {} : { heroes: input.heroes }),
+      ...(input.a11y === undefined
+        ? {}
+        : { a11y: input.a11y, a11yText: { target: input.messages.a11yTarget, contrast: input.messages.a11yContrast } }),
       nameOf: (id) =>
         isScreen(id) ? (titles.get(screenOf.get(id) ?? "") ?? id) : (names.get(id) ?? index.type.get(id) ?? id),
     }),
@@ -296,6 +302,8 @@ export function useCanvasInteraction(input: InteractionInput) {
       input.bindings,
       input.events,
       input.heroes,
+      input.a11y,
+      input.messages,
       input.screens,
     ],
   );

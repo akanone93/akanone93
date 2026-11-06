@@ -241,6 +241,25 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Create experiment from selection",
       comment: "Command that opens the experiment wizard with the selected canvas elements as the subject.",
     }),
+    a11yView: i18n._({
+      id: "pluginCanvas.a11yView",
+      message: "Accessibility view",
+      comment: "Toggle that marks focus order, small touch targets and low-contrast texts on the screens.",
+    }),
+    a11yTarget: (w: number, h: number, min: number) =>
+      i18n._({
+        id: "pluginCanvas.a11yTarget",
+        message: "{w} × {h}, under {min}",
+        values: { w, h, min },
+        comment: "A touch target smaller than the minimum, e.g. 32 × 32, under 48.",
+      }),
+    a11yContrast: (ratio: string, needed: string) =>
+      i18n._({
+        id: "pluginCanvas.a11yContrast",
+        message: "Contrast {ratio}:1, needs {needed}:1",
+        values: { ratio, needed },
+        comment: "A text whose colour does not stand out enough from its background.",
+      }),
     duplicateCommand: i18n._({
       id: "pluginCanvas.command.duplicate",
       message: "Duplicate selection",

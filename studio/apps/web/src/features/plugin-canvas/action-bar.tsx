@@ -28,6 +28,9 @@ export interface ActionBarProps {
   /** The pointer tool (select or hand) and its switch; the bar shows the switch only when given. */
   readonly tool?: "select" | "hand" | "interact";
   readonly onTool?: (tool: "select" | "hand" | "interact") => void;
+  /** The Accessibility view (PC-31): focus order, touch targets and contrast marked on the screens. */
+  readonly a11y?: boolean | undefined;
+  readonly onA11y?: ((on: boolean) => void) | undefined;
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
@@ -87,6 +90,8 @@ function BarButton(props: {
   readonly onClick: () => void;
   readonly disabled?: boolean;
   readonly title?: string | undefined;
+  /** A toggle's state; a plain button without it. */
+  readonly pressed?: boolean | undefined;
 }) {
   return (
     <Tooltip>
@@ -96,6 +101,8 @@ function BarButton(props: {
             size="sm"
             variant="ghost"
             aria-label={props.label}
+            aria-pressed={props.pressed}
+            data-pressed={props.pressed === true || undefined}
             title={props.title}
             disabled={props.disabled}
             onClick={props.onClick}
@@ -173,6 +180,15 @@ export function ActionBar(props: ActionBarProps) {
                   <Icon name="play" size="capsule" />
                 </ToggleGroupItem>
               </ToggleGroup>
+              {props.onA11y !== undefined && (
+                <BarButton
+                  icon="accessibility"
+                  label={m.a11yView}
+                  title={m.a11yView}
+                  pressed={props.a11y === true}
+                  onClick={() => props.onA11y?.(props.a11y !== true)}
+                />
+              )}
               <Divider />
             </>
           )}

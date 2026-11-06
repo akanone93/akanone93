@@ -557,3 +557,52 @@
   outline-offset: 2px;
   background-color: color-mix(in oklch, oklch(0.6 0.12 195) 8%, transparent);
 }
+
+/* The Accessibility view (PC-31): focus order numbers, small touch targets and low-contrast texts. */
+.pc-a11y-order {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: grid;
+  place-items: center;
+  min-inline-size: 18px;
+  block-size: 18px;
+  padding-inline: 4px;
+  border: 2px solid var(--background);
+  border-radius: 999px;
+  transform: translate(calc(var(--x) * 1px - 9px), calc(var(--y) * 1px - 9px));
+  color: white;
+  background-color: oklch(0.55 0.2 290);
+  box-shadow: 0 1px 3px color-mix(in oklch, black 30%, transparent);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pc-outline[data-kind="a11y-target"] {
+  outline: 2px dashed var(--destructive);
+  outline-offset: 1px;
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in oklch, var(--destructive) 14%, transparent) 0 4px,
+    transparent 4px 8px
+  );
+}
+
+.pc-a11y-tag {
+  position: absolute;
+  inset: 0 auto auto 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px + 4px));
+  color: white;
+  background-color: var(--destructive);
+  font-size: 10px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.pc-a11y-tag[data-kind="contrast"] {
+  translate: -100% -22px;
+  color: oklch(0.25 0.05 75);
+  background-color: oklch(0.85 0.14 80);
+}

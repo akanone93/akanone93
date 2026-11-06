@@ -1156,6 +1156,12 @@ msgstr "تم تحديد {type}"
 msgid "apps.limits.usage-text"
 msgstr "{used} من {limit}"
 
+#. A touch target smaller than the minimum, e.g. 32 × 32, under 48.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.a11yTarget"
+msgstr "{w} × {h}، أقل من {min}"
+
 #. Size of an image in the icon picker, in pixels.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -1275,6 +1281,12 @@ msgstr "إمكانية الوصول"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.a11yProblems"
 msgstr "مشكلات إمكانية الوصول"
+
+#. Toggle that marks focus order, small touch targets and low-contrast texts on the screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.a11yView"
+msgstr "عرض إمكانية الوصول"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -4086,6 +4098,12 @@ msgstr "تابع في {name}"
 msgid "auth.provider.continue"
 msgstr "المتابعة باستخدام {name}"
 
+#. A text whose colour does not stand out enough from its background.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.a11yContrast"
+msgstr "التباين {ratio}:1، يحتاج {needed}:1"
+
 #. Marks the control variant.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -4601,6 +4619,12 @@ msgstr "القرارات"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.listCaption"
 msgstr "سيناريوهات الاختبار التصريحية لهذا التطبيق، والتشغيلات التي أبلغ عنها `plux test` وCI."
+
+#. Switch: an image that carries no meaning, which screen readers skip (A11Y-002).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semDecorative"
+msgstr "زخرفي"
 
 #. Direction option.
 #. js-lingui-explicit-id
@@ -6527,6 +6551,12 @@ msgstr "التدفقات"
 msgid "newApp.project.title"
 msgstr "مشروع Flutter"
 
+#. Where the widget comes in the order focus moves through the screen (A11Y-006).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semFocusOrder"
+msgstr "ترتيب التركيز"
+
 #. Button in the inspector's header: folds the right dock to a slim strip.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -7006,6 +7036,12 @@ msgstr "شبكة"
 msgid "auth.scene.onboard-body"
 msgstr "البقالة عند بابك خلال 30 دقيقة."
 
+#. Switch: screen readers read the widget and its children as one (A11Y-006).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semGroup"
+msgstr "مجموعة"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -7059,6 +7095,12 @@ msgstr "اللمس الاهتزازي"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.semHeader"
 msgstr "عنوان"
+
+#. A heading's level, 1 to 6.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semHeadingLevel"
+msgstr "مستوى العنوان"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -12327,6 +12369,12 @@ msgstr "للقراءة فقط: لا يمكنك تعديل السمة الآن."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.readOnly"
 msgstr "للقراءة فقط: لا يمكنك تحرير هذه المستندات الآن."
+
+#. Placeholder: no explicit focus order.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semFocusAuto"
+msgstr "ترتيب القراءة"
 
 #. Status while the importer runs.
 #. js-lingui-explicit-id

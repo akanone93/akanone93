@@ -1156,6 +1156,12 @@ msgstr "{type} selected"
 msgid "apps.limits.usage-text"
 msgstr "{used} of {limit}"
 
+#. A touch target smaller than the minimum, e.g. 32 × 32, under 48.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.a11yTarget"
+msgstr "{w} × {h}, under {min}"
+
 #. Size of an image in the icon picker, in pixels.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -1275,6 +1281,12 @@ msgstr "Accessibility"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.a11yProblems"
 msgstr "Accessibility problems"
+
+#. Toggle that marks focus order, small touch targets and low-contrast texts on the screens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.a11yView"
+msgstr "Accessibility view"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -4086,6 +4098,12 @@ msgstr "Continue in {name}"
 msgid "auth.provider.continue"
 msgstr "Continue with {name}"
 
+#. A text whose colour does not stand out enough from its background.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.a11yContrast"
+msgstr "Contrast {ratio}:1, needs {needed}:1"
+
 #. Marks the control variant.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -4601,6 +4619,12 @@ msgstr "Decisions"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.listCaption"
 msgstr "Declarative test scenarios of this app, and the runs that `plux test` and CI reported."
+
+#. Switch: an image that carries no meaning, which screen readers skip (A11Y-002).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semDecorative"
+msgstr "Decorative"
 
 #. Direction option.
 #. js-lingui-explicit-id
@@ -6527,6 +6551,12 @@ msgstr "Flows"
 msgid "newApp.project.title"
 msgstr "Flutter project"
 
+#. Where the widget comes in the order focus moves through the screen (A11Y-006).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semFocusOrder"
+msgstr "Focus order"
+
 #. Button in the inspector's header: folds the right dock to a slim strip.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -7006,6 +7036,12 @@ msgstr "Grid"
 msgid "auth.scene.onboard-body"
 msgstr "Groceries at your door in 30 minutes."
 
+#. Switch: screen readers read the widget and its children as one (A11Y-006).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semGroup"
+msgstr "Group"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -7059,6 +7095,12 @@ msgstr "Haptics"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.semHeader"
 msgstr "Heading"
+
+#. A heading's level, 1 to 6.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semHeadingLevel"
+msgstr "Heading level"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -12327,6 +12369,12 @@ msgstr "Read-only: you cannot edit the theme now."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.readOnly"
 msgstr "Read-only: you cannot edit these documents now."
+
+#. Placeholder: no explicit focus order.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.semFocusAuto"
+msgstr "Reading order"
 
 #. Status while the importer runs.
 #. js-lingui-explicit-id

@@ -55,6 +55,7 @@ import { useValidation, type Validation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
+import { a11yMarksOf } from "./a11y-marks.ts";
 import { bindingMarks } from "./binding-marks.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { useCopyOver } from "./clipboard/use-copy-over.ts";
@@ -68,6 +69,7 @@ import { GhostLeaveDialog } from "./ghost-dialog.tsx";
 import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
 import { useHostFonts } from "./host-fonts.ts";
 import { type InlineEdit, InlineTextHost } from "./inline-text.tsx";
+import type { A11yMarks } from "./interaction-overlay.tsx";
 import { LaneDialog, type LaneTarget, useLane } from "./lane-dialog.tsx";
 import { LinkLayer } from "./link-layer.tsx";
 import { redirectRecipe, removeLinkRecipe } from "./links.ts";
@@ -641,6 +643,8 @@ function PluginCanvasView({
     () => withStates(liveValues, picked.ids, statePreview.state),
     [liveValues, picked.ids, statePreview.state],
   );
+  // The Accessibility view (PC-31): focus order, small touch targets and low-contrast texts marked on the screens.
+  const [a11yView, setA11yView] = useState(false);
   // A widget's enter or exit transition played on the canvas (PC-29).
   const motion = useMotionPlayer();
   // A page's timeline open on the canvas, and its playhead (PC-30).
@@ -1296,6 +1300,10 @@ function PluginCanvasView({
   const boundMarks = useMemo(() => bindingMarks(screens, named.mocks, named.states, scopes), [screens, named, scopes]);
   const eventBadges = useMemo(() => eventMarks(screens.map((s) => s.root)), [screens]);
   const screenRoots = useMemo(() => screens.map((s) => s.root), [screens]);
+  const a11yMarks = useMemo<A11yMarks | undefined>(
+    () => (a11yView ? a11yMarksOf(shown, paint, index.type, look.platform) : undefined),
+    [a11yView, shown, paint, index, look.platform],
+  );
   const heroesOf = useCallback((id: string) => heroMatches(screenRoots, id), [screenRoots]);
   const playMotion = useCallback(
     (id: string, phase: "enter" | "exit") => {
@@ -1343,6 +1351,7 @@ function PluginCanvasView({
     bindings: boundMarks,
     events: eventBadges,
     heroes: heroesOf,
+    a11y: a11yMarks,
     tool,
     setTool,
     onInteract: liveSurface.interact,
@@ -1662,6 +1671,8 @@ function PluginCanvasView({
                     />
                     {docs.data !== undefined && (
                       <ScreensController
+                        a11y={a11yView}
+                        onA11y={setA11yView}
                         appId={params.app ?? ""}
                         pluginId={params.plugin ?? ""}
                         editorSessionId={editorSessionId}

@@ -4,6 +4,7 @@
 import type { Guides } from "@plux/canvas";
 import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
+import { type LowContrast, smallTarget } from "./a11y-marks.ts";
 import type { BindingMark } from "./binding-marks.ts";
 import type { HandlerStep } from "./quick-actions.ts";
 import type { Box } from "./select/geometry.ts";
@@ -39,6 +40,22 @@ export interface OverlayNodes {
   readonly events?: ReadonlyMap<string, readonly HandlerStep[]>;
   /** The widgets of other screens that share a node's hero tag (PC-29). */
   readonly heroes?: (id: string) => readonly string[];
+  /** The Accessibility view's marks, when it is on (PC-31). */
+  readonly a11y?: A11yMarks;
+  /** The words of the marks. */
+  readonly a11yText?: {
+    readonly target: (w: number, h: number, min: number) => string;
+    readonly contrast: (r: string, n: string) => string;
+  };
+}
+
+/** What the Accessibility view marks (PC-31): focus order, the widgets that need a minimum target, low contrast. */
+export interface A11yMarks {
+  readonly order: ReadonlyMap<string, number>;
+  readonly targets: ReadonlySet<string>;
+  readonly low: ReadonlyMap<string, LowContrast>;
+  /** The minimum touch target of the previewed platform: 48 on Android, 44 on iOS. */
+  readonly min: number;
 }
 
 interface View {
@@ -253,6 +270,47 @@ function BindingTag({ id, box, view, nodes }: { id: string; box: Box; view: View
   );
 }
 
+/** The Accessibility view (PC-31): focus order numbers, small touch targets outlined, low-contrast texts badged. */
+function A11yView({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  const a = nodes.a11y;
+  if (a === undefined) {
+    return null;
+  }
+  const order = [...a.order].flatMap(([id, n]) => {
+    const b = nodes.boxOf(id);
+    return b === undefined
+      ? []
+      : [
+          <span key={`o${id}`} className="pc-a11y-order" style={point(b.l, b.t, view)}>
+            {n}
+          </span>,
+        ];
+  });
+  const small = [...a.targets].flatMap((id) => {
+    const b = nodes.boxOf(id);
+    const size = b === undefined ? undefined : { w: b.r - b.l, h: b.b - b.t };
+    return b === undefined || size === undefined || !smallTarget(size, a.min)
+      ? []
+      : [
+          <div key={`t${id}`} className="pc-outline" data-kind="a11y-target" style={place(b, view)} />,
+          <span key={`l${id}`} className="pc-a11y-tag" style={point(b.l, b.b, view)}>
+            {nodes.a11yText?.target(Math.round(size.w), Math.round(size.h), a.min)}
+          </span>,
+        ];
+  });
+  const low = [...a.low].flatMap(([id, c]) => {
+    const b = nodes.boxOf(id);
+    return b === undefined
+      ? []
+      : [
+          <span key={`c${id}`} className="pc-a11y-tag" data-kind="contrast" style={point(b.r, b.t, view)}>
+            {nodes.a11yText?.contrast(c.ratio.toFixed(1), String(c.needed))}
+          </span>,
+        ];
+  });
+  return [...small, ...low, ...order];
+}
+
 /** The widgets the selected one flies to in a hero transition (PC-29): dashed outlines on the other screens. */
 function HeroLinks({ id, view, nodes }: { id: string; view: View; nodes: OverlayNodes }): ReactNode {
   return (nodes.heroes?.(id) ?? []).flatMap((other) => {
@@ -445,6 +503,7 @@ export function InteractionOverlay(props: {
           </span>
         </>
       )}
+      <A11yView view={view} nodes={nodes} />
       <BindingBadges view={view} nodes={nodes} />
       <EventBadges view={view} nodes={nodes} />
       <ProblemDots view={view} nodes={nodes} />

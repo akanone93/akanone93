@@ -105,6 +105,9 @@ export interface ScreensControllerProps {
   /** The pointer tool and its switch in the bar. */
   readonly tool?: "select" | "hand" | "interact";
   readonly onTool?: (tool: "select" | "hand" | "interact") => void;
+  /** The Accessibility view and its switch in the bar (PC-31). */
+  readonly a11y?: boolean;
+  readonly onA11y?: (on: boolean) => void;
 }
 
 /** A screen action the canvas asks the controller for. */
@@ -343,6 +346,8 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
       <ActionBar
         {...(props.tool === undefined ? {} : { tool: props.tool })}
         {...(props.onTool === undefined ? {} : { onTool: props.onTool })}
+        a11y={props.a11y}
+        onA11y={props.onA11y}
         validation={props.validation}
         percent={props.percent}
         onZoom={props.onZoom}

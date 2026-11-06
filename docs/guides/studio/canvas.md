@@ -261,7 +261,13 @@ lists a row per track with its keyframes: click one to go to it, Shift+click to 
 property and a value, and **Add keyframe** at the playhead; a new track starts from the widget's value. Its settings set
 the duration, the repeats, **Loop**, **Reverse on repeat**, **Play when the page shows**, and **Driven by scroll**: a
 scroll view whose offset moves the timeline over the **Scroll extent** — scroll it in **Interact** mode to see it move.
-Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+**Accessibility view** in the tool bar marks on every screen the order focus moves through its interactive widgets
+(numbered; an explicit **Focus order** comes first, then reading order), each touch target smaller than the platform's
+minimum (48 × 48 on Android, 44 × 44 on iOS, outlined with its size) and each text whose colour does not stand out
+enough from what is behind it (4.5:1, 3:1 for large text, with its ratio), worked out from the theme's colours. The
+inspector's **Accessibility** tab edits a widget's label and hint, **Header** with its **Heading level**, **Button**,
+**Live region**, **Group**, **Decorative**, **Exclude semantics** and **Focus order**, and lists its accessibility
+problems. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

@@ -1162,6 +1162,8 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
     ["header", m.semHeader],
     ["button", m.semButton],
     ["liveRegion", m.semLive],
+    ["group", m.semGroup],
+    ["decorative", m.semDecorative],
     ["excludeSemantics", m.semExclude],
   ];
   return (
@@ -1211,6 +1213,7 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
             </span>
           </PropRow>
         ))}
+        <SemanticsNumbers sem={sem} m={m} canEdit={canEdit} set={set} />
       </div>
       <h3 className="pane-head">{m.a11yProblems}</h3>
       {found.length === 0 ? (
@@ -1226,6 +1229,44 @@ function AccessibilityTab(p: DockProps & { ids: readonly string[]; m: Messages }
         </ul>
       )}
     </div>
+  );
+}
+
+/** A node's focus order and, for a heading, its level (PC-31, A11Y-006). */
+function SemanticsNumbers(p: {
+  readonly sem: Obj;
+  readonly m: Messages;
+  readonly canEdit: boolean;
+  readonly set: (field: string, value: unknown) => void;
+}) {
+  const { sem, m } = p;
+  const order = typeof sem["focusOrder"] === "number" ? sem["focusOrder"] : undefined;
+  const level = typeof sem["headingLevel"] === "number" ? String(sem["headingLevel"]) : "";
+  return (
+    <>
+      <PropRow name="focusOrder" label={m.semFocusOrder} set={order !== undefined} resetLabel="">
+        <Input
+          type="number"
+          min={0}
+          aria-label={m.semFocusOrder}
+          placeholder={m.semFocusAuto}
+          value={order ?? ""}
+          readOnly={!p.canEdit}
+          onChange={(e) => p.set("focusOrder", e.target.value === "" ? undefined : Math.max(0, Number(e.target.value)))}
+        />
+      </PropRow>
+      {sem["header"] === true && (
+        <PropRow name="headingLevel" label={m.semHeadingLevel} set={level !== ""} resetLabel="">
+          <Select
+            label={m.semHeadingLevel}
+            value={level}
+            disabled={!p.canEdit}
+            options={["1", "2", "3", "4", "5", "6"].map((v) => ({ value: v, label: `H${v}` }))}
+            onValueChange={(v) => p.set("headingLevel", Number(v))}
+          />
+        </PropRow>
+      )}
+    </>
   );
 }
 
