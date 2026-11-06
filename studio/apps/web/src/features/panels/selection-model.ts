@@ -101,6 +101,7 @@ export function treeNodes(
   rootName: string,
   entry?: { readonly page: string | undefined; readonly label: string },
   textOf?: TextOf,
+  instanceName?: (id: string) => string | undefined,
 ): Record<string, LayerNode> {
   const out: Record<string, LayerNode> = {
     plugin: {
@@ -111,7 +112,8 @@ export function treeNodes(
     },
   };
   for (const [id, kids] of index.children) {
-    const type = index.type.get(id) ?? "?";
+    // A component instance has no widget type: its row is named after its component (PC-37).
+    const type = index.type.get(id) ?? instanceName?.(id) ?? "?";
     out[id] = { id, name: type, type, icon: typeIcon(type), children: kids };
   }
   for (const s of screens) {

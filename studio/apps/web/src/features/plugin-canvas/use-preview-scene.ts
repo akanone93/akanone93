@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from "react";
 import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { withoutHidden } from "../panels/studio-meta.ts";
 import type { MockState, PreviewRender } from "../preview/switches.ts";
+import { componentsOf, expandInstances } from "./component-instances.ts";
 import { applyConditions, type BranchPick } from "./conditions.ts";
 import { designScopes, type FormPreview } from "./design-scope.ts";
 import { expandLists, type ListState, type StateTexts } from "./list-preview.ts";
@@ -206,13 +207,15 @@ export function usePreviewScene(
     const { mocks, states } = namedMocks(dataSourcesOf(everything), look.mockStates);
     // Conditions read the `device` root as the frame and the switches set it (PC-33).
     const scopes = designScopes(everything, design.forms, deviceRoot(look));
+    const components = componentsOf(everything);
     const drawn = screens.map((s) => {
       if (s.root === undefined) {
         return s;
       }
       if (!byRoot.has(s.root)) {
         // A layer hidden in Layers is left out of what the canvas draws (STU-061); the device still shows it.
-        const drawn = withoutHidden(s.root);
+        // A component instance is drawn as its component (PC-37).
+        const drawn = expandInstances(withoutHidden(s.root), components);
         // Conditions pick their branches (PC-25) and lists are drawn from their data (PC-24) first; then every other
         // binding takes its design-time value.
         const scope = scopes.get(s.id);

@@ -10,7 +10,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/component
 import { Switch } from "@plux/ui/components/switch";
 import { TooltipProvider } from "@plux/ui/components/tooltip";
 import type { Problem } from "@plux/validator";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { actionGraphMessages } from "../action-graph/action-graph.messages.ts";
 import { designerMessages } from "../designers/designers.messages.ts";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
@@ -41,6 +41,7 @@ import { FormFieldPanel } from "./form-field-panel.tsx";
 import { bindFieldRecipe, formsOf, INPUT_TYPES } from "./forms-model.ts";
 import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
+import { InstanceCard, InstancePreviewContext } from "./instance-card.tsx";
 import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingRecipe } from "./layout-model.ts";
 import { ConstraintsEditor, LayoutPanel } from "./layout-panel.tsx";
 import { addStateRecipe, ListPanel } from "./list-panel.tsx";
@@ -1061,6 +1062,7 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
       <LockedNote text={lockedNote} />
       {!canEdit && lockedNote === null && <p className="prop-note">{m.readOnly}</p>}
       {ids.length > 1 && <p className="prop-note">{m.multi(ids.length)}</p>}
+      {ids.length === 1 && q === "" && !setOnly && <InstanceCard id={first} />}
       {ids.length === 1 && q === "" && !setOnly && (
         <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
       )}
@@ -1536,7 +1538,10 @@ function InspectorHead(props: {
 }) {
   const { ids, m } = props;
   const first = ids[0];
-  const title = first === undefined ? m.overview : ids.length > 1 ? m.multiTitle(ids.length) : (props.type ?? first);
+  // A component instance is named after its component (PC-37).
+  const instance = useContext(InstancePreviewContext)?.markOf(first ?? "")?.name;
+  const title =
+    first === undefined ? m.overview : ids.length > 1 ? m.multiTitle(ids.length) : (props.type ?? instance ?? first);
   const sub =
     first === undefined
       ? undefined

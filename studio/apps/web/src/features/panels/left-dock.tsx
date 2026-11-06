@@ -18,6 +18,7 @@ import { AssetsTab } from "./assets-tab.tsx";
 import { catalogue, search } from "./catalogue.ts";
 import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
 import { InsertPane } from "./insert-pane.tsx";
+import { InstancePreviewContext } from "./instance-card.tsx";
 import { LayersPane, LayersToolbar } from "./layers-pane.tsx";
 import { LocalePreviewContext } from "./locale-tools.tsx";
 import { insertionPoint, insertWidget, modelOf, moveLayer } from "./model.ts";
@@ -121,9 +122,10 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   const entry = useMemo(() => ({ page: props.entryPage, label: m.entryScreen }), [props.entryPage, m.entryScreen]);
   // A translated text's row shows its message in the previewed locale (PC-32).
   const textOf = useContext(LocalePreviewContext)?.textOf;
+  const instances = useContext(InstancePreviewContext);
   const nodes = useMemo(
-    () => treeNodes(props.screens, index, m.pluginRoot, entry, textOf),
-    [props.screens, index, m.pluginRoot, entry, textOf],
+    () => treeNodes(props.screens, index, m.pluginRoot, entry, textOf, (id) => instances?.markOf(id)?.name),
+    [props.screens, index, m.pluginRoot, entry, textOf, instances],
   );
   // A locked layer stays where it is: it neither moves nor takes another layer into it.
   const dropLayer = (dragged: string, target: string, half: "before" | "after") => {

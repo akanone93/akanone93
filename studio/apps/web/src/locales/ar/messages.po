@@ -718,6 +718,12 @@ msgstr "{months} شهرًا"
 msgid "motion.heroMatches"
 msgstr "{n, plural, =0 {لا يحمل أي عنصر آخر هذا الوسم بعد} zero {لا يحمل أي عنصر آخر هذا الوسم بعد} one {يطير إلى عنصر واحد محاط على اللوحة} two {يطير إلى عنصرين محاطين على اللوحة} few {يطير إلى # عناصر محاطة على اللوحة} many {يطير إلى # عنصرًا محاطًا على اللوحة} other {يطير إلى # عنصر محاط على اللوحة}}"
 
+#. How many props and slots the instance sets itself.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.overrides"
+msgstr "{n, plural, =0 {بلا تجاوزات} zero {بلا تجاوزات} one {تجاوز واحد} two {تجاوزان} few {# تجاوزات} many {# تجاوزًا} other {# تجاوز}}"
+
 #. Number of apps shown after the filters; announced politely when it changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -831,6 +837,12 @@ msgstr "المطلوب {n} موافقات في المجموع."
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.valueNamed"
 msgstr "{name}"
+
+#. Canvas tag under a selected instance.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.tag"
+msgstr "{name} · v{v} · {n, plural, =0 {بلا تجاوزات} zero {بلا تجاوزات} one {تجاوز واحد} two {تجاوزان} few {# تجاوزات} many {# تجاوزًا} other {# تجاوز}}"
 
 #. A language in the list: its name in the reader's language and its BCP 47 code.
 #. js-lingui-explicit-id
@@ -7864,6 +7876,12 @@ msgstr "سلسلة تدقيق التثبيت"
 msgid "installation.healthTitle"
 msgstr "صحة التثبيت"
 
+#. Heading: the selected widget is an instance of this component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.title"
+msgstr "نسخة من {name}"
+
 #. Heading of the list of component instances per app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -7965,6 +7983,12 @@ msgstr "غير ظاهر"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.expectVisible"
 msgstr "ظاهر"
+
+#. Button that dims everything on the canvas but this instance.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.isolate"
+msgstr "عزل"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -11116,6 +11140,12 @@ msgstr "فتح التطبيق"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.open"
 msgstr "فتح لوحة الأوامر"
+
+#. Button that opens the component's page: its versions, instances and adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.open"
+msgstr "افتح المكوّن"
 
 #. Button.
 #. js-lingui-explicit-id
@@ -14949,6 +14979,12 @@ msgstr "إظهار {name} على اللوحة"
 msgid "panels.showAllKinds"
 msgstr "إظهار كل الأنواع"
 
+#. Button that ends the isolation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.leave"
+msgstr "عرض الكل"
+
 #. Button that shows the dismissed first-run checklist again.
 #. js-lingui-explicit-id
 #: apps/web/src/features/onboarding/onboarding.messages.ts
@@ -16178,6 +16214,12 @@ msgstr "تعذّر تحميل التطبيق."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.importLocked"
 msgstr "لا يمكن تحرير مستند التطبيق الآن، لذا لا يمكن إضافة متغيراته."
+
+#. The instance names a component the app's documents do not hold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.missing"
+msgstr "لا يملك التطبيق هذا المكوّن: لا يمكن للوحة رسمه"
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id
@@ -18777,6 +18819,18 @@ msgstr "الإصدار {n} بواسطة {who}"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.adopt.done"
 msgstr "تم اعتماد الإصدار {n}."
+
+#. The component version the instance uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.version"
+msgstr "الإصدار {v}"
+
+#. The component has a newer version than the one this instance uses (STU-085).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.newer"
+msgstr "الإصدار {v} متاح: يعتمده التطبيق من صفحة المكوّن"
 
 #. Footer of every page: the Studio version loaded in this tab.
 #. js-lingui-explicit-id

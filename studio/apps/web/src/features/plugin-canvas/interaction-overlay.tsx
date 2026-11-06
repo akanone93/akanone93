@@ -6,10 +6,19 @@ import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
 import { type LowContrast, smallTarget } from "./a11y-marks.ts";
 import type { BindingMark } from "./binding-marks.ts";
+import type { InstanceMark } from "./component-instances.ts";
 import type { L10nOverlay } from "./l10n-marks.ts";
 import type { HandlerStep } from "./quick-actions.ts";
 import type { SizesOverlay } from "./responsive.ts";
 import type { CostsOverlay } from "./screen-costs.ts";
+
+/** What the overlay draws of component instances (PC-37). */
+export interface InstancesOverlay {
+  readonly marks: ReadonlyMap<string, InstanceMark>;
+  readonly tag: (mark: InstanceMark) => string;
+  readonly isolated: string | undefined;
+}
+
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
@@ -51,6 +60,8 @@ export interface OverlayNodes {
   readonly sizes?: SizesOverlay;
   /** What each screen costs, by its root's id, with its words (PC-34). */
   readonly costs?: CostsOverlay;
+  /** The component instances, their words, and the one isolated (PC-37). */
+  readonly instances?: InstancesOverlay;
   /** The words of the marks. */
   readonly a11yText?: {
     readonly target: (w: number, h: number, min: number) => string;
@@ -408,6 +419,46 @@ function ProblemTag({ id, box, view, nodes }: { id: string; box: Box; view: View
   );
 }
 
+/** A diamond on every component instance's corner: violet, amber when a newer version exists, red when unknown (PC-37). */
+function InstanceBadges({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  const z = nodes.instances;
+  if (z === undefined) {
+    return null;
+  }
+  return [...z.marks].flatMap(([id, mark]) => {
+    const b = nodes.boxOf(id);
+    const state = !mark.known ? "missing" : mark.latest > mark.version ? "stale" : "current";
+    return b === undefined
+      ? []
+      : [
+          <span
+            key={id}
+            className="pc-instance-badge"
+            data-state={state}
+            title={z.tag(mark)}
+            style={point(b.l, b.t, view)}
+          />,
+        ];
+  });
+}
+
+/** Isolation (PC-37): everything but the isolated instance dimmed. */
+function Isolation({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+  const id = nodes.instances?.isolated;
+  const b = id === undefined ? undefined : nodes.boxOf(id);
+  return b === undefined ? null : <div className="pc-isolate" style={place(b, view)} />;
+}
+
+/** The selected instance's component, version and overrides under its start corner. */
+function InstanceTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+  const mark = nodes.instances?.marks.get(id);
+  return mark === undefined ? null : (
+    <span className="pc-instance-tag" style={point(box.l, box.b, view)}>
+      {nodes.instances?.tag(mark)}
+    </span>
+  );
+}
+
 /** Under each screen's end corner, what it costs: its widgets against the page budget, and its problems (PC-34). */
 function ScreenCosts({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
   const c = nodes.costs;
@@ -470,6 +521,7 @@ function Selected(props: {
       {single && !screen && <ProblemTag id={id} box={box} view={view} nodes={nodes} />}
       {single && !screen && <BindingTag id={id} box={box} view={view} nodes={nodes} />}
       {single && !screen && <EventTag id={id} box={box} view={view} nodes={nodes} />}
+      {single && !screen && <InstanceTag id={id} box={box} view={view} nodes={nodes} />}
       {single && !screen && <HeroLinks id={id} view={view} nodes={nodes} />}
       {single &&
         !screen &&
@@ -621,6 +673,8 @@ export function InteractionOverlay(props: {
       <L10nView view={view} nodes={nodes} />
       <SizesView view={view} nodes={nodes} />
       <ScreenCosts view={view} nodes={nodes} />
+      <InstanceBadges view={view} nodes={nodes} />
+      <Isolation view={view} nodes={nodes} />
       <BindingBadges view={view} nodes={nodes} />
       <EventBadges view={view} nodes={nodes} />
       <ProblemDots view={view} nodes={nodes} />

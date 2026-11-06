@@ -718,6 +718,12 @@ msgstr "{months} Monate"
 msgid "motion.heroMatches"
 msgstr "{n, plural, =0 {Noch kein anderes Widget hat diesen Tag} one {Fliegt zu # Widget, auf der Arbeitsfläche umrandet} other {Fliegt zu # Widgets, auf der Arbeitsfläche umrandet}}"
 
+#. How many props and slots the instance sets itself.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.overrides"
+msgstr "{n, plural, =0 {keine Überschreibungen} one {# Überschreibung} other {# Überschreibungen}}"
+
 #. Number of apps shown after the filters; announced politely when it changes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -831,6 +837,12 @@ msgstr "Insgesamt {n} Freigaben nötig."
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.valueNamed"
 msgstr "{name}"
+
+#. Canvas tag under a selected instance.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.tag"
+msgstr "{name} · v{v} · {n, plural, =0 {keine Überschreibungen} one {# Überschreibung} other {# Überschreibungen}}"
 
 #. A language in the list: its name in the reader's language and its BCP 47 code.
 #. js-lingui-explicit-id
@@ -7864,6 +7876,12 @@ msgstr "Audit-Kette der Installation"
 msgid "installation.healthTitle"
 msgstr "Zustand der Installation"
 
+#. Heading: the selected widget is an instance of this component.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.title"
+msgstr "Instanz von {name}"
+
 #. Heading of the list of component instances per app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -7965,6 +7983,12 @@ msgstr "Ist nicht sichtbar"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.expectVisible"
 msgstr "Ist sichtbar"
+
+#. Button that dims everything on the canvas but this instance.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.isolate"
+msgstr "Isolieren"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -11116,6 +11140,12 @@ msgstr "App öffnen"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.open"
 msgstr "Befehlspalette öffnen"
+
+#. Button that opens the component's page: its versions, instances and adoption.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.open"
+msgstr "Komponente öffnen"
 
 #. Button.
 #. js-lingui-explicit-id
@@ -14949,6 +14979,12 @@ msgstr "{name} auf der Leinwand zeigen"
 msgid "panels.showAllKinds"
 msgstr "Alle Arten zeigen"
 
+#. Button that ends the isolation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.leave"
+msgstr "Alles zeigen"
+
 #. Button that shows the dismissed first-run checklist again.
 #. js-lingui-explicit-id
 #: apps/web/src/features/onboarding/onboarding.messages.ts
@@ -16178,6 +16214,12 @@ msgstr "Die App konnte nicht geladen werden."
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.importLocked"
 msgstr "Das App-Dokument kann jetzt nicht bearbeitet werden, daher können seine Variablen nicht hinzugefügt werden."
+
+#. The instance names a component the app's documents do not hold.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.missing"
+msgstr "Die App hat diese Komponente nicht: Die Arbeitsfläche kann sie nicht zeichnen"
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id
@@ -18777,6 +18819,18 @@ msgstr "Version {n} von {who}"
 #: apps/web/src/features/library/library.messages.ts
 msgid "library.adopt.done"
 msgstr "Version {n} wurde übernommen."
+
+#. The component version the instance uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.version"
+msgstr "Version {v}"
+
+#. The component has a newer version than the one this instance uses (STU-085).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/instance-card.messages.ts
+msgid "instanceCard.newer"
+msgstr "Version {v} ist verfügbar: Die App übernimmt sie auf der Seite der Komponente"
 
 #. Footer of every page: the Studio version loaded in this tab.
 #. js-lingui-explicit-id

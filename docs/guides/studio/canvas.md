@@ -303,6 +303,13 @@ draws the theme as it is being edited, before it is saved. A value written in th
 **Use** the theme's token of that same value or **Make a token**, which adds it to the theme under a name you can change
 (`space.18`, `color.custom1`) and binds the widget to it.
 
+A component instance is drawn as its component: its props fill the component's bindings (the component's defaults
+where it sets none) and each slot it fills shows its own widgets, else the slot's fallback; choosing any part of it
+selects the instance. A violet diamond marks each instance's corner — amber when the component has a newer version the
+app has not adopted here, red when the app does not have the component — and the selected instance shows its
+component, version and overrides. The inspector's instance card can **Isolate** it, dimming everything else
+(**Show everything** or Escape ends it), and **Open component** shows its versions, instances and adoption.
+
 Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
