@@ -13,7 +13,7 @@ import {
   PROTOCOL_VERSION as v,
   type WorkerMessage,
 } from "./protocol.ts";
-import { CanvasWorkerCore, drawRatio, serveCanvasWorker, type WorkerScopeLike } from "./worker.ts";
+import { CanvasWorkerCore, drawRatio, serveCanvasWorker, thumbnailRect, type WorkerScopeLike } from "./worker.ts";
 
 let ck: CanvasKit;
 beforeAll(async () => {
@@ -405,5 +405,22 @@ describe("[STU-003] main-thread host", () => {
       mainThread: () => env.deps(),
     });
     await expect(broken.ready).rejects.toThrow("no CanvasKit surface");
+  });
+});
+
+describe("PC-38 a screen drawn alone, to compare with a device [DEV-033]", () => {
+  test("a frame asked for its content is its screen; otherwise, and for any other item, its bounds", () => {
+    const frame = {
+      spec: { kind: "frame", id: "screen:s", name: "S", x: 10, y: 20, w: 100, h: 200, radius: 8, z: 1 },
+      bounds: { l: -4, t: -30, r: 124, b: 236 },
+      seq: 1,
+      live: false,
+      fillKey: null,
+      strokeKey: null,
+    } as unknown as Parameters<typeof thumbnailRect>[0];
+    expect(thumbnailRect(frame, true)).toEqual({ l: 10, t: 20, r: 110, b: 220 });
+    expect(thumbnailRect(frame, false)).toEqual(frame.bounds);
+    const rect = { ...frame, spec: { ...frame.spec, kind: "rect" } } as typeof frame;
+    expect(thumbnailRect(rect, true)).toEqual(frame.bounds);
   });
 });

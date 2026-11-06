@@ -617,11 +617,11 @@ export class CanvasHost {
    * The PNG of the item `id` rendered in the worker, `width` pixels wide, from the scene the canvas
    * already holds (STU-052); null when the item is unknown. The main thread does no raster work.
    */
-  thumbnail(id: string, width: number): Promise<Uint8Array | null> {
+  thumbnail(id: string, width: number, content = false): Promise<Uint8Array | null> {
     const requestId = this.nextRequest++;
     return new Promise((resolve) => {
       this.thumbnails.set(requestId, resolve);
-      this.send({ v: PROTOCOL_VERSION, type: "thumbnail", requestId, id, width });
+      this.send({ v: PROTOCOL_VERSION, type: "thumbnail", requestId, id, width, ...(content ? { content } : {}) });
     });
   }
 

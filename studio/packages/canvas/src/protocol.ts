@@ -474,6 +474,8 @@ export type HostMessage =
       readonly requestId: number;
       readonly id: string;
       readonly width: number;
+      /** For a screen's frame: its screen alone, without its title and shadow, as a device shows it (PC-38). */
+      readonly content?: boolean;
     }
   /** Replaces the scene with `screens`, laid out in the worker with SkParagraph. */
   | {

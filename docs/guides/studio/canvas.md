@@ -147,7 +147,9 @@ Positions are read-only while someone else is editing the app.
    devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,
    **Performance** and **Console**, with a source device, a level filter, search, **Pause** and
    **Export trace**; **On the device** opens a screen there, **Highlight selection on device** and
-   **Capture screenshot** work on it. Drag the console's top edge, or use the arrow keys on it, to
+   **Capture screenshot** work on it; with a screenshot in, **Compare with the canvas** shows it next to the canvas's
+   drawing of the same screen — side by side, the canvas over the device with its opacity to slide, or their
+   **Difference**, black where they match, so what differs lights up. Drag the console's top edge, or use the arrow keys on it, to
    change its height.
 
 Each screen's name is shown above its device frame, with its route name and kind (**Page**, **Dialog**, **Bottom

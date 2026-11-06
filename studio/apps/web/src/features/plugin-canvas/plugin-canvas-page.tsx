@@ -439,6 +439,9 @@ function centreOn(
   );
 }
 
+/** How wide the canvas draws a screen to compare it with a device screenshot (PC-38). */
+const COMPARE_WIDTH = 720;
+
 /** The next request to open the console on Problems: a new number, so the same tab opens again. */
 const problemsRequest = (r: { readonly n: number } | undefined) => ({ tab: "problems" as const, n: (r?.n ?? 0) + 1 });
 
@@ -1442,6 +1445,11 @@ function PluginCanvasView({
     }),
     [instanceMarksById, isolated, navigate, params.org],
   );
+  // The canvas's drawing of a screen at a phone's width, to compare with a device screenshot (PC-38).
+  const canvasImage = useCallback(
+    (screen: string) => surfaceRef.current?.thumbnail?.(frameId(screen), COMPARE_WIDTH, true) ?? Promise.resolve(null),
+    [],
+  );
   const boxOfNow = useCallback(() => boxRef.current, []);
   const sizes = useSizesView({
     on: sizesView,
@@ -1753,6 +1761,7 @@ function PluginCanvasView({
                           )}
                           {clipboardDialog}
                           <DeviceBayHost
+                            canvasImage={canvasImage}
                             appId={params.app}
                             request={consoleRequest}
                             live={canSend}

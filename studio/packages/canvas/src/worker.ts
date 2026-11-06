@@ -30,7 +30,7 @@ import {
   needsRender,
   presentMargin,
 } from "./compositor.ts";
-import { intersectInto, makeRect, unionInto } from "./geometry.ts";
+import { intersectInto, makeRect, type Rect, unionInto } from "./geometry.ts";
 import { BaseJobQueue } from "./progressive.ts";
 import {
   type CanvasOptions,
@@ -77,6 +77,12 @@ export interface WorkerDeps {
 
 /** A paragraph engine the worker releases on dispose. */
 export type DisposableEngine = ParagraphEngine & { dispose(): void };
+
+/** What a thumbnail renders: an item's bounds, or for a frame asked for its content, the screen alone (PC-38). */
+export function thumbnailRect(item: SceneItem, content: boolean | undefined): Rect {
+  const s = item.spec;
+  return content === true && s.kind === "frame" ? { l: s.x, t: s.y, r: s.x + s.w, b: s.y + s.h } : item.bounds;
+}
 
 /** SkParagraph on `ck` with the canvas fonts registered under their families. */
 export function canvasParagraphEngine(ck: CanvasKit, options: CanvasOptions): CanvasKitParagraphEngine {
@@ -433,7 +439,8 @@ export class CanvasWorkerCore {
       }
       case "thumbnail": {
         const item = running.scene.get(message.id);
-        const png = item === undefined ? null : running.renderer.thumbnail(item.bounds, message.width);
+        const png =
+          item === undefined ? null : running.renderer.thumbnail(thumbnailRect(item, message.content), message.width);
         this.post({ v: PROTOCOL_VERSION, type: "thumbnail", requestId: message.requestId, png });
         return;
       }

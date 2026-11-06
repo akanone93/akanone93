@@ -1,0 +1,89 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The canvas and the device compared (PC-38): side by side, one over the other, or their difference. */
+
+.compare {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  inline-size: 100%;
+}
+
+.compare-modes {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 2px;
+  border-radius: var(--radius-md);
+  background-color: var(--muted);
+}
+
+.compare-mode {
+  padding: 2px 10px;
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.compare-mode[aria-checked="true"] {
+  color: var(--foreground);
+  background-color: var(--background);
+  box-shadow: 0 1px 2px color-mix(in oklch, black 15%, transparent);
+}
+
+.compare-stage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--spacing) * 3);
+  max-inline-size: calc(var(--spacing) * 120);
+}
+
+.compare-stage[data-mode="overlay"],
+.compare-stage[data-mode="difference"] {
+  grid-template-columns: minmax(0, 1fr);
+  max-inline-size: calc(var(--spacing) * 60);
+}
+
+.compare-stage[data-mode="overlay"] .compare-shot,
+.compare-stage[data-mode="difference"] .compare-shot {
+  grid-area: 1 / 1;
+}
+
+.compare-stage[data-mode="difference"] .compare-shot[data-canvas] {
+  mix-blend-mode: difference;
+}
+
+.compare-shot {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+}
+
+.compare-shot img {
+  inline-size: 100%;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.compare-shot figcaption {
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+.compare-opacity {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.compare-note {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  align-items: center;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}

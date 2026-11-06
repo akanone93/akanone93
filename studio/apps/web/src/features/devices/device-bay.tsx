@@ -11,6 +11,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -44,6 +45,8 @@ export interface DeviceBayProps {
   readonly accepted: number;
   readonly store: ScreenshotStore;
   readonly route: string;
+  /** The canvas's drawing of a screen, to compare a device screenshot with (PC-38). */
+  readonly canvasImage?: ((screen: string) => Promise<Uint8Array | null>) | undefined;
   readonly now?: () => number;
   /**
    * Starts the dev session as soon as the editor opens (for a person who may create one): a tap on the device selects
@@ -249,6 +252,12 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
   const [height, setHeight] = useState(320);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [highlight, setHighlight] = useState(false);
+  const { canvasImage, route } = props;
+  // The canvas's drawing of the screen the device shows, kept while the screen is the same (PC-38).
+  const compareCanvas = useMemo(
+    () => (canvasImage === undefined ? undefined : () => canvasImage(route)),
+    [canvasImage, route],
+  );
   const sessionId = useStudioDevSession(props.appId, props.live === true || shown || dialog !== null);
   const client = useDevClient();
   const [meter] = useState(() => createLatencyMeter(props.now ?? Date.now));
@@ -320,7 +329,12 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
                   <DeviceControls sessionId={sessionId} deviceId="" initialRoute={props.route} />
                 </div>
                 {capture !== undefined && (
-                  <ScreenshotPanel capture={capture} store={props.store} defaultTarget={props.route} />
+                  <ScreenshotPanel
+                    capture={capture}
+                    store={props.store}
+                    defaultTarget={props.route}
+                    canvas={compareCanvas}
+                  />
                 )}
                 <DeviceDrawer
                   sessionId={sessionId}

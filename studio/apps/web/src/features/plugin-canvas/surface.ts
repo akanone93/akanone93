@@ -51,7 +51,7 @@ export interface CanvasSurface {
   /** Applies scene patches (ghosts, arrows, the pulse); they stay until the next first layout replaces the scene. */
   patch?(ops: readonly SceneOp[]): void;
   /** The PNG of scene item `id` rendered in the worker, `width` pixels wide, or null (STU-052). */
-  thumbnail?(id: string, width: number): Promise<Uint8Array | null>;
+  thumbnail?(id: string, width: number, content?: boolean): Promise<Uint8Array | null>;
   /** Makes encoded images available to scene items under their keys. */
   setImages?(images: readonly { key: string; bytes: Uint8Array }[]): void;
   /** Pauses (`true`) or resumes the worker's drawing; the scene and view are kept (STU-063). */
@@ -195,7 +195,8 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
       run((h) => h.setViewport(x, y, zoom));
     },
     patch: (ops) => run((h) => h.patch(ops)),
-    thumbnail: (id, width) => new Promise((resolve) => run((h) => void h.thumbnail(id, width).then(resolve))),
+    thumbnail: (id, width, content) =>
+      new Promise((resolve) => run((h) => void h.thumbnail(id, width, content).then(resolve))),
     setImages: (images) => run((h) => h.setImages(images)),
     setPaused: (paused) => run((h) => h.setPaused(paused)),
     resize: (width, height, dpr) => run((h) => h.resize(width, height, dpr)),

@@ -2924,6 +2924,12 @@ msgstr "Bind to a field"
 msgid "shell.api.biometrics"
 msgstr "Biometrics"
 
+#. Explains the Difference comparison mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.differenceHint"
+msgstr "Black where the canvas and the device match; what lights up differs."
+
 #. Choice: start from nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -3228,6 +3234,12 @@ msgstr "Cancelled"
 msgid "publish.buildCancelled"
 msgstr "Cancelled"
 
+#. Caption of the canvas's drawing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.canvas"
+msgstr "Canvas"
+
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -3245,6 +3257,12 @@ msgstr "Canvas actions"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.toolbar"
 msgstr "Canvas actions"
+
+#. Slider of the canvas image over the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.opacity"
+msgstr "Canvas opacity"
 
 #. Tab label.
 #. js-lingui-explicit-id
@@ -4001,6 +4019,12 @@ msgstr "Compare"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.pickRow"
 msgstr "Compare {when}"
+
+#. Button that shows the device screenshot next to the canvas's drawing of the same screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.open"
+msgstr "Compare with the canvas"
 
 #. Toggle that shows the document next to the version that was last published.
 #. js-lingui-explicit-id
@@ -5160,6 +5184,12 @@ msgstr "Device"
 msgid "security.deviceTitle"
 msgstr "Device"
 
+#. Caption of the device screenshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.device"
+msgstr "Device"
+
 #. Label of the paired device picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -5248,6 +5278,12 @@ msgstr "Devices"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colDiff"
+msgstr "Difference"
+
+#. Comparison mode: only what differs between the two lights up.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.difference"
 msgstr "Difference"
 
 #. Heading of the list of documents that differ between two snapshots.
@@ -7515,6 +7551,12 @@ msgstr "How much space the database and the object store use."
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.appearance.caption"
 msgstr "How Studio looks and reads. A change applies at once."
+
+#. Label of the comparison modes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.mode"
+msgstr "How to compare"
 
 #. Sized by its content.
 #. js-lingui-explicit-id
@@ -11483,6 +11525,12 @@ msgstr "Overdue"
 msgid "pluginCanvas.l10nOverflow"
 msgstr "Overflows"
 
+#. Comparison mode: the canvas over the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.overlay"
+msgstr "Overlay"
+
 #. Marks a property whose value differs from the base for the chosen size class.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -15057,6 +15105,12 @@ msgstr "Showing {screen}"
 msgid "preview.chromeShown"
 msgstr "Shown"
 
+#. Comparison mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.side"
+msgstr "Side by side"
+
 #. Heading of the sign-in page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -16323,6 +16377,18 @@ msgstr "The build details could not be loaded."
 msgid "home.stack.label"
 msgstr "The busiest apps of the organisation, stacked as layers."
 
+#. Accessible name of the comparison of a device screenshot with the canvas's drawing of the same screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.title"
+msgstr "The canvas and the device"
+
+#. Shown when the canvas has no image of the screen the device shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.noCanvas"
+msgstr "The canvas has not drawn this screen: open it on the canvas, then compare again."
+
 #. Under a bound expression, before the design-time value the canvas draws for it (a mock or a default).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -17043,6 +17109,12 @@ msgstr "The request was at another step. It has been reloaded."
 msgid "approvals.reviewFailed"
 msgstr "The review was not recorded."
 
+#. Alternative text of the canvas image in the comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.canvasAlt"
+msgstr "The same screen as the canvas draws it"
+
 #. Shown when importing a sample app failed without a reason from the server.
 #. js-lingui-explicit-id
 #: apps/web/src/features/onboarding/onboarding.messages.ts
@@ -17072,6 +17144,12 @@ msgstr "The schema of this collection and what a migration from the last release
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.blockedNavigate"
 msgstr "The screen {title} navigates to it. Remove that step first."
+
+#. Alternative text of the device screenshot in the comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.deviceAlt"
+msgstr "The screen as the paired device shows it"
 
 #. Shown when a move to another plugin is refused; reason is one of the moveReason messages.
 #. js-lingui-explicit-id

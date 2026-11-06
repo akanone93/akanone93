@@ -2924,6 +2924,12 @@ msgstr "An ein Feld binden"
 msgid "shell.api.biometrics"
 msgstr "Biometrie"
 
+#. Explains the Difference comparison mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.differenceHint"
+msgstr "Schwarz, wo Arbeitsfläche und Gerät übereinstimmen; was leuchtet, unterscheidet sich."
+
 #. Choice: start from nothing.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -3228,6 +3234,12 @@ msgstr "Abgebrochen"
 msgid "publish.buildCancelled"
 msgstr "Abgebrochen"
 
+#. Caption of the canvas's drawing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.canvas"
+msgstr "Arbeitsfläche"
+
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -3245,6 +3257,12 @@ msgstr "Aktionen der Leinwand"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.toolbar"
 msgstr "Canvas-Aktionen"
+
+#. Slider of the canvas image over the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.opacity"
+msgstr "Deckkraft der Arbeitsfläche"
 
 #. Tab label.
 #. js-lingui-explicit-id
@@ -4001,6 +4019,12 @@ msgstr "Vergleichen"
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.pickRow"
 msgstr "{when} vergleichen"
+
+#. Button that shows the device screenshot next to the canvas's drawing of the same screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.open"
+msgstr "Mit der Arbeitsfläche vergleichen"
 
 #. Toggle that shows the document next to the version that was last published.
 #. js-lingui-explicit-id
@@ -5160,6 +5184,12 @@ msgstr "Gerät"
 msgid "security.deviceTitle"
 msgstr "Gerät"
 
+#. Caption of the device screenshot.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.device"
+msgstr "Gerät"
+
 #. Label of the paired device picker.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -5248,6 +5278,12 @@ msgstr "Geräte"
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.colDiff"
+msgstr "Differenz"
+
+#. Comparison mode: only what differs between the two lights up.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.difference"
 msgstr "Differenz"
 
 #. Heading of the list of documents that differ between two snapshots.
@@ -7515,6 +7551,12 @@ msgstr "Wie viel Platz Datenbank und Objektspeicher belegen."
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.appearance.caption"
 msgstr "Wie Studio aussieht und sich liest. Eine Änderung gilt sofort."
+
+#. Label of the comparison modes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.mode"
+msgstr "Wie vergleichen"
 
 #. Sized by its content.
 #. js-lingui-explicit-id
@@ -11483,6 +11525,12 @@ msgstr "Überfällig"
 msgid "pluginCanvas.l10nOverflow"
 msgstr "Läuft über"
 
+#. Comparison mode: the canvas over the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.overlay"
+msgstr "Überlagert"
+
 #. Marks a property whose value differs from the base for the chosen size class.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -15057,6 +15105,12 @@ msgstr "{screen} wird angezeigt"
 msgid "preview.chromeShown"
 msgstr "Angezeigt"
 
+#. Comparison mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.side"
+msgstr "Nebeneinander"
+
 #. Heading of the sign-in page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -16323,6 +16377,18 @@ msgstr "Die Build-Details konnten nicht geladen werden."
 msgid "home.stack.label"
 msgstr "Die meistgenutzten Apps der Organisation, als Ebenen gestapelt."
 
+#. Accessible name of the comparison of a device screenshot with the canvas's drawing of the same screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.title"
+msgstr "Arbeitsfläche und Gerät"
+
+#. Shown when the canvas has no image of the screen the device shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.noCanvas"
+msgstr "Die Arbeitsfläche hat diesen Bildschirm nicht gezeichnet: Öffne ihn auf der Arbeitsfläche und vergleiche erneut."
+
 #. Under a bound expression, before the design-time value the canvas draws for it (a mock or a default).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -17043,6 +17109,12 @@ msgstr "Die Anfrage war bei einem anderen Schritt. Sie wurde neu geladen."
 msgid "approvals.reviewFailed"
 msgstr "Die Prüfung wurde nicht erfasst."
 
+#. Alternative text of the canvas image in the comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.canvasAlt"
+msgstr "Derselbe Bildschirm, wie die Arbeitsfläche ihn zeichnet"
+
 #. Shown when importing a sample app failed without a reason from the server.
 #. js-lingui-explicit-id
 #: apps/web/src/features/onboarding/onboarding.messages.ts
@@ -17072,6 +17144,12 @@ msgstr "Das Schema dieser Sammlung und was eine Migration vom letzten Release be
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.blockedNavigate"
 msgstr "Der Bildschirm {title} navigiert dorthin. Entferne zuerst diesen Schritt."
+
+#. Alternative text of the device screenshot in the comparison.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.deviceAlt"
+msgstr "Der Bildschirm, wie das gekoppelte Gerät ihn zeigt"
 
 #. Shown when a move to another plugin is refused; reason is one of the moveReason messages.
 #. js-lingui-explicit-id

@@ -64,6 +64,7 @@ export function DeviceBayHost({
   entryPage,
   request,
   live,
+  canvasImage,
   ...input
 }: BridgeInput & {
   /** Starts the dev session when the editor opens (the person may create one). */
@@ -74,6 +75,8 @@ export function DeviceBayHost({
   readonly validation: Validation;
   readonly screenOf: ReadonlyMap<string, string>;
   readonly entryPage: string | undefined;
+  /** The canvas's drawing of a screen, for comparing it with the device's screenshot (PC-38). */
+  readonly canvasImage?: (screen: string) => Promise<Uint8Array | null>;
 }): ReactNode {
   const bridge = useDeviceBridge(input);
   const selectedScreen = bridge.only === undefined ? undefined : screenOf.get(bridge.only);
@@ -89,6 +92,7 @@ export function DeviceBayHost({
       accepted={bridge.accepted}
       store={bridge.screenshotStore}
       route={selectedScreen ?? entryPage ?? ""}
+      canvasImage={canvasImage}
     />
   );
 }
