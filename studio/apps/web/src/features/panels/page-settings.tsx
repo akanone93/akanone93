@@ -10,6 +10,8 @@ import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider
 import { pluginCanvasMessages } from "../plugin-canvas/plugin-canvas.messages.ts";
 import { parseDocument } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
+import { timelineMessages } from "../plugin-canvas/timelines.messages.ts";
+import { timelinesOf } from "../plugin-canvas/timelines.ts";
 import { formsMessages } from "./forms.messages.ts";
 import { formsOf } from "./forms-model.ts";
 import { FormsSection } from "./forms-section.tsx";
@@ -39,6 +41,7 @@ import {
   valueOfText,
 } from "./page-settings-model.ts";
 import { PropGroupHead, PropRow } from "./prop-row.tsx";
+import { TimelinesSection } from "./timelines-section.tsx";
 
 type Obj = Record<string, unknown>;
 type Doc = { readonly path: string; readonly kind: string; readonly content: Uint8Array };
@@ -558,6 +561,7 @@ export function PageSettingsTab(props: {
   const { i18n } = useLingui();
   const m = pageSettingsMessages(i18n);
   const formsLabel = formsMessages(i18n).forms;
+  const timelinesLabel = timelineMessages(i18n).timelines;
   const canEdit = useCanEdit();
   const session = useEditSession();
   const docs = useLiveDocs(props.documents);
@@ -647,6 +651,14 @@ export function PageSettingsTab(props: {
       <SecuritySection page={page} m={m} canEdit={canEdit} change={change} />
       <Section icon="list-checks" label={formsLabel} set={formsOf(pageJson).length} count={formsOf(pageJson).length}>
         <FormsSection pageId={page.id} page={pageJson} canEdit={canEdit} change={change} newId={uuidv7} />
+      </Section>
+      <Section
+        icon="film"
+        label={timelinesLabel}
+        set={timelinesOf(pageJson).length}
+        count={timelinesOf(pageJson).length}
+      >
+        <TimelinesSection pageId={page.id} page={pageJson} canEdit={canEdit} change={change} newId={uuidv7} />
       </Section>
     </div>
   );

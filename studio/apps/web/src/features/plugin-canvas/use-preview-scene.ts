@@ -23,6 +23,7 @@ import { withSnackbar } from "./quick-actions.ts";
 import type { PlacedScreen } from "./scene.ts";
 import { screenStyle } from "./scene.ts";
 import { findNode } from "./select/edits.ts";
+import { applyTimeline, type Timeline } from "./timelines.ts";
 
 interface DocLike {
   readonly kind: string;
@@ -87,6 +88,20 @@ function livened(
   return applyLive(kept.node, live);
 }
 
+/** A timeline open on the canvas (PC-30): its page and the moment the canvas draws it at. */
+export interface Scrubbed {
+  readonly page: string;
+  readonly timeline: Timeline;
+  readonly ms: number;
+}
+
+/** A page's root drawn at the moment of its open timeline; other pages are kept. */
+function scrubbing(page: string, root: Node | undefined, scrubbed: Scrubbed | undefined): Node | undefined {
+  return root === undefined || scrubbed === undefined || scrubbed.page !== page
+    ? root
+    : (applyTimeline(root, scrubbed.timeline, scrubbed.ms) as Node);
+}
+
 /** A page's root with the transition being played drawn on its widget (PC-29); other roots are kept. */
 function moving(root: Node | undefined, playing: Playing | undefined): Node | undefined {
   return root === undefined || playing === undefined || findNode(root, playing.id) === null
@@ -142,6 +157,7 @@ export function usePreviewScene(
   design: DesignPicks = NO_PICKS,
   snackOwner?: string,
   playing?: Playing,
+  scrubbed?: Scrubbed,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // Each screen's name above its frame takes the canvas theme's label colour, so it reads on a light and a dark canvas.
@@ -191,10 +207,28 @@ export function usePreviewScene(
         const listed = expandLists(decided, mocks, states, scope, design.lists, design.listText);
         byRoot.set(s.root, bindMocks(listed, mocks, states, scope));
       }
-      const drawer = moving(snackbarOn(shownWith(byRoot.get(s.root), drawers, opened), snackOwner, snacked), playing);
+      const drawer = scrubbing(
+        s.id,
+        moving(snackbarOn(shownWith(byRoot.get(s.root), drawers, opened), snackOwner, snacked), playing),
+        scrubbed,
+      );
       return { ...s, root: drawer === undefined ? drawer : livened(drawer, s, live, look.platform, implied) };
     });
     return presentRoutes(drawn, routes);
-  }, [screens, everything, look, drawers, opened, routes, live, implied, design, snackOwner, snacked, playing]);
+  }, [
+    screens,
+    everything,
+    look,
+    drawers,
+    opened,
+    routes,
+    live,
+    implied,
+    design,
+    snackOwner,
+    snacked,
+    playing,
+    scrubbed,
+  ]);
   return { shown, styled, paint };
 }

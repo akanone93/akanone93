@@ -255,7 +255,13 @@ scale, or a slide in any direction) with its duration and curve — **Play enter
 canvas, as the device would — **Animate changes** (its numbers and colours animate when their bound value changes,
 with a duration, a delay and a curve), a **Hero tag** (widgets of other screens with the same tag are outlined while
 it is selected: it flies to them when one opens the other), and what it does when the device asks to **Reduce
-motion**. Texts take Material 3's type scale, or the theme's `typography` tokens where it has
+motion**. A page's timelines are under **Page › Timelines**: **Add a timeline**, or open one on the canvas. Its strip
+over the canvas plays and pauses it and scrubs it with the **Playhead** — the canvas draws the page at that moment — and
+lists a row per track with its keyframes: click one to go to it, Shift+click to remove it. Select a widget, pick a
+property and a value, and **Add keyframe** at the playhead; a new track starts from the widget's value. Its settings set
+the duration, the repeats, **Loop**, **Reverse on repeat**, **Play when the page shows**, and **Driven by scroll**: a
+scroll view whose offset moves the timeline over the **Scroll extent** — scroll it in **Interact** mode to see it move.
+Texts take Material 3's type scale, or the theme's `typography` tokens where it has
 them; a text style opens an editor with the type-scale role (display to label) or a custom size, weight, letter
 spacing, line height, colour, italic and line, and a text with **maxLines** ends in an ellipsis; a rich text draws each
 span in its own style. Screens are laid out edge to edge, as on the device: a column, row, padding, size, alignment or

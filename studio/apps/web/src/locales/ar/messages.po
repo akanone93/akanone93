@@ -1072,6 +1072,12 @@ msgstr "لا يوجد خط بديل لـ {script}."
 msgid "design.fallbackOk"
 msgstr "{script}: {n} خطوط"
 
+#. A timeline's length and how many tracks it has.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.meta"
+msgstr "{seconds} ث · {tracks, plural, zero {لا مسارات} one {مسار واحد} two {مساران} few {# مسارات} many {# مسارًا} other {# مسار}}"
+
 #. An icon set of the icon picker: Material Symbols or the Cupertino (iOS) icons.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -1540,6 +1546,12 @@ msgstr "أضف عضوًا لتعملا معًا."
 msgid "panelTabs.stateAddForm"
 msgstr "إضافة إدخال حالة"
 
+#. Button that adds an animation timeline to the page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.add"
+msgstr "إضافة خط زمني"
+
 #. Button that writes the quick action.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/quick-actions.messages.ts
@@ -1635,6 +1647,12 @@ msgstr "إضافة عنصر"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.addKey"
 msgstr "إضافة مفتاح"
+
+#. Button; {at} is the playhead, e.g. 0.40 s.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.addKeyframe"
+msgstr "إضافة إطار مفتاحي عند {at}"
 
 #. Button that writes the navigation link to the document.
 #. js-lingui-explicit-id
@@ -3486,6 +3504,12 @@ msgstr "إلغاء التحديد"
 msgid "layout.clearOverrides"
 msgstr "مسح تجاوزات {bp, select, medium {المتوسط} other {الموسّع}}"
 
+#. Tooltip of a keyframe on the timeline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.keyframeHint"
+msgstr "انقر للانتقال إلى هذا الإطار المفتاحي؛ Shift+نقر لإزالته"
+
 #. Last line of a widget's details in the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3689,6 +3713,12 @@ msgstr "إغلاق مصمم الحالة"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeClose"
 msgstr "إغلاق محرر السمة"
+
+#. Closes the timeline strip.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.close"
+msgstr "إغلاق الخط الزمني"
 
 #. State of a rollout.
 #. js-lingui-explicit-id
@@ -5226,6 +5256,12 @@ msgstr "الرسم"
 msgid "pluginCanvas.addDrawer"
 msgstr "قائمة جانبية"
 
+#. Select of the scroll view whose offset moves the timeline (ANI-006).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.drivenBy"
+msgstr "مدفوع بالتمرير"
+
 #. Choice for a missing item in the paste report: remove the reference from the pasted elements.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -5285,6 +5321,12 @@ msgstr "المدة"
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.stageMinutes"
 msgstr "المدة (بالدقائق)"
+
+#. Label of the timeline's length.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.duration"
+msgstr "المدة (ms)"
 
 #. Label of an animation's duration in milliseconds.
 #. js-lingui-explicit-id
@@ -5357,6 +5399,12 @@ msgstr "تحرير {key}"
 #: apps/web/src/features/panels/tabs.messages.ts
 msgid "panelTabs.codeEdit"
 msgstr "تحرير {name} في محرر Rust"
+
+#. Button that opens a timeline's strip over the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.open"
+msgstr "تعديل {name} على اللوحة"
 
 #. Button that opens the token editor; {token} is its path.
 #. js-lingui-explicit-id
@@ -8915,6 +8963,12 @@ msgstr "السجلات"
 msgid "devices.tabLogs"
 msgstr "السجلات"
 
+#. Switch: the timeline repeats forever.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.forever"
+msgstr "تكرار مستمر"
+
 #. Risk level.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -11393,6 +11447,12 @@ msgstr "الأنماط"
 msgid "releases.pause"
 msgstr "إيقاف مؤقت"
 
+#. Pauses the timeline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.pause"
+msgstr "إيقاف مؤقت"
+
 #. Button: freeze the drawer's list while events keep arriving.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -11567,11 +11627,29 @@ msgstr "المنصة"
 msgid "preview.platform"
 msgstr "نمط المنصة"
 
+#. Plays the timeline on the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.play"
+msgstr "تشغيل"
+
 #. Button that plays a replay.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayPlay"
 msgstr "تشغيل"
+
+#. Switch: the timeline plays on page enter.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.autoplay"
+msgstr "التشغيل عند ظهور الصفحة"
+
+#. Slider that moves through the timeline; the canvas shows the page there.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.scrub"
+msgstr "رأس التشغيل"
 
 #. Name of the top level of the layer tree.
 #. js-lingui-explicit-id
@@ -12046,6 +12124,12 @@ msgstr "الخصائص"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.docsProps"
 msgstr "الخصائص"
+
+#. Select of the selected widget's animatable properties.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.prop"
+msgstr "الخاصية"
 
 #. Shown when the diff is empty.
 #. js-lingui-explicit-id
@@ -12538,6 +12622,12 @@ msgstr "إزالة {family}"
 msgid "rustEditor.removeDependency"
 msgstr "إزالة {name}"
 
+#. Button that removes a timeline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.remove"
+msgstr "إزالة {name}"
+
 #. Accessible name of the button that removes a parameter.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -12801,6 +12891,12 @@ msgstr "جارٍ الإنشاء"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.bank-rent"
 msgstr "الإيجار"
+
+#. How many times the timeline plays again after the first.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.repeat"
+msgstr "التكرارات"
 
 #. JSON Patch operation that replaces a value.
 #. js-lingui-explicit-id
@@ -13149,6 +13245,12 @@ msgstr "الاحتفاظ"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.outputType"
 msgstr "يعيد {type}"
+
+#. Switch: each repeat plays backwards.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.reverse"
+msgstr "عكس عند التكرار"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -13935,6 +14037,18 @@ msgstr "لقطة شاشة: {screens}"
 msgid "tests.stepScroll"
 msgstr "تمرير"
 
+#. Pixels of scrolling that span the whole timeline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.extent"
+msgstr "مدى التمرير (px)"
+
+#. Note on a timeline driven by a scroll view.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.driven"
+msgstr "مرّر العرض في وضع التفاعل لتحريكه."
+
 #. Label of the top bar button that opens the search and command palette.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -14144,6 +14258,12 @@ msgstr "حدد عنصرًا على اللوحة لتحرير مخطط الإجر
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.nothing"
 msgstr "حدّد عنصرًا لإضافة رابط."
+
+#. Shown on an empty timeline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.noTracks"
+msgstr "حدد عنصرًا واختر خاصية وأضف إطارًا مفتاحيًا عند رأس التشغيل."
 
 #. Accessible name of the checkbox that selects every key the grid shows.
 #. js-lingui-explicit-id
@@ -17380,6 +17500,12 @@ msgstr "عبر بوابة Plux"
 msgid "publish.evidence.thumbQueued"
 msgstr "ستظهر الصور المصغّرة عند انتهاء العرض."
 
+#. Option: the timeline runs in time, not by scroll.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.noDriver"
+msgstr "الوقت"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -17415,6 +17541,18 @@ msgstr "الخط الزمني"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayTimeline"
 msgstr "الخط الزمني"
+
+#. Accessible name of the timeline strip over the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.strip"
+msgstr "الخط الزمني {name}"
+
+#. Section of the page settings: the page's animation timelines.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.timelines"
+msgstr "الخطوط الزمنية"
 
 #. Label of the page's title field.
 #. js-lingui-explicit-id
@@ -18044,6 +18182,12 @@ msgstr "أخطاء التحقق"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.colValue"
+msgstr "القيمة"
+
+#. The value of a new keyframe.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/timelines.messages.ts
+msgid "timeline.value"
 msgstr "القيمة"
 
 #. A Match widget's value, compared with its cases.
