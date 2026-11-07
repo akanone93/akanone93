@@ -234,15 +234,18 @@ export function pointerHandlers(
     }
   };
 
-  /** A press of the select tool: a handle of the selection resizes it, anything else picks and waits for a drag. */
-  const pressAt = (e: PointerLike, p: Point): Mode => {
+  /**
+   * A press of the select tool: a handle of the selection resizes it, anything else picks and waits for a drag. A press
+   * on a screen's header bar (MR-2) names what it hit (`forced`: the screen's title) instead of the canvas under it.
+   */
+  const pressAt = (e: PointerLike, p: Point, forced?: readonly string[]): Mode => {
     const i = get();
     const w = toWorld(p);
-    const handle = handleUnder(w);
+    const handle = forced === undefined ? handleUnder(w) : undefined;
     if (handle !== undefined) {
       return { kind: "resize", ...handle, world: w, delta: { x: 0, y: 0 } };
     }
-    const hits = rawHits(p);
+    const hits = forced ?? rawHits(p);
     // A ghost screen or an arrow on top takes the click (`onPick`) before the screens under it.
     const top = hits[0];
     const foreign = top !== undefined && nodesOfHits([top], i.index, i.rootOf).length === 0;
@@ -263,14 +266,14 @@ export function pointerHandlers(
     };
   };
 
-  const down = (e: PointerLike): void => {
+  const down = (e: PointerLike, forced?: readonly string[]): void => {
     const i = get();
     const button = e.button ?? 0;
     if (button === 1 || (button === 0 && (i.tool === "hand" || i.spaceHeld()))) {
       startPan(e);
       return;
     }
-    if (button === 0 && i.tool === "interact") {
+    if (button === 0 && i.tool === "interact" && forced === undefined) {
       // A live screen takes the click; nothing is selected or moved.
       const p = local(e);
       i.onInteract?.(toWorld(p), rawHits(p));
@@ -278,7 +281,7 @@ export function pointerHandlers(
     }
     if (button === 0) {
       capture(e);
-      mode.current = pressAt(e, local(e));
+      mode.current = pressAt(e, local(e), forced);
     }
   };
 
@@ -550,11 +553,11 @@ export function pointerHandlers(
         i.onEditText?.(only);
       }
     },
-    onContextMenu: (e: PointerLike) => {
+    onContextMenu: (e: PointerLike, forced?: readonly string[]) => {
       e.preventDefault?.();
       const i = get();
       const p = local(e);
-      const nodes = nodesAt(rawHits(p));
+      const nodes = nodesAt(forced ?? rawHits(p));
       if (nodes.length === 0) {
         i.onContextMenu(p, "canvas");
         return;

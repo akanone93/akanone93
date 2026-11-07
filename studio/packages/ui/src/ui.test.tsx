@@ -15,6 +15,7 @@ import { iconMirrors, mirroredIcons } from "./icon-mirrors.ts";
 import { iconNames, icons } from "./icons.ts";
 import { type LayerNode, LayerTree, layerFolders, layerMatches } from "./layer-tree.tsx";
 import { cases as menuCases } from "./menu.cases.tsx";
+import { Menu } from "./menu.tsx";
 import { cases as popoverCases } from "./popover.cases.tsx";
 import { cases as selectCases } from "./select.cases.tsx";
 import { cases as tabsCases } from "./tabs.cases.tsx";
@@ -143,6 +144,18 @@ describe("[STU-011] accessible components", () => {
     expect(screen.getByRole("menu")).toBeTruthy();
     expect(screen.getAllByRole("menuitem").length).toBe(3);
     expect(screen.getByRole("menuitem", { name: "Duplicate" }).getAttribute("aria-disabled")).toBe("true");
+  });
+
+  test("Menu: an item's icon is drawn before its label and leaves its name to the label", () => {
+    render(
+      <Menu
+        open
+        trigger={<button type="button">More</button>}
+        entries={[{ kind: "item", id: "copy", label: "Duplicate", icon: "copy", onSelect: () => {} }]}
+      />,
+    );
+    const item = screen.getByRole("menuitem", { name: "Duplicate" });
+    expect(item.querySelector("[data-icon-name='copy']")?.getAttribute("aria-hidden")).toBe("true");
   });
 
   test("Tabs: tablist, selected tab and panel", () => {

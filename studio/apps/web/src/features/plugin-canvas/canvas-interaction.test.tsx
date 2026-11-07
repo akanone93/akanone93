@@ -34,7 +34,8 @@ const path = `/o/${orgA}/apps/app1/plugins/pl`;
 
 /**
  * A surface whose hit index is the real one's shape: widgets answer as `<screen>/<node>` items and their parts, screens
- * as their frame and title. Where a screen stands follows the documents the page lays out.
+ * as their frame (their names are the header bars above them, MR-2). Where a screen stands follows the documents the
+ * page lays out.
  */
 function surface() {
   const at = new Map<string, { x: number; y: number }>();
@@ -43,7 +44,6 @@ function surface() {
     const out: Record<string, Box> = {};
     for (const [id, p] of at) {
       out[`screen:${id}`] = { l: p.x, t: p.y, r: p.x + 390, b: p.y + 844 };
-      out[`title:${id}`] = { l: p.x + 4, t: p.y - 30, r: p.x + 386, b: p.y - 10 };
     }
     const home = at.get("home");
     if (home !== undefined) {
@@ -96,17 +96,19 @@ describe("[STU-067] the plugin canvas's pointer on real canvas items", () => {
     expect(((await screen.findByRole("textbox", { name: "data" })) as HTMLInputElement).value).toBe("Hello");
     await waitFor(() => expect(document.querySelector('.pc-outline[data-kind="selected"]') === null).toBe(false));
     expect(document.querySelector(".pc-tag")?.textContent).toBe("Text");
-    // A click on the screen's title selects the screen, marked as its device frame.
-    press(canvas, home.x + 100, home.y - 20);
+    // A click on the screen's header bar selects the screen, marked as its device frame; a page without a title is
+    // named after its first text, on its header as in the bar.
+    const header = await screen.findByRole("toolbar", { name: "Screen Hello" });
+    press(header, home.x + 100, home.y - 20);
     await waitFor(() => expect(document.querySelector('.pc-outline[data-kind="screen"]') === null).toBe(false));
-    // A page without a title is named after its first text, on the canvas as in the bar.
-    expect(document.querySelector(".pc-title")?.textContent).toBe("Hello");
+    expect(header.getAttribute("data-selected")).toBe("true");
+    expect(header.querySelector(".pc-header-name")?.textContent).toBe("Hello");
     // A click on the empty canvas clears.
     press(canvas, home.x - 300, home.y - 300);
     await waitFor(() => expect(document.querySelector(".pc-outline") === null).toBe(true));
   });
 
-  test("[STU-050] dragging a screen by its title saves every screen's place in the plugin's canvas document", async () => {
+  test("[STU-050] dragging a screen by its header bar saves every screen's place in the plugin's canvas document", async () => {
     const s = surface();
     let edit: EditSession | undefined;
     const canvasDoc = {
@@ -120,11 +122,13 @@ describe("[STU-067] the plugin canvas's pointer on real canvas items", () => {
     await waitFor(() => expect(s.at.get("detail")).toBeDefined());
     const detail = s.at.get("detail") ?? { x: 0, y: 0 };
     const from = { x: detail.x + 100, y: detail.y - 20 };
-    fireEvent.pointerDown(canvas, { clientX: from.x, clientY: from.y, button: 0 });
-    fireEvent.pointerMove(canvas, { clientX: from.x + 120, clientY: from.y + 200, button: 0 });
+    expect(canvas).toBeTruthy();
+    const header = await screen.findByRole("toolbar", { name: "Screen Two" });
+    fireEvent.pointerDown(header, { clientX: from.x, clientY: from.y, button: 0 });
+    fireEvent.pointerMove(header, { clientX: from.x + 120, clientY: from.y + 200, button: 0 });
     // The drag shows the screen at its new place before anything is saved.
     await waitFor(() => expect(s.layouts.at(-1)?.find((d) => d.id === "detail")?.y).toBe(detail.y + 200));
-    fireEvent.pointerUp(canvas, { clientX: from.x + 120, clientY: from.y + 200, button: 0 });
+    fireEvent.pointerUp(header, { clientX: from.x + 120, clientY: from.y + 200, button: 0 });
     await waitFor(() => {
       const content = edit?.store.getState().docs["canvas.json"]?.content as { positions?: unknown[] } | undefined;
       const positions = content?.positions;

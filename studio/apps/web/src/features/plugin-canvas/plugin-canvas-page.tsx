@@ -199,17 +199,6 @@ export function placeModel(
   });
 }
 
-/** What a screen's header shows after its name: the route, the page kind and the entry mark (PC-11). */
-function headerMeta(
-  m: ReturnType<typeof pluginCanvasMessages>,
-  entry: string | undefined,
-  // The locale the strings are in: a new locale is a new function, so the headers are drawn again.
-  _locale: string,
-): (s: PlacedScreen) => string | undefined {
-  return (s) =>
-    s.route === undefined ? undefined : m.screenMeta(s.route, m.pageKind(s.kind ?? "screen"), s.id === entry);
-}
-
 /** The screens' style: live with the Interact tool (PC-15). */
 function liveStyle<T extends object>(style: T, tool: PointerTool): T {
   return tool === "interact" ? { ...style, live: true } : style;
@@ -645,7 +634,7 @@ function PluginCanvasView({
   const sourceNames = useMemo(() => Object.fromEntries(sources.map((x) => [x.id, x.name])), [sources]);
   // The screens are previewed in the app's own locales (I18N-002, PC-32).
   const appLocales = useMemo(() => readLocales(jsonOf(appDocs.data ?? [], "app")[0])?.supported ?? [], [appDocs.data]);
-  const { look, bar, switcher, matrix, closeMatrix } = usePreviewBar(
+  const { look, bar, switcher, matrix, closeMatrix, openMatrix } = usePreviewBar(
     params.app,
     sourceIds,
     brands,
@@ -668,13 +657,9 @@ function PluginCanvasView({
     [drawnAppDocs, docs.data, look],
   );
   const screens = useMemo(() => titledScreens(placed, titleMessages), [placed, titleMessages]);
-  // Each screen's header names its route and kind, and marks the plugin's entry (PC-11).
+  // Each screen's header bar marks the plugin's entry (PC-11, MR-2).
   const entryId = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
   const { i18n } = useLingui();
-  const meta = useMemo(
-    () => headerMeta(pluginCanvasMessages(i18n), entryId, i18n.locale),
-    [i18n, i18n.locale, entryId],
-  );
   // The tool is the page's: with Interact the screens are live (PC-15), and their live values are drawn.
   const [tool, setTool] = useState<PointerTool>("select");
   const [liveValues, setLive] = useState<LiveState>(emptyLive);
@@ -1148,7 +1133,7 @@ function PluginCanvasView({
       return;
     }
     let current = true;
-    void surface.layoutScreens(screenDocuments(shown, meta), styled).then((laidOut) => {
+    void surface.layoutScreens(screenDocuments(shown), styled).then((laidOut) => {
       if (!current) {
         return;
       }
@@ -1176,7 +1161,7 @@ function PluginCanvasView({
     return () => {
       current = false;
     };
-  }, [screens, shown, styled, meta, device]);
+  }, [screens, shown, styled, device]);
 
   // The view's place in the URL and the ghosts' level of detail follow the view at most once a frame: a router update
   // per wheel step or pointer move re-rendered the whole editor on each, and the canvas stuttered.
@@ -1334,8 +1319,20 @@ function PluginCanvasView({
 
   const [screenRequest, setScreenRequest] = useState<ScreenRequest | undefined>();
   const requestScreen = useCallback(
-    (kind: ScreenRequest["kind"], screen: string) => setScreenRequest((r) => ({ kind, screen, n: (r?.n ?? 0) + 1 })),
+    (kind: ScreenRequest["kind"], screen: string, title?: string) =>
+      setScreenRequest((r) => ({ kind, screen, n: (r?.n ?? 0) + 1, ...(title === undefined ? {} : { title }) })),
     [],
+  );
+  // A screen's header opens its page settings in the inspector, or the device matrix with it (MR-2).
+  const onScreenView = useCallback(
+    (view: "settings" | "matrix") => {
+      if (view === "settings") {
+        setDockTab((r) => tabRequest("page", r));
+      } else {
+        openMatrix();
+      }
+    },
+    [openMatrix],
   );
   /** Ghost screens and lanes take a click before the nodes (STU-052, STU-053). */
   const pickGhost = (hits: readonly string[]): boolean => {
@@ -1554,7 +1551,8 @@ function PluginCanvasView({
     screens,
     shown,
     styled,
-    meta,
+    entry: entryId,
+    onScreenView,
     positions: screenPositions,
     onPick: pickGhost,
     onView: sync,

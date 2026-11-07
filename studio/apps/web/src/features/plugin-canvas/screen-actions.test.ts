@@ -13,6 +13,7 @@ import {
   duplicateScreen,
   renameScreen,
   type ScreenContext,
+  setEntryScreen,
 } from "./screen-actions.ts";
 
 const enc = (v: unknown) => new TextEncoder().encode(JSON.stringify(v));
@@ -189,6 +190,22 @@ describe("[STU-050] screens through the pipeline", () => {
     };
     renameScreen(t.session, linked, detail.id, "Details");
     expect(content(t.session, "pages/detail.page.json")["route"]).toBe("detail");
+    t.session.dispose();
+  });
+});
+
+describe("[SCH-022] MR-2 the entry screen from a screen's header", () => {
+  test("another screen becomes the plugin's entry in one edit of the plugin document", () => {
+    const t = setup();
+    expect(setEntryScreen(t.session, ctx, detail.id)).toEqual({ ok: true });
+    expect(content(t.session, "plugin.json")["entryPage"]).toBe(detail.id);
+    t.session.dispose();
+  });
+  test("the entry already, or a page the plugin does not hold, changes nothing", () => {
+    const t = setup();
+    expect(setEntryScreen(t.session, ctx, home.id)).toEqual({ ok: true });
+    expect(setEntryScreen(t.session, ctx, "elsewhere")).toEqual({ ok: false, reason: "unknown" });
+    expect(content(t.session, "plugin.json")["entryPage"]).toBe(home.id);
     t.session.dispose();
   });
 });

@@ -21,6 +21,7 @@ import type { HandlerStep } from "./quick-actions.ts";
 import type { SizesOverlay } from "./responsive.ts";
 import { type PlacedScreen, screenDocuments } from "./scene.ts";
 import type { CostsOverlay } from "./screen-costs.ts";
+import { type HeaderAction, type HeaderPointer, type HeaderScreen, ScreenHeaders } from "./screen-header.tsx";
 import type { ScreenRequest } from "./screens-controller.tsx";
 import type { EditFn } from "./select/edits.ts";
 import { findNode } from "./select/edits.ts";
@@ -49,8 +50,10 @@ export interface InteractionInput {
   readonly screens: readonly PlacedScreen[];
   readonly shown: readonly PlacedScreen[];
   readonly styled: ScreenStyle;
-  /** What each screen's header shows after its name (PC-11), as the page lays the screens out. */
-  readonly meta?: (s: PlacedScreen) => string | undefined;
+  /** The plugin's entry screen, marked Entry on its header (PC-11, MR-2). */
+  readonly entry?: string | undefined;
+  /** A screen's header asks for its page settings or the device matrix, once it has selected the screen (MR-2). */
+  readonly onScreenView?: (view: "settings" | "matrix") => void;
   readonly positions: ScreenPositions;
   readonly onPick: (hits: readonly string[]) => boolean;
   /** The view moved: the URL and the ghosts follow it. */
@@ -58,7 +61,7 @@ export interface InteractionInput {
   readonly fit: () => void;
   readonly zoomBy: (factor: number) => void;
   readonly resetZoom: () => void;
-  readonly requestScreen: (kind: ScreenRequest["kind"], screen: string) => void;
+  readonly requestScreen: (kind: ScreenRequest["kind"], screen: string, title?: string) => void;
   readonly messages: Messages;
   /** The overlay's state: the page makes it, so its surface can route guides to it (`guidesToOverlay`). */
   readonly overlay: OverlayStore;
@@ -193,7 +196,7 @@ function useScreenPreview(input: InteractionInput, overlay: OverlayStore) {
           const p = at.get(x.id);
           return p === undefined ? x : { ...x, at: p };
         });
-        void surface.layoutScreens(screenDocuments(placed, latest.current.meta), latest.current.styled).then(() => {
+        void surface.layoutScreens(screenDocuments(placed), latest.current.styled).then(() => {
           overlay.viewChanged();
           send();
         });
@@ -203,6 +206,91 @@ function useScreenPreview(input: InteractionInput, overlay: OverlayStore) {
       }
     },
     [overlay],
+  );
+}
+
+/**
+ * The screens' header bars (MR-2): each grips its screen through the canvas's own pointer handlers, renames it in place
+ * and runs its actions, selecting the screen first so the inspector and the screen commands follow it.
+ */
+function useScreenHeaders(
+  input: InteractionInput,
+  pointer: ReturnType<typeof useCanvasPointer>,
+  zoomToSelection: () => void,
+  boxOf: (id: string) => Box | undefined,
+): ReactNode {
+  const { screens, store, selection, requestScreen, onScreenView, entry } = input;
+  const headers = useMemo<readonly HeaderScreen[]>(
+    () =>
+      screens.flatMap((s) =>
+        s.root === undefined
+          ? []
+          : [
+              {
+                id: s.id,
+                root: s.root.id,
+                title: s.title,
+                route: s.route,
+                kind: s.kind ?? "screen",
+                entry: s.id === entry,
+              },
+            ],
+      ),
+    [screens, entry],
+  );
+  const select = useCallback(
+    (h: HeaderScreen) => {
+      const now = store.get();
+      if (now.ids.length !== 1 || now.ids[0] !== h.root) {
+        store.set({ ids: [h.root], anchor: h.root, scope: null });
+      }
+    },
+    [store],
+  );
+  const act = useCallback(
+    (action: HeaderAction, h: HeaderScreen) => {
+      select(h);
+      if (action === "zoom") {
+        zoomToSelection();
+      } else if (action === "settings" || action === "matrix") {
+        onScreenView?.(action);
+      } else {
+        requestScreen(action, h.id);
+      }
+    },
+    [select, zoomToSelection, onScreenView, requestScreen],
+  );
+  const rename = useCallback(
+    (h: HeaderScreen, title: string) => {
+      select(h);
+      requestScreen("rename", h.id, title);
+    },
+    [select, requestScreen],
+  );
+  const headerPointer = useMemo<HeaderPointer>(
+    () => ({
+      down: pointer.onPointerDown,
+      move: pointer.onPointerMove,
+      up: pointer.onPointerUp,
+      cancel: pointer.onPointerCancel,
+      menu: pointer.onContextMenu,
+    }),
+    [pointer],
+  );
+  const selected = useMemo(() => new Set(selection.ids), [selection.ids]);
+  return (
+    <ScreenHeaders
+      screens={headers}
+      store={input.overlay}
+      surface={input.surface}
+      boxOf={boxOf}
+      selected={selected}
+      canEdit={input.canEdit}
+      pointer={headerPointer}
+      onSelect={select}
+      onAction={act}
+      onRename={rename}
+    />
   );
 }
 
@@ -396,6 +484,8 @@ export function useCanvasInteraction(input: InteractionInput) {
     ...(input.snapSize === undefined ? {} : { snapSize: input.snapSize }),
   });
 
+  const headers = useScreenHeaders(input, handlers, zoomToSelection, boxOf);
+
   useCanvasKeys({
     canvas: input.canvas,
     space,
@@ -424,6 +514,7 @@ export function useCanvasInteraction(input: InteractionInput) {
         </p>
       )}
       <InteractionOverlay store={overlay} surface={surface} selection={selection} nodes={nodes} />
+      {headers}
       <CanvasMenu
         at={menu}
         label={m.canvasMenu}

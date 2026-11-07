@@ -174,14 +174,6 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Settings",
       comment: "Label of the second entry of a drawer added to a page.",
     }),
-    screenMeta: (route: string, kind: string, entry: boolean) =>
-      i18n._({
-        id: "pluginCanvas.screenMeta",
-        message: "{entry, select, yes {Entry · {route} · {kind}} other {{route} · {kind}}}",
-        values: { route, kind, entry: entry ? "yes" : "no" },
-        comment:
-          "Shown above a screen on the plugin canvas, after its name: its route name and page kind; the plugin's entry screen starts with 'Entry'.",
-      }),
     pageKind: (kind: "screen" | "dialog" | "bottomSheet" | "fullscreenDialog") =>
       i18n._({
         id: "pluginCanvas.pageKind",

@@ -4,7 +4,7 @@
 import { useLingui } from "@lingui/react";
 import type { ScreenStyle } from "@plux/canvas";
 import { Button } from "@plux/ui";
-import { type ReactElement, useEffect, useRef, useState } from "react";
+import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
 import { chromeSpec } from "../plugin-canvas/look.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { SurfaceFactory } from "../plugin-canvas/surface.ts";
@@ -53,10 +53,13 @@ export function usePreviewBar(
   bar: ReactElement;
   switcher: ReactElement;
   matrix: boolean;
+  openMatrix: () => void;
   closeMatrix: () => void;
 } {
   const preview = usePreviewSwitches(app ?? "");
   const [matrix, setMatrix] = useState(false);
+  const openMatrix = useCallback(() => setMatrix(true), []);
+  const closeMatrix = useCallback(() => setMatrix(false), []);
   const [view, setView] = useFrameView();
   const frame = decodeCustom(preview.state.deviceFrame) ?? resolveFrame(preview.state.deviceFrame);
   // The render keeps its identity while the switches are unchanged, so the canvas lays out again only on a change.
@@ -69,7 +72,8 @@ export function usePreviewBar(
   return {
     look: cache.current.look,
     matrix,
-    closeMatrix: () => setMatrix(false),
+    openMatrix,
+    closeMatrix,
     switcher: (
       <PreviewSwitcher
         part="main"

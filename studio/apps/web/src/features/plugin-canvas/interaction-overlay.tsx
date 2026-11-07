@@ -114,22 +114,6 @@ const FRAME_RADIUS = 32;
 /** A screen's outline radius at the view's zoom: its device's corners. */
 const frameCorner = (nodes: OverlayNodes, view: View): number => (nodes.frameRadius ?? FRAME_RADIUS) * view.zoom;
 
-/** The world offset of a screen's name above its frame, as the canvas draws it (`titleId`: 30 above, 15 high). */
-const TITLE_ABOVE = 32;
-
-/**
- * A screen's name above its frame, marked: the canvas draws the name, this chip covers it in the selection's colour at
- * the same place and size, as design tools mark a selected frame's name.
- */
-function ScreenName({ box, view, text, kind }: { box: Box; view: View; text: string; kind: string }): ReactNode {
-  const style = { ...point(box.l, box.t - TITLE_ABOVE, view), "--z": view.zoom } as CSSProperties;
-  return (
-    <span className="pc-title" data-kind={kind} style={style}>
-      {text}
-    </span>
-  );
-}
-
 /** A band of padding or gap, in world units, with the size it shows. */
 interface Band {
   readonly box: Box;
@@ -510,11 +494,15 @@ function Selected(props: {
         data-kind={screen ? "screen" : "selected"}
         style={{ ...place(box, view), "--r": screen ? frameCorner(nodes, view) : 0 } as CSSProperties}
       />
-      {screen && <ScreenName box={box} view={view} text={nodes.nameOf(id)} kind="selected" />}
       {single && !screen && <Tag box={box} view={view} text={nodes.nameOf(id)} kind="selected" />}
       {single && !screen && <Spacing id={id} box={box} view={view} nodes={nodes} />}
       {single && (
-        <span className="pc-size" style={point((box.l + box.r) / 2, box.b, view)}>
+        // A screen's size sits under its start corner, clear of what it costs under its end (PC-34).
+        <span
+          className="pc-size"
+          data-at={screen ? "start" : undefined}
+          style={point(screen ? box.l : (box.l + box.r) / 2, box.b, view)}
+        >
           {sizeText(box)}
         </span>
       )}
@@ -543,11 +531,7 @@ function Hover({ id, box, view, nodes }: { id: string; box: Box; view: View; nod
         data-kind={screen ? "screen-hover" : "hover"}
         style={{ ...place(box, view), "--r": screen ? frameCorner(nodes, view) : 0 } as CSSProperties}
       />
-      {screen ? (
-        <ScreenName box={box} view={view} text={nodes.nameOf(id)} kind="hover" />
-      ) : (
-        <Tag box={box} view={view} text={nodes.nameOf(id)} kind="hover" />
-      )}
+      {!screen && <Tag box={box} view={view} text={nodes.nameOf(id)} kind="hover" />}
     </>
   );
 }

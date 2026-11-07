@@ -10,6 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./components/dropdown-menu";
+import { Icon } from "./icon.tsx";
+import type { IconName } from "./icons.ts";
 
 export type MenuEntry =
   | {
@@ -19,6 +21,8 @@ export type MenuEntry =
       readonly onSelect: () => void;
       readonly danger?: boolean;
       readonly disabled?: boolean;
+      /** A decorative icon before the label; the label alone names the item. */
+      readonly icon?: IconName;
     }
   | { readonly kind: "separator"; readonly id: string };
 
@@ -51,7 +55,7 @@ export function Menu({ trigger, entries, ...root }: MenuProps): ReactElement {
   return (
     <DropdownMenu modal={false} {...root}>
       <DropdownMenuTrigger render={trigger} />
-      <DropdownMenuContent align="end" className="min-w-40">
+      <DropdownMenuContent align="end" className="w-max min-w-40 max-w-80">
         {parts.map((g, i) => [
           i > 0 && <DropdownMenuSeparator key={`${g.id}-separator`} />,
           g.items.length > 0 && (
@@ -63,6 +67,7 @@ export function Menu({ trigger, entries, ...root }: MenuProps): ReactElement {
                   {...(e.danger === true && { variant: "destructive" as const })}
                   {...(e.disabled !== undefined && { disabled: e.disabled })}
                 >
+                  {e.icon !== undefined && <Icon name={e.icon} />}
                   {e.label}
                 </DropdownMenuItem>
               ))}

@@ -94,10 +94,13 @@ Positions are read-only while someone else is editing the app.
    and a height, eight handles that resize it. Drag a selected widget to move it: in a column, row or wrap a line
    shows where it lands among its siblings or in another container (outlined in green); in a stack it moves to where
    you drop it (always inside its stack), with guides and distances to its siblings; the arrow keys nudge by 1
-   (Shift: 10). Click a screen's
-   name above its frame to select the screen, and drag the name — or a selected screen's body — to move it with every
-   selected screen; it snaps to the others and stays where you drop it (Undo puts it back). Double-click the name to
-   rename the screen. Drag on the empty canvas, or across a screen that is not selected, to select the screens or the
+   (Shift: 10). Each screen has a header bar above its frame: click the bar to select the screen, and drag the bar —
+   or a selected screen's body — to move it with every selected screen; it snaps to the others and stays where you
+   drop it (Undo puts it back). Click the screen's title in its bar to rename it in place (Enter keeps the new title,
+   Escape the old one); when the new title would change the route name and break deep links or generated code, the
+   rename dialog shows what changes first. The bar's quick actions open the screen's **Page settings**, **Show on
+   every device** (the device matrix) and **Zoom to screen**; its ⋯ menu adds **Rename**, **Duplicate**, **Make it
+   the entry screen**, **Move to another plugin…** and **Delete…**. Drag on the empty canvas, or across a screen that is not selected, to select the screens or the
    widgets the rectangle meets (Alt: only those inside it). Right-click a widget, a screen or the empty canvas for its
    actions: copy, cut, paste, duplicate, wrap, unwrap, select the parent or the first child, zoom to the selection
    (Shift+2) and delete (Delete or Backspace); a screen's rename, duplicate, move and delete; a new screen and fit all
@@ -155,8 +158,9 @@ Positions are read-only while someone else is editing the app.
    **Difference**, black where they match, so what differs lights up. Drag the console's top edge, or use the arrow keys on it, to
    change its height.
 
-Each screen's name is shown above its device frame, with its route name and kind (**Page**, **Dialog**, **Bottom
-sheet** or **Full-screen dialog**) after it and **Entry** on the plugin's entry screen; drag the screen by either. A
+Each screen's header bar shows its kind as an icon (**Page**, **Dialog**, **Bottom sheet** or **Full-screen
+dialog**), its title, **Entry** on the plugin's entry screen and its route name when it differs from the title; it keeps
+one size at every zoom, and on a narrow frame it drops the route, then shows the quick actions only on hover. A
 button or a field shows its text inside its box. A page's app bar reaches under the status bar and keeps its title
 below it, a `SafeArea` keeps its content clear of the status bar, the cutout and the home indicator, and the status
 bar's icons turn light over a dark app bar or header, as the device draws them. A page's `Scaffold` is laid out at the

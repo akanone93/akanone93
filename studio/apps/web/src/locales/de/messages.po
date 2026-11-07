@@ -436,12 +436,6 @@ msgstr "{edge, select, left {Links anheften} top {Oben anheften} right {Rechts a
 msgid "panel.editorShort"
 msgstr "{editor, select, json {JSON} l10n {Übersetzungen} state {Zustand} data {Datenquellen} db {Datenbank} theme {Design} graph {Aktionsgraph} rust {Rust} other {Editor}}"
 
-#. Shown above a screen on the plugin canvas, after its name: its route name and page kind; the plugin's entry screen starts with 'Entry'.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.screenMeta"
-msgstr "{entry, select, yes {Einstieg · {route} · {kind}} other {{route} · {kind}}}"
-
 #. Badge on an app's card: an environment that serves no release yet; environment is its key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -3690,6 +3684,12 @@ msgstr "Klicken, um zu diesem Keyframe zu gehen; Umschalt+Klick, um ihn zu entfe
 msgid "panels.tileHint"
 msgstr "Klicken, um in die Auswahl einzufügen, oder auf einen Bildschirm ziehen."
 
+#. Tooltip of a screen's title above its frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.renameHint"
+msgstr "Zum Umbenennen klicken"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -4998,6 +4998,12 @@ msgstr "Bildschirm löschen"
 msgid "assets.deleteTitle"
 msgstr "Dieses Asset löschen?"
 
+#. Menu item above a screen: delete it (asks first).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.delete"
+msgstr "Löschen …"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -5508,6 +5514,12 @@ msgstr "Verwerfen"
 msgid "designers.dbPlanDrop"
 msgstr "Felder verwerfen (durch Komma getrennt)"
 
+#. Menu item above a screen: make a copy of it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.duplicate"
+msgstr "Duplizieren"
+
 #. Menu entry that creates a copy of the app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -5962,6 +5974,12 @@ msgstr "Enterprise: Lizenz erforderlich"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.sectionEntry"
 msgstr "Eintrag"
+
+#. Badge after the title of the screen the plugin opens on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.entry"
+msgstr "Einstieg"
 
 #. Marks the screen the plugin opens first.
 #. js-lingui-explicit-id
@@ -9305,6 +9323,12 @@ msgstr "Zum Einstieg machen"
 msgid "appCanvas.setEntry"
 msgstr "Zum Einstiegs-Plugin machen"
 
+#. Menu item above a screen: the plugin opens on this screen from now on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.makeEntry"
+msgstr "Zum Einstiegsbildschirm machen"
+
 #. Toolbar button on a navigation bar: a navigation rail replaces it on medium and expanded screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -9629,6 +9653,12 @@ msgstr "Monatlich"
 msgid "panels.kind.more"
 msgstr "Mehr"
 
+#. Button above a screen that opens the menu of all its actions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.more"
+msgstr "Weitere Aktionen für {title}"
+
 #. Label of the field that lists further primary metrics.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -9688,6 +9718,12 @@ msgstr "Text in einen Übersetzungsschlüssel verschieben"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.extract"
 msgstr "In einen Übersetzungsschlüssel verschieben"
+
+#. Menu item above a screen: move it to another plugin of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.move"
+msgstr "In ein anderes Plugin verschieben …"
 
 #. Menu entry and command that move the current screen, with its links, to another plugin (D23).
 #. js-lingui-explicit-id
@@ -11663,6 +11699,12 @@ msgstr "Seitenteile"
 msgid "tests.pageLabel"
 msgstr "Seitenroute"
 
+#. Button above a screen: opens the inspector's Page pane for it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.settings"
+msgstr "Seiteneinstellungen"
+
 #. Heading of the list of page-state references that stay in the template and are flagged.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -13228,11 +13270,23 @@ msgstr "Entfernte Slots"
 msgid "pluginCanvas.rename"
 msgstr "Umbenennen"
 
+#. Menu item above a screen: rename it in place.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.rename"
+msgstr "Umbenennen"
+
 #. Label of the field that lists the renames of a plan.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanRename"
 msgstr "Umbenennen (neu=alt, durch Komma getrennt)"
+
+#. Accessible name of a screen's title above its frame: a click renames the screen in place.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.editTitle"
+msgstr "{title} umbenennen"
 
 #. Button: opens the dialog that renames or resizes a frame; label is the frame's name.
 #. js-lingui-explicit-id
@@ -13905,6 +13959,12 @@ msgstr "Route"
 msgid "pageSettings.route"
 msgstr "Routenname"
 
+#. Tooltip of the route name shown above a screen: the name other screens navigate to it by.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.route"
+msgstr "Routenname: {route}"
+
 #. Label: the router adapter the app's navigation runs on.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -14283,6 +14343,12 @@ msgstr "Bereiche (kommagetrennt)"
 msgid "analytics.replayRoute"
 msgstr "Bildschirm"
 
+#. Accessible name of the bar above a screen on the plugin canvas: its title and its actions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.bar"
+msgstr "Bildschirm {title}"
+
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -14312,6 +14378,12 @@ msgstr "Bildschirm-Vorschaubild"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screenTitle"
 msgstr "Titel des Bildschirms"
+
+#. Accessible name of the field that renames a screen in place, above its frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.titleField"
+msgstr "Bildschirmtitel"
 
 #. Label: number of screen views.
 #. js-lingui-explicit-id
@@ -15080,6 +15152,12 @@ msgstr "Tastaturkürzel anzeigen"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.showSelection"
 msgstr "Auf dem Canvas zeigen"
+
+#. Button above a screen: opens the device matrix with this screen in every device frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.matrix"
+msgstr "Auf jedem Gerät zeigen"
 
 #. Tooltip of a hidden layer's eye.
 #. js-lingui-explicit-id
@@ -17054,6 +17132,12 @@ msgstr "Das Plugin hat noch keinen Zustand."
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.readOnly"
 msgstr "Das Plugin ist von jemand anderem gesperrt: Der Graph ist schreibgeschützt."
+
+#. Tooltip of the Entry badge above a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.entryHint"
+msgstr "Das Plugin öffnet sich auf diesem Bildschirm"
 
 #. Body of the confirmation before a snapshot is restored; the placeholder is the snapshot's time.
 #. js-lingui-explicit-id
@@ -19586,6 +19670,12 @@ msgstr "Einpassen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomToScreen"
+msgstr "Auf Bildschirm zoomen"
+
+#. Button above a screen: zooms the canvas to fit the screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.zoom"
 msgstr "Auf Bildschirm zoomen"
 
 #. Context-menu item that zooms and pans the canvas so the selection fills the view.

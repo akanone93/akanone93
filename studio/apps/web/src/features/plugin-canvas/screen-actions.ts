@@ -156,6 +156,20 @@ export function renamedRoute(ctx: ScreenContext, pageId: string, title: string):
     : undefined;
 }
 
+/** Makes `pageId` the plugin's entry screen (SCH-022, MR-2): the plugin opens on it from now on. */
+export function setEntryScreen(session: EditSession, ctx: ScreenContext, pageId: string): ScreenResult {
+  const c = context(ctx);
+  if (c.pluginDoc === undefined || !c.ownPages.some((p) => p.json["id"] === pageId)) {
+    return { ok: false, reason: "unknown" };
+  }
+  if (c.entry !== pageId) {
+    session.edit(c.pluginDoc.path, (d) => {
+      d["entryPage"] = pageId;
+    });
+  }
+  return { ok: true };
+}
+
 /** What stops a screen from being deleted; empty when it can go. */
 export function blockersOf(ctx: ScreenContext, pageId: string): Blocker[] {
   const c = context(ctx);

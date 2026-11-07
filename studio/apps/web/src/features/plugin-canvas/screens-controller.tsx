@@ -41,6 +41,7 @@ import {
   renameScreen,
   type ScreenContext,
   type ScreenResult,
+  setEntryScreen,
 } from "./screen-actions.ts";
 import type { NewPageKind } from "./screens.ts";
 
@@ -114,11 +115,15 @@ export interface ScreensControllerProps {
   readonly onSizes?: (on: boolean) => void;
 }
 
-/** A screen action the canvas asks the controller for. */
+/**
+ * A screen action the canvas asks the controller for: from a double-click, Delete on a selected screen, or the screen's
+ * header bar (MR-2). A rename with a `title` renames in place, through the dialog only when the route would change.
+ */
 export interface ScreenRequest {
-  readonly kind: "rename" | "delete";
+  readonly kind: "rename" | "delete" | "duplicate" | "move" | "entry";
   readonly screen: string;
   readonly n: number;
+  readonly title?: string;
 }
 
 const PAGE_KINDS: readonly NewPageKind[] = ["screen", "dialog", "bottomSheet", "fullscreenDialog"];
@@ -242,12 +247,31 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
     [m.untitled, currentTitle, props.screens],
   );
   const request = props.request;
-  // Only a new request opens a dialogue; the screens changing under an open one must not reopen it.
+  /** Runs a request: a duplicate or a new entry at once, a rename in place unless its route changes, else a dialogue. */
+  const run = (r: ScreenRequest) => {
+    if (r.kind === "duplicate") {
+      void finish(duplicateScreen(session, ctx, r.screen, m.copySuffix));
+    } else if (r.kind === "entry") {
+      void finish(Promise.resolve(setEntryScreen(session, ctx, r.screen)));
+    } else if (r.kind === "rename" && r.title !== undefined) {
+      const text = r.title.trim();
+      if (text !== "" && renameEffects(ctx, index.pages.get(r.screen), r.screen, text).length === 0) {
+        void finish(Promise.resolve(renameScreen(session, ctx, r.screen, text)));
+      } else if (text !== "") {
+        // The route would change and break what reaches it (D27): the dialogue shows what, with the new title.
+        open("rename", r.screen);
+        setTitle(text);
+      }
+    } else {
+      open(r.kind, r.screen);
+    }
+  };
+  // Only a new request acts; the screens changing under an open dialogue must not reopen it.
   // biome-ignore lint/correctness/useExhaustiveDependencies: keyed by the request alone
   useEffect(() => {
     if (request !== undefined && props.screens.some((x) => x.id === request.screen)) {
       setPicked(request.screen);
-      open(request.kind, request.screen);
+      run(request);
     }
   }, [request]);
 

@@ -1,0 +1,273 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * The header bars above the screens (MR-2): one size at every zoom, as wide as the frame on screen, placed by `--x`,
+ * `--y` (the frame's top start) and `--w` in canvas pixels. Over the canvas and its overlay, under the docks.
+ */
+
+.pc-headers {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pc-headers[data-busy] .pc-header {
+  pointer-events: none;
+}
+
+.pc-header {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  inline-size: max(calc(var(--w) * 1px), 64px);
+  block-size: 30px;
+  padding-inline: 6px 3px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px - 100% - 8px));
+  container-type: inline-size;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  transition:
+    background-color 120ms ease-out,
+    border-color 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+
+.pc-header:active {
+  cursor: grabbing;
+}
+
+.pc-header:hover,
+.pc-header[data-hovered] {
+  border-color: var(--border);
+  background-color: color-mix(in oklch, var(--background) 82%, transparent);
+  box-shadow: 0 1px 2px color-mix(in oklch, black 8%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.pc-header[data-selected] {
+  border-color: color-mix(in oklch, var(--primary) 35%, transparent);
+  background-color: color-mix(in oklch, var(--primary) 9%, var(--background));
+  color: color-mix(in oklch, var(--primary) 80%, var(--foreground));
+}
+
+.pc-header[data-editing] {
+  cursor: default;
+}
+
+.pc-header-kind {
+  display: inline-flex;
+  flex: none;
+  opacity: 0.8;
+}
+
+.pc-header-title {
+  display: inline-flex;
+  min-inline-size: 0;
+  align-items: center;
+  gap: 4px;
+  block-size: 22px;
+  padding-inline: 4px;
+  border-radius: 6px;
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  cursor: text;
+}
+
+.pc-header[data-selected] .pc-header-title {
+  color: color-mix(in oklch, var(--primary) 85%, var(--foreground));
+}
+
+.pc-header-title[aria-disabled="true"] {
+  cursor: inherit;
+}
+
+.pc-header-title:hover {
+  background-color: color-mix(in oklch, var(--foreground) 7%, transparent);
+}
+
+.pc-header-title:focus-visible,
+.pc-header-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.pc-header-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pc-header-pencil {
+  flex: none;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.pc-header-title:hover .pc-header-pencil,
+.pc-header-title:focus-visible .pc-header-pencil {
+  opacity: 0.6;
+}
+
+.pc-header-field {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  block-size: 24px;
+  padding-inline: 6px;
+  border: 1px solid var(--ring);
+  border-radius: 6px;
+  color: var(--foreground);
+  background-color: var(--background);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 22%, transparent);
+  outline: none;
+  user-select: text;
+  cursor: text;
+}
+
+.pc-header-entry {
+  flex: none;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: oklch(0.42 0.13 155);
+  background-color: color-mix(in oklch, oklch(0.62 0.15 155) 16%, transparent);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+[data-theme="dark"] .pc-header-entry {
+  color: oklch(0.85 0.12 155);
+  background-color: color-mix(in oklch, oklch(0.62 0.15 155) 24%, transparent);
+}
+
+.pc-header-route {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.pc-header-space {
+  flex: 1 1 0;
+  min-inline-size: 4px;
+}
+
+.pc-header-quick {
+  display: inline-flex;
+  flex: none;
+  gap: 1px;
+  opacity: 0.7;
+  transition: opacity 120ms ease-out;
+}
+
+.pc-header:hover .pc-header-quick,
+.pc-header[data-selected] .pc-header-quick,
+.pc-header:focus-within .pc-header-quick {
+  opacity: 1;
+}
+
+.pc-header-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 24px;
+  block-size: 24px;
+  border-radius: 6px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pc-header-button:hover,
+.pc-header-button[data-popup-open] {
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--foreground) 9%, transparent);
+}
+
+/*
+ * A narrow frame keeps what matters: the route goes first; the quick actions then show only on hover, focus or
+ * selection, so the title keeps its room at rest; then they go, and then the kind and Entry.
+ */
+@container (max-width: 380px) {
+  .pc-header-route {
+    display: none;
+  }
+}
+
+@container (max-width: 320px) {
+  .pc-header-quick {
+    display: none;
+  }
+
+  .pc-header:hover .pc-header-quick,
+  .pc-header:focus-within .pc-header-quick,
+  .pc-header[data-selected] .pc-header-quick {
+    display: inline-flex;
+  }
+
+  /* While they show, Entry steps aside so the title keeps its room. */
+  .pc-header:hover .pc-header-entry,
+  .pc-header:focus-within .pc-header-entry,
+  .pc-header[data-selected] .pc-header-entry {
+    display: none;
+  }
+}
+
+@container (max-width: 200px) {
+  .pc-header:hover .pc-header-quick,
+  .pc-header:focus-within .pc-header-quick,
+  .pc-header[data-selected] .pc-header-quick {
+    display: none;
+  }
+}
+
+/* At a far zoom the title takes the whole bar; ⋯ shows on hover, focus or selection. */
+@container (max-width: 150px) {
+  .pc-header-kind,
+  .pc-header-entry {
+    display: none;
+  }
+
+  .pc-header-title {
+    padding-inline: 2px;
+    font-size: 12px;
+  }
+
+  .pc-header-button[data-more] {
+    display: none;
+  }
+
+  .pc-header:hover .pc-header-button[data-more],
+  .pc-header:focus-within .pc-header-button[data-more],
+  .pc-header[data-selected] .pc-header-button[data-more],
+  .pc-header-button[data-more][data-popup-open] {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-header,
+  .pc-header-quick,
+  .pc-header-pencil {
+    transition: none;
+  }
+}

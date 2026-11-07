@@ -436,12 +436,6 @@ msgstr "{edge, select, left {تثبيت إلى اليسار} top {تثبيت إ�
 msgid "panel.editorShort"
 msgstr "{editor, select, json {JSON} l10n {الترجمات} state {الحالة} data {مصادر البيانات} db {قاعدة البيانات} theme {السمة} graph {مخطط الإجراءات} rust {Rust} other {محرر}}"
 
-#. Shown above a screen on the plugin canvas, after its name: its route name and page kind; the plugin's entry screen starts with 'Entry'.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
-msgid "pluginCanvas.screenMeta"
-msgstr "{entry, select, yes {البداية · {route} · {kind}} other {{route} · {kind}}}"
-
 #. Badge on an app's card: an environment that serves no release yet; environment is its key.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -3690,6 +3684,12 @@ msgstr "انقر للانتقال إلى هذا الإطار المفتاحي؛ 
 msgid "panels.tileHint"
 msgstr "انقر للإدراج في التحديد، أو اسحب إلى شاشة."
 
+#. Tooltip of a screen's title above its frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.renameHint"
+msgstr "انقر لإعادة التسمية"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -4998,6 +4998,12 @@ msgstr "حذف الشاشة"
 msgid "assets.deleteTitle"
 msgstr "هل تريد حذف هذا الأصل؟"
 
+#. Menu item above a screen: delete it (asks first).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.delete"
+msgstr "حذف…"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -5508,6 +5514,12 @@ msgstr "إسقاط"
 msgid "designers.dbPlanDrop"
 msgstr "حذف الحقول (مفصولة بفواصل)"
 
+#. Menu item above a screen: make a copy of it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.duplicate"
+msgstr "تكرار"
+
 #. Menu entry that creates a copy of the app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -5962,6 +5974,12 @@ msgstr "النسخة المؤسسية: تتطلب ترخيصًا"
 #: apps/web/src/features/state-designer/state.messages.ts
 msgid "state.sectionEntry"
 msgstr "الإدخال"
+
+#. Badge after the title of the screen the plugin opens on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.entry"
+msgstr "الدخول"
 
 #. Marks the screen the plugin opens first.
 #. js-lingui-explicit-id
@@ -9305,6 +9323,12 @@ msgstr "جعله البداية"
 msgid "appCanvas.setEntry"
 msgstr "اجعلها إضافة الدخول"
 
+#. Menu item above a screen: the plugin opens on this screen from now on.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.makeEntry"
+msgstr "اجعلها شاشة الدخول"
+
 #. Toolbar button on a navigation bar: a navigation rail replaces it on medium and expanded screens.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -9629,6 +9653,12 @@ msgstr "شهريًا"
 msgid "panels.kind.more"
 msgstr "المزيد"
 
+#. Button above a screen that opens the menu of all its actions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.more"
+msgstr "مزيد من الإجراءات لـ {title}"
+
 #. Label of the field that lists further primary metrics.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -9688,6 +9718,12 @@ msgstr "نقل النص إلى مفتاح ترجمة"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.extract"
 msgstr "نقل إلى مفتاح ترجمة"
+
+#. Menu item above a screen: move it to another plugin of the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.move"
+msgstr "النقل إلى إضافة أخرى…"
 
 #. Menu entry and command that move the current screen, with its links, to another plugin (D23).
 #. js-lingui-explicit-id
@@ -11663,6 +11699,12 @@ msgstr "أجزاء الصفحة"
 msgid "tests.pageLabel"
 msgstr "مسار الصفحة"
 
+#. Button above a screen: opens the inspector's Page pane for it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.settings"
+msgstr "إعدادات الصفحة"
+
 #. Heading of the list of page-state references that stay in the template and are flagged.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -13228,11 +13270,23 @@ msgstr "فتحات محذوفة"
 msgid "pluginCanvas.rename"
 msgstr "إعادة تسمية"
 
+#. Menu item above a screen: rename it in place.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.rename"
+msgstr "إعادة التسمية"
+
 #. Label of the field that lists the renames of a plan.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanRename"
 msgstr "إعادة التسمية (جديد=قديم، مفصولة بفواصل)"
+
+#. Accessible name of a screen's title above its frame: a click renames the screen in place.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.editTitle"
+msgstr "إعادة تسمية {title}"
 
 #. Button: opens the dialog that renames or resizes a frame; label is the frame's name.
 #. js-lingui-explicit-id
@@ -13905,6 +13959,12 @@ msgstr "المسار"
 msgid "pageSettings.route"
 msgstr "اسم المسار"
 
+#. Tooltip of the route name shown above a screen: the name other screens navigate to it by.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.route"
+msgstr "اسم المسار: {route}"
+
 #. Label: the router adapter the app's navigation runs on.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -14283,6 +14343,12 @@ msgstr "النطاقات (مفصولة بفواصل)"
 msgid "analytics.replayRoute"
 msgstr "الشاشة"
 
+#. Accessible name of the bar above a screen on the plugin canvas: its title and its actions.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.bar"
+msgstr "الشاشة {title}"
+
 #. Accessible name of the button that opens the menu of actions on the current screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -14311,6 +14377,12 @@ msgstr "صورة مصغرة للشاشة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.screenTitle"
+msgstr "عنوان الشاشة"
+
+#. Accessible name of the field that renames a screen in place, above its frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.titleField"
 msgstr "عنوان الشاشة"
 
 #. Label: number of screen views.
@@ -15080,6 +15152,12 @@ msgstr "عرض اختصارات لوحة المفاتيح"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.showSelection"
 msgstr "إظهار على اللوحة"
+
+#. Button above a screen: opens the device matrix with this screen in every device frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.matrix"
+msgstr "العرض على كل جهاز"
 
 #. Tooltip of a hidden layer's eye.
 #. js-lingui-explicit-id
@@ -17054,6 +17132,12 @@ msgstr "ليست لدى الإضافة حالة بعد."
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.readOnly"
 msgstr "الإضافة مقفلة من قبل شخص آخر: المخطط للقراءة فقط."
+
+#. Tooltip of the Entry badge above a screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.entryHint"
+msgstr "تفتح الإضافة على هذه الشاشة"
 
 #. Body of the confirmation before a snapshot is restored; the placeholder is the snapshot's time.
 #. js-lingui-explicit-id
@@ -19586,6 +19670,12 @@ msgstr "ملاءمة العرض"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.zoomToScreen"
+msgstr "التكبير إلى الشاشة"
+
+#. Button above a screen: zooms the canvas to fit the screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
+msgid "screenHeader.zoom"
 msgstr "التكبير إلى الشاشة"
 
 #. Context-menu item that zooms and pans the canvas so the selection fills the view.

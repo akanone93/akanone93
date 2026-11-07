@@ -107,28 +107,6 @@
 }
 
 /* A screen's name, marked over the name the canvas draws above its frame, at its size (`--z` is the zoom). */
-.pc-title {
-  position: absolute;
-  inset: 0 auto auto 0;
-  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
-  max-inline-size: calc(var(--z) * 390px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border-radius: calc(var(--z) * 5px);
-  padding-inline: calc(var(--z) * 4px);
-  font-size: calc(var(--z) * 15px);
-  font-weight: 700;
-  line-height: 1.35;
-  color: var(--pc-select-ink);
-  background-color: var(--pc-select);
-}
-
-.pc-title[data-kind="hover"] {
-  color: var(--pc-select);
-  background-color: color-mix(in oklch, var(--pc-select) 12%, var(--background));
-}
-
 /* Sizes and distances are numbers read left to right in any locale ("358 × 56", never "56 × 358"). */
 .pc-size,
 .pc-distance {
@@ -145,6 +123,10 @@
   line-height: 16px;
   color: var(--pc-select-ink);
   background-color: var(--pc-select);
+}
+
+.pc-size[data-at="start"] {
+  translate: 0 6px;
 }
 
 .pc-handle {
