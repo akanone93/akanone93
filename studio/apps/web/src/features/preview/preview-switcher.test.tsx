@@ -10,12 +10,11 @@ import { loadSourceCatalogue } from "../../test-harness.tsx";
 import { type PlacedScreen, screenStyle } from "../plugin-canvas/scene.ts";
 import type { SurfaceFactory } from "../plugin-canvas/surface.ts";
 import { CustomFrameDialog } from "./custom-frame-dialog.tsx";
-import { DeviceMatrix } from "./device-matrix.tsx";
-import { resolveFrame } from "./frames.ts";
-import { MatrixScreen } from "./matrix-screen.tsx";
-import { PreviewBarView } from "./preview-bar.tsx";
+import { DeviceMatrix, MATRIX_ROOM, matrixScale } from "./device-matrix.tsx";
+import { frameCatalogue, matrixLayout, resolveFrame } from "./frames.ts";
+import { MatrixOverlay, PreviewBarView } from "./preview-bar.tsx";
 import { PreviewSwitcher } from "./preview-switcher.tsx";
-import { defaultPreview, previewRender } from "./switches.ts";
+import { defaultPreview, previewDevice, previewRender } from "./switches.ts";
 
 afterEach(cleanup);
 
@@ -112,41 +111,131 @@ describe("[STU-057] device matrix", () => {
 });
 
 describe("[STU-057] matrix cells render the screen", () => {
-  test("each cell lays the screen out at its frame size through the surface", async () => {
-    const laid: { w: number | undefined; h: number | undefined; id: string | undefined }[] = [];
-    const createSurface: SurfaceFactory = () => ({
-      layoutScreens: async (screens, style) => {
-        laid.push({ w: style.theme.width, h: style.deviceHeight, id: screens[0]?.id });
-        return [];
-      },
+  const screenOf: PlacedScreen = { id: "home", title: "Home", at: { x: 40, y: 40 }, root: undefined };
+  /** A surface that records each layout and answers each image request with a PNG of its own. */
+  const recording = () => {
+    const made: string[] = [];
+    const laid: { w: number | undefined; h: number | undefined; id: string | undefined; top: number | undefined }[] =
+      [];
+    const asked: { id: string; width: number; content: boolean | undefined }[] = [];
+    const createSurface: SurfaceFactory = (_canvas, size) => {
+      made.push(`${size.width}x${size.height} ${size.present}`);
+      return {
+        layoutScreens: async (screens, style) => {
+          laid.push({ w: style.theme.width, h: style.deviceHeight, id: screens[0]?.id, top: style.chrome?.top });
+          return [];
+        },
+        thumbnail: async (id, width, content) => {
+          asked.push({ id, width, content });
+          return new Uint8Array([137, 80, 78, 71]);
+        },
+        setViewport: () => {},
+        pan: () => {},
+        zoomAbout: () => {},
+        viewport: { x: 0, y: 0, zoom: 1 },
+        dispose: () => {},
+      };
+    };
+    return { made, laid, asked, createSurface };
+  };
+
+  test("one surface lays the screen out at every frame's size, in turn, and draws each to an image", async () => {
+    const r = recording();
+    const { container } = renderI18n(
+      <MatrixOverlay
+        show
+        render={previewRender(defaultPreview, "material")}
+        screen={screenOf}
+        style={screenStyle}
+        createSurface={r.createSurface}
+        onClose={() => {}}
+      />,
+    );
+    await screen.findByRole("list", { name: "Device matrix" });
+    await waitFor(() =>
+      expect(container.querySelectorAll("img.device-matrix-image").length).toBe(frameCatalogue.length),
+    );
+    // One worker and one graphics context for the whole matrix, never one per device.
+    expect(r.made).toEqual(["1x1 direct"]);
+    const cells = matrixLayout(frameCatalogue, "portrait");
+    expect(r.laid.map((l) => [l.w, l.h])).toEqual(cells.map((c) => [c.width, c.height]));
+    expect(new Set(r.laid.map((l) => l.id))).toEqual(new Set(["home"]));
+    // Each device keeps its own chrome: the iPhone's status bar is taller than the small Android phone's.
+    expect(r.laid[cells.findIndex((c) => c.frame.id === "iphone")]?.top).toBe(47);
+    expect(r.laid[0]?.top).toBe(24);
+    // The image is the screen's content, at its drawn width: the tallest frame fills the room, the rest share its scale.
+    const scale = matrixScale(cells, MATRIX_ROOM);
+    expect(r.asked.every((a) => a.id === "screen:home" && a.content === true)).toBe(true);
+    expect(r.asked.map((a) => a.width)).toEqual(cells.map((c) => Math.ceil(c.width * scale)));
+  });
+
+  test("a frame waits as a placeholder until its image is drawn", async () => {
+    const pending: SurfaceFactory = () => ({
+      layoutScreens: () => new Promise(() => {}),
       setViewport: () => {},
       pan: () => {},
       zoomAbout: () => {},
       viewport: { x: 0, y: 0, zoom: 1 },
       dispose: () => {},
     });
-    const frames = [resolveFrame("android-small"), resolveFrame("ipad")];
-    const screenOf: PlacedScreen = { id: "home", title: "Home", at: { x: 40, y: 40 }, root: undefined };
-    renderI18n(
-      <DeviceMatrix
-        frames={frames}
-        orientation="portrait"
+    const { container } = renderI18n(
+      <MatrixOverlay
+        show
         render={previewRender(defaultPreview, "material")}
-        renderScreen={(c) => (
-          <MatrixScreen
-            screen={screenOf}
-            style={screenStyle}
-            width={c.width}
-            height={c.height}
-            createSurface={createSurface}
-          />
-        )}
+        screen={screenOf}
+        style={screenStyle}
+        createSurface={pending}
+        onClose={() => {}}
       />,
     );
     await screen.findByRole("list", { name: "Device matrix" });
-    await waitFor(() => expect(laid.length).toBe(2));
-    expect(laid.map((l) => l.id)).toEqual(["home", "home"]);
-    expect(laid[0]?.w).not.toBe(laid[1]?.w);
+    expect(container.querySelectorAll("[aria-busy='true']").length).toBe(frameCatalogue.length);
+    expect(container.querySelectorAll("img").length).toBe(0);
+  });
+
+  test("the matrix is titled after the screen, explains itself, and Escape or the button closes it", async () => {
+    const r = recording();
+    let closed = 0;
+    renderI18n(
+      <MatrixOverlay
+        show
+        render={previewRender(defaultPreview, "material")}
+        screen={screenOf}
+        style={screenStyle}
+        createSurface={r.createSurface}
+        onClose={() => {
+          closed += 1;
+        }}
+      />,
+    );
+    expect(await screen.findByRole("heading", { name: "Home on every device" })).toBeTruthy();
+    fireEvent.keyDown(window, { key: "Escape" });
+    fireEvent.click(screen.getByRole("button", { name: "Back to the canvas" }));
+    expect(closed).toBe(2);
+  });
+
+  test("turned to landscape, every frame is drawn landscape", async () => {
+    const r = recording();
+    const landscape = previewRender(
+      defaultPreview,
+      "material",
+      previewDevice(resolveFrame("pixel"), "landscape", true),
+    );
+    const { container } = renderI18n(
+      <MatrixOverlay
+        show
+        render={landscape}
+        screen={screenOf}
+        style={screenStyle}
+        createSurface={r.createSurface}
+        onClose={() => {}}
+      />,
+    );
+    await waitFor(() =>
+      expect(container.querySelectorAll("img.device-matrix-image").length).toBe(frameCatalogue.length),
+    );
+    expect(r.laid[0]?.w).toBe(matrixLayout(frameCatalogue, "landscape")[0]?.width);
+    expect((r.laid[0]?.w ?? 0) > (r.laid[0]?.h ?? 0)).toBe(true);
   });
 });
 

@@ -1126,6 +1126,12 @@ msgstr "{running} خطوط زمنية تعمل معًا، أكثر من {limit}"
 msgid "pluginCanvas.ghostLeaveBody"
 msgstr "الشاشة {screen} تابعة لمكوّن إضافي آخر. تغييراتك هنا محفوظة. هل تريد مغادرة هذه اللوحة وفتح تلك الشاشة؟"
 
+#. Heading of the device matrix: the screen shown in every device frame.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.matrixTitle"
+msgstr "{screen} على كل جهاز"
+
 #. Under the plugin's name in the left dock: how many screens and widgets the plugin has.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -1167,6 +1173,12 @@ msgstr "{side, select, endDrawer {{shown, select, yes {إخفاء القائمة
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.paddingHandle"
 msgstr "{side, select, top {اسحب لتغيير الحشوة العلوية} bottom {اسحب لتغيير الحشوة السفلية} left {اسحب لتغيير الحشوة اليسرى} other {اسحب لتغيير الحشوة اليمنى}}. Alt: الجانبان؛ Shift: كل الجوانب."
+
+#. A window size class (WGT-010).
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.sizeClass"
+msgstr "{sizeClass, select, compact {مضغوط} medium {متوسط} other {موسّع}}"
 
 #. Tag over a screen: its window size class and width, e.g. Medium · 673 dp.
 #. js-lingui-explicit-id
@@ -1263,6 +1275,12 @@ msgstr "{w} × {h} بكسل"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.a11yTarget"
 msgstr "{w} × {h}، أقل من {min}"
+
+#. A device frame's size in logical pixels.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.matrixSize"
+msgstr "{width} × {height}"
 
 #. Size of an image in the icon picker, in pixels.
 #. js-lingui-explicit-id
@@ -2851,6 +2869,12 @@ msgstr "العودة إلى اختبار Plux"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.backReplays"
 msgstr "العودة إلى إعادة التشغيل"
+
+#. Button that closes the device matrix.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.matrixClose"
+msgstr "العودة إلى اللوحة"
 
 #. Link from a detail page to the library.
 #. js-lingui-explicit-id
@@ -11092,6 +11116,12 @@ msgstr "شرط واحد في كل سطر: السمة ثم العامل ثم ال
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.source.blank-hint"
 msgstr "إضافة واحدة بشاشة دخول فارغة، جاهزة للتصميم."
+
+#. Explains what the device matrix is for.
+#. js-lingui-explicit-id
+#: apps/web/src/features/preview/preview.messages.ts
+msgid "preview.matrixHelp"
+msgstr "شاشة واحدة في كل إطار جهاز بمقياس واحد، لترى كيف تتكيف مع كل حجم وفئة حجم. تنطبق مفاتيح المعاينة عليها كلها."
 
 #. Chip in the Insert tab while one kind of widget is shown; pressing it shows every kind again.
 #. js-lingui-explicit-id

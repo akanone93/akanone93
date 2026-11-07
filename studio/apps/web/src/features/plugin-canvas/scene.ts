@@ -116,6 +116,31 @@ export type Heights = ReadonlyMap<string, number>;
 export const heightsById = (heights: readonly ScreenHeight[]): Heights =>
   new Map(heights.map((h) => [h.id, h.contentHeight]));
 
+/** Where the view goes after a layout: centred on the URL's position, or at a zoom in percent. */
+export interface FitTarget {
+  readonly x?: number;
+  readonly y?: number;
+  readonly z?: number;
+}
+
+/**
+ * Whether a layout fits the view again, and how (STU-057): the first layout on a surface fits it as the URL asks; a
+ * new device frame or orientation, which resizes every screen, centres them again at the zoom the user chose; any
+ * other layout, an edit, keeps where the user looks (undefined).
+ */
+export function fitAfterLayout(
+  fitted: { readonly surface: unknown; readonly device: string },
+  surface: unknown,
+  device: string,
+  search: FitTarget,
+  zoom: number,
+): FitTarget | undefined {
+  if (fitted.surface !== surface) {
+    return search;
+  }
+  return fitted.device === device ? undefined : { z: zoom * 100 };
+}
+
 /** The bounds of everything drawn, overflow regions included, for fitting the first view. */
 export function contentBounds(
   screens: readonly PlacedScreen[],

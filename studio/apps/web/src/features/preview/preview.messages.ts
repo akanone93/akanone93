@@ -140,6 +140,38 @@ export function previewMessages(i18n: I18n) {
       message: "Device matrix",
       comment: "Label of the view that shows one screen in several device frames side by side.",
     }),
+    matrixTitle: (screen: string) =>
+      i18n._({
+        id: "preview.matrixTitle",
+        message: "{screen} on every device",
+        values: { screen },
+        comment: "Heading of the device matrix: the screen shown in every device frame.",
+      }),
+    matrixHelp: i18n._({
+      id: "preview.matrixHelp",
+      message:
+        "One screen in every device frame at one scale, to see how it adapts to each size and size class. The preview switches apply to all of them.",
+      comment: "Explains what the device matrix is for.",
+    }),
+    matrixClose: i18n._({
+      id: "preview.matrixClose",
+      message: "Back to the canvas",
+      comment: "Button that closes the device matrix.",
+    }),
+    matrixSize: (width: number, height: number) =>
+      i18n._({
+        id: "preview.matrixSize",
+        message: "{width} × {height}",
+        values: { width, height },
+        comment: "A device frame's size in logical pixels.",
+      }),
+    sizeClass: (sizeClass: string) =>
+      i18n._({
+        id: "preview.sizeClass",
+        message: "{sizeClass, select, compact {Compact} medium {Medium} other {Expanded}}",
+        values: { sizeClass },
+        comment: "A window size class (WGT-010).",
+      }),
     matrixCell: (name: string, width: number, height: number) =>
       i18n._({
         id: "preview.matrixCell",

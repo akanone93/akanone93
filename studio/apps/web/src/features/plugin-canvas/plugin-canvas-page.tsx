@@ -112,6 +112,7 @@ import {
   contentBounds,
   DEVICE,
   type deviceOf,
+  fitAfterLayout,
   ghostStyle,
   type Heights,
   heightsById,
@@ -439,6 +440,15 @@ function centreOn(
   );
 }
 
+/** The screen being worked on: the selection's, else the entry screen, else the first. */
+function workedOn(
+  shown: readonly PlacedScreen[],
+  selected: string | undefined,
+  entry: string | undefined,
+): PlacedScreen | undefined {
+  return shown.find((s) => s.id === selected) ?? shown.find((s) => s.id === entry) ?? shown[0];
+}
+
 /** How wide the canvas draws a screen to compare it with a device screenshot (PC-38). */
 const COMPARE_WIDTH = 720;
 
@@ -635,7 +645,13 @@ function PluginCanvasView({
   const sourceNames = useMemo(() => Object.fromEntries(sources.map((x) => [x.id, x.name])), [sources]);
   // The screens are previewed in the app's own locales (I18N-002, PC-32).
   const appLocales = useMemo(() => readLocales(jsonOf(appDocs.data ?? [], "app")[0])?.supported ?? [], [appDocs.data]);
-  const { look, bar, switcher, matrix } = usePreviewBar(params.app, sourceIds, brands, sourceNames, appLocales);
+  const { look, bar, switcher, matrix, closeMatrix } = usePreviewBar(
+    params.app,
+    sourceIds,
+    brands,
+    sourceNames,
+    appLocales,
+  );
   // The device the screens are drawn in (STU-057, PC-11): the frame chosen in the action bar, in its orientation.
   const device = useMemo<Device>(
     () => ({ width: look.device.width, height: look.device.height }),
@@ -808,6 +824,7 @@ function PluginCanvasView({
   const boxRef = useRef<((id: string) => Box | undefined) | undefined>(undefined);
   const [overlay] = useState(createOverlayStore);
   const fittedRef = useRef<CanvasSurface | null>(null);
+  const fittedDevice = useRef("");
   const [heights, setHeights] = useState<Heights>(new Map());
   const nativeRoutes = useNativeRoutes(params.app ?? "");
   const appScreens = useMemo(() => readAppScreens(appDocs.data ?? []), [appDocs.data]);
@@ -1139,10 +1156,19 @@ function PluginCanvasView({
       setHeights(byId);
       setOverflowKey(overflowKeyOf(laidOut));
       liveHeights.current?.(laidOut);
-      // Only the first layout on a surface fits the view; an edit keeps where the user looks.
-      if (fittedRef.current !== surface) {
+      // The first layout on a surface fits the view, and so does a new device frame or orientation (STU-057).
+      const deviceKey = `${device.width}x${device.height}`;
+      const fit = fitAfterLayout(
+        { surface: fittedRef.current, device: fittedDevice.current },
+        surface,
+        deviceKey,
+        searchRef.current,
+        surface.viewport.zoom,
+      );
+      if (fit !== undefined) {
         fittedRef.current = surface;
-        fitView(surface, canvas, screens, byId, searchRef.current, device);
+        fittedDevice.current = deviceKey;
+        fitView(surface, canvas, screens, byId, fit, device);
         focusRef.current = searchRef.current.focus;
       }
       showFocusRef.current(surface, canvas, byId);
@@ -1561,8 +1587,9 @@ function PluginCanvasView({
                         >
                           <MatrixOverlay
                             show={matrix}
+                            onClose={closeMatrix}
                             render={look}
-                            screen={shown[0]}
+                            screen={workedOn(shown, interaction.selectedScreen, entryPage)}
                             style={styled}
                             createSurface={createSurface}
                           />

@@ -8,7 +8,7 @@ import { loadCanvasKit, testParagraphEngine } from "../../../../../packages/layo
 import { defaultPreview, previewRender } from "../preview/switches.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme, titledScreens } from "./look.ts";
 import { type Node, readPlugin, titleKeyOf } from "./plugin-model.ts";
-import { screenStyle } from "./scene.ts";
+import { fitAfterLayout, screenStyle } from "./scene.ts";
 
 let engine: CanvasKitParagraphEngine;
 beforeAll(async () => {
@@ -109,5 +109,20 @@ describe("[I18N-010] a translated screen title reads in the previewed locale", (
     const named = titledScreens(model.screens, { "offers.title": "Angebote" });
     expect(named.map((s) => s.title)).toEqual(["Angebote", "Home"]);
     expect(titledScreens(model.screens, {})[0]?.title).toBe("offers");
+  });
+});
+
+describe("[STU-057] MR-1 a new device frame fits the view again", () => {
+  const surface = {};
+  const search = { x: 10, y: 20, z: 150 };
+  test("the first layout on a surface follows the URL", () => {
+    expect(fitAfterLayout({ surface: null, device: "" }, surface, "360x800", search, 1)).toBe(search);
+  });
+  test("a new frame or orientation centres the screens again at the user's zoom, not the URL's", () => {
+    expect(fitAfterLayout({ surface, device: "360x800" }, surface, "820x1180", search, 0.5)).toEqual({ z: 50 });
+    expect(fitAfterLayout({ surface, device: "360x800" }, surface, "800x360", search, 1)).toEqual({ z: 100 });
+  });
+  test("an edit under the same frame keeps where the user looks", () => {
+    expect(fitAfterLayout({ surface, device: "360x800" }, surface, "360x800", search, 2)).toBeUndefined();
   });
 });

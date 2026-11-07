@@ -139,9 +139,12 @@ Positions are read-only while someone else is editing the app.
    style, and in the **Success**, **Loading**, **Empty** or **Error** data state. Every screen is drawn at the chosen
    device's size, in **Portrait** or **Landscape** (**Orientation**), with the device's status bar, camera cutout
    (a punch hole, a notch or an island) and home indicator, gesture handle or navigation buttons; set **Device
-   chrome** to **Hidden** to draw the screens without them (their space stays, as on the device). The **Device
-   matrix** shows several frames at once, each with its own chrome. A right-to-left locale and the text scale change
-   the screens only; Studio's own panels keep your Studio language and size.
+   chrome** to **Hidden** to draw the screens without them (their space stays, as on the device). A new frame or
+   orientation centres the screens again at your zoom. **Device matrix** opens the screen you are working on (the
+   selected one, else the entry) in every device frame at one scale, each with its own chrome, size and size class
+   (compact, medium, expanded), in the current orientation; **Back to the canvas** or Escape closes it. A
+   right-to-left locale and the text scale change the screens only; Studio's own panels keep your Studio language
+   and size.
 6. The **Developer console** at the bottom lists validation errors, warnings and information under
    **Problems** as you type; the counts also appear on the plugin card. Open it to stream the paired
    devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,

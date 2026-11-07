@@ -4,14 +4,14 @@
 import { useLingui } from "@lingui/react";
 import type { ScreenStyle } from "@plux/canvas";
 import { Button } from "@plux/ui";
-import { type ReactElement, useRef, useState } from "react";
+import { type ReactElement, useEffect, useRef, useState } from "react";
 import { chromeSpec } from "../plugin-canvas/look.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { SurfaceFactory } from "../plugin-canvas/surface.ts";
-import { DeviceMatrix } from "./device-matrix.tsx";
+import { DeviceMatrix, MATRIX_ROOM, matrixScale } from "./device-matrix.tsx";
 import { useFrameView } from "./frame-view.ts";
-import { decodeCustom, frameCatalogue, resolveFrame } from "./frames.ts";
-import { MatrixScreen } from "./matrix-screen.tsx";
+import { decodeCustom, frameCatalogue, matrixLayout, type Orientation, resolveFrame } from "./frames.ts";
+import { type MatrixJob, MatrixScreen, useMatrixImages } from "./matrix-screen.tsx";
 import { previewMessages } from "./preview.messages.ts";
 import { PreviewSwitcher } from "./preview-switcher.tsx";
 import { type PreviewRender, previewDevice, previewRender } from "./switches.ts";
@@ -48,7 +48,13 @@ export function usePreviewBar(
   brands: readonly string[] = [],
   sourceNames: Readonly<Record<string, string>> = {},
   locales: readonly string[] = [],
-): { look: PreviewRender; bar: ReactElement; switcher: ReactElement; matrix: boolean } {
+): {
+  look: PreviewRender;
+  bar: ReactElement;
+  switcher: ReactElement;
+  matrix: boolean;
+  closeMatrix: () => void;
+} {
   const preview = usePreviewSwitches(app ?? "");
   const [matrix, setMatrix] = useState(false);
   const [view, setView] = useFrameView();
@@ -63,6 +69,7 @@ export function usePreviewBar(
   return {
     look: cache.current.look,
     matrix,
+    closeMatrix: () => setMatrix(false),
     switcher: (
       <PreviewSwitcher
         part="main"
@@ -95,37 +102,73 @@ export function usePreviewBar(
   };
 }
 
-/** The device matrix over the canvas, in place of the single frame (STU-057). */
+/**
+ * The device matrix over the canvas, in place of the single frame (STU-057): the screen being worked on in every device
+ * frame at one scale, each named with its size and size class, under a heading that says what it is for; Escape or
+ * the button closes it.
+ */
 export function MatrixOverlay({
   show,
   render,
   screen,
   style,
   createSurface,
+  onClose,
 }: {
   readonly show: boolean;
   readonly render: PreviewRender;
   readonly screen: PlacedScreen | undefined;
   readonly style: ScreenStyle;
   readonly createSurface: SurfaceFactory;
+  readonly onClose: () => void;
 }): ReactElement | null {
+  const m = previewMessages(useLingui().i18n);
+  useEffect(() => {
+    if (!show) {
+      return undefined;
+    }
+    const close = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [show, onClose]);
+  // The matrix follows the preview's orientation and chrome; every cell is drawn at its size on screen, in device pixels.
+  const orientation: Orientation = render.device.landscape ? "landscape" : "portrait";
+  const cells = matrixLayout(frameCatalogue, orientation);
+  const scale = matrixScale(cells, MATRIX_ROOM);
+  const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+  const jobs: MatrixJob[] = show
+    ? cells.map((cell) => ({
+        id: cell.frame.id,
+        width: cell.width,
+        height: cell.height,
+        pixels: Math.ceil(cell.width * scale * dpr),
+        chrome: chromeSpec(previewDevice(cell.frame, orientation, render.device.chrome), cell.frame.platform),
+      }))
+    : [];
+  const images = useMatrixImages(show ? screen : undefined, style, jobs, createSurface);
   return !show ? null : (
-    <div className="absolute inset-0 z-5 overflow-auto bg-raised p-6 pt-20">
+    <section className="device-matrix-overlay" aria-label={m.matrix}>
+      <header className="device-matrix-head">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h2 className="device-matrix-title">{m.matrixTitle(screen?.title ?? "")}</h2>
+          <p className="device-matrix-help">{m.matrixHelp}</p>
+        </div>
+        <Button variant="secondary" onClick={onClose}>
+          {m.matrixClose}
+        </Button>
+      </header>
       <DeviceMatrix
         frames={frameCatalogue}
-        orientation="portrait"
+        orientation={orientation}
         render={render}
-        renderScreen={(cell) => (
-          <MatrixScreen
-            screen={screen}
-            style={style}
-            width={cell.width}
-            height={cell.height}
-            createSurface={createSurface}
-            chrome={chromeSpec(previewDevice(cell.frame, "portrait", render.device.chrome), cell.frame.platform)}
-          />
+        renderScreen={(cell, drawn) => (
+          <MatrixScreen src={images.get(cell.frame.id)} width={drawn.width} height={drawn.height} />
         )}
       />
-    </div>
+    </section>
   );
 }
