@@ -1,0 +1,216 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/*
+ * Folding cards and rows of the docks (MR-3): solid cards with a clear head, one line high when closed, so a long
+ * inspector reads as a list of named sections and opens only what is worked on.
+ */
+
+.fold-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--card);
+  box-shadow: 0 1px 2px color-mix(in oklch, black 4%, transparent);
+}
+
+[data-theme="dark"] .fold-card {
+  background-color: color-mix(in oklch, var(--card) 88%, var(--foreground) 4%);
+}
+
+.fold-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  min-block-size: 34px;
+  padding: 6px 10px;
+  color: var(--foreground);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: start;
+  cursor: pointer;
+}
+
+.fold-head:hover {
+  background-color: color-mix(in oklch, var(--foreground) 4%, transparent);
+}
+
+.fold-head:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.fold-icon {
+  flex: none;
+  color: color-mix(in oklch, var(--foreground) 62%, transparent);
+}
+
+.fold-head[data-panel-open] .fold-icon {
+  color: var(--primary);
+}
+
+.fold-title {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fold-note {
+  flex: none;
+  max-inline-size: 45%;
+  overflow: hidden;
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: color-mix(in oklch, var(--foreground) 68%, transparent);
+  background-color: color-mix(in oklch, var(--foreground) 6%, transparent);
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fold-caret {
+  flex: none;
+  color: color-mix(in oklch, var(--foreground) 55%, transparent);
+  transition: rotate 150ms ease;
+}
+
+.fold-head:not([data-panel-open]) .fold-caret,
+.fold-row-trigger:not([data-panel-open]) .fold-caret {
+  rotate: -90deg;
+}
+
+[dir="rtl"] .fold-head:not([data-panel-open]) .fold-caret,
+[dir="rtl"] .fold-row-trigger:not([data-panel-open]) .fold-caret {
+  rotate: 90deg;
+}
+
+.fold-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 10px 10px;
+  border-block-start: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  padding-block-start: 8px;
+}
+
+/* A card shown inside another section: a quiet heading over its body, set off by a rule. */
+.fold-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-block: 8px 2px;
+  border-block-start: 1px dashed color-mix(in oklch, var(--border) 85%, transparent);
+}
+
+.fold-sub:first-child {
+  padding-block-start: 0;
+  border-block-start: 0;
+}
+
+.fold-sub-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: color-mix(in oklch, var(--foreground) 80%, transparent);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.fold-sub-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* A folding row: a composite value inside a section, such as a text style. */
+.fold-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+}
+
+.fold-row:has(> .fold-row-head > [data-panel-open]) {
+  background-color: color-mix(in oklch, var(--muted) 45%, transparent);
+}
+
+.fold-row-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fold-row-trigger {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
+  min-inline-size: 0;
+  min-block-size: 28px;
+  padding-inline: 2px 6px;
+  border-radius: var(--radius-md);
+  color: color-mix(in oklch, var(--foreground) 78%, transparent);
+  font-size: var(--text-xs);
+  text-align: start;
+  cursor: pointer;
+}
+
+.fold-row-trigger:hover {
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--foreground) 5%, transparent);
+}
+
+.fold-row-trigger:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.fold-row[data-set] .fold-row-trigger {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.fold-row-head .prop-dot {
+  visibility: hidden;
+}
+
+.fold-row[data-set] > .fold-row-head .prop-dot {
+  visibility: visible;
+}
+
+.fold-row-title {
+  flex: none;
+  white-space: nowrap;
+}
+
+.fold-row-summary {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  color: color-mix(in oklch, var(--foreground) 55%, transparent);
+  font-weight: 400;
+  text-align: end;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fold-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 8px 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fold-caret {
+    transition: none;
+  }
+}

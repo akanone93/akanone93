@@ -15,7 +15,10 @@ mock.module("../rust-editor/rust-monaco-view.tsx", () => ({
   ),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
 const pay = { id: "t2", type: "Text", props: { data: "Pay" } };
 const button = {
@@ -78,6 +81,12 @@ describe("S5.6 panel tabs [STU-061] [STU-062]", () => {
     fireEvent.click(await screen.findByRole("tab", { name: "Data" }, { timeout: 5000 }));
     expect(await screen.findByText("2 state entries, 1 computed value")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open the state designer" })).toBeTruthy();
+    // Only the first section, State, is open at first (MR-3): the data sources open from their head.
+    const head = [...document.querySelectorAll<HTMLElement>(".dock-section-trigger")].find((b) =>
+      (b.textContent ?? "").startsWith("Data sources"),
+    );
+    expect(head?.hasAttribute("data-panel-open")).toBe(false);
+    fireEvent.click(head as HTMLElement);
     expect(await screen.findByText("1 data source, 1 mock, 0 collections")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Open the data source designer" }));
     expect(await screen.findByRole("dialog")).toBeTruthy();

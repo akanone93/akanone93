@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import { AnimatedList } from "../../components/animated-list.tsx";
 import { groupOf, insertGroups, kindIcon, kindOf, typeIcon, type WidgetKind, widgetKinds } from "./catalogue.ts";
 import { DockSection } from "./dock-tabs.tsx";
+import { FoldList } from "./fold.tsx";
 import { panelsMessages } from "./panels.messages.ts";
 
 export const WIDGET_DRAG_TYPE = "application/x-plux-widget";
@@ -223,53 +224,56 @@ export const InsertPane = memo(function InsertPane({
     />
   );
   const counts = new Map(widgetKinds.map((k) => [k, basics.filter((d) => kindOf(d) === k).length]));
+  // The sections fold (MR-3): Categories, the first, opens; a picked kind or a search opens what it shows.
   return (
-    <div className="flex flex-col gap-1">
-      {!canEdit && <p className="dock-note">{m.readOnly}</p>}
-      {note !== null && (
-        <p role="status" className="dock-note">
-          {note}
-        </p>
-      )}
-      <DockSection label={m.categories} icon="squares-four" count={widgetKinds.length} defaultOpen={false}>
-        {/* biome-ignore lint/a11y/useSemanticElements: a labelled group of filter toggles, not a form's fieldset */}
-        <div role="group" aria-label={m.categories} className="gallery-categories">
-          {widgetKinds.map((k) => (
-            <button
-              key={k}
-              type="button"
-              className="gallery-category"
-              aria-pressed={kind === k}
-              onClick={() => setKind(kind === k ? null : k)}
-            >
-              <span className="gallery-glyph" data-kind={k} aria-hidden="true">
-                <Icon name={kindIcon[k]} />
-              </span>
-              <span className="gallery-name">{kindLabel[k]}</span>
-              <span className="gallery-category-count">{counts.get(k) ?? 0}</span>
-            </button>
-          ))}
-        </div>
-      </DockSection>
-      {kind !== null && (
-        <button type="button" className="gallery-filter" aria-label={m.showAllKinds} onClick={() => setKind(null)}>
-          <Icon name={kindIcon[kind]} size="pill" />
-          {m.showingKind(kindLabel[kind])}
-          <Icon name="x" size="pill" />
-        </button>
-      )}
-      {kind === null && found.length === all.length && recentList.length > 0 && (
-        <DockSection label={m.recent} icon="clock" count={recentList.length}>
-          {grid(recentList, (d) => (groupOf(d) === "layer1" ? kindOf(d) : groupOf(d)), m.recent)}
+    <FoldList scope="insert" first="categories" all={kind !== null || found.length !== all.length}>
+      <div className="flex flex-col gap-1">
+        {!canEdit && <p className="dock-note">{m.readOnly}</p>}
+        {note !== null && (
+          <p role="status" className="dock-note">
+            {note}
+          </p>
+        )}
+        <DockSection id="categories" label={m.categories} icon="squares-four" count={widgetKinds.length}>
+          {/* biome-ignore lint/a11y/useSemanticElements: a labelled group of filter toggles, not a form's fieldset */}
+          <div role="group" aria-label={m.categories} className="gallery-categories">
+            {widgetKinds.map((k) => (
+              <button
+                key={k}
+                type="button"
+                className="gallery-category"
+                aria-pressed={kind === k}
+                onClick={() => setKind(kind === k ? null : k)}
+              >
+                <span className="gallery-glyph" data-kind={k} aria-hidden="true">
+                  <Icon name={kindIcon[k]} />
+                </span>
+                <span className="gallery-name">{kindLabel[k]}</span>
+                <span className="gallery-category-count">{counts.get(k) ?? 0}</span>
+              </button>
+            ))}
+          </div>
         </DockSection>
-      )}
-      {sections.length === 0 && <p className="dock-note">{m.noMatches}</p>}
-      {sections.map((x) => (
-        <DockSection key={x.key} label={x.label} icon={x.icon} count={x.list.length}>
-          {grid(x.list, () => x.key, x.label)}
-        </DockSection>
-      ))}
-      <TileDetails store={details} />
-    </div>
+        {kind !== null && (
+          <button type="button" className="gallery-filter" aria-label={m.showAllKinds} onClick={() => setKind(null)}>
+            <Icon name={kindIcon[kind]} size="pill" />
+            {m.showingKind(kindLabel[kind])}
+            <Icon name="x" size="pill" />
+          </button>
+        )}
+        {kind === null && found.length === all.length && recentList.length > 0 && (
+          <DockSection id="recent" label={m.recent} icon="clock" count={recentList.length}>
+            {grid(recentList, (d) => (groupOf(d) === "layer1" ? kindOf(d) : groupOf(d)), m.recent)}
+          </DockSection>
+        )}
+        {sections.length === 0 && <p className="dock-note">{m.noMatches}</p>}
+        {sections.map((x) => (
+          <DockSection key={x.key} id={x.key} label={x.label} icon={x.icon} count={x.list.length}>
+            {grid(x.list, () => x.key, x.label)}
+          </DockSection>
+        ))}
+        <TileDetails store={details} />
+      </div>
+    </FoldList>
   );
 });

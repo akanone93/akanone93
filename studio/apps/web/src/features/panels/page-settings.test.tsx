@@ -21,7 +21,10 @@ import {
   valueOfText,
 } from "./page-settings-model.ts";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
 const page = {
   kind: "page",
@@ -185,7 +188,10 @@ describe("PC-14 the Page pane [SCH-022] [SCH-025]", () => {
       root: { children: { events: { onPressed: { steps: { input: { route: string } }[] } } }[] };
     };
     expect(home.root.children[0]?.events.onPressed.steps[0]?.input.route).toBe("loan-calculator");
-    const mock = screen.getByRole("textbox", { name: "Mock" }) as HTMLInputElement;
+    // Page, the first section, is open; Parameters opens from its head (MR-3).
+    expect(screen.queryByRole("textbox", { name: "Mock" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^Parameters/ }));
+    const mock = (await screen.findByRole("textbox", { name: "Mock" })) as HTMLInputElement;
     expect(mock.value).toBe("1200.00");
     fireEvent.click(screen.getByRole("button", { name: "Add parameter" }));
     await waitFor(() =>

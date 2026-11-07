@@ -3,7 +3,6 @@
 
 import { useLingui } from "@lingui/react";
 import { Button, Icon, type IconName, Input, Select } from "@plux/ui";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
 import { Switch } from "@plux/ui/components/switch";
 import { type ReactElement, type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
@@ -12,6 +11,7 @@ import { parseDocument } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { timelineMessages } from "../plugin-canvas/timelines.messages.ts";
 import { timelinesOf } from "../plugin-canvas/timelines.ts";
+import { FoldCard, FoldList } from "./fold.tsx";
 import { formsMessages } from "./forms.messages.ts";
 import { formsOf } from "./forms-model.ts";
 import { FormsSection } from "./forms-section.tsx";
@@ -40,7 +40,7 @@ import {
   validType,
   valueOfText,
 } from "./page-settings-model.ts";
-import { PropGroupHead, PropRow } from "./prop-row.tsx";
+import { PropRow } from "./prop-row.tsx";
 import { TimelinesSection } from "./timelines-section.tsx";
 
 type Obj = Record<string, unknown>;
@@ -112,7 +112,9 @@ function CommitText(props: {
   );
 }
 
+/** A section of the page's settings: a folding card of rows, closed unless it is the first or the person opened it (MR-3). */
 function Section(props: {
+  readonly id: string;
   readonly icon: IconName;
   readonly label: string;
   readonly set: number;
@@ -120,12 +122,14 @@ function Section(props: {
   readonly children: ReactNode;
 }): ReactElement {
   return (
-    <Collapsible defaultOpen className="prop-section">
-      <CollapsibleTrigger className="prop-section-head">
-        <PropGroupHead icon={props.icon} label={props.label} set={props.set} count={props.count} />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="prop-grid">{props.children}</CollapsibleContent>
-    </Collapsible>
+    <FoldCard
+      id={props.id}
+      icon={props.icon}
+      title={props.label}
+      note={props.set > 0 ? `${props.set}/${props.count}` : props.count}
+    >
+      <div className="prop-grid">{props.children}</div>
+    </FoldCard>
   );
 }
 
@@ -143,7 +147,7 @@ function PageSection(p: {
   const km = pluginCanvasMessages(useLingui().i18n);
   const reset = "";
   return (
-    <Section icon="file" label={m.sectionPage} set={0} count={6}>
+    <Section id="page" icon="file" label={m.sectionPage} set={0} count={6}>
       <PropRow name="title" label={m.title} set resetLabel={reset}>
         {"key" in page.title ? (
           <span className="page-note font-mono">{m.titleKey(page.title.key)}</span>
@@ -300,7 +304,7 @@ function ParamsSection(p: {
   const { page, m, canEdit, change } = p;
   const names = page.params.map((x) => x.name);
   return (
-    <Section icon="variable" label={m.sectionParams} set={page.params.length} count={page.params.length}>
+    <Section id="params" icon="variable" label={m.sectionParams} set={page.params.length} count={page.params.length}>
       {page.params.length === 0 && <p className="page-note">{m.noParams}</p>}
       <ul className="page-params">
         {page.params.map((param, i) => (
@@ -337,7 +341,7 @@ function DataSection(p: {
 }): ReactElement {
   const { page, m } = p;
   return (
-    <Section icon="database" label={m.sectionData} set={page.state + page.dataSources} count={2}>
+    <Section id="data" icon="database" label={m.sectionData} set={page.state + page.dataSources} count={2}>
       <div className="page-line">
         <span>{m.stateCount(page.state)}</span>
         {p.onOpenState !== undefined && (
@@ -365,7 +369,13 @@ function LifecycleSection(p: {
 }): ReactElement {
   const { page, m } = p;
   return (
-    <Section icon="flow-arrow" label={m.sectionLifecycle} set={page.lifecycle.size} count={lifecycleEvents.length}>
+    <Section
+      id="lifecycle"
+      icon="flow-arrow"
+      label={m.sectionLifecycle}
+      set={page.lifecycle.size}
+      count={lifecycleEvents.length}
+    >
       <ul className="page-lifecycle">
         {lifecycleEvents.map((e) => (
           <li key={e} className="page-line" data-set={page.lifecycle.has(e) || undefined}>
@@ -396,6 +406,7 @@ function RouteSection(p: {
   const free = p.graphs.filter((g) => !page.guards.includes(g.id));
   return (
     <Section
+      id="route"
       icon="navigation-arrow"
       label={m.sectionRoute}
       set={(page.transition === undefined ? 0 : 1) + page.guards.length}
@@ -466,6 +477,7 @@ function SecuritySection(p: {
   const NONE = "-";
   return (
     <Section
+      id="security"
       icon="shield"
       label={m.sectionSecurity}
       set={(page.secure ? 1 : 0) + (page.assurance === undefined ? 0 : 1)}
@@ -625,41 +637,50 @@ export function PageSettingsTab(props: {
   const graphs = graphsOf(docs.map((d) => d.json));
   const pageJson = docs.find((d) => d.path === path)?.json;
   return (
-    <div className="prop-pane page-settings">
-      <datalist id="page-types">
-        {baseTypes.map((t) => (
-          <option key={t} value={t} />
-        ))}
-      </datalist>
-      <PageSection
-        page={page}
-        m={m}
-        canEdit={canEdit}
-        change={change}
-        route={route}
-        entry={entry}
-        onEntry={() => {
-          if (plugin !== undefined) {
-            session.edit(plugin.path, (d) => setField("entryPage", page.id)(d as Obj), { group: `entry:${page.id}` });
-          }
-        }}
-      />
-      <ParamsSection page={page} m={m} canEdit={canEdit} change={change} />
-      <DataSection page={page} m={m} onOpenState={props.onOpenState} onOpenData={props.onOpenData} />
-      <LifecycleSection page={page} m={m} onOpenGraph={props.onOpenGraph} />
-      <RouteSection page={page} m={m} canEdit={canEdit} change={change} graphs={graphs} />
-      <SecuritySection page={page} m={m} canEdit={canEdit} change={change} />
-      <Section icon="list-checks" label={formsLabel} set={formsOf(pageJson).length} count={formsOf(pageJson).length}>
-        <FormsSection pageId={page.id} page={pageJson} canEdit={canEdit} change={change} newId={uuidv7} />
-      </Section>
-      <Section
-        icon="film"
-        label={timelinesLabel}
-        set={timelinesOf(pageJson).length}
-        count={timelinesOf(pageJson).length}
-      >
-        <TimelinesSection pageId={page.id} page={pageJson} canEdit={canEdit} change={change} newId={uuidv7} />
-      </Section>
-    </div>
+    <FoldList scope="page" first="page">
+      <div className="prop-pane page-settings">
+        <datalist id="page-types">
+          {baseTypes.map((t) => (
+            <option key={t} value={t} />
+          ))}
+        </datalist>
+        <PageSection
+          page={page}
+          m={m}
+          canEdit={canEdit}
+          change={change}
+          route={route}
+          entry={entry}
+          onEntry={() => {
+            if (plugin !== undefined) {
+              session.edit(plugin.path, (d) => setField("entryPage", page.id)(d as Obj), { group: `entry:${page.id}` });
+            }
+          }}
+        />
+        <ParamsSection page={page} m={m} canEdit={canEdit} change={change} />
+        <DataSection page={page} m={m} onOpenState={props.onOpenState} onOpenData={props.onOpenData} />
+        <LifecycleSection page={page} m={m} onOpenGraph={props.onOpenGraph} />
+        <RouteSection page={page} m={m} canEdit={canEdit} change={change} graphs={graphs} />
+        <SecuritySection page={page} m={m} canEdit={canEdit} change={change} />
+        <Section
+          id="forms"
+          icon="list-checks"
+          label={formsLabel}
+          set={formsOf(pageJson).length}
+          count={formsOf(pageJson).length}
+        >
+          <FormsSection pageId={page.id} page={pageJson} canEdit={canEdit} change={change} newId={uuidv7} />
+        </Section>
+        <Section
+          id="timelines"
+          icon="film"
+          label={timelinesLabel}
+          set={timelinesOf(pageJson).length}
+          count={timelinesOf(pageJson).length}
+        >
+          <TimelinesSection pageId={page.id} page={pageJson} canEdit={canEdit} change={change} newId={uuidv7} />
+        </Section>
+      </div>
+    </FoldList>
   );
 }

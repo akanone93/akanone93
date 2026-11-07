@@ -17,6 +17,14 @@ import { LeftDock } from "./left-dock.tsx";
 import { dropTarget, insertionPoint, insertRecipe, insertWidget, layerDrop, modelOf, moveLayer } from "./model.ts";
 import { insertDropHandlers } from "./use-insert-drop.ts";
 
+/** Opens a folded section of the dock by its name, as a person clicks its head (MR-3). */
+const openSection = (label: string) =>
+  fireEvent.click(
+    [...document.querySelectorAll<HTMLElement>(".dock-section-trigger")].find((b) =>
+      (b.textContent ?? "").startsWith(label),
+    ) as HTMLElement,
+  );
+
 afterEach(() => {
   cleanup();
   localStorage.clear();
@@ -123,6 +131,8 @@ describe("[STU-061] left panels", () => {
     expect(place).toEqual({ parent: "row", index: 1, slot: null });
     const set = mock();
     dock(true, { ids: ["row"], anchor: "row", scope: "r" }, set, edit);
+    await screen.findByRole("group", { name: "Categories" });
+    openSection("Content");
     fireEvent.click(await screen.findByRole("button", { name: "Insert Text" }));
     expect(edit).toHaveBeenCalledTimes(1);
     expect(edit.mock.calls[0]?.[0]).toBe("pg");
@@ -200,6 +210,8 @@ describe("[STU-061] left panels", () => {
   test("read-only: Insert is disabled and no write reaches edit", async () => {
     const edit = mock<EditFn>();
     dock(false, emptySelection, mock(), edit);
+    await screen.findByRole("group", { name: "Categories" });
+    openSection("Content");
     const button = await screen.findByRole("button", { name: "Insert Text" });
     expect(button.hasAttribute("disabled") || button.getAttribute("aria-disabled") === "true").toBe(true);
     fireEvent.click(button);

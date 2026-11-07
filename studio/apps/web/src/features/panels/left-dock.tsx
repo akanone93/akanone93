@@ -134,8 +134,9 @@ export function LeftDock(props: LeftDockProps): ReactElement {
     }
   };
 
-  // The screens open at first, so their widgets show; the person folds and unfolds from there.
-  const roots = useMemo(() => [...(nodes["plugin"]?.children ?? [])], [nodes]);
+  // The first screen opens at first and the others stay folded (MR-3); a selection unfolds its own path, and the
+  // person folds and unfolds from there.
+  const roots = useMemo(() => (nodes["plugin"]?.children ?? []).slice(0, 1), [nodes]);
   const [expanded, setExpanded] = useState<readonly string[] | null>(null);
   const open = expanded ?? roots;
   const rtl = i18n.locale.startsWith("ar");

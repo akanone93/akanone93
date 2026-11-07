@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Icon, Select } from "@plux/ui";
+import { Select } from "@plux/ui";
 import type { ReactElement } from "react";
+import { FoldCard } from "./fold.tsx";
 import { formsMessages } from "./forms.messages.ts";
 import { boundField, type Form } from "./forms-model.ts";
 import { FormModes } from "./forms-section.tsx";
@@ -28,11 +29,7 @@ export function FormFieldPanel(p: {
     f.fields.map((x) => ({ value: `${f.name}.${x.name}`, label: `${f.name}.${x.name}` })),
   );
   return (
-    <section className="lay-card" aria-label={m.formField}>
-      <h3 className="lay-title">
-        <Icon name="list-checks" size="pill" />
-        {m.formField}
-      </h3>
+    <FoldCard id="form-field" icon="list-checks" title={m.formField}>
       {p.forms.length === 0 ? (
         <p className="lay-note">{m.noForms}</p>
       ) : (
@@ -57,6 +54,6 @@ export function FormFieldPanel(p: {
           {bound !== undefined && <FormModes page={p.pageId} form={bound.form} m={m} />}
         </>
       )}
-    </section>
+    </FoldCard>
   );
 }

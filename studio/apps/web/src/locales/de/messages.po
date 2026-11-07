@@ -8352,6 +8352,12 @@ msgstr "Schlüssel-Fingerabdruck"
 msgid "functions.capKv"
 msgstr "Schlüssel-Wert-Speicher"
 
+#. Section of the inspector's properties for a text field: the keyboard, autocorrect, the cursor and what may be typed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panel.group.input"
+msgstr "Tastatur und Eingabe"
+
 #. Heading of the shortcuts page.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts

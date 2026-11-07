@@ -351,6 +351,12 @@ export function panelMessages(i18n: I18n) {
       message: "Content",
       comment: "Section of the inspector's properties: text, values, icons, images and children.",
     }),
+    groupInput: i18n._({
+      id: "panel.group.input",
+      message: "Keyboard & input",
+      comment:
+        "Section of the inspector's properties for a text field: the keyboard, autocorrect, the cursor and what may be typed.",
+    }),
     groupBehaviour: i18n._({
       id: "panel.group.behaviour",
       message: "Behaviour",

@@ -16,6 +16,7 @@ import {
 import { PaintThemeContext } from "./style-editors.tsx";
 import { type ThemeCardMessages, themeCardMessages } from "./theme-card.messages.ts";
 import "./theme-card.css";
+import { FoldCard } from "./fold.tsx";
 
 /**
  * The selection's Theme card (PC-35, THM-001): each colour and size the widget sets — a token with its value, the
@@ -196,11 +197,7 @@ export function ThemeCard(p: {
   }
   const values = styleValuesOf(p.node);
   return (
-    <section className="lay-card" aria-label={m.title}>
-      <h3 className="lay-title">
-        <Icon name="palette" size="pill" />
-        {m.title}
-      </h3>
+    <FoldCard id="theme" icon="palette" title={m.title} {...(values.length === 0 ? {} : { note: values.length })}>
       {values.length === 0 ? (
         <p className="theme-hint">{m.none}</p>
       ) : (
@@ -215,6 +212,6 @@ export function ThemeCard(p: {
           )}
         </>
       )}
-    </section>
+    </FoldCard>
   );
 }

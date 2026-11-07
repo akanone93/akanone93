@@ -105,9 +105,10 @@ Positions are read-only while someone else is editing the app.
    actions: copy, cut, paste, duplicate, wrap, unwrap, select the parent or the first child, zoom to the selection
    (Shift+2) and delete (Delete or Backspace); a screen's rename, duplicate, move and delete; a new screen and fit all
    (Shift+1). The current screen in the top bar follows the selection.
-3. Insert a widget from **Insert**: search it, open **Categories** to show one kind (**Layout**,
-   **Content**, **Inputs**, **Interaction**, **Navigation**, **Motion**, **Platform**, **More**), or
-   use **Recently used**; point at a tile to read what the widget does, then choose it or drag it
+3. Insert a widget from **Insert**: search it, choose a kind under **Categories** (**Layout**, **Content**,
+   **Inputs**, **Interaction**, **Navigation**, **Motion**, **Platform**, **More**) to show it, or open a kind's
+   section or **Recently used**. In every pane of both docks only the first folding section is open at first (in
+   **Layers**, the first screen); the rest open when you choose them, and Studio remembers your choice; point at a tile to read what the widget does, then choose it or drag it
    onto a screen. **Layers** shows each screen over its widgets with their icons and what they show:
    choose a caret to fold a row, **Expand all** or **Collapse all**, **Filter layers** by name, type
    or text, and drag a layer to move it. Double-click a layer's name (or press F2) to rename it; the
@@ -126,12 +127,16 @@ Positions are read-only while someone else is editing the app.
    parameters with defaults and design-time mocks, its state and data sources (each opens its editor), its lifecycle
    handlers, its transition, timeline and guards, and whether it blocks screenshots or needs an assurance level. A
    text field there changes the page when you leave it or press Enter; Escape takes the change back. **Properties** lists one property per
-   row — its name, a dot when it is set, and its editor — in the sections **Content**, **Layout**, **Appearance**,
-   **Behaviour** and **Other**; filter them by name, show **Set only**, pick the **Size class** an edit applies to
-   (**M** or **E** marks an override), and point at a name to reset it. A text switches between a literal, a
-   translation key and a PXL expression from the button at its end; short choices are segmented, an alignment is a
-   3×3 grid of points, a padding is four sides in one row, and a decoration, a text style or a constraint opens its
-   fields under its name. With nothing selected the **Inspector** shows the **Plugin overview**. Each editor opens over
+   row — its name, a dot when it is set, and its editor — in folding sections: **Content**, the list, **Layout** (with
+   how the widget sits in its row, column or stack and how it lays out its children), **Appearance**, **Theme**,
+   **Keyboard & input** (for text fields), **Behaviour**, **Form field**, **Conditions**, **Motion** and **Other**.
+   Each section's head shows how many of its properties are set; the first section opens and the others stay closed
+   until you open them, and Studio remembers which you opened. Filter the properties by name or show **Set only**
+   (every section opens to show what matches), pick the **Size class** an edit applies to (**M** or **E** marks an
+   override), and point at a name to reset it. A text switches between a literal, a translation key and a PXL
+   expression from the button at its end; short choices are segmented, an alignment is a 3×3 grid of points, a padding
+   is four sides in one row, and a decoration, a text style, a border or a list folds into a row that summarises its
+   value and opens to edit its fields. A long name takes its own line above its editor, so no name or value is cut. With nothing selected the **Inspector** shows the **Plugin overview**. Each editor opens over
    the canvas; **Close** or Escape returns. **Wrap selection in a column**, **Unwrap selection**,
    **Duplicate selection** and **Create experiment from selection** are on the selection's menu.
 4. Manage screens with **New screen**, **Duplicate screen**, **Rename screen**, **Delete screen** and

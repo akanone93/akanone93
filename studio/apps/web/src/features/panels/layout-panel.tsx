@@ -23,6 +23,7 @@ import { type LayoutMessages, layoutMessages } from "./layout-panel.messages.ts"
 import { type Breakpoint, valueAt } from "./properties-model.ts";
 import { TokenNumber } from "./state-editors.tsx";
 import "./layout-panel.css";
+import { FoldCard } from "./fold.tsx";
 
 /**
  * The layout editors at the top of the inspector's properties (PC-22, WGT-010): a row, column, flex or wrap as an auto
@@ -172,12 +173,12 @@ function AutoLayout(p: {
   const { m, box, props } = p;
   const flex = box.kind === "flex";
   return (
-    <section className="lay-card" aria-label={m.autoLayout}>
-      <h3 className="lay-title">
-        <Icon name={box.axis === "horizontal" ? "columns" : "rows"} size="pill" />
-        {m.autoLayout}
-        <span className="lay-type">{box.type}</span>
-      </h3>
+    <FoldCard
+      id="auto-layout"
+      icon={box.axis === "horizontal" ? "columns" : "rows"}
+      title={m.autoLayout}
+      note={box.type}
+    >
       <Row label={m.direction}>
         <Segments
           label={m.direction}
@@ -266,7 +267,7 @@ function AutoLayout(p: {
           />
         </Row>
       )}
-    </section>
+    </FoldCard>
   );
 }
 
@@ -344,11 +345,7 @@ function StackPins(p: {
   const toggle = (pin: Pin) => p.structure(p.recipes.pin(pin, pins[pin] === undefined ? 0 : undefined));
   const set = PINS.filter((pin) => pins[pin] !== undefined);
   return (
-    <section className="lay-card" aria-label={m.inStack}>
-      <h3 className="lay-title">
-        <Icon name="stack" size="pill" />
-        {m.inStack}
-      </h3>
+    <FoldCard id="in-stack" icon="stack" title={m.inStack}>
       <div className="lay-pins">
         <div className="lay-pin-box">
           {(["top", "left", "right", "bottom"] as const).map((edge) => (
@@ -398,7 +395,7 @@ function StackPins(p: {
           </div>
         </div>
       </div>
-    </section>
+    </FoldCard>
   );
 }
 
@@ -450,6 +447,12 @@ function Overrides(p: {
   );
 }
 
+/** Whether widget `id` has layout editors: it lays out children, or it sits in a row, a column or a stack. */
+export function layoutContextShows(root: unknown, id: string): boolean {
+  const ctx = layoutContextOf(root, id);
+  return ctx.box !== undefined || ctx.item !== undefined;
+}
+
 /** The layout editors of one selected widget; nothing when it neither lays out children nor sits in a layout. */
 export function LayoutPanel(p: LayoutPanelProps): ReactElement | null {
   const m = layoutMessages(useLingui().i18n);
@@ -479,11 +482,11 @@ export function LayoutPanel(p: LayoutPanelProps): ReactElement | null {
         />
       )}
       {item?.kind === "flex" && (
-        <section className="lay-card" aria-label={m.inRowOrColumn(item.axis)}>
-          <h3 className="lay-title">
-            <Icon name={item.axis === "horizontal" ? "columns" : "rows"} size="pill" />
-            {m.inRowOrColumn(item.axis)}
-          </h3>
+        <FoldCard
+          id="in-flex"
+          icon={item.axis === "horizontal" ? "columns" : "rows"}
+          title={m.inRowOrColumn(item.axis)}
+        >
           {(["horizontal", "vertical"] as const).map((axis) => (
             <AxisSizing
               key={axis}
@@ -497,7 +500,7 @@ export function LayoutPanel(p: LayoutPanelProps): ReactElement | null {
               apply={p.applyProps}
             />
           ))}
-        </section>
+        </FoldCard>
       )}
       {item?.kind === "stack" && (
         <StackPins item={item} m={m} disabled={disabled} recipes={p.recipes} structure={p.structure} />

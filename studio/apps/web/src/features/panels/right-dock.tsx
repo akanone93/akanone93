@@ -5,12 +5,11 @@ import type { I18n } from "@lingui/core";
 import { useLingui } from "@lingui/react";
 import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
 import { Button, Icon, type IconName, Input, Menu, Select, TypeTag, tooltipDelayMs } from "@plux/ui";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { Switch } from "@plux/ui/components/switch";
 import { TooltipProvider } from "@plux/ui/components/tooltip";
 import type { Problem } from "@plux/validator";
-import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, lazy, type ReactNode, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { actionGraphMessages } from "../action-graph/action-graph.messages.ts";
 import { designerMessages } from "../designers/designers.messages.ts";
 import { useCanEdit, useEditor } from "../editor/editor-provider.tsx";
@@ -37,13 +36,14 @@ import { ActionsTab } from "./actions-tab.tsx";
 import { typeIcon } from "./catalogue.ts";
 import { ConditionPanel } from "./condition-panel.tsx";
 import { DockTabs, type Pane, useStoredFlag } from "./dock-tabs.tsx";
+import { FoldCard, FoldInline, FoldList } from "./fold.tsx";
 import { FormFieldPanel } from "./form-field-panel.tsx";
 import { bindFieldRecipe, formsOf, INPUT_TYPES } from "./forms-model.ts";
 import { IconField } from "./icon-field.tsx";
 import { ImageSourceField } from "./image-field.tsx";
 import { InstanceCard, InstancePreviewContext } from "./instance-card.tsx";
 import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingRecipe } from "./layout-model.ts";
-import { ConstraintsEditor, LayoutPanel } from "./layout-panel.tsx";
+import { ConstraintsEditor, LayoutPanel, layoutContextShows } from "./layout-panel.tsx";
 import { addStateRecipe, ListPanel } from "./list-panel.tsx";
 import { LocaleTools } from "./locale-tools.tsx";
 import { MotionPanel } from "./motion-panel.tsx";
@@ -51,7 +51,7 @@ import { pageSettingsMessages } from "./page-settings.messages.ts";
 import { PageSettingsTab } from "./page-settings.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
 import { groupIcons, groupOrder, type PropGroup, propGroupOf } from "./prop-groups.ts";
-import { AlignmentPicker, PropGroupHead, PropRow, propLabel, SegmentedChoice, segmentable } from "./prop-row.tsx";
+import { AlignmentPicker, PropRow, propLabel, SegmentedChoice, segmentable, valueSummary } from "./prop-row.tsx";
 import {
   type Breakpoint,
   bindingOf,
@@ -531,14 +531,19 @@ function ObjectEditor(p: EditorProps) {
     }
     p.onChange(Object.keys(next).length === 0 ? undefined : next);
   };
+  // Plain fields first, on the grid; then each composite field folded with a summary, the first open (MR-3).
+  const ordered = [...fields.filter((f) => !wideType(f.type)), ...fields.filter((f) => wideType(f.type))];
+  const firstWide = ordered.find((f) => wideType(f.type))?.name;
   return (
     <div className="prop-grid prop-grid-nested">
-      {fields.map((f) => (
+      {ordered.map((f) => (
         <PropRow
           key={f.name}
           name={f.name}
           set={o[f.name] !== undefined}
           wide={wideType(f.type)}
+          summary={valueSummary(o[f.name], p.m.unset)}
+          defaultOpen={f.name === firstWide}
           resetLabel={p.m.clearProp(f.name)}
           onReset={p.readOnly ? undefined : () => change(f.name, undefined)}
         >
@@ -737,6 +742,8 @@ function PropertyField(p: {
   readonly onApply: (value: unknown) => void;
   readonly onEnd: () => void;
   readonly onExtract: (text: string) => void;
+  /** A composite property opens at first: the first of its section (MR-3). */
+  readonly openAtFirst?: boolean;
 }) {
   const { prop, sv, m } = p;
   const value = sv.mixed ? undefined : sv.value;
@@ -748,6 +755,8 @@ function PropertyField(p: {
       set={p.set}
       override={overridden ? overrideMark[p.bp] : undefined}
       wide={wideType(prop.type)}
+      summary={sv.mixed ? m.mixed : valueSummary(value, m.unset)}
+      defaultOpen={p.openAtFirst === true}
       resetLabel={overridden ? m.resetOf(prop.name) : m.clearProp(prop.name)}
       onReset={
         p.canEdit
@@ -905,46 +914,55 @@ function SelectionLayout(props: {
   );
 }
 
-/** The panels above the properties of one selected widget (PC-22–PC-26): layout, list, conditions, form field. */
-function SelectionPanels(props: {
-  readonly dock: DockProps;
-  readonly id: string;
-  readonly node: Obj;
-  readonly type: string;
-  readonly bp: Breakpoint;
-  readonly canEdit: boolean;
-  readonly layoutNames: readonly string[];
-  readonly onBp: (bp: Breakpoint) => void;
-  readonly page: unknown;
-}) {
-  const { dock: p, id: first, node, canEdit } = props;
+/** The panels of one selected widget beside its properties (PC-22–PC-26), by the section each is (MR-3). */
+type PanelId = "list" | "theme" | "form-field" | "conditions" | "motion";
+
+/** The order of the inspector's sections (MR-3): what the widget shows first, how it sits and looks, then the rest. */
+const SECTION_ORDER: readonly (PropGroup | PanelId)[] = [
+  "content",
+  "list",
+  "layout",
+  "appearance",
+  "theme",
+  "input",
+  "behaviour",
+  "form-field",
+  "conditions",
+  "motion",
+  "other",
+];
+
+/**
+ * The panels of one selected widget (PC-22–PC-26), each a folding card of its own: its list, theme values, form field,
+ * conditions and motion. A widget that is no list or no input has no such panel.
+ */
+function selectionPanels(p: DockProps, props: Single | undefined): Partial<Record<PanelId, ReactNode>> {
+  if (props === undefined) {
+    return {};
+  }
+  const { id: first, node, canEdit } = props;
   const screen = p.screenOf.get(first);
   const edit = (recipe: (root: unknown) => void, group: string) => {
     if (screen !== undefined) {
       p.edit(screen, recipe, { group });
     }
   };
-  return (
-    <>
-      <SelectionLayout
-        dock={p}
-        id={first}
-        node={node}
-        bp={props.bp}
-        canEdit={canEdit}
-        layoutNames={props.layoutNames}
-        onBp={props.onBp}
-      />
-      {LIST_TYPES.has(props.type) && (
-        <ListPanel
-          id={first}
-          node={node}
-          canEdit={canEdit}
-          drawn={(expr) => p.drawnValue?.(first, expr)}
-          newId={uuidv7}
-          addState={(state, view) => edit(addStateRecipe(first, state, view), `list-state:${first}:${state}`)}
-        />
-      )}
+  return {
+    ...(LIST_TYPES.has(props.type)
+      ? {
+          list: (
+            <ListPanel
+              id={first}
+              node={node}
+              canEdit={canEdit}
+              drawn={(expr) => p.drawnValue?.(first, expr)}
+              newId={uuidv7}
+              addState={(state, view) => edit(addStateRecipe(first, state, view), `list-state:${first}:${state}`)}
+            />
+          ),
+        }
+      : {}),
+    conditions: (
       <ConditionPanel
         id={first}
         node={node}
@@ -952,6 +970,8 @@ function SelectionPanels(props: {
         decide={(expr) => p.decide?.(first, expr)}
         setVisible={(value) => edit(setVisibleRecipe(first, value), `visible:${first}:${Date.now()}`)}
       />
+    ),
+    motion: (
       <MotionPanel
         id={first}
         node={node}
@@ -959,21 +979,145 @@ function SelectionPanels(props: {
         heroCount={p.heroCount?.(first) ?? 0}
         set={(key, value) => edit(setAnimationRecipe(first, key, value), `motion:${first}:${key}:${Date.now()}`)}
       />
+    ),
+    theme: (
       <ThemeCard
         node={node}
         canEdit={canEdit}
         bind={(v, token) => edit(setStyleRecipe(first, v.path, { $token: token }), `token:${first}:${Date.now()}`)}
       />
-      {INPUT_TYPES[props.type] !== undefined && (
-        <FormFieldPanel
-          node={node}
-          pageId={screen ?? ""}
-          forms={formsOf(props.page)}
-          canEdit={canEdit}
-          bind={(form, field) => edit(bindFieldRecipe(first, form, field), `bind-field:${first}:${Date.now()}`)}
-        />
-      )}
-    </>
+    ),
+    ...(INPUT_TYPES[props.type] !== undefined
+      ? {
+          "form-field": (
+            <FormFieldPanel
+              node={node}
+              pageId={screen ?? ""}
+              forms={formsOf(props.page)}
+              canEdit={canEdit}
+              bind={(form, field) => edit(bindFieldRecipe(first, form, field), `bind-field:${first}:${Date.now()}`)}
+            />
+          ),
+        }
+      : {}),
+  };
+}
+
+/** One property row of a section: its descriptor, the selection's shared value, whether it is set. */
+interface PropRowData {
+  readonly prop: PropDescriptor;
+  readonly sv: ReturnType<typeof sharedValue>;
+  readonly set: boolean;
+}
+
+const isGroup = (id: PropGroup | PanelId): id is PropGroup => (groupOrder as readonly string[]).includes(id);
+
+/**
+ * The inspector's sections in their order (MR-3), each a folding card: the first present opens, every other stays
+ * closed until opened (and stays as the person leaves it); a search or "set only" opens them all. The Layout card holds
+ * the widget's layout editors above its layout properties.
+ */
+function PropertySections(props: {
+  readonly sections: readonly { readonly id: PropGroup; readonly rows: readonly PropRowData[] }[];
+  readonly panels: Partial<Record<PanelId, ReactNode>>;
+  readonly layout: ReactNode | undefined;
+  readonly labels: Record<PropGroup, string>;
+  readonly searching: boolean;
+  readonly field: (row: PropRowData, openAtFirst: boolean) => ReactNode;
+}) {
+  const rowsOf = (id: PropGroup) => props.sections.find((s) => s.id === id)?.rows;
+  const present = SECTION_ORDER.filter((id) =>
+    isGroup(id)
+      ? rowsOf(id) !== undefined || (id === "layout" && props.layout !== undefined)
+      : props.panels[id] !== undefined,
+  );
+  return (
+    <FoldList scope="inspector" first={present[0]} all={props.searching}>
+      {present.map((id) => {
+        if (!isGroup(id)) {
+          return <Fragment key={id}>{props.panels[id]}</Fragment>;
+        }
+        const rows = rowsOf(id) ?? [];
+        const set = rows.filter((r) => r.set).length;
+        const firstWide = rows.find((r) => wideType(r.prop.type))?.prop.name;
+        return (
+          <FoldCard
+            key={id}
+            id={id}
+            icon={groupIcons[id]}
+            title={props.labels[id]}
+            {...(rows.length === 0 ? {} : { note: set > 0 ? `${set}/${rows.length}` : rows.length })}
+          >
+            {id === "layout" && props.layout}
+            {rows.length > 0 && (
+              <div className="prop-grid">{rows.map((r) => props.field(r, r.prop.name === firstWide))}</div>
+            )}
+          </FoldCard>
+        );
+      })}
+    </FoldList>
+  );
+}
+
+/** The rows the filter and "set only" leave, with the selection's shared value of each. */
+function shownRows(
+  props: readonly PropDescriptor[],
+  selected: readonly Obj[],
+  bp: Breakpoint,
+  q: string,
+  setOnly: boolean,
+): PropRowData[] {
+  return props.flatMap((prop) => {
+    const sv = sharedValue(selected, prop.name, bp);
+    const set = !sv.mixed && sv.value !== undefined;
+    const shown =
+      (q === "" || prop.name.toLowerCase().includes(q) || propLabel(prop.name).toLowerCase().includes(q)) &&
+      (!setOnly || set || sv.mixed);
+    return shown ? [{ prop, sv, set }] : [];
+  });
+}
+
+/** The one selected widget the panels and layout editors are for (MR-3). */
+interface Single {
+  readonly id: string;
+  readonly node: Obj;
+  readonly type: string;
+  readonly canEdit: boolean;
+  readonly page: unknown;
+}
+
+const singleOf = (
+  id: string,
+  node: Obj | undefined,
+  type: string | undefined,
+  canEdit: boolean,
+  page: unknown,
+): Single | undefined => (node === undefined ? undefined : { id, node, type: type ?? "", canEdit, page });
+
+/** The widget's layout editors, at the top of the Layout card (MR-3), when it lays out children or sits in a layout. */
+function layoutEditors(
+  p: DockProps,
+  single: Single | undefined,
+  bp: Breakpoint,
+  layoutNames: readonly string[],
+  onBp: (bp: Breakpoint) => void,
+): ReactNode | undefined {
+  const root = single === undefined ? undefined : p.screens.find((s) => s.id === p.screenOf.get(single.id))?.root;
+  if (single === undefined || root === undefined || !layoutContextShows(root, single.id)) {
+    return undefined;
+  }
+  return (
+    <FoldInline>
+      <SelectionLayout
+        dock={p}
+        id={single.id}
+        node={single.node}
+        bp={bp}
+        canEdit={single.canEdit}
+        layoutNames={layoutNames}
+        onBp={onBp}
+      />
+    </FoldInline>
   );
 }
 
@@ -1021,22 +1165,21 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
     layout: m.groupLayout,
     appearance: m.groupAppearance,
     content: m.groupContent,
+    input: m.groupInput,
     behaviour: m.groupBehaviour,
     other: m.groupOther,
   };
   const q = filter.trim().toLowerCase();
-  const rows = props.flatMap((prop) => {
-    const sv = sharedValue(selected, prop.name, bp);
-    const set = !sv.mixed && sv.value !== undefined;
-    const shown =
-      (q === "" || prop.name.toLowerCase().includes(q) || propLabel(prop.name).toLowerCase().includes(q)) &&
-      (!setOnly || set || sv.mixed);
-    return shown ? [{ prop, sv, set }] : [];
-  });
+  const rows = shownRows(props, selected, bp, q, setOnly);
   const sections = propGroups(rows.map((r) => r.prop)).map((g) => ({
     ...g,
     rows: g.props.flatMap((pr) => rows.find((r) => r.prop === pr) ?? []),
   }));
+  // One widget, unfiltered: its own panels and layout editors join the sections (MR-3).
+  const single =
+    ids.length === 1 && q === "" && !setOnly
+      ? singleOf(first, selected[0], types[0], canEdit, file === undefined ? undefined : docsState[file]?.content)
+      : undefined;
   return (
     <div className="prop-pane">
       <div className="prop-toolbar">
@@ -1062,71 +1205,60 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
       <LockedNote text={lockedNote} />
       {!canEdit && lockedNote === null && <p className="prop-note">{m.readOnly}</p>}
       {ids.length > 1 && <p className="prop-note">{m.multi(ids.length)}</p>}
-      {ids.length === 1 && q === "" && !setOnly && <InstanceCard id={first} />}
-      {ids.length === 1 && q === "" && !setOnly && (
-        <InstanceOverrides node={selected[0]} doc={p.screenOf.get(first)} edit={p.edit} canEdit={canEdit} />
-      )}
-      {ids.length === 1 && q === "" && !setOnly && selected[0] !== undefined && (
-        <SelectionPanels
-          dock={p}
-          id={first}
-          node={selected[0]}
-          type={types[0] ?? ""}
-          bp={bp}
-          canEdit={canEdit}
-          layoutNames={props.filter((pr) => propGroupOf(pr.name) === "layout").map((pr) => pr.name)}
-          onBp={setBp}
-          page={file === undefined ? undefined : docsState[file]?.content}
-        />
+      {single !== undefined && (
+        <>
+          <InstanceCard id={first} />
+          <InstanceOverrides node={single.node} doc={screen} edit={p.edit} canEdit={canEdit} />
+        </>
       )}
       {sections.length === 0 && <p className="prop-note">{m.noPropMatch}</p>}
-      {sections.map((group) => (
-        <Collapsible key={group.id} defaultOpen className="prop-section">
-          <CollapsibleTrigger className="prop-section-head">
-            <PropGroupHead
-              icon={groupIcons[group.id]}
-              label={groupLabels[group.id]}
-              set={group.rows.filter((r) => r.set).length}
-              count={group.rows.length}
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="prop-grid">
-            {group.rows.map(({ prop, sv, set }) => (
-              <PropertyField
-                key={prop.name}
-                prop={prop}
-                sv={sv}
-                set={set}
-                bp={bp}
-                canEdit={canEdit}
-                extractable={l10n !== null && canEdit && ids.length === 1}
-                m={m}
-                extractLabel={lm.extract}
-                sources={{
-                  tokens,
-                  keys,
-                  check: makeCheck(prop.name),
-                  drawn: p.drawnValue === undefined ? undefined : (expr: string) => p.drawnValue?.(first, expr),
-                  pxl: pxlSource(
-                    p.language,
-                    file,
-                    file === undefined ? undefined : docsState[file]?.content,
-                    first,
-                    bp,
-                    prop.name,
-                    scopes.current,
-                  ),
-                }}
-                onApply={(v) => apply(prop.name, v)}
-                onEnd={() => {
-                  burst.current += 1;
-                }}
-                onExtract={(text) => setExtracting({ name: prop.name, text })}
-              />
-            ))}
-          </CollapsibleContent>
-        </Collapsible>
-      ))}
+      <PropertySections
+        sections={sections}
+        panels={selectionPanels(p, single)}
+        layout={layoutEditors(
+          p,
+          single,
+          bp,
+          props.filter((pr) => propGroupOf(pr.name) === "layout").map((pr) => pr.name),
+          setBp,
+        )}
+        labels={groupLabels}
+        searching={q !== "" || setOnly}
+        field={({ prop, sv, set }, openAtFirst) => (
+          <PropertyField
+            key={prop.name}
+            prop={prop}
+            sv={sv}
+            set={set}
+            bp={bp}
+            canEdit={canEdit}
+            openAtFirst={openAtFirst}
+            extractable={l10n !== null && canEdit && ids.length === 1}
+            m={m}
+            extractLabel={lm.extract}
+            sources={{
+              tokens,
+              keys,
+              check: makeCheck(prop.name),
+              drawn: p.drawnValue === undefined ? undefined : (expr: string) => p.drawnValue?.(first, expr),
+              pxl: pxlSource(
+                p.language,
+                file,
+                file === undefined ? undefined : docsState[file]?.content,
+                first,
+                bp,
+                prop.name,
+                scopes.current,
+              ),
+            }}
+            onApply={(v) => apply(prop.name, v)}
+            onEnd={() => {
+              burst.current += 1;
+            }}
+            onExtract={(text) => setExtracting({ name: prop.name, text })}
+          />
+        )}
+      />
       {l10n !== null && extracting !== null && (
         <ExtractKeyDialog
           open

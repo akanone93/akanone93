@@ -7,6 +7,7 @@ import { Input } from "@plux/ui/components/input";
 import { Switch } from "@plux/ui/components/switch";
 import { createContext, type ReactElement, useContext } from "react";
 import { animationOf, CURVES, DEFAULT_MS, TRANSITION_KINDS } from "../plugin-canvas/motion.ts";
+import { FoldCard } from "./fold.tsx";
 import { type MotionMessages, motionMessages } from "./motion-panel.messages.ts";
 
 /**
@@ -122,11 +123,7 @@ export function MotionPanel(p: {
   const implicit = a["durationMs"] !== undefined;
   const hero = typeof a["hero"] === "string" ? a["hero"] : "";
   return (
-    <section className="lay-card motion-panel" aria-label={m.title}>
-      <h3 className="lay-title">
-        <Icon name="sparkle" size="pill" />
-        {m.title}
-      </h3>
+    <FoldCard id="motion" icon="sparkle" title={m.title} bodyClassName="motion-panel">
       <TransitionRow id={p.id} phase="enter" value={a["enter"]} m={m} ro={ro} set={(v) => p.set("enter", v)} />
       <TransitionRow id={p.id} phase="exit" value={a["exit"]} m={m} ro={ro} set={(v) => p.set("exit", v)} />
       <div className="motion-block">
@@ -176,6 +173,6 @@ export function MotionPanel(p: {
           />
         </div>
       )}
-    </section>
+    </FoldCard>
   );
 }

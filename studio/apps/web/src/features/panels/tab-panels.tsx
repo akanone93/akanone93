@@ -23,6 +23,7 @@ import {
   setFieldRecipe,
 } from "../state-designer/state-model.ts";
 import { DockSection } from "./dock-tabs.tsx";
+import { FoldList } from "./fold.tsx";
 import { LocalePreviewContext } from "./locale-tools.tsx";
 import {
   type BudgetStatus,
@@ -237,14 +238,16 @@ export function DataPane({
   const m = tabMessages(useLingui().i18n);
   const doc = useDocumentValue(documents, "plugin.json").value;
   return (
-    <div className="flex flex-col gap-1">
-      <DockSection label={m.stateTab} icon="variable" count={readState(doc).length}>
-        <StateTab documents={documents} onOpen={onOpenState} />
-      </DockSection>
-      <DockSection label={m.dataList} icon="database" count={objects(doc?.["dataSources"]).length}>
-        <DataTab documents={documents} onOpen={onOpenData} />
-      </DockSection>
-    </div>
+    <FoldList scope="data" first="state">
+      <div className="flex flex-col gap-1">
+        <DockSection id="state" label={m.stateTab} icon="variable" count={readState(doc).length}>
+          <StateTab documents={documents} onOpen={onOpenState} />
+        </DockSection>
+        <DockSection id="data" label={m.dataList} icon="database" count={objects(doc?.["dataSources"]).length}>
+          <DataTab documents={documents} onOpen={onOpenData} />
+        </DockSection>
+      </div>
+    </FoldList>
   );
 }
 

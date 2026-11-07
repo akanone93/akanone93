@@ -135,39 +135,14 @@
   color: var(--muted-foreground);
 }
 
-/* A section: a quiet heading, then its rows on a two-column grid. */
-.prop-section .prop-section-head {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--spacing) * 2);
-  inline-size: 100%;
-  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 0.5) calc(var(--spacing) * 1);
-  font-size: 0.6875rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-}
-
-.prop-section .prop-section-head:hover {
-  color: var(--foreground);
-}
-
-.prop-section .prop-section-count {
-  font-size: 0.6875rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
-}
-
-.prop-section-head:not([data-panel-open]) .prop-section-caret {
-  rotate: -90deg;
-}
-
+/*
+ * Rows on two columns (MR-3): the names take what the longest needs, up to 9rem, so short names leave the editors their
+ * room and long ones read whole; a name past that ends in an ellipsis, with the full name as its tooltip.
+ */
 .prop-grid {
   display: grid;
-  grid-template-columns: minmax(5.5rem, 36%) minmax(0, 1fr);
-  gap: calc(var(--spacing) * 1);
-  padding-block-end: calc(var(--spacing) * 1.5);
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 10px;
 }
 
 .prop-row {
@@ -175,13 +150,15 @@
 }
 
 .prop-name {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: calc(var(--spacing) * 1.25);
-  min-inline-size: 0;
+  gap: 5px;
+  min-inline-size: 4.5rem;
+  max-inline-size: 9rem;
   min-block-size: calc(var(--spacing) * 7);
   font-size: var(--text-xs);
-  color: var(--muted-foreground);
+  color: color-mix(in oklch, var(--foreground) 72%, transparent);
 }
 
 .prop-row[data-set] > .prop-name {
@@ -219,18 +196,25 @@
   background-color: var(--primary);
 }
 
+/* The reset sits over the end of the name under the pointer, so the names' column never shifts for it. */
 .prop-reset {
   display: none;
   flex: none;
   place-items: center;
   inline-size: calc(var(--spacing) * 5);
   block-size: calc(var(--spacing) * 5);
-  margin-inline-start: auto;
   border-radius: var(--radius-md);
   color: var(--muted-foreground);
+  background-color: var(--card);
+}
+
+.prop-name > .prop-reset {
+  position: absolute;
+  inset-inline-end: 0;
 }
 
 .prop-name:hover .prop-reset,
+.fold-row-head:hover .prop-reset,
 .prop-reset:focus-visible {
   display: grid;
 }
@@ -255,20 +239,74 @@
   flex: 1;
 }
 
-/* A composite editor spans the row under its name. */
-.prop-row[data-wide] > .prop-name,
-.prop-row[data-wide] > .prop-control,
+/*
+ * A long name (MR-3) never cuts its editor or itself: a switch keeps to the name's line, at its end; any other editor
+ * takes the row under the name.
+ */
+.prop-row[data-long] {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.prop-row[data-long] > .prop-name {
+  max-inline-size: none;
+  min-block-size: calc(var(--spacing) * 6);
+}
+
+.prop-row[data-long]:has(> .prop-control > .prop-switch) {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prop-row[data-long]:has(> .prop-control > .prop-switch) > .prop-control {
+  flex: none;
+}
+
+/* The page's notes beside a switch are sentences: they wrap beside it rather than run out of the pane. */
+.prop-control > .prop-switch:has(> .page-note) {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  block-size: auto;
+  min-block-size: calc(var(--spacing) * 7);
+}
+
+.prop-control .page-note {
+  min-inline-size: 0;
+  white-space: normal;
+}
+
+/* Four inset fields need the row's width: they sit under the name. */
+.prop-row:has(> .prop-control > .prop-insets) {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.prop-row:has(> .prop-control > .prop-insets) > .prop-name {
+  max-inline-size: none;
+  min-block-size: calc(var(--spacing) * 6);
+}
+
+/* An expression spans the row under its name. */
 .prop-row:has(> .prop-control > .prop-text[data-mode="expr"]) > .prop-name,
 .prop-row:has(> .prop-control > .prop-text[data-mode="expr"]) > .prop-control {
   grid-column: 1 / -1;
 }
 
-.prop-row[data-wide] > .prop-control {
+.prop-row:has(> .prop-control > .prop-text[data-mode="expr"]) > .prop-name {
+  max-inline-size: none;
+}
+
+/* A composite editor, inside its folded row once opened. */
+.prop-control[data-wide] {
   flex-direction: column;
   align-items: stretch;
-  padding: calc(var(--spacing) * 2);
-  border-radius: var(--radius-lg);
-  background-color: color-mix(in oklch, var(--muted) 45%, transparent);
 }
 
 /* Compact controls: one line high, small type, inside the inspector only. */
@@ -543,12 +581,6 @@
 
 .editor-launch:hover .editor-launch-go {
   color: var(--primary);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .prop-section-caret {
-    transition: rotate var(--duration-fast) ease;
-  }
 }
 
 /* Number fields keep their room for digits: no spinners (the arrow keys still step). */

@@ -4,7 +4,7 @@
 import { useLingui } from "@lingui/react";
 import type { ScreenStyle } from "@plux/canvas";
 import { Button } from "@plux/ui";
-import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactElement, useCallback, useLayoutEffect, useRef, useState } from "react";
 import { chromeSpec } from "../plugin-canvas/look.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { SurfaceFactory } from "../plugin-canvas/surface.ts";
@@ -127,7 +127,8 @@ export function MatrixOverlay({
   readonly onClose: () => void;
 }): ReactElement | null {
   const m = previewMessages(useLingui().i18n);
-  useEffect(() => {
+  // Escape closes the matrix from the moment it shows: the listener is in place before the matrix is painted.
+  useLayoutEffect(() => {
     if (!show) {
       return undefined;
     }

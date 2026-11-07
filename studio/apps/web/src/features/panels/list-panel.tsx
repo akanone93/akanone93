@@ -8,6 +8,7 @@ import { type ListState, sourceOfItems } from "../plugin-canvas/list-preview.ts"
 import { findNode } from "../plugin-canvas/select/edits.ts";
 import { type ListMessages, listMessages } from "./list-panel.messages.ts";
 import "./list-panel.css";
+import { FoldCard } from "./fold.tsx";
 
 /**
  * The list panel of the inspector (PC-24, WGT-012, DAT-011): what a list's item template is repeated for, the state
@@ -112,11 +113,7 @@ export function ListPanel(p: {
   const expr = isObj(items) && typeof items["$expr"] === "string" ? items["$expr"] : undefined;
   const shown = preview?.stateOf(p.id) ?? "auto";
   return (
-    <section className="lay-card list-panel" aria-label={m.list}>
-      <h3 className="lay-title">
-        <Icon name="list" size="pill" />
-        {m.list}
-      </h3>
+    <FoldCard id="list" icon="list" title={m.list} bodyClassName="list-panel">
       <p className="list-items" title={expr}>
         <span className="lay-label">{m.items}</span>
         <span className="list-items-value">{itemsLine(m, items, expr === undefined ? undefined : p.drawn(expr))}</span>
@@ -172,6 +169,6 @@ export function ListPanel(p: {
           ),
         )}
       </div>
-    </section>
+    </FoldCard>
   );
 }

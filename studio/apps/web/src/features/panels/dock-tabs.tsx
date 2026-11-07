@@ -5,6 +5,7 @@ import { Icon, type IconName } from "@plux/ui";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
 import { type ReactElement, type ReactNode, useState } from "react";
+import { useFold } from "./fold.tsx";
 
 /** A per-viewer switch kept in this browser (a folded dock, a closed section); it falls back when storage is blocked. */
 export function useStoredFlag(key: string, initial: boolean): [boolean, (next: boolean) => void] {
@@ -158,8 +159,12 @@ export function DockExpand({
   );
 }
 
-/** A section of a pane that folds away: its icon, name, count and an optional action on the header line. */
+/**
+ * A section of a pane that folds away: its icon, name, count and an optional action on the header line. In a list of
+ * sections (`FoldList`), only the first opens at first (MR-3); `id` keeps the person's choice for it.
+ */
 export function DockSection({
+  id,
   label,
   icon,
   count,
@@ -167,15 +172,18 @@ export function DockSection({
   action,
   children,
 }: {
+  readonly id: string;
   readonly label: string;
   readonly icon: IconName;
   readonly count?: number;
+  /** Open at first when the section stands alone, outside a list. */
   readonly defaultOpen?: boolean;
   readonly action?: ReactNode;
   readonly children: ReactNode;
 }): ReactElement {
+  const [open, setOpen] = useFold(id, defaultOpen);
   return (
-    <Collapsible defaultOpen={defaultOpen} className="dock-section">
+    <Collapsible open={open} onOpenChange={setOpen} className="dock-section">
       <div className="dock-section-head">
         <CollapsibleTrigger className="dock-section-trigger">
           <Icon name="caret-down" size="pill" className="dock-section-caret" />

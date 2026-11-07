@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { Icon, type IconName } from "@plux/ui";
+import { Icon } from "@plux/ui";
 import { ToggleGroup, ToggleGroupItem } from "@plux/ui/components/toggle-group";
 import type { ReactElement, ReactNode } from "react";
+import { FoldRow } from "./fold.tsx";
 
 /** A property's name as the inspector shows it: `textAlign` reads "Text align", `onPressed` "On pressed". */
 export function propLabel(name: string): string {
@@ -14,10 +15,47 @@ export function propLabel(name: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+/** Past this many characters a name takes its own line, so neither it nor its editor is cut (MR-3). */
+const LONG_LABEL = 20;
+
+/** The last part of a token's path, as a preset is named: `textTheme.bodyLarge` reads "bodyLarge". */
+const lastPart = (path: string): string => path.slice(path.lastIndexOf(".") + 1);
+
+/**
+ * A short summary of a composite value for its folded row (MR-3): a token or expression as written, a list's length,
+ * an object's first three plain values joined by " · " (a text style reads "16 · w600 · #1D1B20"), `unset` when empty.
+ */
+export function valueSummary(value: unknown, unset: string): string {
+  if (value === undefined || value === null || value === "") {
+    return unset;
+  }
+  if (Array.isArray(value)) {
+    return `[${value.length}]`;
+  }
+  if (typeof value !== "object") {
+    return String(value);
+  }
+  const o = value as Record<string, unknown>;
+  if (typeof o["$token"] === "string") {
+    return lastPart(o["$token"]);
+  }
+  if (typeof o["$expr"] === "string") {
+    return o["$expr"];
+  }
+  const plain = Object.values(o).flatMap((v) =>
+    typeof v === "string" || typeof v === "number" || typeof v === "boolean"
+      ? [String(v)]
+      : v !== null && typeof v === "object" && typeof (v as Record<string, unknown>)["$token"] === "string"
+        ? [lastPart((v as Record<string, string>)["$token"] ?? "")]
+        : [],
+  );
+  return plain.length === 0 ? `{${Object.keys(o).length}}` : plain.slice(0, 3).join(" · ");
+}
+
 /**
  * One property of the inspector, in one row (STU-062): its name at the start — a dot when it is set, a size-class mark
  * when the size class overrides it, a reset under the pointer — and its editor at the end. A composite editor
- * (decoration, text style, list, expression) spans the row under its name instead.
+ * (decoration, text style, list) folds into a row of its own with a summary of its value, opened to edit (MR-3).
  */
 export function PropRow(props: {
   readonly name: string;
@@ -30,13 +68,47 @@ export function PropRow(props: {
   readonly resetLabel: string;
   readonly onReset?: (() => void) | undefined;
   readonly extra?: ReactNode;
+  /** A wide row's summary of its value, shown while it is folded. */
+  readonly summary?: string;
+  /** A wide row opens at first: the first of its list. */
+  readonly defaultOpen?: boolean;
   readonly children: ReactNode;
 }): ReactElement {
+  const label = props.label ?? propLabel(props.name);
+  if (props.wide === true) {
+    return (
+      <FoldRow
+        title={label}
+        set={props.set}
+        {...(props.summary === undefined ? {} : { summary: props.summary })}
+        defaultOpen={props.defaultOpen === true}
+        action={
+          <>
+            {props.override !== undefined && (
+              <span className="prop-override" aria-hidden="true">
+                {props.override}
+              </span>
+            )}
+            {props.onReset !== undefined && props.set && (
+              <button type="button" className="prop-reset" aria-label={props.resetLabel} onClick={props.onReset}>
+                <Icon name="arrow-counter-clockwise" size="pill" />
+              </button>
+            )}
+          </>
+        }
+      >
+        <div className="prop-control" data-wide="">
+          {props.children}
+          {props.extra}
+        </div>
+      </FoldRow>
+    );
+  }
   return (
-    <div className="prop-row" data-wide={props.wide || undefined} data-set={props.set || undefined}>
+    <div className="prop-row" data-set={props.set || undefined} data-long={label.length > LONG_LABEL || undefined}>
       <div className="prop-name" title={props.name}>
         <span className="prop-dot" aria-hidden="true" />
-        <span className="prop-name-text">{props.label ?? propLabel(props.name)}</span>
+        <span className="prop-name-text">{label}</span>
         {props.override !== undefined && (
           <span className="prop-override" aria-hidden="true">
             {props.override}
@@ -136,22 +208,5 @@ export function SegmentedChoice(props: {
         </ToggleGroupItem>
       ))}
     </ToggleGroup>
-  );
-}
-
-/** A section of properties: a quiet heading with its icon, name and how many are set out of all. */
-export function PropGroupHead(props: {
-  readonly icon: IconName;
-  readonly label: string;
-  readonly set: number;
-  readonly count: number;
-}): ReactElement {
-  return (
-    <>
-      <Icon name={props.icon} size="pill" />
-      <span className="flex-1 text-start">{props.label}</span>
-      <span className="prop-section-count">{props.set > 0 ? `${props.set}/${props.count}` : props.count}</span>
-      <Icon name="caret-down" size="pill" className="prop-section-caret" />
-    </>
   );
 }

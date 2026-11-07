@@ -6,6 +6,7 @@ import { Icon } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { createContext, type ReactElement, useContext } from "react";
 import { type ConditionMessages, conditionMessages } from "./condition-panel.messages.ts";
+import { FoldCard } from "./fold.tsx";
 
 /**
  * The conditions panel of the inspector (PC-25, SCH-023): a widget's visibility condition, an `If`'s condition and a
@@ -89,11 +90,7 @@ export function ConditionPanel(p: {
   const visible = exprText(p.node["visible"]);
   const decided = (text: string) => (text === "true" ? true : text === "false" ? false : p.decide(text));
   return (
-    <section className="lay-card cond-panel" aria-label={m.title}>
-      <h3 className="lay-title">
-        <Icon name="flow-arrow" size="pill" />
-        {m.title}
-      </h3>
+    <FoldCard id="conditions" icon="flow-arrow" title={m.title} bodyClassName="cond-panel">
       {type === "If" && (
         <div className="cond-block">
           <span className="lay-label">{m.condition}</span>
@@ -139,6 +136,6 @@ export function ConditionPanel(p: {
           </>
         )}
       </div>
-    </section>
+    </FoldCard>
   );
 }
