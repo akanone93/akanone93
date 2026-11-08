@@ -42,7 +42,11 @@ Also: `make dev-starter` points the app at the stack again and pulls a fresh bas
 - Addresses: API <http://localhost:8080>, Grafana <http://localhost:3000>, Prometheus
   <http://localhost:9090>; object storage (SeaweedFS) is reachable only inside the Compose
   network.
-- Seeded credentials: `deploy/compose/.secrets/dev.env`. More:
+- Seeded credentials: `deploy/compose/.secrets/dev.env`. Seeding publishes the sample apps with a short-lived
+  seed token, because a fresh installation has no security key for the step-up a publish needs
+  ([sessions and step-up](sessions-and-step-up.md)); if seeding fails, `make dev` says so, removes `dev.env`
+  and stops, so the next run seeds again. An older `deploy/compose/.secrets/` gets any credential added since
+  (`PLUX_ANALYTICS_READER_PASSWORD`); recreate the PostgreSQL volume if it was first made without it. More:
   [deploy/compose](../../deploy/compose/README.md).
 
 ## 4. The whole stack with Studio

@@ -109,7 +109,8 @@ Positions are read-only while someone else is editing the app.
    **Inputs**, **Interaction**, **Navigation**, **Motion**, **Platform**, **More**) to show it, or open a kind's
    section or **Recently used**. In every pane of both docks only the first folding section is open at first (in
    **Layers**, the first screen); the rest open when you choose them, and Studio remembers your choice; point at a tile to read what the widget does, then choose it or drag it
-   onto a screen. **Layers** shows each screen over its widgets with their icons and what they show:
+   onto a screen. Chosen with a widget selected, it goes into that widget: into its content slot first (a
+   Scaffold's **body**, a wrapper's **child**), then its next empty slot. **Layers** shows each screen over its widgets with their icons and what they show:
    choose a caret to fold a row, **Expand all** or **Collapse all**, **Filter layers** by name, type
    or text, and drag a layer to move it. Double-click a layer's name (or press F2) to rename it; the
    eye hides it on the canvas (Ctrl+Shift+H) and the lock keeps it from being selected, moved or edited
@@ -372,6 +373,10 @@ comparison against the last published version. **Apply** writes only a valid doc
 - One person edits a plugin at a time. Others can look around, select and copy; **Request edit**
   asks the holder to hand over, and **Take over** works once the holder has stopped editing. Your
   work up to a takeover is kept as a snapshot.
+- A change applies as a whole or not at all. When the server refuses a save (for example a value it does not
+  accept), that change is undone in every document it touched, on the server too, and a message says what the
+  server refused; nothing is left half saved, and nothing is undone silently. The rolled-back change leaves the
+  undo history.
 - Changes made while you are offline show as waiting. If the server's version moved, a conflict dialog shows
   where the two versions differ: **Keep mine**, **Take the server's** or **Copy mine as JSON**.
   Autosave is paused until you choose.

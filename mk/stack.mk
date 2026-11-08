@@ -79,7 +79,12 @@ compose-seed: compose-secrets studio-image-inputs ## Start the stack and, on fir
 			--app "$$PLUX_DEV_APP" -C ../schema/testdata/documents/loan-calculator --promote staging && \
 		 PLUX_TOKEN="$$PLUX_DEV_SEED_TOKEN" $(GO) run -exec "env SSL_CERT_FILE=$(DEV_CA)" ./cmd/plux publish --server https://localhost:8080 --org "$$PLUX_DEV_ORGANIZATION" \
 			--app "$$PLUX_DEV_STARTER" -C ../schema/testdata/documents/starter --env staging --promote staging); \
+		seeded=$$?; \
 		sed -i '/^PLUX_DEV_SEED_TOKEN=/d' $(COMPOSE_DIR)/.secrets/dev.env; \
+		if [ $$seeded -ne 0 ]; then \
+			echo "✗ seeding failed (see above); fix it, then: rm $(COMPOSE_DIR)/.secrets/dev.env and run make dev again"; \
+			rm -f $(COMPOSE_DIR)/.secrets/dev.env; exit 1; \
+		fi; \
 		echo "Seeded dev@plux.localhost; password and token in $(COMPOSE_DIR)/.secrets/dev.env"; \
 	fi
 

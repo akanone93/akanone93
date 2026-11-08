@@ -213,6 +213,18 @@ studio_env() {
 }
 
 [ -d .secrets ] || credentials
+# Credentials added after a .secrets/ was first made: an older one lacks them, and postgres-init.sh stops on a
+# missing variable before it creates the server's role (the seed then fails with "password authentication failed").
+reader_password() {
+  for f in postgres grafana; do
+    if [ -s ".secrets/$f.env" ] && ! grep -q '^PLUX_ANALYTICS_READER_PASSWORD=' ".secrets/$f.env"; then
+      [ -n "${analytics:-}" ] || analytics=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')
+      printf 'PLUX_ANALYTICS_READER_PASSWORD=%s\n' "$analytics" >> ".secrets/$f.env"
+      echo "Added PLUX_ANALYTICS_READER_PASSWORD to .secrets/$f.env; recreate the postgres volume if it was made without it."
+    fi
+  done
+}
+reader_password
 [ -s .secrets/studio.env ] || studio_env
 dev_tls
 internal_tls

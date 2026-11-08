@@ -51,11 +51,19 @@ export function modelOf(roots: readonly (Node | undefined)[]): PanelModel {
 
 const holdsChildren = (type: string | undefined): boolean => type !== undefined && widget(type)?.children !== undefined;
 
-/** The first empty single (non-list) slot of a node, if its widget has one. */
-function freeSlot(model: PanelModel, id: string): string | null {
+/** The slot that holds a widget's content, filled first when free: a page's `body`, a wrapper's `child`. */
+const contentSlots = ["body", "child"];
+
+/**
+ * The empty single (non-list) slot a new node goes to: the content slot when it is free (a Scaffold's `body`, not
+ * its `appBar`, which only comes first in the descriptor), else the first empty one, if the widget has one.
+ */
+export function freeSlot(model: PanelModel, id: string): string | null {
   const node = model.nodes.get(id);
-  const slots = node?.type === undefined ? [] : (widget(node.type)?.slots ?? []);
-  return slots.find((s) => !s.list && node?.slots?.[s.name] === undefined)?.name ?? null;
+  const slots = (node?.type === undefined ? [] : (widget(node.type)?.slots ?? [])).filter(
+    (s) => !s.list && node?.slots?.[s.name] === undefined,
+  );
+  return (slots.find((s) => contentSlots.includes(s.name)) ?? slots[0])?.name ?? null;
 }
 
 /** Whether `id` can take one more node, and where. */

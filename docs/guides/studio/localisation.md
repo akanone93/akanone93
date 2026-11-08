@@ -27,7 +27,13 @@ still lacks ("3 of 40 missing").
    **Locale to edit**. Keys are lower-case words joined by dots or hyphens, such as `home.title`;
    **Add key** needs the draft lock and the default locale's lock, and another editor holding the
    lock makes the table read-only.
-4. A literal text on the canvas can be moved to a translation key (**Move to a translation key**).
+4. A literal text on the canvas can be moved to a translation key (**Move to a translation key**, or the quick fix
+   of the "literal text" warning). Editing a literal text in place (double-click it on the canvas) does the same on
+   its own when you may edit the keys and the default locale: the new key is named after the page and the words.
+   An extraction is one change across three documents (the key in `translations/keys.json`, its message in the
+   default locale, and the reference on the page), and it applies as a whole or not at all: the page refers to the
+   key only once the server has stored the key and its message. If the server refuses either, the other is rolled
+   back, a message says why, and the text keeps its literal value; a page never points at a key that does not exist.
 
 ## Add a locale, import and export
 
