@@ -1032,7 +1032,13 @@ function devSessionService(
   dev: DevSessionData,
 ) {
   service(DevSessionService, {
-    createSession: () => ({ session: { id: "s1" } }),
+    createSession: (req) => {
+      // As the server: a session opens in a non-production environment of the app (DEV-002).
+      if (req.environmentId !== "env-dev") {
+        throw new ConnectError("the environment identifier is not valid", Code.InvalidArgument);
+      }
+      return { session: { id: "s1" } };
+    },
     getPairing: () => ({
       pairing: {
         token: `token-${Date.now()}`,
