@@ -10,6 +10,7 @@ import {
   newKeysDocument,
   newLocaleDocument,
   readKeys,
+  readMessages,
   setMessageRecipe,
 } from "./l10n-model.ts";
 
@@ -22,6 +23,8 @@ export interface DocWriter {
     options?: { readonly group?: string; readonly step?: string },
   ): unknown;
   create(path: string, content: JsonValue, options?: { readonly step?: string }): Promise<WholeWrite>;
+  /** Settles once the document's edits are stored, with its stored content (`EditSession.whenSaved`). */
+  whenSaved(path: string): Promise<JsonValue | undefined>;
 }
 
 export interface ExtractRequest {
@@ -81,6 +84,10 @@ async function writeMessage(req: ExtractRequest, id: string, step: string): Prom
  * its message in the source locale, and the prop holds `{"$t": id}` instead. Every write, a created document's
  * included, carries the same step identifier: the client's undo stacks join them into one step across the
  * documents, and the server regroups them the same way after a reload (STU-069, F3).
+ *
+ * The extraction applies as a whole or not at all (F4): the prop refers to the key only once the server has stored
+ * the key and its message. When it refuses either, the editor rolls the other back and says so, the page keeps its
+ * literal text, and the result is a failed write; a page never points at a key that does not exist.
  */
 export async function extractKey(req: ExtractRequest): Promise<ExtractResult> {
   const existing = req.keys.store.getState().docs[KEYS_PATH]?.content;
@@ -100,6 +107,13 @@ export async function extractKey(req: ExtractRequest): Promise<ExtractResult> {
   }
   const messageWrite = await writeMessage(req, id, step);
   if (!messageWrite.ok) {
+    return { ok: false, reason: "write" };
+  }
+  const [storedKeys, storedMessages] = await Promise.all([
+    req.keys.whenSaved(KEYS_PATH),
+    req.source.whenSaved(localePath(req.sourceLocale)),
+  ]);
+  if (!readKeys(storedKeys).some((k) => k.id === id) || readMessages(storedMessages)[id] !== req.text) {
     return { ok: false, reason: "write" };
   }
   req.replaceProp({ $t: id }, step);

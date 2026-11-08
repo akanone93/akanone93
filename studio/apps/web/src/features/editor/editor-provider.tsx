@@ -2,16 +2,19 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { Code, ConnectError } from "@connectrpc/connect";
+import { useLingui } from "@lingui/react";
 import type { Document } from "@plux/api";
 import { limitDefault, type PermissionName } from "@plux/schema";
+import { notify } from "@plux/ui";
 import { createContext, type ReactElement, type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { useStore } from "zustand";
 import { lockWorkerScriptURL } from "../../lib/trusted-worker.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { ConflictDialog } from "./conflict-dialog.tsx";
-import { documentTransport, loadSessionEntries, toServerDocument } from "./document-transport.ts";
+import { documentTransport, loadSessionEntries, tabEditorSession, toServerDocument } from "./document-transport.ts";
 import { type EditRecord, EditSession, type EditState } from "./edit-session.ts";
+import { editorMessages } from "./editor.messages.ts";
 import { LockController, type LockStatus, LockUnavailable } from "./lock-controller.ts";
 import { lockTransport, type TickWorker, tabChannel, workerTicker } from "./lock-transport.ts";
 import { LockBanner, LockLostDialog } from "./lock-ui.tsx";
@@ -51,6 +54,23 @@ export interface EditorProviderProps {
   /** The stack key of this editor's edits when it is not the plugin ID: a locale's messages beside the app's keys. */
   readonly undoStack?: string;
   readonly children: ReactNode;
+}
+
+/** What the server said when it refused a save, without the error code prefix, for the person to read. */
+function refusalOf(error: unknown): string {
+  if (error instanceof LockUnavailable) {
+    return error.message;
+  }
+  return ConnectError.from(error).rawMessage.replace(/^PLX-\d+:\s*/, "");
+}
+
+/** The tab's sessionStorage, or undefined where the browser blocks it. It holds only the editor-session ID. */
+function tabStorage(): Storage | undefined {
+  try {
+    return globalThis.sessionStorage;
+  } catch {
+    return undefined;
+  }
 }
 
 const EditorContext = createContext<EditSession | null>(null);
@@ -116,6 +136,9 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
   // The callbacks are read through a ref so the session, made once, always calls the latest ones.
   const latest = useRef(props);
   latest.current = props;
+  const { i18n } = useLingui();
+  const messages = useRef(editorMessages(i18n));
+  messages.current = editorMessages(i18n);
   const [lock] = useState(
     () =>
       new LockController({
@@ -134,9 +157,11 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
       session.queryClient.setQueryData<Document[]>(documentsKey(appId, pluginId), (old) =>
         old?.map((d) => (d.path === doc.path ? doc : d)),
       );
+    // Every write is tagged with the tab's editor session: the server refuses an undo step without one (PLX-1005), and
+    // an editor whose caller passed none (the app's translations and theme) still groups its edits into undo steps.
     const base = documentTransport(
       session.transport,
-      { appId, pluginId, editorSessionId: latest.current.editorSessionId ?? "" },
+      { appId, pluginId, editorSessionId: latest.current.editorSessionId ?? tabEditorSession(tabStorage()) },
       confirmed,
       () => lock.whenHeld(),
     );
@@ -168,7 +193,15 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
         latest.current.onEdit?.(record);
       },
       onCreated: (record) => latest.current.undo?.recordCreated(latest.current.undoStack ?? pluginId, record),
-      onRejected: (path, error, undone) => latest.current.onRejected?.(path, error, undone),
+      onRejected: (path, error, undone, steps) => {
+        // An edit applies as a whole or not at all (F4): the parts of the refused steps in other documents (the
+        // page beside a new translation key, the other plugin of a move) are rolled back too, and the person is
+        // told; nothing vanishes silently.
+        const stack = latest.current.undoStack ?? pluginId;
+        const rolledBack = latest.current.undo?.abandon(steps, { stack, path }) ?? [];
+        notify("error", messages.current.saveRefused(refusalOf(error), [path, ...rolledBack].length));
+        latest.current.onRejected?.(path, error, undone);
+      },
     });
   });
 

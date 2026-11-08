@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { TransportProvider } from "@connectrpc/connect-query";
+import { directionOf } from "@plux/i18n";
+import { StyleNonce, Toaster } from "@plux/ui";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { useState } from "react";
+import { notifyMessages } from "./features/shell/notify.messages.ts";
 import { useStudioI18n } from "./i18n-provider.tsx";
 import { createSession, type Session } from "./lib/session.ts";
 import { AppContextProvider } from "./lib/use-app.tsx";
@@ -23,12 +26,16 @@ export function App({
   const [session] = useState(() => provided ?? createSession("/api"));
   const [router] = useState(() => providedRouter ?? createAppRouter({ session, webgl2: detectWebGL2() }));
   return (
-    <AppContextProvider value={{ session, studio }}>
-      <TransportProvider transport={session.transport}>
-        <QueryClientProvider client={session.queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </TransportProvider>
-    </AppContextProvider>
+    <StyleNonce>
+      <AppContextProvider value={{ session, studio }}>
+        <TransportProvider transport={session.transport}>
+          <QueryClientProvider client={session.queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </TransportProvider>
+      </AppContextProvider>
+      {/* Where `notify` shows its toasts: a refused save, a failed import, an action that did not run. */}
+      <Toaster direction={directionOf(studio.locale())} regionLabel={notifyMessages(studio.i18n).toasts} />
+    </StyleNonce>
   );
 }

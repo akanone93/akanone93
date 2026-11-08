@@ -355,6 +355,57 @@ export class UndoManager {
     return this.move(stack, "undo");
   }
 
+  /**
+   * Rolls back steps the server refused part of (F4: an edit applies as a whole or not at all). The refused
+   * document already went back to the server's version with every unit of these steps; this reverts the steps'
+   * parts in the other documents, newest first, as ordinary writes tagged `undo:<step>` so the server's rebuild
+   * regroups them, and drops the steps from every stack. Returns the paths rolled back.
+   */
+  abandon(steps: readonly string[], refused: { readonly stack: string; readonly path: string }): readonly string[] {
+    const ids = new Set(steps);
+    const found = this.stepsMade(ids);
+    const paths = new Set<string>();
+    const writes: Promise<boolean>[] = [];
+    this.applying = true;
+    try {
+      for (const step of found) {
+        for (const part of [...step.parts].reverse()) {
+          const own = part.stack === refused.stack && part.path === refused.path;
+          if (!own && this.apply(part, `undo:${step.id}`, writes) !== undefined) {
+            paths.add(part.path);
+          }
+        }
+      }
+    } finally {
+      this.applying = false;
+    }
+    for (const s of this.stacks.values()) {
+      s.undo = s.undo.filter((step) => !ids.has(step.id));
+      s.redo = s.redo.filter((step) => !ids.has(step.id));
+    }
+    if (found.length > 0) {
+      this.changed();
+    }
+    return [...paths];
+  }
+
+  /**
+   * The steps with these IDs as they were made: on an undo stack, or the cross-plugin step being made. On the redo
+   * stack a step holds its redo, which a rollback drops rather than applies.
+   */
+  private stepsMade(ids: ReadonlySet<string>): Step[] {
+    const found = new Map<string, Step>();
+    for (const s of this.stacks.values()) {
+      for (const step of s.undo.filter((x) => ids.has(x.id))) {
+        found.set(step.id, step);
+      }
+    }
+    if (this.open !== null && ids.has(this.open.id)) {
+      found.set(this.open.id, this.open);
+    }
+    return [...found.values()];
+  }
+
   redo(stack: string): UndoResult {
     return this.move(stack, "redo");
   }

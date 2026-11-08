@@ -52,8 +52,12 @@ export interface EditSessionOptions {
   readonly onFirstEdit?: (path: string) => void;
   /** Pending edits now sit on a newer server revision; canvas and undo stack follow it. */
   readonly onRebased?: (doc: ServerDocument) => void;
-  /** The server rejected a save for its content; those edits, and any built on them, were undone (F4). */
-  readonly onRejected?: (path: string, error: unknown, undone: readonly string[]) => void;
+  /**
+   * The server rejected a save for its content; those edits, any built on them, and the rest of their undo steps in
+   * this document were undone (F4). `steps` names those steps, so their parts in other documents are undone too: an
+   * edit that spans documents applies as a whole or not at all.
+   */
+  readonly onRejected?: (path: string, error: unknown, undone: readonly string[], steps: readonly string[]) => void;
   /** Every edit with its forward and inverse Immer patches, for the S2.4 undo stack. */
   readonly onEdit?: (record: EditRecord) => void;
   /** The undo step an edit belongs to; a save never mixes steps, so the server can regroup them (STU-069). */
@@ -156,6 +160,17 @@ function fits(base: JsonValue, units: readonly Unit[]): { content: JsonValue; ke
     }
   }
   return { content, kept, dropped };
+}
+
+/** The undo steps of some units. */
+function stepsOf(units: readonly Unit[]): Set<string> {
+  const steps = new Set<string>();
+  for (const u of units) {
+    if (u.step !== undefined) {
+      steps.add(u.step);
+    }
+  }
+  return steps;
 }
 
 /**
@@ -312,6 +327,43 @@ export class EditSession {
     }
   }
 
+  /**
+   * Settles once the document has no unconfirmed edits: with its content as the server confirmed it, or undefined
+   * when it is not open, its autosave is paused by a conflict, or it was closed meanwhile. A refused save undoes its
+   * edits before this settles, so a caller that needs an edit stored checks the content for it (an edit that spans
+   * documents writes its last part only once the others are stored).
+   */
+  whenSaved(path: string): Promise<JsonValue | undefined> {
+    const settled = (): { done: boolean; content?: JsonValue } => {
+      const t = this.tracks.get(path);
+      if (t === undefined || t.paused) {
+        return { done: true };
+      }
+      if (t.queue.length === 0 && t.inFlight === null) {
+        return { done: true, content: t.base.content };
+      }
+      if (t.inFlight === null && this.online()) {
+        // Sent now rather than after the autosave pause: the caller is waiting for it. Offline, the edits wait for
+        // the connection as any others do.
+        void this.flush(path, false);
+      }
+      return { done: false };
+    };
+    const now = settled();
+    if (now.done) {
+      return Promise.resolve(now.content);
+    }
+    return new Promise((resolve) => {
+      const unsubscribe = this.store.subscribe(() => {
+        const next = settled();
+        if (next.done) {
+          unsubscribe();
+          resolve(next.content);
+        }
+      });
+    });
+  }
+
   /** Total edits not yet confirmed, for the "N changes waiting" chip (F4). */
   waiting(): number {
     let n = 0;
@@ -445,10 +497,17 @@ export class EditSession {
     }
     if (kind === "rejected") {
       t.inFlight = null;
-      const { content, kept, dropped } = fits(t.base.content, t.queue);
+      // The rest of a refused step goes with it: its later edits of this document are not sent on their own.
+      const refused = stepsOf(units);
+      const same = t.queue.filter((u) => u.step !== undefined && refused.has(u.step));
+      const { content, kept, dropped } = fits(
+        t.base.content,
+        t.queue.filter((u) => !same.includes(u)),
+      );
       t.local = content;
       t.queue = kept;
-      this.options.onRejected?.(path, error, changedPaths([...units, ...dropped].flatMap((u) => u.ops)));
+      const undone = [...units, ...same, ...dropped];
+      this.options.onRejected?.(path, error, changedPaths(undone.flatMap((u) => u.ops)), [...stepsOf(undone)]);
       this.publish(path);
       return;
     }

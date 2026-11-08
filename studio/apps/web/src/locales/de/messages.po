@@ -406,6 +406,12 @@ msgstr "{delta} KiB gegenüber der Vorversion"
 msgid "home.stack.devices"
 msgstr "{devices} Geräte"
 
+#. Toast when the server refuses a save. The whole change is undone (in every document it touched), so nothing is half saved. reason is the server's explanation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/editor.messages.ts
+msgid "editor.save-refused"
+msgstr "{documents, plural, one {Eine Änderung wurde nicht gespeichert und rückgängig gemacht} other {Eine Änderung wurde nicht gespeichert und in allen # betroffenen Dokumenten rückgängig gemacht}}: {reason}"
+
 #. Reading of the checklist meter: steps done of all steps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/onboarding/onboarding.messages.ts
@@ -9496,6 +9502,12 @@ msgstr "Meldung"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.colMessage"
 msgstr "Meldung"
+
+#. Accessible name of the region where short messages (toasts) appear, such as a change that was not saved.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/notify.messages.ts
+msgid "notify.toasts"
+msgstr "Meldungen"
 
 #. Column heading.
 #. js-lingui-explicit-id

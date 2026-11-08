@@ -467,6 +467,16 @@ function requireSession(session: string): void {
   }
 }
 
+/**
+ * Refuses an undo step without the editor session it belongs to, as the server does (document.Tag.check, PLX-1005):
+ * the app's translations and theme once saved their steps without one, and every server refused them.
+ */
+function requireStepSession(req: { readonly stepId: string; readonly editorSessionId: string }): void {
+  if (req.stepId !== "" && req.editorSessionId === "") {
+    throw new ConnectError("PLX-1005: an undo step needs an editor session", Code.InvalidArgument);
+  }
+}
+
 export function createUpstream(state: UpstreamData) {
   // Documents autosave changed, by path; the fixtures themselves stay as given.
   const patched = new Map<string, { kind: string; path: string; json: unknown }>();
@@ -906,6 +916,7 @@ export function createUpstream(state: UpstreamData) {
       // Autosave: applies the patch to the stored document and returns it one revision on.
       patchDocument: (req) => {
         requireSession(req.session);
+        requireStepSession(req);
         const stored =
           patched.get(req.path) ??
           created.get(req.path) ??
@@ -938,6 +949,7 @@ export function createUpstream(state: UpstreamData) {
       // The document a restore brought back: found in the snapshots by path.
       putDocument: (req) => {
         requireSession(req.session);
+        requireStepSession(req);
         state.security?.putDocuments?.push({
           path: req.path,
           content: new TextDecoder().decode(req.content),

@@ -6,6 +6,15 @@ import type { I18n } from "@lingui/core";
 /** Messages of the edit pipeline: the D35 conflict dialog and the waiting-changes chip (decisions F2, F4). */
 export function editorMessages(i18n: I18n) {
   return {
+    saveRefused: (reason: string, documents: number) =>
+      i18n._({
+        id: "editor.save-refused",
+        message:
+          "{documents, plural, one {A change was not saved and has been undone} other {A change was not saved and has been undone in all # documents it touched}}: {reason}",
+        comment:
+          "Toast when the server refuses a save. The whole change is undone (in every document it touched), so nothing is half saved. reason is the server's explanation.",
+        values: { reason, documents },
+      }),
     conflictTitle: i18n._({
       id: "editor.conflict.title",
       message: "This plugin changed on the server",

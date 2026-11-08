@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { type DocumentTransport, EditSession, type ServerDocument } from "../editor/edit-session.ts";
-import type { JsonValue } from "../editor/json-patch.ts";
+import { applyPatch, type JsonValue } from "../editor/json-patch.ts";
 import { UndoManager } from "../editor/undo-stack.ts";
 import { setPropRecipe } from "../panels/properties-model.ts";
 import { extractKey } from "./extract-key.ts";
@@ -14,17 +14,35 @@ function session(
   docs: Record<string, JsonValue>,
   steps: { path: string; step: string | undefined }[],
   undo?: { readonly manager: UndoManager; readonly stack: string },
+  refuse?: string,
 ): EditSession {
+  // A server that stores every save, except those of the `refuse` document, which it rejects for their content.
+  const stored = new Map<string, ServerDocument>();
   const transport: DocumentTransport = {
-    patch: async () => {
-      throw new Error("not saved in this test");
+    patch: async (path, ops, ifRevision) => {
+      if (path === refuse) {
+        throw new Error("refused");
+      }
+      const doc = stored.get(path);
+      if (doc === undefined || doc.revision !== ifRevision) {
+        throw new Error("conflict");
+      }
+      const next = { path, revision: doc.revision + 1n, content: applyPatch(doc.content, ops) };
+      stored.set(path, next);
+      return next;
     },
     get: async () => {
       throw new Error("unused");
     },
-    put: async (path, content): Promise<ServerDocument> => ({ path, revision: 1n, content }),
-    remove: async () => undefined,
-    classify: () => "transient",
+    put: async (path, content): Promise<ServerDocument> => {
+      const doc = { path, revision: 1n, content };
+      stored.set(path, doc);
+      return doc;
+    },
+    remove: async (path) => {
+      stored.delete(path);
+    },
+    classify: (error) => ((error as Error).message === "refused" ? "rejected" : "transient"),
   };
   const s = new EditSession({
     transport,
@@ -43,26 +61,34 @@ function session(
           stepFor: (_path: string, group: string | undefined) => undo.manager.stepFor(undo.stack, group),
           onCreated: (r: { path: string; content: JsonValue; step: string }) =>
             undo.manager.recordCreated(undo.stack, r),
+          onRejected: (path: string, _error: unknown, _undone: readonly string[], refused: readonly string[]) =>
+            undo.manager.abandon(refused, { stack: undo.stack, path }),
         }),
   });
   undo?.manager.attach(undo.stack, s);
   for (const [path, content] of Object.entries(docs)) {
-    s.open({ path, revision: 1n, content });
+    const doc = { path, revision: 1n, content };
+    stored.set(path, doc);
+    s.open(doc);
   }
   return s;
 }
 
 /** The keys, source-locale and page sessions of one plugin canvas, sharing its undo stacks. */
-function canvas(docs: { keys?: JsonValue; messages?: JsonValue }) {
+function canvas(docs: { keys?: JsonValue; messages?: JsonValue }, refuse?: string) {
   const manager = new UndoManager({ depth: 10 });
-  const keys = session(docs.keys === undefined ? {} : { "translations/keys.json": docs.keys }, [], {
-    manager,
-    stack: "",
-  });
-  const source = session(docs.messages === undefined ? {} : { "translations/en.json": docs.messages }, [], {
-    manager,
-    stack: "translations/en",
-  });
+  const keys = session(
+    docs.keys === undefined ? {} : { "translations/keys.json": docs.keys },
+    [],
+    { manager, stack: "" },
+    refuse,
+  );
+  const source = session(
+    docs.messages === undefined ? {} : { "translations/en.json": docs.messages },
+    [],
+    { manager, stack: "translations/en" },
+    refuse,
+  );
   const plugin = session({ "pages/home.page.json": page }, [], { manager, stack: "pl" });
   const content = () => ({
     keys: keys.store.getState().docs["translations/keys.json"]?.content,
@@ -203,5 +229,29 @@ describe("[I18N-007] automatic key extraction", () => {
     expect(await extractKey({ ...base, key: "home.pay" })).toEqual({ ok: false, reason: "taken" });
     expect(await extractKey({ ...base, key: "Bad Key" })).toEqual({ ok: false, reason: "invalid" });
     expect(replaced).toBe(0);
+  });
+
+  test("[F4] a refused key changes neither the message nor the page, and nothing is left to undo", async () => {
+    const c = canvas(
+      { keys: { kind: "translationKeys", keys: [] }, messages: { kind: "translations", locale: "en", messages: {} } },
+      "translations/keys.json",
+    );
+    const before = c.content();
+    expect(await c.extract()).toEqual({ ok: false, reason: "write" });
+    expect(c.content()).toEqual(before);
+    expect(c.manager.canUndo("pl")).toBe(false);
+    expect(c.manager.canUndo("")).toBe(false);
+    expect(c.manager.canUndo("translations/en")).toBe(false);
+  });
+
+  test("[F4] a refused message rolls the stored key back, and the page keeps its text", async () => {
+    const c = canvas(
+      { keys: { kind: "translationKeys", keys: [] }, messages: { kind: "translations", locale: "en", messages: {} } },
+      "translations/en.json",
+    );
+    const before = c.content();
+    expect(await c.extract()).toEqual({ ok: false, reason: "write" });
+    expect(c.content()).toEqual(before);
+    expect(JSON.stringify(c.content().page)).not.toContain("$t");
   });
 });

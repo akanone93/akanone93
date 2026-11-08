@@ -5,6 +5,7 @@ export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from ".
 export type { CaseDefinition } from "./case.ts";
 export { allCases } from "./cases.ts";
 export { Count, type CountProps } from "./count.tsx";
+export { pageNonce, StyleNonce } from "./csp.tsx";
 export { cx, focusRing } from "./cx.ts";
 export {
   AlertDialog,

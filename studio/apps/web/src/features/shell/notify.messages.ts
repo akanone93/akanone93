@@ -6,6 +6,12 @@ import type { I18n } from "@lingui/core";
 /** Messages of the notifications, status chips, update banner, help menu and unsupported page (STU-012). */
 export function notifyMessages(i18n: I18n) {
   return {
+    toasts: i18n._({
+      id: "notify.toasts",
+      message: "Messages",
+      comment:
+        "Accessible name of the region where short messages (toasts) appear, such as a change that was not saved.",
+    }),
     bell: i18n._({
       id: "notify.bell",
       message: "Notifications",
