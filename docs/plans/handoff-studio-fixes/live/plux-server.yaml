@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+# Native dev server for the hand-off checks (no Docker); see ../README.md.
+server:
+  roles: [api, worker]
+  listen: "127.0.0.1:8080"
+  publicBaseURL: "http://localhost:8080"
+database:
+  migrateOnStart: true
+objectStorage:
+  backend: "filesystem"
+  directory: "/var/tmp/plux-dev/objects"
+cache:
+  backend: "memory"
+signing:
+  backend: "file"
+  directory: "/var/tmp/plux-dev/keys"
+attestation:
+  developmentProvider: true
+observability:
+  logFormat: "text"
+  logLevel: "info"
+assets:
+  svgCompiler: ""
+  pathOps: ""
