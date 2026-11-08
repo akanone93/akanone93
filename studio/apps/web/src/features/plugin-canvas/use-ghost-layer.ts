@@ -8,6 +8,7 @@ import { type ArrowBox, ArrowCanvas, type ArrowPick, ArrowRouter, deriveBundles,
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
+import type { LockController } from "../editor/lock-controller.ts";
 import { uploadAsset } from "../panels/upload-asset.ts";
 import {
   type AppScreen,
@@ -38,7 +39,12 @@ interface Drawn {
 export interface GhostLayerInput {
   readonly appId: string;
   readonly pluginId: string;
-  readonly editorSessionId: string;
+  /**
+   * The app's editing lock. The screens' thumbnails are app assets (`assets/index.json`), written only under it; they
+   * are uploaded while this tab holds it, and never take it, so a background upload does not keep another person
+   * from editing the app's theme or translations.
+   */
+  readonly appLock?: LockController | undefined;
   readonly canEdit: boolean;
   readonly surface: () => CanvasSurface | null;
   readonly screens: readonly PlacedScreen[];
@@ -63,7 +69,7 @@ export function useGhostLayer(input: GhostLayerInput): {
   /** The arrow lane under a click, from the hit ids (STU-046). */
   readonly pick: (hits: readonly string[]) => ArrowPick | undefined;
 } {
-  const { appId, pluginId, editorSessionId, canEdit, surface, screens, own, heights, appScreens, nativeRoutes } = input;
+  const { appId, pluginId, appLock, canEdit, surface, screens, own, heights, appScreens, nativeRoutes } = input;
   const device = input.device ?? DEVICE;
   const m = pluginCanvasMessages(useLingui().i18n);
   const { session } = useApp();
@@ -162,17 +168,20 @@ export function useGhostLayer(input: GhostLayerInput): {
   const known = useRef(new Map<string, string>());
   useEffect(() => {
     const target = surface();
-    if (!canEdit || target?.thumbnail === undefined || heights.size === 0 || appId === "" || editorSessionId === "") {
+    if (!canEdit || target?.thumbnail === undefined || heights.size === 0 || appId === "" || appLock === undefined) {
       return;
     }
     const capture = target.thumbnail.bind(target);
     const timer = setTimeout(() => {
+      if (appLock.store.getState().status !== "held") {
+        return;
+      }
       void syncThumbnails(
         {
           capture,
           list: async () => (await assets.listAssets({ appId })).assets,
           upload: (job) =>
-            uploadAsset(assets, { ...job, appId, session: editorSessionId }, { current: null }, () => undefined),
+            uploadAsset(assets, { ...job, appId, session: appLock.session }, { current: null }, () => undefined),
         },
         screens.map((s) => s.id),
         known.current,
@@ -185,7 +194,7 @@ export function useGhostLayer(input: GhostLayerInput): {
         .catch(() => undefined);
     }, THUMBNAIL_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [surface, canEdit, heights, screens, appId, editorSessionId, assets, queryClient]);
+  }, [surface, canEdit, heights, screens, appId, appLock, assets, queryClient]);
 
   const zoomed = (zoom: number) => {
     const d = drawn.current;

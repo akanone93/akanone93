@@ -856,7 +856,7 @@ function PluginCanvasView({
   const ghostLayer = useGhostLayer({
     appId: params.app ?? "",
     pluginId: params.plugin ?? "",
-    editorSessionId,
+    appLock: appSession?.lock,
     canEdit,
     surface: () => surfaceRef.current,
     screens,
