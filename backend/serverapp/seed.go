@@ -25,8 +25,9 @@ import (
 // seed prepares an empty development installation for `make dev`
 // (DEP-020): an administrator with a random password, an organisation,
 // two apps — one for the loan calculator, one for the starter host app
-// (apps/starter) — and a personal access token, written to files only
-// the user can read. It runs against a migrated database (the server migrates on
+// (apps/starter) — a personal access token, and a seed token for the
+// publishes that follow (auth.CreateSeedToken), written to files only the
+// user can read. It runs against a migrated database (the server migrates on
 // start) and refuses any installation whose signing backend may sign for
 // production, so it cannot touch a real one.
 func seed(ctx context.Context, args []string, stdout, stderr io.Writer) int {
@@ -78,7 +79,7 @@ func seed(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if *out == "-" {
 		// For a caller that runs seed inside a container and keeps the
 		// values itself; they are shown this once, like any new token.
-		for _, k := range []string{"organization", "app", "starter", "password", "token"} {
+		for _, k := range []string{"organization", "app", "starter", "password", "token", "seed_token"} {
 			_, _ = fmt.Fprintf(stdout, "PLUX_DEV_%s=%s\n", strings.ToUpper(k), values[k])
 		}
 		return exitOK
@@ -138,5 +139,14 @@ func seedInstallation(ctx context.Context, svc *server.Services, email, org, app
 	if err != nil {
 		return nil, fmt.Errorf("seed: %w", err)
 	}
-	return map[string]string{"password": hex.EncodeToString(password), "token": token.Secret, "organization": o.ID, "app": a.ID, "starter": s.ID}, nil
+	// The publishes of `make dev` need a step-up, and a fresh installation
+	// has no security key to perform one with (SEC-103).
+	seedToken, err := svc.Auth.CreateSeedToken(ctx, owner, auth.SeedTokenTTL)
+	if err != nil {
+		return nil, fmt.Errorf("seed: %w", err)
+	}
+	return map[string]string{
+		"password": hex.EncodeToString(password), "token": token.Secret, "seed_token": seedToken.Secret,
+		"organization": o.ID, "app": a.ID, "starter": s.ID,
+	}, nil
 }

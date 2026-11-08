@@ -25,7 +25,15 @@ const (
 	sourcePAT = "pat"
 	sourceCLI = "cli"
 	sourceCI  = "ci"
+	// sourceSeed is the short-lived token `plux-server seed` mints for the
+	// publishes of `make dev` on a development installation; it counts as
+	// stepped up (CreateSeedToken).
+	sourceSeed = "seed"
 )
+
+// SeedTokenTTL is the longest a seed token lasts: long enough for the
+// publishes of `make dev`, short enough that it is useless afterwards.
+const SeedTokenTTL = 15 * time.Minute
 
 // Token is a personal access token, a `plux login` token or one
 // exchanged from a CI identity (SRV-064).
@@ -120,6 +128,38 @@ func (s *Service) CreateAccessToken(ctx context.Context, p Principal, name strin
 	var out Minted
 	err = s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		out, err = s.mint(ctx, tx, storage.MustUUID(p.OrganizationID), storage.MustUUID(p.UserID), name, sourcePAT, "", granted, ttl)
+		if err != nil {
+			return err
+		}
+		return s.record(ctx, tx, audit.Entry{
+			OrganizationID: p.OrganizationID, Actor: p.Actor(),
+			Action: audit.TokenCreated, TargetKind: "token", TargetID: out.Token.ID,
+		})
+	})
+	return out, err
+}
+
+// CreateSeedToken issues the token `plux-server seed` hands to the
+// publishes of `make dev` (DEP-020). A fresh development installation has
+// no security key registered, so the step-up those publishes need
+// (SEC-103, ADR-0075) cannot be performed; this token carries one instead.
+// It is bound to the seeded user, lasts at most SeedTokenTTL, and has no
+// API: only the seed command calls it, and the seed command refuses any
+// installation whose signing backend may sign for production.
+func (s *Service) CreateSeedToken(ctx context.Context, p Principal, ttl time.Duration) (Minted, error) {
+	if p.Kind != KindUser || p.UserID == "" {
+		return Minted{}, plxerr.New(plxerr.PermissionDenied, "a seed token belongs to the seeded user")
+	}
+	if ttl <= 0 || ttl > SeedTokenTTL {
+		return Minted{}, plxerr.New(plxerr.OutOfRange, "a seed token lasts at most %s", SeedTokenTTL)
+	}
+	granted, err := tokenScopes(p, nil)
+	if err != nil {
+		return Minted{}, err
+	}
+	var out Minted
+	err = s.inTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		out, err = s.mint(ctx, tx, storage.MustUUID(p.OrganizationID), storage.MustUUID(p.UserID), "make dev seed", sourceSeed, "", granted, ttl)
 		if err != nil {
 			return err
 		}

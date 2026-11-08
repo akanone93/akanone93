@@ -68,8 +68,13 @@ func tokenIdentity(row dbgen.GetAccessTokenByHashRow) Identity {
 		Display: row.UserDisplayName, OrganizationID: storage.ID(row.OrganizationID),
 		Scopes: scopes, SecondFactor: true,
 	}
-	if row.Source == sourceCI {
+	switch row.Source {
+	case sourceCI:
 		id.Kind, id.Display = KindCI, "ci: "+row.Subject
+	case sourceSeed:
+		// Only `plux-server seed` mints one, on a development installation,
+		// for at most SeedTokenTTL (CreateSeedToken).
+		id = id.WithStepUp(0)
 	}
 	return id
 }

@@ -91,6 +91,13 @@ port-forward changes that). When you reach the server by another address, for ex
 `kubectl port-forward`, set `PLUX_PUBLIC_URL` to the public base URL and the CLI names it in its
 proofs; without it the CLI names the address it calls.
 
+**`make dev`.** A freshly seeded development installation has no security key registered, so
+the publishes that seed it could not step up. `plux-server seed` therefore also mints a *seed
+token* (`PLUX_DEV_SEED_TOKEN`, source `seed`): the seeded user's token, valid for at most 15
+minutes, that counts as stepped up. Only the seed command mints one, and it refuses any
+installation whose signing backend may sign for production; `make dev` uses it for its two
+publishes and then removes it from `dev.env`. Every other token still needs a step-up.
+
 The CLI reference ([CLI reference](../reference/cli.md)) lists the command that starts the flow
 when the command ships. The server side is `CreateCLIStepUp`, `PollCLIStepUp` and
 `CheckStepUpGrant`.

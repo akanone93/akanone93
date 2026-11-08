@@ -692,3 +692,46 @@ func TestNewServiceNeedsItsDependencies(t *testing.T) {
 		t.Error("a service with no dependencies was built")
 	}
 }
+
+// Verifies: SEC-103.
+// The seed token of `make dev` is its user's, short-lived, and passes a
+// step-up check where the same user's personal access token does not.
+func TestSeedToken(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t, nil)
+	ctx := context.Background()
+	ada := f.person(t, "ada@example.com")
+	org := f.organisation(t, "acme", map[string]auth.Role{ada: auth.RoleOwner})
+	_, id := f.enrol(t, f.signIn(t, "ada@example.com"))
+	p, err := f.svc.Resolve(ctx, id, org)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.svc.CreateSeedToken(ctx, p, auth.SeedTokenTTL+time.Second); code(err) != plxerr.OutOfRange {
+		t.Errorf("a seed token longer than %s: %v", auth.SeedTokenTTL, err)
+	}
+	seed, err := f.svc.CreateSeedToken(ctx, p, auth.SeedTokenTTL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pat, err := f.svc.CreateAccessToken(ctx, p, "pat", nil, time.Hour)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name, secret string
+		want         plxerr.Code
+	}{{"seed", seed.Secret, 0}, {"pat", pat.Secret, plxerr.StepUpRequired}} {
+		tid, err := f.svc.AuthenticateToken(ctx, tc.secret)
+		if err != nil || tid.UserID != ada {
+			t.Fatalf("%s: AuthenticateToken = %+v, %v", tc.name, tid, err)
+		}
+		tp, err := f.svc.Resolve(ctx, tid, "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := code(tp.Authorize(auth.ReleasePublish)); got != tc.want {
+			t.Errorf("%s: publish = %v, want %v", tc.name, got, tc.want)
+		}
+	}
+}

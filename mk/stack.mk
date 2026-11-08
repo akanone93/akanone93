@@ -75,10 +75,11 @@ compose-seed: compose-secrets studio-image-inputs ## Start the stack and, on fir
 		umask 077; \
 		$(COMPOSE) $(if $(COMPOSE_OVERLAY),-f $(COMPOSE_OVERLAY)) run --rm --no-deps plux-server seed -config /etc/plux/plux.yaml -out - > $(COMPOSE_DIR)/.secrets/dev.env && \
 		. ./$(COMPOSE_DIR)/.secrets/dev.env && \
-		(cd backend && PLUX_TOKEN="$$PLUX_DEV_TOKEN" $(GO) run -exec "env SSL_CERT_FILE=$(DEV_CA)" ./cmd/plux publish --server https://localhost:8080 --org "$$PLUX_DEV_ORGANIZATION" \
+		(cd backend && PLUX_TOKEN="$$PLUX_DEV_SEED_TOKEN" $(GO) run -exec "env SSL_CERT_FILE=$(DEV_CA)" ./cmd/plux publish --server https://localhost:8080 --org "$$PLUX_DEV_ORGANIZATION" \
 			--app "$$PLUX_DEV_APP" -C ../schema/testdata/documents/loan-calculator --promote staging && \
-		 PLUX_TOKEN="$$PLUX_DEV_TOKEN" $(GO) run -exec "env SSL_CERT_FILE=$(DEV_CA)" ./cmd/plux publish --server https://localhost:8080 --org "$$PLUX_DEV_ORGANIZATION" \
+		 PLUX_TOKEN="$$PLUX_DEV_SEED_TOKEN" $(GO) run -exec "env SSL_CERT_FILE=$(DEV_CA)" ./cmd/plux publish --server https://localhost:8080 --org "$$PLUX_DEV_ORGANIZATION" \
 			--app "$$PLUX_DEV_STARTER" -C ../schema/testdata/documents/starter --env staging --promote staging); \
+		sed -i '/^PLUX_DEV_SEED_TOKEN=/d' $(COMPOSE_DIR)/.secrets/dev.env; \
 		echo "Seeded dev@plux.localhost; password and token in $(COMPOSE_DIR)/.secrets/dev.env"; \
 	fi
 
