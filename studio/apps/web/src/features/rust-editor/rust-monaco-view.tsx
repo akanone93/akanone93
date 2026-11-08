@@ -4,6 +4,7 @@
 // The editor core and the Rust tokenizer only (its definition loads as a separate chunk when the first Rust model
 // opens); the language features come from the language-server bridge, not from a Monaco language service.
 import * as monaco from "monaco-editor/editor/editor.api.js";
+import "../json-editor/monaco-features.ts";
 import "monaco-editor/languages/definitions/rust/register.js";
 import { useEffect, useRef } from "react";
 import { isDark } from "../../lib/color-scheme.ts";

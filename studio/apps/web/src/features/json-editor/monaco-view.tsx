@@ -4,6 +4,7 @@
 // The editor core and JSON only: the package root also registers every language and bundles the
 // TypeScript, CSS and HTML workers, none of which Studio uses.
 import * as monaco from "monaco-editor/editor/editor.api.js";
+import "./monaco-features.ts";
 import "monaco-editor/language/json/monaco.contribution.js";
 import { useEffect, useRef } from "react";
 import { isDark } from "../../lib/color-scheme.ts";
