@@ -26,6 +26,7 @@ Branch history: the work started on `claude/dreamy-dirac-diipaj`; this hand-off 
 | `c93c9921` fix(studio): assets under the app lock | Asset uploads/deletes (Assets panel, device screenshots, screen thumbnails) were sent with the tab's undo-tag ID instead of the app editing lock's session → `FinishAssetUpload` 400. Now sent under the app lock; thumbnails upload only while this tab already holds it. | Unit tests; **live not yet checked**. |
 | `665720d5` fix(studio): Monaco features before first editor | Monaco 0.57 loaded its editor features lazily after the first editor, so their services were "UNKNOWN" and every editor threw. `json-editor/monaco-features.ts` loads them first (JSON and Rust editors). | Unit test that fails without the fix; production build; **live not yet checked**. |
 | `b35be536` fix(studio): translations, all-or-nothing edits, toasts, CSP | See below. | Unit tests; **live not yet checked**. |
+| `d5b49915` fix(studio): content slot first on insert; dev stack fixes; docs | Inserting into an empty Scaffold now fills `body` (content slot first: `body`, `child`), not `appBar` (`panels/model.ts` `freeSlot`). `make dev` stops and removes `dev.env` when seeding fails. `init-secrets.sh` adds `PLUX_ANALYTICS_READER_PASSWORD` to an older `.secrets/`. Guides (canvas, localisation, run-locally) and `WORKLOG.md` updated. | Unit tests (`panels/insert-slot.test.ts`); script tested on a fake old `.secrets/`; **live not yet checked**. |
 
 ### The last commit in detail
 
@@ -53,14 +54,18 @@ Branch history: the work started on `claude/dreamy-dirac-diipaj`; this hand-off 
 
 ## The patch
 
-`studio-fixes.patch` (sent to the maintainer separately) is `git diff b5e909ee b35be536`: every fix
-**after** the seed-token patch the maintainer already applied, without this README. Apply from the repo root:
+`studio-fixes.patch` (sent to the maintainer separately) is
+`git diff b5e909ee d5b49915 -- . ':!docs/plans/handoff-studio-fixes'`: every fix **after** the seed-token patch the
+maintainer already applied, without this hand-off folder. Apply from the repo root:
 
 ```bash
 git apply --3way ~/Downloads/studio-fixes.patch
 ```
 
-Progress: the four Studio fixes above are complete and unit-tested; live verification is the remaining work.
+Progress: every fix in the table is complete, unit-tested, documented and pushed. Not done here (at the
+maintainer's request, to save time): the live browser pass and the full Studio suite (`cd studio && bun run test`,
+which takes longer than 15 minutes here). The changed suites passed: editor, localisation, panels, plugin canvas,
+design, devices, JSON and Rust editors; type check, `biome ci` and the strict catalogue compile passed.
 
 ## Remaining tasks
 
@@ -76,16 +81,16 @@ Progress: the four Studio fixes above are complete and unit-tested; live verific
      every document of that edit is back to its previous state, on the server too;
    - CSP: sweep the routes (org home, app canvas, settings, publish, library, plugin canvas with JSON/Code/Preview
      open) and confirm zero `securitypolicyviolation` events.
-2. Check the other multi-step flows group their edits into **one undo step** (`UndoManager.step`) so the
-   rollback covers them: paste, wrap, move a screen to another plugin, rename with link updates, template insert.
-   Editors without an undo manager (the app canvas) are not covered by the rollback.
-3. Deferred by the maintainer: inserting into an empty `Scaffold` fills `appBar` (the first free slot,
-   `panels/model.ts` `freeSlot`) instead of `body`, and Layers does not show slot names.
-4. Open issues, not fixed: no Studio page registers a security key (WebAuthn registration API exists but nothing
-   calls it); `plux login` points at `<server>/device`, which does not exist; `mk/stack.mk` prints "Seeded" even
-   when seeding failed; an old `deploy/compose/.secrets` lacks `PLUX_ANALYTICS_READER_PASSWORD`, which breaks
-   `postgres-init.sh` on a fresh volume.
-5. Update `docs/WORKLOG.md` with these changes when done.
+2. Run the full Studio suite once: `cd studio && bun run test` (long; run it in the background).
+3. Multi-step flows: edits of one action that share a `group` (paste style, typing bursts), the history restore,
+   the library actions and key extraction share one undo step, so a refusal rolls all of them back. Editors without
+   an undo manager (the app canvas's `EditorProvider`) are not covered: a refused save there undoes only its own
+   document. Check moving a screen to another plugin and a rename that updates links, live.
+4. Open issues, not fixed (bigger features, ask the maintainer first): no Studio page registers a security key
+   (the WebAuthn registration API exists, nothing calls it), so nobody can step up in Studio; `plux login` points
+   at `<server>/device`, which does not exist; Layers does not show which slot a child is in.
+5. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
+   merged.
 
 ## Running the stack here without Docker
 
