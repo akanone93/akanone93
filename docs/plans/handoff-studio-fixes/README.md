@@ -123,7 +123,9 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
 5. Deferred fixes (after the hello-world check): `inline-text.test.ts` hangs (its sessions never save, and extraction
    now waits for the save, b35be536); asset images under `cdnBaseURL` are blocked by Studio's CSP and COEP; `make setup`
    on a fresh Ubuntu/WSL stops at pip (`No module named pip`) and at `install-flatc` (needs cmake): it should check for
-   and install `pipx` and `cmake g++` itself (apt, with sudo) when they are missing.
+   and install `pipx` and `cmake g++` itself (apt, with sudo) when they are missing. `make dev` fails with
+   `permission denied … docker.sock` when the user is not in the `docker` group: setup should check Docker access
+   and print the fix (`sudo usermod -aG docker $USER`, or Docker Desktop's WSL integration for the distribution).
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 
