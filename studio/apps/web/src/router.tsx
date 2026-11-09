@@ -17,7 +17,7 @@ import { accessSearchSchema, auditSearchSchema } from "./features/admin/admin.sc
 import { analyticsSearchSchema, usageSearchSchema } from "./features/analytics/analytics.schema.ts";
 import { approvalsInboxSearchSchema, appSearchSchema } from "./features/approvals/approvals.schema.ts";
 import { appsSearchSchema } from "./features/apps/apps.schema.ts";
-import { signInSearchSchema } from "./features/auth/auth.schema.ts";
+import { deviceSearchSchema, signInSearchSchema } from "./features/auth/auth.schema.ts";
 import { dataSearchSchema } from "./features/data/data.schema.ts";
 import type { EditSession } from "./features/editor/edit-session.ts";
 import { experimentsSearchSchema, newExperimentSearchSchema } from "./features/experiments/experiments.schema.ts";
@@ -170,6 +170,14 @@ const profileRoute = createRoute({
   getParentRoute: () => shellLayout,
   path: "/me",
   component: lazyRouteComponent(() => import("./features/profile/index.ts"), "ProfilePage"),
+});
+
+// Where `plux login` sends a person to approve its code (CLI-002); signing in first returns here with the code.
+const deviceLoginRoute = createRoute({
+  getParentRoute: () => shellLayout,
+  path: "/device",
+  validateSearch: (search) => deviceSearchSchema.catch({}).parse(search),
+  component: lazyRouteComponent(() => import("./features/auth/index.ts"), "DeviceLoginPage"),
 });
 
 const shortcutsRoute = createRoute({
@@ -568,6 +576,7 @@ const routeTree = rootRoute.addChildren([
     personalHomeRoute,
     profileRoute,
     shortcutsRoute,
+    deviceLoginRoute,
     ...installationRoutes,
     orgRoute.addChildren([
       orgHomeRoute,

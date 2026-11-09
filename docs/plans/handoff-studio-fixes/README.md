@@ -117,9 +117,11 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    the library actions and key extraction share one undo step, so a refusal rolls all of them back. Editors without
    an undo manager (the app canvas's `EditorProvider`) are not covered: a refused save there undoes only its own
    document. Check moving a screen to another plugin and a rename that updates links, live.
-4. Open issues, not fixed (bigger features, ask the maintainer first): no Studio page registers a security key
-   (the WebAuthn registration API exists, nothing calls it), so nobody can step up in Studio; `plux login` points
-   at `<server>/device`, which does not exist; Layers does not show which slot a child is in.
+4. Open issues: Layers does not show which slot a child is in. *Fixed 2026-11-09 (maintainer's go-ahead):* security
+   keys are registered under **Profile › Security keys**; `plux login`'s `/device` page is Studio's
+   (`features/auth/device-login-page.tsx`), never approves on arrival and asks the person to confirm they started
+   the sign-in; `server.studioBaseURL` lets the WebAuthn ceremony run on Studio's own origin (dev: `:8081`) under
+   the public URL's relying party; a session without a second factor cannot enrol a key on an account that has one.
 5. Deferred fixes (after the hello-world check): `inline-text.test.ts` hangs (its sessions never save, and extraction
    now waits for the save, b35be536); asset images under `cdnBaseURL` are blocked by Studio's CSP and COEP; `make setup`
    on a fresh Ubuntu/WSL stops at pip (`No module named pip`) and at `install-flatc` (needs cmake): it should check for

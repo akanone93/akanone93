@@ -1336,6 +1336,12 @@ msgstr "Ein Bericht enthält Fehler. Öffne die Probleme, behebe sie und friere 
 msgid "refusal.second-factor.title"
 msgstr "Ein zweiter Faktor ist erforderlich"
 
+#. Caption of the security keys card.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.caption"
+msgstr "Ein Sicherheitsschlüssel oder Passkey ist Ihr zweiter Faktor: Sie melden sich damit an und bestätigen damit Veröffentlichungen, Freigaben und Anmeldungen der Befehlszeile."
+
 #. Explains which images work as the app icon.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -1827,6 +1833,12 @@ msgstr "Parameter hinzufügen"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.addRestriction"
 msgstr "Einschränkung hinzufügen"
+
+#. Button that registers a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.add"
+msgstr "Sicherheitsschlüssel hinzufügen"
 
 #. Button that adds a per-segment value to a flag.
 #. js-lingui-explicit-id
@@ -2510,11 +2522,23 @@ msgstr "Benötigte Freigaben"
 msgid "l10n.area.bulkApprove"
 msgstr "Freigeben"
 
+#. Button that approves the sign-in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.approve"
+msgstr "Freigeben"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.approve"
 msgstr "Freigeben"
+
+#. Heading of the page where a person approves `plux login` with the code shown in their terminal.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.title"
+msgstr "Anmeldung der Befehlszeile freigeben"
 
 #. Verb in a decision line.
 #. js-lingui-explicit-id
@@ -2545,6 +2569,18 @@ msgstr "Freigegebene Basis"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.approvalDone"
 msgstr "Freigegeben für Inhalt {hash}."
+
+#. Shown after the approval.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.approved"
+msgstr "Freigegeben. Kehren Sie zu Ihrem Terminal zurück: Es meldet sich in wenigen Sekunden an."
+
+#. Shown when the session has not presented a second factor (PLX-8011).
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.needs-factor"
+msgstr "Die Freigabe erfordert einen Sicherheitsschlüssel in dieser Sitzung. Fügen Sie unter Profil einen hinzu oder melden Sie sich ab und mit Ihrem Schlüssel erneut an, dann öffnen Sie diese Seite erneut."
 
 #. Shown when the person may edit but not approve translations.
 #. js-lingui-explicit-id
@@ -2785,6 +2821,12 @@ msgstr "Audit-Einträge"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.code"
 msgstr "Authentifizierungscode"
+
+#. Kind of factor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.kind.totp"
+msgstr "Authenticator-App"
 
 #. Label of the author filter.
 #. js-lingui-explicit-id
@@ -3154,6 +3196,12 @@ msgstr "Abbrechen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.warningsCancel"
+msgstr "Abbrechen"
+
+#. Cancel button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.cancel"
 msgstr "Abbrechen"
 
 #. Button of the trigger picker that discards the link.
@@ -3929,6 +3977,12 @@ msgstr "Code"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.codeColumn"
 msgstr "Code"
+
+#. Label of the field that holds the code, such as BCDF-GHJK.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.code"
+msgstr "Code aus Ihrem Terminal"
 
 #. Button of the Layers tab: closes every row of the tree.
 #. js-lingui-explicit-id
@@ -5016,11 +5070,23 @@ msgstr "Löschen …"
 msgid "admin.denied"
 msgstr "Verweigert"
 
+#. Shown after the refusal.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.denied"
+msgstr "Abgelehnt. Dieses Terminal ist nicht angemeldet."
+
 #. Label of the density choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "Dichte"
+
+#. Button that refuses the sign-in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.deny"
+msgstr "Ablehnen"
 
 #. Name of the tab that manages the crates the function depends on.
 #. js-lingui-explicit-id
@@ -6821,6 +6887,12 @@ msgstr "Faltbares Gerät"
 msgid "preview.platformFrame"
 msgstr "Dem Rahmen folgen"
 
+#. Button label while the browser asks for the security key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.adding"
+msgstr "Folgen Sie der Aufforderung Ihres Browsers"
+
 #. Label of the font family list of a script.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -7611,6 +7683,12 @@ msgstr "Wie vergleichen"
 #: apps/web/src/features/panels/layout-panel.messages.ts
 msgid "layout.hug"
 msgstr "Anpassen"
+
+#. Checkbox the person ticks before the approve button is enabled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.mine"
+msgstr "Ich habe diese Anmeldung selbst gestartet, und der Code stimmt mit meinem Terminal überein"
 
 #. Field label.
 #. js-lingui-explicit-id
@@ -8615,6 +8693,12 @@ msgstr "Zuletzt gesehen"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colLastUsed"
 msgstr "Zuletzt verwendet"
+
+#. When a key was last used; date is already formatted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.last-used"
+msgstr "Zuletzt verwendet {date}"
 
 #. Metric label.
 #. js-lingui-explicit-id
@@ -9881,6 +9965,12 @@ msgstr "Nennen Sie ein Ereignis mit höchstens 64 Bytes."
 msgid "panelTabs.stateRename"
 msgstr "Name des Zustandseintrags {name}"
 
+#. Label of the field that names a security key being added, such as 'Laptop' or 'YubiKey'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.label"
+msgstr "Name des neuen Schlüssels"
+
 #. Accessible name of the field for the name of a new state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -10661,11 +10751,23 @@ msgstr "Noch keine Bildschirme"
 msgid "l10n.area.noContext"
 msgstr "Kein Screenshot"
 
+#. Shown when the person has no second factor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.empty"
+msgstr "Noch kein Sicherheitsschlüssel. Fügen Sie einen hinzu, um zu veröffentlichen, freizugeben und sich in der Befehlszeile anzumelden."
+
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "Kein Kürzel"
+
+#. Shown when the code is unknown, already used or expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.not-found"
+msgstr "Für diesen Code wartet keine Anmeldung. Er ist vielleicht abgelaufen: Führen Sie plux login erneut aus."
 
 #. One of three short facts under the sign-in form.
 #. js-lingui-explicit-id
@@ -10822,6 +10924,12 @@ msgstr "Nicht verfügbar"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.consoleIdle"
 msgstr "Nicht verbunden"
+
+#. Badge of a key whose registration was started but not completed; it cannot be used.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.pending"
+msgstr "Nicht abgeschlossen"
 
 #. Capability is denied.
 #. js-lingui-explicit-id
@@ -11189,6 +11297,12 @@ msgstr "Nur {kind}"
 msgid "pluginCanvas.sizeOnly"
 msgstr "Nur {sizeClasses}"
 
+#. Warning against approving someone else's code (device-code phishing).
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.warning"
+msgstr "Geben Sie nur einen Code frei, den Sie gerade selbst in Ihrem eigenen Terminal gestartet haben. Wer Ihnen einen Code oder einen Link schickt, bittet um Zugriff auf Ihr Konto."
+
 #. Heading of the props the widget sets differently in the previewed locale (I18N-012).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/locale-tools.messages.ts
@@ -11469,6 +11583,12 @@ msgstr "Organisation"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.organization"
+msgstr "Organisation"
+
+#. Label of the choice of the organisation the command line acts in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.organisation"
 msgstr "Organisation"
 
 #. Text in the organisation administration area.
@@ -13042,6 +13162,12 @@ msgstr "entfernen"
 msgid "tests.remove"
 msgstr "Entfernen"
 
+#. Confirm button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove.confirm"
+msgstr "Entfernen"
+
 #. Button that removes a per-segment value of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -13076,6 +13202,12 @@ msgstr "{family} entfernen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.removeDependency"
+msgstr "{name} entfernen"
+
+#. Accessible label of the button that removes one key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove"
 msgstr "{name} entfernen"
 
 #. Button that removes a timeline.
@@ -13233,6 +13365,12 @@ msgstr "Formular {name} entfernen"
 #: apps/web/src/features/panels/forms.messages.ts
 msgid "forms.removeValidator"
 msgstr "Diese Prüfung entfernen"
+
+#. Title of the confirmation before removing a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove.title"
+msgstr "Diesen Sicherheitsschlüssel entfernen?"
 
 #. Accessible name of the button that removes a token; {token} is its path.
 #. js-lingui-explicit-id
@@ -14697,6 +14835,24 @@ msgstr "Sicherheit"
 msgid "newApp.step.security"
 msgstr "Sicherheit"
 
+#. Kind of factor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.kind.webauthn"
+msgstr "Sicherheitsschlüssel"
+
+#. Confirmation after a key was registered.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.added"
+msgstr "Sicherheitsschlüssel hinzugefügt. Diese Sitzung gilt nun als damit angemeldet."
+
+#. Heading of the card that lists the person's security keys and passkeys.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.title"
+msgstr "Sicherheitsschlüssel"
+
 #. Heading of the security page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -15272,6 +15428,12 @@ msgstr "Abmelden"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.profile.signout"
 msgstr "Abmelden"
+
+#. Shown when adding or removing a key needs a second factor presented in this session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.needs-factor"
+msgstr "Melden Sie sich ab und mit einem Ihrer Schlüssel erneut an, dann versuchen Sie es noch einmal."
 
 #. Shown when the sign-in request fails for another reason.
 #. js-lingui-explicit-id
@@ -16353,6 +16515,12 @@ msgstr "Textgröße"
 msgid "devices.textScale"
 msgstr "Textgröße"
 
+#. Shown when approving or denying failed for another reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.failed"
+msgstr "Das hat nicht funktioniert. Versuchen Sie es erneut."
+
 #. Shown when an app action (archive, unarchive, export) failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -17313,6 +17481,18 @@ msgstr "Die Bildschirme konnten nicht geladen werden."
 msgid "publish.stepUpFailed"
 msgstr "Die Sicherheitsprüfung konnte nicht gestartet werden."
 
+#. Shown when a registration was cancelled or did not verify.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.failed"
+msgstr "Der Sicherheitsschlüssel wurde nicht hinzugefügt. Versuchen Sie es erneut oder verwenden Sie einen anderen Schlüssel."
+
+#. Shown when removing a key fails for another reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove-failed"
+msgstr "Der Sicherheitsschlüssel wurde nicht entfernt."
+
 #. Description in the confirmation of the needs-review action.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -17781,6 +17961,12 @@ msgstr "Diese App hat noch kein Theme-Dokument."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeNone"
 msgstr "Diese App hat kein Theme-Dokument."
+
+#. Shown when the browser has no WebAuthn support.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.unsupported"
+msgstr "Dieser Browser kann keine Sicherheitsschlüssel oder Passkeys verwenden."
 
 #. Heading shown when WebGL2 is missing.
 #. js-lingui-explicit-id
@@ -18543,6 +18729,12 @@ msgstr "{token} lösen: Wert behalten"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layerUnlock"
 msgstr "Entsperren (Strg+Umschalt+L)"
+
+#. Shown for a security key registered without a name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.unnamed"
+msgstr "Unbenannter Schlüssel"
 
 #. Button on an app's card that removes the pin; name is the app.
 #. js-lingui-explicit-id
@@ -19468,6 +19660,12 @@ msgstr "Sie leihen"
 msgid "newApp.security.later"
 msgstr "Sie können das Profil später in den Sicherheitseinstellungen der App ändern."
 
+#. Body of the confirmation before removing a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove.body"
+msgstr "Sie können sich damit nicht mehr anmelden und keine Aktionen mehr bestätigen. Behalten Sie mindestens einen Schlüssel, den Sie verwenden können."
+
 #. Shown when the person cannot edit the messages.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -19641,6 +19839,12 @@ msgstr "Ihre Rolle enthält nicht die Berechtigung, die diese Seite benötigt."
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.signedout.body"
 msgstr "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an, um fortzufahren; Ihre Arbeit auf dieser Seite bleibt erhalten."
+
+#. Caption of the device sign-in page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.caption"
+msgstr "Ihr Terminal zeigt einen Code, wenn Sie plux login ausführen. Geben Sie ihn hier frei, um diesem Terminal Zugriff in Ihrem Namen zu geben."
 
 #. Accessible name of the zoom controls of the canvas.
 #. js-lingui-explicit-id

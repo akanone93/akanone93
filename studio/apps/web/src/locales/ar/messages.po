@@ -1336,6 +1336,12 @@ msgstr "يحتوي تقرير على أخطاء. افتح المشكلات وأ�
 msgid "refusal.second-factor.title"
 msgstr "يلزم عامل ثانٍ"
 
+#. Caption of the security keys card.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.caption"
+msgstr "مفتاح الأمان أو مفتاح المرور هو عاملك الثاني: تسجّل الدخول به، وتؤكّد به النشر والموافقات وتسجيلات دخول سطر الأوامر."
+
 #. Explains which images work as the app icon.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -1827,6 +1833,12 @@ msgstr "إضافة معامل"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.addRestriction"
 msgstr "إضافة قيد"
+
+#. Button that registers a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.add"
+msgstr "إضافة مفتاح أمان"
 
 #. Button that adds a per-segment value to a flag.
 #. js-lingui-explicit-id
@@ -2510,11 +2522,23 @@ msgstr "عدد الموافقات المطلوبة"
 msgid "l10n.area.bulkApprove"
 msgstr "اعتماد"
 
+#. Button that approves the sign-in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.approve"
+msgstr "موافقة"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.approve"
 msgstr "موافقة"
+
+#. Heading of the page where a person approves `plux login` with the code shown in their terminal.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.title"
+msgstr "الموافقة على تسجيل دخول سطر الأوامر"
 
 #. Verb in a decision line.
 #. js-lingui-explicit-id
@@ -2545,6 +2569,18 @@ msgstr "الأساس المعتمد"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.approvalDone"
 msgstr "تمت الموافقة على المحتوى {hash}."
+
+#. Shown after the approval.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.approved"
+msgstr "تمت الموافقة. عد إلى طرفيتك: سيتم تسجيل الدخول خلال ثوانٍ."
+
+#. Shown when the session has not presented a second factor (PLX-8011).
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.needs-factor"
+msgstr "تتطلّب الموافقة مفتاح أمان في هذه الجلسة. أضف مفتاحًا من الملف الشخصي، أو سجّل الخروج ثم الدخول مجددًا بمفتاحك، ثم افتح هذه الصفحة مرة أخرى."
 
 #. Shown when the person may edit but not approve translations.
 #. js-lingui-explicit-id
@@ -2785,6 +2821,12 @@ msgstr "سجلات التدقيق"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.factor.code"
 msgstr "رمز المصادقة"
+
+#. Kind of factor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.kind.totp"
+msgstr "تطبيق المصادقة"
 
 #. Label of the author filter.
 #. js-lingui-explicit-id
@@ -3154,6 +3196,12 @@ msgstr "إلغاء"
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.warningsCancel"
+msgstr "إلغاء"
+
+#. Cancel button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.cancel"
 msgstr "إلغاء"
 
 #. Button of the trigger picker that discards the link.
@@ -3929,6 +3977,12 @@ msgstr "الشيفرة"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.codeColumn"
 msgstr "الرمز"
+
+#. Label of the field that holds the code, such as BCDF-GHJK.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.code"
+msgstr "الرمز من طرفيتك"
 
 #. Button of the Layers tab: closes every row of the tree.
 #. js-lingui-explicit-id
@@ -5016,11 +5070,23 @@ msgstr "حذف…"
 msgid "admin.denied"
 msgstr "مرفوض"
 
+#. Shown after the refusal.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.denied"
+msgstr "تم الرفض. تلك الطرفية غير مسجّلة الدخول."
+
 #. Label of the density choice.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.density"
 msgstr "الكثافة"
+
+#. Button that refuses the sign-in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.deny"
+msgstr "رفض"
 
 #. Name of the tab that manages the crates the function depends on.
 #. js-lingui-explicit-id
@@ -6821,6 +6887,12 @@ msgstr "جهاز قابل للطي"
 msgid "preview.platformFrame"
 msgstr "اتبع الإطار"
 
+#. Button label while the browser asks for the security key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.adding"
+msgstr "اتبع مطالبة المتصفح"
+
 #. Label of the font family list of a script.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -7611,6 +7683,12 @@ msgstr "طريقة المقارنة"
 #: apps/web/src/features/panels/layout-panel.messages.ts
 msgid "layout.hug"
 msgstr "احتضان"
+
+#. Checkbox the person ticks before the approve button is enabled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.mine"
+msgstr "بدأت تسجيل الدخول هذا بنفسي، والرمز يطابق طرفيتي"
 
 #. Field label.
 #. js-lingui-explicit-id
@@ -8615,6 +8693,12 @@ msgstr "آخر ظهور"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colLastUsed"
 msgstr "آخر استخدام"
+
+#. When a key was last used; date is already formatted.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.last-used"
+msgstr "آخر استخدام {date}"
 
 #. Metric label.
 #. js-lingui-explicit-id
@@ -9881,6 +9965,12 @@ msgstr "سمِّ حدثاً لا يتجاوز 64 بايت."
 msgid "panelTabs.stateRename"
 msgstr "اسم إدخال الحالة {name}"
 
+#. Label of the field that names a security key being added, such as 'Laptop' or 'YubiKey'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.label"
+msgstr "اسم المفتاح الجديد"
+
 #. Accessible name of the field for the name of a new state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -10661,11 +10751,23 @@ msgstr "لا توجد شاشات بعد"
 msgid "l10n.area.noContext"
 msgstr "لا توجد لقطة شاشة"
 
+#. Shown when the person has no second factor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.empty"
+msgstr "لا يوجد مفتاح أمان بعد. أضف مفتاحًا لتتمكّن من النشر والموافقة وتسجيل الدخول إلى سطر الأوامر."
+
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.shortcuts.none"
 msgstr "لا يوجد اختصار"
+
+#. Shown when the code is unknown, already used or expired.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.not-found"
+msgstr "لا يوجد تسجيل دخول بانتظار هذا الرمز. ربما انتهت صلاحيته: شغّل plux login مرة أخرى."
 
 #. One of three short facts under the sign-in form.
 #. js-lingui-explicit-id
@@ -10822,6 +10924,12 @@ msgstr "غير متاح"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.consoleIdle"
 msgstr "غير متصل"
+
+#. Badge of a key whose registration was started but not completed; it cannot be used.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.pending"
+msgstr "غير مكتمل"
 
 #. Capability is denied.
 #. js-lingui-explicit-id
@@ -11189,6 +11297,12 @@ msgstr "{kind} فقط"
 msgid "pluginCanvas.sizeOnly"
 msgstr "فقط {sizeClasses}"
 
+#. Warning against approving someone else's code (device-code phishing).
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.warning"
+msgstr "لا توافق إلا على رمز بدأته بنفسك في طرفيتك قبل لحظات. كل من يرسل إليك رمزًا أو رابطًا يطلب الوصول إلى حسابك."
+
 #. Heading of the props the widget sets differently in the previewed locale (I18N-012).
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/locale-tools.messages.ts
@@ -11469,6 +11583,12 @@ msgstr "المؤسسة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.organization"
+msgstr "المؤسسة"
+
+#. Label of the choice of the organisation the command line acts in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.organisation"
 msgstr "المؤسسة"
 
 #. Text in the organisation administration area.
@@ -13042,6 +13162,12 @@ msgstr "إزالة"
 msgid "tests.remove"
 msgstr "إزالة"
 
+#. Confirm button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove.confirm"
+msgstr "إزالة"
+
 #. Button that removes a per-segment value of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -13076,6 +13202,12 @@ msgstr "إزالة {family}"
 #. js-lingui-explicit-id
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.removeDependency"
+msgstr "إزالة {name}"
+
+#. Accessible label of the button that removes one key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove"
 msgstr "إزالة {name}"
 
 #. Button that removes a timeline.
@@ -13233,6 +13365,12 @@ msgstr "إزالة النموذج {name}"
 #: apps/web/src/features/panels/forms.messages.ts
 msgid "forms.removeValidator"
 msgstr "إزالة هذا التحقق"
+
+#. Title of the confirmation before removing a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove.title"
+msgstr "هل تريد إزالة مفتاح الأمان هذا؟"
 
 #. Accessible name of the button that removes a token; {token} is its path.
 #. js-lingui-explicit-id
@@ -14697,6 +14835,24 @@ msgstr "الأمان"
 msgid "newApp.step.security"
 msgstr "الأمان"
 
+#. Kind of factor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.kind.webauthn"
+msgstr "مفتاح أمان"
+
+#. Confirmation after a key was registered.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.added"
+msgstr "تمت إضافة مفتاح الأمان. تُعدّ هذه الجلسة الآن مسجّلة الدخول به."
+
+#. Heading of the card that lists the person's security keys and passkeys.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.title"
+msgstr "مفاتيح الأمان"
+
 #. Heading of the security page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -15272,6 +15428,12 @@ msgstr "تسجيل الخروج"
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.profile.signout"
 msgstr "تسجيل الخروج"
+
+#. Shown when adding or removing a key needs a second factor presented in this session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.needs-factor"
+msgstr "سجّل الخروج ثم سجّل الدخول مجددًا بأحد مفاتيحك، ثم حاول مرة أخرى."
 
 #. Shown when the sign-in request fails for another reason.
 #. js-lingui-explicit-id
@@ -16353,6 +16515,12 @@ msgstr "حجم النص"
 msgid "devices.textScale"
 msgstr "حجم النص"
 
+#. Shown when approving or denying failed for another reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.failed"
+msgstr "لم ينجح ذلك. حاول مرة أخرى."
+
 #. Shown when an app action (archive, unarchive, export) failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -17313,6 +17481,18 @@ msgstr "تعذر تحميل الشاشات."
 msgid "publish.stepUpFailed"
 msgstr "تعذّر بدء الفحص الأمني."
 
+#. Shown when a registration was cancelled or did not verify.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.failed"
+msgstr "لم تتم إضافة مفتاح الأمان. حاول مرة أخرى أو استخدم مفتاحًا آخر."
+
+#. Shown when removing a key fails for another reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove-failed"
+msgstr "لم تتم إزالة مفتاح الأمان."
+
 #. Description in the confirmation of the needs-review action.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -17781,6 +17961,12 @@ msgstr "ليس لهذا التطبيق مستند سمة بعد."
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.themeNone"
 msgstr "لا يحتوي هذا التطبيق على مستند سمة."
+
+#. Shown when the browser has no WebAuthn support.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.unsupported"
+msgstr "لا يمكن لهذا المتصفح استخدام مفاتيح الأمان أو مفاتيح المرور."
 
 #. Heading shown when WebGL2 is missing.
 #. js-lingui-explicit-id
@@ -18543,6 +18729,12 @@ msgstr "فك ربط {token}: الإبقاء على قيمته"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.layerUnlock"
 msgstr "إلغاء القفل (Ctrl+Shift+L)"
+
+#. Shown for a security key registered without a name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.unnamed"
+msgstr "مفتاح بلا اسم"
 
 #. Button on an app's card that removes the pin; name is the app.
 #. js-lingui-explicit-id
@@ -19468,6 +19660,12 @@ msgstr "تقترض"
 msgid "newApp.security.later"
 msgstr "يمكنك تغيير الملف لاحقًا من إعدادات أمان التطبيق."
 
+#. Body of the confirmation before removing a key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.remove.body"
+msgstr "لن تتمكّن بعد ذلك من تسجيل الدخول أو تأكيد الإجراءات به. احتفظ بمفتاح واحد على الأقل يمكنك استخدامه."
+
 #. Shown when the person cannot edit the messages.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/area.messages.ts
@@ -19641,6 +19839,12 @@ msgstr "دورك لا يتضمن الصلاحية التي تحتاجها هذه
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.signedout.body"
 msgstr "انتهت جلستك. سجّل الدخول مجددًا للمتابعة؛ عملك في هذه الصفحة محفوظ."
+
+#. Caption of the device sign-in page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/auth/auth.messages.ts
+msgid "auth.device.caption"
+msgstr "تعرض طرفيتك رمزًا عند تشغيل plux login. وافق عليه هنا لتمنح تلك الطرفية وصولًا باسمك."
 
 #. Accessible name of the zoom controls of the canvas.
 #. js-lingui-explicit-id

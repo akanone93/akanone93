@@ -30,6 +30,7 @@ import { MuteSettings } from "../notifications/mute-settings.tsx";
 import { initialsOf } from "../shell/app-sidebar.tsx";
 import { profileMessages } from "./profile.messages.ts";
 import { ProfileLayout } from "./profile-layout.tsx";
+import { SecurityKeysCard } from "./security-keys.tsx";
 import { useAppliedPreferences } from "./use-applied-preferences.ts";
 import "./profile.css";
 
@@ -141,6 +142,7 @@ export function ProfilePage() {
       }
     >
       <AccountCard m={m} />
+      <SecurityKeysCard />
       <Card>
         <CardHeader>
           <CardTitle>{m.appearance}</CardTitle>

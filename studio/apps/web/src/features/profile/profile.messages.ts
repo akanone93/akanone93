@@ -92,5 +92,95 @@ export function profileMessages(i18n: I18n) {
       message: "Profile pages",
       comment: "Accessible name of the tabs of the profile page.",
     }),
+    keysTitle: i18n._({
+      id: "profile.keys.title",
+      message: "Security keys",
+      comment: "Heading of the card that lists the person's security keys and passkeys.",
+    }),
+    keysCaption: i18n._({
+      id: "profile.keys.caption",
+      message:
+        "A security key or passkey is your second factor: you sign in with it, and confirm publishing, approvals and command-line sign-ins with it.",
+      comment: "Caption of the security keys card.",
+    }),
+    keysEmpty: i18n._({
+      id: "profile.keys.empty",
+      message: "No security key yet. Add one to publish, approve and sign in to the command line.",
+      comment: "Shown when the person has no second factor.",
+    }),
+    keyLabel: i18n._({
+      id: "profile.keys.label",
+      message: "Name of the new key",
+      comment: "Label of the field that names a security key being added, such as 'Laptop' or 'YubiKey'.",
+    }),
+    keyAdd: i18n._({ id: "profile.keys.add", message: "Add security key", comment: "Button that registers a key." }),
+    keyAdding: i18n._({
+      id: "profile.keys.adding",
+      message: "Follow your browser's prompt",
+      comment: "Button label while the browser asks for the security key.",
+    }),
+    keyAdded: i18n._({
+      id: "profile.keys.added",
+      message: "Security key added. This session now counts as signed in with it.",
+      comment: "Confirmation after a key was registered.",
+    }),
+    keyKindWebAuthn: i18n._({ id: "profile.keys.kind.webauthn", message: "Security key", comment: "Kind of factor." }),
+    keyKindTotp: i18n._({ id: "profile.keys.kind.totp", message: "Authenticator app", comment: "Kind of factor." }),
+    keyUnnamed: i18n._({
+      id: "profile.keys.unnamed",
+      message: "Unnamed key",
+      comment: "Shown for a security key registered without a name.",
+    }),
+    keyPending: i18n._({
+      id: "profile.keys.pending",
+      message: "Not finished",
+      comment: "Badge of a key whose registration was started but not completed; it cannot be used.",
+    }),
+    keyLastUsed: (date: string) =>
+      i18n._({
+        id: "profile.keys.last-used",
+        message: "Last used {date}",
+        values: { date },
+        comment: "When a key was last used; date is already formatted.",
+      }),
+    keyRemove: (name: string) =>
+      i18n._({
+        id: "profile.keys.remove",
+        message: "Remove {name}",
+        values: { name },
+        comment: "Accessible label of the button that removes one key.",
+      }),
+    keyRemoveTitle: i18n._({
+      id: "profile.keys.remove.title",
+      message: "Remove this security key?",
+      comment: "Title of the confirmation before removing a key.",
+    }),
+    keyRemoveBody: i18n._({
+      id: "profile.keys.remove.body",
+      message: "You can no longer sign in or confirm actions with it. Keep at least one key you can use.",
+      comment: "Body of the confirmation before removing a key.",
+    }),
+    keyRemoveConfirm: i18n._({ id: "profile.keys.remove.confirm", message: "Remove", comment: "Confirm button." }),
+    keyCancel: i18n._({ id: "profile.keys.cancel", message: "Cancel", comment: "Cancel button." }),
+    keyUnsupported: i18n._({
+      id: "profile.keys.unsupported",
+      message: "This browser cannot use security keys or passkeys.",
+      comment: "Shown when the browser has no WebAuthn support.",
+    }),
+    keyNeedsFactor: i18n._({
+      id: "profile.keys.needs-factor",
+      message: "Sign out and sign in again with one of your keys, then try again.",
+      comment: "Shown when adding or removing a key needs a second factor presented in this session.",
+    }),
+    keyFailed: i18n._({
+      id: "profile.keys.failed",
+      message: "The security key was not added. Try again, or use another key.",
+      comment: "Shown when a registration was cancelled or did not verify.",
+    }),
+    keyRemoveFailed: i18n._({
+      id: "profile.keys.remove-failed",
+      message: "The security key was not removed.",
+      comment: "Shown when removing a key fails for another reason.",
+    }),
   };
 }

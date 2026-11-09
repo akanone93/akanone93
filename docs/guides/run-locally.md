@@ -81,6 +81,11 @@ running. Each step names the file the command comes from.
    forwards `/api` to the server; the session cookie and CSRF token are the server's. Probe
    it with `curl http://localhost:8081/livez` (the process) and `/readyz` (also asks the
    server); the [BFF runbook](../operations/studio-bff.md) lists every setting and failure.
+   Then add a security key: **Profile › Security keys › Add security key** (a hardware key, or
+   a passkey such as Windows Hello or Touch ID). Publishing, promoting and approving `plux login`
+   ask for it ([sessions and step-up](sessions-and-step-up.md)); without one they are refused.
+   The stack's `server.studioBaseURL` (`http://localhost:8081`) is what lets the key ceremony
+   run on Studio's port.
 4. **Work on Studio itself (optional).** For development with hot reload, stop the container
    that holds port 8081 and start the dev servers:
 
@@ -149,6 +154,11 @@ go run ./cmd/plux publish …                 # also: keys, pull, release
 ```
 
 `make build` puts the `plux` and `plux-server` binaries in `bin/`.
+
+`plux login --server https://localhost:8080` prints a code and a link to Studio's **Approve a
+command-line sign-in** page (`http://localhost:8081/device`). Open it signed in to Studio, check that
+the code matches your terminal, tick the confirmation, choose the organisation and approve. Approving
+needs a session that presented a security key (above).
 
 ## 6. Tests and quality gates
 

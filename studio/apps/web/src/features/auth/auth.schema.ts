@@ -23,3 +23,6 @@ export const inviteSchema = (m: Messages) =>
 
 /** A `next` search param is kept only when it is a same-origin path. */
 export const signInSearchSchema = z.object({ next: z.string().optional() });
+
+/** `/device?user_code=…`, the link `plux login` prints (RFC 8628 §3.3.1); the page cleans the code again. */
+export const deviceSearchSchema = z.object({ user_code: z.string().max(32).optional() });

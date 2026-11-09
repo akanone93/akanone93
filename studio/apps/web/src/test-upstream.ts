@@ -313,6 +313,15 @@ export interface UpstreamData {
   };
   library?: LibraryFixture;
   signedIn?: boolean;
+  /**
+   * The person's second factors and the device sign-ins they decide (SEC-100, CLI-002). `calls` records what Studio
+   * sends; `refuse` names the PLX code a call answers with, as the server's refusals do.
+   */
+  identity?: {
+    factors: { id: string; kind: string; label: string; confirmed: boolean }[];
+    calls: string[];
+    refuse?: Partial<Record<"register" | "delete" | "approve" | "deny", string>>;
+  };
   permissions?: string[];
   installationAdmin?: boolean;
   csrfToken?: string;
@@ -477,6 +486,76 @@ function requireStepSession(req: { readonly stepId: string; readonly editorSessi
   }
 }
 
+/** A refusal as the server words it: the PLX code first (SRV-006). */
+function refusal(code: string | undefined): void {
+  if (code !== undefined) {
+    throw new ConnectError(`${code}: refused`, code === "PLX-8031" ? Code.NotFound : Code.PermissionDenied);
+  }
+}
+
+/** Factors and device sign-ins (SEC-100, CLI-002), over `state.identity`. */
+function identityFactors(state: UpstreamData) {
+  const id = () => {
+    if (state.identity === undefined) {
+      throw new ConnectError("no identity fixture", Code.Unimplemented);
+    }
+    return state.identity;
+  };
+  return {
+    listFactors: () => ({ factors: id().factors }),
+    beginWebAuthnRegistration: (req: { label: string }) => {
+      const i = id();
+      i.calls.push(`begin:${req.label}`);
+      refusal(i.refuse?.register);
+      i.factors.push({ id: "f-new", kind: "webauthn", label: req.label, confirmed: false });
+      const options = {
+        challenge: "AQ",
+        rp: { id: "localhost", name: "Plux" },
+        user: { id: "dTE", name: "ada", displayName: "Ada" },
+        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+      };
+      return {
+        factor: { id: "f-new", kind: "webauthn", label: req.label },
+        optionsJson: new TextEncoder().encode(JSON.stringify(options)),
+      };
+    },
+    finishWebAuthnRegistration: (req: {
+      factorId: string;
+      clientDataJson: Uint8Array;
+      attestationObject: Uint8Array;
+    }) => {
+      const i = id();
+      i.calls.push(
+        `finish:${req.factorId}:${new TextDecoder().decode(req.clientDataJson)}:${req.attestationObject.length}`,
+      );
+      const f = i.factors.find((x) => x.id === req.factorId);
+      if (f !== undefined) {
+        f.confirmed = true;
+      }
+      return { factor: f };
+    },
+    deleteFactor: (req: { factorId: string }) => {
+      const i = id();
+      i.calls.push(`delete:${req.factorId}`);
+      refusal(i.refuse?.delete);
+      i.factors = i.factors.filter((x) => x.id !== req.factorId);
+      return {};
+    },
+    approveDeviceAuthorization: (req: { userCode: string; organizationId: string }) => {
+      const i = id();
+      i.calls.push(`approve:${req.userCode}:${req.organizationId}`);
+      refusal(i.refuse?.approve);
+      return {};
+    },
+    denyDeviceAuthorization: (req: { userCode: string }) => {
+      const i = id();
+      i.calls.push(`deny:${req.userCode}`);
+      refusal(i.refuse?.deny);
+      return {};
+    },
+  };
+}
+
 export function createUpstream(state: UpstreamData) {
   // Documents autosave changed, by path; the fixtures themselves stay as given.
   const patched = new Map<string, { kind: string; path: string; json: unknown }>();
@@ -507,6 +586,7 @@ export function createUpstream(state: UpstreamData) {
         state.security?.stepUps?.push(`complete:${req.requestId}`);
         return {};
       },
+      ...identityFactors(state),
       getCurrentUser: (_req, ctx) => {
         if (state.signedIn === false) {
           throw new ConnectError("no session", Code.Unauthenticated);

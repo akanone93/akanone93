@@ -206,7 +206,9 @@ func TestSecurityKeys(t *testing.T) {
 	if err != nil || !confirmed.Confirmed {
 		t.Fatalf("FinishWebAuthnRegistration = %+v, %v", confirmed, err)
 	}
-	if !f.reload(t, id).SecondFactor {
+	// As each request does, read the session again: it now holds the factor.
+	id = f.reload(t, id)
+	if !id.SecondFactor {
 		t.Error("registering a key did not count as presenting a second factor")
 	}
 	if _, err := f.svc.FinishWebAuthnRegistration(ctx, id, factor.ID, cd, obj); code(err) != plxerr.PreconditionFailed {
@@ -276,6 +278,48 @@ func TestSecurityKeys(t *testing.T) {
 	factors, err := f.svc.ListFactors(ctx, id)
 	if err != nil || len(factors) != 2 {
 		t.Errorf("ListFactors = %+v, %v", factors, err)
+	}
+}
+
+// Verifies: SEC-100.
+// Once the account has a second factor, a session that has not presented
+// one (signed in before the factor existed) cannot enrol a key of its own,
+// whether it begins after the factor is confirmed or began before.
+func TestSecurityKeyEnrolmentNeedsTheFactor(t *testing.T) {
+	t.Parallel()
+	f := newFixtureWith(t, nil, failedSignIns, withWebAuthn)
+	ctx := context.Background()
+	f.person(t, "ada@example.com")
+	owner := f.signIn(t, "ada@example.com")
+	stolen := f.signIn(t, "ada@example.com")
+	early, earlyOptions, err := f.svc.BeginWebAuthnRegistration(ctx, stolen, "theirs")
+	if err != nil {
+		t.Fatal(err)
+	}
+	factor, options, err := f.svc.BeginWebAuthnRegistration(ctx, owner, "mine")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cd, obj := newAuthenticator(t, false).register(t, options)
+	if _, err := f.svc.FinishWebAuthnRegistration(ctx, owner, factor.ID, cd, obj); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := f.svc.BeginWebAuthnRegistration(ctx, stolen, "theirs"); code(err) != plxerr.MultiFactorRequired {
+		t.Errorf("a new registration without the factor: %v", err)
+	}
+	cd, obj = newAuthenticator(t, false).register(t, earlyOptions)
+	if _, err := f.svc.FinishWebAuthnRegistration(ctx, stolen, early.ID, cd, obj); code(err) != plxerr.MultiFactorRequired {
+		t.Errorf("finishing an earlier registration without the factor: %v", err)
+	}
+	// The session that presented the factor adds another key.
+	owner = f.reload(t, owner)
+	second, options2, err := f.svc.BeginWebAuthnRegistration(ctx, owner, "spare")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cd, obj = newAuthenticator(t, true).register(t, options2)
+	if _, err := f.svc.FinishWebAuthnRegistration(ctx, owner, second.ID, cd, obj); err != nil {
+		t.Errorf("a second key with the factor: %v", err)
 	}
 }
 

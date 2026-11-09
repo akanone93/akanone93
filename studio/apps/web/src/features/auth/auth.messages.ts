@@ -393,5 +393,69 @@ export function authMessages(i18n: I18n) {
       message: "Or continue with",
       comment: "Separator between the password form and the single sign-on buttons.",
     }),
+    deviceTitle: i18n._({
+      id: "auth.device.title",
+      message: "Approve a command-line sign-in",
+      comment: "Heading of the page where a person approves `plux login` with the code shown in their terminal.",
+    }),
+    deviceCaption: i18n._({
+      id: "auth.device.caption",
+      message:
+        "Your terminal shows a code when you run plux login. Approve it here to give that terminal access in your name.",
+      comment: "Caption of the device sign-in page.",
+    }),
+    deviceWarning: i18n._({
+      id: "auth.device.warning",
+      message:
+        "Only approve a code you started yourself, in your own terminal, a moment ago. Anyone who sends you a code or a link is asking for access to your account.",
+      comment: "Warning against approving someone else's code (device-code phishing).",
+    }),
+    deviceCode: i18n._({
+      id: "auth.device.code",
+      message: "Code from your terminal",
+      comment: "Label of the field that holds the code, such as BCDF-GHJK.",
+    }),
+    deviceOrganisation: i18n._({
+      id: "auth.device.organisation",
+      message: "Organisation",
+      comment: "Label of the choice of the organisation the command line acts in.",
+    }),
+    deviceMine: i18n._({
+      id: "auth.device.mine",
+      message: "I started this sign-in myself, and the code matches my terminal",
+      comment: "Checkbox the person ticks before the approve button is enabled.",
+    }),
+    deviceApprove: i18n._({
+      id: "auth.device.approve",
+      message: "Approve",
+      comment: "Button that approves the sign-in.",
+    }),
+    deviceDeny: i18n._({ id: "auth.device.deny", message: "Deny", comment: "Button that refuses the sign-in." }),
+    deviceApproved: i18n._({
+      id: "auth.device.approved",
+      message: "Approved. Return to your terminal: it signs in within a few seconds.",
+      comment: "Shown after the approval.",
+    }),
+    deviceDenied: i18n._({
+      id: "auth.device.denied",
+      message: "Denied. That terminal is not signed in.",
+      comment: "Shown after the refusal.",
+    }),
+    deviceNeedsFactor: i18n._({
+      id: "auth.device.needs-factor",
+      message:
+        "Approving needs a security key in this session. Add one under Profile, or sign out and sign in again with yours, then open this page again.",
+      comment: "Shown when the session has not presented a second factor (PLX-8011).",
+    }),
+    deviceNotFound: i18n._({
+      id: "auth.device.not-found",
+      message: "No sign-in is waiting for this code. It may have expired: run plux login again.",
+      comment: "Shown when the code is unknown, already used or expired.",
+    }),
+    deviceFailed: i18n._({
+      id: "auth.device.failed",
+      message: "That did not work. Try again.",
+      comment: "Shown when approving or denying failed for another reason.",
+    }),
   };
 }

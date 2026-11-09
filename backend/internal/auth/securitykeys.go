@@ -101,6 +101,9 @@ func (s *Service) BeginWebAuthnRegistration(ctx context.Context, id Identity, la
 		if err != nil {
 			return fmt.Errorf("auth: read a user: %w", err)
 		}
+		if err := enrolledNeedsFactor(ctx, q, user.ID, id); err != nil {
+			return err
+		}
 		row, err := q.CreateWebAuthnFactor(ctx, dbgen.CreateWebAuthnFactorParams{
 			ID: storage.MustUUID(factorID), UserID: user.ID, Label: label, Secret: challenge,
 		})
@@ -163,6 +166,28 @@ func nonNil(c []credentialDescriptor) []credentialDescriptor {
 	return c
 }
 
+// enrolledNeedsFactor refuses to add a security key to an account that
+// already has a confirmed second factor from a session that has not
+// presented one (a session older than the account's first factor): whoever
+// holds a stolen password session must not enrol a key of their own, as
+// removing a factor needs one too (SEC-100).
+func enrolledNeedsFactor(ctx context.Context, q *dbgen.Queries, user pgtype.UUID, id Identity) error {
+	if id.SecondFactor {
+		return nil
+	}
+	rows, err := q.ListFactors(ctx, user)
+	if err != nil {
+		return fmt.Errorf("auth: list the factors: %w", err)
+	}
+	for _, f := range rows {
+		if f.ConfirmedAt.Valid {
+			return plxerr.New(plxerr.MultiFactorRequired,
+				"adding a security key to an account that has a second factor requires presenting it in this session; sign in again")
+		}
+	}
+	return nil
+}
+
 // FinishWebAuthnRegistration verifies the browser's response and
 // confirms the factor. Like confirming a TOTP factor, it counts as
 // presenting one in the session.
@@ -183,6 +208,11 @@ func (s *Service) FinishWebAuthnRegistration(ctx context.Context, id Identity, f
 		user := storage.MustUUID(id.UserID)
 		row, err := s.pendingRegistration(ctx, q, fid, user)
 		if err != nil {
+			return err
+		}
+		// Checked again here: another session may have confirmed a factor
+		// since this registration began.
+		if err := enrolledNeedsFactor(ctx, q, user, id); err != nil {
 			return err
 		}
 		cred, err := s.o.WebAuthn.verifyRegistration(row.Secret, clientDataJSON, attestationObject)

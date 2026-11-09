@@ -26,7 +26,7 @@ sha256sum --check --ignore-missing SHA256SUMS
 
 | Command | Does |
 |---|---|
-| `plux login [--server url]` | Signs in with the OAuth 2.0 device authorization grant: prints a code and a URL, waits (`--timeout`, default 10 minutes) until someone approves the code in Studio, and stores the token (below) (`CLI-002`). |
+| `plux login [--server url]` | Signs in with the OAuth 2.0 device authorization grant: prints a code and a URL, waits (`--timeout`, default 10 minutes) until someone approves the code in Studio, and stores the token (below) (`CLI-002`). The URL is Studio's **Approve a command-line sign-in** page (`<studio>/device`, `server.studioBaseURL` or else the public URL): it never approves on arrival, asks the person to confirm they started the sign-in and that the code matches, and needs a session that presented a security key. |
 | `plux logout [--server url]` | Forgets the stored token for the server. |
 | `plux whoami` | Shows the signed-in user and their organisations; with `--org`, their permissions there. |
 | `plux init --server url --org id --app id-or-key [-C dir] [--env key] [--packages names] [--project dir]` | In a Plux project, or an empty directory a project export will fill: writes `plux.json`, naming the server, organisation, app and the environment publishes go to (default `development`). It holds no secret and is meant to be committed. In a Flutter app — a `pubspec.yaml` on the Flutter SDK and no `app.json` — sets the app up as a Plux host (`HST-032`, below). A directory holding both is a usage error. |

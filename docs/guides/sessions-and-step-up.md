@@ -45,7 +45,12 @@ logout from a provider ends the matching sessions. See the [SSO and SCIM guide](
 ## 3. Second factor
 
 The second factor is a WebAuthn credential (a hardware key or a platform passkey) that the person
-registers (`IdentityService.BeginWebAuthnRegistration`, `FinishWebAuthnRegistration`). Plux requires **user verification** for a step-up, so the
+registers in Studio under **Profile › Security keys** (`IdentityService.BeginWebAuthnRegistration`,
+`FinishWebAuthnRegistration`); registering one counts as presenting it in that session. Once an account
+has a second factor, adding another key or removing one needs a session that presented one, so a
+session signed in before the first key cannot enrol a key of its own. The relying party is the host of
+`server.publicBaseURL`; the ceremony runs on that origin or on `server.studioBaseURL`'s, when Studio is
+served on an origin of its own ([server reference](../reference/server.md) §10). Plux requires **user verification** for a step-up, so the
 authenticator must check the person (a PIN, biometric or equivalent), not only be present.
 
 ## 4. Step-up
