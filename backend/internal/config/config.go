@@ -320,6 +320,12 @@ type Server struct {
 	// PublicBaseURL is the externally reachable base URL, used to build
 	// the links the server hands out.
 	PublicBaseURL string `json:"publicBaseURL"`
+	// StudioBaseURL is where people open Plux Studio when it is not
+	// served under PublicBaseURL (a local stack runs Studio on its own
+	// port). It is the second origin security keys are accepted from, and
+	// the base of the links to Studio the server hands out: `plux login`'s
+	// device page and notification links. Empty means PublicBaseURL.
+	StudioBaseURL string `json:"studioBaseURL"`
 	// ShutdownGrace is how long shutdown waits for requests and jobs to
 	// finish before giving up (SRV-007).
 	ShutdownGrace Duration `json:"shutdownGrace"`

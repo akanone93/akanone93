@@ -4,6 +4,7 @@
 package server
 
 import (
+	"cmp"
 	"context"
 	"crypto/rand"
 	"crypto/tls"
@@ -1021,13 +1022,19 @@ func metadataOptions(cfg *config.Config) release.MetadataOptions {
 	}
 }
 
+// studioURL is where people open Studio: server.studioBaseURL, else the
+// installation's public URL.
+func studioURL(cfg *config.Config) string {
+	return strings.TrimSuffix(cmp.Or(cfg.Server.StudioBaseURL, cfg.Server.PublicBaseURL), "/")
+}
+
 // verificationURI is where a person approves `plux login`: Studio's
-// device page, under the installation's public URL (CLI-002).
+// device page (CLI-002).
 func verificationURI(cfg *config.Config) string {
-	if cfg.Server.PublicBaseURL == "" {
+	if studioURL(cfg) == "" {
 		return ""
 	}
-	return strings.TrimSuffix(cfg.Server.PublicBaseURL, "/") + "/device"
+	return studioURL(cfg) + "/device"
 }
 
 // federationHTTP is the SSRF-safe client for identity providers (SEC-105),
@@ -1075,7 +1082,15 @@ func webAuthn(cfg *config.Config) auth.WebAuthnConfig {
 	if err != nil || u.Scheme != "https" || u.Hostname() == "" {
 		return auth.WebAuthnConfig{}
 	}
-	return auth.WebAuthnConfig{RPID: u.Hostname(), RPName: "Plux", Origins: []string{u.Scheme + "://" + u.Host}}
+	origins := []string{u.Scheme + "://" + u.Host}
+	// Studio on an origin of its own (validated to be within the relying
+	// party): its sign-in, security keys and step-ups run there.
+	if s, err := url.Parse(cfg.Server.StudioBaseURL); err == nil && s.Host != "" {
+		if o := s.Scheme + "://" + s.Host; o != origins[0] {
+			origins = append(origins, o)
+		}
+	}
+	return auth.WebAuthnConfig{RPID: u.Hostname(), RPName: "Plux", Origins: origins}
 }
 
 // trustedIssuers builds a verifier for each configured CI provider

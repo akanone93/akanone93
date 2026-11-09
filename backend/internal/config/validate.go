@@ -141,6 +141,7 @@ func (c *Config) validateServer(p *problems) {
 		} else {
 			checkURL(p, "server.publicBaseURL", c.Server.PublicBaseURL)
 		}
+		c.validateStudioBaseURL(p)
 	}
 	p.positive("server.shutdownGrace", int64(c.Server.ShutdownGrace))
 	for i, cidr := range c.Server.TrustedProxies {
@@ -586,4 +587,48 @@ func (c *Config) validateGateway(p *problems) {
 	if !x509.NewCertPool().AppendCertsFromPEM(pem) {
 		p.addf("gateway.upstreamCAFile", "holds no PEM certificate")
 	}
+}
+
+// validateStudioBaseURL checks Studio's own URL: https, or http on a
+// loopback host (a browser's secure context), and on the host of
+// server.publicBaseURL or a subdomain of it, which is the WebAuthn relying
+// party security keys are registered for (SEC-100, SEC-103).
+func (c *Config) validateStudioBaseURL(p *problems) {
+	s := c.Server.StudioBaseURL
+	if s == "" {
+		return
+	}
+	const path = "server.studioBaseURL"
+	u, err := url.Parse(s)
+	if err != nil || u.Scheme == "" || u.Hostname() == "" {
+		p.addf(path, "%q is not an absolute URL", s)
+		return
+	}
+	switch {
+	case u.Scheme == "https":
+	case c.Server.Production:
+		p.addf(path, "%q must be https in production", s)
+	case u.Scheme != "http" || !isLoopbackHost(u.Hostname()):
+		p.addf(path, "%q must be https, or http on localhost outside production", s)
+	}
+	if u.User != nil || (u.Path != "" && u.Path != "/") || u.RawQuery != "" || u.Fragment != "" {
+		p.addf(path, "%q must be an origin only: no credentials, path, query or fragment", s)
+	}
+	public, err := url.Parse(c.Server.PublicBaseURL)
+	if err != nil || public.Hostname() == "" {
+		return
+	}
+	rp, host := public.Hostname(), u.Hostname()
+	if host != rp && !strings.HasSuffix(host, "."+rp) {
+		p.addf(path, "the host %q must be %q or a subdomain of it, the relying party of security keys", host, rp)
+	}
+}
+
+// isLoopbackHost reports whether host names this machine.
+func isLoopbackHost(host string) bool {
+	if host == "localhost" {
+		return true
+	}
+	ip, err := netip.ParseAddr(host)
+	return err == nil && ip.IsLoopback()
 }

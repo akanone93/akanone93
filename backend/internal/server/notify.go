@@ -38,7 +38,7 @@ func buildNotify(cfg *config.Config, db *storage.DB, shared cache.Cache, set lim
 	svc, err := notify.New(notify.Options{
 		DB: db, Audit: log, Crypter: crypter, IDs: gen, Events: studioevents.NewPublisher(shared, set),
 		Policy:        httpx.Policy{AllowLoopback: cfg.Notifications.AllowInsecure},
-		StudioURL:     cfg.Server.PublicBaseURL,
+		StudioURL:     studioURL(cfg),
 		AllowInsecure: cfg.Notifications.AllowInsecure,
 		Log:           work.Log,
 		Limits: func(ctx context.Context, organizationID string) (limits.Set, error) {

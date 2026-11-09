@@ -50,6 +50,7 @@ server:
   roles: [api, worker]          # api | worker | gateway  (fnrunner arrives in P7)
   listen: ":8080"
   publicBaseURL: "https://plux.acme.example"
+  studioBaseURL: ""             # Studio's origin when it is not served under publicBaseURL; https (http on localhost outside production), within publicBaseURL's host
   shutdownGrace: "30s"
   trustedProxies: ["10.0.0.0/8"] # whose X-Forwarded-For is believed
   production: false             # true refuses unencrypted database and Valkey links and a missing TLS setup (SEC-043)
@@ -309,7 +310,11 @@ factor ([ADR-0026](../adr/0026-identity-tenancy-and-access.md)). A provider
 identity is linked, on its first sign-in, to the invited account with the
 address the provider verified. Security keys are registered for the host
 of `server.publicBaseURL` as the WebAuthn relying party, and are off when
-that is not an https URL. SAML, provisioning and group mapping arrive with
+that is not an https URL. The browser's origin must be exactly the public
+URL's or, when Studio is served on an origin of its own, `server.studioBaseURL`'s
+(on that host or a subdomain of it; https, or http on localhost outside
+production); that URL is also where `plux login`'s device page and the links
+in notifications point. SAML, provisioning and group mapping arrive with
 `GOV-004`, and WebAuthn step-up with `SEC-103`, in P9.
 The first administrator is created with `plux-server bootstrap`; everyone
 else is invited by an organisation's owner. The API's credentials, the

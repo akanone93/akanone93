@@ -511,3 +511,35 @@ func TestFraudReceiptConfig_SEC_007(t *testing.T) {
 		{"unknown key", fr("      secret: x\n"), "secret"},
 	})
 }
+
+// Studio's own URL is an origin within the security keys' relying party,
+// https or (outside production) http on this machine.
+//
+// Verifies: SEC-100, SEC-103.
+func TestStudioBaseURL(t *testing.T) {
+	t.Parallel()
+	for _, ok := range []string{"https://studio.plux.example", "https://plux.example:8443", "http://plux.example:8081"} {
+		src := "server:\n  publicBaseURL: \"https://plux.example\"\n  studioBaseURL: \"" + ok + "\"\n" + db
+		if ok == "http://plux.example:8081" {
+			// http only on a loopback host.
+			if got := refuse(t, src); !strings.Contains(got, "http on localhost") {
+				t.Errorf("%s: %q", ok, got)
+			}
+			continue
+		}
+		if c := parse(t, src); c.Server.StudioBaseURL != ok {
+			t.Errorf("studioBaseURL = %q", c.Server.StudioBaseURL)
+		}
+	}
+	local := "server:\n  publicBaseURL: \"https://localhost:8080\"\n  studioBaseURL: \"http://localhost:8081\"\n" + db
+	parse(t, local)
+	mentions(t, []struct{ name, src, want string }{
+		{"another site", withServer("  studioBaseURL: \"https://evil.example\"\n"), "subdomain of it"},
+		{"a look-alike suffix", withServer("  studioBaseURL: \"https://notplux.example\"\n"), "subdomain of it"},
+		{"not absolute", withServer("  studioBaseURL: \"/studio\"\n"), "not an absolute URL"},
+		{"another scheme", withServer("  studioBaseURL: \"ftp://plux.example\"\n"), "must be https"},
+		{"a path", withServer("  studioBaseURL: \"https://plux.example/studio\"\n"), "origin only"},
+		{"credentials", withServer("  studioBaseURL: \"https://u:p@plux.example\"\n"), "origin only"},
+		{"http in production", "server:\n  publicBaseURL: \"https://localhost:8080\"\n  production: true\n  studioBaseURL: \"http://localhost:8081\"\n" + db, "https in production"},
+	})
+}

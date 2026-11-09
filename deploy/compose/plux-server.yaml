@@ -7,6 +7,9 @@ server:
   roles: [api, worker]
   listen: ":8080"
   publicBaseURL: "https://localhost:8080"
+  # Studio runs on its own port here: security keys are accepted from it and
+  # `plux login` sends people to its device page (server.studioBaseURL).
+  studioBaseURL: "http://localhost:8081"
   # The api role terminates TLS 1.3 itself, as a production installation
   # does; init-secrets.sh issues this development-only certificate.
   tls:
