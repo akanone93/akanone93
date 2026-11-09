@@ -120,7 +120,11 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
 4. Open issues, not fixed (bigger features, ask the maintainer first): no Studio page registers a security key
    (the WebAuthn registration API exists, nothing calls it), so nobody can step up in Studio; `plux login` points
    at `<server>/device`, which does not exist; Layers does not show which slot a child is in.
-5. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
+5. Deferred fixes (after the hello-world check): `inline-text.test.ts` hangs (its sessions never save, and extraction
+   now waits for the save, b35be536); asset images under `cdnBaseURL` are blocked by Studio's CSP and COEP; `make setup`
+   on a fresh Ubuntu/WSL stops at pip (`No module named pip`) and at `install-flatc` (needs cmake): it should check for
+   and install `pipx` and `cmake g++` itself (apt, with sudo) when they are missing.
+6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 
 ## Running the stack here without Docker
