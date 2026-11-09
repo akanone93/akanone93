@@ -52,6 +52,37 @@ Branch history: the work started on `claude/dreamy-dirac-diipaj`; this hand-off 
    page nonce), mounted at the root. Sonner and Monaco were already handled in `vite.config.ts`.
 5. Catalogues: `editor.save-refused` and `notify.toasts` added in en/ar/de; `lingui compile --strict` passes.
 
+## Hello-world pass (2026-11-09)
+
+The maintainer's console on the plugin canvas, while assigning a translation to a `Text`, showed: an empty key
+picker, a PXL `pxl.NewEnv` error, 139 `style-src` violations, a blocked asset image, `WatchEvents` 502s, a 401 and a
+404. Reproduced live here (native stack, Playwright: new blank app → Center → Text → literal → key):
+
+| Finding | Cause | Fix |
+|---|---|---|
+| The **Translation key** list under Properties › Data is empty, so a text cannot use an existing key | The pickers read only the plugin's documents; the keys (`translations/keys.json`) and the theme are app-level | `RightDock` takes `sourceDocuments`: the app's documents with the canvas's sessions over them (messages, theme, keys), so a key added on the canvas is offered at once (`panels/properties-model.ts` `projectSources` reads a session's `parsed` copy). Live: the list shows `home.title`, then `home.hello` right after extracting it; the canvas draws the message. |
+| `scope: pxl.NewEnv: type "PluxAppState": declare either enum members or fields` on every canvas of an app with no state | The validator WASM returns the scopes as JSON with `fields,omitempty`, so an empty state type became `{}`; the language service read it back as neither enum nor object | `pxl.TypeSpec.Fields` is `omitzero`: an empty object type keeps `"fields": {}` (`backend/internal/pxl/env.go`; test `TestEmptyObjectTypeRoundTrips`, which fails with the old tag with the exact console message). |
+| `DevSessionService/WatchEvents` 502 | The watch sends its headers only with its first event; Bun's fetch in the BFF gives up on a response without headers after about 5–6 minutes (measured: `TimeoutError` at 360 s) | The BFF proxies streams with Bun's `timeout: false` (`apps/bff/src/proxy.ts`); test "a stream is proxied without Bun's fetch timeout"; live: one stream held open for 7 minutes. |
+
+Not fixed (not blocking the hello-world flow; ask the maintainer):
+
+- **139 `style-src` violations**: none here with this branch (zero `securitypolicyviolation` events on org home, app,
+  plugin canvas, Assets, Localisation view). They match the nonce-less `<style>` elements `StyleNonce` (`b35be536`)
+  fixes; the maintainer's build most likely predates it.
+- **Asset images blocked** (`img-src`): with `objectStorage.cdnBaseURL` set (compose: `https://localhost:8080/v1/objects`)
+  asset variants carry absolute cross-origin URLs, which Studio's CSP (`img-src 'self' data: blob:`) and COEP
+  (`require-corp`) both refuse. Only thumbnails and image previews are affected. Options: serve object URLs through
+  the BFF (`/api/v1/objects/…`, same origin), or allow the object origin in `img-src` and send
+  `Cross-Origin-Resource-Policy: cross-origin` from the object store.
+- **401 `GetCurrentUser`** on the sign-in page: Studio asking whether a session exists; expected, harmless.
+- **404**: not reproduced (the URL was not in the log); a missing CanvasKit gives a 404 on
+  `/assets/canvaskit/canvaskit.js` when the web app is built without `scripts/stage-canvaskit.ts` (`make studio-build`
+  stages it).
+
+Verified on the device side without a device: `plux validate` and `plux build` of the exported draft (0 errors; the
+app bundle carries the messages, the plugin bundle the key reference), and `flutter test
+test/l10n/locale_runtime_test.dart` (7 passed).
+
 ## The patch
 
 `studio-fixes.patch` (sent to the maintainer separately) is
@@ -111,7 +142,7 @@ su postgres -c "$B/initdb -D $S/data -A trust -U postgres && $B/pg_ctl -D $S/dat
 cd backend && go build -o /var/tmp/plux-dev/plux-server ./cmd/plux-server && go build -o /var/tmp/plux-dev/plux ./cmd/plux
 cd /var/tmp/plux-dev && ./plux-server serve -config plux-server.yaml &
 ./plux-server seed -config plux-server.yaml -out - > dev.env
-cd studio && bun run --filter @plux/web build
+cd studio && bun scripts/stage-canvaskit.ts && bun run --filter @plux/web build   # needs `flutter precache --web` once
 PLUX_BFF_API_UPSTREAM=http://localhost:8080 PLUX_BFF_STATE_SECRET="$(head -c 32 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=')" \
   PLUX_BFF_PORT=8081 PLUX_BFF_PUBLIC_BASE_URL=http://localhost:8081 bun apps/bff/src/main.ts &
 ```

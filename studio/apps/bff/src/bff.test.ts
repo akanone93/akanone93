@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, spyOn, test } from "bun:test";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -347,6 +347,32 @@ describe("[STU-002] [SRV-007] API proxy", () => {
     }
     expect(upstreamAborted).toBe(true);
     expect(b.openStreams()).toBe(0);
+  });
+  test("a stream is proxied without Bun's fetch timeout; other calls keep it", async () => {
+    // A server stream may send its headers only with its first event; Bun's fetch would give up
+    // after about five minutes and the browser would see 502 (DevSessionService/WatchEvents).
+    const seen: (RequestInit & { timeout?: boolean })[] = [];
+    const fetchSpy = spyOn(globalThis, "fetch").mockImplementation((async (_url: unknown, init?: RequestInit) => {
+      seen.push(init ?? {});
+      return new Response("ok");
+    }) as typeof fetch);
+    try {
+      const b = mk();
+      const headers = { Cookie: "__Host-plux_session=s", "X-CSRF-Token": "t" };
+      await b.app.request("/api/plux.v1.DevSessionService/WatchEvents", {
+        method: "POST",
+        headers: { ...headers, "Content-Type": "application/connect+json" },
+        body: "{}",
+      });
+      await b.app.request("/api/plux.v1.AppService/ListApps", {
+        method: "POST",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: "{}",
+      });
+    } finally {
+      fetchSpy.mockRestore();
+    }
+    expect(seen.map((init) => init.timeout)).toEqual([false, undefined]);
   });
   test("an unreachable upstream answers 502", async () => {
     const res = await mk({ apiUpstream: "http://127.0.0.1:1" }).app.request("/api/x");

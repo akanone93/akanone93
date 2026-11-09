@@ -62,7 +62,7 @@ Studio lives entirely under `studio/`: its apps in `studio/apps/` and its TypeSc
 
 2.5. **Threads.** The main thread runs React, the document store and undo, input capture and the accessible DOM tree. Plux Canvas (layout, CanvasKit, scene, hit-testing, caches) runs in one dedicated worker drawing through `transferControlToOffscreen()`. The validator and the PXL language service run in their own worker. Workers talk through typed message interfaces only; the canvas code also runs on the main thread as the fallback for browsers without worker WebGL.
 
-2.6. **Live data.** Server → browser data (notifications, lock changes, publish progress, device streams) uses Connect server streaming through the BFF: one events stream per tab, one stream per paired device, HTTP/2, resumable from a cursor. Browser → server commands are unary RPCs. No WebSocket.
+2.6. **Live data.** Server → browser data (notifications, lock changes, publish progress, device streams) uses Connect server streaming through the BFF: one events stream per tab, one stream per paired device, HTTP/2, resumable from a cursor. Browser → server commands are unary RPCs. No WebSocket. The BFF proxies a stream without Bun's fetch timeout (a stream may send its headers only with its first event, and the timeout would end it as a 502); the stream ends when the browser cancels it, and the per-session stream limit bounds them.
 
 ## 3. Feature folders
 

@@ -154,7 +154,8 @@ export function createBff(options: AppOptions): BffApp {
       return c.text("rate limit exceeded", 429, { ...text, "Retry-After": "60" });
     }
     let release = () => {};
-    if (isStream(req)) {
+    const stream = isStream(req);
+    if (stream) {
       const got = streams.acquire(key);
       if (got === undefined) {
         return c.text("too many open streams", 429, { ...text, "Retry-After": "5" });
@@ -162,7 +163,7 @@ export function createBff(options: AppOptions): BffApp {
       release = got;
     }
     const url = new URL(req.url);
-    return proxyRequest(req, config.apiUpstream, url.pathname.slice("/api".length) + url.search, release);
+    return proxyRequest(req, config.apiUpstream, url.pathname.slice("/api".length) + url.search, release, stream);
   });
 
   app.get("/", async (c) => serveIndex(c.get("nonce")));

@@ -339,8 +339,12 @@ function textKeys(doc: Obj): { id: string; key: string }[] {
   return keys.flatMap((k) => (typeof k.id === "string" && typeof k.key === "string" ? [{ id: k.id, key: k.key }] : []));
 }
 
-/** Theme token paths and translation keys of the project's documents, for the pickers. */
-export function projectSources(documents: readonly { path: string; content: Uint8Array }[]): {
+/**
+ * Theme token paths and translation keys of the project's documents, for the pickers. The theme and the keys are
+ * app-level documents, so the plugin canvas passes the app's documents; a document an edit session holds unsaved
+ * comes as `parsed`, which wins over `content`.
+ */
+export function projectSources(documents: readonly { readonly content: Uint8Array; readonly parsed?: unknown }[]): {
   tokens: string[];
   keys: { id: string; key: string }[];
 } {
@@ -348,7 +352,8 @@ export function projectSources(documents: readonly { path: string; content: Uint
   const tokens = new Set<string>();
   const keys: { id: string; key: string }[] = [];
   for (const d of documents) {
-    const j = parseObject(decoder.decode(d.content));
+    const j =
+      d.parsed !== undefined ? (isObj(d.parsed) ? d.parsed : undefined) : parseObject(decoder.decode(d.content));
     if (j?.kind === "theme") {
       for (const t of tokenPaths(j.tokens)) {
         tokens.add(t);

@@ -13,6 +13,7 @@ import {
   isAccessibility,
   nodesById,
   pointerOf,
+  projectSources,
   setPropRecipe,
   setSemanticsRecipe,
   sharedProps,
@@ -111,6 +112,22 @@ describe("[STU-121] panels: editors generate the right recipe", () => {
 
   test("token paths come from W3C token trees", () => {
     expect(tokenPaths({ color: { primary: { $value: "#fff" }, $type: "color" } })).toEqual(["color.primary"]);
+  });
+
+  test("the pickers read the app's keys and theme, an edit session's unsaved copy winning (I18N-007)", () => {
+    const enc = (v: unknown) => new TextEncoder().encode(JSON.stringify(v));
+    const stored = { kind: "translationKeys", keys: [{ id: "k1", key: "home.title" }] };
+    const unsaved = { kind: "translationKeys", keys: [...stored.keys, { id: "k2", key: "home.hello" }] };
+    const theme = { kind: "theme", tokens: { color: { primary: { $value: "#fff", $type: "color" } } } };
+    const page = { kind: "page", root: { id: "r" } };
+    expect(projectSources([{ content: enc(page) }, { content: enc(stored) }, { content: enc(theme) }])).toEqual({
+      tokens: ["color.primary"],
+      keys: [{ id: "k1", key: "home.title" }],
+    });
+    expect(projectSources([{ content: enc(stored), parsed: unsaved }]).keys.map((k) => k.key)).toEqual([
+      "home.title",
+      "home.hello",
+    ]);
   });
 });
 

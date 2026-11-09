@@ -56,12 +56,18 @@ export type ProxyResult = { response: Response; release: () => void };
 /**
  * Forwards a request to the upstream and streams the body both ways without buffering.
  * `release` is called once the response body ends or is cancelled.
+ *
+ * A `stream` (a server stream such as `DevSessionService/WatchEvents`) is sent without Bun's fetch
+ * timeout: a stream may send its headers only with its first event, and Bun's fetch gives up on
+ * a response whose headers have not come after about five minutes, which the browser saw as a 502.
+ * The stream still ends when the browser cancels it, and the per-session stream limit bounds them.
  */
 export async function proxyRequest(
   req: Request,
   upstream: string,
   path: string,
   release: () => void,
+  stream = false,
 ): Promise<Response> {
   const url = new URL(path, upstream);
   const hasBody = req.method !== "GET" && req.method !== "HEAD";
@@ -69,11 +75,13 @@ export async function proxyRequest(
   req.signal.addEventListener("abort", () => controller.abort(), { once: true });
   let res: Response;
   try {
-    const init: RequestInit & { duplex?: "half" } = {
+    // `timeout` is Bun's own fetch option; false turns its timeout off.
+    const init: RequestInit & { duplex?: "half"; timeout?: false } = {
       method: req.method,
       headers: filterRequestHeaders(req.headers),
       signal: controller.signal,
       redirect: "manual",
+      ...(stream ? { timeout: false as const } : {}),
     };
     if (hasBody) {
       init.body = req.body;

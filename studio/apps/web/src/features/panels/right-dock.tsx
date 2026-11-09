@@ -623,6 +623,14 @@ interface DockProps {
     | undefined;
   /** Every document of the app, to offer other plugins' screens as link targets (F6). */
   readonly appDocuments?: readonly { readonly kind: string; readonly content: Uint8Array }[] | undefined;
+  /**
+   * The app's documents as the canvas's sessions hold them, unsaved edits included: the theme's tokens and the
+   * translation keys the pickers offer are app-level documents, not the plugin's (I18N-007). Without them the pickers
+   * read `documents`.
+   */
+  readonly sourceDocuments?:
+    | readonly { readonly kind: string; readonly content: Uint8Array; readonly parsed?: unknown }[]
+    | undefined;
   /** Validates the page with an edit applied; undefined while the worker is unavailable. */
   readonly validatePage?: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   /** The PXL language service of the loaded project (PXL-007); the inline PXL fields use it. */
@@ -1137,7 +1145,10 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const types = ids.map((id) => p.index.type.get(id) ?? "");
   const props = sharedProps(types);
   const docsState = useEditor((st) => st.docs);
-  const { tokens, keys } = useMemo(() => projectSources(p.documents ?? []), [p.documents]);
+  const { tokens, keys } = useMemo(
+    () => projectSources(p.sourceDocuments ?? p.documents ?? []),
+    [p.sourceDocuments, p.documents],
+  );
   const first = ids[0] ?? "";
   const screen = p.screenOf.get(first);
   const file = screen === undefined ? undefined : p.pathOf.get(screen);

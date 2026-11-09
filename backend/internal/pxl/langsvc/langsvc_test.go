@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"github.com/nightCode42/plux3/backend/internal/pxl"
 )
 
 const scope = `{"types":{"Loan":{"fields":{"months":"int"}}},"roots":{"page":"Loan"},"nonNull":[]}`
@@ -67,5 +69,27 @@ func TestNonNullNarrowsTheScope(t *testing.T) {
 	}
 	if got := h.Handle("check", narrowed, "page.status", 0); !strings.Contains(got, `"type":"string"`) {
 		t.Errorf("narrowed: %s", got)
+	}
+}
+
+// An object type with no fields (the state of an app or page that declares
+// none) survives the JSON round trip from the validator's scopes to the
+// language service.
+//
+// Verifies: PXL-007.
+func TestEmptyObjectTypeRoundTrips(t *testing.T) {
+	spec := pxl.EnvSpec{
+		Types: map[string]pxl.TypeSpec{"PluxAppState": {Fields: map[string]string{}}, "Mode": {Enum: []string{"a"}}},
+		Roots: map[string]string{"app": "PluxAppState", "mode": "Mode"},
+	}
+	data, err := json.Marshal(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), `"PluxAppState":{"fields":{}}`) || strings.Contains(string(data), `"Mode":{"enum":["a"],"fields"`) {
+		t.Errorf("marshalled %s", data)
+	}
+	if got := NewHost().Handle("check", string(data), "1", 0); !strings.Contains(got, `"type":"int"`) {
+		t.Errorf("got %s", got)
 	}
 }

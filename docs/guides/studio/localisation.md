@@ -34,6 +34,11 @@ still lacks ("3 of 40 missing").
    default locale, and the reference on the page), and it applies as a whole or not at all: the page refers to the
    key only once the server has stored the key and its message. If the server refuses either, the other is rolled
    back, a message says why, and the text keeps its literal value; a page never points at a key that does not exist.
+5. To use a key that already exists, select the text and open **Properties › Content**. The button at the end of the
+   text's row (**Data** for a `Text`) switches it between a literal, a **Translation key** and a PXL expression;
+   choose **Translation key** and pick the key. The list holds every key of the app, including one added on this
+   canvas a moment ago, and the canvas then shows the key's message in the previewed locale. A key's message is
+   one text per locale: it cannot point at another key.
 
 ## Add a locale, import and export
 

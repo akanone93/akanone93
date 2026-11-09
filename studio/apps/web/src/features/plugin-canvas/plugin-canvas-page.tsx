@@ -626,10 +626,13 @@ function PluginCanvasView({
   // The screens are drawn with the translations as the localisation session holds them, unsaved edits included.
   // The app's theme and settings as the canvas's own theme editors leave them, unsaved edits included (PC-35).
   const appSession = useAppSession();
+  const l10nSessions = useL10nSessions();
   const drawnAppDocs = useWithSessionDocs(
-    useWithSessionDocs(appDocs.data, useL10nSessions()?.messages),
+    useWithSessionDocs(appDocs.data, l10nSessions?.messages),
     appSession?.session,
   );
+  // The Properties pickers offer the app's theme tokens and translation keys, a key added on this canvas included.
+  const pickerDocs = useWithSessionDocs(drawnAppDocs, l10nSessions?.keys);
   const sourceIds = useMemo(() => sources.map((x) => x.id), [sources]);
   const sourceNames = useMemo(() => Object.fromEntries(sources.map((x) => [x.id, x.name])), [sources]);
   // The screens are previewed in the app's own locales (I18N-002, PC-32).
@@ -1814,6 +1817,7 @@ function PluginCanvasView({
                             problems={checked?.problems ?? []}
                             documents={docs.data}
                             appDocuments={appDocs.data}
+                            sourceDocuments={pickerDocs}
                             validatePage={checked?.validatePage}
                             language={checked?.language}
                             drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}

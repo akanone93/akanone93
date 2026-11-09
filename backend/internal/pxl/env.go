@@ -21,10 +21,14 @@ type EnvSpec struct {
 	Roots map[string]string `json:"roots"`
 }
 
-// TypeSpec declares an enum (Enum) or an object type (Fields).
+// TypeSpec declares an enum (Enum) or an object type (Fields). An object type
+// without fields keeps "fields": {} in JSON (omitzero, not omitempty), so a
+// spec survives a JSON round trip: Studio sends the scopes the validator
+// returns back to the language service, and an app with no state has empty
+// state types (PXL-007).
 type TypeSpec struct {
 	Enum   []string          `json:"enum,omitempty"`
-	Fields map[string]string `json:"fields,omitempty"`
+	Fields map[string]string `json:"fields,omitzero"`
 }
 
 // Env is a checked EnvSpec. It is immutable and safe for concurrent use.
