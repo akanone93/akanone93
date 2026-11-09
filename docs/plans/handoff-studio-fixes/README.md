@@ -132,6 +132,9 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    `plux init --app <key>` resolves the key for the files it writes, but its closing doctor check calls `GetApp` with
    the raw key and reports `FAIL app … PLX-1005` (`cmd/plux/cmd_project.go` doctor `app` step); it should use the
    resolved ID.
+   On Windows with the pub cache on C: and the app on D:, the Android build fails in Kotlin's incremental compiler
+   ("this and base files have different roots"); the host-app guide (and `plux init`) should add
+   `kotlin.incremental=false` to `android/gradle.properties`.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 
