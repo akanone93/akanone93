@@ -129,6 +129,9 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    `make dev` skips seeding whenever `deploy/compose/.secrets/dev.env` exists, even when the Docker volumes are new
    (a reset Docker or WSL): the old token is not in the new database and `dev-starter` fails with PLX-8012. Seeding
    should check the token against the server (or record the volume it seeded) and seed again when it is stale.
+   `plux init --app <key>` resolves the key for the files it writes, but its closing doctor check calls `GetApp` with
+   the raw key and reports `FAIL app … PLX-1005` (`cmd/plux/cmd_project.go` doctor `app` step); it should use the
+   resolved ID.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 
