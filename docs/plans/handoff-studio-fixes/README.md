@@ -144,6 +144,12 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    pass the error to `Refusal`/`PageStatus` or show its code and message. Also: the publish start page's refusal reads
    "This page shows sensitive settings", which is wrong for an action; `RequestVisualDiff` answers 500 (PLX-8090,
    "job kind is not registered: releasereq.render") when no render worker is configured instead of saying so.
+   **Problems misses app-level findings:** the canvas's live check (`compiler.Validator.ValidatePage`) keeps only
+   diagnostics whose file is the open page, so translation findings (`PLX-1606` missing message, `PLX-1608` unused
+   key, in `translations/*.json`) appear only when a publish compiles everything, where they fail the build
+   (`PLX-8051`). Problems should show the app's and plugin's own findings too. The publish flow's builds also fail on
+   any warning although the Reports step is where warnings are acknowledged (`SRV-051`): maintainer to choose between
+   building with warnings allowed and acknowledging at Reports (recommended) or acknowledging before the build.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 
