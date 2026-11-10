@@ -152,7 +152,7 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    A) and fixed:* the release flow builds with `acknowledgeWarnings`, and the server's Reports step still requires the
    publisher to acknowledge each warning before the request moves on. **No way to delete a translation key:**
    Localisation can add keys and edit messages but not delete a key (`STU-072` expects deletion with "where used"
-   protection); an unused key (`PLX-1608`) can only be used or left.
+   protection); an unused key (`PLX-1608`) can only be used or left. **Reports shows warnings as bare ids:** the Acknowledge warnings dialog lists `PLX-1606@translations/de.json`, not the message, cause and fix the job holds; show them (and on the Reports card) before asking for the acknowledgement.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 
