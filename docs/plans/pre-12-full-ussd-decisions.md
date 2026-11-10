@@ -373,9 +373,9 @@ exceptions with compensating controls.
 
 ---
 
-## 3. Open questions (found in the re-analysis, to answer before the spec change)
+## 3. Questions found in the re-analysis
 
-- **Q-1. Separate service or a role?** D-7 says "a new service". ADR-0006 and `SRV-001` define
+- **Q-1. Separate service or a role? (open)** D-7 says "a new service". ADR-0006 and `SRV-001` define
   `plux-server` as **one binary with roles** (`api`, `worker`, `fnrunner`). Recommendation: a
   new **`ussd` role** of `plux-server`, deployed on its own. It gives every benefit of D-7
   (isolation, own scaling, L-8 limits) and changes `SRV-001` only by adding a role; a separate
@@ -384,20 +384,32 @@ exceptions with compensating controls.
   options, as configuration per app: Plux-hosted (a narrow, written §3 exception) or
   institution-hosted through a storage delegate; nothing is enabled until one is chosen. See
   D-9.
-- **Q-3. Error codes.** Appendix F uses every range from `PLX-1000` to `PLX-9999`. USSD needs a
-  range or a slice of existing ones (e.g. channel errors under 4xxx, gateway errors under
-  3xxx); to be decided with the error-handling handbook.
-- **Q-4. Dependencies.** Operator gateways may use SMPP or other binary protocols. A protocol
-  library would need an ADR (`dependencies.md`); Africa's Talking needs none (HTTP + JSON).
-  Decided only when an operator specification arrives (D-27).
-- **Q-5. Payments.** `startPayment` is a P13 action, and P17 runs before P13. Recommendation:
+- **Q-3. Error codes — decided by the lead (2026-11-10).** Codes stay four digits
+  (`^PLX-[0-9]{4}$`). USSD takes unused hundred-blocks inside the existing areas: text-channel
+  rendering and sessions `PLX-4500`–`4699`; user-data store and storage delegate
+  `PLX-5600`–`5699`; identity, PIN delegate, SIM swap, exceptions and push `PLX-6300`–`6399`;
+  short codes, routing and adapters `PLX-3200`–`3299`; Studio and CLI `PLX-9400`–`9499`
+  (all unused on 2026-11-10).
+- **Q-4. Dependencies — deferred.** Operator gateways may use SMPP or other binary protocols. A
+  protocol library would need an ADR (`dependencies.md`); Africa's Talking needs none (HTTP +
+  JSON). Decided when an operator specification arrives (D-27).
+- **Q-5. Payments. (open)** `startPayment` is a P13 action, and P17 runs before P13. Recommendation:
   P17 defines how payment actions behave on USSD (PIN, limits, push confirmation, SMS receipt);
   P13 implements them for both channels and gains a requirement naming USSD.
-- **Q-6. Data protection.** The spec's compliance mapping (§31) gains Ethiopia's personal data
-  protection law and telecom rules; the exact instruments are to be verified before they are
-  cited.
-- **Q-7. PIN visibility on the handset.** USSD cannot mask input; a PIN shows on the handset
-  screen as it is typed. The spec states this, and Studio's USSD preview warns about it.
+- **Q-6. Data protection — decided by the lead (2026-11-10).** Ethiopia's Personal Data
+  Protection Proclamation No. 1321/2024 (in force 24 July 2024; the Ethiopian Communications
+  Authority enforces it) requires personal data collected in Ethiopia to be stored on servers in
+  Ethiopia, allows cross-border transfer only under conditions, and needs prior authorisation for
+  sensitive data. Consequences: §31 maps it (article numbers checked against the gazette text
+  before citing); the deployment guide says that Ethiopian installations run `plux-ussd`, Valkey
+  and the Plux-hosted user-data store in the country; an installation declares its data-residency
+  region, and Studio warns when an adapter, storage delegate or auth delegate endpoint is
+  declared outside it. Sources: <https://cipit.strathmore.edu/?p=4868>,
+  <https://digitalpolicyalert.org/event/24922-implemented-personal-data-protection-proclamation-proclamation-no-13212024-including-data-localisation-requirements>,
+  <https://www.techhiveadvisory.africa/insights/review-of-ethiopias-data-protection-act>.
+- **Q-7. PIN visibility — decided by the lead (2026-11-10).** USSD cannot mask input; a PIN
+  shows on the handset screen as it is typed. The spec states it as a known channel limit, the
+  risk table (§34) lists it, and Studio's USSD preview shows a notice on every PIN step.
 
 ---
 
@@ -429,7 +441,7 @@ Each item becomes requirements with IDs, priorities, statuses and verification.
 | §24 | payments on USSD (Q-5) | Q-5 |
 | §28 | conformance vectors (actions, USSD screens), adapter contract tests | D-8 |
 | §30 | reference deployment, throughput and latency targets, limits registry entries (screen budget, time budget, session length, menu depth, push and SMS limits) | D-5, D-15, D-20 |
-| §31 | compliance mapping (Q-6) | Q-6 |
+| §27, §31 | Ethiopian data-residency guidance, residency region and warnings; compliance mapping | Q-6 |
 | §34–§35 | editions, risks (operator contracts, PIN exposure), glossary | D-16, D-12 |
 | Appendices | error codes (Q-3), action and widget tables, security settings | Q-3 |
 | ADRs | text channels and USSD; server runtime and confidential bundles; PIN delegate and session-bound tokens; USSD under `maximum`; USSD push | — |
