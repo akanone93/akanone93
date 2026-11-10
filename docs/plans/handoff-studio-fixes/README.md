@@ -155,7 +155,7 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    protection); an unused key (`PLX-1608`) can only be used or left. **Reports shows warnings as bare ids:** the Acknowledge warnings dialog lists `PLX-1606@translations/de.json`, not the message, cause and fix the job holds; show them (and on the Reports card) before asking for the acknowledgement. **Visual diffs block a local publish:** the step is required (`diffDone`), but `make dev` does not start the
    render worker (compose profile `visual-diff`), so the diff stays *Queued* and then fails after its attempts, with
    nothing saying no render worker is running. `make dev` should start the profile, or the step should say the
-   worker is missing (and the server should refuse the request at once rather than queue it).
+   worker is missing (and the server should refuse the request at once rather than queue it). Until then: `COMPOSE_PROFILES=visual-diff make dev`. The render worker's image did not build (its Dockerfile resolved `plux_flutter` outside the pub workspace); fixed to copy the workspace root and member pubspecs, checked by running the same `flutter pub get --enforce-lockfile` and an offline render-project resolve with Flutter 3.47.5 here (no Docker here; the image itself is not built).
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 

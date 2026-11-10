@@ -50,11 +50,25 @@ ENV PATH=/opt/flutter/bin:$PATH \
 RUN git config --global --add safe.directory /opt/flutter \
  && flutter config --no-analytics --no-cli-animations \
  && flutter precache --no-android --no-ios --no-web --no-macos --no-windows --no-fuchsia --linux
-# The runtime and the packages its widgets use, resolved against their
-# lockfiles, so that no render fetches anything.
-WORKDIR /opt/plux/packages
-COPY packages/ ./
-RUN cd plux_flutter && flutter pub get --enforce-lockfile
+# The runtime and the packages its widgets use, resolved against the
+# workspace's lockfile, so that no render fetches anything. plux_flutter is a
+# member of the repository's pub workspace (`resolution: workspace`), which
+# resolves only from its root: the root pubspec and lockfile, and the pubspec
+# of every member the root lists (pub reads them all), with the packages in
+# full. A member missing here fails the build, so the list cannot drift.
+WORKDIR /opt/plux
+COPY pubspec.yaml pubspec.lock ./
+COPY apps/add_to_app/plux_module/pubspec.yaml apps/add_to_app/plux_module/
+COPY apps/plux_bank/pubspec.yaml apps/plux_bank/
+COPY apps/plux_dev/pubspec.yaml apps/plux_dev/
+COPY apps/plux_express/pubspec.yaml apps/plux_express/
+COPY apps/plux_viewer/pubspec.yaml apps/plux_viewer/
+COPY apps/starter/pubspec.yaml apps/starter/
+COPY test/bench/runtime/pubspec.yaml test/bench/runtime/
+COPY test/size/blank/pubspec.yaml test/size/blank/
+COPY test/size/plux/pubspec.yaml test/size/plux/
+COPY packages/ ./packages/
+RUN flutter pub get --enforce-lockfile
 
 # Debian, because flutter_tester needs a complete userland. The golden fonts
 # are the ones the harness pins (schema/goldens/fonts/VERSION), so that a
