@@ -195,6 +195,8 @@ export interface ReleaseFixture {
   diff?: { state: string };
   /** The RPCs received, in order, with the step they completed. */
   calls: string[];
+  /** The acknowledge_warnings flag of each publish Studio started. */
+  acknowledgeWarnings?: boolean[];
   /** The state every publish job reports; "succeeded" when unset. */
   jobState?: string;
   /** Opening a request is refused with PLX-6200 until the session completes a step-up (SEC-103). */
@@ -868,6 +870,7 @@ export function createUpstream(state: UpstreamData) {
       service(PublishService, {
         publish: (req, ctx) => {
           state.release?.keys?.push(ctx.requestHeader.get("Idempotency-Key") ?? "");
+          state.release?.acknowledgeWarnings?.push(req.acknowledgeWarnings);
           return { job: { id: `job-${req.pluginId}`, state: "running", percent: 40 } };
         },
         getPublishJob: (req) => ({

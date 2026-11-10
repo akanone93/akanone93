@@ -36,7 +36,13 @@ const plugins = [
 ];
 
 function fixture(state: string, extra: Partial<ReleaseFixture["request"]> = {}, rest: Partial<ReleaseFixture> = {}) {
-  return { request: { id: "r1", state, plugins, ...extra }, calls: [], keys: [], ...rest } satisfies ReleaseFixture;
+  return {
+    request: { id: "r1", state, plugins, ...extra },
+    calls: [],
+    keys: [],
+    acknowledgeWarnings: [],
+    ...rest,
+  } satisfies ReleaseFixture;
 }
 
 const open = (path: string, release: ReleaseFixture, more: Upstream = {}) =>
@@ -63,6 +69,8 @@ describe("[STU-100] publish flow", () => {
     await step("Freeze and build");
     press("Freeze and build");
     await waitFor(() => expect(release.keys).toEqual(["r1:home:1", "r1:shared:1"]));
+    // Warnings do not stop the builds; the Reports step is where they are acknowledged (SRV-051).
+    expect(release.acknowledgeWarnings).toEqual([true, true]);
     await waitFor(() => expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy());
     press("Continue");
     await step("Reports");

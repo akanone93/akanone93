@@ -148,8 +148,11 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    diagnostics whose file is the open page, so translation findings (`PLX-1606` missing message, `PLX-1608` unused
    key, in `translations/*.json`) appear only when a publish compiles everything, where they fail the build
    (`PLX-8051`). Problems should show the app's and plugin's own findings too. The publish flow's builds also fail on
-   any warning although the Reports step is where warnings are acknowledged (`SRV-051`): maintainer to choose between
-   building with warnings allowed and acknowledging at Reports (recommended) or acknowledging before the build.
+   any warning although the Reports step is where warnings are acknowledged (`SRV-051`). *Decided (maintainer, option
+   A) and fixed:* the release flow builds with `acknowledgeWarnings`, and the server's Reports step still requires the
+   publisher to acknowledge each warning before the request moves on. **No way to delete a translation key:**
+   Localisation can add keys and edit messages but not delete a key (`STU-072` expects deletion with "where used"
+   protection); an unused key (`PLX-1608`) can only be used or left.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 

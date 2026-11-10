@@ -20,10 +20,13 @@ guide covers Studio's screens.
 2. **Select plugins.** Plugins with unpublished changes are listed; a plugin another one needs is
    added for you ("Added because another plugin needs it").
 3. **Freeze and build.** Editing may continue; the builds freeze the draft as it is now. Each plugin
-   shows *Queued*, *Running*, *Built* or *Failed* with its progress. **Freeze again** takes the
-   current draft.
+   shows *Queued*, *Running*, *Built* or *Failed* with its progress; a failed build lists the findings
+   that stopped it (code, message and file). Errors fail a build; warnings do not, they wait for the next
+   step. **Freeze again** takes the current draft.
 4. **Reports.** Validation, bundle **Size** (and the change against the version before) and
-   **Accessibility** findings. A request can be *Blocked* by these findings; see
+   **Accessibility** findings. Acknowledge every warning here (**Acknowledge warnings**): the request
+   does not move on, and nothing is released, until you have (`SRV-051`). A request can be *Blocked* by
+   errors; see
    [Publish blocked](../../runbooks/publish-blocked-quality.md).
 5. **Visual diffs** show before and after images of changed screens, and the **Changed documents**
    list shows added, removed and changed JSON paths per plugin. **Changelog** takes the release notes.

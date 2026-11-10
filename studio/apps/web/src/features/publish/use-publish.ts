@@ -82,8 +82,16 @@ export function useReleaseApi(
       const publish = createClient(PublishService, session.transport);
       return Promise.all(
         plugins.map(async (p) => {
+          // Warnings do not stop a build of the release flow: the Reports step lists each build's warnings and the
+          // server moves the request on only once the publisher has acknowledged every one of them, before anything
+          // is released (SRV-051). Errors still fail the build.
           const { job } = await publish.publish(
-            { appId: app, pluginId: pluginIds.get(p.pluginKey) ?? "", environmentId: request.environmentId },
+            {
+              appId: app,
+              pluginId: pluginIds.get(p.pluginKey) ?? "",
+              environmentId: request.environmentId,
+              acknowledgeWarnings: true,
+            },
             { headers: { "Idempotency-Key": `${request.id}:${p.pluginKey}:${request.revision}` } },
           );
           return { pluginKey: p.pluginKey, jobId: job?.id ?? "" };
