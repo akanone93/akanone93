@@ -195,6 +195,8 @@ export interface ReleaseFixture {
   diff?: { state: string };
   /** The RPCs received, in order, with the step they completed. */
   calls: string[];
+  /** The state every publish job reports; "succeeded" when unset. */
+  jobState?: string;
   /** Opening a request is refused with PLX-6200 until the session completes a step-up (SEC-103). */
   stepUp?: { done: boolean };
   /** The idempotency keys of the publish jobs. */
@@ -871,7 +873,7 @@ export function createUpstream(state: UpstreamData) {
         getPublishJob: (req) => ({
           job: {
             id: req.jobId,
-            state: "succeeded",
+            state: state.release?.jobState ?? "succeeded",
             percent: 100,
             version: 1n,
             diagnostics: state.release?.evidence?.diagnostics?.[req.jobId] ?? [],

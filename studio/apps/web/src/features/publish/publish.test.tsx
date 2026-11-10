@@ -164,6 +164,27 @@ describe("[STU-100] publish flow", () => {
     expect(stepUps).toEqual(["begin"]);
   });
 
+  test("a failed build says why, with the job's own diagnostics [SRV-050]", async () => {
+    const release = fixture(
+      "build",
+      {},
+      {
+        jobState: "failed",
+        evidence: {
+          versions: {},
+          diagnostics: { "job-p1": [{ code: "PLX-1001", message: "the page is not valid", severity: 1 }] },
+        },
+      },
+    );
+    open("/publish/r1", release, { summaries });
+    await step("Freeze and build");
+    press("Freeze and build");
+    const reasons = await screen.findByRole("list", { name: "Failed" });
+    within(reasons).getByText("PLX-1001");
+    within(reasons).getByText(/the page is not valid/);
+    screen.getByRole("button", { name: "Freeze again" });
+  });
+
   test("D43 cancels the request after confirming", async () => {
     const release = fixture("build");
     open("/publish/r1", release);

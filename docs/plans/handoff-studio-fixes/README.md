@@ -137,6 +137,13 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    On Windows with the pub cache on C: and the app on D:, the Android build fails in Kotlin's incremental compiler
    ("this and base files have different roots"); the host-app guide (and `plux init`) should add
    `kotlin.incremental=false` to `android/gradle.properties`.
+   **Dropped refusal reasons (audit every area):** several Studio screens turned a server refusal into a generic
+   message, so the way past it was never offered: the publish start page dropped PLX-6200 (fixed, `a4b683d2`), the
+   build step showed only "Failed" without the job's diagnostics (fixed), and the publish steps still say "The step
+   failed. Try again." for any other code (PLX-8090 included). Sweep every `catch`/`isError` in `apps/web/src` and
+   pass the error to `Refusal`/`PageStatus` or show its code and message. Also: the publish start page's refusal reads
+   "This page shows sensitive settings", which is wrong for an action; `RequestVisualDiff` answers 500 (PLX-8090,
+   "job kind is not registered: releasereq.render") when no render worker is configured instead of saying so.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 

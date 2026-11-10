@@ -66,15 +66,30 @@ function JobRow({
 }): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const state = job?.state ?? "queued";
+  // Why a build failed: the job's own diagnostics, as the server reported them (code, message, where).
+  const reasons = state === "failed" || state === "cancelled" ? (job?.diagnostics ?? []) : [];
   return (
-    <li className="flex items-center gap-3 text-body">
-      <span className="font-mono">{pluginKey}</span>
-      <StatusPill status={jobKind(state)} label={jobLabel(m, state)} />
-      {state === "running" && (
-        <span className="text-muted-foreground">{m.buildProgress(String(job?.percent ?? 0), job?.stage ?? "")}</span>
-      )}
-      {state === "succeeded" && (
-        <span className="text-muted-foreground">{m.buildVersion(String(job?.version ?? 0n))}</span>
+    <li className="flex flex-col gap-1 text-body">
+      <span className="flex items-center gap-3">
+        <span className="font-mono">{pluginKey}</span>
+        <StatusPill status={jobKind(state)} label={jobLabel(m, state)} />
+        {state === "running" && (
+          <span className="text-muted-foreground">{m.buildProgress(String(job?.percent ?? 0), job?.stage ?? "")}</span>
+        )}
+        {state === "succeeded" && (
+          <span className="text-muted-foreground">{m.buildVersion(String(job?.version ?? 0n))}</span>
+        )}
+      </span>
+      {reasons.length > 0 && (
+        <ul aria-label={m.buildFailed} className="flex flex-col gap-1 text-sm text-danger">
+          {reasons.map((d, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: diagnostics have no identity of their own
+            <li key={i}>
+              <span className="font-mono">{d.code}</span> {d.message}
+              {d.location?.file ? <span className="text-muted-foreground"> ({d.location.file})</span> : null}
+            </li>
+          ))}
+        </ul>
       )}
     </li>
   );
