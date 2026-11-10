@@ -195,6 +195,8 @@ export interface ReleaseFixture {
   diff?: { state: string };
   /** The RPCs received, in order, with the step they completed. */
   calls: string[];
+  /** Opening a request is refused with PLX-6200 until the session completes a step-up (SEC-103). */
+  stepUp?: { done: boolean };
   /** The idempotency keys of the publish jobs. */
   keys?: string[];
   /** The hashes of the images GetVisualDiffImage was asked for. */
@@ -584,6 +586,9 @@ export function createUpstream(state: UpstreamData) {
       },
       completeStepUp: (req) => {
         state.security?.stepUps?.push(`complete:${req.requestId}`);
+        if (state.release?.stepUp !== undefined) {
+          state.release.stepUp.done = true;
+        }
         return {};
       },
       ...identityFactors(state),
@@ -1327,6 +1332,13 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
   };
   return {
     createReleaseRequest: (req) => {
+      if (fx.stepUp !== undefined && !fx.stepUp.done) {
+        fx.calls.push("create:refused");
+        throw new ConnectError(
+          "PLX-6200: release.publish needs a security key confirmed in the last 5 minutes",
+          Code.PermissionDenied,
+        );
+      }
       fx.calls.push(`create:${req.plugins.map((p) => p.pluginKey).join(",")}`);
       return { request: view(), existing: false };
     },

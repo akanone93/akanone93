@@ -7,6 +7,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { PageHeader, PageStatus } from "../../components/page.tsx";
+import { refusalOf } from "../../components/refusal.tsx";
+import { useGuarded } from "../releases/guarded.tsx";
 import { usePermissions } from "../security/use-security.ts";
 import { CancelDialog } from "./cancel-dialog.tsx";
 import type { PanelProps } from "./panel.ts";
@@ -101,6 +103,8 @@ export function PublishPage(): ReactElement {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [cancelling, setCancelling] = useState(false);
+  // A step that needs a fresh security-key confirmation (SEC-103) asks for the key, then runs again.
+  const { guard, dialog: stepUpDialog, failed: stepUpFailed } = useGuarded();
   const request = query.data?.request;
   const api = useReleaseApi(app, request ?? { id: requestId, state: "", revision: 0n, environmentId: "" });
   if (request === undefined) {
@@ -123,14 +127,21 @@ export function PublishPage(): ReactElement {
   const viewed = search.step ?? current;
   const own = request.createdBy === me;
   const editable = can && own && !ended && viewed === current && request.hold !== "awaiting_approval";
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["release-request", app, requestId] });
   const run = (fn: () => Promise<unknown>) => {
     setBusy(true);
     setError("");
     fn()
-      .catch((err: unknown) => setError(errorText(m, codeOf(err))))
+      .catch((err: unknown) => {
+        if (refusalOf(err) === "step-up") {
+          guard(() => fn().finally(() => void refresh()));
+          return;
+        }
+        setError(errorText(m, codeOf(err)));
+      })
       .finally(() => {
         setBusy(false);
-        void queryClient.invalidateQueries({ queryKey: ["release-request", app, requestId] });
+        void refresh();
       });
   };
   const pluginIds = new Map((summaries.data ?? []).map((s) => [s.plugin?.key ?? "", s.plugin?.id ?? ""]));
@@ -171,6 +182,12 @@ export function PublishPage(): ReactElement {
             {error}
           </p>
         )}
+        {stepUpFailed && (
+          <p role="alert" className="text-body text-danger">
+            {m.stepUpFailed}
+          </p>
+        )}
+        {stepUpDialog}
         <Panel step={viewed} props={props} />
         {can && own && !ended && (
           <div>

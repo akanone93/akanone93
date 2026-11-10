@@ -194,6 +194,21 @@ describe("[STU-100] publish flow", () => {
     expect(release.calls).toEqual(["create:home"]);
   });
 
+  test("A1 asks for the security key when opening the request needs a step-up, then opens it [SEC-103]", async () => {
+    const credential = stubAssertion();
+    const stepUps: string[] = [];
+    const release = fixture("select", {}, { stepUp: { done: false } });
+    open("/publish", release, {
+      summaries: [{ id: "p1", key: "home", name: "Home", unpublishedChanges: true }],
+      security: { stepUps },
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Confirm with passkey" }));
+    await step("Select plugins");
+    expect(credential.get).toHaveBeenCalledTimes(1);
+    expect(stepUps).toEqual(["begin", "complete:su-1"]);
+    expect(release.calls).toEqual(["create:refused", "create:home"]);
+  });
+
   test("A1 says so when nothing changed and nothing is open", async () => {
     open("/publish", fixture("released"));
     await screen.findByText("No plugin has unpublished changes.");

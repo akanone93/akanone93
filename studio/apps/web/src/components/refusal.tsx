@@ -29,12 +29,13 @@ export function plxCode(error: unknown): string {
 }
 
 /**
- * The kind of a failed read, from its Plux code (Appendix F): PLX-6200 step-up required, PLX-8011 second factor
+ * The kind of a failed read, from its Plux code (Appendix F): PLX-6200 step-up required or PLX-6201 too old, PLX-8011 second factor
  * required, PLX-8600 enterprise feature not licensed; any other permission refusal is a missing permission.
  */
 export function refusalOf(error: unknown): RefusalKind {
   switch (plxCode(error)) {
     case "PLX-6200":
+    case "PLX-6201":
       return "step-up";
     case "PLX-8011":
       return "second-factor";

@@ -14,6 +14,9 @@ guide covers Studio's screens.
 
 1. Choose **Publish** on the plugin canvas or in the app's navigation. Studio opens a release
    request. If no plugin has unpublished changes it says so.
+   Publishing needs your security key confirmed in the last five minutes (step-up, `SEC-103`): when it has
+   not been, Studio asks with **Confirm with passkey** and then carries on, at the start and at any later step.
+   Add a key first under **Profile › Security keys**.
 2. **Select plugins.** Plugins with unpublished changes are listed; a plugin another one needs is
    added for you ("Added because another plugin needs it").
 3. **Freeze and build.** Editing may continue; the builds freeze the draft as it is now. Each plugin
