@@ -12,5 +12,17 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // The phone's name, which Studio shows in the person's list of phones
+    // (ADR-0104).
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PluxDevDevice") {
+      let channel = FlutterMethodChannel(name: "dev.plux.dev/device", binaryMessenger: registrar.messenger())
+      channel.setMethodCallHandler { call, result in
+        if call.method == "name" {
+          result(UIDevice.current.name)
+        } else {
+          result(FlutterMethodNotImplemented)
+        }
+      }
+    }
   }
 }

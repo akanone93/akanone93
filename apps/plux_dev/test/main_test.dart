@@ -10,7 +10,8 @@ void main() {
   testWidgets('[DEV-001] starts on the roots it was built with', (
     tester,
   ) async {
-    app.main();
+    // main asks the native side for the phone's name first: real async.
+    await tester.runAsync(app.main);
     await tester.pump();
     expect(find.byType(DevApp), findsOneWidget);
     // The test build is made without PLUX_DEV_ROOT_KEYS.

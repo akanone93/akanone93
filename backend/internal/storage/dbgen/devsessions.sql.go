@@ -11,6 +11,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const allowJoinRetry = `-- name: AllowJoinRetry :execrows
+UPDATE dev_join_requests SET state = 'retry' WHERE session_id = $1 AND token_id = $2 AND state = 'failed'
+`
+
+type AllowJoinRetryParams struct {
+	SessionID pgtype.UUID
+	TokenID   pgtype.UUID
+}
+
+// Lets a phone try again after a wrong pick.
+func (q *Queries) AllowJoinRetry(ctx context.Context, arg AllowJoinRetryParams) (int64, error) {
+	result, err := q.db.Exec(ctx, allowJoinRetry, arg.SessionID, arg.TokenID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const consumeDevPairingCode = `-- name: ConsumeDevPairingCode :one
 UPDATE dev_pairing_tokens t SET consumed_at = $1::timestamptz
   FROM dev_sessions s
@@ -124,6 +142,23 @@ func (q *Queries) CountDevSessionDevices(ctx context.Context, sessionID pgtype.U
 	return count, err
 }
 
+const countJoinRequests = `-- name: CountJoinRequests :one
+SELECT count(*) FROM dev_join_requests WHERE token_id = $1 AND created_at > $2::timestamptz
+`
+
+type CountJoinRequestsParams struct {
+	TokenID pgtype.UUID
+	Since   pgtype.Timestamptz
+}
+
+// The join requests one phone made since an instant (devSession.phoneAttempts).
+func (q *Queries) CountJoinRequests(ctx context.Context, arg CountJoinRequestsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countJoinRequests, arg.TokenID, arg.Since)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const deleteDevPairingAttempt = `-- name: DeleteDevPairingAttempt :exec
 DELETE FROM dev_pairing_attempts WHERE id = $1
 `
@@ -223,6 +258,53 @@ func (q *Queries) FindDevSocketTicket(ctx context.Context, ticketHash []byte) (p
 	return organization_id, err
 }
 
+const findStudioSession = `-- name: FindStudioSession :one
+SELECT id, organization_id, app_id, environment_id, environment_key, created_by_user, created_by_kind, created_by_id, created_by, created_at, expires_at, last_activity_at, ended_at, kind, bundle_sequence FROM dev_sessions
+ WHERE app_id = $1 AND kind = 'studio' AND created_by_user = $2::text
+   AND ($3::uuid IS NULL OR environment_id = $3::uuid)
+   AND ended_at IS NULL AND expires_at > $4::timestamptz
+ ORDER BY last_activity_at DESC, id
+ LIMIT 1
+`
+
+type FindStudioSessionParams struct {
+	AppID         pgtype.UUID
+	Creator       string
+	EnvironmentID pgtype.UUID
+	Now           pgtype.Timestamptz
+}
+
+// A person's newest Studio session of an app that may still be live, in one
+// environment or, with a null environment, in any; the caller checks the
+// idle timeout.
+func (q *Queries) FindStudioSession(ctx context.Context, arg FindStudioSessionParams) (DevSession, error) {
+	row := q.db.QueryRow(ctx, findStudioSession,
+		arg.AppID,
+		arg.Creator,
+		arg.EnvironmentID,
+		arg.Now,
+	)
+	var i DevSession
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.EnvironmentID,
+		&i.EnvironmentKey,
+		&i.CreatedByUser,
+		&i.CreatedByKind,
+		&i.CreatedByID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.LastActivityAt,
+		&i.EndedAt,
+		&i.Kind,
+		&i.BundleSequence,
+	)
+	return i, err
+}
+
 const getDevPairingCode = `-- name: GetDevPairingCode :one
 SELECT t.consumed_at FROM dev_pairing_tokens t JOIN dev_sessions s ON s.id = t.session_id
  WHERE t.code = $1::text AND s.app_id = $2 AND s.environment_id = $3
@@ -315,6 +397,67 @@ func (q *Queries) GetDevSessionForUpdate(ctx context.Context, id pgtype.UUID) (D
 		&i.BundleSequence,
 	)
 	return i, err
+}
+
+const getJoinRequest = `-- name: GetJoinRequest :one
+SELECT id, organization_id, app_id, session_id, token_id, state, number, phone_name, created_at, expires_at FROM dev_join_requests WHERE id = $1
+`
+
+func (q *Queries) GetJoinRequest(ctx context.Context, id pgtype.UUID) (DevJoinRequest, error) {
+	row := q.db.QueryRow(ctx, getJoinRequest, id)
+	var i DevJoinRequest
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.SessionID,
+		&i.TokenID,
+		&i.State,
+		&i.Number,
+		&i.PhoneName,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
+const getJoinRequestForUpdate = `-- name: GetJoinRequestForUpdate :one
+SELECT id, organization_id, app_id, session_id, token_id, state, number, phone_name, created_at, expires_at FROM dev_join_requests WHERE id = $1 FOR UPDATE
+`
+
+func (q *Queries) GetJoinRequestForUpdate(ctx context.Context, id pgtype.UUID) (DevJoinRequest, error) {
+	row := q.db.QueryRow(ctx, getJoinRequestForUpdate, id)
+	var i DevJoinRequest
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.SessionID,
+		&i.TokenID,
+		&i.State,
+		&i.Number,
+		&i.PhoneName,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
+const hasJoinedDevSession = `-- name: HasJoinedDevSession :one
+SELECT EXISTS (SELECT 1 FROM dev_join_requests WHERE session_id = $1 AND token_id = $2 AND state = 'joined')
+`
+
+type HasJoinedDevSessionParams struct {
+	SessionID pgtype.UUID
+	TokenID   pgtype.UUID
+}
+
+// Whether a phone picked the right number for a session before.
+func (q *Queries) HasJoinedDevSession(ctx context.Context, arg HasJoinedDevSessionParams) (bool, error) {
+	row := q.db.QueryRow(ctx, hasJoinedDevSession, arg.SessionID, arg.TokenID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const insertDevPairingAttempt = `-- name: InsertDevPairingAttempt :exec
@@ -500,6 +643,70 @@ func (q *Queries) InsertDevSessionPatch(ctx context.Context, arg InsertDevSessio
 		arg.CreatedAt,
 	)
 	return err
+}
+
+const insertJoinRequest = `-- name: InsertJoinRequest :one
+INSERT INTO dev_join_requests (id, organization_id, app_id, session_id, token_id, number, phone_name, expires_at, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, organization_id, app_id, session_id, token_id, state, number, phone_name, created_at, expires_at
+`
+
+type InsertJoinRequestParams struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	SessionID      pgtype.UUID
+	TokenID        pgtype.UUID
+	Number         int16
+	PhoneName      string
+	ExpiresAt      pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
+}
+
+func (q *Queries) InsertJoinRequest(ctx context.Context, arg InsertJoinRequestParams) (DevJoinRequest, error) {
+	row := q.db.QueryRow(ctx, insertJoinRequest,
+		arg.ID,
+		arg.OrganizationID,
+		arg.AppID,
+		arg.SessionID,
+		arg.TokenID,
+		arg.Number,
+		arg.PhoneName,
+		arg.ExpiresAt,
+		arg.CreatedAt,
+	)
+	var i DevJoinRequest
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.SessionID,
+		&i.TokenID,
+		&i.State,
+		&i.Number,
+		&i.PhoneName,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
+const joinBlocked = `-- name: JoinBlocked :one
+SELECT EXISTS (SELECT 1 FROM dev_join_requests WHERE session_id = $1 AND token_id = $2 AND state = 'failed')
+`
+
+type JoinBlockedParams struct {
+	SessionID pgtype.UUID
+	TokenID   pgtype.UUID
+}
+
+// Whether a phone picked a wrong number for a session and the person has
+// not let it try again.
+func (q *Queries) JoinBlocked(ctx context.Context, arg JoinBlockedParams) (bool, error) {
+	row := q.db.QueryRow(ctx, joinBlocked, arg.SessionID, arg.TokenID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const listDevSessionDevices = `-- name: ListDevSessionDevices :many
@@ -714,6 +921,24 @@ type RevokeDevSessionDevicesParams struct {
 func (q *Queries) RevokeDevSessionDevices(ctx context.Context, arg RevokeDevSessionDevicesParams) error {
 	_, err := q.db.Exec(ctx, revokeDevSessionDevices, arg.SessionID, arg.RevokedAt)
 	return err
+}
+
+const setJoinRequestState = `-- name: SetJoinRequestState :execrows
+UPDATE dev_join_requests SET state = $2 WHERE id = $1 AND state = 'waiting'
+`
+
+type SetJoinRequestStateParams struct {
+	ID    pgtype.UUID
+	State string
+}
+
+// Ends a waiting request: joined, failed or denied.
+func (q *Queries) SetJoinRequestState(ctx context.Context, arg SetJoinRequestStateParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setJoinRequestState, arg.ID, arg.State)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const touchDevSession = `-- name: TouchDevSession :exec

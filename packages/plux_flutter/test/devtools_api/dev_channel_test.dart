@@ -603,6 +603,26 @@ void main() {
     );
 
     test(
+      'DEV-020 the link says when the socket is live, lost and back',
+      () async {
+        final f = _Fixture();
+        final channel = await f.pair();
+        expect(channel.link.value, DevLinkState.connecting);
+        final first = await f.transport.accept();
+        await pumpEventQueue();
+        expect(channel.link.value, DevLinkState.live);
+        await first.drop();
+        await pumpEventQueue();
+        expect(channel.link.value, DevLinkState.reconnecting);
+        await f.transport.accept();
+        await pumpEventQueue();
+        expect(channel.link.value, DevLinkState.live);
+        await channel.close();
+        expect(channel.link.value, DevLinkState.ended);
+      },
+    );
+
+    test(
       'DEV-021 a frame the server replays after a resume is not applied twice',
       () async {
         final f = _Fixture();

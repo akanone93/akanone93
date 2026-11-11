@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { DevConnectionState, type DevEvent, DevLogLevel } from "@plux/api";
+import { DevConnectionState, type DevEvent, DevJoinState, DevLogLevel } from "@plux/api";
 import { limitDefault } from "@plux/schema";
 
 /** The nine tabs of the bottom drawer, in display order (STU-066). */
@@ -29,6 +29,7 @@ const tabByCase: Readonly<Record<string, DrawerTab>> = {
   error: "logs",
   drop: "logs",
   connection: "logs",
+  joinRequest: "logs",
   actionTrace: "flow",
   stateDiff: "state",
   networkCall: "network",
@@ -72,6 +73,9 @@ const summaries: Summaries = {
       : v.reason === ""
         ? "disconnected"
         : `disconnected: ${v.reason}`,
+  // The number to pick is never in the event: Studio shows it in the join prompt only (ADR-0104).
+  joinRequest: (v: { phoneName: string; state: DevJoinState }) =>
+    `phone "${v.phoneName}" asks to join: ${(DevJoinState[v.state] ?? "").toLowerCase().replace("_", " ")}`,
   actionTrace: (v: { graph: string; trigger: string }) => `${v.graph} ${v.trigger}`,
   stateDiff: (v: { scope: string; changes: { path: string }[] }) =>
     `${v.scope} ${v.changes.map((c) => c.path).join(", ")}`,

@@ -98,11 +98,15 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `devSession.devicesPerSession` | count | 5 | 80% | 20 | installation, organization, app | P10 | DEV-002 | Devices that may be paired to one dev session at the same time. |
 | `devSession.draftCompileWorkers` | count | 4 | 80% | 64 | installation | P11 | STU-130 | Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile. |
 | `devSession.idleMinutes` | count | 30 | 80% | 480 | installation, organization, app | P10 | DEV-001 | Minutes without any device event or command after which the server ends a dev session. |
+| `devSession.joinRequestSeconds` | count | 60 | 80% | 120 | installation, organization, app | P11 | DEV-002 | Lifetime of a signed-in phone's request to join a Studio dev session, in seconds: the time to pick on the phone the number Studio shows. |
 | `devSession.lifetimeMinutes` | count | 480 | 80% | 1440 | installation, organization, app | P10 | DEV-001 | Lifetime of a dev session, in minutes, from its creation. |
 | `devSession.pairingCodeAttempts` | count | 5 | 80% | 5 | installation, organization, app | P10 | DEV-002 | Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes. |
 | `devSession.pairingTokenSeconds` | count | 120 | 80% | 120 | installation, organization, app | P10 | DEV-002 | Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows. |
 | `devSession.patchBytes` | bytes | 1048576 | 80% | 8388608 | installation, organization, app | P10 | DEV-010 | Size of the document patches of one PushPatch call. |
 | `devSession.patchLogBytes` | bytes | 8388608 | 80% | 67108864 | installation, organization, app | P11 | DEV-010 | Bytes of patches one CLI dev session keeps in its log; a push beyond it is refused until the session restarts. |
+| `devSession.phoneAttempts` | count | 10 | 80% | 30 | installation | P11 | DEV-002 | Phone sign-ins and join requests one phone key may start in ten minutes; further ones are refused until the window passes. |
+| `devSession.phoneIdleDays` | count | 30 | 80% | 90 | installation | P11 | DEV-002 | Days a phone signed in to the Plux Dev app may go unused before its sign-in lapses and the phone must be connected again. |
+| `devSession.phoneSignInSeconds` | count | 60 | 80% | 120 | installation | P11 | DEV-002 | Lifetime of the QR code that connects a phone to the Plux Dev app, in seconds, from Studio showing it to the number being picked on the phone. |
 | `device.clipboardChars` | count | 10000 | 80% | 100000 | installation, organization, app | P5 | SEC-080, LIM-004 | Characters copyToClipboard may put on the clipboard in one step. |
 | `device.diskQuota` | bytes | 209715200 | 80% | 4294967296 | installation, organization, app | P3 | SYN-012 | Disk space the runtime may use for releases on one device. |
 | `device.pickCount` | count | 10 | 80% | 100 | installation, organization, app | P5 | SEC-080, LIM-004 | Files a single pickImage or pickFile step may return. |

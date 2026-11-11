@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_dev/dev.dart';
+import 'package:plux_flutter/plux_flutter.dart' show DevSignInLink;
 
 /// The development roots the Dev app pins, and only those [DEV-001]
 /// [SEC-051] [SEC-056].
@@ -36,12 +37,12 @@ void main() {
     );
   });
 
-  testWidgets('without roots the app says so and never asks to sign in '
+  testWidgets('without roots the app says so and never offers to connect '
       '[DEV-001]', (tester) async {
-    await tester.pumpWidget(const DevApp(rootKeys: []));
+    await tester.pumpWidget(const DevApp(rootKeys: [], phones: _NoPhone()));
+    await tester.pump();
     expect(find.textContaining('No development roots configured'), findsOne);
-    expect(find.byKey(const Key('sign-in')), findsNothing);
-    expect(find.byKey(const Key('server-field')), findsNothing);
+    expect(find.byKey(const Key('scan')), findsNothing);
   });
 
   test('the app contains no production roots and imports none [DEV-001, '
@@ -62,4 +63,16 @@ void main() {
       isNot(contains('plux_viewer:')),
     );
   });
+}
+
+/// A directory with no phone signed in.
+final class _NoPhone implements PhoneDirectory {
+  const _NoPhone();
+
+  @override
+  Future<SignedInPhone?> restore() async => null;
+
+  @override
+  Future<PhoneSignIn> claim(DevSignInLink link) =>
+      throw UnimplementedError('no sign-in in this test');
 }

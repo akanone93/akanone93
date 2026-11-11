@@ -112,5 +112,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0100](0100-p11-scope-changes.md) | P11 changes to MUST requirements in specification 1.10.0 | P11 | Accepted |
 | [0101](0101-structural-session-replay.md) | Structural session replay: consent-gated, redacted, bounded, kept per app with retention | P11 | Proposed |
 | [0103](0103-shadcn-stock-design.md) | Studio uses shadcn/ui as it ships: Base UI, base-nova, its neutral theme, Inter and lucide | P11 | Accepted |
+| [0104](0104-dev-app-phone-sign-in.md) | The Dev app signs a phone in once and joins Studio sessions with a number match | P11 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

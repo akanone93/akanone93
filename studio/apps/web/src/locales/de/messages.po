@@ -1042,6 +1042,18 @@ msgstr "{percent} % {stage}"
 msgid "motion.play"
 msgstr "{phase, select, enter {Erscheinen abspielen} other {Verschwinden abspielen}}"
 
+#. Shown once a phone is signed in; phone is its name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.connected"
+msgstr "{phone} ist verbunden. Tippen Sie dort auf eine App, um sie zu öffnen."
+
+#. Title of the prompt shown when a signed-in phone asks to join the dev session; phone is its name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.asks"
+msgstr "{phone} möchte beitreten"
+
 #. A branch the canvas draws; From data follows the condition's design-time value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/condition-panel.messages.ts
@@ -1161,6 +1173,18 @@ msgstr "{script} hat keine Ersatzschrift."
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.fallbackOk"
 msgstr "{script}: {n} Schriften"
+
+#. How long a phone's request to join stays open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.expires"
+msgstr "{seconds, plural, one {Noch # Sekunde} other {Noch # Sekunden}}"
+
+#. How long the QR code that connects a phone stays valid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.expiresIn"
+msgstr "{seconds, plural, one {Einmal gültig, noch # Sekunde} other {Einmal gültig, noch # Sekunden}}"
 
 #. A timeline's length and how many tracks it has.
 #. js-lingui-explicit-id
@@ -1371,6 +1395,18 @@ msgstr "Eine Stufe darf den Anteil der vorherigen Stufe nicht senken."
 #: apps/web/src/features/panels/theme-card.messages.ts
 msgid "themeCard.live"
 msgstr "Der Wert eines Tokens ändert jedes Widget, das ihn nutzt, auf jedem Bildschirm."
+
+#. Title shown when the number picked on a phone was not the one Studio showed; phone is its name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.wrong"
+msgstr "Auf {phone} wurde eine falsche Zahl gewählt"
+
+#. Shown when the number picked on the phone was not the one shown.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.wrong"
+msgstr "Es wurde eine falsche Zahl gewählt, das Telefon wurde nicht verbunden. Zeigen Sie einen neuen Code, um es erneut zu versuchen."
 
 #. One of five short stories under the sample screen on the sign-in page. Its title.
 #. js-lingui-explicit-id
@@ -3216,6 +3252,12 @@ msgstr "Abbrechen"
 msgid "publish.warningsCancel"
 msgstr "Abbrechen"
 
+#. Closes a phone dialog without changing anything.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.cancel"
+msgstr "Abbrechen"
+
 #. Cancel button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -3810,6 +3852,12 @@ msgstr "Schließen"
 msgid "publish.warningsClose"
 msgstr "Schließen"
 
+#. Closes the dialog that connects a phone.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.close"
+msgstr "Schließen"
+
 #. Accessible name of the close button of the custom frame dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -4289,6 +4337,18 @@ msgstr "Bestätige, dass du es bist"
 #: apps/web/src/components/refusal.messages.ts
 msgid "refusal.step-up.action"
 msgstr "Mit Passkey bestätigen"
+
+#. Button that starts connecting a phone to the Plux Dev app; it asks for the security key first.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.connect"
+msgstr "Telefon verbinden"
+
+#. Title of the dialog that shows the QR code to connect a phone.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.dialogTitle"
+msgstr "Telefon verbinden"
 
 #. Explains the pair-a-device onboarding step.
 #. js-lingui-explicit-id
@@ -5130,6 +5190,12 @@ msgstr "Abgelehnt. Dieses Terminal ist nicht angemeldet."
 msgid "profile.density"
 msgstr "Dichte"
 
+#. Button that refuses a phone's request to join the dev session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.deny"
+msgstr "Ablehnen"
+
 #. Button that refuses the sign-in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -5471,6 +5537,12 @@ msgstr "Verwerfen"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.dismiss"
 msgstr "Verwerfen"
+
+#. Button that closes the prompt about a wrong number, leaving the phone out of the session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.dismiss"
+msgstr "Schließen"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -8748,6 +8820,12 @@ msgstr "Zuletzt verwendet"
 msgid "profile.keys.last-used"
 msgstr "Zuletzt verwendet {date}"
 
+#. When a phone was last used; when is a localised date and time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.lastUsed"
+msgstr "Zuletzt verwendet {when}"
+
 #. Metric label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -8843,6 +8921,12 @@ msgstr "Links"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.dock"
 msgstr "Linke Bedienfelder"
+
+#. Button that lets a phone that picked a wrong number ask to join again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.retry"
+msgstr "Erneut versuchen lassen"
 
 #. Label of a text's letter spacing.
 #. js-lingui-explicit-id
@@ -10673,6 +10757,12 @@ msgstr "Kein zuständiges Team"
 msgid "pageSettings.noParams"
 msgstr "Keine Parameter: Die Seite öffnet ohne Werte."
 
+#. Shown in the phones card when no phone is signed in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.empty"
+msgstr "Noch ist kein Telefon angemeldet."
+
 #. Shown when there is nothing to publish.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -11063,6 +11153,12 @@ msgstr "Nicht übersetzt"
 msgid "panelTabs.l10nLiteral"
 msgstr "Nicht übersetzt"
 
+#. Shown for a phone that has not been used since it was signed in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.neverUsed"
+msgstr "Noch nicht verwendet"
+
 #. Finding shown when the text is not JSON; {message} is the parser's explanation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/json-editor/json-editor.messages.ts
@@ -11236,6 +11332,18 @@ msgstr "Nirgendwohin"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.typeNumber"
 msgstr "Zahl"
+
+#. Accessible name of the large two-digit number to pick on the phone.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.number"
+msgstr "Zu wählende Zahl: {n}"
+
+#. Accessible name of the large two-digit number of a join request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.number"
+msgstr "Zu wählende Zahl: {n}"
 
 #. Heading of the occurrences table.
 #. js-lingui-explicit-id
@@ -11530,6 +11638,12 @@ msgstr "Lokalisierungstabelle öffnen"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.unfoldDock"
 msgstr "Bereich öffnen"
+
+#. Instruction under the QR code that connects a phone.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.scan"
+msgstr "Öffnen Sie die Plux-Dev-App auf dem Telefon und scannen Sie diesen Code."
 
 #. Button of the State tab that opens the full-screen state designer.
 #. js-lingui-explicit-id
@@ -12167,6 +12281,18 @@ msgstr "Berechtigungen"
 msgid "admin.kindUser"
 msgstr "Person"
 
+#. Title of the card listing the phones signed in to the Plux Dev app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.title"
+msgstr "Telefone"
+
+#. Description of the phones card.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.caption"
+msgstr "Telefone, die in der Plux-Dev-App angemeldet sind. Ein Telefon listet Ihre Apps auf und tritt der Sitzung bei, die Sie in Studio geöffnet haben, sobald Sie eine Zahl bestätigen. Ein 30 Tage lang nicht verwendetes Telefon wird abgemeldet."
+
 #. A device API.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -12178,6 +12304,18 @@ msgstr "Fotos"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.builderCaption"
 msgstr "Wähle die Berechtigungen der Rolle. Bereiche enthalten Funktionen, Funktionen enthalten Aktionen."
+
+#. Shown above the number to pick, once a phone scanned the code; phone is its name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.pickOn"
+msgstr "Wählen Sie diese Zahl auf {phone}"
+
+#. Under the two-digit number a person picks on their phone to let it join the dev session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.pick"
+msgstr "Wählen Sie diese Zahl auf dem Telefon, um es zuzulassen. Nur Sie sehen sie hier."
 
 #. Tooltip of the pin button of an app.
 #. js-lingui-explicit-id
@@ -12855,6 +12993,12 @@ msgstr "PXL-Ausdruck"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.qrLabel"
 msgstr "QR-Code des Kopplungslinks"
+
+#. Accessible name of the QR code that connects a phone.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.qrLabel"
+msgstr "QR-Code, der ein Telefon mit der Plux-Dev-App verbindet"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -15375,6 +15519,12 @@ msgstr "Anzeigen"
 msgid "appCanvas.layers.show"
 msgstr "{name} auf der Leinwand zeigen"
 
+#. Button that starts connecting a phone again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.again"
+msgstr "Neuen Code zeigen"
+
 #. Accessible name of the chip that removes the kind filter of the Insert tab.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -15507,11 +15657,29 @@ msgstr "Abmelden"
 msgid "chrome.profile.signout"
 msgstr "Abmelden"
 
+#. Confirms signing a phone out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.signOutConfirm"
+msgstr "Abmelden"
+
+#. Accessible name of the button that signs a phone out; name is the phone's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.signOut"
+msgstr "{name} abmelden"
+
 #. Shown when adding or removing a key needs a second factor presented in this session.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.keys.needs-factor"
 msgstr "Melden Sie sich ab und mit einem Ihrer Schlüssel erneut an, dann versuchen Sie es noch einmal."
+
+#. Title of the confirmation before a phone is signed out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.signOutTitle"
+msgstr "Dieses Telefon abmelden?"
 
 #. Shown when the sign-in request fails for another reason.
 #. js-lingui-explicit-id
@@ -15716,6 +15884,12 @@ msgstr "Jemand anderes bearbeitet dieses Plugin, daher können Snapshots nicht w
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.readOnly"
 msgstr "Jemand anderes bearbeitet, daher ist dieser Entwurf schreibgeschützt."
+
+#. Why the number is asked for, under the number to pick.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.pickHint"
+msgstr "Wer den Code kopiert hat, kann ohne diese Zahl nicht abschließen."
 
 #. Label of the sort control of the apps.
 #. js-lingui-explicit-id
@@ -16593,6 +16767,12 @@ msgstr "Textgröße"
 msgid "devices.textScale"
 msgstr "Textgröße"
 
+#. Shown on a join prompt when denying or letting the phone try again failed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.failed"
+msgstr "Das hat nicht geklappt. Versuchen Sie es erneut."
+
 #. Shown when approving or denying failed for another reason.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -16844,6 +17024,12 @@ msgstr "Die Zwischenablage enthält mehr, als das Größenlimit erlaubt."
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
 msgid "clipboard.refusedTitle"
 msgstr "Die Zwischenablage wurde nicht eingefügt"
+
+#. Shown when the QR code that connects a phone was not used in time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.expired"
+msgstr "Der Code ist abgelaufen. Zeigen Sie einen neuen, um es erneut zu versuchen."
 
 #. Shown when the server refuses the one-time code.
 #. js-lingui-explicit-id
@@ -17373,6 +17559,18 @@ msgstr "Die eingefügten Elemente bestehen die Prüfung nicht."
 msgid "shell.project.patch-caption"
 msgstr "Der Patch enthält die Dateien, die seit der letzten Erzeugung hinzugekommen sind oder sich geändert haben, sowie plux-patch.json, die die geänderten, hinzugefügten und gelöschten Dateien auflistet. Entpacke ihn über dein Projekt und lösche die aufgeführten Dateien."
 
+#. Body of the prompt after a wrong number was picked on a phone.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/join.messages.ts
+msgid "devices.join.wrongBody"
+msgstr "Das Telefon kann dieser Sitzung erst beitreten, wenn Sie es erneut versuchen lassen. Wenn Sie es nicht waren, melden Sie das Telefon unter Profil › Telefone ab."
+
+#. Shown when starting to connect a phone failed, usually because the security key step was cancelled.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.connectFailed"
+msgstr "Das Telefon konnte nicht verbunden werden. Bestätigen Sie mit Ihrem Sicherheitsschlüssel und versuchen Sie es erneut."
+
 #. Shown when saving the pinned apps failed.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -17420,6 +17618,12 @@ msgstr "Die Dokumente des Plugins kehren zum Stand von {when} zurück. Sie könn
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.plugin-usage-load-failed"
 msgstr "Die Limits des Plugins konnten nicht geladen werden."
+
+#. Body of the confirmation before a phone is signed out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/phones.messages.ts
+msgid "profile.phones.signOutBody"
+msgstr "Die Plux-Dev-App darauf kann Ihre Apps nicht mehr öffnen. Sie können es jederzeit erneut verbinden."
 
 #. Shown when the save failed.
 #. js-lingui-explicit-id

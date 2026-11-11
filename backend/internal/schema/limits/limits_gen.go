@@ -282,6 +282,10 @@ const (
 	// DevSessionIdleMinutes: Minutes without any device event or command after
 	// which the server ends a dev session. (DEV-001)
 	DevSessionIdleMinutes Key = "devSession.idleMinutes"
+	// DevSessionJoinRequestSeconds: Lifetime of a signed-in phone's request to
+	// join a Studio dev session, in seconds: the time to pick on the phone the
+	// number Studio shows. (DEV-002)
+	DevSessionJoinRequestSeconds Key = "devSession.joinRequestSeconds"
 	// DevSessionLifetimeMinutes: Lifetime of a dev session, in minutes, from its
 	// creation. (DEV-001)
 	DevSessionLifetimeMinutes Key = "devSession.lifetimeMinutes"
@@ -298,6 +302,18 @@ const (
 	// DevSessionPatchLogBytes: Bytes of patches one CLI dev session keeps in its
 	// log; a push beyond it is refused until the session restarts. (DEV-010)
 	DevSessionPatchLogBytes Key = "devSession.patchLogBytes"
+	// DevSessionPhoneAttempts: Phone sign-ins and join requests one phone key
+	// may start in ten minutes; further ones are refused until the window
+	// passes. (DEV-002)
+	DevSessionPhoneAttempts Key = "devSession.phoneAttempts"
+	// DevSessionPhoneIdleDays: Days a phone signed in to the Plux Dev app may go
+	// unused before its sign-in lapses and the phone must be connected again.
+	// (DEV-002)
+	DevSessionPhoneIdleDays Key = "devSession.phoneIdleDays"
+	// DevSessionPhoneSignInSeconds: Lifetime of the QR code that connects a
+	// phone to the Plux Dev app, in seconds, from Studio showing it to the
+	// number being picked on the phone. (DEV-002)
+	DevSessionPhoneSignInSeconds Key = "devSession.phoneSignInSeconds"
 	// DeviceClipboardChars: Characters copyToClipboard may put on the clipboard
 	// in one step. (SEC-080, LIM-004)
 	DeviceClipboardChars Key = "device.clipboardChars"
@@ -794,11 +810,15 @@ var registry = [...]Definition{
 	{Key: DevSessionDevicesPerSession, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Devices that may be paired to one dev session at the same time."},
 	{Key: DevSessionDraftCompileWorkers, Unit: UnitCount, Default: 4, Warning: 0, Max: 64, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Studio draft compiles one replica runs at the same time; writes to the same plugin that arrive meanwhile coalesce into one further compile."},
 	{Key: DevSessionIdleMinutes, Unit: UnitCount, Default: 30, Warning: 0, Max: 480, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Minutes without any device event or command after which the server ends a dev session."},
+	{Key: DevSessionJoinRequestSeconds, Unit: UnitCount, Default: 60, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Lifetime of a signed-in phone's request to join a Studio dev session, in seconds: the time to pick on the phone the number Studio shows."},
 	{Key: DevSessionLifetimeMinutes, Unit: UnitCount, Default: 480, Warning: 0, Max: 1440, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a dev session, in minutes, from its creation."},
 	{Key: DevSessionPairingCodeAttempts, Unit: UnitCount, Default: 5, Warning: 0, Max: 5, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Failed pairing-code attempts one device may make in ten minutes; further attempts are refused until the window passes."},
 	{Key: DevSessionPairingTokenSeconds, Unit: UnitCount, Default: 120, Warning: 0, Max: 120, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Lifetime of a pairing token, in seconds; the hard maximum is the two minutes the specification allows."},
 	{Key: DevSessionPatchBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 8388608, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P10", Description: "Size of the document patches of one PushPatch call."},
 	{Key: DevSessionPatchLogBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Bytes of patches one CLI dev session keeps in its log; a push beyond it is refused until the session restarts."},
+	{Key: DevSessionPhoneAttempts, Unit: UnitCount, Default: 10, Warning: 0, Max: 30, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Phone sign-ins and join requests one phone key may start in ten minutes; further ones are refused until the window passes."},
+	{Key: DevSessionPhoneIdleDays, Unit: UnitCount, Default: 30, Warning: 0, Max: 90, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Days a phone signed in to the Plux Dev app may go unused before its sign-in lapses and the phone must be connected again."},
+	{Key: DevSessionPhoneSignInSeconds, Unit: UnitCount, Default: 60, Warning: 0, Max: 120, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Lifetime of the QR code that connects a phone to the Plux Dev app, in seconds, from Studio showing it to the number being picked on the phone."},
 	{Key: DeviceClipboardChars, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Characters copyToClipboard may put on the clipboard in one step."},
 	{Key: DeviceDiskQuota, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Disk space the runtime may use for releases on one device."},
 	{Key: DevicePickCount, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Files a single pickImage or pickFile step may return."},

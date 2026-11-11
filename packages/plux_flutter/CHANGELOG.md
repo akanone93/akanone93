@@ -7,6 +7,18 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **A phone signed in to the Plux Dev app (DEV-002, ADR-0104):** `DevPhone` claims the sign-in of
+  Studio's QR code (`DevSignInLink`, `plux-dev://signin?…`) with a P-256 key it creates in the
+  platform keystore, completes it with the number Studio shows, keeps the phone token in the
+  platform's encrypted secret store, and lists the person's apps and joins their Studio sessions
+  with a number match; every call carries a DPoP proof of that key (`DevPhoneException` says what
+  failed, a lapsed or revoked sign-in forgets itself).
+- **The dev channel says when it is live (DEV-020):** `DevChannel.link` is `connecting`, `live`,
+  `reconnecting` or `ended` as the socket opens, drops and comes back, for a status the developer
+  sees.
+- **`Plux.entryRoute`:** the app's entry route in the release pages render from, following it
+  (a dev bundle that changes it included), so a host such as the Dev app opens the entry screen.
+
 - **The dev socket's proof names its HTTP request (DEV-002):** the DPoP proof of the dev socket
   carries `htu = https://…/dev/socket` (`http` for `ws`), the request that opens the WebSocket
   (RFC 9449 §4.2), as the server checks; it carried the `wss://` URL, which the server refuses, so

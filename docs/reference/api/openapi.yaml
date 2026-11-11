@@ -4613,6 +4613,574 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListRequestsResponse'
+  /plux.v1.DevPhoneService/AllowJoinRetry:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: AllowJoinRetry
+      description: |-
+        AllowJoinRetry lets a phone that picked a wrong number ask to join the
+         session again: until then it may not, so that a phone in other hands gets
+         one guess.
+      operationId: plux.v1.DevPhoneService.AllowJoinRetry
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.AllowJoinRetryRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.AllowJoinRetryResponse'
+  /plux.v1.DevPhoneService/CancelPhoneSignIn:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: CancelPhoneSignIn
+      description: CancelPhoneSignIn ends a sign-in of the caller's that is not finished.
+      operationId: plux.v1.DevPhoneService.CancelPhoneSignIn
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CancelPhoneSignInRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CancelPhoneSignInResponse'
+  /plux.v1.DevPhoneService/ClaimPhoneSignIn:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: ClaimPhoneSignIn
+      description: |-
+        ClaimPhoneSignIn is the phone's scan of the QR code: it binds the
+         sign-in to the key of the call's DPoP proof and returns the three numbers
+         to offer (PLX-9212).
+      operationId: plux.v1.DevPhoneService.ClaimPhoneSignIn
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ClaimPhoneSignInRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ClaimPhoneSignInResponse'
+  /plux.v1.DevPhoneService/CompleteJoin:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: CompleteJoin
+      description: |-
+        CompleteJoin is the phone's pick; with the right number it returns a
+         pairing link (PLX-9210, PLX-9212).
+      operationId: plux.v1.DevPhoneService.CompleteJoin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CompleteJoinRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CompleteJoinResponse'
+  /plux.v1.DevPhoneService/CompletePhoneSignIn:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: CompletePhoneSignIn
+      description: |-
+        CompletePhoneSignIn is the phone's pick; with the right number it returns
+         the phone token, once (PLX-9210, PLX-9212).
+      operationId: plux.v1.DevPhoneService.CompletePhoneSignIn
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CompletePhoneSignInRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CompletePhoneSignInResponse'
+  /plux.v1.DevPhoneService/CreatePhoneSignIn:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: CreatePhoneSignIn
+      description: |-
+        CreatePhoneSignIn starts connecting a phone: it needs a browser session
+         with a recent step-up, and returns the QR code's link once.
+      operationId: plux.v1.DevPhoneService.CreatePhoneSignIn
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreatePhoneSignInRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreatePhoneSignInResponse'
+  /plux.v1.DevPhoneService/DenyJoinRequest:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: DenyJoinRequest
+      description: |-
+        DenyJoinRequest refuses a phone's request to join one of the caller's dev
+         sessions.
+      operationId: plux.v1.DevPhoneService.DenyJoinRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DenyJoinRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DenyJoinRequestResponse'
+  /plux.v1.DevPhoneService/GetJoinRequest:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: GetJoinRequest
+      description: |-
+        GetJoinRequest reports a phone's request to join one of the caller's dev
+         sessions, with the number to show; only the session's creator may read it.
+      operationId: plux.v1.DevPhoneService.GetJoinRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetJoinRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetJoinRequestResponse'
+  /plux.v1.DevPhoneService/GetPhoneSignIn:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: GetPhoneSignIn
+      description: |-
+        GetPhoneSignIn reports a sign-in of the caller's: the number to show once
+         a phone claimed it, and how it ended.
+      operationId: plux.v1.DevPhoneService.GetPhoneSignIn
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetPhoneSignInRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetPhoneSignInResponse'
+  /plux.v1.DevPhoneService/ListPhoneApps:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: ListPhoneApps
+      description: |-
+        ListPhoneApps lists the apps the phone's person may preview, and which of
+         them that person has open in Studio.
+      operationId: plux.v1.DevPhoneService.ListPhoneApps
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListPhoneAppsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListPhoneAppsResponse'
+  /plux.v1.DevPhoneService/ListPhones:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: ListPhones
+      description: ListPhones lists the caller's signed-in phones.
+      operationId: plux.v1.DevPhoneService.ListPhones
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListPhonesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListPhonesResponse'
+  /plux.v1.DevPhoneService/RequestJoin:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: RequestJoin
+      description: |-
+        RequestJoin asks to join the person's live Studio session of an app
+         (PLX-9211).
+      operationId: plux.v1.DevPhoneService.RequestJoin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RequestJoinRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RequestJoinResponse'
+  /plux.v1.DevPhoneService/RevokePhone:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: RevokePhone
+      description: RevokePhone signs one of the caller's phones out.
+      operationId: plux.v1.DevPhoneService.RevokePhone
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RevokePhoneRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RevokePhoneResponse'
+  /plux.v1.DevPhoneService/SignOutPhone:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: SignOutPhone
+      description: SignOutPhone revokes the calling phone's own token.
+      operationId: plux.v1.DevPhoneService.SignOutPhone
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SignOutPhoneRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SignOutPhoneResponse'
   /plux.v1.DevSessionService/CreateSession:
     post:
       tags:
@@ -16464,6 +17032,19 @@ components:
       title: Alias
       additionalProperties: false
       description: Alias points a name at a version of a function (FN-006).
+    plux.v1.AllowJoinRetryRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+          description: request_id is the request whose number was wrong.
+      title: AllowJoinRetryRequest
+      additionalProperties: false
+    plux.v1.AllowJoinRetryResponse:
+      type: object
+      title: AllowJoinRetryResponse
+      additionalProperties: false
     plux.v1.AndroidEvidence:
       type: object
       properties:
@@ -17515,6 +18096,18 @@ components:
           description: body is the upstream's response body.
       title: CallResponse
       additionalProperties: false
+    plux.v1.CancelPhoneSignInRequest:
+      type: object
+      properties:
+        signInId:
+          type: string
+          title: sign_in_id
+      title: CancelPhoneSignInRequest
+      additionalProperties: false
+    plux.v1.CancelPhoneSignInResponse:
+      type: object
+      title: CancelPhoneSignInResponse
+      additionalProperties: false
     plux.v1.CancelPublishJobRequest:
       type: object
       properties:
@@ -17781,6 +18374,46 @@ components:
              equals release_sequence once that promotion reaches devices.
       title: Channel
       additionalProperties: false
+    plux.v1.ClaimPhoneSignInRequest:
+      type: object
+      properties:
+        grant:
+          type: string
+          title: grant
+          description: grant is the grant of the scanned link.
+        name:
+          type: string
+          title: name
+          description: name and platform describe the phone, for the person's list of phones.
+        platform:
+          type: string
+          title: platform
+      title: ClaimPhoneSignInRequest
+      additionalProperties: false
+    plux.v1.ClaimPhoneSignInResponse:
+      type: object
+      properties:
+        options:
+          type: array
+          items:
+            type: integer
+          title: options
+          description: |-
+            options are the three numbers to offer, in the order to show them; one of
+             them is the number Studio shows.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+        userDisplay:
+          type: string
+          title: user_display
+          description: user_display and organization_name say whom the phone is signing in as.
+        organizationName:
+          type: string
+          title: organization_name
+      title: ClaimPhoneSignInResponse
+      additionalProperties: false
     plux.v1.ClearForcedRollbackRequest:
       type: object
       properties:
@@ -18010,6 +18643,35 @@ components:
              declares it with other types (WGT-032).
       title: Compatibility
       additionalProperties: false
+    plux.v1.CompleteJoinRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+        number:
+          type: integer
+          title: number
+      title: CompleteJoinRequest
+      additionalProperties: false
+    plux.v1.CompleteJoinResponse:
+      type: object
+      properties:
+        pairingLink:
+          type: string
+          title: pairing_link
+          description: |-
+            pairing_link is `plux-dev://pair?server=<url>&token=<token>`, the link a
+             scan of the session's QR code gives, for the phone's runtime to pair with
+             at once.
+        sessionId:
+          type: string
+          title: session_id
+        environment:
+          type: string
+          title: environment
+      title: CompleteJoinResponse
+      additionalProperties: false
     plux.v1.CompleteMfaRequest:
       type: object
       properties:
@@ -18053,6 +18715,40 @@ components:
             - $ref: '#/components/schemas/plux.v1.MfaChallenge'
           title: challenge
       title: CompleteOidcLoginResponse
+      additionalProperties: false
+    plux.v1.CompletePhoneSignInRequest:
+      type: object
+      properties:
+        grant:
+          type: string
+          title: grant
+        number:
+          type: integer
+          title: number
+      title: CompletePhoneSignInRequest
+      additionalProperties: false
+    plux.v1.CompletePhoneSignInResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          title: token
+          description: |-
+            token is the phone token, returned once and stored only as its hash; the
+             phone keeps it in its secure storage and sends it with a proof of its key.
+        phoneId:
+          type: string
+          title: phone_id
+        organizationId:
+          type: string
+          title: organization_id
+        userDisplay:
+          type: string
+          title: user_display
+        organizationName:
+          type: string
+          title: organization_name
+      title: CompletePhoneSignInResponse
       additionalProperties: false
     plux.v1.CompleteReleaseRequestRequest:
       type: object
@@ -19076,6 +19772,29 @@ components:
             - $ref: '#/components/schemas/plux.v1.Organization'
           title: organization
       title: CreateOrganizationResponse
+      additionalProperties: false
+    plux.v1.CreatePhoneSignInRequest:
+      type: object
+      title: CreatePhoneSignInRequest
+      additionalProperties: false
+    plux.v1.CreatePhoneSignInResponse:
+      type: object
+      properties:
+        signInId:
+          type: string
+          title: sign_in_id
+        link:
+          type: string
+          title: link
+          description: |-
+            link is the QR code's content,
+             `plux-dev://signin?server=<url>&grant=<grant>`. It is a credential until
+             it expires: shown once, never stored or logged.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: CreatePhoneSignInResponse
       additionalProperties: false
     plux.v1.CreatePluginRequest:
       type: object
@@ -20145,6 +20864,18 @@ components:
       type: object
       title: DenyDeviceAuthorizationResponse
       additionalProperties: false
+    plux.v1.DenyJoinRequestRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+      title: DenyJoinRequestRequest
+      additionalProperties: false
+    plux.v1.DenyJoinRequestResponse:
+      type: object
+      title: DenyJoinRequestResponse
+      additionalProperties: false
     plux.v1.Dependency:
       type: object
       properties:
@@ -20487,6 +21218,17 @@ components:
           title: inspect
         - type: object
           properties:
+            joinRequest:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.JoinRequestEvent'
+              title: join_request
+              description: |-
+                join_request is written by the server, never by a device, when a
+                 signed-in phone asks to join the session and when that request ends
+                 (DEV-002, ADR-0104).
+          title: join_request
+        - type: object
+          properties:
             log:
               allOf:
                 - $ref: '#/components/schemas/plux.v1.LogEvent'
@@ -20550,6 +21292,8 @@ components:
               - required:
                   - inspect
               - required:
+                  - joinRequest
+              - required:
                   - log
               - required:
                   - networkCall
@@ -20581,6 +21325,8 @@ components:
                     - hotApply
                 - required:
                     - inspect
+                - required:
+                    - joinRequest
                 - required:
                     - log
                 - required:
@@ -20636,6 +21382,18 @@ components:
       title: DevEventAck
       additionalProperties: false
       description: DevEventAck acknowledges a device's events.
+    plux.v1.DevJoinState:
+      type: string
+      title: DevJoinState
+      enum:
+        - DEV_JOIN_STATE_UNSPECIFIED
+        - DEV_JOIN_STATE_WAITING
+        - DEV_JOIN_STATE_JOINED
+        - DEV_JOIN_STATE_FAILED
+        - DEV_JOIN_STATE_DENIED
+        - DEV_JOIN_STATE_EXPIRED
+        - DEV_JOIN_STATE_RETRY_ALLOWED
+      description: DevJoinState is where a phone's request to join a dev session stands.
     plux.v1.DevLifecycleEvent:
       type: string
       title: DevLifecycleEvent
@@ -20755,6 +21513,36 @@ components:
         - DEV_PATCH_STATUS_REFUSED
         - DEV_PATCH_STATUS_OFFLINE
       description: DevPatchStatus is the outcome of a push for one device.
+    plux.v1.DevPhone:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        name:
+          type: string
+          title: name
+        platform:
+          type: string
+          title: platform
+        signedInAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: signed_in_at
+        lastUsedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_used_at
+        lapsesAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: lapses_at
+          description: |-
+            lapses_at is when the sign-in lapses unless the phone is used before:
+             `devSession.phoneIdleDays` after its last use.
+      title: DevPhone
+      additionalProperties: false
+      description: DevPhone is a phone signed in to the Plux Dev app.
     plux.v1.DevRunStatus:
       type: string
       title: DevRunStatus
@@ -24300,6 +25088,39 @@ components:
           title: areas
       title: GetInstallationStorageResponse
       additionalProperties: false
+    plux.v1.GetJoinRequestRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+      title: GetJoinRequestRequest
+      additionalProperties: false
+    plux.v1.GetJoinRequestResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevJoinState'
+          title: state
+        number:
+          type: integer
+          title: number
+          description: |-
+            number is the number to pick on the phone: set only while the state is
+             WAITING.
+        phoneName:
+          type: string
+          title: phone_name
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: GetJoinRequestResponse
+      additionalProperties: false
     plux.v1.GetLicenseStateRequest:
       type: object
       title: GetLicenseStateRequest
@@ -24666,6 +25487,40 @@ components:
             $ref: '#/components/schemas/plux.v1.PersonalDataStore'
           title: stores
       title: GetPersonalDataMapResponse
+      additionalProperties: false
+    plux.v1.GetPhoneSignInRequest:
+      type: object
+      properties:
+        signInId:
+          type: string
+          title: sign_in_id
+      title: GetPhoneSignInRequest
+      additionalProperties: false
+    plux.v1.GetPhoneSignInResponse:
+      type: object
+      properties:
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PhoneSignInState'
+          title: state
+        number:
+          type: integer
+          title: number
+          description: |-
+            number is the number the person picks on the phone: set only while the
+             state is CLAIMED.
+        phoneName:
+          type: string
+          title: phone_name
+          description: phone_name and platform describe the phone that claimed the sign-in.
+        platform:
+          type: string
+          title: platform
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: GetPhoneSignInResponse
       additionalProperties: false
     plux.v1.GetPluginRequest:
       type: object
@@ -26439,6 +27294,31 @@ components:
           format: int64
       title: JobCount
       additionalProperties: false
+    plux.v1.JoinRequestEvent:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevJoinState'
+          title: state
+        phoneName:
+          type: string
+          title: phone_name
+          description: phone_name is the name the phone gave itself when it signed in.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: JoinRequestEvent
+      additionalProperties: false
+      description: |-
+        JoinRequestEvent is written by the server when a signed-in phone asks to
+         join the session and when the request ends (DEV-002, ADR-0104). It names
+         the request and the phone but never carries the number: only the person
+         who owns the session reads that, with DevPhoneService.GetJoinRequest.
     plux.v1.KeyStorage:
       type: string
       title: KeyStorage
@@ -28039,6 +28919,40 @@ components:
             $ref: '#/components/schemas/plux.v1.PermissionEntry'
           title: permissions
       title: ListPermissionsResponse
+      additionalProperties: false
+    plux.v1.ListPhoneAppsRequest:
+      type: object
+      title: ListPhoneAppsRequest
+      additionalProperties: false
+    plux.v1.ListPhoneAppsResponse:
+      type: object
+      properties:
+        apps:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PhoneApp'
+          title: apps
+        userDisplay:
+          type: string
+          title: user_display
+        organizationName:
+          type: string
+          title: organization_name
+      title: ListPhoneAppsResponse
+      additionalProperties: false
+    plux.v1.ListPhonesRequest:
+      type: object
+      title: ListPhonesRequest
+      additionalProperties: false
+    plux.v1.ListPhonesResponse:
+      type: object
+      properties:
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DevPhone'
+          title: phones
+      title: ListPhonesResponse
       additionalProperties: false
     plux.v1.ListPluginLimitsRequest:
       type: object
@@ -29927,6 +30841,36 @@ components:
       title: PersonalDataStore
       additionalProperties: false
       description: PersonalDataStore is one entry of the personal-data map.
+    plux.v1.PhoneApp:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        name:
+          type: string
+          title: name
+        live:
+          type: boolean
+          title: live
+          description: |-
+            live is true while the phone's person has the app open in Studio, in a
+             dev session the phone may join.
+      title: PhoneApp
+      additionalProperties: false
+      description: PhoneApp is an app a signed-in phone may preview.
+    plux.v1.PhoneSignInState:
+      type: string
+      title: PhoneSignInState
+      enum:
+        - PHONE_SIGN_IN_STATE_UNSPECIFIED
+        - PHONE_SIGN_IN_STATE_WAITING
+        - PHONE_SIGN_IN_STATE_CLAIMED
+        - PHONE_SIGN_IN_STATE_SIGNED_IN
+        - PHONE_SIGN_IN_STATE_FAILED
+        - PHONE_SIGN_IN_STATE_CANCELLED
+        - PHONE_SIGN_IN_STATE_EXPIRED
+      description: PhoneSignInState is where the connection of a phone stands.
     plux.v1.Plugin:
       type: object
       properties:
@@ -31702,6 +32646,48 @@ components:
              warning of the builds needs one (SRV-051).
       title: ReportsStep
       additionalProperties: false
+    plux.v1.RequestJoinRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: RequestJoinRequest
+      additionalProperties: false
+    plux.v1.RequestJoinResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+        sessionId:
+          type: string
+          title: session_id
+        environment:
+          type: string
+          title: environment
+          description: |-
+            environment is the key of the session's environment, the one the phone's
+             runtime syncs.
+        options:
+          type: array
+          items:
+            type: integer
+          title: options
+          description: |-
+            options are the three numbers to offer, in the order to show them. Empty
+             when the phone joined this session before: pairing_link is then set and
+             no number is needed.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+        pairingLink:
+          type: string
+          title: pairing_link
+          description: pairing_link is set only when no number is needed.
+      title: RequestJoinResponse
+      additionalProperties: false
     plux.v1.RequestLockRequest:
       type: object
       properties:
@@ -32147,6 +33133,18 @@ components:
             - $ref: '#/components/schemas/plux.v1.Device'
           title: device
       title: RevokeDeviceResponse
+      additionalProperties: false
+    plux.v1.RevokePhoneRequest:
+      type: object
+      properties:
+        phoneId:
+          type: string
+          title: phone_id
+      title: RevokePhoneRequest
+      additionalProperties: false
+    plux.v1.RevokePhoneResponse:
+      type: object
+      title: RevokePhoneResponse
       additionalProperties: false
     plux.v1.RevokeScimTokenRequest:
       type: object
@@ -33780,6 +34778,14 @@ components:
       title: SignInProvider
       additionalProperties: false
       description: SignInProvider is a provider as the sign-in page shows it.
+    plux.v1.SignOutPhoneRequest:
+      type: object
+      title: SignOutPhoneRequest
+      additionalProperties: false
+    plux.v1.SignOutPhoneResponse:
+      type: object
+      title: SignOutPhoneResponse
+      additionalProperties: false
     plux.v1.Signature:
       type: object
       properties:
@@ -35884,6 +36890,32 @@ tags:
        numbers. Hardware-backed keys, platform attestation and assurance levels
        arrive in P6; in P2 a registration is an identity and a declared runtime,
        and its assurance level is always the lowest.
+  - name: plux.v1.DevPhoneService
+    description: |-
+      DevPhoneService signs a developer's phone in to the Plux Dev app once, and
+       lets that phone join the developer's own Studio dev sessions without a
+       pairing QR code (DEV-002, ADR-0104).
+
+       Connecting a phone: in Studio the person, freshly stepped up (SEC-103),
+       creates a sign-in and shows its QR code, which holds a single-use grant
+       that lasts `devSession.phoneSignInSeconds`. The phone claims the grant with
+       a DPoP proof of its hardware key: Studio then shows a two-digit number and
+       the phone offers three. Picking Studio's number signs the phone in with a
+       token bound to that key; a wrong pick ends the sign-in.
+
+       Joining: a signed-in phone asks to join the person's live Studio session of
+       an app. Studio shows a number to that person, the phone offers three, and
+       the right pick gives the phone a pairing token (the one GetPairing issues),
+       with which its runtime pairs as after a scan. The same phone joins the same
+       session again without a number while the session is live. A wrong pick
+       keeps the phone out of the session until the person lets it try again.
+
+       Who calls what: a person calls CreatePhoneSignIn, GetPhoneSignIn,
+       CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest
+       and AllowJoinRetry. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
+       a DPoP proof alone, and ListPhoneApps, RequestJoin, CompleteJoin and
+       SignOutPhone with its phone token (`Authorization: DPoP`) and a proof of the
+       key the token is bound to; a phone token is accepted nowhere else.
   - name: plux.v1.DevSessionService
     description: |-
       DevSessionService lets a developer pair devices with a non-production

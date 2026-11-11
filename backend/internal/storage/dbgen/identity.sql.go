@@ -120,6 +120,69 @@ func (q *Queries) BeginStepUpCeremony(ctx context.Context, arg BeginStepUpCeremo
 	return err
 }
 
+const cancelPhoneSignIn = `-- name: CancelPhoneSignIn :execrows
+UPDATE dev_phone_sign_ins SET state = 'cancelled' WHERE id = $1 AND user_id = $2 AND state IN ('waiting', 'claimed')
+`
+
+type CancelPhoneSignInParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) CancelPhoneSignIn(ctx context.Context, arg CancelPhoneSignInParams) (int64, error) {
+	result, err := q.db.Exec(ctx, cancelPhoneSignIn, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const claimPhoneSignIn = `-- name: ClaimPhoneSignIn :one
+UPDATE dev_phone_sign_ins
+   SET state = 'claimed', dpop_thumbprint = $2, number = $3, phone_name = $4, platform = $5, claimed_at = $6
+ WHERE id = $1 AND state = 'waiting'
+RETURNING id, organization_id, user_id, grant_hash, state, dpop_thumbprint, number, phone_name, platform, token_id, created_at, claimed_at, expires_at
+`
+
+type ClaimPhoneSignInParams struct {
+	ID             pgtype.UUID
+	DpopThumbprint string
+	Number         int16
+	PhoneName      string
+	Platform       string
+	ClaimedAt      pgtype.Timestamptz
+}
+
+// A phone claims a waiting sign-in once, with its key; the caller checks
+// the expiry.
+func (q *Queries) ClaimPhoneSignIn(ctx context.Context, arg ClaimPhoneSignInParams) (DevPhoneSignIn, error) {
+	row := q.db.QueryRow(ctx, claimPhoneSignIn,
+		arg.ID,
+		arg.DpopThumbprint,
+		arg.Number,
+		arg.PhoneName,
+		arg.Platform,
+		arg.ClaimedAt,
+	)
+	var i DevPhoneSignIn
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.UserID,
+		&i.GrantHash,
+		&i.State,
+		&i.DpopThumbprint,
+		&i.Number,
+		&i.PhoneName,
+		&i.Platform,
+		&i.TokenID,
+		&i.CreatedAt,
+		&i.ClaimedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
 const clearStepUpChallenge = `-- name: ClearStepUpChallenge :exec
 UPDATE step_up_requests SET challenge = NULL WHERE id = $1
 `
@@ -260,10 +323,27 @@ func (q *Queries) CountInstallationAdmins(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countPhoneClaims = `-- name: CountPhoneClaims :one
+SELECT count(*) FROM dev_phone_sign_ins WHERE dpop_thumbprint = $1 AND claimed_at > $2::timestamptz
+`
+
+type CountPhoneClaimsParams struct {
+	DpopThumbprint string
+	Since          pgtype.Timestamptz
+}
+
+// The sign-ins one phone key claimed since an instant (devSession.phoneAttempts).
+func (q *Queries) CountPhoneClaims(ctx context.Context, arg CountPhoneClaimsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countPhoneClaims, arg.DpopThumbprint, arg.Since)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createAccessToken = `-- name: CreateAccessToken :one
 INSERT INTO access_tokens (id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, expires_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent
+RETURNING id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent, dpop_thumbprint, platform
 `
 
 type CreateAccessTokenParams struct {
@@ -309,6 +389,8 @@ func (q *Queries) CreateAccessToken(ctx context.Context, arg CreateAccessTokenPa
 		&i.RevokedAt,
 		&i.LastIpPrefix,
 		&i.LastUserAgent,
+		&i.DpopThumbprint,
+		&i.Platform,
 	)
 	return i, err
 }
@@ -447,6 +529,65 @@ func (q *Queries) CreateOIDCLogin(ctx context.Context, arg CreateOIDCLoginParams
 		arg.ExpiresAt,
 	)
 	return err
+}
+
+const createPhoneToken = `-- name: CreatePhoneToken :one
+
+INSERT INTO access_tokens (id, organization_id, user_id, name, prefix, secret_hash, scopes, source, expires_at, dpop_thumbprint, platform, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, 'phone', $8, $9, $10, $11)
+RETURNING id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent, dpop_thumbprint, platform
+`
+
+type CreatePhoneTokenParams struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+	Name           string
+	Prefix         string
+	SecretHash     []byte
+	Scopes         []string
+	ExpiresAt      pgtype.Timestamptz
+	DpopThumbprint string
+	Platform       string
+	CreatedAt      pgtype.Timestamptz
+}
+
+// Phones signed in to the Plux Dev app (DEV-002, ADR-0104).
+func (q *Queries) CreatePhoneToken(ctx context.Context, arg CreatePhoneTokenParams) (AccessToken, error) {
+	row := q.db.QueryRow(ctx, createPhoneToken,
+		arg.ID,
+		arg.OrganizationID,
+		arg.UserID,
+		arg.Name,
+		arg.Prefix,
+		arg.SecretHash,
+		arg.Scopes,
+		arg.ExpiresAt,
+		arg.DpopThumbprint,
+		arg.Platform,
+		arg.CreatedAt,
+	)
+	var i AccessToken
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.UserID,
+		&i.Name,
+		&i.Prefix,
+		&i.SecretHash,
+		&i.Scopes,
+		&i.Source,
+		&i.Subject,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.LastUsedAt,
+		&i.RevokedAt,
+		&i.LastIpPrefix,
+		&i.LastUserAgent,
+		&i.DpopThumbprint,
+		&i.Platform,
+	)
+	return i, err
 }
 
 const createSession = `-- name: CreateSession :one
@@ -781,8 +922,27 @@ func (q *Queries) DenyDeviceAuthorization(ctx context.Context, id pgtype.UUID) (
 	return result.RowsAffected(), nil
 }
 
+const finishPhoneSignIn = `-- name: FinishPhoneSignIn :execrows
+UPDATE dev_phone_sign_ins SET state = $2, token_id = $3 WHERE id = $1 AND state = 'claimed'
+`
+
+type FinishPhoneSignInParams struct {
+	ID      pgtype.UUID
+	State   string
+	TokenID pgtype.UUID
+}
+
+// Ends a claimed sign-in: signed in with its token, or failed.
+func (q *Queries) FinishPhoneSignIn(ctx context.Context, arg FinishPhoneSignInParams) (int64, error) {
+	result, err := q.db.Exec(ctx, finishPhoneSignIn, arg.ID, arg.State, arg.TokenID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const getAccessToken = `-- name: GetAccessToken :one
-SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent FROM access_tokens WHERE id = $1
+SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent, dpop_thumbprint, platform FROM access_tokens WHERE id = $1
 `
 
 func (q *Queries) GetAccessToken(ctx context.Context, id pgtype.UUID) (AccessToken, error) {
@@ -804,12 +964,14 @@ func (q *Queries) GetAccessToken(ctx context.Context, id pgtype.UUID) (AccessTok
 		&i.RevokedAt,
 		&i.LastIpPrefix,
 		&i.LastUserAgent,
+		&i.DpopThumbprint,
+		&i.Platform,
 	)
 	return i, err
 }
 
 const getAccessTokenByHash = `-- name: GetAccessTokenByHash :one
-SELECT t.id, t.organization_id, t.user_id, t.name, t.prefix, t.secret_hash, t.scopes, t.source, t.subject, t.created_at, t.expires_at, t.last_used_at, t.revoked_at, t.last_ip_prefix, t.last_user_agent, coalesce(u.display_name, '')::text AS user_display_name
+SELECT t.id, t.organization_id, t.user_id, t.name, t.prefix, t.secret_hash, t.scopes, t.source, t.subject, t.created_at, t.expires_at, t.last_used_at, t.revoked_at, t.last_ip_prefix, t.last_user_agent, t.dpop_thumbprint, t.platform, coalesce(u.display_name, '')::text AS user_display_name
   FROM access_tokens t
   LEFT JOIN users u ON u.id = t.user_id
  WHERE t.secret_hash = $1 AND t.revoked_at IS NULL AND t.expires_at > now()
@@ -832,6 +994,8 @@ type GetAccessTokenByHashRow struct {
 	RevokedAt       pgtype.Timestamptz
 	LastIpPrefix    string
 	LastUserAgent   string
+	DpopThumbprint  string
+	Platform        string
 	UserDisplayName string
 }
 
@@ -854,6 +1018,8 @@ func (q *Queries) GetAccessTokenByHash(ctx context.Context, secretHash []byte) (
 		&i.RevokedAt,
 		&i.LastIpPrefix,
 		&i.LastUserAgent,
+		&i.DpopThumbprint,
+		&i.Platform,
 		&i.UserDisplayName,
 	)
 	return i, err
@@ -1017,6 +1183,81 @@ func (q *Queries) GetOrganizationSession(ctx context.Context, arg GetOrganizatio
 		&i.IpPrefix,
 		&i.UserAgent,
 		&i.IdleTimeoutMs,
+	)
+	return i, err
+}
+
+const getPhoneSignIn = `-- name: GetPhoneSignIn :one
+SELECT id, organization_id, user_id, grant_hash, state, dpop_thumbprint, number, phone_name, platform, token_id, created_at, claimed_at, expires_at FROM dev_phone_sign_ins WHERE id = $1
+`
+
+func (q *Queries) GetPhoneSignIn(ctx context.Context, id pgtype.UUID) (DevPhoneSignIn, error) {
+	row := q.db.QueryRow(ctx, getPhoneSignIn, id)
+	var i DevPhoneSignIn
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.UserID,
+		&i.GrantHash,
+		&i.State,
+		&i.DpopThumbprint,
+		&i.Number,
+		&i.PhoneName,
+		&i.Platform,
+		&i.TokenID,
+		&i.CreatedAt,
+		&i.ClaimedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
+const getPhoneSignInByGrantForUpdate = `-- name: GetPhoneSignInByGrantForUpdate :one
+SELECT s.id, s.organization_id, s.user_id, s.grant_hash, s.state, s.dpop_thumbprint, s.number, s.phone_name, s.platform, s.token_id, s.created_at, s.claimed_at, s.expires_at, coalesce(u.display_name, '')::text AS user_display_name, o.name AS organization_name
+  FROM dev_phone_sign_ins s
+  JOIN users u ON u.id = s.user_id
+  JOIN organizations o ON o.id = s.organization_id
+ WHERE s.grant_hash = $1
+   FOR UPDATE OF s
+`
+
+type GetPhoneSignInByGrantForUpdateRow struct {
+	ID               pgtype.UUID
+	OrganizationID   pgtype.UUID
+	UserID           pgtype.UUID
+	GrantHash        []byte
+	State            string
+	DpopThumbprint   string
+	Number           int16
+	PhoneName        string
+	Platform         string
+	TokenID          pgtype.UUID
+	CreatedAt        pgtype.Timestamptz
+	ClaimedAt        pgtype.Timestamptz
+	ExpiresAt        pgtype.Timestamptz
+	UserDisplayName  string
+	OrganizationName string
+}
+
+func (q *Queries) GetPhoneSignInByGrantForUpdate(ctx context.Context, grantHash []byte) (GetPhoneSignInByGrantForUpdateRow, error) {
+	row := q.db.QueryRow(ctx, getPhoneSignInByGrantForUpdate, grantHash)
+	var i GetPhoneSignInByGrantForUpdateRow
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.UserID,
+		&i.GrantHash,
+		&i.State,
+		&i.DpopThumbprint,
+		&i.Number,
+		&i.PhoneName,
+		&i.Platform,
+		&i.TokenID,
+		&i.CreatedAt,
+		&i.ClaimedAt,
+		&i.ExpiresAt,
+		&i.UserDisplayName,
+		&i.OrganizationName,
 	)
 	return i, err
 }
@@ -1278,6 +1519,49 @@ func (q *Queries) GetUserIdentity(ctx context.Context, arg GetUserIdentityParams
 	return i, err
 }
 
+const insertPhoneSignIn = `-- name: InsertPhoneSignIn :one
+INSERT INTO dev_phone_sign_ins (id, organization_id, user_id, grant_hash, expires_at, created_at)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, organization_id, user_id, grant_hash, state, dpop_thumbprint, number, phone_name, platform, token_id, created_at, claimed_at, expires_at
+`
+
+type InsertPhoneSignInParams struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+	GrantHash      []byte
+	ExpiresAt      pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
+}
+
+func (q *Queries) InsertPhoneSignIn(ctx context.Context, arg InsertPhoneSignInParams) (DevPhoneSignIn, error) {
+	row := q.db.QueryRow(ctx, insertPhoneSignIn,
+		arg.ID,
+		arg.OrganizationID,
+		arg.UserID,
+		arg.GrantHash,
+		arg.ExpiresAt,
+		arg.CreatedAt,
+	)
+	var i DevPhoneSignIn
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.UserID,
+		&i.GrantHash,
+		&i.State,
+		&i.DpopThumbprint,
+		&i.Number,
+		&i.PhoneName,
+		&i.Platform,
+		&i.TokenID,
+		&i.CreatedAt,
+		&i.ClaimedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
 const issueStepUpGrant = `-- name: IssueStepUpGrant :exec
 UPDATE step_up_requests SET state = 'issued', grant_hash = $2, grant_expires_at = $3 WHERE id = $1
 `
@@ -1325,7 +1609,7 @@ func (q *Queries) LinkUserIdentity(ctx context.Context, arg LinkUserIdentityPara
 }
 
 const listAccessTokens = `-- name: ListAccessTokens :many
-SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent FROM access_tokens
+SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent, dpop_thumbprint, platform FROM access_tokens
  WHERE organization_id = $1
    AND ($2::uuid IS NULL OR user_id = $2::uuid)
    AND (created_at, id) > ($3::timestamptz, $4::uuid)
@@ -1372,6 +1656,8 @@ func (q *Queries) ListAccessTokens(ctx context.Context, arg ListAccessTokensPara
 			&i.RevokedAt,
 			&i.LastIpPrefix,
 			&i.LastUserAgent,
+			&i.DpopThumbprint,
+			&i.Platform,
 		); err != nil {
 			return nil, err
 		}
@@ -1527,6 +1813,57 @@ func (q *Queries) ListOrganizationSessions(ctx context.Context, arg ListOrganiza
 			&i.IpPrefix,
 			&i.UserAgent,
 			&i.StepUpAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPhoneTokens = `-- name: ListPhoneTokens :many
+SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent, dpop_thumbprint, platform FROM access_tokens
+ WHERE organization_id = $1 AND user_id = $2 AND source = 'phone' AND revoked_at IS NULL
+ ORDER BY created_at DESC, id
+`
+
+type ListPhoneTokensParams struct {
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+}
+
+// A person's signed-in phones, newest first; the caller drops the ones that
+// expired or lapsed.
+func (q *Queries) ListPhoneTokens(ctx context.Context, arg ListPhoneTokensParams) ([]AccessToken, error) {
+	rows, err := q.db.Query(ctx, listPhoneTokens, arg.OrganizationID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AccessToken{}
+	for rows.Next() {
+		var i AccessToken
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.UserID,
+			&i.Name,
+			&i.Prefix,
+			&i.SecretHash,
+			&i.Scopes,
+			&i.Source,
+			&i.Subject,
+			&i.CreatedAt,
+			&i.ExpiresAt,
+			&i.LastUsedAt,
+			&i.RevokedAt,
+			&i.LastIpPrefix,
+			&i.LastUserAgent,
+			&i.DpopThumbprint,
+			&i.Platform,
 		); err != nil {
 			return nil, err
 		}
@@ -1808,6 +2145,30 @@ type TouchAccessTokenParams struct {
 
 func (q *Queries) TouchAccessToken(ctx context.Context, arg TouchAccessTokenParams) error {
 	_, err := q.db.Exec(ctx, touchAccessToken, arg.ID, arg.LastIpPrefix, arg.LastUserAgent)
+	return err
+}
+
+const touchPhoneToken = `-- name: TouchPhoneToken :exec
+UPDATE access_tokens SET last_used_at = $4::timestamptz, last_ip_prefix = $2, last_user_agent = $3
+ WHERE id = $1 AND (last_used_at IS NULL OR last_used_at < $4::timestamptz - interval '1 minute')
+`
+
+type TouchPhoneTokenParams struct {
+	ID            pgtype.UUID
+	LastIpPrefix  string
+	LastUserAgent string
+	At            pgtype.Timestamptz
+}
+
+// Records a phone's use, at most once a minute; its idle lapse counts from
+// here (devSession.phoneIdleDays).
+func (q *Queries) TouchPhoneToken(ctx context.Context, arg TouchPhoneTokenParams) error {
+	_, err := q.db.Exec(ctx, touchPhoneToken,
+		arg.ID,
+		arg.LastIpPrefix,
+		arg.LastUserAgent,
+		arg.At,
+	)
 	return err
 }
 

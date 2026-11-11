@@ -26,18 +26,18 @@ A dev session never touches a release and is refused for a production environmen
   1. `plux pull -C ~/plux-checks/shop --env development --channel development -o /tmp/baseline` and keep the `keys.json` it writes.
   2. `make dev-app-build DEV_APP_TARGET=apk DEV_APP_KEYS=/tmp/baseline/keys.json`
   3. Install the APK on the emulator or phone and open it.
-- **Expect:** the app starts and asks you to sign in; built without the keys it says "No development roots configured".
+- **Expect:** the app starts on **Plux Dev** with **Scan the code**; built without the keys it says "No development roots configured".
 - **Why:** the Dev app pins development roots only (DEV-001, DEV-050, SEC-056).
 - **Look at:** `adb shell pm list packages | grep dev.plux.dev`.
 - **Result:** ☐ pass ☐ fail — notes:
 
-### L2-DEV-002 — Sign in on the device and choose the app
+### L2-DEV-002 — Connect the phone and open the app
 
 - **Needs:** R-DEVAPP
-- **Do:** in the Dev app sign in with a device code (approve it in Studio), choose app `shop`.
-- **Expect:** the Dev app shows the pairing status "not paired", with **Scan QR** and **Paste link**.
-- **Why:** the same device grant as the CLI (CLI-002, DEV-002).
-- **Look at:** Studio **Administration**, **Sessions**: a session for client `plux-dev`.
+- **Do:** connect the Dev app once (Studio: Profile › Phones › Connect a phone; scan, pick the number Studio shows), then tap app `shop` (pick the number Studio shows the first time).
+- **Expect:** Studio shows a two-digit number after the scan and the phone offers it among three; the right pick lists your apps, `shop` marked **Open in Studio** while its plugin canvas is open; the tap opens `shop` at its entry screen with the **Live** button, and Studio's console says **Live · 1 device**. A wrong pick connects nothing; on joining it keeps the phone out until **Let it try again** in Studio.
+- **Why:** one sign-in bound to the phone's key, a number match per Studio session (DEV-002, ADR-0104).
+- **Look at:** Studio **Profile › Phones** lists the phone; the audit log has `devphone.signed_in` and `devsession.joined`.
 - **Result:** ☐ pass ☐ fail — notes:
 
 ### L2-DEV-003 — Pair from Studio: create R-SESSION

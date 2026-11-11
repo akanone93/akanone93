@@ -156,6 +156,10 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    screen move and link rename were not run.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
+7. **Dev app phone sign-in (2026-11-11, ADR-0104):** done and verified live here with the runtime's own phone code;
+   still to check on a real phone: the keystore key, the camera scan, the phone's name in **Profile › Phones**, the
+   app opening at its entry screen, the floating status button, Leave, and `make dev`'s `adb reverse` watcher over
+   USB and wireless debugging (from WSL it uses Windows' `adb.exe`).
 
 ## Running the stack here without Docker
 

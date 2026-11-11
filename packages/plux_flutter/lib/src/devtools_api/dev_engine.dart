@@ -52,6 +52,10 @@ abstract interface class DevEngineHost {
   /// The channel closed for good: [endedCode] is the session's error code
   /// when the server ended the session, null when the channel gave up.
   Future<void> closed({String? endedCode});
+
+  /// The socket opened ([open] true) or an open one was lost and the channel
+  /// tries again (false), so the host can show whether the device is live.
+  void connection({required bool open});
 }
 
 /// The limits and timings of an engine, plain numbers so they cross to the
@@ -156,6 +160,8 @@ final class DevEngine implements DevEngineHandle {
   var _tooLarge = 0;
   var _bufferFull = 0;
   var _closed = false;
+  // Whether the socket is open, as the host was last told.
+  var _open = false;
 
   /// The device sequence of the last event acknowledged.
   int get lastAcknowledgedEvent => _lastAcknowledged;
@@ -289,6 +295,8 @@ final class DevEngine implements DevEngineHandle {
         }
         _conn = conn;
         _attempt = 0;
+        _open = true;
+        host.connection(open: true);
         await _serve(conn);
       } on Object catch (e) {
         // The attempt failed: wait, then try again. Said once per distinct
@@ -305,6 +313,10 @@ final class DevEngine implements DevEngineHandle {
         }
       }
       if (_closed) break;
+      if (_open) {
+        _open = false;
+        host.connection(open: false);
+      }
       if (_wake.isCompleted) _wake = Completer();
       await Future.any([
         _delay(_backoff(_attempt++)),

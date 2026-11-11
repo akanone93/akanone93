@@ -57,6 +57,10 @@ message DevEvent {
     // connection is written by the server, never by a device: a device
     // that sends one has it dropped (DEV_DROP_REASON_NOT_ALLOWED).
     ConnectionEvent connection = 24;
+    // join_request is written by the server, never by a device, when a
+    // signed-in phone asks to join the session and when that request ends
+    // (DEV-002, ADR-0104).
+    JoinRequestEvent join_request = 25;
   }
 }
 
@@ -433,6 +437,36 @@ message ConnectionEvent {
   // reason says why a socket closed, in words for the console; empty when
   // it opened.
   string reason = 3;
+}
+
+// DevJoinState is where a phone's request to join a dev session stands.
+enum DevJoinState {
+  DEV_JOIN_STATE_UNSPECIFIED = 0;
+  // WAITING: Studio shows the number; the phone has not picked yet.
+  DEV_JOIN_STATE_WAITING = 1;
+  // JOINED: the phone picked the number and was given a pairing token.
+  DEV_JOIN_STATE_JOINED = 2;
+  // FAILED: the phone picked another number.
+  DEV_JOIN_STATE_FAILED = 3;
+  // DENIED: the person refused the request in Studio.
+  DEV_JOIN_STATE_DENIED = 4;
+  // EXPIRED: no number was picked in time.
+  DEV_JOIN_STATE_EXPIRED = 5;
+  // RETRY_ALLOWED: the number was wrong and the person let the phone ask
+  // again.
+  DEV_JOIN_STATE_RETRY_ALLOWED = 6;
+}
+
+// JoinRequestEvent is written by the server when a signed-in phone asks to
+// join the session and when the request ends (DEV-002, ADR-0104). It names
+// the request and the phone but never carries the number: only the person
+// who owns the session reads that, with DevPhoneService.GetJoinRequest.
+message JoinRequestEvent {
+  string request_id = 1;
+  DevJoinState state = 2;
+  // phone_name is the name the phone gave itself when it signed in.
+  string phone_name = 3;
+  google.protobuf.Timestamp expires_at = 4;
 }
 
 // TraceFileHeader is the first message of an exported trace file (D-2.2).

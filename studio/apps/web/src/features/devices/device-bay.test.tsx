@@ -3,7 +3,8 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { create } from "@bufbuild/protobuf";
-import { DevEventSchema, type DevSessionServiceSendCommandRequest } from "@plux/api";
+import { timestampFromMs } from "@bufbuild/protobuf/wkt";
+import { DevEventSchema, DevJoinState, type DevSessionServiceSendCommandRequest } from "@plux/api";
 import { createStudioI18n } from "@plux/i18n";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -216,5 +217,76 @@ describe("the console's state (DEV-020)", () => {
     expect(consoleStatus(true, "ended", 1)).toEqual({ kind: "ended" });
     expect(consoleStatus(true, "live", 0)).toEqual({ kind: "noDevice" });
     expect(consoleStatus(true, "live", 2)).toEqual({ kind: "live", devices: 2 });
+  });
+});
+
+describe("a phone asking to join the session [DEV-002] (ADR-0104)", () => {
+  const joinEvent = (state: DevJoinState) =>
+    create(DevEventSchema, {
+      sequence: 1n,
+      payload: {
+        case: "joinRequest",
+        value: { requestId: "r1", phoneName: "Pixel 8", state, expiresAt: timestampFromMs(Date.now() + 60_000) },
+      },
+    });
+
+  test("shows the number to pick on the phone, which only the session's person reads, and Deny refuses it", async () => {
+    const calls: string[] = [];
+    renderBay(
+      {
+        devSession: { devices, events: [joinEvent(DevJoinState.WAITING)] },
+        phones: {
+          phones: [],
+          signIn: [],
+          calls,
+          joins: { r1: { state: DevJoinState.WAITING, number: 42, phoneName: "Pixel 8" } },
+        },
+      },
+      { live: true },
+    );
+    const prompt = await screen.findByRole("alertdialog");
+    expect(prompt.textContent).toContain("42");
+    fireEvent.click(screen.getByRole("button", { name: "Deny" }));
+    await waitFor(() => expect(calls).toEqual(["deny:r1"]));
+    await waitFor(() => expect(screen.queryByRole("alertdialog") === null).toBe(true));
+  });
+
+  test("a request that no longer waits, as one replayed from an earlier visit, shows nothing", async () => {
+    const calls: string[] = [];
+    renderBay(
+      {
+        devSession: { devices, events: [joinEvent(DevJoinState.WAITING)] },
+        phones: {
+          phones: [],
+          signIn: [],
+          calls,
+          joins: { r1: { state: DevJoinState.EXPIRED, number: 0, phoneName: "Pixel 8" } },
+        },
+      },
+      { live: true },
+    );
+    await waitFor(() => expect(document.querySelector(".dev-console-live")?.getAttribute("data-state")).toBe("live"));
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+  });
+
+  test("after a wrong number the phone stays out until the person lets it try again", async () => {
+    const calls: string[] = [];
+    renderBay(
+      {
+        devSession: { devices, events: [joinEvent(DevJoinState.FAILED)] },
+        phones: {
+          phones: [],
+          signIn: [],
+          calls,
+          joins: { r1: { state: DevJoinState.FAILED, number: 0, phoneName: "Pixel 8" } },
+        },
+      },
+      { live: true },
+    );
+    await screen.findByRole("alertdialog");
+    expect(screen.queryByText("42")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Let it try again" }));
+    await waitFor(() => expect(calls).toEqual(["retry:r1"]));
   });
 });

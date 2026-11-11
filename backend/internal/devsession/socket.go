@@ -276,8 +276,9 @@ func (k *socket) event(ctx context.Context, ev *pluxv1.DevEvent) error {
 	if int64(proto.Size(ev)) > k.lim.eventBytes {
 		return k.room.refuse(k.b.DeviceID, k.link, deviceSeq, pluxv1.DevDropReason_DEV_DROP_REASON_EVENT_TOO_LARGE)
 	}
-	// Only the server says whether a device is connected.
-	if ev.GetConnection() != nil {
+	// Only the server says whether a device is connected, and which phone
+	// asks to join.
+	if ev.GetConnection() != nil || ev.GetJoinRequest() != nil {
 		return k.room.refuse(k.b.DeviceID, k.link, deviceSeq, pluxv1.DevDropReason_DEV_DROP_REASON_NOT_ALLOWED)
 	}
 	if !k.room.duplicate(k.b.DeviceID, deviceSeq) {

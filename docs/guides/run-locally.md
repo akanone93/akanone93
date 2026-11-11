@@ -120,12 +120,16 @@ running. Each step names the file the command comes from.
      `make dev-app-build DEV_APP_TARGET=apk DEV_APP_KEYS=<keys.json>`, where `keys.json` is the
      development root keys of the installation as `plux pull` writes them; the build also
      trusts the stack's certificate authority (`deploy/compose/.secrets/ca/ca.crt`)
-     ([Dev app README](../../apps/plux_dev/README.md)). On a phone, run `adb reverse tcp:8080
-     tcp:8080` first. In the app, sign in to `https://localhost:8080` with a device code,
-     choose the app, and pair.
-7. **The device loop.** In Studio, open **Devices** of the app and choose **Pair a device**:
-   scan the QR code with the Dev app, or paste the link or the short code. Then every saved
-   edit reaches the device (the canvas shows the autosave-to-device time), **Send to device**
+     ([Dev app README](../../apps/plux_dev/README.md)). `make dev` keeps `adb reverse tcp:8080
+     tcp:8080` applied to every phone adb sees, over USB or wireless debugging
+     (`DEV_ADB_REVERSE=0` turns that off; then run it yourself). Connect the phone once: in
+     Studio, **Profile › Phones › Connect a phone** (your security key first), scan the code
+     with the Dev app and pick the number Studio shows ([ADR-0104](../adr/0104-dev-app-phone-sign-in.md)).
+7. **The device loop.** Open a plugin of the app in Studio, then tap the app in the Dev app: the
+   first time in that Studio session, pick on the phone the number Studio shows; the app opens
+   at its entry screen, live. A phone without the Dev app's sign-in, or a host app, pairs with
+   **Devices › Pair a device** instead (scan the QR code, or paste the link or the short code).
+   Then every saved edit reaches the device (the canvas shows the autosave-to-device time), **Send to device**
    opens a screen with a chosen language, theme and text scale, and the device drawer shows
    logs, state, network and sync ([devices guide](../guides/studio/security-and-admin.md)). The
    command-line equivalent is `plux dev` ([quick start](quick-start.md)).

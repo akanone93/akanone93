@@ -2307,6 +2307,21 @@ var registry = []Definition{
 		"A device event exceeds the limit `devtools.eventBytes` and was dropped; the stream records the drop (DEV-021).",
 		"Nothing to change: reduce what the event carries, such as the size of a state value.", false,
 	},
+	{
+		NumberMismatch, "NUMBER_MISMATCH", SeverityError, "Number does not match",
+		"The number picked on the phone is not the one Studio showed, so the phone's sign-in or its request to join the dev session was cancelled (DEV-002).",
+		"Start again on the phone and pick the number Studio shows.", false,
+	},
+	{
+		NoLiveStudioSession, "NO_LIVE_STUDIO_SESSION", SeverityError, "No live Studio session",
+		"A phone joins the dev session Studio opens for an app, and this person has none open for the app (DEV-002).",
+		"Open the app in Studio, then choose it on the phone again.", false,
+	},
+	{
+		PhoneRequestClosed, "PHONE_REQUEST_CLOSED", SeverityError, "Phone request closed",
+		"The phone's sign-in or join request expired, was already used, or was cancelled or denied in Studio (DEV-002).",
+		"Start again on the phone.", false,
+	},
 
 	{
 		DevBundleSignatureInvalid, "DEV_BUNDLE_SIGNATURE_INVALID", SeverityError, "Dev bundle signature invalid",

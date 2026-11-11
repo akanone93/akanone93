@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { create } from "@bufbuild/protobuf";
-import { DevConnectionState, DevEventSchema, DevLogLevel } from "@plux/api";
+import { DevConnectionState, DevEventSchema, DevJoinState, DevLogLevel } from "@plux/api";
 import { limitDefault } from "@plux/schema";
 import {
   consoleSource,
@@ -85,5 +85,20 @@ describe("connection events (DEV-020)", () => {
       "disconnected: the device stopped answering",
     );
     expect(summarise(connection(DevConnectionState.DISCONNECTED))).toBe("disconnected");
+  });
+});
+
+describe("join request events (DEV-002, ADR-0104)", () => {
+  const join = (state: DevJoinState) =>
+    create(DevEventSchema, {
+      sequence: 2n,
+      payload: { case: "joinRequest", value: { requestId: "r1", phoneName: "Pixel 8", state } },
+    });
+
+  test("show in the logs with the phone and where its request stands, never a number", () => {
+    expect(tabOf(join(DevJoinState.WAITING))).toBe("logs");
+    expect(summarise(join(DevJoinState.WAITING))).toBe('phone "Pixel 8" asks to join: waiting');
+    expect(summarise(join(DevJoinState.JOINED))).toBe('phone "Pixel 8" asks to join: joined');
+    expect(summarise(join(DevJoinState.RETRY_ALLOWED))).toBe('phone "Pixel 8" asks to join: retry allowed');
   });
 });

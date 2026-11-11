@@ -7,6 +7,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
@@ -367,6 +368,13 @@ abstract final class Plux {
       authDelegate: delegate,
     ),
   );
+
+  /// The app's entry route in the release pages render from, or null while
+  /// there is none or the app names none (SCH-025). It follows the release:
+  /// a sync, a revert or a dev bundle that changes it changes it here. A host
+  /// that opens the app at its entry screen, such as the Plux Dev app, waits
+  /// for it.
+  static ValueListenable<String?> get entryRoute => _rt.entryRoute;
 
   /// Pairs this app with the dev session of [linkOrCode]: the scanned or
   /// pasted `plux-dev://pair?...` link, or the short code `plux dev` prints

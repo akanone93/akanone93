@@ -23,6 +23,9 @@ import {
   type DevEvent,
   DeviceSchema,
   DeviceService,
+  type DevJoinState,
+  DevPhoneSchema,
+  DevPhoneService,
   DevSessionService,
   type DevSessionServiceSendCommandRequest,
   DocumentSchema,
@@ -46,6 +49,7 @@ import {
   ORGANIZATION_HEADER,
   OrganizationSchema,
   OrgService,
+  PhoneSignInState,
   PluginSchema,
   PluginService,
   PluginVersionSchema,
@@ -318,6 +322,16 @@ export interface UpstreamData {
     commands?: DevSessionServiceSendCommandRequest[];
     /** Collects the device filter of every ExportTrace. */
     exported?: string[][];
+  };
+  /**
+   * The person's phones signed in to the Plux Dev app and the requests to join a session (ADR-0104). `signIn` lists the
+   * states GetPhoneSignIn answers in turn, the last repeating; `calls` records what Studio sends.
+   */
+  phones?: {
+    phones: { id: string; name: string; platform: string }[];
+    signIn: { state: PhoneSignInState; number?: number; phoneName?: string }[];
+    joins?: Record<string, { state: DevJoinState; number: number; phoneName: string }>;
+    calls: string[];
   };
   library?: LibraryFixture;
   signedIn?: boolean;
@@ -1174,6 +1188,56 @@ function devSessionService(
   });
 }
 
+type PhonesData = NonNullable<UpstreamData["phones"]>;
+
+/** The phone service in memory: a sign-in that answers its states in turn, the phones, and the join requests. */
+function devPhoneService(
+  service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
+  ph: PhonesData,
+) {
+  let step = 0;
+  service(DevPhoneService, {
+    createPhoneSignIn: () => {
+      ph.calls.push("create");
+      return {
+        signInId: "si1",
+        link: "plux-dev://signin?server=https%3A%2F%2Fstudio.example&grant=g",
+        expiresAt: timestampFromMs(Date.now() + 60_000),
+      };
+    },
+    getPhoneSignIn: () => {
+      const s = ph.signIn[Math.min(step, ph.signIn.length - 1)];
+      step += 1;
+      return { state: s?.state ?? PhoneSignInState.WAITING, number: s?.number ?? 0, phoneName: s?.phoneName ?? "" };
+    },
+    cancelPhoneSignIn: (req) => {
+      ph.calls.push(`cancel:${req.signInId}`);
+      return {};
+    },
+    listPhones: () => ({ phones: ph.phones.map((p) => create(DevPhoneSchema, p)) }),
+    revokePhone: (req) => {
+      ph.calls.push(`revoke:${req.phoneId}`);
+      ph.phones = ph.phones.filter((p) => p.id !== req.phoneId);
+      return {};
+    },
+    getJoinRequest: (req) => {
+      const j = ph.joins?.[req.requestId];
+      if (j === undefined) {
+        throw new ConnectError("no such join request", Code.NotFound);
+      }
+      return { sessionId: "s1", ...j };
+    },
+    denyJoinRequest: (req) => {
+      ph.calls.push(`deny:${req.requestId}`);
+      return {};
+    },
+    allowJoinRetry: (req) => {
+      ph.calls.push(`retry:${req.requestId}`);
+      return {};
+    },
+  });
+}
+
 type Rust = NonNullable<UpstreamData["rust"]>;
 
 /** The language-server stream and the test runner of the Rust editor, in memory. */
@@ -1466,6 +1530,9 @@ function optionalServices(
   }
   if (state.devSession !== undefined) {
     devSessionService(service, state.devSession);
+  }
+  if (state.phones !== undefined) {
+    devPhoneService(service, state.phones);
   }
   if (state.rust !== undefined) {
     rustServices(service, state.rust);

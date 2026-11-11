@@ -16,6 +16,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/device/devicetest"
 	"github.com/nightCode42/plux3/backend/internal/devsession"
 	"github.com/nightCode42/plux3/backend/internal/governancetest"
@@ -39,6 +40,8 @@ type fixture struct {
 	// tight tightens limits for the organisation; a test sets it before
 	// it starts anything that reads the limits.
 	tight map[limits.Key]int64
+	// phones signs phones in on the world's clock (ADR-0104).
+	phones *auth.Service
 }
 
 // newFixture builds the world and the service; devices overrides
@@ -67,7 +70,13 @@ func newFixtureWith(t *testing.T, devices int64, tune func(*devsession.Options))
 			if err != nil {
 				break
 			}
-			set, err = set.Tighten(k, limits.ScopeOrganization, v)
+			// A key an organisation may not set is tightened for the
+			// installation.
+			scope := limits.ScopeOrganization
+			if d, ok := limits.Lookup(k); ok && d.Scopes&limits.ScopeOrganization == 0 {
+				scope = limits.ScopeInstallation
+			}
+			set, err = set.Tighten(k, scope, v)
 		}
 		return set, err //nolint:wrapcheck // a test
 	}
@@ -86,6 +95,13 @@ func newFixtureWith(t *testing.T, devices int64, tune func(*devsession.Options))
 		tune(&opts)
 	}
 	f.svc, err = devsession.New(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The phones' sign-ins on the world's clock, which a test moves.
+	f.phones, err = auth.NewService(auth.Options{
+		DB: w.DB, Audit: w.Log, Cache: cache.NewMemory(nil), Crypter: w.Signer, IDs: w.Gen, Limits: limits.Defaults(), Now: w.Clock,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

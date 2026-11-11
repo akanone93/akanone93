@@ -14,7 +14,6 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -32,11 +31,26 @@ export 'package:plux_flutter/src/devtools_api/dev_engine.dart'
 export 'package:plux_flutter/src/devtools_api/dev_engine_isolate.dart'
     show DevEngineStarter;
 export 'package:plux_flutter/src/devtools_api/dev_pairing_link.dart'
-    show DevPairingCode, DevPairingCredential, DevPairingLink;
+    show DevPairingCode, DevPairingCredential, DevPairingLink, DevSignInLink;
+
+/// Where a paired device's link to its dev session stands (DEV-020).
+enum DevLinkState {
+  /// The first connection is being made.
+  connecting,
+
+  /// The socket is open: edits arrive and events go out.
+  live,
+
+  /// The socket was lost; the channel connects again with backoff.
+  reconnecting,
+
+  /// The channel closed for good: the session ended or cannot be reached.
+  ended,
+}
 
 /// A paired device's channel to its dev session.
 final class DevChannel implements DevEventSink {
-  DevChannel._(this.sessionId, this.deviceId, this._engine);
+  DevChannel._(this.sessionId, this.deviceId, this._engine, this._link);
 
   /// The session this device joined.
   final String sessionId;
@@ -45,6 +59,10 @@ final class DevChannel implements DevEventSink {
   final String deviceId;
 
   final DevEngineHandle _engine;
+  final ValueNotifier<DevLinkState> _link;
+
+  /// Where the link to the session stands, for a status the developer sees.
+  ValueListenable<DevLinkState> get link => _link;
 
   /// Pairs the device with the session of [pairing], a scanned link or a
   /// typed code, and starts the channel.
@@ -134,7 +152,7 @@ final class DevChannel implements DevEventSink {
                 transport: devTransportWith(webSocketClient),
               ));
     final handle = await start(config, host);
-    return DevChannel._(paired.sessionId, paired.deviceId, handle);
+    return DevChannel._(paired.sessionId, paired.deviceId, handle, host.link);
   }
 
   @override
@@ -154,7 +172,10 @@ final class DevChannel implements DevEventSink {
   }
 
   /// Closes the socket and stops reconnecting.
-  Future<void> close() => _engine.close();
+  Future<void> close() async {
+    await _engine.close();
+    _link.value = DevLinkState.ended;
+  }
 }
 
 bool _sameOrigin(Uri a, Uri b) =>
@@ -203,6 +224,17 @@ final class _UiHost implements DevEngineHost {
 
   /// The ticket Pair returned, used by the first connection only.
   String? firstTicket;
+
+  /// Where the link stands, as the engine reports it.
+  final ValueNotifier<DevLinkState> link = ValueNotifier(
+    DevLinkState.connecting,
+  );
+
+  @override
+  void connection({required bool open}) {
+    if (link.value == DevLinkState.ended) return;
+    link.value = open ? DevLinkState.live : DevLinkState.reconnecting;
+  }
 
   @override
   Future<DevSocketAuth?> auth({required bool first}) async {
@@ -326,6 +358,7 @@ final class _UiHost implements DevEngineHost {
 
   @override
   Future<void> closed({String? endedCode}) async {
+    link.value = DevLinkState.ended;
     if (endedCode != null) await applier.discard();
   }
 }

@@ -53,22 +53,31 @@ STARTER_DEFINES := apps/starter/.dart_defines.json
 # A connected Android or iOS device, emulator or simulator for the starter.
 STARTER_DEVICE  := flutter devices --machine 2>/dev/null | grep -Eq '"targetPlatform": *"(android|ios)'
 
+# `make dev` keeps `adb reverse tcp:$(DEV_ADB_PORT)` applied to every
+# Android phone adb sees, plugged in or over wireless debugging, so a phone
+# reaches the stack at https://localhost without anyone typing it (ADR-0104).
+# DEV_ADB_REVERSE=0 leaves adb alone, for those who run it by hand.
+DEV_ADB_REVERSE ?= 1
+DEV_ADB_PORT    ?= 8080
+
 # The compose profiles `make dev` adds to any COMPOSE_PROFILES of the caller:
 # the render worker, without which a release request's visual diffs, and so a
 # publish from Studio, cannot finish (STU-100, O-9). DEV_PROFILES= leaves it out.
 DEV_PROFILES ?= visual-diff
 
 # Verifies: DEP-020.
-dev: ## Start the stack with hot reload of the server and, with a device or emulator attached, of the starter app, and the render worker of visual diffs; seed sample apps on first run (DEP-020)
+dev: ## Start the stack with hot reload of the server and, with a device or emulator attached, of the starter app, and the render worker of visual diffs; keep adb reverse on for phones (DEV_ADB_REVERSE=0 off); seed sample apps on first run (DEP-020)
 	COMPOSE_PROFILES="$$(printf '%s,%s' "$${COMPOSE_PROFILES:-}" "$(DEV_PROFILES)" | sed 's/^,//; s/,$$//')" \
 		"$(MAKE)" compose-seed COMPOSE_OVERLAY=$(COMPOSE_DIR)/compose.dev.yaml
 	"$(MAKE)" dev-starter
-	@if $(STARTER_DEVICE); then \
+	@adb=; if [ "$(DEV_ADB_REVERSE)" != 0 ]; then scripts/adb-reverse-watch.sh "$(DEV_ADB_PORT)" & adb=$$!; fi; \
+	if $(STARTER_DEVICE); then \
 		echo "Server: rebuilt on every change under backend/ (log: $(COMPOSE_DIR)/.dev-watch.log)."; \
 		$(COMPOSE) -f $(COMPOSE_DIR)/compose.dev.yaml watch --no-up --quiet > $(COMPOSE_DIR)/.dev-watch.log 2>&1 & watch=$$!; \
-		trap 'kill $$watch 2>/dev/null' EXIT INT TERM; \
+		trap 'kill $$watch $$adb 2>/dev/null' EXIT INT TERM; \
 		"$(MAKE)" --no-print-directory dev-app; \
 	else \
+		trap 'kill $$adb 2>/dev/null' EXIT INT TERM; \
 		echo "No Android or iOS device, emulator or simulator attached: watching the server only."; \
 		echo "Start one and run 'make dev-app' in a second terminal for the starter app with hot reload."; \
 		$(COMPOSE) -f $(COMPOSE_DIR)/compose.dev.yaml watch --no-up; \

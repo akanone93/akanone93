@@ -3640,6 +3640,30 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Nothing to change: reduce what the event carries, such as the size of a state value.
 
+### PLX-9210
+
+`NUMBER_MISMATCH` · error · Number does not match
+
+**Cause.** The number picked on the phone is not the one Studio showed, so the phone's sign-in or its request to join the dev session was cancelled (DEV-002).
+
+**Fix.** Start again on the phone and pick the number Studio shows.
+
+### PLX-9211
+
+`NO_LIVE_STUDIO_SESSION` · error · No live Studio session
+
+**Cause.** A phone joins the dev session Studio opens for an app, and this person has none open for the app (DEV-002).
+
+**Fix.** Open the app in Studio, then choose it on the phone again.
+
+### PLX-9212
+
+`PHONE_REQUEST_CLOSED` · error · Phone request closed
+
+**Cause.** The phone's sign-in or join request expired, was already used, or was cancelled or denied in Studio (DEV-002).
+
+**Fix.** Start again on the phone.
+
 ### PLX-9230
 
 `DEV_BUNDLE_SIGNATURE_INVALID` · error · Dev bundle signature invalid

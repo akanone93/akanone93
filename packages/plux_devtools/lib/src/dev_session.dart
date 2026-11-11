@@ -76,7 +76,7 @@ final class PluxDevEvents implements DevEventSink {
       _target?.emit(payload, traceId: traceId);
 }
 
-PluxDevPairer _runtimePairer(PluxDevEvents events) =>
+PluxDevPairer _runtimePairer(PluxDevEvents events, String deviceName) =>
     (
       String linkOrCode, {
       required List<PluxPublicKey> devRootKeys,
@@ -86,6 +86,7 @@ PluxDevPairer _runtimePairer(PluxDevEvents events) =>
         linkOrCode,
         devRootKeys: devRootKeys,
         extensions: extensions,
+        deviceName: deviceName,
       );
       events._target = pairing.channel;
       return (
@@ -115,9 +116,13 @@ final class PluxDevSession {
   PluxDevSession({
     required this.devRootKeys,
     this.extensions = const {},
+    this.deviceName = '',
     @visibleForTesting this._pairer,
     this.isAvailable = kPluxDevtools,
   });
+
+  /// The name the device gives itself in the session's device list.
+  final String deviceName;
 
   /// The pinned development roots.
   final List<PluxPublicKey> devRootKeys;
@@ -135,6 +140,16 @@ final class PluxDevSession {
     const PluxDevIdle(),
   );
   PluxDevJoined? _paired;
+  final ValueNotifier<DevLinkState?> _link = ValueNotifier(null);
+  ValueListenable<DevLinkState>? _channelLink;
+
+  /// Where the link of the pairing in place stands (live, reconnecting,
+  /// ended), for a status the developer sees; null while nothing is paired.
+  ValueListenable<DevLinkState?> get link => _link;
+
+  void _followLink() {
+    _link.value = _channelLink?.value;
+  }
 
   /// Whether this build can pair at all: `kPluxDevtools`.
   final bool isAvailable;
@@ -162,12 +177,16 @@ final class PluxDevSession {
     }
     _state.value = const PluxDevPairingNow();
     try {
-      final paired = await (_pairer ?? _runtimePairer(events))(
+      final paired = await (_pairer ?? _runtimePairer(events, deviceName))(
         linkOrCode,
         devRootKeys: devRootKeys,
         extensions: extensions,
       );
       _paired = paired;
+      if (events._target case final DevChannel channel) {
+        _channelLink = channel.link..addListener(_followLink);
+        _followLink();
+      }
       _state.value = PluxDevPaired(
         sessionId: paired.sessionId,
         deviceId: paired.deviceId,
@@ -196,6 +215,9 @@ final class PluxDevSession {
   Future<void> end() async {
     final paired = _paired;
     _paired = null;
+    _channelLink?.removeListener(_followLink);
+    _channelLink = null;
+    _link.value = null;
     try {
       await paired?.close();
     } finally {
@@ -207,5 +229,6 @@ final class PluxDevSession {
   Future<void> dispose() async {
     await end();
     _state.dispose();
+    _link.dispose();
   }
 }

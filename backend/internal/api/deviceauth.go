@@ -6,9 +6,12 @@ package api
 import (
 	"context"
 	"net/http"
+	"net/netip"
 	"strings"
 	"time"
 
+	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
@@ -55,6 +58,40 @@ var DeviceProcedures = map[string]bool{
 var DeviceProofOnly = map[string]bool{
 	pluxv1connect.TokenServiceRefreshDeviceTokenProcedure: true,
 	pluxv1connect.DeviceServiceReattestDeviceProcedure:    true,
+	// A phone claims and completes its sign-in with the proof of the key
+	// its token will be bound to (ADR-0104).
+	pluxv1connect.DevPhoneServiceClaimPhoneSignInProcedure:    true,
+	pluxv1connect.DevPhoneServiceCompletePhoneSignInProcedure: true,
+}
+
+// PhoneProcedures are the procedures a phone signed in to the Plux Dev app
+// calls with its phone token (`Authorization: DPoP`) and a proof of the key
+// the token is bound to (ADR-0104). A phone token is accepted nowhere else.
+var PhoneProcedures = map[string]bool{
+	pluxv1connect.DevPhoneServiceListPhoneAppsProcedure: true,
+	pluxv1connect.DevPhoneServiceRequestJoinProcedure:   true,
+	pluxv1connect.DevPhoneServiceCompleteJoinProcedure:  true,
+	pluxv1connect.DevPhoneServiceSignOutPhoneProcedure:  true,
+}
+
+// PhoneAuthenticator resolves a phone token (auth.Service).
+type PhoneAuthenticator interface {
+	AuthenticatePhoneToken(ctx context.Context, secret string) (auth.Identity, auth.PhoneKey, error)
+}
+
+// PhoneCaller is the phone of a call made with a phone token.
+type PhoneCaller struct {
+	// Name is the name the phone signed in with.
+	Name string
+}
+
+// phoneCallerKey carries the PhoneCaller of a phone call.
+type phoneCallerKey struct{}
+
+// PhoneFrom returns the phone of a call made with a phone token.
+func PhoneFrom(ctx context.Context) (PhoneCaller, bool) {
+	c, ok := ctx.Value(phoneCallerKey{}).(PhoneCaller)
+	return c, ok
 }
 
 // DevicePublic are the device procedures that take no credential: each
@@ -172,6 +209,12 @@ type DeviceAuth struct {
 	PerDevice int64
 	// People authenticates every other call: people and CI.
 	People Around
+	// Phones resolves the tokens of phones signed in to the Plux Dev app;
+	// nil refuses every phone call.
+	Phones PhoneAuthenticator
+	// Trusted are the proxies whose X-Forwarded-For is believed, for the
+	// audit of phone calls.
+	Trusted []netip.Prefix
 }
 
 // DeviceAuthentication authenticates device calls and hands every other
@@ -191,12 +234,14 @@ type DeviceAuth struct {
 // WWW-Authenticate challenge naming what failed (SEC-024).
 func DeviceAuthentication(a DeviceAuth) Around {
 	return func(ctx context.Context, c Call, next func(context.Context) error) error {
-		if DeviceProcedures[c.Procedure] || DeviceProofOnly[c.Procedure] || DevicePublic[c.Procedure] {
+		if DeviceProcedures[c.Procedure] || DeviceProofOnly[c.Procedure] || DevicePublic[c.Procedure] || PhoneProcedures[c.Procedure] {
 			c.ResponseHeader.Set(nonceHeader, a.Nonces.Current())
 		}
 		switch {
 		case DevicePublic[c.Procedure]:
 			return next(ctx)
+		case PhoneProcedures[c.Procedure]:
+			return a.phoneCall(ctx, c, next)
 		case DeviceProofOnly[c.Procedure]:
 			ctx, err := a.authenticateProof(ctx, c)
 			if err != nil {
@@ -231,6 +276,52 @@ func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Co
 	ctx = context.WithValue(ctx, proofIDKey{}, proof.JTI)
 	ctx = context.WithValue(ctx, proofKeyKey{}, proof.JKT)
 	return next(context.WithValue(ctx, deviceKey{}, d))
+}
+
+// phoneCall authenticates a call made with a phone token and runs it as
+// the phone's person: the token, then the proof against the key the token
+// is bound to with its nonce, then replay (ADR-0104, SEC-021). The phone is
+// rate limited on its own allowance, as a device is.
+func (a DeviceAuth) phoneCall(ctx context.Context, c Call, next func(context.Context) error) error {
+	if a.Phones == nil {
+		return a.refuse(c, plxerr.New(plxerr.AuthenticationRequired, "this server signs no phones in"))
+	}
+	ctx = audit.WithRequest(ctx, audit.Request{
+		SourceIP:  ClientAddress(c.PeerAddress, c.Header, a.Trusted),
+		UserAgent: truncate(c.Header.Get("User-Agent"), 512),
+		RequestID: observability.RequestID(ctx),
+	})
+	token, err := dpopToken(c.Header)
+	if err != nil {
+		return a.refuse(c, err)
+	}
+	rawProof, err := proofOf(c.Header)
+	if err != nil {
+		return a.refuse(c, err)
+	}
+	id, key, err := a.Phones.AuthenticatePhoneToken(ctx, token)
+	if err != nil {
+		return a.refuse(c, err)
+	}
+	proof, err := a.Proofs.Verify(rawProof, dpop.Expect{Method: proofMethod, URL: a.url(c.Procedure), AccessToken: token, JKT: key.JKT, Window: a.Window})
+	if err != nil {
+		return a.refuse(c, err)
+	}
+	if err := a.checkReplay(ctx, a.Replay.Policy(), proof, a.Window, a.FallbackWindow); err != nil {
+		return a.refuse(c, err)
+	}
+	if a.Limiter.Count != nil {
+		retry, err := a.Limiter.Allow(ctx, "rate:phone:"+id.ID, a.PerDevice)
+		if err != nil {
+			if retry > 0 {
+				c.ResponseHeader.Set("Retry-After", retryAfterHeader(retry))
+			}
+			return err
+		}
+	}
+	ctx = context.WithValue(ctx, proofKeyKey{}, proof.JKT)
+	ctx = context.WithValue(ctx, phoneCallerKey{}, PhoneCaller{Name: key.Name})
+	return next(WithIdentity(ctx, id))
 }
 
 // authenticate checks the token and the proof of a device call.

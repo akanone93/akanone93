@@ -42,6 +42,11 @@ func (s *Service) AuthenticateToken(ctx context.Context, secret string) (Identit
 			}
 			return fmt.Errorf("auth: read a token: %w", err)
 		}
+		// A phone token is never a bearer token: it is accepted only with
+		// a proof of its phone's key (AuthenticatePhoneToken).
+		if row.Source == sourcePhone {
+			return expired()
+		}
 		req := audit.RequestFrom(ctx)
 		if err := q.TouchAccessToken(ctx, dbgen.TouchAccessTokenParams{ID: row.ID, LastIpPrefix: ipPrefix(req.SourceIP), LastUserAgent: req.UserAgent}); err != nil {
 			return fmt.Errorf("auth: record a token's use: %w", err)

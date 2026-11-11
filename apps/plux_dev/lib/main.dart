@@ -9,10 +9,17 @@ import 'package:plux_dev/dev_http.dart';
 /// (`--dart-define=PLUX_DEV_ROOT_KEYS=<keys.json>`) and the dev channel
 /// (`--dart-define=plux.devtools=true`), trusting the development
 /// certificate authority it was built with (`--dart-define=PLUX_DEV_CA=<PEM>`,
-/// optional). The runtime starts once the developer has chosen the app to
-/// preview.
-void main() {
+/// optional). The phone connects to Studio once (Profile › Phones); an app
+/// starts when the developer taps it.
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   checkDevCertificateAuthority();
-  runApp(DevApp(rootKeys: developmentRootKeys()));
+  final name = await phoneName();
+  runApp(
+    DevApp(
+      rootKeys: developmentRootKeys(),
+      phones: RuntimePhones(client: devHttpClient, deviceName: name),
+      deviceName: name,
+    ),
+  );
 }

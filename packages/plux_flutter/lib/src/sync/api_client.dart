@@ -1257,6 +1257,38 @@ final class PluxApiClient {
     return (claims as Map<String, Object?>)['jti']! as String;
   }
 
+  /// Claims the phone sign-in of [grant] with the key of [proofs], the
+  /// phone's (DEV-002, ADR-0104): the answer holds the numbers to offer.
+  Future<Map<String, Object?>> phoneClaimSignIn(
+    DpopProofs proofs, {
+    required String grant,
+    required String name,
+    required String platform,
+  }) => _call('plux.v1.DevPhoneService/ClaimPhoneSignIn', {
+    'grant': grant,
+    'name': name,
+    'platform': platform,
+  }, proofs: proofs);
+
+  /// Completes the phone sign-in of [grant] with the [number] picked; the
+  /// answer holds the phone token, once.
+  Future<Map<String, Object?>> phoneCompleteSignIn(
+    DpopProofs proofs, {
+    required String grant,
+    required int number,
+  }) => _call('plux.v1.DevPhoneService/CompletePhoneSignIn', {
+    'grant': grant,
+    'number': number,
+  }, proofs: proofs);
+
+  /// Calls a procedure of a signed-in phone with its [token], bound to the
+  /// key of the token's proofs (ADR-0104).
+  Future<Map<String, Object?>> phoneCall(
+    DeviceToken token,
+    String method,
+    Map<String, Object?> body,
+  ) => _call('plux.v1.DevPhoneService/$method', body, token: token);
+
   /// Posts one call. With [proofs] the request carries a DPoP proof (with
   /// the [token], when there is one, as `Authorization: DPoP`); [extend]
   /// adds body members that depend on the proof; [onHeaders] sees the

@@ -1366,6 +1366,15 @@ enum PluxErrorCode {
   /// Event too large.
   devEventTooLarge(9209, 'DEV_EVENT_TOO_LARGE', 'Event too large'),
 
+  /// Number does not match.
+  numberMismatch(9210, 'NUMBER_MISMATCH', 'Number does not match'),
+
+  /// No live Studio session.
+  noLiveStudioSession(9211, 'NO_LIVE_STUDIO_SESSION', 'No live Studio session'),
+
+  /// Phone request closed.
+  phoneRequestClosed(9212, 'PHONE_REQUEST_CLOSED', 'Phone request closed'),
+
   /// Dev bundle signature invalid.
   devBundleSignatureInvalid(9230, 'DEV_BUNDLE_SIGNATURE_INVALID', 'Dev bundle signature invalid'),
 

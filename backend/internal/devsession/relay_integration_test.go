@@ -369,8 +369,10 @@ func TestRelay_FanOutInOrder_DEV_020(t *testing.T) {
 	want := []struct {
 		device, msg string
 	}{{a.DeviceID, "a1"}, {b.DeviceID, "b1"}, {a.DeviceID, "a2"}}
+	var seen []*pluxv1.DevEvent
 	for _, w := range []<-chan *pluxv1.DevEvent{first, second} {
 		got := receive(t, w, 3)
+		seen = got
 		var prev uint64
 		for i, ev := range got {
 			// The session-wide sequence grows with every relayed event, the
@@ -381,9 +383,18 @@ func TestRelay_FanOutInOrder_DEV_020(t *testing.T) {
 			prev = ev.GetSequence()
 		}
 	}
+	// Resuming after a sequence gives the first event past it. The devices'
+	// connection events, which receive skips, take sequence numbers too and
+	// may fall between the log events, so the next one is found, not assumed.
+	var next uint64
+	for _, ev := range seen {
+		if ev.GetSequence() > 2 && (next == 0 || ev.GetSequence() < next) {
+			next = ev.GetSequence()
+		}
+	}
 	resumed := receive(t, r.watch(t, s.ID, 2, nil), 1)
-	if resumed[0].GetSequence() != 3 {
-		t.Errorf("resumed after 2 with %v", resumed[0])
+	if resumed[0].GetSequence() != next {
+		t.Errorf("resumed after 2 with %v, want sequence %d", resumed[0], next)
 	}
 }
 

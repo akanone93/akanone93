@@ -288,10 +288,29 @@ func (s *Service) checkStepUp(ctx context.Context, p auth.Principal, appID, envi
 }
 
 // create stores a session, issues its first pairing token and audits it.
+// A person has one Studio session per app and environment: while theirs is
+// live it is returned again, with a fresh pairing token, so that Studio
+// opened anew, in another tab or after a reload, finds the devices and the
+// phones that joined it still there (ADR-0104).
 func (s *Service) create(ctx context.Context, tx pgx.Tx, p auth.Principal, app, env pgtype.UUID, key string, kind Kind) (Session, Pairing, error) {
 	set, err := s.o.Limits(ctx, tx, p.OrganizationID, storage.ID(app))
 	if err != nil {
 		return Session{}, Pairing{}, fmt.Errorf("devsession: read the limits: %w", err)
+	}
+	if kind == KindStudio {
+		session, live, err := s.liveStudioSession(ctx, tx, p, app, env, minutes(set, limits.DevSessionIdleMinutes))
+		if err != nil {
+			return Session{}, Pairing{}, err
+		}
+		if live {
+			now := s.now()
+			if err := dbgen.New(tx).TouchDevSession(ctx, dbgen.TouchDevSessionParams{ID: storage.MustUUID(session.ID), At: storage.Timestamp(now)}); err != nil {
+				return Session{}, Pairing{}, fmt.Errorf("devsession: touch the session: %w", err)
+			}
+			session.LastActivityAt = now
+			pairing, err := s.issue(ctx, tx, session, set, now)
+			return session, pairing, err
+		}
 	}
 	id, err := s.o.IDs.New()
 	if err != nil {
@@ -424,6 +443,15 @@ func (*Service) store(ctx context.Context, tx pgx.Tx, arg dbgen.InsertDevPairing
 func uniqueViolation(err error) bool {
 	var pg *pgconn.PgError
 	return errors.As(err, &pg) && pg.Code == "23505"
+}
+
+// SignInLink is the link of the QR code that connects a phone to the Plux
+// Dev app with a sign-in grant (ADR-0104).
+func (s *Service) SignInLink(grant string) string {
+	q := url.Values{}
+	q.Set("server", s.o.PublicBaseURL)
+	q.Set("grant", grant)
+	return "plux-dev://signin?" + q.Encode()
 }
 
 // link is the pairing link a QR code holds.

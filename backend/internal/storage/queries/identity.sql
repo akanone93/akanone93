@@ -311,3 +311,58 @@ DELETE FROM oidc_logins WHERE expires_at < now();
 UPDATE users SET invitation_hash = NULL, invitation_expires_at = NULL
  WHERE id = $1
 RETURNING *;
+
+-- Phones signed in to the Plux Dev app (DEV-002, ADR-0104).
+
+-- name: CreatePhoneToken :one
+INSERT INTO access_tokens (id, organization_id, user_id, name, prefix, secret_hash, scopes, source, expires_at, dpop_thumbprint, platform, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, 'phone', $8, $9, $10, $11)
+RETURNING *;
+
+-- name: TouchPhoneToken :exec
+-- Records a phone's use, at most once a minute; its idle lapse counts from
+-- here (devSession.phoneIdleDays).
+UPDATE access_tokens SET last_used_at = sqlc.arg(at)::timestamptz, last_ip_prefix = $2, last_user_agent = $3
+ WHERE id = $1 AND (last_used_at IS NULL OR last_used_at < sqlc.arg(at)::timestamptz - interval '1 minute');
+
+-- name: ListPhoneTokens :many
+-- A person's signed-in phones, newest first; the caller drops the ones that
+-- expired or lapsed.
+SELECT * FROM access_tokens
+ WHERE organization_id = $1 AND user_id = $2 AND source = 'phone' AND revoked_at IS NULL
+ ORDER BY created_at DESC, id;
+
+-- name: InsertPhoneSignIn :one
+INSERT INTO dev_phone_sign_ins (id, organization_id, user_id, grant_hash, expires_at, created_at)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *;
+
+-- name: GetPhoneSignIn :one
+SELECT * FROM dev_phone_sign_ins WHERE id = $1;
+
+-- name: GetPhoneSignInByGrantForUpdate :one
+SELECT s.*, coalesce(u.display_name, '')::text AS user_display_name, o.name AS organization_name
+  FROM dev_phone_sign_ins s
+  JOIN users u ON u.id = s.user_id
+  JOIN organizations o ON o.id = s.organization_id
+ WHERE s.grant_hash = $1
+   FOR UPDATE OF s;
+
+-- name: ClaimPhoneSignIn :one
+-- A phone claims a waiting sign-in once, with its key; the caller checks
+-- the expiry.
+UPDATE dev_phone_sign_ins
+   SET state = 'claimed', dpop_thumbprint = $2, number = $3, phone_name = $4, platform = $5, claimed_at = $6
+ WHERE id = $1 AND state = 'waiting'
+RETURNING *;
+
+-- name: FinishPhoneSignIn :execrows
+-- Ends a claimed sign-in: signed in with its token, or failed.
+UPDATE dev_phone_sign_ins SET state = $2, token_id = $3 WHERE id = $1 AND state = 'claimed';
+
+-- name: CancelPhoneSignIn :execrows
+UPDATE dev_phone_sign_ins SET state = 'cancelled' WHERE id = $1 AND user_id = $2 AND state IN ('waiting', 'claimed');
+
+-- name: CountPhoneClaims :one
+-- The sign-ins one phone key claimed since an instant (devSession.phoneAttempts).
+SELECT count(*) FROM dev_phone_sign_ins WHERE dpop_thumbprint = $1 AND claimed_at > sqlc.arg(since)::timestamptz;

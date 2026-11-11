@@ -1054,6 +1054,25 @@ var matrix = map[string]entry{
 	"FunctionService/Invoke":                    {kind: deviceRPC, build: anyone(&pluxv1.FunctionServiceInvokeRequest{})},
 	"DevSessionService/Pair":                    {kind: deviceRPC, build: anyone(&pluxv1.DevSessionServicePairRequest{})},
 	"DevSessionService/RenewSocketTicket":       {kind: deviceRPC, build: anyone(&pluxv1.DevSessionServiceRenewSocketTicketRequest{})},
+
+	// DevPhoneService (ADR-0104): a person connects and signs out their own
+	// phones, with a fresh step-up to connect one, and answers the requests
+	// to join their own sessions; a phone calls the rest with a DPoP proof,
+	// with or without its phone token, which a person's session never is.
+	"DevPhoneService/CreatePhoneSignIn":   {kind: self, build: anyone(&pluxv1.CreatePhoneSignInRequest{})},
+	"DevPhoneService/GetPhoneSignIn":      {kind: self, build: anyone(&pluxv1.GetPhoneSignInRequest{SignInId: unknownID})},
+	"DevPhoneService/CancelPhoneSignIn":   {kind: self, build: anyone(&pluxv1.CancelPhoneSignInRequest{SignInId: unknownID})},
+	"DevPhoneService/ListPhones":          {kind: self, build: anyone(&pluxv1.ListPhonesRequest{})},
+	"DevPhoneService/RevokePhone":         {kind: self, build: anyone(&pluxv1.RevokePhoneRequest{PhoneId: unknownID})},
+	"DevPhoneService/GetJoinRequest":      atPerm(auth.DevSessionCreate, anyone(&pluxv1.GetJoinRequestRequest{RequestId: unknownID})),
+	"DevPhoneService/DenyJoinRequest":     atPerm(auth.DevSessionCreate, anyone(&pluxv1.DenyJoinRequestRequest{RequestId: unknownID})),
+	"DevPhoneService/AllowJoinRetry":      atPerm(auth.DevSessionCreate, anyone(&pluxv1.AllowJoinRetryRequest{RequestId: unknownID})),
+	"DevPhoneService/ClaimPhoneSignIn":    {kind: deviceRPC, build: anyone(&pluxv1.ClaimPhoneSignInRequest{})},
+	"DevPhoneService/CompletePhoneSignIn": {kind: deviceRPC, build: anyone(&pluxv1.CompletePhoneSignInRequest{})},
+	"DevPhoneService/ListPhoneApps":       {kind: deviceRPC, build: anyone(&pluxv1.ListPhoneAppsRequest{})},
+	"DevPhoneService/RequestJoin":         {kind: deviceRPC, build: anyone(&pluxv1.RequestJoinRequest{})},
+	"DevPhoneService/CompleteJoin":        {kind: deviceRPC, build: anyone(&pluxv1.CompleteJoinRequest{})},
+	"DevPhoneService/SignOutPhone":        {kind: deviceRPC, build: anyone(&pluxv1.SignOutPhoneRequest{})},
 }
 
 // variants are calls of an RPC that need more than the RPC's own entry

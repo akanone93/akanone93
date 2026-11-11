@@ -24,6 +24,8 @@ type AccessToken struct {
 	RevokedAt      pgtype.Timestamptz
 	LastIpPrefix   string
 	LastUserAgent  string
+	DpopThumbprint string
+	Platform       string
 }
 
 type AlertRule struct {
@@ -461,6 +463,19 @@ type Delta struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type DevJoinRequest struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	SessionID      pgtype.UUID
+	TokenID        pgtype.UUID
+	State          string
+	Number         int16
+	PhoneName      string
+	CreatedAt      pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
+}
+
 type DevPairingAttempt struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID
@@ -475,6 +490,22 @@ type DevPairingToken struct {
 	ExpiresAt      pgtype.Timestamptz
 	ConsumedAt     pgtype.Timestamptz
 	Code           *string
+}
+
+type DevPhoneSignIn struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+	GrantHash      []byte
+	State          string
+	DpopThumbprint string
+	Number         int16
+	PhoneName      string
+	Platform       string
+	TokenID        pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+	ClaimedAt      pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
 }
 
 type DevSession struct {

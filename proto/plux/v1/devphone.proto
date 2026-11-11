@@ -1,0 +1,266 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/devevents.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// DevPhoneService signs a developer's phone in to the Plux Dev app once, and
+// lets that phone join the developer's own Studio dev sessions without a
+// pairing QR code (DEV-002, ADR-0104).
+//
+// Connecting a phone: in Studio the person, freshly stepped up (SEC-103),
+// creates a sign-in and shows its QR code, which holds a single-use grant
+// that lasts `devSession.phoneSignInSeconds`. The phone claims the grant with
+// a DPoP proof of its hardware key: Studio then shows a two-digit number and
+// the phone offers three. Picking Studio's number signs the phone in with a
+// token bound to that key; a wrong pick ends the sign-in.
+//
+// Joining: a signed-in phone asks to join the person's live Studio session of
+// an app. Studio shows a number to that person, the phone offers three, and
+// the right pick gives the phone a pairing token (the one GetPairing issues),
+// with which its runtime pairs as after a scan. The same phone joins the same
+// session again without a number while the session is live. A wrong pick
+// keeps the phone out of the session until the person lets it try again.
+//
+// Who calls what: a person calls CreatePhoneSignIn, GetPhoneSignIn,
+// CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest
+// and AllowJoinRetry. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
+// a DPoP proof alone, and ListPhoneApps, RequestJoin, CompleteJoin and
+// SignOutPhone with its phone token (`Authorization: DPoP`) and a proof of the
+// key the token is bound to; a phone token is accepted nowhere else.
+service DevPhoneService {
+  // CreatePhoneSignIn starts connecting a phone: it needs a browser session
+  // with a recent step-up, and returns the QR code's link once.
+  rpc CreatePhoneSignIn(CreatePhoneSignInRequest) returns (CreatePhoneSignInResponse) {}
+  // GetPhoneSignIn reports a sign-in of the caller's: the number to show once
+  // a phone claimed it, and how it ended.
+  rpc GetPhoneSignIn(GetPhoneSignInRequest) returns (GetPhoneSignInResponse) {}
+  // CancelPhoneSignIn ends a sign-in of the caller's that is not finished.
+  rpc CancelPhoneSignIn(CancelPhoneSignInRequest) returns (CancelPhoneSignInResponse) {}
+  // ListPhones lists the caller's signed-in phones.
+  rpc ListPhones(ListPhonesRequest) returns (ListPhonesResponse) {}
+  // RevokePhone signs one of the caller's phones out.
+  rpc RevokePhone(RevokePhoneRequest) returns (RevokePhoneResponse) {}
+  // GetJoinRequest reports a phone's request to join one of the caller's dev
+  // sessions, with the number to show; only the session's creator may read it.
+  rpc GetJoinRequest(GetJoinRequestRequest) returns (GetJoinRequestResponse) {}
+  // DenyJoinRequest refuses a phone's request to join one of the caller's dev
+  // sessions.
+  rpc DenyJoinRequest(DenyJoinRequestRequest) returns (DenyJoinRequestResponse) {}
+  // AllowJoinRetry lets a phone that picked a wrong number ask to join the
+  // session again: until then it may not, so that a phone in other hands gets
+  // one guess.
+  rpc AllowJoinRetry(AllowJoinRetryRequest) returns (AllowJoinRetryResponse) {}
+
+  // ClaimPhoneSignIn is the phone's scan of the QR code: it binds the
+  // sign-in to the key of the call's DPoP proof and returns the three numbers
+  // to offer (PLX-9212).
+  rpc ClaimPhoneSignIn(ClaimPhoneSignInRequest) returns (ClaimPhoneSignInResponse) {}
+  // CompletePhoneSignIn is the phone's pick; with the right number it returns
+  // the phone token, once (PLX-9210, PLX-9212).
+  rpc CompletePhoneSignIn(CompletePhoneSignInRequest) returns (CompletePhoneSignInResponse) {}
+  // ListPhoneApps lists the apps the phone's person may preview, and which of
+  // them that person has open in Studio.
+  rpc ListPhoneApps(ListPhoneAppsRequest) returns (ListPhoneAppsResponse) {}
+  // RequestJoin asks to join the person's live Studio session of an app
+  // (PLX-9211).
+  rpc RequestJoin(RequestJoinRequest) returns (RequestJoinResponse) {}
+  // CompleteJoin is the phone's pick; with the right number it returns a
+  // pairing link (PLX-9210, PLX-9212).
+  rpc CompleteJoin(CompleteJoinRequest) returns (CompleteJoinResponse) {}
+  // SignOutPhone revokes the calling phone's own token.
+  rpc SignOutPhone(SignOutPhoneRequest) returns (SignOutPhoneResponse) {}
+}
+
+// PhoneSignInState is where the connection of a phone stands.
+enum PhoneSignInState {
+  PHONE_SIGN_IN_STATE_UNSPECIFIED = 0;
+  // WAITING: Studio shows the QR code; no phone has scanned it.
+  PHONE_SIGN_IN_STATE_WAITING = 1;
+  // CLAIMED: a phone scanned it; Studio shows the number to pick.
+  PHONE_SIGN_IN_STATE_CLAIMED = 2;
+  // SIGNED_IN: the phone picked the number and is signed in.
+  PHONE_SIGN_IN_STATE_SIGNED_IN = 3;
+  // FAILED: the phone picked another number.
+  PHONE_SIGN_IN_STATE_FAILED = 4;
+  // CANCELLED: the person cancelled it in Studio.
+  PHONE_SIGN_IN_STATE_CANCELLED = 5;
+  // EXPIRED: it was not finished in time.
+  PHONE_SIGN_IN_STATE_EXPIRED = 6;
+}
+
+message CreatePhoneSignInRequest {}
+
+message CreatePhoneSignInResponse {
+  string sign_in_id = 1;
+  // link is the QR code's content,
+  // `plux-dev://signin?server=<url>&grant=<grant>`. It is a credential until
+  // it expires: shown once, never stored or logged.
+  string link = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message GetPhoneSignInRequest {
+  string sign_in_id = 1;
+}
+
+message GetPhoneSignInResponse {
+  PhoneSignInState state = 1;
+  // number is the number the person picks on the phone: set only while the
+  // state is CLAIMED.
+  uint32 number = 2;
+  // phone_name and platform describe the phone that claimed the sign-in.
+  string phone_name = 3;
+  string platform = 4;
+  google.protobuf.Timestamp expires_at = 5;
+}
+
+message CancelPhoneSignInRequest {
+  string sign_in_id = 1;
+}
+
+message CancelPhoneSignInResponse {}
+
+// DevPhone is a phone signed in to the Plux Dev app.
+message DevPhone {
+  string id = 1;
+  string name = 2;
+  string platform = 3;
+  google.protobuf.Timestamp signed_in_at = 4;
+  google.protobuf.Timestamp last_used_at = 5;
+  // lapses_at is when the sign-in lapses unless the phone is used before:
+  // `devSession.phoneIdleDays` after its last use.
+  google.protobuf.Timestamp lapses_at = 6;
+}
+
+message ListPhonesRequest {}
+
+message ListPhonesResponse {
+  repeated DevPhone phones = 1;
+}
+
+message RevokePhoneRequest {
+  string phone_id = 1;
+}
+
+message RevokePhoneResponse {}
+
+message GetJoinRequestRequest {
+  string request_id = 1;
+}
+
+message GetJoinRequestResponse {
+  string session_id = 1;
+  DevJoinState state = 2;
+  // number is the number to pick on the phone: set only while the state is
+  // WAITING.
+  uint32 number = 3;
+  string phone_name = 4;
+  google.protobuf.Timestamp expires_at = 5;
+}
+
+message DenyJoinRequestRequest {
+  string request_id = 1;
+}
+
+message DenyJoinRequestResponse {}
+
+message AllowJoinRetryRequest {
+  // request_id is the request whose number was wrong.
+  string request_id = 1;
+}
+
+message AllowJoinRetryResponse {}
+
+message ClaimPhoneSignInRequest {
+  // grant is the grant of the scanned link.
+  string grant = 1;
+  // name and platform describe the phone, for the person's list of phones.
+  string name = 2;
+  string platform = 3;
+}
+
+message ClaimPhoneSignInResponse {
+  // options are the three numbers to offer, in the order to show them; one of
+  // them is the number Studio shows.
+  repeated uint32 options = 1;
+  google.protobuf.Timestamp expires_at = 2;
+  // user_display and organization_name say whom the phone is signing in as.
+  string user_display = 3;
+  string organization_name = 4;
+}
+
+message CompletePhoneSignInRequest {
+  string grant = 1;
+  uint32 number = 2;
+}
+
+message CompletePhoneSignInResponse {
+  // token is the phone token, returned once and stored only as its hash; the
+  // phone keeps it in its secure storage and sends it with a proof of its key.
+  string token = 1;
+  string phone_id = 2;
+  string organization_id = 3;
+  string user_display = 4;
+  string organization_name = 5;
+}
+
+message ListPhoneAppsRequest {}
+
+// PhoneApp is an app a signed-in phone may preview.
+message PhoneApp {
+  string id = 1;
+  string name = 2;
+  // live is true while the phone's person has the app open in Studio, in a
+  // dev session the phone may join.
+  bool live = 3;
+}
+
+message ListPhoneAppsResponse {
+  repeated PhoneApp apps = 1;
+  string user_display = 2;
+  string organization_name = 3;
+}
+
+message RequestJoinRequest {
+  string app_id = 1;
+}
+
+message RequestJoinResponse {
+  string request_id = 1;
+  string session_id = 2;
+  // environment is the key of the session's environment, the one the phone's
+  // runtime syncs.
+  string environment = 3;
+  // options are the three numbers to offer, in the order to show them. Empty
+  // when the phone joined this session before: pairing_link is then set and
+  // no number is needed.
+  repeated uint32 options = 4;
+  google.protobuf.Timestamp expires_at = 5;
+  // pairing_link is set only when no number is needed.
+  string pairing_link = 6;
+}
+
+message CompleteJoinRequest {
+  string request_id = 1;
+  uint32 number = 2;
+}
+
+message CompleteJoinResponse {
+  // pairing_link is `plux-dev://pair?server=<url>&token=<token>`, the link a
+  // scan of the session's QR code gives, for the phone's runtime to pair with
+  // at once.
+  string pairing_link = 1;
+  string session_id = 2;
+  string environment = 3;
+}
+
+message SignOutPhoneRequest {}
+
+message SignOutPhoneResponse {}

@@ -52,6 +52,8 @@ Future<DevEngineHandle> startDevEngineIsolate(
         ready.complete(message);
       case (final String kind, final Object? arg, final SendPort reply):
         unawaited(_answer(host, kind, arg, reply));
+      case ('connection', final bool open):
+        host.connection(open: open);
       case ('closed', final String? code):
         unawaited(host.closed(endedCode: code));
     }
@@ -170,6 +172,9 @@ final class _RemoteHost implements DevEngineHost {
   Future<void> closed({String? endedCode}) async {
     _requests.send(('closed', endedCode));
   }
+
+  @override
+  void connection({required bool open}) => _requests.send(('connection', open));
 }
 
 Future<void> _main(

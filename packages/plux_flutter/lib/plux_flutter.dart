@@ -68,9 +68,11 @@ export 'src/devtools_api/dev_channel.dart'
         DevEngineHandle,
         DevEngineHost,
         DevEngineStarter,
+        DevLinkState,
         DevPairingCode,
         DevPairingCredential,
         DevPairingLink,
+        DevSignInLink,
         DevSocketAuth;
 export 'src/devtools_api/dev_console.dart' show DevPxlCompiler;
 export 'src/devtools_api/dev_extensions.dart' show devExtensions;
@@ -78,6 +80,15 @@ export 'src/devtools_api/dev_network.dart' show DevNetworkSimulation;
 export 'src/devtools_api/dev_nodes.dart' show DevNodeHost, DevNodeScope;
 export 'src/devtools_api/dev_overlays.dart' show DevToolsLayer;
 export 'src/devtools_api/dev_pairing.dart' show PluxDevPairing;
+export 'src/devtools_api/dev_phone.dart'
+    show
+        DevJoin,
+        DevPhone,
+        DevPhoneAccount,
+        DevPhoneApp,
+        DevPhoneClaim,
+        DevPhoneException,
+        DevPhoneFailure;
 export 'src/devtools_api/dev_screenshot.dart' show DevCaptureBoundary;
 export 'src/devtools_api/dev_session.dart'
     show

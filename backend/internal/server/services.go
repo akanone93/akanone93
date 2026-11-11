@@ -1367,6 +1367,8 @@ func operationsRegistrations(svc *Services, h *api.Handlers, opts connect.Handle
 		h.DevSessions = svc.DevSessions
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewDevSessionServiceHandler(h.DevSession(), opts)
+		}, func() (string, http.Handler) {
+			return pluxv1connect.NewDevPhoneServiceHandler(h.DevPhone(), opts)
 		})
 	}
 	if svc.DataSubjects != nil {
@@ -1412,7 +1414,17 @@ func (s *Server) deviceAuth(svc *Services, limiter api.RateLimiter, people api.A
 		Devices: svc.Devices, Tokens: trust.Tokens, Proofs: trust.Proofs, Nonces: trust.Nonces, Replay: trust.Replay,
 		BaseURL: s.cfg.Server.PublicBaseURL, Window: trust.Window, FallbackWindow: trust.FallbackWindow, Windows: trust.Windows, ReplayPolicy: trust.ReplayPolicy,
 		Rejected: rejectionsOf(s.metrics), Limiter: limiter, PerDevice: s.limits.Get(limits.APIRequestsPerMinutePerDevice), People: people,
+		Phones: phonesOf(svc), Trusted: s.trusted,
 	}
+}
+
+// phonesOf is the authenticator of phone tokens: the identity service, on a
+// listener that serves dev sessions (ADR-0104).
+func phonesOf(svc *Services) api.PhoneAuthenticator {
+	if svc.Auth == nil || svc.DevSessions == nil {
+		return nil
+	}
+	return svc.Auth
 }
 
 // RegisterGateway mounts what the gateway role serves on its own: the

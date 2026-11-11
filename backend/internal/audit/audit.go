@@ -345,6 +345,14 @@ const (
 	// DevSessionPatched: a patch to the draft was pushed to a dev session's
 	// devices as a development bundle; the entry names documents by ID.
 	DevSessionPatched Action = "devsession.patched"
+	// DevSessionJoined: a signed-in phone picked the number Studio showed and
+	// was given a pairing token for the session (ADR-0104).
+	DevSessionJoined Action = "devsession.joined"
+	// DevPhoneSignedIn: a phone was signed in to the Plux Dev app after its
+	// number was picked (ADR-0104); the entry names the token.
+	DevPhoneSignedIn Action = "devphone.signed_in"
+	// DevPhoneRevoked: a phone was signed out, by its person or by itself.
+	DevPhoneRevoked Action = "devphone.revoked"
 )
 
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
@@ -504,6 +512,7 @@ var actions = sorted(
 	ApprovalPolicySet, ApprovalPolicyDeleted, ApprovalRequested, ApprovalApproved, ApprovalRejected, ApprovalUsed,
 	BreakGlassInvoked, BreakGlassReviewed, BreakGlassOverdue, FreezeSet, FreezeDeleted, ComplianceReportCreated,
 	DevSessionCreated, DevSessionPaired, DevSessionEnded, DevSessionCommandSent, DevSessionPatched,
+	DevSessionJoined, DevPhoneSignedIn, DevPhoneRevoked,
 	LibraryItemCreated, LibraryVersionAdded, LibraryVisibilitySet, LibraryVersionAdopted,
 	AppExported, AppImported, AppDuplicated, AppArchived, ShellSettingsSet, ProjectGenerated,
 )

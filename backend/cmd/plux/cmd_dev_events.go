@@ -126,8 +126,17 @@ func devSummary(ev *pluxv1.DevEvent) (string, []string) {
 		return fmt.Sprintf("%d events dropped (%s)", p.Drop.GetDropped(), strings.ToLower(strings.TrimPrefix(p.Drop.GetReason().String(), "DEV_DROP_REASON_"))), nil
 	case *pluxv1.DevEvent_Connection:
 		return devConnectionText(p.Connection), nil
+	case *pluxv1.DevEvent_JoinRequest:
+		return devJoinText(p.JoinRequest), nil
 	}
 	return "", nil
+}
+
+// devJoinText says where a phone's request to join the session stands; the
+// number to pick is shown in Studio only.
+func devJoinText(j *pluxv1.JoinRequestEvent) string {
+	state := strings.ToLower(strings.TrimPrefix(j.GetState().String(), "DEV_JOIN_STATE_"))
+	return fmt.Sprintf("phone %q asks to join: %s", j.GetPhoneName(), state)
 }
 
 // devConnectionText says whether a device's socket opened or closed, and why
@@ -332,7 +341,7 @@ func devPrintJSON(w io.Writer, m proto.Message) error {
 func (e env) devLogs(args []string) int {
 	var filter string
 	var since uint64
-	d, _, code, ok := e.devParse("logs", args, "Usage: plux dev logs [--session id] [--device id] [--filter kind|text] [--since seq] [--json]\n\nPrints the session's events, one line each, until interrupted: sequence, time, device, kind and a summary. An action run is followed by its steps; a function call by the log lines merged into it. --filter keeps the events of one payload kind (log, action_trace, state_diff, network_call, function_call, sync, frame_timing, error, security_detection, command_result, hot_apply, screenshot, inspect, drop, connection) or whose line contains the text. --since resumes after a sequence number. With --json, each event is one line of proto3 JSON.", 0, func(set *flag.FlagSet) {
+	d, _, code, ok := e.devParse("logs", args, "Usage: plux dev logs [--session id] [--device id] [--filter kind|text] [--since seq] [--json]\n\nPrints the session's events, one line each, until interrupted: sequence, time, device, kind and a summary. An action run is followed by its steps; a function call by the log lines merged into it. --filter keeps the events of one payload kind (log, action_trace, state_diff, network_call, function_call, sync, frame_timing, error, security_detection, command_result, hot_apply, screenshot, inspect, drop, connection, join_request) or whose line contains the text. --since resumes after a sequence number. With --json, each event is one line of proto3 JSON.", 0, func(set *flag.FlagSet) {
 		set.StringVar(&filter, "filter", "", "only events of this payload `kind` or containing this text")
 		set.Uint64Var(&since, "since", 0, "resume after this event `sequence`")
 	})

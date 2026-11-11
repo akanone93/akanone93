@@ -14,24 +14,30 @@ import 'package:plux_security/plux_security.dart';
 
 /// Everything the dev tools share, created once per app.
 final class DevTooling {
-  /// Creates the tools. [rootKeys] are the development roots; [scan]
-  /// replaces the camera in tests.
+  /// Creates the tools. [rootKeys] are the development roots; [deviceName]
+  /// is the device's name in the session's device list; [scan] and
+  /// [session] replace the camera and the runtime's pairing in tests.
   DevTooling({
     required List<PluxPublicKey> rootKeys,
     required this.navigatorKey,
     Future<String?> Function(NavigatorState navigator)? scan,
+    String deviceName = '',
+    PluxDevSession? session,
   }) : _scan = scan ?? scanPairingCode,
-       session = PluxDevSession(
-         devRootKeys: rootKeys,
-         extensions: <String, DevCommandHandler>{},
-       ) {
+       session =
+           session ??
+           PluxDevSession(
+             devRootKeys: rootKeys,
+             extensions: <String, DevCommandHandler>{},
+             deviceName: deviceName,
+           ) {
     // Back in the foreground, the dev channel connects at once rather than
     // after its backoff: the phone slept, or its cable was plugged back.
-    _lifecycle = AppLifecycleListener(onResume: session.reconnectNow);
-    session.extensions.addAll(
+    _lifecycle = AppLifecycleListener(onResume: this.session.reconnectNow);
+    this.session.extensions.addAll(
       devExtensions(
         host: host,
-        sink: session.events,
+        sink: this.session.events,
         roots: () => const {},
         captureKey: captureKey,
         network: network,
@@ -62,6 +68,10 @@ final class DevTooling {
   /// The boundary `captureScreenshot` captures.
   final GlobalKey captureKey = GlobalKey();
 
+  /// Whether the diagnostics overlay (sync, release, problems, log) shows;
+  /// off by default, so the app looks as it will, with the dev button only.
+  final ValueNotifier<bool> diagnostics = ValueNotifier(false);
+
   final Future<String?> Function(NavigatorState navigator) _scan;
 
   /// Scans a pairing QR code; null when the user gave up or no navigator is
@@ -77,9 +87,14 @@ final class DevTooling {
     host: host,
     child: DevToolsLayer(
       host: host,
-      child: PluxDevtools(
-        session: session,
-        scan: scan,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: diagnostics,
+        builder: (_, shown, child) => PluxDevtools(
+          enabled: shown,
+          session: session,
+          scan: scan,
+          child: child!,
+        ),
         child: DevCaptureBoundary(captureKey: captureKey, child: app),
       ),
     ),
@@ -92,5 +107,6 @@ final class DevTooling {
     _lifecycle.dispose();
     await session.dispose();
     host.dispose();
+    diagnostics.dispose();
   }
 }

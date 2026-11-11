@@ -7,6 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- `PluxDevSession.link` follows the pairing's `DevChannel.link` (live, reconnecting, ended; null while nothing
+  is paired), and `PluxDevSession(deviceName: …)` names the device in the session's device list (DEV-020).
+
 - `PluxDevSession.reconnectNow()` connects the dev channel again at once when it waits to, for a host to call
   when the app returns to the foreground (DEV-021).
 

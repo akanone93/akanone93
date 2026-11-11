@@ -14,7 +14,11 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform, visibleForTesting;
+    show
+        ValueListenable,
+        defaultTargetPlatform,
+        TargetPlatform,
+        visibleForTesting;
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -632,6 +636,10 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// The release pages render from; replaced only by activation or revert.
   final ValueNotifier<ActiveRelease?> active = ValueNotifier(null);
+
+  /// The app's entry route in [active], following it: a dev bundle that
+  /// changes it, or another release, changes it here.
+  late final ValueListenable<String?> entryRoute = _EntryRoute(active);
 
   /// The latest sync event, for status displays.
   final ValueNotifier<SyncEvent?> lastEvent = ValueNotifier(null);
@@ -2318,5 +2326,37 @@ final class PluxRuntime with WidgetsBindingObserver {
     final name = 'device.${_safe(c.appId)}.${_safe(c.environment)}'
         .toLowerCase();
     return () => PlatformCredentialStore(name);
+  }
+}
+
+/// The entry route of the release a notifier holds, as it changes.
+final class _EntryRoute extends ChangeNotifier
+    implements ValueListenable<String?> {
+  _EntryRoute(this._active) {
+    _value = _read();
+    _active.addListener(_changed);
+  }
+
+  final ValueListenable<ActiveRelease?> _active;
+  String? _value;
+
+  @override
+  String? get value => _value;
+
+  String? _read() {
+    try {
+      final route = _active.value?.entryRoute;
+      return route == null || route.isEmpty ? null : route;
+    } on Object {
+      // A release without an app bundle names no entry route.
+      return null;
+    }
+  }
+
+  void _changed() {
+    final next = _read();
+    if (next == _value) return;
+    _value = next;
+    notifyListeners();
   }
 }

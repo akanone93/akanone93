@@ -22,6 +22,7 @@ import { DeviceControls } from "./device-controls.tsx";
 import { DeviceDrawer } from "./device-drawer.tsx";
 import { devicesMessages } from "./devices.messages.ts";
 import type { DrawerTab } from "./drawer-model.ts";
+import { JoinPrompts, type JoinRequests, withJoinEvent } from "./join-prompt.tsx";
 import { createLatencyMeter, type LatencyMeter } from "./latency.ts";
 import { PairingDialog } from "./pairing-dialog.tsx";
 import { type Capture, ScreenshotPanel } from "./screenshot-panel.tsx";
@@ -326,15 +327,27 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
   });
   const connected = (devices.data ?? []).filter((d) => d.connected).length;
   const status = consoleStatus(sessionId !== undefined, stream, connected);
+  // The phones asking to join the session, each with its latest event (ADR-0104).
+  const [joins, setJoins] = useState<JoinRequests>(() => new Map());
   const onEvent = useCallback(
     (event: DevEvent) => {
-      if (event.payload.case === "connection") {
+      const body = event.payload;
+      if (body.case === "connection") {
         void queryClient.invalidateQueries({ queryKey: ["dev-devices", sessionId] });
+      } else if (body.case === "joinRequest") {
+        setJoins((prev) => withJoinEvent(prev, body.value));
       }
       onBayEvent(event);
     },
     [onBayEvent, queryClient, sessionId],
   );
+  const joinDone = useCallback((requestId: string) => {
+    setJoins((prev) => {
+      const next = new Map(prev);
+      next.delete(requestId);
+      return next;
+    });
+  }, []);
   const first = useRef(accepted);
   useEffect(() => {
     if (accepted !== first.current) {
@@ -371,6 +384,7 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
       className="dev-console absolute bottom-3 z-10"
       data-open={shown || undefined}
     >
+      <JoinPrompts requests={joins} onDone={joinDone} />
       <div className="canvas-panel glass dev-console-panel" style={shown ? { blockSize: height } : undefined}>
         {!shown && sessionId !== undefined && (
           <QuietStream sessionId={sessionId} onEvent={onEvent} onState={setStream} />

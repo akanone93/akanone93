@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Transport } from "@connectrpc/connect";
-import { createStudioTransport, NotificationService, PreferencesService, withStudioHeaders } from "@plux/api";
+import {
+  createStudioTransport,
+  DevPhoneService,
+  NotificationService,
+  PreferencesService,
+  withStudioHeaders,
+} from "@plux/api";
 import { QueryClient } from "@tanstack/react-query";
 
 /**
@@ -27,10 +33,15 @@ export interface Session {
 }
 
 /**
- * The services whose calls are the person's own rather than the page's: preferences and the inbox are kept per
- * organisation on the server, and a page outside any still reads them in the home organisation.
+ * The services whose calls are the person's own rather than the page's: preferences, the inbox and the phones signed
+ * in to the Plux Dev app (ADR-0104) are kept per organisation on the server, and a page outside any, such as the
+ * profile, still reaches them in the home organisation.
  */
-const personal: ReadonlySet<string> = new Set([PreferencesService.typeName, NotificationService.typeName]);
+const personal: ReadonlySet<string> = new Set([
+  PreferencesService.typeName,
+  NotificationService.typeName,
+  DevPhoneService.typeName,
+]);
 
 /** Creates the session; tests pass their own transport, which gets the same headers. */
 export function createSession(baseUrl: string, transport?: Transport): Session {

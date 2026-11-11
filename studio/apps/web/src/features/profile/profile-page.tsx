@@ -28,6 +28,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { MuteSettings } from "../notifications/mute-settings.tsx";
 import { initialsOf } from "../shell/app-sidebar.tsx";
+import { PhonesCard } from "./phones.tsx";
 import { profileMessages } from "./profile.messages.ts";
 import { ProfileLayout } from "./profile-layout.tsx";
 import { SecurityKeysCard } from "./security-keys.tsx";
@@ -143,6 +144,7 @@ export function ProfilePage() {
     >
       <AccountCard m={m} />
       <SecurityKeysCard />
+      <PhonesCard />
       <Card>
         <CardHeader>
           <CardTitle>{m.appearance}</CardTitle>

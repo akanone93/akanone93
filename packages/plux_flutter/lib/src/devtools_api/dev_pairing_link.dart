@@ -103,6 +103,77 @@ final class DevPairingLink extends DevPairingCredential {
   String toString() => 'DevPairingLink($server, [redacted])';
 }
 
+/// The QR code Studio shows to connect a phone to the Plux Dev app (DEV-002,
+/// ADR-0104): `plux-dev://signin?server=<https url>&grant=<grant>`. The grant
+/// is single-use and short-lived, and only completes with the number Studio
+/// shows once the phone has claimed it.
+@immutable
+final class DevSignInLink {
+  /// Creates a link from its parts; [parse] checks them.
+  const DevSignInLink({required this.server, required this.grant});
+
+  /// Whether [text] is a sign-in link rather than a pairing link or code.
+  static bool matches(String text) =>
+      text.trim().toLowerCase().startsWith('${DevPairingLink.scheme}://signin');
+
+  /// Parses [text] as [DevPairingLink.parse] does a pairing link: only the
+  /// `plux-dev` scheme with the `signin` host, and an `https` server, or
+  /// `http` for a loopback address or the Android emulator's host alias when
+  /// [allowInsecureLoopback] is true (debug builds). Throws a
+  /// [FormatException] for anything else.
+  factory DevSignInLink.parse(
+    String text, {
+    bool allowInsecureLoopback = kDebugMode,
+  }) {
+    final Uri link;
+    try {
+      link = Uri.parse(text.trim());
+    } on FormatException {
+      throw FormatException('not a sign-in link', text);
+    }
+    if (link.scheme != DevPairingLink.scheme || link.host != 'signin') {
+      throw FormatException('not a plux-dev://signin link', text);
+    }
+    final params = link.queryParameters;
+    final grant = params['grant'];
+    if (grant == null || grant.isEmpty) {
+      throw const FormatException('the sign-in link has no grant');
+    }
+    final Uri server;
+    try {
+      server = Uri.parse(params['server'] ?? '');
+    } on FormatException {
+      throw const FormatException('the sign-in link has an invalid server');
+    }
+    if (!server.hasAuthority || server.host.isEmpty || server.hasFragment) {
+      throw const FormatException('the sign-in link has an invalid server');
+    }
+    final secure = server.scheme == 'https';
+    final loopback = server.scheme == 'http' && _isLoopback(server.host);
+    if (!secure && !(loopback && allowInsecureLoopback)) {
+      throw const FormatException('the sign-in server must use https');
+    }
+    return DevSignInLink(
+      server: Uri(
+        scheme: server.scheme,
+        host: server.host,
+        port: server.hasPort ? server.port : null,
+        path: server.path,
+      ),
+      grant: grant,
+    );
+  }
+
+  /// The server's base URL.
+  final Uri server;
+
+  /// The single-use grant; never logged (SEC-092).
+  final String grant;
+
+  @override
+  String toString() => 'DevSignInLink($server, [redacted])';
+}
+
 /// A short pairing code a person typed (DEV-002): eight Crockford base32
 /// characters, shown as `XXXX-XXXX`. It names no server; the device pairs
 /// against the server its runtime talks to.

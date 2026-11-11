@@ -488,6 +488,9 @@ const (
 	DevPatchRejected      Code = 9207
 	DevSessionDeviceLimit Code = 9208
 	DevEventTooLarge      Code = 9209
+	NumberMismatch        Code = 9210
+	NoLiveStudioSession   Code = 9211
+	PhoneRequestClosed    Code = 9212
 
 	// Device-side devtools (PLX-9230–9249, P10).
 

@@ -3664,6 +3664,30 @@
       "fix": "Nothing to change: reduce what the event carries, such as the size of a state value."
     },
     {
+      "code": "PLX-9210",
+      "reason": "NUMBER_MISMATCH",
+      "severity": "error",
+      "title": "Number does not match",
+      "cause": "The number picked on the phone is not the one Studio showed, so the phone's sign-in or its request to join the dev session was cancelled (DEV-002).",
+      "fix": "Start again on the phone and pick the number Studio shows."
+    },
+    {
+      "code": "PLX-9211",
+      "reason": "NO_LIVE_STUDIO_SESSION",
+      "severity": "error",
+      "title": "No live Studio session",
+      "cause": "A phone joins the dev session Studio opens for an app, and this person has none open for the app (DEV-002).",
+      "fix": "Open the app in Studio, then choose it on the phone again."
+    },
+    {
+      "code": "PLX-9212",
+      "reason": "PHONE_REQUEST_CLOSED",
+      "severity": "error",
+      "title": "Phone request closed",
+      "cause": "The phone's sign-in or join request expired, was already used, or was cancelled or denied in Studio (DEV-002).",
+      "fix": "Start again on the phone."
+    },
+    {
       "code": "PLX-9230",
       "reason": "DEV_BUNDLE_SIGNATURE_INVALID",
       "severity": "error",

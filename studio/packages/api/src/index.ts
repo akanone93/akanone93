@@ -11,6 +11,7 @@ export * from "./gen/plux/v1/component_pb.ts";
 export * from "./gen/plux/v1/control_pb.ts";
 export * from "./gen/plux/v1/devevents_pb.ts";
 export * from "./gen/plux/v1/device_pb.ts";
+export * from "./gen/plux/v1/devphone_pb.ts";
 export * from "./gen/plux/v1/devsession_pb.ts";
 export * from "./gen/plux/v1/document_pb.ts";
 export * from "./gen/plux/v1/experiment_pb.ts";

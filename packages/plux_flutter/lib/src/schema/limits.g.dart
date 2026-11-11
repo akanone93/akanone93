@@ -252,6 +252,9 @@ enum PluxLimit {
   /// Minutes without any device event or command after which the server ends a
   /// dev session.
   devSessionIdleMinutes('devSession.idleMinutes', PluxLimitUnit.count, 30, 0, 480),
+  /// Lifetime of a signed-in phone's request to join a Studio dev session, in
+  /// seconds: the time to pick on the phone the number Studio shows.
+  devSessionJoinRequestSeconds('devSession.joinRequestSeconds', PluxLimitUnit.count, 60, 0, 120),
   /// Lifetime of a dev session, in minutes, from its creation.
   devSessionLifetimeMinutes('devSession.lifetimeMinutes', PluxLimitUnit.count, 480, 0, 1440),
   /// Failed pairing-code attempts one device may make in ten minutes; further
@@ -265,6 +268,15 @@ enum PluxLimit {
   /// Bytes of patches one CLI dev session keeps in its log; a push beyond it is
   /// refused until the session restarts.
   devSessionPatchLogBytes('devSession.patchLogBytes', PluxLimitUnit.bytes, 8388608, 0, 67108864),
+  /// Phone sign-ins and join requests one phone key may start in ten minutes;
+  /// further ones are refused until the window passes.
+  devSessionPhoneAttempts('devSession.phoneAttempts', PluxLimitUnit.count, 10, 0, 30),
+  /// Days a phone signed in to the Plux Dev app may go unused before its
+  /// sign-in lapses and the phone must be connected again.
+  devSessionPhoneIdleDays('devSession.phoneIdleDays', PluxLimitUnit.count, 30, 0, 90),
+  /// Lifetime of the QR code that connects a phone to the Plux Dev app, in
+  /// seconds, from Studio showing it to the number being picked on the phone.
+  devSessionPhoneSignInSeconds('devSession.phoneSignInSeconds', PluxLimitUnit.count, 60, 0, 120),
   /// Characters copyToClipboard may put on the clipboard in one step.
   deviceClipboardChars('device.clipboardChars', PluxLimitUnit.count, 10000, 0, 100000),
   /// Disk space the runtime may use for releases on one device.

@@ -252,6 +252,9 @@ const (
 	KindToken = "token"
 	// KindCI is a token exchanged from a CI identity.
 	KindCI = "ci"
+	// KindPhone is a phone signed in to the Plux Dev app, with its phone
+	// token and a proof of its key (ADR-0104).
+	KindPhone = "phone"
 	// KindSystem is the server acting for itself.
 	KindSystem = "system"
 )
@@ -259,7 +262,7 @@ const (
 // Identity is who presented a credential, before an organisation is
 // chosen.
 type Identity struct {
-	// Kind is KindUser, KindToken, KindCI or KindSystem.
+	// Kind is KindUser, KindToken, KindCI, KindPhone or KindSystem.
 	Kind string
 	// ID is the user for a session, the token for a token.
 	ID string

@@ -519,6 +519,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Proofs: &dpop.Verifier{Nonces: nonces, Now: cfg.Now}, Nonces: nonces, Replay: dpop.NewReplay(shared, dpop.FailClosed, 1000, cfg.Now, nil), Now: cfg.Now,
 		BaseURL: base, Window: time.Minute, FallbackWindow: 15 * time.Second, Windows: cfg.Windows,
 		Limiter: limiter, PerDevice: set.Get(limits.APIRequestsPerMinutePerDevice), People: people,
+		Phones: authService,
 	}
 	authn := api.DeviceAuthentication(deviceAuth)
 	opts := connect.WithInterceptors(api.Interceptors(api.Deps{Before: []api.Around{licensed(), authn}})...)
@@ -534,6 +535,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewBreakGlassServiceHandler(h.BreakGlass(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDevSessionServiceHandler(h.DevSession(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewDevPhoneServiceHandler(h.DevPhone(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },

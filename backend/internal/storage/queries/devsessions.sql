@@ -138,3 +138,46 @@ VALUES ($1, $2, $3, $4, $5, $6, $7);
 
 -- name: DeleteDevSessionPatches :exec
 DELETE FROM dev_session_patches WHERE session_id = $1;
+
+-- name: FindStudioSession :one
+-- A person's newest Studio session of an app that may still be live, in one
+-- environment or, with a null environment, in any; the caller checks the
+-- idle timeout.
+SELECT * FROM dev_sessions
+ WHERE app_id = $1 AND kind = 'studio' AND created_by_user = sqlc.arg(creator)::text
+   AND (sqlc.narg(environment_id)::uuid IS NULL OR environment_id = sqlc.narg(environment_id)::uuid)
+   AND ended_at IS NULL AND expires_at > sqlc.arg(now)::timestamptz
+ ORDER BY last_activity_at DESC, id
+ LIMIT 1;
+
+-- name: InsertJoinRequest :one
+INSERT INTO dev_join_requests (id, organization_id, app_id, session_id, token_id, number, phone_name, expires_at, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING *;
+
+-- name: GetJoinRequest :one
+SELECT * FROM dev_join_requests WHERE id = $1;
+
+-- name: GetJoinRequestForUpdate :one
+SELECT * FROM dev_join_requests WHERE id = $1 FOR UPDATE;
+
+-- name: SetJoinRequestState :execrows
+-- Ends a waiting request: joined, failed or denied.
+UPDATE dev_join_requests SET state = $2 WHERE id = $1 AND state = 'waiting';
+
+-- name: HasJoinedDevSession :one
+-- Whether a phone picked the right number for a session before.
+SELECT EXISTS (SELECT 1 FROM dev_join_requests WHERE session_id = $1 AND token_id = $2 AND state = 'joined');
+
+-- name: CountJoinRequests :one
+-- The join requests one phone made since an instant (devSession.phoneAttempts).
+SELECT count(*) FROM dev_join_requests WHERE token_id = $1 AND created_at > sqlc.arg(since)::timestamptz;
+
+-- name: JoinBlocked :one
+-- Whether a phone picked a wrong number for a session and the person has
+-- not let it try again.
+SELECT EXISTS (SELECT 1 FROM dev_join_requests WHERE session_id = $1 AND token_id = $2 AND state = 'failed');
+
+-- name: AllowJoinRetry :execrows
+-- Lets a phone try again after a wrong pick.
+UPDATE dev_join_requests SET state = 'retry' WHERE session_id = $1 AND token_id = $2 AND state = 'failed';

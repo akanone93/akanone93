@@ -45,6 +45,7 @@
     "docs/**",
     "mk/l10n.mk",
     "mk/repo.mk",
+    "scripts/adb-reverse-watch.sh",
     "scripts/check-commit-msg.sh",
     "scripts/install.sh",
     "scripts/session-start.sh",
