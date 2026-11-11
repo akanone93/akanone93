@@ -8,6 +8,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:http/http.dart' as http;
@@ -17,6 +18,16 @@ import 'package:plux_flutter/src/devtools_api/dev_engine.dart';
 /// Creates the transport on the background isolate; a replacement must be a
 /// top-level or static function, because it crosses to that isolate.
 StreamTransport defaultDevTransport() => SocketStreamTransport(http.Client());
+
+/// The transport of a host that makes its WebSockets with [webSocketClient]
+/// (`PluxConfig.webSocketClient`), such as one that trusts its own
+/// certificate authority. Built here, outside any other closure, so that it
+/// captures [webSocketClient] alone and can be sent to the engine's isolate.
+StreamTransport Function() devTransportWith(
+  HttpClient Function() webSocketClient,
+) =>
+    () =>
+        SocketStreamTransport(http.Client(), webSocketClient: webSocketClient);
 
 /// Starts an engine for [host] with the given [config] and [transport].
 typedef DevEngineStarter = Future<DevEngineHandle> Function(

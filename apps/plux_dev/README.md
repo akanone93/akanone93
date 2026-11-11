@@ -22,15 +22,28 @@ The app is built with the dev channel in it, which no other build has (`DEV-050`
 
 ```bash
 make dev-app-build DEV_APP_TARGET=apk DEV_APP_KEYS=path/to/keys.json
-# which runs, in apps/plux_dev:
-flutter build apk --dart-define=plux.devtools=true \
-  --dart-define=PLUX_DEV_ROOT_KEYS="$(cat path/to/keys.json)"
+# which writes apps/plux_dev/dev-defines.json (make dev-app-defines) and runs there:
+flutter build apk --dart-define-from-file=dev-defines.json
 ```
+
+To run it on a connected device with hot reload and logs, write the file and run:
+
+```bash
+make dev-app-defines DEV_APP_KEYS=path/to/keys.json
+cd apps/plux_dev && flutter run --debug --dart-define-from-file=dev-defines.json
+```
+
+The settings are a file (ignored by git), not `--dart-define` arguments: they hold quotes and
+line breaks, which Windows' `flutter.bat` drops from arguments.
 
 | Define | Meaning |
 |---|---|
 | `plux.devtools=true` | the build guard: without it `kPluxDevtools` is false in a release build, the app cannot pair and says so |
 | `PLUX_DEV_ROOT_KEYS` | the development `keys.json` of the installation, as `plux pull` writes it; without it the app says "No development roots configured" and pairs with nothing |
+| `PLUX_DEV_CA` | the PEM of the installation's development certificate authority (`make dev`: `deploy/compose/.secrets/ca/ca.crt`, which `DEV_APP_CA` defaults to); every request and WebSocket of the app trusts it besides the system's authorities. Installing it on the device is not enough: Flutter's `dart:io` trusts only the system's authorities on Android. Without it the app trusts the system's alone; a value that is not a certificate stops the app at start |
+
+On a phone over USB, run `adb reverse tcp:8080 tcp:8080` and sign in to `https://localhost:8080`:
+the development certificate is valid for `localhost` only.
 
 The Gradle and Xcode builds run in CI and on a developer's machine; they are not part of
 `make dart-test`.

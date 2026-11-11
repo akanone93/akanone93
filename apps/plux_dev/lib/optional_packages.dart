@@ -5,6 +5,8 @@
 /// (DEV-001): the Dev app can preview any plugin, so it carries them all.
 library;
 
+import 'dart:io';
+
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_charts/plux_charts.dart';
@@ -94,8 +96,9 @@ final class DevPackages {
   }.toList()..sort();
 
   /// The runtime configuration for [appId] on [endpoint]: the development
-  /// [rootKeys] and no others, the optional packages, and [client] for every
-  /// request (the dev tools' network profiles wrap it).
+  /// [rootKeys] and no others, the optional packages, [client] for every
+  /// request (the dev tools' network profiles wrap it) and [webSocketClient]
+  /// for every WebSocket, the dev channel's included.
   PluxConfig configFor({
     required String appId,
     required Uri endpoint,
@@ -103,6 +106,7 @@ final class DevPackages {
     required List<PluxPublicKey> rootKeys,
     required String hostBuild,
     http.Client Function()? client,
+    HttpClient Function()? webSocketClient,
   }) => PluxConfig(
     appId: appId,
     endpoint: endpoint,
@@ -117,5 +121,6 @@ final class DevPackages {
     databaseAdapter: databaseAdapter,
     securityModules: securityModules,
     httpClient: client,
+    webSocketClient: webSocketClient,
   );
 }

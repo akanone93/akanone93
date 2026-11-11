@@ -369,7 +369,8 @@ final class PluxConfig {
 
   /// Creates the `dart:io` client WebSocket connections are made with
   /// (for a host that trusts its own certificate authority, say); the
-  /// `dart:io` default when null. `httpClient` does not reach WebSockets.
+  /// `dart:io` default when null. It also makes the dev channel's socket of
+  /// a paired device. `httpClient` does not reach WebSockets.
   /// It must be a top-level or static function, since it runs on the
   /// data isolate.
   final HttpClient Function()? webSocketClient;

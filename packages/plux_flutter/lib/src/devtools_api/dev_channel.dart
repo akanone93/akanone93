@@ -13,6 +13,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -53,8 +54,10 @@ final class DevChannel implements DevEventSink {
   /// device key, and sends the hello first. Applies bundles through
   /// [applier] and carries out commands through [commands]. The limits are
   /// the registry's `devtools.eventBytes`, `devtools.streamBufferEvents` and
-  /// `devtools.streamBufferBytes`. [engine] replaces the background
-  /// isolate; tests use it. Throws a [StateError] in a build without
+  /// `devtools.streamBufferBytes`. The socket is made with [webSocketClient]
+  /// (`PluxConfig.webSocketClient`) when the host gives one, as the runtime's
+  /// other WebSockets are, else with `dart:io`'s default. [engine] replaces
+  /// the background isolate; tests use it. Throws a [StateError] in a build without
   /// devtools (`DEV-050`) and a [FormatException] when the link's server is
   /// not the one [api] talks to; a code pairs against [api]'s server.
   static Future<DevChannel> pair(
@@ -71,6 +74,7 @@ final class DevChannel implements DevEventSink {
     int streamBufferEvents = 5000,
     int streamBufferBytes = 8388608,
     DevEngineStarter? engine,
+    HttpClient Function()? webSocketClient,
   }) async {
     if (!kPluxDevtools) {
       throw StateError('the dev channel is not part of this build');
@@ -120,7 +124,16 @@ final class DevChannel implements DevEventSink {
       backoffMinMs: PluxLimit.dataStreamBackoffMin.defaultValue,
       backoffMaxMs: PluxLimit.dataStreamBackoffMax.defaultValue,
     );
-    final handle = await (engine ?? startDevEngineIsolate)(config, host);
+    final start =
+        engine ??
+        (webSocketClient == null
+            ? startDevEngineIsolate
+            : (DevEngineConfig c, DevEngineHost h) => startDevEngineIsolate(
+                c,
+                h,
+                transport: devTransportWith(webSocketClient),
+              ));
+    final handle = await start(config, host);
     return DevChannel._(paired.sessionId, paired.deviceId, handle);
   }
 

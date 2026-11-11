@@ -7,7 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+import 'package:plux_dev/dev_http.dart';
 import 'package:plux_host_kit/plux_host_kit.dart';
 
 /// The client name the Dev app gives the server when it asks for a token.
@@ -20,11 +20,12 @@ const List<String> devScopes = ['app.read'];
 /// Creates the client a sign-in uses; tests replace it.
 typedef DevApiFactory = ViewerApi Function(Uri server, {String? token});
 
-/// The client sign-in uses: plain HTTPS to the server, as the Dev app.
+/// The client sign-in uses: HTTPS to the server with the Dev app's trust
+/// (devHttpClient).
 ViewerApi defaultDevApi(Uri server, {String? token}) => ViewerApi(
   server,
   token: token,
-  client: http.Client(),
+  client: devHttpClient(),
   clientName: devClientName,
   scopes: devScopes,
 );

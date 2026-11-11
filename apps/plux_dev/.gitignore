@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Build settings with the installation's keys and authority (make dev-app-defines).
+dev-defines.json
+dev-defines.json.tmp

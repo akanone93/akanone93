@@ -118,9 +118,11 @@ running. Each step names the file the command comes from.
      phone on USB it runs `adb reverse tcp:8080 tcp:8080` first.
    - The **Plux Dev app** (`apps/plux_dev`), which previews unpublished drafts: build it with
      `make dev-app-build DEV_APP_TARGET=apk DEV_APP_KEYS=<keys.json>`, where `keys.json` is the
-     development root keys of the installation as `plux pull` writes them
-     ([Dev app README](../../apps/plux_dev/README.md)). In the app, sign in with a device
-     code, choose the app, and pair.
+     development root keys of the installation as `plux pull` writes them; the build also
+     trusts the stack's certificate authority (`deploy/compose/.secrets/ca/ca.crt`)
+     ([Dev app README](../../apps/plux_dev/README.md)). On a phone, run `adb reverse tcp:8080
+     tcp:8080` first. In the app, sign in to `https://localhost:8080` with a device code,
+     choose the app, and pair.
 7. **The device loop.** In Studio, open **Devices** of the app and choose **Pair a device**:
    scan the QR code with the Dev app, or paste the link or the short code. Then every saved
    edit reaches the device (the canvas shows the autosave-to-device time), **Send to device**

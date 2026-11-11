@@ -1959,6 +1959,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         commands: commands,
         deviceName: deviceName,
         platform: Platform.operatingSystem,
+        webSocketClient: config.webSocketClient,
       );
       streamDevEvents(channel);
       return PluxDevPairing(

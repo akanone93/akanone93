@@ -9,7 +9,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
+import 'package:plux_dev/dev_http.dart';
 import 'package:plux_dev/development_roots.dart';
 import 'package:plux_dev/optional_packages.dart';
 import 'package:plux_dev/src/dev_tooling.dart';
@@ -121,7 +121,8 @@ final class _DevAppState extends State<DevApp> {
           environment: devEnvironment,
           rootKeys: widget.rootKeys,
           hostBuild: devHostBuild,
-          client: () => tooling.network.wrap(http.Client()),
+          client: () => tooling.network.wrap(devHttpClient()),
+          webSocketClient: devIoClient,
         ),
       );
     } on Object catch (e) {

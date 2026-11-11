@@ -7,6 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **The dev channel uses the host's WebSocket client (DEV-002):** a paired device opens its dev
+  socket with `PluxConfig.webSocketClient` when the host gives one, as the runtime's other
+  WebSockets do, so a host that trusts its own certificate authority (the Plux Dev app with
+  `PLUX_DEV_CA`) can pair with a development server; without one it keeps `dart:io`'s default.
+
 - **Opt-in background sync (SYN-014, ADR-0092):** `PluxConfig.backgroundSync`
   (`BackgroundSyncConfig`, off by default; interval default 360 minutes, never below 15;
   network, charging and battery constraints). Android schedules a unique periodic WorkManager
