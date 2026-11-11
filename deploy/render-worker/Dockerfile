@@ -74,8 +74,12 @@ RUN flutter pub get --enforce-lockfile
 # are the ones the harness pins (schema/goldens/fonts/VERSION), so that a
 # diff changes only when the content does.
 FROM dart:3.13.4@sha256:33faf91bc941466a767ce845b4bbb5d578ecd180abe5ee243e9c8c039109d215 AS render-worker
+# clang and the C headers: flutter test runs plux_flutter's build hook, which
+# compiles the runtime's own vendored C (plux_native, zstd) for the host
+# (ADR-0030); without a compiler every render fails ("No compiler
+# configured"). It compiles only those sources, never tenant code.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates git libglu1-mesa libstdc++6 \
+ && apt-get install -y --no-install-recommends ca-certificates git libglu1-mesa libstdc++6 clang libc6-dev \
  && rm -rf /var/lib/apt/lists/* \
  && useradd --uid 65532 --user-group --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin nonroot \
  && install -d -o 65532 -g 65532 -m 0700 /var/lib/plux/render

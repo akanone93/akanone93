@@ -149,6 +149,8 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    - **Render worker offline:** in Docker every render failed (`flutter test` exit status 69, an online package
      resolution on a network with no route out); the worker resolves from the image's pub cache alone
      (`pub get --offline`, `test --no-pub`), and Studio shows a retry and a failure's reason.
+     The image also lacked a C compiler for `plux_flutter`'s build hook ("No compiler configured"); it installs
+     `clang libc6-dev`.
    *Still open:* Layers does not name slots; the app bundle's Reports row says "Size not reported"; deleting a key
    leaves its messages in the other locales (reported as `PLX-1608` until edited); task 1's live pass and task 3's
    screen move and link rename were not run.
