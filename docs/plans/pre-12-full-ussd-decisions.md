@@ -80,9 +80,9 @@ exceptions with compensating controls.
   | Class | Behaviour | Examples (from the current catalogue) |
   |---|---|---|
   | **Native** | Runs as it is | `Text`, `RichText`, `TextField`, `TextFormField`, buttons as menu options, `ListTile`, `ListView`/`ForEach` as numbered lists, `Checkbox`/`Radio`/`Switch`/`DropdownMenu` as choice menus, `If`, `Match`, `FormScope`, `DataScope`; actions `apiCall`, `invokeFunction`, `setState`, `patchState`, `resetState`, `submitForm`, `validateForm`, `resetForm`, `navigate`, `pop`, `condition`, `switch`, `forEach`, `parallel`, `stop`, `callFlow`, `delay`, `readConfig`, `refreshData`, `trackEvent`, `setLocale`, `logout`, `emitEvent`, local DB and KV actions (server-side store, D-9) |
-  | **Silent** | Dropped; children are kept | Layout (`Row`, `Column`, `Padding`, `Container`, `Center`, `Expanded`, `SizedBox`, slivers…), `Image`, `Icon`, `Divider`, all animated widgets and transitions, progress indicators, `SkeletonLoader`, `LottieView`, `RiveView`; actions `haptic`, `startAnimation`, `controlAnimation`, `setThemeMode`, `sync` |
+  | **Silent** | Dropped; children are kept | Layout (`Row`, `Column`, `Padding`, `Container`, `Center`, `Expanded`, `SizedBox`, slivers…), `Image`, `Icon`, `Divider`, all animated widgets and transitions, progress indicators, `SkeletonLoader`, `LottieView`, `RiveView`; actions `haptic`, `startAnimation`, `controlAnimation`, `setThemeMode`, `sync`, `unsubscribe` |
   | **Mapped** | Automatic USSD equivalent | `biometricAuth`/`BiometricButton` → PIN step (D-12); `showSnackbar`/`showToast`/`announce` → a line on the next screen; `openDialog`/`openBottomSheet` → their own screen; `TabBar`, `NavigationBar`, `BottomNavigationBar`, `Drawer`, `NavigationRail`, `switchTab` → a menu; `PhoneInput`, `AmountInput`, `IbanInput`, `OtpInput`, `SecureTextField`, `SecurePinPad` → validated (sensitive where tagged) text input; date pickers → typed input (`DDMMYYYY`); `CountryPicker`, `CurrencyPicker` → paged lists; `Slider`, `QuantityStepper`, `RatingInput` → number input with bounds; `ConsentCheckbox` → "1 Accept / 2 Decline"; `MoneyText`, `PriceTag`, `TransactionListItem`, `AccountCard`, `ProductCard`, `StatusTimeline`, `DataTable` → text lines; `TermsViewer`, `MarkdownView` → paged text or an SMS link; `openUrl`, `share`, `copyToClipboard` → an SMS with the content (D-22); `signTransaction` → USSD strong customer authentication (D-32) |
-  | **Blocked** | Needs a developer decision before a USSD-enabled plugin can publish | `capturePhoto`, `pickImage`, `pickFile`, `scanCode`, `QrScanner`, `BarcodeScanner`, `KycCameraCapture`, `SignaturePad`, `FileUploader`, `getLocation`, `MapView`, `OrderTrackerMap`, `VideoPlayer`, `AudioPlayer`, `callNative`, `emitHostEvent`, `NativeSlot`, native routes, `subscribe` (live streams), `requestPermission` |
+  | **Blocked** | Needs a developer decision before a USSD-enabled plugin can publish | `capturePhoto`, `pickImage`, `pickFile`, `scanCode`, `QrScanner`, `BarcodeScanner`, `KycCameraCapture`, `SignaturePad`, `FileUploader`, `getLocation`, `MapView`, `OrderTrackerMap`, `VideoPlayer`, `AudioPlayer`, `callNative`, `emitHostEvent`, `NativeSlot`, native routes, `subscribe` (live streams), `requestPermission`; `startPayment` until P13 classifies it |
 
 - **Rules behind the classes:** decoration is dropped; information becomes text; inputs map to a
   keypad entry where an equivalent exists and are blocked where none does; security actions
@@ -292,8 +292,8 @@ exceptions with compensating controls.
 - **Decision:** a USSD phone simulator beside the canvas; the Blocked-items report with one-click
   fixes; a USSD settings panel per element; screens for the routing table, short codes,
   adapters, USSD exceptions and enrolled USSD runtimes; the USSD home-menu editor (D-24); the
-  SMS action on the canvas (D-25). All in the approved Porcelain design (the
-  `plux-studio-design` skill).
+  SMS action on the canvas (D-25). Built with shadcn/ui as Studio ships it (`studio/AGENTS.md`,
+  ADR-0103; corrected 2026-11-11, the earlier "Porcelain" wording predates ADR-0103).
 
 ### D-18. USSD push (20A, with deep caution)
 
