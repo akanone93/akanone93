@@ -192,7 +192,7 @@ export interface ReleaseFixture {
   /** The plan the rollout step sent, parsed. */
   plan?: unknown;
   /** The visual diff job, when one was requested. */
-  diff?: { state: string };
+  diff?: { state: string; error?: string };
   /** The RPCs received, in order, with the step they completed. */
   calls: string[];
   /** The acknowledge_warnings flag of each publish Studio started. */
@@ -1355,6 +1355,7 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
       visualDiff: fx.diff && {
         id: "vd1",
         state: fx.diff.state,
+        error: fx.diff.error ?? "",
         contentHash: releaseHash,
         screens: (fx.evidence?.screens ?? [{ screen: "main", before: "", after: "aa" }]).map((x) => ({
           pluginKey: "home",

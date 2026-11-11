@@ -187,6 +187,21 @@ func mapKeys[K comparable, V any](m map[K]V) func(func(K) bool) {
 // Execute writes the plan below work, runs Flutter and collects the images.
 // A case that failed to render is reported with the harness's message.
 func Execute(ctx context.Context, p *Plan, work, flutter string, log io.Writer, lim limits.Set) ([]Rendered, error) {
+	return execute(ctx, p, work, lim, func(ctx context.Context) ([]byte, error) {
+		return plxtest.Flutter(ctx, flutter, work, log) //nolint:wrapcheck // execute wraps it
+	})
+}
+
+// ExecuteOffline is Execute on a host with no network, the render worker's:
+// the generated project's packages come from the pub cache alone
+// (plxtest.FlutterOffline).
+func ExecuteOffline(ctx context.Context, p *Plan, work, flutter string, log io.Writer, lim limits.Set) ([]Rendered, error) {
+	return execute(ctx, p, work, lim, func(ctx context.Context) ([]byte, error) {
+		return plxtest.FlutterOffline(ctx, flutter, work, log) //nolint:wrapcheck // execute wraps it
+	})
+}
+
+func execute(ctx context.Context, p *Plan, work string, lim limits.Set, run func(context.Context) ([]byte, error)) ([]Rendered, error) {
 	if lim.IsZero() {
 		lim = limits.Defaults()
 	}
@@ -197,7 +212,7 @@ func Execute(ctx context.Context, p *Plan, work, flutter string, log io.Writer, 
 	if err := os.MkdirAll(p.Out, 0o750); err != nil {
 		return nil, fmt.Errorf("plxgolden: %w", err)
 	}
-	report, err := plxtest.Flutter(ctx, flutter, work, log)
+	report, err := run(ctx)
 	if err != nil {
 		return nil, plxerr.New(plxerr.GoldenHarnessFailed, "%v", err)
 	}

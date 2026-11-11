@@ -262,6 +262,20 @@ export function publishMessages(i18n: I18n) {
       message: "Queued. Rendering waits for earlier jobs and is rate-limited.",
       comment: "Visual diff queued or deferred.",
     }),
+    diffRetrying: (reason: string) =>
+      i18n._({
+        id: "publish.diffRetrying",
+        message: "The last attempt failed ({reason}); the render is tried again.",
+        values: { reason },
+        comment: "Shown while a visual diff waits for another attempt after one failed; reason is the server's.",
+      }),
+    diffReason: (reason: string) =>
+      i18n._({
+        id: "publish.diffReason",
+        message: "Reason: {reason}",
+        values: { reason },
+        comment: "Why a visual diff failed, as the server reports it.",
+      }),
     diffRunning: i18n._({ id: "publish.diffRunning", message: "Rendering", comment: "Visual diff running." }),
     diffSucceeded: i18n._({ id: "publish.diffSucceeded", message: "Rendered", comment: "Visual diff finished." }),
     diffFailed: i18n._({

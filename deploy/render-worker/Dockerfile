@@ -89,8 +89,10 @@ COPY schema/goldens/ /opt/plux/schema/goldens/
 ENV PATH=/opt/flutter/bin:$PATH \
     PUB_CACHE=/opt/pub-cache \
     FLUTTER_SUPPRESS_ANALYTICS=true \
-    PUB_OFFLINE=true \
     HOME=/var/lib/plux/render
+# The render network has no route out: the worker resolves each project's
+# packages from this pub cache alone (flutter pub get --offline, then flutter
+# test --no-pub), so a package the runtime needs must be cached here.
 # The image holds no credential for the database, the object store or the
 # signing keys. The work directory is the only place the process writes.
 USER nonroot:nonroot

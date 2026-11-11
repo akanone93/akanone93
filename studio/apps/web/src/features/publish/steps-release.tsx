@@ -44,6 +44,14 @@ export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds 
       {diff === undefined && <p className="text-body text-muted-foreground">{m.diffNone}</p>}
       {diff !== undefined && <StatusPill status={diffTone(diff.state)} label={diffLabel(m, diff.state)} />}
       {waiting && <p className="text-body text-muted-foreground">{e.thumbQueued}</p>}
+      {current && diff.state === "queued" && diff.error !== "" && (
+        <p className="text-body text-muted-foreground">{m.diffRetrying(diff.error)}</p>
+      )}
+      {current && diff.state === "failed" && diff.error !== "" && (
+        <p role="alert" className="text-body text-danger">
+          {m.diffReason(diff.error)}
+        </p>
+      )}
       <ul className="flex flex-col gap-3">
         {diff?.screens.map((s) => (
           <li key={`${s.pluginKey}/${s.screen}/${s.device}`} className="flex flex-col gap-1">

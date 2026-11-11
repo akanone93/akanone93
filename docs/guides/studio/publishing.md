@@ -35,7 +35,8 @@ guide covers Studio's screens.
    [Publish blocked](../../runbooks/publish-blocked-quality.md).
 5. **Visual diffs** show before and after images of changed screens, rendered by the render
    worker (`renderWorker.address`; `make dev` starts one). An installation without one refuses the
-   step and says so. The **Changed documents**
+   step and says so. A failed attempt is tried again (the step says so while it waits), and a render
+   that failed every attempt shows its reason. The **Changed documents**
    list shows added, removed and changed JSON paths per plugin. **Changelog** takes the release notes.
 6. **Target** chooses the environment and channel. **Approval** appears when a policy applies; the
    request is *Awaiting approval* until enough approvers decide ([approvals](security-and-admin.md#approvals)).

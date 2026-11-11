@@ -12958,6 +12958,12 @@ msgstr "جارٍ قراءة المصدر…"
 msgid "admin.reason"
 msgstr "السبب"
 
+#. Why a visual diff failed, as the server reports it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffReason"
+msgstr "السبب: {reason}"
+
 #. Heading of the commands the person ran last, in the palette.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -17192,6 +17198,12 @@ msgstr "تم إيقاف خادم اللغة."
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.closedTime"
 msgstr "بلغت جلسة خادم اللغة حدّها الزمني. شغّلها من جديد للمتابعة."
+
+#. Shown while a visual diff waits for another attempt after one failed; reason is the server's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffRetrying"
+msgstr "فشلت المحاولة الأخيرة ({reason})؛ ستتم إعادة محاولة العرض."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id

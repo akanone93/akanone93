@@ -358,6 +358,52 @@ func TestFlutterReturnsTheReportOfAFailingRunAndRejectsASilentOne(t *testing.T) 
 	}
 }
 
+// recordingFlutter writes an executable that appends each call's arguments
+// to a file, prints the report for a test run and exits with code when it
+// resolves packages.
+func recordingFlutter(t *testing.T, getCode int) (path, calls string) {
+	t.Helper()
+	dir := t.TempDir()
+	calls = filepath.Join(dir, "calls.txt")
+	if err := os.WriteFile(filepath.Join(dir, "out.txt"), []byte(report), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	path = filepath.Join(dir, "flutter")
+	script := "#!/bin/sh\necho \"$*\" >> \"" + calls + "\"\n" +
+		"if [ \"$1\" = pub ]; then echo \"resolving\" >&2; exit " + strconv.Itoa(getCode) + "; fi\n" +
+		"cat \"" + filepath.Join(dir, "out.txt") + "\"\n"
+	if err := os.WriteFile(path, []byte(script), 0o700); err != nil { //nolint:gosec // an executable test double
+		t.Fatal(err)
+	}
+	return path, calls
+}
+
+// Verifies: STU-100.
+// The render worker has no network: it resolves the packages from the pub
+// cache alone and runs the tests without resolving again, and a package the
+// cache lacks (pub's exit status 69) fails the run without a test run.
+func TestFlutterOfflineResolvesFromThePubCacheOnly(t *testing.T) {
+	t.Parallel()
+	flutter, calls := recordingFlutter(t, 0)
+	var log bytes.Buffer
+	out, err := FlutterOffline(context.Background(), flutter, t.TempDir(), &log)
+	got, _ := os.ReadFile(calls) //nolint:gosec // the test's own file
+	if err != nil || !strings.Contains(string(out), `"type":"done"`) || !strings.Contains(log.String(), "resolving") {
+		t.Fatalf("FlutterOffline = %q, %v; log %q", out, err, log.String())
+	}
+	if want := "pub get --offline\ntest --no-pub --reporter json\n"; string(got) != want {
+		t.Errorf("calls = %q, want %q", got, want)
+	}
+
+	flutter, calls = recordingFlutter(t, 69)
+	if _, err := FlutterOffline(context.Background(), flutter, t.TempDir(), io.Discard); err == nil || !strings.Contains(err.Error(), "--offline") {
+		t.Errorf("a failed offline resolve: %v", err)
+	}
+	if got, _ := os.ReadFile(calls); string(got) != "pub get --offline\n" { //nolint:gosec // the test's own file
+		t.Errorf("calls after a failed resolve = %q", got)
+	}
+}
+
 func lookFlutter() (string, error) { return exec.LookPath("flutter") }
 
 // Verifies: TST-001, TST-002.
@@ -392,5 +438,13 @@ func TestFlutterRunsTheStarterScenario(t *testing.T) {
 	}
 	if sum := Summarise(results); !sum.OK() || sum.Passed != 1 {
 		t.Errorf("results = %+v", results)
+	}
+	// Offline, as the render worker runs it: the packages the online run
+	// cached are enough.
+	if out, err = FlutterOffline(context.Background(), flutter, dir, io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	if results, err = ParseReport(bytes.NewReader(out), plan.Cases); err != nil || !Summarise(results).OK() {
+		t.Errorf("offline results = %+v, %v", results, err)
 	}
 }

@@ -449,6 +449,22 @@ describe("[STU-100] build evidence and diffs", () => {
     expect(screen.queryByRole("button", { name: "Continue" })).toBeNull();
   });
 
+  test("a render waiting after a failed attempt says so, and a failed one says why (STU-100)", async () => {
+    open("/publish/r1", fixture("diffs", {}, { evidence, diff: { state: "queued", error: "the renderer failed" } }), {
+      summaries,
+    });
+    await step("Visual diffs");
+    await screen.findByText("The last attempt failed (the renderer failed); the render is tried again.");
+    cleanup();
+    open(
+      "/publish/r1",
+      fixture("diffs", {}, { evidence, diff: { state: "failed", error: "the renderer failed after 5 attempts" } }),
+      { summaries },
+    );
+    await step("Visual diffs");
+    expect((await screen.findByRole("alert")).textContent).toBe("Reason: the renderer failed after 5 attempts");
+  });
+
   test("a failure to read the document changes is reported and does not hide the screens", async () => {
     open(
       "/publish/r1",

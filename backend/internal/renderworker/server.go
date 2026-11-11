@@ -29,12 +29,15 @@ import (
 )
 
 // Executor runs a prepared golden plan below a work directory and returns the
-// images it drew. plxgolden.Execute with a Flutter executable is the real one.
+// images it drew. plxgolden.ExecuteOffline with a Flutter executable is the
+// real one.
 type Executor func(ctx context.Context, plan *plxgolden.Plan, work string, lim limits.Set) ([]plxgolden.Rendered, error)
 
 // Options configure a Handler.
 type Options struct {
-	// Flutter is the Flutter executable; it runs flutter_tester headless.
+	// Flutter is the Flutter executable; it runs flutter_tester headless. The
+	// worker has no route out, so the generated project's packages are
+	// resolved from the pub cache alone (plxgolden.ExecuteOffline).
 	Flutter string
 	// Fonts are the vendored golden fonts (plxgolden.LoadFonts).
 	Fonts map[string][]byte
@@ -70,7 +73,7 @@ func New(o Options) (*Handler, error) {
 		}
 		flutter, log := o.Flutter, o.Log
 		o.Execute = func(ctx context.Context, plan *plxgolden.Plan, work string, lim limits.Set) ([]plxgolden.Rendered, error) {
-			return plxgolden.Execute(ctx, plan, work, flutter, log, lim)
+			return plxgolden.ExecuteOffline(ctx, plan, work, flutter, log, lim)
 		}
 	}
 	if o.Log == nil {

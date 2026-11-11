@@ -144,8 +144,30 @@ func (p *Plan) Write(dir string) error {
 // prints to its error stream to log. The Flutter SDK is the developer's own;
 // nothing here installs it.
 func Flutter(ctx context.Context, path, dir string, log io.Writer) ([]byte, error) {
+	return flutterTest(ctx, path, dir, log)
+}
+
+// FlutterOffline is Flutter for a host with no network, such as the render
+// worker of the visual diffs (O-9), whose network leads nowhere by design: it
+// resolves the project's packages from the pub cache alone (`flutter pub get
+// --offline`) and then runs the tests without resolving again (`--no-pub`).
+// `flutter test` alone resolves online and fails there with exit status 69. A
+// package missing from the cache fails the run, saying so; nothing is fetched.
+func FlutterOffline(ctx context.Context, path, dir string, log io.Writer) ([]byte, error) {
+	get := exec.CommandContext(ctx, path, "pub", "get", "--offline")
+	get.Dir = dir
+	get.Stdout = log
+	get.Stderr = log
+	if err := get.Run(); err != nil {
+		return nil, fmt.Errorf("resolve the packages from the pub cache (%s pub get --offline; is a package missing from the cache?): %w", path, err)
+	}
+	return flutterTest(ctx, path, dir, log, "--no-pub")
+}
+
+func flutterTest(ctx context.Context, path, dir string, log io.Writer, flags ...string) ([]byte, error) {
 	var out bytes.Buffer
-	cmd := exec.CommandContext(ctx, path, "test", "--reporter", "json")
+	args := append(append([]string{"test"}, flags...), "--reporter", "json")
+	cmd := exec.CommandContext(ctx, path, args...) //nolint:gosec // the Flutter executable the caller chose; fixed arguments
 	cmd.Dir = dir
 	cmd.Stdout = &out
 	cmd.Stderr = log

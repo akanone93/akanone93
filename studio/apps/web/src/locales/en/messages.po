@@ -12958,6 +12958,12 @@ msgstr "Reading the source…"
 msgid "admin.reason"
 msgstr "Reason"
 
+#. Why a visual diff failed, as the server reports it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffReason"
+msgstr "Reason: {reason}"
+
 #. Heading of the commands the person ran last, in the palette.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -17192,6 +17198,12 @@ msgstr "The language server was stopped."
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.closedTime"
 msgstr "The language-server session reached its time limit. Start it again to continue."
+
+#. Shown while a visual diff waits for another attempt after one failed; reason is the server's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffRetrying"
+msgstr "The last attempt failed ({reason}); the render is tried again."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
