@@ -293,6 +293,7 @@
         "coverage.json",
         "schema/**",
         "mk/dart.mk",
+        "scripts/dev-app-defines.sh",
         "!**/*.md",
         "!apps/add_to_app/android_host/**",
         "!apps/add_to_app/ios_host/**"
