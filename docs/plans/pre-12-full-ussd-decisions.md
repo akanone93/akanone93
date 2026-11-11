@@ -81,7 +81,7 @@ exceptions with compensating controls.
   |---|---|---|
   | **Native** | Runs as it is | `Text`, `RichText`, `TextField`, `TextFormField`, buttons as menu options, `ListTile`, `ListView`/`ForEach` as numbered lists, `Checkbox`/`Radio`/`Switch`/`DropdownMenu` as choice menus, `If`, `Match`, `FormScope`, `DataScope`; actions `apiCall`, `invokeFunction`, `setState`, `patchState`, `resetState`, `submitForm`, `validateForm`, `resetForm`, `navigate`, `pop`, `condition`, `switch`, `forEach`, `parallel`, `stop`, `callFlow`, `delay`, `readConfig`, `refreshData`, `trackEvent`, `setLocale`, `logout`, `emitEvent`, local DB and KV actions (server-side store, D-9) |
   | **Silent** | Dropped; children are kept | Layout (`Row`, `Column`, `Padding`, `Container`, `Center`, `Expanded`, `SizedBox`, slivers…), `Image`, `Icon`, `Divider`, all animated widgets and transitions, progress indicators, `SkeletonLoader`, `LottieView`, `RiveView`; actions `haptic`, `startAnimation`, `controlAnimation`, `setThemeMode`, `sync` |
-  | **Mapped** | Automatic USSD equivalent | `biometricAuth`/`BiometricButton` → PIN step (D-12); `showSnackbar`/`showToast`/`announce` → a line on the next screen; `openDialog`/`openBottomSheet` → their own screen; `TabBar`, `NavigationBar`, `BottomNavigationBar`, `Drawer`, `NavigationRail`, `switchTab` → a menu; `PhoneInput`, `AmountInput`, `IbanInput`, `OtpInput`, `SecureTextField`, `SecurePinPad` → validated (sensitive where tagged) text input; date pickers → typed input (`DDMMYYYY`); `CountryPicker`, `CurrencyPicker` → paged lists; `Slider`, `QuantityStepper`, `RatingInput` → number input with bounds; `ConsentCheckbox` → "1 Accept / 2 Decline"; `MoneyText`, `PriceTag`, `TransactionListItem`, `AccountCard`, `ProductCard`, `StatusTimeline`, `DataTable` → text lines; `TermsViewer`, `MarkdownView` → paged text or an SMS link; `openUrl`, `share`, `copyToClipboard` → an SMS with the content (D-22); `signTransaction` → USSD strong customer authentication (Q-11) |
+  | **Mapped** | Automatic USSD equivalent | `biometricAuth`/`BiometricButton` → PIN step (D-12); `showSnackbar`/`showToast`/`announce` → a line on the next screen; `openDialog`/`openBottomSheet` → their own screen; `TabBar`, `NavigationBar`, `BottomNavigationBar`, `Drawer`, `NavigationRail`, `switchTab` → a menu; `PhoneInput`, `AmountInput`, `IbanInput`, `OtpInput`, `SecureTextField`, `SecurePinPad` → validated (sensitive where tagged) text input; date pickers → typed input (`DDMMYYYY`); `CountryPicker`, `CurrencyPicker` → paged lists; `Slider`, `QuantityStepper`, `RatingInput` → number input with bounds; `ConsentCheckbox` → "1 Accept / 2 Decline"; `MoneyText`, `PriceTag`, `TransactionListItem`, `AccountCard`, `ProductCard`, `StatusTimeline`, `DataTable` → text lines; `TermsViewer`, `MarkdownView` → paged text or an SMS link; `openUrl`, `share`, `copyToClipboard` → an SMS with the content (D-22); `signTransaction` → USSD strong customer authentication (D-32) |
   | **Blocked** | Needs a developer decision before a USSD-enabled plugin can publish | `capturePhoto`, `pickImage`, `pickFile`, `scanCode`, `QrScanner`, `BarcodeScanner`, `KycCameraCapture`, `SignaturePad`, `FileUploader`, `getLocation`, `MapView`, `OrderTrackerMap`, `VideoPlayer`, `AudioPlayer`, `callNative`, `emitHostEvent`, `NativeSlot`, native routes, `subscribe` (live streams), `requestPermission` |
 
 - **Rules behind the classes:** decoration is dropped; information becomes text; inputs map to a
@@ -148,7 +148,7 @@ exceptions with compensating controls.
   its public API. When a contract arrives, the work is filling in the profile and running the
   acceptance tests of the onboarding document (D-27), not writing code. Their requirements are
   `DONE` once the code and its simulator tests pass; a live-network check is a manual check.
-- **SMPP implementation:** see Q-10.
+- **SMPP implementation:** D-31.
 - **Failover (amended by the maintainer):** an operator routes a short code to **one** provider
   endpoint, so there is **one active provider per short code**. Redundancy comes from several
   `plux-ussd` and adapter instances standing in for each other. Switching provider is a
@@ -427,6 +427,32 @@ The spec was swept section by section for USSD impact. Each item below becomes r
     its payment actions (Q-5); P15 isolates short codes per tenant; P16 decides whether partner
     mini-apps appear in a host's USSD menu. Each gains a requirement naming USSD when written.
 
+### D-29. USSD-only apps (Q-8)
+
+- **Decision:** an app may have **only the USSD channel**: no Flutter project is generated
+  (`GEN-001` gains the condition). The same pages can gain the Flutter channel later.
+
+### D-30. From the app to USSD without a data connection (Q-9)
+
+- **Decision:** configurable per app. When the phone has no data connection, the Flutter app
+  offers to continue the current flow over USSD by dialling its deep-link sub-code (D-10). Where
+  the platform does not let apps dial USSD (iOS), the code is shown for the user to dial.
+
+### D-31. SMPP implementation (Q-10)
+
+- **Decision:** an **own SMPP client on the Go standard library**, covering only what USSD needs
+  (bind, `enquire_link`, `deliver_sm`/`submit_sm`/`data_sm`, the USSD TLVs), like the project's
+  own Valkey RESP client. No new dependency, no ADR for a library; fuzz and conformance tests.
+
+### D-32. Transaction signing on USSD (Q-11)
+
+- **Decision:** `signTransaction` maps to **USSD strong customer authentication**: possession of
+  the SIM (the operator-passed number, with the SIM-swap check of D-12) plus the PIN verified by
+  the institution. The amount and payee are shown on screen and sent with the PIN check
+  (dynamic linking); the institution receives the server's verified assertion, marked as USSD,
+  and applies its own policy (`SEC-032`). Available only under the D-14 exception. An ADR
+  records it (security, `AGENTS.md` §7).
+
 ---
 
 ## 3. Questions found in the re-analysis
@@ -444,13 +470,13 @@ The spec was swept section by section for USSD impact. Each item below becomes r
   short codes, routing and adapters `PLX-3200`–`3299`; Studio and CLI `PLX-9400`–`9499`
   (all unused on 2026-11-10).
 - **Q-4. Protocols — answered (maintainer 2026-11-11):** all three adapters are implemented
-  fully without a contract, over the known gateway interfaces (D-6); the SMPP choice is Q-10.
+  fully without a contract, over the known gateway interfaces (D-6); the SMPP choice is D-31.
 - **Q-5. Payments — withdrawn (maintainer 2026-11-11).** Payments are not special: a payment
   flow is an ordinary plugin with inputs and outputs, and its pages and actions follow the same
   classification as everything else (D-3). When P13 defines `startPayment` and its provider
   adapters, P13 classifies them like any action (e.g. a provider that pushes a prompt to the
   payer's phone is Native on USSD; card entry is Blocked). The security step that *is* special,
-  transaction signing, is Q-11.
+  transaction signing, is D-32.
 - **Q-6. Data protection — decided by the lead (2026-11-10).** Ethiopia's Personal Data
   Protection Proclamation No. 1321/2024 (in force 24 July 2024; the Ethiopian Communications
   Authority enforces it) requires personal data collected in Ethiopia to be stored on servers in
@@ -466,16 +492,8 @@ The spec was swept section by section for USSD impact. Each item below becomes r
   shows on the handset screen as it is typed. The spec states it as a known channel limit, the
   risk table (§34) lists it, and Studio's USSD preview shows a notice on every PIN step.
 
-- **Q-8. USSD-only apps (open).** May an organisation build an app that has only the USSD
-  channel, with no Flutter app at all? Today creating an app implies a generated Flutter project
-  (`GEN-001`).
-- **Q-9. From the app to USSD when there is no data connection (open).** Should the Flutter app
-  offer to continue a flow over USSD (dialling the deep-link sub-code) when the phone has no
-  internet?
-- **Q-10. SMPP implementation (open).** An own client on the Go standard library, or a library
-  under an ADR.
-- **Q-11. Transaction signing on USSD (open).** `signTransaction` (`SEC-027`, `SEC-032`) signs
-  with a hardware key that does not exist on USSD.
+- **Q-8 to Q-11 — answered (maintainer 2026-11-11):** the recommendations, recorded as D-29 to
+  D-32.
 
 ---
 
