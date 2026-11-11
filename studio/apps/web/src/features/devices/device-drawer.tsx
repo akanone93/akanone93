@@ -10,6 +10,7 @@ import { Tabs as ShadcnTabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useMemo, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
+import type { StreamState } from "../shell/studio-events.ts";
 import { devicesMessages } from "./devices.messages.ts";
 import {
   type DrawerFilter,
@@ -125,6 +126,7 @@ export function DeviceDrawer({
   tab,
   onTab,
   onEvent,
+  onStreamState,
 }: {
   readonly sessionId: string;
   /** The Problems tab's content: validation is not fed by a device. */
@@ -135,6 +137,8 @@ export function DeviceDrawer({
   readonly onTab?: (tab: DrawerTab) => void;
   /** Sees every event as it arrives, before the filters (inspect, screenshots, hot apply). */
   readonly onEvent?: (event: DevEvent) => void;
+  /** Hears where the event stream is: connecting, live, reconnecting or ended. */
+  readonly onStreamState?: (state: StreamState) => void;
 }): ReactNode {
   const m = devicesMessages(useLingui().i18n);
   const [own, setOwn] = useState<DrawerTab>("problems");
@@ -150,7 +154,7 @@ export function DeviceDrawer({
     queryFn: async () => (await client.listDevices({ sessionId })).devices,
     refetchInterval: devicesRefresh,
   });
-  const stream = useDeviceEvents(sessionId, filter.deviceId === "" ? [] : [filter.deviceId], onEvent);
+  const stream = useDeviceEvents(sessionId, filter.deviceId === "" ? [] : [filter.deviceId], onEvent, onStreamState);
   const paused = stream.buffer.frozenAt !== undefined;
   const exportTrace = useMutation({
     mutationFn: async () => {

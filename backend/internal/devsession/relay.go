@@ -279,6 +279,10 @@ type relayDevice struct {
 	outbox   []outFrame
 	outBytes int64
 	link     *link
+	// socket and connected follow the device's connection events: the
+	// socket the newest one named and whether it was open (DEV-020).
+	socket    string
+	connected bool
 }
 
 // link is one open socket of a device, served by one writer.
@@ -563,6 +567,40 @@ func (r *room) appendEvent(deviceID string, deviceSeq uint64, ev *pluxv1.DevEven
 	return r.catchUp()
 }
 
+// resumePoint is where a watcher that saw up to after resumes. A watcher
+// ahead of the session's sequence saw a counter the shared layer has since
+// lost (a restarted cache): the session numbers from 1 again, so it
+// resumes from the start, or it would wait for numbers it already holds
+// while the new events go by (DEV-021).
+func (r *room) resumePoint(after uint64) uint64 {
+	cur, err := r.h.shared.IncrementBy(r.h.ctx, seqKey(r.id), 0, r.ttl())
+	if err != nil || cur < 0 || after <= uint64(cur) {
+		return after
+	}
+	return 0
+}
+
+// connection writes a connection event of a device's socket to the
+// session's event log, so that every watcher, on every replica, sees the
+// device come and go (DEV-020). The server writes it; a device cannot.
+func (r *room) connection(deviceID, socket string, state pluxv1.DevConnectionState, reason string, at time.Time) error {
+	ev := &pluxv1.DevEvent{
+		DeviceId: deviceID, TimeUnixMicros: at.UnixMicro(),
+		Payload: &pluxv1.DevEvent_Connection{Connection: &pluxv1.ConnectionEvent{State: state, Socket: socket, Reason: reason}},
+	}
+	return r.appendEvent(deviceID, 0, ev)
+}
+
+// connected reports whether a device's socket is open, as its connection
+// events say, or as this replica's own link shows.
+func (r *room) connected(deviceID string) bool {
+	_ = r.catchUp() // a failed read leaves the projection as it was
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	d, ok := r.devices[deviceID]
+	return ok && (d.connected || d.link != nil)
+}
+
 // attach makes a new socket the device's link; an earlier one is told to
 // close. It fails with PLX-9200 once the session has ended.
 func (r *room) attach(deviceID string) (*link, error) {
@@ -696,6 +734,19 @@ func (r *room) refuse(deviceID string, l *link, deviceSeq uint64, reason pluxv1.
 func (r *room) relay(ev *pluxv1.DevEvent) {
 	e := retained{ev: ev, size: int64(proto.Size(ev))}
 	d := r.device(ev.GetDeviceId())
+	if c := ev.GetConnection(); c != nil {
+		switch c.GetState() {
+		case pluxv1.DevConnectionState_DEV_CONNECTION_STATE_CONNECTED:
+			d.socket, d.connected = c.GetSocket(), true
+		case pluxv1.DevConnectionState_DEV_CONNECTION_STATE_DISCONNECTED:
+			// A socket that a newer one replaced, maybe on another replica,
+			// closing late says nothing about the device.
+			if d.socket == c.GetSocket() {
+				d.connected = false
+			}
+		case pluxv1.DevConnectionState_DEV_CONNECTION_STATE_UNSPECIFIED:
+		}
+	}
 	d.events = append(d.events, e)
 	d.eventBytes += e.size
 	for r.lim.over(len(d.events), d.eventBytes) {

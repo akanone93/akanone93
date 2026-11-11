@@ -183,6 +183,14 @@ final class PluxDevSession {
     }
   }
 
+  /// Tries to connect the pairing's channel again at once when it is waiting
+  /// to: call it when the app returns to the foreground, so the developer
+  /// does not wait out the backoff after the phone slept or a cable was
+  /// plugged back. An open channel, or no pairing, is left as it is.
+  void reconnectNow() {
+    if (events._target case final DevChannel channel) channel.reconnectNow();
+  }
+
   /// Ends the session: closes the channel and discards the overlay, so the
   /// pages render the active release again.
   Future<void> end() async {

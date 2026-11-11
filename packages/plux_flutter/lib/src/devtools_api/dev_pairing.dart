@@ -33,6 +33,11 @@ final class PluxDevPairing {
   /// The device's identifier inside the session.
   String get deviceId => channel.deviceId;
 
+  /// Tries to connect to the dev session again at once when the channel is
+  /// waiting to: call it when the app returns to the foreground or its
+  /// network comes back, so the developer does not wait out the backoff.
+  void reconnectNow() => channel.reconnectNow();
+
   /// Ends the pairing: closes the channel and discards the overlay, so the
   /// pages render the active release again.
   Future<void> close() async {

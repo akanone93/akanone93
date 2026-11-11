@@ -454,3 +454,39 @@ func TestPushPatch_EndedSessionIsRefused_DEV_010(t *testing.T) {
 	_, err := f.push(s, replace("/state/1/default", json.Number("36")))
 	wantCode(t, err, plxerr.DevSessionExpired, "an ended session")
 }
+
+// Verifies: DEV-010, DEV-021.
+// A device paired after earlier pushes holds none of their bundles: its
+// first frame carries every bundle, while the device that received them is
+// sent the changed one only. A frame naming a bundle the device lacks is
+// one it cannot apply.
+func TestPushPatch_LateDeviceReceivesEveryBundle_DEV_010(t *testing.T) {
+	f := newPushFixture(t, 0)
+	ctx := context.Background()
+	s, _ := f.open(t)
+	early := f.pairDevices(t, s, 1)[0]
+	if _, err := f.push(s, replace("/state/1/default", json.Number("24"))); err != nil {
+		t.Fatal(err)
+	}
+	all := len(f.frame(t, early, 0).GetSections())
+	if all < 2 {
+		t.Fatalf("the first push carries %d bundles, want the app's and the plugin's", all)
+	}
+	p, err := f.svc.GetPairing(ctx, f.Developer, s.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := f.pair(f.device("late", "jkt-late"), p.Token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.push(s, replace("/state/1/default", json.Number("36"))); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(f.frame(t, early, 1).GetSections()); got != 1 {
+		t.Errorf("the early device was sent %d bundles, want the changed one", got)
+	}
+	if got := len(f.frame(t, res.DeviceID, 0).GetSections()); got != all {
+		t.Errorf("the late device was sent %d bundles, want all %d", got, all)
+	}
+}

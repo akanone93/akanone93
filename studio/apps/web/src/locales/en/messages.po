@@ -292,6 +292,12 @@ msgstr "{count, plural, one {# warning} other {# warnings}}"
 msgid "panel.multiTitle"
 msgstr "{count, plural, one {# widget} other {# widgets}}"
 
+#. The developer console's state while devices are connected: how many.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleLiveDevices"
+msgstr "{count, plural, one {Live · # device} other {Live · # devices}}"
+
 #. Line on the account card: how many organisations the person belongs to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -4289,6 +4295,12 @@ msgstr "Confirm with passkey"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.step.pair-hint"
 msgstr "Connect a phone or an emulator to see your app live."
+
+#. The developer console's state while it opens the stream of the paired devices' events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleConnecting"
+msgstr "Connecting…"
 
 #. Accessible name of a connection point of a step.
 #. js-lingui-explicit-id
@@ -10451,6 +10463,12 @@ msgstr "No dependencies."
 msgid "design.noTokens"
 msgstr "No design tokens yet."
 
+#. The developer console's state while it streams but no paired device has its connection open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleNoDevice"
+msgstr "No device connected"
+
 #. Shown in the send dialog when no device is paired.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -12982,6 +13000,12 @@ msgstr "Recently used"
 msgid "chip.reconnecting"
 msgstr "Reconnecting"
 
+#. The developer console's state while it opens the stream again after it dropped (a server restart).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleReconnecting"
+msgstr "Reconnecting…"
+
 #. Button that confirms redirecting links to the chosen screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -15116,6 +15140,12 @@ msgstr "Separate several values with commas."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.sessionTag"
 msgstr "session {tag}"
+
+#. The developer console's state once the server ended the dev session for good.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleEnded"
+msgstr "Session ended. Reload the page."
 
 #. Heading of one session replay.
 #. js-lingui-explicit-id

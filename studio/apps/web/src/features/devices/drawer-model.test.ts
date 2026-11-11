@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { create } from "@bufbuild/protobuf";
-import { DevEventSchema, DevLogLevel } from "@plux/api";
+import { DevConnectionState, DevEventSchema, DevLogLevel } from "@plux/api";
 import { limitDefault } from "@plux/schema";
 import {
   consoleSource,
@@ -14,6 +14,7 @@ import {
   pending,
   push,
   resume,
+  summarise,
   tabOf,
   viewWindow,
   visible,
@@ -70,5 +71,19 @@ describe("S6.4 view window [LIM-001] [DEV-020]", () => {
     expect(tabOf(line)).toBe("console");
     expect(levelOf(line)).toBe("warning");
     expect(levelOf(create(DevEventSchema, {}))).toBe("");
+  });
+});
+
+describe("connection events (DEV-020)", () => {
+  const connection = (state: DevConnectionState, reason = "") =>
+    create(DevEventSchema, { sequence: 1n, deviceId: "d1", payload: { case: "connection", value: { state, reason } } });
+
+  test("show in the logs, saying whether the device connected and why it dropped", () => {
+    expect(tabOf(connection(DevConnectionState.CONNECTED))).toBe("logs");
+    expect(summarise(connection(DevConnectionState.CONNECTED))).toBe("connected");
+    expect(summarise(connection(DevConnectionState.DISCONNECTED, "the device stopped answering"))).toBe(
+      "disconnected: the device stopped answering",
+    );
+    expect(summarise(connection(DevConnectionState.DISCONNECTED))).toBe("disconnected");
   });
 });

@@ -25,6 +25,9 @@ final class DevTooling {
          devRootKeys: rootKeys,
          extensions: <String, DevCommandHandler>{},
        ) {
+    // Back in the foreground, the dev channel connects at once rather than
+    // after its backoff: the phone slept, or its cable was plugged back.
+    _lifecycle = AppLifecycleListener(onResume: session.reconnectNow);
     session.extensions.addAll(
       devExtensions(
         host: host,
@@ -82,8 +85,11 @@ final class DevTooling {
     ),
   );
 
+  late final AppLifecycleListener _lifecycle;
+
   /// Releases the tools.
   Future<void> dispose() async {
+    _lifecycle.dispose();
     await session.dispose();
     host.dispose();
   }

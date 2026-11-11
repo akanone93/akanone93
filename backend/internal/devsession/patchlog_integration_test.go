@@ -8,7 +8,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
+
+	"github.com/coder/websocket"
 
 	"github.com/jackc/pgx/v5"
 
@@ -188,8 +192,19 @@ func TestDraftWritten_PushesToStudioSessions_STU_130_DEV_021(t *testing.T) {
 	if bundle == nil || bundle.GetBundleSequence() != 1 || len(bundle.GetSections()) == 0 {
 		t.Fatalf("the device received %v, want the first bundle", bundle)
 	}
-	if got := a.Audit(t, "devsession.patched"); len(got) != 1 || got[0].TargetID != s.ID {
-		t.Errorf("audit = %+v, want one push to the Studio session and none to %s", got, cli.ID)
+	// The device connected fresh, so it was also welcomed with the draft
+	// (TestWelcome_FreshDeviceReceivesTheDraft); every push went to the
+	// Studio session, the written document's among them, and none to the
+	// CLI session.
+	wrote := false
+	for _, e := range a.Audit(t, "devsession.patched") {
+		if e.TargetID != s.ID {
+			t.Errorf("a push went to %s, want only the Studio session %s (not %s)", e.TargetID, s.ID, cli.ID)
+		}
+		wrote = wrote || strings.Contains(e.Detail, calculator)
+	}
+	if !wrote {
+		t.Errorf("no push named the written document %s", calculator)
 	}
 }
 
@@ -201,4 +216,90 @@ func newSocketServer(t *testing.T, svc *devsession.Service, proof devsession.Pro
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 	return srv
+}
+
+// newStudioRelay is a relay whose sessions can follow the stored draft.
+func newStudioRelay(t *testing.T) *relay {
+	t.Helper()
+	signer := &lateSigner{}
+	r := newRelayWith(t, nil, func(o *devsession.Options) {
+		o.Shared, o.Drafts, o.Signer = sharedLayer(t), drafts{t}, signer
+		o.CompileOptions = func(context.Context, pgx.Tx, string, string, string) (compiler.Options, error) {
+			co := compiler.DefaultOptions()
+			co.IconFont = func(set icons.Set, names []string) ([]byte, error) { return []byte(string(set)), nil }
+			return co, nil
+		}
+	})
+	signer.f = r.fixture
+	t.Cleanup(r.svc.Close)
+	return r
+}
+
+// firstBundle reads a device's frames until a bundle, or fails after n.
+func firstBundle(t *testing.T, k *client, n int) *pluxv1.DevBundleFrame {
+	t.Helper()
+	for range n {
+		if b := k.next(t).GetBundle(); b != nil {
+			return b
+		}
+	}
+	return nil
+}
+
+// Verifies: DEV-010, DEV-021, STU-130.
+// A device that connects to a Studio session without having carried out
+// any frame (a fresh pairing, a restarted app) is sent the stored draft,
+// whole, at once: it shows the draft rather than the release it held. The
+// push is the server's own, audited as such. A reconnecting device that
+// carried out frames is not sent it again.
+func TestWelcome_FreshDeviceReceivesTheDraft_DEV_010_DEV_021(t *testing.T) {
+	r := newStudioRelay(t)
+	ctx := context.Background()
+	s, _, err := r.svc.CreateSessionOfKind(ctx, r.Developer, r.App, r.Envs["development"], devsession.KindStudio)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := r.pairDevice(t, s.ID, "device-1")
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	k.c.SetReadLimit(1 << 24) // a first bundle carries every section
+	b := firstBundle(t, k, 4)
+	if b == nil || b.GetBundleSequence() != 1 || len(b.GetSections()) < 2 {
+		t.Fatalf("the fresh device received %v, want the whole draft", b)
+	}
+	got := r.Audit(t, "devsession.patched")
+	if len(got) != 1 || got[0].TargetID != s.ID {
+		t.Errorf("audit = %+v, want one push", got)
+	}
+	var kind string
+	err = r.Tx(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT actor_kind FROM audit_log WHERE action = 'devsession.patched'`).Scan(&kind) //nolint:wrapcheck // a test
+	})
+	if err != nil || kind != "system" {
+		t.Errorf("the push was audited as %q (%v), want the server's own", kind, err)
+	}
+	_ = k.c.Close(websocket.StatusNormalClosure, "")
+
+	renewed, err := r.svc.RenewSocketTicket(ctx, d.caller, s.ID, d.DeviceID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.connect(t, renewed.Ticket, d.key, &pluxv1.DevDeviceHello{LastServerSequence: 1})
+	time.Sleep(500 * time.Millisecond)
+	if n := len(r.Audit(t, "devsession.patched")); n != 1 {
+		t.Errorf("a reconnecting device that carried out the bundle was pushed again: %d pushes", n)
+	}
+}
+
+// Verifies: DEV-010.
+// A CLI session pushes its own files: a device connecting to one is not
+// sent the stored draft.
+func TestWelcome_CLISessionIsLeftAlone_DEV_010(t *testing.T) {
+	r := newStudioRelay(t)
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	time.Sleep(500 * time.Millisecond)
+	if n := len(r.Audit(t, "devsession.patched")); n != 0 {
+		t.Errorf("a CLI session's device was pushed the stored draft: %d pushes", n)
+	}
 }

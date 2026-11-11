@@ -254,6 +254,9 @@ func (r *relay) watch(t *testing.T, sessionID string, after uint64, gate func())
 	go func() {
 		defer close(done)
 		_ = r.svc.Watch(ctx, r.Developer, sessionID, nil, after, func(ev *pluxv1.DevEvent) error {
+			if ev == nil {
+				return nil // a heartbeat
+			}
 			if gate != nil {
 				gate()
 			}
@@ -273,6 +276,11 @@ func receive(t *testing.T, events <-chan *pluxv1.DevEvent, n int) []*pluxv1.DevE
 	for len(out) < n {
 		select {
 		case ev := <-events:
+			// The server's connection events have tests of their own;
+			// these tests are about what the devices send.
+			if ev.GetConnection() != nil {
+				continue
+			}
 			out = append(out, ev)
 		case <-timeout:
 			t.Fatalf("received %d events, want %d", len(out), n)
@@ -363,10 +371,14 @@ func TestRelay_FanOutInOrder_DEV_020(t *testing.T) {
 	}{{a.DeviceID, "a1"}, {b.DeviceID, "b1"}, {a.DeviceID, "a2"}}
 	for _, w := range []<-chan *pluxv1.DevEvent{first, second} {
 		got := receive(t, w, 3)
+		var prev uint64
 		for i, ev := range got {
-			if ev.GetSequence() != uint64(i+1) || ev.GetDeviceId() != want[i].device || ev.GetLog().GetMessage() != want[i].msg {
-				t.Errorf("event %d = %v, want sequence %d from %s", i, ev, i+1, want[i].device)
+			// The session-wide sequence grows with every relayed event, the
+			// server's connection events included, so it only increases here.
+			if ev.GetSequence() <= prev || ev.GetDeviceId() != want[i].device || ev.GetLog().GetMessage() != want[i].msg {
+				t.Errorf("event %d = %v, want after sequence %d from %s", i, ev, prev, want[i].device)
 			}
+			prev = ev.GetSequence()
 		}
 	}
 	resumed := receive(t, r.watch(t, s.ID, 2, nil), 1)
@@ -461,15 +473,24 @@ func TestRelay_ReconnectResumes_DEV_021(t *testing.T) {
 	k.event(t, 3, logEvent("three"))
 	k.ackedUpTo(t, 3)
 	got := receive(t, events, 3)
+	var prev uint64
 	for i, msg := range []string{"one", "two", "three"} {
-		if got[i].GetLog().GetMessage() != msg || got[i].GetSequence() != uint64(i+1) {
-			t.Errorf("event %d = %v, want %q", i, got[i], msg)
+		if got[i].GetLog().GetMessage() != msg || got[i].GetSequence() <= prev {
+			t.Errorf("event %d = %v, want %q after sequence %d", i, got[i], msg, prev)
 		}
+		prev = got[i].GetSequence()
 	}
-	select {
-	case ev := <-events:
-		t.Errorf("a resent event was relayed again: %v", ev)
-	case <-time.After(100 * time.Millisecond):
+	deadline := time.After(100 * time.Millisecond)
+	for {
+		select {
+		case ev := <-events:
+			if ev.GetConnection() == nil {
+				t.Errorf("a resent event was relayed again: %v", ev)
+			}
+			continue
+		case <-deadline:
+		}
+		break
 	}
 }
 
@@ -576,7 +597,8 @@ func TestExportTrace_RoundTrips_DEV_021(t *testing.T) {
 	k.event(t, 2, logEvent("two"))
 	k.ackedUpTo(t, 2)
 	trace, err := r.svc.ExportTrace(context.Background(), r.Viewer, s.ID, nil)
-	if err != nil || trace.Events != 2 {
+	// The device's two events and the server's event of its connection.
+	if err != nil || trace.Events != 3 {
 		t.Fatalf("trace = %d events: %v", trace.Events, err)
 	}
 	zr, err := gzip.NewReader(bytes.NewReader(trace.File))
@@ -592,12 +614,20 @@ func TestExportTrace_RoundTrips_DEV_021(t *testing.T) {
 		header.GetEnvironmentKey() != "development" {
 		t.Errorf("header = %v", header)
 	}
+	connected := &pluxv1.DevEvent{}
+	if err := protodelim.UnmarshalFrom(in, connected); err != nil {
+		t.Fatal(err)
+	}
+	if connected.GetSequence() != 1 || connected.GetConnection().GetState() != pluxv1.DevConnectionState_DEV_CONNECTION_STATE_CONNECTED ||
+		connected.GetDeviceId() != d.DeviceID {
+		t.Errorf("first event = %v, want the device's connection", connected)
+	}
 	for i, msg := range []string{"one", "two"} {
 		ev := &pluxv1.DevEvent{}
 		if err := protodelim.UnmarshalFrom(in, ev); err != nil {
 			t.Fatal(err)
 		}
-		if ev.GetSequence() != uint64(i+1) || ev.GetLog().GetMessage() != msg || ev.GetDeviceId() != d.DeviceID {
+		if ev.GetSequence() != uint64(i+2) || ev.GetLog().GetMessage() != msg || ev.GetDeviceId() != d.DeviceID {
 			t.Errorf("event %d = %v", i, ev)
 		}
 	}
@@ -693,5 +723,122 @@ func TestSocket_KeepAliveEndsExpiredSession_DEV_020(t *testing.T) {
 			}
 			return
 		}
+	}
+}
+
+// nextConnection reads a watcher's events until a connection event arrives.
+func nextConnection(t *testing.T, events <-chan *pluxv1.DevEvent) *pluxv1.DevEvent {
+	t.Helper()
+	timeout := time.After(wait)
+	for {
+		select {
+		case ev := <-events:
+			if ev.GetConnection() != nil {
+				return ev
+			}
+		case <-timeout:
+			t.Fatal("no connection event")
+		}
+	}
+}
+
+// Verifies: DEV-020.
+// The server tells the watchers when a device's socket opens and closes,
+// with why it closed, and the device list says whether it is connected.
+func TestRelay_ConnectionEvents_DEV_020(t *testing.T) {
+	r := newRelay(t, nil)
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	events := r.watch(t, s.ID, 0, nil)
+	connected := func() bool {
+		t.Helper()
+		devices, err := r.svc.ListDevices(context.Background(), r.Developer, s.ID)
+		if err != nil || len(devices) != 1 {
+			t.Fatalf("devices = %v, %v", devices, err)
+		}
+		return devices[0].Connected
+	}
+	if connected() {
+		t.Error("a device that never connected is listed as connected")
+	}
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	open := nextConnection(t, events)
+	if c := open.GetConnection(); c.GetState() != pluxv1.DevConnectionState_DEV_CONNECTION_STATE_CONNECTED || c.GetSocket() == "" ||
+		open.GetDeviceId() != d.DeviceID || open.GetSequence() == 0 {
+		t.Fatalf("on connect: %v", open)
+	}
+	if !connected() {
+		t.Error("the connected device is listed as offline")
+	}
+	_ = k.c.Close(websocket.StatusNormalClosure, "")
+	closed := nextConnection(t, events)
+	if c := closed.GetConnection(); c.GetState() != pluxv1.DevConnectionState_DEV_CONNECTION_STATE_DISCONNECTED ||
+		c.GetSocket() != open.GetConnection().GetSocket() || c.GetReason() != "the device closed the socket" {
+		t.Fatalf("on close: %v", closed)
+	}
+	if connected() {
+		t.Error("the closed device is listed as connected")
+	}
+}
+
+// Verifies: DEV-020.
+// A socket that a newer one replaced, closing late, does not mark the
+// device offline: its DISCONNECTED names the old socket.
+func TestRelay_ReplacedSocketKeepsTheDeviceConnected_DEV_020(t *testing.T) {
+	r := newRelay(t, nil)
+	ctx := context.Background()
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	renewed, err := r.svc.RenewSocketTicket(ctx, d.caller, s.ID, d.DeviceID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.connect(t, renewed.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	time.Sleep(300 * time.Millisecond) // the first socket closes as replaced
+	devices, err := r.svc.ListDevices(ctx, r.Developer, s.ID)
+	if err != nil || len(devices) != 1 || !devices[0].Connected {
+		t.Errorf("after a newer socket replaced the first: %+v, %v; want connected", devices, err)
+	}
+}
+
+// Verifies: DEV-020, SEC-021.
+// Only the server writes connection events: a device that sends one has
+// it dropped as not allowed, and the device's liveness is unchanged.
+func TestRelay_DeviceCannotSendConnectionEvents_DEV_020(t *testing.T) {
+	r := newRelay(t, nil)
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	events := r.watch(t, s.ID, 0, nil)
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	nextConnection(t, events)
+	k.event(t, 1, &pluxv1.DevEvent{Payload: &pluxv1.DevEvent_Connection{Connection: &pluxv1.ConnectionEvent{
+		State: pluxv1.DevConnectionState_DEV_CONNECTION_STATE_DISCONNECTED, Socket: "forged",
+	}}})
+	k.ackedUpTo(t, 1)
+	got := receive(t, events, 1)[0]
+	if got.GetDrop().GetReason() != pluxv1.DevDropReason_DEV_DROP_REASON_NOT_ALLOWED {
+		t.Errorf("the forged connection event became %v, want a drop", got)
+	}
+	devices, err := r.svc.ListDevices(context.Background(), r.Developer, s.ID)
+	if err != nil || len(devices) != 1 || !devices[0].Connected {
+		t.Errorf("after the forged event: %+v, %v; want connected", devices, err)
+	}
+}
+
+// Verifies: DEV-021.
+// A watcher that resumes after a sequence the session never reached (the
+// shared layer lost its counter) is sent the events from the start, not
+// left waiting for numbers it already holds.
+func TestWatch_AheadOfTheSessionResumesFromTheStart_DEV_021(t *testing.T) {
+	r := newRelay(t, nil)
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	k.event(t, 1, logEvent("one"))
+	k.ackedUpTo(t, 1)
+	events := r.watch(t, s.ID, 1000, nil)
+	if got := receive(t, events, 1)[0]; got.GetLog().GetMessage() != "one" {
+		t.Errorf("resuming after 1000 gave %v, want event one", got)
 	}
 }

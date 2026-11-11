@@ -292,6 +292,12 @@ msgstr "{count, plural, zero {لا تحذيرات} one {تحذير واحد} two
 msgid "panel.multiTitle"
 msgstr "{count, plural, zero {لا عناصر واجهة} one {عنصر واجهة واحد} two {عنصرا واجهة} few {# عناصر واجهة} many {# عنصر واجهة} other {# عنصر واجهة}}"
 
+#. The developer console's state while devices are connected: how many.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleLiveDevices"
+msgstr "{count, plural, zero {مباشر · لا أجهزة} one {مباشر · جهاز واحد} two {مباشر · جهازان} few {مباشر · # أجهزة} many {مباشر · # جهازًا} other {مباشر · # جهاز}}"
+
 #. Line on the account card: how many organisations the person belongs to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -4289,6 +4295,12 @@ msgstr "التأكيد بمفتاح المرور"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.step.pair-hint"
 msgstr "اربط هاتفًا أو محاكيًا لترى تطبيقك مباشرة."
+
+#. The developer console's state while it opens the stream of the paired devices' events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleConnecting"
+msgstr "جارٍ الاتصال…"
 
 #. Accessible name of a connection point of a step.
 #. js-lingui-explicit-id
@@ -10451,6 +10463,12 @@ msgstr "لا توجد اعتماديات."
 msgid "design.noTokens"
 msgstr "لا توجد رموز تصميم بعد."
 
+#. The developer console's state while it streams but no paired device has its connection open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleNoDevice"
+msgstr "لا يوجد جهاز متصل"
+
 #. Shown in the send dialog when no device is paired.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -12982,6 +13000,12 @@ msgstr "المستخدمة مؤخرًا"
 msgid "chip.reconnecting"
 msgstr "إعادة الاتصال"
 
+#. The developer console's state while it opens the stream again after it dropped (a server restart).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleReconnecting"
+msgstr "جارٍ إعادة الاتصال…"
+
 #. Button that confirms redirecting links to the chosen screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -15116,6 +15140,12 @@ msgstr "افصل بين القيم المتعددة بفواصل."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.sessionTag"
 msgstr "الجلسة {tag}"
+
+#. The developer console's state once the server ended the dev session for good.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleEnded"
+msgstr "انتهت الجلسة. أعد تحميل الصفحة."
 
 #. Heading of one session replay.
 #. js-lingui-explicit-id

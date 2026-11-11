@@ -208,6 +208,7 @@ func (s DevSession) ListDevices(ctx context.Context, req *connect.Request[pluxv1
 		for _, d := range devices {
 			out.Devices = append(out.Devices, &pluxv1.DevDevice{
 				Id: d.ID, DeviceId: d.DeviceID, Name: d.Name, Platform: d.Platform, RuntimeVersion: d.RuntimeVersion, PairedAt: ts(d.PairedAt),
+				Connected: d.Connected,
 			})
 		}
 		return out, nil

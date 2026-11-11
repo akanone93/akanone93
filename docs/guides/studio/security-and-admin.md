@@ -21,6 +21,11 @@ page and action needs the matching permission; Studio says so when you lack it.
 4. The **Developer console** under the plugin canvas has tabs for **Problems**, **Logs**, **Process
    flow**, **State**, **Network**, **Functions**, **Sync**, **Performance** and **Console**. Filter by
    device and level, search, **Pause**, and **Export trace**. The pairing token is single-use: show it only to the device you are pairing.
+   The console's state says where it is: **Connecting…**, **Reconnecting…** (after the server restarted, for
+   example; it carries on by itself), **No device connected**, or **Live** with the number of connected devices.
+   The device list marks each device *connected* or *offline*, and the **Logs** tab shows a line when a device
+   connects or drops, with the reason. A device that pairs, or whose app restarted, is sent the current draft at
+   once; a device that dropped resumes where it stopped and receives the edits it missed.
 
 ## Devices and security profile
 

@@ -146,6 +146,13 @@ final class DevChannel implements DevEventSink {
   @override
   String toString() => kPluxDevtools ? 'DevChannel($kDevCanary)' : '';
 
+  /// Tries to connect again at once when the socket is waiting to, as when
+  /// the app returns to the foreground; an open socket is left as it is.
+  void reconnectNow() {
+    if (!kPluxDevtools) return;
+    _engine.reconnectNow();
+  }
+
   /// Closes the socket and stops reconnecting.
   Future<void> close() => _engine.close();
 }

@@ -145,7 +145,7 @@ func (s *Service) load(ctx context.Context, tx pgx.Tx, st *draftState, plan push
 	if err != nil {
 		return err //nolint:wrapcheck // a domain error
 	}
-	st.files, st.revs, st.cache, st.sent, st.loaded, st.applied = files, map[string]int64{}, incremental.NewCache(plan.opts), map[string]bool{}, true, 0
+	st.files, st.revs, st.cache, st.sent, st.loaded, st.applied = files, map[string]int64{}, incremental.NewCache(plan.opts), map[string]map[string]bool{}, true, 0
 	return nil
 }
 

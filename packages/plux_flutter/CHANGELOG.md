@@ -14,6 +14,10 @@ SPDX-License-Identifier: Apache-2.0
   (`PluxApiClient.tokenlessProof`), which the server requires of every device proof (SEC-024). A
   socket that does not connect is printed (`debugPrint`), once per reason.
 
+- **A dev socket that stays live (DEV-021):** the device pings the dev socket every 10 s
+  (`StreamRequest.pingInterval`), so a link that died without closing is found and the socket
+  reconnects; `PluxDevPairing.reconnectNow()` ends the reconnect wait at once, for a host to call
+  when the app returns to the foreground.
 - **The dev channel uses the host's WebSocket client (DEV-002):** a paired device opens its dev
   socket with `PluxConfig.webSocketClient` when the host gives one, as the runtime's other
   WebSockets do, so a host that trusts its own certificate authority (the Plux Dev app with

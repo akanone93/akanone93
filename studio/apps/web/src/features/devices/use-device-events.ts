@@ -28,7 +28,12 @@ function reduce(buffer: Buffer, action: Action): Buffer {
  * Streams a dev session's events (DEV-020, DEV-021), resuming after the last sequence and retrying with
  * the shared backoff, like the studio events stream. Pausing freezes the view, not the stream.
  */
-export function useDeviceEvents(sessionId: string, deviceIds: readonly string[], onEvent?: (event: DevEvent) => void) {
+export function useDeviceEvents(
+  sessionId: string,
+  deviceIds: readonly string[],
+  onEvent?: (event: DevEvent) => void,
+  onState?: (state: StreamState) => void,
+) {
   const { session } = useApp();
   const client = useMemo(() => createClient(DevSessionService, session.transport), [session.transport]);
   const [buffer, dispatch] = useReducer(reduce, emptyBuffer);
@@ -36,6 +41,8 @@ export function useDeviceEvents(sessionId: string, deviceIds: readonly string[],
   const devices = deviceIds.join(",");
   const seen = useRef(onEvent);
   seen.current = onEvent;
+  const told = useRef(onState);
+  told.current = onState;
   // biome-ignore lint/correctness/useExhaustiveDependencies: the device list is compared by its joined value
   useEffect(() => {
     const controller = new AbortController();
@@ -45,7 +52,11 @@ export function useDeviceEvents(sessionId: string, deviceIds: readonly string[],
       sessionId,
       deviceIds,
       signal: controller.signal,
-      onState: setState,
+      onState: (next) => {
+        setState(next);
+        told.current?.(next);
+      },
+      onReset: () => dispatch({ type: "clear" }),
       onEvent: (event) => {
         dispatch({ type: "event", event });
         seen.current?.(event);

@@ -43,6 +43,7 @@ final class StreamRequest {
     this.lastEventId,
     required this.maxMessageBytes,
     required this.connectTimeout,
+    this.pingInterval,
   });
 
   /// The kind.
@@ -66,6 +67,13 @@ final class StreamRequest {
 
   /// How long connecting may take (`data.requestTimeout`).
   final Duration connectTimeout;
+
+  /// How often a WebSocket pings the server, closing when a pong does not
+  /// come back within the same time; null sends no pings. A link that died
+  /// without closing (the phone slept, the network changed, a USB tunnel
+  /// went) is then noticed and the stream reconnects, instead of waiting on
+  /// a socket nothing arrives on.
+  final Duration? pingInterval;
 }
 
 /// The kinds of frame.
@@ -194,6 +202,7 @@ final class SocketStreamTransport implements StreamTransport {
         protocols: r.protocols.isEmpty ? null : r.protocols,
         headers: r.headers,
       ).timeout(r.connectTimeout);
+      if (r.pingInterval case final interval?) ws.pingInterval = interval;
       return _WebSocketConnection(ws, r.maxMessageBytes, r.url);
     } on TimeoutException {
       throw _network(r.url, 'connecting took longer than the timeout');

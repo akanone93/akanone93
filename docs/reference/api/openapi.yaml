@@ -18433,6 +18433,33 @@ components:
           title: factor
       title: ConfirmFactorResponse
       additionalProperties: false
+    plux.v1.ConnectionEvent:
+      type: object
+      properties:
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevConnectionState'
+          title: state
+        socket:
+          type: string
+          title: socket
+          description: |-
+            socket identifies the socket the event is about: random, unique per
+             socket, and nothing else.
+        reason:
+          type: string
+          title: reason
+          description: |-
+            reason says why a socket closed, in words for the console; empty when
+             it opened.
+      title: ConnectionEvent
+      additionalProperties: false
+      description: |-
+        ConnectionEvent is written by the server when a device's dev socket opens
+         or closes (DEV-020), so that a watcher shows the device's liveness as it
+         changes, on every replica, without asking. A device may hold one socket at
+         a time; a newer socket replaces an older one, possibly on another replica,
+         so a DISCONNECTED event counts only for the socket it names.
     plux.v1.Consent:
       type: object
       properties:
@@ -20223,6 +20250,14 @@ components:
         - DEV_COMMAND_STATUS_UNSUPPORTED
         - DEV_COMMAND_STATUS_REFUSED
       description: DevCommandStatus is how a device answered a command.
+    plux.v1.DevConnectionState:
+      type: string
+      title: DevConnectionState
+      enum:
+        - DEV_CONNECTION_STATE_UNSPECIFIED
+        - DEV_CONNECTION_STATE_CONNECTED
+        - DEV_CONNECTION_STATE_DISCONNECTED
+      description: DevConnectionState says whether a device's dev socket is open.
     plux.v1.DevDevice:
       type: object
       properties:
@@ -20359,6 +20394,7 @@ components:
         - DEV_DROP_REASON_UNSPECIFIED
         - DEV_DROP_REASON_BUFFER_FULL
         - DEV_DROP_REASON_EVENT_TOO_LARGE
+        - DEV_DROP_REASON_NOT_ALLOWED
       description: DevDropReason says why events were dropped.
     plux.v1.DevError:
       type: object
@@ -20397,6 +20433,16 @@ components:
                 - $ref: '#/components/schemas/plux.v1.CommandResultEvent'
               title: command_result
           title: command_result
+        - type: object
+          properties:
+            connection:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.ConnectionEvent'
+              title: connection
+              description: |-
+                connection is written by the server, never by a device: a device
+                 that sends one has it dropped (DEV_DROP_REASON_NOT_ALLOWED).
+          title: connection
         - type: object
           properties:
             drop:
@@ -20490,6 +20536,8 @@ components:
               - required:
                   - commandResult
               - required:
+                  - connection
+              - required:
                   - drop
               - required:
                   - error
@@ -20519,6 +20567,8 @@ components:
                     - actionTrace
                 - required:
                     - commandResult
+                - required:
+                    - connection
                 - required:
                     - drop
                 - required:

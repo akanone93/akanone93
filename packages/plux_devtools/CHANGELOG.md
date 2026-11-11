@@ -5,6 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## Unreleased
+
+- `PluxDevSession.reconnectNow()` connects the dev channel again at once when it waits to, for a host to call
+  when the app returns to the foreground (DEV-021).
+
 ## 0.2.0
 
 Pair your own debug build with a dev session (DEV-040): `PluxDevSession`, a

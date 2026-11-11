@@ -1163,6 +1163,8 @@ function devSessionService(
           yield { event };
         }
       }
+      // As the server does once the backlog is out: the stream is open, events or not.
+      yield {};
       await new Promise<void>((resolve) => ctx.signal.addEventListener("abort", () => resolve()));
     },
     exportTrace: (req) => {

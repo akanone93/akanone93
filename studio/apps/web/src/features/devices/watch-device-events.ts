@@ -12,15 +12,24 @@ export interface WatchOptions {
   readonly signal: AbortSignal;
   readonly onState: (state: StreamState) => void;
   readonly onEvent: (event: DevEvent) => void;
+  /** The server numbers the session's events from 1 again (it lost its counter): what was shown is dropped. */
+  readonly onReset?: () => void;
   readonly sleep?: (ms: number) => Promise<void>;
 }
 
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Whether the server will never accept the watch: the person may not see it, it does not exist, or the session ended
+ * (PLX-9200, which a watch of an ended session is answered with).
+ */
 function isFinal(error: unknown): boolean {
   return (
     error instanceof ConnectError &&
-    (error.code === Code.Unauthenticated || error.code === Code.PermissionDenied || error.code === Code.NotFound)
+    (error.code === Code.Unauthenticated ||
+      error.code === Code.PermissionDenied ||
+      error.code === Code.NotFound ||
+      error.code === Code.FailedPrecondition)
   );
 }
 
@@ -31,9 +40,15 @@ async function readOnce(o: WatchOptions, after: bigint): Promise<{ after: bigint
   let live = false;
   try {
     for await (const res of o.client.watchEvents(request, { signal: o.signal })) {
+      // An empty response is the server's heartbeat: the stream is open.
       live = true;
       o.onState("live");
       if (res.event !== undefined) {
+        // A drop carries the sequence it stands for; any other event at or below the last one means the server
+        // numbers from 1 again, and resumes from the start (DEV-021).
+        if (res.event.sequence <= last && last > 0n && res.event.payload.case !== "drop") {
+          o.onReset?.();
+        }
         last = res.event.sequence;
         o.onEvent(res.event);
       }
@@ -64,13 +79,23 @@ interface Progress {
   attempt: number;
 }
 
-/** One connection: true when the watch goes on with another one, false when it is over. */
+/**
+ * One connection: true when the watch goes on with another one, false when it is over. A stream the server ends
+ * cleanly is opened again: a server restarts or drains its streams on a deploy, and the console must stay live
+ * (DEV-021). Only a refusal the server will repeat ends the watch.
+ */
 async function cycle(o: WatchOptions, progress: Progress, sleep: (ms: number) => Promise<void>): Promise<boolean> {
   o.onState(progress.attempt === 0 ? "connecting" : "reconnecting");
   try {
-    await readOnce(o, progress.after);
-    o.onState("ended");
-    return false;
+    const read = await readOnce(o, progress.after);
+    if (o.signal.aborted) {
+      return false;
+    }
+    progress.after = read.after;
+    progress.attempt = (read.live ? 0 : progress.attempt) + 1;
+    o.onState("reconnecting");
+    await sleep(backoffMs(progress.attempt - 1));
+    return true;
   } catch (error) {
     if (ends(o, error)) {
       o.onState(o.signal.aborted ? "connecting" : "ended");

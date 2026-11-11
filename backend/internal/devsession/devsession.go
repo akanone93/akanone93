@@ -201,6 +201,8 @@ type Device struct {
 	Platform       string
 	RuntimeVersion string
 	PairedAt       time.Time
+	// Connected is true while the device's dev socket is open (DEV-020).
+	Connected bool
 }
 
 // CreateSession opens a dev session for an app's environment and issues its
@@ -458,7 +460,16 @@ func (s *Service) ListDevices(ctx context.Context, p auth.Principal, sessionID s
 		}
 		return nil
 	})
-	return out, err
+	if err != nil {
+		return out, err
+	}
+	// Whether each socket is open, from the session's connection events on
+	// the shared layer: right on every replica, not only the one holding it.
+	room := s.hub.room(storage.ID(id), nil)
+	for i := range out {
+		out[i].Connected = room.connected(out[i].ID)
+	}
+	return out, nil
 }
 
 // EndSession ends a session and unpairs its devices; its pairing tokens and

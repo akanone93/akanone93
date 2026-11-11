@@ -7,6 +7,7 @@ import (
 	"context"
 	"slices"
 	"testing/fstest"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -88,4 +89,46 @@ func (s *Service) followDraft(ctx context.Context, p auth.Principal, plan pushPl
 		return
 	}
 	_, _ = s.compileAndPush(ctx, p, plan, st, files, st.revs, ids, nil) //nolint:errcheck // the write stands; the next one pushes again
+}
+
+// welcomeTimeout bounds the compile and push of a welcome.
+const welcomeTimeout = 2 * time.Minute
+
+// welcome pushes the stored draft, whole, to a device of a Studio session
+// that connected without having carried out any frame: a fresh pairing, a
+// re-pairing or a restarted app. Such a device shows the draft at once,
+// not whatever release it held, and holds every bundle the next pushes
+// leave out. It runs as the server's own work (auth.System, audited as
+// such) and sends the device nothing it may not see: the session's draft,
+// which the next edit would push to it anyway. A session that follows no
+// draft (a CLI session, which pushes its own files) is left alone, and a
+// draft that does not compile is not pushed.
+func (s *Service) welcome(b DeviceBinding) {
+	if !s.CanPush() {
+		return
+	}
+	s.forgetDevice(b.SessionID, b.DeviceID)
+	ctx, cancel := context.WithTimeout(s.hub.ctx, welcomeTimeout)
+	defer cancel()
+	p := auth.System(b.OrganizationID)
+	var (
+		plan pushPlan
+		ok   bool
+	)
+	_ = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		row, err := dbgen.New(tx).GetDevSession(ctx, storage.MustUUID(b.SessionID))
+		if err != nil {
+			return err //nolint:wrapcheck // dropped: the device keeps what it shows
+		}
+		session := sessionOf(row)
+		if session.Kind != KindStudio {
+			return nil
+		}
+		plan, err = s.planOf(ctx, tx, p, session)
+		ok = err == nil
+		return err
+	})
+	if ok {
+		s.followDraft(ctx, p, plan, nil)
+	}
 }

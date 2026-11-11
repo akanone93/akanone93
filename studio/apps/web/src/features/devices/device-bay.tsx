@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import type { DevEvent } from "@plux/api";
 import { Button, Icon } from "@plux/ui";
 import { Tabs as ShadcnTabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type ReactNode,
   type PointerEvent as ReactPointerEvent,
@@ -16,6 +17,7 @@ import {
   useState,
 } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
+import type { StreamState } from "../shell/studio-events.ts";
 import { DeviceControls } from "./device-controls.tsx";
 import { DeviceDrawer } from "./device-drawer.tsx";
 import { devicesMessages } from "./devices.messages.ts";
@@ -107,8 +109,31 @@ function ConsoleGrip({ height, onHeight }: { readonly height: number; readonly o
 }
 
 /** The console's bar: its toggle, whether it streams, the problems, the autosave time and, live, the device tools. */
+/** How often the console reads the session's devices again, in milliseconds; a connection event reads them at once. */
+const devicesRefresh = 5000;
+
+/** What the console's state says: where the event stream is and how many devices have their connection open. */
+export type ConsoleStatus =
+  | { readonly kind: "idle" | "connecting" | "reconnecting" | "ended" | "noDevice" }
+  | { readonly kind: "live"; readonly devices: number };
+
+/** The console's state from the stream's state and the number of connected devices (DEV-020). */
+export function consoleStatus(session: boolean, stream: StreamState | undefined, connected: number): ConsoleStatus {
+  if (!session) {
+    return { kind: "idle" };
+  }
+  if (stream === "ended" || stream === "reconnecting") {
+    return { kind: stream };
+  }
+  if (stream !== "live") {
+    return { kind: "connecting" };
+  }
+  return connected === 0 ? { kind: "noDevice" } : { kind: "live", devices: connected };
+}
+
 function ConsoleBar(props: {
   readonly shown: boolean;
+  readonly status: ConsoleStatus;
   readonly live: boolean;
   readonly problemCount: number | undefined;
   readonly latency: number | undefined;
@@ -126,9 +151,14 @@ function ConsoleBar(props: {
         {m.bayToggle}
         <Icon name={props.shown ? "caret-down" : "caret-up"} size="pill" />
       </button>
-      <span className="dev-console-live" data-live={props.live || undefined}>
+      <span
+        role="status"
+        className="dev-console-live"
+        data-live={props.status.kind === "live" || undefined}
+        data-state={props.status.kind}
+      >
         <span className="dev-console-dot" aria-hidden="true" />
-        {props.live ? m.consoleLive : m.consoleIdle}
+        {statusText(m, props.status)}
       </span>
       <button
         type="button"
@@ -169,6 +199,23 @@ function ConsoleBar(props: {
       )}
     </div>
   );
+}
+
+function statusText(m: ReturnType<typeof devicesMessages>, s: ConsoleStatus): string {
+  switch (s.kind) {
+    case "idle":
+      return m.consoleIdle;
+    case "connecting":
+      return m.consoleConnecting;
+    case "reconnecting":
+      return m.consoleReconnecting;
+    case "ended":
+      return m.consoleEnded;
+    case "noDevice":
+      return m.consoleNoDevice;
+    case "live":
+      return m.consoleLiveDevices(s.devices);
+  }
 }
 
 /** The open console without a dev session: the Problems tab alone, and why the device tabs are missing. */
@@ -232,11 +279,13 @@ function useBayEvents(onInspect: (path: string) => void, meter: LatencyMeter) {
 function QuietStream({
   sessionId,
   onEvent,
+  onState,
 }: {
   readonly sessionId: string;
   readonly onEvent: (event: DevEvent) => void;
+  readonly onState: (state: StreamState) => void;
 }): null {
-  useDeviceEvents(sessionId, [], onEvent);
+  useDeviceEvents(sessionId, [], onEvent, onState);
   return null;
 }
 
@@ -264,7 +313,28 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
   const open = useCallback((d: Dialog) => setDialog(d), []);
   useDeviceCommands(open);
   const { accepted, selectedPath, onInspect, request } = props;
-  const { capture, latency, onEvent } = useBayEvents(onInspect, meter);
+  const { capture, latency, onEvent: onBayEvent } = useBayEvents(onInspect, meter);
+  // The session's devices, read again every few seconds and at once when one connects or drops, and where the
+  // event stream is: the console's state says both (DEV-020).
+  const [stream, setStream] = useState<StreamState | undefined>(undefined);
+  const queryClient = useQueryClient();
+  const devices = useQuery({
+    queryKey: ["dev-devices", sessionId],
+    enabled: sessionId !== undefined,
+    queryFn: async () => (await client.listDevices({ sessionId: sessionId ?? "" })).devices,
+    refetchInterval: devicesRefresh,
+  });
+  const connected = (devices.data ?? []).filter((d) => d.connected).length;
+  const status = consoleStatus(sessionId !== undefined, stream, connected);
+  const onEvent = useCallback(
+    (event: DevEvent) => {
+      if (event.payload.case === "connection") {
+        void queryClient.invalidateQueries({ queryKey: ["dev-devices", sessionId] });
+      }
+      onBayEvent(event);
+    },
+    [onBayEvent, queryClient, sessionId],
+  );
   const first = useRef(accepted);
   useEffect(() => {
     if (accepted !== first.current) {
@@ -302,11 +372,14 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
       data-open={shown || undefined}
     >
       <div className="canvas-panel glass dev-console-panel" style={shown ? { blockSize: height } : undefined}>
-        {!shown && sessionId !== undefined && <QuietStream sessionId={sessionId} onEvent={onEvent} />}
+        {!shown && sessionId !== undefined && (
+          <QuietStream sessionId={sessionId} onEvent={onEvent} onState={setStream} />
+        )}
         {shown && <ConsoleGrip height={height} onHeight={setHeight} />}
         <ConsoleBar
           shown={shown}
-          live={sessionId !== undefined}
+          status={status}
+          live={status.kind === "live"}
           problemCount={props.problemCount}
           latency={latency}
           highlight={highlight}
@@ -343,6 +416,7 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
                   tab={tab}
                   onTab={setTab}
                   onEvent={onEvent}
+                  onStreamState={setStream}
                 />
               </>
             )}

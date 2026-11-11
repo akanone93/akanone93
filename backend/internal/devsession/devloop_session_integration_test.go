@@ -236,6 +236,12 @@ func blocks(output string) []string {
 	return out
 }
 
+// deviceBlocks are the blocks of the events a device sent, without the
+// server's connection lines.
+func deviceBlocks(output string) []string {
+	return slices.DeleteFunc(blocks(output), func(b string) bool { return strings.Contains(b, " connection ") })
+}
+
 // pageWithPersistence is the page of the project with the session
 // persistence the developer adds.
 func pageWithPersistence(t *testing.T, dir string) []byte {
@@ -390,7 +396,9 @@ func TestDevLoopSession_DEV_041_DEV_021_DEV_020_FN_036(t *testing.T) {
 		t.Errorf("plux dev trace export said %q", out)
 	}
 	shown := s.run(t, "dev", "trace", "show", file)
-	live, offline := blocks(all), blocks(shown)
+	// The events the device sent; the server's lines about its connection
+	// come and go with the socket, so the two reads differ in them.
+	live, offline := deviceBlocks(all), deviceBlocks(shown)
 	if len(live) != 3 || !slices.Equal(live, offline) {
 		t.Errorf("the trace file shows other events than the live stream.\nlive:\n%s\n\nfrom the file:\n%s", strings.Join(live, "\n"), strings.Join(offline, "\n"))
 	}

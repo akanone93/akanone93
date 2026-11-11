@@ -97,6 +97,11 @@ abstract interface class DevEngineHandle {
 
   /// Closes the socket and stops reconnecting.
   Future<void> close();
+
+  /// Ends a wait between two connection attempts and tries again at once,
+  /// as when the app returns to the foreground or the network comes back;
+  /// an open socket is left as it is.
+  void reconnectNow();
 }
 
 final class _Buffered {
@@ -105,6 +110,10 @@ final class _Buffered {
   final Map<String, Object?> event;
   final int bytes;
 }
+
+/// How often the dev socket pings the server (DEV-021): a link that died
+/// without closing is found within twice this.
+const devSocketPingInterval = Duration(seconds: 10);
 
 /// The dev channel's socket, buffer and reconnect loop.
 final class DevEngine implements DevEngineHandle {
@@ -136,6 +145,8 @@ final class DevEngine implements DevEngineHandle {
 
   final Queue<_Buffered> _buffer = Queue();
   final Completer<void> _closing = Completer();
+  Completer<void> _wake = Completer();
+  var _attempt = 0;
   Future<void>? _loop;
   StreamConnection? _conn;
   var _bytes = 0;
@@ -160,6 +171,13 @@ final class DevEngine implements DevEngineHandle {
     if (_closed) return;
     _add(payload, traceId);
     _reportDrops();
+  }
+
+  @override
+  void reconnectNow() {
+    if (_closed || _wake.isCompleted) return;
+    _attempt = 0;
+    _wake.complete();
   }
 
   @override
@@ -243,7 +261,6 @@ final class DevEngine implements DevEngineHandle {
   }
 
   Future<void> _run() async {
-    var attempt = 0;
     var first = true;
     while (!_closed) {
       try {
@@ -261,6 +278,9 @@ final class DevEngine implements DevEngineHandle {
             headers: {'Plux-Dev-Ticket': auth.ticket, 'DPoP': auth.proof},
             maxMessageBytes: config.maxFrameBytes,
             connectTimeout: Duration(milliseconds: config.connectTimeoutMs),
+            // The server pings every 30 s; the device pings too, so that a
+            // dead link is noticed on this side and the socket reconnects.
+            pingInterval: devSocketPingInterval,
           ),
         );
         if (_closed) {
@@ -268,7 +288,7 @@ final class DevEngine implements DevEngineHandle {
           break;
         }
         _conn = conn;
-        attempt = 0;
+        _attempt = 0;
         await _serve(conn);
       } on Object catch (e) {
         // The attempt failed: wait, then try again. Said once per distinct
@@ -285,7 +305,12 @@ final class DevEngine implements DevEngineHandle {
         }
       }
       if (_closed) break;
-      await Future.any([_delay(_backoff(attempt++)), _closing.future]);
+      if (_wake.isCompleted) _wake = Completer();
+      await Future.any([
+        _delay(_backoff(_attempt++)),
+        _closing.future,
+        _wake.future,
+      ]);
     }
   }
 

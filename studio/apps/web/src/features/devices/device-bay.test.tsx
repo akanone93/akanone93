@@ -13,7 +13,7 @@ import { createSession } from "../../lib/session.ts";
 import { AppContextProvider } from "../../lib/use-app.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
 import { createUpstream, type UpstreamData } from "../../test-upstream.ts";
-import { DeviceBay, type DeviceBayProps } from "./device-bay.tsx";
+import { consoleStatus, DeviceBay, type DeviceBayProps } from "./device-bay.tsx";
 import { type InspectScreen, nodePathOf, resolveNodePath } from "./inspect-path.ts";
 import { createLatencyMeter } from "./latency.ts";
 import { screenshotAssetName, storeScreenshot } from "./screenshots.ts";
@@ -95,7 +95,9 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
     });
     renderBay({ devSession: { devices, events: [tap] } }, { live: true, onInspect: (p) => inspected.push(p) });
     await waitFor(() => expect(inspected).toEqual(["/pages/home/1/0"]));
-    expect(await screen.findByText("Live")).toBeTruthy();
+    // Live means a device has its connection open while the stream runs, not merely that a session exists (the test
+    // catalogue does not format the plural "Live · 1 device", so the state is read).
+    await waitFor(() => expect(document.querySelector(".dev-console-live")?.getAttribute("data-state")).toBe("live"));
     expect(screen.getByRole("button", { name: "Developer console" }).getAttribute("aria-expanded")).toBe("false");
   });
 
@@ -202,5 +204,17 @@ describe("S6.4 pure parts", () => {
     );
     expect(names).toEqual(["thumbnails/screen-home.png"]);
     expect(out.sha256).toHaveLength(64);
+  });
+});
+
+describe("the console's state (DEV-020)", () => {
+  test("says where the stream is and whether a device is connected", () => {
+    expect(consoleStatus(false, "live", 1)).toEqual({ kind: "idle" });
+    expect(consoleStatus(true, undefined, 0)).toEqual({ kind: "connecting" });
+    expect(consoleStatus(true, "connecting", 1)).toEqual({ kind: "connecting" });
+    expect(consoleStatus(true, "reconnecting", 1)).toEqual({ kind: "reconnecting" });
+    expect(consoleStatus(true, "ended", 1)).toEqual({ kind: "ended" });
+    expect(consoleStatus(true, "live", 0)).toEqual({ kind: "noDevice" });
+    expect(consoleStatus(true, "live", 2)).toEqual({ kind: "live", devices: 2 });
   });
 });

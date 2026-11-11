@@ -134,9 +134,26 @@ type draftState struct {
 	// applied is the sequence number of the last entry of the patch log
 	// that files hold.
 	applied int64
-	// sent holds the bundle references this replica pushed; a replica that
-	// did not push them sends them again.
-	sent map[string]bool
+	// sent holds, per session device, the bundle references this replica
+	// pushed to it: a device joining later, or starting afresh, holds none
+	// of the earlier ones and is sent every bundle, and a replica that did
+	// not push them sends them again.
+	sent map[string]map[string]bool
+}
+
+// forgetDevice drops what this replica sent to a device, so that its next
+// frame carries every bundle: the device connected without any frame (a
+// fresh pairing or a restarted app) and holds none of them.
+func (s *Service) forgetDevice(sessionID, deviceID string) {
+	s.draftsMu.Lock()
+	st, ok := s.drafts[sessionID]
+	s.draftsMu.Unlock()
+	if !ok {
+		return
+	}
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	delete(st.sent, deviceID)
 }
 
 // CanPush reports whether this service has what pushing a patch needs.
@@ -265,13 +282,28 @@ func (s *Service) compileAndPush(ctx context.Context, p auth.Principal, plan pus
 		return out, err
 	}
 	st.files, st.revs = files, revs
-	frame, pages := bundleFrame(seq, manifest, bundles, st.sent, res.Pages)
-	for ref := range bundles {
-		st.sent[ref] = true
+	frame, pages := bundleFrame(seq, manifest, res.Pages)
+	// Each device is sent the bundles it does not hold yet: one that paired
+	// after the earlier pushes, or started afresh, gets every bundle.
+	frameFor := func(deviceID string) *pluxv1.DevBundleFrame {
+		held := st.sent[deviceID]
+		if held == nil {
+			held = map[string]bool{}
+			st.sent[deviceID] = held
+		}
+		f := proto.CloneOf(frame)
+		f.Sections = map[string][]byte{}
+		for ref, b := range bundles {
+			if !held[ref] {
+				f.Sections[ref] = b.Data
+			}
+			held[ref] = true
+		}
+		return f
 	}
 	out.BundleSHA256, out.BundleSequence = digestOf(signed), seq
 	started = time.Now()
-	out.Results = s.deliver(plan.session.ID, devices, frame, pages)
+	out.Results = s.deliver(plan.session.ID, devices, frameFor, frame.GetIncompatibleScopes(), pages)
 	out.Timings.Deliver = time.Since(started)
 	return out, nil
 }
@@ -536,16 +568,11 @@ func (s *Service) sign(ctx context.Context, p auth.Principal, plan pushPlan, bui
 	return signed, manifest, seq, devices, err
 }
 
-// bundleFrame builds the frame of a push: the manifest, the bundles the
-// devices do not hold yet and the state scopes the compiler says are
-// incompatible, per page.
-func bundleFrame(seq uint64, manifest []byte, bundles map[string]*compiler.Bundle, sent map[string]bool, pages []incremental.PageVerdict) (*pluxv1.DevBundleFrame, []string) {
+// bundleFrame builds the frame of a push without its sections, which each
+// device is given apart: the manifest and the state scopes the compiler
+// says are incompatible, per page.
+func bundleFrame(seq uint64, manifest []byte, pages []incremental.PageVerdict) (*pluxv1.DevBundleFrame, []string) {
 	f := &pluxv1.DevBundleFrame{BundleSequence: seq, Manifest: manifest, Sections: map[string][]byte{}}
-	for ref, b := range bundles {
-		if !sent[ref] {
-			f.Sections[ref] = b.Data
-		}
-	}
 	for _, v := range pages {
 		if v.Compatible {
 			continue
@@ -563,17 +590,17 @@ func bundleFrame(seq uint64, manifest []byte, bundles map[string]*compiler.Bundl
 	return f, changed
 }
 
-// deliver sends the frame to every device and reports what happened to each.
-func (s *Service) deliver(sessionID string, devices []Device, f *pluxv1.DevBundleFrame, pages []string) []*pluxv1.DevPatchResult {
+// deliver sends each device its frame and reports what happened to each.
+func (s *Service) deliver(sessionID string, devices []Device, frameFor func(deviceID string) *pluxv1.DevBundleFrame, scopes map[string]*pluxv1.DevScopeList, pages []string) []*pluxv1.DevPatchResult {
 	var reset []string
-	for _, l := range f.GetIncompatibleScopes() {
+	for _, l := range scopes {
 		reset = append(reset, l.GetScopes()...)
 	}
 	slices.Sort(reset)
 	reset = slices.Compact(reset)
 	out := make([]*pluxv1.DevPatchResult, 0, len(devices))
 	for _, d := range devices {
-		frame := &pluxv1.DevServerFrame{Payload: &pluxv1.DevServerFrame_Bundle{Bundle: proto.Clone(f).(*pluxv1.DevBundleFrame)}}
+		frame := &pluxv1.DevServerFrame{Payload: &pluxv1.DevServerFrame_Bundle{Bundle: frameFor(d.ID)}}
 		r := &pluxv1.DevPatchResult{DeviceId: d.ID}
 		switch err := s.o.Deliverer.Deliver(sessionID, d.ID, frame); {
 		case err == nil && len(reset) > 0:

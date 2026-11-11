@@ -292,6 +292,12 @@ msgstr "{count, plural, one {# Warnung} other {# Warnungen}}"
 msgid "panel.multiTitle"
 msgstr "{count, plural, one {# Widget} other {# Widgets}}"
 
+#. The developer console's state while devices are connected: how many.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleLiveDevices"
+msgstr "{count, plural, one {Live · # Gerät} other {Live · # Geräte}}"
+
 #. Line on the account card: how many organisations the person belongs to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -4289,6 +4295,12 @@ msgstr "Mit Passkey bestätigen"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.step.pair-hint"
 msgstr "Verbinden Sie ein Smartphone oder einen Emulator, um Ihre App live zu sehen."
+
+#. The developer console's state while it opens the stream of the paired devices' events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleConnecting"
+msgstr "Verbindung wird hergestellt…"
 
 #. Accessible name of a connection point of a step.
 #. js-lingui-explicit-id
@@ -10451,6 +10463,12 @@ msgstr "Keine Abhängigkeiten."
 msgid "design.noTokens"
 msgstr "Noch keine Design-Tokens."
 
+#. The developer console's state while it streams but no paired device has its connection open.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleNoDevice"
+msgstr "Kein Gerät verbunden"
+
 #. Shown in the send dialog when no device is paired.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -12982,6 +13000,12 @@ msgstr "Zuletzt verwendet"
 msgid "chip.reconnecting"
 msgstr "Verbindung wird wiederhergestellt"
 
+#. The developer console's state while it opens the stream again after it dropped (a server restart).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleReconnecting"
+msgstr "Verbindung wird wiederhergestellt…"
+
 #. Button that confirms redirecting links to the chosen screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -15116,6 +15140,12 @@ msgstr "Mehrere Werte durch Kommas trennen."
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.sessionTag"
 msgstr "Sitzung {tag}"
+
+#. The developer console's state once the server ended the dev session for good.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.consoleEnded"
+msgstr "Sitzung beendet. Laden Sie die Seite neu."
 
 #. Heading of one session replay.
 #. js-lingui-explicit-id

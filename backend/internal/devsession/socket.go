@@ -5,6 +5,8 @@ package devsession
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -143,6 +145,19 @@ type socket struct {
 	seen atomic.Int64
 	// touched is when the session's activity was last recorded.
 	lastTouch time.Time
+	// closing is the first reason the socket ended, for the device's
+	// DISCONNECTED event.
+	closing atomic.Pointer[string]
+}
+
+// closeFor records why the socket ends; the first reason stands.
+func (k *socket) closeFor(reason string) { k.closing.CompareAndSwap(nil, &reason) }
+
+// socketID returns a random identifier for a device's connection events.
+func socketID() string {
+	b := make([]byte, 12)
+	_, _ = rand.Read(b) // crypto/rand never fails on supported platforms
+	return hex.EncodeToString(b)
 }
 
 // touched records traffic on the socket.
@@ -171,6 +186,22 @@ func (k *socket) run(parent context.Context) {
 		_ = k.c.Close(websocket.StatusInternalError, "the dev session could not resume")
 		return
 	}
+	// Watchers see the device come and go (DEV-020). A failure to write
+	// either event leaves the relay working; the next socket writes again.
+	id := socketID()
+	_ = k.room.connection(k.b.DeviceID, id, pluxv1.DevConnectionState_DEV_CONNECTION_STATE_CONNECTED, "", k.s.now()) //nolint:contextcheck // the hub's lifetime
+	// A device that carried out no frame holds no dev bundle: it is sent
+	// the draft whole, now, rather than at the next edit.
+	if hello.GetLastServerSequence() == 0 {
+		go k.s.welcome(k.b) //nolint:contextcheck // the hub's lifetime, not the socket's
+	}
+	defer func() {
+		reason := "the connection dropped"
+		if r := k.closing.Load(); r != nil {
+			reason = *r
+		}
+		_ = k.room.connection(k.b.DeviceID, id, pluxv1.DevConnectionState_DEV_CONNECTION_STATE_DISCONNECTED, reason, k.s.now()) //nolint:contextcheck // the hub's lifetime
+	}()
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() { defer wg.Done(); defer cancel(); k.write(ctx) }()
@@ -221,6 +252,9 @@ func (k *socket) read(ctx context.Context) {
 	for {
 		frame, err := k.frame(ctx)
 		if err != nil {
+			if ctx.Err() == nil && websocket.CloseStatus(err) != -1 {
+				k.closeFor("the device closed the socket")
+			}
 			if ctx.Err() == nil && websocket.CloseStatus(err) == -1 {
 				_ = k.c.Close(websocket.StatusPolicyViolation, "the frame is not a device frame")
 			}
@@ -241,6 +275,10 @@ func (k *socket) event(ctx context.Context, ev *pluxv1.DevEvent) error {
 	deviceSeq := ev.GetSequence()
 	if int64(proto.Size(ev)) > k.lim.eventBytes {
 		return k.room.refuse(k.b.DeviceID, k.link, deviceSeq, pluxv1.DevDropReason_DEV_DROP_REASON_EVENT_TOO_LARGE)
+	}
+	// Only the server says whether a device is connected.
+	if ev.GetConnection() != nil {
+		return k.room.refuse(k.b.DeviceID, k.link, deviceSeq, pluxv1.DevDropReason_DEV_DROP_REASON_NOT_ALLOWED)
 	}
 	if !k.room.duplicate(k.b.DeviceID, deviceSeq) {
 		k.s.mergeFunctionLogs(ctx, k.b, ev, k.lim.eventBytes)
@@ -276,6 +314,7 @@ func (k *socket) write(ctx context.Context) {
 	for {
 		frames, ended, replaced := k.room.pending(k.b.DeviceID, k.link)
 		if replaced {
+			k.closeFor("a newer socket of the device took over")
 			_ = k.c.Close(websocket.StatusPolicyViolation, "a newer socket of the device took over")
 			return
 		}
@@ -298,6 +337,7 @@ func (k *socket) write(ctx context.Context) {
 
 // sendEnded tells the device its session ended and closes the socket.
 func (k *socket) sendEnded(ctx context.Context, code plxerr.Code) {
+	k.closeFor("the dev session ended")
 	_ = k.send(ctx, &pluxv1.DevServerFrame{Payload: &pluxv1.DevServerFrame_Ended{Ended: &pluxv1.DevSessionEnded{Code: code.String()}}})
 	_ = k.c.Close(websocket.StatusNormalClosure, "the dev session ended")
 }
@@ -328,6 +368,7 @@ func (k *socket) keepAlive(ctx context.Context) {
 		case <-t.C:
 		}
 		if time.Since(time.Unix(0, k.seen.Load())) > idle {
+			k.closeFor("the device stopped answering")
 			_ = k.c.Close(websocket.StatusGoingAway, "the socket was idle")
 			return
 		}

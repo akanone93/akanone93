@@ -114,6 +114,12 @@ final class _IsolateEngine implements DevEngineHandle {
   }
 
   @override
+  void reconnectNow() {
+    if (_closed) return;
+    _commands.send(('reconnect',));
+  }
+
+  @override
   Future<void> close() async {
     if (_closed) return;
     _closed = true;
@@ -182,6 +188,8 @@ Future<void> _main(
     switch (m) {
       case ('emit', final Map<Object?, Object?> payload, final String? trace):
         engine.emit(payload.cast<String, Object?>(), traceId: trace);
+      case ('reconnect',):
+        engine.reconnectNow();
       case ('close',):
         await engine.close();
         await loop;

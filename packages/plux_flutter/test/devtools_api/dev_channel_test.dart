@@ -145,6 +145,9 @@ final _x = Uint8List.fromList([for (var i = 0; i < 32; i++) i]);
 final _y = Uint8List.fromList([for (var i = 32; i < 64; i++) i]);
 
 class _Fixture {
+  /// Whether the reconnect waits last until something ends them.
+  bool holdWaits = false;
+
   _Fixture({
     int eventBytes = 65536,
     int bufferEvents = 5000,
@@ -214,7 +217,12 @@ class _Fixture {
         host: host,
         transport: transport,
         clock: () => now,
-        delay: (d) async => delays.add(d),
+        delay: (d) async {
+          delays.add(d);
+          // A wait that never ends on its own, so that only a reconnect
+          // now ends it.
+          if (holdWaits) await Completer<void>().future;
+        },
         random: () => 0,
       );
       unawaited(e.start());
@@ -360,6 +368,9 @@ void main() {
         expect(open.kind, StreamKind.webSocket);
         expect(open.url, Uri.parse('wss://dev.example/dev/socket'));
         expect(open.headers['Plux-Dev-Ticket'], 'ticket-1');
+        // The device pings too, so a link that died without closing is
+        // noticed on this side.
+        expect(open.pingInterval, devSocketPingInterval);
         final proof = open.headers['DPoP']!.split('.');
         expect(proof, hasLength(3));
         final payload = jsonDecode(
@@ -627,6 +638,24 @@ void main() {
       ]);
       await channel.close();
     });
+
+    test(
+      'DEV-021 a reconnect now ends the wait and tries again at once',
+      () async {
+        final f = _Fixture()..holdWaits = true;
+        final channel = await f.pair();
+        final first = await f.transport.accept();
+        await first.drop();
+        await pumpEventQueue();
+        // The socket dropped and the engine waits before trying again.
+        final tried = f.transport.requests.length;
+        // The app came back to the foreground: no waiting out the backoff.
+        channel.reconnectNow();
+        await f.transport.accept();
+        expect(f.transport.requests.length, tried + 1);
+        await channel.close();
+      },
+    );
 
     test('DEV-021 an ended session discards the overlay and stops', () async {
       final f = _Fixture();

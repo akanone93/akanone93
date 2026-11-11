@@ -258,6 +258,33 @@ export function devicesMessages(i18n: I18n) {
       message: "Not connected",
       comment: "The developer console's state while it is closed or has no dev session.",
     }),
+    consoleConnecting: i18n._({
+      id: "devices.consoleConnecting",
+      message: "Connecting…",
+      comment: "The developer console's state while it opens the stream of the paired devices' events.",
+    }),
+    consoleReconnecting: i18n._({
+      id: "devices.consoleReconnecting",
+      message: "Reconnecting…",
+      comment: "The developer console's state while it opens the stream again after it dropped (a server restart).",
+    }),
+    consoleNoDevice: i18n._({
+      id: "devices.consoleNoDevice",
+      message: "No device connected",
+      comment: "The developer console's state while it streams but no paired device has its connection open.",
+    }),
+    consoleLiveDevices: (count: number) =>
+      i18n._({
+        id: "devices.consoleLiveDevices",
+        message: "{count, plural, one {Live · # device} other {Live · # devices}}",
+        values: { count },
+        comment: "The developer console's state while devices are connected: how many.",
+      }),
+    consoleEnded: i18n._({
+      id: "devices.consoleEnded",
+      message: "Session ended. Reload the page.",
+      comment: "The developer console's state once the server ended the dev session for good.",
+    }),
     consoleResize: i18n._({
       id: "devices.consoleResize",
       message: "Resize the developer console",

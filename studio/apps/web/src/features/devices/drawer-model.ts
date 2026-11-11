@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type DevEvent, DevLogLevel } from "@plux/api";
+import { DevConnectionState, type DevEvent, DevLogLevel } from "@plux/api";
 import { limitDefault } from "@plux/schema";
 
 /** The nine tabs of the bottom drawer, in display order (STU-066). */
@@ -28,6 +28,7 @@ const tabByCase: Readonly<Record<string, DrawerTab>> = {
   log: "logs",
   error: "logs",
   drop: "logs",
+  connection: "logs",
   actionTrace: "flow",
   stateDiff: "state",
   networkCall: "network",
@@ -65,6 +66,12 @@ const summaries: Summaries = {
   log: (v: { source: string; message: string }) => `${v.source} ${v.message}`,
   error: (v: { error?: { code: string; message: string } }) => `${v.error?.code ?? ""} ${v.error?.message ?? ""}`,
   drop: (v: { dropped: bigint }) => `dropped ${v.dropped}`,
+  connection: (v: { state: DevConnectionState; reason: string }) =>
+    v.state === DevConnectionState.CONNECTED
+      ? "connected"
+      : v.reason === ""
+        ? "disconnected"
+        : `disconnected: ${v.reason}`,
   actionTrace: (v: { graph: string; trigger: string }) => `${v.graph} ${v.trigger}`,
   stateDiff: (v: { scope: string; changes: { path: string }[] }) =>
     `${v.scope} ${v.changes.map((c) => c.path).join(", ")}`,

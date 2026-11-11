@@ -351,6 +351,9 @@ const (
 	// DEV_DROP_REASON_EVENT_TOO_LARGE: an event exceeded
 	// `devtools.eventBytes` (PLX-9209).
 	DevDropReason_DEV_DROP_REASON_EVENT_TOO_LARGE DevDropReason = 2
+	// DEV_DROP_REASON_NOT_ALLOWED: a device sent an event only the server
+	// writes, such as a ConnectionEvent.
+	DevDropReason_DEV_DROP_REASON_NOT_ALLOWED DevDropReason = 3
 )
 
 // Enum value maps for DevDropReason.
@@ -359,11 +362,13 @@ var (
 		0: "DEV_DROP_REASON_UNSPECIFIED",
 		1: "DEV_DROP_REASON_BUFFER_FULL",
 		2: "DEV_DROP_REASON_EVENT_TOO_LARGE",
+		3: "DEV_DROP_REASON_NOT_ALLOWED",
 	}
 	DevDropReason_value = map[string]int32{
 		"DEV_DROP_REASON_UNSPECIFIED":     0,
 		"DEV_DROP_REASON_BUFFER_FULL":     1,
 		"DEV_DROP_REASON_EVENT_TOO_LARGE": 2,
+		"DEV_DROP_REASON_NOT_ALLOWED":     3,
 	}
 )
 
@@ -392,6 +397,56 @@ func (x DevDropReason) Number() protoreflect.EnumNumber {
 // Deprecated: Use DevDropReason.Descriptor instead.
 func (DevDropReason) EnumDescriptor() ([]byte, []int) {
 	return file_plux_v1_devevents_proto_rawDescGZIP(), []int{5}
+}
+
+// DevConnectionState says whether a device's dev socket is open.
+type DevConnectionState int32
+
+const (
+	DevConnectionState_DEV_CONNECTION_STATE_UNSPECIFIED  DevConnectionState = 0
+	DevConnectionState_DEV_CONNECTION_STATE_CONNECTED    DevConnectionState = 1
+	DevConnectionState_DEV_CONNECTION_STATE_DISCONNECTED DevConnectionState = 2
+)
+
+// Enum value maps for DevConnectionState.
+var (
+	DevConnectionState_name = map[int32]string{
+		0: "DEV_CONNECTION_STATE_UNSPECIFIED",
+		1: "DEV_CONNECTION_STATE_CONNECTED",
+		2: "DEV_CONNECTION_STATE_DISCONNECTED",
+	}
+	DevConnectionState_value = map[string]int32{
+		"DEV_CONNECTION_STATE_UNSPECIFIED":  0,
+		"DEV_CONNECTION_STATE_CONNECTED":    1,
+		"DEV_CONNECTION_STATE_DISCONNECTED": 2,
+	}
+)
+
+func (x DevConnectionState) Enum() *DevConnectionState {
+	p := new(DevConnectionState)
+	*p = x
+	return p
+}
+
+func (x DevConnectionState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DevConnectionState) Descriptor() protoreflect.EnumDescriptor {
+	return file_plux_v1_devevents_proto_enumTypes[6].Descriptor()
+}
+
+func (DevConnectionState) Type() protoreflect.EnumType {
+	return &file_plux_v1_devevents_proto_enumTypes[6]
+}
+
+func (x DevConnectionState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DevConnectionState.Descriptor instead.
+func (DevConnectionState) EnumDescriptor() ([]byte, []int) {
+	return file_plux_v1_devevents_proto_rawDescGZIP(), []int{6}
 }
 
 // DevEvent is one event of a device's stream.
@@ -429,6 +484,7 @@ type DevEvent struct {
 	//	*DevEvent_Screenshot
 	//	*DevEvent_Inspect
 	//	*DevEvent_Drop
+	//	*DevEvent_Connection
 	Payload       isDevEvent_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -625,6 +681,15 @@ func (x *DevEvent) GetDrop() *DropEvent {
 	return nil
 }
 
+func (x *DevEvent) GetConnection() *ConnectionEvent {
+	if x != nil {
+		if x, ok := x.Payload.(*DevEvent_Connection); ok {
+			return x.Connection
+		}
+	}
+	return nil
+}
+
 type isDevEvent_Payload interface {
 	isDevEvent_Payload()
 }
@@ -685,6 +750,12 @@ type DevEvent_Drop struct {
 	Drop *DropEvent `protobuf:"bytes,23,opt,name=drop,proto3,oneof"`
 }
 
+type DevEvent_Connection struct {
+	// connection is written by the server, never by a device: a device
+	// that sends one has it dropped (DEV_DROP_REASON_NOT_ALLOWED).
+	Connection *ConnectionEvent `protobuf:"bytes,24,opt,name=connection,proto3,oneof"`
+}
+
 func (*DevEvent_Log) isDevEvent_Payload() {}
 
 func (*DevEvent_ActionTrace) isDevEvent_Payload() {}
@@ -712,6 +783,8 @@ func (*DevEvent_Screenshot) isDevEvent_Payload() {}
 func (*DevEvent_Inspect) isDevEvent_Payload() {}
 
 func (*DevEvent_Drop) isDevEvent_Payload() {}
+
+func (*DevEvent_Connection) isDevEvent_Payload() {}
 
 // LogEvent is one runtime log line.
 type LogEvent struct {
@@ -2361,6 +2434,75 @@ func (x *DropEvent) GetReason() DevDropReason {
 	return DevDropReason_DEV_DROP_REASON_UNSPECIFIED
 }
 
+// ConnectionEvent is written by the server when a device's dev socket opens
+// or closes (DEV-020), so that a watcher shows the device's liveness as it
+// changes, on every replica, without asking. A device may hold one socket at
+// a time; a newer socket replaces an older one, possibly on another replica,
+// so a DISCONNECTED event counts only for the socket it names.
+type ConnectionEvent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	State DevConnectionState     `protobuf:"varint,1,opt,name=state,proto3,enum=plux.v1.DevConnectionState" json:"state,omitempty"`
+	// socket identifies the socket the event is about: random, unique per
+	// socket, and nothing else.
+	Socket string `protobuf:"bytes,2,opt,name=socket,proto3" json:"socket,omitempty"`
+	// reason says why a socket closed, in words for the console; empty when
+	// it opened.
+	Reason        string `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectionEvent) Reset() {
+	*x = ConnectionEvent{}
+	mi := &file_plux_v1_devevents_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectionEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionEvent) ProtoMessage() {}
+
+func (x *ConnectionEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devevents_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionEvent.ProtoReflect.Descriptor instead.
+func (*ConnectionEvent) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devevents_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ConnectionEvent) GetState() DevConnectionState {
+	if x != nil {
+		return x.State
+	}
+	return DevConnectionState_DEV_CONNECTION_STATE_UNSPECIFIED
+}
+
+func (x *ConnectionEvent) GetSocket() string {
+	if x != nil {
+		return x.Socket
+	}
+	return ""
+}
+
+func (x *ConnectionEvent) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
 // TraceFileHeader is the first message of an exported trace file (D-2.2).
 // A trace file is a gzip-compressed stream of length-prefixed protobuf
 // messages: this header, then DevEvent messages in sequence order. Each
@@ -2386,7 +2528,7 @@ type TraceFileHeader struct {
 
 func (x *TraceFileHeader) Reset() {
 	*x = TraceFileHeader{}
-	mi := &file_plux_v1_devevents_proto_msgTypes[20]
+	mi := &file_plux_v1_devevents_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2398,7 +2540,7 @@ func (x *TraceFileHeader) String() string {
 func (*TraceFileHeader) ProtoMessage() {}
 
 func (x *TraceFileHeader) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devevents_proto_msgTypes[20]
+	mi := &file_plux_v1_devevents_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2411,7 +2553,7 @@ func (x *TraceFileHeader) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TraceFileHeader.ProtoReflect.Descriptor instead.
 func (*TraceFileHeader) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devevents_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_devevents_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *TraceFileHeader) GetFormatVersion() uint32 {
@@ -2474,7 +2616,7 @@ var File_plux_v1_devevents_proto protoreflect.FileDescriptor
 
 const file_plux_v1_devevents_proto_rawDesc = "" +
 	"\n" +
-	"\x17plux/v1/devevents.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xb6\a\n" +
+	"\x17plux/v1/devevents.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xf2\a\n" +
 	"\bDevEvent\x12\x1a\n" +
 	"\bsequence\x18\x01 \x01(\x04R\bsequence\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12(\n" +
@@ -2497,7 +2639,10 @@ const file_plux_v1_devevents_proto_rawDesc = "" +
 	"screenshot\x18\x15 \x01(\v2\x18.plux.v1.ScreenshotEventH\x00R\n" +
 	"screenshot\x121\n" +
 	"\ainspect\x18\x16 \x01(\v2\x15.plux.v1.InspectEventH\x00R\ainspect\x12(\n" +
-	"\x04drop\x18\x17 \x01(\v2\x12.plux.v1.DropEventH\x00R\x04dropB\t\n" +
+	"\x04drop\x18\x17 \x01(\v2\x12.plux.v1.DropEventH\x00R\x04drop\x12:\n" +
+	"\n" +
+	"connection\x18\x18 \x01(\v2\x18.plux.v1.ConnectionEventH\x00R\n" +
+	"connectionB\t\n" +
 	"\apayload\"\x85\x01\n" +
 	"\bLogEvent\x12*\n" +
 	"\x05level\x18\x01 \x01(\x0e2\x14.plux.v1.DevLogLevelR\x05level\x12\x16\n" +
@@ -2640,7 +2785,11 @@ const file_plux_v1_devevents_proto_rawDesc = "" +
 	"\x06widget\x18\x02 \x01(\tR\x06widget\"U\n" +
 	"\tDropEvent\x12\x18\n" +
 	"\adropped\x18\x01 \x01(\x04R\adropped\x12.\n" +
-	"\x06reason\x18\x02 \x01(\x0e2\x16.plux.v1.DevDropReasonR\x06reason\"\xbb\x02\n" +
+	"\x06reason\x18\x02 \x01(\x0e2\x16.plux.v1.DevDropReasonR\x06reason\"t\n" +
+	"\x0fConnectionEvent\x121\n" +
+	"\x05state\x18\x01 \x01(\x0e2\x1b.plux.v1.DevConnectionStateR\x05state\x12\x16\n" +
+	"\x06socket\x18\x02 \x01(\tR\x06socket\x12\x16\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xbb\x02\n" +
 	"\x0fTraceFileHeader\x12%\n" +
 	"\x0eformat_version\x18\x01 \x01(\rR\rformatVersion\x12\x1d\n" +
 	"\n" +
@@ -2691,11 +2840,16 @@ const file_plux_v1_devevents_proto_rawDesc = "" +
 	"\x15DEV_COMMAND_STATUS_OK\x10\x01\x12\x1d\n" +
 	"\x19DEV_COMMAND_STATUS_FAILED\x10\x02\x12\"\n" +
 	"\x1eDEV_COMMAND_STATUS_UNSUPPORTED\x10\x03\x12\x1e\n" +
-	"\x1aDEV_COMMAND_STATUS_REFUSED\x10\x04*v\n" +
+	"\x1aDEV_COMMAND_STATUS_REFUSED\x10\x04*\x97\x01\n" +
 	"\rDevDropReason\x12\x1f\n" +
 	"\x1bDEV_DROP_REASON_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bDEV_DROP_REASON_BUFFER_FULL\x10\x01\x12#\n" +
-	"\x1fDEV_DROP_REASON_EVENT_TOO_LARGE\x10\x02B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\x1fDEV_DROP_REASON_EVENT_TOO_LARGE\x10\x02\x12\x1f\n" +
+	"\x1bDEV_DROP_REASON_NOT_ALLOWED\x10\x03*\x85\x01\n" +
+	"\x12DevConnectionState\x12$\n" +
+	" DEV_CONNECTION_STATE_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eDEV_CONNECTION_STATE_CONNECTED\x10\x01\x12%\n" +
+	"!DEV_CONNECTION_STATE_DISCONNECTED\x10\x02B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_devevents_proto_rawDescOnce sync.Once
@@ -2709,8 +2863,8 @@ func file_plux_v1_devevents_proto_rawDescGZIP() []byte {
 	return file_plux_v1_devevents_proto_rawDescData
 }
 
-var file_plux_v1_devevents_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_plux_v1_devevents_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_plux_v1_devevents_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_plux_v1_devevents_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_plux_v1_devevents_proto_goTypes = []any{
 	(DevLogLevel)(0),               // 0: plux.v1.DevLogLevel
 	(DevRunStatus)(0),              // 1: plux.v1.DevRunStatus
@@ -2718,77 +2872,81 @@ var file_plux_v1_devevents_proto_goTypes = []any{
 	(DevSecurityDetectionKind)(0),  // 3: plux.v1.DevSecurityDetectionKind
 	(DevCommandStatus)(0),          // 4: plux.v1.DevCommandStatus
 	(DevDropReason)(0),             // 5: plux.v1.DevDropReason
-	(*DevEvent)(nil),               // 6: plux.v1.DevEvent
-	(*LogEvent)(nil),               // 7: plux.v1.LogEvent
-	(*DevError)(nil),               // 8: plux.v1.DevError
-	(*ActionTraceEvent)(nil),       // 9: plux.v1.ActionTraceEvent
-	(*ActionStepTrace)(nil),        // 10: plux.v1.ActionStepTrace
-	(*StateChange)(nil),            // 11: plux.v1.StateChange
-	(*StateDiffEvent)(nil),         // 12: plux.v1.StateDiffEvent
-	(*NetworkCallEvent)(nil),       // 13: plux.v1.NetworkCallEvent
-	(*DevLogLine)(nil),             // 14: plux.v1.DevLogLine
-	(*FunctionCallEvent)(nil),      // 15: plux.v1.FunctionCallEvent
-	(*SyncEvent)(nil),              // 16: plux.v1.SyncEvent
-	(*FrameSample)(nil),            // 17: plux.v1.FrameSample
-	(*FrameTimingEvent)(nil),       // 18: plux.v1.FrameTimingEvent
-	(*ErrorEvent)(nil),             // 19: plux.v1.ErrorEvent
-	(*SecurityDetectionEvent)(nil), // 20: plux.v1.SecurityDetectionEvent
-	(*CommandResultEvent)(nil),     // 21: plux.v1.CommandResultEvent
-	(*HotApplyEvent)(nil),          // 22: plux.v1.HotApplyEvent
-	(*ScreenshotEvent)(nil),        // 23: plux.v1.ScreenshotEvent
-	(*InspectEvent)(nil),           // 24: plux.v1.InspectEvent
-	(*DropEvent)(nil),              // 25: plux.v1.DropEvent
-	(*TraceFileHeader)(nil),        // 26: plux.v1.TraceFileHeader
-	nil,                            // 27: plux.v1.NetworkCallEvent.RequestHeadersEntry
-	nil,                            // 28: plux.v1.NetworkCallEvent.ResponseHeadersEntry
-	nil,                            // 29: plux.v1.FrameTimingEvent.RebuildCountsEntry
-	(Severity)(0),                  // 30: plux.v1.Severity
-	(*timestamppb.Timestamp)(nil),  // 31: google.protobuf.Timestamp
+	(DevConnectionState)(0),        // 6: plux.v1.DevConnectionState
+	(*DevEvent)(nil),               // 7: plux.v1.DevEvent
+	(*LogEvent)(nil),               // 8: plux.v1.LogEvent
+	(*DevError)(nil),               // 9: plux.v1.DevError
+	(*ActionTraceEvent)(nil),       // 10: plux.v1.ActionTraceEvent
+	(*ActionStepTrace)(nil),        // 11: plux.v1.ActionStepTrace
+	(*StateChange)(nil),            // 12: plux.v1.StateChange
+	(*StateDiffEvent)(nil),         // 13: plux.v1.StateDiffEvent
+	(*NetworkCallEvent)(nil),       // 14: plux.v1.NetworkCallEvent
+	(*DevLogLine)(nil),             // 15: plux.v1.DevLogLine
+	(*FunctionCallEvent)(nil),      // 16: plux.v1.FunctionCallEvent
+	(*SyncEvent)(nil),              // 17: plux.v1.SyncEvent
+	(*FrameSample)(nil),            // 18: plux.v1.FrameSample
+	(*FrameTimingEvent)(nil),       // 19: plux.v1.FrameTimingEvent
+	(*ErrorEvent)(nil),             // 20: plux.v1.ErrorEvent
+	(*SecurityDetectionEvent)(nil), // 21: plux.v1.SecurityDetectionEvent
+	(*CommandResultEvent)(nil),     // 22: plux.v1.CommandResultEvent
+	(*HotApplyEvent)(nil),          // 23: plux.v1.HotApplyEvent
+	(*ScreenshotEvent)(nil),        // 24: plux.v1.ScreenshotEvent
+	(*InspectEvent)(nil),           // 25: plux.v1.InspectEvent
+	(*DropEvent)(nil),              // 26: plux.v1.DropEvent
+	(*ConnectionEvent)(nil),        // 27: plux.v1.ConnectionEvent
+	(*TraceFileHeader)(nil),        // 28: plux.v1.TraceFileHeader
+	nil,                            // 29: plux.v1.NetworkCallEvent.RequestHeadersEntry
+	nil,                            // 30: plux.v1.NetworkCallEvent.ResponseHeadersEntry
+	nil,                            // 31: plux.v1.FrameTimingEvent.RebuildCountsEntry
+	(Severity)(0),                  // 32: plux.v1.Severity
+	(*timestamppb.Timestamp)(nil),  // 33: google.protobuf.Timestamp
 }
 var file_plux_v1_devevents_proto_depIdxs = []int32{
-	7,  // 0: plux.v1.DevEvent.log:type_name -> plux.v1.LogEvent
-	9,  // 1: plux.v1.DevEvent.action_trace:type_name -> plux.v1.ActionTraceEvent
-	12, // 2: plux.v1.DevEvent.state_diff:type_name -> plux.v1.StateDiffEvent
-	13, // 3: plux.v1.DevEvent.network_call:type_name -> plux.v1.NetworkCallEvent
-	15, // 4: plux.v1.DevEvent.function_call:type_name -> plux.v1.FunctionCallEvent
-	16, // 5: plux.v1.DevEvent.sync:type_name -> plux.v1.SyncEvent
-	18, // 6: plux.v1.DevEvent.frame_timing:type_name -> plux.v1.FrameTimingEvent
-	19, // 7: plux.v1.DevEvent.error:type_name -> plux.v1.ErrorEvent
-	20, // 8: plux.v1.DevEvent.security_detection:type_name -> plux.v1.SecurityDetectionEvent
-	21, // 9: plux.v1.DevEvent.command_result:type_name -> plux.v1.CommandResultEvent
-	22, // 10: plux.v1.DevEvent.hot_apply:type_name -> plux.v1.HotApplyEvent
-	23, // 11: plux.v1.DevEvent.screenshot:type_name -> plux.v1.ScreenshotEvent
-	24, // 12: plux.v1.DevEvent.inspect:type_name -> plux.v1.InspectEvent
-	25, // 13: plux.v1.DevEvent.drop:type_name -> plux.v1.DropEvent
-	0,  // 14: plux.v1.LogEvent.level:type_name -> plux.v1.DevLogLevel
-	1,  // 15: plux.v1.ActionTraceEvent.status:type_name -> plux.v1.DevRunStatus
-	10, // 16: plux.v1.ActionTraceEvent.steps:type_name -> plux.v1.ActionStepTrace
-	8,  // 17: plux.v1.ActionTraceEvent.error:type_name -> plux.v1.DevError
-	1,  // 18: plux.v1.ActionStepTrace.status:type_name -> plux.v1.DevRunStatus
-	8,  // 19: plux.v1.ActionStepTrace.error:type_name -> plux.v1.DevError
-	11, // 20: plux.v1.StateDiffEvent.changes:type_name -> plux.v1.StateChange
-	27, // 21: plux.v1.NetworkCallEvent.request_headers:type_name -> plux.v1.NetworkCallEvent.RequestHeadersEntry
-	28, // 22: plux.v1.NetworkCallEvent.response_headers:type_name -> plux.v1.NetworkCallEvent.ResponseHeadersEntry
-	8,  // 23: plux.v1.NetworkCallEvent.error:type_name -> plux.v1.DevError
-	0,  // 24: plux.v1.DevLogLine.level:type_name -> plux.v1.DevLogLevel
-	8,  // 25: plux.v1.FunctionCallEvent.error:type_name -> plux.v1.DevError
-	14, // 26: plux.v1.FunctionCallEvent.logs:type_name -> plux.v1.DevLogLine
-	2,  // 27: plux.v1.SyncEvent.phase:type_name -> plux.v1.DevSyncPhase
-	8,  // 28: plux.v1.SyncEvent.error:type_name -> plux.v1.DevError
-	17, // 29: plux.v1.FrameTimingEvent.frames:type_name -> plux.v1.FrameSample
-	29, // 30: plux.v1.FrameTimingEvent.rebuild_counts:type_name -> plux.v1.FrameTimingEvent.RebuildCountsEntry
-	8,  // 31: plux.v1.ErrorEvent.error:type_name -> plux.v1.DevError
-	30, // 32: plux.v1.ErrorEvent.severity:type_name -> plux.v1.Severity
-	3,  // 33: plux.v1.SecurityDetectionEvent.kind:type_name -> plux.v1.DevSecurityDetectionKind
-	4,  // 34: plux.v1.CommandResultEvent.status:type_name -> plux.v1.DevCommandStatus
-	8,  // 35: plux.v1.CommandResultEvent.error:type_name -> plux.v1.DevError
-	5,  // 36: plux.v1.DropEvent.reason:type_name -> plux.v1.DevDropReason
-	31, // 37: plux.v1.TraceFileHeader.exported_at:type_name -> google.protobuf.Timestamp
-	38, // [38:38] is the sub-list for method output_type
-	38, // [38:38] is the sub-list for method input_type
-	38, // [38:38] is the sub-list for extension type_name
-	38, // [38:38] is the sub-list for extension extendee
-	0,  // [0:38] is the sub-list for field type_name
+	8,  // 0: plux.v1.DevEvent.log:type_name -> plux.v1.LogEvent
+	10, // 1: plux.v1.DevEvent.action_trace:type_name -> plux.v1.ActionTraceEvent
+	13, // 2: plux.v1.DevEvent.state_diff:type_name -> plux.v1.StateDiffEvent
+	14, // 3: plux.v1.DevEvent.network_call:type_name -> plux.v1.NetworkCallEvent
+	16, // 4: plux.v1.DevEvent.function_call:type_name -> plux.v1.FunctionCallEvent
+	17, // 5: plux.v1.DevEvent.sync:type_name -> plux.v1.SyncEvent
+	19, // 6: plux.v1.DevEvent.frame_timing:type_name -> plux.v1.FrameTimingEvent
+	20, // 7: plux.v1.DevEvent.error:type_name -> plux.v1.ErrorEvent
+	21, // 8: plux.v1.DevEvent.security_detection:type_name -> plux.v1.SecurityDetectionEvent
+	22, // 9: plux.v1.DevEvent.command_result:type_name -> plux.v1.CommandResultEvent
+	23, // 10: plux.v1.DevEvent.hot_apply:type_name -> plux.v1.HotApplyEvent
+	24, // 11: plux.v1.DevEvent.screenshot:type_name -> plux.v1.ScreenshotEvent
+	25, // 12: plux.v1.DevEvent.inspect:type_name -> plux.v1.InspectEvent
+	26, // 13: plux.v1.DevEvent.drop:type_name -> plux.v1.DropEvent
+	27, // 14: plux.v1.DevEvent.connection:type_name -> plux.v1.ConnectionEvent
+	0,  // 15: plux.v1.LogEvent.level:type_name -> plux.v1.DevLogLevel
+	1,  // 16: plux.v1.ActionTraceEvent.status:type_name -> plux.v1.DevRunStatus
+	11, // 17: plux.v1.ActionTraceEvent.steps:type_name -> plux.v1.ActionStepTrace
+	9,  // 18: plux.v1.ActionTraceEvent.error:type_name -> plux.v1.DevError
+	1,  // 19: plux.v1.ActionStepTrace.status:type_name -> plux.v1.DevRunStatus
+	9,  // 20: plux.v1.ActionStepTrace.error:type_name -> plux.v1.DevError
+	12, // 21: plux.v1.StateDiffEvent.changes:type_name -> plux.v1.StateChange
+	29, // 22: plux.v1.NetworkCallEvent.request_headers:type_name -> plux.v1.NetworkCallEvent.RequestHeadersEntry
+	30, // 23: plux.v1.NetworkCallEvent.response_headers:type_name -> plux.v1.NetworkCallEvent.ResponseHeadersEntry
+	9,  // 24: plux.v1.NetworkCallEvent.error:type_name -> plux.v1.DevError
+	0,  // 25: plux.v1.DevLogLine.level:type_name -> plux.v1.DevLogLevel
+	9,  // 26: plux.v1.FunctionCallEvent.error:type_name -> plux.v1.DevError
+	15, // 27: plux.v1.FunctionCallEvent.logs:type_name -> plux.v1.DevLogLine
+	2,  // 28: plux.v1.SyncEvent.phase:type_name -> plux.v1.DevSyncPhase
+	9,  // 29: plux.v1.SyncEvent.error:type_name -> plux.v1.DevError
+	18, // 30: plux.v1.FrameTimingEvent.frames:type_name -> plux.v1.FrameSample
+	31, // 31: plux.v1.FrameTimingEvent.rebuild_counts:type_name -> plux.v1.FrameTimingEvent.RebuildCountsEntry
+	9,  // 32: plux.v1.ErrorEvent.error:type_name -> plux.v1.DevError
+	32, // 33: plux.v1.ErrorEvent.severity:type_name -> plux.v1.Severity
+	3,  // 34: plux.v1.SecurityDetectionEvent.kind:type_name -> plux.v1.DevSecurityDetectionKind
+	4,  // 35: plux.v1.CommandResultEvent.status:type_name -> plux.v1.DevCommandStatus
+	9,  // 36: plux.v1.CommandResultEvent.error:type_name -> plux.v1.DevError
+	5,  // 37: plux.v1.DropEvent.reason:type_name -> plux.v1.DevDropReason
+	6,  // 38: plux.v1.ConnectionEvent.state:type_name -> plux.v1.DevConnectionState
+	33, // 39: plux.v1.TraceFileHeader.exported_at:type_name -> google.protobuf.Timestamp
+	40, // [40:40] is the sub-list for method output_type
+	40, // [40:40] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_devevents_proto_init() }
@@ -2812,14 +2970,15 @@ func file_plux_v1_devevents_proto_init() {
 		(*DevEvent_Screenshot)(nil),
 		(*DevEvent_Inspect)(nil),
 		(*DevEvent_Drop)(nil),
+		(*DevEvent_Connection)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_devevents_proto_rawDesc), len(file_plux_v1_devevents_proto_rawDesc)),
-			NumEnums:      6,
-			NumMessages:   24,
+			NumEnums:      7,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

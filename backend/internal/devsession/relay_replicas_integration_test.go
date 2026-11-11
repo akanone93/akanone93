@@ -61,10 +61,12 @@ func TestRelay_TwoReplicas_DEV_021_DEV_001(t *testing.T) {
 	k.event(t, 2, logEvent("two"))
 	k.ackedUpTo(t, 2)
 	got := receive(t, events, 2)
+	var prev uint64
 	for i, msg := range []string{"one", "two"} {
-		if got[i].GetLog().GetMessage() != msg || got[i].GetSequence() != uint64(i+1) {
-			t.Errorf("event %d on replica A = %v, want %q", i, got[i], msg)
+		if got[i].GetLog().GetMessage() != msg || got[i].GetSequence() <= prev {
+			t.Errorf("event %d on replica A = %v, want %q after sequence %d", i, got[i], msg, prev)
 		}
+		prev = got[i].GetSequence()
 	}
 	sent, err := a.svc.SendCommand(context.Background(), a.Developer, &pluxv1.DevSessionServiceSendCommandRequest{
 		SessionId: s.ID, Command: &pluxv1.DevSessionServiceSendCommandRequest_CaptureScreenshot{CaptureScreenshot: &pluxv1.CaptureScreenshotCommand{}},
@@ -75,8 +77,8 @@ func TestRelay_TwoReplicas_DEV_021_DEV_001(t *testing.T) {
 	if f := k.next(t); f.GetSequence() != 1 || f.GetCommand().GetCommandId() != sent.CommandID {
 		t.Errorf("the device on replica B got %v, want the command from replica A", f)
 	}
-	resumed := b.watch(t, s.ID, 1, nil)
+	resumed := b.watch(t, s.ID, got[0].GetSequence(), nil)
 	if ev := receive(t, resumed, 1)[0]; ev.GetLog().GetMessage() != "two" {
-		t.Errorf("resuming on replica B after 1 gave %v, want event two", ev)
+		t.Errorf("resuming on replica B after event one gave %v, want event two", ev)
 	}
 }

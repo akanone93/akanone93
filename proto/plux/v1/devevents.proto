@@ -54,6 +54,9 @@ message DevEvent {
     ScreenshotEvent screenshot = 21;
     InspectEvent inspect = 22;
     DropEvent drop = 23;
+    // connection is written by the server, never by a device: a device
+    // that sends one has it dropped (DEV_DROP_REASON_NOT_ALLOWED).
+    ConnectionEvent connection = 24;
   }
 }
 
@@ -398,6 +401,9 @@ enum DevDropReason {
   // DEV_DROP_REASON_EVENT_TOO_LARGE: an event exceeded
   // `devtools.eventBytes` (PLX-9209).
   DEV_DROP_REASON_EVENT_TOO_LARGE = 2;
+  // DEV_DROP_REASON_NOT_ALLOWED: a device sent an event only the server
+  // writes, such as a ConnectionEvent.
+  DEV_DROP_REASON_NOT_ALLOWED = 3;
 }
 
 // DropEvent says how many events were dropped before this point of the
@@ -405,6 +411,28 @@ enum DevDropReason {
 message DropEvent {
   uint64 dropped = 1;
   DevDropReason reason = 2;
+}
+
+// DevConnectionState says whether a device's dev socket is open.
+enum DevConnectionState {
+  DEV_CONNECTION_STATE_UNSPECIFIED = 0;
+  DEV_CONNECTION_STATE_CONNECTED = 1;
+  DEV_CONNECTION_STATE_DISCONNECTED = 2;
+}
+
+// ConnectionEvent is written by the server when a device's dev socket opens
+// or closes (DEV-020), so that a watcher shows the device's liveness as it
+// changes, on every replica, without asking. A device may hold one socket at
+// a time; a newer socket replaces an older one, possibly on another replica,
+// so a DISCONNECTED event counts only for the socket it names.
+message ConnectionEvent {
+  DevConnectionState state = 1;
+  // socket identifies the socket the event is about: random, unique per
+  // socket, and nothing else.
+  string socket = 2;
+  // reason says why a socket closed, in words for the console; empty when
+  // it opened.
+  string reason = 3;
 }
 
 // TraceFileHeader is the first message of an exported trace file (D-2.2).
