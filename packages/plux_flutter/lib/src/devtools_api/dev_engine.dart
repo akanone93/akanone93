@@ -12,8 +12,10 @@ library;
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:math';
 
+import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/stream_transport.dart';
 
 /// What the engine needs to open a socket: the URL, the single-use ticket
@@ -268,8 +270,10 @@ final class DevEngine implements DevEngineHandle {
         _conn = conn;
         attempt = 0;
         await _serve(conn);
-      } on Object {
-        // The attempt failed: wait, then try again.
+      } on Object catch (e) {
+        // The attempt failed: wait, then try again. Said once per distinct
+        // reason, so that a socket the server refuses is not silent.
+        _reportFailure(e);
       }
       final conn = _conn;
       _conn = null;
@@ -283,6 +287,18 @@ final class DevEngine implements DevEngineHandle {
       if (_closed) break;
       await Future.any([_delay(_backoff(attempt++)), _closing.future]);
     }
+  }
+
+  String? _lastFailure;
+
+  void _reportFailure(Object e) {
+    final reason = e is DataFailure ? '${e.code.id}: ${e.message}' : '$e';
+    if (reason == _lastFailure) return;
+    _lastFailure = reason;
+    developer.log(
+      'dev channel: the socket did not connect, retrying: $reason',
+      name: 'plux',
+    );
   }
 
   Duration _backoff(int attempt) {

@@ -467,6 +467,11 @@ func TestVerifyHTUNormalisation(t *testing.T) {
 		{"expected side normalised too", testURL, "https://API.example.com:443/v1/token?q=1", true},
 		{"trailing slash differs", "https://api.example.com/v1/token/", testURL, false},
 		{"other port differs", "https://api.example.com:8443/v1/token", testURL, false},
+		// A WebSocket opens with an HTTP GET, and the proof names that
+		// request (RFC 9449 §4.2): the device's dev socket signs https://,
+		// and a proof that names the wss:// URL is refused (DEV-002).
+		{"websocket upgrade named as https", "https://localhost:8080/dev/socket", "https://localhost:8080/dev/socket", true},
+		{"websocket url as htu", "wss://localhost:8080/dev/socket", "https://localhost:8080/dev/socket", false},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {

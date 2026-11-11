@@ -362,8 +362,24 @@ void main() {
           utf8.decode(base64Url.decode(base64Url.normalize(proof[1]))),
         ) as Map<String, Object?>;
         expect(payload['htm'], 'GET');
-        expect(payload['htu'], 'wss://dev.example/dev/socket');
+        // The proof names the HTTP request that opens the socket (RFC 9449
+        // §4.2), which the server checks against https://, never wss://.
+        expect(payload['htu'], 'https://dev.example/dev/socket');
         await channel.close();
+      },
+    );
+
+    test(
+      'DEV-002 the socket\'s proof names the HTTP request that opens it',
+      () {
+        expect(
+          upgradeRequestUri(Uri.parse('wss://localhost:8080/dev/socket')),
+          Uri.parse('https://localhost:8080/dev/socket'),
+        );
+        expect(
+          upgradeRequestUri(Uri.parse('ws://127.0.0.1:8080/base/dev/socket')),
+          Uri.parse('http://127.0.0.1:8080/base/dev/socket'),
+        );
       },
     );
 

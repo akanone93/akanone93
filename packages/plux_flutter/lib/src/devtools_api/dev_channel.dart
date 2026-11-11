@@ -221,7 +221,10 @@ final class _UiHost implements DevEngineHost {
       }
     }
     final url = socketUrl;
-    final proof = await token.proofs.proof(method: 'GET', uri: url);
+    final proof = await token.proofs.proof(
+      method: 'GET',
+      uri: upgradeRequestUri(url),
+    );
     return DevSocketAuth(url: url, ticket: ticket, proof: proof);
   }
 
@@ -322,4 +325,15 @@ int _int(Object? v) => switch (v) {
   int() => v,
   String() => int.tryParse(v) ?? 0,
   _ => 0,
+};
+
+/// The HTTP request that opens the WebSocket [socket]: `https` for `wss`,
+/// `http` for `ws`. A DPoP proof names the HTTP request it is sent with
+/// (RFC 9449 §4.2, `htu`), and a WebSocket opens with an HTTP GET, so the
+/// dev socket's proof carries this URI; the server accepts only `http` and
+/// `https` there and refuses a `wss` one.
+Uri upgradeRequestUri(Uri socket) => switch (socket.scheme) {
+  'wss' => socket.replace(scheme: 'https'),
+  'ws' => socket.replace(scheme: 'http'),
+  _ => socket,
 };

@@ -27,6 +27,8 @@ import { useDeviceEvents } from "./use-device-events.ts";
 
 /** The source picker's value for every device; a Select option needs a non-empty value. */
 const allDevices = "*";
+/** How often the drawer reads the session's devices again, in milliseconds. */
+const devicesRefresh = 5000;
 
 /** Hands the bytes to the browser as a download of `name`. */
 function download(bytes: Uint8Array, name: string): void {
@@ -141,9 +143,12 @@ export function DeviceDrawer({
   const { session } = useApp();
   const client = useMemo(() => createClient(DevSessionService, session.transport), [session.transport]);
   const [filter, setFilter] = useState<DrawerFilter>({ deviceId: "", level: "all", search: "" });
+  // Read again every few seconds: a device pairs, connects and drops while the drawer is open, and the list (with
+  // whether each is connected) would otherwise stay as it was when the drawer opened.
   const devices = useQuery({
     queryKey: ["dev-devices", sessionId],
     queryFn: async () => (await client.listDevices({ sessionId })).devices,
+    refetchInterval: devicesRefresh,
   });
   const stream = useDeviceEvents(sessionId, filter.deviceId === "" ? [] : [filter.deviceId], onEvent);
   const paused = stream.buffer.frozenAt !== undefined;
