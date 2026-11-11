@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:io';
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/testing.dart';
@@ -9,6 +12,18 @@ import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_host_kit/plux_host_kit.dart' hide RuntimeStarter;
 
 import 'sign_in_screen_test.dart' show fakeServer;
+
+/// Whether [http] and [socket] can be sent to and called on another isolate,
+/// as the runtime's sync and data workers do. A top-level function, so that
+/// the closure it sends captures nothing else.
+Future<bool> _crossIsolates(
+  Object? Function() http,
+  HttpClient Function() socket,
+) => Isolate.run(() {
+  http();
+  socket().close(force: true);
+  return true;
+});
 
 const String _keys =
     '[{"keyId":"d1","algorithm":"ed25519","role":"root","publicKey":'
@@ -82,6 +97,11 @@ void main() {
     expect(started!.appId, 'app_1');
     expect(started!.environment, devEnvironment);
     expect(find.text('Not paired'), findsOneWidget);
+    // The runtime starts its sync worker with these on another isolate: a
+    // factory that closes over the app's state fails there.
+    final http = started!.httpClient!;
+    final socket = started!.webSocketClient!;
+    expect(await tester.runAsync(() => _crossIsolates(http, socket)), isTrue);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();

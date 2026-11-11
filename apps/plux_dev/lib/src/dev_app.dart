@@ -121,7 +121,11 @@ final class _DevAppState extends State<DevApp> {
           environment: devEnvironment,
           rootKeys: widget.rootKeys,
           hostBuild: devHostBuild,
-          client: () => tooling.network.wrap(devHttpClient()),
+          // Top-level functions: the runtime calls them on its sync and data
+          // isolates too, and a closure over this state cannot be sent there
+          // ("object is unsendable"). The network profiles of the dev tools
+          // (DevNetworkSimulation) therefore do not reach these requests.
+          client: devHttpClient,
           webSocketClient: devIoClient,
         ),
       );
