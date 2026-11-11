@@ -42,6 +42,14 @@ void main() {
     },
   );
 
+  test('DEV-001 the authority is trusted when its PEM arrives on one line, '
+      'as the build settings file carries it', () async {
+    // As scripts/dev-app-defines.sh writes it: no line break, no space.
+    final oneLine = cert.pem.replaceAll(RegExp(r'\s'), '');
+    expect(oneLine, startsWith('-----BEGINCERTIFICATE-----'));
+    expect(await get(devSecurityContext(oneLine)), 'ok');
+  });
+
   test('DEV-001 without one, only the system\'s authorities are', () async {
     await expectLater(
       get(devSecurityContext('')),

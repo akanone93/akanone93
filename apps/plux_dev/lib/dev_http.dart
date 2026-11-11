@@ -17,6 +17,7 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -28,14 +29,39 @@ const String devCertificateAuthorityDefine = 'PLUX_DEV_CA';
 
 const String _authority = String.fromEnvironment(devCertificateAuthorityDefine);
 
+/// The certificates of [pem] with their lines restored. A define reaches the
+/// build on one line (Flutter passes the defines to the Dart compiler on a
+/// command line that a line break cuts on Windows), while the TLS library
+/// reads PEM in lines of at most 64 characters: each certificate's base64 is
+/// wrapped again, whatever lines it had, and its markers may have lost their
+/// space (`scripts/dev-app-defines.sh` removes every space and line break).
+String wrapPem(String pem) {
+  final certificate = RegExp(
+    r'-----BEGIN\s*CERTIFICATE-----(.*?)-----END\s*CERTIFICATE-----',
+    dotAll: true,
+  );
+  final out = StringBuffer();
+  for (final m in certificate.allMatches(pem)) {
+    final body = m.group(1)!.replaceAll(RegExp(r'\s'), '');
+    out.writeln('-----BEGIN CERTIFICATE-----');
+    for (var i = 0; i < body.length; i += 64) {
+      out.writeln(body.substring(i, min(i + 64, body.length)));
+    }
+    out.writeln('-----END CERTIFICATE-----');
+  }
+  return out.toString();
+}
+
 /// The security context of [pem]: the system's authorities, and [pem]'s
 /// when it is not blank. Throws [FormatException] naming
 /// [devCertificateAuthorityDefine] when [pem] holds no certificate.
 SecurityContext devSecurityContext(String pem) {
   final context = SecurityContext(withTrustedRoots: true);
   if (pem.trim().isEmpty) return context;
+  final certificates = wrapPem(pem);
   try {
-    context.setTrustedCertificatesBytes(utf8.encode(pem));
+    if (certificates.isEmpty) throw const TlsException();
+    context.setTrustedCertificatesBytes(utf8.encode(certificates));
   } on TlsException {
     throw const FormatException(
       '$devCertificateAuthorityDefine is not a PEM certificate: pass the '
