@@ -32,6 +32,16 @@ RUN cd backend && go mod download
 COPY backend/ ./backend/
 RUN cd backend && CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags "-s -w -buildid=" -o /out/plux ./cmd/plux
 
+# The packages' manifests alone: the package download below depends on them
+# and on nothing else in packages/. The cache of a COPY is keyed on the
+# content it copies, so a change to a package's code, or a build output a
+# host leaves in a package, keeps the download cached instead of fetching
+# every package again.
+FROM dart:3.13.4@sha256:33faf91bc941466a767ce845b4bbb5d578ecd180abe5ee243e9c8c039109d215 AS manifests
+COPY packages/ /src/packages/
+RUN find /src/packages -type f ! -name pubspec.yaml -delete \
+ && find /src/packages -type d -empty -delete
+
 # The Flutter SDK at the pinned version, checked against its digest before it
 # is unpacked, and warmed up for the Linux test runner only.
 FROM dart:3.13.4@sha256:33faf91bc941466a767ce845b4bbb5d578ecd180abe5ee243e9c8c039109d215 AS flutter
@@ -54,8 +64,8 @@ RUN git config --global --add safe.directory /opt/flutter \
 # workspace's lockfile, so that no render fetches anything. plux_flutter is a
 # member of the repository's pub workspace (`resolution: workspace`), which
 # resolves only from its root: the root pubspec and lockfile, and the pubspec
-# of every member the root lists (pub reads them all), with the packages in
-# full. A member missing here fails the build, so the list cannot drift.
+# of every member the root lists (pub reads them all). A member missing here
+# fails the build, so the list cannot drift.
 WORKDIR /opt/plux
 COPY pubspec.yaml pubspec.lock ./
 COPY apps/add_to_app/plux_module/pubspec.yaml apps/add_to_app/plux_module/
@@ -67,8 +77,31 @@ COPY apps/starter/pubspec.yaml apps/starter/
 COPY test/bench/runtime/pubspec.yaml test/bench/runtime/
 COPY test/size/blank/pubspec.yaml test/size/blank/
 COPY test/size/plux/pubspec.yaml test/size/plux/
+COPY --from=manifests /src/packages/ ./packages/
+# The packages are downloaded into a build cache that outlives a build, so
+# that a download cut short is resumed by the next build and a dependency
+# change fetches only the packages that changed. pub checks each archive
+# against the lockfile's sha256 as it downloads it (--enforce-lockfile).
+# Only the packages this resolution uses are copied into the image, each
+# with its recorded hash: the image holds exactly the lockfile's packages,
+# whatever else the cache holds, so a render resolves to the same versions
+# (it resolves offline and without a lockfile). The offline resolution then
+# checks every copied package against the lockfile once more. `dart pub get`
+# resolves as `flutter pub get` does; the Flutter tool's extra step, the
+# plugin registration, needs the packages' code, which is not here yet.
+RUN --mount=type=cache,id=plux-render-worker-pub,target=/var/cache/pub,sharing=locked \
+    PUB_CACHE=/var/cache/pub dart pub get --enforce-lockfile \
+ && sed -n 's|^ *"rootUri": *"file:///var/cache/pub/\(.*\)",*$|\1|p' .dart_tool/package_config.json > /tmp/packages \
+ && test -s /tmp/packages \
+ && mkdir -p "$PUB_CACHE" \
+ && cd /var/cache/pub \
+ && while read -r p; do \
+      cp -a --parents "$p" "hosted-hashes/${p#hosted/}.sha256" "$PUB_CACHE"/ || exit 1; \
+    done < /tmp/packages \
+ && cd /opt/plux \
+ && dart pub get --enforce-lockfile --offline \
+ && rm /tmp/packages
 COPY packages/ ./packages/
-RUN flutter pub get --enforce-lockfile
 
 # Debian, because flutter_tester needs a complete userland. The golden fonts
 # are the ones the harness pins (schema/goldens/fonts/VERSION), so that a
