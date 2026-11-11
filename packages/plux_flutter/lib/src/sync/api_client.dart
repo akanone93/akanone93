@@ -450,6 +450,18 @@ final class PluxApiClient {
   /// (RFC 9449 §8).
   String? _nonce;
 
+  /// A DPoP proof of [token]'s device key for a request that carries no
+  /// access token, such as the dev socket's upgrade (ADR-0087): [method] and
+  /// [uri] are the request's, and the latest server nonce goes in, as the
+  /// server requires of every device proof (SEC-024, RFC 9449 §8). The
+  /// server sends a nonce with every answer, so one call to it before the
+  /// request (the pairing, a ticket renewal) leaves a current one here.
+  Future<String> tokenlessProof(
+    DeviceToken token, {
+    required String method,
+    required Uri uri,
+  }) => token.proofs.proof(method: method, uri: uri, nonce: _nonce);
+
   /// Asks for a registration challenge (SEC-002): bytes the evidence and
   /// the DPoP key are bound to, valid once and briefly.
   Future<Uint8List> registrationChallenge({

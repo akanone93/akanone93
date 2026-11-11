@@ -10,7 +10,9 @@ SPDX-License-Identifier: Apache-2.0
 - **The dev socket's proof names its HTTP request (DEV-002):** the DPoP proof of the dev socket
   carries `htu = https://…/dev/socket` (`http` for `ws`), the request that opens the WebSocket
   (RFC 9449 §4.2), as the server checks; it carried the `wss://` URL, which the server refuses, so
-  no device could connect. A socket that does not connect is logged (`plux`), once per reason.
+  no device could connect. The proof also carries the server's current DPoP nonce
+  (`PluxApiClient.tokenlessProof`), which the server requires of every device proof (SEC-024). A
+  socket that does not connect is printed (`debugPrint`), once per reason.
 
 - **The dev channel uses the host's WebSocket client (DEV-002):** a paired device opens its dev
   socket with `PluxConfig.webSocketClient` when the host gives one, as the runtime's other

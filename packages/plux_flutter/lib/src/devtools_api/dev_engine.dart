@@ -12,9 +12,9 @@ library;
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:developer' as developer;
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/stream_transport.dart';
 
@@ -295,9 +295,10 @@ final class DevEngine implements DevEngineHandle {
     final reason = e is DataFailure ? '${e.code.id}: ${e.message}' : '$e';
     if (reason == _lastFailure) return;
     _lastFailure = reason;
-    developer.log(
-      'dev channel: the socket did not connect, retrying: $reason',
-      name: 'plux',
+    // debugPrint and not developer.log: it reaches `flutter run` and the
+    // platform log (logcat), where a developer pairing a device looks.
+    debugPrint(
+      'plux dev channel: the socket did not connect, retrying: $reason',
     );
   }
 

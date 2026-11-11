@@ -159,7 +159,11 @@ class _Fixture {
           'socketTicket': 'ticket-${pairRequests.length}',
         }),
         200,
-        headers: {'content-type': 'application/json'},
+        // As the server does with every answer (SEC-024).
+        headers: {
+          'content-type': 'application/json',
+          'dpop-nonce': 'nonce-${pairRequests.length}',
+        },
       );
     });
     api = PluxApiClient(client, Uri.parse('https://dev.example'));
@@ -365,6 +369,8 @@ void main() {
         // The proof names the HTTP request that opens the socket (RFC 9449
         // §4.2), which the server checks against https://, never wss://.
         expect(payload['htu'], 'https://dev.example/dev/socket');
+        // The server refuses a device proof without its current nonce.
+        expect(payload['nonce'], 'nonce-1');
         await channel.close();
       },
     );

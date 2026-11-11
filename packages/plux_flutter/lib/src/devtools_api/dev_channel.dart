@@ -221,7 +221,11 @@ final class _UiHost implements DevEngineHost {
       }
     }
     final url = socketUrl;
-    final proof = await token.proofs.proof(
+    // The proof names the upgrade's HTTP request and carries the nonce the
+    // pairing or the ticket renewal just returned; without it the server
+    // refuses the socket, and every retry the same way.
+    final proof = await api.tokenlessProof(
+      token,
       method: 'GET',
       uri: upgradeRequestUri(url),
     );
