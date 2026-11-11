@@ -75,6 +75,43 @@ func (v *Validator) ValidatePage(file string, data []byte) (diags plxerr.Diagnos
 	return diags
 }
 
+// ValidateProject checks the whole loaded project as Compile does and returns
+// the diagnostics of the files that are not pages: the app's own documents
+// (app.json, the theme, the translations and their keys), the plugins'
+// manifests, components and the rest, whose findings no page validation
+// reports, such as a translation missing in a locale (PLX-1606) or a key
+// nothing uses (PLX-1608). Studio shows them beside the pages' own on opening
+// a project (PXL-007's validator, STU-062). It never panics (CMP-052).
+func (v *Validator) ValidateProject() (diags plxerr.Diagnostics) {
+	defer func() {
+		if r := recover(); r != nil {
+			diags = plxerr.Diagnostics{plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{}, "the validator failed unexpectedly: %v", r)}
+		}
+	}()
+	if v.project == nil {
+		return nil
+	}
+	pages := map[string]bool{}
+	for _, pl := range v.project.Plugins {
+		for _, pg := range pl.Pages {
+			pages[pg.Source.File] = true
+		}
+	}
+	// The whole pipeline, as Compile runs it: some findings, such as a
+	// locale's missing message, are reported while the bundles are built. The
+	// bundles stay in memory and are dropped.
+	u := newUnit(v.opts)
+	u.project = v.project
+	run(u, pipeline)
+	for _, d := range u.diags {
+		if !pages[d.File] {
+			diags = append(diags, d)
+		}
+	}
+	diags.Sort()
+	return diags
+}
+
 // checkPage parses the page and runs the checking stages on it. It returns
 // the unit when the page parsed and belongs to a plugin directory; otherwise
 // the diagnostics say why not.

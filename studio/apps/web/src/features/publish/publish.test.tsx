@@ -238,6 +238,14 @@ describe("[STU-100] publish flow", () => {
     expect(release.calls).toEqual(["create:refused", "create:home"]);
   });
 
+  test("a step the server refuses says why, with the server's code and words [SRV-006]", async () => {
+    const release = fixture("select", {}, { refuseAdvance: "PLX-8052: the project to render is incomplete" });
+    open("/publish/r1", release, { summaries });
+    await step("Select plugins");
+    press("Continue");
+    await screen.findByText("The step failed: PLX-8052: the project to render is incomplete");
+  });
+
   test("A1 says so when nothing changed and nothing is open", async () => {
     open("/publish", fixture("released"));
     await screen.findByText("No plugin has unpublished changes.");
@@ -390,7 +398,10 @@ describe("[STU-100] build evidence and diffs", () => {
     expect(screen.getByText("First version")).toBeTruthy();
     expect(screen.getByText("1 accessibility findings")).toBeTruthy();
     expect(screen.getByText("PLX-1403")).toBeTruthy();
-    expect(screen.queryByText("Unrelated finding")).toBeNull();
+    // Another warning is not an accessibility finding: it is listed apart, with the server's words (SRV-051).
+    const warnings = screen.getByRole("list", { name: "Warnings" });
+    expect(within(warnings).getByText(/Unrelated finding/)).toBeTruthy();
+    expect(screen.getByText("1 accessibility findings")).toBeTruthy();
     expect(screen.getByText("No accessibility findings")).toBeTruthy();
   });
 

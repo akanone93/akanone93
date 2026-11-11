@@ -163,3 +163,39 @@ func TestPXLSites(t *testing.T) {
 		t.Errorf("a page that does not parse has sites: %v", got)
 	}
 }
+
+// Verifies: I18N-006, I18N-007.
+// ValidateProject reports what no page validation sees: a translation key
+// nothing uses and the locales that lack its message, located in the app's
+// translation documents, and nothing located in a page.
+func TestValidateProjectReportsAppFindings(t *testing.T) {
+	t.Parallel()
+	m := fixture(t)
+	const unused = "01a0c450-6c00-7fff-8000-00000000beef"
+	edit(t, m, "translations/keys.json", func(doc map[string]any) {
+		doc["keys"] = append(doc["keys"].([]any), map[string]any{"id": unused, "key": "loans.unused"})
+	})
+	edit(t, m, "translations/en.json", func(doc map[string]any) {
+		doc["messages"].(map[string]any)[unused] = "Never shown"
+	})
+	v := newValidator(t, m)
+	diags := v.ValidateProject()
+	var unusedKey, missing bool
+	for _, d := range diags {
+		switch {
+		case d.Code == plxerr.TranslationKeyUnused && d.File == "translations/keys.json" && strings.Contains(d.Message, "loans.unused"):
+			unusedKey = true
+		case d.Code == plxerr.TranslationMissing && strings.Contains(d.Message, "loans.unused"):
+			missing = true
+		}
+		if strings.HasSuffix(d.File, ".page.json") {
+			t.Errorf("a page's finding is reported by ValidatePage, not here: %s", d)
+		}
+		if d.Code == plxerr.InternalCompilerError {
+			t.Errorf("internal error: %s", d)
+		}
+	}
+	if !unusedKey || !missing {
+		t.Errorf("unused %v, missing %v:\n%s", unusedKey, missing, list(diags))
+	}
+}

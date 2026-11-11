@@ -197,6 +197,8 @@ export interface ReleaseFixture {
   calls: string[];
   /** The acknowledge_warnings flag of each publish Studio started. */
   acknowledgeWarnings?: boolean[];
+  /** AdvanceReleaseRequest is refused with this message (a server refusal, its code first). */
+  refuseAdvance?: string;
   /** The state every publish job reports; "succeeded" when unset. */
   jobState?: string;
   /** Opening a request is refused with PLX-6200 until the session completes a step-up (SEC-103). */
@@ -1375,6 +1377,9 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
     advanceReleaseRequest: (req) => {
       if (req.expectedState !== r.state) {
         refused("PLX-8060");
+      }
+      if (fx.refuseAdvance !== undefined) {
+        throw new ConnectError(fx.refuseAdvance, Code.FailedPrecondition);
       }
       fx.calls.push(`advance:${r.state}`);
       if (req.step.case === "reports") {

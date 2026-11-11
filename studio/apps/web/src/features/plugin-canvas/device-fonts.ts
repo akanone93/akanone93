@@ -6,6 +6,7 @@ import { AssetService } from "@plux/api";
 import type { FontSource } from "@plux/canvas";
 import { limitDefault } from "@plux/schema";
 import { useCallback, useMemo, useRef } from "react";
+import { objectUrl } from "../../lib/object-url.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { fontFamilyName } from "./font-family.ts";
 
@@ -30,7 +31,7 @@ export async function deviceFontSources(
 ): Promise<FontSource[]> {
   const fonts = assets.flatMap((a) => {
     const url = a.variants[0]?.artifact?.urls[0];
-    return FONT_TYPES.has(a.mediaType) && url !== undefined && Number(a.size) <= maxBytes ? [url] : [];
+    return FONT_TYPES.has(a.mediaType) && url !== undefined && Number(a.size) <= maxBytes ? [objectUrl(url)] : [];
   });
   const read = await Promise.all(
     fonts.map(async (url): Promise<FontSource | null> => {

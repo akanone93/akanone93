@@ -184,7 +184,13 @@ func (e env) doctorChecks(c *common, project bool) []check {
 			if c.app == "" {
 				return usageError("no app in " + projectFile)
 			}
-			_, err := cl.app.GetApp(ctx, connect.NewRequest(&pluxv1.GetAppRequest{Id: c.app}))
+			// The project may name the app by its key, which GetApp does not
+			// take: resolve it first, as init and the other commands do.
+			id := c.app
+			if a, err := findApp(ctx, cl, c.app); err == nil {
+				id = a.GetId()
+			}
+			_, err := cl.app.GetApp(ctx, connect.NewRequest(&pluxv1.GetAppRequest{Id: id}))
 			return err //nolint:wrapcheck // reported as is
 		}},
 	}

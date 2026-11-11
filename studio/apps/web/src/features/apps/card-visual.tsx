@@ -11,13 +11,15 @@ import { useApp } from "../../lib/use-app.tsx";
 import { appsMessages } from "./apps.messages.ts";
 import { monogramOf, toneOf } from "./apps-model.ts";
 import "./apps.css";
+import { objectUrl } from "../../lib/object-url.ts";
 
 /** The name prefix of the screen thumbnails the plugin canvas uploads as app assets (STU-052). */
 const THUMBNAIL_PREFIX = "thumbnails/screen-";
 
 /** The first URL of an asset's processed forms, or undefined while it has none. */
 function urlOf(asset: Asset | undefined): string | undefined {
-  return asset?.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
+  const url = asset?.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
+  return url === undefined ? undefined : objectUrl(url);
 }
 
 /** The picture of a card in order of preference (STU-021): a screenshot of the plugin canvas, else the uploaded image. */

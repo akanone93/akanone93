@@ -310,6 +310,12 @@ msgstr "{count, plural, one {Offline — # change waiting} other {Offline — # 
 msgid "history.restored"
 msgstr "{count, plural, one {Restored # document.} other {Restored # documents.}}"
 
+#. Where a translation key is used, so it cannot be deleted (STU-072); files is a list of document paths.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.used-in"
+msgstr "{count, plural, one {Used in # document} other {Used in # documents}}: {files}"
+
 #. Count of accessibility diagnostics of a build.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -2277,6 +2283,12 @@ msgstr "App"
 msgid "analytics.appColumn"
 msgstr "App"
 
+#. Name of the app bundle in the publish steps: the app-level documents a release carries beside its plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.appBundle"
+msgstr "App (theme, translations, settings)"
+
 #. Accessible name of the navigation between the areas of one app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -3238,6 +3250,12 @@ msgstr "Cancel"
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.extract.cancel"
+msgstr "Cancel"
+
+#. Cancel button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.delete-key.cancel"
 msgstr "Cancel"
 
 #. Cancel button of the library dialogs.
@@ -4986,6 +5004,12 @@ msgstr "Delete"
 msgid "assets.confirm"
 msgstr "Delete"
 
+#. Confirm button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.delete-key.confirm"
+msgstr "Delete"
+
 #. Button that deletes a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -5003,6 +5027,12 @@ msgstr "Delete"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.delete"
 msgstr "Delete"
+
+#. Accessible label of the button that deletes an unused translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.delete-key"
+msgstr "Delete {key}"
 
 #. Accessible name of a delete button.
 #. js-lingui-explicit-id
@@ -5057,6 +5087,12 @@ msgstr "Delete screen"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.deleteTitle"
 msgstr "Delete this asset?"
+
+#. Title of the confirmation before deleting a translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.delete-key.title"
+msgstr "Delete this translation key?"
 
 #. Menu item above a screen: delete it (asks first).
 #. js-lingui-explicit-id
@@ -11044,6 +11080,12 @@ msgstr "Nothing could be imported from this source."
 #: apps/web/src/features/panels/list-panel.messages.ts
 msgid "list.defaultEmpty"
 msgstr "Nothing here yet"
+
+#. Body of the confirmation before deleting an unused translation key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.delete-key.body"
+msgstr "Nothing in the app uses it. The key and its message in the locale you are editing are removed; this is one undo step."
 
 #. Shown when the library list is empty.
 #. js-lingui-explicit-id
@@ -17637,6 +17679,12 @@ msgstr "The source text replaces the messages of {locale} that are empty, and th
 msgid "designers.dataImportReady"
 msgstr "The source was read. Review it, then add it to the plugin."
 
+#. A publish step the server refused; reason is the server's own code and message, such as 'PLX-8052: …'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.errReason"
+msgstr "The step failed: {reason}"
+
 #. Generic publish step error.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -18136,6 +18184,12 @@ msgstr "This item could not be loaded."
 msgid "pluginCanvas.laneUnavailable"
 msgstr "This link is not set directly on a widget event, so it cannot be changed here."
 
+#. Explains the step-up a page or an action needs before the server answers (SEC-103).
+#. js-lingui-explicit-id
+#: apps/web/src/components/refusal.messages.ts
+msgid "refusal.step-up.body"
+msgstr "This needs your security key, confirmed in the last five minutes. Confirm with your passkey to continue."
+
 #. Shown on the organisation home when it has no apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/home/home.messages.ts
@@ -18153,12 +18207,6 @@ msgstr "This page does not exist or you cannot see it."
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.licence.body"
 msgstr "This page is part of the enterprise edition. Ask an installation administrator to install a licence."
-
-#. Explains the step-up a page needs (SEC-103).
-#. js-lingui-explicit-id
-#: apps/web/src/components/refusal.messages.ts
-msgid "refusal.step-up.body"
-msgstr "This page shows sensitive settings. Confirm with your passkey to open it for the next five minutes."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -18928,6 +18976,12 @@ msgstr "Use security key or passkey"
 msgid "data.mockSave"
 msgstr "Use this mock"
 
+#. Heading of the column that says where each key is used or offers to delete an unused one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.usage-column"
+msgstr "Used"
+
 #. Column heading: what the app uses of the limit.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -19371,6 +19425,12 @@ msgstr "warning"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.severity.warning"
 msgstr "Warning"
+
+#. Label of the list of a build's warnings (other than accessibility) on the reports step.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/evidence.messages.ts
+msgid "publish.evidence.warnings"
+msgstr "Warnings"
 
 #. Option: only warnings and errors.
 #. js-lingui-explicit-id

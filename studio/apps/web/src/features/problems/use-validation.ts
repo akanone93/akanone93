@@ -36,10 +36,15 @@ export function wholeProject(app: Documents, plugin: Documents): Documents {
   return [...byPath.values()];
 }
 
-/** Only the problems in the open plugin's own files. */
+/**
+ * The problems the open plugin's canvas shows: those in its own files, and those in the app's own documents
+ * (`app.json`, the theme, the translations: everything outside `plugins/`), which every plugin depends on and which
+ * only the whole-project check on opening finds, such as a missing or unused translation (PLX-1606, PLX-1608).
+ * Another plugin's problems are that plugin's.
+ */
 export function inFiles(problems: readonly Problem[], plugin: Documents): Problem[] {
   const own = new Set(plugin.map((d) => d.path));
-  return problems.filter((p) => own.has(p.file));
+  return problems.filter((p) => own.has(p.file) || (p.file !== "" && !p.file.startsWith("plugins/")));
 }
 
 function languageOf(validator: ValidatorClient): PxlLanguage | undefined {

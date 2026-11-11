@@ -5,6 +5,7 @@ import { createClient } from "@connectrpc/connect";
 import { AppService, AssetService } from "@plux/api";
 import type { FontSource } from "@plux/canvas";
 import { useCallback, useMemo, useRef } from "react";
+import { objectUrl } from "../../lib/object-url.ts";
 import { useApp } from "../../lib/use-app.tsx";
 
 /** The slice of an app that names its host fonts. */
@@ -27,7 +28,7 @@ export function hostFontSources(app: HostFontList, assets: readonly FontAsset[])
   const byId = new Map(assets.map((a) => [a.id, a]));
   return app.hostFonts.flatMap((font) => {
     const url = byId.get(font.assetId)?.variants[0]?.artifact?.urls[0];
-    return url === undefined ? [] : [{ family: font.family, url }];
+    return url === undefined ? [] : [{ family: font.family, url: objectUrl(url) }];
   });
 }
 

@@ -22,6 +22,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/releasereq"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -175,6 +176,12 @@ func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
 		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: k.gate, Renderer: k.renderer, Sources: k.sources, Functions: k.functions,
 		Limits: func(context.Context, pgx.Tx, string) (limits.Set, error) { return set, nil },
 	})
+	// The app was released before and only its plugins changed: its bundle is
+	// published, so a request holds the plugins the test selects and nothing
+	// else (TestReleaseRequestAddsTheAppBundle_STU_100 covers the bundle).
+	if job := f.publish(t, "", false); job.State != release.StateSucceeded {
+		t.Fatalf("the app bundle's publish: %+v", job)
+	}
 	return k
 }
 
@@ -665,5 +672,44 @@ func TestVisualDiffImageRead_STU_100(t *testing.T) {
 	}
 	if _, err := k.svc.Image(ctx, stranger, f.app, r.ID, sha("new")); err == nil {
 		t.Error("another organisation read an image")
+	}
+}
+
+// Verifies: STU-100.
+// The app bundle joins a release request when the app's own documents
+// changed after its newest version or it was never published: the plugins
+// of the release may read its new translation keys and theme tokens. A
+// request with nothing to publish is refused.
+func TestReleaseRequestAddsTheAppBundle_STU_100(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	gen := ids{g: uuid7.NewGenerator(time.Now, rand.Reader)}
+	svc := releasereq.New(releasereq.Options{DB: f.db, IDs: gen, Builds: fakeBuilds{}})
+	ctx := context.Background()
+	dev := f.envs["development"].ID
+	loans := []releasereq.Selected{{PluginKey: "loans", Reason: "changed"}}
+
+	// Never published: the bundle joins the plugins, first in key order.
+	r, _, err := svc.Create(ctx, f.owner, releasereq.CreateInput{AppID: f.app, EnvironmentID: dev, Plugins: loans})
+	if err != nil || len(r.Plugins) != 2 || r.Plugins[0].PluginKey != releasereq.AppBundleKey || r.Plugins[0].Reason != "changed" || r.Plugins[1].PluginKey != "loans" {
+		t.Fatalf("Create = %+v, %v", r.Plugins, err)
+	}
+	if _, err := svc.Cancel(ctx, f.owner, f.app, r.ID); err != nil {
+		t.Fatal(err)
+	}
+	// Published since: only what was selected.
+	if job := f.publish(t, "", false); job.State != release.StateSucceeded {
+		t.Fatalf("the app bundle's publish: %+v", job)
+	}
+	r, _, err = svc.Create(ctx, f.owner, releasereq.CreateInput{AppID: f.app, EnvironmentID: dev, Plugins: loans})
+	if err != nil || len(r.Plugins) != 1 || r.Plugins[0].PluginKey != "loans" {
+		t.Fatalf("Create after the bundle's publish = %+v, %v", r.Plugins, err)
+	}
+	if _, err := svc.Cancel(ctx, f.owner, f.app, r.ID); err != nil {
+		t.Fatal(err)
+	}
+	// Nothing selected and nothing changed: refused.
+	if _, _, err := svc.Create(ctx, f.owner, releasereq.CreateInput{AppID: f.app, EnvironmentID: dev}); !codeIs(err, plxerr.InvalidFormat) {
+		t.Errorf("an empty request: %v", err)
 	}
 }

@@ -3,24 +3,41 @@
 
 import { describe, expect, test } from "bun:test";
 import { type DocumentTransport, EditSession, type ServerDocument } from "../editor/edit-session.ts";
-import type { JsonValue } from "../editor/json-patch.ts";
+import { applyPatch, type JsonValue } from "../editor/json-patch.ts";
 import type { L10nSessions } from "../localisation/index.ts";
 import { commitInlineText, textValue } from "./inline-text.tsx";
 import type { Node } from "./plugin-model.ts";
 
-const transport: DocumentTransport = {
-  patch: async () => {
-    throw new Error("not saved in this test");
-  },
-  get: async () => {
-    throw new Error("unused");
-  },
-  put: async (path, content): Promise<ServerDocument> => ({ path, revision: 1n, content }),
-  remove: async () => undefined,
-  classify: () => "transient",
-};
-
+/**
+ * A session over a server that stores every save, as extract-key.test.ts has: extracting a key waits until the key
+ * and its message are stored before the page refers to them (b35be536), so a server that never stores would leave the
+ * extraction waiting for ever.
+ */
 function session(docs: Record<string, JsonValue>): EditSession {
+  const stored = new Map<string, ServerDocument>();
+  const transport: DocumentTransport = {
+    patch: async (path, ops, ifRevision) => {
+      const doc = stored.get(path);
+      if (doc === undefined || doc.revision !== ifRevision) {
+        throw new Error("conflict");
+      }
+      const next = { path, revision: doc.revision + 1n, content: applyPatch(doc.content, ops) };
+      stored.set(path, next);
+      return next;
+    },
+    get: async () => {
+      throw new Error("unused");
+    },
+    put: async (path, content): Promise<ServerDocument> => {
+      const doc = { path, revision: 1n, content };
+      stored.set(path, doc);
+      return doc;
+    },
+    remove: async (path) => {
+      stored.delete(path);
+    },
+    classify: () => "rejected",
+  };
   const s = new EditSession({
     transport,
     debounceMs: 1_000_000,
@@ -29,7 +46,9 @@ function session(docs: Record<string, JsonValue>): EditSession {
     online: () => true,
   });
   for (const [path, content] of Object.entries(docs)) {
-    s.open({ path, revision: 1n, content });
+    const doc = { path, revision: 1n, content };
+    stored.set(path, doc);
+    s.open(doc);
   }
   return s;
 }

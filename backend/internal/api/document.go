@@ -539,7 +539,11 @@ func (s Plugin) ListPluginSummaries(ctx context.Context, req *connect.Request[pl
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		out := &pluxv1.ListPluginSummariesResponse{}
+		app, err := s.h.Documents.AppUnpublishedChanges(ctx, p, req.Msg.GetAppId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListPluginSummariesResponse{AppUnpublishedChanges: app}
 		for _, m := range sums {
 			out.Summaries = append(out.Summaries, &pluxv1.PluginSummary{
 				Plugin: pluginProto(m.Plugin), Screens: m.Screens, Versions: m.Versions, UnpublishedChanges: m.UnpublishedChanges,

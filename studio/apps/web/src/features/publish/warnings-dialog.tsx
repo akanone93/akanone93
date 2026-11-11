@@ -5,14 +5,18 @@ import { useLingui } from "@lingui/react";
 import { Button, Dialog } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { publishMessages } from "./publish.messages.ts";
+import type { WarningDetail } from "./use-evidence.ts";
 
 /** D42 (SRV-051): every warning of the builds is acknowledged one by one before the reports step passes. */
 export function WarningsDialog({
   warnings,
+  details,
   onConfirm,
   onClose,
 }: {
   readonly warnings: readonly string[];
+  /** What the server says of each warning, by its `code@file` name; the bare name shows when it has nothing. */
+  readonly details?: ReadonlyMap<string, readonly WarningDetail[]>;
   readonly onConfirm: (acknowledged: string[]) => void;
   readonly onClose: () => void;
 }): ReactElement {
@@ -36,7 +40,7 @@ export function WarningsDialog({
     >
       <ul className="flex flex-col gap-2">
         {warnings.map((w) => (
-          <li key={w}>
+          <li key={w} className="flex flex-col gap-1">
             <Button
               variant={picked.has(w) ? "primary" : "secondary"}
               aria-pressed={picked.has(w)}
@@ -44,6 +48,13 @@ export function WarningsDialog({
             >
               {w}
             </Button>
+            {(details?.get(w) ?? []).map((d, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: the same warning can be reported more than once
+              <p key={i} className="text-body text-muted-foreground">
+                {d.message}
+                {d.fix !== "" && <span className="block">{d.fix}</span>}
+              </p>
+            ))}
           </li>
         ))}
       </ul>

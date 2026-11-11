@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { type FormEvent, type ReactElement, useState } from "react";
 import { PageHeader, PageStatus } from "../../components/page.tsx";
+import { reasonOf } from "../../components/refusal.tsx";
 import { isName } from "../../lib/keys.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useCan } from "../admin/use-admin.ts";
@@ -32,6 +33,7 @@ function DetailsForm({ app, canEdit }: { readonly app: App; readonly canEdit: bo
   const [attempted, setAttempted] = useState(false);
   const [working, setWorking] = useState(false);
   const [state, setState] = useState<SaveState>("idle");
+  const [reason, setReason] = useState("");
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setAttempted(true);
@@ -47,9 +49,11 @@ function DetailsForm({ app, canEdit }: { readonly app: App; readonly canEdit: bo
         metadata: create(MetadataUpdateSchema, { description }),
       });
       setState("saved");
+      setReason("");
       await refresh();
-    } catch {
+    } catch (e) {
       setState("failed");
+      setReason(reasonOf(e));
     } finally {
       setWorking(false);
     }
@@ -82,6 +86,7 @@ function DetailsForm({ app, canEdit }: { readonly app: App; readonly canEdit: bo
         {state === "failed" && (
           <p role="alert" className="text-body text-danger">
             {m.saveFailed}
+            {reason !== "" && <span className="block text-muted-foreground">{reason}</span>}
           </p>
         )}
       </form>

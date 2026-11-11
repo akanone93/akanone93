@@ -262,8 +262,11 @@ func (x *ReleaseRequest) GetEndedAt() *timestamppb.Timestamp {
 
 // SelectedPlugin is a plugin in the request and why it is there.
 type SelectedPlugin struct {
-	state     protoimpl.MessageState `protogen:"open.v1"`
-	PluginKey string                 `protobuf:"bytes,1,opt,name=plugin_key,json=pluginKey,proto3" json:"plugin_key,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// plugin_key is the plugin's key, or "" for the app bundle (app.json, the
+	// theme, the translations), which the server adds when the app's own
+	// documents changed since its newest version or it has none (STU-100).
+	PluginKey string `protobuf:"bytes,1,opt,name=plugin_key,json=pluginKey,proto3" json:"plugin_key,omitempty"`
 	// reason is "changed" for a plugin with unpublished changes and
 	// "dependency" for one added because another needs it (REL-003).
 	Reason        string `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`

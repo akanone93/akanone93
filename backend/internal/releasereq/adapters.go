@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -40,7 +41,13 @@ func (b ReleaseBuilds) Build(ctx context.Context, p auth.Principal, appID, jobID
 		}
 	}
 	if job.State == release.StateSucceeded {
-		v, err := b.Releases.GetVersion(ctx, p, job.PluginID, job.Version)
+		var v release.Version
+		if job.PluginID == "" {
+			// The app bundle's job: its versions belong to the app.
+			v, err = b.Releases.GetAppVersion(ctx, p, appID, job.Version)
+		} else {
+			v, err = b.Releases.GetVersion(ctx, p, job.PluginID, job.Version)
+		}
 		if err != nil {
 			return Build{}, err //nolint:wrapcheck // a domain error
 		}
@@ -61,7 +68,8 @@ func (m ReleaseMaker) Create(ctx context.Context, p auth.Principal, appID, envir
 		return 0, err //nolint:wrapcheck // a domain error
 	}
 	if r.ID == "" {
-		return 0, plxerr.New(plxerr.ReleaseInconsistent, "the release cannot be made: %d diagnostic(s)", len(diags))
+		// Say why, with the findings themselves: the publisher acts on them.
+		return 0, plxerr.New(plxerr.ReleaseInconsistent, "the release cannot be made: %s", summarise(diags))
 	}
 	return r.Sequence, nil
 }
@@ -81,4 +89,27 @@ var _ Sources = ReleaseSources{}
 // Projects implements Sources.
 func (r ReleaseSources) Projects(ctx context.Context, tx pgx.Tx, appID, environmentID, channel string, built map[string]int64) (before, after fs.FS, err error) {
 	return r.Releases.ProjectFiles(ctx, tx, appID, environmentID, channel, built) //nolint:wrapcheck // a domain error
+}
+
+// summarise names the first errors of a refused release, at most three, and
+// how many more there are.
+func summarise(diags plxerr.Diagnostics) string {
+	var parts []string
+	errs := 0
+	for _, d := range diags {
+		if d.Severity != plxerr.SeverityError {
+			continue
+		}
+		errs++
+		if len(parts) < 3 {
+			parts = append(parts, fmt.Sprintf("%s %s", d.Code, d.Message))
+		}
+	}
+	if len(parts) == 0 {
+		return fmt.Sprintf("%d diagnostic(s)", len(diags))
+	}
+	if n := errs - len(parts); n > 0 {
+		parts = append(parts, fmt.Sprintf("and %d more", n))
+	}
+	return strings.Join(parts, "; ")
 }

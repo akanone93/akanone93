@@ -17,6 +17,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -167,10 +168,20 @@ func checkEnvironment(ctx context.Context, q *dbgen.Queries, app, env pgtype.UUI
 // checkSelection validates a selection against the app's plugins and returns
 // it sorted by key.
 func checkSelection(ctx context.Context, q *dbgen.Queries, app pgtype.UUID, in []Selected) ([]Selected, error) {
-	if len(in) == 0 {
-		return nil, plxerr.New(plxerr.InvalidFormat, "a release request needs at least one plugin")
-	}
 	out := slices.Clone(in)
+	// The app bundle (key "") joins whenever the app's own documents changed
+	// or it was never published: the plugins of the release may read its new
+	// translation keys and theme tokens, and a release needs one (STU-100).
+	changed, err := document.AppBundleChanged(ctx, q, app)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	if changed && !slices.ContainsFunc(out, func(s Selected) bool { return s.PluginKey == AppBundleKey }) {
+		out = append(out, Selected{PluginKey: AppBundleKey, Reason: "changed"})
+	}
+	if len(out) == 0 {
+		return nil, plxerr.New(plxerr.InvalidFormat, "a release request needs at least one plugin or app change to publish")
+	}
 	slices.SortFunc(out, func(a, b Selected) int { return strings.Compare(a.PluginKey, b.PluginKey) })
 	for i, sel := range out {
 		if i > 0 && out[i-1].PluginKey == sel.PluginKey {
@@ -179,12 +190,18 @@ func checkSelection(ctx context.Context, q *dbgen.Queries, app pgtype.UUID, in [
 		if sel.Reason != "changed" && sel.Reason != "dependency" {
 			return nil, plxerr.New(plxerr.InvalidFormat, "the reason of plugin %q must be changed or dependency", sel.PluginKey)
 		}
+		if sel.PluginKey == AppBundleKey {
+			continue
+		}
 		if _, err := q.GetPluginByKey(ctx, dbgen.GetPluginByKeyParams{AppID: app, Key: sel.PluginKey}); err != nil {
 			return nil, failure(err, "plugin")
 		}
 	}
 	return out, nil
 }
+
+// AppBundleKey is the key of the app bundle among a request's plugins.
+const AppBundleKey = ""
 
 // Get returns a request. It needs plugin.read.
 func (s *Service) Get(ctx context.Context, p auth.Principal, appID, id string) (Request, error) {

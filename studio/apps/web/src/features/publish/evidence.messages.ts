@@ -45,6 +45,11 @@ export function evidenceMessages(i18n: I18n) {
       message: "Size not reported",
       comment: "Shown when the build reports no size.",
     }),
+    warnings: i18n._({
+      id: "publish.evidence.warnings",
+      message: "Warnings",
+      comment: "Label of the list of a build's warnings (other than accessibility) on the reports step.",
+    }),
     a11yNone: i18n._({
       id: "publish.evidence.a11yNone",
       message: "No accessibility findings",

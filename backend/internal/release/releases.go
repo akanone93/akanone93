@@ -458,6 +458,28 @@ func (s *Service) GetVersion(ctx context.Context, p auth.Principal, pluginID str
 	return out, err
 }
 
+// GetAppVersion returns a version of an app's bundle (plugin key ""), the
+// app-level documents a release carries beside its plugins.
+func (s *Service) GetAppVersion(ctx context.Context, p auth.Principal, appID string, version int64) (Version, error) {
+	if err := authorize(p, auth.PluginRead, appID); err != nil {
+		return Version{}, plxerr.New(plxerr.ResourceNotFound, "no such app bundle version")
+	}
+	app, err := parseID(appID, "app")
+	if err != nil {
+		return Version{}, err
+	}
+	var out Version
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		v, err := dbgen.New(tx).GetVersion(ctx, dbgen.GetVersionParams{AppID: app, PluginID: pgtype.UUID{}, Version: version})
+		if err != nil {
+			return failure(err, "app bundle version")
+		}
+		out = versionOf(v)
+		return nil
+	})
+	return out, err
+}
+
 // ListVersions lists a plugin's versions, newest first; before is the
 // version to continue before.
 func (s *Service) ListVersions(ctx context.Context, p auth.Principal, pluginID string, before int64, size int32) ([]Version, error) {

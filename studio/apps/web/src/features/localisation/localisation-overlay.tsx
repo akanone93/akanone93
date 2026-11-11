@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
+import { AlertDialog, Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
 import { useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
@@ -16,6 +16,7 @@ import {
   newLocaleDocument,
   readKeys,
   readMessages,
+  removeKeyRecipe,
   setMessageRecipe,
 } from "./l10n-model.ts";
 import { localisationMessages } from "./localisation.messages.ts";
@@ -38,6 +39,8 @@ export interface LocalisationOverlayProps {
   /** Key identifiers the plugin's pages use, and those the selection uses. */
   readonly pluginKeys: ReadonlySet<string>;
   readonly selectionKeys: ReadonlySet<string>;
+  /** The documents of the whole app that use each key, by key identifier: a key in use is not deleted (STU-072). */
+  readonly usage: ReadonlyMap<string, readonly string[]>;
   readonly schemaVersion: JsonValue;
   readonly newId: () => string;
 }
@@ -55,6 +58,15 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
   const keys = useMemo(() => readKeys(keysDoc), [keysDoc]);
   const mine = useMemo(() => readMessages(messagesDoc), [messagesDoc]);
   const rows = keys.filter((k) => filtered(scope, k.id, props));
+  const [deleting, setDeleting] = useState<{ readonly id: string; readonly key: string } | null>(null);
+  // One undo step across the keys and the edited locale's messages, as an extraction is.
+  const remove = (id: string) => {
+    const step = props.newId();
+    props.keysSession.edit(KEYS_PATH, removeKeyRecipe(id), { step });
+    if (props.canEditMessages && mine[id] !== undefined) {
+      props.messagesSession.edit(localePath(props.locale), setMessageRecipe(id, ""), { step });
+    }
+  };
   const shown = props.locales.map((l) => ({
     locale: l,
     messages: l === props.locale ? mine : props.otherMessages.get(l),
@@ -116,6 +128,7 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
                       {c.locale}
                     </th>
                   ))}
+                  <th scope="col">{m.usageColumn}</th>
                 </tr>
               </thead>
               <tbody>
@@ -141,6 +154,15 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
                         )}
                       </td>
                     ))}
+                    <td>
+                      <KeyUse
+                        files={props.usage.get(k.id) ?? []}
+                        canDelete={props.canEditKeys}
+                        label={m.deleteKey(k.key)}
+                        usedIn={m.usedIn}
+                        onDelete={() => setDeleting({ id: k.id, key: k.key })}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -148,7 +170,44 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
           )}
         </SheetSection>
       </SheetLayout>
+      <AlertDialog
+        open={deleting !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleting(null);
+          }
+        }}
+        title={m.deleteKeyTitle}
+        description={m.deleteKeyBody}
+        labels={{ cancel: m.deleteKeyCancel, confirm: m.deleteKeyConfirm }}
+        onConfirm={() => {
+          const target = deleting;
+          setDeleting(null);
+          // Checked again at the moment of deleting: a key used since the dialog opened stays.
+          if (target !== null && (props.usage.get(target.id) ?? []).length === 0) {
+            remove(target.id);
+          }
+        }}
+      />
     </Dialog>
+  );
+}
+
+/** Where a key is used, or, for a key nothing uses, the button that deletes it (STU-072). */
+function KeyUse(p: {
+  readonly files: readonly string[];
+  readonly canDelete: boolean;
+  readonly label: string;
+  readonly usedIn: (count: number, files: string) => string;
+  readonly onDelete: () => void;
+}) {
+  if (p.files.length > 0) {
+    return <span className="text-caption text-muted-foreground">{p.usedIn(p.files.length, p.files.join(", "))}</span>;
+  }
+  return (
+    <Button variant="ghost" size="sm" aria-label={p.label} title={p.label} disabled={!p.canDelete} onClick={p.onDelete}>
+      <Icon name="trash" />
+    </Button>
   );
 }
 

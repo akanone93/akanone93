@@ -8,6 +8,7 @@
  */
 
 import { frameId } from "@plux/canvas";
+import { objectUrl } from "../../lib/object-url.ts";
 import type { UploadJob } from "../panels/upload-asset.ts";
 
 /** Width of a thumbnail in pixels. */
@@ -100,7 +101,7 @@ export async function loadGhostImages(
     if (url === undefined) {
       continue;
     }
-    const bytes = await fetchBytes(url).catch(() => null);
+    const bytes = await fetchBytes(objectUrl(url)).catch(() => null);
     if (bytes !== null) {
       out.push({ screenId: id, key: asset.sha256, bytes });
     }

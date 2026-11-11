@@ -178,6 +178,10 @@ export const ReleaseRequestSchema: GenMessage<ReleaseRequest> = /*@__PURE__*/
  */
 export type SelectedPlugin = Message<"plux.v1.SelectedPlugin"> & {
   /**
+   * plugin_key is the plugin's key, or "" for the app bundle (app.json, the
+   * theme, the translations), which the server adds when the app's own
+   * documents changed since its newest version or it has none (STU-100).
+   *
    * @generated from field: string plugin_key = 1;
    */
   pluginKey: string;

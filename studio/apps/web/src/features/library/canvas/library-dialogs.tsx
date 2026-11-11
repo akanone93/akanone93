@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import type { LibraryItem } from "@plux/api";
 import { Button, Dialog, Field, Input, Select } from "@plux/ui";
 import { type FormEvent, type ReactElement, useState } from "react";
+import { reasonOf } from "../../../components/refusal.tsx";
 import { canvasLibraryMessages } from "./canvas.messages.ts";
 import type { PageStateScan, TemplateParameter } from "./template-doc.ts";
 
@@ -67,6 +68,7 @@ export function SaveTemplateDialog({
   const [exposed, setExposed] = useState<ReadonlySet<string>>(new Set());
   const [visibility, setVisibility] = useState("private");
   const [failed, setFailed] = useState(false);
+  const [reason, setReason] = useState("");
   const submit = async () => {
     try {
       await save(
@@ -74,8 +76,9 @@ export function SaveTemplateDialog({
         candidates.filter((c) => exposed.has(c.path)),
       );
       onClose();
-    } catch {
+    } catch (e) {
       setFailed(true);
+      setReason(reasonOf(e));
     }
   };
   const toggle = (path: string) =>
@@ -140,6 +143,7 @@ export function SaveTemplateDialog({
           {failed && (
             <p role="alert" className="text-body text-danger">
               {m.saveFailed}
+              {reason !== "" && <span className="block text-muted-foreground">{reason}</span>}
             </p>
           )}
           <div className="flex justify-end gap-2">
@@ -165,13 +169,15 @@ export function ExtractComponentDialog({
   const m = canvasLibraryMessages(useLingui().i18n);
   const form = useDetails("");
   const [failed, setFailed] = useState(false);
+  const [reason, setReason] = useState("");
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       await extract(form.details);
       onClose();
-    } catch {
+    } catch (e) {
       setFailed(true);
+      setReason(reasonOf(e));
     }
   };
   return (
@@ -181,6 +187,7 @@ export function ExtractComponentDialog({
         {failed && (
           <p role="alert" className="text-body text-danger">
             {m.saveFailed}
+            {reason !== "" && <span className="block text-muted-foreground">{reason}</span>}
           </p>
         )}
         <Button type="submit" disabled={!form.valid}>

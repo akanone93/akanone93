@@ -39,6 +39,20 @@ export interface PluginEvidence {
   readonly accessibility: readonly { code: string; message: string; warning: boolean }[];
   /** The documents that changed against the previous version; undefined when the plugin has none (a first publish). */
   readonly changes: readonly DocumentChange[] | undefined;
+  /**
+   * The build's warnings with what the server says of each: `id` is the server's name of the warning, `code@file`,
+   * which the Reports step acknowledges (SRV-051).
+   */
+  readonly warnings: readonly WarningDetail[];
+}
+
+/** One warning of a build, as the publish job reported it. */
+export interface WarningDetail {
+  readonly id: string;
+  readonly code: string;
+  readonly file: string;
+  readonly message: string;
+  readonly fix: string;
 }
 
 async function versionsOf(releases: Client<typeof ReleaseService>, pluginId: string): Promise<PluginVersion[]> {
@@ -86,6 +100,12 @@ async function evidenceOf(
       .filter((d) => isAccessibilityCode(d.code))
       .map((d) => ({ code: d.code, message: d.message, warning: d.severity !== Severity.ERROR })),
     changes,
+    warnings: (job?.job?.diagnostics ?? [])
+      .filter((d) => d.severity === Severity.WARNING)
+      .map((d) => {
+        const file = d.location?.file ?? "";
+        return { id: `${d.code}@${file}`, code: d.code, file, message: d.message, fix: d.fix };
+      }),
   };
 }
 

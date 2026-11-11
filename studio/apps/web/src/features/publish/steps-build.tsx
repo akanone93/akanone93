@@ -5,11 +5,12 @@ import { useLingui } from "@lingui/react";
 import type { BuildRef, PublishJob } from "@plux/api";
 import { Button, StatusPill } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { bundleName } from "./bundle-name.ts";
 import { evidenceMessages } from "./evidence.messages.ts";
 import { PluginReport } from "./evidence.tsx";
 import type { PanelProps } from "./panel.ts";
 import { publishMessages } from "./publish.messages.ts";
-import { useEvidence } from "./use-evidence.ts";
+import { type PluginEvidence, useEvidence, type WarningDetail } from "./use-evidence.ts";
 import { useJobs } from "./use-publish.ts";
 import { WarningsDialog } from "./warnings-dialog.tsx";
 
@@ -21,7 +22,7 @@ export function SelectPanel({ request, editable, busy, api, run }: PanelProps): 
       <ul className="flex flex-col gap-2">
         {request.plugins.map((p) => (
           <li key={p.pluginKey} className="flex items-center gap-3 text-body">
-            <span className="font-mono">{p.pluginKey}</span>
+            <span className="font-mono">{bundleName(p.pluginKey, m.appBundle)}</span>
             <span className="text-muted-foreground">
               {p.reason === "dependency" ? m.reasonDependency : m.reasonChanged}
             </span>
@@ -71,7 +72,7 @@ function JobRow({
   return (
     <li className="flex flex-col gap-1 text-body">
       <span className="flex items-center gap-3">
-        <span className="font-mono">{pluginKey}</span>
+        <span className="font-mono">{bundleName(pluginKey, m.appBundle)}</span>
         <StatusPill status={jobKind(state)} label={jobLabel(m, state)} />
         {state === "running" && (
           <span className="text-muted-foreground">{m.buildProgress(String(job?.percent ?? 0), job?.stage ?? "")}</span>
@@ -175,7 +176,7 @@ export function ReportsPanel({ request, editable, busy, api, run, pluginIds }: P
       <ul className="flex flex-col gap-2">
         {request.builds.map((b) => (
           <li key={b.pluginKey} className="flex flex-wrap items-center gap-3 text-body">
-            <span className="font-mono">{b.pluginKey}</span>
+            <span className="font-mono">{bundleName(b.pluginKey, m.appBundle)}</span>
             <span className="font-mono text-muted-foreground">{m.reportBundle(b.bundleSha256.slice(0, 8))}</span>
             {b.errors > 0 && <StatusPill status="danger" label={m.reportErrors(String(b.errors))} />}
             {b.warnings.length > 0 && (
@@ -226,6 +227,7 @@ export function ReportsPanel({ request, editable, busy, api, run, pluginIds }: P
       {open && (
         <WarningsDialog
           warnings={missing}
+          details={warningDetails(evidence.data)}
           onClose={() => setOpen(false)}
           onConfirm={(a) => {
             setOpen(false);
@@ -235,4 +237,17 @@ export function ReportsPanel({ request, editable, busy, api, run, pluginIds }: P
       )}
     </div>
   );
+}
+
+/** The builds' warnings by their `code@file` name, for the acknowledgement (SRV-051). */
+function warningDetails(
+  evidence: readonly PluginEvidence[] | undefined,
+): ReadonlyMap<string, readonly WarningDetail[]> {
+  const out = new Map<string, WarningDetail[]>();
+  for (const e of evidence ?? []) {
+    for (const w of e.warnings) {
+      out.set(w.id, [...(out.get(w.id) ?? []), w]);
+    }
+  }
+  return out;
 }

@@ -122,44 +122,33 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    (`features/auth/device-login-page.tsx`), never approves on arrival and asks the person to confirm they started
    the sign-in; `server.studioBaseURL` lets the WebAuthn ceremony run on Studio's own origin (dev: `:8081`) under
    the public URL's relying party; a session without a second factor cannot enrol a key on an account that has one.
-5. Deferred fixes (after the hello-world check): `inline-text.test.ts` hangs (its sessions never save, and extraction
-   now waits for the save, b35be536); asset images under `cdnBaseURL` are blocked by Studio's CSP and COEP; `make setup`
-   on a fresh Ubuntu/WSL stops at pip (`No module named pip`) and at `install-flatc` (needs cmake): it should check for
-   and install `pipx` and `cmake g++` itself (apt, with sudo) when they are missing. `make dev` fails with
-   `permission denied … docker.sock` when the user is not in the `docker` group: setup should check Docker access
-   and print the fix (`sudo usermod -aG docker $USER`, or Docker Desktop's WSL integration for the distribution).
-   `make dev` skips seeding whenever `deploy/compose/.secrets/dev.env` exists, even when the Docker volumes are new
-   (a reset Docker or WSL): the old token is not in the new database and `dev-starter` fails with PLX-8012. Seeding
-   should check the token against the server (or record the volume it seeded) and seed again when it is stale.
-   `plux init --app <key>` resolves the key for the files it writes, but its closing doctor check calls `GetApp` with
-   the raw key and reports `FAIL app … PLX-1005` (`cmd/plux/cmd_project.go` doctor `app` step); it should use the
-   resolved ID.
-   On Windows with the pub cache on C: and the app on D:, the Android build fails in Kotlin's incremental compiler
-   ("this and base files have different roots"); the host-app guide (and `plux init`) should add
-   `kotlin.incremental=false` to `android/gradle.properties`.
-   **Dropped refusal reasons (audit every area):** several Studio screens turned a server refusal into a generic
-   message, so the way past it was never offered: the publish start page dropped PLX-6200 (fixed, `a4b683d2`), the
-   build step showed only "Failed" without the job's diagnostics (fixed), and the publish steps still say "The step
-   failed. Try again." for any other code (PLX-8090 included). Sweep every `catch`/`isError` in `apps/web/src` and
-   pass the error to `Refusal`/`PageStatus` or show its code and message. Also: the publish start page's refusal reads
-   "This page shows sensitive settings", which is wrong for an action; `RequestVisualDiff` answers 500 (PLX-8090,
-   "job kind is not registered: releasereq.render") when no render worker is configured instead of saying so.
-   **Problems misses app-level findings:** the canvas's live check (`compiler.Validator.ValidatePage`) keeps only
-   diagnostics whose file is the open page, so translation findings (`PLX-1606` missing message, `PLX-1608` unused
-   key, in `translations/*.json`) appear only when a publish compiles everything, where they fail the build
-   (`PLX-8051`). Problems should show the app's and plugin's own findings too. The publish flow's builds also fail on
-   any warning although the Reports step is where warnings are acknowledged (`SRV-051`). *Decided (maintainer, option
-   A) and fixed:* the release flow builds with `acknowledgeWarnings`, and the server's Reports step still requires the
-   publisher to acknowledge each warning before the request moves on. **No way to delete a translation key:**
-   Localisation can add keys and edit messages but not delete a key (`STU-072` expects deletion with "where used"
-   protection); an unused key (`PLX-1608`) can only be used or left. **Reports shows warnings as bare ids:** the Acknowledge warnings dialog lists `PLX-1606@translations/de.json`, not the message, cause and fix the job holds; show them (and on the Reports card) before asking for the acknowledgement. **Visual diffs block a local publish:** the step is required (`diffDone`), but `make dev` does not start the
-   render worker (compose profile `visual-diff`), so the diff stays *Queued* and then fails after its attempts, with
-   nothing saying no render worker is running. `make dev` should start the profile, or the step should say the
-   worker is missing (and the server should refuse the request at once rather than queue it). Until then: `COMPOSE_PROFILES=visual-diff make dev`. The render worker's image did not build (its Dockerfile resolved `plux_flutter` outside the pub workspace); fixed to copy the workspace root and member pubspecs, checked by running the same `flutter pub get --enforce-lockfile` and an offline render-project resolve with Flutter 3.47.5 here (no Docker here; the image itself is not built). **Studio cannot publish an app's first release:** a release needs a published app bundle (`app.json`, theme,
-   translations; key ""), but the release flow selects and builds plugins only (`releasereq.checkSelection`), so a new
-   app's visual diff fails with PLX-8052 "the app bundle has no published version" (and so would the release), and
-   app-level changes are never published from Studio. The flow should include the app bundle when it has unpublished
-   changes or no version (`STU-100`). Workaround: `plux publish --no-import --promote development` once.
+5. Deferred fixes. *Fixed 2026-11-11 (maintainer's go-ahead: "fully publish using the Studio flow"):*
+   - **App bundle in the release flow (`STU-100`):** a release request adds the app bundle (key "", shown as
+     **App (theme, translations, settings)**) when the app's own documents changed after its newest version or it
+     has none (`document.AppBundleChanged`, `releasereq.checkSelection`); builds of key "" read the app version
+     (`release.Releases.GetAppVersion`); `ListPluginSummaries` reports `app_unpublished_changes`, so Studio starts a
+     request when only the app changed. Verified live: a new app published through every step, visual diffs
+     included, to "Released as release 1"; `plux pull` got `_app.pxb`.
+   - **Visual diffs without a render worker:** the server registers the render queue only with
+     `renderWorker.address`, and `RequestVisualDiff` refuses at once (PLX-8033, saying what to
+     configure) instead of PLX-8090; `make dev` starts the `visual-diff` profile (`DEV_PROFILES=` omits it).
+   - **Refusal reasons:** publish steps show "The step failed: <server message>"; `Refusal` shows a `PLX-` reason;
+     app settings and library dialogs show the reason; the step-up body no longer says "sensitive settings".
+   - **Reports:** a Warnings list (code, message, file, fix) and the same details in the acknowledgement dialog;
+     a release maker failure lists its first three findings.
+   - **Problems:** the canvas validates the whole project (`Validator.ValidateProject`, WASM with no file) and keeps
+     the app's and the plugin's own findings (`PLX-1606`, `PLX-1608` in `translations/`).
+   - **Delete a translation key (`STU-072`):** a **Used** column; an unused key is deleted with its message in the
+     edited locale as one undo step, under the key locks; a used key cannot be.
+   - **Asset images:** `/v1/objects/…` URLs are served through the BFF (`/api/v1/objects/…`, `lib/object-url.ts`),
+     same origin, so CSP and COEP allow them (unit-tested; not checked live).
+   - **Tooling:** `make setup` installs missing pipx, git, cmake and g++ (apt with sudo, or prints the macOS steps);
+     `make dev` checks Docker access and prints the fix; a stale `dev.env` token is set aside and the stack reseeded;
+     `plux init`'s doctor resolves the app key; the host-app guide covers `kotlin.incremental=false` on Windows;
+     `inline-text.test.ts` no longer hangs.
+   *Still open:* Layers does not name slots; the app bundle's Reports row says "Size not reported"; deleting a key
+   leaves its messages in the other locales (reported as `PLX-1608` until edited); task 1's live pass and task 3's
+   screen move and link rename were not run.
 6. Update the `docs/WORKLOG.md` note of 2026-11-08 with what the live pass found, and delete this folder once
    merged.
 

@@ -132,6 +132,34 @@ export function addKeyRecipe(entry: { id: string; key: string; description?: str
   };
 }
 
+/** The recipe that removes a key from a `translationKeys` document (STU-072: only a key nothing refers to). */
+export function removeKeyRecipe(id: string): (d: DocumentDraft) => void {
+  return (d) => {
+    const keys = Array.isArray(d["keys"]) ? (d["keys"] as unknown[]) : [];
+    d["keys"] = keys.filter((k) => !(isObj(k) && k["id"] === id));
+  };
+}
+
+/**
+ * Where each translation key is used, by key identifier: the documents that refer to it with `{"$t": id}`, so a key in
+ * use is not deleted and its uses can be named (STU-072).
+ */
+export function keyUsage(
+  documents: readonly { readonly path: string; readonly content: unknown }[],
+): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const d of documents) {
+    for (const r of referencedKeys(d.content)) {
+      const files = out.get(r.id) ?? [];
+      if (!files.includes(d.path)) {
+        files.push(d.path);
+      }
+      out.set(r.id, files);
+    }
+  }
+  return out;
+}
+
 /** The recipe that sets (or, for an empty text, removes) one message of a `translations` document. */
 export function setMessageRecipe(id: string, text: string): (d: DocumentDraft) => void {
   return (d) => {

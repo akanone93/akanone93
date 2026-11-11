@@ -161,6 +161,39 @@ export function localisationMessages(i18n: I18n) {
       message: "Keys can be created once the draft lock and the default locale's lock are yours.",
       comment: "Notice in the key extraction dialog when a lock the extraction needs is held by someone else.",
     }),
+    deleteKey: (key: string) =>
+      i18n._({
+        id: "localisation.delete-key",
+        message: "Delete {key}",
+        values: { key },
+        comment: "Accessible label of the button that deletes an unused translation key.",
+      }),
+    deleteKeyTitle: i18n._({
+      id: "localisation.delete-key.title",
+      message: "Delete this translation key?",
+      comment: "Title of the confirmation before deleting a translation key.",
+    }),
+    deleteKeyBody: i18n._({
+      id: "localisation.delete-key.body",
+      message:
+        "Nothing in the app uses it. The key and its message in the locale you are editing are removed; this is one undo step.",
+      comment: "Body of the confirmation before deleting an unused translation key.",
+    }),
+    deleteKeyConfirm: i18n._({ id: "localisation.delete-key.confirm", message: "Delete", comment: "Confirm button." }),
+    deleteKeyCancel: i18n._({ id: "localisation.delete-key.cancel", message: "Cancel", comment: "Cancel button." }),
+    usedIn: (count: number, files: string) =>
+      i18n._({
+        id: "localisation.used-in",
+        message: "{count, plural, one {Used in # document} other {Used in # documents}}: {files}",
+        values: { count, files },
+        comment:
+          "Where a translation key is used, so it cannot be deleted (STU-072); files is a list of document paths.",
+      }),
+    usageColumn: i18n._({
+      id: "localisation.usage-column",
+      message: "Used",
+      comment: "Heading of the column that says where each key is used or offers to delete an unused one.",
+    }),
   };
 }
 

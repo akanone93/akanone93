@@ -118,7 +118,12 @@ func (f *fake) ListApps(_ context.Context, r *connect.Request[pluxv1.ListAppsReq
 	return connect.NewResponse(&pluxv1.ListAppsResponse{Apps: []*pluxv1.App{{Id: "a1", Key: "demo", OrganizationId: "o1"}}}), nil
 }
 
+// GetApp takes an app's ID only, as the server does: a key is not a valid
+// identifier (PLX-1005).
 func (*fake) GetApp(_ context.Context, r *connect.Request[pluxv1.GetAppRequest]) (*connect.Response[pluxv1.GetAppResponse], error) {
+	if r.Msg.GetId() != "a1" {
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("PLX-1005: the app identifier is not valid"))
+	}
 	return connect.NewResponse(&pluxv1.GetAppResponse{App: &pluxv1.App{Id: r.Msg.GetId()}}), nil
 }
 

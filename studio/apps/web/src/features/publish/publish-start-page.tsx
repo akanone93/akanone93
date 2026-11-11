@@ -8,7 +8,7 @@ import { type ReactElement, useEffect } from "react";
 import { PageEmpty, PageHeader, PageStatus } from "../../components/page.tsx";
 import { useEnvironment, useScope } from "../security/use-security.ts";
 import { publishMessages } from "./publish.messages.ts";
-import { useStartRequest, useSummaries } from "./use-publish.ts";
+import { useAppChanges, useStartRequest, useSummaries } from "./use-publish.ts";
 
 /** A1: resumes the open release request or creates one with the plugins that have unpublished changes (STU-100). */
 export function PublishStartPage(): ReactElement {
@@ -19,19 +19,21 @@ export function PublishStartPage(): ReactElement {
   const environment = useEnvironment(app, env);
   const summaries = useSummaries(app);
   const start = useStartRequest();
+  const appChanges = useAppChanges(app);
   const environmentId = environment.environment?.id;
   const loaded = summaries.data;
+  const appChanged = appChanges.data;
   // A query, not an effect, so that a refusal reaches the page with its reason: publishing needs a fresh
   // security-key confirmation (SEC-103), and the refusal's "confirm" runs the active queries again, this one
   // included. The server resumes the open request rather than opening a second one.
   const started = useQuery({
     queryKey: ["publish-start", app, environmentId],
-    enabled: environmentId !== undefined && loaded !== undefined,
+    enabled: environmentId !== undefined && loaded !== undefined && appChanged !== undefined,
     queryFn: async () => {
       const changed = (loaded ?? [])
         .filter((s) => s.unpublishedChanges)
         .map((s) => ({ pluginKey: s.plugin?.key ?? "", reason: "changed" }));
-      return { id: await start(app, environmentId ?? "", changed) };
+      return { id: await start(app, environmentId ?? "", changed, appChanged === true) };
     },
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
@@ -46,7 +48,7 @@ export function PublishStartPage(): ReactElement {
     }
   }, [app, id, navigate, org]);
   const nothing = started.isSuccess && id === undefined;
-  const failed = environment.failed || summaries.isError || started.isError;
+  const failed = environment.failed || summaries.isError || appChanges.isError || started.isError;
   return (
     <section className="page-frame" aria-labelledby="publish-title">
       <PageHeader id="publish-title" title={m.title} />

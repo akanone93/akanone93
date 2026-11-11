@@ -5,8 +5,10 @@ import { useLingui } from "@lingui/react";
 import type { DocumentChange, PatchOp, VisualDiffScreen } from "@plux/api";
 import { StatusPill } from "@plux/ui";
 import type { ReactElement } from "react";
+import { bundleName } from "./bundle-name.ts";
 import { evidenceMessages } from "./evidence.messages.ts";
-import type { PluginEvidence } from "./use-evidence.ts";
+import { publishMessages } from "./publish.messages.ts";
+import { isAccessibilityCode, type PluginEvidence } from "./use-evidence.ts";
 import { useDiffImage } from "./use-publish.ts";
 
 type Messages = ReturnType<typeof evidenceMessages>;
@@ -19,11 +21,15 @@ function kib(bytes: bigint): string {
 
 /** Size and accessibility of one built plugin, from the plugin version and the publish job (STU-100, A11Y-008). */
 export function PluginReport({ evidence }: { readonly evidence: PluginEvidence }): ReactElement {
-  const m = evidenceMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = evidenceMessages(i18n);
+  const app = publishMessages(i18n).appBundle;
   const { size, previousSize, accessibility } = evidence;
+  // Accessibility findings have their own list above; the rest of the warnings, with what the server says of them.
+  const warnings = evidence.warnings.filter((w) => !isAccessibilityCode(w.code));
   return (
     <li className="flex flex-col gap-1 rounded-sm border border-hairline p-3">
-      <span className="font-mono text-data">{evidence.pluginKey}</span>
+      <span className="font-mono text-data">{bundleName(evidence.pluginKey, app)}</span>
       <div className="flex flex-wrap items-center gap-3 text-body">
         <span className="text-muted-foreground">{m.size}</span>
         {size === undefined ? (
@@ -53,6 +59,20 @@ export function PluginReport({ evidence }: { readonly evidence: PluginEvidence }
             <li key={`${d.code}/${i}`} className="flex gap-2">
               <span className="font-mono text-muted-foreground">{d.code}</span>
               <span>{d.message}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {warnings.length > 0 && (
+        <ul aria-label={m.warnings} className="flex flex-col gap-1 text-body">
+          {warnings.map((w, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: warnings have no identity of their own
+            <li key={`${w.id}/${i}`} className="flex flex-col">
+              <span>
+                <span className="font-mono text-muted-foreground">{w.code}</span> {w.message}
+                {w.file !== "" && <span className="font-mono text-muted-foreground"> ({w.file})</span>}
+              </span>
+              {w.fix !== "" && <span className="text-muted-foreground">{w.fix}</span>}
             </li>
           ))}
         </ul>
@@ -122,18 +142,22 @@ function Change({ change }: { readonly change: DocumentChange }): ReactElement {
 
 /** The JSON diff of the documents each plugin changed against its previous version (STU-100). */
 export function JsonDiff({ evidence }: { readonly evidence: readonly PluginEvidence[] }): ReactElement {
-  const m = evidenceMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = evidenceMessages(i18n);
+  const app = publishMessages(i18n).appBundle;
   return (
     <section className="flex flex-col gap-2" aria-label={m.jsonDiff}>
       <h3 className="text-label font-medium">{m.jsonDiff}</h3>
       {evidence.map((e) =>
         e.changes === undefined ? (
           <p key={e.pluginKey} className="text-body text-muted-foreground">
-            <span className="font-mono">{e.pluginKey}</span> {m.jsonDiffFirst}
+            <span className="font-mono">{bundleName(e.pluginKey, app)}</span> {m.jsonDiffFirst}
           </p>
         ) : (
           <details key={e.pluginKey} open={e.changes.length > 0}>
-            <summary className="text-body">{m.jsonDiffSummary(e.pluginKey, String(e.changes.length))}</summary>
+            <summary className="text-body">
+              {m.jsonDiffSummary(bundleName(e.pluginKey, app), String(e.changes.length))}
+            </summary>
             {e.changes.length === 0 ? (
               <p className="text-body text-muted-foreground">{m.jsonDiffNone}</p>
             ) : (

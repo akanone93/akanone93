@@ -13,8 +13,9 @@ export function refusalMessages(i18n: I18n) {
     }),
     stepUpBody: i18n._({
       id: "refusal.step-up.body",
-      message: "This page shows sensitive settings. Confirm with your passkey to open it for the next five minutes.",
-      comment: "Explains the step-up a page needs (SEC-103).",
+      message:
+        "This needs your security key, confirmed in the last five minutes. Confirm with your passkey to continue.",
+      comment: "Explains the step-up a page or an action needs before the server answers (SEC-103).",
     }),
     stepUpAction: i18n._({
       id: "refusal.step-up.action",

@@ -101,7 +101,7 @@ type RenderWorker struct {
 	// Address is the base URL of the render worker, such as
 	// "https://render-worker:8443". The worker role renders through it with
 	// the identity of server.internalTLS; empty means this installation
-	// renders no visual diffs, and a requested diff stays queued.
+	// renders no visual diffs, and a request for one is refused, saying so.
 	Address string `json:"address"`
 }
 

@@ -6,13 +6,15 @@ import { useLingui } from "@lingui/react";
 import { type Asset, AssetService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { type ReactElement, useId } from "react";
+import { objectUrl } from "../../lib/object-url.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { Choice } from "../new-app/choice.tsx";
 import { shellSettingsMessages } from "./shell-settings.messages.ts";
 
 /** The first URL of an asset's processed forms, or undefined while it has none. */
 function urlOf(asset: Asset): string | undefined {
-  return asset.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
+  const url = asset.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
+  return url === undefined ? undefined : objectUrl(url);
 }
 
 /**

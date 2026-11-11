@@ -78,9 +78,16 @@ func (k *serviceKit) buildReleaseRequests(svc *Services) *releasereq.Service {
 	if svc.Functions != nil {
 		functions = svc.Functions
 	}
+	// Visual diffs are queued only where a render worker is configured: without
+	// one no process runs the render jobs, and a request for a diff is refused
+	// at once, saying so, rather than queued for ever (O-9).
+	var queue releasereq.RenderQueue
+	if k.cfg.RenderWorker.Address != "" {
+		queue = renderQueue{k.work.Queue}
+	}
 	return releasereq.New(releasereq.Options{
 		Functions: functions,
-		DB:        k.db, IDs: k.gen, Builds: releasereq.ReleaseBuilds{Releases: svc.Releases}, Jobs: renderQueue{k.work.Queue},
+		DB:        k.db, IDs: k.gen, Builds: releasereq.ReleaseBuilds{Releases: svc.Releases}, Jobs: queue,
 		Objects: k.work.Objects, Sources: releasereq.ReleaseSources{Releases: svc.Releases}, Releaser: releasereq.ReleaseMaker{Releases: svc.Releases}, Approvals: k.approvals, Renderer: k.work.Renderer,
 		Limits: func(ctx context.Context, tx pgx.Tx, organizationID string) (limits.Set, error) {
 			return svc.Tenancy.Effective(ctx, tx, organizationID, "", "") //nolint:wrapcheck // a domain error
@@ -90,8 +97,8 @@ func (k *serviceKit) buildReleaseRequests(svc *Services) *releasereq.Service {
 
 // attachRenderer gives the worker role its route to the render worker over the
 // mutual TLS of server.internalTLS, where renderWorker.address is set (O-9,
-// SEC-043). Without it the process runs no render jobs, and a requested
-// visual diff stays queued.
+// SEC-043). Without it the process runs no render jobs, and a visual diff is
+// refused as not rendered by this installation.
 func attachRenderer(cfg *config.Config, deps *WorkDeps) error {
 	if cfg.RenderWorker.Address == "" || deps.Renderer != nil {
 		return nil

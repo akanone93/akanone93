@@ -34,7 +34,12 @@ still lacks ("3 of 40 missing").
    default locale, and the reference on the page), and it applies as a whole or not at all: the page refers to the
    key only once the server has stored the key and its message. If the server refuses either, the other is rolled
    back, a message says why, and the text keeps its literal value; a page never points at a key that does not exist.
-5. To use a key that already exists, select the text and open **Properties › Content**. The button at the end of the
+5. The **Used** column of the Localisation table names the documents that use each key. A key nothing
+   uses can be deleted there (the trash button, then **Delete**): the key and its message in the
+   **Locale to edit** go in one undo step. Deleting needs the same locks as **Add key**. A key still
+   in use cannot be deleted. Messages of the key in the other locales stay until
+   those locales are edited; the server reports them as unused (`PLX-1608`).
+6. To use a key that already exists, select the text and open **Properties › Content**. The button at the end of the
    text's row (**Data** for a `Text`) switches it between a literal, a **Translation key** and a PXL expression;
    choose **Translation key** and pick the key. The list holds every key of the app, including one added on this
    canvas a moment ago, and the canvas then shows the key's message in the previewed locale. A key's message is

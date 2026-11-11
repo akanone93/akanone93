@@ -32,6 +32,16 @@ export function useSummaries(app: string) {
   });
 }
 
+/** Whether the app's own documents (app.json, theme, translations) have changes no app bundle version holds (STU-100). */
+export function useAppChanges(app: string) {
+  const { session } = useApp();
+  return useQuery({
+    queryKey: ["app-unpublished-changes", app],
+    queryFn: async () =>
+      (await createClient(PluginService, session.transport).listPluginSummaries({ appId: app })).appUnpublishedChanges,
+  });
+}
+
 /** The release request as the server holds it; polls while a build, a diff or an approval is in flight. */
 export function useReleaseRequest(app: string, id: string) {
   const { session } = useApp();
@@ -103,18 +113,25 @@ export function useReleaseApi(
 
 export type ReleaseApi = ReturnType<typeof useReleaseApi>;
 
-/** A1: resumes the open release request of the app or opens one with the changed plugins (one open request per app and channel). */
+/**
+ * A1: resumes the open release request of the app or opens one with the changed plugins (one open request per app and
+ * channel). The server adds the app bundle when the app's own documents changed or it was never published, so a
+ * request also opens when only the app changed (`appChanged`, STU-100).
+ */
 export function useStartRequest() {
   const { session } = useApp();
   return async (
     appId: string,
     environmentId: string,
     plugins: MessageInitShape<typeof SelectedPluginSchema>[],
+    appChanged = false,
   ): Promise<string | undefined> => {
     const client = createClient(ReleaseRequestService, session.transport);
     if (plugins.length === 0) {
       const { requests } = await client.listReleaseRequests({ appId, openOnly: true });
-      return requests[0]?.id;
+      if (requests[0] !== undefined || !appChanged) {
+        return requests[0]?.id;
+      }
     }
     return (await client.createReleaseRequest({ appId, environmentId, plugins })).request?.id;
   };

@@ -7,8 +7,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import type { ReactNode } from "react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
-import { type DocumentTransport, EditSession } from "../editor/edit-session.ts";
-import type { JsonValue } from "../editor/json-patch.ts";
+import { type DocumentTransport, EditSession, type ServerDocument } from "../editor/edit-session.ts";
+import { applyPatch, type JsonValue } from "../editor/json-patch.ts";
 import { UndoManager } from "../editor/undo-stack.ts";
 import { setPropRecipe } from "../panels/properties-model.ts";
 import { ExtractKeyDialog } from "./extract-key-dialog.tsx";
@@ -26,16 +26,31 @@ function session(
   docs: Record<string, JsonValue>,
   undo?: { readonly manager: UndoManager; readonly stack: string },
 ): EditSession {
+  // A server that stores every save: extracting a key waits until the key and its message are stored before the page
+  // refers to them (b35be536), so a server that never stored would leave the extraction waiting for ever.
+  const stored = new Map<string, ServerDocument>();
   const transport: DocumentTransport = {
-    patch: async () => {
-      throw new Error("not saved in this test");
+    patch: async (path, ops, ifRevision) => {
+      const doc = stored.get(path);
+      if (doc === undefined || doc.revision !== ifRevision) {
+        throw new Error("conflict");
+      }
+      const next = { path, revision: doc.revision + 1n, content: applyPatch(doc.content, ops) };
+      stored.set(path, next);
+      return next;
     },
     get: async () => {
       throw new Error("unused");
     },
-    put: async (path, content) => ({ path, revision: 1n, content }),
-    remove: async () => undefined,
-    classify: () => "transient",
+    put: async (path, content) => {
+      const doc = { path, revision: 1n, content };
+      stored.set(path, doc);
+      return doc;
+    },
+    remove: async (path) => {
+      stored.delete(path);
+    },
+    classify: () => "rejected",
   };
   const s = new EditSession({
     transport,
@@ -54,7 +69,9 @@ function session(
   });
   undo?.manager.attach(undo.stack, s);
   for (const [path, content] of Object.entries(docs)) {
-    s.open({ path, revision: 1n, content });
+    const doc = { path, revision: 1n, content };
+    stored.set(path, doc);
+    s.open(doc);
   }
   return s;
 }
@@ -87,6 +104,7 @@ function overlay(over: Partial<Parameters<typeof LocalisationOverlay>[0]> = {}) 
     otherMessages: new Map([["de", { k1: "Willkommen" }]]),
     pluginKeys: new Set(["k1"]),
     selectionKeys: new Set<string>(),
+    usage: new Map([["k1", ["plugins/main/pages/home.page.json"]]]),
     schemaVersion: 1,
     newId,
     ...over,
@@ -142,6 +160,42 @@ describe("[STU-063] localisation table V4", () => {
     overlay({ selectionKeys: new Set(["k2"]) });
     expect(await screen.findByText("home.cta")).toBeDefined();
     expect(screen.queryByText("home.title")).toBeNull();
+  });
+  test("[STU-072] a key in use says where and cannot be deleted; an unused one is deleted with its message after confirming", async () => {
+    const { keys, messages } = overlay({
+      pluginKeys: new Set(["k1", "k2"]),
+      usage: new Map([["k1", ["plugins/main/pages/home.page.json"]]]),
+    });
+    // The test catalogue fills simple placeholders, not plurals: the document list is what is checked.
+    await screen.findByText(/: plugins\/main\/pages\/home\.page\.json$/);
+    expect(screen.queryByRole("button", { name: "Delete home.title" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Delete home.cta" }));
+    await screen.findByText("Delete this translation key?");
+    expect(keys.store.getState().docs["translations/keys.json"]?.content).toEqual(keysDoc);
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await waitFor(() =>
+      expect(keys.store.getState().docs["translations/keys.json"]?.content).toEqual({
+        kind: "translationKeys",
+        keys: [{ id: "k1", key: "home.title" }],
+      }),
+    );
+    // The edited locale had no message for the deleted key, so its document is unchanged.
+    expect(messages.store.getState().docs["translations/en.json"]?.content).toEqual({
+      kind: "translations",
+      locale: "en",
+      messages: { k1: "Welcome" },
+    });
+  });
+
+  test("[STU-072] a key's usage spans every document of the app", async () => {
+    const { keyUsage } = await import("./l10n-model.ts");
+    const usage = keyUsage([
+      { path: "plugins/a/pages/p.page.json", content: { root: { id: "n", props: { data: { $t: "k1" } } } } },
+      { path: "plugins/b/pages/q.page.json", content: { title: { $t: "k1" }, root: { id: "m" } } },
+      { path: "translations/keys.json", content: { keys: [{ id: "k1", key: "x" }] } },
+    ]);
+    expect(usage.get("k1")).toEqual(["plugins/a/pages/p.page.json", "plugins/b/pages/q.page.json"]);
+    expect(usage.get("k2")).toBeUndefined();
   });
 });
 

@@ -142,6 +142,12 @@ export function publishMessages(i18n: I18n) {
     buildRunning: i18n._({ id: "publish.buildRunning", message: "Running", comment: "State of a publish job." }),
     buildSucceeded: i18n._({ id: "publish.buildSucceeded", message: "Built", comment: "State of a publish job." }),
     buildFailed: i18n._({ id: "publish.buildFailed", message: "Failed", comment: "State of a publish job." }),
+    appBundle: i18n._({
+      id: "publish.appBundle",
+      message: "App (theme, translations, settings)",
+      comment:
+        "Name of the app bundle in the publish steps: the app-level documents a release carries beside its plugins.",
+    }),
     buildCancelled: i18n._({ id: "publish.buildCancelled", message: "Cancelled", comment: "State of a publish job." }),
     buildProgress: (percent: string, stage: string) =>
       i18n._({
@@ -373,6 +379,14 @@ export function publishMessages(i18n: I18n) {
       message: "The step failed. Try again.",
       comment: "Generic publish step error.",
     }),
+    errReason: (reason: string) =>
+      i18n._({
+        id: "publish.errReason",
+        message: "The step failed: {reason}",
+        values: { reason },
+        comment:
+          "A publish step the server refused; reason is the server's own code and message, such as 'PLX-8052: …'.",
+      }),
     stepUpFailed: i18n._({
       id: "publish.stepUpFailed",
       message: "The security check could not start.",

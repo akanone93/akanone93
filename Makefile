@@ -73,7 +73,7 @@ FLATC         ?= $(FLATC_DIR)/flatc
 MK_FRAGMENTS := go codecs functions dart bench studio stack helm iac device repo l10n
 
 .PHONY: help setup hooks-install check check-changed test build gen-check clean \
-	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-helm-tools install-tofu install-python-tools install-flatc \
+	install-prerequisites install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-helm-tools install-tofu install-python-tools install-flatc \
 	go-tool-pins helm-tool-pins flatc-pin
 
 help: ## Show this help
@@ -83,10 +83,31 @@ help: ## Show this help
 
 ##@ Everyday
 
-setup: install-go-tools install-helm-tools install-tofu install-python-tools install-flatc ## Install pinned tools and git hooks (run once after cloning)
+setup: install-prerequisites install-go-tools install-helm-tools install-tofu install-python-tools install-flatc ## Install pinned tools and git hooks (run once after cloning)
 	@command -v flutter >/dev/null || echo "! Install Flutter $(FLUTTER_VERSION): https://docs.flutter.dev/get-started/install"
 	@command -v bun >/dev/null || echo "! Install Bun $(BUN_VERSION): https://bun.sh/docs/installation"
 	"$(MAKE)" hooks-install
+
+# The system packages the pinned tools need: pipx for the Python tools (the
+# system pip refuses user installs on Debian and Ubuntu, PEP 668), git, cmake
+# and a C++ compiler to build flatc. On Debian, Ubuntu or WSL the missing ones
+# are installed with apt (sudo asks for the password); elsewhere the command to
+# run is printed. Nothing is installed when all are present.
+install-prerequisites: ## Install the system packages make setup needs where they are missing (pipx, git, cmake, g++)
+	@missing=""; \
+	command -v pipx >/dev/null || missing="$$missing pipx"; \
+	command -v git >/dev/null || missing="$$missing git"; \
+	command -v cmake >/dev/null || missing="$$missing cmake"; \
+	command -v c++ >/dev/null || missing="$$missing g++"; \
+	if [ -z "$$missing" ]; then exit 0; fi; \
+	if command -v apt-get >/dev/null; then \
+		echo "Installing the missing system packages:$$missing (apt-get, with sudo)"; \
+		sudo apt-get update -qq && sudo apt-get install -y $$missing || exit 1; \
+		pipx ensurepath >/dev/null 2>&1 || true; \
+	else \
+		echo "✗ make setup needs:$$missing. On macOS: brew install pipx cmake git, and xcode-select --install for a C++ compiler" >&2; \
+		exit 1; \
+	fi
 
 install-go-tools: install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc ## Install the pinned Go-based tools
 
@@ -163,7 +184,8 @@ install-flatc: ## Build the pinned flatc from source into FLATC_DIR (ADR-0002)
 	mkdir -p "$(FLATC_DIR)"; cp "$$src/build/flatc" "$(FLATC)"; "$(FLATC)" --version
 
 hooks-install: ## Register the git hooks (pre-commit, commit-msg, pre-push)
-	pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+	@# pipx puts pre-commit in ~/.local/bin, which a fresh shell may not have on its PATH yet.
+	PATH="$$HOME/.local/bin:$$PATH" pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 
 check: repo-check go-check dart-check studio-check helm-lint ## Run every quality gate CI runs
 	@echo "✓ All checks passed"

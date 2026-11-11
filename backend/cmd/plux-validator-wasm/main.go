@@ -61,7 +61,9 @@ func pluxValidatePage(_ js.Value, args []js.Value) any {
 	}
 	file := args[1].String()
 	if file == "" {
-		return marshal(loadDiags)
+		// Opening a project also reports what no page validation sees: the
+		// app's own documents, such as its translations.
+		return marshal(append(loadDiags, validator.ValidateProject()...))
 	}
 	return marshal(validator.ValidatePage(file, []byte(args[2].String())))
 }

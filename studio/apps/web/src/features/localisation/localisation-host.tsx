@@ -9,7 +9,7 @@ import { SheetEmpty } from "../../components/editor-sheet.tsx";
 import { useEditor } from "../editor/index.ts";
 import type { JsonValue } from "../editor/json-patch.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
-import { readMessages, referencedKeys } from "./l10n-model.ts";
+import { keyUsage, readMessages, referencedKeys } from "./l10n-model.ts";
 import { useL10nSessions } from "./l10n-sessions.tsx";
 import { localisationMessages } from "./localisation.messages.ts";
 import { LocalisationOverlay } from "./localisation-overlay.tsx";
@@ -51,6 +51,14 @@ export function LocalisationHost(props: LocalisationHostProps) {
     }
     return { pluginKeys: plugin, selectionKeys: selection };
   }, [props.documents, local, selected]);
+  // Every document of the app, this plugin's with its unsaved edits, so that a key used anywhere is kept (STU-072).
+  const usage = useMemo(
+    () =>
+      keyUsage(
+        (props.appDocuments ?? []).map((d) => ({ path: d.path, content: local[d.path]?.content ?? parse(d.content) })),
+      ),
+    [props.appDocuments, local],
+  );
   const others = useMemo(() => {
     const out = new Map<string, Readonly<Record<string, string>>>();
     for (const d of props.appDocuments ?? []) {
@@ -85,6 +93,7 @@ export function LocalisationHost(props: LocalisationHostProps) {
       otherMessages={others}
       pluginKeys={pluginKeys}
       selectionKeys={selectionKeys}
+      usage={usage}
       schemaVersion={schemaVersion}
       newId={uuidv7}
     />

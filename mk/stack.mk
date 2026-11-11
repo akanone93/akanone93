@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Compose and image
 # jobs on a pull request (ci/affected.json, ADR-0043).
 
-.PHONY: compose-secrets compose-up compose-down test-db test-db-down compose-seed dev dev-starter dev-app compose-test image-check zap-api
+.PHONY: docker-check compose-secrets compose-up compose-down test-db test-db-down compose-seed dev dev-starter dev-app compose-test image-check zap-api
 
 ##@ Stack (Docker Compose)
 
@@ -17,12 +17,27 @@ DEV_CA      := $(abspath $(COMPOSE_DIR))/.secrets/tls/ca.crt
 compose-secrets: ## Generate the stack's credentials into deploy/compose/.secrets on first run
 	@$(COMPOSE_DIR)/init-secrets.sh
 
-compose-up: compose-secrets studio-image-inputs ## Start the single-node stack: server, function runner and egress, PostgreSQL, SeaweedFS, Valkey, OTel, Prometheus, Grafana; COMPOSE_PROFILES=functions adds the builder and visual-diff the render worker (DEP-002)
+# Docker must answer this user before anything is built. A refusal of the
+# socket is the usual first-run failure on Linux and WSL; the fix is printed,
+# never applied, because the docker group is as powerful as root.
+docker-check: ## Check that Docker runs and answers this user
+	@out=$$(docker info 2>&1) && exit 0; \
+	if printf '%s' "$$out" | grep -qi 'permission denied'; then \
+		echo "✗ Docker refused user $$(id -un) (permission denied on its socket). Either:" >&2; \
+		echo "    sudo usermod -aG docker $$(id -un)   # then open a new shell; the docker group is equivalent to root" >&2; \
+		echo "  or, with Docker Desktop on Windows: Settings > Resources > WSL integration > turn on this distribution," >&2; \
+		echo "  then run 'wsl --shutdown' in PowerShell and reopen the terminal." >&2; \
+	else \
+		echo "✗ Docker does not answer: is it installed and running? ($$(printf '%s' "$$out" | tail -n 1))" >&2; \
+	fi; \
+	exit 1
+
+compose-up: docker-check compose-secrets studio-image-inputs ## Start the single-node stack: server, function runner and egress, PostgreSQL, SeaweedFS, Valkey, OTel, Prometheus, Grafana; COMPOSE_PROFILES=functions adds the builder and visual-diff the render worker (DEP-002)
 	$(COMPOSE) up -d --build --wait
 	@echo "Plux Server: https://localhost:8080  Grafana: http://localhost:3000  Prometheus: http://localhost:9090"
 
-compose-down: ## Stop the stack (volumes are kept; add -v by hand to delete them)
-	$(COMPOSE) down
+compose-down: ## Stop the stack, the services of every profile included (volumes are kept; add -v by hand to delete them)
+	$(COMPOSE) --profile '*' down
 
 test-db: ## Start a throwaway PostgreSQL for the tests and print the PLUX_TEST_DATABASE_URL to export (TEST_DB_PORT=55432)
 	@scripts/test-db.sh up
@@ -38,9 +53,15 @@ STARTER_DEFINES := apps/starter/.dart_defines.json
 # A connected Android or iOS device, emulator or simulator for the starter.
 STARTER_DEVICE  := flutter devices --machine 2>/dev/null | grep -Eq '"targetPlatform": *"(android|ios)'
 
+# The compose profiles `make dev` adds to any COMPOSE_PROFILES of the caller:
+# the render worker, without which a release request's visual diffs, and so a
+# publish from Studio, cannot finish (STU-100, O-9). DEV_PROFILES= leaves it out.
+DEV_PROFILES ?= visual-diff
+
 # Verifies: DEP-020.
-dev: ## Start the stack with hot reload of the server and, with a device or emulator attached, of the starter app; seed sample apps on first run (DEP-020)
-	"$(MAKE)" compose-seed COMPOSE_OVERLAY=$(COMPOSE_DIR)/compose.dev.yaml
+dev: ## Start the stack with hot reload of the server and, with a device or emulator attached, of the starter app, and the render worker of visual diffs; seed sample apps on first run (DEP-020)
+	COMPOSE_PROFILES="$$(printf '%s,%s' "$${COMPOSE_PROFILES:-}" "$(DEV_PROFILES)" | sed 's/^,//; s/,$$//')" \
+		"$(MAKE)" compose-seed COMPOSE_OVERLAY=$(COMPOSE_DIR)/compose.dev.yaml
 	"$(MAKE)" dev-starter
 	@if $(STARTER_DEVICE); then \
 		echo "Server: rebuilt on every change under backend/ (log: $(COMPOSE_DIR)/.dev-watch.log)."; \
@@ -69,8 +90,21 @@ dev-app: ## Run the starter app against the dev stack with Flutter hot reload: r
 # COMPOSE_OVERLAY adds a Compose file for compose-seed (dev or load).
 COMPOSE_OVERLAY ?=
 
-compose-seed: compose-secrets studio-image-inputs ## Start the stack and, on first run, seed an administrator, the loan calculator and the starter app promoted to staging
+compose-seed: docker-check compose-secrets studio-image-inputs ## Start the stack and, on first run, seed an administrator, the loan calculator and the starter app promoted to staging
 	$(COMPOSE) $(if $(COMPOSE_OVERLAY),-f $(COMPOSE_OVERLAY)) up -d --build --wait
+	@# dev.env belongs to the database it was seeded into. New volumes (a reset
+	@# Docker or WSL) keep the file but not the account: its token is then
+	@# refused (401), and the stack is seeded again. Any other answer keeps it.
+	@# The token reaches curl on its standard input, never in its arguments (ps).
+	@if [ -s $(COMPOSE_DIR)/.secrets/dev.env ]; then \
+		code=$$(. ./$(COMPOSE_DIR)/.secrets/dev.env && printf 'Authorization: Bearer %s\n' "$$PLUX_DEV_TOKEN" | \
+			curl -s -o /dev/null -w '%{http_code}' --cacert "$(DEV_CA)" -H @- -H 'Content-Type: application/json' -d '{}' \
+			https://localhost:8080/plux.v1.IdentityService/GetCurrentUser || true); \
+		if [ "$$code" = 401 ]; then \
+			mv $(COMPOSE_DIR)/.secrets/dev.env $(COMPOSE_DIR)/.secrets/dev.env.stale; \
+			echo "! dev.env does not belong to this stack's database (new volumes?): kept as dev.env.stale, seeding again"; \
+		fi; \
+	fi
 	@if [ ! -s $(COMPOSE_DIR)/.secrets/dev.env ]; then \
 		umask 077; \
 		$(COMPOSE) $(if $(COMPOSE_OVERLAY),-f $(COMPOSE_OVERLAY)) run --rm --no-deps plux-server seed -config /etc/plux/plux.yaml -out - > $(COMPOSE_DIR)/.secrets/dev.env && \

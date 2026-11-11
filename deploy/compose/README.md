@@ -13,7 +13,7 @@ in P11.
 
 | Command | What it does |
 |---|---|
-| `make compose-up` | Generates credentials on first run, builds the server image and starts the stack; `COMPOSE_PROFILES=functions make compose-up` also builds and starts the function builder, `COMPOSE_PROFILES=visual-diff make compose-up` the render worker of visual diffs |
+| `make compose-up` | Generates credentials on first run, builds the server image and starts the stack; `COMPOSE_PROFILES=functions make compose-up` also builds and starts the function builder, `COMPOSE_PROFILES=visual-diff make compose-up` the render worker of visual diffs, which `make dev` always starts |
 | `make dev` | The same with hot reload of the server (`compose watch`); on first run seeds an administrator and the loan calculator promoted to `staging` |
 | `make compose-seed` | Starts the stack and seeds it once, without watching |
 | `make compose-test` | Runs the Go integration and end-to-end tests against the stack's PostgreSQL, SeaweedFS and Valkey (`QA-005`) |
@@ -137,8 +137,9 @@ at `/opt/plux/sdk/plux-fn`, the same pins as `plux fn build` and `sdk/fn/rust-to
 `plux-server` sends it the projects before and after a request over mutual TLS
 (`renderWorker.address` in `plux-server.yaml`), and it compiles them against the function
 catalogue of the request's environment, draws their pages on the standard devices with the
-golden harness and returns the screens that changed. Without the `visual-diff` profile it is
-absent: everything else works, and a requested diff fails after its attempts.
+golden harness and returns the screens that changed. `make dev` starts it; without the
+`visual-diff` profile it is absent: everything else works, and a requested diff fails after its
+attempts, so a release request cannot pass its visual-diffs step.
 
 | | |
 |---|---|

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { ConnectError } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { Button, StatusPill } from "@plux/ui";
 import { useQueryClient } from "@tanstack/react-query";
@@ -42,9 +43,18 @@ function stepName(m: Messages, step: Step): string {
   return names[step];
 }
 
-function errorText(m: Messages, code: string): string {
+/**
+ * What a refused step says: the request's own states in words (PLX-8060 to PLX-8062), any other refusal with the
+ * server's code and message (SRV-006), so the way past it shows; only a failure without one is generic.
+ */
+function errorText(m: Messages, err: unknown): string {
   const texts: Record<string, string> = { "PLX-8060": m.err8060, "PLX-8061": m.err8061, "PLX-8062": m.err8062 };
-  return texts[code] ?? m.errGeneric;
+  const known = texts[codeOf(err)];
+  if (known !== undefined) {
+    return known;
+  }
+  const reason = err instanceof ConnectError ? err.rawMessage : "";
+  return reason === "" ? m.errGeneric : m.errReason(reason);
 }
 
 function endedText(m: Messages, state: string): string {
@@ -137,7 +147,7 @@ export function PublishPage(): ReactElement {
           guard(() => fn().finally(() => void refresh()));
           return;
         }
-        setError(errorText(m, codeOf(err)));
+        setError(errorText(m, err));
       })
       .finally(() => {
         setBusy(false);

@@ -250,4 +250,9 @@ message ListPluginSummariesRequest {
 }
 message ListPluginSummariesResponse {
   repeated PluginSummary summaries = 1;
+  // app_unpublished_changes is true when the app's own documents (app.json,
+  // the theme, the translations) changed after the newest app bundle
+  // version, or none was published yet: a release then includes the app
+  // bundle (STU-100).
+  bool app_unpublished_changes = 2;
 }

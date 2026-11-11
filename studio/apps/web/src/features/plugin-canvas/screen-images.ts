@@ -7,6 +7,7 @@ import { assetImageKey } from "@plux/canvas";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef } from "react";
+import { objectUrl } from "../../lib/object-url.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import type { CanvasSurface } from "./surface.ts";
 
@@ -53,7 +54,7 @@ export function imageUrlOf(asset: ImageAsset): string | undefined {
       .sort((a, b) => b.density - a.density);
     const url = forms[0]?.artifact?.urls[0];
     if (url !== undefined && url !== "") {
-      return url;
+      return objectUrl(url);
     }
   }
   return undefined;

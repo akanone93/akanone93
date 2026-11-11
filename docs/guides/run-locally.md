@@ -74,8 +74,10 @@ running. Each step names the file the command comes from.
    calculator, promoted to `staging`) and `starter`, and writes the IDs, the password and a
    command-line token to `deploy/compose/.secrets/dev.env` (`PLUX_DEV_ORGANIZATION`,
    `PLUX_DEV_APP`, `PLUX_DEV_STARTER`, `PLUX_DEV_PASSWORD`, `PLUX_DEV_TOKEN`).
-   `make compose-up` starts the same stack without seeding; `make dev` does both and adds hot
-   reload (§2).
+   `make compose-up` starts the same stack without seeding; `make dev` does both, adds hot
+   reload (§2) and starts the render worker of visual diffs (the `visual-diff` profile), which a
+   publish from Studio needs (`DEV_PROFILES=` leaves it out; its image bundles Flutter, so the
+   first build takes a while).
 3. **Open Studio and sign in.** Browse to <http://localhost:8081>, sign in with
    `dev@plux.localhost` and the password from `dev.env`. The BFF serves the web app and
    forwards `/api` to the server; the session cookie and CSRF token are the server's. Probe

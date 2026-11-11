@@ -28024,6 +28024,14 @@ components:
           items:
             $ref: '#/components/schemas/plux.v1.PluginSummary'
           title: summaries
+        appUnpublishedChanges:
+          type: boolean
+          title: app_unpublished_changes
+          description: |-
+            app_unpublished_changes is true when the app's own documents (app.json,
+             the theme, the translations) changed after the newest app bundle
+             version, or none was published yet: a release then includes the app
+             bundle (STU-100).
       title: ListPluginSummariesResponse
       additionalProperties: false
     plux.v1.ListPluginVersionsRequest:
@@ -32885,6 +32893,10 @@ components:
         pluginKey:
           type: string
           title: plugin_key
+          description: |-
+            plugin_key is the plugin's key, or "" for the app bundle (app.json, the
+             theme, the translations), which the server adds when the app's own
+             documents changed since its newest version or it has none (STU-100).
         reason:
           type: string
           title: reason

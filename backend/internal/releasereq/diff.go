@@ -133,7 +133,8 @@ func (s *Service) RequestDiff(ctx context.Context, p auth.Principal, appID, id s
 		return VisualDiff{}, err
 	}
 	if s.o.Jobs == nil {
-		return VisualDiff{}, plxerr.New(plxerr.PreconditionFailed, "this installation does not render visual diffs")
+		return VisualDiff{}, plxerr.New(plxerr.PreconditionFailed,
+			"this installation does not render visual diffs: set renderWorker.address and run the render worker (the compose stack's visual-diff profile)")
 	}
 	app, req, err := ids(appID, id)
 	if err != nil {

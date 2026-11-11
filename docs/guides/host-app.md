@@ -39,6 +39,17 @@ profile builds only):
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
+**Windows.** When the pub cache and the app are on different drives (the pub cache on
+`C:`, the app on `D:`), Kotlin's incremental compiler fails on the plugins' sources with
+"this and base files have different roots". Turn it off for the app in
+`android/gradle.properties`, then run `flutter clean`:
+
+```properties
+kotlin.incremental=false
+```
+
+Moving the pub cache to the app's drive (`PUB_CACHE`) also avoids it.
+
 ## 1. Add the runtime and a baseline
 
 From the app's directory, `plux init` sets it up: it adds `plux_flutter` (and the router

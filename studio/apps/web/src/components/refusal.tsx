@@ -23,6 +23,14 @@ export function firstError(...errors: readonly unknown[]): unknown {
   return errors.find((e) => e !== null && e !== undefined);
 }
 
+/**
+ * The server's own words for a refused call, its Plux code first (SRV-006), or empty for anything else (a network
+ * failure, a bug). A failed action shows it under its own message, so the way past the refusal is visible.
+ */
+export function reasonOf(error: unknown): string {
+  return error instanceof ConnectError && /^PLX-\d{4}/.test(error.rawMessage) ? error.rawMessage : "";
+}
+
 /** The stable Plux code at the start of a refusal's message (SRV-006), or empty. */
 export function plxCode(error: unknown): string {
   return error instanceof ConnectError ? (/PLX-\d{4}/.exec(error.rawMessage)?.[0] ?? "") : "";

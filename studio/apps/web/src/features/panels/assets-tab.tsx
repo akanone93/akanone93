@@ -8,6 +8,7 @@ import { AlertDialog, Button, FileDrop, Icon, type IconName, Meter } from "@plux
 import { Button as IconButton } from "@plux/ui/components/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import { objectUrl } from "../../lib/object-url.ts";
 import { type AssetUse, assetBudget, assetFileLimit } from "../plugin-canvas/asset-uses.ts";
 import { AssetDetails } from "./asset-details.tsx";
 import { assetsMessages } from "./assets.messages.ts";
@@ -73,7 +74,8 @@ export const ASSET_DRAG_TYPE = "application/x-plux-asset";
 
 /** The first URL of an asset's processed forms, for a raster image's thumbnail. */
 function thumbOf(a: Asset): string | undefined {
-  return a.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
+  const url = a.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
+  return url === undefined ? undefined : objectUrl(url);
 }
 
 /**

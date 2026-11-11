@@ -1940,10 +1940,15 @@ func (x *ListPluginSummariesRequest) GetAppId() string {
 }
 
 type ListPluginSummariesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Summaries     []*PluginSummary       `protobuf:"bytes,1,rep,name=summaries,proto3" json:"summaries,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Summaries []*PluginSummary       `protobuf:"bytes,1,rep,name=summaries,proto3" json:"summaries,omitempty"`
+	// app_unpublished_changes is true when the app's own documents (app.json,
+	// the theme, the translations) changed after the newest app bundle
+	// version, or none was published yet: a release then includes the app
+	// bundle (STU-100).
+	AppUnpublishedChanges bool `protobuf:"varint,2,opt,name=app_unpublished_changes,json=appUnpublishedChanges,proto3" json:"app_unpublished_changes,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ListPluginSummariesResponse) Reset() {
@@ -1981,6 +1986,13 @@ func (x *ListPluginSummariesResponse) GetSummaries() []*PluginSummary {
 		return x.Summaries
 	}
 	return nil
+}
+
+func (x *ListPluginSummariesResponse) GetAppUnpublishedChanges() bool {
+	if x != nil {
+		return x.AppUnpublishedChanges
+	}
+	return false
 }
 
 var File_plux_v1_plugin_proto protoreflect.FileDescriptor
@@ -2120,9 +2132,10 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\x15ArchivePluginResponse\x12'\n" +
 	"\x06plugin\x18\x01 \x01(\v2\x0f.plux.v1.PluginR\x06plugin\"3\n" +
 	"\x1aListPluginSummariesRequest\x12\x15\n" +
-	"\x06app_id\x18\x01 \x01(\tR\x05appId\"S\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"\x8b\x01\n" +
 	"\x1bListPluginSummariesResponse\x124\n" +
-	"\tsummaries\x18\x01 \x03(\v2\x16.plux.v1.PluginSummaryR\tsummaries2\xb6\t\n" +
+	"\tsummaries\x18\x01 \x03(\v2\x16.plux.v1.PluginSummaryR\tsummaries\x126\n" +
+	"\x17app_unpublished_changes\x18\x02 \x01(\bR\x15appUnpublishedChanges2\xb6\t\n" +
 	"\rPluginService\x12M\n" +
 	"\fCreatePlugin\x12\x1c.plux.v1.CreatePluginRequest\x1a\x1d.plux.v1.CreatePluginResponse\"\x00\x12D\n" +
 	"\tGetPlugin\x12\x19.plux.v1.GetPluginRequest\x1a\x1a.plux.v1.GetPluginResponse\"\x00\x12J\n" +
