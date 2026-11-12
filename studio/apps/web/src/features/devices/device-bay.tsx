@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import type { DevEvent } from "@plux/api";
+import { type DevEvent, DevPhoneService } from "@plux/api";
 import { Button, Icon } from "@plux/ui";
 import { Tabs as ShadcnTabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,12 +18,13 @@ import {
   useState,
 } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
+import { useApp } from "../../lib/use-app.tsx";
 import type { StreamState } from "../shell/studio-events.ts";
 import { DeviceControls } from "./device-controls.tsx";
 import { DeviceDrawer } from "./device-drawer.tsx";
 import { devicesMessages } from "./devices.messages.ts";
 import type { DrawerTab } from "./drawer-model.ts";
-import { JoinPrompts, type JoinRequests, withJoinEvent } from "./join-prompt.tsx";
+import { JoinPrompts, type JoinRequests, reconcileJoins, withJoinEvent } from "./join-prompt.tsx";
 import { createLatencyMeter, type LatencyMeter } from "./latency.ts";
 import { PairingDialog } from "./pairing-dialog.tsx";
 import { type Capture, ScreenshotPanel } from "./screenshot-panel.tsx";
@@ -112,6 +114,9 @@ function ConsoleGrip({ height, onHeight }: { readonly height: number; readonly o
 /** The console's bar: its toggle, whether it streams, the problems, the autosave time and, live, the device tools. */
 /** How often the console reads the session's devices again, in milliseconds; a connection event reads them at once. */
 const devicesRefresh = 5000;
+
+/** How often the console reads the open requests of phones to join, in milliseconds. */
+const joinRefresh = 3000;
 
 /** What the console's state says: where the event stream is and how many devices have their connection open. */
 export type ConsoleStatus =
@@ -341,7 +346,28 @@ export function DeviceBay(props: DeviceBayProps): ReactNode {
     },
     [onBayEvent, queryClient, sessionId],
   );
+  // Studio also reads the open requests every few seconds while the session is open: a prompt shows even when its
+  // event never arrived, and asking keeps this session the one the person's phones join (ADR-0104).
+  const { session: appSession } = useApp();
+  const phones = useMemo(() => createClient(DevPhoneService, appSession.transport), [appSession.transport]);
+  const dismissed = useRef(new Set<string>());
+  const listedBefore = useRef<ReadonlySet<string>>(new Set());
+  const openJoins = useQuery({
+    queryKey: ["dev-join-requests", sessionId],
+    enabled: sessionId !== undefined,
+    refetchInterval: joinRefresh,
+    queryFn: async () => (await phones.listJoinRequests({ sessionId: sessionId ?? "" })).requests,
+  });
+  useEffect(() => {
+    if (openJoins.data !== undefined) {
+      const listed = openJoins.data;
+      const before = listedBefore.current;
+      listedBefore.current = new Set(listed.map((r) => r.requestId));
+      setJoins((prev) => reconcileJoins(prev, listed, dismissed.current, before));
+    }
+  }, [openJoins.data]);
   const joinDone = useCallback((requestId: string) => {
+    dismissed.current.add(requestId);
     setJoins((prev) => {
       const next = new Map(prev);
       next.delete(requestId);

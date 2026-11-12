@@ -4982,6 +4982,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetPhoneSignInResponse'
+  /plux.v1.DevPhoneService/ListJoinRequests:
+    post:
+      tags:
+        - plux.v1.DevPhoneService
+      summary: ListJoinRequests
+      description: |-
+        ListJoinRequests lists the open requests of phones to join the caller's
+         live Studio sessions of the app of a session: waiting ones with their
+         number, and wrong picks not yet let try again. Studio asks it while the
+         session is open, which also marks that session as the one the caller's
+         phones join.
+      operationId: plux.v1.DevPhoneService.ListJoinRequests
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListJoinRequestsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListJoinRequestsResponse'
   /plux.v1.DevPhoneService/ListPhoneApps:
     post:
       tags:
@@ -21382,6 +21426,33 @@ components:
       title: DevEventAck
       additionalProperties: false
       description: DevEventAck acknowledges a device's events.
+    plux.v1.DevJoinRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+        sessionId:
+          type: string
+          title: session_id
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevJoinState'
+          title: state
+        number:
+          type: integer
+          title: number
+          description: number is set only while the state is WAITING.
+        phoneName:
+          type: string
+          title: phone_name
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: DevJoinRequest
+      additionalProperties: false
+      description: DevJoinRequest is an open request of a phone to join a session.
     plux.v1.DevJoinState:
       type: string
       title: DevJoinState
@@ -28718,6 +28789,25 @@ components:
             $ref: '#/components/schemas/plux.v1.InstallationOrganization'
           title: organizations
       title: ListInstallationOrganizationsResponse
+      additionalProperties: false
+    plux.v1.ListJoinRequestsRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          title: session_id
+          description: session_id is the Studio session the caller has open.
+      title: ListJoinRequestsRequest
+      additionalProperties: false
+    plux.v1.ListJoinRequestsResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DevJoinRequest'
+          title: requests
+      title: ListJoinRequestsResponse
       additionalProperties: false
     plux.v1.ListLibraryComponentsRequest:
       type: object
@@ -36911,8 +37001,8 @@ tags:
        keeps the phone out of the session until the person lets it try again.
 
        Who calls what: a person calls CreatePhoneSignIn, GetPhoneSignIn,
-       CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest
-       and AllowJoinRetry. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
+       CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest,
+       AllowJoinRetry and ListJoinRequests. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
        a DPoP proof alone, and ListPhoneApps, RequestJoin, CompleteJoin and
        SignOutPhone with its phone token (`Authorization: DPoP`) and a proof of the
        key the token is bound to; a phone token is accepted nowhere else.

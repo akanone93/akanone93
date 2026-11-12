@@ -331,6 +331,8 @@ export interface UpstreamData {
     phones: { id: string; name: string; platform: string }[];
     signIn: { state: PhoneSignInState; number?: number; phoneName?: string }[];
     joins?: Record<string, { state: DevJoinState; number: number; phoneName: string }>;
+    /** The open requests ListJoinRequests answers; none when unset. */
+    listed?: Record<string, { state: DevJoinState; number: number; phoneName: string }>;
     calls: string[];
   };
   library?: LibraryFixture;
@@ -1235,6 +1237,14 @@ function devPhoneService(
       ph.calls.push(`retry:${req.requestId}`);
       return {};
     },
+    listJoinRequests: () => ({
+      requests: Object.entries(ph.listed ?? {}).map(([requestId, j]) => ({
+        requestId,
+        sessionId: "s1",
+        ...j,
+        expiresAt: timestampFromMs(Date.now() + 60_000),
+      })),
+    }),
   });
 }
 

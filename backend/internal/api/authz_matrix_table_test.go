@@ -1067,6 +1067,7 @@ var matrix = map[string]entry{
 	"DevPhoneService/GetJoinRequest":      atPerm(auth.DevSessionCreate, anyone(&pluxv1.GetJoinRequestRequest{RequestId: unknownID})),
 	"DevPhoneService/DenyJoinRequest":     atPerm(auth.DevSessionCreate, anyone(&pluxv1.DenyJoinRequestRequest{RequestId: unknownID})),
 	"DevPhoneService/AllowJoinRetry":      atPerm(auth.DevSessionCreate, anyone(&pluxv1.AllowJoinRetryRequest{RequestId: unknownID})),
+	"DevPhoneService/ListJoinRequests":    atPerm(auth.DevSessionCreate, anyone(&pluxv1.ListJoinRequestsRequest{SessionId: unknownID})),
 	"DevPhoneService/ClaimPhoneSignIn":    {kind: deviceRPC, build: anyone(&pluxv1.ClaimPhoneSignInRequest{})},
 	"DevPhoneService/CompletePhoneSignIn": {kind: deviceRPC, build: anyone(&pluxv1.CompletePhoneSignInRequest{})},
 	"DevPhoneService/ListPhoneApps":       {kind: deviceRPC, build: anyone(&pluxv1.ListPhoneAppsRequest{})},

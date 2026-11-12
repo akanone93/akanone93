@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { create } from "@bufbuild/protobuf";
 import { timestampMs } from "@bufbuild/protobuf/wkt";
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { DevJoinState, DevPhoneService, type JoinRequestEvent } from "@plux/api";
+import { DevJoinState, DevPhoneService, type JoinRequestEvent, JoinRequestEventSchema } from "@plux/api";
 import { Button, Icon } from "@plux/ui";
 import { useQuery } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useMemo, useState } from "react";
@@ -19,6 +20,35 @@ export type JoinRequests = ReadonlyMap<string, JoinRequestEvent>;
 export function withJoinEvent(requests: JoinRequests, event: JoinRequestEvent): JoinRequests {
   const next = new Map(requests);
   next.set(event.requestId, event);
+  return next;
+}
+
+/** The open requests as `ListJoinRequests` answers them, waiting or with a wrong number. */
+export type OpenJoinRequest = Pick<JoinRequestEvent, "requestId" | "state" | "phoneName" | "expiresAt">;
+
+/**
+ * `requests` brought in line with what Studio last read of the open ones (ADR-0104): a request it lists is shown,
+ * unless the person dismissed it; one it listed before and lists no more has ended (joined, denied or expired). A
+ * request an event brought and no listing has named yet stays: its listing may simply be older than the event.
+ */
+export function reconcileJoins(
+  requests: JoinRequests,
+  open: readonly OpenJoinRequest[],
+  dismissed: ReadonlySet<string>,
+  listedBefore: ReadonlySet<string>,
+): JoinRequests {
+  const next = new Map(requests);
+  const listed = new Set(open.map((r) => r.requestId));
+  for (const id of requests.keys()) {
+    if (listedBefore.has(id) && !listed.has(id)) {
+      next.delete(id);
+    }
+  }
+  for (const r of open) {
+    if (!dismissed.has(r.requestId) && next.get(r.requestId)?.state !== r.state) {
+      next.set(r.requestId, create(JoinRequestEventSchema, r));
+    }
+  }
   return next;
 }
 

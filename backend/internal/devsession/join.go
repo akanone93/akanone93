@@ -66,6 +66,8 @@ type Joined struct {
 // JoinStatus is a join request as its session's person sees it; Number is
 // set only while it waits.
 type JoinStatus struct {
+	// RequestID is set in a listing.
+	RequestID string
 	SessionID string
 	State     pluxv1.DevJoinState
 	Number    int
@@ -390,6 +392,53 @@ func (s *Service) GetJoinRequest(ctx context.Context, p auth.Principal, requestI
 			} else {
 				out.State = pluxv1.DevJoinState_DEV_JOIN_STATE_EXPIRED
 			}
+		}
+		return nil
+	})
+	return out, err
+}
+
+// ListJoinRequests lists the open requests to join the caller's live
+// Studio sessions of the app of sessionID, which the caller has open in
+// Studio. Asking it records traffic on that session, so it stays live while
+// Studio shows it and is the newest the caller's phones join.
+func (s *Service) ListJoinRequests(ctx context.Context, p auth.Principal, sessionID string) ([]JoinStatus, error) {
+	if err := authorizeAnywhere(p, auth.DevSessionCreate); err != nil {
+		return nil, err
+	}
+	id, err := parseID(sessionID, "session")
+	if err != nil {
+		return nil, err
+	}
+	var out []JoinStatus
+	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		session, err := s.authorized(ctx, tx, p, id, auth.DevSessionCreate, false)
+		if err != nil {
+			return err
+		}
+		if session.Kind != KindStudio || session.Creator != creatorOf(p) {
+			return plxerr.New(plxerr.ResourceNotFound, "no such session")
+		}
+		now := s.now()
+		q := dbgen.New(tx)
+		if err := q.TouchDevSession(ctx, dbgen.TouchDevSessionParams{ID: id, At: storage.Timestamp(now)}); err != nil {
+			return fmt.Errorf("devsession: touch the session: %w", err)
+		}
+		rows, err := q.ListOpenJoinRequests(ctx, dbgen.ListOpenJoinRequestsParams{
+			AppID: storage.MustUUID(session.AppID), Creator: creatorOf(p), Now: storage.Timestamp(now),
+		})
+		if err != nil {
+			return fmt.Errorf("devsession: list the join requests: %w", err)
+		}
+		for _, r := range rows {
+			st := JoinStatus{
+				RequestID: storage.ID(r.ID), SessionID: storage.ID(r.SessionID), State: joinState(r.State),
+				PhoneName: r.PhoneName, ExpiresAt: r.ExpiresAt.Time,
+			}
+			if r.State == joinWaiting {
+				st.Number = int(r.Number)
+			}
+			out = append(out, st)
 		}
 		return nil
 	})

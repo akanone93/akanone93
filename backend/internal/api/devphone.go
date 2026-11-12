@@ -204,6 +204,33 @@ func (s DevPhone) AllowJoinRetry(ctx context.Context, req *connect.Request[pluxv
 	})
 }
 
+// ListJoinRequests lists the open requests to join the caller's Studio
+// sessions of an app, and keeps the session Studio has open live.
+func (s DevPhone) ListJoinRequests(ctx context.Context, req *connect.Request[pluxv1.ListJoinRequestsRequest]) (*connect.Response[pluxv1.ListJoinRequestsResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListJoinRequestsResponse, error) {
+		svc, err := s.sessions()
+		if err != nil {
+			return nil, err
+		}
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		list, err := svc.ListJoinRequests(ctx, p, req.Msg.GetSessionId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListJoinRequestsResponse{}
+		for _, r := range list {
+			out.Requests = append(out.Requests, &pluxv1.DevJoinRequest{
+				RequestId: r.RequestID, SessionId: r.SessionID, State: r.State,
+				Number: uint32(r.Number), PhoneName: r.PhoneName, ExpiresAt: ts(r.ExpiresAt), //nolint:gosec // two digits
+			})
+		}
+		return out, nil
+	})
+}
+
 // ClaimPhoneSignIn is a phone's scan of the QR code, with a DPoP proof of its key.
 func (s DevPhone) ClaimPhoneSignIn(ctx context.Context, req *connect.Request[pluxv1.ClaimPhoneSignInRequest]) (*connect.Response[pluxv1.ClaimPhoneSignInResponse], error) {
 	return read(ctx, func(ctx context.Context) (*pluxv1.ClaimPhoneSignInResponse, error) {

@@ -251,6 +251,20 @@ describe("a phone asking to join the session [DEV-002] (ADR-0104)", () => {
     await waitFor(() => expect(screen.queryByRole("alertdialog") === null).toBe(true));
   });
 
+  test("a request whose event never arrived still shows, from the open requests Studio reads", async () => {
+    const calls: string[] = [];
+    const waiting = { state: DevJoinState.WAITING, number: 57, phoneName: "Pixel 8" };
+    renderBay(
+      {
+        devSession: { devices, events: [] },
+        phones: { phones: [], signIn: [], calls, joins: { r2: waiting }, listed: { r2: waiting } },
+      },
+      { live: true },
+    );
+    const prompt = await screen.findByRole("alertdialog");
+    expect(prompt.textContent).toContain("57");
+  });
+
   test("a request that no longer waits, as one replayed from an earlier visit, shows nothing", async () => {
     const calls: string[] = [];
     renderBay(

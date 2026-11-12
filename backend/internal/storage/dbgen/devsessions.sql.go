@@ -830,6 +830,54 @@ func (q *Queries) ListFollowingDevSessions(ctx context.Context, arg ListFollowin
 	return items, nil
 }
 
+const listOpenJoinRequests = `-- name: ListOpenJoinRequests :many
+SELECT jr.id, jr.organization_id, jr.app_id, jr.session_id, jr.token_id, jr.state, jr.number, jr.phone_name, jr.created_at, jr.expires_at FROM dev_join_requests jr
+  JOIN dev_sessions s ON s.id = jr.session_id
+ WHERE s.app_id = $1 AND s.kind = 'studio' AND s.created_by_user = $2::text AND s.ended_at IS NULL
+   AND (jr.state = 'failed' OR (jr.state = 'waiting' AND jr.expires_at > $3::timestamptz))
+ ORDER BY jr.created_at DESC, jr.id
+ LIMIT 20
+`
+
+type ListOpenJoinRequestsParams struct {
+	AppID   pgtype.UUID
+	Creator string
+	Now     pgtype.Timestamptz
+}
+
+// The open requests to join a person's live Studio sessions of an app:
+// waiting and not expired, or a wrong pick not yet let try again.
+func (q *Queries) ListOpenJoinRequests(ctx context.Context, arg ListOpenJoinRequestsParams) ([]DevJoinRequest, error) {
+	rows, err := q.db.Query(ctx, listOpenJoinRequests, arg.AppID, arg.Creator, arg.Now)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DevJoinRequest{}
+	for rows.Next() {
+		var i DevJoinRequest
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.AppID,
+			&i.SessionID,
+			&i.TokenID,
+			&i.State,
+			&i.Number,
+			&i.PhoneName,
+			&i.CreatedAt,
+			&i.ExpiresAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const lockDevPairingAttempts = `-- name: LockDevPairingAttempts :exec
 SELECT pg_advisory_xact_lock(hashtextextended('dev-pairing-attempts:' || $1::uuid::text || ':' || $2::text, 0))
 `

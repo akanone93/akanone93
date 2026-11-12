@@ -398,3 +398,37 @@ func TestJoin_RateLimited_DEV_002(t *testing.T) {
 	_, err := f.svc.RequestJoin(ctx, phone, phone.ID, key.Name, f.App)
 	wantCode(t, err, plxerr.RateLimited, "a third request")
 }
+
+func TestJoin_StudioListsOpenRequestsAndKeepsItsSession_DEV_002(t *testing.T) {
+	f := newFixture(t, 0)
+	ctx := context.Background()
+	session := f.openStudio(t, f.Developer)
+	phone, key := f.phone(t, f.signInPhone(t, f.Developer))
+	jr, err := f.svc.RequestJoin(ctx, phone, phone.ID, key.Name, f.App)
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, err := f.svc.ListJoinRequests(ctx, f.Developer, session.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(list) != 1 || list[0].RequestID != jr.ID || !slices.Contains(jr.Options, list[0].Number) || list[0].PhoneName != "Pixel 8" {
+		t.Fatalf("Studio's listing = %+v", list)
+	}
+	// Another person lists nothing of it, and cannot touch the session.
+	if _, err := f.svc.ListJoinRequests(ctx, f.member(t, "dev3@example.com", true), session.ID); err == nil {
+		t.Fatal("another person listed the requests")
+	}
+	// Studio asking keeps its session live past the idle timeout, so the
+	// phone still joins it.
+	for range 4 {
+		f.Now = f.Now.Add(20 * time.Minute)
+		if _, err := f.svc.ListJoinRequests(ctx, f.Developer, session.ID); err != nil {
+			t.Fatal(err)
+		}
+	}
+	again, err := f.svc.RequestJoin(ctx, phone, phone.ID, key.Name, f.App)
+	if err != nil || again.SessionID != session.ID {
+		t.Fatalf("the phone joined %v (%v), want Studio's open session %s", again.SessionID, err, session.ID)
+	}
+}

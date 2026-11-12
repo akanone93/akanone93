@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file plux/v1/devphone.proto.
  */
 export const file_plux_v1_devphone: GenFile = /*@__PURE__*/
-  fileDesc("ChZwbHV4L3YxL2RldnBob25lLnByb3RvEgdwbHV4LnYxIhoKGENyZWF0ZVBob25lU2lnbkluUmVxdWVzdCJtChlDcmVhdGVQaG9uZVNpZ25JblJlc3BvbnNlEhIKCnNpZ25faW5faWQYASABKAkSDAoEbGluaxgCIAEoCRIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIrChVHZXRQaG9uZVNpZ25JblJlcXVlc3QSEgoKc2lnbl9pbl9pZBgBIAEoCSKoAQoWR2V0UGhvbmVTaWduSW5SZXNwb25zZRIoCgVzdGF0ZRgBIAEoDjIZLnBsdXgudjEuUGhvbmVTaWduSW5TdGF0ZRIOCgZudW1iZXIYAiABKA0SEgoKcGhvbmVfbmFtZRgDIAEoCRIQCghwbGF0Zm9ybRgEIAEoCRIuCgpleHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIuChhDYW5jZWxQaG9uZVNpZ25JblJlcXVlc3QSEgoKc2lnbl9pbl9pZBgBIAEoCSIbChlDYW5jZWxQaG9uZVNpZ25JblJlc3BvbnNlIskBCghEZXZQaG9uZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhAKCHBsYXRmb3JtGAMgASgJEjAKDHNpZ25lZF9pbl9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF91c2VkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCglsYXBzZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIhMKEUxpc3RQaG9uZXNSZXF1ZXN0IjcKEkxpc3RQaG9uZXNSZXNwb25zZRIhCgZwaG9uZXMYASADKAsyES5wbHV4LnYxLkRldlBob25lIiYKElJldm9rZVBob25lUmVxdWVzdBIQCghwaG9uZV9pZBgBIAEoCSIVChNSZXZva2VQaG9uZVJlc3BvbnNlIisKFUdldEpvaW5SZXF1ZXN0UmVxdWVzdBISCgpyZXF1ZXN0X2lkGAEgASgJIqYBChZHZXRKb2luUmVxdWVzdFJlc3BvbnNlEhIKCnNlc3Npb25faWQYASABKAkSJAoFc3RhdGUYAiABKA4yFS5wbHV4LnYxLkRldkpvaW5TdGF0ZRIOCgZudW1iZXIYAyABKA0SEgoKcGhvbmVfbmFtZRgEIAEoCRIuCgpleHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIsChZEZW55Sm9pblJlcXVlc3RSZXF1ZXN0EhIKCnJlcXVlc3RfaWQYASABKAkiGQoXRGVueUpvaW5SZXF1ZXN0UmVzcG9uc2UiKwoVQWxsb3dKb2luUmV0cnlSZXF1ZXN0EhIKCnJlcXVlc3RfaWQYASABKAkiGAoWQWxsb3dKb2luUmV0cnlSZXNwb25zZSJIChdDbGFpbVBob25lU2lnbkluUmVxdWVzdBINCgVncmFudBgBIAEoCRIMCgRuYW1lGAIgASgJEhAKCHBsYXRmb3JtGAMgASgJIowBChhDbGFpbVBob25lU2lnbkluUmVzcG9uc2USDwoHb3B0aW9ucxgBIAMoDRIuCgpleHBpcmVzX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgx1c2VyX2Rpc3BsYXkYAyABKAkSGQoRb3JnYW5pemF0aW9uX25hbWUYBCABKAkiOwoaQ29tcGxldGVQaG9uZVNpZ25JblJlcXVlc3QSDQoFZ3JhbnQYASABKAkSDgoGbnVtYmVyGAIgASgNIogBChtDb21wbGV0ZVBob25lU2lnbkluUmVzcG9uc2USDQoFdG9rZW4YASABKAkSEAoIcGhvbmVfaWQYAiABKAkSFwoPb3JnYW5pemF0aW9uX2lkGAMgASgJEhQKDHVzZXJfZGlzcGxheRgEIAEoCRIZChFvcmdhbml6YXRpb25fbmFtZRgFIAEoCSIWChRMaXN0UGhvbmVBcHBzUmVxdWVzdCIyCghQaG9uZUFwcBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEgwKBGxpdmUYAyABKAgiaQoVTGlzdFBob25lQXBwc1Jlc3BvbnNlEh8KBGFwcHMYASADKAsyES5wbHV4LnYxLlBob25lQXBwEhQKDHVzZXJfZGlzcGxheRgCIAEoCRIZChFvcmdhbml6YXRpb25fbmFtZRgDIAEoCSIkChJSZXF1ZXN0Sm9pblJlcXVlc3QSDgoGYXBwX2lkGAEgASgJIqkBChNSZXF1ZXN0Sm9pblJlc3BvbnNlEhIKCnJlcXVlc3RfaWQYASABKAkSEgoKc2Vzc2lvbl9pZBgCIAEoCRITCgtlbnZpcm9ubWVudBgDIAEoCRIPCgdvcHRpb25zGAQgAygNEi4KCmV4cGlyZXNfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhQKDHBhaXJpbmdfbGluaxgGIAEoCSI5ChNDb21wbGV0ZUpvaW5SZXF1ZXN0EhIKCnJlcXVlc3RfaWQYASABKAkSDgoGbnVtYmVyGAIgASgNIlUKFENvbXBsZXRlSm9pblJlc3BvbnNlEhQKDHBhaXJpbmdfbGluaxgBIAEoCRISCgpzZXNzaW9uX2lkGAIgASgJEhMKC2Vudmlyb25tZW50GAMgASgJIhUKE1NpZ25PdXRQaG9uZVJlcXVlc3QiFgoUU2lnbk91dFBob25lUmVzcG9uc2UqgAIKEFBob25lU2lnbkluU3RhdGUSIwofUEhPTkVfU0lHTl9JTl9TVEFURV9VTlNQRUNJRklFRBAAEh8KG1BIT05FX1NJR05fSU5fU1RBVEVfV0FJVElORxABEh8KG1BIT05FX1NJR05fSU5fU1RBVEVfQ0xBSU1FRBACEiEKHVBIT05FX1NJR05fSU5fU1RBVEVfU0lHTkVEX0lOEAMSHgoaUEhPTkVfU0lHTl9JTl9TVEFURV9GQUlMRUQQBBIhCh1QSE9ORV9TSUdOX0lOX1NUQVRFX0NBTkNFTExFRBAFEh8KG1BIT05FX1NJR05fSU5fU1RBVEVfRVhQSVJFRBAGMpgJCg9EZXZQaG9uZVNlcnZpY2USWgoRQ3JlYXRlUGhvbmVTaWduSW4SIS5wbHV4LnYxLkNyZWF0ZVBob25lU2lnbkluUmVxdWVzdBoiLnBsdXgudjEuQ3JlYXRlUGhvbmVTaWduSW5SZXNwb25zZRJRCg5HZXRQaG9uZVNpZ25JbhIeLnBsdXgudjEuR2V0UGhvbmVTaWduSW5SZXF1ZXN0Gh8ucGx1eC52MS5HZXRQaG9uZVNpZ25JblJlc3BvbnNlEloKEUNhbmNlbFBob25lU2lnbkluEiEucGx1eC52MS5DYW5jZWxQaG9uZVNpZ25JblJlcXVlc3QaIi5wbHV4LnYxLkNhbmNlbFBob25lU2lnbkluUmVzcG9uc2USRQoKTGlzdFBob25lcxIaLnBsdXgudjEuTGlzdFBob25lc1JlcXVlc3QaGy5wbHV4LnYxLkxpc3RQaG9uZXNSZXNwb25zZRJICgtSZXZva2VQaG9uZRIbLnBsdXgudjEuUmV2b2tlUGhvbmVSZXF1ZXN0GhwucGx1eC52MS5SZXZva2VQaG9uZVJlc3BvbnNlElEKDkdldEpvaW5SZXF1ZXN0Eh4ucGx1eC52MS5HZXRKb2luUmVxdWVzdFJlcXVlc3QaHy5wbHV4LnYxLkdldEpvaW5SZXF1ZXN0UmVzcG9uc2USVAoPRGVueUpvaW5SZXF1ZXN0Eh8ucGx1eC52MS5EZW55Sm9pblJlcXVlc3RSZXF1ZXN0GiAucGx1eC52MS5EZW55Sm9pblJlcXVlc3RSZXNwb25zZRJRCg5BbGxvd0pvaW5SZXRyeRIeLnBsdXgudjEuQWxsb3dKb2luUmV0cnlSZXF1ZXN0Gh8ucGx1eC52MS5BbGxvd0pvaW5SZXRyeVJlc3BvbnNlElcKEENsYWltUGhvbmVTaWduSW4SIC5wbHV4LnYxLkNsYWltUGhvbmVTaWduSW5SZXF1ZXN0GiEucGx1eC52MS5DbGFpbVBob25lU2lnbkluUmVzcG9uc2USYAoTQ29tcGxldGVQaG9uZVNpZ25JbhIjLnBsdXgudjEuQ29tcGxldGVQaG9uZVNpZ25JblJlcXVlc3QaJC5wbHV4LnYxLkNvbXBsZXRlUGhvbmVTaWduSW5SZXNwb25zZRJOCg1MaXN0UGhvbmVBcHBzEh0ucGx1eC52MS5MaXN0UGhvbmVBcHBzUmVxdWVzdBoeLnBsdXgudjEuTGlzdFBob25lQXBwc1Jlc3BvbnNlEkgKC1JlcXVlc3RKb2luEhsucGx1eC52MS5SZXF1ZXN0Sm9pblJlcXVlc3QaHC5wbHV4LnYxLlJlcXVlc3RKb2luUmVzcG9uc2USSwoMQ29tcGxldGVKb2luEhwucGx1eC52MS5Db21wbGV0ZUpvaW5SZXF1ZXN0Gh0ucGx1eC52MS5Db21wbGV0ZUpvaW5SZXNwb25zZRJLCgxTaWduT3V0UGhvbmUSHC5wbHV4LnYxLlNpZ25PdXRQaG9uZVJlcXVlc3QaHS5wbHV4LnYxLlNpZ25PdXRQaG9uZVJlc3BvbnNlQj1aO2dpdGh1Yi5jb20vbmlnaHRDb2RlNDIvcGx1eDMvYmFja2VuZC9pbnRlcm5hbC9wbHV4djE7cGx1eHYxYgZwcm90bzM", [file_google_protobuf_timestamp, file_plux_v1_devevents]);
+  fileDesc("ChZwbHV4L3YxL2RldnBob25lLnByb3RvEgdwbHV4LnYxIhoKGENyZWF0ZVBob25lU2lnbkluUmVxdWVzdCJtChlDcmVhdGVQaG9uZVNpZ25JblJlc3BvbnNlEhIKCnNpZ25faW5faWQYASABKAkSDAoEbGluaxgCIAEoCRIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIrChVHZXRQaG9uZVNpZ25JblJlcXVlc3QSEgoKc2lnbl9pbl9pZBgBIAEoCSKoAQoWR2V0UGhvbmVTaWduSW5SZXNwb25zZRIoCgVzdGF0ZRgBIAEoDjIZLnBsdXgudjEuUGhvbmVTaWduSW5TdGF0ZRIOCgZudW1iZXIYAiABKA0SEgoKcGhvbmVfbmFtZRgDIAEoCRIQCghwbGF0Zm9ybRgEIAEoCRIuCgpleHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIuChhDYW5jZWxQaG9uZVNpZ25JblJlcXVlc3QSEgoKc2lnbl9pbl9pZBgBIAEoCSIbChlDYW5jZWxQaG9uZVNpZ25JblJlc3BvbnNlIskBCghEZXZQaG9uZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhAKCHBsYXRmb3JtGAMgASgJEjAKDHNpZ25lZF9pbl9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF91c2VkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCglsYXBzZXNfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIhMKEUxpc3RQaG9uZXNSZXF1ZXN0IjcKEkxpc3RQaG9uZXNSZXNwb25zZRIhCgZwaG9uZXMYASADKAsyES5wbHV4LnYxLkRldlBob25lIiYKElJldm9rZVBob25lUmVxdWVzdBIQCghwaG9uZV9pZBgBIAEoCSIVChNSZXZva2VQaG9uZVJlc3BvbnNlIisKFUdldEpvaW5SZXF1ZXN0UmVxdWVzdBISCgpyZXF1ZXN0X2lkGAEgASgJIqYBChZHZXRKb2luUmVxdWVzdFJlc3BvbnNlEhIKCnNlc3Npb25faWQYASABKAkSJAoFc3RhdGUYAiABKA4yFS5wbHV4LnYxLkRldkpvaW5TdGF0ZRIOCgZudW1iZXIYAyABKA0SEgoKcGhvbmVfbmFtZRgEIAEoCRIuCgpleHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIsChZEZW55Sm9pblJlcXVlc3RSZXF1ZXN0EhIKCnJlcXVlc3RfaWQYASABKAkiGQoXRGVueUpvaW5SZXF1ZXN0UmVzcG9uc2UiKwoVQWxsb3dKb2luUmV0cnlSZXF1ZXN0EhIKCnJlcXVlc3RfaWQYASABKAkiGAoWQWxsb3dKb2luUmV0cnlSZXNwb25zZSItChdMaXN0Sm9pblJlcXVlc3RzUmVxdWVzdBISCgpzZXNzaW9uX2lkGAEgASgJIrIBCg5EZXZKb2luUmVxdWVzdBISCgpyZXF1ZXN0X2lkGAEgASgJEhIKCnNlc3Npb25faWQYAiABKAkSJAoFc3RhdGUYAyABKA4yFS5wbHV4LnYxLkRldkpvaW5TdGF0ZRIOCgZudW1iZXIYBCABKA0SEgoKcGhvbmVfbmFtZRgFIAEoCRIuCgpleHBpcmVzX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJFChhMaXN0Sm9pblJlcXVlc3RzUmVzcG9uc2USKQoIcmVxdWVzdHMYASADKAsyFy5wbHV4LnYxLkRldkpvaW5SZXF1ZXN0IkgKF0NsYWltUGhvbmVTaWduSW5SZXF1ZXN0Eg0KBWdyYW50GAEgASgJEgwKBG5hbWUYAiABKAkSEAoIcGxhdGZvcm0YAyABKAkijAEKGENsYWltUGhvbmVTaWduSW5SZXNwb25zZRIPCgdvcHRpb25zGAEgAygNEi4KCmV4cGlyZXNfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhQKDHVzZXJfZGlzcGxheRgDIAEoCRIZChFvcmdhbml6YXRpb25fbmFtZRgEIAEoCSI7ChpDb21wbGV0ZVBob25lU2lnbkluUmVxdWVzdBINCgVncmFudBgBIAEoCRIOCgZudW1iZXIYAiABKA0iiAEKG0NvbXBsZXRlUGhvbmVTaWduSW5SZXNwb25zZRINCgV0b2tlbhgBIAEoCRIQCghwaG9uZV9pZBgCIAEoCRIXCg9vcmdhbml6YXRpb25faWQYAyABKAkSFAoMdXNlcl9kaXNwbGF5GAQgASgJEhkKEW9yZ2FuaXphdGlvbl9uYW1lGAUgASgJIhYKFExpc3RQaG9uZUFwcHNSZXF1ZXN0IjIKCFBob25lQXBwEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDAoEbGl2ZRgDIAEoCCJpChVMaXN0UGhvbmVBcHBzUmVzcG9uc2USHwoEYXBwcxgBIAMoCzIRLnBsdXgudjEuUGhvbmVBcHASFAoMdXNlcl9kaXNwbGF5GAIgASgJEhkKEW9yZ2FuaXphdGlvbl9uYW1lGAMgASgJIiQKElJlcXVlc3RKb2luUmVxdWVzdBIOCgZhcHBfaWQYASABKAkiqQEKE1JlcXVlc3RKb2luUmVzcG9uc2USEgoKcmVxdWVzdF9pZBgBIAEoCRISCgpzZXNzaW9uX2lkGAIgASgJEhMKC2Vudmlyb25tZW50GAMgASgJEg8KB29wdGlvbnMYBCADKA0SLgoKZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoMcGFpcmluZ19saW5rGAYgASgJIjkKE0NvbXBsZXRlSm9pblJlcXVlc3QSEgoKcmVxdWVzdF9pZBgBIAEoCRIOCgZudW1iZXIYAiABKA0iVQoUQ29tcGxldGVKb2luUmVzcG9uc2USFAoMcGFpcmluZ19saW5rGAEgASgJEhIKCnNlc3Npb25faWQYAiABKAkSEwoLZW52aXJvbm1lbnQYAyABKAkiFQoTU2lnbk91dFBob25lUmVxdWVzdCIWChRTaWduT3V0UGhvbmVSZXNwb25zZSqAAgoQUGhvbmVTaWduSW5TdGF0ZRIjCh9QSE9ORV9TSUdOX0lOX1NUQVRFX1VOU1BFQ0lGSUVEEAASHwobUEhPTkVfU0lHTl9JTl9TVEFURV9XQUlUSU5HEAESHwobUEhPTkVfU0lHTl9JTl9TVEFURV9DTEFJTUVEEAISIQodUEhPTkVfU0lHTl9JTl9TVEFURV9TSUdORURfSU4QAxIeChpQSE9ORV9TSUdOX0lOX1NUQVRFX0ZBSUxFRBAEEiEKHVBIT05FX1NJR05fSU5fU1RBVEVfQ0FOQ0VMTEVEEAUSHwobUEhPTkVfU0lHTl9JTl9TVEFURV9FWFBJUkVEEAYy8QkKD0RldlBob25lU2VydmljZRJaChFDcmVhdGVQaG9uZVNpZ25JbhIhLnBsdXgudjEuQ3JlYXRlUGhvbmVTaWduSW5SZXF1ZXN0GiIucGx1eC52MS5DcmVhdGVQaG9uZVNpZ25JblJlc3BvbnNlElEKDkdldFBob25lU2lnbkluEh4ucGx1eC52MS5HZXRQaG9uZVNpZ25JblJlcXVlc3QaHy5wbHV4LnYxLkdldFBob25lU2lnbkluUmVzcG9uc2USWgoRQ2FuY2VsUGhvbmVTaWduSW4SIS5wbHV4LnYxLkNhbmNlbFBob25lU2lnbkluUmVxdWVzdBoiLnBsdXgudjEuQ2FuY2VsUGhvbmVTaWduSW5SZXNwb25zZRJFCgpMaXN0UGhvbmVzEhoucGx1eC52MS5MaXN0UGhvbmVzUmVxdWVzdBobLnBsdXgudjEuTGlzdFBob25lc1Jlc3BvbnNlEkgKC1Jldm9rZVBob25lEhsucGx1eC52MS5SZXZva2VQaG9uZVJlcXVlc3QaHC5wbHV4LnYxLlJldm9rZVBob25lUmVzcG9uc2USUQoOR2V0Sm9pblJlcXVlc3QSHi5wbHV4LnYxLkdldEpvaW5SZXF1ZXN0UmVxdWVzdBofLnBsdXgudjEuR2V0Sm9pblJlcXVlc3RSZXNwb25zZRJUCg9EZW55Sm9pblJlcXVlc3QSHy5wbHV4LnYxLkRlbnlKb2luUmVxdWVzdFJlcXVlc3QaIC5wbHV4LnYxLkRlbnlKb2luUmVxdWVzdFJlc3BvbnNlElEKDkFsbG93Sm9pblJldHJ5Eh4ucGx1eC52MS5BbGxvd0pvaW5SZXRyeVJlcXVlc3QaHy5wbHV4LnYxLkFsbG93Sm9pblJldHJ5UmVzcG9uc2USVwoQTGlzdEpvaW5SZXF1ZXN0cxIgLnBsdXgudjEuTGlzdEpvaW5SZXF1ZXN0c1JlcXVlc3QaIS5wbHV4LnYxLkxpc3RKb2luUmVxdWVzdHNSZXNwb25zZRJXChBDbGFpbVBob25lU2lnbkluEiAucGx1eC52MS5DbGFpbVBob25lU2lnbkluUmVxdWVzdBohLnBsdXgudjEuQ2xhaW1QaG9uZVNpZ25JblJlc3BvbnNlEmAKE0NvbXBsZXRlUGhvbmVTaWduSW4SIy5wbHV4LnYxLkNvbXBsZXRlUGhvbmVTaWduSW5SZXF1ZXN0GiQucGx1eC52MS5Db21wbGV0ZVBob25lU2lnbkluUmVzcG9uc2USTgoNTGlzdFBob25lQXBwcxIdLnBsdXgudjEuTGlzdFBob25lQXBwc1JlcXVlc3QaHi5wbHV4LnYxLkxpc3RQaG9uZUFwcHNSZXNwb25zZRJICgtSZXF1ZXN0Sm9pbhIbLnBsdXgudjEuUmVxdWVzdEpvaW5SZXF1ZXN0GhwucGx1eC52MS5SZXF1ZXN0Sm9pblJlc3BvbnNlEksKDENvbXBsZXRlSm9pbhIcLnBsdXgudjEuQ29tcGxldGVKb2luUmVxdWVzdBodLnBsdXgudjEuQ29tcGxldGVKb2luUmVzcG9uc2USSwoMU2lnbk91dFBob25lEhwucGx1eC52MS5TaWduT3V0UGhvbmVSZXF1ZXN0Gh0ucGx1eC52MS5TaWduT3V0UGhvbmVSZXNwb25zZUI9WjtnaXRodWIuY29tL25pZ2h0Q29kZTQyL3BsdXgzL2JhY2tlbmQvaW50ZXJuYWwvcGx1eHYxO3BsdXh2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_plux_v1_devevents]);
 
 /**
  * @generated from message plux.v1.CreatePhoneSignInRequest
@@ -379,6 +379,88 @@ export const AllowJoinRetryResponseSchema: GenMessage<AllowJoinRetryResponse> = 
   messageDesc(file_plux_v1_devphone, 16);
 
 /**
+ * @generated from message plux.v1.ListJoinRequestsRequest
+ */
+export type ListJoinRequestsRequest = Message<"plux.v1.ListJoinRequestsRequest"> & {
+  /**
+   * session_id is the Studio session the caller has open.
+   *
+   * @generated from field: string session_id = 1;
+   */
+  sessionId: string;
+};
+
+/**
+ * Describes the message plux.v1.ListJoinRequestsRequest.
+ * Use `create(ListJoinRequestsRequestSchema)` to create a new message.
+ */
+export const ListJoinRequestsRequestSchema: GenMessage<ListJoinRequestsRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_devphone, 17);
+
+/**
+ * DevJoinRequest is an open request of a phone to join a session.
+ *
+ * @generated from message plux.v1.DevJoinRequest
+ */
+export type DevJoinRequest = Message<"plux.v1.DevJoinRequest"> & {
+  /**
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+
+  /**
+   * @generated from field: string session_id = 2;
+   */
+  sessionId: string;
+
+  /**
+   * @generated from field: plux.v1.DevJoinState state = 3;
+   */
+  state: DevJoinState;
+
+  /**
+   * number is set only while the state is WAITING.
+   *
+   * @generated from field: uint32 number = 4;
+   */
+  number: number;
+
+  /**
+   * @generated from field: string phone_name = 5;
+   */
+  phoneName: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp expires_at = 6;
+   */
+  expiresAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message plux.v1.DevJoinRequest.
+ * Use `create(DevJoinRequestSchema)` to create a new message.
+ */
+export const DevJoinRequestSchema: GenMessage<DevJoinRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_devphone, 18);
+
+/**
+ * @generated from message plux.v1.ListJoinRequestsResponse
+ */
+export type ListJoinRequestsResponse = Message<"plux.v1.ListJoinRequestsResponse"> & {
+  /**
+   * @generated from field: repeated plux.v1.DevJoinRequest requests = 1;
+   */
+  requests: DevJoinRequest[];
+};
+
+/**
+ * Describes the message plux.v1.ListJoinRequestsResponse.
+ * Use `create(ListJoinRequestsResponseSchema)` to create a new message.
+ */
+export const ListJoinRequestsResponseSchema: GenMessage<ListJoinRequestsResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_devphone, 19);
+
+/**
  * @generated from message plux.v1.ClaimPhoneSignInRequest
  */
 export type ClaimPhoneSignInRequest = Message<"plux.v1.ClaimPhoneSignInRequest"> & {
@@ -407,7 +489,7 @@ export type ClaimPhoneSignInRequest = Message<"plux.v1.ClaimPhoneSignInRequest">
  * Use `create(ClaimPhoneSignInRequestSchema)` to create a new message.
  */
 export const ClaimPhoneSignInRequestSchema: GenMessage<ClaimPhoneSignInRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 17);
+  messageDesc(file_plux_v1_devphone, 20);
 
 /**
  * @generated from message plux.v1.ClaimPhoneSignInResponse
@@ -444,7 +526,7 @@ export type ClaimPhoneSignInResponse = Message<"plux.v1.ClaimPhoneSignInResponse
  * Use `create(ClaimPhoneSignInResponseSchema)` to create a new message.
  */
 export const ClaimPhoneSignInResponseSchema: GenMessage<ClaimPhoneSignInResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 18);
+  messageDesc(file_plux_v1_devphone, 21);
 
 /**
  * @generated from message plux.v1.CompletePhoneSignInRequest
@@ -466,7 +548,7 @@ export type CompletePhoneSignInRequest = Message<"plux.v1.CompletePhoneSignInReq
  * Use `create(CompletePhoneSignInRequestSchema)` to create a new message.
  */
 export const CompletePhoneSignInRequestSchema: GenMessage<CompletePhoneSignInRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 19);
+  messageDesc(file_plux_v1_devphone, 22);
 
 /**
  * @generated from message plux.v1.CompletePhoneSignInResponse
@@ -506,7 +588,7 @@ export type CompletePhoneSignInResponse = Message<"plux.v1.CompletePhoneSignInRe
  * Use `create(CompletePhoneSignInResponseSchema)` to create a new message.
  */
 export const CompletePhoneSignInResponseSchema: GenMessage<CompletePhoneSignInResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 20);
+  messageDesc(file_plux_v1_devphone, 23);
 
 /**
  * @generated from message plux.v1.ListPhoneAppsRequest
@@ -519,7 +601,7 @@ export type ListPhoneAppsRequest = Message<"plux.v1.ListPhoneAppsRequest"> & {
  * Use `create(ListPhoneAppsRequestSchema)` to create a new message.
  */
 export const ListPhoneAppsRequestSchema: GenMessage<ListPhoneAppsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 21);
+  messageDesc(file_plux_v1_devphone, 24);
 
 /**
  * PhoneApp is an app a signed-in phone may preview.
@@ -551,7 +633,7 @@ export type PhoneApp = Message<"plux.v1.PhoneApp"> & {
  * Use `create(PhoneAppSchema)` to create a new message.
  */
 export const PhoneAppSchema: GenMessage<PhoneApp> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 22);
+  messageDesc(file_plux_v1_devphone, 25);
 
 /**
  * @generated from message plux.v1.ListPhoneAppsResponse
@@ -578,7 +660,7 @@ export type ListPhoneAppsResponse = Message<"plux.v1.ListPhoneAppsResponse"> & {
  * Use `create(ListPhoneAppsResponseSchema)` to create a new message.
  */
 export const ListPhoneAppsResponseSchema: GenMessage<ListPhoneAppsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 23);
+  messageDesc(file_plux_v1_devphone, 26);
 
 /**
  * @generated from message plux.v1.RequestJoinRequest
@@ -595,7 +677,7 @@ export type RequestJoinRequest = Message<"plux.v1.RequestJoinRequest"> & {
  * Use `create(RequestJoinRequestSchema)` to create a new message.
  */
 export const RequestJoinRequestSchema: GenMessage<RequestJoinRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 24);
+  messageDesc(file_plux_v1_devphone, 27);
 
 /**
  * @generated from message plux.v1.RequestJoinResponse
@@ -646,7 +728,7 @@ export type RequestJoinResponse = Message<"plux.v1.RequestJoinResponse"> & {
  * Use `create(RequestJoinResponseSchema)` to create a new message.
  */
 export const RequestJoinResponseSchema: GenMessage<RequestJoinResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 25);
+  messageDesc(file_plux_v1_devphone, 28);
 
 /**
  * @generated from message plux.v1.CompleteJoinRequest
@@ -668,7 +750,7 @@ export type CompleteJoinRequest = Message<"plux.v1.CompleteJoinRequest"> & {
  * Use `create(CompleteJoinRequestSchema)` to create a new message.
  */
 export const CompleteJoinRequestSchema: GenMessage<CompleteJoinRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 26);
+  messageDesc(file_plux_v1_devphone, 29);
 
 /**
  * @generated from message plux.v1.CompleteJoinResponse
@@ -699,7 +781,7 @@ export type CompleteJoinResponse = Message<"plux.v1.CompleteJoinResponse"> & {
  * Use `create(CompleteJoinResponseSchema)` to create a new message.
  */
 export const CompleteJoinResponseSchema: GenMessage<CompleteJoinResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 27);
+  messageDesc(file_plux_v1_devphone, 30);
 
 /**
  * @generated from message plux.v1.SignOutPhoneRequest
@@ -712,7 +794,7 @@ export type SignOutPhoneRequest = Message<"plux.v1.SignOutPhoneRequest"> & {
  * Use `create(SignOutPhoneRequestSchema)` to create a new message.
  */
 export const SignOutPhoneRequestSchema: GenMessage<SignOutPhoneRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 28);
+  messageDesc(file_plux_v1_devphone, 31);
 
 /**
  * @generated from message plux.v1.SignOutPhoneResponse
@@ -725,7 +807,7 @@ export type SignOutPhoneResponse = Message<"plux.v1.SignOutPhoneResponse"> & {
  * Use `create(SignOutPhoneResponseSchema)` to create a new message.
  */
 export const SignOutPhoneResponseSchema: GenMessage<SignOutPhoneResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_devphone, 29);
+  messageDesc(file_plux_v1_devphone, 32);
 
 /**
  * PhoneSignInState is where the connection of a phone stands.
@@ -807,8 +889,8 @@ export const PhoneSignInStateSchema: GenEnum<PhoneSignInState> = /*@__PURE__*/
  * keeps the phone out of the session until the person lets it try again.
  *
  * Who calls what: a person calls CreatePhoneSignIn, GetPhoneSignIn,
- * CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest
- * and AllowJoinRetry. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
+ * CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest,
+ * AllowJoinRetry and ListJoinRequests. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
  * a DPoP proof alone, and ListPhoneApps, RequestJoin, CompleteJoin and
  * SignOutPhone with its phone token (`Authorization: DPoP`) and a proof of the
  * key the token is bound to; a phone token is accepted nowhere else.
@@ -901,6 +983,20 @@ export const DevPhoneService: GenService<{
     methodKind: "unary";
     input: typeof AllowJoinRetryRequestSchema;
     output: typeof AllowJoinRetryResponseSchema;
+  },
+  /**
+   * ListJoinRequests lists the open requests of phones to join the caller's
+   * live Studio sessions of the app of a session: waiting ones with their
+   * number, and wrong picks not yet let try again. Studio asks it while the
+   * session is open, which also marks that session as the one the caller's
+   * phones join.
+   *
+   * @generated from rpc plux.v1.DevPhoneService.ListJoinRequests
+   */
+  listJoinRequests: {
+    methodKind: "unary";
+    input: typeof ListJoinRequestsRequestSchema;
+    output: typeof ListJoinRequestsResponseSchema;
   },
   /**
    * ClaimPhoneSignIn is the phone's scan of the QR code: it binds the

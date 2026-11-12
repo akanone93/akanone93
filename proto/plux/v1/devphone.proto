@@ -29,8 +29,8 @@ option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1
 // keeps the phone out of the session until the person lets it try again.
 //
 // Who calls what: a person calls CreatePhoneSignIn, GetPhoneSignIn,
-// CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest
-// and AllowJoinRetry. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
+// CancelPhoneSignIn, ListPhones, RevokePhone, GetJoinRequest, DenyJoinRequest,
+// AllowJoinRetry and ListJoinRequests. A phone calls ClaimPhoneSignIn and CompletePhoneSignIn with
 // a DPoP proof alone, and ListPhoneApps, RequestJoin, CompleteJoin and
 // SignOutPhone with its phone token (`Authorization: DPoP`) and a proof of the
 // key the token is bound to; a phone token is accepted nowhere else.
@@ -57,6 +57,12 @@ service DevPhoneService {
   // session again: until then it may not, so that a phone in other hands gets
   // one guess.
   rpc AllowJoinRetry(AllowJoinRetryRequest) returns (AllowJoinRetryResponse) {}
+  // ListJoinRequests lists the open requests of phones to join the caller's
+  // live Studio sessions of the app of a session: waiting ones with their
+  // number, and wrong picks not yet let try again. Studio asks it while the
+  // session is open, which also marks that session as the one the caller's
+  // phones join.
+  rpc ListJoinRequests(ListJoinRequestsRequest) returns (ListJoinRequestsResponse) {}
 
   // ClaimPhoneSignIn is the phone's scan of the QR code: it binds the
   // sign-in to the key of the call's DPoP proof and returns the three numbers
@@ -177,6 +183,26 @@ message AllowJoinRetryRequest {
 }
 
 message AllowJoinRetryResponse {}
+
+message ListJoinRequestsRequest {
+  // session_id is the Studio session the caller has open.
+  string session_id = 1;
+}
+
+// DevJoinRequest is an open request of a phone to join a session.
+message DevJoinRequest {
+  string request_id = 1;
+  string session_id = 2;
+  DevJoinState state = 3;
+  // number is set only while the state is WAITING.
+  uint32 number = 4;
+  string phone_name = 5;
+  google.protobuf.Timestamp expires_at = 6;
+}
+
+message ListJoinRequestsResponse {
+  repeated DevJoinRequest requests = 1;
+}
 
 message ClaimPhoneSignInRequest {
   // grant is the grant of the scanned link.

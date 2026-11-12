@@ -181,3 +181,13 @@ SELECT EXISTS (SELECT 1 FROM dev_join_requests WHERE session_id = $1 AND token_i
 -- name: AllowJoinRetry :execrows
 -- Lets a phone try again after a wrong pick.
 UPDATE dev_join_requests SET state = 'retry' WHERE session_id = $1 AND token_id = $2 AND state = 'failed';
+
+-- name: ListOpenJoinRequests :many
+-- The open requests to join a person's live Studio sessions of an app:
+-- waiting and not expired, or a wrong pick not yet let try again.
+SELECT jr.* FROM dev_join_requests jr
+  JOIN dev_sessions s ON s.id = jr.session_id
+ WHERE s.app_id = $1 AND s.kind = 'studio' AND s.created_by_user = sqlc.arg(creator)::text AND s.ended_at IS NULL
+   AND (jr.state = 'failed' OR (jr.state = 'waiting' AND jr.expires_at > sqlc.arg(now)::timestamptz))
+ ORDER BY jr.created_at DESC, jr.id
+ LIMIT 20;

@@ -60,6 +60,9 @@ const (
 	// DevPhoneServiceAllowJoinRetryProcedure is the fully-qualified name of the DevPhoneService's
 	// AllowJoinRetry RPC.
 	DevPhoneServiceAllowJoinRetryProcedure = "/plux.v1.DevPhoneService/AllowJoinRetry"
+	// DevPhoneServiceListJoinRequestsProcedure is the fully-qualified name of the DevPhoneService's
+	// ListJoinRequests RPC.
+	DevPhoneServiceListJoinRequestsProcedure = "/plux.v1.DevPhoneService/ListJoinRequests"
 	// DevPhoneServiceClaimPhoneSignInProcedure is the fully-qualified name of the DevPhoneService's
 	// ClaimPhoneSignIn RPC.
 	DevPhoneServiceClaimPhoneSignInProcedure = "/plux.v1.DevPhoneService/ClaimPhoneSignIn"
@@ -104,6 +107,12 @@ type DevPhoneServiceClient interface {
 	// session again: until then it may not, so that a phone in other hands gets
 	// one guess.
 	AllowJoinRetry(context.Context, *connect.Request[pluxv1.AllowJoinRetryRequest]) (*connect.Response[pluxv1.AllowJoinRetryResponse], error)
+	// ListJoinRequests lists the open requests of phones to join the caller's
+	// live Studio sessions of the app of a session: waiting ones with their
+	// number, and wrong picks not yet let try again. Studio asks it while the
+	// session is open, which also marks that session as the one the caller's
+	// phones join.
+	ListJoinRequests(context.Context, *connect.Request[pluxv1.ListJoinRequestsRequest]) (*connect.Response[pluxv1.ListJoinRequestsResponse], error)
 	// ClaimPhoneSignIn is the phone's scan of the QR code: it binds the
 	// sign-in to the key of the call's DPoP proof and returns the three numbers
 	// to offer (PLX-9212).
@@ -183,6 +192,12 @@ func NewDevPhoneServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(devPhoneServiceMethods.ByName("AllowJoinRetry")),
 			connect.WithClientOptions(opts...),
 		),
+		listJoinRequests: connect.NewClient[pluxv1.ListJoinRequestsRequest, pluxv1.ListJoinRequestsResponse](
+			httpClient,
+			baseURL+DevPhoneServiceListJoinRequestsProcedure,
+			connect.WithSchema(devPhoneServiceMethods.ByName("ListJoinRequests")),
+			connect.WithClientOptions(opts...),
+		),
 		claimPhoneSignIn: connect.NewClient[pluxv1.ClaimPhoneSignInRequest, pluxv1.ClaimPhoneSignInResponse](
 			httpClient,
 			baseURL+DevPhoneServiceClaimPhoneSignInProcedure,
@@ -232,6 +247,7 @@ type devPhoneServiceClient struct {
 	getJoinRequest      *connect.Client[pluxv1.GetJoinRequestRequest, pluxv1.GetJoinRequestResponse]
 	denyJoinRequest     *connect.Client[pluxv1.DenyJoinRequestRequest, pluxv1.DenyJoinRequestResponse]
 	allowJoinRetry      *connect.Client[pluxv1.AllowJoinRetryRequest, pluxv1.AllowJoinRetryResponse]
+	listJoinRequests    *connect.Client[pluxv1.ListJoinRequestsRequest, pluxv1.ListJoinRequestsResponse]
 	claimPhoneSignIn    *connect.Client[pluxv1.ClaimPhoneSignInRequest, pluxv1.ClaimPhoneSignInResponse]
 	completePhoneSignIn *connect.Client[pluxv1.CompletePhoneSignInRequest, pluxv1.CompletePhoneSignInResponse]
 	listPhoneApps       *connect.Client[pluxv1.ListPhoneAppsRequest, pluxv1.ListPhoneAppsResponse]
@@ -278,6 +294,11 @@ func (c *devPhoneServiceClient) DenyJoinRequest(ctx context.Context, req *connec
 // AllowJoinRetry calls plux.v1.DevPhoneService.AllowJoinRetry.
 func (c *devPhoneServiceClient) AllowJoinRetry(ctx context.Context, req *connect.Request[pluxv1.AllowJoinRetryRequest]) (*connect.Response[pluxv1.AllowJoinRetryResponse], error) {
 	return c.allowJoinRetry.CallUnary(ctx, req)
+}
+
+// ListJoinRequests calls plux.v1.DevPhoneService.ListJoinRequests.
+func (c *devPhoneServiceClient) ListJoinRequests(ctx context.Context, req *connect.Request[pluxv1.ListJoinRequestsRequest]) (*connect.Response[pluxv1.ListJoinRequestsResponse], error) {
+	return c.listJoinRequests.CallUnary(ctx, req)
 }
 
 // ClaimPhoneSignIn calls plux.v1.DevPhoneService.ClaimPhoneSignIn.
@@ -334,6 +355,12 @@ type DevPhoneServiceHandler interface {
 	// session again: until then it may not, so that a phone in other hands gets
 	// one guess.
 	AllowJoinRetry(context.Context, *connect.Request[pluxv1.AllowJoinRetryRequest]) (*connect.Response[pluxv1.AllowJoinRetryResponse], error)
+	// ListJoinRequests lists the open requests of phones to join the caller's
+	// live Studio sessions of the app of a session: waiting ones with their
+	// number, and wrong picks not yet let try again. Studio asks it while the
+	// session is open, which also marks that session as the one the caller's
+	// phones join.
+	ListJoinRequests(context.Context, *connect.Request[pluxv1.ListJoinRequestsRequest]) (*connect.Response[pluxv1.ListJoinRequestsResponse], error)
 	// ClaimPhoneSignIn is the phone's scan of the QR code: it binds the
 	// sign-in to the key of the call's DPoP proof and returns the three numbers
 	// to offer (PLX-9212).
@@ -409,6 +436,12 @@ func NewDevPhoneServiceHandler(svc DevPhoneServiceHandler, opts ...connect.Handl
 		connect.WithSchema(devPhoneServiceMethods.ByName("AllowJoinRetry")),
 		connect.WithHandlerOptions(opts...),
 	)
+	devPhoneServiceListJoinRequestsHandler := connect.NewUnaryHandler(
+		DevPhoneServiceListJoinRequestsProcedure,
+		svc.ListJoinRequests,
+		connect.WithSchema(devPhoneServiceMethods.ByName("ListJoinRequests")),
+		connect.WithHandlerOptions(opts...),
+	)
 	devPhoneServiceClaimPhoneSignInHandler := connect.NewUnaryHandler(
 		DevPhoneServiceClaimPhoneSignInProcedure,
 		svc.ClaimPhoneSignIn,
@@ -463,6 +496,8 @@ func NewDevPhoneServiceHandler(svc DevPhoneServiceHandler, opts ...connect.Handl
 			devPhoneServiceDenyJoinRequestHandler.ServeHTTP(w, r)
 		case DevPhoneServiceAllowJoinRetryProcedure:
 			devPhoneServiceAllowJoinRetryHandler.ServeHTTP(w, r)
+		case DevPhoneServiceListJoinRequestsProcedure:
+			devPhoneServiceListJoinRequestsHandler.ServeHTTP(w, r)
 		case DevPhoneServiceClaimPhoneSignInProcedure:
 			devPhoneServiceClaimPhoneSignInHandler.ServeHTTP(w, r)
 		case DevPhoneServiceCompletePhoneSignInProcedure:
@@ -514,6 +549,10 @@ func (UnimplementedDevPhoneServiceHandler) DenyJoinRequest(context.Context, *con
 
 func (UnimplementedDevPhoneServiceHandler) AllowJoinRetry(context.Context, *connect.Request[pluxv1.AllowJoinRetryRequest]) (*connect.Response[pluxv1.AllowJoinRetryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DevPhoneService.AllowJoinRetry is not implemented"))
+}
+
+func (UnimplementedDevPhoneServiceHandler) ListJoinRequests(context.Context, *connect.Request[pluxv1.ListJoinRequestsRequest]) (*connect.Response[pluxv1.ListJoinRequestsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DevPhoneService.ListJoinRequests is not implemented"))
 }
 
 func (UnimplementedDevPhoneServiceHandler) ClaimPhoneSignIn(context.Context, *connect.Request[pluxv1.ClaimPhoneSignInRequest]) (*connect.Response[pluxv1.ClaimPhoneSignInResponse], error) {
