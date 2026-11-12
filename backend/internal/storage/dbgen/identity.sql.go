@@ -857,6 +857,19 @@ func (q *Queries) DeleteExpiredOIDCLogins(ctx context.Context) (int64, error) {
 	return result.RowsAffected(), nil
 }
 
+const deleteExpiredPhoneSignIns = `-- name: DeleteExpiredPhoneSignIns :execrows
+DELETE FROM dev_phone_sign_ins WHERE expires_at < now() - interval '1 day'
+`
+
+// The maintenance sweep: sign-ins that expired more than a day ago.
+func (q *Queries) DeleteExpiredPhoneSignIns(ctx context.Context) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteExpiredPhoneSignIns)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteExpiredSessions = `-- name: DeleteExpiredSessions :execrows
 DELETE FROM sessions WHERE expires_at < now() - interval '1 day'
 `

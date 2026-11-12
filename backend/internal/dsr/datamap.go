@@ -252,8 +252,12 @@ func accountStores() []Store {
 			UserKey: "user_id", Personal: []string{"user_id"}, Retention: "Minutes; the maintenance sweep removes expired ones.", Erase: EraseAccount,
 		},
 		{
-			Name: "access_tokens", Description: "API tokens; a CI token names the workload it was minted for.",
-			UserKey: "user_id", Personal: []string{"user_id", "subject", "last_ip_prefix", "last_user_agent"}, Retention: "Until the token expires or is revoked.", Erase: EraseAccount,
+			Name: "access_tokens", Description: "API tokens; a CI token names the workload it was minted for, a phone token its phone and key (ADR-0104).",
+			UserKey: "user_id", Personal: []string{"user_id", "name", "subject", "last_ip_prefix", "last_user_agent", "dpop_thumbprint"}, Retention: "Until the token expires or is revoked.", Erase: EraseAccount,
+		},
+		{
+			Name: "dev_phone_sign_ins", Description: "The QR sign-ins that connect a user's phone to the Plux Dev app (ADR-0104): the phone's name and key thumbprint, the grant only as its hash.",
+			UserKey: "user_id", Personal: []string{"user_id", "phone_name", "dpop_thumbprint"}, Retention: "Minutes; a sign-in expires a minute after it is made, and the maintenance sweep removes it a day later.", Erase: EraseAccount,
 		},
 		{
 			Name: "step_up_requests", Description: "WebAuthn step-up ceremonies of a user and the CLI grants they issued (SEC-103); only hashes of their secrets.",

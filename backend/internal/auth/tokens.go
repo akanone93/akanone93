@@ -662,8 +662,8 @@ func workloadOf(row dbgen.WorkloadIdentity) WorkloadIdentity {
 	}
 }
 
-// Expire deletes sessions, step-up requests, challenges and device grants
-// that expired more than a day ago, for the maintenance job. Tokens are kept after
+// Expire deletes sessions, step-up requests, challenges, device grants and
+// phone sign-ins that expired more than a day ago, for the maintenance job. Tokens are kept after
 // they expire, so that the audit log's references to them stay readable.
 func (s *Service) Expire(ctx context.Context) (int64, error) {
 	var n int64
@@ -689,6 +689,12 @@ func (s *Service) Expire(ctx context.Context) (int64, error) {
 		deleted, err := dbgen.New(tx).DeleteExpiredStepUpRequests(ctx)
 		if err != nil {
 			return fmt.Errorf("auth: expire step-up requests: %w", err)
+		}
+		n += deleted
+		// So are the sign-ins that connect a phone (ADR-0104).
+		deleted, err = dbgen.New(tx).DeleteExpiredPhoneSignIns(ctx)
+		if err != nil {
+			return fmt.Errorf("auth: expire phone sign-ins: %w", err)
 		}
 		n += deleted
 		return nil

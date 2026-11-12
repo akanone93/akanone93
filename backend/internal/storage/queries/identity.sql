@@ -363,6 +363,10 @@ UPDATE dev_phone_sign_ins SET state = $2, token_id = $3 WHERE id = $1 AND state 
 -- name: CancelPhoneSignIn :execrows
 UPDATE dev_phone_sign_ins SET state = 'cancelled' WHERE id = $1 AND user_id = $2 AND state IN ('waiting', 'claimed');
 
+-- name: DeleteExpiredPhoneSignIns :execrows
+-- The maintenance sweep: sign-ins that expired more than a day ago.
+DELETE FROM dev_phone_sign_ins WHERE expires_at < now() - interval '1 day';
+
 -- name: CountPhoneClaims :one
 -- The sign-ins one phone key claimed since an instant (devSession.phoneAttempts).
 SELECT count(*) FROM dev_phone_sign_ins WHERE dpop_thumbprint = $1 AND claimed_at > sqlc.arg(since)::timestamptz;

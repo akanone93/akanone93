@@ -57,7 +57,8 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 | `sessions` | Signed-in sessions of a user. | — | `user_id` | `user_id`, `secret_hash`, `ip_prefix`, `user_agent` | Until the session expires or is revoked. | account | — |
 | `mfa_factors` | Second factors a user enrolled. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `mfa_challenges` | Pending second-factor challenges. | — | `user_id` | `user_id` | Minutes; the maintenance sweep removes expired ones. | account | — |
-| `access_tokens` | API tokens; a CI token names the workload it was minted for. | — | `user_id` | `user_id`, `subject`, `last_ip_prefix`, `last_user_agent` | Until the token expires or is revoked. | account | — |
+| `access_tokens` | API tokens; a CI token names the workload it was minted for, a phone token its phone and key (ADR-0104). | — | `user_id` | `user_id`, `name`, `subject`, `last_ip_prefix`, `last_user_agent`, `dpop_thumbprint` | Until the token expires or is revoked. | account | — |
+| `dev_phone_sign_ins` | The QR sign-ins that connect a user's phone to the Plux Dev app (ADR-0104): the phone's name and key thumbprint, the grant only as its hash. | — | `user_id` | `user_id`, `phone_name`, `dpop_thumbprint` | Minutes; a sign-in expires a minute after it is made, and the maintenance sweep removes it a day later. | account | — |
 | `step_up_requests` | WebAuthn step-up ceremonies of a user and the CLI grants they issued (SEC-103); only hashes of their secrets. | — | `user_id` | `user_id`, `jkt` | Minutes; a request or grant expires five minutes after it is made. | account | — |
 | `user_identities` | The single-sign-on identities linked to a user. | — | `user_id` | `user_id`, `subject` | While the account exists. | account | — |
 | `federated_sign_ins` | The single-sign-on sign-ins of a user, by issuer and subject. | — | `user_id` | `user_id`, `subject` | While the account exists. | account | — |

@@ -182,20 +182,27 @@ func TestDraftWritten_PushesToStudioSessions_STU_130_DEV_021(t *testing.T) {
 	d := a.pairDevice(t, s.ID, "device-1")
 	k := b.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
 	k.c.SetReadLimit(1 << 24) // a first bundle carries every section
-	a.svc.DraftWritten(ctx, a.Developer, a.App, "", []string{calculator})
-	var bundle *pluxv1.DevBundleFrame
-	for range 4 {
-		if bundle = k.next(t).GetBundle(); bundle != nil {
-			break
+	nextBundle := func() *pluxv1.DevBundleFrame {
+		for range 4 {
+			if b := k.next(t).GetBundle(); b != nil {
+				return b
+			}
 		}
+		return nil
 	}
-	if bundle == nil || bundle.GetBundleSequence() != 1 || len(bundle.GetSections()) == 0 {
+	// The device connected fresh, so it is welcomed with the whole draft
+	// first (TestWelcome_FreshDeviceReceivesTheDraft); the write is pushed
+	// after it. Writing before the welcome is out would let the two coalesce
+	// into one push that names no document.
+	if bundle := nextBundle(); bundle == nil || bundle.GetBundleSequence() != 1 || len(bundle.GetSections()) == 0 {
 		t.Fatalf("the device received %v, want the first bundle", bundle)
 	}
-	// The device connected fresh, so it was also welcomed with the draft
-	// (TestWelcome_FreshDeviceReceivesTheDraft); every push went to the
-	// Studio session, the written document's among them, and none to the
-	// CLI session.
+	a.svc.DraftWritten(ctx, a.Developer, a.App, "", []string{calculator})
+	if bundle := nextBundle(); bundle == nil || bundle.GetBundleSequence() != 2 {
+		t.Fatalf("the device received %v, want the bundle of the write", bundle)
+	}
+	// Every push went to the Studio session, the written document's among
+	// them, and none to the CLI session.
 	wrote := false
 	for _, e := range a.Audit(t, "devsession.patched") {
 		if e.TargetID != s.ID {
