@@ -1318,6 +1318,12 @@ msgstr "{w} × {h}, under {min}"
 msgid "preview.matrixSize"
 msgstr "{width} × {height}"
 
+#. What a screen is drawn under: its size in logical pixels, light or dark mode ({mode}), and the text scale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.look"
+msgstr "{width} × {height} · {mode} · text {scale}×"
+
 #. Size of an image in the icon picker, in pixels.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -3378,6 +3384,12 @@ msgstr "Cancelled"
 msgid "compare.canvas"
 msgstr "Canvas"
 
+#. Label before what the canvas draws the screen under.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.canvasLook"
+msgstr "Canvas"
+
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -4770,6 +4782,12 @@ msgstr "Cut at a limit"
 msgid "design.scriptCyrillic"
 msgstr "Cyrillic"
 
+#. A screen drawn in dark mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.dark"
+msgstr "dark"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -5404,6 +5422,12 @@ msgstr "Device"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/compare.messages.ts
 msgid "compare.device"
+msgstr "Device"
+
+#. Label before what the device drew its screenshot under.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.deviceLook"
 msgstr "Device"
 
 #. Label of the paired device picker.
@@ -9017,6 +9041,12 @@ msgstr "Lifecycle"
 msgid "admin.tokenDays"
 msgstr "Lifetime in days"
 
+#. A screen drawn in light mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.light"
+msgstr "light"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -9622,6 +9652,12 @@ msgstr "Match system"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.caption"
 msgstr "Match system follows the light or dark setting of your device."
+
+#. Button: sets the canvas preview to the device's screen size, system bars, light or dark mode and text scale, so the two can be compared.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.match"
+msgstr "Match the canvas to the device"
 
 #. Platform style option.
 #. js-lingui-explicit-id
@@ -16952,6 +16988,12 @@ msgstr "The busiest apps of the organisation, stacked as layers."
 #: apps/web/src/features/devices/compare.messages.ts
 msgid "compare.title"
 msgstr "The canvas and the device"
+
+#. Shown when the canvas preview's size, mode or text scale differs from the device's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.differs"
+msgstr "The canvas draws under other conditions than the device; match them before comparing."
 
 #. Shown when the canvas has no image of the screen the device shows.
 #. js-lingui-explicit-id

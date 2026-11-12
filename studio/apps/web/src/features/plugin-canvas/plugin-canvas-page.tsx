@@ -440,6 +440,8 @@ function workedOn(
 
 /** How wide the canvas draws a screen to compare it with a device screenshot (PC-38). */
 const COMPARE_WIDTH = 720;
+/** How long a comparison waits for the canvas to lay its screens out again after the look changed, in milliseconds. */
+const COMPARE_SETTLE_MS = 400;
 
 /** The next request to open the console on Problems: a new number, so the same tab opens again. */
 const problemsRequest = (r: { readonly n: number } | undefined) => ({ tab: "problems" as const, n: (r?.n ?? 0) + 1 });
@@ -637,7 +639,7 @@ function PluginCanvasView({
   const sourceNames = useMemo(() => Object.fromEntries(sources.map((x) => [x.id, x.name])), [sources]);
   // The screens are previewed in the app's own locales (I18N-002, PC-32).
   const appLocales = useMemo(() => readLocales(jsonOf(appDocs.data ?? [], "app")[0])?.supported ?? [], [appDocs.data]);
-  const { look, bar, switcher, matrix, closeMatrix, openMatrix } = usePreviewBar(
+  const { look, bar, switcher, matrix, closeMatrix, openMatrix, matchDevice } = usePreviewBar(
     params.app,
     sourceIds,
     brands,
@@ -1471,10 +1473,27 @@ function PluginCanvasView({
     }),
     [instanceMarksById, isolated, navigate, params.org],
   );
-  // The canvas's drawing of a screen at a phone's width, to compare with a device screenshot (PC-38).
+  // The canvas's drawing of a screen at a phone's width, to compare with a device screenshot (PC-38). A new look
+  // gives a new drawing: the worker lays the screens out again first, so the image waits a moment for it.
   const canvasImage = useCallback(
-    (screen: string) => surfaceRef.current?.thumbnail?.(frameId(screen), COMPARE_WIDTH, true) ?? Promise.resolve(null),
-    [],
+    async (screen: string) => {
+      void look;
+      await new Promise((resolve) => setTimeout(resolve, COMPARE_SETTLE_MS));
+      return (await surfaceRef.current?.thumbnail?.(frameId(screen), COMPARE_WIDTH, true)) ?? null;
+    },
+    [look],
+  );
+  // What the canvas draws under now, to say whether it matches a device's screenshot (PC-38).
+  const canvasLook = useMemo(
+    () => ({
+      width: look.device.width,
+      height: look.device.height,
+      top: look.device.padding.top,
+      bottom: look.device.padding.bottom,
+      dark: look.theme === "dark",
+      textScale: look.textScale,
+    }),
+    [look],
   );
   const boxOfNow = useCallback(() => boxRef.current, []);
   const sizes = useSizesView({
@@ -1790,6 +1809,8 @@ function PluginCanvasView({
                           {clipboardDialog}
                           <DeviceBayHost
                             canvasImage={canvasImage}
+                            canvasLook={canvasLook}
+                            onMatchDevice={matchDevice}
                             appId={params.app}
                             request={consoleRequest}
                             live={canSend}

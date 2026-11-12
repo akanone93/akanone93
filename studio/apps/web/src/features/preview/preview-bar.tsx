@@ -10,7 +10,7 @@ import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { SurfaceFactory } from "../plugin-canvas/surface.ts";
 import { DeviceMatrix, MATRIX_ROOM, matrixScale } from "./device-matrix.tsx";
 import { useFrameView } from "./frame-view.ts";
-import { decodeCustom, frameCatalogue, matrixLayout, type Orientation, resolveFrame } from "./frames.ts";
+import { decodeCustom, encodeCustom, frameCatalogue, matrixLayout, type Orientation, resolveFrame } from "./frames.ts";
 import { type MatrixJob, MatrixScreen, useMatrixImages } from "./matrix-screen.tsx";
 import { previewMessages } from "./preview.messages.ts";
 import { PreviewSwitcher } from "./preview-switcher.tsx";
@@ -38,9 +38,21 @@ export function PreviewBarView({
   );
 }
 
+/** What a device drew a screenshot under: its screen in logical pixels, its bars, its mode and text scale. */
+export interface DeviceLook {
+  readonly width: number;
+  readonly height: number;
+  readonly density: number;
+  readonly top: number;
+  readonly bottom: number;
+  readonly dark: boolean;
+  readonly textScale: number;
+}
+
 /**
  * The preview switches of an app: the render they imply for the canvas, the toolbar that sets them
- * (STU-058) and whether the device matrix shows in place of the single frame.
+ * (STU-058), whether the device matrix shows in place of the single frame, and the switch to a device's own look (a
+ * frame of its size and bars, its mode and text scale, without the drawn chrome) to compare a screenshot with (PC-38).
  */
 export function usePreviewBar(
   app: string | undefined,
@@ -50,6 +62,7 @@ export function usePreviewBar(
   locales: readonly string[] = [],
 ): {
   look: PreviewRender;
+  matchDevice: (device: DeviceLook) => void;
   bar: ReactElement;
   switcher: ReactElement;
   matrix: boolean;
@@ -69,8 +82,29 @@ export function usePreviewBar(
     const device = previewDevice(frame, view.orientation, view.chrome);
     cache.current = { key, look: previewRender(preview.state, frame.platform, device) };
   }
+  const { set } = preview;
+  const state = preview.state;
+  const matchDevice = useCallback(
+    (d: DeviceLook) => {
+      void set({
+        ...state,
+        deviceFrame: encodeCustom({
+          width: d.width,
+          height: d.height,
+          density: d.density,
+          insets: { top: d.top, bottom: d.bottom },
+        }),
+        theme: d.dark ? "dark" : "light",
+        textScale: d.textScale,
+      });
+      // The device's image has no status bar or home indicator drawn on it, only their space.
+      setView({ orientation: "portrait", chrome: false });
+    },
+    [set, state, setView],
+  );
   return {
     look: cache.current.look,
+    matchDevice,
     matrix,
     openMatrix,
     closeMatrix,

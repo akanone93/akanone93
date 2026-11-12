@@ -6,7 +6,8 @@ import { createStudioI18n } from "@plux/i18n";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
-import { CompareView } from "./compare-view.tsx";
+import { CompareView, sameLook } from "./compare-view.tsx";
+import { lookOf } from "./screenshot-panel.tsx";
 
 afterEach(cleanup);
 
@@ -46,5 +47,57 @@ describe("PC-38 the canvas compared with the device [DEV-033] [STU-005]", () => 
       ).toBeTruthy(),
     );
     expect(screen.queryByAltText("The same screen as the canvas draws it")).toBeNull();
+  });
+
+  test("a device's screenshot says what it was drawn under, in logical pixels", () => {
+    const look = lookOf({
+      width: 1080,
+      height: 2400,
+      pixelRatio: 2.625,
+      dark: true,
+      textScale: 1.15,
+      paddingTop: 49.1,
+      paddingBottom: 24,
+    });
+    expect(look).toEqual({ width: 411, height: 914, density: 2.625, top: 49, bottom: 24, dark: true, textScale: 1.15 });
+    // An older runtime says nothing of it: no look, no match.
+    expect(
+      lookOf({ width: 1080, height: 2400, pixelRatio: 0, dark: false, textScale: 0, paddingTop: 0, paddingBottom: 0 }),
+    ).toBe(undefined);
+  });
+
+  test("when the canvas draws under other conditions than the device, it says so and matches them on request", async () => {
+    const device = { width: 411, height: 914, top: 49, bottom: 24, dark: true, textScale: 1 };
+    const canvas = { width: 360, height: 800, top: 24, bottom: 24, dark: false, textScale: 1 };
+    expect(sameLook(device, canvas)).toBe(false);
+    expect(sameLook(device, { ...device })).toBe(true);
+    const onMatch = mock(() => undefined);
+    const view = render(
+      <I18nProvider studio={studio()}>
+        <CompareView
+          device="blob:device"
+          canvas={async () => null}
+          deviceLook={device}
+          canvasLook={canvas}
+          onMatch={onMatch}
+        />
+      </I18nProvider>,
+    );
+    expect(await screen.findByText("411 × 914 · dark · text 1×")).toBeTruthy();
+    expect(screen.getByText("360 × 800 · light · text 1×")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Match the canvas to the device" }));
+    expect(onMatch).toHaveBeenCalledTimes(1);
+    view.rerender(
+      <I18nProvider studio={studio()}>
+        <CompareView
+          device="blob:device"
+          canvas={async () => null}
+          deviceLook={device}
+          canvasLook={device}
+          onMatch={onMatch}
+        />
+      </I18nProvider>,
+    );
+    expect(screen.queryByRole("button", { name: "Match the canvas to the device" })).toBeNull();
   });
 });

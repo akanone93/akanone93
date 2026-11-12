@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Icon } from "@plux/ui";
+import { Button, Icon } from "@plux/ui";
 import { type ReactElement, useEffect, useState } from "react";
 import { compareMessages } from "./compare.messages.ts";
 import "./compare-view.css";
@@ -42,11 +42,77 @@ function useCanvasUrl(load: () => Promise<Uint8Array | null>): string | null | u
   return url;
 }
 
+/** What a screen is drawn under, as the comparison states it. */
+export interface DrawnLook {
+  readonly width: number;
+  readonly height: number;
+  readonly top: number;
+  readonly bottom: number;
+  readonly dark: boolean;
+  readonly textScale: number;
+}
+
+/** Whether the canvas draws under the device's conditions: its size, bars, mode and text scale. */
+export function sameLook(device: DrawnLook, canvas: DrawnLook): boolean {
+  return (
+    device.width === canvas.width &&
+    device.height === canvas.height &&
+    device.top === canvas.top &&
+    device.bottom === canvas.bottom &&
+    device.dark === canvas.dark &&
+    Math.abs(device.textScale - canvas.textScale) < 0.01
+  );
+}
+
+/** The two looks, and the switch that sets the canvas to the device's when they differ. */
+function Looks(p: {
+  readonly device: DrawnLook;
+  readonly canvas: DrawnLook | undefined;
+  readonly onMatch: (() => void) | undefined;
+}): ReactElement {
+  const m = compareMessages(useLingui().i18n);
+  const said = (l: DrawnLook) => m.look(l.width, l.height, l.dark, Math.round(l.textScale * 100) / 100);
+  const differs = p.canvas !== undefined && !sameLook(p.device, p.canvas);
+  return (
+    <div className="compare-looks">
+      <dl>
+        <div>
+          <dt>{m.deviceLook}</dt>
+          <dd>{said(p.device)}</dd>
+        </div>
+        {p.canvas !== undefined && (
+          <div>
+            <dt>{m.canvasLook}</dt>
+            <dd>{said(p.canvas)}</dd>
+          </div>
+        )}
+      </dl>
+      {differs && (
+        <p className="compare-note" role="status">
+          <Icon name="info" size="pill" />
+          {m.differs}
+        </p>
+      )}
+      {differs && p.onMatch !== undefined && (
+        <Button size="sm" onClick={p.onMatch}>
+          {m.match}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export function CompareView(p: {
   /** The device's screenshot, as an object URL. */
   readonly device: string;
   /** The canvas's drawing of the screen the device shows, as PNG bytes; null when it has not drawn it. */
   readonly canvas: () => Promise<Uint8Array | null>;
+  /** What the device drew its screenshot under; absent from a runtime that does not say. */
+  readonly deviceLook?: DrawnLook | undefined;
+  /** What the canvas draws under now. */
+  readonly canvasLook?: DrawnLook | undefined;
+  /** Sets the canvas to the device's conditions. */
+  readonly onMatch?: (() => void) | undefined;
 }): ReactElement {
   const m = compareMessages(useLingui().i18n);
   const canvas = useCanvasUrl(p.canvas);
@@ -59,6 +125,7 @@ export function CompareView(p: {
   ];
   return (
     <section className="compare" aria-label={m.title}>
+      {p.deviceLook !== undefined && <Looks device={p.deviceLook} canvas={p.canvasLook} onMatch={p.onMatch} />}
       {/* biome-ignore lint/a11y/useSemanticElements: a labelled radio group of comparison modes, not a form's fieldset */}
       <div role="radiogroup" aria-label={m.mode} className="compare-modes">
         {modes.map((x) => (

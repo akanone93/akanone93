@@ -162,7 +162,11 @@ Positions are read-only while someone else is editing the app.
    screen there, **Highlight selection on device** and **Capture screenshot** (icons in the console's bar) work
    on it; a captured screenshot opens the **Screenshot** tab, where **Compare with the canvas** shows it next to the canvas's
    drawing of the same screen — side by side, the canvas over the device with its opacity to slide, or their
-   **Difference**, black where they match, so what differs lights up. Drag the console's top edge, or use the arrow keys on it, to
+   **Difference**, black where they match, so what differs lights up. Above them, Studio says what each side is drawn
+   under — the size in logical pixels, light or dark mode and the text scale; when the canvas's differ from the
+   device's, **Match the canvas to the device** sets the preview to the device's screen (a custom frame of its size and
+   system bars, its mode and text scale) and hides the drawn status bar and home indicator, which the device's image
+   does not have. Drag the console's top edge, or use the arrow keys on it, to
    change its height.
 
 Each screen's header bar shows its kind as an icon (**Page**, **Dialog**, **Bottom sheet** or **Full-screen

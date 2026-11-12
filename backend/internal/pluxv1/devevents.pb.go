@@ -2336,8 +2336,20 @@ type ScreenshotEvent struct {
 	// platform_views_not_captured is true when the screen shows platform
 	// views (native slots, maps) the capture could not include.
 	PlatformViewsNotCaptured bool `protobuf:"varint,6,opt,name=platform_views_not_captured,json=platformViewsNotCaptured,proto3" json:"platform_views_not_captured,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// dark is true when the device is in dark mode, which pages under the
+	// app's own theme follow; Studio draws the canvas the same way to
+	// compare them.
+	Dark bool `protobuf:"varint,7,opt,name=dark,proto3" json:"dark,omitempty"`
+	// text_scale is the device's text scale (1 is the default size).
+	TextScale float64 `protobuf:"fixed64,8,opt,name=text_scale,json=textScale,proto3" json:"text_scale,omitempty"`
+	// padding_top and padding_bottom are the logical pixels the system's
+	// status bar and navigation bar or home indicator cover at the top and
+	// bottom of the image (the view padding); the image shows the app
+	// beneath them, without the bars.
+	PaddingTop    float64 `protobuf:"fixed64,9,opt,name=padding_top,json=paddingTop,proto3" json:"padding_top,omitempty"`
+	PaddingBottom float64 `protobuf:"fixed64,10,opt,name=padding_bottom,json=paddingBottom,proto3" json:"padding_bottom,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ScreenshotEvent) Reset() {
@@ -2410,6 +2422,34 @@ func (x *ScreenshotEvent) GetPlatformViewsNotCaptured() bool {
 		return x.PlatformViewsNotCaptured
 	}
 	return false
+}
+
+func (x *ScreenshotEvent) GetDark() bool {
+	if x != nil {
+		return x.Dark
+	}
+	return false
+}
+
+func (x *ScreenshotEvent) GetTextScale() float64 {
+	if x != nil {
+		return x.TextScale
+	}
+	return 0
+}
+
+func (x *ScreenshotEvent) GetPaddingTop() float64 {
+	if x != nil {
+		return x.PaddingTop
+	}
+	return 0
+}
+
+func (x *ScreenshotEvent) GetPaddingBottom() float64 {
+	if x != nil {
+		return x.PaddingBottom
+	}
+	return 0
 }
 
 // InspectEvent reports a node the developer selected on the device by
@@ -2932,7 +2972,7 @@ const file_plux_v1_devevents_proto_rawDesc = "" +
 	"\rbundle_sha256\x18\x01 \x01(\tR\fbundleSha256\x12#\n" +
 	"\rpages_applied\x18\x02 \x03(\tR\fpagesApplied\x12!\n" +
 	"\fscopes_reset\x18\x03 \x03(\tR\vscopesReset\x12!\n" +
-	"\fapply_micros\x18\x04 \x01(\x03R\vapplyMicros\"\xd0\x01\n" +
+	"\fapply_micros\x18\x04 \x01(\x03R\vapplyMicros\"\xcb\x02\n" +
 	"\x0fScreenshotEvent\x12\x1d\n" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12\x10\n" +
@@ -2941,7 +2981,14 @@ const file_plux_v1_devevents_proto_rawDesc = "" +
 	"\x06height\x18\x04 \x01(\x05R\x06height\x12\x1f\n" +
 	"\vpixel_ratio\x18\x05 \x01(\x01R\n" +
 	"pixelRatio\x12=\n" +
-	"\x1bplatform_views_not_captured\x18\x06 \x01(\bR\x18platformViewsNotCaptured\"C\n" +
+	"\x1bplatform_views_not_captured\x18\x06 \x01(\bR\x18platformViewsNotCaptured\x12\x12\n" +
+	"\x04dark\x18\a \x01(\bR\x04dark\x12\x1d\n" +
+	"\n" +
+	"text_scale\x18\b \x01(\x01R\ttextScale\x12\x1f\n" +
+	"\vpadding_top\x18\t \x01(\x01R\n" +
+	"paddingTop\x12%\n" +
+	"\x0epadding_bottom\x18\n" +
+	" \x01(\x01R\rpaddingBottom\"C\n" +
 	"\fInspectEvent\x12\x1b\n" +
 	"\tnode_path\x18\x01 \x01(\tR\bnodePath\x12\x16\n" +
 	"\x06widget\x18\x02 \x01(\tR\x06widget\"U\n" +

@@ -8,9 +8,12 @@ import {
   customFrame,
   customFrameLimits,
   customFrameRefusal,
+  type DeviceFrame,
   decodeCustom,
   encodeCustom,
   frameCatalogue,
+  frameChrome,
+  framePadding,
   matrixLayout,
   orientedSize,
   resolveFrame,
@@ -48,6 +51,15 @@ describe("[STU-057] device frames", () => {
     expect(f).toMatchObject({ width: 500, height: 900, density: 2.5, kind: "phone" });
     expect(decodeCustom("custom:bad")).toBeUndefined();
     expect(resolveFrame("nope").id).toBe("android-small");
+  });
+  test("a frame matched to a device keeps its system bars' heights and square corners [PC-38]", () => {
+    const stored = encodeCustom({ width: 412, height: 915, density: 2.625, insets: { top: 49, bottom: 24 } });
+    expect(stored).toBe("custom:412x915@2.625/49,24");
+    const f = decodeCustom(stored);
+    expect(f).toMatchObject({ width: 412, height: 915, insets: { top: 49, bottom: 24 } });
+    expect(frameChrome(f as DeviceFrame)).toMatchObject({ top: 49, bottom: 24, radius: 0, indicator: "gesture" });
+    expect(framePadding(f as DeviceFrame, "portrait")).toEqual({ top: 49, right: 0, bottom: 24, left: 0 });
+    expect(decodeCustom("custom:412x915@2.625/500,500")).toBeUndefined();
   });
   test("a custom frame above studio.customFrameMaxPixels is refused, at the limit is accepted [STU-057]", () => {
     const { maxPixels } = customFrameLimits();

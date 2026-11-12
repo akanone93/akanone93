@@ -5,8 +5,9 @@ import { useLingui } from "@lingui/react";
 import { Button, Field, Input, Select } from "@plux/ui";
 import { useMutation } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import type { DeviceLook } from "../preview/preview-bar.tsx";
 import { compareMessages } from "./compare.messages.ts";
-import { CompareView } from "./compare-view.tsx";
+import { CompareView, type DrawnLook } from "./compare-view.tsx";
 import { devicesMessages } from "./devices.messages.ts";
 import { type ScreenshotStore, type ScreenshotUse, storeScreenshot } from "./screenshots.ts";
 
@@ -14,6 +15,32 @@ import { type ScreenshotStore, type ScreenshotUse, storeScreenshot } from "./scr
 export interface Capture {
   readonly png: Uint8Array<ArrayBuffer>;
   readonly platformViewsNotCaptured: boolean;
+  /** What the device drew it under; absent from a runtime that does not say. */
+  readonly look?: DeviceLook | undefined;
+}
+
+/** What a device drew a screenshot under, from the event: logical pixels, bars, mode and text scale (PC-38). */
+export function lookOf(e: {
+  readonly width: number;
+  readonly height: number;
+  readonly pixelRatio: number;
+  readonly dark: boolean;
+  readonly textScale: number;
+  readonly paddingTop: number;
+  readonly paddingBottom: number;
+}): DeviceLook | undefined {
+  if (e.width <= 0 || e.height <= 0 || e.pixelRatio <= 0 || e.textScale <= 0) {
+    return undefined;
+  }
+  return {
+    width: Math.round(e.width / e.pixelRatio),
+    height: Math.round(e.height / e.pixelRatio),
+    density: e.pixelRatio,
+    top: Math.round(e.paddingTop),
+    bottom: Math.round(e.paddingBottom),
+    dark: e.dark,
+    textScale: e.textScale,
+  };
 }
 
 /** Hands the image to an img element as an object URL, released when it is replaced. */
@@ -32,12 +59,18 @@ export function ScreenshotPanel({
   store,
   defaultTarget = "",
   canvas,
+  canvasLook,
+  onMatch,
 }: {
   readonly capture: Capture;
   readonly store: ScreenshotStore;
   readonly defaultTarget?: string;
   /** The canvas's drawing of the screen the device shows, to compare with (PC-38); absent outside a canvas. */
   readonly canvas?: (() => Promise<Uint8Array | null>) | undefined;
+  /** What the canvas draws under now, to say whether it matches the device. */
+  readonly canvasLook?: DrawnLook | undefined;
+  /** Sets the canvas to the device's conditions (its size, bars, mode and text scale). */
+  readonly onMatch?: ((device: DeviceLook) => void) | undefined;
 }): ReactNode {
   const m = devicesMessages(useLingui().i18n);
   const url = useObjectUrl(capture.png);
@@ -75,7 +108,17 @@ export function ScreenshotPanel({
         </Button>
       )}
       {capture.platformViewsNotCaptured && <p className="text-caption text-muted-foreground">{m.platformViews}</p>}
-      {comparing && canvas !== undefined && <CompareView device={url} canvas={canvas} />}
+      {comparing && canvas !== undefined && (
+        <CompareView
+          device={url}
+          canvas={canvas}
+          deviceLook={capture.look}
+          canvasLook={canvasLook}
+          onMatch={
+            onMatch === undefined || capture.look === undefined ? undefined : () => onMatch(capture.look as DeviceLook)
+          }
+        />
+      )}
       {save.isSuccess && (
         <p role="status" className="text-body text-muted-foreground">
           {m.screenshotSaved}

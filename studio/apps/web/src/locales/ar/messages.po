@@ -1318,6 +1318,12 @@ msgstr "{w} × {h}، أقل من {min}"
 msgid "preview.matrixSize"
 msgstr "{width} × {height}"
 
+#. What a screen is drawn under: its size in logical pixels, light or dark mode ({mode}), and the text scale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.look"
+msgstr "{width} × {height} · {mode} · النص {scale}×"
+
 #. Size of an image in the icon picker, in pixels.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -3378,6 +3384,12 @@ msgstr "ملغى"
 msgid "compare.canvas"
 msgstr "اللوحة"
 
+#. Label before what the canvas draws the screen under.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.canvasLook"
+msgstr "اللوحة"
+
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -4770,6 +4782,12 @@ msgstr "توقفت عند حد"
 msgid "design.scriptCyrillic"
 msgstr "السيريلية"
 
+#. A screen drawn in dark mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.dark"
+msgstr "داكن"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -5404,6 +5422,12 @@ msgstr "الجهاز"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/compare.messages.ts
 msgid "compare.device"
+msgstr "الجهاز"
+
+#. Label before what the device drew its screenshot under.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.deviceLook"
 msgstr "الجهاز"
 
 #. Label of the paired device picker.
@@ -9017,6 +9041,12 @@ msgstr "دورة الحياة"
 msgid "admin.tokenDays"
 msgstr "مدة الصلاحية بالأيام"
 
+#. A screen drawn in light mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.light"
+msgstr "فاتح"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -9622,6 +9652,12 @@ msgstr "مثل النظام"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.caption"
 msgstr "مطابقة النظام تتبع الإعداد الفاتح أو الداكن لجهازك."
+
+#. Button: sets the canvas preview to the device's screen size, system bars, light or dark mode and text scale, so the two can be compared.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.match"
+msgstr "طابِق اللوحة مع الجهاز"
 
 #. Platform style option.
 #. js-lingui-explicit-id
@@ -16952,6 +16988,12 @@ msgstr "أكثر تطبيقات المؤسسة استخدامًا، مكدّسة
 #: apps/web/src/features/devices/compare.messages.ts
 msgid "compare.title"
 msgstr "اللوحة والجهاز"
+
+#. Shown when the canvas preview's size, mode or text scale differs from the device's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.differs"
+msgstr "ترسم اللوحة في ظروف مختلفة عن الجهاز؛ طابِقها قبل المقارنة."
 
 #. Shown when the canvas has no image of the screen the device shows.
 #. js-lingui-explicit-id

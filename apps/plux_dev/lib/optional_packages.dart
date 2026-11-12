@@ -98,7 +98,10 @@ final class DevPackages {
   /// The runtime configuration for [appId] on [endpoint]: the development
   /// [rootKeys] and no others, the optional packages, [client] for every
   /// request (the dev tools' network profiles wrap it) and [webSocketClient]
-  /// for every WebSocket, the dev channel's included.
+  /// for every WebSocket, the dev channel's included. Pages take the app's
+  /// own theme, built from its design tokens in the phone's light or dark
+  /// mode, as Studio draws them (HST-012, THM-002): the Dev app's look is its
+  /// own and never reaches an app it shows.
   PluxConfig configFor({
     required String appId,
     required Uri endpoint,
@@ -115,6 +118,7 @@ final class DevPackages {
     hostBuild: hostBuild,
     baseline: null,
     router: PluxGoRouter(router),
+    themeSource: PluxThemeSource.plux,
     widgetPackages: widgetPackages,
     devicePackages: devicePackages,
     functionEngine: functionEngine,

@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { type ReactNode, useCallback, useMemo } from "react";
+import type { DrawnLook } from "../devices/compare-view.tsx";
 import type { DrawerTab } from "../devices/drawer-model.ts";
 import { DeviceBay } from "../devices/index.ts";
 import { nodePathOf, resolveNodePath } from "../devices/inspect-path.ts";
 import type { DocState } from "../editor/edit-session.ts";
 import { uploadAsset } from "../panels/upload-asset.ts";
+import type { DeviceLook } from "../preview/preview-bar.tsx";
 import { ProblemsContent } from "../problems/problems-panel.tsx";
 import type { Validation } from "../problems/use-validation.ts";
 import type { Node } from "./plugin-model.ts";
@@ -65,6 +67,8 @@ export function DeviceBayHost({
   request,
   live,
   canvasImage,
+  canvasLook,
+  onMatchDevice,
   ...input
 }: BridgeInput & {
   /** Starts the dev session when the editor opens (the person may create one). */
@@ -77,6 +81,9 @@ export function DeviceBayHost({
   readonly entryPage: string | undefined;
   /** The canvas's drawing of a screen, for comparing it with the device's screenshot (PC-38). */
   readonly canvasImage?: (screen: string) => Promise<Uint8Array | null>;
+  /** What the canvas draws under now, and the switch to a device's conditions (PC-38). */
+  readonly canvasLook?: DrawnLook;
+  readonly onMatchDevice?: (device: DeviceLook) => void;
 }): ReactNode {
   const bridge = useDeviceBridge(input);
   const selectedScreen = bridge.only === undefined ? undefined : screenOf.get(bridge.only);
@@ -93,6 +100,8 @@ export function DeviceBayHost({
       store={bridge.screenshotStore}
       route={selectedScreen ?? entryPage ?? ""}
       canvasImage={canvasImage}
+      canvasLook={canvasLook}
+      onMatchDevice={onMatchDevice}
     />
   );
 }

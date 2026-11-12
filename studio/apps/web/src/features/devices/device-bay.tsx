@@ -16,6 +16,8 @@ import {
   useState,
 } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
+import type { DeviceLook } from "../preview/preview-bar.tsx";
+import type { DrawnLook } from "./compare-view.tsx";
 import {
   type ConsoleStatus,
   DevLinkPill,
@@ -30,7 +32,7 @@ import { devicesMessages } from "./devices.messages.ts";
 import type { DrawerTab } from "./drawer-model.ts";
 import { createLatencyMeter, type LatencyMeter } from "./latency.ts";
 import { PairingDialog } from "./pairing-dialog.tsx";
-import { type Capture, ScreenshotPanel } from "./screenshot-panel.tsx";
+import { type Capture, lookOf, ScreenshotPanel } from "./screenshot-panel.tsx";
 import type { ScreenshotStore } from "./screenshots.ts";
 import { SendToDeviceDialog } from "./send-dialog.tsx";
 import { useDevClient } from "./use-dev-session.ts";
@@ -56,6 +58,10 @@ export interface DeviceBayProps {
   readonly route: string;
   /** The canvas's drawing of a screen, to compare a device screenshot with (PC-38). */
   readonly canvasImage?: ((screen: string) => Promise<Uint8Array | null>) | undefined;
+  /** What the canvas draws under now: its frame, bars, mode and text scale (PC-38). */
+  readonly canvasLook?: DrawnLook | undefined;
+  /** Sets the canvas to a device's conditions, to compare its screenshot with (PC-38). */
+  readonly onMatchDevice?: ((device: DeviceLook) => void) | undefined;
   readonly now?: () => number;
   /**
    * Starts the dev session as soon as the editor opens (for a person who may create one): a tap on the device selects
@@ -233,6 +239,7 @@ function useBayEvents(onInspect: (path: string) => void, meter: LatencyMeter, on
         setCapture({
           png: new Uint8Array(body.value.png),
           platformViewsNotCaptured: body.value.platformViewsNotCaptured,
+          look: lookOf(body.value),
         });
         onCapture();
       } else if (body.case === "hotApply") {
@@ -373,6 +380,8 @@ function Bay(props: DeviceBayProps & { readonly onAsk: () => void }): ReactNode 
                       store={props.store}
                       defaultTarget={props.route}
                       canvas={compareCanvas}
+                      canvasLook={props.canvasLook}
+                      onMatch={props.onMatchDevice}
                     />
                   )
                 }

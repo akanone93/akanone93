@@ -7,6 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **A screenshot says what it was drawn under (DEV-033):** the `screenshot` event carries the
+  device's dark mode, text scale and the logical heights of its system bars, so Studio draws its
+  canvas the same way to compare them.
 - **A device joining a dev session sends what it already holds (DEV-020):** the problems the
   runtime reported and its last sync stage go first, so the session's console shows what the
   device's own debug log shows; the rest is what happens from then on.

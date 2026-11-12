@@ -33896,6 +33896,31 @@ components:
           description: |-
             platform_views_not_captured is true when the screen shows platform
              views (native slots, maps) the capture could not include.
+        dark:
+          type: boolean
+          title: dark
+          description: |-
+            dark is true when the device is in dark mode, which pages under the
+             app's own theme follow; Studio draws the canvas the same way to
+             compare them.
+        textScale:
+          type: number
+          title: text_scale
+          format: double
+          description: text_scale is the device's text scale (1 is the default size).
+        paddingTop:
+          type: number
+          title: padding_top
+          format: double
+          description: |-
+            padding_top and padding_bottom are the logical pixels the system's
+             status bar and navigation bar or home indicator cover at the top and
+             bottom of the image (the view padding); the image shows the app
+             beneath them, without the bars.
+        paddingBottom:
+          type: number
+          title: padding_bottom
+          format: double
       title: ScreenshotEvent
       additionalProperties: false
       description: ScreenshotEvent carries a captured screenshot (DEV-033).

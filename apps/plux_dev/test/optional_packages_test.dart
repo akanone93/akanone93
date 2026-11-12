@@ -74,4 +74,9 @@ void main() {
     expect(config.environment, 'development');
     expect(config.hostBuild, 'plux-dev');
   });
+
+  test(
+    "pages take the app's own theme, not the Dev app's, as Studio draws them [DEV-001] [THM-002]",
+    () => expect(config.themeSource, PluxThemeSource.plux),
+  );
 }

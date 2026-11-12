@@ -435,8 +435,13 @@ void main() {
     testWidgets('emits the PNG of the screen [DEV-033]', (tester) async {
       tester.view
         ..physicalSize = const Size(200, 300)
-        ..devicePixelRatio = 2;
+        ..devicePixelRatio = 2
+        ..viewPadding = const FakeViewPadding(top: 48, bottom: 32);
+      tester.platformDispatcher
+        ..platformBrightnessTestValue = Brightness.dark
+        ..textScaleFactorTestValue = 1.5;
       addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearAllTestValues);
       await tester.pumpWidget(_page(host, capture));
 
       final result = await tester.runAsync(() => send('captureScreenshot', {}));
@@ -460,6 +465,12 @@ void main() {
       expect(shot['height'], 300);
       expect(shot['pixelRatio'], 2.0);
       expect(shot['platformViewsNotCaptured'], false);
+      // What the screen was drawn under, for Studio to draw alike: dark mode,
+      // the text scale and the system bars in logical pixels.
+      expect(shot['dark'], true);
+      expect(shot['textScale'], 1.5);
+      expect(shot['paddingTop'], 24.0);
+      expect(shot['paddingBottom'], 16.0);
     });
 
     testWidgets('says when a platform view is on screen [DEV-033]', (

@@ -3,7 +3,9 @@
 
 /// Screenshots of a dev session (`DEV-033`): `captureScreenshot` renders the
 /// app inside a [DevCaptureBoundary] at the device's pixel ratio, encodes it
-/// as PNG on a background isolate and reports it as a `screenshot` event.
+/// as PNG on a background isolate and reports it as a `screenshot` event,
+/// with the light or dark mode, text scale and system bar heights it was
+/// drawn under.
 /// Platform views are drawn by the platform and are not in the image; the
 /// event says so. Only builds with `kPluxDevtools` create it.
 library;
@@ -68,6 +70,8 @@ final class DevScreenshotHandler implements DevCommandHandler {
       return devFailure(devStatusFailed, 'there is no screen to capture');
     }
     final ratio = View.of(context).devicePixelRatio;
+    // What the screen was drawn under, so Studio draws its canvas alike.
+    final media = MediaQuery.maybeOf(context);
     final hasPlatformViews = platformViews(boundary);
     final ui.Image image = await boundary.toImage(pixelRatio: ratio);
     try {
@@ -90,6 +94,10 @@ final class DevScreenshotHandler implements DevCommandHandler {
           'height': height,
           'pixelRatio': ratio,
           'platformViewsNotCaptured': hasPlatformViews,
+          'dark': media?.platformBrightness == Brightness.dark,
+          'textScale': media?.textScaler.scale(1) ?? 1.0,
+          'paddingTop': media?.viewPadding.top ?? 0.0,
+          'paddingBottom': media?.viewPadding.bottom ?? 0.0,
         },
       });
       return {'status': devStatusOk};

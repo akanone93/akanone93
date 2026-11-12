@@ -55,5 +55,41 @@ export function compareMessages(i18n: I18n) {
       message: "The canvas has not drawn this screen: open it on the canvas, then compare again.",
       comment: "Shown when the canvas has no image of the screen the device shows.",
     }),
+    look: (width: number, height: number, dark: boolean, scale: number) =>
+      i18n._({
+        id: "compare.look",
+        message: "{width} × {height} · {mode} · text {scale}×",
+        values: {
+          width,
+          height,
+          mode: dark
+            ? i18n._({ id: "compare.dark", message: "dark", comment: "A screen drawn in dark mode." })
+            : i18n._({ id: "compare.light", message: "light", comment: "A screen drawn in light mode." }),
+          scale,
+        },
+        comment:
+          "What a screen is drawn under: its size in logical pixels, light or dark mode ({mode}), and the text scale.",
+      }),
+    deviceLook: i18n._({
+      id: "compare.deviceLook",
+      message: "Device",
+      comment: "Label before what the device drew its screenshot under.",
+    }),
+    canvasLook: i18n._({
+      id: "compare.canvasLook",
+      message: "Canvas",
+      comment: "Label before what the canvas draws the screen under.",
+    }),
+    match: i18n._({
+      id: "compare.match",
+      message: "Match the canvas to the device",
+      comment:
+        "Button: sets the canvas preview to the device's screen size, system bars, light or dark mode and text scale, so the two can be compared.",
+    }),
+    differs: i18n._({
+      id: "compare.differs",
+      message: "The canvas draws under other conditions than the device; match them before comparing.",
+      comment: "Shown when the canvas preview's size, mode or text scale differs from the device's.",
+    }),
   };
 }

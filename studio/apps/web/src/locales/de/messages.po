@@ -1318,6 +1318,12 @@ msgstr "{w} × {h}, unter {min}"
 msgid "preview.matrixSize"
 msgstr "{width} × {height}"
 
+#. What a screen is drawn under: its size in logical pixels, light or dark mode ({mode}), and the text scale.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.look"
+msgstr "{width} × {height} · {mode} · Text {scale}×"
+
 #. Size of an image in the icon picker, in pixels.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -3378,6 +3384,12 @@ msgstr "Abgebrochen"
 msgid "compare.canvas"
 msgstr "Arbeitsfläche"
 
+#. Label before what the canvas draws the screen under.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.canvasLook"
+msgstr "Arbeitsfläche"
+
 #. Accessible name of the toolbar under the plugin canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -4770,6 +4782,12 @@ msgstr "An einer Grenze beendet"
 msgid "design.scriptCyrillic"
 msgstr "Kyrillisch"
 
+#. A screen drawn in dark mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.dark"
+msgstr "dunkel"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -5404,6 +5422,12 @@ msgstr "Gerät"
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/compare.messages.ts
 msgid "compare.device"
+msgstr "Gerät"
+
+#. Label before what the device drew its screenshot under.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.deviceLook"
 msgstr "Gerät"
 
 #. Label of the paired device picker.
@@ -9017,6 +9041,12 @@ msgstr "Lebenszyklus"
 msgid "admin.tokenDays"
 msgstr "Gültigkeit in Tagen"
 
+#. A screen drawn in light mode.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.light"
+msgstr "hell"
+
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -9622,6 +9652,12 @@ msgstr "Wie System"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.theme.caption"
 msgstr "Wie System folgt der hellen oder dunklen Einstellung Ihres Geräts."
+
+#. Button: sets the canvas preview to the device's screen size, system bars, light or dark mode and text scale, so the two can be compared.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.match"
+msgstr "Arbeitsfläche an das Gerät anpassen"
 
 #. Platform style option.
 #. js-lingui-explicit-id
@@ -16952,6 +16988,12 @@ msgstr "Die meistgenutzten Apps der Organisation, als Ebenen gestapelt."
 #: apps/web/src/features/devices/compare.messages.ts
 msgid "compare.title"
 msgstr "Arbeitsfläche und Gerät"
+
+#. Shown when the canvas preview's size, mode or text scale differs from the device's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/compare.messages.ts
+msgid "compare.differs"
+msgstr "Die Arbeitsfläche zeichnet unter anderen Bedingungen als das Gerät; gleiche sie vor dem Vergleich an."
 
 #. Shown when the canvas has no image of the screen the device shows.
 #. js-lingui-explicit-id

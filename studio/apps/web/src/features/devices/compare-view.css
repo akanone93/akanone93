@@ -87,3 +87,31 @@
   color: var(--muted-foreground);
   font-size: 0.6875rem;
 }
+
+/* What each side was drawn under, and the switch that matches the canvas to the device. */
+.compare-looks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+}
+
+.compare-looks dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 1) calc(var(--spacing) * 4);
+  font-size: var(--text-xs);
+}
+
+.compare-looks dl > div {
+  display: flex;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.compare-looks dt {
+  color: var(--muted-foreground);
+}
+
+.compare-looks dd {
+  font-variant-numeric: tabular-nums;
+}

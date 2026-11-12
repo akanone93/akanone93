@@ -171,6 +171,15 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    debug panel (`plux_devtools`), which the sheet's **Show diagnostics** opens. *Not found:* why the maintainer's
    console stayed on "Connecting…" — here the stream goes live directly; the fallback covers a network that buffers
    streams. Still to check on the maintainer's machine and a real phone.
+9. **Device and canvas drawn alike (2026-11-12):** the maintainer's comparison showed the Dev app drawing pages in its
+   own theme: the bar at the bottom was exactly its primary `#5B3DF5` and the text exactly its muted `#6B7085`. The
+   Dev app now sets `themeSource: PluxThemeSource.plux` (HST-012 allows the host to choose the app's theme), so pages
+   take the app's design tokens in the phone's light or dark mode, as the canvas does. The `screenshot` event carries
+   the device's dark mode, text scale and system bar heights (`ScreenshotEvent` fields 7–10); the comparison states
+   both sides' conditions and **Match the canvas to the device** sets a custom frame `custom:WxH@D/T,B` with the
+   device's bars (square corners), its mode and text scale, and hides the drawn chrome. Checked live with a simulated
+   phone; not yet on the maintainer's phone. If the bottom bar stays after this, it is part of the page: send its
+   JSON.
 
 ## Running the stack here without Docker
 

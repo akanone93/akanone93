@@ -385,6 +385,18 @@ message ScreenshotEvent {
   // platform_views_not_captured is true when the screen shows platform
   // views (native slots, maps) the capture could not include.
   bool platform_views_not_captured = 6;
+  // dark is true when the device is in dark mode, which pages under the
+  // app's own theme follow; Studio draws the canvas the same way to
+  // compare them.
+  bool dark = 7;
+  // text_scale is the device's text scale (1 is the default size).
+  double text_scale = 8;
+  // padding_top and padding_bottom are the logical pixels the system's
+  // status bar and navigation bar or home indicator cover at the top and
+  // bottom of the image (the view padding); the image shows the app
+  // beneath them, without the bars.
+  double padding_top = 9;
+  double padding_bottom = 10;
 }
 
 // InspectEvent reports a node the developer selected on the device by

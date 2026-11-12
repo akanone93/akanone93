@@ -18,6 +18,11 @@ export interface DeviceFrame {
   readonly width: number;
   readonly height: number;
   readonly density: number;
+  /**
+   * The logical pixels the system bars cover at the top and bottom, when the frame copies a device's screen (a
+   * frame matched to a screenshot, PC-38); a frame without them takes its kind's and platform's.
+   */
+  readonly insets?: { readonly top: number; readonly bottom: number };
 }
 
 /** Presets named by STU-057, plus a tablet and a desktop window. */
@@ -77,6 +82,11 @@ export function frameChrome(frame: DeviceFrame): FrameChrome {
   if (known !== undefined) {
     return known;
   }
+  if (frame.insets !== undefined) {
+    // A device's own screen: its bars' heights, square corners as a screenshot has them.
+    const { top, bottom } = frame.insets;
+    return { top, bottom, cutout: "none", indicator: bottom > 0 ? "gesture" : "none", radius: 0 };
+  }
   if (frame.kind === "desktop") {
     return { top: 0, bottom: 0, cutout: "none", indicator: "none", radius: 8 };
   }
@@ -124,6 +134,7 @@ export interface CustomFrameInput {
   readonly width: number;
   readonly height: number;
   readonly density: number;
+  readonly insets?: { readonly top: number; readonly bottom: number };
 }
 
 /** The limit a custom frame breaks: its size, or its pixel density (D40). */
@@ -154,9 +165,11 @@ export function customFrameRefusal(input: CustomFrameInput): CustomFrameRefusal 
  * configured maximum. A frame beyond studio.customFrameMaxPixels or studio.customFrameMaxDensity is refused.
  */
 export function customFrame(id: string, input: CustomFrameInput): DeviceFrame | "invalid" {
-  const { width, height, density } = input;
+  const { width, height, density, insets } = input;
   const ok = Number.isInteger(width) && Number.isInteger(height) && width > 0 && height > 0;
-  if (!ok || !Number.isFinite(density) || customFrameRefusal(input) !== undefined) {
+  const insetsOk =
+    insets === undefined || [insets.top, insets.bottom].every((v) => Number.isInteger(v) && v >= 0 && v * 2 < height);
+  if (!ok || !insetsOk || !Number.isFinite(density) || customFrameRefusal(input) !== undefined) {
     return "invalid";
   }
   return {
@@ -166,6 +179,7 @@ export function customFrame(id: string, input: CustomFrameInput): DeviceFrame | 
     width,
     height,
     density,
+    ...(insets === undefined ? {} : { insets }),
   };
 }
 
@@ -175,17 +189,26 @@ export function resolveFrame(id: string, custom: readonly DeviceFrame[] = []): D
   return all.find((f) => f.id === id) ?? (all.find((f) => f.id === defaultFrameId) as DeviceFrame);
 }
 
-/** The stored device_frame string: a preset ID, or "custom:WxH@D" for a custom frame. */
-export function encodeCustom(frame: Pick<DeviceFrame, "width" | "height" | "density">): string {
-  return `custom:${frame.width}x${frame.height}@${frame.density}`;
+/**
+ * The stored device_frame string: a preset ID, or "custom:WxH@D" for a custom frame, with "/T,B" after it for the
+ * system bars' heights of a frame matched to a device.
+ */
+export function encodeCustom(frame: Pick<DeviceFrame, "width" | "height" | "density" | "insets">): string {
+  const bars = frame.insets === undefined ? "" : `/${frame.insets.top},${frame.insets.bottom}`;
+  return `custom:${frame.width}x${frame.height}@${frame.density}${bars}`;
 }
 
 export function decodeCustom(value: string): DeviceFrame | undefined {
-  const m = /^custom:(\d+)x(\d+)@([0-9.]+)$/.exec(value);
+  const m = /^custom:(\d+)x(\d+)@([0-9.]+)(?:\/(\d+),(\d+))?$/.exec(value);
   if (m === null) {
     return undefined;
   }
-  const made = customFrame(value, { width: Number(m[1]), height: Number(m[2]), density: Number(m[3]) });
+  const made = customFrame(value, {
+    width: Number(m[1]),
+    height: Number(m[2]),
+    density: Number(m[3]),
+    ...(m[4] === undefined ? {} : { insets: { top: Number(m[4]), bottom: Number(m[5]) } }),
+  });
   return made === "invalid" ? undefined : made;
 }
 
