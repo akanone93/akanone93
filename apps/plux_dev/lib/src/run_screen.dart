@@ -10,6 +10,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:plux_dev/src/dev_tooling.dart';
 import 'package:plux_dev/src/ui/status_pill.dart';
@@ -141,29 +142,34 @@ final class DevRunOverlay extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Stack(
-    children: [
-      Positioned.fill(child: child),
-      Positioned(
-        right: 16,
-        bottom: 16 + MediaQuery.paddingOf(context).bottom,
-        child: ValueListenableBuilder<DevLinkState?>(
-          valueListenable: tooling.session.link,
-          builder: (context, state, _) => DecoratedBox(
-            decoration: const BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.all(Radius.circular(999)),
-              boxShadow: devCardShadow,
-            ),
-            child: StatusPill(
-              key: const Key('dev-button'),
-              state: state,
-              onTap: () => _openSheet(context),
+  Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
+    // Readable status-bar icons on a screen without a bar of its own; an
+    // app bar of the running app sets its own over this.
+    value: devSystemBars,
+    child: Stack(
+      children: [
+        Positioned.fill(child: child),
+        Positioned(
+          right: 16,
+          bottom: 16 + MediaQuery.paddingOf(context).bottom,
+          child: ValueListenableBuilder<DevLinkState?>(
+            valueListenable: tooling.session.link,
+            builder: (context, state, _) => DecoratedBox(
+              decoration: const BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.all(Radius.circular(999)),
+                boxShadow: devCardShadow,
+              ),
+              child: StatusPill(
+                key: const Key('dev-button'),
+                state: state,
+                onTap: () => _openSheet(context),
+              ),
             ),
           ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 
   void _openSheet(BuildContext context) {
@@ -221,7 +227,7 @@ final class _DevSheet extends StatelessWidget {
             'Edits in Studio appear here as you make them. Logs, state and network calls stream to Studio’s console.',
             style: text.bodyMedium,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           OutlinedButton.icon(
             key: const Key('reconnect'),
             onPressed: () {

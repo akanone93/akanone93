@@ -108,91 +108,97 @@ final class _AppsScreenState extends State<AppsScreen> {
     final text = Theme.of(context).textTheme;
     final apps = _apps;
     return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _reload,
-          child: ListView(
-            padding: const EdgeInsets.all(DevSizes.page),
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Your apps', style: text.headlineMedium),
-                        if (_whom.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(_whom, style: text.bodyMedium),
-                        ],
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    key: const Key('scan'),
-                    tooltip: 'Scan a code',
-                    iconSize: 26,
-                    style: IconButton.styleFrom(
-                      minimumSize: const Size.square(DevSizes.touch),
-                    ),
-                    onPressed: widget.onScan,
-                    icon: const Icon(Icons.qr_code_scanner_rounded),
-                  ),
-                  PopupMenuButton<String>(
-                    key: const Key('menu'),
-                    tooltip: 'More',
-                    icon: const Icon(Icons.more_horiz_rounded),
-                    onSelected: (v) {
-                      if (v == 'sign-out') unawaited(widget.onSignOut());
-                    },
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(
-                        value: 'sign-out',
-                        child: Text('Sign this phone out'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              if (_error case final error?)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    error,
-                    style: text.bodyMedium?.copyWith(color: DevColors.danger),
-                  ),
-                ),
-              if (apps == null && _error == null)
-                const Padding(
-                  padding: EdgeInsets.all(48),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (apps != null && apps.isEmpty)
-                DevCard(
-                  raised: false,
-                  child: Text(
-                    'This organisation has no apps yet. Create one in Studio.',
-                    style: text.bodyLarge,
-                  ),
-                )
-              else
-                for (final app in apps ?? const <DevPhoneApp>[]) ...[
-                  _AppTile(
-                    app: app,
-                    opening: _opening == app.id,
-                    onTap: () => _open(app),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              const SizedBox(height: 12),
-              Text(
-                'Open an app in Studio, then tap it here. It opens at its entry screen, live.',
-                style: text.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ],
+      body: RefreshIndicator(
+        onRefresh: _reload,
+        edgeOffset: 120,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
           ),
+          slivers: [
+            // A large title that settles into the toolbar as the list
+            // scrolls; the person stays named under it.
+            SliverAppBar.large(
+              title: const Text('Your apps'),
+              actions: [
+                IconButton(
+                  key: const Key('scan'),
+                  tooltip: 'Scan a code',
+                  onPressed: widget.onScan,
+                  icon: const Icon(Icons.qr_code_scanner_rounded),
+                ),
+                PopupMenuButton<String>(
+                  key: const Key('menu'),
+                  tooltip: 'More',
+                  icon: const Icon(Icons.more_horiz_rounded),
+                  onSelected: (v) {
+                    if (v == 'sign-out') unawaited(widget.onSignOut());
+                  },
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'sign-out',
+                      child: Text('Sign this phone out'),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                DevSizes.page,
+                0,
+                DevSizes.page,
+                DevSizes.page,
+              ),
+              sliver: SliverList.list(
+                children: [
+                  if (_whom.isNotEmpty) ...[
+                    _Whom(text: _whom),
+                    const SizedBox(height: 20),
+                  ],
+                  if (_error case final error?)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        error,
+                        style: text.bodyMedium?.copyWith(
+                          color: DevColors.danger,
+                        ),
+                      ),
+                    ),
+                  if (apps == null && _error == null)
+                    const Padding(
+                      padding: EdgeInsets.all(40),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (apps != null && apps.isEmpty)
+                    DevCard(
+                      raised: false,
+                      child: Text(
+                        'This organisation has no apps yet. Create one in Studio.',
+                        style: text.bodyLarge,
+                      ),
+                    )
+                  else
+                    for (final app in apps ?? const <DevPhoneApp>[]) ...[
+                      _AppTile(
+                        app: app,
+                        opening: _opening == app.id,
+                        onTap: () => _open(app),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  const SizedBox(height: 14),
+                  Text(
+                    'Open an app in Studio, then tap it here. It opens at its entry screen, live.',
+                    style: text.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -237,38 +243,35 @@ final class _AppTile extends StatelessWidget {
       excludeSemantics: true,
       child: DevCard(
         key: Key('app-${app.id}'),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         onTap: opening ? null : onTap,
         child: Row(
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
                 color: tint.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: SizedBox.square(
-                dimension: 52,
+                dimension: 42,
                 child: Center(
                   child: Text(
                     initial,
                     style: TextStyle(
                       color: tint,
-                      fontSize: 22,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    app.name,
-                    style: text.titleLarge?.copyWith(fontSize: 17),
-                  ),
+                  Text(app.name, style: text.titleMedium),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -282,7 +285,7 @@ final class _AppTile extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         app.live ? 'Open in Studio' : 'Not open in Studio',
-                        style: text.bodyMedium,
+                        style: text.bodySmall,
                       ),
                     ],
                   ),
@@ -291,8 +294,8 @@ final class _AppTile extends StatelessWidget {
             ),
             if (opening)
               const SizedBox.square(
-                dimension: 24,
-                child: CircularProgressIndicator(strokeWidth: 2.5),
+                dimension: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
               )
             else
               const Icon(Icons.chevron_right_rounded, color: DevColors.muted),
@@ -301,4 +304,26 @@ final class _AppTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Whom the phone is signed in as: a small chip under the title.
+final class _Whom extends StatelessWidget {
+  const _Whom({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      const Icon(Icons.verified_user_outlined, size: 16, color: DevColors.live),
+      const SizedBox(width: 6),
+      Flexible(
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.bodyMedium,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    ],
+  );
 }

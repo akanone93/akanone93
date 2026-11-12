@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:plux_dev/dev.dart';
 import 'package:plux_dev/dev_http.dart';
@@ -14,6 +15,8 @@ import 'package:plux_dev/dev_http.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   checkDevCertificateAuthority();
+  // Dark status-bar icons over the app's light screens, from the first frame.
+  SystemChrome.setSystemUIOverlayStyle(devSystemBars);
   final name = await phoneName();
   runApp(
     DevApp(

@@ -10,6 +10,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:plux_dev/dev_http.dart';
 import 'package:plux_dev/development_roots.dart';
@@ -345,7 +346,7 @@ final class _DevAppState extends State<DevApp> {
           title: running.name,
           debugShowCheckedModeBanner: false,
           routerConfig: running.router,
-          theme: devTheme(),
+          theme: devTheme(systemBars: false),
           builder: (context, child) => DevRunOverlay(
             tooling: running.tooling,
             appName: running.name,
@@ -362,6 +363,11 @@ final class _DevAppState extends State<DevApp> {
       navigatorKey: _launcher,
       scaffoldMessengerKey: _messenger,
       theme: devTheme(),
+      // Readable status-bar icons on every screen of the launcher, bar or not.
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: devSystemBars,
+        child: child!,
+      ),
       home: widget.rootKeys.isEmpty
           ? const _NoRoots()
           : _restoring

@@ -138,70 +138,79 @@ final class _ConnectScreenState extends State<ConnectScreen> {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(DevSizes.page),
-          children: [
-            const SizedBox(height: 32),
-            const _Mark(),
-            const SizedBox(height: 28),
-            Text('Plux Dev', style: text.headlineMedium),
-            const SizedBox(height: 8),
-            Text(
-              'Your Studio apps, live on this phone.',
-              style: text.bodyLarge?.copyWith(color: DevColors.muted),
+      body: CustomScrollView(
+        slivers: [
+          // The name large at first, settling into the toolbar on scroll.
+          const SliverAppBar.large(
+            leading: Padding(padding: EdgeInsets.all(12), child: _Mark()),
+            title: Text('Plux Dev'),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              DevSizes.page,
+              0,
+              DevSizes.page,
+              DevSizes.page,
             ),
-            const SizedBox(height: 32),
-            const DevCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _Step(
-                    n: 1,
-                    text: 'In Studio, open Profile › Phones and choose Connect a phone.',
-                  ),
-                  SizedBox(height: 16),
-                  _Step(n: 2, text: 'Scan the code with this phone.'),
-                  SizedBox(height: 16),
-                  _Step(n: 3, text: 'Pick the number Studio shows.'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            FilledButton.icon(
-              key: const Key('scan'),
-              onPressed: _busy
-                  ? null
-                  : () async => _connect(await widget.scan(context)),
-              icon: _busy
-                  ? const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.white,
+            sliver: SliverList.list(
+              children: [
+                Text(
+                  'Your Studio apps, live on this phone.',
+                  style: text.bodyLarge?.copyWith(color: DevColors.muted),
+                ),
+                const SizedBox(height: 24),
+                const DevCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _Step(
+                        n: 1,
+                        text: 'In Studio, open Profile › Phones and choose Connect a phone.',
                       ),
-                    )
-                  : const Icon(Icons.qr_code_scanner_rounded),
-              label: Text(_busy ? 'Connecting…' : 'Scan the code'),
+                      SizedBox(height: 14),
+                      _Step(n: 2, text: 'Scan the code with this phone.'),
+                      SizedBox(height: 14),
+                      _Step(n: 3, text: 'Pick the number Studio shows.'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  key: const Key('scan'),
+                  onPressed: _busy
+                      ? null
+                      : () async => _connect(await widget.scan(context)),
+                  icon: _busy
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.qr_code_scanner_rounded, size: 20),
+                  label: Text(_busy ? 'Connecting…' : 'Scan the code'),
+                ),
+                const SizedBox(height: 4),
+                TextButton(
+                  key: const Key('paste'),
+                  onPressed: _busy ? null : _paste,
+                  child: const Text('Paste a link instead'),
+                ),
+                if (_error case final error?) ...[
+                  const SizedBox(height: 12),
+                  _Notice(text: error),
+                ],
+                const SizedBox(height: 20),
+                Text(
+                  'This phone stays connected. Sign it out any time in the app or in Studio.',
+                  style: text.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            TextButton(
-              key: const Key('paste'),
-              onPressed: _busy ? null : _paste,
-              child: const Text('Paste a link instead'),
-            ),
-            if (_error case final error?) ...[
-              const SizedBox(height: 16),
-              _Notice(text: error),
-            ],
-            const SizedBox(height: 24),
-            Text(
-              'This phone stays connected. Sign it out any time in the app or in Studio.',
-              style: text.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -211,24 +220,21 @@ final class _Mark extends StatelessWidget {
   const _Mark();
 
   @override
-  Widget build(BuildContext context) => Align(
-    alignment: Alignment.centerLeft,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: DevColors.primary,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x335B3DF5),
-            blurRadius: 24,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: const SizedBox.square(
-        dimension: 64,
-        child: Icon(Icons.bolt_rounded, color: Colors.white, size: 34),
-      ),
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: DevColors.primary,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x335B3DF5),
+          blurRadius: 12,
+          offset: Offset(0, 4),
+        ),
+      ],
+    ),
+    child: const SizedBox.square(
+      dimension: 32,
+      child: Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
     ),
   );
 }
@@ -249,7 +255,7 @@ final class _Step extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         child: SizedBox.square(
-          dimension: 28,
+          dimension: 24,
           child: Center(
             child: Text(
               '$n',
@@ -261,11 +267,15 @@ final class _Step extends StatelessWidget {
           ),
         ),
       ),
-      const SizedBox(width: 14),
+      const SizedBox(width: 12),
       Expanded(
         child: Padding(
-          padding: const EdgeInsets.only(top: 3),
-          child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: DevColors.ink),
+          ),
         ),
       ),
     ],
@@ -287,7 +297,7 @@ final class _Notice extends StatelessWidget {
         borderRadius: BorderRadius.circular(DevSizes.button),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         child: Text(
           text,
           style: const TextStyle(color: Color(0xFFB4232A), height: 1.4),

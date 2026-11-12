@@ -202,7 +202,7 @@ void main() {
       final phones = FakeDirectory(claimed: claim);
       await tester.pumpWidget(app(phones: phones));
       await settle(tester);
-      expect(find.text('Plux Dev'), findsOneWidget);
+      expect(find.text('Plux Dev'), findsWidgets);
       await tester.tap(find.byKey(const Key('scan')));
       await settle(tester);
       expect(phones.links, ['g1']);
@@ -211,7 +211,7 @@ void main() {
       await tester.tap(find.byKey(const Key('number-42')));
       await settle(tester);
       expect(claim.picked, 42);
-      expect(find.text('Your apps'), findsOneWidget);
+      expect(find.text('Your apps'), findsWidgets);
       expect(find.text('Shop'), findsOneWidget);
       expect(find.text('Open in Studio'), findsOneWidget);
       expect(find.text('Not open in Studio'), findsOneWidget);
@@ -291,7 +291,7 @@ void main() {
       await tester.tap(find.byKey(const Key('leave')));
       await settle(tester);
       expect(ended, [_link]);
-      expect(find.text('Your apps'), findsOneWidget);
+      expect(find.text('Your apps'), findsWidgets);
     },
   );
 
@@ -336,7 +336,7 @@ void main() {
         );
       await tester.pumpWidget(app(phones: FakeDirectory(stored: phone)));
       await settle(tester);
-      expect(find.text('Plux Dev'), findsOneWidget);
+      expect(find.text('Plux Dev'), findsWidgets);
       expect(find.textContaining('This phone was signed out'), findsOneWidget);
     },
   );
@@ -354,7 +354,7 @@ void main() {
       await tester.tap(find.text('Shop'));
       await settle(tester);
       expect(find.textContaining('Shop could not start'), findsOneWidget);
-      expect(find.text('Your apps'), findsOneWidget);
+      expect(find.text('Your apps'), findsWidgets);
     },
   );
 

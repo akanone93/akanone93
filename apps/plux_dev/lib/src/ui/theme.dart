@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// The Plux Dev app's look: white and quiet, generous spacing, rounded
-/// corners, cards raised only as far as grouping needs, and large touch
-/// targets (at least 56 logical pixels).
+/// The Plux Dev app's look: white and quiet, rounded corners, cards raised
+/// only as far as grouping needs, ordinary app sizes (Material's 48-pixel
+/// touch targets) and dark status-bar icons on every light screen.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// The app's colours.
 abstract final class DevColors {
@@ -41,26 +42,39 @@ abstract final class DevColors {
 /// The app's spacing and radii.
 abstract final class DevSizes {
   /// The page's padding.
-  static const double page = 24;
+  static const double page = 16;
 
   /// A card's corner radius.
-  static const double card = 24;
+  static const double card = 16;
 
   /// A button's corner radius.
-  static const double button = 16;
+  static const double button = 12;
 
   /// The smallest touch target.
-  static const double touch = 56;
+  static const double touch = 48;
 }
 
 /// The soft shadow of a raised card.
 const List<BoxShadow> devCardShadow = [
   BoxShadow(color: Color(0x0A111322), blurRadius: 2, offset: Offset(0, 1)),
-  BoxShadow(color: Color(0x0F111322), blurRadius: 24, offset: Offset(0, 8)),
+  BoxShadow(color: Color(0x0D111322), blurRadius: 16, offset: Offset(0, 6)),
 ];
 
-/// The app's theme.
-ThemeData devTheme() {
+/// The system bars over the app's light screens: transparent, with dark icons
+/// so the clock and battery stay readable on white.
+const SystemUiOverlayStyle devSystemBars = SystemUiOverlayStyle(
+  statusBarColor: Colors.transparent,
+  statusBarIconBrightness: Brightness.dark,
+  statusBarBrightness: Brightness.light,
+  systemNavigationBarColor: DevColors.canvas,
+  systemNavigationBarIconBrightness: Brightness.dark,
+  systemNavigationBarDividerColor: Colors.transparent,
+);
+
+/// The app's theme. A running app's own bars pick their status-bar icons
+/// from their colour, so its theme leaves [systemBars] off; the app's own
+/// screens set [devSystemBars].
+ThemeData devTheme({bool systemBars = true}) {
   final scheme = ColorScheme.fromSeed(
     seedColor: DevColors.primary,
     primary: DevColors.primary,
@@ -70,7 +84,7 @@ ThemeData devTheme() {
   const buttonShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(DevSizes.button)),
   );
-  const buttonText = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+  const buttonText = TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
   final base = ThemeData(useMaterial3: true, colorScheme: scheme);
   return base.copyWith(
     scaffoldBackgroundColor: DevColors.canvas,
@@ -78,33 +92,46 @@ ThemeData devTheme() {
         .apply(bodyColor: DevColors.ink, displayColor: DevColors.ink)
         .copyWith(
           headlineMedium: const TextStyle(
-            fontSize: 30,
+            fontSize: 28,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.6,
             color: DevColors.ink,
           ),
           titleLarge: const TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.2,
             color: DevColors.ink,
           ),
-          bodyLarge: const TextStyle(
+          titleMedium: const TextStyle(
             fontSize: 16,
-            height: 1.45,
+            fontWeight: FontWeight.w600,
+            color: DevColors.ink,
+          ),
+          bodyLarge: const TextStyle(
+            fontSize: 15,
+            height: 1.4,
             color: DevColors.ink,
           ),
           bodyMedium: const TextStyle(
             fontSize: 14,
-            height: 1.45,
+            height: 1.4,
+            color: DevColors.muted,
+          ),
+          bodySmall: const TextStyle(
+            fontSize: 12,
+            height: 1.4,
             color: DevColors.muted,
           ),
         ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
+    appBarTheme: AppBarTheme(
+      backgroundColor: DevColors.canvas,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      scrolledUnderElevation: 0.5,
+      shadowColor: DevColors.line,
       foregroundColor: DevColors.ink,
+      systemOverlayStyle: systemBars ? devSystemBars : null,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -124,7 +151,7 @@ ThemeData devTheme() {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        minimumSize: const Size(DevSizes.touch, 48),
+        minimumSize: const Size(DevSizes.touch, 44),
         shape: buttonShape,
         textStyle: buttonText,
       ),
@@ -146,7 +173,7 @@ ThemeData devTheme() {
       surfaceTintColor: Colors.transparent,
       showDragHandle: true,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
     ),
     snackBarTheme: const SnackBarThemeData(
@@ -172,7 +199,7 @@ final class DevCard extends StatelessWidget {
     super.key,
     required this.child,
     this.raised = true,
-    this.padding = const EdgeInsets.all(20),
+    this.padding = const EdgeInsets.all(16),
     this.onTap,
   });
 

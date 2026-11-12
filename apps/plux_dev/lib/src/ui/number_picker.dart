@@ -33,7 +33,7 @@ Future<int?> pickNumber(
   ),
 );
 
-/// The sheet of the number match: three large buttons and a countdown.
+/// The sheet of the number match: three number buttons and a countdown.
 final class NumberPicker extends StatefulWidget {
   /// Creates the picker.
   const NumberPicker({
@@ -115,7 +115,7 @@ final class _NumberPickerState extends State<NumberPicker> {
             style: text.bodyMedium,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           Row(
             children: [
               for (final (i, n) in widget.options.indexed) ...[
@@ -124,7 +124,7 @@ final class _NumberPickerState extends State<NumberPicker> {
               ],
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           if (left >= 0)
             Text(
               'Expires in $left s',
@@ -153,7 +153,7 @@ final class _NumberButton extends StatelessWidget {
     label: 'Pick $number',
     excludeSemantics: true,
     child: SizedBox(
-      height: 96,
+      height: 72,
       child: OutlinedButton(
         key: Key('number-$number'),
         style: OutlinedButton.styleFrom(
@@ -167,7 +167,7 @@ final class _NumberButton extends StatelessWidget {
         child: Text(
           '$number',
           style: const TextStyle(
-            fontSize: 36,
+            fontSize: 28,
             fontWeight: FontWeight.w700,
             color: DevColors.ink,
             fontFeatures: [FontFeature.tabularFigures()],

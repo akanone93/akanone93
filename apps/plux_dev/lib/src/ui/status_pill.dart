@@ -90,9 +90,9 @@ final class _StatusPillState extends State<StatusPill>
           customBorder: const StadiumBorder(),
           onTap: widget.onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 36),
+            constraints: const BoxConstraints(minHeight: 30),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -103,10 +103,10 @@ final class _StatusPillState extends State<StatusPill>
                         color: colour,
                         shape: BoxShape.circle,
                       ),
-                      child: const SizedBox.square(dimension: 8),
+                      child: const SizedBox.square(dimension: 7),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Text(
                     label,
                     style: TextStyle(
@@ -114,7 +114,7 @@ final class _StatusPillState extends State<StatusPill>
                           ? DevColors.muted
                           : Color.lerp(colour, DevColors.ink, 0.25),
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                      fontSize: 13,
                     ),
                   ),
                 ],
