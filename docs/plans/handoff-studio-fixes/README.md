@@ -100,6 +100,10 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
 
 ## Remaining tasks
 
+**Start here:** [next-steps.md](next-steps.md) lists everything that remains (written 2026-11-12): the agreed design
+for the Dev app experience in host debug builds (`PluxDevHost`), every open bug, check and follow-up below, and the
+test-app plan. It supersedes the open parts of the list below.
+
 1. **Verify every fix live, in one pass** (the maintainer asked for one combined check after all fixes):
    - dev session: console shows Live, no `CreateSession` 400;
    - assets: upload an image in the Assets panel; thumbnails appear after an edit; no `FinishAssetUpload` 400;
