@@ -143,7 +143,7 @@ void main() {
       );
       await tester.tap(find.text('Plux –'));
       await tester.pump();
-      await tester.tap(find.text('session'));
+      await tester.tap(find.text('Session'));
       await tester.pump();
       expect(find.text('Not paired'), findsOneWidget);
       expect(find.text('Scan QR code'), findsNothing);
@@ -176,7 +176,7 @@ void main() {
       );
       await tester.tap(find.text('Plux –'));
       await tester.pump();
-      await tester.tap(find.text('session'));
+      await tester.tap(find.text('Session'));
       await tester.pump();
       await tester.tap(find.text('Scan QR code'));
       await tester.pumpAndSettle();

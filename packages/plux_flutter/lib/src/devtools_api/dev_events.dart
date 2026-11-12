@@ -204,16 +204,20 @@ final class DevEventBridge {
   /// Whether a sink receives the events.
   bool get attached => _sink != null;
 
-  /// Starts sending events to [sink]; replaces an earlier sink. Only what
-  /// happens from now on is sent. Does nothing without [kPluxDevtools].
+  /// Starts sending events to [sink]; replaces an earlier sink. The
+  /// problems the runtime still holds and its last sync stage are sent
+  /// first, so the session's console shows what the device's own log shows
+  /// (DEV-020); action runs, frames and the rest are what happens from now
+  /// on. Does nothing without [kPluxDevtools].
   void attach(DevEventSink sink) {
     if (!kPluxDevtools) return;
     if (_sink != null) detach();
     _sink = sink;
     final traces = diagnostics.actionTraces.value;
     _lastRun = traces.isEmpty ? 0 : traces.last.runId;
-    final log = diagnostics.log.value;
-    _lastProblem = log.isEmpty ? null : log.last;
+    _lastProblem = null;
+    _onProblems();
+    _onSync();
     diagnostics.actionTraces.addListener(_onTraces);
     diagnostics.log.addListener(_onProblems);
     diagnostics.syncStatus.addListener(_onSync);

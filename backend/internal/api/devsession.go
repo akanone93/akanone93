@@ -6,6 +6,7 @@ package api
 import (
 	"context"
 	"errors"
+	"time"
 
 	"connectrpc.com/connect"
 
@@ -153,7 +154,7 @@ func (s DevSession) SendCommand(ctx context.Context, req *connect.Request[pluxv1
 }
 
 // WatchEvents streams the session's events, resuming after a sequence
-// (DEV-021).
+// (DEV-021); with wait_ms it is a long poll that ends after that window.
 func (s DevSession) WatchEvents(ctx context.Context, req *connect.Request[pluxv1.DevSessionServiceWatchEventsRequest], stream *connect.ServerStream[pluxv1.DevSessionServiceWatchEventsResponse]) error {
 	svc, err := s.service()
 	if err != nil {
@@ -164,7 +165,8 @@ func (s DevSession) WatchEvents(ctx context.Context, req *connect.Request[pluxv1
 		return err
 	}
 	m := req.Msg
-	return svc.Watch(ctx, p, m.GetSessionId(), m.GetDeviceIds(), m.GetAfterSequence(), func(ev *pluxv1.DevEvent) error { //nolint:wrapcheck // a domain error
+	wait := time.Duration(m.GetWaitMs()) * time.Millisecond
+	return svc.WatchFor(ctx, p, m.GetSessionId(), m.GetDeviceIds(), m.GetAfterSequence(), wait, func(ev *pluxv1.DevEvent) error { //nolint:wrapcheck // a domain error
 		return stream.Send(&pluxv1.DevSessionServiceWatchEventsResponse{Event: ev}) //nolint:wrapcheck // the stream's own error
 	})
 }

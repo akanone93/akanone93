@@ -5412,6 +5412,12 @@ msgstr "Device"
 msgid "devices.device"
 msgstr "Device"
 
+#. Console tab: the controls of the paired device (open a screen, language, theme, text scale).
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabDevice"
+msgstr "Device"
+
 #. Page title of a device.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -5429,6 +5435,12 @@ msgstr "Device APIs"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.chrome"
 msgstr "Device chrome"
+
+#. Accessible name of the app canvas's bar that shows whether a phone is connected to the dev session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.linkBar"
+msgstr "Device connection"
 
 #. Heading of the controls that change a paired device.
 #. js-lingui-explicit-id
@@ -14870,6 +14882,12 @@ msgstr "Screens of the plugin"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.detail.miniMap"
 msgstr "Screens: {screens}"
+
+#. Console tab: the device's last screenshot, to save or compare with the canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/devices/devices.messages.ts
+msgid "devices.tabScreenshot"
+msgstr "Screenshot"
 
 #. Accessible name of the picture on an app's card; name is the app.
 #. js-lingui-explicit-id

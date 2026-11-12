@@ -4,6 +4,8 @@
 /// The small pill that says whether the phone is live with Studio (DEV-020).
 library;
 
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:plux_dev/src/ui/theme.dart';
 import 'package:plux_flutter/plux_flutter.dart';
@@ -20,13 +22,22 @@ import 'package:plux_flutter/plux_flutter.dart';
 /// that pulses while the phone connects.
 final class StatusPill extends StatefulWidget {
   /// Creates the pill for [state].
-  const StatusPill({super.key, required this.state, this.onTap});
+  const StatusPill({
+    super.key,
+    required this.state,
+    this.onTap,
+    this.translucent = false,
+  });
 
   /// Where the link stands; null when the phone is in no session.
   final DevLinkState? state;
 
   /// Runs on a tap.
   final VoidCallback? onTap;
+
+  /// Whether the pill floats over content: frosted and see-through, with a
+  /// hairline edge, so it reads on any screen without hiding it.
+  final bool translucent;
 
   @override
   State<StatusPill> createState() => _StatusPillState();
@@ -80,44 +91,58 @@ final class _StatusPillState extends State<StatusPill>
       button: widget.onTap != null,
       liveRegion: true,
       excludeSemantics: true,
-      child: Material(
-        color: Color.alphaBlend(
-          colour.withValues(alpha: 0.12),
-          DevColors.surface,
-        ),
-        shape: const StadiumBorder(),
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: widget.onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 30),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FadeTransition(
-                    opacity: Tween<double>(begin: 0.35, end: 1).animate(_pulse),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: colour,
-                        shape: BoxShape.circle,
+      child: _frosted(
+        Material(
+          color: widget.translucent
+              ? Color.alphaBlend(
+                  colour.withValues(alpha: 0.14),
+                  DevColors.surface.withValues(alpha: 0.62),
+                )
+              : Color.alphaBlend(
+                  colour.withValues(alpha: 0.12),
+                  DevColors.surface,
+                ),
+          shape: StadiumBorder(
+            side: widget.translucent
+                ? BorderSide(color: DevColors.ink.withValues(alpha: 0.08))
+                : BorderSide.none,
+          ),
+          child: InkWell(
+            customBorder: const StadiumBorder(),
+            onTap: widget.onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 30),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FadeTransition(
+                      opacity: Tween<double>(
+                        begin: 0.35,
+                        end: 1,
+                      ).animate(_pulse),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colour,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const SizedBox.square(dimension: 7),
                       ),
-                      child: const SizedBox.square(dimension: 7),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: colour == DevColors.muted
-                          ? DevColors.muted
-                          : Color.lerp(colour, DevColors.ink, 0.25),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                    const SizedBox(width: 6),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: colour == DevColors.muted
+                            ? DevColors.muted
+                            : Color.lerp(colour, DevColors.ink, 0.25),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -125,4 +150,14 @@ final class _StatusPillState extends State<StatusPill>
       ),
     );
   }
+
+  Widget _frosted(Widget pill) => widget.translucent
+      ? ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: pill,
+          ),
+        )
+      : pill;
 }

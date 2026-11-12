@@ -2537,6 +2537,13 @@ type DevSessionServiceWatchEventsRequest struct {
 	// after_sequence resumes the stream after that event; zero starts with
 	// the events the server still retains (DEV-021).
 	AfterSequence uint64 `protobuf:"varint,3,opt,name=after_sequence,json=afterSequence,proto3" json:"after_sequence,omitempty"`
+	// wait_ms, when not zero, makes the call a long poll: the server ends the
+	// stream once the backlog and the heartbeat are out and wait_ms more
+	// milliseconds passed (at most its ping interval), sending the events
+	// relayed meanwhile. A watcher whose network holds a streamed response
+	// back until it ends (a buffering proxy or scanner) still sees each
+	// window's events, and calls again after the last sequence it saw.
+	WaitMs        uint32 `protobuf:"varint,4,opt,name=wait_ms,json=waitMs,proto3" json:"wait_ms,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2588,6 +2595,13 @@ func (x *DevSessionServiceWatchEventsRequest) GetDeviceIds() []string {
 func (x *DevSessionServiceWatchEventsRequest) GetAfterSequence() uint64 {
 	if x != nil {
 		return x.AfterSequence
+	}
+	return 0
+}
+
+func (x *DevSessionServiceWatchEventsRequest) GetWaitMs() uint32 {
+	if x != nil {
+		return x.WaitMs
 	}
 	return 0
 }
@@ -3452,13 +3466,14 @@ const file_plux_v1_devsession_proto_rawDesc = "" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12\x1d\n" +
 	"\n" +
-	"device_ids\x18\x02 \x03(\tR\tdeviceIds\"\x8a\x01\n" +
+	"device_ids\x18\x02 \x03(\tR\tdeviceIds\"\xa3\x01\n" +
 	"#DevSessionServiceWatchEventsRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1d\n" +
 	"\n" +
 	"device_ids\x18\x02 \x03(\tR\tdeviceIds\x12%\n" +
-	"\x0eafter_sequence\x18\x03 \x01(\x04R\rafterSequence\"O\n" +
+	"\x0eafter_sequence\x18\x03 \x01(\x04R\rafterSequence\x12\x17\n" +
+	"\await_ms\x18\x04 \x01(\rR\x06waitMs\"O\n" +
 	"$DevSessionServiceWatchEventsResponse\x12'\n" +
 	"\x05event\x18\x01 \x01(\v2\x11.plux.v1.DevEventR\x05event\"c\n" +
 	"#DevSessionServiceExportTraceRequest\x12\x1d\n" +

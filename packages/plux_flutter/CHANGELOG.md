@@ -7,6 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **A device joining a dev session sends what it already holds (DEV-020):** the problems the
+  runtime reported and its last sync stage go first, so the session's console shows what the
+  device's own debug log shows; the rest is what happens from then on.
 - **A phone signed in to the Plux Dev app (DEV-002, ADR-0104):** `DevPhone` claims the sign-in of
   Studio's QR code (`DevSignInLink`, `plux-dev://signin?…`) with a P-256 key it creates in the
   platform keystore, completes it with the number Studio shows, keeps the phone token in the

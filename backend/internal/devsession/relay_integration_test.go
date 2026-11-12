@@ -853,3 +853,43 @@ func TestWatch_AheadOfTheSessionResumesFromTheStart_DEV_021(t *testing.T) {
 		t.Errorf("resuming after 1000 gave %v, want event one", got)
 	}
 }
+
+// Verifies: DEV-021.
+// A long poll ends by itself once its window passed, after the heartbeat,
+// and a device's event relayed meanwhile is in it; a watcher calling again
+// after the last sequence resumes there.
+func TestWatchFor_EndsAfterItsWindow_DEV_021(t *testing.T) {
+	r := newRelay(t, nil)
+	s, _ := r.open(t)
+	window := func(after uint64) (beats int, events []*pluxv1.DevEvent, took time.Duration) {
+		t.Helper()
+		start := time.Now()
+		err := r.svc.WatchFor(context.Background(), r.Developer, s.ID, nil, after, 300*time.Millisecond, func(ev *pluxv1.DevEvent) error {
+			if ev == nil {
+				beats++
+			} else if ev.GetConnection() == nil {
+				events = append(events, ev)
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("long poll: %v", err)
+		}
+		return beats, events, time.Since(start)
+	}
+	beats, events, took := window(0)
+	if beats == 0 || len(events) != 0 || took > wait {
+		t.Fatalf("empty window: %d heartbeats, %d events, took %v; want a heartbeat, none, and an end", beats, len(events), took)
+	}
+	d := r.pairDevice(t, s.ID, "device-1")
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	k.event(t, 1, logEvent("in the window"))
+	k.ackedUpTo(t, 1)
+	_, events, _ = window(0)
+	if len(events) != 1 || events[0].GetLog().GetMessage() != "in the window" {
+		t.Fatalf("window events %v, want the device's log line", events)
+	}
+	if _, again, _ := window(events[0].GetSequence()); len(again) != 0 {
+		t.Errorf("a window after the last sequence repeats %d events", len(again))
+	}
+}

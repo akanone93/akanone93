@@ -157,9 +157,10 @@ Positions are read-only while someone else is editing the app.
 6. The **Developer console** at the bottom lists validation errors, warnings and information under
    **Problems** as you type; the counts also appear on the plugin card. Open it to stream the paired
    devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,
-   **Performance** and **Console**, with a source device, a level filter, search, **Pause** and
-   **Export trace**; **On the device** opens a screen there, **Highlight selection on device** and
-   **Capture screenshot** work on it; with a screenshot in, **Compare with the canvas** shows it next to the canvas's
+   **Performance** and **Console** — tabs in a rail down its side, each scrolling on its own — with a source
+   device, a level filter, search, **Pause** and **Export trace** above the rows; the **Device** tab opens a
+   screen there, **Highlight selection on device** and **Capture screenshot** (icons in the console's bar) work
+   on it; a captured screenshot opens the **Screenshot** tab, where **Compare with the canvas** shows it next to the canvas's
    drawing of the same screen — side by side, the canvas over the device with its opacity to slide, or their
    **Difference**, black where they match, so what differs lights up. Drag the console's top edge, or use the arrow keys on it, to
    change its height.

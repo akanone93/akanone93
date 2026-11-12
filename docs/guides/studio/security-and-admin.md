@@ -17,23 +17,34 @@ page and action needs the matching permission; Studio says so when you lack it.
    Plux Dev app: Studio then shows a two-digit number and the phone offers three; pick Studio's.
    The phone stays signed in, bound to a key in its keystore, until you sign it out there or it
    goes unused for 30 days ([ADR-0104](../../adr/0104-dev-app-phone-sign-in.md)).
-2. **Open the app:** with a plugin of the app open in Studio, tap the app in the Dev app. The
-   first time in your Studio session, a card above the console shows a number and the phone
-   asks you to pick it; **Deny** refuses the phone. After a wrong pick the phone stays out until
-   you choose **Let it try again**. The app opens at its entry screen, and the console turns
-   **Live**. Reloading Studio keeps the same session, so the phone stays in it.
+2. **Open the app:** with the app open in Studio — its app canvas or any of its plugins — tap
+   the app in the Dev app. The first time in your Studio session, a card shows a number and the
+   phone asks you to pick it: on the app canvas above the connection pill at the bottom, in a
+   plugin above the console; **Deny** refuses the phone. After a wrong pick the phone stays out
+   until you choose **Let it try again**. The app opens at its entry screen, and the pill turns
+   **Live**. The connection belongs to the app, not to a plugin: moving between the app canvas
+   and its plugins keeps it, and reloading Studio keeps the same session, so the phone stays in
+   it. On the phone, the pill at the top of the screen says the same and opens the dev sheet:
+   **Reconnect now**, **Show diagnostics** (the debug panel: sync, release, problems and the
+   session) and **Leave**.
 3. Any other device — a host app in a debug build, or a phone without the Dev app's sign-in —
    pairs with **Pair a device** in a plugin's top bar: a QR code, the pairing link and a **Short
    code**, with the time left (**New code** replaces an expired one). Scan the code, or paste the
    link or type the code ([run it locally](../run-locally.md) §4 step 6).
 4. **Send to device** opens a screen with a **Screen route**, **Language**, **Theme** and **Text
    scale**. **Highlight selection on device** and **Capture screenshot** work on the paired device.
-5. The **Developer console** under the plugin canvas has tabs for **Problems**, **Logs**, **Process
-   flow**, **State**, **Network**, **Functions**, **Sync**, **Performance** and **Console**. Filter by
-   device and level, search, **Pause**, and **Export trace**. The pairing token is single-use: show it only to the device you are pairing.
+5. The **Developer console** under the plugin canvas has its tabs in a rail down its side:
+   **Problems**, **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,
+   **Performance** and **Console**, then **Device** (open a screen with a language, theme and text
+   scale) and, once one is captured, **Screenshot**. Each tab scrolls on its own. Above a device
+   tab's rows, filter by device and level, search, **Pause**, and **Export trace**. When a
+   phone joins, it first sends the problems its runtime already reported, so the console shows
+   what the Dev app's debug panel shows. The pairing token is single-use: show it only to the device you are pairing.
    The console's state, a pill beside its name, says where it is: **Connecting…** and **Reconnecting…** in amber
    (after the server restarted, for example; it carries on by itself), **No device connected** in grey, or
-   **Live** in green with the number of connected devices.
+   **Live** in green with the number of connected devices. A network that holds a streamed response back
+   until it ends (some proxies and security scanners do) shows **Reconnecting…** for a few seconds; Studio
+   then reads the events in short polls instead, a second or two behind.
    The device list marks each device *connected* or *offline*, and the **Logs** tab shows a line when a device
    connects or drops, with the reason. A device that pairs, or whose app restarted, is sent the current draft at
    once; a device that dropped resumes where it stopped and receives the edits it missed.

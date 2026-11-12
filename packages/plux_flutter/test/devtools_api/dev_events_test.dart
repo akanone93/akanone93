@@ -147,6 +147,38 @@ void main() {
     expect(e['severity'], 'SEVERITY_ERROR');
   });
 
+  test('a sink attached later gets the problems already reported and the last '
+      'sync stage first, then only what is new [DEV-020]', () {
+    final late = _Sink();
+    final second = DevEventBridge(diagnostics: diag);
+    addTearDown(second.detach);
+    final before = PluxDiagnostic(
+      at: DateTime(2026),
+      error: const PluxException(PluxErrorCode.stateWriteTypeMismatch, 'old'),
+    );
+    diag.log.value = [before];
+    diag.syncStatus.value = const SyncUpToDate(7);
+    second.attach(late);
+    expect(late.events.map((e) => e.$1.keys.single), ['error', 'sync']);
+    expect(
+      ((late.events.first.$1['error']! as Map)['error']! as Map)['message'],
+      'old',
+    );
+    diag.log.value = [
+      before,
+      PluxDiagnostic(
+        at: DateTime(2026),
+        error: const PluxException(PluxErrorCode.stateWriteTypeMismatch, 'new'),
+      ),
+    ];
+    final errors = [
+      for (final e in late.events)
+        if (e.$1['error'] case final Map<String, Object?> body)
+          (body['error']! as Map)['message'],
+    ];
+    expect(errors, ['old', 'new']);
+  });
+
   test('the logger sends a log line [DEV-020]', () {
     bridge.logger.log(DevLogLevel.info, 'runtime', 'ready', nodePath: '/a');
     expect(sink.only('log'), {

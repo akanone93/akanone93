@@ -3,7 +3,7 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { type DevEvent, DevSessionService } from "@plux/api";
+import { type DevDevice, type DevEvent, DevSessionService } from "@plux/api";
 import { Button, Icon, type IconName, Select } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { Tabs as ShadcnTabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
@@ -11,6 +11,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useMemo, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import type { StreamState } from "../shell/studio-events.ts";
+import { devicesRefresh, useDevLink } from "./dev-link.tsx";
 import { devicesMessages } from "./devices.messages.ts";
 import {
   type DrawerFilter,
@@ -28,8 +29,6 @@ import { useDeviceEvents } from "./use-device-events.ts";
 
 /** The source picker's value for every device; a Select option needs a non-empty value. */
 const allDevices = "*";
-/** How often the drawer reads the session's devices again, in milliseconds. */
-const devicesRefresh = 5000;
 
 /** Hands the bytes to the browser as a download of `name`. */
 function download(bytes: Uint8Array, name: string): void {
@@ -114,10 +113,139 @@ function ConsoleRows(props: {
   );
 }
 
+/** Where the drawer's events come from: the app's link when it follows this session, else a stream of its own. */
+function useDrawerStream(
+  client: ReturnType<typeof createClient<typeof DevSessionService>>,
+  sessionId: string,
+  onEvent: ((event: DevEvent) => void) | undefined,
+  onStreamState: ((state: StreamState) => void) | undefined,
+) {
+  const link = useDevLink();
+  const linked = link !== undefined && link.sessionId === sessionId;
+  // Read again every few seconds: a device pairs, connects and drops while the drawer is open, and the list (with
+  // whether each is connected) would otherwise stay as it was when the drawer opened.
+  const devices = useQuery({
+    queryKey: ["dev-devices", sessionId],
+    enabled: !linked,
+    queryFn: async () => (await client.listDevices({ sessionId })).devices,
+    refetchInterval: devicesRefresh,
+  });
+  const own = useDeviceEvents(linked ? undefined : sessionId, [], onEvent, onStreamState);
+  if (linked) {
+    return link;
+  }
+  return { buffer: own.buffer, pause: own.pause, resume: own.resume, stream: own.state, devices: devices.data ?? [] };
+}
+
+/** The filters above a device tab's rows: the source device, the level, search, pause and trace export. */
+function ConsoleFilters(props: {
+  readonly filter: DrawerFilter;
+  readonly onFilter: (filter: DrawerFilter) => void;
+  readonly devices: readonly DevDevice[];
+  readonly paused: boolean;
+  readonly waiting: number;
+  readonly onPause: () => void;
+  readonly exporting: boolean;
+  readonly onExport: () => void;
+}): ReactNode {
+  const m = devicesMessages(useLingui().i18n);
+  const { filter, onFilter } = props;
+  const sources = [
+    { value: allDevices, label: m.allDevices },
+    ...props.devices.map((d) => ({ value: d.id, label: m.deviceName(d.name, d.connected) })),
+  ];
+  const levels: readonly [LevelFilter, string][] = [
+    ["all", m.levelAll],
+    ["warning", m.levelWarning],
+    ["error", m.levelError],
+  ];
+  return (
+    <div className="console-filters">
+      <Select
+        label={m.source}
+        value={filter.deviceId === "" ? allDevices : filter.deviceId}
+        options={sources}
+        onValueChange={(deviceId) => onFilter({ ...filter, deviceId: deviceId === allDevices ? "" : deviceId })}
+      />
+      <fieldset aria-label={m.level} className="console-levels">
+        {levels.map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className="console-level-toggle"
+            aria-pressed={filter.level === value}
+            onClick={() => onFilter({ ...filter, level: value })}
+          >
+            {label}
+          </button>
+        ))}
+      </fieldset>
+      <InputGroup className="console-search">
+        <InputGroupAddon>
+          <Icon name="magnifying-glass" />
+        </InputGroupAddon>
+        <InputGroupInput
+          type="search"
+          aria-label={m.search}
+          placeholder={m.search}
+          value={filter.search}
+          onChange={(e) => onFilter({ ...filter, search: e.target.value })}
+        />
+      </InputGroup>
+      <span className="console-filters-end">
+        {props.waiting > 0 && (
+          <span role="status" className="text-caption text-muted-foreground">
+            {m.pausedCount(props.waiting)}
+          </span>
+        )}
+        <Button size="sm" variant="ghost" onClick={props.onPause}>
+          <Icon name={props.paused ? "play" : "pause"} size="pill" />
+          {props.paused ? m.resume : m.pause}
+        </Button>
+        <Button size="sm" variant="ghost" loading={props.exporting} onClick={props.onExport}>
+          <Icon name="download" size="pill" />
+          {m.exportTrace}
+        </Button>
+      </span>
+    </div>
+  );
+}
+
+/** The console's tabs: the nine of the drawer, then the device's controls and its last screenshot. */
+export type ConsoleTab = DrawerTab | "device" | "screenshot";
+
+/** A tab of the rail: its icon, its name and how many entries it holds. */
+function RailTab({
+  value,
+  icon,
+  label,
+  count,
+}: {
+  readonly value: ConsoleTab;
+  readonly icon: IconName;
+  readonly label: string;
+  readonly count?: number | undefined;
+}): ReactNode {
+  return (
+    <TabsTrigger value={value} className="console-rail-tab">
+      <Icon name={icon} size="pill" />
+      <span className="console-rail-label">{label}</span>
+      {(count ?? 0) > 0 && (
+        <span className="console-tab-count" aria-hidden="true">
+          {count}
+        </span>
+      )}
+    </TabsTrigger>
+  );
+}
+
 /**
- * The developer console's body (STU-066, DEV-020): nine tabs with their icons and live counts — Problems from
- * validation, the rest fed by the paired devices of the dev session — over the source device, a level filter, search,
- * pause and trace export; rows show the time, the level and the device.
+ * The developer console's body (STU-066, DEV-020): a rail of tabs down its side — the nine of the drawer with their
+ * icons and live counts, then the device's controls and its last screenshot — and the open tab beside it, each
+ * scrolling on its own so everything stays in reach at any height. Problems come from validation; the device tabs
+ * from the paired devices of the dev session, with the source device, a level filter, search, pause and trace export
+ * above their rows. The app's link (one stream for the app) feeds it when there is one; otherwise it streams the
+ * session itself.
  */
 export function DeviceDrawer({
   sessionId,
@@ -127,34 +255,33 @@ export function DeviceDrawer({
   onTab,
   onEvent,
   onStreamState,
+  device,
+  screenshot,
 }: {
   readonly sessionId: string;
   /** The Problems tab's content: validation is not fed by a device. */
   readonly problems: ReactNode;
   readonly problemCount?: number | undefined;
   /** The open tab, when the console owns it; otherwise the drawer keeps its own, starting on Problems. */
-  readonly tab?: DrawerTab;
-  readonly onTab?: (tab: DrawerTab) => void;
-  /** Sees every event as it arrives, before the filters (inspect, screenshots, hot apply). */
+  readonly tab?: ConsoleTab;
+  readonly onTab?: (tab: ConsoleTab) => void;
+  /** Sees every event as it arrives, before the filters, when the drawer streams the session itself. */
   readonly onEvent?: (event: DevEvent) => void;
-  /** Hears where the event stream is: connecting, live, reconnecting or ended. */
+  /** Hears where the drawer's own event stream is: connecting, live, reconnecting or ended. */
   readonly onStreamState?: (state: StreamState) => void;
+  /** The device's controls (open a screen, language, theme, text scale), in a tab of their own. */
+  readonly device?: ReactNode;
+  /** The device's last screenshot, in a tab of its own once there is one. */
+  readonly screenshot?: ReactNode;
 }): ReactNode {
   const m = devicesMessages(useLingui().i18n);
-  const [own, setOwn] = useState<DrawerTab>("problems");
+  const [own, setOwn] = useState<ConsoleTab>("problems");
   const current = tab ?? own;
   const choose = onTab ?? setOwn;
   const { session } = useApp();
   const client = useMemo(() => createClient(DevSessionService, session.transport), [session.transport]);
   const [filter, setFilter] = useState<DrawerFilter>({ deviceId: "", level: "all", search: "" });
-  // Read again every few seconds: a device pairs, connects and drops while the drawer is open, and the list (with
-  // whether each is connected) would otherwise stay as it was when the drawer opened.
-  const devices = useQuery({
-    queryKey: ["dev-devices", sessionId],
-    queryFn: async () => (await client.listDevices({ sessionId })).devices,
-    refetchInterval: devicesRefresh,
-  });
-  const stream = useDeviceEvents(sessionId, filter.deviceId === "" ? [] : [filter.deviceId], onEvent, onStreamState);
+  const stream = useDrawerStream(client, sessionId, onEvent, onStreamState);
   const paused = stream.buffer.frozenAt !== undefined;
   const exportTrace = useMutation({
     mutationFn: async () => {
@@ -176,105 +303,77 @@ export function DeviceDrawer({
   };
   const lineLevel = (level: string): string =>
     ({ debug: m.lineDebug, info: m.lineInfo, warning: m.lineWarning, error: m.lineError })[level] ?? level;
-  const names = new Map((devices.data ?? []).map((d) => [d.id, d.name]));
+  const list = stream.devices;
+  const names = new Map(list.map((d) => [d.id, d.name]));
   const counts = countsOf(shown, problemCount);
+  const tools = (
+    <ConsoleFilters
+      filter={filter}
+      onFilter={setFilter}
+      devices={list}
+      paused={paused}
+      waiting={pending(stream.buffer)}
+      onPause={paused ? stream.resume : stream.pause}
+      exporting={exportTrace.isPending}
+      onExport={() => exportTrace.mutate()}
+    />
+  );
   const panel = (t: DrawerTab): ReactNode =>
     t === "problems" ? (
-      problems
+      <div className="console-scroll">{problems}</div>
     ) : (
-      <ConsoleRows
-        rows={shown.filter((e) => tabOf(e) === t)}
-        icon={tabIcons[t]}
-        label={labels[t]}
-        names={names}
-        level={lineLevel}
-      />
-    );
-  const sources = [
-    { value: allDevices, label: m.allDevices },
-    ...(devices.data ?? []).map((d) => ({ value: d.id, label: m.deviceName(d.name, d.connected) })),
-  ];
-  const levels: readonly [LevelFilter, string][] = [
-    ["all", m.levelAll],
-    ["warning", m.levelWarning],
-    ["error", m.levelError],
-  ];
-  const waiting = pending(stream.buffer);
-  return (
-    <section aria-label={m.drawer} className="console-drawer">
-      <ShadcnTabs value={current} onValueChange={(v) => choose(v as DrawerTab)} className="console-tabs">
-        <div className="console-head">
-          <TabsList variant="line" className="console-tablist">
-            {drawerTabs.map((t) => (
-              <TabsTrigger key={t} value={t} className="console-tab">
-                <Icon name={tabIcons[t]} size="pill" />
-                {labels[t]}
-                {(counts.get(t) ?? 0) > 0 && (
-                  <span className="console-tab-count" aria-hidden="true">
-                    {counts.get(t)}
-                  </span>
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          <div className="console-filters">
-            <Select
-              label={m.source}
-              value={filter.deviceId === "" ? allDevices : filter.deviceId}
-              options={sources}
-              onValueChange={(deviceId) => setFilter({ ...filter, deviceId: deviceId === allDevices ? "" : deviceId })}
-            />
-            <fieldset aria-label={m.level} className="console-levels">
-              {levels.map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  className="console-level-toggle"
-                  aria-pressed={filter.level === value}
-                  onClick={() => setFilter({ ...filter, level: value })}
-                >
-                  {label}
-                </button>
-              ))}
-            </fieldset>
-            <InputGroup className="console-search">
-              <InputGroupAddon>
-                <Icon name="magnifying-glass" />
-              </InputGroupAddon>
-              <InputGroupInput
-                type="search"
-                aria-label={m.search}
-                placeholder={m.search}
-                value={filter.search}
-                onChange={(e) => setFilter({ ...filter, search: e.target.value })}
-              />
-            </InputGroup>
-            <Button size="sm" variant="ghost" onClick={paused ? stream.resume : stream.pause}>
-              <Icon name={paused ? "play" : "pause"} size="pill" />
-              {paused ? m.resume : m.pause}
-            </Button>
-            <Button size="sm" variant="ghost" loading={exportTrace.isPending} onClick={() => exportTrace.mutate()}>
-              <Icon name="download" size="pill" />
-              {m.exportTrace}
-            </Button>
-            {waiting > 0 && (
-              <span role="status" className="text-caption text-muted-foreground">
-                {m.pausedCount(waiting)}
-              </span>
-            )}
-          </div>
-        </div>
-        {stream.state === "ended" && <p className="console-note">{m.streamEnded}</p>}
+      <>
+        {tools}
+        {stream.stream === "ended" && <p className="console-note">{m.streamEnded}</p>}
         {exportTrace.isError && (
           <p role="alert" className="console-note">
             {m.failed}
           </p>
         )}
+        <div className="console-scroll">
+          <ConsoleRows
+            rows={shown.filter((e) => tabOf(e) === t)}
+            icon={tabIcons[t]}
+            label={labels[t]}
+            names={names}
+            level={lineLevel}
+          />
+        </div>
+      </>
+    );
+  return (
+    <section aria-label={m.drawer} className="console-drawer">
+      <ShadcnTabs
+        value={current}
+        onValueChange={(v) => choose(v as ConsoleTab)}
+        orientation="vertical"
+        className="console-tabs"
+      >
+        <TabsList aria-label={m.drawer} className="console-rail">
+          {drawerTabs.map((t) => (
+            <RailTab key={t} value={t} icon={tabIcons[t]} label={labels[t]} count={counts.get(t)} />
+          ))}
+          {(device !== undefined || screenshot !== undefined) && (
+            <span className="console-rail-split" aria-hidden="true" />
+          )}
+          {device !== undefined && <RailTab value="device" icon="device-mobile" label={m.tabDevice} />}
+          {screenshot !== undefined && <RailTab value="screenshot" icon="camera" label={m.tabScreenshot} />}
+        </TabsList>
         {drawerTabs.map((t) => (
           <TabsContent key={t} value={t} className="console-body">
             {panel(t)}
           </TabsContent>
         ))}
+        {device !== undefined && (
+          <TabsContent value="device" className="console-body">
+            <div className="console-scroll">{device}</div>
+          </TabsContent>
+        )}
+        {screenshot !== undefined && (
+          <TabsContent value="screenshot" className="console-body">
+            <div className="console-scroll">{screenshot}</div>
+          </TabsContent>
+        )}
       </ShadcnTabs>
     </section>
   );

@@ -22193,6 +22193,16 @@ components:
           description: |-
             after_sequence resumes the stream after that event; zero starts with
              the events the server still retains (DEV-021).
+        waitMs:
+          type: integer
+          title: wait_ms
+          description: |-
+            wait_ms, when not zero, makes the call a long poll: the server ends the
+             stream once the backlog and the heartbeat are out and wait_ms more
+             milliseconds passed (at most its ping interval), sending the events
+             relayed meanwhile. A watcher whose network holds a streamed response
+             back until it ends (a buffering proxy or scanner) still sees each
+             window's events, and calls again after the last sequence it saw.
       title: DevSessionServiceWatchEventsRequest
       additionalProperties: false
     plux.v1.DevSessionServiceWatchEventsResponse:

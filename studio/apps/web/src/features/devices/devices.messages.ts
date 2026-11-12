@@ -290,6 +290,21 @@ export function devicesMessages(i18n: I18n) {
       message: "Resize the developer console",
       comment: "Accessible name of the handle on the top edge of the open console; arrow keys change its height.",
     }),
+    tabDevice: i18n._({
+      id: "devices.tabDevice",
+      message: "Device",
+      comment: "Console tab: the controls of the paired device (open a screen, language, theme, text scale).",
+    }),
+    tabScreenshot: i18n._({
+      id: "devices.tabScreenshot",
+      message: "Screenshot",
+      comment: "Console tab: the device's last screenshot, to save or compare with the canvas.",
+    }),
+    linkBar: i18n._({
+      id: "devices.linkBar",
+      message: "Device connection",
+      comment: "Accessible name of the app canvas's bar that shows whether a phone is connected to the dev session.",
+    }),
     consoleDevice: i18n._({
       id: "devices.consoleDevice",
       message: "On the device",

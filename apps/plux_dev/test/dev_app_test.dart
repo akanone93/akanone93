@@ -286,6 +286,20 @@ void main() {
       final socket = started!.webSocketClient!;
       expect(await tester.runAsync(() => _crossIsolates(http, socket)), isTrue);
 
+      // The sheet opens the debug panel at once; the pill stays above it, at
+      // the top of the screen, and the panel's close hides it again.
+      await tester.tap(find.byKey(const Key('dev-button')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('diagnostics')));
+      await settle(tester);
+      expect(find.text('Plux debug'), findsOneWidget);
+      final pill = tester.getRect(find.byKey(const Key('dev-button')));
+      final panel = tester.getRect(find.text('Plux debug'));
+      expect(pill.bottom, lessThan(panel.top));
+      await tester.tap(find.byIcon(Icons.close_rounded));
+      await settle(tester);
+      expect(find.text('Plux debug'), findsNothing);
+
       await tester.tap(find.byKey(const Key('dev-button')));
       await settle(tester);
       await tester.tap(find.byKey(const Key('leave')));

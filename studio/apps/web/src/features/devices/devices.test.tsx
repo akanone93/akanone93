@@ -191,6 +191,7 @@ describe("S6.4 device drawer [STU-066] [DEV-020]", () => {
     };
     URL.revokeObjectURL = () => undefined;
     renderHost({ devSession: { devices, events, exported } }, <DeviceDrawer sessionId="s1" problems={problems} />);
+    fireEvent.click(await screen.findByRole("tab", { name: "Logs" }));
     fireEvent.click(await screen.findByRole("button", { name: "Export trace" }));
     await waitFor(() => expect(exported).toEqual([[]]));
     await waitFor(() => expect(urls.length).toBe(1));

@@ -7,6 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- The debug panel is redesigned: a dark, slightly see-through sheet with a header, tabs (Sync,
+  Release, Problems with a count, Session with the link state) and monospace rows that scroll.
+  `PluxDevtools(showBadge: false, initiallyOpen: true, onClose: …)` lets a host open it from a
+  button of its own; showing or hiding the overlay no longer rebuilds the app beneath it.
 - `PluxDevSession.link` follows the pairing's `DevChannel.link` (live, reconnecting, ended; null while nothing
   is paired), and `PluxDevSession(deviceName: …)` names the device in the session's device list (DEV-020).
 

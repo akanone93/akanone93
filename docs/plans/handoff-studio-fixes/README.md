@@ -160,6 +160,17 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    still to check on a real phone: the keystore key, the camera scan, the phone's name in **Profile › Phones**, the
    app opening at its entry screen, the floating status button, Leave, and `make dev`'s `adb reverse` watcher over
    USB and wireless debugging (from WSL it uses Windows' `adb.exe`).
+8. **App-level dev connection and the console (2026-11-12):** Studio's dev session, event stream, join prompts and
+   status pill belong to the app (`features/devices/dev-link.tsx`): the app canvas shows the number and the pill, and
+   every plugin shares them. The console's tabs sit in a rail down its side (Device and Screenshot are tabs), each
+   scrolling on its own. A watch that hears nothing for 6 s is retried, and after two such it reads in long polls
+   (`WatchEventsRequest.wait_ms`, server-side `devsession.Service.WatchFor`, capped at the ping interval); checked
+   here through a proxy that holds responses back (before: "Connecting…" for ever; after: live in about 15 s, rows
+   shown). An aborted watch no longer reports "Connecting…". A joining device first sends the problems its runtime
+   holds and its last sync stage. Dev app: the status pill floats see-through at the top, above the redesigned dark
+   debug panel (`plux_devtools`), which the sheet's **Show diagnostics** opens. *Not found:* why the maintainer's
+   console stayed on "Connecting…" — here the stream goes live directly; the fallback covers a network that buffers
+   streams. Still to check on the maintainer's machine and a real phone.
 
 ## Running the stack here without Docker
 

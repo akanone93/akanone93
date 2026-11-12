@@ -149,22 +149,19 @@ final class DevRunOverlay extends StatelessWidget {
     child: Stack(
       children: [
         Positioned.fill(child: child),
-        Positioned(
-          right: 16,
-          bottom: 16 + MediaQuery.paddingOf(context).bottom,
+        // Over everything, debug panel included, at the top where the app's
+        // own buttons and the panel are not; see-through, so the screen
+        // shows beneath it.
+        PositionedDirectional(
+          end: 12,
+          top: MediaQuery.paddingOf(context).top + 8,
           child: ValueListenableBuilder<DevLinkState?>(
             valueListenable: tooling.session.link,
-            builder: (context, state, _) => DecoratedBox(
-              decoration: const BoxDecoration(
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.all(Radius.circular(999)),
-                boxShadow: devCardShadow,
-              ),
-              child: StatusPill(
-                key: const Key('dev-button'),
-                state: state,
-                onTap: () => _openSheet(context),
-              ),
+            builder: (context, state, _) => StatusPill(
+              key: const Key('dev-button'),
+              state: state,
+              translucent: true,
+              onTap: () => _openSheet(context),
             ),
           ),
         ),

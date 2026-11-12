@@ -13,9 +13,11 @@ import { useNavigate, useParams, useRouteContext } from "@tanstack/react-router"
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
+import { DevLinkBar, DevLinkProvider } from "../devices/dev-link.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import { EditorProvider, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { SaveStateChip } from "../editor/save-state.tsx";
+import { useCan } from "../library/use-library.ts";
 import { useDeviceFonts } from "../plugin-canvas/device-fonts.ts";
 import { useHostFonts } from "../plugin-canvas/host-fonts.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
@@ -93,10 +95,15 @@ export function AppCanvasPage(): ReactNode {
   const params = useParams({ strict: false }) as { app?: string };
   const appId = params.app ?? "";
   const docs = usePluginDocuments(appId, "");
+  // The app's link with its devices starts with the app (ADR-0104): a signed-in phone joins from here as well as from
+  // any plugin, and the bar at the bottom shows the number to pick and whether a device is live.
+  const canStart = useCan("devsession.create");
   return (
-    <EditorProvider appId={appId} pluginId="" documents={docs.data}>
-      <AppCanvasView appId={appId} documents={docs.data} />
-    </EditorProvider>
+    <DevLinkProvider appId={appId} enabled={canStart}>
+      <EditorProvider appId={appId} pluginId="" documents={docs.data}>
+        <AppCanvasView appId={appId} documents={docs.data} />
+      </EditorProvider>
+    </DevLinkProvider>
   );
 }
 
@@ -745,6 +752,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onReset={resetZoom}
             onFit={fit}
           />
+          <DevLinkBar />
           <Panel className="canvas-bar canvas-hint hidden px-4 text-xs text-muted-foreground lg:flex">{m.hint}</Panel>
         </div>
       </div>

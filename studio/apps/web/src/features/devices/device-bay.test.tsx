@@ -64,6 +64,8 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
     renderBay({ devSession: { devices } });
     expect(screen.queryByRole("complementary")).toBeNull();
     fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
+    // The device tabs sit in the rail beside Problems; their filters, pause among them, are above their rows.
+    fireEvent.click(await screen.findByRole("tab", { name: "Logs" }));
     expect(await screen.findByRole("button", { name: "Pause" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Pause" }));
     expect(screen.getByRole("button", { name: "Resume" })).toBeTruthy();
@@ -119,6 +121,8 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
     const commands: DevSessionServiceSendCommandRequest[] = [];
     renderBay({ devSession: { devices, commands } });
     fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
+    // The controls are the console's Device tab, beside the event tabs, not a section above them.
+    fireEvent.click(await screen.findByRole("tab", { name: "Device" }));
     fireEvent.change(await screen.findByLabelText("Language"), { target: { value: "de" } });
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(commands.length).toBe(1));
@@ -168,7 +172,7 @@ describe("S6.4 device bay ([STU-131] to [STU-134], [WGT-031], [NFR-030])", () =>
     const ticks = [1000, 1180];
     const bay = renderBay({ devSession: { devices, events: [applied], gate } }, { now: () => ticks.shift() ?? 0 });
     fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
-    await screen.findByRole("button", { name: "Pause" });
+    await screen.findByRole("tab", { name: "Logs" });
     bay.update({ accepted: 1 });
     await act(async () => release());
     expect((await screen.findByText("Autosave to device: 180 ms")).getAttribute("role")).toBe("status");

@@ -3,7 +3,7 @@
 
 import { createClient } from "@connectrpc/connect";
 import { type DevEvent, DevSessionService } from "@plux/api";
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import type { StreamState } from "../shell/studio-events.ts";
 import { type Buffer, emptyBuffer, pause, push, resume } from "./drawer-model.ts";
@@ -26,10 +26,11 @@ function reduce(buffer: Buffer, action: Action): Buffer {
 
 /**
  * Streams a dev session's events (DEV-020, DEV-021), resuming after the last sequence and retrying with
- * the shared backoff, like the studio events stream. Pausing freezes the view, not the stream.
+ * the shared backoff, like the studio events stream. Pausing freezes the view, not the stream. Without a session it
+ * streams nothing.
  */
 export function useDeviceEvents(
-  sessionId: string,
+  sessionId: string | undefined,
   deviceIds: readonly string[],
   onEvent?: (event: DevEvent) => void,
   onState?: (state: StreamState) => void,
@@ -47,6 +48,9 @@ export function useDeviceEvents(
   useEffect(() => {
     const controller = new AbortController();
     dispatch({ type: "clear" });
+    if (sessionId === undefined) {
+      return () => controller.abort();
+    }
     void watchDeviceEvents({
       client,
       sessionId,
@@ -64,10 +68,12 @@ export function useDeviceEvents(
     });
     return () => controller.abort();
   }, [client, sessionId, devices]);
+  const pause = useCallback(() => dispatch({ type: "pause" }), []);
+  const resume = useCallback(() => dispatch({ type: "resume" }), []);
   return {
     buffer,
     state,
-    pause: () => dispatch({ type: "pause" }),
-    resume: () => dispatch({ type: "resume" }),
+    pause,
+    resume,
   };
 }

@@ -78,16 +78,16 @@ void main() {
 
       await tester.tap(find.text('Plux #7 · 1!'));
       await tester.pump();
-      expect(find.text('Status: release 7 active'), findsOneWidget);
+      expect(find.text('release 7 active'), findsOneWidget);
 
-      await tester.tap(find.text('release'));
+      await tester.tap(find.text('Release'));
       await tester.pump();
       expect(find.text('Release #7'), findsOneWidget);
       expect(find.text('app bundle'), findsOneWidget);
       expect(find.text('v1 · aaaaaaaaaaaa'), findsOneWidget);
       expect(find.text('switched off'), findsOneWidget);
 
-      await tester.tap(find.text('log'));
+      await tester.tap(find.text('Problems'));
       await tester.pump();
       expect(find.textContaining('the stored bundle of loans'), findsOneWidget);
       expect(
@@ -95,7 +95,7 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tap(find.text('close'));
+      await tester.tap(find.byIcon(Icons.close_rounded));
       await tester.pump();
       expect(find.text('Plux #7 · 1!'), findsOneWidget);
     },
@@ -116,7 +116,7 @@ void main() {
     );
     await tester.tap(find.text('Plux –'));
     await tester.pump();
-    expect(find.text('Status: not synced yet'), findsOneWidget);
+    expect(find.text('not synced yet'), findsOneWidget);
     await tester.tap(find.text('Sync now'));
     await tester.pump();
     expect(find.text('Syncing…'), findsOneWidget);
@@ -126,10 +126,10 @@ void main() {
     await tester.pump();
     expect(find.text('Sync now'), findsOneWidget);
 
-    await tester.tap(find.text('release'));
+    await tester.tap(find.text('Release'));
     await tester.pump();
     expect(find.text('No release'), findsOneWidget);
-    await tester.tap(find.text('log'));
+    await tester.tap(find.text('Problems'));
     await tester.pump();
     expect(find.text('No problems'), findsOneWidget);
   });

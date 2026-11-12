@@ -170,6 +170,15 @@ func commandKind(req *pluxv1.DevSessionServiceSendCommandRequest) string {
 // open before any event, and every ping interval while it is quiet, so no
 // proxy on the way closes it as idle.
 func (s *Service) Watch(ctx context.Context, p auth.Principal, sessionID string, deviceIDs []string, after uint64, send func(*pluxv1.DevEvent) error) error {
+	return s.WatchFor(ctx, p, sessionID, deviceIDs, after, 0, send)
+}
+
+// WatchFor is [Service.Watch] as a long poll when wait is positive: the
+// stream ends once the backlog and the heartbeat are out and wait more has
+// passed, at most the ping interval. A watcher whose network holds a
+// streamed response back until it ends sees each window's events this
+// way, and calls again after the last sequence it saw.
+func (s *Service) WatchFor(ctx context.Context, p auth.Principal, sessionID string, deviceIDs []string, after uint64, wait time.Duration, send func(*pluxv1.DevEvent) error) error {
 	session, lim, err := s.observed(ctx, p, sessionID)
 	if err != nil {
 		return err
@@ -193,6 +202,11 @@ func (s *Service) Watch(ctx context.Context, p auth.Principal, sessionID string,
 	}
 	if err := send(nil); err != nil {
 		return err
+	}
+	if wait > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, min(wait, s.pingInterval()))
+		defer cancel()
 	}
 	return s.follow(ctx, session, room, w, after, send)
 }

@@ -89,8 +89,13 @@ final class DevTooling {
       host: host,
       child: ValueListenableBuilder<bool>(
         valueListenable: diagnostics,
+        // The status pill opens the panel; it has no badge of its own and
+        // closing it hides it again.
         builder: (_, shown, child) => PluxDevtools(
           enabled: shown,
+          showBadge: false,
+          initiallyOpen: true,
+          onClose: () => diagnostics.value = false,
           session: session,
           scan: scan,
           child: child!,
