@@ -5,8 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # Next steps after `claude/handoff-studio-fixes` (written 2026-11-12)
 
-The single list of what remains: the agreed design for the Dev app experience in host apps (Part 1), every open fix,
-check and follow-up from this branch (Part 2), and the test-app plan (Part 3). Start a new session here: read
+The single list of what remains: the agreed design for the Dev app experience in host apps (Part 1) and every open
+fix, check and follow-up from this branch (Part 2). Start a new session here: read
 `AGENTS.md`, `docs/WORKLOG.md`, this file and `README.md` in this folder, then work Part 1 M1 first.
 
 Branch: `claude/handoff-studio-fixes` (the commit that added this file). The maintainer applies changes as patches
@@ -169,6 +169,7 @@ generic Dev app takes it from a build define, with an editable field as fallback
 | M4 | Short code (§4.3): server, Studio, widget | Server tests for format, lifetime, single use, limits, constant-time compare and audit; Studio and widget tests; live check |
 | M5 | App Links (§4.2): registration UI, well-known files | Endpoint tests; verified link on a public test domain |
 | M6 | Docs | New ADR "Dev experience in host debug builds" (records the options of §2); ADR-0104 amended; DEV-002 amended (camera link, short code); DEV-040 note; guides (`run-locally`, `studio/security-and-admin`); `make spec-lint` |
+| M7 | `plux create` produces a ready host project: `PluxDevHost` wired in behind `kPluxDevtools`, the debug-only links of §4.2 (Android `src/debug/AndroidManifest.xml`, iOS Debug-only URL type and entitlements), `PLUX_ENV=development` for debug runs, and a README with the three commands (create, init, run) | A new project from `plux create` runs in debug, signs in to Studio and goes live with no manual step; its release build passes `make release-inspect`-equivalent checks |
 
 ## 6. Security summary
 
@@ -192,22 +193,15 @@ generic Dev app takes it from a build define, with an editable field as fallback
    guard on the release shell's dependency tree, a generator plus a drift check for native settings, and a dev app
    identity. Re-decide with the maintainer before taking it.
 
-## 8. Dev sheet additions for host apps (from the A3 review)
+## 8. The two ways to preview, and the Dev app's role (maintainer, 2026-11-12)
 
-These serve a real host as well as the generic Dev app; add them to `PluxDevHost`'s sheet after M2:
-- **Open link:** a field that calls `Plux.handleDeepLink(uri)`.
-- **Simulate push:** a payload editor that calls `Plux.handlePushPayload(data)`.
-- **User context:** pick a test user (role member, staff or maintainer, plus org slug and region) that calls
-  `Plux.setUserContext`, plus **Sign out** that calls `Plux.wipeData()`. The generic Dev app needs this while the
-  `ar-api` backend (Part 3, A1) does not exist.
-- **Host events:** show `brandRequested`, `consentChanged` and `unreadCount` as they happen, and let the generic Dev
-  app answer them (`setBrand`, `setConsent`); a real host answers them itself.
-- **Shell:** when the app defines a shell (`PluxShell('main')`), the generic Dev app opens it instead of only the entry
-  screen.
-- **Native items in the generic Dev app:** with no host code, pages that use the host's native routes, slots or
-  actions show labelled placeholders. Slots get buttons that fire their events; actions return a result the person
-  picks; routes open a stub that returns a chosen result. Real native code is tested through `PluxDevHost` in the
-  host's debug build.
+- **Main path for developers: the host app's own debug build with `PluxDevHost`.** Everything is the release
+  behaviour — real native routes, slots and actions in both directions, real push, real links, real sign-in, the
+  app's own identity — plus the live link (phone sign-in, join with the number, the pill, the sheet with diagnostics)
+  that brings plugin edits live. `PluxDevHost` adds nothing else: no simulated pushes, test users or stand-ins.
+- **The Dev app stays as it is**, for people without a Flutter toolchain (designers, managers, QA, reviewers),
+  for prototyping before a host exists, and for seeing every app of every organisation in one place. Its behaviour
+  does not change; after M2 it shares `PluxDevHost`'s code for the sign-in, join, pill and sheet.
 
 # Part 2. Every other open item from this branch
 
@@ -266,32 +260,16 @@ From hand-off items 7–10 in `README.md`, none of which is checked on a real ph
   device controls) stays in plugins. Decide whether the app canvas gets the console too.
 - **Release inspection** (SEC-074, DEV-050, both WIP): finish it for Android and iOS and run it in CI. Part 1 M1
   depends on it.
+- **Dev app and app shells:** the Dev app opens an app at its entry screen; an app that defines a tab shell
+  (`PluxShell`) is not shown in its shell there. Decide whether the Dev app should open the shell.
+- **Dev app and native items:** pages that call the host's own native routes, slots or actions cannot run them in the
+  Dev app (it has no host code); they are tested in the host's debug build with `PluxDevHost`.
 - **`plux_devtools` overlay:** the dark panel (`PluxDevtools`) stays for hosts that use it; once `PluxDevHost` exists,
   decide whether `PluxDevtools` is folded into it or kept as the minimal overlay.
 
-# Part 3. The all-in-one test app ("Apply Register")
-
-The maintainer's sheet (sections 0, 1, A1–A3 so far; the rest, from §B, will follow) describes one app with
-17 plugins and about 130 screens that covers every Studio feature, widget, value, action and platform option.
-
-Agreed approach:
-- **Build in slices** (Launch, Explore and Passes first), each tested on the Dev app as it lands, on mock data sources
-  and server functions, until a screen needs the backend.
-- **A1, the `ar-api` Go service:** deferred until a screen first needs it; then build A1 and A2's backend parts together.
-- **A2:** create the three environments and the server configuration values (`feeTable`, `supportPhone`,
-  `ratesEURUSD`, `payeeIbanRelief`, DAT-090) now. Defer the upstreams, gateway and partner secrets and the token trust
-  (SEC-026) until A1 exists.
-- **A3, the host app:** developed and live-tested through `PluxDevHost` in its debug build (Part 1), with its real
-  native routes, slots and actions (`sign-in`, `licenses`, `CalendarButton`, `HostVersionTile`, `addToCalendar`,
-  `openAppSettings`, `requestReview`). The release build stays a normal `flutter build` with no dev code (checked by
-  the release inspection).
-- **Not available yet** (phases not built): AI generation (P12), co-editing and comments (P14), mini-app mode (P16),
-  card payments (P13). Built but still WIP in the spec, to check on devices: secure-page screenshot blocking (SEC-091)
-  and confidential bundles (SEC-053).
-
 # Order of work
 
-1. Part 1 M1 (release safety) → M2 (`PluxDevHost`) → M3 (camera link) → M4 (short code) → M5 (App Links) → M6 (docs).
+1. Part 1 M1 (release safety) → M2 (`PluxDevHost`) → M3 (camera link) → M4 (short code) → M5 (App Links) →
+   M7 (`plux create` template) → M6 (docs).
 2. Part 2.1 bugs A–D, each with tests, in any gap.
 3. Part 2.2 checks with the maintainer as each patch lands.
-4. Part 3, slice by slice, once M2 works on a real phone.
