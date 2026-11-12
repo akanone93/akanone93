@@ -134,6 +134,31 @@ final class FakeDirectory implements PhoneDirectory {
   }
 }
 
+final class _Diagnostics implements PluxDiagnostics {
+  @override
+  final ValueNotifier<List<PluxDiagnostic>> log = ValueNotifier([
+    PluxDiagnostic(
+      at: DateTime(2026, 11, 12, 9, 30),
+      error: const PluxException(
+        PluxErrorCode.stateWriteTypeMismatch,
+        'bad value',
+      ),
+    ),
+  ]);
+  @override
+  final ValueNotifier<PluxReleaseInfo?> release = ValueNotifier(
+    const PluxReleaseInfo(sequence: 7, plugins: []),
+  );
+  @override
+  final ValueNotifier<SyncEvent?> syncStatus = ValueNotifier(
+    const SyncActivated(7),
+  );
+  @override
+  final ValueNotifier<List<PluxActionTrace>> actionTraces = ValueNotifier(
+    const [],
+  );
+}
+
 /// The Dev app's flow (DEV-001, DEV-002, ADR-0104).
 void main() {
   final paired = <String>[];
@@ -177,6 +202,7 @@ void main() {
         (_) async =>
             'plux-dev://signin?server=https%3A%2F%2Fplux.example.org&grant=g1',
     newSession: fakeSession,
+    diagnostics: _Diagnostics.new,
   );
 
   Future<void> settle(WidgetTester tester) async {
@@ -286,26 +312,94 @@ void main() {
       final socket = started!.webSocketClient!;
       expect(await tester.runAsync(() => _crossIsolates(http, socket)), isTrue);
 
-      // The sheet opens the debug panel at once; the pill stays above it, at
-      // the top of the screen, and the panel's close hides it again.
+      // One sheet holds the actions and the diagnostics, in tabs: no second
+      // panel over the app.
       await tester.tap(find.byKey(const Key('dev-button')));
       await settle(tester);
-      await tester.tap(find.byKey(const Key('diagnostics')));
+      expect(find.byKey(const Key('reconnect')), findsOneWidget);
+      expect(find.byKey(const Key('tab-connection')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('tab-problems')));
       await settle(tester);
-      expect(find.text('Plux debug'), findsOneWidget);
-      final pill = tester.getRect(find.byKey(const Key('dev-button')));
-      final panel = tester.getRect(find.text('Plux debug'));
-      expect(pill.bottom, lessThan(panel.top));
-      await tester.tap(find.byIcon(Icons.close_rounded));
+      expect(find.text('PLX-5301'), findsOneWidget);
+      expect(find.text('bad value'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('tab-sync')));
       await settle(tester);
-      expect(find.text('Plux debug'), findsNothing);
-
-      await tester.tap(find.byKey(const Key('dev-button')));
-      await settle(tester);
+      expect(find.text('release 7 active'), findsOneWidget);
       await tester.tap(find.byKey(const Key('leave')));
       await settle(tester);
       expect(ended, [_link]);
       expect(find.text('Your apps'), findsWidgets);
+    },
+  );
+
+  testWidgets(
+    '[DEV-002] a phone out of the session joins again from the sheet, with the number Studio shows',
+    (tester) async {
+      final phone = FakePhone();
+      var starts = 0;
+      await tester.pumpWidget(
+        app(
+          phones: FakeDirectory(stored: phone),
+          start: (_) async {
+            starts++;
+            return null;
+          },
+        ),
+      );
+      await settle(tester);
+      await tester.tap(find.text('Shop'));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('number-42')));
+      await settle(tester);
+      expect(paired, [_link]);
+
+      // The link is over (Offline): the sheet offers to join again, and the
+      // number picker comes up by itself when Studio asks for one.
+      await tester.tap(find.byKey(const Key('dev-button')));
+      await settle(tester);
+      expect(find.text('Join again'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('reconnect')));
+      await settle(tester);
+      expect(find.text('Pick the number shown in Studio'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('number-42')));
+      await settle(tester);
+      expect(phone.calls.where((c) => c == 'join:app_1'), hasLength(2));
+      // The old pairing ends and a new one starts; the app keeps running.
+      expect(ended, [_link]);
+      expect(paired, [_link, _link]);
+      expect(starts, 1);
+    },
+  );
+
+  testWidgets(
+    '[DEV-002] joining again while Studio is closed says so, and does not ask for a number',
+    (tester) async {
+      final phone = FakePhone();
+      await tester.pumpWidget(app(phones: FakeDirectory(stored: phone)));
+      await settle(tester);
+      await tester.tap(find.text('Shop'));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('number-42')));
+      await settle(tester);
+      phone.joinError = const DevPhoneException(
+        DevPhoneFailure.noLiveSession,
+        'PLX-9211',
+      );
+      await tester.tap(find.byKey(const Key('dev-button')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('reconnect')));
+      await settle(tester);
+      expect(find.text('Pick the number shown in Studio'), findsNothing);
+      expect(
+        find.text('Open Shop in Studio; this phone joins again by itself.'),
+        findsOneWidget,
+      );
+      // It tries again by itself, here after the wait.
+      phone.joinError = null;
+      phone.needsNumber = false;
+      await tester.pump(rejoinInterval);
+      await settle(tester);
+      expect(paired, [_link, _link]);
     },
   );
 

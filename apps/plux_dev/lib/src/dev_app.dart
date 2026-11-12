@@ -79,11 +79,16 @@ final class DevApp extends StatefulWidget {
     this.entryRoute = _pluxEntryRoute,
     this.scan,
     this.newSession,
+    this.diagnostics,
   });
 
   /// Makes the dev session of a running app; the runtime's unless a test
   /// replaces it.
   final PluxDevSession Function()? newSession;
+
+  /// The running app's diagnostics for the dev sheet; the runtime's unless a
+  /// test replaces them.
+  final PluxDiagnostics? Function()? diagnostics;
 
   /// The development roots.
   final List<PluxPublicKey> rootKeys;
@@ -113,13 +118,43 @@ final class DevApp extends StatefulWidget {
   State<DevApp> createState() => _DevAppState();
 }
 
-/// A running app: its router and dev tools.
+/// How often a phone whose session ended tries to join Studio again while
+/// it waits, as when Studio was closed and is opened again.
+const Duration rejoinInterval = Duration(seconds: 15);
+
+/// A running app: its router, its dev tools and how it follows its link.
 final class _Running {
-  _Running(this.name, this.router, this.tooling);
+  _Running(this.name, this.appId, this.environment, this.router, this.tooling);
 
   final String name;
+  final String appId;
+  final String environment;
   final GoRouter router;
   final DevTooling tooling;
+
+  /// What the phone is doing about its link, for the dev sheet.
+  final ValueNotifier<String?> notice = ValueNotifier(null);
+
+  /// Whether a join is under way.
+  bool joining = false;
+
+  /// Whether the person turned the number down: the phone waits for them to
+  /// ask again rather than asking on its own.
+  bool declined = false;
+
+  /// Tries to join again while the session is over and Studio is not open.
+  Timer? retry;
+
+  /// The link's state when last seen, to notice it ending.
+  DevLinkState? last;
+
+  void Function()? stopFollowing;
+
+  void dispose() {
+    retry?.cancel();
+    stopFollowing?.call();
+    notice.dispose();
+  }
 }
 
 final class _DevAppState extends State<DevApp> {
@@ -141,6 +176,7 @@ final class _DevAppState extends State<DevApp> {
   void dispose() {
     final running = _running;
     if (running != null) {
+      running.dispose();
       running.router.dispose();
       unawaited(running.tooling.dispose());
     }
@@ -267,6 +303,7 @@ final class _DevAppState extends State<DevApp> {
       deviceName: widget.deviceName,
       scan: widget.scan,
       session: widget.newSession?.call(),
+      diagnostics: widget.diagnostics,
     );
     final router = GoRouter(
       navigatorKey: key,
@@ -312,7 +349,121 @@ final class _DevAppState extends State<DevApp> {
       _say('$name could not start: $e');
       return;
     }
-    if (mounted) setState(() => _running = _Running(name, router, tooling));
+    if (!mounted) return;
+    final running = _Running(name, appId, environment, router, tooling);
+    _follow(running);
+    setState(() => _running = running);
+  }
+
+  /// Joins Studio again on its own when the session ends (Studio closed or
+  /// reloaded into a new session, the session expired): at once, then every
+  /// [rejoinInterval] while Studio is not open, and when the app comes back
+  /// to the foreground.
+  void _follow(_Running running) {
+    final link = running.tooling.session.link;
+    void changed() {
+      final now = link.value;
+      if (now == DevLinkState.ended && running.last != DevLinkState.ended) {
+        unawaited(_rejoin(running, asked: false));
+      }
+      if (now == DevLinkState.live) {
+        running.retry?.cancel();
+        running.notice.value = null;
+        running.declined = false;
+      }
+      running.last = now;
+    }
+
+    link.addListener(changed);
+    final lifecycle = AppLifecycleListener(
+      onResume: () {
+        if (link.value == DevLinkState.ended) {
+          unawaited(_rejoin(running, asked: false));
+        }
+      },
+    );
+    running.stopFollowing = () {
+      link.removeListener(changed);
+      lifecycle.dispose();
+    };
+  }
+
+  /// Connects the running app again (ADR-0104). A socket that is retrying
+  /// tries at once; a session that is over is joined again — with the number
+  /// match when Studio's session is a new one, the picker showing by itself.
+  /// [asked] is true when the person asked, so a failure is said and a
+  /// turned-down number is asked again.
+  Future<void> _rejoin(_Running running, {required bool asked}) async {
+    final phone = _phone;
+    final session = running.tooling.session;
+    final link = session.link.value;
+    if (phone == null || running.joining || _running != running) return;
+    if (link == DevLinkState.reconnecting || link == DevLinkState.connecting) {
+      session.reconnectNow();
+      return;
+    }
+    if (link == DevLinkState.live) return;
+    if (running.declined && !asked) return;
+    running.joining = true;
+    running.retry?.cancel();
+    running.notice.value = 'Joining Studio again…';
+    try {
+      final join = await phone.requestJoin(running.appId);
+      var pairing = join.pairingLink;
+      if (pairing == null) {
+        final context = running.tooling.navigatorKey.currentContext;
+        if (context == null || !context.mounted) return;
+        running.notice.value = 'Pick the number Studio shows to join again.';
+        final picked = await pickNumber(
+          context,
+          options: join.options,
+          title: 'Pick the number shown in Studio',
+          detail: 'Joining ${running.name} again',
+          expiresAt: join.expiresAt,
+        );
+        if (picked == null) {
+          running.declined = true;
+          running.notice.value =
+              'Not connected. Tap Join again when you want to connect.';
+          return;
+        }
+        pairing = await phone.completeJoin(join, picked);
+      }
+      if (_running != running) return;
+      // The ended pairing goes; the runtime keeps running and takes the
+      // session's draft again from the new one.
+      await session.end();
+      await session.pair(pairing);
+      if (session.state.value case PluxDevError(:final code)) {
+        throw DevPhoneException(
+          DevPhoneFailure.other,
+          'the session refused the phone ($code)',
+        );
+      }
+      running.declined = false;
+      running.notice.value = null;
+    } on DevPhoneException catch (e) {
+      if (e.failure == DevPhoneFailure.signedOut) {
+        _leave();
+        _signedOut();
+        return;
+      }
+      running.notice.value = e.failure == DevPhoneFailure.noLiveSession
+          ? 'Open ${running.name} in Studio; this phone joins again by itself.'
+          : joinFailure(e, running.name);
+      if (asked && e.failure != DevPhoneFailure.noLiveSession) {
+        _say(joinFailure(e, running.name));
+      }
+      if (e.failure == DevPhoneFailure.noLiveSession ||
+          e.failure == DevPhoneFailure.unreachable) {
+        running.retry = Timer(
+          rejoinInterval,
+          () => unawaited(_rejoin(running, asked: false)),
+        );
+      }
+    } finally {
+      running.joining = false;
+    }
   }
 
   Future<void> _stopQuietly() async {
@@ -329,6 +480,7 @@ final class _DevAppState extends State<DevApp> {
     final running = _running;
     if (running == null) return;
     setState(() => _running = null);
+    running.dispose();
     unawaited(() async {
       await running.tooling.session.end();
       await running.tooling.dispose();
@@ -351,6 +503,8 @@ final class _DevAppState extends State<DevApp> {
             tooling: running.tooling,
             appName: running.name,
             onLeave: _leave,
+            onReconnect: () => unawaited(_rejoin(running, asked: true)),
+            notice: running.notice,
             child: running.tooling.wrap(child!),
           ),
         ),

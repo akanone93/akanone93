@@ -23,7 +23,11 @@ final class DevTooling {
     Future<String?> Function(NavigatorState navigator)? scan,
     String deviceName = '',
     PluxDevSession? session,
+    PluxDiagnostics? Function()? diagnostics,
+    Future<Object?> Function()? sync,
   }) : _scan = scan ?? scanPairingCode,
+       _diagnostics = diagnostics ?? _runtimeDiagnostics,
+       sync = sync ?? Plux.sync,
        session =
            session ??
            PluxDevSession(
@@ -68,9 +72,14 @@ final class DevTooling {
   /// The boundary `captureScreenshot` captures.
   final GlobalKey captureKey = GlobalKey();
 
-  /// Whether the diagnostics overlay (sync, release, problems, log) shows;
-  /// off by default, so the app looks as it will, with the dev button only.
-  final ValueNotifier<bool> diagnostics = ValueNotifier(false);
+  final PluxDiagnostics? Function() _diagnostics;
+
+  /// The runtime's diagnostics (sync, release, problems) the dev sheet
+  /// shows; null before the runtime runs.
+  PluxDiagnostics? get diagnostics => _diagnostics();
+
+  /// Runs a sync from the dev sheet.
+  final Future<Object?> Function() sync;
 
   final Future<String?> Function(NavigatorState navigator) _scan;
 
@@ -81,27 +90,14 @@ final class DevTooling {
     return navigator == null ? null : _scan(navigator);
   }
 
-  /// The app under the tools: the overlay with its pairing tab, the layer
-  /// that draws the inspector, and the capture boundary.
+  /// The app under the tools: the layer that draws the inspector and the
+  /// capture boundary. The diagnostics are on the dev sheet, not over the
+  /// app.
   Widget wrap(Widget app) => DevNodeScope(
     host: host,
     child: DevToolsLayer(
       host: host,
-      child: ValueListenableBuilder<bool>(
-        valueListenable: diagnostics,
-        // The status pill opens the panel; it has no badge of its own and
-        // closing it hides it again.
-        builder: (_, shown, child) => PluxDevtools(
-          enabled: shown,
-          showBadge: false,
-          initiallyOpen: true,
-          onClose: () => diagnostics.value = false,
-          session: session,
-          scan: scan,
-          child: child!,
-        ),
-        child: DevCaptureBoundary(captureKey: captureKey, child: app),
-      ),
+      child: DevCaptureBoundary(captureKey: captureKey, child: app),
     ),
   );
 
@@ -112,6 +108,8 @@ final class DevTooling {
     _lifecycle.dispose();
     await session.dispose();
     host.dispose();
-    diagnostics.dispose();
   }
 }
+
+PluxDiagnostics? _runtimeDiagnostics() =>
+    Plux.isInitialized ? Plux.diagnostics : null;

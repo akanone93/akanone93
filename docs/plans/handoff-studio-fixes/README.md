@@ -180,6 +180,13 @@ design, devices, JSON and Rust editors; type check, `biome ci` and the strict ca
    device's bars (square corners), its mode and text scale, and hides the drawn chrome. Checked live with a simulated
    phone; not yet on the maintainer's phone. If the bottom bar stays after this, it is part of the page: send its
    JSON.
+10. **Joining again, one dev sheet (2026-11-12):** *Found:* once the session ended (pill **Offline**), **Reconnect**
+   only woke the socket's backoff, and the ended channel never tries again, so nothing happened. *Changed:* the Dev
+   app follows the link: when it ends it joins Studio again (`RequestJoin`, the number picker when Studio's session is
+   new, then a new pairing on the running runtime), retries every 15 s while Studio is not open and on resume, and
+   **Join again** does the same on request; a turned-down number waits for the person. The diagnostics overlay is gone
+   from the Dev app: the dev sheet holds the actions and the tabs Connection, Sync, Release and Problems
+   (`apps/plux_dev/lib/src/ui/dev_sheet.dart`). Checked in widget tests and rendered; not on a phone.
 
 ## Running the stack here without Docker
 

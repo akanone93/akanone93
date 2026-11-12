@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:plux_dev/src/dev_tooling.dart';
+import 'package:plux_dev/src/ui/dev_sheet.dart';
 import 'package:plux_dev/src/ui/status_pill.dart';
 import 'package:plux_dev/src/ui/theme.dart';
 import 'package:plux_flutter/plux_flutter.dart';
@@ -127,6 +128,8 @@ final class DevRunOverlay extends StatelessWidget {
     required this.appName,
     required this.onLeave,
     required this.child,
+    this.onReconnect,
+    this.notice,
   });
 
   /// The dev tools of the running app.
@@ -137,6 +140,12 @@ final class DevRunOverlay extends StatelessWidget {
 
   /// Leaves the app, back to the list.
   final VoidCallback onLeave;
+
+  /// Connects again; by default it tries the socket again at once.
+  final VoidCallback? onReconnect;
+
+  /// What the phone is doing about its link, for the sheet.
+  final ValueListenable<String?>? notice;
 
   /// The app.
   final Widget child;
@@ -177,86 +186,28 @@ final class DevRunOverlay extends StatelessWidget {
         context: navigator.context,
         useSafeArea: true,
         isScrollControlled: true,
-        builder: (sheet) => _DevSheet(
-          tooling: tooling,
-          appName: appName,
-          onLeave: () {
-            Navigator.of(sheet).pop();
-            onLeave();
-          },
+        builder: (sheet) => DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          minChildSize: 0.35,
+          maxChildSize: 0.95,
+          builder: (_, scroll) => DevSheet(
+            scroll: scroll,
+            appName: appName,
+            session: tooling.session,
+            diagnostics: tooling.diagnostics,
+            notice: notice ?? _quiet,
+            onSync: tooling.sync,
+            onReconnect: onReconnect ?? tooling.session.reconnectNow,
+            onLeave: () {
+              Navigator.of(sheet).pop();
+              onLeave();
+            },
+          ),
         ),
       ),
     );
   }
 }
 
-final class _DevSheet extends StatelessWidget {
-  const _DevSheet({
-    required this.tooling,
-    required this.appName,
-    required this.onLeave,
-  });
-
-  final DevTooling tooling;
-  final String appName;
-  final VoidCallback onLeave;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(DevSizes.page, 0, DevSizes.page, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(child: Text(appName, style: text.titleLarge)),
-              ValueListenableBuilder<DevLinkState?>(
-                valueListenable: tooling.session.link,
-                builder: (_, state, _) => StatusPill(state: state),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Edits in Studio appear here as you make them. Logs, state and network calls stream to Studio’s console.',
-            style: text.bodyMedium,
-          ),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            key: const Key('reconnect'),
-            onPressed: () {
-              tooling.session.reconnectNow();
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Reconnect now'),
-          ),
-          const SizedBox(height: 12),
-          ValueListenableBuilder<bool>(
-            valueListenable: tooling.diagnostics,
-            builder: (_, shown, _) => OutlinedButton.icon(
-              key: const Key('diagnostics'),
-              onPressed: () {
-                tooling.diagnostics.value = !shown;
-                Navigator.of(context).pop();
-              },
-              icon: const Icon(Icons.monitor_heart_outlined),
-              label: Text(shown ? 'Hide diagnostics' : 'Show diagnostics'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            key: const Key('leave'),
-            style: FilledButton.styleFrom(backgroundColor: DevColors.ink),
-            onPressed: onLeave,
-            icon: const Icon(Icons.logout_rounded),
-            label: const Text('Leave'),
-          ),
-        ],
-      ),
-    );
-  }
-}
+final ValueNotifier<String?> _quiet = ValueNotifier(null);

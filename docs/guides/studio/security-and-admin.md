@@ -24,9 +24,13 @@ page and action needs the matching permission; Studio says so when you lack it.
    until you choose **Let it try again**. The app opens at its entry screen, and the pill turns
    **Live**. The connection belongs to the app, not to a plugin: moving between the app canvas
    and its plugins keeps it, and reloading Studio keeps the same session, so the phone stays in
-   it. On the phone, the pill at the top of the screen says the same and opens the dev sheet:
-   **Reconnect now**, **Show diagnostics** (the debug panel: sync, release, problems and the
-   session) and **Leave**.
+   it. On the phone, the pill at the top of the screen says the same and opens the dev sheet: the
+   link's state, **Reconnect** (**Join again** once the session is over) and **Leave**, then the
+   diagnostics in tabs — **Connection**, **Sync** (with **Sync now**), **Release** and
+   **Problems**. When the session ends (Studio was closed or reloaded into a new session, or it
+   expired), the phone joins again by itself: at once, every 15 seconds while Studio is not open,
+   and when the app comes back to the foreground, showing the number to pick when Studio asks for
+   one.
 3. Any other device — a host app in a debug build, or a phone without the Dev app's sign-in —
    pairs with **Pair a device** in a plugin's top bar: a QR code, the pairing link and a **Short
    code**, with the time left (**New code** replaces an expired one). Scan the code, or paste the
