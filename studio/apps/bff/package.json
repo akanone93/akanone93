@@ -13,6 +13,6 @@
     "@connectrpc/connect-web": "2.2.0",
     "@plux/api": "workspace:*",
     "@plux/schema": "workspace:*",
-    "hono": "4.13.13"
+    "hono": "4.13.16"
   }
 }
