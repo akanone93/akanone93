@@ -1823,8 +1823,11 @@ export function RightDock(props: DockProps) {
   const [folded, setFolded] = useStoredFlag("plux.dock.end.folded", false);
   const [tab, setTab] = useState("properties");
   const request = props.tabRequest;
+  // Each request (a quick action such as "Page settings") switches the tab once; choosing another tab afterwards wins.
+  const applied = useRef(0);
   useEffect(() => {
-    if (request !== undefined) {
+    if (request !== undefined && request.n !== applied.current) {
+      applied.current = request.n;
       setTab(request.tab);
       setFolded(false);
     }

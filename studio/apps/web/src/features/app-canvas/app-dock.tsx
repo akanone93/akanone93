@@ -59,6 +59,7 @@ export function AppDock({
   onShow,
   onOpen,
   frameTools,
+  assets,
 }: {
   readonly appName: string | undefined;
   readonly boxes: readonly SceneBox[];
@@ -70,6 +71,8 @@ export function AppDock({
   readonly onShow: (box: SceneBox, additive: boolean) => void;
   readonly onOpen: (box: SceneBox) => void;
   readonly frameTools: ReactNode;
+  /** The app's assets (images, fonts, animations), uploaded and managed at the app level as in a plugin. */
+  readonly assets?: { readonly label: string; readonly panel: ReactNode } | undefined;
 }): ReactElement {
   const [folded, setFolded] = useStoredFlag("plux.dock.app.folded", false);
   const [query, setQuery] = useState("");
@@ -193,6 +196,9 @@ export function AppDock({
           <div className="canvas-frames flex flex-col gap-0.5">{frameTools}</div>
         ),
     },
+    ...(assets === undefined
+      ? []
+      : [{ value: "assets", label: assets.label, icon: "image" as const, panel: assets.panel }]),
     {
       value: "overview",
       label: m.overviewTab,

@@ -12,6 +12,7 @@ import type { DeviceLook } from "../preview/preview-bar.tsx";
 import { ProblemsContent } from "../problems/problems-panel.tsx";
 import type { Validation } from "../problems/use-validation.ts";
 import type { Node } from "./plugin-model.ts";
+import { type FixContext, ProblemFixes } from "./problem-fixes.tsx";
 import type { Selection } from "./select/selection.ts";
 import type { SelectionStore } from "./select/store.ts";
 import type { NodeIndex } from "./select/tree.ts";
@@ -69,6 +70,7 @@ export function DeviceBayHost({
   canvasImage,
   canvasLook,
   onMatchDevice,
+  fixes,
   ...input
 }: BridgeInput & {
   /** Starts the dev session when the editor opens (the person may create one). */
@@ -84,13 +86,24 @@ export function DeviceBayHost({
   /** What the canvas draws under now, and the switch to a device's conditions (PC-38). */
   readonly canvasLook?: DrawnLook;
   readonly onMatchDevice?: (device: DeviceLook) => void;
+  /** What the Problems tab's fixes reach: the JSON editor, the app session, the asset upload (P1). */
+  readonly fixes?: Omit<FixContext, "assets"> | undefined;
 }): ReactNode {
   const bridge = useDeviceBridge(input);
   const selectedScreen = bridge.only === undefined ? undefined : screenOf.get(bridge.only);
   return (
     <DeviceBay
       appId={appId ?? ""}
-      problems={<ProblemsContent validation={validation} />}
+      problems={
+        <ProblemsContent
+          validation={validation}
+          help={
+            fixes === undefined
+              ? undefined
+              : (p) => <ProblemFixes problem={p} ctx={{ ...fixes, assets: input.assets }} />
+          }
+        />
+      }
       problemCount={validation.state === "done" ? validation.problems.length : undefined}
       request={request}
       live={live === true}

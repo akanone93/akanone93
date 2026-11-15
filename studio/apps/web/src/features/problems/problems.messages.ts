@@ -16,6 +16,65 @@ export function problemsMessages(i18n: I18n) {
       message: "No problems found.",
       comment: "Shown in the Problems tab when the validator found nothing.",
     }),
+    whyAssetMissing: i18n._({
+      id: "problems.why.assetMissing",
+      message:
+        "The app's asset list names this file, but no file of that name is stored: it was deleted or its upload did not finish. Widgets that show it have no image. Upload a file under the same name to bring them back.",
+      comment: "Explains a missing asset file in the Problems tab, with what to do.",
+    }),
+    whyPluginNotListed: i18n._({
+      id: "problems.why.pluginNotListed",
+      message: "This plugin exists but app.json does not list it, so the app does not include it. Add it to the list.",
+      comment: "Explains a plugin missing from app.json's plugins list.",
+    }),
+    whyPluginNoDirectory: i18n._({
+      id: "problems.why.pluginNoDirectory",
+      message: "app.json lists a plugin that no longer exists (it was deleted or renamed). Remove it from the list.",
+      comment: "Explains a plugin key in app.json that has no plugin.",
+    }),
+    whyDuplicateRoute: i18n._({
+      id: "problems.why.duplicateRoute",
+      message:
+        "Two screens use the same route name; route names are unique in the app. Rename one in its Page settings (Route).",
+      comment: "Explains a duplicate route name, with where to change it.",
+    }),
+    whyUnresolved: i18n._({
+      id: "problems.why.unresolved",
+      message:
+        "Something here points at an item that does not exist (deleted or renamed). Point it at an existing one.",
+      comment: "Explains an unresolved reference.",
+    }),
+    fixUploadAsset: (file: string) =>
+      i18n._({
+        id: "problems.fix.uploadAsset",
+        message: "Upload {file}",
+        values: { file },
+        comment: "Button that uploads a file under the name a missing asset had.",
+      }),
+    fixListPlugin: (plugin: string) =>
+      i18n._({
+        id: "problems.fix.listPlugin",
+        message: "Add {plugin} to app.json",
+        values: { plugin },
+        comment: "Button that adds a plugin key to app.json's plugins list.",
+      }),
+    fixUnlistPlugin: (plugin: string) =>
+      i18n._({
+        id: "problems.fix.unlistPlugin",
+        message: "Remove {plugin} from app.json",
+        values: { plugin },
+        comment: "Button that removes a key without a plugin from app.json's plugins list.",
+      }),
+    fixOpenJson: i18n._({
+      id: "problems.fix.openJson",
+      message: "Open in JSON editor",
+      comment: "Button that opens the finding's file in the JSON editor.",
+    }),
+    fixFailed: i18n._({
+      id: "problems.fix.failed",
+      message: "The fix was not applied.",
+      comment: "Shown under a finding when its fix failed; the server's reason follows.",
+    }),
     validating: i18n._({
       id: "problems.validating",
       message: "Checking the plugin…",

@@ -276,8 +276,23 @@ export function shellSettingsMessages(i18n: I18n) {
     }),
     iconNoAssets: i18n._({
       id: "shell.icon.no-assets",
-      message: "The app has no PNG assets yet. Upload one in the Assets panel to use it as the icon.",
+      message: "The app has no PNG assets yet. Upload one here to use it as the icon.",
       comment: "Shown in the icon picker when the app has no PNG image to choose.",
+    }),
+    iconUpload: i18n._({
+      id: "shell.icon.upload",
+      message: "Upload an icon",
+      comment: "Button in the icon picker that uploads a PNG as an app asset and chooses it as the icon.",
+    }),
+    iconUploading: i18n._({
+      id: "shell.icon.uploading",
+      message: "Uploading…",
+      comment: "Shown in the icon picker while an icon file is being uploaded.",
+    }),
+    iconUploadFailed: i18n._({
+      id: "shell.icon.upload-failed",
+      message: "The icon was not uploaded.",
+      comment: "Shown in the icon picker when an upload failed; the server's reason follows.",
     }),
     iconLoadFailed: i18n._({
       id: "shell.icon.load-failed",

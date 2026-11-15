@@ -26,6 +26,17 @@ export function jsonEditorMessages(i18n: I18n) {
       message: "Document",
       comment: "Label of the list from which the document to edit is chosen.",
     }),
+    pluginGroup: i18n._({
+      id: "jsonEditor.pluginGroup",
+      message: "This plugin",
+      comment: "Heading of the plugin's own documents in the JSON editor's list.",
+    }),
+    appGroup: i18n._({
+      id: "jsonEditor.appGroup",
+      message: "App",
+      comment:
+        "Heading of the app's own documents (app.json, the theme, the translation keys) in the JSON editor's list.",
+    }),
     editorLabel: i18n._({
       id: "jsonEditor.editorLabel",
       message: "JSON of the document",

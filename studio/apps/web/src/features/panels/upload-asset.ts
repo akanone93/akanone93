@@ -85,3 +85,31 @@ export function uploadFailure(err: unknown): UploadFailure | null {
   const m = /PLX-(\d{4})/.exec(text);
   return (m?.[1] !== undefined ? failureByCode[Number(m[1])] : undefined) ?? null;
 }
+
+/**
+ * Uploads one file as an app asset from a page that holds no editing lock (the native shell settings): the app's lock is
+ * taken for the upload under a session of its own and released after, as a change set does (SRV-040, SRV-060). Refused
+ * when someone else holds the lock; the refusal carries the server's reason.
+ */
+export async function uploadUnderAppLock(
+  client: UploadClient & {
+    acquireLock: (req: { appId: string; pluginId: string; session: string }) => Promise<unknown>;
+    releaseLock: (req: { appId: string; pluginId: string; session: string }) => Promise<unknown>;
+  },
+  appId: string,
+  name: string,
+  file: Blob,
+): Promise<void> {
+  const session = crypto.randomUUID();
+  await client.acquireLock({ appId, pluginId: "", session });
+  try {
+    await uploadAsset(client, { appId, name, session, file }, { current: null }, () => undefined);
+  } finally {
+    await client.releaseLock({ appId, pluginId: "", session }).catch(() => null);
+  }
+}
+
+/** The asset name an uploaded file is stored under: `images/` and its name in lower case, safe characters only. */
+export function assetNameOf(file: { readonly name: string }): string {
+  return `images/${file.name.toLowerCase().replaceAll(/[^a-z0-9._-]/g, "-")}`;
+}

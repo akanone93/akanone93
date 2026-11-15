@@ -158,12 +158,25 @@ function AssetBudget(p: { readonly assets: readonly Asset[]; readonly used: Read
   );
 }
 
+/**
+ * The folders Studio fills itself: screen thumbnails, native slot previews and translation context shots (STU-052,
+ * STU-134). They are kept out of the Assets tab: deleting one was undone by the next sync, which looked like the image
+ * coming back, and nothing the person builds refers to them.
+ */
+const GENERATED: readonly string[] = ["thumbnails/", "previews/", "l10n-context/"];
+
+/** Whether Studio made the asset itself. */
+export function isGenerated(name: string): boolean {
+  return GENERATED.some((prefix) => name.startsWith(prefix));
+}
+
 export function AssetsTab({
   client,
   appId,
   session,
   onChanged,
   uses,
+  elsewhere,
   onSelectUses,
   onReplaceUses,
 }: {
@@ -174,6 +187,8 @@ export function AssetsTab({
   readonly onChanged?: () => void;
   /** The widgets of the plugin's pages that show each asset, by asset id (PC-36). */
   readonly uses?: ReadonlyMap<string, readonly AssetUse[]>;
+  /** The places outside this plugin that use an asset (the app icon, app.json, other plugins' documents). */
+  readonly elsewhere?: (assetId: string) => readonly string[];
   /** Selects widgets on the canvas. */
   readonly onSelectUses?: (nodes: readonly string[]) => void;
   /** Points the plugin's uses of one asset at another, after a replacement was uploaded. */
@@ -246,7 +261,12 @@ export function AssetsTab({
   };
 
   const remove = async (a: Asset) => {
-    await client.deleteAsset({ id: a.id, session });
+    try {
+      await client.deleteAsset({ id: a.id, session });
+    } catch (error) {
+      setRefused([withReason(m.deleteFailed(a.name), error)]);
+      return;
+    }
     setOpen((o) => (o?.id === a.id ? null : o));
     await refresh();
   };
@@ -278,11 +298,23 @@ export function AssetsTab({
     }
   };
   const usesOf = (id: string) => uses?.get(id) ?? [];
+  // What a delete leaves without an image: this plugin's widgets, and anything outside it that names the asset.
+  const deleteWords = (a: Asset) => {
+    const outside = elsewhere?.(a.id) ?? [];
+    const here = usesOf(a.id).length;
+    const words = [
+      ...(here > 0 ? [m.deleteUsed(a.name, here)] : []),
+      ...(outside.length > 0 ? [m.usedElsewhere(a.name, outside.join(", "))] : []),
+    ];
+    return words.length === 0 ? m.deleteBody(a.name) : words.join(" ");
+  };
 
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<AssetKind | "all">("all");
-  const count = (k: AssetKind | "all") => (assets ?? []).filter((a) => k === "all" || assetKind(a) === k).length;
-  const shown = (assets ?? []).filter(
+  const mine = (assets ?? []).filter((a) => !isGenerated(a.name));
+  const hidden = (assets ?? []).length - mine.length;
+  const count = (k: AssetKind | "all") => mine.filter((a) => k === "all" || assetKind(a) === k).length;
+  const shown = mine.filter(
     (a) => (kind === "all" || assetKind(a) === kind) && a.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
   return (
@@ -351,7 +383,7 @@ export function AssetsTab({
           ))}
         </ul>
       )}
-      {assets !== null && assets.length > 0 && (
+      {mine.length > 0 && (
         <>
           <InputGroup>
             <InputGroupAddon>
@@ -385,15 +417,15 @@ export function AssetsTab({
       )}
       {loadFailed !== null && <p role="alert">{withReason(m.loadFailed, loadFailed)}</p>}
       {assets === null && loadFailed === null && <p className="dock-note">{m.loading}</p>}
-      {assets?.length === 0 && pending.length === 0 && <p className="dock-note">{m.empty}</p>}
-      {assets !== null && assets.length > 0 && shown.length === 0 && <p className="dock-note">{m.noMatch}</p>}
+      {assets !== null && mine.length === 0 && pending.length === 0 && <p className="dock-note">{m.empty}</p>}
+      {mine.length > 0 && shown.length === 0 && <p className="dock-note">{m.noMatch}</p>}
       {shown.length > 0 && (
         <ul aria-label={m.list} className="asset-grid">
           {shown.map((a) => (
             <AssetCard
               key={a.id}
               a={a}
-              uses={uses === undefined ? undefined : usesOf(a.id).length}
+              uses={uses === undefined ? undefined : usesOf(a.id).length + (elsewhere?.(a.id).length ?? 0)}
               onOpen={() => {
                 setOpen(a);
                 setNote(undefined);
@@ -403,6 +435,7 @@ export function AssetsTab({
           ))}
         </ul>
       )}
+      {hidden > 0 && <p className="dock-note">{m.generatedHidden(hidden)}</p>}
       <AlertDialog
         open={toDelete !== null}
         onOpenChange={(open) => {
@@ -411,13 +444,7 @@ export function AssetsTab({
           }
         }}
         title={m.deleteTitle}
-        description={
-          toDelete === null
-            ? ""
-            : usesOf(toDelete.id).length > 0
-              ? m.deleteUsed(toDelete.name, usesOf(toDelete.id).length)
-              : m.deleteBody(toDelete.name)
-        }
+        description={toDelete === null ? "" : deleteWords(toDelete)}
         labels={{ cancel: m.cancel, confirm: m.confirm }}
         onConfirm={() => {
           if (toDelete !== null) {

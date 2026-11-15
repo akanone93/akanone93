@@ -6,7 +6,7 @@ import { widget } from "@plux/schema";
 import type { Node } from "../plugin-canvas/plugin-model.ts";
 import { type IdSource, uuidv7 } from "../plugin-canvas/screens.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
-import { findNode, reparentRecipe } from "../plugin-canvas/select/edits.ts";
+import { findNode, reparentRecipe, takeOutRecipe } from "../plugin-canvas/select/edits.ts";
 import { containersOf, type GestureEnv } from "../plugin-canvas/select/gesture.ts";
 import { type DropTarget, resolveDrop } from "../plugin-canvas/select/reparent.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
@@ -167,6 +167,62 @@ export function layerDrop(
   }
   const at = sibs.indexOf(target);
   return at < 0 ? null : { parent, index: half === "before" ? at : at + 1 };
+}
+
+/**
+ * Moves a layer into `parent`'s slot `slot` (PC-20): a list slot takes it last, a single slot only while it is empty,
+ * so a drop never replaces what a slot holds. Refused across documents, into a slot the widget does not declare, or
+ * into the moved layer itself.
+ */
+export function moveIntoSlot(
+  index: NodeIndex,
+  dragged: string,
+  parent: string,
+  slot: string,
+  edit: EditFn,
+  docOf: (id: string) => string | undefined,
+  canEdit: boolean,
+  model: PanelModel,
+): boolean {
+  const doc = docOf(dragged);
+  const type = model.nodes.get(parent)?.type;
+  const declared = type === undefined ? undefined : widget(type)?.slots.find((d) => d.name === slot);
+  if (!canEdit || doc === undefined || doc !== docOf(parent) || declared === undefined || dragged === parent) {
+    return false;
+  }
+  for (let p = index.parent.get(parent); p !== null && p !== undefined; p = index.parent.get(p)) {
+    if (p === dragged) {
+      return false;
+    }
+  }
+  const held = (model.nodes.get(parent)?.slots ?? {}) as Readonly<Record<string, unknown>>;
+  if (!declared.list && held[slot] !== undefined) {
+    return false;
+  }
+  edit(
+    doc,
+    (draft) => {
+      let taken: unknown;
+      takeOutRecipe(dragged, (node) => {
+        taken = node;
+      })(draft);
+      const target = findNode(draft, parent);
+      if (taken === undefined || target === null) {
+        return;
+      }
+      const slots = (target.node.slots ?? {}) as Record<string, unknown>;
+      if (declared.list) {
+        const list = Array.isArray(slots[slot]) ? (slots[slot] as unknown[]) : [];
+        list.push(taken);
+        slots[slot] = list;
+      } else {
+        slots[slot] = taken;
+      }
+      target.node.slots = slots;
+    },
+    { group: "reorder" },
+  );
+  return true;
 }
 
 export function moveLayer(

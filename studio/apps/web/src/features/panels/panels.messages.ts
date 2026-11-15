@@ -115,6 +115,17 @@ export function panelsMessages(i18n: I18n) {
       message: "Layers of the plugin",
       comment: "Accessible name of the layer tree.",
     }),
+    slotEmpty: i18n._({
+      id: "panels.slotEmpty",
+      message: "empty",
+      comment:
+        "Shown after the name of a widget's slot (such as body or appBar) that holds nothing; a layer can be dropped on it.",
+    }),
+    slotUnknown: i18n._({
+      id: "panels.slotUnknown",
+      message: "Not a slot of this widget",
+      comment: "Mark on a slot row whose name the widget does not have: what is in it is never shown on the device.",
+    }),
     pluginRoot: i18n._({
       id: "panels.pluginRoot",
       message: "Plugin",

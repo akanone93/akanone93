@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, mock, test } from "bun:test";
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
@@ -185,5 +185,42 @@ describe("[STU-063] overlay host", () => {
     expect(s.calls.slice(before)).toEqual(["view 12,34,0.5", "resume"]);
     await waitFor(() => expect(document.activeElement).toBe(canvas));
     expect(screen.getByRole("application")).toBe(canvas);
+  });
+});
+
+describe("[STU-064] the app's documents in the JSON editor", () => {
+  test("app.json is listed under App and applied through the app session", async () => {
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    renderApp(path, {
+      documents,
+      appDocuments: [
+        {
+          kind: "app",
+          path: "app.json",
+          json: {
+            kind: "app",
+            id: "app1",
+            key: "shop",
+            plugins: ["main"],
+            defaultLocale: "en",
+            supportedLocales: ["en"],
+          },
+        },
+      ],
+      surface: surface().factory,
+      sent,
+      validator: validator(() => []),
+    });
+    await openEditors();
+    fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
+    const list = await screen.findByRole("navigation", { name: "Document" });
+    expect(within(list).getByText("App")).toBeTruthy();
+    fireEvent.click(within(list).getByRole("button", { name: "app.json" }));
+    const text = await area();
+    await waitFor(() => expect(text.value).toContain('"plugins"'));
+    fireEvent.change(text, { target: { value: text.value.replace('"main"', '"launch"') } });
+    await waitFor(() => expect(disabled(apply())).toBe(false));
+    fireEvent.click(apply());
+    expect(screen.getByText("Applied to the document.")).toBeTruthy();
   });
 });

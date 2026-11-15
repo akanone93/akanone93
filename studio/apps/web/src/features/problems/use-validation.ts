@@ -58,22 +58,40 @@ function languageOf(validator: ValidatorClient): PxlLanguage | undefined {
   };
 }
 
-/** Loads the project into the validator when the documents arrive and validates it project-wide (validate on open). */
+/**
+ * The asset files the server stores, as empty stand-ins under `assets/`: the browser validator checks that each file
+ * `assets/index.json` lists exists, and was never given them, so it called every uploaded image missing (PLX-1020). The
+ * server checks the files' bytes (size, executable content) on upload and on publish; the stand-ins only say which
+ * names exist, so a file that is listed but not stored is still reported.
+ */
+export function assetStandIns(names: readonly string[]): { readonly path: string; readonly data: string }[] {
+  return names.map((name) => ({ path: `assets/${name}`, data: "" }));
+}
+
+/** One empty list for callers without assets: a fresh `[]` each render would restart the validation each render. */
+const NO_ASSETS: readonly string[] = [];
+
+/**
+ * Loads the project into the validator when the documents and the asset list arrive and validates it project-wide
+ * (validate on open).
+ */
 export function useValidation(
   createValidator: ValidatorFactory,
   app: Documents | undefined,
   plugin: Documents | undefined,
+  /** The names of the app's stored asset files; validation waits for them. */
+  assetFiles: readonly string[] | undefined = NO_ASSETS,
 ): Validation {
   const [result, setResult] = useState<Validation>({ state: "idle" });
   useEffect(() => {
-    if (app === undefined || plugin === undefined) {
+    if (app === undefined || plugin === undefined || assetFiles === undefined) {
       return undefined;
     }
     setResult({ state: "running" });
     const validator = createValidator();
     let live = true;
     validator
-      .load(projectFiles(wholeProject(app, plugin)))
+      .load([...projectFiles(wholeProject(app, plugin)), ...assetStandIns(assetFiles)])
       .then(
         (problems) =>
           live &&
@@ -93,6 +111,6 @@ export function useValidation(
       live = false;
       validator.dispose();
     };
-  }, [createValidator, app, plugin]);
+  }, [createValidator, app, plugin, assetFiles]);
   return result;
 }

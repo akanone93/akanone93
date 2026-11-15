@@ -5,7 +5,13 @@ package compiler
 
 import (
 	"crypto/sha256"
+	"encoding/json"
+	"fmt"
+	"maps"
+	"slices"
+	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
@@ -128,5 +134,55 @@ func TestApproachingLimitsWarn(t *testing.T) {
 	}
 	if !found || res.App == nil {
 		t.Errorf("no warning at 85%% of bundle.pluginSize: %s", list(res.Diagnostics))
+	}
+}
+
+// Verifies: STU-052, STU-134, AST-001.
+// The screenshots Studio keeps for itself as app assets (screen thumbnails, slot previews, translation context) are
+// in the draft but in no bundle: the app bundle carries the app's own assets only.
+func TestBundlesLeaveOutStudioScreenshots(t *testing.T) {
+	t.Parallel()
+	m := fixture(t)
+	var idx map[string]any
+	if err := json.Unmarshal(m["assets/index.json"].Data, &idx); err != nil {
+		t.Fatal(err)
+	}
+	png := m["assets/images/logo.png"].Data
+	shots := map[string]string{
+		"thumbnails/screen-home.png": "01a0c450-6c00-700d-8000-0000000192a1",
+		"previews/slot-card.png":     "01a0c450-6c00-700d-8000-0000000192a2",
+		"l10n-context/screen-x.png":  "01a0c450-6c00-700d-8000-0000000192a3",
+	}
+	entries := idx["assets"].([]any)
+	i := 0
+	for _, file := range slices.Sorted(maps.Keys(shots)) {
+		i++
+		entries = append(entries, map[string]any{"id": shots[file], "key": fmt.Sprintf("shot-%d", i), "file": file, "mediaType": "image/png"})
+		m["assets/"+file] = &fstest.MapFile{Data: png}
+	}
+	idx["assets"] = entries
+	data, err := json.Marshal(idx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m["assets/index.json"] = &fstest.MapFile{Data: data}
+	res := Compile(m, DefaultOptions())
+	if res.Diagnostics.HasErrors() {
+		t.Fatal(list(res.Diagnostics))
+	}
+	for _, b := range readAll(t, res) {
+		for _, s := range b.Sections {
+			if s.Kind != bundle.SectionAssetsIndex {
+				continue
+			}
+			x := fbs.GetRootAsAssetIndex(s.Data, 0)
+			var a fbs.Asset
+			for j := range x.AssetsLength() {
+				x.Assets(&a, j)
+				if strings.HasPrefix(string(a.Key()), "shot-") {
+					t.Errorf("a bundle carries Studio's screenshot %s", a.Key())
+				}
+			}
+		}
 	}
 }

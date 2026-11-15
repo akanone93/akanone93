@@ -4,7 +4,7 @@
 import { Icon, type IconName } from "@plux/ui";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
-import { type ReactElement, type ReactNode, useState } from "react";
+import { type ReactElement, type ReactNode, useCallback, useState } from "react";
 import { useFold } from "./fold.tsx";
 
 /** A per-viewer switch kept in this browser (a folded dock, a closed section); it falls back when storage is blocked. */
@@ -17,14 +17,19 @@ export function useStoredFlag(key: string, initial: boolean): [boolean, (next: b
       return initial;
     }
   });
-  const set = (next: boolean) => {
-    setValue(next);
-    try {
-      globalThis.localStorage?.setItem(key, next ? "1" : "0");
-    } catch {
-      // Storage blocked: the switch holds for this page only.
-    }
-  };
+  // Stable across renders: an effect that lists it as a dependency must not run on every render (the inspector's tab
+  // request was applied again on each render, so after "Page settings" no other tab could be chosen).
+  const set = useCallback(
+    (next: boolean) => {
+      setValue(next);
+      try {
+        globalThis.localStorage?.setItem(key, next ? "1" : "0");
+      } catch {
+        // Storage blocked: the switch holds for this page only.
+      }
+    },
+    [key],
+  );
   return [value, set];
 }
 

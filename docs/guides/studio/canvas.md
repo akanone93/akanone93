@@ -117,13 +117,19 @@ Positions are read-only while someone else is editing the app.
    onto a screen. Chosen with a widget selected, it goes into that widget: into its content slot first (a
    Scaffold's **body**, a wrapper's **child**), then its next empty slot. **Layers** shows each screen over its widgets with their icons and what they show:
    choose a caret to fold a row, **Expand all** or **Collapse all**, **Filter layers** by name, type
-   or text, and drag a layer to move it. Double-click a layer's name (or press F2) to rename it; the
+   or text, and drag a layer to move it. A widget with named slots (a Scaffold's **appBar**, **body**,
+   **floatingActionButton** and the rest) shows one row per slot between it and what the slot holds; an empty slot
+   says **empty**, and dropping a layer on it moves the layer there (a list slot takes it last, a filled single
+   slot takes nothing). A child in a slot the widget does not have is marked **Not a slot of this widget**, since the
+   device never shows it. Double-click a layer's name (or press F2) to rename it; the
    eye hides it on the canvas (Ctrl+Shift+H) and the lock keeps it from being selected, moved or edited
    (Ctrl+Shift+L). Names, hiding and locks are Studio's own: the device still shows the widget. The
    card at the top of **Layers** lists the selection, with **Show on canvas** and **Clear selection**.
    The fold button in each dock's header folds it; the button beside the folded dock (or a tab on its
    rail) opens it again, on both canvases and both sides. **Assets** takes files dropped on its zone (or chosen
-   by clicking it) and shows them as cards you can search and filter by kind; **Data** holds the
+   by clicking it) and shows them as cards you can search and filter by kind. Assets belong to the app: the app
+   canvas has the same **Assets** tab, and the icon picker in the app's settings uploads an icon directly. The
+   screenshots Studio stores for its own use (screen thumbnails and previews) are not listed; **Data** holds the
    plugin's **State** and **Data sources**. Select a widget and edit it in the **Inspector** on the right: its header
    names the widget, its screen and its id, and its rail on the outer edge holds **Properties** (open at first),
    **Editors** (JSON, translations, theme, state, data sources, database, action graph, Rust), **Actions**, **JSON**,
@@ -160,7 +166,10 @@ Positions are read-only while someone else is editing the app.
    right-to-left locale and the text scale change the screens only; Studio's own panels keep your Studio language
    and size.
 6. The **Developer console** at the bottom lists validation errors, warnings and information under
-   **Problems** as you type; the counts also appear on the plugin card. Open it to stream the paired
+   **Problems** as you type. Known findings say what they mean and offer their fix: **Upload** a missing asset file
+   under its name (its uses work again), add a plugin to `app.json` or remove one that no longer exists, and **Open in
+   JSON editor** on the finding's file, which lists the app's `app.json`, theme and translation keys beside the
+   plugin's documents; the counts also appear on the plugin card. Open it to stream the paired
    devices' **Logs**, **Process flow**, **State**, **Network**, **Functions**, **Sync**,
    **Performance** and **Console** — tabs in a rail down its side, each scrolling on its own — with a source
    device, a level filter, search, **Pause** and **Export trace** above the rows; the **Device** tab opens a
@@ -344,7 +353,8 @@ from Material Symbols and the Cupertino icons in their colour and size; an icon 
 of both sets, searched by name. The canvas draws Material Symbols at their default fill and weight. Images of the
 app's uploaded assets are drawn in their fit and corners, and avatars in their image or colour with their initials;
 drag an image from **Assets** onto a screen to add it, or pick one for an image property. In **Assets** each file shows how many
-widgets of the plugin use it (or **Unused**), and a meter shows what the plugin's used files weigh against the limit
+places use it (or **Unused**): the plugin's widgets, the app icon, `app.json` and other plugins' documents; deleting a
+file that is used says where, and a delete the server refuses says why, and a meter shows what the plugin's used files weigh against the limit
 publish enforces (`plugin.assetBytes`, amber from 80 %); a file above `asset.fileSize` is refused before it is sent.
 Choose a file for its details — preview, type, pixels, bytes, content hash, processing and variants, the server's
 findings — then **Select its uses** on the canvas or **Replace…** it: the new file is uploaded and the plugin's uses

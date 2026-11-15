@@ -760,6 +760,12 @@ msgstr "{n, plural, zero {0 خطأ} one {خطأ واحد} two {خطآن} few {# 
 msgid "appCanvas.functions"
 msgstr "{n, plural, zero {0 دالة} one {دالة واحدة} two {دالتان} few {# دوال} many {# دالة} other {# دالة}}"
 
+#. Note under the Assets grid: screenshots Studio stores on its own are kept out of the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.generatedHidden"
+msgstr "{n, plural, one {لا تُعرض صورة واحدة ينشئها Studio بنفسه (معاينة شاشة).} other {لا تُعرض # صور ينشئها Studio بنفسه (معاينات الشاشات).}}"
+
 #. A list's items are a literal list in the page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/list-panel.messages.ts
@@ -898,6 +904,12 @@ msgstr "{name} ({type})، مطلوب"
 msgid "assets.tooBig"
 msgstr "حجم {name} هو {size}، أكبر من {max} المسموح للملف الواحد (asset.fileSize). لم يُرفع."
 
+#. Delete confirmation of an asset used by the app icon, app.json or other plugins; places lists them.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.usedElsewhere"
+msgstr "يُستخدم {name} أيضًا خارج هذه الإضافة: {places}. حذفه يترك تلك الأماكن بلا صورة."
+
 #. Explains why deleting a screen needs typing its name (STU-074).
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -957,6 +969,12 @@ msgstr "إعدادات {name}"
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.done.title"
 msgstr "تم إنشاء {name}"
+
+#. Shown in the Assets tab when the server refused to delete an asset; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.deleteFailed"
+msgstr "لم يُحذف {name}."
 
 #. Accessible name of one device in the device matrix.
 #. js-lingui-explicit-id
@@ -1702,6 +1720,12 @@ msgstr "إضافة"
 msgid "actionGraph.addNamed"
 msgstr "إضافة {name} إلى المخطط"
 
+#. Button that adds a plugin key to app.json's plugins list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.fix.listPlugin"
+msgstr "أضف {plugin} إلى app.json"
+
 #. Menu that adds a validator to a field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/forms.messages.ts
@@ -2319,6 +2343,12 @@ msgstr "تعريفات واجهات البرمجة"
 msgid "data.sourcesLink"
 msgstr "تعريفات واجهات البرمجة"
 
+#. Heading of the app's own documents (app.json, the theme, the translation keys) in the JSON editor's list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.appGroup"
+msgstr "التطبيق"
+
 #. Label of the app filter.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -2396,6 +2426,12 @@ msgstr "معرّف التطبيق (فارغ للمؤسسة)"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.field.name"
 msgstr "اسم التطبيق"
+
+#. Explains a plugin key in app.json that has no plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.why.pluginNoDirectory"
+msgstr "يذكر app.json إضافة لم تعد موجودة (حُذفت أو أُعيدت تسميتها). أزلها من القائمة."
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -6022,6 +6058,12 @@ msgstr "عنوان البريد المراد دعوته"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.breakGlassCaption"
 msgstr "إجراءات طارئة اتُّخذت دون موافقة مسبقة، ولكل منها مراجعة مستحقة."
+
+#. Shown after the name of a widget's slot (such as body or appBar) that holds nothing; a layer can be dropped on it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.slotEmpty"
+msgstr "فارغ"
 
 #. Mock data state option.
 #. js-lingui-explicit-id
@@ -11087,6 +11129,12 @@ msgstr "لم يُختر شيء"
 msgid "style.styleNotTaken"
 msgstr "لا يناسب أي جزء من النمط المنسوخ التحديد"
 
+#. Mark on a slot row whose name the widget does not have: what is in it is never shown on the device.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.slotUnknown"
+msgstr "ليس موضعًا لهذه الأداة"
+
 #. Badge: the value is written in the widget, not taken from the theme.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/theme-card.messages.ts
@@ -11608,6 +11656,12 @@ msgstr "افتح المكوّن"
 #: apps/web/src/features/panels/page-settings.messages.ts
 msgid "pageSettings.openData"
 msgstr "فتح مصادر البيانات"
+
+#. Button that opens the finding's file in the JSON editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.fix.openJson"
+msgstr "افتح في محرر JSON"
 
 #. Button of the JSON tab that opens the full-screen JSON editor.
 #. js-lingui-explicit-id
@@ -13485,6 +13539,12 @@ msgstr "إزالة {name}"
 #: apps/web/src/features/panels/page-settings.messages.ts
 msgid "pageSettings.removeParam"
 msgstr "إزالة {name}"
+
+#. Button that removes a key without a plugin from app.json's plugins list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.fix.unlistPlugin"
+msgstr "أزل {plugin} من app.json"
 
 #. Button that removes a token.
 #. js-lingui-explicit-id
@@ -15945,6 +16005,12 @@ msgstr "شخص آخر يحرر الآن، لذا هذا المصمم للقرا�
 msgid "profile.phones.pickHint"
 msgstr "من نسخ الرمز لا يستطيع الإكمال دون هذا الرقم."
 
+#. Explains an unresolved reference.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.why.unresolved"
+msgstr "يشير شيء هنا إلى عنصر غير موجود (حُذف أو أُعيدت تسميته). اجعله يشير إلى عنصر موجود."
+
 #. Label of the sort control of the apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -16891,7 +16957,19 @@ msgstr "لا توجد إضافات في التطبيق."
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.no-assets"
-msgstr "ليس لدى التطبيق أي أصول PNG بعد. ارفع واحدًا في لوحة الأصول لاستخدامه كأيقونة."
+msgstr "لا توجد في التطبيق أصول PNG بعد. ارفع واحدة هنا لاستخدامها أيقونة."
+
+#. One of the places an asset is used, in the delete confirmation's list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.appIcon"
+msgstr "أيقونة التطبيق"
+
+#. Explains a missing asset file in the Problems tab, with what to do.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.why.assetMissing"
+msgstr "تذكر قائمة أصول التطبيق هذا الملف، لكن لا يوجد ملف مخزن بهذا الاسم: حُذف أو لم يكتمل رفعه. الأدوات التي تعرضه بلا صورة. ارفع ملفًا بالاسم نفسه لإعادتها."
 
 #. Accessible name of the grid of asset cards.
 #. js-lingui-explicit-id
@@ -17355,6 +17433,12 @@ msgstr "تضرر الملف أثناء إرساله إلى الخادم. ارف�
 msgid "experiments.segmentValuesHelp"
 msgstr "تحسم الشريحة الأولى التي ينتمي إليها الجهاز؛ وتحصل الأجهزة خارج كل الشرائح على القيمة الافتراضية."
 
+#. Shown under a finding when its fix failed; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.fix.failed"
+msgstr "لم يُطبَّق الإصلاح."
+
 #. Caption of the section that links to the host fonts.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -17384,6 +17468,12 @@ msgstr "دوال هذه البيئة مع أحدث إصدار لكل منها."
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.project.caption"
 msgstr "يحتوي مشروع المضيف على اسم التطبيق ومعرّفاته وأيقوناته ووقت تشغيل Plux ونصوص البناء. يمكنك أيضًا تنزيله لاحقًا من إعدادات غلاف التطبيق."
+
+#. Shown in the icon picker when an upload failed; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.upload-failed"
+msgstr "لم تُرفع الأيقونة."
 
 #. Caption under the icon sets heading.
 #. js-lingui-explicit-id
@@ -18520,6 +18610,12 @@ msgstr "هذه الصفحة جزء من النسخة المؤسسية. اطلب 
 msgid "admin.removeMemberDesc"
 msgstr "سيفقد هذا الشخص الوصول إلى المؤسسة."
 
+#. Heading of the plugin's own documents in the JSON editor's list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.pluginGroup"
+msgstr "هذه الإضافة"
+
 #. Marks screens of the plugin being edited in the list of navigation targets.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -18531,6 +18627,12 @@ msgstr "هذه الإضافة"
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "editor.conflict.title"
 msgstr "تغيّرت هذه الإضافة على الخادم"
+
+#. Explains a plugin missing from app.json's plugins list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.why.pluginNotListed"
+msgstr "هذه الإضافة موجودة لكن app.json لا يذكرها، لذا لا يتضمنها التطبيق. أضفها إلى القائمة."
 
 #. Shown when the plugin declares no collection.
 #. js-lingui-explicit-id
@@ -18946,6 +19048,12 @@ msgstr "حاول مرة أخرى"
 msgid "refusal.retry"
 msgstr "حاول مرة أخرى"
 
+#. Explains a duplicate route name, with where to change it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.why.duplicateRoute"
+msgstr "تستخدم شاشتان اسم المسار نفسه؛ أسماء المسارات فريدة في التطبيق. أعد تسمية إحداهما في إعدادات الصفحة (المسار)."
+
 #. Section of the state designer: the value's type, whether it is a list or a map, and whether it may be empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -19132,6 +19240,12 @@ msgstr "إلغاء لف التحديد"
 msgid "auth.story.live.title"
 msgstr "تحديث مباشر"
 
+#. Button that uploads a file under the name a missing asset had.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.fix.uploadAsset"
+msgstr "ارفع {file}"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -19143,6 +19257,12 @@ msgstr "رفع ترخيص"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.hostFontsNoAssets"
 msgstr "ارفع ملف TrueType أو OpenType في تبويب الأصول لإدراجه هنا."
+
+#. Button in the icon picker that uploads a PNG as an app asset and chooses it as the icon.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.upload"
+msgstr "ارفع أيقونة"
 
 #. Button that opens the file picker to upload an asset.
 #. js-lingui-explicit-id
@@ -19173,6 +19293,12 @@ msgstr "جارٍ رفع {name}"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.failed"
 msgstr "فشل رفع {name}."
+
+#. Shown in the icon picker while an icon file is being uploaded.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.icon.uploading"
+msgstr "جارٍ الرفع…"
 
 #. Column heading.
 #. js-lingui-explicit-id

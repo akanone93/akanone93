@@ -4,7 +4,7 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { AppService, PluginService, type PluginSummary, ReleaseService } from "@plux/api";
+import { AppService, AssetService, PluginService, type PluginSummary, ReleaseService } from "@plux/api";
 import type { ArrowPick, NavigateEdge } from "@plux/canvas";
 import { Icon } from "@plux/ui";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@plux/ui/components/empty";
@@ -15,7 +15,7 @@ import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { DevLinkBar, DevLinkProvider } from "../devices/dev-link.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
-import { EditorProvider, useEditor, useEditSession } from "../editor/editor-provider.tsx";
+import { EditorProvider, useEditor, useEditSession, useLock } from "../editor/editor-provider.tsx";
 import { SaveStateChip } from "../editor/save-state.tsx";
 import { useCan } from "../library/use-library.ts";
 import { useDeviceFonts } from "../plugin-canvas/device-fonts.ts";
@@ -77,6 +77,9 @@ import { useCanvasKeys } from "./use-canvas-keys.ts";
 import { useZoom } from "./use-zoom.ts";
 import "./app-canvas.css";
 import { withReason } from "../../components/refusal.tsx";
+import { assetsMessages } from "../panels/assets.messages.ts";
+import { AssetsTab } from "../panels/assets-tab.tsx";
+import { underAppLock } from "../plugin-canvas/use-assets-tab.ts";
 import { useTeams } from "./use-teams.ts";
 
 export { PluginBoxCard } from "./box-list.tsx";
@@ -338,6 +341,49 @@ function useCanvasLayout(documents: ViewProps["documents"], failed: () => void) 
     [persist],
   );
   return { positions: ahead?.positions ?? saved.positions, frames: ahead?.frames ?? saved.frames, setLive, commit };
+}
+
+/**
+ * The app's assets at the app level (A3): the same Assets panel as in a plugin, its uploads and deletes made under the
+ * app's lock, which this canvas's editor holds. Uses are counted across the app's documents and its icon.
+ */
+function AppAssets({ appId, documents }: { readonly appId: string; readonly documents: ViewProps["documents"] }) {
+  const { i18n } = useLingui();
+  const { session } = useApp();
+  const lock = useLock();
+  const queries = useQueryClient();
+  const appRecord = useQuery({
+    queryKey: ["app", appId],
+    enabled: appId !== "",
+    queryFn: async () => (await createClient(AppService, session.transport).getApp({ id: appId })).app,
+  });
+  // Every plugin's documents, as the plugin canvas reads them: a use in any of them is a use.
+  const project = useAppDocuments(appId);
+  const client = useMemo(
+    () => underAppLock(createClient(AssetService, session.transport), () => lock),
+    [session.transport, lock],
+  );
+  const elsewhere = useMemo(() => {
+    const decoder = new TextDecoder();
+    const docs = [...(project.data ?? []), ...(documents ?? [])]
+      .filter((d) => d.path !== "assets/index.json")
+      .map((d) => ({ path: d.path, text: decoder.decode(d.content) }));
+    const icon = appRecord.data?.iconAssetId ?? "";
+    const label = assetsMessages(i18n).appIcon;
+    return (id: string): readonly string[] => [
+      ...(icon === id ? [label] : []),
+      ...[...new Set(docs.filter((d) => d.text.includes(id)).map((d) => d.path))],
+    ];
+  }, [project.data, documents, appRecord.data, i18n]);
+  return (
+    <AssetsTab
+      client={client}
+      appId={appId}
+      session=""
+      elsewhere={elsewhere}
+      onChanged={() => void queries.invalidateQueries({ queryKey: ["assets", appId] })}
+    />
+  );
 }
 
 /** C1: the app canvas (STU-030 to STU-035), drawn by Plux Canvas with bundled arrows (STU-040 to STU-048). */
@@ -736,6 +782,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onShow={showBox}
             onOpen={open}
             frameTools={<FrameTools frames={frames} messages={m} onChange={changeFrameOf} />}
+            assets={{ label: assetsMessages(i18n).tab, panel: <AppAssets appId={appId} documents={documents} /> }}
           />
           {detail?.plugin === undefined ? null : (
             <DetailCard

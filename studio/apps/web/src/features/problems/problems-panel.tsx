@@ -4,7 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Icon, type IconName } from "@plux/ui";
 import type { Problem } from "@plux/validator";
-import { useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import { problemsMessages } from "./problems.messages.ts";
 import { countProblems, groupByFile } from "./project-files.ts";
 import type { Validation } from "./use-validation.ts";
@@ -73,7 +73,14 @@ export function ProblemCounts({
 }
 
 /** The findings grouped by file, each with its severity icon: the body of the Problems tab. */
-export function ProblemsContent({ validation }: { readonly validation: Validation }) {
+export function ProblemsContent({
+  validation,
+  help,
+}: {
+  readonly validation: Validation;
+  /** What a finding means and the buttons that fix it (P1); absent where no fix can run. */
+  readonly help?: ((p: Problem) => ReactNode) | undefined;
+}) {
   const m = problemsMessages(useLingui().i18n);
   const label: Record<Problem["severity"], string> = {
     error: m.severityError,
@@ -105,11 +112,14 @@ export function ProblemsContent({ validation }: { readonly validation: Validatio
                     // biome-ignore lint/suspicious/noArrayIndexKey: a problem has no identity beyond its place in the list
                     <li key={i} className="flex items-start gap-2 text-body">
                       <Icon name={icons[p.severity]} size="pill" label={label[p.severity]} />
-                      <span>
-                        {p.message}{" "}
-                        <span className="font-mono text-caption text-muted-foreground">
-                          {p.code} {p.path}
+                      <span className="flex min-w-0 flex-col gap-1">
+                        <span>
+                          {p.message}{" "}
+                          <span className="font-mono text-caption text-muted-foreground">
+                            {p.code} {p.path}
+                          </span>
                         </span>
+                        {help?.(p)}
                       </span>
                     </li>
                   ))}

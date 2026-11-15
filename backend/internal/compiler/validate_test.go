@@ -221,10 +221,10 @@ func TestValidateDocumentByKind(t *testing.T) {
 	}
 	renamed := strings.Replace(string(m["plugins/loans/plugin.json"].Data), `"key": "loans"`, `"key": "cards"`, 1)
 	renamed = strings.Replace(renamed, `"key":"loans"`, `"key":"cards"`, 1)
-	if got := v.ValidateDocument("plugins/loans/plugin.json", []byte(renamed)); !diagsHave(got, plxerr.InvalidProjectLayout) {
+	if got := v.ValidateDocument("plugins/loans/plugin.json", []byte(renamed)); !hasLayoutFinding(got) {
 		t.Errorf("a manifest whose key is not its directory: %v", got)
 	}
-	if got := v.ValidateDocument("notes.txt", []byte(`{}`)); !diagsHave(got, plxerr.InvalidProjectLayout) {
+	if got := v.ValidateDocument("notes.txt", []byte(`{}`)); !hasLayoutFinding(got) {
 		t.Errorf("a path outside the layout: %v", got)
 	}
 	if got := v.ValidateDocument(calculatorPage, m[calculatorPage].Data); got.HasErrors() {
@@ -232,11 +232,37 @@ func TestValidateDocumentByKind(t *testing.T) {
 	}
 }
 
-func diagsHave(diags plxerr.Diagnostics, code plxerr.Code) bool {
+// hasLayoutFinding reports whether a layout finding (PLX-1020) is among diags.
+func hasLayoutFinding(diags plxerr.Diagnostics) bool {
 	for _, d := range diags {
-		if d.Code == code {
+		if d.Code == plxerr.InvalidProjectLayout {
 			return true
 		}
 	}
 	return false
+}
+
+// Verifies: STU-062, SRV-060.
+// Studio gives the browser validator empty stand-ins for the asset files the server stores: a listed file that has one
+// is not reported missing, and one that has none still is (PLX-1020).
+func TestValidatorTakesAssetStandIns(t *testing.T) {
+	t.Parallel()
+	m := fixture(t)
+	for name := range m {
+		if strings.HasPrefix(name, "assets/") && name != "assets/index.json" {
+			m[name] = &fstest.MapFile{Data: nil}
+		}
+	}
+	v, diags := NewValidator(m, DefaultOptions())
+	if v == nil || hasLayoutFinding(diags) {
+		t.Fatalf("stand-ins are files that exist: %v", diags)
+	}
+	for name := range m {
+		if strings.HasPrefix(name, "assets/") && name != "assets/index.json" {
+			delete(m, name)
+		}
+	}
+	if _, diags := NewValidator(m, DefaultOptions()); !hasLayoutFinding(diags) {
+		t.Errorf("a listed file that is not stored is still reported: %v", diags)
+	}
 }

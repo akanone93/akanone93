@@ -151,6 +151,7 @@ import {
   type Timeline,
   timelinesOf,
 } from "./timelines.ts";
+import { useAssetElsewhere, useAssetNames, useProblemFixes } from "./use-asset-facts.ts";
 import { useAssetsTab } from "./use-assets-tab.ts";
 import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
 import { useGhostLayer } from "./use-ghost-layer.ts";
@@ -609,7 +610,8 @@ function PluginCanvasView({
   const deviceFonts = useDeviceFonts(params.app);
   const tests = useMemo(() => createClient(FunctionAdminService, app.transport), [app.transport]);
   const nativeWidgets = useNativeWidgets(params.app ?? "");
-  const loaded = useValidation(createValidator, appDocs.data, docs.data);
+  const assetNames = useAssetNames(params.app);
+  const loaded = useValidation(createValidator, appDocs.data, docs.data, assetNames);
   const stateTarget = useStateTarget(docs.data, appDocs.data);
   const local = useEditor((st) => st.docs);
   const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: parseDocument(d.content) })), [docs.data]);
@@ -1035,6 +1037,9 @@ function PluginCanvasView({
   );
   const [rustSource, setRustSource] = useState<string | undefined>(undefined);
   const overlays = useOverlayHost({ surface: () => surfaceRef.current, canvas: () => canvasRef.current });
+  // The Problems tab opens the JSON editor on a finding's file (P1); otherwise it opens on the selection's.
+  const showJson = useCallback(() => overlays.show("json"), [overlays]);
+  const { fixes: problemFixes, jsonPath, clearJsonPath } = useProblemFixes(docs.data, showJson);
   const searchRef = useRef(search);
   searchRef.current = search;
 
@@ -1428,10 +1433,12 @@ function PluginCanvasView({
     };
   }, [appSession, screenRoots, store, look.theme]);
   // The Assets tab knows where each asset is used, selects its uses and moves them to a replacement (PC-36).
+  const elsewhere = useAssetElsewhere(params.app, params.plugin, appDocs.data);
   const assetsTab = useMemo(
     () => ({
       ...assets,
       uses: assetUses(screens),
+      elsewhere,
       onSelectUses: (ids: readonly string[]) => store.set({ ids, anchor: ids[0] ?? null, scope: null }),
       onReplaceUses: (from: string, to: string) => {
         for (const s of screens) {
@@ -1441,7 +1448,7 @@ function PluginCanvasView({
         }
       },
     }),
-    [assets, screens, store, edit],
+    [assets, screens, store, edit, elsewhere],
   );
   // Component instances (PC-37): drawn as their components, marked, isolated and opened from the inspector.
   const components = useMemo(() => componentsOf(allDocs), [allDocs]);
@@ -1823,6 +1830,7 @@ function PluginCanvasView({
                             assets={assets}
                             screenOf={screenOf}
                             entryPage={entryPage}
+                            fixes={problemFixes}
                           />
                           {libraryDialog}
                           <RightDock
@@ -1868,8 +1876,13 @@ function PluginCanvasView({
                           />
                           <JsonEditorHost
                             open={overlays.open === "json"}
-                            onClose={overlays.hide}
+                            onClose={() => {
+                              clearJsonPath();
+                              overlays.hide();
+                            }}
+                            path={jsonPath}
                             documents={docs.data}
+                            appDocuments={appDocs.data}
                             screenOf={screenOf}
                             pathOf={pathOf}
                             validation={validation}

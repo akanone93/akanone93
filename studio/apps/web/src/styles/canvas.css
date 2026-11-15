@@ -608,3 +608,11 @@ button.problem-counts:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 1px;
 }
+
+/* Under a finding in the Problems tab: what it means, then the buttons that fix it (P1). */
+.problem-help {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+  padding-block-end: calc(var(--spacing) * 1);
+}

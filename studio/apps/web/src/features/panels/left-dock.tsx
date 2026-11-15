@@ -21,9 +21,9 @@ import { InsertPane } from "./insert-pane.tsx";
 import { InstancePreviewContext } from "./instance-card.tsx";
 import { LayersPane, LayersToolbar } from "./layers-pane.tsx";
 import { LocalePreviewContext } from "./locale-tools.tsx";
-import { insertionPoint, insertWidget, modelOf, moveLayer } from "./model.ts";
+import { insertionPoint, insertWidget, modelOf, moveIntoSlot, moveLayer } from "./model.ts";
 import { panelsMessages } from "./panels.messages.ts";
-import { selectIds, treeNodes } from "./selection-model.ts";
+import { selectIds, slotOfRow, treeNodes } from "./selection-model.ts";
 import { metaRecipe } from "./studio-meta.ts";
 import { DataPane } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
@@ -96,7 +96,9 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   const found = useMemo(() => search(all, query), [all, query]);
   const docOf = (id: string) => screenOf.get(id);
 
-  const select = (id: string, toggle: boolean) => {
+  const select = (row: string, toggle: boolean) => {
+    // A slot's row selects the widget that has the slot.
+    const id = slotOfRow(row)?.parent ?? row;
     store.set(selectIds(index, store.get(), id, toggle));
     reveal(props.surface(), props.canvas(), docOf(id), id);
   };
@@ -124,12 +126,23 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   const textOf = useContext(LocalePreviewContext)?.textOf;
   const instances = useContext(InstancePreviewContext);
   const nodes = useMemo(
-    () => treeNodes(props.screens, index, m.pluginRoot, entry, textOf, (id) => instances?.markOf(id)?.name),
-    [props.screens, index, m.pluginRoot, entry, textOf, instances],
+    () =>
+      treeNodes(props.screens, index, m.pluginRoot, entry, textOf, (id) => instances?.markOf(id)?.name, {
+        empty: m.slotEmpty,
+        unknown: m.slotUnknown,
+      }),
+    [props.screens, index, m.pluginRoot, entry, textOf, instances, m.slotEmpty, m.slotUnknown],
   );
   // A locked layer stays where it is: it neither moves nor takes another layer into it.
+  // A layer dropped on a slot's row goes into that slot; a slot's row itself is not a layer and does not move.
   const dropLayer = (dragged: string, target: string, half: "before" | "after") => {
-    if (nodes[dragged]?.locked !== true) {
+    if (nodes[dragged]?.locked === true || slotOfRow(dragged) !== null) {
+      return;
+    }
+    const into = slotOfRow(target);
+    if (into !== null) {
+      moveIntoSlot(index, dragged, into.parent, into.slot, edit, docOf, canEdit, model);
+    } else {
       moveLayer(model, index, dragged, target, half, edit, docOf, canEdit);
     }
   };
@@ -190,7 +203,7 @@ export function LeftDock(props: LeftDockProps): ReactElement {
           onMeta={
             canEdit
               ? (id, change) => {
-                  const doc = docOf(id);
+                  const doc = slotOfRow(id) === null ? docOf(id) : undefined;
                   if (doc !== undefined) {
                     edit(doc, metaRecipe(id, change), { group: `layer:${id}` });
                   }

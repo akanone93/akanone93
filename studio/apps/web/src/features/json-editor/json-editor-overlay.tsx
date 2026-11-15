@@ -4,8 +4,9 @@
 import { useLingui } from "@lingui/react";
 import { Button, Dialog, Icon, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
+import type { EditSession } from "../editor/edit-session.ts";
 import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import type { JsonValue } from "../editor/json-patch.ts";
 import { type JsonEditorMessages, jsonEditorMessages } from "./json-editor.messages.ts";
@@ -100,6 +101,25 @@ export interface JsonEditorOverlayProps {
   readonly initialPath: string | undefined;
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   readonly loadPublished: LoadPublished;
+  /**
+   * The app's own documents the app session holds (app.json, the theme, the translation keys), edited here beside the
+   * plugin's under the app lock; absent where the app session is not loaded.
+   */
+  readonly app?: {
+    readonly documents: readonly JsonDocument[];
+    readonly session: EditSession;
+    readonly canEdit: boolean;
+  };
+}
+
+const noDocs = {};
+const noSubscribe = () => () => undefined;
+
+/** The app session's edited documents, or none without an app session. */
+function useAppDocs(session: EditSession | undefined) {
+  return useSyncExternalStore(session === undefined ? noSubscribe : session.store.subscribe, () =>
+    session === undefined ? noDocs : session.store.getState().docs,
+  ) as Readonly<Record<string, { readonly content: JsonValue } | undefined>>;
 }
 
 type Published =
@@ -110,18 +130,26 @@ type Published =
 /** The buffer the user edits: seeded from the document each time the overlay opens or another document is chosen. */
 function useBuffer(props: JsonEditorOverlayProps) {
   const local = useEditor((st) => st.docs);
+  const appLocal = useAppDocs(props.app?.session);
   const paths = useMemo(() => props.documents.map((d) => d.path).sort(), [props.documents]);
+  const appPaths = useMemo(() => (props.app?.documents ?? []).map((d) => d.path).sort(), [props.app?.documents]);
   const [chosen, setPath] = useState<string | undefined>(undefined);
   const path = chosen ?? props.initialPath ?? paths[0] ?? "";
+  const isApp = appPaths.includes(path);
   const [text, setText] = useState("");
   const seeded = useRef("");
   const current = useMemo(
     () =>
-      documentText(
-        local[path]?.content,
-        props.documents.find((d) => d.path === path),
-      ),
-    [local, path, props.documents],
+      isApp
+        ? documentText(
+            appLocal[path]?.content,
+            props.app?.documents.find((d) => d.path === path),
+          )
+        : documentText(
+            local[path]?.content,
+            props.documents.find((d) => d.path === path),
+          ),
+    [isApp, appLocal, local, path, props.documents, props.app?.documents],
   );
   useEffect(() => {
     if (!props.open) {
@@ -136,7 +164,7 @@ function useBuffer(props: JsonEditorOverlayProps) {
       setPath(undefined);
     }
   }, [props.open]);
-  return { paths, path, setPath, text, setText, current };
+  return { paths, appPaths, isApp, path, setPath, text, setText, current };
 }
 
 /** The document as the editor shows it: the session's unsaved content over the server's. */
@@ -265,13 +293,39 @@ function ProblemList({ problems, empty, m }: { problems: readonly Problem[]; emp
   );
 }
 
+/** One document of the list, by its file name; the whole path is its tooltip. */
+function DocumentButton(props: {
+  readonly path: string;
+  readonly chosen: boolean;
+  readonly onChoose: (p: string) => void;
+}) {
+  const { path } = props;
+  return (
+    <button
+      type="button"
+      className="sheet-item"
+      aria-pressed={props.chosen}
+      title={path}
+      onClick={() => props.onChoose(path)}
+    >
+      <Icon name={path.endsWith(".page.json") ? "device-mobile" : "file"} size="pill" />
+      <span className="min-w-0 flex-1 truncate font-mono text-xs" dir="ltr">
+        {path.split("/").at(-1)}
+      </span>
+    </button>
+  );
+}
+
 /** The JSON editor of S5.1 (STU-064): Monaco over the canvas, validated as you type, applied only when valid. */
 export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
   const { i18n } = useLingui();
   const m = useMemo(() => jsonEditorMessages(i18n), [i18n]);
-  const canEdit = useCanEdit();
-  const session = useEditSession();
-  const { paths, path, setPath, text, setText, current } = useBuffer(props);
+  const pluginCanEdit = useCanEdit();
+  const pluginSession = useEditSession();
+  const { paths, appPaths, isApp, path, setPath, text, setText, current } = useBuffer(props);
+  // An app document is saved by the app session, under the app lock; a plugin document by the plugin's.
+  const session = isApp && props.app !== undefined ? props.app.session : pluginSession;
+  const canEdit = isApp ? props.app?.canEdit === true : pluginCanEdit;
   const [diff, setDiff] = useState(false);
   const [note, setNote] = useState("");
   const applied = useRef(0);
@@ -332,21 +386,14 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
       <SheetLayout
         nav={
           <nav aria-label={m.document} className="flex flex-col gap-1">
-            <SheetNavHead title={m.document} count={paths.length} />
+            <SheetNavHead title={m.document} count={paths.length + appPaths.length} />
+            {appPaths.length > 0 && <p className="sheet-nav-group">{m.pluginGroup}</p>}
             {paths.map((p) => (
-              <button
-                key={p}
-                type="button"
-                className="sheet-item"
-                aria-pressed={p === path}
-                title={p}
-                onClick={() => setPath(p)}
-              >
-                <Icon name={p.endsWith(".page.json") ? "device-mobile" : "file"} size="pill" />
-                <span className="min-w-0 flex-1 truncate font-mono text-xs" dir="ltr">
-                  {p.split("/").at(-1)}
-                </span>
-              </button>
+              <DocumentButton key={p} path={p} chosen={p === path} onChoose={setPath} />
+            ))}
+            {appPaths.length > 0 && <p className="sheet-nav-group">{m.appGroup}</p>}
+            {appPaths.map((p) => (
+              <DocumentButton key={p} path={p} chosen={p === path} onChoose={setPath} />
             ))}
           </nav>
         }

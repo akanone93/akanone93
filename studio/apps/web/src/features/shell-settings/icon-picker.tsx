@@ -3,12 +3,15 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { type Asset, AssetService } from "@plux/api";
-import { useQuery } from "@tanstack/react-query";
-import { type ReactElement, useId } from "react";
+import { type Asset, AssetService, PluginService } from "@plux/api";
+import { FileDrop } from "@plux/ui";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { type ReactElement, useId, useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
 import { objectUrl } from "../../lib/object-url.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { Choice } from "../new-app/choice.tsx";
+import { assetNameOf, uploadUnderAppLock } from "../panels/upload-asset.ts";
 import { shellSettingsMessages } from "./shell-settings.messages.ts";
 
 /** The first URL of an asset's processed forms, or undefined while it has none. */
@@ -42,6 +45,33 @@ export function IconPicker({
     queryFn: async () => (await createClient(AssetService, session.transport).listAssets({ appId })).assets,
   });
   const images = (assets.data ?? []).filter((a) => a.mediaType === "image/png");
+  const queryClient = useQueryClient();
+  const [uploading, setUploading] = useState(false);
+  const [failure, setFailure] = useState<unknown>(null);
+  // An icon uploaded here becomes an app asset (the same as from the Assets panel) and is chosen at once.
+  const upload = async (file: File) => {
+    setUploading(true);
+    setFailure(null);
+    const name = assetNameOf(file);
+    try {
+      const client = {
+        ...createClient(AssetService, session.transport),
+        ...createClient(PluginService, session.transport),
+      };
+      await uploadUnderAppLock(client, appId, name, file);
+      const list = (await createClient(AssetService, session.transport).listAssets({ appId })).assets;
+      queryClient.setQueryData(["shell-icon-assets", appId], list);
+      void queryClient.invalidateQueries({ queryKey: ["assets", appId] });
+      const made = list.find((a) => a.name === name);
+      if (made !== undefined) {
+        onChange(made.id);
+      }
+    } catch (error) {
+      setFailure(error);
+    } finally {
+      setUploading(false);
+    }
+  };
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="text-label font-medium text-foreground">{m.fieldIcon}</legend>
@@ -80,6 +110,23 @@ export function IconPicker({
         </p>
       )}
       {assets.isSuccess && images.length === 0 && <p className="text-body text-muted-foreground">{m.iconNoAssets}</p>}
+      <FileDrop
+        variant="button"
+        label={uploading ? m.iconUploading : m.iconUpload}
+        accept="image/png"
+        disabled={disabled || uploading}
+        onFiles={(files) => {
+          const file = files[0];
+          if (file !== undefined) {
+            void upload(file);
+          }
+        }}
+      />
+      {failure !== null && (
+        <p role="alert" className="text-body text-danger">
+          {withReason(m.iconUploadFailed, failure)}
+        </p>
+      )}
     </fieldset>
   );
 }

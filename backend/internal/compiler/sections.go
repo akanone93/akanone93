@@ -858,7 +858,8 @@ func (u *unit) assetsSection(o *out) {
 }
 
 // documentAssets lists the assets of the assets index a bundle carries: all
-// of them for the app bundle, the plugin's own for a plugin.
+// of them for the app bundle except the ones Studio keeps for itself
+// (schema.EditorOnlyAsset), the plugin's own for a plugin.
 func (u *unit) documentAssets(o *out) []indexedAsset {
 	idx := u.project.Assets
 	if idx == nil || idx.Doc == nil {
@@ -867,7 +868,7 @@ func (u *unit) documentAssets(o *out) []indexedAsset {
 	var entries []indexedAsset
 	for i := range idx.Doc.Assets {
 		a := &idx.Doc.Assets[i]
-		if o.pl != nil && !o.assets[a.ID] {
+		if (o.pl != nil && !o.assets[a.ID]) || (o.pl == nil && schema.EditorOnlyAsset(a.File)) {
 			continue
 		}
 		data := u.project.AssetFiles[a.File]

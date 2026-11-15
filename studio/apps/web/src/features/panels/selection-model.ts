@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { widget } from "@plux/schema";
 import type { LayerNode } from "@plux/ui";
 import type { Node } from "../plugin-canvas/plugin-model.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
@@ -91,9 +92,97 @@ function walk(node: Node, visit: (n: Node) => void): void {
   }
 }
 
+/** The prefix of a slot's row in the layer tree: `slot:<parent id>:<slot name>`. */
+const SLOT_ROW = "slot:";
+
+/** The row id of `parent`'s slot `slot`. */
+export function slotRowId(parent: string, slot: string): string {
+  return `${SLOT_ROW}${parent}:${slot}`;
+}
+
+/** The widget and slot a slot row stands for, or null for a widget's row. */
+export function slotOfRow(id: string): { readonly parent: string; readonly slot: string } | null {
+  if (!id.startsWith(SLOT_ROW)) {
+    return null;
+  }
+  const rest = id.slice(SLOT_ROW.length);
+  const at = rest.lastIndexOf(":");
+  return at <= 0 ? null : { parent: rest.slice(0, at), slot: rest.slice(at + 1) };
+}
+
+/** The words of slot rows: an empty slot, and a slot the widget does not have (a child put in the wrong place). */
+export interface SlotLabels {
+  readonly empty: string;
+  readonly unknown: string;
+}
+
+/**
+ * Puts a widget's named slots between it and their children: one row per slot the widget's descriptor declares (an
+ * empty one says so and takes a drop), and one for a slot the document fills that the widget does not have, marked,
+ * since the runtime ignores it. A Center in a Scaffold's appBar instead of its body read the same as a correct one.
+ */
+function withSlotRows(out: Record<string, LayerNode>, n: Node, labels: SlotLabels): void {
+  const row = out[n.id];
+  if (row === undefined || n.type === undefined) {
+    return;
+  }
+  const declared = widget(n.type)?.slots ?? [];
+  const filled = (n.slots ?? {}) as Readonly<Record<string, Node | readonly Node[] | undefined>>;
+  const names = [
+    ...declared.map((d) => d.name),
+    ...Object.keys(filled).filter((k) => !declared.some((d) => d.name === k)),
+  ];
+  if (names.length === 0) {
+    return;
+  }
+  const rows = names.map((name) => {
+    const v = filled[name];
+    const kids = v === undefined ? [] : Array.isArray(v) ? (v as readonly Node[]).map((k) => k.id) : [(v as Node).id];
+    const known = declared.some((d) => d.name === name);
+    const id = slotRowId(n.id, name);
+    out[id] = {
+      id,
+      name,
+      type: "",
+      icon: "square-dashed",
+      children: kids,
+      ...(kids.length === 0 ? { preview: labels.empty } : {}),
+      ...(known ? {} : { badge: labels.unknown }),
+    };
+    return id;
+  });
+  out[n.id] = { ...row, children: [...rows, ...(n.children ?? []).map((c) => c.id)] };
+}
+
+/** A widget's row with its name, what it shows, its hidden and locked marks and, with `slotLabels`, its slot rows. */
+function decorateRow(
+  out: Record<string, LayerNode>,
+  n: Node,
+  textOf: TextOf | undefined,
+  slotLabels: SlotLabels | undefined,
+): void {
+  const row = out[n.id];
+  if (row === undefined) {
+    return;
+  }
+  const preview = nodePreview(n, textOf);
+  const meta = metaOf(n);
+  out[n.id] = {
+    ...row,
+    ...(meta.name === undefined ? {} : { name: meta.name }),
+    ...(preview === undefined ? {} : { preview }),
+    ...(meta.hidden === true ? { hidden: true } : {}),
+    ...(meta.locked === true ? { locked: true } : {}),
+  };
+  if (slotLabels !== undefined) {
+    withSlotRows(out, n, slotLabels);
+  }
+}
+
 /**
  * The layer tree data: one synthetic root over the screen roots. A screen's root reads as its screen (its title, the
- * phone icon, the entry mark); every other row is its widget's type with the widget's icon and what it shows.
+ * phone icon, the entry mark); every other row is its widget's type with the widget's icon and what it shows. With
+ * `slotLabels`, a widget's named slots are rows of their own between it and their children.
  */
 export function treeNodes(
   screens: readonly PlacedScreen[],
@@ -102,6 +191,7 @@ export function treeNodes(
   entry?: { readonly page: string | undefined; readonly label: string },
   textOf?: TextOf,
   instanceName?: (id: string) => string | undefined,
+  slotLabels?: SlotLabels,
 ): Record<string, LayerNode> {
   const out: Record<string, LayerNode> = {
     plugin: {
@@ -120,21 +210,7 @@ export function treeNodes(
     if (s.root === undefined) {
       continue;
     }
-    walk(s.root, (n) => {
-      const row = out[n.id];
-      if (row === undefined) {
-        return;
-      }
-      const preview = nodePreview(n, textOf);
-      const meta = metaOf(n);
-      out[n.id] = {
-        ...row,
-        ...(meta.name === undefined ? {} : { name: meta.name }),
-        ...(preview === undefined ? {} : { preview }),
-        ...(meta.hidden === true ? { hidden: true } : {}),
-        ...(meta.locked === true ? { locked: true } : {}),
-      };
-    });
+    walk(s.root, (n) => decorateRow(out, n, textOf, slotLabels));
     const root = out[s.root.id];
     if (root !== undefined) {
       out[root.id] = {

@@ -32,6 +32,33 @@ export function assetsMessages(i18n: I18n) {
       message: "The assets could not be loaded.",
       comment: "Shown in the Assets tab when the list request failed.",
     }),
+    deleteFailed: (name: string) =>
+      i18n._({
+        id: "assets.deleteFailed",
+        message: "{name} was not deleted.",
+        values: { name },
+        comment: "Shown in the Assets tab when the server refused to delete an asset; the server's reason follows.",
+      }),
+    usedElsewhere: (name: string, places: string) =>
+      i18n._({
+        id: "assets.usedElsewhere",
+        message: "{name} is also used outside this plugin: {places}. Deleting it leaves those without an image.",
+        values: { name, places },
+        comment: "Delete confirmation of an asset used by the app icon, app.json or other plugins; places lists them.",
+      }),
+    appIcon: i18n._({
+      id: "assets.appIcon",
+      message: "the app icon",
+      comment: "One of the places an asset is used, in the delete confirmation's list.",
+    }),
+    generatedHidden: (n: number) =>
+      i18n._({
+        id: "assets.generatedHidden",
+        message:
+          "{n, plural, one {# image Studio makes itself (a screen thumbnail or preview) is not listed.} other {# images Studio makes itself (screen thumbnails and previews) are not listed.}}",
+        values: { n },
+        comment: "Note under the Assets grid: screenshots Studio stores on its own are kept out of the list.",
+      }),
     uploading: (name: string) =>
       i18n._({
         id: "assets.uploading",
