@@ -15,7 +15,7 @@ export function SettingsPage(): ReactElement {
   const id = useOrgId();
   const org = useRpc(OrgService);
   const can = useCan("organization.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const current = useAdminQuery(["organisation", id], () => org.getOrganization({ id }));
   const [name, setName] = useState("");
   const [done, setDone] = useState(false);
@@ -34,6 +34,7 @@ export function SettingsPage(): ReactElement {
       failed={current.isError}
       error={current.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <form
         className="flex items-end gap-3"

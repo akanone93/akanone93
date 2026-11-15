@@ -71,6 +71,7 @@ export function useDeviceFonts(appId: string | undefined): () => Promise<readonl
         }
         return new Uint8Array(await response.arrayBuffer());
       });
+      // refusal-ok: without the app's fonts the canvas draws in the default ones; nothing is lost or refused.
     } catch {
       return [];
     }

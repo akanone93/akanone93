@@ -15,7 +15,7 @@ export function SsoPage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const federation = useRpc(FederationService);
   const can = useCan("sso.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const [secret, setSecret] = useState<string>();
   const providers = useAdminQuery(["providers"], () => federation.listIdentityProviders({ page: { pageSize } }));
   const tokens = useAdminQuery(["scim-tokens"], () => federation.listScimTokens({ page: { pageSize } }));
@@ -36,6 +36,7 @@ export function SsoPage(): ReactElement {
       failed={providers.isError}
       error={providers.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <h2 className="text-label font-medium">{m.providers}</h2>
       <Table

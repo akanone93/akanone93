@@ -16,7 +16,7 @@ export function CompliancePage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const compliance = useRpc(ComplianceService);
   const can = useCan("compliance.report");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const reports = useAdminQuery(["compliance"], () => compliance.listComplianceReports({ page: { pageSize } }));
   const fetchReport = async (id: string) => {
     const { content, contentType } = await compliance.getComplianceReport({ id, format: "json" });
@@ -31,6 +31,7 @@ export function CompliancePage(): ReactElement {
       failed={reports.isError}
       error={reports.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <Table
         caption={m.complianceTitle}

@@ -291,6 +291,22 @@ describe("[STU-116] organisation administration", () => {
     await waitFor(() => expect(calls(state)).toEqual(['revokeSession:{"id":"s1"}']));
   });
 
+  test("a refused change says the server's code and reason, not only that it failed [SRV-006]", async () => {
+    const state: Upstream = {
+      admin: {
+        calls: [],
+        teams: [],
+        refused: { createTeam: [Code.PermissionDenied, "PLX-8030: teams.manage is required"] },
+      },
+    };
+    open("/teams", state);
+    await screen.findByRole("button", { name: "Create team" });
+    type("Key", "ops");
+    type("Name", "Operations");
+    fireEvent.click(screen.getByRole("button", { name: "Create team" }));
+    expect(await screen.findByText("PLX-8030: teams.manage is required")).toBeTruthy();
+  });
+
   test("a page the server refuses says why and how past it: step-up, licence, second factor [SEC-103] [GOV-005]", async () => {
     open("/sessions", {
       admin: {

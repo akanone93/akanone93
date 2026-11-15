@@ -41,13 +41,14 @@ export interface OpenPlugin {
 /**
  * Applies a change set (F3, §4.3 #15): pending edits are flushed first so every revision it tests is
  * current, the open plugin's lock session is used for its draft and every other draft's lock is taken
- * for the call and released after. Resolves false when the server refuses it, leaving nothing written.
+ * for the call and released after. Resolves the refusal when the server refuses it, leaving nothing written, so
+ * the caller can say why.
  */
 export function useChangeSets(appId: string, editorSessionId: string, open: OpenPlugin | undefined) {
   const { session } = useApp();
   const queryClient = useQueryClient();
   return useCallback(
-    async (changeSet: ChangeSet): Promise<boolean> => {
+    async (changeSet: ChangeSet): Promise<{ readonly ok: true } | { readonly ok: false; readonly error: unknown }> => {
       const plugins = createClient(PluginService, session.transport);
       const taken: { pluginId: string; session: string }[] = [];
       try {
@@ -73,9 +74,9 @@ export function useChangeSets(appId: string, editorSessionId: string, open: Open
           queryClient.invalidateQueries({ queryKey: ["plugin-documents", appId] }),
           queryClient.invalidateQueries({ queryKey: ["project-documents", appId] }),
         ]);
-        return true;
-      } catch {
-        return false;
+        return { ok: true };
+      } catch (error) {
+        return { ok: false, error };
       } finally {
         await Promise.all(
           taken.map((t) => plugins.releaseLock({ appId, pluginId: t.pluginId, session: t.session }).catch(() => null)),

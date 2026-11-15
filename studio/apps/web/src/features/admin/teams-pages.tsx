@@ -18,7 +18,7 @@ export function TeamsPage(): ReactElement {
   const org = (useParams({ strict: false }) as { org?: string }).org ?? "";
   const api = useRpc(OrgService);
   const can = useCan("teams.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const teams = useAdminQuery(["teams", organizationId], () => api.listTeams({ organizationId, page: { pageSize } }));
   return (
     <Frame
@@ -29,6 +29,7 @@ export function TeamsPage(): ReactElement {
       failed={teams.isError}
       error={teams.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <Table
         caption={m.teamsTitle}

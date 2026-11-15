@@ -29,8 +29,9 @@ var validator *compiler.Validator
 
 // pluxValidatePage(files, file, data) loads the project in files when files
 // is a non-empty array of {path, data, encoding?} (encoding "base64" marks a
-// binary file), then validates data as the page at
-// file and returns the diagnostics as JSON. An empty file only loads the
+// binary file), then validates data as the document at file, by the kind its
+// path holds (a page against the project, any other document against its
+// schema), and returns the diagnostics as JSON. An empty file only loads the
 // project and returns the project's own diagnostics.
 func pluxValidatePage(_ js.Value, args []js.Value) any {
 	if len(args) != 3 {
@@ -65,7 +66,7 @@ func pluxValidatePage(_ js.Value, args []js.Value) any {
 		// app's own documents, such as its translations.
 		return marshal(append(loadDiags, validator.ValidateProject()...))
 	}
-	return marshal(validator.ValidatePage(file, []byte(args[2].String())))
+	return marshal(validator.ValidateDocument(file, []byte(args[2].String())))
 }
 
 // language answers the PXL language-service requests of this instance.

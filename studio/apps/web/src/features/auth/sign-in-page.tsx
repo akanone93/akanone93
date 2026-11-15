@@ -137,6 +137,7 @@ export function SignInPage() {
           onCode={async (code) => {
             try {
               finish((await identity.completeMfa({ challengeId: challenge.id, code })).session?.csrfToken ?? "");
+              // refusal-ok: a failed sign-in step reads the same whatever the cause, so it tells an attacker nothing.
             } catch {
               setFailure(m.codeRejected);
             }
@@ -146,6 +147,7 @@ export function SignInPage() {
               const options = await identity.beginWebAuthnLogin({ challengeId: challenge.id });
               const assertion = await getAssertion(options.optionsJson, challenge.id);
               finish((await identity.completeWebAuthnLogin(assertion)).session?.csrfToken ?? "");
+              // refusal-ok: a failed sign-in step reads the same whatever the cause, so it tells an attacker nothing.
             } catch {
               setFailure(m.passkeyFailed);
             }

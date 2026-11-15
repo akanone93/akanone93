@@ -40,7 +40,7 @@ export function LimitsPage(): ReactElement {
   const organizationId = useOrgId();
   const org = useRpc(OrgService);
   const can = useCan("limits.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const limits = useAdminQuery(["limits", organizationId], () => org.listOrganizationLimits({ organizationId }));
   return (
     <Frame
@@ -51,6 +51,7 @@ export function LimitsPage(): ReactElement {
       failed={limits.isError}
       error={limits.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <Table
         caption={m.limitsTitle}

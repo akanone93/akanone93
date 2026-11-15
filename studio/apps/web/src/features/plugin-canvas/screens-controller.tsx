@@ -7,6 +7,7 @@ import { AlertDialog, Button, Dialog, Field, Input, Select } from "@plux/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { useEditSession, useLock } from "../editor/editor-provider.tsx";
@@ -227,9 +228,9 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
 
   const applyAndClose = useCallback(
     async (changeSet: ChangeSet) => {
-      const ok = await applyChanges(changeSet);
-      setMessage(ok ? null : m.changeRefused);
-      if (ok) {
+      const result = await applyChanges(changeSet);
+      setMessage(result.ok ? null : withReason(m.changeRefused, result.error));
+      if (result.ok) {
         setDialogue(null);
       }
     },

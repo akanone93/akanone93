@@ -75,6 +75,53 @@ func (v *Validator) ValidatePage(file string, data []byte) (diags plxerr.Diagnos
 	return diags
 }
 
+// ValidateDocument validates the content of any project file as the user types, by the kind its path holds (SCH-006,
+// STU-064): a page against the rest of the project, as ValidatePage does; any other document (the app document, a
+// plugin's manifest or canvas, the theme, translations, an action graph, a component) against its own schema and the
+// rule that a keyed file is named after its key. Checking every file as a page told a valid plugin.json or canvas.json
+// that it was in the wrong place (PLX-1020). A path the layout does not know is reported as such. It never panics
+// (CMP-052).
+func (v *Validator) ValidateDocument(file string, data []byte) (diags plxerr.Diagnostics) {
+	defer func() {
+		if r := recover(); r != nil {
+			diags = append(diags, plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{File: file}, "the validator failed unexpectedly: %v", r))
+		}
+	}()
+	place, ok := schema.PlaceOf(file)
+	if !ok {
+		return plxerr.Diagnostics{plxerr.NewDiagnostic(plxerr.InvalidProjectLayout, plxerr.Location{File: file}, "%s is not a document path of the project layout", file)}
+	}
+	if place.Kind == schema.KindPage {
+		return v.ValidatePage(file, data)
+	}
+	src, diags := v.loader.ParseDocument(file, data, place.Kind)
+	if src == nil || diags.HasErrors() {
+		diags.Sort()
+		return diags
+	}
+	if place.Key != "" {
+		name, _ := src.Tree["key"].(string)
+		switch place.Kind {
+		case schema.KindTranslations:
+			name, _ = src.Tree["locale"].(string)
+		case schema.KindFunction:
+			name, _ = src.Tree["name"].(string)
+		}
+		if name != place.Key {
+			diags = append(diags, plxerr.NewDiagnostic(plxerr.InvalidProjectLayout, plxerr.Location{File: file, Path: "/key"},
+				"%s must be named after its key %q", file, name))
+		}
+	}
+	if place.Kind == schema.KindPlugin && place.Plugin != "" {
+		if key, _ := src.Tree["key"].(string); key != place.Plugin {
+			diags = append(diags, plxerr.NewDiagnostic(plxerr.InvalidProjectLayout, plxerr.Location{File: file, Path: "/key"},
+				"plugin.json has key %q, but its directory is plugins/%s", key, place.Plugin))
+		}
+	}
+	diags.Sort()
+	return diags
+}
+
 // ValidateProject checks the whole loaded project as Compile does and returns
 // the diagnostics of the files that are not pages: the app's own documents
 // (app.json, the theme, the translations and their keys), the plugins'

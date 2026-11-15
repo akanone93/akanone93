@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { GovernanceService } from "@plux/api";
 import { Button } from "@plux/ui";
 import type { ReactElement } from "react";
+import { reasonOf } from "../../components/refusal.tsx";
 import { adminMessages } from "./admin.messages.ts";
 import { CreateForm, fmt, Table } from "./parts.tsx";
 import { pageSize, useAdminQuery, useCan, useRpc, useRun } from "./use-admin.ts";
@@ -20,7 +21,7 @@ export function GrantsSection({
   const m = adminMessages(useLingui().i18n);
   const governance = useRpc(GovernanceService);
   const can = useCan("roles.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const key = userId ?? teamId ?? "";
   const grants = useAdminQuery(["grants", key], () =>
     governance.listGrants({ userId: userId ?? "", teamId: teamId ?? "", page: { pageSize } }),
@@ -78,6 +79,7 @@ export function GrantsSection({
       {failed && (
         <p role="alert" className="text-body text-danger">
           {m.saveFailed}
+          {reasonOf(saveError) !== "" && <span className="block text-caption">{reasonOf(saveError)}</span>}
         </p>
       )}
     </section>

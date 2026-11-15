@@ -18,6 +18,7 @@ export function Frame({
   failed = false,
   error,
   saveFailed = false,
+  saveError,
   children,
 }: {
   readonly id: string;
@@ -27,6 +28,8 @@ export function Frame({
   readonly failed?: boolean;
   readonly error?: unknown;
   readonly saveFailed?: boolean;
+  /** The refused change, whose code and reason are shown under the failure. */
+  readonly saveError?: unknown;
   readonly children: ReactNode;
 }): ReactElement {
   const m = adminMessages(useLingui().i18n);
@@ -39,6 +42,7 @@ export function Frame({
       failed={failed}
       error={error}
       saveFailed={saveFailed}
+      saveError={saveError}
       labels={m}
     >
       {children}

@@ -10,6 +10,7 @@ import {
   withStudioHeaders,
 } from "@plux/api";
 import { QueryClient } from "@tanstack/react-query";
+import { type StepUpBroker, withStepUp } from "./step-up-transport.ts";
 
 /**
  * The browser session: the transport, the query cache, and the CSRF token and active organisation
@@ -30,6 +31,11 @@ export interface Session {
   readonly home: () => string | undefined;
   /** Sets the home organisation, after a reload on a page outside any. */
   readonly setHome: (id: string | undefined) => void;
+  /**
+   * Registers who asks the person for a step-up when a call is refused for want of one (SEC-103): the app root's
+   * dialog. Every call then confirms and is sent again instead of failing; undefined unregisters.
+   */
+  readonly setStepUp: (broker: StepUpBroker | undefined) => void;
 }
 
 /**
@@ -48,13 +54,15 @@ export function createSession(baseUrl: string, transport?: Transport): Session {
   let csrf: string | undefined;
   let organization: string | undefined;
   let home: string | undefined;
+  let stepUp: StepUpBroker | undefined;
   const headers = {
     csrfToken: () => csrf,
     organization: (service: string) => organization ?? (personal.has(service) ? home : undefined),
   };
+  const base =
+    transport === undefined ? createStudioTransport({ baseUrl, ...headers }) : withStudioHeaders(transport, headers);
   return {
-    transport:
-      transport === undefined ? createStudioTransport({ baseUrl, ...headers }) : withStudioHeaders(transport, headers),
+    transport: withStepUp(base, () => stepUp),
     queryClient: new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } }),
     setCsrfToken: (token) => {
       csrf = token;
@@ -69,6 +77,9 @@ export function createSession(baseUrl: string, transport?: Transport): Session {
     home: () => home,
     setHome: (id) => {
       home = id;
+    },
+    setStepUp: (broker) => {
+      stepUp = broker;
     },
   };
 }

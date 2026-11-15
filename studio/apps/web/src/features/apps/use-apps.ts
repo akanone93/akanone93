@@ -124,6 +124,7 @@ export function usePinnedApps(): {
         });
         await refetch();
         return true;
+        // refusal-ok: a favourite is the person's own preference; the caller says it was not saved and they try again.
       } catch {
         return false;
       }

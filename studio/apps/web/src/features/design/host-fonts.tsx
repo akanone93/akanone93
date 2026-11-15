@@ -7,6 +7,7 @@ import { AppService, AssetService } from "@plux/api";
 import { Button, Field, Input, Select } from "@plux/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useMemo, useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { usePermissions } from "../security/use-security.ts";
 import { designMessages } from "./design.messages.ts";
@@ -34,7 +35,7 @@ export function HostFonts(): ReactElement {
   });
   const [family, setFamily] = useState("");
   const [asset, setAsset] = useState("");
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<unknown>(null);
   const fonts = stored.data?.hostFonts ?? [];
   const files = (listed.data ?? []).filter((a) => FONT_TYPES.has(a.mediaType));
   const nameOf = (id: string): string => files.find((a) => a.id === id)?.name ?? id;
@@ -51,10 +52,10 @@ export function HostFonts(): ReactElement {
         setHostFonts: true,
         hostFonts: [...next],
       });
-      setFailed(false);
+      setFailed(null);
       await queryClient.invalidateQueries({ queryKey: ["app", app] });
-    } catch {
-      setFailed(true);
+    } catch (error) {
+      setFailed(error);
     }
   };
   return (
@@ -111,9 +112,9 @@ export function HostFonts(): ReactElement {
           </Button>
         </form>
       )}
-      {failed && (
+      {failed !== null && (
         <p role="alert" className="text-body text-danger">
-          {m.hostFontsSaveFailed}
+          {withReason(m.hostFontsSaveFailed, failed)}
         </p>
       )}
     </section>

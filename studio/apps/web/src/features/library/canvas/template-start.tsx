@@ -65,6 +65,7 @@ export async function instantiateScreen(
       key: input.key,
     });
     return res.diagnostics.some((d) => d.severity >= SEVERITY_ERROR) ? { ok: false, reason: "unknown" } : { ok: true };
+    // refusal-ok: a step-up is asked for by the session first; the caller reports the screen was not created.
   } catch {
     return { ok: false, reason: "unknown" };
   }

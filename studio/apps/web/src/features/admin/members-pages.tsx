@@ -21,7 +21,7 @@ export function MembersPage(): ReactElement {
   const orgApi = useRpc(OrgService);
   const governance = useRpc(GovernanceService);
   const can = useCan("members.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const [invitation, setInvitation] = useState<string>();
   const [removing, setRemoving] = useState<string>();
   const members = useAdminQuery(["members", organizationId], () =>
@@ -38,6 +38,7 @@ export function MembersPage(): ReactElement {
       failed={members.isError}
       error={members.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <Table
         caption={m.membersTitle}
@@ -107,7 +108,7 @@ export function MemberPage(): ReactElement {
   const orgApi = useRpc(OrgService);
   const identity = useRpc(IdentityService);
   const can = useCan("sessions.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const members = useAdminQuery(["members", organizationId], () =>
     orgApi.listMembers({ organizationId, page: { pageSize } }),
   );
@@ -123,6 +124,7 @@ export function MemberPage(): ReactElement {
       failed={members.isError}
       error={members.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <Link
         to="/o/$org/admin/access"

@@ -14,7 +14,7 @@ import { useAdminQuery, useRpc, useRun } from "./use-admin.ts";
 export function LicensePage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const license = useRpc(LicenseService);
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const user = useCurrentUser();
   const state = useAdminQuery(["license"], () => license.getLicenseState({}));
   const [file, setFile] = useState<File>();
@@ -38,6 +38,7 @@ export function LicensePage(): ReactElement {
       failed={state.isError}
       error={state.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <dl className="flex flex-col gap-1 text-body">
         {rows.map(([k, v]) => (

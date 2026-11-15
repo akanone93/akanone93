@@ -31,6 +31,16 @@ export function reasonOf(error: unknown): string {
   return error instanceof ConnectError && /^PLX-\d{4}/.test(error.rawMessage) ? error.rawMessage : "";
 }
 
+/**
+ * A failure message with the server's reason after it, when the server gave one: "The change was not saved. PLX-8030
+ * teams.manage is required". Every toast and inline failure of a refused call uses it, so no refusal is shown without
+ * its reason (SRV-006).
+ */
+export function withReason(message: string, error: unknown): string {
+  const reason = reasonOf(error);
+  return reason === "" ? message : `${message} ${reason}`;
+}
+
 /** The stable Plux code at the start of a refusal's message (SRV-006), or empty. */
 export function plxCode(error: unknown): string {
   return error instanceof ConnectError ? (/PLX-\d{4}/.exec(error.rawMessage)?.[0] ?? "") : "";
@@ -97,6 +107,7 @@ export function Refusal({
       }
       await identity.completeStepUp({ requestId, ...assertionFields(credential) });
       await again();
+      // refusal-ok: a cancelled or failed authenticator is said by stepUpFailed; the page's own refusal stays shown.
     } catch {
       setStepUpFailed(true);
     } finally {

@@ -34,6 +34,7 @@ import { ProfileLayout } from "./profile-layout.tsx";
 import { SecurityKeysCard } from "./security-keys.tsx";
 import { useAppliedPreferences } from "./use-applied-preferences.ts";
 import "./profile.css";
+import { withReason } from "../../components/refusal.tsx";
 
 type Messages = ReturnType<typeof profileMessages>;
 
@@ -97,6 +98,7 @@ export function ProfilePage() {
   const prefs = useQuery(PreferencesService.method.getPreferences, {});
   const update = useMutation(PreferencesService.method.updatePreferences);
   const [status, setStatus] = useState<"idle" | "saved" | "failed">("idle");
+  const [refusal, setRefusal] = useState<unknown>(null);
   const themeId = useId();
   const densityId = useId();
   useAppliedPreferences(prefs.data?.preferences);
@@ -113,7 +115,8 @@ export function ProfilePage() {
         await studio.activate(value);
       }
       setStatus("saved");
-    } catch {
+    } catch (error) {
+      setRefusal(error);
       setStatus("failed");
     }
   };
@@ -136,7 +139,7 @@ export function ProfilePage() {
           )}
           {status === "failed" && (
             <p role="alert" className="text-sm text-destructive">
-              {m.saveFailed}
+              {withReason(m.saveFailed, refusal)}
             </p>
           )}
         </>

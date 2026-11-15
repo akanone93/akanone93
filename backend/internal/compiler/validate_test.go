@@ -199,3 +199,44 @@ func TestValidateProjectReportsAppFindings(t *testing.T) {
 		t.Errorf("unused %v, missing %v:\n%s", unusedKey, missing, list(diags))
 	}
 }
+
+// Verifies: STU-064, SCH-006.
+// Every document is checked by the kind its path holds: a valid plugin manifest, canvas or app document is not
+// reported as a misplaced page, and a broken one is reported against its own schema.
+func TestValidateDocumentByKind(t *testing.T) {
+	t.Parallel()
+	m := fixture(t)
+	v := newValidator(t, m)
+	for _, file := range []string{"app.json", "plugins/loans/plugin.json", "theme.json"} {
+		if got := v.ValidateDocument(file, m[file].Data); got.HasErrors() {
+			t.Errorf("%s as it is: %v", file, got)
+		}
+	}
+	canvas := "plugins/loans/canvas.json"
+	if got := v.ValidateDocument(canvas, []byte(`{"schemaVersion":"1.0.0","kind":"canvas","id":"01a0c450-6c00-7fff-8000-000000000020","positions":[]}`)); got.HasErrors() {
+		t.Errorf("a valid canvas document: %v", got)
+	}
+	if got := v.ValidateDocument("plugins/loans/plugin.json", []byte(`{"kind":"plugin"}`)); !got.HasErrors() || got[0].Code == plxerr.InvalidProjectLayout {
+		t.Errorf("a broken manifest is reported against its schema: %v", got)
+	}
+	renamed := strings.Replace(string(m["plugins/loans/plugin.json"].Data), `"key": "loans"`, `"key": "cards"`, 1)
+	renamed = strings.Replace(renamed, `"key":"loans"`, `"key":"cards"`, 1)
+	if got := v.ValidateDocument("plugins/loans/plugin.json", []byte(renamed)); !diagsHave(got, plxerr.InvalidProjectLayout) {
+		t.Errorf("a manifest whose key is not its directory: %v", got)
+	}
+	if got := v.ValidateDocument("notes.txt", []byte(`{}`)); !diagsHave(got, plxerr.InvalidProjectLayout) {
+		t.Errorf("a path outside the layout: %v", got)
+	}
+	if got := v.ValidateDocument(calculatorPage, m[calculatorPage].Data); got.HasErrors() {
+		t.Errorf("a page still validates as a page: %v", got)
+	}
+}
+
+func diagsHave(diags plxerr.Diagnostics, code plxerr.Code) bool {
+	for _, d := range diags {
+		if d.Code == code {
+			return true
+		}
+	}
+	return false
+}

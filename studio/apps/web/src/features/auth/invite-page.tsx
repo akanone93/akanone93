@@ -8,6 +8,7 @@ import { Button, Field, Input } from "@plux/ui";
 import { useForm } from "@tanstack/react-form";
 import { useParams, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { PublicColumn } from "../shell/layouts.tsx";
 import { authMessages } from "./auth.messages.ts";
@@ -25,17 +26,17 @@ export function InvitePage() {
   const { session } = useApp();
   const router = useRouter();
   const { token } = useParams({ strict: false }) as { token: string };
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<unknown>(null);
   const form = useForm({
     defaultValues: { displayName: "", password: "" },
     validators: { onChange: inviteSchema(m) },
     onSubmit: async ({ value }) => {
-      setFailed(false);
+      setFailed(null);
       try {
         await createClient(IdentityService, session.transport).acceptInvitation({ invitation: token, ...value });
         router.history.push("/signin");
-      } catch {
-        setFailed(true);
+      } catch (error) {
+        setFailed(error);
       }
     },
   });
@@ -77,9 +78,9 @@ export function InvitePage() {
               </Field>
             )}
           </form.Field>
-          {failed && (
+          {failed !== null && (
             <p role="alert" className="text-body text-danger">
-              {m.inviteFailed}
+              {withReason(m.inviteFailed, failed)}
             </p>
           )}
           <Button type="submit" variant="primary">

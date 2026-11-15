@@ -52,6 +52,7 @@ export function useOnboarding(enabled = true): Onboarding {
         });
         await prefs.refetch();
         return true;
+        // refusal-ok: dismissing the checklist is the person's own preference; it stays shown and they try again.
       } catch {
         return false;
       }

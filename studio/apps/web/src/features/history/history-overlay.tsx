@@ -9,6 +9,7 @@ import { AlertDialog, Button, Dialog, Icon, Select, TypeTag } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { SheetEmpty, SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
+import { withReason } from "../../components/refusal.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { toServerDocument } from "../editor/document-transport.ts";
 import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
@@ -56,6 +57,8 @@ interface Listing {
   readonly state: "loading" | "failed" | "ready";
   readonly rows: readonly Snapshot[];
   readonly next: string;
+  /** Why the listing failed, shown with the failure. */
+  readonly error?: unknown;
 }
 
 /** The plugin's snapshots, newest first as the server returns them; more pages on request. */
@@ -66,8 +69,8 @@ function useSnapshots(open: boolean, documents: Documents, appId: string, plugin
       try {
         const res = await documents.listSnapshots({ appId, pluginId, page: { pageSize: PAGE, pageToken: token } });
         setListing({ state: "ready", rows: [...keep, ...res.snapshots], next: res.page?.nextPageToken ?? "" });
-      } catch {
-        setListing({ state: "failed", rows: keep, next: "" });
+      } catch (error) {
+        setListing({ state: "failed", rows: keep, next: "", error });
       }
     },
     [documents, appId, pluginId],
@@ -188,8 +191,8 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
       }
       const total = applied.length + brought;
       setNote(total === 0 ? m.restoredNothing : m.restored(total));
-    } catch {
-      setNote(m.restoreFailed);
+    } catch (error) {
+      setNote(withReason(m.restoreFailed, error));
     }
   };
 
@@ -227,7 +230,7 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
               {listing.state === "loading" && <p className="px-2 text-xs text-muted-foreground">{m.loading}</p>}
               {listing.state === "failed" && (
                 <p role="alert" className="px-2 text-xs">
-                  {m.failed}
+                  {withReason(m.failed, listing.error)}
                 </p>
               )}
               {listing.state === "ready" && listing.rows.length === 0 && (

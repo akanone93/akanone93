@@ -34,22 +34,25 @@ export function useAdminQuery<T>(key: readonly unknown[], read: () => Promise<T>
   return useQuery({ queryKey: ["admin", ...key], queryFn: read, enabled });
 }
 
-/** Runs one change and refreshes the area's reads; `failed` tells the page to show the error. */
+/**
+ * Runs one change and refreshes the area's reads; `failed` tells the page to show the error and `error` is the
+ * refusal itself, whose code and reason the page shows (a step-up is asked for by the session before it gets here).
+ */
 export function useRun() {
   const { session } = useApp();
-  const [failed, setFailed] = useState(false);
+  const [error, setError] = useState<unknown>(null);
   const run = async (change: () => Promise<unknown>): Promise<boolean> => {
     try {
       await change();
-      setFailed(false);
+      setError(null);
       await session.queryClient.invalidateQueries({ queryKey: ["admin"] });
       return true;
-    } catch {
-      setFailed(true);
+    } catch (e) {
+      setError(e);
       return false;
     }
   };
-  return { run, failed };
+  return { run, failed: error !== null, error };
 }
 
 /** A comma-separated field as a list without blanks. */

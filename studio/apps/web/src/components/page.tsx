@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { Icon, type IconName } from "@plux/ui";
-import { Alert, AlertTitle } from "@plux/ui/components/alert";
+import { Alert, AlertDescription, AlertTitle } from "@plux/ui/components/alert";
 import { Spinner } from "@plux/ui/components/spinner";
 import { Table, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@plux/ui/components/table";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
 import { usePageArea } from "../features/shell/page-area.ts";
 import { AnimatedRows } from "./animated-list.tsx";
-import { Refusal } from "./refusal.tsx";
+import { Refusal, reasonOf } from "./refusal.tsx";
 import "./page.css";
 
 /**
@@ -91,6 +91,7 @@ export function PageStatus({
   failed,
   error,
   saveFailed = false,
+  saveError,
   labels,
 }: {
   readonly loading: boolean;
@@ -98,6 +99,8 @@ export function PageStatus({
   /** The failed read's error, when there is one. */
   readonly error?: unknown;
   readonly saveFailed?: boolean;
+  /** The refused change: its Plux code and the server's reason are shown with the failure (SRV-006). */
+  readonly saveError?: unknown;
   readonly labels: { readonly loading: string; readonly loadFailed: string; readonly saveFailed?: string };
 }): ReactElement {
   return (
@@ -113,6 +116,7 @@ export function PageStatus({
         <Alert variant="destructive" role="alert">
           <Icon name="warning-circle" />
           <AlertTitle>{labels.saveFailed}</AlertTitle>
+          {reasonOf(saveError) !== "" && <AlertDescription>{reasonOf(saveError)}</AlertDescription>}
         </Alert>
       )}
     </>
@@ -135,6 +139,7 @@ export function PageFrame({
   failed = false,
   error,
   saveFailed = false,
+  saveError,
   labels,
   children,
 }: {
@@ -151,6 +156,7 @@ export function PageFrame({
   /** The failed read's error, so the page can say why it was refused. */
   readonly error?: unknown;
   readonly saveFailed?: boolean;
+  readonly saveError?: unknown;
   readonly labels: { readonly loading: string; readonly loadFailed: string; readonly saveFailed?: string };
   readonly children: ReactNode;
 }): ReactElement {
@@ -166,7 +172,14 @@ export function PageFrame({
         {...(nav === undefined ? {} : { nav })}
       />
       <div className="page-body">
-        <PageStatus loading={loading} failed={failed} error={error} saveFailed={saveFailed} labels={labels} />
+        <PageStatus
+          loading={loading}
+          failed={failed}
+          error={error}
+          saveFailed={saveFailed}
+          saveError={saveError}
+          labels={labels}
+        />
         {!loading && !failed && children}
       </div>
     </section>

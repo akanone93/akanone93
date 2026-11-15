@@ -14,7 +14,7 @@ export function RestrictionsPage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const governance = useRpc(GovernanceService);
   const can = useCan("restrictions.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const list = useAdminQuery(["restrictions"], () => governance.listRestrictions({ page: { pageSize } }));
   return (
     <Frame
@@ -25,6 +25,7 @@ export function RestrictionsPage(): ReactElement {
       failed={list.isError}
       error={list.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <p className="text-body text-muted-foreground">{m.lockoutNote}</p>
       <Table

@@ -13,7 +13,7 @@ export function RetentionPage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const analytics = useRpc(AnalyticsService);
   const can = useCan("retention.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const retention = useAdminQuery(["retention"], () => analytics.getRetention({}));
   const settings = retention.data?.settings ?? [];
   return (
@@ -25,6 +25,7 @@ export function RetentionPage(): ReactElement {
       failed={retention.isError}
       error={retention.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <Table
         caption={m.retentionTitle}

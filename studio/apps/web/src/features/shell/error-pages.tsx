@@ -7,6 +7,7 @@ import { GovernanceService } from "@plux/api";
 import { Button } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
@@ -35,17 +36,17 @@ export function ForbiddenPage({ permission }: { permission: string }) {
   const { session } = useApp();
   const org = (useParams({ strict: false }) as { org?: string }).org;
   const [verdict, setVerdict] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<unknown>(null);
   const explain = async () => {
-    setFailed(false);
+    setFailed(null);
     try {
       const reply = await createClient(GovernanceService, session.transport).explainAccess({
         organizationId: org === undefined ? "" : organizationIdOf(org),
         permission,
       });
       setVerdict(reply.decision);
-    } catch {
-      setFailed(true);
+    } catch (error) {
+      setFailed(error);
     }
   };
   return (
@@ -57,9 +58,9 @@ export function ForbiddenPage({ permission }: { permission: string }) {
         </Button>
       </div>
       {verdict !== null && <p role="status">{m.decision(verdict)}</p>}
-      {failed && (
+      {failed !== null && (
         <p role="alert" className="text-danger">
-          {m.explainFailed}
+          {withReason(m.explainFailed, failed)}
         </p>
       )}
     </Message>

@@ -15,7 +15,7 @@ export function SessionsPage(): ReactElement {
   const organizationId = useOrgId();
   const identity = useRpc(IdentityService);
   const can = useCan("sessions.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const sessions = useAdminQuery(["sessions", organizationId], () =>
     identity.listSessions({ organizationId, page: { pageSize } }),
   );
@@ -28,6 +28,7 @@ export function SessionsPage(): ReactElement {
       failed={sessions.isError}
       error={sessions.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       <Table
         caption={m.sessionsTitle}

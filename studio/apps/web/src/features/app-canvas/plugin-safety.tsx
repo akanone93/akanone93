@@ -7,6 +7,7 @@ import { type Plugin, PluginService } from "@plux/api";
 import { AlertDialog } from "@plux/ui";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactNode, useMemo, useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { tabEditorSession } from "../editor/document-transport.ts";
 import { useAppDocuments } from "../plugin-canvas/use-plugin-documents.ts";
@@ -71,7 +72,9 @@ export function PluginSafety(props: PluginSafetyProps): ReactNode {
     void call().then(onDone, () => onFailed(m.failed));
   };
   const apply = (changeSet: ChangeSet) => {
-    void applyChanges(changeSet).then((ok) => (ok ? onDone() : onFailed(m.changeRefused)));
+    void applyChanges(changeSet).then((result) =>
+      result.ok ? onDone() : onFailed(withReason(m.changeRefused, result.error)),
+    );
   };
   const confirm = () =>
     run(() =>

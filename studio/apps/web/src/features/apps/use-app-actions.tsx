@@ -9,6 +9,7 @@ import { notify } from "@plux/ui";
 import { useNavigate } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { CreateDialog } from "../../components/dialogs/index.ts";
+import { withReason } from "../../components/refusal.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { download } from "../admin/download.ts";
 import type { AppActionHandlers } from "./app-actions.tsx";
@@ -30,7 +31,7 @@ export function useAppActions(org: string): {
   const refresh = useRefreshApps();
   const { pinned, toggle } = usePinnedApps();
   const [duplicating, setDuplicating] = useState<App | undefined>(undefined);
-  const fail = () => notify("error", m.actionFailed);
+  const fail = (error: unknown) => notify("error", withReason(m.actionFailed, error));
   const handlers: AppActionHandlers = {
     onPin: (id) => {
       void toggle(id).then((ok) => !ok && notify("error", m.pinFailed));

@@ -17,7 +17,7 @@ export function TokensPage(): ReactElement {
   const organizationId = useOrgId();
   const identity = useRpc(IdentityService);
   const can = useCan("tokens.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const [secret, setSecret] = useState<string>();
   const tokens = useAdminQuery(["tokens", organizationId], () =>
     identity.listAccessTokens({ organizationId, page: { pageSize } }),
@@ -34,6 +34,7 @@ export function TokensPage(): ReactElement {
       failed={tokens.isError || workloads.isError}
       error={tokens.error ?? workloads.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       {secret !== undefined && (
         <SecretPanel

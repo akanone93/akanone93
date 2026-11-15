@@ -231,7 +231,8 @@ describe("[STU-100] publish flow", () => {
       summaries: [{ id: "p1", key: "home", name: "Home", unpublishedChanges: true }],
       security: { stepUps },
     });
-    fireEvent.click(await screen.findByRole("button", { name: "Confirm with passkey" }));
+    // The refused change opens the step-up dialog by itself (the session's step-up host) and is sent again after it.
+    fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
     await step("Select plugins");
     expect(credential.get).toHaveBeenCalledTimes(1);
     expect(stepUps).toEqual(["begin", "complete:su-1"]);

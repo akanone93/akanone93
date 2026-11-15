@@ -8,6 +8,7 @@ import { AlertDialog, Button, FileDrop, Icon, type IconName, Meter } from "@plux
 import { Button as IconButton } from "@plux/ui/components/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
 import { objectUrl } from "../../lib/object-url.ts";
 import { type AssetUse, assetBudget, assetFileLimit } from "../plugin-canvas/asset-uses.ts";
 import { AssetDetails } from "./asset-details.tsx";
@@ -180,7 +181,7 @@ export function AssetsTab({
 }): ReactElement {
   const m = assetsMessages(useLingui().i18n);
   const [assets, setAssets] = useState<readonly Asset[] | null>(null);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadFailed, setLoadFailed] = useState<unknown>(null);
   const [pending, setPending] = useState<readonly Pending[]>([]);
   const [toDelete, setToDelete] = useState<Asset | null>(null);
   const [open, setOpen] = useState<Asset | null>(null);
@@ -192,10 +193,10 @@ export function AssetsTab({
   const refresh = useCallback(async () => {
     try {
       setAssets((await client.listAssets({ appId })).assets);
-      setLoadFailed(false);
+      setLoadFailed(null);
       onChanged?.();
-    } catch {
-      setLoadFailed(true);
+    } catch (error) {
+      setLoadFailed(error);
     }
   }, [client, appId, onChanged]);
   useEffect(() => {
@@ -382,8 +383,8 @@ export function AssetsTab({
           </div>
         </>
       )}
-      {loadFailed && <p role="alert">{m.loadFailed}</p>}
-      {assets === null && !loadFailed && <p className="dock-note">{m.loading}</p>}
+      {loadFailed !== null && <p role="alert">{withReason(m.loadFailed, loadFailed)}</p>}
+      {assets === null && loadFailed === null && <p className="dock-note">{m.loading}</p>}
       {assets?.length === 0 && pending.length === 0 && <p className="dock-note">{m.empty}</p>}
       {assets !== null && assets.length > 0 && shown.length === 0 && <p className="dock-note">{m.noMatch}</p>}
       {shown.length > 0 && (

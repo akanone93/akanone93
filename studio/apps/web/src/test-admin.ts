@@ -96,6 +96,7 @@ export function orgAdmin(a: AdminData): Partial<ServiceImpl<typeof OrgService>> 
     },
     listTeams: () => ({ teams: a.teams ?? [] }),
     createTeam: (req) => {
+      refuse(a, "createTeam");
       rec("createTeam", { key: req.key, name: req.name });
       return { team: { key: req.key, name: req.name } };
     },

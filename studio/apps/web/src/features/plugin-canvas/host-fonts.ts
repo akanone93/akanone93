@@ -55,6 +55,7 @@ export function useHostFonts(appId: string | undefined): () => Promise<readonly 
         return [];
       }
       return hostFontSources(app, (await assets.listAssets({ appId: id })).assets);
+      // refusal-ok: without the host fonts the canvas draws in the default ones; nothing is lost or refused.
     } catch {
       return [];
     }

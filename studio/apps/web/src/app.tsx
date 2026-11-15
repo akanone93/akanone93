@@ -7,6 +7,7 @@ import { StyleNonce, Toaster } from "@plux/ui";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { useState } from "react";
+import { StepUpHost } from "./components/dialogs/step-up-host.tsx";
 import { notifyMessages } from "./features/shell/notify.messages.ts";
 import { useStudioI18n } from "./i18n-provider.tsx";
 import { createSession, type Session } from "./lib/session.ts";
@@ -31,6 +32,8 @@ export function App({
         <TransportProvider transport={session.transport}>
           <QueryClientProvider client={session.queryClient}>
             <RouterProvider router={router} />
+            {/* Asks for the security key whenever any call needs a step-up, then sends it again (SEC-103). */}
+            <StepUpHost session={session} />
           </QueryClientProvider>
         </TransportProvider>
       </AppContextProvider>

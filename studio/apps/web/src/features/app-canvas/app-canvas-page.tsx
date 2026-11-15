@@ -76,6 +76,7 @@ import { type CanvasTool, type GuideLine, useCanvasGestures } from "./use-canvas
 import { useCanvasKeys } from "./use-canvas-keys.ts";
 import { useZoom } from "./use-zoom.ts";
 import "./app-canvas.css";
+import { withReason } from "../../components/refusal.tsx";
 import { useTeams } from "./use-teams.ts";
 
 export { PluginBoxCard } from "./box-list.tsx";
@@ -609,8 +610,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const applyChanges = useChangeSets(appId, editorSession, undefined);
   const applyLane = (changeSet: ChangeSet) => {
     setLane(undefined);
-    void applyChanges(changeSet).then(async (ok) => {
-      setMessage(ok ? null : m.changeRefused);
+    void applyChanges(changeSet).then(async (result) => {
+      setMessage(result.ok ? null : withReason(m.changeRefused, result.error));
       await queryClient.invalidateQueries({ queryKey: ["project-documents", appId] });
     });
   };

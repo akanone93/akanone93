@@ -117,7 +117,7 @@ export function RolePage(): ReactElement {
   const navigate = useNavigate();
   const governance = useRpc(GovernanceService);
   const can = useCan("roles.manage");
-  const { run, failed } = useRun();
+  const { run, failed, error: saveError } = useRun();
   const catalogue = useAdminQuery(["permissions"], () => governance.listPermissions({}));
   const role = useAdminQuery(["role", roleId], () => governance.getRole({ key: roleId }), !isNew);
   const [key, setKey] = useState("");
@@ -155,6 +155,7 @@ export function RolePage(): ReactElement {
       failed={catalogue.isError || (!isNew && role.isError)}
       error={catalogue.error ?? role.error}
       saveFailed={failed}
+      saveError={saveError}
     >
       {loaded?.predefined === true && <p className="text-body text-muted-foreground">{m.predefinedLocked}</p>}
       <div className="flex flex-wrap gap-3">

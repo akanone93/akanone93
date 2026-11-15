@@ -9,6 +9,7 @@ import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { type ReactElement, useState } from "react";
 import { AnimatedList } from "../../components/animated-list.tsx";
 import { PageEmpty, PageHeader, PageStatus } from "../../components/page.tsx";
+import { withReason } from "../../components/refusal.tsx";
 import { libraryMessages } from "./library.messages.ts";
 import type { LibrarySearch } from "./library.schema.ts";
 import { readFile } from "./library-model.ts";
@@ -115,8 +116,8 @@ function ImportButton({ kind, m }: { readonly kind: LibraryKind; readonly m: Mes
           : await clients.templates.importTemplate({ file: bytes });
       await clients.invalidate();
       notify("success", m.imported(res.item?.name ?? file.name));
-    } catch {
-      notify("error", m.importFailed);
+    } catch (error) {
+      notify("error", withReason(m.importFailed, error));
     } finally {
       setBusy(false);
     }
