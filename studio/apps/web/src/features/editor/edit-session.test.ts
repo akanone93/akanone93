@@ -332,3 +332,68 @@ describe("[SRV-030] [STU-004] autosave pipeline", () => {
     expect(session.store.getState().docs[path]?.content).toEqual(base);
   });
 });
+
+describe("[SRV-030] [STU-032] creating a document that exists", () => {
+  test("a creation refused as a conflict opens the server's copy, and upsert applies the change to it", async () => {
+    const clock = fakeClock();
+    const server = stubServer(base);
+    // The document exists on the server, but this session's list predates it: creating it again is refused.
+    server.transport.put = () => Promise.reject(new ConnectError("already exists", Code.Aborted));
+    const session = new EditSession({
+      transport: server.transport,
+      debounceMs,
+      maxReplays,
+      scheduler: clock.scheduler,
+      online: () => true,
+    });
+    const created = await session.create(path, { kind: "page", props: { padding: 1 } });
+    expect(created).toEqual({ ok: false, reason: "exists" });
+    expect(session.store.getState().docs[path]?.content).toEqual(base);
+
+    const fresh = new EditSession({
+      transport: server.transport,
+      debounceMs,
+      maxReplays,
+      scheduler: clock.scheduler,
+      online: () => true,
+    });
+    const held = await fresh.upsert(
+      path,
+      () => ({ kind: "page", props: { padding: 1 } }),
+      (d) => {
+        page(d).props.padding = 24;
+      },
+    );
+    expect(held).toBe(true);
+    clock.advance(debounceMs);
+    await settle();
+    expect(server.calls).toHaveLength(1);
+    expect((server.state.content as unknown as Page).props.padding).toBe(24);
+    expect((server.state.content as unknown as Page).props.title).toBe("Login");
+  });
+
+  test("upsert creates a document nobody has, and edits one the session holds", async () => {
+    const { clock, server, session } = setup();
+    server.transport.put = (p, c) => Promise.resolve({ path: p, revision: 1n, content: c });
+    const made = await session.upsert(
+      "screens/new.page.json",
+      () => ({ kind: "page", props: { padding: 2 } }),
+      () => undefined,
+    );
+    expect(made).toBe(true);
+    expect(session.store.getState().docs["screens/new.page.json"]?.content).toEqual({
+      kind: "page",
+      props: { padding: 2 },
+    });
+    await session.upsert(
+      path,
+      () => base,
+      (d) => {
+        page(d).props.padding = 9;
+      },
+    );
+    clock.advance(debounceMs);
+    await settle();
+    expect((server.state.content as unknown as Page).props.padding).toBe(9);
+  });
+});

@@ -67,9 +67,11 @@ func (s *Service) UpdatePluginMetadata(ctx context.Context, p auth.Principal, pl
 }
 
 // DuplicatePlugin copies a plugin's draft documents under a new key. Every
-// document keeps its content except for its path and the identifiers of the
-// documents and of everything inside them, which are new so that the copy refers to its own
-// pages. The new plugin's lock is taken by session while the copy is
+// document keeps its content except for its path, the identifiers of the
+// documents and of everything inside them, and the route names of its pages,
+// which are new so that the copy refers to its own pages and clashes with
+// nothing (route names are unique in the app, SCH-025); the app document
+// lists the copy right after its source. The new plugin's lock is taken by session while the copy is
 // written and released after (STU-034).
 func (s *Service) DuplicatePlugin(ctx context.Context, p auth.Principal, sourceID, key, name, session string) (Plugin, error) {
 	src, err := s.GetPlugin(ctx, p, sourceID)
@@ -80,7 +82,7 @@ func (s *Service) DuplicatePlugin(ctx context.Context, p auth.Principal, sourceI
 	if err != nil {
 		return Plugin{}, err
 	}
-	created, err := s.CreatePlugin(ctx, p, src.AppID, key, name)
+	created, err := s.createPlugin(ctx, p, src.AppID, key, name, src.Key)
 	if err != nil {
 		return Plugin{}, err
 	}
@@ -124,6 +126,11 @@ func (s *Service) allDocuments(ctx context.Context, p auth.Principal, src Plugin
 func (s *Service) copyDocuments(ctx context.Context, p auth.Principal, src, created Plugin, key, session string, docs []Document) error {
 	renamed := collectIDs(docs, key)
 	from, to := "plugins/"+src.Key+"/", "plugins/"+key+"/"
+	taken, err := s.appRoutes(ctx, p, src.AppID)
+	if err != nil {
+		return err
+	}
+	routes := copyRoutes(docs, from, taken)
 	for _, d := range docs {
 		if !strings.HasPrefix(d.Path, from) {
 			continue
@@ -133,6 +140,9 @@ func (s *Service) copyDocuments(ctx context.Context, p auth.Principal, src, crea
 			return fmt.Errorf("document: rewrite ids of %s: %w", d.Path, err)
 		}
 		rel := strings.TrimPrefix(d.Path, from)
+		if content, err = retargetRoutes(content, to+rel, routes); err != nil {
+			return err
+		}
 		if rel == "plugin.json" {
 			if content, err = renamePluginDocument(content, key, created.Name); err != nil {
 				return err

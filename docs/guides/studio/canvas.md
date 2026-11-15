@@ -57,8 +57,13 @@ Canvas, and you can drive both from the keyboard.
    how many links go out and in, the functions it uses, and who published it last and when. Select
    a plugin to add its actions: **Open plugin**, **Plugin settings**, **Duplicate plugin**, **Make
    entry plugin**, **Move to…**, **Archive plugin** (or **Restore plugin**) and **Delete plugin**.
-   Right-click a plugin for the same actions in its context menu.
-4. Choose **New plugin**, give it a name and a key, and save.
+   Right-click a plugin for the same actions in its context menu. **Duplicate plugin** copies every
+   document with new identifiers; route names are unique in the app, so each copied screen gets
+   `<route>-copy` (then `-copy-2` and so on), and the copy's links open the copy's own screens.
+4. Choose **New plugin**, give it a name and a key, and save. The plugin starts with its manifest and
+   one blank screen, its entry, whose route is the plugin's key (or `<key>-home` when that is taken).
+   Creating, duplicating, deleting and restoring a plugin keeps the app's `plugins` list in
+   `app.json` up to date, so the app never reports a plugin folder that is not listed (PLX-1020).
 5. Drag a plugin to move it, or use **Move to…** with X and Y positions. Near another plugin's edge or
    centre it snaps into line, and a guide shows what it lines up with; a plugin you drag stays on
    top of the ones it passes over. Drag on the background to select every plugin the rectangle

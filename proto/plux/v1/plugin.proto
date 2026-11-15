@@ -114,6 +114,10 @@ message CreatePluginRequest {
   string app_id = 1;
   string key = 2;
   string name = 3;
+  // starter writes the plugin's manifest and a first blank screen, its entry
+  // page, with a route no page uses, so the app stays valid (STU-034). Without
+  // it the plugin has no documents until the caller writes them.
+  bool starter = 4;
 }
 message CreatePluginResponse {
   Plugin plugin = 1;

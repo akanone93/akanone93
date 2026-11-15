@@ -76,7 +76,7 @@ export interface CreateRecord {
 /** How a whole-document write ended; nothing is dropped silently (F4). */
 export type WholeWrite =
   | { readonly ok: true }
-  | { readonly ok: false; readonly reason: "offline" | "pending" | "unknown" | SaveFailure };
+  | { readonly ok: false; readonly reason: "offline" | "pending" | "unknown" | "exists" | SaveFailure };
 
 /** A document as an edit recipe sees it: the mutable Immer draft of its root JSON object. */
 export type DocumentDraft = Record<string, unknown>;
@@ -276,8 +276,46 @@ export class EditSession {
       }
       return { ok: true };
     } catch (error) {
-      return { ok: false, reason: this.options.transport.classify(error) };
+      const reason = this.options.transport.classify(error);
+      // A creation refused as a conflict means the document exists already (made by another tab, or by this one before
+      // a reload whose document list predates it). The server's copy is opened so the caller can edit it; creating it
+      // again would be refused forever, and every change would snap back (a dropped box returned to the centre).
+      if (reason === "conflict" && !this.tracks.has(path)) {
+        try {
+          this.open(await this.options.transport.get(path));
+          return { ok: false, reason: "exists" };
+        } catch {
+          return { ok: false, reason };
+        }
+      }
+      return { ok: false, reason };
     }
+  }
+
+  /**
+   * Edits a document with `recipe`, creating it from `whole` first when this session does not hold it. When the
+   * document turns out to exist on the server, its copy is opened and the recipe applies to it, so the change is never
+   * lost. Resolves whether the change is held by the session (its save then follows the usual pipeline).
+   */
+  async upsert(
+    path: string,
+    whole: () => JsonValue,
+    recipe: (draft: DocumentDraft) => void,
+    options: { readonly group?: string; readonly step?: string } = {},
+  ): Promise<boolean> {
+    if (this.tracks.has(path)) {
+      this.edit(path, recipe, options.group === undefined ? {} : { group: options.group });
+      return true;
+    }
+    const created = await this.create(path, whole(), options.step === undefined ? {} : { step: options.step });
+    if (created.ok) {
+      return true;
+    }
+    if (created.reason === "exists") {
+      this.edit(path, recipe, options.group === undefined ? {} : { group: options.group });
+      return true;
+    }
+    return false;
   }
 
   /**

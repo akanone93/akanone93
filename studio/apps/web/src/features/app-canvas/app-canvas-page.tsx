@@ -279,17 +279,21 @@ function useCanvasPersist(
         waiting.current = { next, group };
       } else {
         creating.current = true;
-        void edit.create(APP_CANVAS_PATH, canvasDocument(uuidv7(), next)).then((r) => {
-          creating.current = false;
-          const later = waiting.current;
-          waiting.current = null;
-          if (!r.ok) {
-            done.current.failed();
-          } else if (later !== null) {
-            edit.edit(APP_CANVAS_PATH, canvasRecipe(later.next), { group: later.group });
-          }
-          done.current.settled();
-        });
+        // An upsert: when the document exists already (another tab made it, or this session's document list predates
+        // it), the change is applied to the server's copy instead of failing on every drop.
+        void edit
+          .upsert(APP_CANVAS_PATH, () => canvasDocument(uuidv7(), next), canvasRecipe(next), { group })
+          .then((ok) => {
+            creating.current = false;
+            const later = waiting.current;
+            waiting.current = null;
+            if (!ok) {
+              done.current.failed();
+            } else if (later !== null) {
+              edit.edit(APP_CANVAS_PATH, canvasRecipe(later.next), { group: later.group });
+            }
+            done.current.settled();
+          });
       }
     },
     [edit],
@@ -824,7 +828,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         selectedBoxes={boxes.filter((b) => selected.has(b.id))}
         teams={teams}
         close={() => setDialogue(null)}
-        onCreate={(name, key) => mutation.mutate(() => plugins.createPlugin({ appId, key, name }))}
+        onCreate={(name, key) => mutation.mutate(() => plugins.createPlugin({ appId, key, name, starter: true }))}
         onSettings={(id, name, description, tags, owningTeamId) =>
           mutation.mutate(() =>
             plugins.updatePlugin({ id, name, metadata: { description, setTags: true, tags, owningTeamId } }),

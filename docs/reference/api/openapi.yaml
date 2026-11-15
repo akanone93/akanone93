@@ -19852,6 +19852,13 @@ components:
         name:
           type: string
           title: name
+        starter:
+          type: boolean
+          title: starter
+          description: |-
+            starter writes the plugin's manifest and a first blank screen, its entry
+             page, with a route no page uses, so the app stays valid (STU-034). Without
+             it the plugin has no documents until the caller writes them.
       title: CreatePluginRequest
       additionalProperties: false
     plux.v1.CreatePluginResponse:

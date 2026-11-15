@@ -153,9 +153,16 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
       }),
   );
   const [edit] = useState(() => {
+    // The confirmed document goes into the cached list, added when it is new: a list that only updated existing
+    // entries forgot a document this session created, so an editor mounted again from the cache (after a rename, or on
+    // coming back to the canvas) tried to create it again and every save was refused as a conflict.
     const confirmed = (doc: Document) =>
       session.queryClient.setQueryData<Document[]>(documentsKey(appId, pluginId), (old) =>
-        old?.map((d) => (d.path === doc.path ? doc : d)),
+        old === undefined
+          ? old
+          : old.some((d) => d.path === doc.path)
+            ? old.map((d) => (d.path === doc.path ? doc : d))
+            : [...old, doc],
       );
     // Every write is tagged with the tab's editor session: the server refuses an undo step without one (PLX-1005), and
     // an editor whose caller passed none (the app's translations and theme) still groups its edits into undo steps.

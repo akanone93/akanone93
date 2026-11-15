@@ -43,6 +43,11 @@ type Plugin struct {
 // documents live under plugins/<key>/ (SCH-006). The app's plugin count
 // is bounded by app.plugins (LIM-001).
 func (s *Service) CreatePlugin(ctx context.Context, p auth.Principal, appID, key, name string) (Plugin, error) {
+	return s.createPlugin(ctx, p, appID, key, name, "")
+}
+
+// createPlugin is CreatePlugin; the new key is listed in app.json after `after` when that is listed, else last.
+func (s *Service) createPlugin(ctx context.Context, p auth.Principal, appID, key, name, after string) (Plugin, error) {
 	if err := authorize(p, auth.AppManage, appID); err != nil {
 		return Plugin{}, err
 	}
@@ -86,7 +91,10 @@ func (s *Service) CreatePlugin(ctx context.Context, p auth.Principal, appID, key
 			return err
 		}
 		out = pluginOf(row, pd.row)
-		return s.record(ctx, tx, p, audit.PluginCreated, "plugin", id, "", "")
+		if err := s.record(ctx, tx, p, audit.PluginCreated, "plugin", id, "", ""); err != nil {
+			return err
+		}
+		return s.syncAppPlugins(ctx, tx, p, appID, after)
 	})
 	return out, err
 }
@@ -198,7 +206,10 @@ func (s *Service) DeletePlugin(ctx context.Context, p auth.Principal, pluginID s
 		if out, err = s.o.Tenancy.Trash(ctx, tx, p, "plugin", pluginID, d.app, d.plugin.Name); err != nil {
 			return fmt.Errorf("document: %w", err)
 		}
-		return s.record(ctx, tx, p, audit.PluginDeleted, "plugin", pluginID, "", "")
+		if err := s.record(ctx, tx, p, audit.PluginDeleted, "plugin", pluginID, "", ""); err != nil {
+			return err
+		}
+		return s.syncAppPlugins(ctx, tx, p, d.app, "")
 	})
 	return out, err
 }
@@ -214,10 +225,18 @@ func (s *Service) TrashKinds() map[string]tenancy.TrashKind {
 
 // restorePlugin undeletes a plugin, unless its key was reused meanwhile.
 func (s *Service) restorePlugin(ctx context.Context, tx pgx.Tx, p auth.Principal, item tenancy.TrashItem) error {
-	if _, err := dbgen.New(tx).RestorePlugin(ctx, storage.MustUUID(item.TargetID)); err != nil {
+	q := dbgen.New(tx)
+	if _, err := q.RestorePlugin(ctx, storage.MustUUID(item.TargetID)); err != nil {
 		return failure(err, "plugin")
 	}
-	return s.record(ctx, tx, p, audit.PluginRestored, "plugin", item.TargetID, "", "")
+	if err := s.record(ctx, tx, p, audit.PluginRestored, "plugin", item.TargetID, "", ""); err != nil {
+		return err
+	}
+	appID, err := appIDOfPlugin(ctx, q, item.TargetID)
+	if err != nil {
+		return err
+	}
+	return s.syncAppPlugins(ctx, tx, p, appID, "")
 }
 
 // purgePlugin deletes a plugin with its draft and history.

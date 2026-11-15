@@ -412,14 +412,19 @@ var _ pluxv1connect.PluginServiceHandler = Plugin{}
 // Plugin returns the PluginService handler.
 func (h *Handlers) Plugin() Plugin { return Plugin{h: h} }
 
-// CreatePlugin adds a plugin to an app.
+// CreatePlugin adds a plugin to an app; with starter, with its manifest and a first blank screen so that the app
+// stays valid (STU-034).
 func (s Plugin) CreatePlugin(ctx context.Context, req *connect.Request[pluxv1.CreatePluginRequest]) (*connect.Response[pluxv1.CreatePluginResponse], error) {
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.CreatePluginResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
 		}
-		pl, err := s.h.Documents.CreatePlugin(ctx, p, req.Msg.GetAppId(), req.Msg.GetKey(), req.Msg.GetName())
+		create := s.h.Documents.CreatePlugin
+		if req.Msg.GetStarter() {
+			create = s.h.Documents.CreateStarterPlugin
+		}
+		pl, err := create(ctx, p, req.Msg.GetAppId(), req.Msg.GetKey(), req.Msg.GetName())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}

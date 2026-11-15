@@ -26,7 +26,7 @@ describe("the first plugin of a new app [STU-015]", () => {
     const dialog = await screen.findByRole("dialog", { name: "New plugin" });
     fireEvent.change(within(dialog).getByLabelText("Name"), { target: { value: "Loans" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Save" }));
-    await waitFor(() => expect(state.creation?.calls).toEqual(["plugin:app-new:loans:Loans"]));
+    await waitFor(() => expect(state.creation?.calls).toEqual(["plugin:app-new:loans:Loans:starter"]));
     await waitFor(() => expect(screen.queryByText("This app has no plugins yet.") === null).toBe(true));
   });
 

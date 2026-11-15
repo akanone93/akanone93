@@ -805,7 +805,7 @@ export function createUpstream(state: UpstreamData) {
     });
     service(PluginService, {
       createPlugin: (req) => {
-        state.creation?.calls.push(`plugin:${req.appId}:${req.key}:${req.name}`);
+        state.creation?.calls.push(`plugin:${req.appId}:${req.key}:${req.name}${req.starter ? ":starter" : ""}`);
         refuse("plugin");
         const plugin = { id: `plugin-${req.key}`, key: req.key, name: req.name };
         createdPlugins.push(plugin);

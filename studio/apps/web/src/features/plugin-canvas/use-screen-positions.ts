@@ -53,17 +53,23 @@ export function useScreenPositions(
       }
       creating.current = true;
       // The creation is an undo step of its own: undoing the first move deletes the document, and the screens go back.
-      void session.create(path, positionsDocument(uuidv7(), positions), { step: `screens-${uuidv7()}` }).then((r) => {
-        creating.current = false;
-        const later = waiting.current;
-        waiting.current = null;
-        if (!r.ok) {
-          setFailed(true);
-        } else if (later !== null) {
-          session.edit(path, positionsRecipe(later), { group: "screens" });
-        }
-        setAhead(null);
-      });
+      // An upsert: a canvas document that exists already (made in another tab) takes the change instead of refusing it.
+      void session
+        .upsert(path, () => positionsDocument(uuidv7(), positions), positionsRecipe(positions), {
+          group: "screens",
+          step: `screens-${uuidv7()}`,
+        })
+        .then((ok) => {
+          creating.current = false;
+          const later = waiting.current;
+          waiting.current = null;
+          if (!ok) {
+            setFailed(true);
+          } else if (later !== null) {
+            session.edit(path, positionsRecipe(later), { group: "screens" });
+          }
+          setAhead(null);
+        });
       return true;
     },
     [path, canEdit, session],

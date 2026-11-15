@@ -444,10 +444,14 @@ func (x *Lock) GetTakeoverAllowedAt() *timestamppb.Timestamp {
 }
 
 type CreatePluginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Key   string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Name  string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// starter writes the plugin's manifest and a first blank screen, its entry
+	// page, with a route no page uses, so the app stays valid (STU-034). Without
+	// it the plugin has no documents until the caller writes them.
+	Starter       bool `protobuf:"varint,4,opt,name=starter,proto3" json:"starter,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -501,6 +505,13 @@ func (x *CreatePluginRequest) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *CreatePluginRequest) GetStarter() bool {
+	if x != nil {
+		return x.Starter
+	}
+	return false
 }
 
 type CreatePluginResponse struct {
@@ -2048,11 +2059,12 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\flast_edit_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"lastEditAt\x12J\n" +
 	"\x13takeover_allowed_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\x11takeoverAllowedAt\"R\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x11takeoverAllowedAt\"l\n" +
 	"\x13CreatePluginRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\"?\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
+	"\astarter\x18\x04 \x01(\bR\astarter\"?\n" +
 	"\x14CreatePluginResponse\x12'\n" +
 	"\x06plugin\x18\x01 \x01(\v2\x0f.plux.v1.PluginR\x06plugin\"\"\n" +
 	"\x10GetPluginRequest\x12\x0e\n" +

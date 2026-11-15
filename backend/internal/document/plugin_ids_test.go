@@ -11,15 +11,23 @@ import (
 
 // Verifies: STU-034.
 // Duplicating rewrites every identifier inside the documents, at any depth,
-// deterministically, and every reference to one follows it.
+// deterministically, and every reference to one follows it. A step's id is a
+// name local to its graph, not an identifier, and stays as it is.
 func TestDuplicateRewritesEveryID(t *testing.T) {
 	t.Parallel()
-	const page, node, action = "01a0c450-6c00-7012-8000-000000022cce", "n-1", "act_9"
+	const (
+		page   = "01a0c450-6c00-7012-8000-000000022cce"
+		node   = "01a0c450-6c00-7026-8000-00000004977a"
+		action = "01a0c450-6c00-7026-8000-00000004977b"
+		child  = "01a0c450-6c00-7026-8000-00000004977c"
+		plugin = "01a0c450-6c00-7011-8000-000000020ddf"
+	)
 	docs := []Document{
 		{Path: "plugins/a/pages/p.json", Content: []byte(`{"id":"` + page + `","root":{"id":"` + node +
-			`","children":[{"id":"c2","on":{"tap":"` + action + `"}}]},"actions":[{"id":"` + action +
+			`","children":[{"id":"` + child + `","on":{"tap":"` + action + `"}}]},"actions":[{"id":"` + action +
 			`","target":"#/nodes/` + node + `"}]}`)},
-		{Path: "plugins/a/plugin.json", Content: []byte(`{"id":"pl-1","entryPage":"` + page + `","pages":["` + page + `"]}`)},
+		{Path: "plugins/a/plugin.json", Content: []byte(`{"id":"` + plugin + `","entryPage":"` + page + `","pages":["` + page + `"]}`)},
+		{Path: "plugins/a/actions/g.graph.json", Content: []byte(`{"steps":[{"id":"fetchRate","action":"navigate"}]}`)},
 	}
 	renamed := collectIDs(docs, "copy")
 	again := collectIDs(docs, "copy")
@@ -46,6 +54,9 @@ func TestDuplicateRewritesEveryID(t *testing.T) {
 		out = append(out, string(b))
 	}
 	all := strings.Join(out, "")
+	if !strings.Contains(all, `"id":"fetchRate"`) {
+		t.Errorf("a step name was rewritten: %s", all)
+	}
 	for old := range renamed {
 		if strings.Contains(all, old) {
 			t.Errorf("source id %s survived: %s", old, all)

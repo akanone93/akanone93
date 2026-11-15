@@ -15,7 +15,9 @@ import (
 
 // collectIDs maps every identifier found under an "id" member, at any depth
 // of any document, to a new identifier derived from the new plugin key and
-// the old identifier, so that a duplicate is reproducible (STU-034).
+// the old identifier, so that a duplicate is reproducible (STU-034). Only
+// UUIDs are identifiers (SCH-002); an "id" that is not one is a name local to
+// its document, such as an action graph's step, and must stay a valid name.
 func collectIDs(docs []Document, key string) map[string]string {
 	out := map[string]string{}
 	for _, d := range docs {
@@ -32,7 +34,7 @@ func gatherIDs(v any, key string, out map[string]string) {
 	switch t := v.(type) {
 	case map[string]any:
 		for k, child := range t {
-			if id, ok := child.(string); ok && k == "id" && id != "" {
+			if id, ok := child.(string); ok && k == "id" && isUUID(id) {
 				if _, seen := out[id]; !seen {
 					out[id] = deriveID(key, id)
 				}
@@ -85,10 +87,15 @@ func rewriteIDs(content []byte, renamed map[string]string) ([]byte, error) {
 	if err != nil {
 		return content, nil //nolint:nilerr // not JSON: copied as it is
 	}
+	return encodeJSON(swapIDs(v, renamed))
+}
+
+// encodeJSON writes a decoded document back without escaping HTML characters.
+func encodeJSON(v any) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
-	if err := enc.Encode(swapIDs(v, renamed)); err != nil {
+	if err := enc.Encode(v); err != nil {
 		return nil, fmt.Errorf("encode: %w", err)
 	}
 	return bytes.TrimRight(buf.Bytes(), "\n"), nil
