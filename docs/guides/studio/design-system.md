@@ -15,12 +15,15 @@ and every theme ([theming reference](../../reference/theming.md)).
    the device reads them ([theming reference](../../reference/theming.md) §3): the dark value in the token's
    `$extensions.dev.plux.dark`, the high-contrast value as the token at `contrast.high.<path>`.
 2. **Edit {token}** changes a value, **Remove {token}** deletes one with its high-contrast and brand values, and
-   **Add token** takes a path, a **Type** and a **Value**. A value is stored as its type keeps it (`1.5` is a number
+   **Add a token** takes a path, a **Type** and a **Value**. A colour has a colour picker beside its code; the code
+   also takes an alpha (`#00000066`) or an alias. A value is stored as its type keeps it (`1.5` is a number
    for a `number` token, `Inter, Noto Sans` a list for a `fontFamily`), and `{color.primary}` makes the token an
    alias of another; the device follows aliases, and publishing reports one that names no token or loops.
 3. **Import tokens** reads a DTCG JSON file, such as a Figma variables export: drop it or choose it, or paste its
-   content. Studio reports how many tokens can be added and why others are skipped (name not allowed, type missing
-   or unknown, value or dark value does not fit the type, nested too deeply); **Add to the theme** applies them.
+   content. Studio compares it with the theme and reports how many tokens are **New**, **Changed** and
+   **Unchanged**, and which are **Skipped** and why (name not allowed, type missing or unknown, value or dark value
+   does not fit the type, nested too deeply); **Add to the theme** applies them, and is off when nothing would change.
+4. **Export tokens** downloads the theme's tokens as the same DTCG file, to edit elsewhere and import back.
 
 ## Themes and brand overlays
 

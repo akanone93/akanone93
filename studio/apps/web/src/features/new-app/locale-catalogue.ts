@@ -192,6 +192,196 @@ export const languageCodes: readonly string[] = [
   "zu",
 ];
 
+/**
+ * The English names of the languages, from CLDR, for a browser that has none: Chrome's trimmed ICU data names about
+ * two thirds of them, and a list of bare codes ("aa (aa)") cannot be searched by name.
+ */
+const ENGLISH_NAMES: Readonly<Record<string, string>> = {
+  aa: "Afar",
+  ab: "Abkhazian",
+  ae: "Avestan",
+  af: "Afrikaans",
+  ak: "Akan",
+  am: "Amharic",
+  an: "Aragonese",
+  ar: "Arabic",
+  as: "Assamese",
+  av: "Avaric",
+  ay: "Aymara",
+  az: "Azerbaijani",
+  ba: "Bashkir",
+  be: "Belarusian",
+  bg: "Bulgarian",
+  bi: "Bislama",
+  bm: "Bambara",
+  bn: "Bangla",
+  bo: "Tibetan",
+  br: "Breton",
+  bs: "Bosnian",
+  ca: "Catalan",
+  ce: "Chechen",
+  ch: "Chamorro",
+  co: "Corsican",
+  cr: "Cree",
+  cs: "Czech",
+  cu: "Church Slavic",
+  cv: "Chuvash",
+  cy: "Welsh",
+  da: "Danish",
+  de: "German",
+  dv: "Divehi",
+  dz: "Dzongkha",
+  ee: "Ewe",
+  el: "Greek",
+  en: "English",
+  eo: "Esperanto",
+  es: "Spanish",
+  et: "Estonian",
+  eu: "Basque",
+  fa: "Persian",
+  ff: "Fula",
+  fi: "Finnish",
+  fj: "Fijian",
+  fo: "Faroese",
+  fr: "French",
+  fy: "Western Frisian",
+  ga: "Irish",
+  gd: "Scottish Gaelic",
+  gl: "Galician",
+  gn: "Guarani",
+  gu: "Gujarati",
+  gv: "Manx",
+  ha: "Hausa",
+  he: "Hebrew",
+  hi: "Hindi",
+  ho: "Hiri Motu",
+  hr: "Croatian",
+  ht: "Haitian Creole",
+  hu: "Hungarian",
+  hy: "Armenian",
+  hz: "Herero",
+  ia: "Interlingua",
+  id: "Indonesian",
+  ie: "Interlingue",
+  ig: "Igbo",
+  ii: "Sichuan Yi",
+  ik: "Inupiaq",
+  io: "Ido",
+  is: "Icelandic",
+  it: "Italian",
+  iu: "Inuktitut",
+  ja: "Japanese",
+  jv: "Javanese",
+  ka: "Georgian",
+  kg: "Kongo",
+  ki: "Kikuyu",
+  kj: "Kuanyama",
+  kk: "Kazakh",
+  kl: "Kalaallisut",
+  km: "Khmer",
+  kn: "Kannada",
+  ko: "Korean",
+  kr: "Kanuri",
+  ks: "Kashmiri",
+  ku: "Kurdish",
+  kv: "Komi",
+  kw: "Cornish",
+  ky: "Kyrgyz",
+  la: "Latin",
+  lb: "Luxembourgish",
+  lg: "Ganda",
+  li: "Limburgish",
+  ln: "Lingala",
+  lo: "Lao",
+  lt: "Lithuanian",
+  lu: "Luba-Katanga",
+  lv: "Latvian",
+  mg: "Malagasy",
+  mh: "Marshallese",
+  mi: "Māori",
+  mk: "Macedonian",
+  ml: "Malayalam",
+  mn: "Mongolian",
+  mr: "Marathi",
+  ms: "Malay",
+  mt: "Maltese",
+  my: "Burmese",
+  na: "Nauru",
+  nb: "Norwegian Bokmål",
+  nd: "North Ndebele",
+  ne: "Nepali",
+  ng: "Ndonga",
+  nl: "Dutch",
+  nn: "Norwegian Nynorsk",
+  no: "Norwegian",
+  nr: "South Ndebele",
+  nv: "Navajo",
+  ny: "Nyanja",
+  oc: "Occitan",
+  oj: "Ojibwa",
+  om: "Oromo",
+  or: "Odia",
+  os: "Ossetic",
+  pa: "Punjabi",
+  pi: "Pali",
+  pl: "Polish",
+  ps: "Pashto",
+  pt: "Portuguese",
+  qu: "Quechua",
+  rm: "Romansh",
+  rn: "Rundi",
+  ro: "Romanian",
+  ru: "Russian",
+  rw: "Kinyarwanda",
+  sa: "Sanskrit",
+  sc: "Sardinian",
+  sd: "Sindhi",
+  se: "Northern Sami",
+  sg: "Sango",
+  si: "Sinhala",
+  sk: "Slovak",
+  sl: "Slovenian",
+  sm: "Samoan",
+  sn: "Shona",
+  so: "Somali",
+  sq: "Albanian",
+  sr: "Serbian",
+  ss: "Swati",
+  st: "Southern Sotho",
+  su: "Sundanese",
+  sv: "Swedish",
+  sw: "Swahili",
+  ta: "Tamil",
+  te: "Telugu",
+  tg: "Tajik",
+  th: "Thai",
+  ti: "Tigrinya",
+  tk: "Turkmen",
+  tl: "Filipino",
+  tn: "Tswana",
+  to: "Tongan",
+  tr: "Turkish",
+  ts: "Tsonga",
+  tt: "Tatar",
+  tw: "Akan",
+  ty: "Tahitian",
+  ug: "Uyghur",
+  uk: "Ukrainian",
+  ur: "Urdu",
+  uz: "Uzbek",
+  ve: "Venda",
+  vi: "Vietnamese",
+  vo: "Volapük",
+  wa: "Walloon",
+  wo: "Wolof",
+  xh: "Xhosa",
+  yi: "Yiddish",
+  yo: "Yoruba",
+  za: "Zhuang",
+  zh: "Chinese",
+  zu: "Zulu",
+};
+
 /** The documents' locale form (common.schema.json `locale`). */
 const LOCALE = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-([A-Z]{2}|[0-9]{3}))?$/;
 
@@ -209,16 +399,27 @@ export function canonicalLocale(typed: string): string | undefined {
   }
 }
 
-/** A language's name in `uiLocale`, and in the language itself; the code when the browser has no name for it. */
+/**
+ * A language's name in `uiLocale`, and in the language itself. Where the browser has no name, the English one from
+ * CLDR stands in for the first (with its region, `Afar (ET)`) and the code for the second.
+ */
 export function localeNames(uiLocale: string, code: string): { readonly name: string; readonly native: string } {
-  const of = (locale: string) => {
+  const of = (locale: string): string | undefined => {
     try {
-      return new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code;
+      const name = new Intl.DisplayNames([locale], { type: "language" }).of(code);
+      return name === undefined || name === code ? undefined : name;
     } catch {
-      return code;
+      return undefined;
     }
   };
-  return { name: of(uiLocale), native: of(code) };
+  return { name: of(uiLocale) ?? englishName(code) ?? code, native: of(code) ?? code };
+}
+
+/** The English name of a tag's language from CLDR, its script and region after it; undefined for one not listed. */
+export function englishName(tag: string): string | undefined {
+  const [language = "", ...rest] = tag.split("-");
+  const name = Object.hasOwn(ENGLISH_NAMES, language) ? ENGLISH_NAMES[language] : undefined;
+  return name === undefined ? undefined : rest.length === 0 ? name : `${name} (${rest.join(", ")})`;
 }
 
 /**

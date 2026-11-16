@@ -94,6 +94,20 @@ describe("[STU-011] accessible components", () => {
     expect(close.getAttribute("aria-busy")).toBeNull();
   });
 
+  test("Button: a disabled button stays focusable and looks disabled", () => {
+    render(
+      <Button disabled className="extra">
+        Approve
+      </Button>,
+    );
+    const b = screen.getByRole("button", { name: "Approve" });
+    // Base UI keeps it focusable with aria-disabled, so the dimmed look must key on that, not on :disabled.
+    expect(b.getAttribute("aria-disabled")).toBe("true");
+    expect(b.hasAttribute("disabled")).toBe(false);
+    expect(b.className).toContain("aria-disabled:opacity-50");
+    expect(b.className).toContain("extra");
+  });
+
   test("Button: variant is exposed and click works", () => {
     let clicks = 0;
     render(

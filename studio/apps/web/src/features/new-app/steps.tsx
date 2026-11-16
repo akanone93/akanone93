@@ -23,6 +23,7 @@ import { Choice } from "./choice.tsx";
 import { type ArchiveIssue, type Draft, inspectArchive, maxLocales, type StepProblem } from "./draft.ts";
 import { localeNames, searchLocales } from "./locale-catalogue.ts";
 import { newAppMessages } from "./new-app.messages.ts";
+import "../../components/colour-field.css";
 import "./new-app.css";
 
 export interface StepProps {
@@ -351,7 +352,7 @@ export function ThemeStep({ draft, update, attempted, problem }: StepProps): Rea
             name="theme"
             checked={draft.themeId === preset.id}
             label={names[preset.id]}
-            hint={m.themeSwatch(names[preset.id], preset.primary)}
+            hint={m.themeSwatch(preset.primary)}
             leading={
               <span
                 aria-hidden="true"

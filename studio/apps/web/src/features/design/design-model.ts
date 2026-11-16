@@ -262,6 +262,61 @@ export interface Skipped {
   readonly reason: "name" | "type" | "value" | "depth";
 }
 
+/** JSON with object keys in order, so the same value written in another key order reads the same. */
+function canonical(v: unknown): string {
+  if (Array.isArray(v)) {
+    return `[${v.map(canonical).join(",")}]`;
+  }
+  if (isObject(v)) {
+    const keys = Object.keys(v).sort();
+    return `{${keys.map((k) => `${JSON.stringify(k)}:${canonical(v[k])}`).join(",")}}`;
+  }
+  return JSON.stringify(v) ?? "null";
+}
+
+/**
+ * Every token of a tree by its dotted path, as the text of what it means: its value, its type (its own or its group's)
+ * and its dark value, so a type written on the token and one inherited from its group compare equal.
+ */
+function leaves(node: unknown, path: string[] = [], type = "", out = new Map<string, string>()): Map<string, string> {
+  if (!isObject(node)) {
+    return out;
+  }
+  const own = typeof node["$type"] === "string" ? node["$type"] : type;
+  if ("$value" in node) {
+    const ext = node["$extensions"];
+    // The server stores documents with their keys sorted, so `{"value": 16, "unit": "px"}` comes back the other way
+    // round: compare in a canonical key order.
+    out.set(path.join("."), canonical([node["$value"], own, isObject(ext) ? ext[DARK_KEY] : undefined]));
+    return out;
+  }
+  for (const [key, child] of Object.entries(node)) {
+    if (!key.startsWith("$")) {
+      leaves(child, [...path, key], own, out);
+    }
+  }
+  return out;
+}
+
+/** How an import changes the theme: tokens it adds, tokens whose value or type it changes, and tokens it repeats. */
+export function importChanges(current: unknown, imported: Json): { added: number; changed: number; same: number } {
+  const before = leaves(current);
+  let added = 0;
+  let changed = 0;
+  let same = 0;
+  for (const [path, leaf] of leaves(imported)) {
+    const was = before.get(path);
+    if (was === undefined) {
+      added += 1;
+    } else if (was === leaf) {
+      same += 1;
+    } else {
+      changed += 1;
+    }
+  }
+  return { added, changed, same };
+}
+
 export type DtcgResult =
   | { readonly ok: true; readonly tokens: Json; readonly imported: number; readonly skipped: Skipped[] }
   | { readonly ok: false; readonly error: "tooLarge" | "notJson" | "notObject" };
@@ -353,3 +408,63 @@ export function parseDtcg(text: string): DtcgResult {
 }
 
 export { flattenTokens };
+
+const unitOf = (v: unknown): string | undefined =>
+  isObject(v) && typeof v["value"] === "number"
+    ? `${v["value"]}${typeof v["unit"] === "string" ? v["unit"] : ""}`
+    : typeof v === "number"
+      ? String(v)
+      : typeof v === "string"
+        ? v
+        : undefined;
+
+/** A family list or an alias, as one line. */
+const familyText = (v: unknown): string | undefined =>
+  Array.isArray(v) ? v.filter((f) => typeof f === "string").join(", ") : typeof v === "string" ? v : undefined;
+
+/** A text style as `family · size · weight · ×line height`. */
+function typographyText(value: Json): string {
+  const parts = [
+    familyText(value["fontFamily"]),
+    unitOf(value["fontSize"]),
+    value["fontWeight"] === undefined ? undefined : String(value["fontWeight"]),
+    typeof value["lineHeight"] === "number" ? `×${value["lineHeight"]}` : undefined,
+  ];
+  return parts.filter((p): p is string => p !== undefined).join(" · ");
+}
+
+/** A shadow as `x y blur spread colour`. */
+function shadowText(value: Json): string {
+  const parts = [value["offsetX"], value["offsetY"], value["blur"], value["spread"]].map(unitOf);
+  return [...parts.filter((p): p is string => p !== undefined), familyText(value["color"])].join(" ");
+}
+
+/**
+ * A token's value as a person reads it in a table, by its type: `16px`, `150ms`, `Inter, Roboto`,
+ * `cubic-bezier(0.4, 0, 0.2, 1)`, a text style as `family · size · weight · ×line height`. An alias stays as written;
+ * anything else is its JSON.
+ */
+export function tokenText(type: string, value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  const text = (() => {
+    switch (type) {
+      case "dimension":
+      case "duration":
+      case "number":
+        return unitOf(value);
+      case "fontFamily":
+        return familyText(value);
+      case "cubicBezier":
+        return Array.isArray(value) ? `cubic-bezier(${value.join(", ")})` : undefined;
+      case "typography":
+        return isObject(value) ? typographyText(value) : undefined;
+      case "shadow":
+        return isObject(value) ? shadowText(value) : undefined;
+      default:
+        return undefined;
+    }
+  })();
+  return text ?? JSON.stringify(value);
+}

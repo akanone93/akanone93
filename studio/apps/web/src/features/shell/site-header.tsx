@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
+import { AppService } from "@plux/api";
 import { Icon } from "@plux/ui";
 import {
   Breadcrumb,
@@ -14,13 +16,52 @@ import { Button } from "@plux/ui/components/button";
 import { Kbd } from "@plux/ui/components/kbd";
 import { Separator } from "@plux/ui/components/separator";
 import { SidebarTrigger } from "@plux/ui/components/sidebar";
-import type { ReactElement, ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useLocation } from "@tanstack/react-router";
+import { type ReactElement, type ReactNode, useMemo } from "react";
 import { commandMessages, formatShortcut } from "../../lib/commands/index.ts";
+import { useApp } from "../../lib/use-app.tsx";
 import { HelpMenu } from "./help-menu.tsx";
 import { NotificationsPopover } from "./notifications-popover.tsx";
 import { usePageArea } from "./page-area.ts";
 import { chromeMessages } from "./shell-chrome.messages.ts";
 import { ThemeButton } from "./theme-button.tsx";
+
+/** The organisation and app of an app's page (`/o/<org>/apps/<app>/…`), or undefined on any other page. */
+export function appOfPath(pathname: string): { readonly org: string; readonly app: string } | undefined {
+  const m = /^\/o\/([^/]+)\/apps\/([^/]+)/.exec(pathname);
+  return m === null || m[2] === "new" ? undefined : { org: m[1] ?? "", app: m[2] ?? "" };
+}
+
+/** The app an app's page belongs to, by name, linking to its canvas: nothing else on such a page names it. */
+function AppCrumb(): ReactElement | null {
+  const { session } = useApp();
+  const at = appOfPath(useLocation().pathname);
+  const apps = useMemo(() => createClient(AppService, session.transport), [session.transport]);
+  const app = useQuery({
+    queryKey: ["app", at?.app ?? ""],
+    queryFn: async () => (await apps.getApp({ id: at?.app ?? "" })).app,
+    enabled: at !== undefined,
+  });
+  const name = app.data?.name;
+  if (at === undefined || name === undefined || name === "") {
+    return null;
+  }
+  return (
+    <>
+      <BreadcrumbSeparator className="hidden md:block" />
+      <BreadcrumbItem className="hidden md:inline-flex">
+        <Link
+          to="/o/$org/apps/$app"
+          params={{ org: at.org, app: at.app }}
+          className="max-w-48 truncate text-muted-foreground hover:text-foreground"
+        >
+          {name}
+        </Link>
+      </BreadcrumbItem>
+    </>
+  );
+}
 
 /**
  * The top of every signed-in page: shadcn's site header (dashboard-01). The sidebar trigger and where the person is on
@@ -65,6 +106,7 @@ export function SiteHeader({
                 {title}
               </BreadcrumbPage>
             </BreadcrumbItem>
+            <AppCrumb />
             {area !== undefined && (
               <>
                 <BreadcrumbSeparator />

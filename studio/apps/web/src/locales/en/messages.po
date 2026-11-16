@@ -89,7 +89,7 @@ msgstr "{bp, select, medium {Medium} other {Expanded}}: {n}"
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.brandOverrides"
-msgstr "{brand}: {n} overrides"
+msgstr "{brand}: {n, plural, one {# override} other {# overrides}}"
 
 #. Label of one corner's radius.
 #. js-lingui-explicit-id
@@ -574,12 +574,6 @@ msgstr "{holder} took over editing. Your work up to then is kept as a snapshot."
 msgid "lock.requested"
 msgstr "{holder} was asked to hand over the plugin."
 
-#. Result of reading a DTCG file.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.importSummary"
-msgstr "{imported} tokens can be added, {skipped} are skipped."
-
 #. Size of a plugin's newest bundle in kilobytes.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -711,12 +705,6 @@ msgstr "{mode, select, pristine {Pristine} errors {Errors} valid {Valid} submitt
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.valueOf"
 msgstr "{mode} value"
-
-#. Number of colour tokens that have a value in a mode.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.modeCount"
-msgstr "{mode}: {n} colours"
 
 #. Text in a sample app screen drawn beside the sign-in form. {months} is a number.
 #. js-lingui-explicit-id
@@ -856,17 +844,17 @@ msgstr "{n} approvals needed in all."
 msgid "actionGraph.valueNamed"
 msgstr "{name}"
 
+#. A language in the list: its name in the reader's language and its BCP 47 code; the name may hold a region in brackets, such as German (Germany).
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.language"
+msgstr "{name} · {code}"
+
 #. Canvas tag under a selected instance.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/instance-card.messages.ts
 msgid "instanceCard.tag"
 msgstr "{name} · v{v} · {n, plural, =0 {no overrides} one {# override} other {# overrides}}"
-
-#. A language in the list: its name in the reader's language and its BCP 47 code.
-#. js-lingui-explicit-id
-#: apps/web/src/features/new-app/new-app.messages.ts
-msgid "newApp.locales.language"
-msgstr "{name} ({code})"
 
 #. A deleted item in the trash list; kind is app, plugin or page.
 #. js-lingui-explicit-id
@@ -987,12 +975,6 @@ msgstr "{name}, {width} by {height}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.plugin"
 msgstr "{name}, plugin {key}"
-
-#. Accessible description of a theme choice: its name and primary colour.
-#. js-lingui-explicit-id
-#: apps/web/src/features/new-app/new-app.messages.ts
-msgid "newApp.theme.swatch"
-msgstr "{name}, primary colour {colour}"
 
 #. Describes the translucent region below a screen that holds content taller than the device screen.
 #. js-lingui-explicit-id
@@ -1132,6 +1114,18 @@ msgstr "{props, plural, one {# property} other {# properties}} · {events, plura
 msgid "home.stack.crash-free"
 msgstr "{rate} crash-free"
 
+#. On a colour tile: the contrast of its text, which meets WCAG AA for normal text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.contrastPasses"
+msgstr "{ratio}:1 AA"
+
+#. On a colour tile: the contrast of its text, which is below WCAG AA (4.5:1) for normal text.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.contrastFails"
+msgstr "{ratio}:1 below AA"
+
 #. Reading of an upload's progress, such as 2 KB of 10 KB.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -1186,11 +1180,17 @@ msgstr "{screens, plural, one {# screen} other {# screens}} · {widgets, plural,
 msgid "design.noFallback"
 msgstr "{script} has no fallback font."
 
+#. Shown under a script's font field while it lists no family.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noFonts"
+msgstr "{script} text uses the device's fonts. Name a family to choose one."
+
 #. A script with its number of fonts.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.fallbackOk"
-msgstr "{script}: {n} fonts"
+msgstr "{script}: {n, plural, one {# font} other {# fonts}}"
 
 #. How long a phone's request to join stays open.
 #. js-lingui-explicit-id
@@ -1444,6 +1444,12 @@ msgstr "A wrong number was picked, so the phone was not connected. Show a new co
 msgid "auth.story.test.title"
 msgstr "A/B tests"
 
+#. A short sample of text drawn on a colour to show how it reads; use two letters of your script.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.textSample"
+msgstr "Aa"
+
 #. Button: end a rollout and revert.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -1610,6 +1616,12 @@ msgstr "Actions"
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.tab"
+msgstr "Actions"
+
+#. Heading of the tokens table's column of edit and remove buttons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.colActions"
 msgstr "Actions"
 
 #. Heading of the list of actions that can be added to the graph.
@@ -1792,6 +1804,12 @@ msgstr "Add a state entry"
 msgid "timeline.add"
 msgstr "Add a timeline"
 
+#. Heading of the card with the fields that add a design token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.addTokenHeading"
+msgstr "Add a token"
+
 #. Button that writes the quick action.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/quick-actions.messages.ts
@@ -1815,6 +1833,18 @@ msgstr "Add after"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.addAction"
 msgstr "Add an action"
+
+#. Button on a brand overlay's card that adds the value of one more token for the brand.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandAdd"
+msgstr "Add an override"
+
+#. Title of the dialog that adds a token's value to a brand overlay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandAddTitle"
+msgstr "Add an override to {brand}"
 
 #. Validation.
 #. js-lingui-explicit-id
@@ -3390,6 +3420,12 @@ msgstr "Cancel"
 msgid "lock.cancel"
 msgstr "Cancel"
 
+#. Cancel button of a confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.cancel"
+msgstr "Cancel"
+
 #. Dialog button that closes it without a change.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -3677,6 +3713,12 @@ msgstr "characters"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.colCheck"
 msgstr "Check"
+
+#. What to do on the page shown for an address no page answers; the heading's caption already says why.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.notFound.hint"
+msgstr "Check the address, or start again from the home page."
 
 #. Error shown when the audience of a draft is malformed.
 #. js-lingui-explicit-id
@@ -6797,6 +6839,12 @@ msgstr "Export CSV"
 msgid "admin.destinations"
 msgstr "Export destinations"
 
+#. Button that downloads the theme's tokens as a DTCG JSON file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.exportButton"
+msgstr "Export tokens"
+
 #. Button: download the session's redacted trace file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -8483,6 +8531,12 @@ msgstr "Its events run nothing yet."
 #: apps/web/src/features/panels/quick-actions.messages.ts
 msgid "quick.snackShown"
 msgstr "Its message shows at the bottom of the screen while it is selected."
+
+#. Body of the confirmation before a brand overlay is removed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandRemoveText"
+msgstr "Its overrides are removed with it, and a host that selects this brand shows the base tokens. Undo brings it back."
 
 #. Shown after an asset was replaced; name is the new file.
 #. js-lingui-explicit-id
@@ -10595,6 +10649,12 @@ msgstr "New token path"
 msgid "designers.themeNewPath"
 msgstr "New token path, for example color.accent"
 
+#. Result of reading a DTCG file against the theme: tokens the theme lacks, tokens with another value or type, tokens it already has as they are, and tokens left out.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importSummary"
+msgstr "New: {added} · Changed: {changed} · Unchanged: {same} · Skipped: {skipped}"
+
 #. Button that moves to the next wizard step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -11110,6 +11170,12 @@ msgstr "No team"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.insert.none"
 msgstr "No templates yet."
+
+#. Shown when the tokens search keeps no token.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noTokenMatches"
+msgstr "No token matches the search."
 
 #. Shown when the filters leave no translation key.
 #. js-lingui-explicit-id
@@ -11909,6 +11975,12 @@ msgstr "Optional packages"
 msgid "newApp.details.description-hint"
 msgstr "Optional. It appears in the list of apps."
 
+#. Hint under the dark-mode value of a brand override.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandDarkHint"
+msgstr "Optional. Without it, dark mode uses the value above."
+
 #. Separator between the password form and the single sign-on buttons.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -12497,6 +12569,12 @@ msgstr "Photos"
 msgid "newApp.theme.custom-pick"
 msgstr "Pick a colour"
 
+#. Accessible name of the colour picker swatch beside a colour field; field is the field's label.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.pickColour"
+msgstr "Pick a colour for {field}"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -12910,6 +12988,12 @@ msgstr "Previous release"
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.theme.custom-label"
 msgstr "Primary colour"
+
+#. Line under a ready-made theme's name: its primary colour as a hex code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.swatch"
+msgstr "Primary colour {colour}"
 
 #. Field label.
 #. js-lingui-explicit-id
@@ -13744,6 +13828,12 @@ msgstr "Remove or replace the content at each location, save a new version and m
 msgid "safety.fix.remove-outgoing"
 msgstr "Remove outgoing links"
 
+#. Confirm button that removes a brand overlay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandRemoveConfirm"
+msgstr "Remove overlay"
+
 #. Accessible name of the remove button of one per-segment flag value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -13767,6 +13857,18 @@ msgstr "Remove step"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.removeNamed"
 msgstr "Remove step {id}"
+
+#. Accessible name of the button that removes a brand overlay.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandRemove"
+msgstr "Remove the {brand} overlay"
+
+#. Title of the confirmation before a brand overlay is removed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandRemoveTitle"
+msgstr "Remove the {brand} overlay?"
 
 #. Button.
 #. js-lingui-explicit-id
@@ -15236,6 +15338,12 @@ msgstr "Search plugins"
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.title"
 msgstr "Search Studio"
+
+#. Placeholder and accessible name of the field that filters the tokens table by path or type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.searchTokens"
+msgstr "Search tokens"
 
 #. Label of the search field of the Insert tab.
 #. js-lingui-explicit-id
@@ -18262,6 +18370,12 @@ msgstr "The text becomes the {locale} message of the key and the property refers
 msgid "safety.confirm.mismatch"
 msgstr "The text does not match yet"
 
+#. Shown after reading a DTCG file whose tokens would change nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importNothing"
+msgstr "The theme already has every token in the file as it is."
+
 #. Shown when the app's theme cannot be edited from the canvas.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/theme-card.messages.ts
@@ -19683,6 +19797,12 @@ msgstr "Value for the brand"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentValueLabel"
 msgstr "Value for the segment (JSON)"
+
+#. Label of the optional dark-mode value of a brand overlay's override.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandDarkValue"
+msgstr "Value in dark mode"
 
 #. A prop's value in this locale, as JSON or text.
 #. js-lingui-explicit-id

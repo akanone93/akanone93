@@ -5,12 +5,14 @@ import { useLingui } from "@lingui/react";
 import { limitDefault } from "@plux/schema";
 import { Button, Dialog, Field, FileDrop, Icon, Input, Select, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
+import { ColourField } from "../../components/colour-field.tsx";
 import { tokenValue } from "../designers/theme-overlay.tsx";
 import { type DesignMessages, designMessages } from "./design.messages.ts";
 import {
   contrastOf,
   dropBaseToken,
   dropToken,
+  importChanges,
   type Mode,
   mergeTokens,
   parseDtcg,
@@ -52,7 +54,20 @@ export function EditTokenDialog(props: {
       <div className="flex flex-col gap-3">
         {(["light", "dark", "contrast"] as const).map((mode) => (
           <Field key={mode} label={m.valueOf(modeLabel(m, mode))}>
-            <Input value={show(current[mode])} disabled={!ctx.canEdit} onChange={(e) => change(mode, e.target.value)} />
+            {row?.type === "color" ? (
+              <ColourField
+                value={show(current[mode])}
+                pickLabel={m.pickColour(modeLabel(m, mode))}
+                disabled={!ctx.canEdit}
+                onChange={(v) => change(mode, v)}
+              />
+            ) : (
+              <Input
+                value={show(current[mode])}
+                disabled={!ctx.canEdit}
+                onChange={(e) => change(mode, e.target.value)}
+              />
+            )}
           </Field>
         ))}
       </div>
@@ -62,7 +77,7 @@ export function EditTokenDialog(props: {
 
 const typeOptions = [...TOKEN_TYPES].map((t) => ({ value: t, label: t }));
 
-/** The fields that add a token at a path below `prefix`. */
+/** The fields that add a token at a path below `prefix`: its path, its type when `typed`, and its value. */
 export function AddToken(props: { readonly prefix: readonly string[]; readonly typed: boolean }): ReactElement {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
@@ -70,15 +85,36 @@ export function AddToken(props: { readonly prefix: readonly string[]; readonly t
   const [value, setValue] = useState("");
   const [type, setType] = useState("color");
   const addable = ctx.canEdit && validName(name) && value !== "";
+  const colour = props.typed && type === "color";
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="token-add">
       <Field label={m.newName}>
-        <Input value={name} disabled={!ctx.canEdit} onChange={(e) => setName(e.target.value)} />
+        <Input
+          value={name}
+          disabled={!ctx.canEdit}
+          placeholder="color.brand"
+          spellCheck={false}
+          onChange={(e) => setName(e.target.value)}
+        />
       </Field>
+      {props.typed && (
+        <Field label={m.newType}>
+          <Select
+            label={m.newType}
+            options={typeOptions}
+            value={type}
+            onValueChange={setType}
+            disabled={!ctx.canEdit}
+          />
+        </Field>
+      )}
       <Field label={m.newValue}>
-        <Input value={value} disabled={!ctx.canEdit} onChange={(e) => setValue(e.target.value)} />
+        {colour ? (
+          <ColourField value={value} pickLabel={m.pickColour(m.newValue)} disabled={!ctx.canEdit} onChange={setValue} />
+        ) : (
+          <Input value={value} disabled={!ctx.canEdit} onChange={(e) => setValue(e.target.value)} />
+        )}
       </Field>
-      {props.typed && <Select label={m.newType} options={typeOptions} value={type} onValueChange={setType} />}
       <Button
         variant="secondary"
         disabled={!addable}
@@ -112,7 +148,8 @@ export function RemoveToken(props: { readonly path: readonly string[]; readonly 
   const name = props.path.join(".");
   return (
     <Button
-      variant="secondary"
+      variant="ghost"
+      size="sm"
       aria-label={m.removeToken(name)}
       disabled={!ctx.canEdit}
       onClick={() =>
@@ -137,6 +174,14 @@ export function ImportDialog(props: { readonly onClose: () => void }): ReactElem
   const [result, setResult] = useState<ReturnType<typeof parseDtcg> | undefined>(undefined);
   const [done, setDone] = useState(false);
   const [file, setFile] = useState<string | undefined>(undefined);
+  // Measured when the file is read, against the theme as it was then: applying it must not turn the counts into
+  // "nothing would change".
+  const [changes, setChanges] = useState<ReturnType<typeof importChanges> | undefined>(undefined);
+  const read = (t: string) => {
+    const parsed = parseDtcg(t);
+    setResult(parsed);
+    setChanges(parsed.ok ? importChanges(ctx.value?.["tokens"], parsed.tokens) : undefined);
+  };
   const take = (files: readonly File[]) => {
     const f = files[0];
     if (f === undefined) {
@@ -152,7 +197,7 @@ export function ImportDialog(props: { readonly onClose: () => void }): ReactElem
     }
     void f.text().then((t) => {
       setText(t);
-      setResult(parseDtcg(t));
+      read(t);
     });
   };
   const apply = () => {
@@ -179,11 +224,12 @@ export function ImportDialog(props: { readonly onClose: () => void }): ReactElem
             onChange={(e) => {
               setText(e.target.value);
               setResult(undefined);
+              setChanges(undefined);
               setDone(false);
             }}
           />
         </Field>
-        <Button variant="secondary" disabled={text === ""} onClick={() => setResult(parseDtcg(text))}>
+        <Button variant="secondary" disabled={text === ""} onClick={() => read(text)}>
           {m.importRead}
         </Button>
         {result?.ok === false && (
@@ -191,8 +237,11 @@ export function ImportDialog(props: { readonly onClose: () => void }): ReactElem
             {m[ERRORS[result.error]]}
           </p>
         )}
-        {result?.ok === true && <Summary result={result} m={m} />}
-        <Button disabled={result?.ok !== true || result.imported === 0 || !ctx.canEdit || done} onClick={apply}>
+        {result?.ok === true && <Summary result={result} changes={changes} m={m} />}
+        <Button
+          disabled={changes === undefined || changes.added + changes.changed === 0 || !ctx.canEdit || done}
+          onClick={apply}
+        >
           {m.importApply}
         </Button>
         {done && (
@@ -207,16 +256,22 @@ export function ImportDialog(props: { readonly onClose: () => void }): ReactElem
 
 function Summary({
   result,
+  changes,
   m,
 }: {
   readonly result: Extract<ReturnType<typeof parseDtcg>, { ok: true }>;
+  readonly changes: ReturnType<typeof importChanges> | undefined;
   readonly m: DesignMessages;
 }) {
+  const c = changes ?? { added: 0, changed: 0, same: 0 };
   return (
     <div className="flex flex-col gap-1">
       <p role="status" className="text-body">
-        {m.importSummary(result.imported, result.skipped.length)}
+        {m.importSummary(c.added, c.changed, c.same, result.skipped.length)}
       </p>
+      {result.imported > 0 && c.added + c.changed === 0 && (
+        <p className="text-caption text-muted-foreground">{m.importNothing}</p>
+      )}
       {result.skipped.length > 0 && (
         <>
           <h3 className="text-label font-medium">{m.skippedHeading}</h3>

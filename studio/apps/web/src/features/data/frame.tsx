@@ -46,7 +46,12 @@ function Body(props: {
         }
         nav={
           <nav aria-label={m.areaNav} className="sub-nav">
-            <Link to="/o/$org/apps/$app/data" params={{ org: ctx.org, app: ctx.app }} search={search}>
+            <Link
+              to="/o/$org/apps/$app/data"
+              params={{ org: ctx.org, app: ctx.app }}
+              search={search}
+              activeOptions={{ exact: true, includeSearch: false }}
+            >
               {m.sourcesLink}
             </Link>
             <Link to="/o/$org/apps/$app/data/collections" params={{ org: ctx.org, app: ctx.app }} search={search}>

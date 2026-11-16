@@ -4,6 +4,7 @@
 import type { ComponentPropsWithoutRef, ReactElement } from "react";
 import { Button as ShadcnButton } from "./components/button";
 import { Spinner } from "./components/spinner";
+import { cx } from "./cx.ts";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -21,6 +22,13 @@ export type ButtonProps = Omit<ComponentPropsWithoutRef<typeof ShadcnButton>, "v
   readonly loadingLabel?: string;
 };
 
+/**
+ * Base UI marks a disabled button that stays focusable with `aria-disabled`, not the `disabled` attribute, so shadcn's
+ * `disabled:` styles never match it: the dimmed look is keyed to `aria-disabled` instead, or a disabled action would
+ * look as pressable as an enabled one.
+ */
+const disabledLook = "aria-disabled:opacity-50 aria-disabled:cursor-not-allowed";
+
 /** shadcn's Button (ADR-0103). Disabled and loading buttons stay focusable so keyboard users keep their place. */
 export function Button({
   variant = "primary",
@@ -28,12 +36,16 @@ export function Button({
   loading = false,
   loadingLabel,
   disabled,
+  className,
   children,
   ...rest
 }: ButtonProps): ReactElement {
   return (
     <ShadcnButton
       {...rest}
+      className={
+        typeof className === "function" ? (state) => cx(disabledLook, className(state)) : cx(disabledLook, className)
+      }
       variant={variants[variant]}
       size={sizes[size]}
       disabled={disabled === true || loading}

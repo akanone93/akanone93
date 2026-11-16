@@ -276,9 +276,10 @@ export function newAppMessages(i18n: I18n) {
     language: (name: string, code: string) =>
       i18n._({
         id: "newApp.locales.language",
-        message: "{name} ({code})",
+        message: "{name} · {code}",
         values: { name, code },
-        comment: "A language in the list: its name in the reader's language and its BCP 47 code.",
+        comment:
+          "A language in the list: its name in the reader's language and its BCP 47 code; the name may hold a region in brackets, such as German (Germany).",
       }),
     themeLegend: i18n._({
       id: "newApp.theme.legend",
@@ -318,12 +319,12 @@ export function newAppMessages(i18n: I18n) {
         values: { example },
         comment: "Error for a custom colour that is not six hexadecimal digits after a hash sign.",
       }),
-    themeSwatch: (name: string, colour: string) =>
+    themeSwatch: (colour: string) =>
       i18n._({
         id: "newApp.theme.swatch",
-        message: "{name}, primary colour {colour}",
-        values: { name, colour },
-        comment: "Accessible description of a theme choice: its name and primary colour.",
+        message: "Primary colour {colour}",
+        values: { colour },
+        comment: "Line under a ready-made theme's name: its primary colour as a hex code.",
       }),
     securityLegend: i18n._({
       id: "newApp.security.legend",

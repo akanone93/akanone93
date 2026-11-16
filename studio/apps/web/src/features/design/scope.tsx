@@ -13,6 +13,7 @@ import type { AppSession } from "../localisation/l10n-sessions.tsx";
 import { useAppDocuments } from "../plugin-canvas/use-plugin-documents.ts";
 import { designMessages } from "./design.messages.ts";
 import { flattenTokens } from "./design-model.ts";
+import "./design.css";
 
 /** What the pages of the Design system area share: the app's theme document, edited under the app lock through the edit pipeline. */
 export interface DesignContext {
@@ -120,7 +121,8 @@ function DesignNav({
   const ctx = { org, app };
   return (
     <nav aria-label={label} className="sub-nav">
-      <Link to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }}>
+      {/* The area's index: active on its own page only, not on every page below it. */}
+      <Link to="/o/$org/apps/$app/design" params={{ org: ctx.org, app: ctx.app }} activeOptions={{ exact: true }}>
         {m.tokensLink}
       </Link>
       <Link to="/o/$org/apps/$app/design/themes" params={{ org: ctx.org, app: ctx.app }}>

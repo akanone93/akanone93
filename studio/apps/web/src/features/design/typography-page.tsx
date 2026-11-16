@@ -63,7 +63,11 @@ function Script({ script }: { readonly script: (typeof SCRIPTS)[number] }): Reac
         />
       </Field>
       <span className="text-caption text-muted-foreground">
-        {shown.length < 2 ? m.noFallback(name) : m.fallbackOk(name, shown.length)}
+        {shown.length === 0
+          ? m.noFonts(name)
+          : shown.length < 2
+            ? m.noFallback(name)
+            : m.fallbackOk(name, shown.length)}
       </span>
     </li>
   );

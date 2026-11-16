@@ -216,6 +216,22 @@
  * action graph, Rust; STU-063): a sheet inset from the window's edges, rounded, on the third elevation, with a header
  * bar on a faint band and a body that fills the rest and scrolls inside.
  */
+/*
+ * A dialog never outgrows the window: past its height its content scrolls inside it, so its buttons stay reachable
+ * whatever it holds (a pasted file, a long list). The full-screen editors size themselves below.
+ */
+[data-slot="dialog-content"]:not([data-size="full"]) {
+  max-block-size: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* A text area grows with what is typed, up to a height, then scrolls: pasted text cannot push a form off the page. */
+textarea[data-slot="textarea"] {
+  max-block-size: 20rem;
+  overflow-y: auto;
+}
+
 [data-slot="dialog-content"][data-size="full"] {
   inset: calc(var(--spacing) * 3);
   inline-size: auto;

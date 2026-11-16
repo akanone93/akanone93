@@ -234,24 +234,32 @@ export const InsertPane = memo(function InsertPane({
             {note}
           </p>
         )}
-        <DockSection id="categories" label={m.categories} icon="squares-four" count={widgetKinds.length}>
+        <DockSection
+          id="categories"
+          label={m.categories}
+          icon="squares-four"
+          count={widgetKinds.filter((k) => (counts.get(k) ?? 0) > 0).length}
+        >
           {/* biome-ignore lint/a11y/useSemanticElements: a labelled group of filter toggles, not a form's fieldset */}
           <div role="group" aria-label={m.categories} className="gallery-categories">
-            {widgetKinds.map((k) => (
-              <button
-                key={k}
-                type="button"
-                className="gallery-category"
-                aria-pressed={kind === k}
-                onClick={() => setKind(kind === k ? null : k)}
-              >
-                <span className="gallery-glyph" data-kind={k} aria-hidden="true">
-                  <Icon name={kindIcon[k]} />
-                </span>
-                <span className="gallery-name">{kindLabel[k]}</span>
-                <span className="gallery-category-count">{counts.get(k) ?? 0}</span>
-              </button>
-            ))}
+            {/* A kind with no widget (none of More's in some catalogues) is no filter worth offering. */}
+            {widgetKinds
+              .filter((k) => (counts.get(k) ?? 0) > 0)
+              .map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  className="gallery-category"
+                  aria-pressed={kind === k}
+                  onClick={() => setKind(kind === k ? null : k)}
+                >
+                  <span className="gallery-glyph" data-kind={k} aria-hidden="true">
+                    <Icon name={kindIcon[k]} />
+                  </span>
+                  <span className="gallery-name">{kindLabel[k]}</span>
+                  <span className="gallery-category-count">{counts.get(k) ?? 0}</span>
+                </button>
+              ))}
           </div>
         </DockSection>
         {kind !== null && (

@@ -2,97 +2,176 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
+import { AlertDialog, Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
-import { PageEmpty } from "../../components/page.tsx";
+import { ColourChip, ColourField } from "../../components/colour-field.tsx";
+import { DataTable, PageEmpty } from "../../components/page.tsx";
 import { designMessages } from "./design.messages.ts";
 import {
   BRANDS_GROUP,
   baseRows,
   brandNames,
-  contrastOf,
+  dropToken,
   groupRows,
-  type Mode,
   putToken,
+  setMode,
   typedValue,
   validName,
 } from "./design-model.ts";
-import { modeLabel } from "./parts.tsx";
+import { ModePreview } from "./mode-preview.tsx";
+import { RemoveToken, show } from "./parts.tsx";
 import { Frame, useDesign } from "./scope.tsx";
 
-/** The colour tokens that carry a value in `mode`, with that value. */
-function coloursIn(ctx: ReturnType<typeof useDesign>, mode: Mode): [string, string][] {
-  const tokens = ctx.value?.["tokens"];
-  return baseRows(ctx.rows)
-    .filter((r) => r.type === "color")
-    .flatMap((r): [string, unknown][] => [
-      [r.path.join("."), mode === "light" ? r.light : mode === "dark" ? r.dark : contrastOf(tokens, r.path)],
-    ])
-    .filter((e): e is [string, string] => typeof e[1] === "string");
-}
-
-function ModeItem({ mode }: { readonly mode: Mode }): ReactElement {
+/** The theme's modes, each previewed on its own surface (STU-112). */
+function Modes(): ReactElement {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
-  const label = modeLabel(m, mode);
-  const colours = coloursIn(ctx, mode);
+  const raw = ctx.value?.["tokens"];
+  const tokens = raw !== null && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
   return (
-    <li className="flex flex-col gap-1">
-      <span className="text-body">{m.modeCount(label, colours.length)}</span>
-      <ul aria-label={m.swatches(label)} className="flex flex-wrap gap-2">
-        {colours.map(([name, value]) => (
-          <li key={name} className="flex items-center gap-1">
-            <span
-              aria-hidden="true"
-              className="inline-block size-4 rounded-sm border border-hairline"
-              style={{ backgroundColor: value }}
-            />
-            <span className="font-mono text-caption">{name}</span>
-          </li>
+    <section aria-label={m.modesHeading} className="flex flex-col gap-3">
+      <h2 className="text-label font-medium">{m.modesHeading}</h2>
+      <div className="mode-previews">
+        {(["light", "dark", "contrast"] as const).map((mode) => (
+          <ModePreview key={mode} tokens={tokens} mode={mode} />
         ))}
-      </ul>
-    </li>
+      </div>
+    </section>
   );
 }
 
-/** D57 (create): a brand overlay replaces one base token for one brand. */
-function CreateBrandDialog(props: { readonly onClose: () => void }): ReactElement {
+/**
+ * D57: a brand overlay replaces base tokens for one brand. Without `brand` it creates an overlay with its first
+ * override; with one, it adds an override to that overlay (or replaces the one it has for the token).
+ */
+function BrandDialog(props: { readonly brand?: string; readonly onClose: () => void }): ReactElement {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
   const base = baseRows(ctx.rows);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(props.brand ?? "");
   const [token, setToken] = useState(base[0]?.path.join(".") ?? "");
   const [value, setValue] = useState("");
+  const [dark, setDark] = useState("");
   const chosen = base.find((r) => r.path.join(".") === token);
   const ready = ctx.canEdit && validName(name) && !name.includes(".") && chosen !== undefined && value !== "";
+  const field = (label: string, v: string, set: (v: string) => void) =>
+    chosen?.type === "color" ? (
+      <ColourField value={v} pickLabel={m.pickColour(label)} onChange={set} />
+    ) : (
+      <Input value={v} onChange={(e) => set(e.target.value)} />
+    );
   return (
-    <Dialog open onOpenChange={(o) => !o && props.onClose()} title={m.createBrandTitle} labels={{ close: m.close }}>
+    <Dialog
+      open
+      onOpenChange={(o) => !o && props.onClose()}
+      title={props.brand === undefined ? m.createBrandTitle : m.brandAddTitle(props.brand)}
+      labels={{ close: m.close }}
+    >
       <div className="flex flex-col gap-3">
-        <Field label={m.brandName}>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
+        {props.brand === undefined && (
+          <Field label={m.brandName}>
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          </Field>
+        )}
+        <Field label={m.brandToken}>
+          <Select
+            label={m.brandToken}
+            options={base.map((r) => ({ value: r.path.join("."), label: r.path.join(".") }))}
+            value={token}
+            onValueChange={setToken}
+          />
         </Field>
-        <Select
-          label={m.brandToken}
-          options={base.map((r) => ({ value: r.path.join("."), label: r.path.join(".") }))}
-          value={token}
-          onValueChange={setToken}
-        />
-        <Field label={m.brandValue}>
-          <Input value={value} onChange={(e) => setValue(e.target.value)} />
+        <Field label={m.brandValue}>{field(m.brandValue, value, setValue)}</Field>
+        <Field label={m.brandDarkValue} description={m.brandDarkHint}>
+          {field(m.brandDarkValue, dark, setDark)}
         </Field>
         <Button
           disabled={!ready}
           onClick={() => {
-            ctx.write(`brand:${name}`, (t) =>
-              putToken(t, [...BRANDS_GROUP, name, ...token.split(".")], typedValue(chosen?.type, value), chosen?.type),
-            );
+            const path = [...BRANDS_GROUP, name, ...token.split(".")];
+            ctx.write(`brand:${name}:${token}`, (t) => {
+              putToken(t, path, typedValue(chosen?.type, value), chosen?.type);
+              setMode(t, path, "dark", dark.trim() === "" ? undefined : typedValue(chosen?.type, dark));
+            });
             props.onClose();
           }}
         >
-          {m.brandCreate}
+          {props.brand === undefined ? m.brandCreate : m.brandAdd}
         </Button>
       </div>
     </Dialog>
+  );
+}
+
+/** One brand overlay: what it replaces, light and dark, each removable; more can be added, or the overlay removed. */
+function BrandCard({ brand }: { readonly brand: string }): ReactElement {
+  const m = designMessages(useLingui().i18n);
+  const ctx = useDesign();
+  const [adding, setAdding] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const rows = groupRows(ctx.rows, BRANDS_GROUP)
+    .filter((r) => r.path[0] === brand)
+    .map((r) => ({ ...r, path: r.path.slice(1) }));
+  const cell = (type: string, v: unknown) =>
+    v === undefined ? (
+      <span aria-hidden="true" className="text-muted-foreground">
+        —
+      </span>
+    ) : type === "color" ? (
+      <ColourChip value={show(v)} />
+    ) : (
+      <span className="font-mono text-caption">{show(v)}</span>
+    );
+  return (
+    <section aria-label={brand} className="design-card">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="me-auto text-label font-medium">{m.brandOverrides(brand, rows.length)}</h3>
+        <Button variant="secondary" size="sm" disabled={!ctx.canEdit} onClick={() => setAdding(true)}>
+          <Icon name="plus" />
+          {m.brandAdd}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={m.brandRemove(brand)}
+          disabled={!ctx.canEdit}
+          onClick={() => setRemoving(true)}
+        >
+          <Icon name="trash" />
+        </Button>
+      </div>
+      {rows.length > 0 && (
+        <DataTable
+          caption={m.brandOverrides(brand, rows.length)}
+          heads={[m.colToken, m.colLight, m.colDark, m.colActions]}
+          rows={rows.map((r) => {
+            const name = r.path.join(".");
+            return {
+              key: name,
+              cells: [
+                <span key="name" className="font-mono text-body">
+                  {name}
+                </span>,
+                cell(r.type, r.light),
+                cell(r.type, r.dark),
+                <span key="actions" className="flex justify-end">
+                  <RemoveToken path={[...BRANDS_GROUP, brand, ...r.path]} />
+                </span>,
+              ],
+            };
+          })}
+        />
+      )}
+      {adding && <BrandDialog brand={brand} onClose={() => setAdding(false)} />}
+      <AlertDialog
+        open={removing}
+        onOpenChange={setRemoving}
+        title={m.brandRemoveTitle(brand)}
+        description={m.brandRemoveText}
+        labels={{ cancel: m.cancel, confirm: m.brandRemoveConfirm }}
+        onConfirm={() => ctx.write(`brand:${brand}:remove`, (t) => dropToken(t, [...BRANDS_GROUP, brand]))}
+      />
+    </section>
   );
 }
 
@@ -102,26 +181,20 @@ function Brands(): ReactElement {
   const [creating, setCreating] = useState(false);
   const names = brandNames(ctx.rows);
   return (
-    <section aria-label={m.brandsHeading} className="flex flex-col gap-2">
-      <h2 className="text-label font-medium">{m.brandsHeading}</h2>
-      {names.length === 0 ? (
-        <PageEmpty icon="palette" text={m.noBrands} />
-      ) : (
-        <ul>
-          {names.map((b) => (
-            <li key={b} className="text-body">
-              {m.brandOverrides(b, groupRows(ctx.rows, BRANDS_GROUP).filter((r) => r.path[0] === b).length)}
-            </li>
-          ))}
-        </ul>
-      )}
-      <div>
+    <section aria-label={m.brandsHeading} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="me-auto text-label font-medium">{m.brandsHeading}</h2>
         <Button variant="secondary" disabled={!ctx.canEdit} onClick={() => setCreating(true)}>
           <Icon name="plus" />
           {m.createBrand}
         </Button>
       </div>
-      {creating && <CreateBrandDialog onClose={() => setCreating(false)} />}
+      {names.length === 0 ? (
+        <PageEmpty icon="palette" text={m.noBrands} />
+      ) : (
+        names.map((b) => <BrandCard key={b} brand={b} />)
+      )}
+      {creating && <BrandDialog onClose={() => setCreating(false)} />}
     </section>
   );
 }
@@ -131,14 +204,7 @@ export function ThemesPage(): ReactElement {
   const m = designMessages(useLingui().i18n);
   return (
     <Frame id="design-themes" title={m.themesTitle} caption={m.themesCaption}>
-      <section aria-label={m.modesHeading} className="flex flex-col gap-2">
-        <h2 className="text-label font-medium">{m.modesHeading}</h2>
-        <ul className="flex flex-col gap-3">
-          {(["light", "dark", "contrast"] as const).map((mode) => (
-            <ModeItem key={mode} mode={mode} />
-          ))}
-        </ul>
-      </section>
+      <Modes />
       <Brands />
     </Frame>
   );

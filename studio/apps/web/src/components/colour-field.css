@@ -1,0 +1,45 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* A colour value: the browser's picker as a swatch beside the text field. */
+.colour-field {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+}
+
+/* A code is read character by character. */
+.colour-field input:not([type="color"]) {
+  font-family: var(--font-mono);
+}
+
+.colour-swatch {
+  inline-size: calc(var(--spacing) * 9);
+  block-size: calc(var(--spacing) * 9);
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+}
+
+.colour-swatch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* A colour in a table: a small swatch, framed so white and the page's own colour still show, and its code. */
+.colour-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.colour-chip-swatch {
+  inline-size: calc(var(--spacing) * 4);
+  block-size: calc(var(--spacing) * 4);
+  flex: none;
+  border: 1px solid color-mix(in oklch, var(--foreground) 18%, transparent);
+  border-radius: var(--radius-sm);
+}

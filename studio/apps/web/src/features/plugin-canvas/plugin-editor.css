@@ -514,9 +514,10 @@
   white-space: nowrap;
 }
 
+/* Tight enough that the longest kind ("Navigation") and its count both fit a half-width tile without touching. */
 .gallery-categories .gallery-category {
-  gap: 6px;
-  padding: 5px 7px 5px 5px;
+  gap: 4px;
+  padding: 5px 6px 5px 4px;
 }
 
 .gallery-category .gallery-glyph {
@@ -525,6 +526,8 @@
 }
 
 .gallery-categories .gallery-category-count {
+  flex: none;
+  margin-inline-start: 4px;
   padding: 0;
   font-size: 10.5px;
   background-color: transparent;

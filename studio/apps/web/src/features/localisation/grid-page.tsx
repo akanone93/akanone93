@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { AlertDialog, Button, Input, Select } from "@plux/ui";
+import { AlertDialog, Button, Field, Icon, Input, Select } from "@plux/ui";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useMemo, useState } from "react";
 import { PageEmpty } from "../../components/page.tsx";
+import { localeNames } from "../new-app/locale-catalogue.ts";
 import { localisationAreaMessages } from "./area.messages.ts";
 import { type LocalisationSearch, setStates, writeMessages } from "./area-actions.ts";
 import { AreaFrame } from "./area-frame.tsx";
@@ -39,45 +40,57 @@ function Filters(props: {
   readonly search: LocalisationSearch;
   readonly set: (c: Partial<LocalisationSearch>) => void;
 }) {
-  const m = localisationAreaMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = localisationAreaMessages(i18n);
   const area = useArea();
   const labels = useStatusLabels();
   const { search, set } = props;
   return (
-    <div className="flex flex-wrap items-end gap-3">
-      <Select
-        label={m.pluginFilter}
-        options={[
-          { value: "", label: m.allPlugins },
-          ...area.plugins.map((p) => ({ value: p, label: area.pluginNames.get(p) ?? p })),
-        ]}
-        value={area.plugin ?? ""}
-        onValueChange={(v) => set({ plugin: v === "" ? undefined : v })}
-      />
-      <Select
-        label={m.localeFilter}
-        options={area.sessions.locales.map((l) => ({ value: l, label: l }))}
-        value={area.sessions.locale}
-        onValueChange={(locale) => set({ locale })}
-      />
-      <Select
-        label={m.statusFilter}
-        options={[
-          { value: "all", label: m.statusAll },
-          ...(Object.keys(labels) as CellStatus[]).map((s) => ({ value: s, label: labels[s] })),
-        ]}
-        value={search.status ?? "all"}
-        onValueChange={(v) => set({ status: v as LocalisationSearch["status"] })}
-      />
-      <Input
-        aria-label={m.search}
-        placeholder={m.search}
-        value={search.q ?? ""}
-        onChange={(e) => set({ q: e.target.value === "" ? undefined : e.target.value })}
-      />
+    <div className="l10n-filters">
+      <Field label={m.pluginFilter}>
+        <Select
+          label={m.pluginFilter}
+          options={[
+            { value: "", label: m.allPlugins },
+            ...area.plugins.map((p) => ({ value: p, label: area.pluginNames.get(p) ?? p })),
+          ]}
+          value={area.plugin ?? ""}
+          onValueChange={(v) => set({ plugin: v === "" ? undefined : v })}
+        />
+      </Field>
+      <Field label={m.localeFilter}>
+        <Select
+          label={m.localeFilter}
+          options={area.sessions.locales.map((l) => ({ value: l, label: localeLabel(i18n.locale, l) }))}
+          value={area.sessions.locale}
+          onValueChange={(locale) => set({ locale })}
+        />
+      </Field>
+      <Field label={m.statusFilter}>
+        <Select
+          label={m.statusFilter}
+          options={[
+            { value: "all", label: m.statusAll },
+            ...(Object.keys(labels) as CellStatus[]).map((s) => ({ value: s, label: labels[s] })),
+          ]}
+          value={search.status ?? "all"}
+          onValueChange={(v) => set({ status: v as LocalisationSearch["status"] })}
+        />
+      </Field>
+      <Field label={m.search}>
+        <Input
+          type="search"
+          placeholder={m.search}
+          value={search.q ?? ""}
+          onChange={(e) => set({ q: e.target.value === "" ? undefined : e.target.value })}
+        />
+      </Field>
     </div>
   );
 }
+
+/** A locale as the grid names it: its name in the reader's language and its tag, `German (Germany) · de-DE`. */
+const localeLabel = (uiLocale: string, tag: string): string => `${localeNames(uiLocale, tag).name} · ${tag}`;
 
 function Toolbar() {
   const m = localisationAreaMessages(useLingui().i18n);
@@ -85,13 +98,18 @@ function Toolbar() {
   const area = useArea();
   return (
     <div className="flex flex-wrap gap-2">
-      <Button onClick={() => setOpen("locale")} disabled={!area.sessions.canEditKeys}>
+      <Button variant="secondary" onClick={() => setOpen("locale")} disabled={!area.sessions.canEditKeys}>
+        <Icon name="plus" />
         {m.addLocale}
       </Button>
-      <Button onClick={() => setOpen("import")} disabled={!area.canEdit}>
+      <Button variant="secondary" onClick={() => setOpen("import")} disabled={!area.canEdit}>
+        <Icon name="upload" />
         {m.importOpen}
       </Button>
-      <Button onClick={() => setOpen("export")}>{m.exportOpen}</Button>
+      <Button variant="secondary" onClick={() => setOpen("export")}>
+        <Icon name="download" />
+        {m.exportOpen}
+      </Button>
       <AddLocaleDialog open={open === "locale"} onClose={() => setOpen(null)} />
       <ImportDialog open={open === "import"} onClose={() => setOpen(null)} />
       <ExportDialog open={open === "export"} onClose={() => setOpen(null)} />
@@ -134,10 +152,14 @@ function BulkBar(props: { readonly ids: readonly string[]; readonly done: () => 
       <Button disabled={none || !area.canApprove} onClick={() => setPending("approve")}>
         {m.bulkApprove}
       </Button>
-      <Button disabled={none || !area.canEdit} onClick={() => setPending("review")}>
+      <Button variant="secondary" disabled={none || !area.canEdit} onClick={() => setPending("review")}>
         {m.bulkReview}
       </Button>
-      <Button disabled={none || !area.canEdit || locale === defaultLocale} onClick={() => setPending("copy")}>
+      <Button
+        variant="secondary"
+        disabled={none || !area.canEdit || locale === defaultLocale}
+        onClick={() => setPending("copy")}
+      >
         {m.bulkCopy}
       </Button>
       {area.canEdit && !area.canApprove && <span className="text-caption text-muted-foreground">{m.noApprove}</span>}

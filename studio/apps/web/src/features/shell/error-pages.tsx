@@ -35,7 +35,7 @@ export function NotFoundPage() {
       <div className="page-body">
         <PageEmpty
           icon="question"
-          text={m.notFoundBody}
+          text={m.notFoundHint}
           action={
             <Link to="/" className={buttonVariants({ size: "sm" })}>
               {m.notFoundHome}

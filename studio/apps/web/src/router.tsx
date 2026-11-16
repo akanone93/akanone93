@@ -203,6 +203,15 @@ const orgHomeRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/home/index.ts"), "HomePage"),
 });
 
+/** `/o/$org/apps`, an address people type: the organisation's apps are listed on its home page. */
+const appsListRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/apps",
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: "/o/$org", params: { org: params.org } });
+  },
+});
+
 /** O3: the new-app wizard as a route of its own (STU-024); creating an app needs `app.manage`. */
 const newAppRoute = createRoute({
   getParentRoute: () => orgRoute,
@@ -582,6 +591,7 @@ const routeTree = rootRoute.addChildren([
     ...installationRoutes,
     orgRoute.addChildren([
       orgHomeRoute,
+      appsListRoute,
       newAppRoute,
       shellSettingsRoute,
       appSettingsRoute,

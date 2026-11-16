@@ -51,14 +51,14 @@ describe("creating a blank app with the wizard [STU-024]", () => {
     // Any language can be found by name or code; a region is typed as a tag (N1).
     const search = within(dialog).getByRole("searchbox");
     fireEvent.change(search, { target: { value: "germ" } });
-    fireEvent.click(within(dialog).getByRole("button", { name: /^Add German \(de\)/ }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Add German · de/ }));
     fireEvent.change(search, { target: { value: "ar" } });
-    fireEvent.click(within(dialog).getByRole("button", { name: /^Add Arabic \(ar\)/ }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Add Arabic · ar/ }));
     fireEvent.change(search, { target: { value: "am-et" } });
-    fireEvent.click(within(dialog).getByRole("button", { name: /^Add .*\(am-ET\)/ }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Add .*· am-ET/ }));
     const german = within(dialog)
       .getAllByRole("listitem")
-      .find((li) => li.textContent?.startsWith("German (de)") === true);
+      .find((li) => li.textContent?.startsWith("German · de") === true);
     fireEvent.click(within(german as HTMLElement).getByRole("radio", { name: "Default" }));
     next(dialog);
 
@@ -119,7 +119,7 @@ describe("creating a blank app with the wizard [STU-024]", () => {
     // The last language cannot be removed: an app always has one.
     expect(
       within(dialog)
-        .getByRole("button", { name: /^Remove English \(en\)/ })
+        .getByRole("button", { name: /^Remove English · en/ })
         .matches(":disabled, [aria-disabled=true], [data-disabled]"),
     ).toBe(true);
     next(dialog);

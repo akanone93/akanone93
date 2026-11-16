@@ -102,6 +102,105 @@ export function designMessages(i18n: I18n) {
       message: "Value",
       comment: "Label of the field for the value of a new token.",
     }),
+    colActions: i18n._({
+      id: "design.colActions",
+      message: "Actions",
+      comment: "Heading of the tokens table's column of edit and remove buttons.",
+    }),
+    addTokenHeading: i18n._({
+      id: "design.addTokenHeading",
+      message: "Add a token",
+      comment: "Heading of the card with the fields that add a design token.",
+    }),
+    exportButton: i18n._({
+      id: "design.exportButton",
+      message: "Export tokens",
+      comment: "Button that downloads the theme's tokens as a DTCG JSON file.",
+    }),
+    pickColour: (field: string) =>
+      i18n._({
+        id: "design.pickColour",
+        message: "Pick a colour for {field}",
+        values: { field },
+        comment: "Accessible name of the colour picker swatch beside a colour field; field is the field's label.",
+      }),
+    brandDarkValue: i18n._({
+      id: "design.brandDarkValue",
+      message: "Value in dark mode",
+      comment: "Label of the optional dark-mode value of a brand overlay's override.",
+    }),
+    brandDarkHint: i18n._({
+      id: "design.brandDarkHint",
+      message: "Optional. Without it, dark mode uses the value above.",
+      comment: "Hint under the dark-mode value of a brand override.",
+    }),
+    brandAdd: i18n._({
+      id: "design.brandAdd",
+      message: "Add an override",
+      comment: "Button on a brand overlay's card that adds the value of one more token for the brand.",
+    }),
+    brandAddTitle: (brand: string) =>
+      i18n._({
+        id: "design.brandAddTitle",
+        message: "Add an override to {brand}",
+        values: { brand },
+        comment: "Title of the dialog that adds a token's value to a brand overlay.",
+      }),
+    brandRemove: (brand: string) =>
+      i18n._({
+        id: "design.brandRemove",
+        message: "Remove the {brand} overlay",
+        values: { brand },
+        comment: "Accessible name of the button that removes a brand overlay.",
+      }),
+    brandRemoveTitle: (brand: string) =>
+      i18n._({
+        id: "design.brandRemoveTitle",
+        message: "Remove the {brand} overlay?",
+        values: { brand },
+        comment: "Title of the confirmation before a brand overlay is removed.",
+      }),
+    brandRemoveText: i18n._({
+      id: "design.brandRemoveText",
+      message:
+        "Its overrides are removed with it, and a host that selects this brand shows the base tokens. Undo brings it back.",
+      comment: "Body of the confirmation before a brand overlay is removed.",
+    }),
+    brandRemoveConfirm: i18n._({
+      id: "design.brandRemoveConfirm",
+      message: "Remove overlay",
+      comment: "Confirm button that removes a brand overlay.",
+    }),
+    cancel: i18n._({ id: "design.cancel", message: "Cancel", comment: "Cancel button of a confirmation." }),
+    searchTokens: i18n._({
+      id: "design.searchTokens",
+      message: "Search tokens",
+      comment: "Placeholder and accessible name of the field that filters the tokens table by path or type.",
+    }),
+    noTokenMatches: i18n._({
+      id: "design.noTokenMatches",
+      message: "No token matches the search.",
+      comment: "Shown when the tokens search keeps no token.",
+    }),
+    textSample: i18n._({
+      id: "design.textSample",
+      message: "Aa",
+      comment: "A short sample of text drawn on a colour to show how it reads; use two letters of your script.",
+    }),
+    contrastPasses: (ratio: string) =>
+      i18n._({
+        id: "design.contrastPasses",
+        message: "{ratio}:1 AA",
+        values: { ratio },
+        comment: "On a colour tile: the contrast of its text, which meets WCAG AA for normal text.",
+      }),
+    contrastFails: (ratio: string) =>
+      i18n._({
+        id: "design.contrastFails",
+        message: "{ratio}:1 below AA",
+        values: { ratio },
+        comment: "On a colour tile: the contrast of its text, which is below WCAG AA (4.5:1) for normal text.",
+      }),
     newType: i18n._({ id: "design.newType", message: "Type", comment: "Label of the token type picker." }),
     addToken: i18n._({ id: "design.addToken", message: "Add token", comment: "Button." }),
     importButton: i18n._({
@@ -150,13 +249,19 @@ export function designMessages(i18n: I18n) {
       message: "The file does not hold a token tree.",
       comment: "Error when the DTCG JSON is not an object.",
     }),
-    importSummary: (imported: number, skipped: number) =>
+    importSummary: (added: number, changed: number, same: number, skipped: number) =>
       i18n._({
         id: "design.importSummary",
-        message: "{imported} tokens can be added, {skipped} are skipped.",
-        values: { imported, skipped },
-        comment: "Result of reading a DTCG file.",
+        message: "New: {added} · Changed: {changed} · Unchanged: {same} · Skipped: {skipped}",
+        values: { added, changed, same, skipped },
+        comment:
+          "Result of reading a DTCG file against the theme: tokens the theme lacks, tokens with another value or type, tokens it already has as they are, and tokens left out.",
       }),
+    importNothing: i18n._({
+      id: "design.importNothing",
+      message: "The theme already has every token in the file as it is.",
+      comment: "Shown after reading a DTCG file whose tokens would change nothing.",
+    }),
     importDone: i18n._({
       id: "design.importDone",
       message: "The tokens were added to the theme.",
@@ -198,13 +303,6 @@ export function designMessages(i18n: I18n) {
       comment: "Caption under the themes heading.",
     }),
     modesHeading: i18n._({ id: "design.modesHeading", message: "Modes", comment: "Heading of the modes section." }),
-    modeCount: (mode: string, n: number) =>
-      i18n._({
-        id: "design.modeCount",
-        message: "{mode}: {n} colours",
-        values: { mode, n },
-        comment: "Number of colour tokens that have a value in a mode.",
-      }),
     swatches: (mode: string) =>
       i18n._({
         id: "design.swatches",
@@ -221,7 +319,7 @@ export function designMessages(i18n: I18n) {
     brandOverrides: (brand: string, n: number) =>
       i18n._({
         id: "design.brandOverrides",
-        message: "{brand}: {n} overrides",
+        message: "{brand}: {n, plural, one {# override} other {# overrides}}",
         values: { brand, n },
         comment: "A brand overlay and the number of tokens it replaces.",
       }),
@@ -314,6 +412,13 @@ export function designMessages(i18n: I18n) {
         values: { script },
         comment: "Label of the font family list of a script.",
       }),
+    noFonts: (script: string) =>
+      i18n._({
+        id: "design.noFonts",
+        message: "{script} text uses the device's fonts. Name a family to choose one.",
+        values: { script },
+        comment: "Shown under a script's font field while it lists no family.",
+      }),
     noFallback: (script: string) =>
       i18n._({
         id: "design.noFallback",
@@ -324,7 +429,7 @@ export function designMessages(i18n: I18n) {
     fallbackOk: (script: string, n: number) =>
       i18n._({
         id: "design.fallbackOk",
-        message: "{script}: {n} fonts",
+        message: "{script}: {n, plural, one {# font} other {# fonts}}",
         values: { script, n },
         comment: "A script with its number of fonts.",
       }),

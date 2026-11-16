@@ -9,10 +9,12 @@ import {
   contrastOf,
   dropBaseToken,
   flattenTokens,
+  importChanges,
   parseDtcg,
   putToken,
   scriptCoverage,
   setMode,
+  tokenText,
   typedValue,
   validName,
 } from "./design-model.ts";
@@ -71,6 +73,41 @@ describe("pure helpers", () => {
     dropBaseToken(tokens, ["color", "primary"]);
     // The token goes with its high-contrast and brand values, and the groups they leave empty.
     expect(tokens).toEqual({});
+  });
+
+  test("an import is measured against the theme: new, changed and unchanged tokens", () => {
+    const current = { color: { $type: "color", a: { $value: "#000" }, b: { $value: "#111" } } };
+    const file = {
+      color: { a: { $value: "#000", $type: "color" }, b: { $value: "#222" }, c: { $value: "#333" } },
+    };
+    // `a` repeats the theme's token: its type written out equals the one its group gives it.
+    expect(importChanges(current, file)).toEqual({ added: 1, changed: 1, same: 1 });
+    expect(importChanges(undefined, file)).toEqual({ added: 3, changed: 0, same: 0 });
+    // The server sorts a document's keys; the same value in another key order is unchanged.
+    const sized = { space: { m: { $type: "dimension", $value: { unit: "px", value: 8 } } } };
+    expect(importChanges(sized, { space: { m: { $type: "dimension", $value: { value: 8, unit: "px" } } } })).toEqual({
+      added: 0,
+      changed: 0,
+      same: 1,
+    });
+  });
+
+  test("a token's value reads as a person writes it, by its type", () => {
+    expect(tokenText("dimension", { value: 16, unit: "px" })).toBe("16px");
+    expect(tokenText("duration", { value: 150, unit: "ms" })).toBe("150ms");
+    expect(tokenText("fontFamily", ["Inter", "Roboto"])).toBe("Inter, Roboto");
+    expect(tokenText("cubicBezier", [0.4, 0, 0.2, 1])).toBe("cubic-bezier(0.4, 0, 0.2, 1)");
+    expect(
+      tokenText("typography", {
+        fontFamily: "{font.base}",
+        fontSize: { value: 57, unit: "px" },
+        fontWeight: 400,
+        lineHeight: 1.12,
+      }),
+    ).toBe("{font.base} · 57px · 400 · ×1.12");
+    expect(tokenText("number", 3)).toBe("3");
+    expect(tokenText("color", "{color.primary}")).toBe("{color.primary}");
+    expect(tokenText("gradient", [1])).toBe("[1]");
   });
 
   test("a typed value is stored as its type keeps it", () => {
@@ -134,7 +171,7 @@ describe("[STU-112] A15 tokens and D57, D58", () => {
       },
     });
     fireEvent.click(screen.getByRole("button", { name: "Read the file" }));
-    expect(await screen.findByText("1 tokens can be added, 1 are skipped.")).toBeTruthy();
+    expect(await screen.findByText("New: 1 · Changed: 0 · Unchanged: 0 · Skipped: 1")).toBeTruthy();
     expect(screen.getByText("space.x")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Add to the theme" }));
     expect(await screen.findByText("The tokens were added to the theme.")).toBeTruthy();
@@ -142,10 +179,34 @@ describe("[STU-112] A15 tokens and D57, D58", () => {
 });
 
 describe("[STU-112] A16 to A18", () => {
-  test("themes count the colours of each mode", async () => {
-    renderApp(`${base}/themes`, state);
-    expect(await screen.findByText("Light: 2 colours", {}, { timeout: 10000 })).toBeTruthy();
-    expect(screen.getByText("Dark: 1 colours")).toBeTruthy();
+  test("[A11Y-003] each mode is previewed on its surface, every pair with its contrast", async () => {
+    const roles = {
+      ...theme,
+      tokens: {
+        color: {
+          $type: "color",
+          primary: { $value: "#4f46e5", $extensions: { "dev.plux.dark": "#a5b4fc" } },
+          onPrimary: { $value: "#ffffff", $extensions: { "dev.plux.dark": "#1e1b4b" } },
+          tertiary: { $value: "#f59e0b" },
+          onTertiary: { $value: "#ffffff" },
+          surface: { $value: "#ffffff", $extensions: { "dev.plux.dark": "#0b0b12" } },
+          success: { $value: "#16a34a" },
+        },
+        contrast: { high: { color: { primary: { $value: "#3730a3", $type: "color" } } } },
+      },
+    };
+    renderApp(`${base}/themes`, {
+      ...state,
+      appDocuments: [{ kind: "theme", path: "theme.json", json: roles }, appDocuments[1]],
+    } as typeof state);
+    const light = await screen.findByRole("region", { name: "Light" }, { timeout: 10000 });
+    expect(within(light).getByText("6.3:1 AA")).toBeTruthy();
+    // White on amber is below WCAG AA, and says so.
+    expect(within(light).getByText("2.1:1 below AA")).toBeTruthy();
+    expect(within(light).getByText("success")).toBeTruthy();
+    expect(within(screen.getByRole("region", { name: "Dark" })).getByText("8.0:1 AA")).toBeTruthy();
+    // High contrast takes `contrast.high.color.primary` over the light value (ADR-0032).
+    expect(within(screen.getByRole("region", { name: "High contrast" })).getByText("9.9:1 AA")).toBeTruthy();
     expect(screen.getByText("No brand overlays yet.")).toBeTruthy();
   });
 
@@ -157,7 +218,13 @@ describe("[STU-112] A16 to A18", () => {
     fireEvent.change(await screen.findByLabelText("Brand name"), { target: { value: "acme" } });
     fireEvent.change(screen.getByLabelText("Value for the brand"), { target: { value: "#ff0000" } });
     fireEvent.click(screen.getByRole("button", { name: "Create overlay" }));
-    expect(await screen.findByText("acme: 1 overrides")).toBeTruthy();
+    // The overlay is a card listing what it replaces, at `brands.acme` where the device reads it (THM-003).
+    const card = await screen.findByRole("region", { name: "acme" });
+    expect(within(card).getByRole("heading", { name: "acme: 1 override" })).toBeTruthy();
+    expect(within(card).getByText("#ff0000")).toBeTruthy();
+    fireEvent.click(within(card).getByRole("button", { name: "Remove the acme overlay" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Remove overlay" }));
+    expect(await screen.findByText("No brand overlays yet.")).toBeTruthy();
   });
 
   test("the brand overlay dialog asks for a name without dots, a token and a value before it creates anything", async () => {
@@ -212,7 +279,7 @@ describe("[STU-112] A16 to A18", () => {
     const alert = await screen.findByRole("alert", {}, { timeout: 10000 });
     expect(alert.textContent).toBe("The server refused this change. It was undone.");
     expect(sent?.some((s) => s.path === "theme.json")).toBe(true);
-    await waitFor(() => expect(screen.queryByText("acme: 1 overrides") === null).toBe(true));
+    await waitFor(() => expect(screen.queryByText("acme: 1 override") === null).toBe(true));
     expect(screen.getByText("No brand overlays yet.")).toBeTruthy();
   });
 
@@ -220,7 +287,7 @@ describe("[STU-112] A16 to A18", () => {
     renderApp(`${base}/typography`, state);
     expect(await screen.findByText("Latin: 2 fonts", {}, { timeout: 10000 })).toBeTruthy();
     expect(screen.getByText("Arabic has no fallback font.")).toBeTruthy();
-    expect(screen.getByText("Cyrillic has no fallback font.")).toBeTruthy();
+    expect(screen.getByText("Cyrillic text uses the device's fonts. Name a family to choose one.")).toBeTruthy();
   });
 
   test("a script's families are typed as a list and saved when the field is left [THM-004]", async () => {

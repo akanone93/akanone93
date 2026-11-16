@@ -7,6 +7,7 @@ import type { ReactElement, ReactNode } from "react";
 import { PageHeader } from "../../components/page.tsx";
 import { localisationAreaMessages } from "./area.messages.ts";
 import { AreaScope, useArea } from "./area-scope.tsx";
+import "./localisation-area.css";
 
 function Body(props: {
   readonly id: string;
@@ -26,7 +27,12 @@ function Body(props: {
         caption={props.caption}
         nav={
           <nav aria-label={m.navLabel} className="sub-nav">
-            <Link to="/o/$org/apps/$app/localisation" params={params} search={search}>
+            <Link
+              to="/o/$org/apps/$app/localisation"
+              params={params}
+              search={search}
+              activeOptions={{ exact: true, includeSearch: false }}
+            >
               {m.gridLink}
             </Link>
             <Link to="/o/$org/apps/$app/localisation/heatmap" params={params} search={search}>

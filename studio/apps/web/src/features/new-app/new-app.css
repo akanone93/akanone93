@@ -47,21 +47,3 @@
 .locale-result:disabled {
   opacity: 0.5;
 }
-
-/* The custom colour (N2): the browser's picker as a swatch beside the hex field. */
-.colour-field {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--spacing) * 2);
-}
-
-.colour-swatch {
-  inline-size: calc(var(--spacing) * 9);
-  block-size: calc(var(--spacing) * 9);
-  flex: none;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: none;
-  cursor: pointer;
-}

@@ -44,7 +44,13 @@ export function AreaNav(): ReactElement {
     <div className="flex flex-wrap items-center justify-between gap-x-4">
       <nav aria-label={m.overviewTitle} className="sub-nav">
         {routes.map(([to, key]) => (
-          <Link key={to} to={to} params={{ org, app }} search={{ env: search.env }}>
+          <Link
+            key={to}
+            to={to}
+            params={{ org, app }}
+            search={{ env: search.env }}
+            activeOptions={{ exact: to === routes[0][0], includeSearch: false }}
+          >
             {m[key]}
           </Link>
         ))}

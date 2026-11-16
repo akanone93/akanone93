@@ -39,6 +39,11 @@ export function chromeMessages(i18n: I18n) {
       message: "This page does not exist or you cannot see it.",
       comment: "Body of the 404 page.",
     }),
+    notFoundHint: i18n._({
+      id: "chrome.notFound.hint",
+      message: "Check the address, or start again from the home page.",
+      comment: "What to do on the page shown for an address no page answers; the heading's caption already says why.",
+    }),
     notFoundHome: i18n._({
       id: "chrome.notFound.home",
       message: "Go to the home page",
