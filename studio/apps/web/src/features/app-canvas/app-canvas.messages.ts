@@ -63,6 +63,22 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Zoom to fit",
       comment: "Button: show every plugin box in the view.",
     }),
+    viewMap: i18n._({
+      id: "canvas.viewMap",
+      message: "Map of the canvas: drag the frame, or use the arrow keys, to move the view",
+      comment:
+        "Accessible name of the small map above the zoom controls: the whole canvas in small with a frame on the part in view.",
+    }),
+    viewMapHide: i18n._({
+      id: "canvas.viewMap.hide",
+      message: "Hide the map",
+      comment: "Button folding the small map of the canvas above the zoom controls.",
+    }),
+    viewMapShow: i18n._({
+      id: "canvas.viewMap.show",
+      message: "Show the map",
+      comment: "Button bringing back the small map of the canvas above the zoom controls.",
+    }),
     settings: i18n._({
       id: "appCanvas.settings",
       message: "Plugin settings",

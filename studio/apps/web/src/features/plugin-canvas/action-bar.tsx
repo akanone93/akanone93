@@ -42,6 +42,8 @@ export interface ActionBarProps {
   readonly percent: number;
   readonly onZoom: (factor: number) => void;
   readonly onFit: () => void;
+  /** The map of the canvas, above the zoom controls (C5). */
+  readonly viewMap?: ReactNode;
   readonly screens: readonly { readonly id: string; readonly title: string }[];
   readonly current: string | undefined;
   readonly onCurrent: (id: string) => void;
@@ -321,15 +323,18 @@ export function ActionBar(props: ActionBarProps) {
         </div>
         <div className="plugin-topbar-end pointer-events-auto flex min-w-0 justify-end">{props.status}</div>
       </div>
-      <ZoomControls
-        zoom={props.percent / 100}
-        messages={zoomLabels}
-        className="plugin-zoom pointer-events-auto absolute bottom-3 z-10"
-        onZoomIn={() => props.onZoom(1.25)}
-        onZoomOut={() => props.onZoom(1 / 1.25)}
-        onReset={() => (props.onZoomReset === undefined ? props.onZoom(100 / props.percent) : props.onZoomReset())}
-        onFit={props.onFit}
-      />
+      <div className="plugin-zoom pointer-events-none absolute bottom-3 z-10 flex flex-col items-start gap-2">
+        {props.viewMap}
+        <ZoomControls
+          zoom={props.percent / 100}
+          messages={zoomLabels}
+          className="pointer-events-auto"
+          onZoomIn={() => props.onZoom(1.25)}
+          onZoomOut={() => props.onZoom(1 / 1.25)}
+          onReset={() => (props.onZoomReset === undefined ? props.onZoom(100 / props.percent) : props.onZoomReset())}
+          onFit={props.onFit}
+        />
+      </div>
     </>
   );
 }

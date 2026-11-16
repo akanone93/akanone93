@@ -595,6 +595,19 @@ func (u *unit) localeSections(o *out) {
 	}
 }
 
+// declaredOnly drops the messages whose key the translation keys document
+// does not declare. Deleting a key leaves its messages in the documents of
+// the locales the deleting person did not hold (each locale has its own lock,
+// I18N-008); nothing can reach them, since pages refer to keys by ID and
+// expressions by a declared name, so they are not shipped. Without a keys
+// document every message is kept.
+func (u *unit) declaredOnly(keys []string) []string {
+	if tk := u.project.TranslationKeys; tk == nil || tk.Doc == nil {
+		return keys
+	}
+	return slices.DeleteFunc(keys, func(k string) bool { return u.tkeys[k] == nil })
+}
+
 // translationSection encodes the l10n section of one translation file,
 // keeping only the messages the release includes.
 func (u *unit) translationSection(o *out, app *schema.AppDocument, t *schema.Loaded[schema.TranslationsDocument], blob *localeBlob) {
@@ -608,7 +621,7 @@ func (u *unit) translationSection(o *out, app *schema.AppDocument, t *schema.Loa
 		loc = nil // the plural categories cannot be checked
 	}
 	b := flatbuffers.NewBuilder(1024)
-	keys := sortedKeys(t.Doc.Messages)
+	keys := u.declaredOnly(sortedKeys(t.Doc.Messages))
 	slices.SortFunc(keys, func(a, c string) int {
 		x, y := uuidBytes(a), uuidBytes(c)
 		return bytes.Compare(x[:], y[:])

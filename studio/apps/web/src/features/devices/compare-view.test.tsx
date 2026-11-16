@@ -60,6 +60,18 @@ describe("PC-38 the canvas compared with the device [DEV-033] [STU-005]", () => 
       paddingBottom: 24,
     });
     expect(look).toEqual({ width: 411, height: 914, density: 2.625, top: 49, bottom: 24, dark: true, textScale: 1.15 });
+    expect(
+      lookOf({
+        width: 1170,
+        height: 2532,
+        pixelRatio: 3,
+        dark: false,
+        textScale: 1,
+        paddingTop: 47,
+        paddingBottom: 34,
+        platform: "ios",
+      })?.platform,
+    ).toBe("ios");
     // An older runtime says nothing of it: no look, no match.
     expect(
       lookOf({ width: 1080, height: 2400, pixelRatio: 0, dark: false, textScale: 0, paddingTop: 0, paddingBottom: 0 }),
@@ -71,6 +83,12 @@ describe("PC-38 the canvas compared with the device [DEV-033] [STU-005]", () => 
     const canvas = { width: 360, height: 800, top: 24, bottom: 24, dark: false, textScale: 1 };
     expect(sameLook(device, canvas)).toBe(false);
     expect(sameLook(device, { ...device })).toBe(true);
+    // An iPhone's screenshot is not like a Material canvas, nor an Android one's like a Cupertino one (R3).
+    expect(sameLook({ ...device, platform: "ios" }, { ...device, platform: "material" })).toBe(false);
+    expect(sameLook({ ...device, platform: "ios" }, { ...device, platform: "cupertino" })).toBe(true);
+    expect(sameLook({ ...device, platform: "android" }, { ...device, platform: "material" })).toBe(true);
+    // A runtime that does not say its platform is not held against the canvas.
+    expect(sameLook(device, { ...device, platform: "cupertino" })).toBe(true);
     const onMatch = mock(() => undefined);
     const view = render(
       <I18nProvider studio={studio()}>

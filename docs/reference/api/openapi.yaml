@@ -33928,6 +33928,14 @@ components:
           type: number
           title: padding_bottom
           format: double
+        platform:
+          type: string
+          title: platform
+          description: |-
+            platform is the platform the device runs, as Flutter names it
+             (android, ios, macos, ...); Studio compares the screenshot with a
+             canvas drawn for the same platform. Empty from a runtime that does not
+             say.
       title: ScreenshotEvent
       additionalProperties: false
       description: ScreenshotEvent carries a captured screenshot (DEV-033).

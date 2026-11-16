@@ -37,6 +37,10 @@ export interface ArrowStyle {
   readonly labelText: ColorRgba;
   /** Depth of collapsed arrows; the expanded bundle is raised by 10. */
   readonly z: number;
+  /** Length of the arrowhead's strokes in world units; 8 when absent. */
+  readonly head?: number;
+  /** A pill behind each lane's title, so it reads over the lines and the grid; none when absent. */
+  readonly labelFill?: ColorRgba;
 }
 
 /** Default arrow style; the app passes its Porcelain tokens. */
@@ -62,6 +66,18 @@ const BADGE_W = 22;
 const BADGE_H = 16;
 const LABEL_W = 160;
 const LABEL_SIZE = 11;
+/**
+ * What a lane title's "→" is drawn as. The canvas fonts (Roboto and Noto Sans, the plugin canvas's `fonts/`) have no
+ * "→", which drew as a missing-glyph box; they have "›". The title itself keeps "→" for the page's own text (dialogs,
+ * screen readers), as STU-044's example has it.
+ */
+export const CANVAS_ARROW = "›";
+
+/** A lane title as the canvas draws it: its arrows as `CANVAS_ARROW`. */
+export const canvasTitle = (title: string): string => title.replaceAll("→", CANVAS_ARROW);
+
+/** Space between a lane title and the ends of its pill. */
+const LABEL_PAD = 6;
 /** Item parts a collapsed bundle can have: up to three pieces (two waypoints), head, badge. */
 const LIVE_PARTS = ["s0", "s1", "s2", "h0", "h1", "badge", "count"] as const;
 
@@ -110,10 +126,11 @@ export class ProvisionalArrow {
     const len = Math.hypot(dx, dy) || 1;
     const n = { x: dx / len, y: dy / len };
     const items: ItemSpec[] = [segment(PROVISIONAL[0], from, to, stroke, this.depth)];
+    const size = this.style.head ?? HEAD;
     for (const [k, angle] of [HEAD_ANGLE, -HEAD_ANGLE].entries()) {
       const cos = Math.cos(angle);
       const sin = Math.sin(angle);
-      const end = { x: to.x + HEAD * (n.x * cos - n.y * sin), y: to.y + HEAD * (n.x * sin + n.y * cos) };
+      const end = { x: to.x + size * (n.x * cos - n.y * sin), y: to.y + size * (n.x * sin + n.y * cos) };
       items.push(segment(PROVISIONAL[k + 1] as string, to, end, stroke, this.depth));
     }
     const op = this.shown ? "replace" : "add";
@@ -325,7 +342,7 @@ export class ArrowCanvas {
         out.push({ item: link(`${prefix}s${k}`, c, stroke, z, false), link: undefined });
       });
     }
-    head(route, prefix, stroke, z, out);
+    head(route, prefix, stroke, z, style.head ?? HEAD, out);
     if (this.lod.labels && progress === 0 && bundle.links.length > 1) {
       const fill = raised || focus === null ? style.badgeFill : style.dimmed.color;
       this.badge(route, prefix, fill, z, out);
@@ -340,22 +357,43 @@ export class ArrowCanvas {
         out.push({ item: link(`${prefix}l${i}s${k}`, c, stroke, z, false), link: lane.link });
       });
       if (this.lod.labels && progress >= 1) {
-        out.push({
-          item: {
-            kind: "text",
-            id: `${prefix}t${i}`,
-            x: lane.label.x - LABEL_W / 2,
-            y: lane.label.y - LABEL_SIZE * 1.6,
-            w: LABEL_W,
-            text: lane.link.title,
-            size: LABEL_SIZE,
-            color: this.style.labelText,
-            z: z + 1,
-          },
-          link: lane.link,
-        });
+        this.label(lane.link, lane.label, `${prefix}`, i, z, out);
       }
     }
+  }
+
+  /**
+   * A lane's title, centred over where the lane crosses the bundle's middle, on one line; on a pill when the style
+   * gives one. The pill is part of the lane: a click on it selects the link (STU-046).
+   */
+  private label(link: NavigateEdge, at: Point, prefix: string, i: number, z: number, out: Out[]): void {
+    const y = at.y - LABEL_SIZE * 1.6;
+    const fill = this.style.labelFill;
+    if (fill !== undefined) {
+      // The title's width estimated from its length (the worker measures text; this side does not), within the label.
+      const w = Math.min(LABEL_W, Math.ceil(link.title.length * LABEL_SIZE * 0.56) + LABEL_PAD * 2);
+      const h = LABEL_SIZE * 1.5 + 4;
+      out.push({
+        item: { kind: "rect", id: `${prefix}p${i}`, x: at.x - w / 2, y: y - 2, w, h, radius: h / 2, fill, z: z + 1 },
+        link,
+      });
+    }
+    out.push({
+      item: {
+        kind: "text",
+        id: `${prefix}t${i}`,
+        x: at.x - (LABEL_W - LABEL_PAD * 2) / 2,
+        y,
+        w: LABEL_W - LABEL_PAD * 2,
+        text: canvasTitle(link.title),
+        size: LABEL_SIZE,
+        color: this.style.labelText,
+        align: "center",
+        maxLines: 1,
+        z: z + 2,
+      },
+      link,
+    });
   }
 
   /** The count badge at the bundle's midpoint (STU-041). */
@@ -394,13 +432,13 @@ export class ArrowCanvas {
 }
 
 /** The arrowhead: two strokes back from the target anchor, around the side normal. */
-function head(route: Route, prefix: string, stroke: StrokeStyle, z: number, out: Out[]): void {
+function head(route: Route, prefix: string, stroke: StrokeStyle, z: number, size: number, out: Out[]): void {
   const tip = (route.segments.at(-1) as Cubic).to;
   const n = sideNormal(route.targetSide);
   for (const [k, angle] of [HEAD_ANGLE, -HEAD_ANGLE].entries()) {
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
-    const end = { x: tip.x + HEAD * (n.x * cos - n.y * sin), y: tip.y + HEAD * (n.x * sin + n.y * cos) };
+    const end = { x: tip.x + size * (n.x * cos - n.y * sin), y: tip.y + size * (n.x * sin + n.y * cos) };
     out.push({ item: segment(`${prefix}h${k}`, tip, end, stroke, z), link: undefined });
   }
 }

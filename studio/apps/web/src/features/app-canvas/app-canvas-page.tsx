@@ -81,6 +81,7 @@ import { assetsMessages } from "../panels/assets.messages.ts";
 import { AssetsTab } from "../panels/assets-tab.tsx";
 import { underAppLock } from "../plugin-canvas/use-assets-tab.ts";
 import { useTeams } from "./use-teams.ts";
+import { type MapItem, ViewMap } from "./view-map.tsx";
 
 export { PluginBoxCard } from "./box-list.tsx";
 export { PluginDialogs } from "./plugin-dialogs.tsx";
@@ -518,6 +519,14 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   });
 
   const { zoom, setZoom, viewChanged, zoomBy, resetZoom } = useZoom(surface, viewOf, scene.zoomed);
+  // The view map draws the plugin boxes and the frames around them (C5).
+  const mapItems = useMemo<MapItem[]>(
+    () => [
+      ...frames.map((f) => ({ id: f.id, kind: "frame" as const, l: f.x, t: f.y, r: f.x + f.width, b: f.y + f.height })),
+      ...boxes.map((b) => ({ id: b.id, l: b.x, t: b.y, r: b.x + BOX.width, b: b.y + BOX.height })),
+    ],
+    [frames, boxes],
+  );
 
   const commitLayout = layout.commit;
   const commit = useCallback(
@@ -796,14 +805,23 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
           )}
         </div>
         <div className="canvas-bottom flex items-end justify-between gap-3">
-          <ZoomControls
-            zoom={zoom}
-            messages={m}
-            onZoomIn={() => zoomBy(1.25)}
-            onZoomOut={() => zoomBy(0.8)}
-            onReset={resetZoom}
-            onFit={fit}
-          />
+          <div className="flex flex-col items-start gap-2">
+            <ViewMap
+              surface={surface}
+              canvas={viewOf}
+              items={mapItems}
+              labels={{ label: m.viewMap, hide: m.viewMapHide, show: m.viewMapShow }}
+              onView={viewChanged}
+            />
+            <ZoomControls
+              zoom={zoom}
+              messages={m}
+              onZoomIn={() => zoomBy(1.25)}
+              onZoomOut={() => zoomBy(0.8)}
+              onReset={resetZoom}
+              onFit={fit}
+            />
+          </div>
           <DevLinkBar />
           <Panel className="canvas-bar canvas-hint hidden px-4 text-xs text-muted-foreground lg:flex">{m.hint}</Panel>
         </div>

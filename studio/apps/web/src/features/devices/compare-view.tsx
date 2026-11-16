@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Button, Icon } from "@plux/ui";
 import { type ReactElement, useEffect, useState } from "react";
+import { framePlatformOf } from "../preview/frames.ts";
 import { compareMessages } from "./compare.messages.ts";
 import "./compare-view.css";
 
@@ -50,11 +51,21 @@ export interface DrawnLook {
   readonly bottom: number;
   readonly dark: boolean;
   readonly textScale: number;
+  /** The platform: the device's as Flutter names it (`ios`), the canvas's as it draws (`cupertino`); unknown when absent. */
+  readonly platform?: string | undefined;
 }
 
-/** Whether the canvas draws under the device's conditions: its size, bars, mode and text scale. */
+/** Whether two platforms draw alike (`ios` and `cupertino` do); an unknown one is taken to. */
+function samePlatform(a: string | undefined, b: string | undefined): boolean {
+  const x = framePlatformOf(a) ?? a;
+  const y = framePlatformOf(b) ?? b;
+  return x === undefined || y === undefined || x === y;
+}
+
+/** Whether the canvas draws under the device's conditions: its size, bars, mode, text scale and platform (R3). */
 export function sameLook(device: DrawnLook, canvas: DrawnLook): boolean {
   return (
+    samePlatform(device.platform, canvas.platform) &&
     device.width === canvas.width &&
     device.height === canvas.height &&
     device.top === canvas.top &&

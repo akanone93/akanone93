@@ -397,6 +397,11 @@ message ScreenshotEvent {
   // beneath them, without the bars.
   double padding_top = 9;
   double padding_bottom = 10;
+  // platform is the platform the device runs, as Flutter names it
+  // (android, ios, macos, ...); Studio compares the screenshot with a
+  // canvas drawn for the same platform. Empty from a runtime that does not
+  // say.
+  string platform = 11;
 }
 
 // InspectEvent reports a node the developer selected on the device by

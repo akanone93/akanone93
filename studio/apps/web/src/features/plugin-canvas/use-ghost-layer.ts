@@ -6,10 +6,11 @@ import { useLingui } from "@lingui/react";
 import { AssetService } from "@plux/api";
 import { type ArrowBox, ArrowCanvas, type ArrowPick, ArrowRouter, deriveBundles, type ItemSpec } from "@plux/canvas";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import type { LockController } from "../editor/lock-controller.ts";
 import { uploadAsset } from "../panels/upload-asset.ts";
+import { ArrowMotion } from "./arrow-motion.ts";
 import {
   type AppScreen,
   deriveGhosts,
@@ -33,6 +34,8 @@ interface Drawn {
   readonly ghosts: SceneSync;
   readonly router: ArrowRouter;
   readonly arrows: ArrowCanvas;
+  /** Hover expansion and live re-routing (STU-044, STU-045). */
+  readonly motion: ArrowMotion;
 }
 
 /** What the layer needs from the page. */
@@ -68,6 +71,10 @@ export function useGhostLayer(input: GhostLayerInput): {
   readonly zoomed: (zoom: number) => void;
   /** The arrow lane under a click, from the hit ids (STU-046). */
   readonly pick: (hits: readonly string[]) => ArrowPick | undefined;
+  /** Expands bundle `id` into its lanes (hover, click), or collapses all with null; animated (STU-044). */
+  readonly expand: (id: string | null) => void;
+  /** Re-routes the arrows of screens shown at a dragged place, before the drop saves it (STU-045). */
+  readonly follow: (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => void;
 } {
   const { appId, pluginId, appLock, canEdit, surface, screens, own, heights, appScreens, nativeRoutes } = input;
   const device = input.device ?? DEVICE;
@@ -135,11 +142,14 @@ export function useGhostLayer(input: GhostLayerInput): {
     }
     if (drawn.current?.surface !== target) {
       const router = new ArrowRouter([], []);
+      const arrows = new ArrowCanvas(router, arrowStyle, target.viewport.zoom);
+      drawn.current?.motion.dispose();
       drawn.current = {
         surface: target,
         ghosts: new SceneSync(),
         router,
-        arrows: new ArrowCanvas(router, arrowStyle, target.viewport.zoom),
+        arrows,
+        motion: new ArrowMotion(arrows, (ops) => target.patch?.(ops)),
       };
     }
     const d = drawn.current;
@@ -162,7 +172,7 @@ export function useGhostLayer(input: GhostLayerInput): {
       ...placed,
     ];
     d.router.setGraph(boxes, deriveBundles(graph.edges));
-    target.patch([...d.ghosts.sync(items), ...d.arrows.render()]);
+    target.patch([...d.ghosts.sync(items), ...d.arrows.render(d.motion.now())]);
   }, [surface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device]);
 
   const known = useRef(new Map<string, string>());
@@ -196,15 +206,14 @@ export function useGhostLayer(input: GhostLayerInput): {
     return () => clearTimeout(timer);
   }, [surface, canEdit, heights, screens, appId, appLock, assets, queryClient]);
 
-  const zoomed = (zoom: number) => {
-    const d = drawn.current;
-    if (d !== null) {
-      const ops = d.arrows.setZoom(zoom);
-      if (ops.length > 0) {
-        d.surface.patch?.(ops);
-      }
-    }
-  };
-  const pick = (hits: readonly string[]) => drawn.current?.arrows.pick(hits);
-  return { graph, placed, zoomed, pick };
+  useEffect(() => () => drawn.current?.motion.dispose(), []);
+
+  const zoomed = useCallback((zoom: number) => drawn.current?.motion.zoom(zoom), []);
+  const pick = useCallback((hits: readonly string[]) => drawn.current?.arrows.pick(hits), []);
+  const expand = useCallback((id: string | null) => drawn.current?.motion.expand(id), []);
+  const follow = useCallback(
+    (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => drawn.current?.motion.follow(moved),
+    [],
+  );
+  return { graph, placed, zoomed, pick, expand, follow };
 }

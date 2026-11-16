@@ -350,15 +350,51 @@
   background-color: var(--pc-select);
 }
 
-/* A widget's problem: a dot on its corner, and under the selection's size its first message. */
-.pc-problem-dot {
+/*
+ * A widget's badges on its top-end corner, as one row (C4): event steps, bindings, then the problem dot on the corner
+ * itself. One row per corner, so the badges never sit on each other.
+ */
+.pc-badges {
   position: absolute;
   inset: 0 auto auto 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  translate: calc(-100% + 5px) -50%;
+}
+
+/*
+ * Under the selected widget, one stack (C4): its size, then its problems, event steps, bindings and component, each
+ * below the last, centred under the widget.
+ */
+.pc-details {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  translate: -50% 6px;
+}
+
+/*
+ * In the stack the size flows with the rest. Only `translate` is reset: the build folds a `transform` reset into it
+ * and drops it, and the base transform needs --x and --y, which the stacked size does not set.
+ */
+.pc-details > .pc-size {
+  position: static;
+  translate: 0;
+}
+
+/* A widget's problem: a dot on its corner, and in the selection's stack its messages. */
+.pc-problem-dot {
+  flex: none;
   inline-size: 10px;
   block-size: 10px;
   border-radius: 50%;
   border: 2px solid var(--background);
-  transform: translate(calc(var(--x) * 1px - 5px), calc(var(--y) * 1px - 5px));
   background-color: var(--destructive);
   box-shadow: 0 1px 2px color-mix(in oklch, black 25%, transparent);
 }
@@ -368,10 +404,6 @@
 }
 
 .pc-problem-tag {
-  position: absolute;
-  inset: 0 auto auto 0;
-  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
-  translate: -50% 26px;
   max-inline-size: 18rem;
   white-space: nowrap;
   font-size: 10.5px;
@@ -389,10 +421,8 @@
   background-color: oklch(0.85 0.14 80);
 }
 
-/* Bound widgets (PC-23): a teal badge inside the top-end corner, beside where a problem dot sits. */
+/* Bound widgets (PC-23): a teal badge in the corner row, beside where a problem dot sits. */
 .pc-bind-badge {
-  position: absolute;
-  inset: 0 auto auto 0;
   display: grid;
   place-items: center;
   min-inline-size: 12px;
@@ -400,7 +430,6 @@
   padding-inline: 2px;
   border: 1.5px solid var(--background);
   border-radius: 999px;
-  transform: translate(calc(var(--x) * 1px - 24px), calc(var(--y) * 1px - 6px));
   color: white;
   background-color: oklch(0.6 0.12 195);
   box-shadow: 0 1px 2px color-mix(in oklch, black 25%, transparent);
@@ -409,10 +438,8 @@
   line-height: 1;
 }
 
-/* The selection's bindings: prop, expression and the value drawn, under its end corner. */
+/* The selection's bindings: prop, expression and the value drawn. */
 .pc-bind-tag {
-  position: absolute;
-  inset: 0 auto auto 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -420,8 +447,6 @@
   padding: 4px 6px;
   border: 1px solid color-mix(in oklch, oklch(0.6 0.12 195) 45%, var(--border));
   border-radius: 6px;
-  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
-  translate: -100% 48px;
   color: var(--foreground);
   background-color: color-mix(in oklch, var(--background) 92%, oklch(0.6 0.12 195));
   box-shadow: 0 4px 14px color-mix(in oklch, black 14%, transparent);
@@ -467,8 +492,6 @@
 
 /* Widgets whose events run steps (PC-27): an amber badge beside the binding badge, and the selection's handlers. */
 .pc-event-badge {
-  position: absolute;
-  inset: 0 auto auto 0;
   display: grid;
   place-items: center;
   min-inline-size: 12px;
@@ -476,7 +499,6 @@
   padding-inline: 2px;
   border: 1.5px solid var(--background);
   border-radius: 999px;
-  transform: translate(calc(var(--x) * 1px - 40px), calc(var(--y) * 1px - 6px));
   color: oklch(0.25 0.05 70);
   background-color: oklch(0.82 0.15 80);
   box-shadow: 0 1px 2px color-mix(in oklch, black 25%, transparent);
@@ -486,8 +508,6 @@
 }
 
 .pc-event-tag {
-  position: absolute;
-  inset: 0 auto auto 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -495,8 +515,6 @@
   padding: 4px 6px;
   border: 1px solid color-mix(in oklch, oklch(0.75 0.15 75) 55%, var(--border));
   border-radius: 6px;
-  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
-  translate: 0 48px;
   color: var(--foreground);
   background-color: color-mix(in oklch, var(--background) 92%, oklch(0.8 0.15 80));
   box-shadow: 0 4px 14px color-mix(in oklch, black 14%, transparent);
@@ -769,11 +787,8 @@
 }
 
 .pc-instance-tag {
-  position: absolute;
-  inset: 0 auto auto 0;
   padding: 0 6px;
   border-radius: 4px;
-  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px + 22px));
   color: white;
   background-color: oklch(0.52 0.2 300);
   font-size: 10.5px;

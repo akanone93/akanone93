@@ -7,7 +7,7 @@ import { Button, Icon, Menu } from "@plux/ui";
 import { useEffect, useRef, useState } from "react";
 import { handleAnchor, type Point, screenAt, toCanvas, toWorld, type WorldRect } from "./link-drag.ts";
 import { linkMessages } from "./links.messages.ts";
-import { type ApplyMode, eventsOf, linkRecipe } from "./links.ts";
+import { type ApplyMode, linkRecipe, triggersOf } from "./links.ts";
 import { uuidv7 } from "./screens.ts";
 import type { EditFn } from "./select/edits.ts";
 import { itemIdOf } from "./select/tree.ts";
@@ -39,7 +39,8 @@ interface Drop {
 }
 
 /**
- * The link handle on the selected widget (F6, STU-047). Dragging it to a screen draws a provisional
+ * The link handle on the selected widget that a person can act on (F6, STU-047): one with a navigation trigger
+ * (`triggersOf`), never a screen's root, whose events (a drawer opening) do not open pages. Dragging it to a screen draws a provisional
  * arrow and, on drop, opens the trigger picker (E7); the keyboard alternative is the menu button
  * beside it, which lists the screens and opens the same picker. Nothing is written until the picker
  * is confirmed, and then the same recipe as the Actions tab runs through the edit pipeline.
@@ -51,7 +52,7 @@ export function LinkLayer(props: LinkLayerProps) {
   const [said, setSaid] = useState("");
   const drag = useRef<{ arrow: ProvisionalArrow } | null>(null);
   const type = typeof props.widget?.node.type === "string" ? props.widget.node.type : undefined;
-  const events = eventsOf(type);
+  const events = triggersOf(type);
   const active = props.canEdit && props.widget !== undefined && events.length > 0;
   const widgetKey = props.widget === undefined ? undefined : itemIdOf(props.widget.screen, props.widget.id);
 
@@ -176,7 +177,10 @@ export function LinkLayer(props: LinkLayerProps) {
               entries={props.screens.map((s) => ({
                 kind: "item" as const,
                 id: s.id,
-                label: s.title,
+                // Screens that share a title are told apart by their routes, which are unique (SCH-022).
+                label: props.screens.some((o) => o.id !== s.id && o.title === s.title)
+                  ? `${s.title} · ${s.route}`
+                  : s.title,
                 onSelect: () => setDrop({ route: s.route, title: s.title }),
               }))}
             />

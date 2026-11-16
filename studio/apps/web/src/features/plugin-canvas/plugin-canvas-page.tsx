@@ -17,8 +17,10 @@ import { useSceneTheme } from "../app-canvas/scene-theme.ts";
 import { useScreenImages } from "./screen-images.ts";
 import "./plugin-editor.css";
 import { sizeClassOf } from "@plux/layout";
+import { appCanvasMessages } from "../app-canvas/app-canvas.messages.ts";
 import { CanvasStatus } from "../app-canvas/canvas-chrome.tsx";
 import { GestureTracker } from "../app-canvas/use-canvas-gestures.ts";
+import { type MapItem, ViewMap } from "../app-canvas/view-map.tsx";
 import { DesignersHost } from "../designers/designers-host.tsx";
 import type { DrawerTab } from "../devices/drawer-model.ts";
 import { tabEditorSession } from "../editor/document-transport.ts";
@@ -820,7 +822,11 @@ function PluginCanvasView({
   const [heights, setHeights] = useState<Heights>(new Map());
   const nativeRoutes = useNativeRoutes(params.app ?? "");
   const appScreens = useMemo(() => readAppScreens(appDocs.data ?? []), [appDocs.data]);
-  const own = useMemo(() => (docs.data === undefined ? [] : readPlugin(live).screens), [docs.data, live]);
+  // Lane titles name the screens as they show (a translated title in the previewed locale).
+  const own = useMemo(
+    () => (docs.data === undefined ? [] : titledScreens(readPlugin(live).screens, titleMessages)),
+    [docs.data, live, titleMessages],
+  );
   const [leaving, setLeaving] = useState<GhostTarget | null>(null);
   const [focusNote, setFocusNote] = useState("");
   const session = useEditSession();
@@ -873,6 +879,28 @@ function PluginCanvasView({
     nativeRoutes,
     device,
   });
+  // The view map draws the screens at their full height and the ghost screens beside them (C5).
+  const mapItems = useMemo<MapItem[]>(
+    () => [
+      ...screens.map((s) => ({
+        id: s.id,
+        l: s.at.x,
+        t: s.at.y,
+        r: s.at.x + device.width,
+        b: s.at.y + Math.max(device.height, heights.get(s.id) ?? 0),
+      })),
+      ...ghostLayer.placed.map((g) => ({
+        id: g.id,
+        kind: "ghost" as const,
+        l: g.x,
+        t: g.y,
+        r: g.x + g.w,
+        b: g.y + g.h,
+      })),
+    ],
+    [screens, device, heights, ghostLayer.placed],
+  );
+  const zoomText = appCanvasMessages(useLingui().i18n);
   const roots = useMemo(() => screens.map((s) => s.root), [screens]);
   useScreenImages(params.app, () => surfaceRef.current, roots, heights.size);
   const index = useMemo(() => indexNodes(roots), [roots]);
@@ -1252,15 +1280,22 @@ function PluginCanvasView({
     () =>
       docs.data === undefined
         ? []
-        : readPlugin(live).screens.map((s) => ({ id: s.id, title: s.title, route: s.route, kind: s.kind })),
-    [docs.data, live],
+        : // The titles as the screens show them (a translated title in the previewed locale), not their raw text.
+          titledScreens(readPlugin(live).screens, titleMessages).map((s) => ({
+            id: s.id,
+            title: s.title,
+            route: s.route,
+            kind: s.kind,
+          })),
+    [docs.data, live, titleMessages],
   );
   const linkWidget = useMemo(() => {
     const id = selection.ids.length === 1 ? selection.ids[0] : undefined;
     const screen = id === undefined ? undefined : screenOf.get(id);
     const root = screens.find((s) => s.id === screen)?.root;
     const node = id === undefined || root === undefined ? null : findNode(root, id)?.node;
-    return id === undefined || screen === undefined || node === null || node === undefined
+    // A screen's root is the screen itself: links start from the widgets on it, not from the frame (STU-047).
+    return id === undefined || screen === undefined || node === null || node === undefined || root?.id === id
       ? undefined
       : { id, screen, node };
   }, [selection, screenOf, screens]);
@@ -1344,11 +1379,18 @@ function PluginCanvasView({
     },
     [openMatrix],
   );
-  /** Ghost screens and lanes take a click before the nodes (STU-052, STU-053). */
+  /**
+   * Ghost screens and arrows take a click before the nodes (STU-046, STU-052, STU-053): a lane opens its link, a
+   * collapsed bundle expands into its lanes (the same as a hover, for touch and pens).
+   */
   const pickGhost = (hits: readonly string[]): boolean => {
-    const picked = ghostLayer.pick(hits)?.link;
+    const picked = ghostLayer.pick(hits);
+    if (picked?.link !== undefined) {
+      setLane(picked.link);
+      return true;
+    }
     if (picked !== undefined) {
-      setLane(picked);
+      ghostLayer.expand(picked.bundle.id);
       return true;
     }
     const ghost = ghostOfHit(hits, ghostLayer.placed);
@@ -1359,6 +1401,12 @@ function PluginCanvasView({
       setLeaving(ghost);
     }
     return true;
+  };
+  /** An arrow on top of the resting pointer expands its bundle; anything else collapses it (STU-044). */
+  const hoverArrow = (hits: readonly string[]): boolean => {
+    const bundle = ghostLayer.pick(hits.slice(0, 1))?.bundle.id ?? null;
+    ghostLayer.expand(bundle);
+    return bundle !== null;
   };
   // Problems pinned to their widgets on the canvas (PC-16).
   const nodeProblems = useMemo(
@@ -1499,6 +1547,7 @@ function PluginCanvasView({
       bottom: look.device.padding.bottom,
       dark: look.theme === "dark",
       textScale: look.textScale,
+      platform: look.platform,
     }),
     [look],
   );
@@ -1584,6 +1633,8 @@ function PluginCanvasView({
     onScreenView,
     positions: screenPositions,
     onPick: pickGhost,
+    onHover: hoverArrow,
+    onScreensMoved: ghostLayer.follow,
     onView: sync,
     fit,
     zoomBy,
@@ -1932,6 +1983,19 @@ function PluginCanvasView({
                               onZoom={zoomBy}
                               onZoomReset={resetZoom}
                               onFit={fit}
+                              viewMap={
+                                <ViewMap
+                                  surface={() => surfaceRef.current}
+                                  canvas={() => canvasRef.current}
+                                  items={mapItems}
+                                  labels={{
+                                    label: zoomText.viewMap,
+                                    hide: zoomText.viewMapHide,
+                                    show: zoomText.viewMapShow,
+                                  }}
+                                  onView={sync}
+                                />
+                              }
                               onShowScreen={showScreen}
                               identity={
                                 <PluginIdentity org={params.org} appId={params.app} plugin={pluginInfo?.name} />

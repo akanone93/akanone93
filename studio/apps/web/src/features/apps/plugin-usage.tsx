@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { appsMessages } from "./apps.messages.ts";
-import { LimitsTable } from "./limits-usage.tsx";
+import { LimitsSummary, LimitsTable, PLUGIN_HEADLINE_LIMITS } from "./limits-usage.tsx";
 
 /**
  * What one plugin of the app uses of the limits that apply to a plugin (LIM-005): the plugins as buttons, the table of
@@ -31,11 +31,13 @@ export function PluginUsage({ appId }: { readonly appId: string }): ReactElement
       (await createClient(PluginService, session.transport).listPluginLimits({ pluginId: current ?? "" })).limits,
   });
   return (
-    <section aria-labelledby="app-settings-plugin-usage" className="flex flex-col gap-3">
-      <h2 id="app-settings-plugin-usage" className="text-section">
-        {m.pluginUsageTitle}
-      </h2>
-      <p className="text-body text-muted-foreground">{m.pluginUsageCaption}</p>
+    <section aria-labelledby="app-settings-plugin-usage" className="settings-card">
+      <div className="flex flex-col gap-1">
+        <h2 id="app-settings-plugin-usage" className="text-section">
+          {m.pluginUsageTitle}
+        </h2>
+        <p className="text-body text-muted-foreground">{m.pluginUsageCaption}</p>
+      </div>
       {plugins.isSuccess && plugins.data.length === 0 && (
         <p className="text-body text-muted-foreground">{m.pluginUsageNone}</p>
       )}
@@ -60,7 +62,15 @@ export function PluginUsage({ appId }: { readonly appId: string }): ReactElement
           {m.pluginUsageLoadFailed}
         </p>
       )}
-      {limits.isSuccess && <LimitsTable limits={limits.data} />}
+      {limits.isSuccess && (
+        <>
+          <LimitsSummary limits={limits.data} headline={PLUGIN_HEADLINE_LIMITS} />
+          <details className="settings-more">
+            <summary>{m.allLimits(limits.data.length)}</summary>
+            <LimitsTable limits={limits.data} />
+          </details>
+        </>
+      )}
     </section>
   );
 }

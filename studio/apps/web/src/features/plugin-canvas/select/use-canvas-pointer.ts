@@ -69,6 +69,11 @@ export interface PointerInput {
   readonly snapSize?: (value: number) => number;
   /** With the Interact tool, a click is the screens' (PC-15): the world point and what is under it, topmost first. */
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
+  /**
+   * What is under the resting pointer, topmost first, or nothing when it left: an arrow expands its bundle (STU-044).
+   * True when an arrow took the hover, so no widget is outlined under it and the pointer shows it can be clicked.
+   */
+  readonly onHover?: (hits: readonly string[]) => boolean;
 }
 
 type Mode =
@@ -393,8 +398,15 @@ export function pointerHandlers(
       i.overlay.set({ hover: null });
       return;
     }
+    const hits = rawHits(p);
+    if (i.onHover?.(hits) === true) {
+      canvas?.setAttribute("data-cursor", "true");
+      canvas?.style.setProperty("--pc-cursor", "pointer");
+      i.overlay.set({ hover: null });
+      return;
+    }
     canvas?.removeAttribute("data-cursor");
-    const nodes = nodesAt(rawHits(p));
+    const nodes = nodesAt(hits);
     const target = sel.resolveHit(i.index, nodes, i.store.get().scope, e.ctrlKey || e.metaKey);
     i.overlay.set({ hover: target });
   };
@@ -559,6 +571,7 @@ export function pointerHandlers(
     onPointerLeave: () => {
       if (mode.current === null) {
         get().overlay.set({ hover: null });
+        get().onHover?.([]);
       }
     },
     onDoubleClick: (e: PointerLike) => {

@@ -319,7 +319,7 @@ export function appsMessages(i18n: I18n) {
       }),
     settingsCaption: i18n._({
       id: "apps.settings.caption",
-      message: "The app's name and description, its limits usage and the fonts of its host app.",
+      message: "The app's name and description, the settings of its installed app, and what it uses of its limits.",
       comment: "Caption under the heading of the app settings page.",
     }),
     settingsLoadFailed: i18n._({
@@ -491,18 +491,49 @@ export function appsMessages(i18n: I18n) {
       comment:
         "Link from the app settings to the organisation's administration area; shown only with the permission the area needs.",
     }),
+    keyLabel: i18n._({
+      id: "apps.settings.key-label",
+      message: "Key",
+      comment: "Label of the app's key, shown read-only beside its name in the app settings.",
+    }),
+    keyHint: i18n._({
+      id: "apps.settings.key-hint",
+      message: "Devices, links and the API find the app by its key, so it does not change.",
+      comment: "Help under the app's read-only key in the app settings.",
+    }),
+    discard: i18n._({
+      id: "apps.settings.discard",
+      message: "Discard",
+      comment: "Button that puts the app's name and description back as saved.",
+    }),
+    unsaved: i18n._({
+      id: "apps.settings.unsaved",
+      message: "Unsaved changes",
+      comment: "Shown beside the save button while the name or description differs from what is saved.",
+    }),
+    configureTitle: i18n._({
+      id: "apps.settings.configure",
+      message: "Configure",
+      comment:
+        "Heading of the cards that open the other settings of the app: native shell, host fonts, administration.",
+    }),
+    adminCaption: i18n._({
+      id: "apps.settings.admin-caption",
+      message: "Who may open and change the app, and the limits set for the organisation.",
+      comment: "Caption of the card that opens the organisation's administration from the app settings.",
+    }),
+    allLimits: (count: number) =>
+      i18n._({
+        id: "apps.settings.all-limits",
+        message: "All limits ({count})",
+        values: { count },
+        comment: "Disclosure under the main limits of the app that shows the table of every limit; count is how many.",
+      }),
     loading: i18n._({
       id: "apps.loading",
       message: "Loading…",
       comment: "Shown while the apps or an app's settings load.",
     }),
-    keyOf: (key: string) =>
-      i18n._({
-        id: "apps.settings.key",
-        message: "Key {key}",
-        values: { key },
-        comment: "The app's immutable key under the settings heading; key is the key.",
-      }),
   };
 }
 

@@ -2348,6 +2348,11 @@ type ScreenshotEvent struct {
 	// beneath them, without the bars.
 	PaddingTop    float64 `protobuf:"fixed64,9,opt,name=padding_top,json=paddingTop,proto3" json:"padding_top,omitempty"`
 	PaddingBottom float64 `protobuf:"fixed64,10,opt,name=padding_bottom,json=paddingBottom,proto3" json:"padding_bottom,omitempty"`
+	// platform is the platform the device runs, as Flutter names it
+	// (android, ios, macos, ...); Studio compares the screenshot with a
+	// canvas drawn for the same platform. Empty from a runtime that does not
+	// say.
+	Platform      string `protobuf:"bytes,11,opt,name=platform,proto3" json:"platform,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2450,6 +2455,13 @@ func (x *ScreenshotEvent) GetPaddingBottom() float64 {
 		return x.PaddingBottom
 	}
 	return 0
+}
+
+func (x *ScreenshotEvent) GetPlatform() string {
+	if x != nil {
+		return x.Platform
+	}
+	return ""
 }
 
 // InspectEvent reports a node the developer selected on the device by
@@ -2972,7 +2984,7 @@ const file_plux_v1_devevents_proto_rawDesc = "" +
 	"\rbundle_sha256\x18\x01 \x01(\tR\fbundleSha256\x12#\n" +
 	"\rpages_applied\x18\x02 \x03(\tR\fpagesApplied\x12!\n" +
 	"\fscopes_reset\x18\x03 \x03(\tR\vscopesReset\x12!\n" +
-	"\fapply_micros\x18\x04 \x01(\x03R\vapplyMicros\"\xcb\x02\n" +
+	"\fapply_micros\x18\x04 \x01(\x03R\vapplyMicros\"\xe7\x02\n" +
 	"\x0fScreenshotEvent\x12\x1d\n" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12\x10\n" +
@@ -2988,7 +3000,8 @@ const file_plux_v1_devevents_proto_rawDesc = "" +
 	"\vpadding_top\x18\t \x01(\x01R\n" +
 	"paddingTop\x12%\n" +
 	"\x0epadding_bottom\x18\n" +
-	" \x01(\x01R\rpaddingBottom\"C\n" +
+	" \x01(\x01R\rpaddingBottom\x12\x1a\n" +
+	"\bplatform\x18\v \x01(\tR\bplatform\"C\n" +
 	"\fInspectEvent\x12\x1b\n" +
 	"\tnode_path\x18\x01 \x01(\tR\bnodePath\x12\x16\n" +
 	"\x06widget\x18\x02 \x01(\tR\x06widget\"U\n" +

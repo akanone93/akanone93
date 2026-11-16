@@ -2,16 +2,19 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
+import { widgets } from "@plux/schema";
 import {
   bindIssue,
   bindingOf,
   eventsOf,
   linkRecipe,
   linksOf,
+  NAVIGATION_TRIGGERS,
   redirectRecipe,
   removeLinkRecipe,
   routeOptions,
   targetIssues,
+  triggersOf,
 } from "./links.ts";
 
 const page = () => ({
@@ -34,6 +37,20 @@ describe("link creation [STU-040] [STU-047]", () => {
     expect(eventsOf("ElevatedButton")).toContain("onPressed");
     expect(eventsOf("NoSuchWidget")).toEqual([]);
     expect(eventsOf(undefined)).toEqual([]);
+  });
+
+  test("the link handle offers only events a person fires on purpose", () => {
+    expect(triggersOf("ElevatedButton")).toEqual(["onPressed", "onLongPress"]);
+    // A screen's Scaffold only reports its drawers; no link starts there.
+    expect(triggersOf("Scaffold")).toEqual([]);
+    expect(triggersOf("GestureDetector")).not.toContain("onPanUpdate");
+    expect(triggersOf("TextField")).toContain("onSubmitted");
+    expect(triggersOf(undefined)).toEqual([]);
+  });
+
+  test("every navigation trigger is an event some widget declares", () => {
+    const declared = new Set(widgets.flatMap((w) => w.events.map((e) => e.name)));
+    expect([...NAVIGATION_TRIGGERS].filter((e) => !declared.has(e))).toEqual([]);
   });
 
   test("a free event gets a navigate handler", () => {

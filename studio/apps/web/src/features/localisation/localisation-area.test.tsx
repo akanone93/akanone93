@@ -171,6 +171,7 @@ const state = (permissions: string[] = ["app.read", "translations.edit", "transl
   ],
   pluginDocuments: {
     pl: [
+      { kind: "plugin", path: "plugin.json", json: { kind: "plugin", key: "payments", name: "Payments" } },
       {
         kind: "page",
         path: "pages/home.page.json",
@@ -260,12 +261,38 @@ describe("[STU-111] A13 localisation grid", () => {
     await screen.findByText("Translation (de)");
     fireEvent.click(screen.getByRole("button", { name: "Add a locale" }));
     const add = await screen.findByRole("dialog");
-    fireEvent.change(within(add).getByLabelText("Locale code"), { target: { value: "Deutsch!" } });
+    const field = within(add).getByLabelText("Language or locale code") as HTMLInputElement;
+    fireEvent.change(field, { target: { value: "Deutsch!" } });
     fireEvent.click(within(add).getByRole("button", { name: "Add" }));
     await within(add).findByText("Enter a locale code such as de or pt-BR.");
-    fireEvent.change(within(add).getByLabelText("Locale code"), { target: { value: "fr" } });
+    fireEvent.change(field, { target: { value: "fr" } });
     fireEvent.click(within(add).getByRole("button", { name: "Add" }));
     await screen.findByText("Translation (fr)");
+  });
+
+  test("finds a language by its name and adds it (T1)", async () => {
+    renderApp(`${base}?locale=de`, state());
+    await ready();
+    await screen.findByText("Translation (de)");
+    fireEvent.click(screen.getByRole("button", { name: "Add a locale" }));
+    const add = await screen.findByRole("dialog");
+    fireEvent.change(within(add).getByLabelText("Language or locale code"), { target: { value: "amhar" } });
+    const results = within(add).getByRole("list", { name: "Matching languages" });
+    fireEvent.click(within(results).getByRole("button", { name: /^Amharic/ }));
+    expect((within(add).getByLabelText("Language or locale code") as HTMLInputElement).value).toBe("am");
+    fireEvent.click(within(add).getByRole("button", { name: "Add" }));
+    await screen.findByText("Translation (am)");
+  });
+
+  test("each key names the plugins that use it, or says none does (T1)", async () => {
+    renderApp(base, state());
+    await ready();
+    const grid = await ready();
+    expect(within(grid).getByRole("columnheader", { name: "Used in" })).toBeTruthy();
+    // Both keys are used by the one plugin's page, named as its plugin.json names it, not by its identifier.
+    expect(within(grid).getAllByText("Payments").length).toBe(2);
+    fireEvent.click(screen.getByRole("combobox", { name: "Plugin" }));
+    expect((await screen.findAllByRole("option", { name: "Payments" })).length).toBeGreaterThan(0);
   });
 });
 
@@ -277,7 +304,7 @@ describe("[STU-111] A14 heatmap", () => {
       { name: "Missing translations by plugin and locale" },
       { timeout: 10000 },
     );
-    expect(within(table).getByText("pl")).toBeTruthy();
+    expect(within(table).getByText("Payments")).toBeTruthy();
     expect(within(table).getByText("1 of 2 missing")).toBeTruthy();
     expect(within(table).getByText("2 of 2 missing")).toBeTruthy();
     expect(within(table).getByText("0 of 2 missing")).toBeTruthy();

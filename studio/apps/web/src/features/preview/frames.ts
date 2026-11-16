@@ -183,6 +183,16 @@ export function customFrame(id: string, input: CustomFrameInput): DeviceFrame | 
   };
 }
 
+/** The frame platform that draws a device's own platform as Flutter names it; undefined for one it does not know. */
+export function framePlatformOf(platform: string | undefined): FramePlatform | undefined {
+  if (platform === "ios" || platform === "macos") {
+    return "cupertino";
+  }
+  return platform === "android" || platform === "fuchsia" || platform === "linux" || platform === "windows"
+    ? "material"
+    : undefined;
+}
+
 /** Looks a frame up by ID in the catalogue, then among the user's custom frames. */
 export function resolveFrame(id: string, custom: readonly DeviceFrame[] = []): DeviceFrame {
   const all = [...frameCatalogue, ...custom];

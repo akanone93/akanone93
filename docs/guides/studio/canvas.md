@@ -46,7 +46,10 @@ Canvas, and you can drive both from the keyboard.
      arrow;
    - on the end side, the plugin's **detail panel**;
    - bottom left, **Zoom out**, the zoom (choose it to go back to 100%), **Zoom in** and **Zoom to
-     fit**.
+     fit**, and above them a map of the whole canvas with a frame on the part in view: drag the frame,
+     press elsewhere on the map to go there, or focus the map and use the arrow keys (Shift for bigger
+     steps). **Hide the map** folds it to a button; it stays as you leave it. The plugin canvas has the
+     same map.
 2. Move around as in a design tool. Scroll, or drag with two fingers, to pan; hold **Ctrl** (or
    **Cmd**) and scroll, or pinch, to zoom about the pointer. Drag with the **Hand** tool (**H**),
    with **Space** held, or with the middle mouse button to pan. **V** goes back to **Select**;
@@ -95,8 +98,11 @@ Positions are read-only while someone else is editing the app.
    Point at a screen and the widget a click selects is outlined with its name. A click selects the top-level widget
    under the pointer; Ctrl-click (Cmd-click) selects the innermost; Shift-click adds or removes; double-click goes one
    level in at the pointer, Esc one level out (from a top-level widget to its screen, then nothing); Enter selects the
-   first child and Tab the next sibling. The selection is outlined with its name, its size and, where it has a width
-   and a height, eight handles that resize it. Drag a selected widget to move it: in a column, row or wrap a line
+   first child and Tab the next sibling. The selection is outlined with its name above it and, where it has a width
+   and a height, eight handles that resize it; under it, one stack holds its size, then its problems, the steps its
+   events run, its bindings and its component, each below the last. The badges of a widget sit in one row on its top
+   end corner; where a widget and the one inside it share that corner, only the inner one's badges show until you
+   point at or select the outer one. Drag a selected widget to move it: in a column, row or wrap a line
    shows where it lands among its siblings or in another container (outlined in green); in a stack it moves to where
    you drop it (always inside its stack), with guides and distances to its siblings; the arrow keys nudge by 1
    (Shift: 10). Each screen has a header bar above its frame: click the bar to select the screen, and drag the bar —
@@ -379,8 +385,14 @@ that matters with [a paired device](security-and-admin.md#pair-a-device).
 
 Select a widget, open **Actions**, choose the **Event**, the **Target screen** (in this plugin or
 another) and **Add link**. Or drag the link handle on the widget to a screen; the keyboard
-equivalent is Enter on the handle, then choose a screen. If the event already does something you
-choose **Replace** or **Add after**. Open the **Action graph** for anything a link cannot express:
+equivalent is **Link to screen** beside the handle, then choose a screen (screens with the same title are told
+apart by their routes). The handle shows on widgets a person acts on — a tap, a press, a choice, a submission, a
+finished task — and not on a screen itself; the picker offers those events. If the event already does something you
+choose **Replace** or **Add after**.
+
+Point at an arrow and its bundle opens into one lane per link, each titled with its widget and target; a click on a
+closed bundle opens it too. A click on a lane selects that link: change its trigger, redirect it, open its source
+or target, or remove it. Arrows follow a screen while you drag it. Open the **Action graph** for anything a link cannot express:
 add built-in, host, function and flow steps and connect their ports. The **State designer** edits
 state entries (single value, list or map; in memory, for the session, saved on the device or in
 secure storage; sensitive or not), and the **JSON editor** edits the document itself with a

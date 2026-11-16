@@ -63,9 +63,19 @@ interface Rig {
   readonly pans: [number, number][];
   readonly overlay: ReturnType<typeof createOverlayStore>;
   readonly select: (id: string) => void;
+  readonly cursor: () => string | undefined;
 }
 
-function rig(options: { tool?: PointerTool; canEdit?: boolean; locked?: string[] } = {}): Rig {
+function rig(
+  options: {
+    tool?: PointerTool;
+    canEdit?: boolean;
+    locked?: string[];
+    /** Items drawn above the screens (arrows), and what the page answers for a resting pointer. */
+    above?: Record<string, Box>;
+    onHover?: (hits: readonly string[]) => boolean;
+  } = {},
+): Rig {
   const index = indexNodes([tree, other]);
   const store = selectionStoreOf(createStore<{ selection: sel.Selection }>(() => ({ selection: sel.emptySelection })));
   const draft = JSON.parse(JSON.stringify(tree)) as Node & { children: Node[] };
@@ -89,11 +99,15 @@ function rig(options: { tool?: PointerTool; canEdit?: boolean; locked?: string[]
   ]);
   const surface = {
     viewport: { x: 0, y: 0, zoom: 1 },
-    hitTest: (x: number, y: number) =>
-      Object.entries(boxes)
+    hitTest: (x: number, y: number) => [
+      ...Object.entries(options.above ?? {})
+        .filter(([, b]) => inside(b, x, y))
+        .map(([id]) => id),
+      ...Object.entries(boxes)
         .filter(([, b]) => inside(b, x, y))
         .sort(([, a], [, b]) => area(a) - area(b))
         .map(([id]) => id),
+    ],
     hitTestRect: (r: Box) =>
       Object.entries(boxes)
         .filter(([, b]) => b.l <= r.r && r.l <= b.r && b.t <= r.b && r.t <= b.b)
@@ -141,6 +155,7 @@ function rig(options: { tool?: PointerTool; canEdit?: boolean; locked?: string[]
     onView: () => undefined,
     onContextMenu: (_at, target) => menus.push(target),
     onRenameScreen: (s) => renames.push(s),
+    ...(options.onHover === undefined ? {} : { onHover: options.onHover }),
   };
   const h = pointerHandlers(() => input, { current: null });
   return {
@@ -157,6 +172,7 @@ function rig(options: { tool?: PointerTool; canEdit?: boolean; locked?: string[]
     pans,
     overlay,
     select: (id) => store.set({ ids: [id], anchor: id, scope: index.parent.get(id) ?? null }),
+    cursor: () => attributes.get("data-cursor"),
   };
 }
 
@@ -392,5 +408,31 @@ describe("[STU-067] marquee and panning", () => {
     middle.h.onPointerMove(ev(25, 20));
     middle.h.onPointerUp(ev(25, 20));
     expect(middle.pans).toEqual([[5, 0]]);
+  });
+});
+
+describe("[STU-044] arrows under a resting pointer", () => {
+  const arrow = { "arrow:b1:s0": { l: 0, t: 210, r: 600, b: 230 } };
+  test("[STU-044] an arrow on top takes the hover: its bundle expands and no widget is outlined under it", () => {
+    const seen: (readonly string[])[] = [];
+    const r = rig({
+      above: arrow,
+      onHover: (hits) => {
+        seen.push(hits);
+        return hits[0]?.startsWith("arrow:") === true;
+      },
+    });
+    r.h.onPointerMove(ev(50, 220));
+    expect(seen.at(-1)?.[0]).toBe("arrow:b1:s0");
+    expect(r.overlay.get().hover).toBeNull();
+    expect(r.cursor()).toBe("true");
+    // Off the arrow, onto a widget: the page collapses the bundle and the widget is outlined again.
+    r.h.onPointerMove(ev(50, 260));
+    expect(seen.at(-1)?.[0]).not.toBe("arrow:b1:s0");
+    expect(r.overlay.get().hover).toBe("c");
+    expect(r.cursor()).toBeUndefined();
+    // Leaving the canvas collapses it too.
+    r.h.onPointerLeave();
+    expect(seen.at(-1)).toEqual([]);
   });
 });

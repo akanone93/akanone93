@@ -8,6 +8,7 @@ import { type LowContrast, smallTarget } from "./a11y-marks.ts";
 import type { BindingMark } from "./binding-marks.ts";
 import type { InstanceMark } from "./component-instances.ts";
 import type { L10nOverlay } from "./l10n-marks.ts";
+import { cornersShown, tagClear } from "./overlay-layout.ts";
 import type { HandlerStep } from "./quick-actions.ts";
 import type { SizesOverlay } from "./responsive.ts";
 import type { CostsOverlay } from "./screen-costs.ts";
@@ -186,60 +187,73 @@ function Spacing({ id, box, view, nodes }: { id: string; box: Box; view: View; n
   });
 }
 
-/** A dot on every widget with a problem, red for an error and amber for a warning (PC-16). */
-function ProblemDots({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
-  return [...(nodes.problems ?? new Map<string, readonly NodeProblem[]>())].flatMap(([id, list]) => {
+/** The widgets with corner badges: their box, problem dot, bindings and event steps (a screen shows only its dot). */
+function badgeMarks(nodes: OverlayNodes) {
+  const problems = nodes.problems ?? new Map<string, readonly NodeProblem[]>();
+  const bindings = nodes.bindings ?? new Map<string, readonly BindingMark[]>();
+  const events = nodes.events ?? new Map<string, readonly HandlerStep[]>();
+  return [...new Set([...problems.keys(), ...bindings.keys(), ...events.keys()])].flatMap((id) => {
     const box = nodes.boxOf(id);
-    const first = list[0];
-    return box === undefined || first === undefined || first.severity === "info"
+    const severity = problems.get(id)?.[0]?.severity;
+    const dot = severity === "error" || severity === "warning" ? severity : undefined;
+    const screen = nodes.isScreen(id);
+    const bound = screen ? [] : (bindings.get(id) ?? []);
+    const steps = screen ? [] : (events.get(id) ?? []);
+    return box === undefined || (dot === undefined && bound.length === 0 && steps.length === 0)
       ? []
-      : [<span key={id} className="pc-problem-dot" data-severity={first.severity} style={point(box.r, box.t, view)} />];
+      : [{ id, box, dot, bound, steps }];
   });
 }
 
-/** A badge on the top-end corner of every bound widget (PC-23); its count when it binds several props. */
-function BindingBadges({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
-  return [...(nodes.bindings ?? new Map<string, readonly BindingMark[]>())].flatMap(([id, list]) => {
-    const box = nodes.boxOf(id);
-    return box === undefined || nodes.isScreen(id)
-      ? []
-      : [
-          <span
-            key={id}
-            className="pc-bind-badge"
-            style={point(box.r, box.t, view)}
-            title={list.map((b) => b.expr).join("\n")}
-          >
-            {list.length > 1 ? list.length : ""}
-          </span>,
-        ];
-  });
+/**
+ * The badges on a widget's top-end corner, as one cluster (C4): the steps its events run (amber, PC-27), the props it
+ * binds (teal, PC-23) and its problem (a red or amber dot, PC-16), the dot on the corner itself. Where nested widgets
+ * share a corner, only the innermost cluster is drawn, besides the hovered and selected widgets' (`cornersShown`).
+ */
+function CornerBadges({
+  view,
+  nodes,
+  focus,
+}: {
+  view: View;
+  nodes: OverlayNodes;
+  focus: ReadonlySet<string>;
+}): ReactNode {
+  const marked = badgeMarks(nodes);
+  const shown = cornersShown(
+    marked.map((m) => ({
+      id: m.id,
+      x: (m.box.r - view.x) * view.zoom,
+      y: (m.box.t - view.y) * view.zoom,
+      area: (m.box.r - m.box.l) * (m.box.b - m.box.t) * view.zoom * view.zoom,
+    })),
+    focus,
+  );
+  return marked
+    .filter((m) => shown.has(m.id))
+    .map((m) => (
+      <span key={m.id} className="pc-badges" style={point(m.box.r, m.box.t, view)}>
+        {m.steps.length > 0 && <span className="pc-event-badge">{m.steps.length > 1 ? m.steps.length : ""}</span>}
+        {m.bound.length > 0 && (
+          <span className="pc-bind-badge" title={m.bound.map((b) => b.expr).join("\n")}>
+            {m.bound.length > 1 ? m.bound.length : ""}
+          </span>
+        )}
+        {m.dot !== undefined && <span className="pc-problem-dot" data-severity={m.dot} />}
+      </span>
+    ));
 }
 
 const MAX_BINDINGS = 3;
 
-/** An amber badge beside the binding badge of every widget whose events run steps (PC-27). */
-function EventBadges({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
-  return [...(nodes.events ?? new Map<string, readonly HandlerStep[]>())].flatMap(([id, steps]) => {
-    const box = nodes.boxOf(id);
-    return box === undefined || nodes.isScreen(id)
-      ? []
-      : [
-          <span key={id} className="pc-event-badge" style={point(box.r, box.t, view)}>
-            {steps.length > 1 ? steps.length : ""}
-          </span>,
-        ];
-  });
-}
-
-/** The selected widget's event handlers under its start corner: each event and the steps it runs. */
-function EventTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+/** The selected widget's event handlers: each event and the steps it runs. */
+function EventTag({ id, nodes }: { id: string; nodes: OverlayNodes }): ReactNode {
   const steps = nodes.events?.get(id) ?? [];
   if (steps.length === 0) {
     return null;
   }
   return (
-    <span className="pc-event-tag" style={point(box.l, box.b, view)}>
+    <span className="pc-event-tag">
       {steps.slice(0, MAX_BINDINGS).map((s) => (
         <span key={`${s.event}:${s.index}`} className="pc-bind-line">
           <span className="pc-bind-prop">{s.event}</span>
@@ -252,14 +266,14 @@ function EventTag({ id, box, view, nodes }: { id: string; box: Box; view: View; 
   );
 }
 
-/** The selected widget's bindings over its top-end corner: each prop, its expression and the value drawn. */
-function BindingTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+/** The selected widget's bindings: each prop, its expression and the value drawn. */
+function BindingTag({ id, nodes }: { id: string; nodes: OverlayNodes }): ReactNode {
   const list = nodes.bindings?.get(id) ?? [];
   if (list.length === 0) {
     return null;
   }
   return (
-    <span className="pc-bind-tag" style={point(box.r, box.b, view)}>
+    <span className="pc-bind-tag">
       {list.slice(0, MAX_BINDINGS).map((b) => (
         <span key={b.prop} className="pc-bind-line">
           <span className="pc-bind-prop">{b.prop}</span>
@@ -385,13 +399,12 @@ function HeroLinks({ id, view, nodes }: { id: string; view: View; nodes: Overlay
   });
 }
 
-/** The selected widget's first problem, under its size. */
 /** The selected widget's problems under it, the most severe first, each with its code (PC-16, PC-34). */
-function ProblemTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+function ProblemTag({ id, nodes }: { id: string; nodes: OverlayNodes }): ReactNode {
   const list = nodes.problems?.get(id) ?? [];
   const first = list[0];
   return first === undefined ? null : (
-    <span className="pc-problem-tag" data-severity={first.severity} style={point((box.l + box.r) / 2, box.b, view)}>
+    <span className="pc-problem-tag" data-severity={first.severity}>
       {list.slice(0, MAX_BINDINGS).map((p) => (
         <span key={`${p.code}:${p.message}`} className="pc-problem-line" data-severity={p.severity}>
           <span className="pc-problem-message">{p.message}</span>
@@ -433,14 +446,10 @@ function Isolation({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactN
   return b === undefined ? null : <div className="pc-isolate" style={place(b, view)} />;
 }
 
-/** The selected instance's component, version and overrides under its start corner. */
-function InstanceTag({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+/** The selected instance's component, version and overrides. */
+function InstanceTag({ id, nodes }: { id: string; nodes: OverlayNodes }): ReactNode {
   const mark = nodes.instances?.marks.get(id);
-  return mark === undefined ? null : (
-    <span className="pc-instance-tag" style={point(box.l, box.b, view)}>
-      {nodes.instances?.tag(mark)}
-    </span>
-  );
+  return mark === undefined ? null : <span className="pc-instance-tag">{nodes.instances?.tag(mark)}</span>;
 }
 
 /** Under each screen's end corner, what it costs: its widgets against the page budget, and its problems (PC-34). */
@@ -496,20 +505,23 @@ function Selected(props: {
       />
       {single && !screen && <Tag box={box} view={view} text={nodes.nameOf(id)} kind="selected" />}
       {single && !screen && <Spacing id={id} box={box} view={view} nodes={nodes} />}
-      {single && (
+      {single && screen && (
         // A screen's size sits under its start corner, clear of what it costs under its end (PC-34).
-        <span
-          className="pc-size"
-          data-at={screen ? "start" : undefined}
-          style={point(screen ? box.l : (box.l + box.r) / 2, box.b, view)}
-        >
+        <span className="pc-size" data-at="start" style={point(box.l, box.b, view)}>
           {sizeText(box)}
         </span>
       )}
-      {single && !screen && <ProblemTag id={id} box={box} view={view} nodes={nodes} />}
-      {single && !screen && <BindingTag id={id} box={box} view={view} nodes={nodes} />}
-      {single && !screen && <EventTag id={id} box={box} view={view} nodes={nodes} />}
-      {single && !screen && <InstanceTag id={id} box={box} view={view} nodes={nodes} />}
+      {single && !screen && (
+        // One stack under the widget (C4): its size, problems, event steps, bindings and component, each below the
+        // last. Placed at the corners on their own, they covered each other whenever the widget was narrow.
+        <span className="pc-details" style={point((box.l + box.r) / 2, box.b, view)}>
+          <span className="pc-size">{sizeText(box)}</span>
+          <ProblemTag id={id} nodes={nodes} />
+          <EventTag id={id} nodes={nodes} />
+          <BindingTag id={id} nodes={nodes} />
+          <InstanceTag id={id} nodes={nodes} />
+        </span>
+      )}
       {single && !screen && <HeroLinks id={id} view={view} nodes={nodes} />}
       {single &&
         !screen &&
@@ -522,8 +534,22 @@ function Selected(props: {
   );
 }
 
-function Hover({ id, box, view, nodes }: { id: string; box: Box; view: View; nodes: OverlayNodes }): ReactNode {
+function Hover({
+  id,
+  box,
+  view,
+  nodes,
+  tagAt,
+}: {
+  id: string;
+  box: Box;
+  view: View;
+  nodes: OverlayNodes;
+  /** Where the selected widget's name tag is, in canvas pixels: the hover's steps aside from it. */
+  tagAt: { readonly x: number; readonly y: number } | undefined;
+}): ReactNode {
   const screen = nodes.isScreen(id);
+  const clear = tagClear({ x: (box.l - view.x) * view.zoom, y: (box.t - view.y) * view.zoom }, tagAt);
   return (
     <>
       <div
@@ -531,7 +557,7 @@ function Hover({ id, box, view, nodes }: { id: string; box: Box; view: View; nod
         data-kind={screen ? "screen-hover" : "hover"}
         style={{ ...place(box, view), "--r": screen ? frameCorner(nodes, view) : 0 } as CSSProperties}
       />
-      {!screen && <Tag box={box} view={view} text={nodes.nameOf(id)} kind="hover" />}
+      {!screen && clear && <Tag box={box} view={view} text={nodes.nameOf(id)} kind="hover" />}
     </>
   );
 }
@@ -591,6 +617,20 @@ function useFollowView(store: OverlayStore, surface: () => CanvasSurface | null)
   }, [store]);
 }
 
+/** Where the single selected widget's name tag is, and the widgets the pointer and the selection are on. */
+function selectionMarks(
+  selected: readonly { readonly id: string; readonly box: Box }[],
+  hover: string | null,
+  nodes: OverlayNodes,
+  view: View,
+): { tagAt: { x: number; y: number } | undefined; focus: ReadonlySet<string> } {
+  const only = selected.length === 1 && !nodes.isScreen(selected[0]?.id ?? "") ? selected[0]?.box : undefined;
+  return {
+    tagAt: only === undefined ? undefined : { x: (only.l - view.x) * view.zoom, y: (only.t - view.y) * view.zoom },
+    focus: new Set([...selected.map((s) => s.id), ...(hover === null ? [] : [hover])]),
+  };
+}
+
 /**
  * The interaction overlay of the plugin canvas (STU-067), in the page's DOM above the canvas and below the docks: the
  * selection with its tag, size and handles (a screen as its device frame), the node under the pointer, the container
@@ -621,13 +661,14 @@ export function InteractionOverlay(props: {
   const hoverBox = state.hover === null || selection.ids.includes(state.hover) ? undefined : nodes.boxOf(state.hover);
   const dropBox = state.drop === null ? undefined : nodes.boxOf(state.drop);
   const busy = state.ghost !== null || state.marquee !== null;
+  const { tagAt, focus } = selectionMarks(selected, state.hover, nodes, view);
   return (
     <div className="pc-overlay" aria-hidden="true" data-busy={busy || undefined}>
       {scopeBox !== undefined && !nodes.isScreen(nodes.scope ?? "") && (
         <div className="pc-outline" data-kind="scope" style={place(scopeBox, view)} />
       )}
       {hoverBox !== undefined && state.hover !== null && !busy && (
-        <Hover id={state.hover} box={hoverBox} view={view} nodes={nodes} />
+        <Hover id={state.hover} box={hoverBox} view={view} nodes={nodes} tagAt={tagAt} />
       )}
       {dropBox !== undefined && state.drop !== null && (
         <>
@@ -659,9 +700,7 @@ export function InteractionOverlay(props: {
       <ScreenCosts view={view} nodes={nodes} />
       <InstanceBadges view={view} nodes={nodes} />
       <Isolation view={view} nodes={nodes} />
-      <BindingBadges view={view} nodes={nodes} />
-      <EventBadges view={view} nodes={nodes} />
-      <ProblemDots view={view} nodes={nodes} />
+      <CornerBadges view={view} nodes={nodes} focus={focus} />
       {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}
       {state.marquee !== null && (
         <div

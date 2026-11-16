@@ -13,7 +13,8 @@ export function localisationAreaMessages(i18n: I18n) {
     }),
     gridCaption: i18n._({
       id: "l10n.area.gridCaption",
-      message: "Translation keys by locale. Filter, search and change the status of many messages at once.",
+      message:
+        "The app's translation keys by locale. A key belongs to the app, so any plugin can use it; Used in shows which do. Filter, search and change the status of many messages at once.",
       comment: "Caption under the heading of the localisation grid.",
     }),
     heatmapLink: i18n._({
@@ -252,8 +253,28 @@ export function localisationAreaMessages(i18n: I18n) {
     }),
     localeCode: i18n._({
       id: "l10n.area.localeCode",
-      message: "Locale code",
-      comment: "Label of the field for a locale code such as de or pt-BR.",
+      message: "Language or locale code",
+      comment: "Label of the field that searches the languages by name, or takes a locale code such as de or pt-BR.",
+    }),
+    localeSearchHint: i18n._({
+      id: "l10n.area.localeSearchHint",
+      message: "Search by name in English or in the language itself, or type a code with its region, such as pt-BR.",
+      comment: "Help under the field that searches the languages to add to the app.",
+    }),
+    localeResults: i18n._({
+      id: "l10n.area.localeResults",
+      message: "Matching languages",
+      comment: "Accessible name of the list of languages that match the search in the add-locale dialog.",
+    }),
+    usedInColumn: i18n._({
+      id: "l10n.area.usedInColumn",
+      message: "Used in",
+      comment: "Column heading: the plugins whose screens use the translation key.",
+    }),
+    notUsed: i18n._({
+      id: "l10n.area.notUsed",
+      message: "Not used",
+      comment: "Shown in the Used in column for a translation key no plugin uses; such a key can be deleted.",
     }),
     localeInvalid: i18n._({
       id: "l10n.area.localeInvalid",

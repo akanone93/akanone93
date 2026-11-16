@@ -46,6 +46,52 @@ export function eventsOf(type: string | undefined): readonly string[] {
   return d === undefined ? [] : d.events.map((e) => e.name);
 }
 
+/**
+ * The events a person fires on purpose and that a page commonly opens from: a tap or press, a choice, a submission,
+ * or a task the person finished (a code entered, a scan, a capture). Notifications of state (focus, hover, a drawer
+ * opening, an animation's end, an error) and the parts of a gesture (down, update, cancel) are left out. The link
+ * handle offers only these (STU-047); the Actions tab still takes any event.
+ */
+export const NAVIGATION_TRIGGERS: ReadonlySet<string> = new Set([
+  "onTap",
+  "onPressed",
+  "onLongPress",
+  "onDoubleTap",
+  "onSecondaryTap",
+  "onSelected",
+  "onDestinationSelected",
+  "onSuggestionSelected",
+  "onStepTapped",
+  "onMarkerTap",
+  "onMapTap",
+  "onLinkTap",
+  "onLink",
+  "onAction",
+  "onSubmitted",
+  "onFieldSubmitted",
+  "onSubmit",
+  "onSearch",
+  "onNext",
+  "onBack",
+  "onDone",
+  "onRetry",
+  "onCheckout",
+  "onAddToCart",
+  "onSuccess",
+  "onFailure",
+  "onCompleted",
+  "onCaptured",
+  "onDetected",
+  "onAccepted",
+  "onUploaded",
+  "onFinished",
+]);
+
+/** The widget type's events a link can be made from by dragging (`NAVIGATION_TRIGGERS`), in descriptor order. */
+export function triggersOf(type: string | undefined): readonly string[] {
+  return eventsOf(type).filter((e) => NAVIGATION_TRIGGERS.has(e));
+}
+
 /** A navigate step found below a node's event. */
 export interface NavigateLink {
   readonly event: string;

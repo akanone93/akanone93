@@ -47,7 +47,10 @@ function Filters(props: {
     <div className="flex flex-wrap items-end gap-3">
       <Select
         label={m.pluginFilter}
-        options={[{ value: "", label: m.allPlugins }, ...area.plugins.map((p) => ({ value: p, label: p }))]}
+        options={[
+          { value: "", label: m.allPlugins },
+          ...area.plugins.map((p) => ({ value: p, label: area.pluginNames.get(p) ?? p })),
+        ]}
         value={area.plugin ?? ""}
         onValueChange={(v) => set({ plugin: v === "" ? undefined : v })}
       />
@@ -180,7 +183,14 @@ function Rows(props: {
               }
             />
           </th>
-          {[m.gridTitle, m.sourceColumn, m.targetColumn({ locale }), m.statusColumn, m.contextColumn].map((h) => (
+          {[
+            m.gridTitle,
+            m.sourceColumn,
+            m.targetColumn({ locale }),
+            m.statusColumn,
+            m.usedInColumn,
+            m.contextColumn,
+          ].map((h) => (
             <th key={h} scope="col" className="p-2 text-start text-label text-muted-foreground">
               {h}
             </th>
@@ -190,6 +200,7 @@ function Rows(props: {
       <tbody>
         {rows.map((k) => {
           const screens = (area.screens.get(k.id) ?? []).filter((s) => area.contextScreens.has(s));
+          const users = area.plugins.filter((p) => area.usedByPlugin.get(p)?.has(k.id) === true);
           return (
             <tr key={k.id} className="border-t border-hairline">
               <td className="p-2">
@@ -206,6 +217,13 @@ function Rows(props: {
               <td className="p-2 text-body">{source?.[k.id] ?? ""}</td>
               <td className="p-2 text-body">{mine?.[k.id] ?? ""}</td>
               <td className="p-2 text-body">{labels[statusOf(k.id, mine, area.states)]}</td>
+              <td className="p-2 text-caption">
+                {users.length > 0 ? (
+                  users.map((p) => area.pluginNames.get(p) ?? p).join(", ")
+                ) : (
+                  <span className="text-muted-foreground">{m.notUsed}</span>
+                )}
+              </td>
               <td className="p-2 text-caption text-muted-foreground">
                 {screens.length > 0 ? m.context({ screens: screens.join(", ") }) : m.noContext}
               </td>

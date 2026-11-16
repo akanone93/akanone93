@@ -56,13 +56,15 @@ export const ghostStyle: GhostStyle = {
 
 /** Navigation arrows (STU-040 to STU-048) in the brand colours. */
 export const arrowStyle: ArrowStyle = {
-  stroke: { color: rgba(primitives["navy.900"], 0xa0), width: 1.5 },
-  dimmed: { color: rgba(primitives["navy.900"], 0x30), width: 1.5 },
-  focus: { color: rgba(primitives["violet.700"]), width: 2 },
+  stroke: { color: rgba(primitives["navy.900"], 0xc8), width: 2 },
+  dimmed: { color: rgba(primitives["navy.900"], 0x30), width: 2 },
+  focus: { color: rgba(primitives["violet.700"]), width: 2.5 },
   badgeFill: rgba(primitives["navy.900"]),
   badgeText: rgba(primitives.white),
   labelText: rgba(primitives["navy.900"]),
   z: 1,
+  head: 11,
+  labelFill: rgba(primitives.white, 0xeb),
 };
 
 export interface PlacedScreen {

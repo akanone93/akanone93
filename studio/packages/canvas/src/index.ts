@@ -13,7 +13,15 @@ export {
   AccessibleTree,
   ROLES,
 } from "./a11y.ts";
-export { ArrowCanvas, type ArrowPick, type ArrowStyle, defaultArrowStyle, ProvisionalArrow } from "./arrow-layer.ts";
+export {
+  ArrowCanvas,
+  type ArrowPick,
+  type ArrowStyle,
+  CANVAS_ARROW,
+  canvasTitle,
+  defaultArrowStyle,
+  ProvisionalArrow,
+} from "./arrow-layer.ts";
 export {
   type ArrowBox,
   ArrowRouter,

@@ -25,7 +25,7 @@ function Rows(): ReactElement {
       rows={rows.map((r) => ({
         key: r.plugin,
         cells: [
-          r.plugin,
+          area.pluginNames.get(r.plugin) ?? r.plugin,
           ...locales.map((l) => {
             const missing = r.missing[l] ?? 0;
             const text = m.heatCell({ missing, total: r.total });
@@ -34,7 +34,7 @@ function Rows(): ReactElement {
                 key={l}
                 value={r.total - missing}
                 max={Math.max(r.total, 1)}
-                label={`${r.plugin} ${l}`}
+                label={`${area.pluginNames.get(r.plugin) ?? r.plugin} ${l}`}
                 valueText={text}
               />
             );

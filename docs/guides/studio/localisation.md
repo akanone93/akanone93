@@ -6,7 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 # Localisation
 
 Studio shows every translation key of an app by locale and lets a reviewer change the status of
-many messages at once. The concepts and the command line are in the
+many messages at once. Translation keys belong to the app, not to a plugin: any plugin can use any key, and the
+grid's **Used in** column names the plugins that do (**Not used** when none does). The concepts and the command line are in the
 [localisation guide](../localisation.md) and the [translation workflow](../translation-workflow.md).
 
 ## See what is missing
@@ -17,7 +18,8 @@ still lacks ("3 of 40 missing").
 ## Review in the grid
 
 1. The **Grid** lists keys with the **Source** text, the **Translation** for the **Locale** you
-   choose, the **Status**, the **Context** and the screens a key appears on. Filter by plugin,
+   choose, the **Status**, the plugins that use it (**Used in**), the **Context** and the screens a key appears on.
+   Filter by plugin (by its name),
    status (*Missing*, *New*, *Needs review*, *Reviewed*, *Approved*) or search keys and texts.
 2. Select rows (or **Select all shown keys**) and choose **Approve**, **Mark as needs review** or
    **Copy from source**. Studio states how many messages change and asks you to confirm.
@@ -37,8 +39,8 @@ still lacks ("3 of 40 missing").
 5. The **Used** column of the Localisation table names the documents that use each key. A key nothing
    uses can be deleted there (the trash button, then **Delete**): the key and its message in the
    **Locale to edit** go in one undo step. Deleting needs the same locks as **Add key**. A key still
-   in use cannot be deleted. Messages of the key in the other locales stay until
-   those locales are edited; the server reports them as unused (`PLX-1608`).
+   in use cannot be deleted. Messages of the key in the other locales stay in their documents, since each locale
+   has its own lock, but a release leaves them out: nothing can show a deleted key's text.
 6. To use a key that already exists, select the text and open **Properties › Content**. The button at the end of the
    text's row (**Data** for a `Text`) switches it between a literal, a **Translation key** and a PXL expression;
    choose **Translation key** and pick the key. The list holds every key of the app, including one added on this
@@ -47,7 +49,8 @@ still lacks ("3 of 40 missing").
 
 ## Add a locale, import and export
 
-- **Add a locale** takes a code such as `de` or `pt-BR`.
+- **Add a locale** searches every language by its name, in English or in the language itself (`amharic`,
+  `አማርኛ`), or takes a code; type a code with its region, such as `pt-BR` or `am-ET`, for a regional locale.
 - **Import translations** reads XLIFF, ARB, JSON or CSV into the locale you choose. The file is read
   first, so a file that is too large, not valid or empty is refused before anything changes.
 - **Export translations** downloads XLIFF, ARB, JSON or CSV for translators.

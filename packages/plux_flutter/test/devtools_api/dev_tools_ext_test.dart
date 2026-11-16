@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -471,6 +472,8 @@ void main() {
       expect(shot['textScale'], 1.5);
       expect(shot['paddingTop'], 24.0);
       expect(shot['paddingBottom'], 16.0);
+      // The platform the device runs, so Studio compares like with like.
+      expect(shot['platform'], defaultTargetPlatform.name);
     });
 
     testWidgets('says when a platform view is on screen [DEV-033]', (

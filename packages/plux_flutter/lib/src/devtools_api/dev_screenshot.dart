@@ -17,6 +17,7 @@ import 'dart:isolate';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:plux_flutter/src/devtools_api/dev_nodes.dart';
@@ -98,6 +99,8 @@ final class DevScreenshotHandler implements DevCommandHandler {
           'textScale': media?.textScaler.scale(1) ?? 1.0,
           'paddingTop': media?.viewPadding.top ?? 0.0,
           'paddingBottom': media?.viewPadding.bottom ?? 0.0,
+          // Studio draws its canvas for the same platform to compare them.
+          'platform': defaultTargetPlatform.name,
         },
       });
       return {'status': devStatusOk};

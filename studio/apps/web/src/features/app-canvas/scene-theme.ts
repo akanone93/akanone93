@@ -118,12 +118,13 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
   const line = colour(token("muted-foreground"));
   const arrows: ArrowStyle = {
     ...arrowStyle,
-    stroke: { color: line, width: 1.5 },
-    dimmed: { color: (line & 0xffffff00) | 0x50, width: 1.5 },
-    focus: { color: colour(token("primary")), width: 2 },
+    stroke: { color: line, width: 2 },
+    dimmed: { color: (line & 0xffffff00) | 0x50, width: 2 },
+    focus: { color: colour(token("primary")), width: 2.5 },
     badgeFill: colour(token("primary")),
     badgeText: colour(token("primary-foreground")),
     labelText: colour(token("foreground")),
+    labelFill: ((colour(token("background")) & 0xffffff00) | 0xeb) >>> 0,
   };
   // A step off the page (white cards stand off it in light), and the grid's dots a quiet step further, so the canvas
   // reads as a surface without competing with the cards on it.

@@ -60,6 +60,35 @@ describe("the limits usage table of the app settings [STU-025] [LIM-005]", () =>
   });
 });
 
+describe("the app settings in the order they are used (N4) [STU-025]", () => {
+  test("the main limits come first as meters, any other near its limit with them; every limit is under All limits", async () => {
+    renderApp(path, setup(["app.read"]).state);
+    const summary = await screen.findByRole("list", { name: "Limits usage" }, wait);
+    const names = within(summary)
+      .getAllByRole("meter")
+      .map((meter) => meter.getAttribute("aria-label"));
+    // The headline ones in their order; function.timeout is within bounds, so it waits in the table.
+    expect(names).toEqual(["Release size", "Plugins", "Pages per plugin"]);
+    expect(within(summary).getByText("At limit")).toBeTruthy();
+    const more = screen.getByText("All limits (4)");
+    expect(more.closest("details")?.querySelector("table")).toBeTruthy();
+  });
+
+  test("Discard puts the saved name and description back, and the save bar goes", async () => {
+    renderApp(path, setup(manager).state);
+    const name = (await screen.findByLabelText("Name", {}, wait)) as HTMLInputElement;
+    await waitFor(() => expect(name.value).toBe("Bank"));
+    expect(screen.queryByRole("button", { name: "Save changes" }) === null).toBe(true);
+    fireEvent.change(name, { target: { value: "Bank 2" } });
+    expect(screen.getByText("Unsaved changes")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Discard" }));
+    expect(name.value).toBe("Bank");
+    expect(screen.queryByRole("button", { name: "Save changes" }) === null).toBe(true);
+    // The key is shown, and cannot be typed into.
+    expect((screen.getByLabelText("Key") as HTMLInputElement).readOnly).toBe(true);
+  });
+});
+
 describe("the usage of one plugin in the app settings [LIM-005] [STU-025]", () => {
   const pluginSetup = (permissions: string[]): { grid: AppsGridFixture; state: Upstream } => {
     const grid: AppsGridFixture = {

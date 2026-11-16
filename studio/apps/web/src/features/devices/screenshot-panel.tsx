@@ -28,6 +28,7 @@ export function lookOf(e: {
   readonly textScale: number;
   readonly paddingTop: number;
   readonly paddingBottom: number;
+  readonly platform?: string;
 }): DeviceLook | undefined {
   if (e.width <= 0 || e.height <= 0 || e.pixelRatio <= 0 || e.textScale <= 0) {
     return undefined;
@@ -40,6 +41,7 @@ export function lookOf(e: {
     bottom: Math.round(e.paddingBottom),
     dark: e.dark,
     textScale: e.textScale,
+    ...(e.platform === undefined || e.platform === "" ? {} : { platform: e.platform }),
   };
 }
 

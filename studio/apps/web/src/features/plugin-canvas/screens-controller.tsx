@@ -86,6 +86,8 @@ export interface ScreensControllerProps {
   readonly percent: number;
   readonly onZoom: (factor: number) => void;
   readonly onFit: () => void;
+  /** The map of the canvas, above the zoom controls (C5). */
+  readonly viewMap?: ReactNode;
   /** Opens the history overlay (STU-069); the action bar button shows only when given. */
   readonly onHistory?: (() => void) | undefined;
   /** The frame, theme, locale and text scale controls of the preview (STU-058). */
@@ -385,6 +387,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         percent={props.percent}
         onZoom={props.onZoom}
         onFit={props.onFit}
+        viewMap={props.viewMap}
         screens={props.screens}
         current={current}
         onCurrent={(id) => {

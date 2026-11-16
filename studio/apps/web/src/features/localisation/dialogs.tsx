@@ -5,7 +5,8 @@ import { useLingui } from "@lingui/react";
 import { limitDefault } from "@plux/schema";
 import { Button, Dialog, Field, FileDrop, Input, Select, Textarea } from "@plux/ui";
 import { useNavigate } from "@tanstack/react-router";
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useMemo, useState } from "react";
+import { canonicalLocale, searchLocales } from "../new-app/locale-catalogue.ts";
 import { localisationAreaMessages } from "./area.messages.ts";
 import { addLocale, localeProblem, writeMessages } from "./area-actions.ts";
 import { useArea } from "./area-scope.tsx";
@@ -21,13 +22,24 @@ import {
 
 const formatOptions = FORMATS.map((f) => ({ value: f, label: f.toUpperCase() }));
 
-/** D53: adds a locale to the app. */
+/**
+ * D53: adds a locale to the app. The field searches every language by its name, in the interface's language or its
+ * own, or by code (T1, as the new-app wizard's picker); a result fills in its code, and a typed tag with a region
+ * (`pt-BR`, `am-ET`) is taken as it is.
+ */
 export function AddLocaleDialog(props: { readonly open: boolean; readonly onClose: () => void }): ReactElement {
-  const m = localisationAreaMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = localisationAreaMessages(i18n);
   const area = useArea();
   const navigate = useNavigate();
-  const [code, setCode] = useState("");
+  const [query, setQuery] = useState("");
   const [shown, setShown] = useState(false);
+  const code = canonicalLocale(query) ?? query.trim();
+  const results = useMemo(
+    () => (query.trim() === "" ? [] : searchLocales(query, i18n.locale, area.sessions.locales).slice(0, 8)),
+    [query, i18n.locale, area.sessions.locales],
+  );
+  const setCode = (next: string) => setQuery(next);
   const problem = localeProblem(code, area.sessions.locales);
   const submit = () => {
     setShown(true);
@@ -49,10 +61,31 @@ export function AddLocaleDialog(props: { readonly open: boolean; readonly onClos
       <div className="flex flex-col gap-3">
         <Field
           label={m.localeCode}
+          description={m.localeSearchHint}
           error={shown && problem !== undefined ? (problem === "taken" ? m.localeTaken : m.localeInvalid) : undefined}
         >
-          <Input value={code} dir="ltr" onChange={(e) => setCode(e.target.value.trim())} />
+          <Input value={query} autoComplete="off" onChange={(e) => setCode(e.target.value)} />
         </Field>
+        {results.length > 0 && (
+          <ul aria-label={m.localeResults} className="flex max-h-64 flex-col gap-0.5 overflow-y-auto">
+            {results.map((r) => (
+              <li key={r.code}>
+                <button
+                  type="button"
+                  aria-pressed={r.code === code}
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-start text-body hover:bg-muted aria-pressed:bg-accent aria-pressed:text-accent-foreground"
+                  onClick={() => setCode(r.code)}
+                >
+                  <span className="min-w-0 truncate">{r.name}</span>
+                  {r.native !== r.name && <span className="truncate text-muted-foreground">{r.native}</span>}
+                  <code className="ms-auto text-caption text-muted-foreground" dir="ltr">
+                    {r.code}
+                  </code>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
         <Button onClick={submit} disabled={!area.sessions.canEditKeys}>
           {m.addLocaleConfirm}
         </Button>

@@ -34,6 +34,8 @@ export interface Area {
   readonly states: Readonly<Record<string, CellStatus>>;
   readonly hasLocaleDoc: boolean;
   readonly usedByPlugin: ReadonlyMap<string, ReadonlySet<string>>;
+  /** Each plugin's name (else its key) by its identifier, as the filter and the Used in column show it. */
+  readonly pluginNames: ReadonlyMap<string, string>;
   readonly screens: ReadonlyMap<string, readonly string[]>;
   readonly contextScreens: ReadonlySet<string>;
   readonly schemaVersion: JsonValue;
@@ -84,6 +86,7 @@ interface Collected {
   readonly plugins: readonly string[];
   readonly messages: ReadonlyMap<string, Readonly<Record<string, string>>>;
   readonly usedByPlugin: ReadonlyMap<string, ReadonlySet<string>>;
+  readonly pluginNames: ReadonlyMap<string, string>;
   readonly screens: ReadonlyMap<string, readonly string[]>;
   readonly schemaVersion: JsonValue;
 }
@@ -100,6 +103,15 @@ function usage(byPlugin: ReadonlyMap<string, { path: string; json: unknown }[]>,
     }
   }
   return { used, screens };
+}
+
+/** A plugin's name from its plugin.json, else its key. */
+function nameOfPlugin(json: unknown): string | undefined {
+  if (typeof json !== "object" || json === null) {
+    return undefined;
+  }
+  const { name, key } = json as { name?: unknown; key?: unknown };
+  return typeof name === "string" && name !== "" ? name : typeof key === "string" ? key : undefined;
 }
 
 /** The messages of every locale, what each plugin uses, the screens that use each key and the schema version, from the app's documents. */
@@ -119,10 +131,14 @@ function collect(docs: readonly Listed[], plugin: string | undefined, locale: st
   const app = docs.find((d) => d.pluginId === "" && d.path === "app.json");
   const version =
     app === undefined ? undefined : (parse(app.content) as Record<string, unknown> | undefined)?.["schemaVersion"];
+  const pluginNames = new Map(
+    [...byPlugin].map(([id, list]) => [id, nameOfPlugin(list.find((d) => d.path.endsWith("plugin.json"))?.json) ?? id]),
+  );
   return {
-    plugins: [...used.keys()].sort(),
+    plugins: [...used.keys()].sort((a, b) => (pluginNames.get(a) ?? a).localeCompare(pluginNames.get(b) ?? b)),
     messages,
     usedByPlugin: used,
+    pluginNames,
     screens,
     schemaVersion: (version ?? 1) as JsonValue,
   };

@@ -1,0 +1,68 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The view map above the zoom (C5): the canvas in small, the view's frame on it, a fold button at its corner. */
+.view-map {
+  position: relative;
+  display: block;
+  pointer-events: auto;
+}
+
+.view-map-folded {
+  pointer-events: auto;
+}
+
+.view-map-area {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  cursor: pointer;
+  touch-action: none;
+  background-color: color-mix(in oklch, var(--muted) 55%, transparent);
+}
+
+.view-map-area:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.view-map-item {
+  fill: color-mix(in oklch, var(--foreground) 22%, transparent);
+}
+
+.view-map-item[data-kind="ghost"] {
+  fill: none;
+  stroke: color-mix(in oklch, var(--foreground) 35%, transparent);
+  stroke-dasharray: 2 2;
+}
+
+.view-map-item[data-kind="frame"] {
+  fill: none;
+  stroke: color-mix(in oklch, var(--foreground) 18%, transparent);
+}
+
+.view-map-view {
+  fill: color-mix(in oklch, var(--primary) 12%, transparent);
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  cursor: grab;
+}
+
+.view-map-area:active .view-map-view {
+  cursor: grabbing;
+}
+
+.view-map-fold {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
+  opacity: 0.7;
+}
+
+.view-map:hover .view-map-fold,
+.view-map:focus-within .view-map-fold {
+  opacity: 1;
+}

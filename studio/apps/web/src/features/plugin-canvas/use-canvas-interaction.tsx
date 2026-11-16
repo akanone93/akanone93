@@ -67,6 +67,10 @@ export interface InteractionInput {
   readonly overlay: OverlayStore;
   /** With the Interact tool, a click on the screens (PC-15). */
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
+  /** What is under the resting pointer, topmost first; true when an arrow took it and expanded (STU-044). */
+  readonly onHover?: (hits: readonly string[]) => boolean;
+  /** The screens shown at a dragged place: their arrows re-route live, before the drop saves it (STU-045). */
+  readonly onScreensMoved?: (moved: ReadonlyMap<string, Point>) => void;
   /** The problems pinned to each widget, drawn as dots (PC-16). */
   readonly problems?: ReadonlyMap<string, readonly NodeProblem[]>;
   /** The bound props of each widget, drawn as badges (PC-23). */
@@ -192,6 +196,7 @@ function useScreenPreview(input: InteractionInput, overlay: OverlayStore) {
           return;
         }
         s.busy = true;
+        latest.current.onScreensMoved?.(at);
         const placed = latest.current.shown.map((x) => {
           const p = at.get(x.id);
           return p === undefined ? x : { ...x, at: p };
@@ -481,6 +486,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       input.requestScreen("rename", screen);
     },
     ...(input.onInteract === undefined ? {} : { onInteract: input.onInteract }),
+    ...(input.onHover === undefined ? {} : { onHover: input.onHover }),
     ...(input.onEditText === undefined ? {} : { onEditText: input.onEditText }),
     ...(input.snapSize === undefined ? {} : { snapSize: input.snapSize }),
   });

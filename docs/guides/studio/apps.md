@@ -47,8 +47,16 @@ apps, and exporting needs read access to the app's plugins.
 
 ## App settings
 
-**Settings** in the app navigation opens the app's settings. **Name** and **Description** can be
-changed by people who manage the app. **Limits usage** lists every limit of the app with what it
-uses, the limit in force and a meter. **Host fonts** links to the typography page, where the font
-files of the host app are listed. People who may open the organisation's administration also find a
-link to it, where the app's access and limits are set.
+**Settings** in the app navigation opens the app's settings, the most used first.
+
+- **Details** shows the **Name** beside the app's **Key**, which never changes (devices, links and the API find
+  the app by it), and the **Description**. People who manage the app change them; **Save changes** and
+  **Discard** appear while something differs from what is saved.
+- **Configure** opens the **Native shell** settings (with a badge when a new store build is needed), the
+  **Host fonts** on the typography page and, for people who may open it, the **Organisation administration**,
+  where the app's access and limits are set.
+- **Limits usage** shows the release size, plugins, pages per plugin, assets per plugin and functions as meters,
+  with any other limit that is near or at its limit; **All limits** opens the table of every limit with what the
+  app uses and the limit in force.
+- **Plugin usage**, last, shows the same for the plugin you choose: its bundle, pages and assets first, every
+  limit under **All limits**.

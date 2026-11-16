@@ -229,6 +229,25 @@ func TestUnapprovedTranslationsAreLeftOutWhenApprovalIsRequired(t *testing.T) {
 	}
 }
 
+// Verifies: I18N-007.
+func TestMessagesOfADeletedKeyAreNotShipped(t *testing.T) {
+	t.Parallel()
+	m := fixture(t)
+	// The key was deleted while another person held the German messages: its message stays in de-DE.
+	const deleted = "01a0c450-6c00-7002-8000-00000000dead"
+	edit(t, m, messageDE, func(doc map[string]any) {
+		doc["messages"].(map[string]any)[deleted] = "Alter Text"
+	})
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	de := section(t, res, "de-DE")
+	if _, shipped := de[deleted]; shipped || len(de) != 7 {
+		t.Errorf("de-DE holds %d messages (deleted key shipped: %v), want the 7 declared ones", len(de), shipped)
+	}
+}
+
 // Verifies: I18N-008.
 func TestAllTranslationsShipWithoutTheApprovalSetting(t *testing.T) {
 	t.Parallel()

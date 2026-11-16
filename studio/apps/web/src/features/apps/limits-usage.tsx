@@ -74,6 +74,69 @@ export function CardLimits({
   );
 }
 
+/** The limits an app's settings show first (N4): what a release and an app are made of. */
+export const HEADLINE_LIMITS: readonly string[] = [
+  "release.appSize",
+  "app.plugins",
+  "plugin.pages",
+  "plugin.assetBytes",
+  "app.functions",
+];
+
+/** The level of a limit's usage: the server's warning counts even below the computed threshold. */
+function usageLevel(l: LimitUsage): LimitLevel {
+  const computed = levelOf(l.value, l.effective);
+  return computed === "ok" && l.warning ? "warning" : computed;
+}
+
+/** The limits shown first: the headline ones, in their order, then every other limit near or at its limit. */
+export function headlineLimits(
+  limits: readonly LimitUsage[],
+  headline: readonly string[] = HEADLINE_LIMITS,
+): LimitUsage[] {
+  const first = headline.flatMap((key) => limits.filter((l) => l.key === key));
+  const pressing = limits.filter((l) => !headline.includes(l.key) && usageLevel(l) !== "ok");
+  return [...first, ...pressing];
+}
+
+/** The limits a plugin's usage shows first: what its bundle is made of. */
+export const PLUGIN_HEADLINE_LIMITS: readonly string[] = ["bundle.pluginSize", "plugin.pages", "plugin.assetBytes"];
+
+/** The headline limits as meters (N4): name and amount over a bar, a badge when near or at the limit. */
+export function LimitsSummary({
+  limits,
+  headline = HEADLINE_LIMITS,
+}: {
+  readonly limits: readonly LimitUsage[];
+  readonly headline?: readonly string[];
+}): ReactElement | null {
+  const { i18n } = useLingui();
+  const m = appsMessages(i18n);
+  const shown = headlineLimits(limits, headline);
+  if (shown.length === 0) {
+    return null;
+  }
+  return (
+    <ul aria-label={m.limitsUsage} className="limits-summary">
+      {shown.map((l) => {
+        const name = m.limitName(l.key) ?? l.key;
+        const used = formatAmount(l.value, l.unit, i18n.locale, unitWords(m));
+        const text = m.limitUsageText(used, formatAmount(l.effective, l.unit, i18n.locale, unitWords(m)));
+        return (
+          <li key={l.key} className="flex min-w-0 flex-col gap-1.5">
+            <div className="flex items-baseline justify-between gap-2 text-caption">
+              <span className="truncate text-muted-foreground">{name}</span>
+              <span className="shrink-0 tabular-nums">{text}</span>
+            </div>
+            <Meter value={Number(l.value)} max={Number(l.effective)} label={name} valueText={text} layout="bar" />
+            <LevelPill level={usageLevel(l)} m={m} />
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 /** The table of every limit of the app with its usage and the limit in force (STU-025, LIM-005). */
 export function LimitsTable({ limits }: { readonly limits: readonly LimitUsage[] }): ReactElement {
   const { i18n } = useLingui();
@@ -97,8 +160,7 @@ export function LimitsTable({ limits }: { readonly limits: readonly LimitUsage[]
         {limits.map((l) => {
           const used = formatAmount(l.value, l.unit, i18n.locale, unitWords(m));
           const effective = formatAmount(l.effective, l.unit, i18n.locale, unitWords(m));
-          const computed = levelOf(l.value, l.effective);
-          const level: LimitLevel = computed === "ok" && l.warning ? "warning" : computed;
+          const level = usageLevel(l);
           const friendly = m.limitName(l.key);
           return (
             <tr key={l.key}>

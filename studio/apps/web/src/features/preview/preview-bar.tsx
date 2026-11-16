@@ -10,7 +10,15 @@ import type { PlacedScreen } from "../plugin-canvas/scene.ts";
 import type { SurfaceFactory } from "../plugin-canvas/surface.ts";
 import { DeviceMatrix, MATRIX_ROOM, matrixScale } from "./device-matrix.tsx";
 import { useFrameView } from "./frame-view.ts";
-import { decodeCustom, encodeCustom, frameCatalogue, matrixLayout, type Orientation, resolveFrame } from "./frames.ts";
+import {
+  decodeCustom,
+  encodeCustom,
+  frameCatalogue,
+  framePlatformOf,
+  matrixLayout,
+  type Orientation,
+  resolveFrame,
+} from "./frames.ts";
 import { type MatrixJob, MatrixScreen, useMatrixImages } from "./matrix-screen.tsx";
 import { previewMessages } from "./preview.messages.ts";
 import { PreviewSwitcher } from "./preview-switcher.tsx";
@@ -47,6 +55,8 @@ export interface DeviceLook {
   readonly bottom: number;
   readonly dark: boolean;
   readonly textScale: number;
+  /** The device's platform as Flutter names it (`android`, `ios`); absent from a runtime that does not say. */
+  readonly platform?: string | undefined;
 }
 
 /**
@@ -96,6 +106,8 @@ export function usePreviewBar(
         }),
         theme: d.dark ? "dark" : "light",
         textScale: d.textScale,
+        // An iPhone's screenshot is compared with a Cupertino canvas, an Android one's with Material (R3).
+        platform: framePlatformOf(d.platform) ?? state.platform,
       });
       // The device's image has no status bar or home indicator drawn on it, only their space.
       setView({ orientation: "portrait", chrome: false });
