@@ -145,13 +145,13 @@ export function ActionBar(props: ActionBarProps) {
   const items = props.screens.map((s) => ({ value: s.id, label: s.title }));
   return (
     <>
-      <div className="plugin-topbar pointer-events-none absolute inset-x-3 top-3 z-10 flex items-start justify-between gap-3">
+      <div className="plugin-topbar pointer-events-none absolute inset-x-3 top-3 z-10 gap-3">
         <div className="plugin-topbar-start pointer-events-auto flex min-w-0">{props.identity}</div>
         <div
           role="toolbar"
           aria-label={m.actionBar}
           onKeyDown={rove}
-          className="canvas-panel canvas-bar glass pointer-events-auto flex min-w-0 items-center gap-0.5 overflow-x-auto p-1.5"
+          className="plugin-topbar-tools canvas-panel canvas-bar glass pointer-events-auto flex min-w-0 items-center gap-0.5 p-1.5"
         >
           {props.tool !== undefined && props.onTool !== undefined && (
             <>
@@ -276,9 +276,9 @@ export function ActionBar(props: ActionBarProps) {
             <Popover
               title={m.preview}
               trigger={
-                <Button size="sm" variant="ghost">
+                <Button size="sm" variant="ghost" aria-label={m.preview}>
                   <Icon name="monitor" size="capsule" />
-                  {m.preview}
+                  <span className="bar-label">{m.preview}</span>
                   <Icon name="caret-down" size="pill" />
                 </Button>
               }
@@ -304,17 +304,18 @@ export function ActionBar(props: ActionBarProps) {
               onClick={() => void send?.command.run()}
             >
               <Icon name="paper-plane-tilt" size="capsule" />
-              {m.send}
+              <span className="bar-label">{m.send}</span>
             </Button>
             <Button
               size="sm"
               variant="primary"
               disabled={!props.canPublish}
-              title={publishReason}
+              aria-label={m.publish}
+              title={publishReason ?? m.publish}
               onClick={props.onPublish}
             >
               <Icon name="rocket-launch" size="capsule" />
-              {m.publish}
+              <span className="bar-label">{m.publish}</span>
             </Button>
           </span>
         </div>

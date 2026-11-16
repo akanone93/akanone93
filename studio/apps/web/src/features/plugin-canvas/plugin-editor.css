@@ -36,25 +36,6 @@
   inline-size: var(--dock-end-width);
 }
 
-/* The top bar's three parts: who and where at the start, the tools in the centre, the status at the end. */
-.plugin-topbar-start {
-  flex: 0 1 var(--dock-start-width);
-}
-
-.plugin-topbar-end {
-  flex: 0 1 var(--dock-end-width);
-}
-
-/* The identity and the status are as wide as the docks under them, so each side reads as one column. */
-.plugin-topbar-start > .canvas-panel,
-.plugin-topbar-end > .canvas-panel {
-  inline-size: 100%;
-}
-
-.plugin-topbar-end > .canvas-panel {
-  justify-content: flex-end;
-}
-
 .screen-picker {
   gap: calc(var(--spacing) * 1.5);
   max-inline-size: 12rem;
@@ -1211,4 +1192,59 @@
   font-size: var(--text-xs);
   color: var(--color-warning);
   background-color: var(--color-warning-surface);
+}
+
+/*
+ * The top bar as a grid (L1): the identity and the status are as wide as their content, the tools sit in the middle at
+ * their own width. Before, the two sides took the docks' widths (47rem together), so on a laptop the tools had to
+ * scroll both ways, and a status that grew ("Column selected") squeezed the tools. The status keeps one width, and when
+ * room runs short the tools drop their words and keep their icons (each keeps its accessible name and its tooltip).
+ */
+.plugin-topbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  container-type: inline-size;
+  container-name: plugin-topbar;
+}
+
+.plugin-topbar-start,
+.plugin-topbar-end {
+  flex: none;
+  max-inline-size: 22rem;
+}
+
+.plugin-topbar-start > .canvas-panel,
+.plugin-topbar-end > .canvas-panel {
+  inline-size: auto;
+}
+
+.plugin-topbar-tools {
+  justify-self: center;
+  max-inline-size: 100%;
+  overflow: hidden;
+}
+
+.plugin-topbar .canvas-status-text {
+  inline-size: 9rem;
+}
+
+@container plugin-topbar (max-width: 1560px) {
+  .plugin-topbar-tools .bar-label {
+    display: none;
+  }
+
+  .plugin-topbar-tools .screen-picker {
+    max-inline-size: 8rem;
+  }
+}
+
+@container plugin-topbar (max-width: 1280px) {
+  .plugin-topbar .canvas-status-text {
+    display: none;
+  }
+
+  .plugin-topbar-tools .screen-picker {
+    max-inline-size: 6.5rem;
+  }
 }

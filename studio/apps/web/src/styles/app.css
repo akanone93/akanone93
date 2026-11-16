@@ -24,7 +24,16 @@
   body {
     @apply bg-background text-foreground;
   }
+  /*
+   * The interface size (L2): one root font size scales Studio's text and spacing together, as the browser's zoom
+   * does, a little smaller than the browser's default so the canvas has more room; compact density smaller still.
+   * The canvas draws the device screens in their own units, so the phones keep their true size.
+   */
   html {
     @apply font-sans;
+    font-size: 90%;
+  }
+  html[data-density="compact"] {
+    font-size: 82.5%;
   }
 }

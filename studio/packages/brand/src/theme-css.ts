@@ -116,10 +116,16 @@ function keptColorVars(theme: "light" | "dark" | "contrast"): string[] {
   return [...brand, ...kept];
 }
 
+/**
+ * A design token's pixels as rem of a 16 px root. Studio's text sizes are rem so that one root font size (the
+ * interface size, set by the density) scales text and spacing together, as the browser's zoom does.
+ */
+const rem = (px: number): string => `${px / 16}rem`;
+
 function typeRoleVars(): string[] {
   return typeRoles.flatMap((role) => [
-    `  --text-${role.key}: ${role.size}px;`,
-    `  --text-${role.key}--line-height: ${role.line}px;`,
+    `  --text-${role.key}: ${rem(role.size)};`,
+    `  --text-${role.key}--line-height: ${rem(role.line)};`,
     `  --text-${role.key}--font-weight: ${role.weight};`,
     ...(role.tracking === undefined ? [] : [`  --text-${role.key}--letter-spacing: ${role.tracking}em;`]),
   ]);
@@ -132,7 +138,7 @@ function densityDeclarations(density: "compact" | "comfortable"): string[] {
 function arabicDeclarations(): string[] {
   const lineHeights = typeRoles
     .filter((role) => arabicAdjustedRoles.has(role.key))
-    .map((role) => `  --text-${role.key}--line-height: ${role.line + arabicLineHeightExtra}px;`);
+    .map((role) => `  --text-${role.key}--line-height: ${rem(role.line + arabicLineHeightExtra)};`);
   const tracking = typeRoles
     .filter((role) => role.tracking !== undefined)
     .map((role) => `  --text-${role.key}--letter-spacing: 0em;`);
