@@ -4,7 +4,15 @@
 import { useLingui } from "@lingui/react";
 import type { WidgetDescriptor } from "@plux/schema";
 import { Icon, type IconName } from "@plux/ui";
-import { type CSSProperties, type DragEvent, memo, type ReactElement, useState, useSyncExternalStore } from "react";
+import {
+  type CSSProperties,
+  type DragEvent,
+  memo,
+  type ReactElement,
+  type ReactNode,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import { AnimatedList } from "../../components/animated-list.tsx";
 import { groupOf, insertGroups, kindIcon, kindOf, typeIcon, type WidgetKind, widgetKinds } from "./catalogue.ts";
@@ -133,6 +141,20 @@ function TileDetails({ store }: { readonly store: ReturnType<typeof createDetail
 }
 
 /**
+ * A widget name with a break opportunity before each capital after the first, so a long one ("GestureDetector",
+ * "InteractiveViewer") wraps onto a second line at a word instead of being cut.
+ */
+function camelBreaks(name: string): ReactNode[] {
+  // Each part's offset in the name is its stable key.
+  let at = 0;
+  return name.split(/(?=[A-Z])/).flatMap((part, i) => {
+    const key = at;
+    at += part.length;
+    return i === 0 ? [part] : [<wbr key={`b${key}`} />, part];
+  });
+}
+
+/**
  * The Insert pane (STU-061): a foldable Categories section of kind tiles (closed at first), the widgets used last, and a
  * section per kind of tiles that animate as the search or the kind narrows them; the widget under the pointer or the
  * focus shows its details at the foot of the pane; a tile inserts on a click and can be dragged onto a screen.
@@ -211,7 +233,7 @@ export const InsertPane = memo(function InsertPane({
       <span className="gallery-glyph" data-kind={glyph} aria-hidden="true">
         <Icon name={glyphIcon(d)} />
       </span>
-      <span className="gallery-name">{d.type}</span>
+      <span className="gallery-name">{camelBreaks(d.type)}</span>
     </button>
   );
   const grid = (list: readonly WidgetDescriptor[], glyph: (d: WidgetDescriptor) => string, label: string) => (

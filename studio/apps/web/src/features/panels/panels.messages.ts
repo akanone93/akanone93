@@ -2,10 +2,41 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { I18n } from "@lingui/core";
+import type { StarterTexts } from "./catalogue.ts";
 
 /** Messages of the left panels (STU-061, S2.6). */
 export function panelsMessages(i18n: I18n) {
   return {
+    starterText: i18n._({
+      id: "panels.starter.text",
+      message: "Text",
+      comment: "The words a newly inserted text starts with, in the app being built.",
+    }),
+    starterButton: i18n._({
+      id: "panels.starter.button",
+      message: "Button",
+      comment: "The label a newly inserted button starts with, in the app being built.",
+    }),
+    starterChip: i18n._({
+      id: "panels.starter.chip",
+      message: "Chip",
+      comment: "The label a newly inserted chip starts with, in the app being built.",
+    }),
+    starterItem: i18n._({
+      id: "panels.starter.item",
+      message: "List item",
+      comment: "The title a newly inserted list tile starts with, in the app being built.",
+    }),
+    starterTitle: i18n._({
+      id: "panels.starter.title",
+      message: "Title",
+      comment: "The title a newly inserted app bar or expansion tile starts with, in the app being built.",
+    }),
+    starterAdd: i18n._({
+      id: "panels.starter.add",
+      message: "Add",
+      comment: "The label a newly inserted floating action button starts with, in the app being built.",
+    }),
     dock: i18n._({
       id: "panels.dock",
       message: "Left panels",
@@ -689,5 +720,17 @@ export function panelMessages(i18n: I18n) {
         comment: "Shown when several widgets are selected.",
         values: { count },
       }),
+  };
+}
+
+/** The texts a new widget starts with, from the Insert pane's messages. */
+export function starterTexts(m: ReturnType<typeof panelsMessages>): StarterTexts {
+  return {
+    text: m.starterText,
+    button: m.starterButton,
+    chip: m.starterChip,
+    item: m.starterItem,
+    title: m.starterTitle,
+    add: m.starterAdd,
   };
 }

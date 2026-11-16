@@ -125,6 +125,25 @@ describe("[STU-061] left panels", () => {
     expect(search(catalogue(), "text").some((x) => x.type === "Text")).toBe(true);
   });
 
+  test("a new button, chip or list tile starts with a label; a wrapper starts empty", () => {
+    const starter = { text: "Text", button: "Button", chip: "Chip", item: "List item", title: "Title", add: "Add" };
+    const button = buildNode(widget("ElevatedButton") as NonNullable<ReturnType<typeof widget>>, undefined, starter);
+    expect(button.slots?.["child"]).toMatchObject({ type: "Text", props: { data: "Button" } });
+    const chip = buildNode(widget("FilterChip") as NonNullable<ReturnType<typeof widget>>, undefined, starter);
+    expect(chip.slots?.["label"]).toMatchObject({ type: "Text", props: { data: "Chip" } });
+    const fab = buildNode(widget("FloatingActionButton") as NonNullable<ReturnType<typeof widget>>, undefined, starter);
+    expect(Object.keys(fab.slots ?? {}).sort()).toEqual(["icon", "label"]);
+    const card = buildNode(widget("Card") as NonNullable<ReturnType<typeof widget>>, undefined, starter);
+    expect(card.slots).toBeUndefined();
+    const text = buildNode(widget("Text") as NonNullable<ReturnType<typeof widget>>, undefined, starter);
+    expect(text.props?.["data"]).toBe("Text");
+    // A required number starts where it shows something: an opacity of 1, an aspect ratio of 1.
+    expect(buildNode(widget("Opacity") as NonNullable<ReturnType<typeof widget>>).props?.["opacity"]).toBe(1);
+    expect(buildNode(widget("AspectRatio") as NonNullable<ReturnType<typeof widget>>).props?.["aspectRatio"]).toBe(1);
+    // Without starter texts (a template, a paste), nothing is added.
+    expect(buildNode(widget("ElevatedButton") as NonNullable<ReturnType<typeof widget>>).slots).toBeUndefined();
+  });
+
   test("keyboard insert goes to the selection or its nearest container, through edit", async () => {
     const edit = mock<EditFn>();
     const place = insertionPoint(model, index, { ids: ["t1"], anchor: "t1", scope: "row" }, "r");
@@ -136,7 +155,39 @@ describe("[STU-061] left panels", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Insert Text" }));
     expect(edit).toHaveBeenCalledTimes(1);
     expect(edit.mock.calls[0]?.[0]).toBe("pg");
-    expect(set.mock.calls[0]?.[0]).toMatchObject({ ids: [expect.any(String)] });
+  });
+
+  test("an inserted widget is selected once the edit reaches the index (PC-04)", async () => {
+    const studio = createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false });
+    const draft = structuredClone(root);
+    const edit = mock<EditFn>((_doc, recipe) => recipe(draft));
+    let current: Selection = { ids: ["row"], anchor: "row", scope: "r" };
+    const ui = (idx: ReturnType<typeof indexNodes>) => (
+      <I18nProvider studio={studio}>
+        <LeftDock
+          screens={screens}
+          entryPage="pg"
+          index={idx}
+          screenOf={new Map([...idx.parent.keys()].map((id) => [id, "pg"]))}
+          selection={current}
+          store={{ get: () => current, set: (s) => (current = s) }}
+          edit={edit}
+          canEdit
+          surface={() => null}
+          canvas={() => null}
+        />
+      </I18nProvider>
+    );
+    const view = render(ui(index));
+    await screen.findByRole("group", { name: "Categories" });
+    openSection("Content");
+    fireEvent.click(await screen.findByRole("button", { name: "Insert Text" }));
+    // Until the index holds the new node the selection stays; then it moves to the new node.
+    expect(current.ids).toEqual(["row"]);
+    const after = indexNodes([draft]);
+    const added = [...after.parent.keys()].find((id) => !index.parent.has(id));
+    view.rerender(ui(after));
+    await waitFor(() => expect(current.ids).toEqual([added as string]));
   });
 
   test("drop target resolves with the S2.5 hit-test and indicator, and a drop inserts", () => {

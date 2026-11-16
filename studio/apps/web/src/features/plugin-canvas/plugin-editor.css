@@ -641,6 +641,15 @@
   text-overflow: ellipsis;
 }
 
+/* A tile's name wraps at its words, two lines at most, so the longest names read whole. */
+.gallery-tile .gallery-name {
+  display: -webkit-box;
+  line-height: 1.25;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 /* Layers: the selection card over the tree. */
 .layer-selection {
   display: flex;

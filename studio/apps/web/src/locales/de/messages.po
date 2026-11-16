@@ -1708,6 +1708,12 @@ msgstr "Akteur"
 msgid "publish.evidence.opAdd"
 msgstr "hinzufügen"
 
+#. The label a newly inserted floating action button starts with, in the app being built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.add"
+msgstr "Hinzufügen"
+
 #. Button that adds a state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -3294,6 +3300,12 @@ msgstr "Bundle-Größe"
 msgid "pluginCanvas.siblingButton"
 msgstr "Schaltfläche"
 
+#. The label a newly inserted button starts with, in the app being built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.button"
+msgstr "Schaltfläche"
+
 #. Checkbox that marks the widget as a button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -3785,6 +3797,12 @@ msgstr "Wird geprüft …"
 #: apps/web/src/features/onboarding/onboarding.messages.ts
 msgid "onboarding.steps"
 msgstr "Checkliste"
+
+#. The label a newly inserted chip starts with, in the app being built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.chip"
+msgstr "Chip"
 
 #. Accessible name of a colour field's button; {field} is the property, e.g. color.
 #. js-lingui-explicit-id
@@ -9376,6 +9394,12 @@ msgstr "Liste"
 #: apps/web/src/features/panels/list-panel.messages.ts
 msgid "list.title"
 msgstr "Liste aus Daten"
+
+#. The title a newly inserted list tile starts with, in the app being built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.item"
+msgstr "Listeneintrag"
 
 #. Option that sets a fixed value instead of a binding.
 #. js-lingui-explicit-id
@@ -17085,6 +17109,12 @@ msgstr "Tests"
 msgid "functions.tabTests"
 msgstr "Tests"
 
+#. The words a newly inserted text starts with, in the app being built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.text"
+msgstr "Text"
+
 #. Label of the text of a step or expectation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -19064,6 +19094,12 @@ msgstr "Zeitleisten"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
 msgid "pageSettings.title"
+msgstr "Titel"
+
+#. The title a newly inserted app bar or expansion tile starts with, in the app being built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.title"
 msgstr "Titel"
 
 #. The last colour of a gradient.

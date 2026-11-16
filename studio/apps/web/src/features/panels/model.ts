@@ -11,7 +11,7 @@ import { containersOf, type GestureEnv } from "../plugin-canvas/select/gesture.t
 import { type DropTarget, resolveDrop } from "../plugin-canvas/select/reparent.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
-import { buildNode } from "./catalogue.ts";
+import { buildNode, type StarterTexts } from "./catalogue.ts";
 
 /** Where a new node goes: into `parent`'s `children` at `index`, or into its empty single `slot`. */
 export interface Place {
@@ -20,6 +20,12 @@ export interface Place {
   readonly slot: string | null;
   /** Set for a Stack parent: the node goes into a `Positioned` at these Stack coordinates (F5). */
   readonly at?: { readonly left: number; readonly top: number };
+  /**
+   * Set when the node is a screen's first content: it goes into a `SafeArea`, a 16 px `Padding` and a `Column`, so it
+   * is not drawn under the status bar or against the edges, and the next widget stacks below it rather than looking
+   * for another slot.
+   */
+  readonly screenContent?: boolean;
 }
 
 /** The page trees by node id, with the `children` arrays kept apart from slots (the tree index mixes both). */
@@ -55,25 +61,78 @@ const holdsChildren = (type: string | undefined): boolean => type !== undefined 
 const contentSlots = ["body", "child"];
 
 /**
- * The empty single (non-list) slot a new node goes to: the content slot when it is free (a Scaffold's `body`, not
- * its `appBar`, which only comes first in the descriptor), else the first empty one, if the widget has one.
+ * The slots that hold a screen's chrome rather than its content, and the widgets each is for: an app bar never takes a
+ * button just because it is the first empty slot of a Scaffold.
  */
-export function freeSlot(model: PanelModel, id: string): string | null {
+const chromeSlots: Readonly<Record<string, readonly string[]>> = {
+  appBar: ["AppBar"],
+  floatingActionButton: ["FloatingActionButton"],
+  bottomNavigationBar: ["NavigationBar", "BottomNavigationBar", "BottomAppBar", "TabBar"],
+  drawer: ["Drawer", "NavigationDrawer"],
+  endDrawer: ["Drawer", "NavigationDrawer"],
+  bottomSheet: ["BottomSheet"],
+};
+
+/** Widgets that are themselves a screen's layout, which go into a screen's body as they are. */
+const layoutRoots = new Set([
+  "SafeArea",
+  "Column",
+  "ListView",
+  "CustomScrollView",
+  "SingleChildScrollView",
+  "Stack",
+  "Center",
+  "Padding",
+  "GridView",
+  "PageView",
+  "TabBarView",
+]);
+
+/**
+ * The empty single (non-list) slot a new node of `type` goes to: a chrome slot made for it (an AppBar's `appBar`),
+ * else the content slot (a Scaffold's `body`, a wrapper's `child`), else another slot that is not chrome. A widget of
+ * no known type takes the content slot or the first empty one.
+ */
+export function freeSlot(model: PanelModel, id: string, type?: string): string | null {
   const node = model.nodes.get(id);
   const slots = (node?.type === undefined ? [] : (widget(node.type)?.slots ?? [])).filter(
     (s) => !s.list && node?.slots?.[s.name] === undefined,
   );
-  return (slots.find((s) => contentSlots.includes(s.name)) ?? slots[0])?.name ?? null;
+  const made = type === undefined ? undefined : slots.find((s) => chromeSlots[s.name]?.includes(type) === true);
+  const content = slots.find((s) => contentSlots.includes(s.name));
+  const other = slots.find((s) => type === undefined || chromeSlots[s.name] === undefined);
+  return (made ?? content ?? other)?.name ?? null;
 }
 
-/** Whether `id` can take one more node, and where. */
-export function placeIn(model: PanelModel, id: string): Place | null {
-  const type = model.nodes.get(id)?.type;
-  if (holdsChildren(type)) {
+/** The node in `id`'s content slot, when that slot is taken. */
+function contentOf(model: PanelModel, id: string): string | undefined {
+  const slots = model.nodes.get(id)?.slots as Record<string, unknown> | undefined;
+  for (const name of contentSlots) {
+    const n = slots?.[name] as { id?: unknown } | undefined;
+    if (typeof n?.id === "string") {
+      return n.id;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Whether `id` can take one more node of `type`, and where: a container appends it; a widget with slots takes it in
+ * the slot `freeSlot` picks; a widget whose content slot is taken passes it on to that content (a Scaffold's body
+ * Column takes the next widget at its end), at most a few wrappers deep.
+ */
+export function placeIn(model: PanelModel, id: string, type?: string, depth = 0): Place | null {
+  const node = model.nodes.get(id);
+  if (holdsChildren(node?.type)) {
     return { parent: id, index: model.listKids.get(id)?.length ?? 0, slot: null };
   }
-  const slot = freeSlot(model, id);
-  return slot === null ? null : { parent: id, index: 0, slot };
+  const slot = freeSlot(model, id, type);
+  if (slot !== null) {
+    const screenContent = node?.type === "Scaffold" && slot === "body" && type !== undefined && !layoutRoots.has(type);
+    return { parent: id, index: 0, slot, ...(screenContent ? { screenContent } : {}) };
+  }
+  const inner = contentOf(model, id);
+  return inner === undefined || depth >= 4 ? null : placeIn(model, inner, type, depth + 1);
 }
 
 /** Keyboard insert: into the anchor, else the nearest ancestor that can take it, else the first screen root. */
@@ -82,10 +141,11 @@ export function insertionPoint(
   index: NodeIndex,
   selection: Selection,
   fallbackRoot: string | undefined,
+  type?: string,
 ): Place | null {
   let cur: string | null | undefined = selection.anchor ?? fallbackRoot;
   while (cur !== null && cur !== undefined) {
-    const p = placeIn(model, cur);
+    const p = placeIn(model, cur, type);
     if (p !== null) {
       return p;
     }
@@ -123,18 +183,36 @@ export function insertWidget(
   canEdit: boolean,
   newId?: IdSource,
   props?: Readonly<Record<string, unknown>>,
+  starter?: StarterTexts,
 ): string | null {
   const doc = docOf(place.parent);
   if (!canEdit || doc === undefined) {
     return null;
   }
   const ids = newId ?? uuidv7;
-  const built = buildNode(d, ids);
+  const built = buildNode(d, ids, starter);
   const node = props === undefined ? built : { ...built, props: { ...(built.props ?? {}), ...props } };
-  const placed =
+  const positioned =
     place.at === undefined
       ? node
       : { id: ids(), type: "Positioned", props: { left: place.at.left, top: place.at.top }, slots: { child: node } };
+  const placed =
+    place.screenContent === true
+      ? {
+          id: ids(),
+          type: "SafeArea",
+          slots: {
+            child: {
+              id: ids(),
+              type: "Padding",
+              props: { padding: { all: 16 } },
+              slots: {
+                child: { id: ids(), type: "Column", props: { crossAxisAlignment: "start" }, children: [positioned] },
+              },
+            },
+          },
+        }
+      : positioned;
   edit(doc, insertRecipe(placed, place), { group: "insert" });
   return node.id;
 }

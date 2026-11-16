@@ -8,6 +8,7 @@ import type { GestureEnv } from "../plugin-canvas/select/gesture.ts";
 import { itemIdOf, type NodeIndex, nodeIdOfHit } from "../plugin-canvas/select/tree.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { ASSET_DRAG_TYPE } from "./assets-tab.tsx";
+import type { StarterTexts } from "./catalogue.ts";
 import { WIDGET_DRAG_TYPE } from "./insert-pane.tsx";
 import { dropTarget, insertWidget, type PanelModel } from "./model.ts";
 import { setPropRecipe } from "./properties-model.ts";
@@ -21,6 +22,10 @@ interface Args {
   readonly screenOf: ReadonlyMap<string, string>;
   readonly canEdit: boolean;
   readonly descriptors: readonly WidgetDescriptor[];
+  /** What a new widget starts with, in Studio's language. */
+  readonly starter?: StarterTexts;
+  /** Receives the id of a widget a drop inserted, to select it. */
+  readonly onInserted?: (id: string) => void;
 }
 
 /** Where a drop target puts a new widget: at its index, in its slot, or at a Stack position. */
@@ -114,7 +119,19 @@ export function insertDropHandlers(a: Args) {
       }
       const t = dropTarget(env(), w.x, w.y);
       if (t !== null) {
-        insertWidget(d, placeOf(t), a.edit, (id) => a.screenOf.get(id), a.canEdit, undefined, assetProps(asset));
+        const id = insertWidget(
+          d,
+          placeOf(t),
+          a.edit,
+          (id) => a.screenOf.get(id),
+          a.canEdit,
+          undefined,
+          assetProps(asset),
+          a.starter,
+        );
+        if (id !== null) {
+          a.onInserted?.(id);
+        }
       }
     },
   };

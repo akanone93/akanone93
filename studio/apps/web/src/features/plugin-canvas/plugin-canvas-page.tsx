@@ -47,7 +47,7 @@ import { type ListPreview, ListPreviewContext } from "../panels/list-panel.tsx";
 import { LocalePreviewContext } from "../panels/locale-tools.tsx";
 import { modelOf } from "../panels/model.ts";
 import { MotionPreviewContext } from "../panels/motion-panel.tsx";
-import { panelsMessages } from "../panels/panels.messages.ts";
+import { panelsMessages, starterTexts } from "../panels/panels.messages.ts";
 import { RightDock } from "../panels/right-dock.tsx";
 import { StatePreviewContext } from "../panels/state-editors.tsx";
 import { lockedIds } from "../panels/studio-meta.ts";
@@ -56,6 +56,7 @@ import { PaintThemeContext } from "../panels/style-editors.tsx";
 import { type ThemeRoundTrip, ThemeRoundTripContext } from "../panels/theme-card.tsx";
 import { TimelineOpenContext } from "../panels/timelines-section.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
+import { usePendingSelect } from "../panels/use-pending-select.ts";
 import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
 import { problemsByNode } from "../problems/problem-nodes.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
@@ -379,8 +380,19 @@ function freeArea(canvas: HTMLCanvasElement, width: number, height: number) {
   const left = Math.max(0, ...docks.filter((d) => d.right <= middle).map((d) => d.right - r.left));
   const right = Math.min(width, ...docks.filter((d) => d.left >= middle).map((d) => d.left - r.left));
   const top = Math.max(0, ...docks.map((d) => d.top - r.top));
-  return { left, right: right > left ? right : width, top: top < height / 2 ? top : 0 };
+  // The console bar along the foot covers the canvas under it: the screens' room ends where it starts.
+  const bar = stage?.querySelector(".dev-console-bar")?.getBoundingClientRect();
+  const bottom = bar === undefined || bar.height === 0 ? height : Math.min(height, bar.top - r.top);
+  return {
+    left,
+    right: right > left ? right : width,
+    top: top < height / 2 ? top : 0,
+    bottom: bottom > height / 2 ? bottom : height,
+  };
 }
+
+/** Room left under a screen for the line the canvas draws below it (its node count). */
+const CAPTION_ROOM = 28;
 
 /**
  * The first view (STU-067): 100 %, the screens centred in the room the docks leave, their tops under the top bar when
@@ -406,10 +418,26 @@ function fitView(
   }
   const free = freeArea(canvas, width, height);
   const x = (b.l + b.r) / 2 - (free.left + (free.right - free.left) / 2) / zoom;
-  const room = height - free.top;
+  const room = free.bottom - free.top - CAPTION_ROOM;
   const tall = (b.b - b.t) * zoom > room - 48;
   const y = tall ? b.t - (free.top + 24) / zoom : (b.t + b.b) / 2 - (free.top + room / 2) / zoom;
   surface.setViewport(x, y, zoom);
+}
+
+/**
+ * The last finished check of the plugin, standing while the next one runs, as the problem counts keep it: otherwise
+ * every edit blinked the widgets' problem marks and the overview's counts to nothing until the new result came.
+ * Another plugin opened in the same page starts with nothing rather than the last plugin's result.
+ */
+function useLastCheck<V extends { readonly state: string }>(
+  validation: V,
+  plugin: string | undefined,
+): Extract<V, { state: "done" }> | undefined {
+  const last = useRef<{ plugin: string | undefined; done: Extract<V, { state: "done" }> } | undefined>(undefined);
+  if (validation.state === "done") {
+    last.current = { plugin, done: validation as Extract<V, { state: "done" }> };
+  }
+  return last.current?.plugin === plugin ? last.current?.done : undefined;
 }
 
 /** Brings a screen into view at the current zoom, when it is picked in the top bar. */
@@ -626,7 +654,7 @@ function PluginCanvasView({
   // Each page checked in full — semantic and policy checks, budgets, expensive animations — and again after an edit:
   // the counts, the Problems panel and the problems pinned to widgets show them (PC-34, SCH-040).
   const validation = usePageChecks(loaded, live);
-  const checked = validation.state === "done" ? validation : undefined;
+  const checked = useLastCheck(validation, params.plugin);
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
   const brands = useBrands(appDocs.data);
   // The screens are drawn with the translations as the localisation session holds them, unsaved edits included.
@@ -1049,6 +1077,8 @@ function PluginCanvasView({
   };
   const clipboardDialog = useClipboard(clipboardInput);
   const libraryDialog = useLibraryActions(clipboardInput);
+  const selectDropped = usePendingSelect(index, store);
+  const starter = useMemo(() => starterTexts(panelsMessages(i18n)), [i18n]);
   const dropHandlers = useMemo(
     () =>
       insertDropHandlers({
@@ -1060,8 +1090,10 @@ function PluginCanvasView({
         screenOf,
         canEdit,
         descriptors: catalogue(),
+        onInserted: selectDropped,
+        starter,
       }),
-    [index, screens, edit, screenOf, canEdit],
+    [index, screens, edit, screenOf, canEdit, selectDropped, starter],
   );
   const [rustSource, setRustSource] = useState<string | undefined>(undefined);
   const overlays = useOverlayHost({ surface: () => surfaceRef.current, canvas: () => canvasRef.current });

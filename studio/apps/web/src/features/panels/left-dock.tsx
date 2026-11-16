@@ -22,11 +22,12 @@ import { InstancePreviewContext } from "./instance-card.tsx";
 import { LayersPane, LayersToolbar } from "./layers-pane.tsx";
 import { LocalePreviewContext } from "./locale-tools.tsx";
 import { insertionPoint, insertWidget, modelOf, moveIntoSlot, moveLayer } from "./model.ts";
-import { panelsMessages } from "./panels.messages.ts";
+import { panelsMessages, starterTexts } from "./panels.messages.ts";
 import { selectIds, slotOfRow, treeNodes } from "./selection-model.ts";
 import { metaRecipe } from "./studio-meta.ts";
 import { DataPane } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
+import { usePendingSelect } from "./use-pending-select.ts";
 
 export { WIDGET_DRAG_TYPE } from "./insert-pane.tsx";
 
@@ -102,16 +103,17 @@ export function LeftDock(props: LeftDockProps): ReactElement {
     store.set(selectIds(index, store.get(), id, toggle));
     reveal(props.surface(), props.canvas(), docOf(id), id);
   };
+  const selectInserted = usePendingSelect(index, store, (id) => reveal(props.surface(), props.canvas(), docOf(id), id));
   const insert = (d: WidgetDescriptor) => {
-    const place = insertionPoint(model, index, store.get(), props.screens[0]?.root?.id);
+    const place = insertionPoint(model, index, store.get(), props.screens[0]?.root?.id, d.type);
     if (place === null) {
       setNote(m.cannotHold);
       return;
     }
-    const id = insertWidget(d, place, edit, docOf, canEdit);
+    const id = insertWidget(d, place, edit, docOf, canEdit, undefined, undefined, starterTexts(m));
     setNote(null);
     if (id !== null) {
-      store.set(selectIds(index, store.get(), id, false));
+      selectInserted(id);
     }
   };
 

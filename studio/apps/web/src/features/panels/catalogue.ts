@@ -36,20 +36,102 @@ const zero: Readonly<Record<string, string | number | boolean>> = {
   bool: false,
 };
 
-/** A new node from the descriptor: a fresh UUIDv7 id, the descriptor's defaults, and a zero for required primitives. */
-export function buildNode(
-  d: WidgetDescriptor,
-  newId: IdSource = uuidv7,
-): { id: string; type: string; props?: Record<string, unknown> } {
+/**
+ * Where zero is no start for a required number: an opacity or a scale of 0 hides the widget, an aspect ratio or an
+ * item extent of 0 is invalid, a header 0 high shows nothing. These start at the value a person expects.
+ */
+const firstValue: Readonly<Record<string, number>> = {
+  opacity: 1,
+  scale: 1,
+  aspectRatio: 1,
+  itemExtent: 32,
+  minExtent: 56,
+  maxExtent: 120,
+};
+
+/** What a new widget shows, in Studio's language: a text, a button's label, a chip's, a list item's, a title. */
+export interface StarterTexts {
+  readonly text: string;
+  readonly button: string;
+  readonly chip: string;
+  readonly item: string;
+  readonly title: string;
+  readonly add: string;
+}
+
+interface NewNode {
+  readonly id: string;
+  readonly type: string;
+  readonly props?: Record<string, unknown>;
+  readonly slots?: Record<string, NewNode>;
+}
+
+const text = (data: string, ids: IdSource): NewNode => ({ id: ids(), type: "Text", props: { data } });
+const label = (slot: string, of: keyof StarterTexts) => (t: StarterTexts, ids: IdSource) => ({
+  [slot]: text(t[of], ids),
+});
+
+/**
+ * The content a new widget starts with, so it shows on the canvas at once instead of as an empty box: a button reads
+ * "Button", a chip "Chip", a list tile its item, an app bar its title, a FAB its icon and label, a Dismissible a tile
+ * to swipe. Widgets that wrap content the person brings (a Card, a Container) start empty.
+ */
+const starters: Readonly<Record<string, (t: StarterTexts, ids: IdSource) => Record<string, NewNode>>> = {
+  ElevatedButton: label("child", "button"),
+  FilledButton: label("child", "button"),
+  OutlinedButton: label("child", "button"),
+  TextButton: label("child", "button"),
+  Chip: label("label", "chip"),
+  ActionChip: label("label", "chip"),
+  ChoiceChip: label("label", "chip"),
+  FilterChip: label("label", "chip"),
+  InputChip: label("label", "chip"),
+  ListTile: label("title", "item"),
+  CheckboxListTile: label("title", "item"),
+  RadioListTile: label("title", "item"),
+  SwitchListTile: label("title", "item"),
+  ExpansionTile: label("title", "title"),
+  AppBar: label("title", "title"),
+  FloatingActionButton: (t, ids) => ({
+    icon: { id: ids(), type: "Icon", props: { icon: { name: "add" } } },
+    label: text(t.add, ids),
+  }),
+  Dismissible: (t, ids) => ({ child: { id: ids(), type: "ListTile", slots: { title: text(t.item, ids) } } }),
+};
+
+/** A new node's props: the descriptor's defaults, and a first value for each required primitive. */
+function startProps(d: WidgetDescriptor, starter: StarterTexts | undefined): Record<string, unknown> {
   const props: Record<string, unknown> = {};
   for (const p of d.props) {
+    const none = zero[p.type];
     if (p.default !== undefined) {
       props[p.name] = p.default;
-    } else if (p.required && zero[p.type] !== undefined) {
-      props[p.name] = zero[p.type];
+    } else if (p.required && none !== undefined) {
+      props[p.name] = typeof none === "number" ? (firstValue[p.name] ?? none) : none;
     }
   }
-  return Object.keys(props).length === 0 ? { id: newId(), type: d.type } : { id: newId(), type: d.type, props };
+  // A text starts with a word to show, not an empty string that draws nothing.
+  if (starter !== undefined && (d.type === "Text" || d.type === "SelectableText") && props["data"] === "") {
+    props["data"] = starter.text;
+  }
+  return props;
+}
+
+/**
+ * A new node from the descriptor: a fresh UUIDv7 id, the descriptor's defaults, a first value for required primitives,
+ * and, given `starter` texts, the content it starts with.
+ */
+export function buildNode(d: WidgetDescriptor, newId: IdSource = uuidv7, starter?: StarterTexts): NewNode {
+  const props = startProps(d, starter);
+  const id = newId();
+  const make = starter === undefined ? undefined : starters[d.type];
+  const slots = make === undefined || starter === undefined ? undefined : make(starter, newId);
+  return {
+    id,
+    type: d.type,
+    ...(Object.keys(props).length > 0 ? { props } : {}),
+    ...(slots === undefined ? {} : { slots }),
+  };
 }
 
 /** The kinds the Insert gallery sorts widgets into, from their registry category, each with its icon. */
