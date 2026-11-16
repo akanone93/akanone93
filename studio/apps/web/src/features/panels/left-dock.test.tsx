@@ -126,7 +126,16 @@ describe("[STU-061] left panels", () => {
   });
 
   test("a new button, chip or list tile starts with a label; a wrapper starts empty", () => {
-    const starter = { text: "Text", button: "Button", chip: "Chip", item: "List item", title: "Title", add: "Add" };
+    const starter = {
+      text: "Text",
+      button: "Button",
+      chip: "Chip",
+      item: "List item",
+      title: "Title",
+      add: "Add",
+      first: "First",
+      second: "Second",
+    };
     const button = buildNode(widget("ElevatedButton") as NonNullable<ReturnType<typeof widget>>, undefined, starter);
     expect(button.slots?.["child"]).toMatchObject({ type: "Text", props: { data: "Button" } });
     const chip = buildNode(widget("FilterChip") as NonNullable<ReturnType<typeof widget>>, undefined, starter);

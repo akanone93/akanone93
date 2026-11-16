@@ -12,6 +12,16 @@ export function panelsMessages(i18n: I18n) {
       message: "Text",
       comment: "The words a newly inserted text starts with, in the app being built.",
     }),
+    starterFirst: i18n._({
+      id: "panels.starter.first",
+      message: "First",
+      comment: "The first entry of a newly inserted list of tabs, destinations, menu items or segments.",
+    }),
+    starterSecond: i18n._({
+      id: "panels.starter.second",
+      message: "Second",
+      comment: "The second entry of a newly inserted list of tabs, destinations, menu items or segments.",
+    }),
     starterButton: i18n._({
       id: "panels.starter.button",
       message: "Button",
@@ -732,5 +742,7 @@ export function starterTexts(m: ReturnType<typeof panelsMessages>): StarterTexts
     item: m.starterItem,
     title: m.starterTitle,
     add: m.starterAdd,
+    first: m.starterFirst,
+    second: m.starterSecond,
   };
 }

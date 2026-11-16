@@ -7097,6 +7097,12 @@ msgstr "Befunde des Validators"
 msgid "analytics.firingAlerts"
 msgstr "Auslösende Warnungen"
 
+#. The first entry of a newly inserted list of tabs, destinations, menu items or segments.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.first"
+msgstr "Erstes"
+
 #. Shown when a plugin has no earlier version to compare the size with.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -15381,6 +15387,12 @@ msgstr "Widgets suchen"
 msgid "cmd.palette.searching"
 msgstr "Organisation wird durchsucht"
 
+#. The second entry of a newly inserted list of tabs, destinations, menu items or segments.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.second"
+msgstr "Zweites"
+
 #. Heading of the second-factor step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -17109,16 +17121,16 @@ msgstr "Tests"
 msgid "functions.tabTests"
 msgstr "Tests"
 
-#. The words a newly inserted text starts with, in the app being built.
-#. js-lingui-explicit-id
-#: apps/web/src/features/panels/panels.messages.ts
-msgid "panels.starter.text"
-msgstr "Text"
-
 #. Label of the text of a step or expectation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.textLabel"
+msgstr "Text"
+
+#. The words a newly inserted text starts with, in the app being built.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.starter.text"
 msgstr "Text"
 
 #. Label of the read-only field that shows the text being moved to a key.

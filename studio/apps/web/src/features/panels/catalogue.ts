@@ -57,13 +57,16 @@ export interface StarterTexts {
   readonly item: string;
   readonly title: string;
   readonly add: string;
+  /** The first and second entry of a new list: a tab, a destination, a menu item, a segment, a column. */
+  readonly first: string;
+  readonly second: string;
 }
 
 interface NewNode {
   readonly id: string;
   readonly type: string;
   readonly props?: Record<string, unknown>;
-  readonly slots?: Record<string, NewNode>;
+  readonly slots?: Record<string, NewNode | readonly NewNode[]>;
 }
 
 const text = (data: string, ids: IdSource): NewNode => ({ id: ids(), type: "Text", props: { data } });
@@ -76,7 +79,9 @@ const label = (slot: string, of: keyof StarterTexts) => (t: StarterTexts, ids: I
  * "Button", a chip "Chip", a list tile its item, an app bar its title, a FAB its icon and label, a Dismissible a tile
  * to swipe. Widgets that wrap content the person brings (a Card, a Container) start empty.
  */
-const starters: Readonly<Record<string, (t: StarterTexts, ids: IdSource) => Record<string, NewNode>>> = {
+const starters: Readonly<
+  Record<string, (t: StarterTexts, ids: IdSource) => Record<string, NewNode | readonly NewNode[]>>
+> = {
   ElevatedButton: label("child", "button"),
   FilledButton: label("child", "button"),
   OutlinedButton: label("child", "button"),
@@ -97,17 +102,133 @@ const starters: Readonly<Record<string, (t: StarterTexts, ids: IdSource) => Reco
     label: text(t.add, ids),
   }),
   Dismissible: (t, ids) => ({ child: { id: ids(), type: "ListTile", slots: { title: text(t.item, ids) } } }),
+  MaterialBanner: (t, ids) => ({
+    content: text(t.text, ids),
+    actions: [{ id: ids(), type: "TextButton", slots: { child: text(t.button, ids) } }],
+  }),
+  CupertinoSlidingSegmentedControl: (t, ids) => ({ segments: [text(t.first, ids), text(t.second, ids)] }),
 };
 
-/** A new node's props: the descriptor's defaults, and a first value for each required primitive. */
+/** Two entries of a list a widget needs at least one of, labelled and, where it takes one, with an icon. */
+function twoEntries(type: string, t: StarterTexts): unknown[] | undefined {
+  const labels = [t.first, t.second];
+  const icons = ["looks_one", "looks_two"];
+  switch (type) {
+    case "list<Destination>":
+    case "list<TabBarItem>":
+      return labels.map((label, i) => ({ label, icon: { name: icons[i] } }));
+    case "list<TabItem>":
+      return labels.map((label) => ({ label }));
+    case "list<MenuItem>":
+    case "list<DropdownMenuEntry>":
+    case "list<ButtonSegment>":
+      return labels.map((label, i) => ({ value: `option${i + 1}`, label }));
+    case "list<DataColumn>":
+      return labels.map((label) => ({ label }));
+    case "list<StepItem>":
+      return labels.map((title) => ({ title }));
+    case "list<ChoiceItem>":
+      return labels.map((label, i) => ({ id: `option${i + 1}`, label }));
+    case "list<string>":
+      return labels;
+    default:
+      return undefined;
+  }
+}
+
+/** A required date by its role: a range runs from 2020 to 2030, and the first shown date is in it. */
+const dateOf = (name: string): string =>
+  name.startsWith("first") ? "2020-01-01" : name.startsWith("last") ? "2030-12-31" : "2026-01-01";
+
+/**
+ * A valid first value for a required prop that has no default, by its type, so a widget is valid the moment it is
+ * inserted (#71): an alignment in the centre, padding of 8, a 300 ms duration, two entries of a list of tabs or
+ * destinations. Undefined where only the person can choose (an image's source, a chart's series).
+ */
+function firstOfType(name: string, type: string, t: StarterTexts | undefined): unknown {
+  const fixed: Readonly<Record<string, unknown>> = {
+    Alignment: "center",
+    Axis: "vertical",
+    CrossFadeState: "showFirst",
+    TextBaseline: "alphabetic",
+    EdgeInsets: { all: 8 },
+    Offset: { dx: 0, dy: 0 },
+    BoxConstraints: { minHeight: 0 },
+    BoxDecoration: { color: "#E2E8F0" },
+    RangeValues: { start: 0.25, end: 0.75 },
+    color: "#E2E8F0",
+    duration: 300,
+  };
+  if (type in fixed) {
+    return fixed[type];
+  }
+  if (type === "date") {
+    return dateOf(name);
+  }
+  if (t === undefined) {
+    return undefined;
+  }
+  if (type === "TextSpan") {
+    return { text: t.text };
+  }
+  // A list's items: two texts, so the item type is known and the template shows each.
+  if (type === "list<T>") {
+    return [t.first, t.second];
+  }
+  if (name === "selected" && type === "list<string>") {
+    return ["option1"];
+  }
+  if (name === "rows" && type === "list<list<string>>") {
+    return [[t.first, t.second]];
+  }
+  return twoEntries(type, t);
+}
+
+/**
+ * Content for the required slots a widget would otherwise be invalid without: a list's item template is a list tile,
+ * any other required single slot (a wrapper's child, a branch) a text. List slots stay empty: a person adds to them.
+ */
+function requiredSlots(d: WidgetDescriptor, t: StarterTexts, ids: IdSource): Record<string, NewNode> {
+  const out: Record<string, NewNode> = {};
+  for (const s of d.slots) {
+    if (!s.required || s.list) {
+      continue;
+    }
+    out[s.name] =
+      s.name === "item"
+        ? // Each item of the list, shown as a list tile titled with it.
+          {
+            id: ids(),
+            type: "ListTile",
+            slots: { title: { id: ids(), type: "Text", props: { data: { $expr: "item" } } } },
+          }
+        : text(t.text, ids);
+  }
+  return out;
+}
+
+/** A prop's first value: its default, a first value for a required primitive or type, or nothing. */
+function firstProp(p: WidgetDescriptor["props"][number], starter: StarterTexts | undefined): unknown {
+  if (p.default !== undefined) {
+    return p.default;
+  }
+  if (!p.required) {
+    return undefined;
+  }
+  const none = zero[p.type];
+  if (none === undefined) {
+    return firstOfType(p.name, p.type, starter);
+  }
+  return typeof none === "number" ? (firstValue[p.name] ?? none) : none;
+}
+
+/** A new node's props: the descriptor's defaults, and a first value for each required prop it can have one for. */
 function startProps(d: WidgetDescriptor, starter: StarterTexts | undefined): Record<string, unknown> {
   const props: Record<string, unknown> = {};
   for (const p of d.props) {
-    const none = zero[p.type];
-    if (p.default !== undefined) {
-      props[p.name] = p.default;
-    } else if (p.required && none !== undefined) {
-      props[p.name] = typeof none === "number" ? (firstValue[p.name] ?? none) : none;
+    const first = firstProp(p, starter);
+    if (first !== undefined) {
+      props[p.name] = first;
     }
   }
   // A text starts with a word to show, not an empty string that draws nothing.
@@ -125,12 +246,13 @@ export function buildNode(d: WidgetDescriptor, newId: IdSource = uuidv7, starter
   const props = startProps(d, starter);
   const id = newId();
   const make = starter === undefined ? undefined : starters[d.type];
-  const slots = make === undefined || starter === undefined ? undefined : make(starter, newId);
+  const own = make === undefined || starter === undefined ? undefined : make(starter, newId);
+  const slots = starter === undefined ? own : { ...requiredSlots(d, starter, newId), ...own };
   return {
     id,
     type: d.type,
     ...(Object.keys(props).length > 0 ? { props } : {}),
-    ...(slots === undefined ? {} : { slots }),
+    ...(slots === undefined || Object.keys(slots).length === 0 ? {} : { slots }),
   };
 }
 
