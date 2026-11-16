@@ -1714,6 +1714,12 @@ msgstr "Add"
 msgid "actionGraph.add"
 msgstr "Add"
 
+#. Accessible name of the button that adds a language; name is the language and its code.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.add"
+msgstr "Add {name}"
+
 #. Accessible name of the button that adds an action to the graph; name is the action.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -3792,6 +3798,12 @@ msgstr "Choose up to {max} languages. The default language is always supported."
 msgid "notify.mute.caption"
 msgstr "Choose what reaches your inbox. Approval and security notifications are always on."
 
+#. Heading of the list of languages the new app will support.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.chosen"
+msgstr "Chosen languages"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -5045,6 +5057,12 @@ msgstr "Deep-link hosts"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.field.deep-link-schemes"
 msgstr "Deep-link schemes"
+
+#. Label of the radio button that makes a chosen language the app's default.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.is-default"
+msgstr "Default"
 
 #. Parameter field label.
 #. js-lingui-explicit-id
@@ -8790,6 +8808,12 @@ msgstr "Language"
 msgid "newApp.step.locales"
 msgstr "Languages"
 
+#. Accessible name of the list of languages that match the search.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.results"
+msgstr "Languages to add"
+
 #. Name of the limit on the size of one asset file; the app shows its largest.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -10787,6 +10811,12 @@ msgstr "No instance uses this component yet."
 msgid "security.noKeys"
 msgstr "No keys are published for this environment."
 
+#. Shown when the language search finds nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.no-match"
+msgstr "No language matches. Type a language code, with a region if you like, such as am-ET."
+
 #. Shown in the Layers tab when the filter matches no row.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -12401,6 +12431,12 @@ msgstr "Phones signed in to the Plux Dev app. A phone lists your apps and joins 
 msgid "shell.api.photos"
 msgstr "Photos"
 
+#. Accessible name of the colour picker beside the hex field of a custom primary colour.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.theme.custom-pick"
+msgstr "Pick a colour"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -13515,6 +13551,12 @@ msgstr "Remove {action}"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.hostFontRemove"
 msgstr "Remove {family}"
+
+#. Accessible name of the button that removes a chosen language.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.remove"
+msgstr "Remove {name}"
 
 #. Accessible name of the button that removes the crate {name} from the dependencies.
 #. js-lingui-explicit-id
@@ -15098,6 +15140,12 @@ msgstr "Search in"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.search"
 msgstr "Search keys and texts"
+
+#. Placeholder and label of the search field that finds languages to add to a new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.locales.search"
+msgstr "Search languages, or type a code such as de-DE or am-ET"
 
 #. Button on the home hero that opens the command palette.
 #. js-lingui-explicit-id
@@ -18610,16 +18658,16 @@ msgstr "This page is part of the enterprise edition. Ask an installation adminis
 msgid "admin.removeMemberDesc"
 msgstr "This person loses access to the organisation."
 
-#. Heading of the plugin's own documents in the JSON editor's list.
-#. js-lingui-explicit-id
-#: apps/web/src/features/json-editor/json-editor.messages.ts
-msgid "jsonEditor.pluginGroup"
-msgstr "This plugin"
-
 #. Marks screens of the plugin being edited in the list of navigation targets.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.thisPlugin"
+msgstr "This plugin"
+
+#. Heading of the plugin's own documents in the JSON editor's list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.pluginGroup"
 msgstr "This plugin"
 
 #. D35 title: someone or something saved this plugin while you were editing it.

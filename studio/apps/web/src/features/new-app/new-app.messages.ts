@@ -222,6 +222,45 @@ export function newAppMessages(i18n: I18n) {
         values: { max },
         comment: "Hint on the languages step; max is the largest number of languages an app may support.",
       }),
+    localesSearch: i18n._({
+      id: "newApp.locales.search",
+      message: "Search languages, or type a code such as de-DE or am-ET",
+      comment: "Placeholder and label of the search field that finds languages to add to a new app.",
+    }),
+    localesResults: i18n._({
+      id: "newApp.locales.results",
+      message: "Languages to add",
+      comment: "Accessible name of the list of languages that match the search.",
+    }),
+    localesChosen: i18n._({
+      id: "newApp.locales.chosen",
+      message: "Chosen languages",
+      comment: "Heading of the list of languages the new app will support.",
+    }),
+    localesNoMatch: i18n._({
+      id: "newApp.locales.no-match",
+      message: "No language matches. Type a language code, with a region if you like, such as am-ET.",
+      comment: "Shown when the language search finds nothing.",
+    }),
+    localesAdd: (name: string) =>
+      i18n._({
+        id: "newApp.locales.add",
+        message: "Add {name}",
+        values: { name },
+        comment: "Accessible name of the button that adds a language; name is the language and its code.",
+      }),
+    localesRemove: (name: string) =>
+      i18n._({
+        id: "newApp.locales.remove",
+        message: "Remove {name}",
+        values: { name },
+        comment: "Accessible name of the button that removes a chosen language.",
+      }),
+    localesIsDefault: i18n._({
+      id: "newApp.locales.is-default",
+      message: "Default",
+      comment: "Label of the radio button that makes a chosen language the app's default.",
+    }),
     localesRequired: i18n._({
       id: "newApp.locales.required",
       message: "Choose at least one language.",
@@ -254,6 +293,11 @@ export function newAppMessages(i18n: I18n) {
       id: "newApp.theme.custom",
       message: "Custom colour",
       comment: "Choice: enter a primary colour instead of a ready-made theme.",
+    }),
+    themeCustomPick: i18n._({
+      id: "newApp.theme.custom-pick",
+      message: "Pick a colour",
+      comment: "Accessible name of the colour picker beside the hex field of a custom primary colour.",
     }),
     themeCustomLabel: i18n._({
       id: "newApp.theme.custom-label",

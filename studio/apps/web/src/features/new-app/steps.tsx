@@ -5,9 +5,9 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppProjectService } from "@plux/api";
 import { limitDefault } from "@plux/schema";
-import { Field, FileDrop, Input, Select, Textarea } from "@plux/ui";
+import { Button, Field, FileDrop, Icon, Input, Textarea } from "@plux/ui";
 import { useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
+import { type ReactElement, useMemo, useState } from "react";
 import { dialogMessages } from "../../components/dialogs/dialogs.messages.ts";
 import { keyFromName } from "../../lib/keys.ts";
 import { useApp } from "../../lib/use-app.tsx";
@@ -15,13 +15,15 @@ import {
   type EnvironmentChoice,
   environmentChoices,
   hexOf,
-  localeChoices,
+  isHexColour,
   securityProfiles,
   themePresets,
 } from "./blank-project.ts";
 import { Choice } from "./choice.tsx";
 import { type ArchiveIssue, type Draft, inspectArchive, maxLocales, type StepProblem } from "./draft.ts";
+import { localeNames, searchLocales } from "./locale-catalogue.ts";
 import { newAppMessages } from "./new-app.messages.ts";
+import "./new-app.css";
 
 export interface StepProps {
   readonly draft: Draft;
@@ -233,21 +235,25 @@ export function DetailsStep({ draft, update, attempted, problem }: StepProps): R
   );
 }
 
-function languageName(locale: string, code: string): string {
-  try {
-    return new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code;
-  } catch {
-    return code;
-  }
-}
-
-/** Step 3 (`step=locales`): the supported languages and the default one (I18N-001). */
+/** Step 3 (`step=locales`): the supported languages and the default one (I18N-001), from every language there is. */
 export function LocalesStep({ draft, update, attempted, problem }: StepProps): ReactElement {
   const { i18n } = useLingui();
   const m = newAppMessages(i18n);
-  const name = (code: string) => m.language(languageName(i18n.locale, code), code);
-  const toggle = (code: string, on: boolean) => {
-    const locales = on ? [...draft.locales, code] : draft.locales.filter((l) => l !== code);
+  const [query, setQuery] = useState("");
+  const name = (code: string) => {
+    const n = localeNames(i18n.locale, code);
+    return n.native !== n.name && n.native !== code
+      ? `${m.language(n.name, code)} · ${n.native}`
+      : m.language(n.name, code);
+  };
+  const found = useMemo(() => searchLocales(query, i18n.locale, draft.locales), [query, i18n.locale, draft.locales]);
+  const add = (code: string) => {
+    const locales = [...draft.locales, code];
+    update({ locales, defaultLocale: draft.defaultLocale === "" ? code : draft.defaultLocale });
+    setQuery("");
+  };
+  const remove = (code: string) => {
+    const locales = draft.locales.filter((l) => l !== code);
     update({
       locales,
       defaultLocale: locales.includes(draft.defaultLocale) ? draft.defaultLocale : (locales[0] ?? ""),
@@ -256,27 +262,33 @@ export function LocalesStep({ draft, update, attempted, problem }: StepProps): R
   return (
     <div className="flex flex-col gap-3">
       <p className="text-body text-muted-foreground">{m.localesHint(maxLocales)}</p>
-      <Field label={m.localesDefault}>
-        <Select
-          label={m.localesDefault}
-          options={draft.locales.map((code) => ({ value: code, label: name(code) }))}
-          value={draft.defaultLocale}
-          onValueChange={(defaultLocale) => update({ defaultLocale })}
-        />
-      </Field>
-      <fieldset className="flex flex-col gap-2">
-        <legend className="text-label font-medium text-foreground">{m.localesLegend}</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {localeChoices.map((code) => (
-            <Choice
-              key={code}
-              type="checkbox"
-              checked={draft.locales.includes(code)}
-              label={name(code)}
-              onChange={(on) => toggle(code, on)}
-            />
+      <fieldset className="flex flex-col gap-1.5">
+        <legend className="text-label font-medium text-foreground">{m.localesChosen}</legend>
+        <ul className="locale-chosen flex flex-col gap-1">
+          {draft.locales.map((code) => (
+            <li key={code} className="locale-row">
+              <span className="min-w-0 flex-1 truncate">{name(code)}</span>
+              <label className="locale-default">
+                <input
+                  type="radio"
+                  name="default-locale"
+                  checked={draft.defaultLocale === code}
+                  onChange={() => update({ defaultLocale: code })}
+                />
+                {m.localesIsDefault}
+              </label>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={m.localesRemove(name(code))}
+                disabled={draft.locales.length === 1}
+                onClick={() => remove(code)}
+              >
+                <Icon name="x" />
+              </Button>
+            </li>
           ))}
-        </div>
+        </ul>
         {attempted && problem === "locales" && (
           <p role="alert" className="text-caption text-danger">
             {m.localesRequired}
@@ -288,6 +300,37 @@ export function LocalesStep({ draft, update, attempted, problem }: StepProps): R
           </p>
         )}
       </fieldset>
+      <Field label={m.localesLegend}>
+        <Input
+          type="search"
+          value={query}
+          placeholder={m.localesSearch}
+          aria-label={m.localesSearch}
+          autoComplete="off"
+          spellCheck={false}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </Field>
+      {found.length === 0 ? (
+        <p className="text-caption text-muted-foreground">{m.localesNoMatch}</p>
+      ) : (
+        <ul aria-label={m.localesResults} className="locale-results flex flex-col">
+          {found.slice(0, 60).map((l) => (
+            <li key={l.code}>
+              <button
+                type="button"
+                className="locale-result"
+                aria-label={m.localesAdd(name(l.code))}
+                disabled={draft.locales.length >= maxLocales}
+                onClick={() => add(l.code)}
+              >
+                <Icon name="plus" size="pill" />
+                <span className="min-w-0 flex-1 truncate">{name(l.code)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -333,12 +376,23 @@ export function ThemeStep({ draft, update, attempted, problem }: StepProps): Rea
           description={m.themeCustomHint(example)}
           error={attempted && problem === "colour" ? m.themeInvalid(example) : undefined}
         >
-          <Input
-            value={draft.customPrimary}
-            autoComplete="off"
-            spellCheck={false}
-            onChange={(e) => update({ customPrimary: e.target.value })}
-          />
+          <span className="colour-field">
+            {/* The browser's colour picker; the hex field beside it takes a typed or pasted value. */}
+            <input
+              type="color"
+              className="colour-swatch"
+              aria-label={m.themeCustomPick}
+              value={isHexColour(draft.customPrimary) ? draft.customPrimary.toLowerCase() : "#5b3df5"}
+              onChange={(e) => update({ customPrimary: e.target.value.toUpperCase() })}
+            />
+            <Input
+              value={draft.customPrimary}
+              autoComplete="off"
+              spellCheck={false}
+              dir="ltr"
+              onChange={(e) => update({ customPrimary: e.target.value })}
+            />
+          </span>
         </Field>
       )}
     </fieldset>

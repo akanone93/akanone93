@@ -34,17 +34,6 @@ const fillDetails = (dialog: HTMLElement, name: string, key?: string) => {
     fireEvent.change(within(dialog).getByLabelText("Key"), { target: { value: key } });
   }
 };
-const pick = async (name: string, option: string) => {
-  fireEvent.click(await screen.findByRole("combobox", { name }));
-  const opt = await screen.findByRole("option", { name: option });
-  // Base UI ignores a pick made at once after the popup opens: wait, then press and release as a pointer does.
-  await new Promise((r) => setTimeout(r, 400));
-  fireEvent.pointerDown(opt);
-  fireEvent.mouseDown(opt);
-  fireEvent.pointerUp(opt);
-  fireEvent.mouseUp(opt);
-  fireEvent.click(opt);
-};
 
 describe("creating a blank app with the wizard [STU-024]", () => {
   test("every option of a blank app is asked for, then the project is imported as one archive and the app opens", async () => {
@@ -59,10 +48,18 @@ describe("creating a blank app with the wizard [STU-024]", () => {
     fireEvent.change(within(dialog).getByLabelText("Description"), { target: { value: "Sells things" } });
     next(dialog);
 
-    fireEvent.click(within(dialog).getByRole("checkbox", { name: "German (de)" }));
-    fireEvent.click(within(dialog).getByRole("checkbox", { name: "Arabic (ar)" }));
-    await pick("Default language", "German (de)");
-    await waitFor(() => expect(within(dialog).getAllByRole("combobox").at(-1)?.textContent).toBe("German (de)"));
+    // Any language can be found by name or code; a region is typed as a tag (N1).
+    const search = within(dialog).getByRole("searchbox");
+    fireEvent.change(search, { target: { value: "germ" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Add German \(de\)/ }));
+    fireEvent.change(search, { target: { value: "ar" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Add Arabic \(ar\)/ }));
+    fireEvent.change(search, { target: { value: "am-et" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Add .*\(am-ET\)/ }));
+    const german = within(dialog)
+      .getAllByRole("listitem")
+      .find((li) => li.textContent?.startsWith("German (de)") === true);
+    fireEvent.click(within(german as HTMLElement).getByRole("radio", { name: "Default" }));
     next(dialog);
 
     radio(dialog, "Custom colour");
@@ -88,7 +85,7 @@ describe("creating a blank app with the wizard [STU-024]", () => {
       name: "Shop Front",
       description: "Sells things",
       defaultLocale: "de",
-      supportedLocales: ["de", "en", "ar"],
+      supportedLocales: ["de", "en", "ar", "am-ET"],
       securityProfile: "strict",
       entryRoute: "home",
       plugins: ["main"],
@@ -119,10 +116,12 @@ describe("creating a blank app with the wizard [STU-024]", () => {
     fillDetails(dialog, "Shop", "shop");
     next(dialog);
 
-    fireEvent.click(within(dialog).getByRole("checkbox", { name: "English (en)" }));
-    next(dialog);
-    await within(dialog).findByText("Choose at least one language.");
-    fireEvent.click(within(dialog).getByRole("checkbox", { name: "English (en)" }));
+    // The last language cannot be removed: an app always has one.
+    expect(
+      within(dialog)
+        .getByRole("button", { name: /^Remove English \(en\)/ })
+        .matches(":disabled, [aria-disabled=true], [data-disabled]"),
+    ).toBe(true);
     next(dialog);
 
     radio(dialog, "Custom colour");

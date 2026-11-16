@@ -1,0 +1,67 @@
+/* SPDX-FileCopyrightText: 2026 Plux contributors */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* The languages step (N1): the chosen languages as rows with their default switch, then a searchable list to add. */
+.locale-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2.5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body);
+  background-color: var(--card);
+}
+
+.locale-default {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  font-size: var(--text-caption);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.locale-results {
+  max-block-size: 15rem;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.locale-result {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 1.75) calc(var(--spacing) * 2.5);
+  font-size: var(--text-body);
+  text-align: start;
+}
+
+.locale-result:hover:not(:disabled),
+.locale-result:focus-visible {
+  background-color: var(--muted);
+}
+
+.locale-result:disabled {
+  opacity: 0.5;
+}
+
+/* The custom colour (N2): the browser's picker as a swatch beside the hex field. */
+.colour-field {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+}
+
+.colour-swatch {
+  inline-size: calc(var(--spacing) * 9);
+  block-size: calc(var(--spacing) * 9);
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+}
