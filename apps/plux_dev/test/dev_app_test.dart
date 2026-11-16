@@ -372,6 +372,42 @@ void main() {
   );
 
   testWidgets(
+    '[DEV-002] the debug panel opens in place over the app, resizes by its handle and closes beside it',
+    (tester) async {
+      final phone = FakePhone();
+      await tester.pumpWidget(app(phones: FakeDirectory(stored: phone)));
+      await settle(tester);
+      await tester.tap(find.text('Shop'));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('number-42')));
+      await settle(tester);
+
+      await tester.tap(find.byKey(const Key('dev-button')));
+      await settle(tester);
+      // No route on the running app's navigator: the panel is an overlay.
+      expect(find.byType(BottomSheet), findsNothing);
+      final panel = find.byKey(const Key('dev-panel'));
+      expect(panel, findsOneWidget);
+      final before = tester.getSize(panel).height;
+      await tester.drag(
+        find.byKey(const Key('dev-panel-handle')),
+        const Offset(0, -120),
+      );
+      await settle(tester);
+      expect(tester.getSize(panel).height, greaterThan(before));
+
+      await tester.tapAt(const Offset(20, 60));
+      await settle(tester);
+      expect(find.byKey(const Key('dev-scrim')), findsNothing);
+      expect(find.byKey(const Key('dev-panel')).hitTestable(), findsNothing);
+      // It opens again at once: it is kept, not built again.
+      await tester.tap(find.byKey(const Key('dev-button')));
+      await tester.pump();
+      expect(find.byKey(const Key('tab-connection')), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     '[DEV-002] joining again while Studio is closed says so, and does not ask for a number',
     (tester) async {
       final phone = FakePhone();

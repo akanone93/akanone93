@@ -135,6 +135,10 @@ final class _Running {
   /// What the phone is doing about its link, for the dev sheet.
   final ValueNotifier<String?> notice = ValueNotifier(null);
 
+  /// Whether the number picker of a rejoin is up: it opens on the app's
+  /// navigator, under the debug panel, so the panel steps aside meanwhile.
+  final ValueNotifier<bool> picking = ValueNotifier(false);
+
   /// Whether a join is under way.
   bool joining = false;
 
@@ -154,6 +158,7 @@ final class _Running {
     retry?.cancel();
     stopFollowing?.call();
     notice.dispose();
+    picking.dispose();
   }
 }
 
@@ -414,13 +419,19 @@ final class _DevAppState extends State<DevApp> {
         final context = running.tooling.navigatorKey.currentContext;
         if (context == null || !context.mounted) return;
         running.notice.value = 'Pick the number Studio shows to join again.';
-        final picked = await pickNumber(
-          context,
-          options: join.options,
-          title: 'Pick the number shown in Studio',
-          detail: 'Joining ${running.name} again',
-          expiresAt: join.expiresAt,
-        );
+        running.picking.value = true;
+        final int? picked;
+        try {
+          picked = await pickNumber(
+            context,
+            options: join.options,
+            title: 'Pick the number shown in Studio',
+            detail: 'Joining ${running.name} again',
+            expiresAt: join.expiresAt,
+          );
+        } finally {
+          if (_running == running) running.picking.value = false;
+        }
         if (picked == null) {
           running.declined = true;
           running.notice.value =
@@ -505,6 +516,7 @@ final class _DevAppState extends State<DevApp> {
             onLeave: _leave,
             onReconnect: () => unawaited(_rejoin(running, asked: true)),
             notice: running.notice,
+            picking: running.picking,
             child: running.tooling.wrap(child!),
           ),
         ),
