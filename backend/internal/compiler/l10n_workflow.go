@@ -87,6 +87,7 @@ func (u *unit) localisation() {
 			u.translatableMessages(c.file, c.doc.Forms)
 		}
 	}
+	u.translationCalls()
 	if u.focus == nil {
 		u.unusedKeys()
 	}
@@ -176,8 +177,27 @@ func nodeJSON(d *schema.Node) map[string]any {
 	return m
 }
 
-// pxlTranslation matches t("key") and t('key', ...) in PXL source.
+// pxlTranslation matches t("keyId") and t('keyId', ...) in PXL source: the
+// literal is a translation key's identifier (I18N-007).
 var pxlTranslation = regexp.MustCompile(`\bt\(\s*(?:"([^"]+)"|'([^']+)')`)
+
+// translationCalls reports each t() whose literal argument is not the
+// identifier of a declared translation key (I18N-007). Expressions name a key
+// by its identifier, as documents do with {"$t": id}, so renaming a key never
+// breaks them; a key's name, or an unknown identifier, is unresolved.
+func (u *unit) translationCalls() {
+	for _, e := range u.exprs {
+		if !u.inFocus(e.file) {
+			continue
+		}
+		for _, m := range pxlTranslation.FindAllStringSubmatch(e.src, -1) {
+			if id := m[1] + m[2]; u.tkeys[id] == nil {
+				u.report(plxerr.UnresolvedReference, e.file, e.ptr+"/$expr",
+					"t(%q) names no translation key: t() takes a key's identifier from translations/keys.json", id)
+			}
+		}
+	}
+}
 
 // unusedKeys warns about each key that has a message in the default locale
 // and that no page, component, action, trigger or PXL expression of the app
@@ -217,13 +237,9 @@ func (u *unit) eachKeyUse(tk *schema.Loaded[schema.TranslationKeysDocument], mar
 			mark(e.To, e.File)
 		}
 	}
-	byName := make(map[string]string, len(tk.Doc.Keys))
-	for _, k := range tk.Doc.Keys {
-		byName[k.Key] = k.ID
-	}
 	for _, e := range u.exprs {
 		for _, m := range pxlTranslation.FindAllStringSubmatch(e.src, -1) {
-			if id, ok := byName[m[1]+m[2]]; ok {
+			if id := m[1] + m[2]; u.tkeys[id] != nil {
 				mark(id, e.file)
 			}
 		}

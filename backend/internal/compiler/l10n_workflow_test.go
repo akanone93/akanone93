@@ -154,11 +154,50 @@ func TestPXLTranslationCallUsesAKey(t *testing.T) {
 	})
 	edit(t, m, messageEN, func(doc map[string]any) { at(t, doc, "messages")[unusedKeyID] = "By code" })
 	withLiteral(t, m, map[string]any{
-		"id": literalNode, "type": "Text", "props": map[string]any{"data": map[string]any{"$expr": `t("loans.by-code")`}},
+		"id": literalNode, "type": "Text", "props": map[string]any{"data": map[string]any{"$expr": `t("` + unusedKeyID + `")`}},
 	})
 	res := compileFS(m)
 	if n := countCode(res, plxerr.TranslationKeyUnused); n != 0 {
 		t.Errorf("a key read with t() is used:\n%s", list(res.Diagnostics))
+	}
+	if n := countCode(res, plxerr.UnresolvedReference); n != 0 {
+		t.Errorf("t() with a key's identifier is resolved:\n%s", list(res.Diagnostics))
+	}
+}
+
+// Verifies: I18N-007. An expression names a translation key by its identifier,
+// as a document does, so a renamed key keeps working; its name is not one.
+func TestPXLTranslationCallTakesTheKeyIdentifier(t *testing.T) {
+	t.Parallel()
+	m := fixture(t)
+	edit(t, m, messageKeys, func(doc map[string]any) {
+		doc["keys"] = append(doc["keys"].([]any), map[string]any{"id": unusedKeyID, "key": "loans.by-code"})
+	})
+	edit(t, m, messageEN, func(doc map[string]any) { at(t, doc, "messages")[unusedKeyID] = "By code" })
+	withLiteral(t, m, map[string]any{
+		"id": literalNode, "type": "Text", "props": map[string]any{"data": map[string]any{"$expr": `t("loans.by-code")`}},
+	})
+	res := compileFS(m)
+	found := false
+	for _, d := range res.Diagnostics {
+		if d.Code == plxerr.UnresolvedReference && strings.Contains(d.Message, `t("loans.by-code")`) {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("t() with a key's name is not reported as unresolved:\n%s", list(res.Diagnostics))
+	}
+	// Renaming the key changes nothing for t(id).
+	renamed := fixture(t)
+	edit(t, renamed, messageKeys, func(doc map[string]any) {
+		doc["keys"] = append(doc["keys"].([]any), map[string]any{"id": unusedKeyID, "key": "loans.lookup"})
+	})
+	edit(t, renamed, messageEN, func(doc map[string]any) { at(t, doc, "messages")[unusedKeyID] = "By code" })
+	withLiteral(t, renamed, map[string]any{
+		"id": literalNode, "type": "Text", "props": map[string]any{"data": map[string]any{"$expr": `t("` + unusedKeyID + `")`}},
+	})
+	if res := compileFS(renamed); countCode(res, plxerr.UnresolvedReference) != 0 {
+		t.Errorf("t(id) after a rename is unresolved:\n%s", list(res.Diagnostics))
 	}
 }
 

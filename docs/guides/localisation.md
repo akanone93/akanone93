@@ -132,8 +132,10 @@ sampled `l10n_missing` telemetry event with the key, the requested and the resol
 
 Expressions can format without a message. The `format` group (`pxl.format.v1`) has
 `format.number`, `format.money`, `format.date`, `format.percent`, `format.compact`,
-`format.phone` and `format.iban`; the `l10n` group (`pxl.l10n.v1`) has `t(key, args)` and
-`plural(n, forms)`; the `calendar` group is in the [calendars guide](calendars.md). All
+`format.phone` and `format.iban`; the `l10n` group (`pxl.l10n.v1`) has `t(keyId, args)` and
+`plural(n, forms)`. `t` names a translation key by its identifier, the `id` in `translations/keys.json`, as a
+document's `{"$t": id}` does, so renaming a key never breaks an expression; Studio inserts the identifier and shows the
+key's name. A key's name in `t` is reported as an unresolved reference (PLX-1102); the `calendar` group is in the [calendars guide](calendars.md). All
 follow the effective locale. See the [PXL standard library](../reference/pxl-stdlib.md).
 
 ## 8. Fonts

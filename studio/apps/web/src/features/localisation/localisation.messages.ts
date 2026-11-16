@@ -161,6 +161,19 @@ export function localisationMessages(i18n: I18n) {
       message: "Keys can be created once the draft lock and the default locale's lock are yours.",
       comment: "Notice in the key extraction dialog when a lock the extraction needs is held by someone else.",
     }),
+    renameKey: (key: string) =>
+      i18n._({
+        id: "l10n.renameKey",
+        message: "Rename {key}",
+        values: { key },
+        comment: "Button beside a translation key that turns its name into a field to rename it; key is its name.",
+      }),
+    renameKeyField: i18n._({
+      id: "l10n.renameKeyField",
+      message: "New name of the key",
+      comment:
+        "Label of the field that renames a translation key. Only the name changes: everything refers to the key by its identifier.",
+    }),
     deleteKey: (key: string) =>
       i18n._({
         id: "localisation.delete-key",

@@ -10493,6 +10493,12 @@ msgstr "New in"
 msgid "l10n.newKey"
 msgstr "New key"
 
+#. Label of the field that renames a translation key. Only the name changes: everything refers to the key by its identifier.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.renameKeyField"
+msgstr "New name of the key"
+
 #. Top bar button that opens the create-organisation dialog; shown only to installation administrators.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -13845,6 +13851,12 @@ msgstr "Rename"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanRename"
 msgstr "Rename (new=old, comma-separated)"
+
+#. Button beside a translation key that turns its name into a field to rename it; key is its name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.renameKey"
+msgstr "Rename {key}"
 
 #. Accessible name of a screen's title above its frame: a click renames the screen in place.
 #. js-lingui-explicit-id

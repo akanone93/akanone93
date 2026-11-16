@@ -9,6 +9,7 @@ import { SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../compo
 import type { EditSession, JsonValue } from "../editor/index.ts";
 import {
   addKeyRecipe,
+  dropKeyRecipe,
   KEYS_PATH,
   keyProblem,
   localePath,
@@ -17,6 +18,7 @@ import {
   readKeys,
   readMessages,
   removeKeyRecipe,
+  renameKeyRecipe,
   setMessageRecipe,
 } from "./l10n-model.ts";
 import { localisationMessages } from "./localisation.messages.ts";
@@ -59,12 +61,24 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
   const mine = useMemo(() => readMessages(messagesDoc), [messagesDoc]);
   const rows = keys.filter((k) => filtered(scope, k.id, props));
   const [deleting, setDeleting] = useState<{ readonly id: string; readonly key: string } | null>(null);
-  // One undo step across the keys and the edited locale's messages, as an extraction is.
+  // One undo step across the keys and every locale's messages, as an extraction is: the key goes with its message and
+  // review state in every locale, so no document keeps text for a key that is gone, and undo brings them all back. The
+  // other locales are written under the draft's lock, which lets an app manager write every locale (I18N-008).
   const remove = (id: string) => {
     const step = props.newId();
     props.keysSession.edit(KEYS_PATH, removeKeyRecipe(id), { step });
     if (props.canEditMessages && mine[id] !== undefined) {
-      props.messagesSession.edit(localePath(props.locale), setMessageRecipe(id, ""), { step });
+      props.messagesSession.edit(localePath(props.locale), dropKeyRecipe(id), { step });
+    }
+    for (const [locale, messages] of props.otherMessages) {
+      if (locale !== props.locale && messages[id] !== undefined) {
+        void props.keysSession.upsert(
+          localePath(locale),
+          () => newLocaleDocument(props.schemaVersion, props.newId(), locale, {}),
+          dropKeyRecipe(id),
+          { step },
+        );
+      }
     }
   };
   const shown = props.locales.map((l) => ({
@@ -135,7 +149,12 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
                 {rows.map((k) => (
                   <tr key={k.id}>
                     <th scope="row" className="font-mono text-xs font-normal" dir="ltr">
-                      {k.key}
+                      <KeyName
+                        name={k.key}
+                        taken={keys.filter((o) => o.id !== k.id).map((o) => o.key)}
+                        canRename={props.canEditKeys}
+                        onRename={(key) => props.keysSession.edit(KEYS_PATH, renameKeyRecipe(k.id, key))}
+                      />
                     </th>
                     {shown.map((c) => (
                       <td key={c.locale}>
@@ -190,6 +209,65 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
         }}
       />
     </Dialog>
+  );
+}
+
+/**
+ * A key's name, and the way to rename it: a key is referred to by its identifier everywhere (I18N-007), so a rename
+ * changes the name alone. Enter or leaving the field keeps a valid name, Escape puts the old one back.
+ */
+function KeyName(p: {
+  readonly name: string;
+  readonly taken: readonly string[];
+  readonly canRename: boolean;
+  readonly onRename: (key: string) => void;
+}) {
+  const m = localisationMessages(useLingui().i18n);
+  const [draft, setDraft] = useState<string | null>(null);
+  if (draft === null) {
+    return (
+      <span className="inline-flex items-center gap-1">
+        <span>{p.name}</span>
+        {p.canRename && (
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={m.renameKey(p.name)}
+            title={m.renameKey(p.name)}
+            onClick={() => setDraft(p.name)}
+          >
+            <Icon name="pencil-simple" />
+          </Button>
+        )}
+      </span>
+    );
+  }
+  const problem = draft === p.name ? undefined : keyProblem(draft, new Set(p.taken));
+  const finish = () => {
+    if (problem === undefined && draft !== p.name) {
+      p.onRename(draft);
+    }
+    setDraft(null);
+  };
+  return (
+    <Field label={m.renameKeyField} error={problem === undefined ? undefined : m.problem(problem)}>
+      <Input
+        value={draft}
+        dir="ltr"
+        autoFocus
+        onChange={(e) => setDraft(e.target.value.trim())}
+        onBlur={finish}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            finish();
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            setDraft(null);
+          }
+        }}
+      />
+    </Field>
   );
 }
 

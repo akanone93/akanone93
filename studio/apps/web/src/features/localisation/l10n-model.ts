@@ -71,12 +71,23 @@ function nodeIdOf(v: Obj, parent: string): string {
 }
 
 /** Every translation key identifier a document references with `{"$t": id}`, with the node id it sits in. */
+/**
+ * The keys one value names itself: a `{"$t": id}` reference, or the `t("<id>")` calls of an expression (I18N-007), in a
+ * binding or a step's input.
+ */
+function keysOf(v: unknown): string[] {
+  if (typeof v === "string") {
+    return keyCalls(v).map((c) => c.id);
+  }
+  return isObj(v) && typeof v["$t"] === "string" ? [v["$t"]] : [];
+}
+
 export function referencedKeys(doc: unknown): { id: string; nodeId: string }[] {
   const out: { id: string; nodeId: string }[] = [];
   const walk = (v: unknown, nodeId: string): void => {
     const children = Array.isArray(v) ? v : isObj(v) ? Object.values(v) : [];
-    if (isObj(v) && typeof v["$t"] === "string") {
-      out.push({ id: v["$t"], nodeId });
+    for (const id of keysOf(v)) {
+      out.push({ id, nodeId });
     }
     const here = isObj(v) ? nodeIdOf(v, nodeId) : nodeId;
     for (const x of children) {
@@ -84,6 +95,19 @@ export function referencedKeys(doc: unknown): { id: string; nodeId: string }[] {
     }
   };
   walk(doc, "");
+  return out;
+}
+
+const UUID = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+
+/** Every `t("<id>")` of a PXL expression: where the key's identifier is, and the identifier (I18N-007). */
+export function keyCalls(text: string): { readonly from: number; readonly to: number; readonly id: string }[] {
+  const out: { from: number; to: number; id: string }[] = [];
+  for (const m of text.matchAll(new RegExp(`\\bt\\(\\s*(["'])(${UUID})\\1`, "g"))) {
+    const id = m[2] ?? "";
+    const from = (m.index ?? 0) + m[0].length - 1 - id.length;
+    out.push({ from, to: from + id.length, id });
+  }
   return out;
 }
 
@@ -129,6 +153,36 @@ export function addKeyRecipe(entry: { id: string; key: string; description?: str
       added["description"] = entry.description;
     }
     d["keys"] = [...keys, added];
+  };
+}
+
+/**
+ * The recipe that takes a deleted key out of a `translations` document: its message and its review state. Deleting
+ * a key does this in every locale, in the same undo step, so no document keeps text for a key that is gone.
+ */
+export function dropKeyRecipe(id: string): (d: DocumentDraft) => void {
+  return (d) => {
+    for (const field of ["messages", "states"]) {
+      const map = d[field];
+      if (isObj(map) && id in map) {
+        delete map[id];
+      }
+    }
+  };
+}
+
+/**
+ * The recipe that renames a key: only its name changes. Every page, step and expression refers to the key by its
+ * identifier (I18N-007), so nothing else is touched and nothing breaks.
+ */
+export function renameKeyRecipe(id: string, key: string): (d: DocumentDraft) => void {
+  return (d) => {
+    const keys = Array.isArray(d["keys"]) ? (d["keys"] as unknown[]) : [];
+    for (const k of keys) {
+      if (isObj(k) && k["id"] === id) {
+        k["key"] = key;
+      }
+    }
   };
 }
 

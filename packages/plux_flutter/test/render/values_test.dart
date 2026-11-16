@@ -12,6 +12,7 @@ import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/render/sections.dart';
 import 'package:plux_flutter/src/render/values.dart';
 
+import '../support/cldr.dart';
 import '../support/harness.dart';
 
 fbs.Value _v(fbs.ValueObjectBuilder b) => fbs.Value(b.toBytes());
@@ -273,5 +274,39 @@ void main() {
       ],
     );
     expect(compareUnsigned(-1, 0), 1);
+  });
+
+  test('a key identifier reads back as the key it names [I18N-007]', () {
+    const key = (0x01a0c4506c007002, -0x7fffffffffffc222);
+    expect(uuidKeyOf(uuidString(key)), key);
+    expect(uuidKeyOf('home.title'), isNull);
+    expect(uuidKeyOf(''), isNull);
+  });
+
+  testWidgets('t() in an expression finds its message by the key identifier '
+      '[I18N-007]', (tester) async {
+    await tester.runAsync(
+      () => h.startFrom(Harness.goldens.bundles['widgets/widgets.pxb']!, {
+        'gallery': Harness.goldens.bundles['widgets/gallery.pxb']!,
+      }),
+    );
+    final release = h.runtime.active.value!;
+    final plugin = (h.runtime.renderer! as PluxRenderer).view(
+      release,
+      'gallery',
+    );
+    final r = ValueResolver(
+      plugin: plugin,
+      roots: () => const {},
+      token: (_) => null,
+      translation: (key) => key == (1, 2) ? 'Hi {name}' : null,
+      limits: PxlLimits.defaults(),
+      localeContext: PxlLocaleContext(loadCldr('en')),
+    );
+    final translate = r.pxlLocale!.translate!;
+    expect(translate(uuidString((1, 2)), {'name': 'Ada'}), 'Hi Ada');
+    // A key's name is not an identifier, and an unknown identifier has no message.
+    expect(translate('home.title', const {}), isNull);
+    expect(translate(uuidString((1, 3)), const {}), isNull);
   });
 }

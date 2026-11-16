@@ -6,6 +6,8 @@ import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { type Diagnostic, linter, lintKeymap } from "@codemirror/lint";
 import { Compartment, EditorState, StateEffect, StateField } from "@codemirror/state";
 import {
+  Decoration,
+  type DecorationSet,
   EditorView,
   hoverTooltip,
   keymap,
@@ -13,9 +15,11 @@ import {
   type Tooltip,
   ViewPlugin,
   type ViewUpdate,
+  WidgetType,
 } from "@codemirror/view";
 import type { PxlCompletionKind, PxlService, PxlSignatureHelp } from "@plux/validator";
 import { type ReactElement, useEffect, useRef } from "react";
+import { keyCalls, keyLiteralAt, matchingKeys, type PxlKey } from "./pxl-keys.ts";
 
 /** Milliseconds after the last keystroke before diagnostics and signature help are asked for. */
 export const PXL_EDITOR_DELAY_MS = 300;
@@ -25,6 +29,8 @@ export interface PxlEditorSource {
   readonly service: PxlService;
   /** The serialised scope of the expression's site; undefined when the page has no such site. */
   scope(): Promise<string | undefined>;
+  /** The app's translation keys: offered by name inside `t("…")`, which takes a key's identifier (I18N-007). */
+  readonly keys?: readonly PxlKey[];
 }
 
 export interface PxlEditorProps {
@@ -72,6 +78,18 @@ const theme = EditorView.theme({
     backgroundColor: "var(--color-accent-halo)",
     color: "var(--color-foreground)",
   },
+  ".cm-pxl-key": {
+    marginInlineStart: "4px",
+    padding: "0 6px",
+    borderRadius: "999px",
+    fontSize: "0.85em",
+    color: "var(--color-primary)",
+    backgroundColor: "color-mix(in oklch, var(--color-primary) 12%, transparent)",
+  },
+  '.cm-pxl-key[data-unknown="true"]': {
+    color: "var(--color-danger)",
+    backgroundColor: "color-mix(in oklch, var(--color-danger) 12%, transparent)",
+  },
   ".cm-completionDetail": { color: "var(--color-tertiary)", marginInlineStart: "8px", fontStyle: "normal" },
   ".cm-pxl-type": { fontFamily: "var(--font-mono, ui-monospace, monospace)" },
   ".cm-pxl-active": { fontWeight: "700", color: "var(--color-primary)" },
@@ -117,6 +135,70 @@ function signatureDom(help: PxlSignatureHelp): HTMLElement {
     dom.append(document.createTextNode(sig.label.slice(close)));
   }
   return dom;
+}
+
+/** The name of the key an identifier in `t("…")` is, drawn after it; an unknown identifier says so. */
+class KeyName extends WidgetType {
+  constructor(readonly name: string | undefined) {
+    super();
+  }
+  override eq(other: KeyName): boolean {
+    return other.name === this.name;
+  }
+  toDOM(): HTMLElement {
+    const chip = document.createElement("span");
+    chip.className = "cm-pxl-key";
+    chip.dataset["unknown"] = this.name === undefined ? "true" : "false";
+    chip.textContent = this.name ?? "?";
+    return chip;
+  }
+}
+
+/** The names of the keys the expression's `t("<id>")` calls name, after each identifier. */
+function keyNames(source: () => PxlEditorSource) {
+  const build = (view: EditorView): DecorationSet => {
+    const keys = source().keys ?? [];
+    const text = view.state.doc.toString();
+    return Decoration.set(
+      keyCalls(text).map((c) =>
+        Decoration.widget({ widget: new KeyName(keys.find((k) => k.id === c.id)?.key), side: 1 }).range(c.to + 1),
+      ),
+    );
+  };
+  return ViewPlugin.fromClass(
+    class {
+      decorations: DecorationSet;
+      constructor(view: EditorView) {
+        this.decorations = build(view);
+      }
+      update(u: ViewUpdate): void {
+        if (u.docChanged) {
+          this.decorations = build(u.view);
+        }
+      }
+    },
+    { decorations: (v) => v.decorations },
+  );
+}
+
+/** Inside `t("…")`: the app's keys by name, each inserting its identifier. */
+function keyCompletion(source: () => PxlEditorSource) {
+  return (ctx: CompletionContext) => {
+    const keys = source().keys;
+    const at = keys === undefined ? undefined : keyLiteralAt(ctx.state.doc.toString(), ctx.pos);
+    if (keys === undefined || at === undefined) {
+      return null;
+    }
+    const typed = ctx.state.doc.sliceString(at.from, ctx.pos);
+    return {
+      from: at.from,
+      to: at.to,
+      filter: false,
+      options: matchingKeys(keys, typed).map(
+        (k): Completion => ({ label: k.key, detail: k.id.slice(0, 8), type: "text", apply: k.id }),
+      ),
+    };
+  };
 }
 
 /** The extensions that connect an editor to the language service of one expression. */
@@ -224,7 +306,14 @@ function languageExtensions(source: () => PxlEditorSource, onType: () => ((type:
       }
     },
   );
-  return [autocompletion({ override: [complete], icons: false }), lint, hover, signatureField, signature];
+  return [
+    autocompletion({ override: [keyCompletion(source), complete], icons: false }),
+    keyNames(source),
+    lint,
+    hover,
+    signatureField,
+    signature,
+  ];
 }
 
 /** The nonce of the page's scripts, which CodeMirror reuses for its style element under the strict CSP. */

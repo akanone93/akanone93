@@ -197,7 +197,7 @@ Every built-in function of PXL (spec Appendix E.3), generated from `schema/pxl/s
 
 | Function | ID | Signature | Group | Description |
 |---|---|---|---|---|
-| `t` | 132 | `t(key string) string` | l10n | The translation of a key in the user's locale, with arguments. |
+| `t` | 132 | `t(key string) string` | l10n | The translation of a key in the user's locale, with arguments. The key is named by its identifier from translations/keys.json (I18N-007), never by its name, so renaming a key keeps every call working. |
 | `t` | 133 | `t(key string, args map<string,string>) string` | l10n |  |
 | `plural` | 134 | `plural(n int, forms map<string,string>) string` | l10n | The form for n under the locale's plural rules; forms are keyed by CLDR category. |
 

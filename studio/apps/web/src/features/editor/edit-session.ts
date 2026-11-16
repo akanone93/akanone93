@@ -303,8 +303,12 @@ export class EditSession {
     recipe: (draft: DocumentDraft) => void,
     options: { readonly group?: string; readonly step?: string } = {},
   ): Promise<boolean> {
+    const editOptions = {
+      ...(options.group === undefined ? {} : { group: options.group }),
+      ...(options.step === undefined ? {} : { step: options.step }),
+    };
     if (this.tracks.has(path)) {
-      this.edit(path, recipe, options.group === undefined ? {} : { group: options.group });
+      this.edit(path, recipe, editOptions);
       return true;
     }
     const created = await this.create(path, whole(), options.step === undefined ? {} : { step: options.step });
@@ -312,7 +316,7 @@ export class EditSession {
       return true;
     }
     if (created.reason === "exists") {
-      this.edit(path, recipe, options.group === undefined ? {} : { group: options.group });
+      this.edit(path, recipe, editOptions);
       return true;
     }
     return false;

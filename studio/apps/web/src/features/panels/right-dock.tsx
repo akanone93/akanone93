@@ -121,6 +121,12 @@ export interface EditorProps {
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+
+/** A field's language service with the app's translation keys, which `t("…")` offers by name (I18N-007). */
+const withKeys = (
+  source: PxlEditorSource | undefined,
+  keys: readonly { readonly id: string; readonly key: string }[],
+): PxlEditorSource | undefined => (source === undefined ? undefined : { ...source, keys });
 const numberOrUndefined = (s: string): number | undefined =>
   s.trim() === "" || Number.isNaN(Number(s)) ? undefined : Number(s);
 
@@ -1252,14 +1258,17 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
               keys,
               check: makeCheck(prop.name),
               drawn: p.drawnValue === undefined ? undefined : (expr: string) => p.drawnValue?.(first, expr),
-              pxl: pxlSource(
-                p.language,
-                file,
-                file === undefined ? undefined : docsState[file]?.content,
-                first,
-                bp,
-                prop.name,
-                scopes.current,
+              pxl: withKeys(
+                pxlSource(
+                  p.language,
+                  file,
+                  file === undefined ? undefined : docsState[file]?.content,
+                  first,
+                  bp,
+                  prop.name,
+                  scopes.current,
+                ),
+                keys,
               ),
             }}
             onApply={(v) => apply(prop.name, v)}

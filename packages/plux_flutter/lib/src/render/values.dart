@@ -7,6 +7,7 @@
 /// field by field when a decoder reads them.
 library;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/bundle/safe_read.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
@@ -156,16 +157,37 @@ final class ValueResolver {
         DateTime.now().timeZoneOffset.inMinutes,
       ),
     };
-    return switch (vm.evaluate(
-      program,
-      inputs,
-      limits,
-      locale: localeContext,
-    )) {
+    return switch (vm.evaluate(program, inputs, limits, locale: _pxlLocale)) {
       vm.PxlValue(:final value) => value,
       vm.PxlFailure(:final error) => throw BindingError(error.toString()),
     };
   }
+
+  /// The locale PXL evaluates under, with `t(keyId, args)`: the message of a
+  /// translation key, by the key's identifier, formatted as a bound `$t` is
+  /// (I18N-007). A key's name can change; its identifier never does.
+  late final vm.PxlLocaleContext? _pxlLocale = switch (localeContext) {
+    null => null,
+    final context => vm.PxlLocaleContext(
+      context.locale,
+      translate: (keyId, args) {
+        final key = uuidKeyOf(keyId);
+        final pattern = key == null ? null : translation(key);
+        if (key == null || pattern == null) return null;
+        return formatMessage(
+          pattern,
+          args,
+          ast: translationAst?.call(key),
+          locale: context.locale,
+          onError: onMessageError,
+        );
+      },
+    ),
+  };
+
+  /// The locale PXL evaluates under, for tests of `t`.
+  @visibleForTesting
+  vm.PxlLocaleContext? get pxlLocale => _pxlLocale;
 
   String _translate(fbs.Value v, StringTable strings, Set<String>? reads) {
     final key = v.uuid;
@@ -208,6 +230,18 @@ Object? toPxl(Object? v) => switch (v) {
   Map<String, Object?>() => {for (final e in v.entries) e.key: toPxl(e.value)},
   _ => v,
 };
+
+/// The key of a UUID in its canonical text form, or null for anything else.
+UuidKey? uuidKeyOf(String text) {
+  if (!_uuidText.hasMatch(text)) return null;
+  final hex = text.replaceAll('-', '');
+  int half(String h) => BigInt.parse(h, radix: 16).toSigned(64).toInt();
+  return (half(hex.substring(0, 16)), half(hex.substring(16)));
+}
+
+final RegExp _uuidText = RegExp(
+  r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+);
 
 /// A UUID in its canonical text form.
 String uuidString(UuidKey u) {

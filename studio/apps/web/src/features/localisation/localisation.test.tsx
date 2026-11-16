@@ -156,6 +156,29 @@ describe("[STU-063] localisation table V4", () => {
     expect(stored.keys.map((k) => k.key)).toEqual(["home.title", "home.cta", "home.footer"]);
   });
 
+  test("[I18N-007] a key is renamed in place; only its name changes, its identifier and every reference stay", async () => {
+    const { keys } = overlay();
+    fireEvent.click(await screen.findByRole("button", { name: "Rename home.title" }));
+    const field = screen.getByLabelText("New name of the key");
+    fireEvent.change(field, { target: { value: "home.cta" } });
+    expect(await screen.findByText("A key with this name exists already.")).toBeDefined();
+    fireEvent.change(field, { target: { value: "home.heading" } });
+    fireEvent.keyDown(field, { key: "Enter" });
+    const stored = keys.store.getState().docs["translations/keys.json"]?.content as {
+      keys: { id: string; key: string }[];
+    };
+    expect(stored.keys).toEqual([
+      { id: "k1", key: "home.heading" },
+      { id: "k2", key: "home.cta" },
+    ]);
+    // Escape leaves the name as it was.
+    fireEvent.click(await screen.findByRole("button", { name: "Rename home.heading" }));
+    const again = screen.getByLabelText("New name of the key");
+    fireEvent.change(again, { target: { value: "home.other" } });
+    fireEvent.keyDown(again, { key: "Escape" });
+    expect(await screen.findByText("home.heading")).toBeDefined();
+  });
+
   test("the scope list widens the table to every key", async () => {
     overlay({ selectionKeys: new Set(["k2"]) });
     expect(await screen.findByText("home.cta")).toBeDefined();
@@ -184,6 +207,76 @@ describe("[STU-063] localisation table V4", () => {
       kind: "translations",
       locale: "en",
       messages: { k1: "Welcome" },
+    });
+  });
+
+  test("[STU-072] deleting a key takes its message out of every locale in one undo step, which undo brings back", async () => {
+    const manager = new UndoManager({ depth: 10 });
+    const deDoc = {
+      kind: "translations",
+      locale: "de",
+      messages: { k1: "Willkommen", k2: "Los" },
+      states: { k2: "new" },
+    };
+    // Each session has its own undo stack, as in Studio; the deletion is one step across both.
+    const keys = session(
+      { "translations/keys.json": keysDoc, "translations/de.json": deDoc },
+      { manager, stack: "app" },
+    );
+    const messages = session(
+      { "translations/en.json": { kind: "translations", locale: "en", messages: { k1: "Welcome", k2: "Go" } } },
+      { manager, stack: "locale" },
+    );
+    renderI18n(
+      <LocalisationOverlay
+        open
+        onClose={() => undefined}
+        locales={["en", "de"]}
+        locale="en"
+        onLocale={() => undefined}
+        keysSession={keys}
+        messagesSession={messages}
+        canEditKeys
+        canEditMessages
+        otherMessages={new Map([["de", { k1: "Willkommen", k2: "Los" }]])}
+        pluginKeys={new Set(["k1", "k2"])}
+        selectionKeys={new Set<string>()}
+        usage={new Map([["k1", ["plugins/main/pages/home.page.json"]]])}
+        schemaVersion={1}
+        newId={newId}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "Delete home.cta" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+    const docOf = (sess: typeof keys, path: string) => sess.store.getState().docs[path]?.content;
+    await waitFor(() =>
+      expect(docOf(keys, "translations/de.json")).toEqual({
+        kind: "translations",
+        locale: "de",
+        messages: { k1: "Willkommen" },
+        states: {},
+      }),
+    );
+    expect(docOf(messages, "translations/en.json")).toEqual({
+      kind: "translations",
+      locale: "en",
+      messages: { k1: "Welcome" },
+    });
+    expect((docOf(keys, "translations/keys.json") as { keys: unknown[] }).keys).toEqual([
+      { id: "k1", key: "home.title" },
+    ]);
+    // One step: undo brings the key and its text in both locales back, once the step's saves are stored.
+    await Promise.all([
+      keys.whenSaved("translations/keys.json"),
+      keys.whenSaved("translations/de.json"),
+      messages.whenSaved("translations/en.json"),
+    ]);
+    expect(manager.undo("app").kind).toBe("done");
+    expect(docOf(keys, "translations/keys.json")).toEqual(keysDoc);
+    expect(docOf(keys, "translations/de.json")).toEqual(deDoc);
+    expect((docOf(messages, "translations/en.json") as { messages: object }).messages).toEqual({
+      k1: "Welcome",
+      k2: "Go",
     });
   });
 

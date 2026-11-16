@@ -2724,7 +2724,7 @@ The complete grammar — including the receiver-style macros `map`, `filter`, `a
 | Dates | `date`, `dateTime`, `duration`, `addDays`, `addMonths`, `diffDays`, `startOfDay`, `toCalendar(system)`, `fromCalendar(system)`, `weekday`, `isBefore`, `isAfter` |
 | Lists & maps | `size`, `isEmpty`, `first`, `last`, `at`, `slice`, `map`, `filter`, `any`, `all`, `sum`, `sortBy`, `distinct`, `keys`, `values`, `has` (all bounded by the operation budget) |
 | Formatting | `format.number`, `format.money`, `format.date`, `format.percent`, `format.compact`, `format.phone`, `format.iban` (all locale-aware) |
-| Localisation | `t(key, args)`, `plural(n, forms)` |
+| Localisation | `t(keyId, args)` (the key's identifier, `I18N-007`), `plural(n, forms)` |
 | Logic | `coalesce`, `ifNull`, `isNull`, `typeOf` |
 | Validation | `isEmail`, `isPhone(region)`, `isIban`, `isNumeric`, `luhn` |
 

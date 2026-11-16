@@ -5,6 +5,7 @@ export { type DocWriter, type ExtractRequest, type ExtractResult, extractKey } f
 export { ExtractKeyDialog, type ExtractKeyDialogProps } from "./extract-key-dialog.tsx";
 export { LocalisationPage } from "./grid-page.tsx";
 export { HeatmapPage } from "./heatmap-page.tsx";
+export { keyCalls } from "./l10n-model.ts";
 export {
   type AppSession,
   type L10nSessions,
