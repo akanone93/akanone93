@@ -24,10 +24,12 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/delta"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
+	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
+	"github.com/nightCode42/plux3/backend/internal/updatemeta"
 )
 
 // Precomputation defaults (REL-022): deltas from the newest RecentDeltas
@@ -560,6 +562,32 @@ func (s *Service) PrecomputeDeltas(ctx context.Context, job DeltaJob) error {
 	return errors.Join(errs...)
 }
 
+// firstKey records and returns the public half of an environment's manifest key before anything was signed with it,
+// as the first publish would (SignDocument): a host project generated for a new app embeds it, so the project builds
+// and verifies the app's first release without waiting for one. Nothing is signed. A role without a signer, and a
+// production environment on a backend that may not sign for production (SEC-056), record nothing: their key appears
+// with their first release.
+func (s *Service) firstKey(ctx context.Context, q *dbgen.Queries, env dbgen.Environment) ([]RootKey, error) {
+	if s.o.Signer == nil || (env.Production && !s.o.ProductionSigning) || env.SigningKeyRef == "" {
+		return nil, nil
+	}
+	pub, keyID, err := s.o.Signer.PublicKey(ctx, env.SigningKeyRef)
+	if err != nil {
+		return nil, fmt.Errorf("release: the manifest key: %w", err)
+	}
+	key := RootKey{
+		KeyID: keyID, Algorithm: signing.Algorithm, Role: updatemeta.RoleTargets, PublicKey: pub,
+		EnvironmentType: environmentType(env),
+	}
+	if err := q.UpsertEnvironmentKey(ctx, dbgen.UpsertEnvironmentKeyParams{
+		EnvironmentID: env.ID, OrganizationID: env.OrganizationID, KeyID: key.KeyID, Algorithm: key.Algorithm,
+		PublicKey: key.PublicKey, Role: key.Role, EnvironmentType: key.EnvironmentType,
+	}); err != nil {
+		return nil, failure(err, "environment key")
+	}
+	return []RootKey{key}, nil
+}
+
 // RootKey is a public key devices verify manifests and bundles with.
 type RootKey struct {
 	KeyID, Algorithm, Role string
@@ -585,6 +613,13 @@ func (s *Service) RootKeys(ctx context.Context, org, envID string) ([]RootKey, e
 		}
 		for _, r := range rows {
 			out = append(out, RootKey{KeyID: r.KeyID, Algorithm: r.Algorithm, Role: r.Role, PublicKey: r.PublicKey, EnvironmentType: r.EnvironmentType})
+		}
+		if len(rows) == 0 {
+			first, err := s.firstKey(ctx, q, env)
+			if err != nil {
+				return err
+			}
+			out = append(out, first...)
 		}
 		listed, err := rootKeys(ctx, q, env)
 		if err != nil {
