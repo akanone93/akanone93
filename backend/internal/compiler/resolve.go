@@ -152,6 +152,7 @@ func (u *unit) indexShared(p *schema.Project) {
 			u.report(plxerr.UnresolvedReference, "app.json", "/theme", "the theme is %s, not %s", p.Theme.Doc.ID, app.Theme)
 		}
 		u.indexTokens(p.Theme.Doc.Tokens, "", "")
+		u.tokenAliases(p.Theme.Source.File)
 	}
 	if nc := p.NativeCatalogue; app.NativeCatalogue != "" && (nc == nil || nc.Doc == nil || nc.Doc.ID != app.NativeCatalogue) {
 		u.report(plxerr.UnresolvedReference, "app.json", "/nativeCatalogue", "no native catalogue with ID %s", app.NativeCatalogue)

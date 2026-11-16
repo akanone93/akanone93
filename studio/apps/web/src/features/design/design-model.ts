@@ -5,13 +5,30 @@ import { limitDefault } from "@plux/schema";
 import { DARK_KEY, flattenTokens, type TokenRow } from "../designers/theme-overlay.tsx";
 import { isObject, type Json } from "../designers/use-document.ts";
 
-/** The key under which a token carries its high-contrast value (THM-001, STU-112). */
-export const CONTRAST_KEY = "dev.plux.highContrast";
+/**
+ * The reserved token groups of the theme (ADR-0032, `docs/reference/theming.md`), where the compiler and the device
+ * read them: a token's high-contrast value is the token at `contrast.high.<path>` (THM-002), a brand's value the token
+ * at `brands.<brand>.<path>` (THM-003), and the font families of a script the `fontFamily` token at
+ * `font.script.<ISO 15924 code>` (THM-004).
+ */
+export const CONTRAST_GROUP = ["contrast", "high"] as const;
+export const BRANDS_GROUP = ["brands"] as const;
+export const SCRIPT_GROUP = ["font", "script"] as const;
+export const ICONS_GROUP = ["icons"] as const;
 
 export type Mode = "light" | "dark" | "contrast";
 
 /** The scripts whose font families the theme defines with fallbacks (THM-004). */
 export const SCRIPTS = ["latin", "cyrillic", "arabic", "devanagari", "ethiopic"] as const;
+
+/** The ISO 15924 code of each script, the last segment of its `font.script` token. */
+export const SCRIPT_CODES: Readonly<Record<(typeof SCRIPTS)[number], string>> = {
+  latin: "Latn",
+  cyrillic: "Cyrl",
+  arabic: "Arab",
+  devanagari: "Deva",
+  ethiopic: "Ethi",
+};
 
 /** The token types of the theme schema (THM-001); an import never adds another. */
 export const TOKEN_TYPES: ReadonlySet<string> = new Set([
@@ -35,19 +52,25 @@ const NAME = /^[a-zA-Z0-9][a-zA-Z0-9-]*$/;
 /** A token name is dot-separated segments that the theme schema accepts. */
 export const validName = (name: string): boolean => name !== "" && name.split(".").every((s) => NAME.test(s));
 
-const GROUPS = ["typography", "icons", "brand"] as const;
+/** A DTCG alias: the path of another token in braces, such as `{color.primary}`. */
+const ALIAS = /^\{[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)*\}$/;
 
-/** The base design tokens: everything that is not typography, an icon set or a brand overlay. */
+const RESERVED = [BRANDS_GROUP, CONTRAST_GROUP, SCRIPT_GROUP, ICONS_GROUP] as const;
+
+const under = (path: readonly string[], prefix: readonly string[]): boolean =>
+  path.length > prefix.length && prefix.every((p, i) => path[i] === p);
+
+/** The base design tokens: everything outside the brand, high-contrast, script-font and icon groups. */
 export const baseRows = (rows: readonly TokenRow[]): TokenRow[] =>
-  rows.filter((r) => !(GROUPS as readonly string[]).includes(r.path[0] ?? ""));
+  rows.filter((r) => !RESERVED.some((group) => under(r.path, group)));
 
-/** Rows below one top-level group, with the group name taken off their path. */
-export const groupRows = (rows: readonly TokenRow[], group: (typeof GROUPS)[number]): TokenRow[] =>
-  rows.filter((r) => r.path[0] === group).map((r) => ({ ...r, path: r.path.slice(1) }));
+/** Rows below one reserved group, with the group's segments taken off their path. */
+export const groupRows = (rows: readonly TokenRow[], group: (typeof RESERVED)[number]): TokenRow[] =>
+  rows.filter((r) => under(r.path, group)).map((r) => ({ ...r, path: r.path.slice(group.length) }));
 
-/** The names of the brand overlays: the second path segment under `brand`. */
+/** The names of the brand overlays: the segment after `brands`. */
 export const brandNames = (rows: readonly TokenRow[]): string[] => [
-  ...new Set(groupRows(rows, "brand").flatMap((r) => (r.path[0] === undefined ? [] : [r.path[0]]))),
+  ...new Set(groupRows(rows, BRANDS_GROUP).flatMap((r) => (r.path[0] === undefined ? [] : [r.path[0]]))),
 ];
 
 /** The font families of a `fontFamily` value: a list, or a single name. */
@@ -58,15 +81,18 @@ export const families = (value: unknown): string[] =>
       ? [value]
       : [];
 
-/** Whether every script of THM-004 has a family with at least one fallback. */
+/** How many families (the first and its fallbacks) each script of THM-004 has. */
 export function scriptCoverage(rows: readonly TokenRow[]): Record<(typeof SCRIPTS)[number], number> {
-  const typography = groupRows(rows, "typography");
-  const count = (script: string) => typography.find((r) => r.path[0] === script)?.light;
+  const fonts = groupRows(rows, SCRIPT_GROUP);
+  const count = (script: (typeof SCRIPTS)[number]) => fonts.find((r) => r.path[0] === SCRIPT_CODES[script])?.light;
   return Object.fromEntries(SCRIPTS.map((s) => [s, families(count(s)).length])) as Record<
     (typeof SCRIPTS)[number],
     number
   >;
 }
+
+/** The path of a script's `fontFamily` token. */
+export const scriptPath = (script: (typeof SCRIPTS)[number]): string[] => [...SCRIPT_GROUP, SCRIPT_CODES[script]];
 
 function leafAt(tokens: Json, path: readonly string[]): Json | undefined {
   let node: unknown = tokens;
@@ -76,7 +102,24 @@ function leafAt(tokens: Json, path: readonly string[]): Json | undefined {
   return isObject(node) ? node : undefined;
 }
 
-/** Sets or clears (`undefined`) the value of one mode of an existing token. */
+/** The `$type` of the token at `path`: its own, or the nearest group's above it (THM-001). */
+export function typeAt(tokens: Json, path: readonly string[]): string | undefined {
+  let node: unknown = tokens;
+  let type: string | undefined;
+  for (const key of path) {
+    if (isObject(node) && typeof node["$type"] === "string") {
+      type = node["$type"];
+    }
+    node = isObject(node) ? node[key] : undefined;
+  }
+  return isObject(node) && typeof node["$type"] === "string" ? node["$type"] : type;
+}
+
+/**
+ * Sets or clears (`undefined`) the value of one mode of an existing token. Dark is the token's
+ * `$extensions["dev.plux.dark"]`; high contrast is the token at `contrast.high.<path>`, typed as the token is, which
+ * is where the compiler checks it (A11Y-003) and the device reads it.
+ */
 export function setMode(tokens: Json, path: readonly string[], mode: Mode, value: unknown): void {
   const leaf = leafAt(tokens, path);
   if (leaf === undefined) {
@@ -86,12 +129,20 @@ export function setMode(tokens: Json, path: readonly string[], mode: Mode, value
     leaf["$value"] = value;
     return;
   }
-  const key = mode === "dark" ? DARK_KEY : CONTRAST_KEY;
+  if (mode === "contrast") {
+    const at = [...CONTRAST_GROUP, ...path];
+    if (value === undefined) {
+      dropToken(tokens, at);
+    } else {
+      putToken(tokens, at, value, typeAt(tokens, path));
+    }
+    return;
+  }
   const ext: Json = isObject(leaf["$extensions"]) ? leaf["$extensions"] : {};
   if (value === undefined) {
-    delete ext[key];
+    delete ext[DARK_KEY];
   } else {
-    ext[key] = value;
+    ext[DARK_KEY] = value;
   }
   if (Object.keys(ext).length === 0) {
     delete leaf["$extensions"];
@@ -100,10 +151,9 @@ export function setMode(tokens: Json, path: readonly string[], mode: Mode, value
   }
 }
 
-/** The high-contrast value of a token, read from its extensions. */
+/** The high-contrast value of a token: the value at `contrast.high.<path>`. */
 export function contrastOf(tokens: unknown, path: readonly string[]): unknown {
-  const ext = isObject(tokens) ? leafAt(tokens, path)?.["$extensions"] : undefined;
-  return isObject(ext) ? ext[CONTRAST_KEY] : undefined;
+  return isObject(tokens) ? leafAt(tokens, [...CONTRAST_GROUP, ...path])?.["$value"] : undefined;
 }
 
 /** Adds a token at `path`, creating the groups on the way; an existing token keeps its other fields. */
@@ -133,11 +183,66 @@ export function putToken(tokens: Json, path: readonly string[], value: unknown, 
 
 /** Removes the token at `path`, and the groups it leaves empty. */
 export function dropToken(tokens: Json, path: readonly string[]): void {
-  const parent = leafAt(tokens, path.slice(0, -1));
-  const last = path.at(-1);
-  if (parent !== undefined && last !== undefined) {
-    delete parent[last];
+  const chain: Json[] = [tokens];
+  for (const key of path.slice(0, -1)) {
+    const next = chain.at(-1)?.[key];
+    if (!isObject(next)) {
+      return;
+    }
+    chain.push(next);
   }
+  const last = path.at(-1);
+  if (last === undefined) {
+    return;
+  }
+  delete chain.at(-1)?.[last];
+  for (let i = chain.length - 1; i > 0; i--) {
+    const node = chain[i];
+    const key = path[i - 1];
+    if (node === undefined || key === undefined || Object.keys(node).some((k) => !k.startsWith("$"))) {
+      return;
+    }
+    delete chain[i - 1]?.[key];
+  }
+}
+
+/** Removes a base token with its high-contrast value and every brand's value for it, so nothing is left orphaned. */
+export function dropBaseToken(tokens: Json, path: readonly string[]): void {
+  dropToken(tokens, path);
+  dropToken(tokens, [...CONTRAST_GROUP, ...path]);
+  const brands = leafAt(tokens, BRANDS_GROUP);
+  for (const brand of Object.keys(brands ?? {}).filter((k) => !k.startsWith("$"))) {
+    dropToken(tokens, [...BRANDS_GROUP, brand, ...path]);
+  }
+}
+
+/**
+ * The value text typed for a new token, as its type stores it: a number for `number`, a numeric weight for
+ * `fontWeight`, a list of families for a comma-separated `fontFamily`, JSON for a composite type's object; an alias
+ * (`{color.primary}`) and anything else stays text.
+ */
+export function typedValue(type: string | undefined, text: string): unknown {
+  const t = text.trim();
+  if (ALIAS.test(t)) {
+    return t;
+  }
+  if ((type === "number" || type === "fontWeight") && t !== "" && Number.isFinite(Number(t))) {
+    return Number(t);
+  }
+  if (type === "fontFamily" && t.includes(",")) {
+    return t
+      .split(",")
+      .map((f) => f.trim())
+      .filter((f) => f !== "");
+  }
+  if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
+    try {
+      return JSON.parse(t) as unknown;
+    } catch {
+      return t;
+    }
+  }
+  return t;
 }
 
 /** Merges imported groups into the tokens: groups are merged, tokens replaced. */
@@ -162,6 +267,9 @@ export type DtcgResult =
   | { readonly ok: false; readonly error: "tooLarge" | "notJson" | "notObject" };
 
 function validValue(type: string, value: unknown): boolean {
+  if (typeof value === "string" && ALIAS.test(value)) {
+    return true;
+  }
   switch (type) {
     case "color":
       return typeof value === "string" || isObject(value);
@@ -187,13 +295,13 @@ function leaf(node: Json, type: string, path: string, state: Walk): Json {
     state.skipped.push({ path, reason: "type" });
     return {};
   }
-  if (!validValue(type, node["$value"])) {
+  const ext = node["$extensions"];
+  const dark = isObject(ext) ? ext[DARK_KEY] : undefined;
+  if (!validValue(type, node["$value"]) || (dark !== undefined && !validValue(type, dark))) {
     state.skipped.push({ path, reason: "value" });
     return {};
   }
   state.imported += 1;
-  const ext = node["$extensions"];
-  const dark = isObject(ext) ? ext[DARK_KEY] : undefined;
   return { $value: node["$value"], $type: type, ...(dark !== undefined && { $extensions: { [DARK_KEY]: dark } }) };
 }
 

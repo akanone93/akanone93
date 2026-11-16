@@ -72,4 +72,49 @@ void main() {
     expect(convertToken('shadow', 1), isNull);
     expect(convertToken('cubicBezier', [0, 0, 1, 1]), isNull);
   });
+
+  test('aliases are followed, inside composites too, and a cycle or a '
+      'missing target reads as no token [THM-001]', () {
+    final tokens = <String, TokenValue>{
+      'color.primary': (type: 'color', value: '#6750A4'),
+      'color.accent': (type: 'color', value: '{color.primary}'),
+      'color.link': (type: '', value: '{color.accent}'),
+      'font.base': (type: 'fontFamily', value: ['Inter', 'Noto']),
+      'size.body': (type: 'dimension', value: 16),
+      'text.body': (
+        type: 'typography',
+        value: {'fontFamily': '{font.base}', 'fontSize': '{size.body}'},
+      ),
+      'loop.a': (type: 'color', value: '{loop.b}'),
+      'loop.b': (type: 'color', value: '{loop.a}'),
+      'gone': (type: 'color', value: '{color.none}'),
+      'not.alias': (type: 'fontFamily', value: '{Inter}x'),
+      'wide': (
+        type: 'typography',
+        value: {for (var i = 0; i < 20; i++) 'k$i': '{wide}'},
+      ),
+    };
+    TokenValue? read(String path) => followAliases(path, (p) => tokens[p]);
+    expect(read('color.accent'), (type: 'color', value: '#6750A4'));
+    expect(read('color.link'), (
+      type: 'color',
+      value: '#6750A4',
+    ), reason: 'a token without a type takes its target type');
+    expect(read('text.body')!.value, {
+      'fontFamily': ['Inter', 'Noto'],
+      'fontSize': 16,
+    });
+    expect(read('loop.a'), isNull);
+    expect(read('gone'), isNull);
+    expect(read('nope'), isNull);
+    expect(read('not.alias')!.value, '{Inter}x');
+    // A composite that refers to itself many times stops at the lookup
+    // budget instead of growing exponentially.
+    var calls = 0;
+    followAliases('wide', (p) {
+      calls++;
+      return tokens[p];
+    });
+    expect(calls, lessThanOrEqualTo(maxAliasLookups));
+  });
 }

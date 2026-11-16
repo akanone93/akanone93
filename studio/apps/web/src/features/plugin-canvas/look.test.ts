@@ -77,14 +77,27 @@ describe("the preview switches reach the canvas [STU-058]", () => {
     expect(box(laidOut({ locale: "en-XA" }), "a").w).toBeGreaterThan(en);
   });
 
-  test("the app theme document sets the layout theme, the overlay wins over it", () => {
+  test("[THM-003] [THM-004] the app theme sets the layout theme; a brand's value wins; script fonts are fallbacks", () => {
     const look = previewRender(defaultPreview, "material");
     expect(resolveTheme(documents, look).fontSize).toBe(24);
-    const overlaid = [
-      ...documents,
-      doc({ kind: "theme", id: "o", key: "o", name: "O", tokens: { fontSize: { $value: 30 } } }),
-    ];
-    expect(resolveTheme(overlaid, { ...look, brandOverlay: "o" }).fontSize).toBe(30);
+    const branded = documents.map((d) =>
+      d.kind === "theme"
+        ? doc({
+            kind: "theme",
+            id: "t1",
+            key: "t",
+            name: "T",
+            tokens: {
+              fontSize: { $value: 24 },
+              brands: { o: { fontSize: { $value: 30 } } },
+              font: { script: { Ethi: { $type: "fontFamily", $value: ["Noto Sans Ethiopic"] } } },
+            },
+          })
+        : d,
+    );
+    expect(resolveTheme(branded, { ...look, brandOverlay: "o" }).fontSize).toBe(30);
+    expect(resolveTheme(branded, look).fontSize).toBe(24);
+    expect(resolveTheme(branded, look).fontFamilies.at(-1)).toBe("Noto Sans Ethiopic");
     expect(resolveTheme([], look).fontSize).toBe(16);
   });
 

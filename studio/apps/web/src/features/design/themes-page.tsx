@@ -6,7 +6,17 @@ import { Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { PageEmpty } from "../../components/page.tsx";
 import { designMessages } from "./design.messages.ts";
-import { baseRows, brandNames, contrastOf, groupRows, type Mode, putToken, validName } from "./design-model.ts";
+import {
+  BRANDS_GROUP,
+  baseRows,
+  brandNames,
+  contrastOf,
+  groupRows,
+  type Mode,
+  putToken,
+  typedValue,
+  validName,
+} from "./design-model.ts";
 import { modeLabel } from "./parts.tsx";
 import { Frame, useDesign } from "./scope.tsx";
 
@@ -73,7 +83,9 @@ function CreateBrandDialog(props: { readonly onClose: () => void }): ReactElemen
         <Button
           disabled={!ready}
           onClick={() => {
-            ctx.write(`brand:${name}`, (t) => putToken(t, ["brand", name, ...token.split(".")], value, chosen?.type));
+            ctx.write(`brand:${name}`, (t) =>
+              putToken(t, [...BRANDS_GROUP, name, ...token.split(".")], typedValue(chosen?.type, value), chosen?.type),
+            );
             props.onClose();
           }}
         >
@@ -98,7 +110,7 @@ function Brands(): ReactElement {
         <ul>
           {names.map((b) => (
             <li key={b} className="text-body">
-              {m.brandOverrides(b, groupRows(ctx.rows, "brand").filter((r) => r.path[0] === b).length)}
+              {m.brandOverrides(b, groupRows(ctx.rows, BRANDS_GROUP).filter((r) => r.path[0] === b).length)}
             </li>
           ))}
         </ul>

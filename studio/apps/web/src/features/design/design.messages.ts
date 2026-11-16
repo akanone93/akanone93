@@ -115,6 +115,16 @@ export function designMessages(i18n: I18n) {
       message: "Design tokens file (DTCG JSON, such as a Figma variables export)",
       comment: "Label of the field that takes the DTCG text.",
     }),
+    importFile: i18n._({
+      id: "design.importFile",
+      message: "Choose a tokens file",
+      comment: "Title of the zone that takes a DTCG JSON file to import, by drop or the system picker.",
+    }),
+    importFileHint: i18n._({
+      id: "design.importFileHint",
+      message: "A .json file, or paste its content below.",
+      comment: "Hint under the zone that takes a DTCG JSON file.",
+    }),
     importRead: i18n._({
       id: "design.importRead",
       message: "Read the file",

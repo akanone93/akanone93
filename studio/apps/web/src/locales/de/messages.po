@@ -1348,6 +1348,12 @@ msgstr "{width} × {height} · Text {scale}×"
 msgid "shell.icon.size"
 msgstr "{width} × {height} Pixel"
 
+#. Hint under the zone that takes a DTCG JSON file.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importFileHint"
+msgstr "Eine .json-Datei, oder füge ihren Inhalt unten ein."
+
 #. Hint under the archive file input; size is the default limit such as 8 MB.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -3767,6 +3773,12 @@ msgstr "Wählen Sie ein Plugin, um zu sehen, was es von den Limits für Plugins 
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.template.required"
 msgstr "Wählen Sie eine Vorlage."
+
+#. Title of the zone that takes a DTCG JSON file to import, by drop or the system picker.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.importFile"
+msgstr "Token-Datei auswählen"
 
 #. Error when no language is chosen.
 #. js-lingui-explicit-id

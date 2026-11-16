@@ -52,7 +52,7 @@ function Rows(): ReactElement {
                     <Button variant="secondary" aria-label={m.editToken(name)} onClick={() => setEditing(r.path)}>
                       <Icon name="pencil-simple" />
                     </Button>
-                    <RemoveToken path={r.path} />
+                    <RemoveToken path={r.path} base />
                   </td>
                 </tr>
               );

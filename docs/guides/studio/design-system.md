@@ -11,22 +11,29 @@ and every theme ([theming reference](../../reference/theming.md)).
 
 ## Edit tokens
 
-1. Open **Design tokens**. Each token has a **Light**, **Dark** and **High contrast** value.
-2. **Edit {token}** changes a value, **Remove {token}** deletes one, and **Add token** takes a path,
-   a **Type** and a **Value**.
-3. **Import tokens** reads a DTCG JSON file, such as a Figma variables export. Studio reports how
-   many tokens can be added and why others are skipped (name not allowed, type missing or unknown,
-   value does not fit the type, nested too deeply); **Add to the theme** applies them.
+1. Open **Design tokens**. Each token has a **Light**, **Dark** and **High contrast** value. Studio keeps them where
+   the device reads them ([theming reference](../../reference/theming.md) §3): the dark value in the token's
+   `$extensions.dev.plux.dark`, the high-contrast value as the token at `contrast.high.<path>`.
+2. **Edit {token}** changes a value, **Remove {token}** deletes one with its high-contrast and brand values, and
+   **Add token** takes a path, a **Type** and a **Value**. A value is stored as its type keeps it (`1.5` is a number
+   for a `number` token, `Inter, Noto Sans` a list for a `fontFamily`), and `{color.primary}` makes the token an
+   alias of another; the device follows aliases, and publishing reports one that names no token or loops.
+3. **Import tokens** reads a DTCG JSON file, such as a Figma variables export: drop it or choose it, or paste its
+   content. Studio reports how many tokens can be added and why others are skipped (name not allowed, type missing
+   or unknown, value or dark value does not fit the type, nested too deeply); **Add to the theme** applies them.
 
 ## Themes and brand overlays
 
 **Themes** shows the colours per mode. **Create a brand overlay** replaces chosen tokens for one
-brand, so one app serves several brands.
+brand, so one app serves several brands; the overlay is the group `brands.<brand>`, and the canvas's **Brand**
+preview shows it as the device does.
 
 ## Typography and fonts
 
 **Typography** sets one font family list per script (Latin, Cyrillic, Arabic, Devanagari and
-others) with fallbacks, so no text shows missing glyphs. **Host app fonts** lists the fonts your
+others) with fallbacks, so no text shows missing glyphs. Type the families separated by commas; the list is saved
+when you leave the field. Each list is the token `font.script.<code>` (`font.script.Ethi` for Ethiopic), whose
+families the device and the canvas add to every text style's fallbacks. **Host app fonts** lists the fonts your
 host app bundles: enter the **Font family**, pick a **Font file** from your uploaded assets (upload
 a TrueType or OpenType file in the **Assets** panel first) and **Add font**. The canvas draws these
 fonts, so measurements match the device. Changing the list needs permission to manage the app.

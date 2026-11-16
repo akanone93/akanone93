@@ -58,10 +58,14 @@ export function useBrands(documents: readonly DocLike[] | undefined): readonly s
   return useMemo(() => brandsOf(themeTokens(documents ?? [])), [documents]);
 }
 
-/** The brand overlays of the theme (`brands.<name>`, or `brand.<name>` as the Design area writes them). */
+/** The brand overlays of the theme: the groups under `brands`, the only place the device reads them (ADR-0032). */
 export function brandsOf(tokens: Obj): string[] {
-  const names = (group: unknown) => (isObj(group) ? Object.keys(group).filter((k) => !k.startsWith("$")) : []);
-  return [...new Set([...names(tokens["brands"]), ...names(tokens["brand"])])].sort();
+  const group = tokens["brands"];
+  return isObj(group)
+    ? Object.keys(group)
+        .filter((k) => !k.startsWith("$"))
+        .sort()
+    : [];
 }
 
 /** The token object at a dotted path, or undefined. */
@@ -73,27 +77,46 @@ function tokenAt(tokens: Obj, path: string): Obj | undefined {
   return isObj(node) && "$value" in node ? node : undefined;
 }
 
-/** The raw value of the token at `path` for `dark` and `brand`, aliases followed; undefined when there is none. */
-export function tokenValue(tokens: Obj, path: string, dark: boolean, brand: string, depth = 0): unknown {
-  if (depth > 8) {
-    return undefined;
-  }
-  const token =
-    (brand === ""
-      ? undefined
-      : (tokenAt(tokens, `brands.${brand}.${path}`) ?? tokenAt(tokens, `brand.${brand}.${path}`))) ??
-    tokenAt(tokens, path);
-  if (token === undefined) {
-    return undefined;
-  }
+/** How deep aliases are followed and how many tokens one read may look up, as the device does (`tokens.dart`). */
+const MAX_ALIAS_DEPTH = 8;
+const MAX_ALIAS_LOOKUPS = 64;
+
+/** A DTCG alias, `{color.primary}`: the path of another token. */
+const ALIAS = /^\{([a-zA-Z0-9][a-zA-Z0-9-]*(?:\.[a-zA-Z0-9][a-zA-Z0-9-]*)*)\}$/;
+
+/** A token's own value for the mode: its dark value from `$extensions["dev.plux.dark"]` in dark mode, if it has one. */
+function modeValue(token: Obj, dark: boolean): unknown {
   const ext = isObj(token["$extensions"]) ? token["$extensions"] : {};
   const nested = isObj(ext["dev"]) && isObj(ext["dev"]["plux"]) ? ext["dev"]["plux"]["dark"] : undefined;
   const darkValue = ext["dev.plux.dark"] ?? nested;
-  const value = dark && darkValue !== undefined ? darkValue : token["$value"];
-  if (typeof value === "string" && value.startsWith("{") && value.endsWith("}")) {
-    return tokenValue(tokens, value.slice(1, -1), dark, brand, depth + 1);
-  }
-  return value;
+  return dark && darkValue !== undefined ? darkValue : token["$value"];
+}
+
+/**
+ * The raw value of the token at `path` for `dark` and `brand`, aliases followed — inside a composite too — as the
+ * device follows them (`tokens.dart` `followAliases`); undefined when there is none, the alias leads nowhere or loops.
+ */
+export function tokenValue(tokens: Obj, path: string, dark: boolean, brand: string): unknown {
+  const walk = { lookups: 0 };
+  const follow = (at: string, depth: number): unknown => {
+    walk.lookups += 1;
+    if (depth > MAX_ALIAS_DEPTH || walk.lookups > MAX_ALIAS_LOOKUPS) {
+      return undefined;
+    }
+    const token = (brand === "" ? undefined : tokenAt(tokens, `brands.${brand}.${at}`)) ?? tokenAt(tokens, at);
+    return token === undefined ? undefined : inner(modeValue(token, dark), depth);
+  };
+  const inner = (v: unknown, depth: number): unknown => {
+    if (typeof v === "string") {
+      const target = ALIAS.exec(v)?.[1];
+      return target === undefined ? v : follow(target, depth + 1);
+    }
+    if (Array.isArray(v)) {
+      return v.map((x) => inner(x, depth));
+    }
+    return isObj(v) ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, inner(x, depth)])) : v;
+  };
+  return follow(path, 0);
 }
 
 /** RGBA as ARGB. */
@@ -113,7 +136,7 @@ function tokenPaths(node: unknown, prefix = ""): string[] {
     return [prefix];
   }
   return Object.entries(node).flatMap(([k, v]) =>
-    k.startsWith("$") || (prefix === "" && (k === "brands" || k === "brand" || k === "contrast"))
+    k.startsWith("$") || (prefix === "" && (k === "brands" || k === "contrast"))
       ? []
       : tokenPaths(v, prefix === "" ? k : `${prefix}.${k}`),
   );

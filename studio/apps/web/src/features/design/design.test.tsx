@@ -5,7 +5,17 @@ import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import type { LibraryFixture } from "../../test-upstream.ts";
-import { flattenTokens, parseDtcg, putToken, scriptCoverage, setMode, validName } from "./design-model.ts";
+import {
+  contrastOf,
+  dropBaseToken,
+  flattenTokens,
+  parseDtcg,
+  putToken,
+  scriptCoverage,
+  setMode,
+  typedValue,
+  validName,
+} from "./design-model.ts";
 
 setDefaultTimeout(30000);
 afterEach(cleanup);
@@ -22,9 +32,11 @@ const theme = {
       primary: { $value: "#0055ff", $extensions: { "dev.plux.dark": "#88aaff" } },
       surface: { $value: "#ffffff" },
     },
-    typography: {
-      latin: { $type: "fontFamily", $value: ["Inter", "sans-serif"] },
-      arabic: { $type: "fontFamily", $value: "Noto Naskh" },
+    font: {
+      script: {
+        Latn: { $type: "fontFamily", $value: ["Inter", "sans-serif"] },
+        Arab: { $type: "fontFamily", $value: "Noto Naskh" },
+      },
     },
     icons: { core: { home: { $value: "e001" } } },
   },
@@ -41,12 +53,34 @@ describe("pure helpers", () => {
     expect(validName("a.b-c")).toBe(true);
     expect(validName("__proto__")).toBe(false);
     const tokens: Record<string, unknown> = {};
-    putToken(tokens, ["a", "b"], "1", "number");
-    setMode(tokens, ["a", "b"], "contrast", "2");
+    putToken(tokens, ["a", "b"], 1, "number");
     expect(flattenTokens(tokens)[0]?.type).toBe("number");
     setMode(tokens, ["a", "b"], "contrast", undefined);
-    expect(JSON.stringify(tokens)).toBe('{"a":{"b":{"$value":"1","$type":"number"}}}');
+    expect(JSON.stringify(tokens)).toBe('{"a":{"b":{"$value":1,"$type":"number"}}}');
     expect(scriptCoverage(flattenTokens(theme.tokens)).latin).toBe(2);
+    expect(scriptCoverage(flattenTokens(theme.tokens)).arabic).toBe(1);
+  });
+
+  test("[THM-002] [THM-003] high contrast and brands are the token groups the compiler and the device read", () => {
+    const tokens: Record<string, unknown> = { color: { $type: "color", primary: { $value: "#4f46e5" } } };
+    setMode(tokens, ["color", "primary"], "contrast", "#3730a3");
+    // ADR-0032: `contrast.high.<path>`, typed as the token (inherited from its group), so A11Y-003 checks it.
+    expect(tokens["contrast"]).toEqual({ high: { color: { primary: { $value: "#3730a3", $type: "color" } } } });
+    expect(contrastOf(tokens, ["color", "primary"])).toBe("#3730a3");
+    putToken(tokens, ["brands", "acme", "color", "primary"], "#ff0000", "color");
+    dropBaseToken(tokens, ["color", "primary"]);
+    // The token goes with its high-contrast and brand values, and the groups they leave empty.
+    expect(tokens).toEqual({});
+  });
+
+  test("a typed value is stored as its type keeps it", () => {
+    expect(typedValue("number", "1.5")).toBe(1.5);
+    expect(typedValue("fontWeight", "600")).toBe(600);
+    expect(typedValue("fontWeight", "bold")).toBe("bold");
+    expect(typedValue("fontFamily", "Inter, Noto Sans")).toEqual(["Inter", "Noto Sans"]);
+    expect(typedValue("number", "{size.base}")).toBe("{size.base}");
+    expect(typedValue("shadow", '{"blur": 4}')).toEqual({ blur: 4 });
+    expect(typedValue("color", "#fff")).toBe("#fff");
   });
 
   test("a DTCG file is data: types and names are checked and what is left out is reported", () => {
@@ -57,7 +91,10 @@ describe("pure helpers", () => {
           a: { $value: "#fff" },
           b: { $value: 5, $type: "number" },
           bad: { $value: 1, $type: "color" },
+          alias: { $value: "{c.a}", $type: "number" },
+          darkBad: { $value: "#000", $extensions: { "dev.plux.dark": 3 } },
         },
+        contrast: { high: { c: { a: { $value: "#000", $type: "color" } } } },
         __proto__: { x: { $value: "1", $type: "number" } },
         "bad name": { y: { $value: "1", $type: "number" } },
         u: { z: { $value: "1", $type: "magic" } },
@@ -65,8 +102,10 @@ describe("pure helpers", () => {
     );
     expect(ok.ok).toBe(true);
     if (ok.ok) {
-      expect(ok.imported).toBe(2);
-      expect(ok.skipped.map((s) => s.reason).sort()).toEqual(["name", "type", "value"]);
+      // An alias is a value of any type; a dark value must fit the type as the light one does; the high-contrast
+      // group is imported as the tokens it is.
+      expect(ok.imported).toBe(4);
+      expect(ok.skipped.map((s) => s.reason).sort()).toEqual(["name", "type", "value", "value"]);
       expect(Object.getPrototypeOf(ok.tokens)).toBe(Object.prototype);
     }
     expect(parseDtcg("{")).toEqual({ ok: false, error: "notJson" });
@@ -182,6 +221,18 @@ describe("[STU-112] A16 to A18", () => {
     expect(await screen.findByText("Latin: 2 fonts", {}, { timeout: 10000 })).toBeTruthy();
     expect(screen.getByText("Arabic has no fallback font.")).toBeTruthy();
     expect(screen.getByText("Cyrillic has no fallback font.")).toBeTruthy();
+  });
+
+  test("a script's families are typed as a list and saved when the field is left [THM-004]", async () => {
+    renderApp(`${base}/typography`, state);
+    const field = await screen.findByLabelText(/Font families for Ethiopic/, {}, { timeout: 10000 });
+    await waitFor(() => expect((field as HTMLInputElement).disabled).toBe(false));
+    // The comma stays while typing, so a fallback can follow it.
+    fireEvent.change(field, { target: { value: "Noto Sans Ethiopic," } });
+    expect((field as HTMLInputElement).value).toBe("Noto Sans Ethiopic,");
+    fireEvent.change(field, { target: { value: "Noto Sans Ethiopic, Abyssinica SIL" } });
+    fireEvent.blur(field);
+    expect(await screen.findByText("Ethiopic: 2 fonts")).toBeTruthy();
   });
 
   test("icons lists the sets and adds an icon", async () => {

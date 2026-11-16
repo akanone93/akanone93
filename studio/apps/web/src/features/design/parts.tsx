@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Icon, Input, Select, Textarea } from "@plux/ui";
+import { limitDefault } from "@plux/schema";
+import { Button, Dialog, Field, FileDrop, Icon, Input, Select, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { tokenValue } from "../designers/theme-overlay.tsx";
 import { type DesignMessages, designMessages } from "./design.messages.ts";
 import {
   contrastOf,
+  dropBaseToken,
   dropToken,
   type Mode,
   mergeTokens,
@@ -15,6 +17,7 @@ import {
   putToken,
   setMode,
   TOKEN_TYPES,
+  typedValue,
   validName,
 } from "./design-model.ts";
 import { useDesign } from "./scope.tsx";
@@ -81,7 +84,12 @@ export function AddToken(props: { readonly prefix: readonly string[]; readonly t
         disabled={!addable}
         onClick={() => {
           ctx.write(`add:${name}`, (t) =>
-            putToken(t, [...props.prefix, ...name.split(".")], value, props.typed ? type : undefined),
+            putToken(
+              t,
+              [...props.prefix, ...name.split(".")],
+              typedValue(props.typed ? type : undefined, value),
+              props.typed ? type : undefined,
+            ),
           );
           setName("");
           setValue("");
@@ -94,8 +102,11 @@ export function AddToken(props: { readonly prefix: readonly string[]; readonly t
   );
 }
 
-/** A button that removes the token at `path`. */
-export function RemoveToken(props: { readonly path: readonly string[] }): ReactElement {
+/**
+ * A button that removes the token at `path`; a `base` token goes with its high-contrast and brand values, in the same
+ * undo step.
+ */
+export function RemoveToken(props: { readonly path: readonly string[]; readonly base?: boolean }): ReactElement {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
   const name = props.path.join(".");
@@ -104,7 +115,11 @@ export function RemoveToken(props: { readonly path: readonly string[] }): ReactE
       variant="secondary"
       aria-label={m.removeToken(name)}
       disabled={!ctx.canEdit}
-      onClick={() => ctx.write(`${name}:remove`, (t) => dropToken(t, props.path))}
+      onClick={() =>
+        ctx.write(`${name}:remove`, (t) =>
+          props.base === true ? dropBaseToken(t, props.path) : dropToken(t, props.path),
+        )
+      }
     >
       <Icon name="trash" />
     </Button>
@@ -121,6 +136,25 @@ export function ImportDialog(props: { readonly onClose: () => void }): ReactElem
   const [text, setText] = useState("");
   const [result, setResult] = useState<ReturnType<typeof parseDtcg> | undefined>(undefined);
   const [done, setDone] = useState(false);
+  const [file, setFile] = useState<string | undefined>(undefined);
+  const take = (files: readonly File[]) => {
+    const f = files[0];
+    if (f === undefined) {
+      return;
+    }
+    setFile(f.name);
+    setDone(false);
+    // A file larger than a document may be is refused before it is read into memory.
+    if (f.size > limitDefault("document.fileSize")) {
+      setText("");
+      setResult({ ok: false, error: "tooLarge" });
+      return;
+    }
+    void f.text().then((t) => {
+      setText(t);
+      setResult(parseDtcg(t));
+    });
+  };
   const apply = () => {
     if (result?.ok === true) {
       ctx.write("import", (t) => mergeTokens(t, result.tokens));
@@ -130,6 +164,14 @@ export function ImportDialog(props: { readonly onClose: () => void }): ReactElem
   return (
     <Dialog open onOpenChange={(o) => !o && props.onClose()} title={m.importTitle} labels={{ close: m.close }}>
       <div className="flex flex-col gap-3">
+        <FileDrop
+          label={m.importFile}
+          hint={m.importFileHint}
+          chosen={file}
+          accept=".json,application/json"
+          icon="upload"
+          onFiles={take}
+        />
         <Field label={m.importLabel}>
           <Textarea
             value={text}

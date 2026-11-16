@@ -15,6 +15,7 @@ import {
 } from "./paint-theme.ts";
 
 const hex = (digits: string) => `#${digits}`;
+const isObjectish = (v: unknown) => typeof v === "object" && v !== null;
 const tokens = {
   brands: { acme: { color: { $type: "color", primary: { $value: hex("FF5722") } } } },
   brand: { zen: { color: { primary: { $value: hex("00897B") } } } },
@@ -32,7 +33,24 @@ describe("[THM-001] [THM-002] [THM-003] the theme's colours as the runtime reads
     expect(tokenValue(tokens, "color.primary", true, "")).toBe(hex("D0BCFF"));
     expect(tokenValue(tokens, "color.primary", false, "acme")).toBe(hex("FF5722"));
     expect(tokenValue(tokens, "color.accent", true, "")).toBe(hex("D0BCFF"));
-    expect(brandsOf(tokens)).toEqual(["acme", "zen"]);
+    // `brand.<name>` is an ordinary group: the device reads overlays from `brands` only, and so does the canvas.
+    expect(brandsOf(tokens)).toEqual(["acme"]);
+    expect(tokenValue(tokens, "color.primary", false, "zen")).toBe(hex("6750A4"));
+  });
+
+  test("aliases inside a composite are followed and a loop reads as nothing, as on the device", () => {
+    const t = {
+      font: { base: { $type: "fontFamily", $value: ["Inter"] } },
+      size: { body: { $type: "dimension", $value: 16 } },
+      typography: {
+        bodyLarge: { $type: "typography", $value: { fontFamily: "{font.base}", fontSize: "{size.body}" } },
+      },
+      loop: { a: { $value: "{loop.b}" }, b: { $value: "{loop.a}" } },
+      wide: { $value: Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`k${i}`, "{wide}"])) },
+    };
+    expect(tokenValue(t, "typography.bodyLarge", false, "")).toEqual({ fontFamily: ["Inter"], fontSize: 16 });
+    expect(tokenValue(t, "loop.a", false, "")).toBeUndefined();
+    expect(isObjectish(tokenValue(t, "wide", false, ""))).toBe(true);
   });
 
   test("the scheme grows from color.primary and every color.<role> token replaces its role", () => {

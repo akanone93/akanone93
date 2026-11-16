@@ -6,7 +6,7 @@ import { Button, Field, Icon, Input } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { PageEmpty } from "../../components/page.tsx";
 import { designMessages } from "./design.messages.ts";
-import { groupRows, putToken, validName } from "./design-model.ts";
+import { groupRows, ICONS_GROUP, putToken, validName } from "./design-model.ts";
 import { RemoveToken, show } from "./parts.tsx";
 import { Frame, useDesign } from "./scope.tsx";
 
@@ -33,7 +33,7 @@ function AddIcon(): ReactElement {
         disabled={!ready}
         onClick={() => {
           ctx.write(`icon:${set}.${name}`, (t) =>
-            putToken(t, ["icons", ...set.split("."), ...name.split(".")], source),
+            putToken(t, [...ICONS_GROUP, ...set.split("."), ...name.split(".")], source),
           );
           setName("");
           setSource("");
@@ -49,7 +49,7 @@ function AddIcon(): ReactElement {
 function Sets(): ReactElement {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
-  const icons = groupRows(ctx.rows, "icons");
+  const icons = groupRows(ctx.rows, ICONS_GROUP);
   const sets = [...new Set(icons.map((r) => r.path[0] ?? ""))];
   return (
     <>
@@ -64,7 +64,7 @@ function Sets(): ReactElement {
                 <li key={r.path.join(".")} className="flex items-center gap-2 text-body">
                   <span className="font-mono">{r.path.slice(1).join(".")}</span>
                   <span className="text-muted-foreground">{show(r.light)}</span>
-                  <RemoveToken path={["icons", ...r.path]} />
+                  <RemoveToken path={[...ICONS_GROUP, ...r.path]} />
                 </li>
               ))}
           </ul>

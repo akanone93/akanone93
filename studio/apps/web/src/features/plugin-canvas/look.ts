@@ -30,9 +30,15 @@ export const jsonOf = (docs: readonly DocLike[], kind: string): Obj[] =>
     .map((d) => (d.parsed !== undefined ? d.parsed : parseDocument(d.content)))
     .filter((d): d is Obj => isObj(d) && d["kind"] === kind);
 
-/** The value of a design token at `name`, in dark mode from `$extensions.dev.plux.dark` when `dark`. */
-function tokenValue(tokens: unknown, name: string, dark: boolean): unknown {
-  const token = isObj(tokens) ? tokens[name] : undefined;
+/**
+ * The value of a design token at `name` for `brand` (its `brands.<brand>.<name>` value first, as the device reads it,
+ * THM-003), in dark mode from `$extensions.dev.plux.dark` when `dark`.
+ */
+function tokenValue(tokens: unknown, name: string, dark: boolean, brand = ""): unknown {
+  const at = (path: string): unknown =>
+    path.split(".").reduce<unknown>((node, key) => (isObj(node) ? node[key] : undefined), tokens);
+  const own = brand === "" ? undefined : at(`brands.${brand}.${name}`);
+  const token = isObj(own) ? own : at(name);
   if (!isObj(token)) {
     return undefined;
   }
@@ -52,30 +58,46 @@ const dimension = (v: unknown): number | undefined => {
 };
 
 /** Tokens of the app theme with the overlay's tokens over them, name by name. */
-function mergedTokens(themes: readonly Obj[], appTheme: string, overlay: string): Obj {
-  const find = (ref: string): Obj | undefined => themes.find((t) => t["id"] === ref || t["key"] === ref);
-  const tokens = (t: Obj | undefined): Obj => (t !== undefined && isObj(t["tokens"]) ? t["tokens"] : {});
-  return { ...tokens(find(appTheme)), ...(overlay === "" ? {} : tokens(find(overlay))) };
+/** The tokens of the app's theme: the one the app document names, else the only one there is. */
+function appTokens(themes: readonly Obj[], appTheme: string): Obj {
+  const theme =
+    themes.find((t) => t["id"] === appTheme || t["key"] === appTheme) ?? (themes.length === 1 ? themes[0] : undefined);
+  return theme !== undefined && isObj(theme["tokens"]) ? theme["tokens"] : {};
 }
 
-/** The layout theme: the app's theme document plus the brand overlay when present, else the default (THM-001). */
+const familiesOf = (v: unknown): string[] =>
+  Array.isArray(v) ? v.filter((f): f is string => typeof f === "string") : typeof v === "string" ? [v] : [];
+
+/**
+ * The families of every `font.script.<code>` token, in path order, which the device appends to every text style's
+ * fallbacks (THM-004, `theme.dart`), so a script the theme gives a font for shows in it on the canvas too.
+ */
+function scriptFamilies(tokens: Obj, dark: boolean, brand: string): string[] {
+  const font = tokens["font"];
+  const script = isObj(font) ? font["script"] : undefined;
+  if (!isObj(script)) {
+    return [];
+  }
+  return Object.keys(script)
+    .filter((k) => !k.startsWith("$"))
+    .sort()
+    .flatMap((code) => familiesOf(tokenValue(tokens, `font.script.${code}`, dark, brand)));
+}
+
+/** The layout theme: the app's theme document, read for the previewed brand and mode, else the default (THM-001). */
 export function resolveTheme(documents: readonly DocLike[], look: PreviewRender): ScreenTheme {
   const app = jsonOf(documents, "app")[0];
   const appTheme = typeof app?.["theme"] === "string" ? app["theme"] : "";
-  const tokens = mergedTokens(jsonOf(documents, "theme"), appTheme, look.brandOverlay);
+  const tokens = appTokens(jsonOf(documents, "theme"), appTheme);
   const dark = look.theme === "dark";
-  const pick = (name: string, fallback: number): number => dimension(tokenValue(tokens, name, dark)) ?? fallback;
-  const family = tokenValue(tokens, "fontFamily", dark);
-  const families = Array.isArray(family)
-    ? family.filter((f): f is string => typeof f === "string")
-    : typeof family === "string"
-      ? [family]
-      : [];
+  const brand = look.brandOverlay;
+  const pick = (name: string, fallback: number): number => dimension(tokenValue(tokens, name, dark, brand)) ?? fallback;
+  const families = familiesOf(tokenValue(tokens, "fontFamily", dark, brand));
   const base = defaultScreenTheme;
   const bars = look.platform === "cupertino" ? CUPERTINO : {};
   return {
     ...base,
-    fontFamilies: families.length > 0 ? [...families, ...base.fontFamilies] : base.fontFamilies,
+    fontFamilies: [...new Set([...families, ...base.fontFamilies, ...scriptFamilies(tokens, dark, brand)])],
     fontSize: pick("fontSize", base.fontSize),
     pagePadding: pick("pagePadding", base.pagePadding),
     spacing: pick("spacing", base.spacing),

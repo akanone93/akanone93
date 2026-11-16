@@ -33,6 +33,12 @@ A token is read, first match wins, from:
 2. `contrast.high.<path>` when the platform asks for high contrast (`MediaQuery.highContrast`);
 3. `<path>`.
 
+A value may be a W3C alias, `{color.primary}`: the device reads the token it names in the same way (brand, contrast
+and mode), and so for an alias inside a composite value such as a `typography` or `shadow` token. A token without a
+`$type` takes the type of the token it names. Aliases are followed at most 8 deep and 64 tokens per read; one that
+names no token or loops reads as no token, and the compiler reports it when the app is published (`PLX-1102`).
+Studio's canvas follows aliases the same way.
+
 ## 4. Cupertino
 
 Under `pluxOverHost` and `plux`, the Cupertino theme is derived: `primary` → `primaryColor`, `onPrimary` → `primaryContrastingColor`, `surface` → `scaffoldBackgroundColor`, `surfaceContainer` → `barBackgroundColor`, and the families of `bodyLarge`, `titleLarge` and `displaySmall` → the text, navigation title and large navigation title styles, at Cupertino's sizes.
