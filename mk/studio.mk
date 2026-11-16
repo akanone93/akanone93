@@ -23,7 +23,7 @@ studio-bounds: ## Check Studio's import boundaries (studio-development §2.1)
 	cd tools && go run ./cmd/studiobounds ../studio
 
 studio-i18n-check: studio-install ## Catalogues are complete and current: strict extract and compile (STU-012)
-	cd studio && apps/web/node_modules/.bin/lingui extract --clean && apps/web/node_modules/.bin/lingui compile --strict && rm -f apps/web/src/locales/*/messages.js
+	cd studio && apps/web/node_modules/.bin/lingui extract --clean --overwrite && apps/web/node_modules/.bin/lingui compile --strict && rm -f apps/web/src/locales/*/messages.js
 	git diff --exit-code -- studio/apps/web/src/locales
 
 studio-typecheck: studio-gen-theme studio-validator ## Type-check Studio code

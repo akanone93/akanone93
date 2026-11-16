@@ -1545,7 +1545,6 @@ function PluginCanvasView({
       height: look.device.height,
       top: look.device.padding.top,
       bottom: look.device.padding.bottom,
-      dark: look.theme === "dark",
       textScale: look.textScale,
       platform: look.platform,
     }),

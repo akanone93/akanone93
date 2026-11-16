@@ -54,18 +54,18 @@ describe("PC-38 the canvas compared with the device [DEV-033] [STU-005]", () => 
       width: 1080,
       height: 2400,
       pixelRatio: 2.625,
-      dark: true,
       textScale: 1.15,
       paddingTop: 49.1,
       paddingBottom: 24,
     });
-    expect(look).toEqual({ width: 411, height: 914, density: 2.625, top: 49, bottom: 24, dark: true, textScale: 1.15 });
+    // Light or dark is not part of the look: the developer sets it alike on both sides.
+    expect(look).toEqual({ width: 411, height: 914, density: 2.625, top: 49, bottom: 24, textScale: 1.15 });
     expect(
       lookOf({
         width: 1170,
         height: 2532,
         pixelRatio: 3,
-        dark: false,
+
         textScale: 1,
         paddingTop: 47,
         paddingBottom: 34,
@@ -73,14 +73,14 @@ describe("PC-38 the canvas compared with the device [DEV-033] [STU-005]", () => 
       })?.platform,
     ).toBe("ios");
     // An older runtime says nothing of it: no look, no match.
-    expect(
-      lookOf({ width: 1080, height: 2400, pixelRatio: 0, dark: false, textScale: 0, paddingTop: 0, paddingBottom: 0 }),
-    ).toBe(undefined);
+    expect(lookOf({ width: 1080, height: 2400, pixelRatio: 0, textScale: 0, paddingTop: 0, paddingBottom: 0 })).toBe(
+      undefined,
+    );
   });
 
   test("when the canvas draws under other conditions than the device, it says so and matches them on request", async () => {
-    const device = { width: 411, height: 914, top: 49, bottom: 24, dark: true, textScale: 1 };
-    const canvas = { width: 360, height: 800, top: 24, bottom: 24, dark: false, textScale: 1 };
+    const device = { width: 411, height: 914, top: 49, bottom: 24, textScale: 1 };
+    const canvas = { width: 360, height: 800, top: 24, bottom: 24, textScale: 1 };
     expect(sameLook(device, canvas)).toBe(false);
     expect(sameLook(device, { ...device })).toBe(true);
     // An iPhone's screenshot is not like a Material canvas, nor an Android one's like a Cupertino one (R3).
@@ -101,8 +101,8 @@ describe("PC-38 the canvas compared with the device [DEV-033] [STU-005]", () => 
         />
       </I18nProvider>,
     );
-    expect(await screen.findByText("411 × 914 · dark · text 1×")).toBeTruthy();
-    expect(screen.getByText("360 × 800 · light · text 1×")).toBeTruthy();
+    expect(await screen.findByText("411 × 914 · text 1×")).toBeTruthy();
+    expect(screen.getByText("360 × 800 · text 1×")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Match the canvas to the device" }));
     expect(onMatch).toHaveBeenCalledTimes(1);
     view.rerender(

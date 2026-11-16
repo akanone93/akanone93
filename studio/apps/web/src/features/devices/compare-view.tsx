@@ -49,7 +49,6 @@ export interface DrawnLook {
   readonly height: number;
   readonly top: number;
   readonly bottom: number;
-  readonly dark: boolean;
   readonly textScale: number;
   /** The platform: the device's as Flutter names it (`ios`), the canvas's as it draws (`cupertino`); unknown when absent. */
   readonly platform?: string | undefined;
@@ -62,7 +61,10 @@ function samePlatform(a: string | undefined, b: string | undefined): boolean {
   return x === undefined || y === undefined || x === y;
 }
 
-/** Whether the canvas draws under the device's conditions: its size, bars, mode, text scale and platform (R3). */
+/**
+ * Whether the canvas draws under the device's conditions: its size, bars, text scale and platform (R3). Light or dark
+ * is left to the developer, who sets it alike on the device and the canvas.
+ */
 export function sameLook(device: DrawnLook, canvas: DrawnLook): boolean {
   return (
     samePlatform(device.platform, canvas.platform) &&
@@ -70,7 +72,6 @@ export function sameLook(device: DrawnLook, canvas: DrawnLook): boolean {
     device.height === canvas.height &&
     device.top === canvas.top &&
     device.bottom === canvas.bottom &&
-    device.dark === canvas.dark &&
     Math.abs(device.textScale - canvas.textScale) < 0.01
   );
 }
@@ -82,7 +83,7 @@ function Looks(p: {
   readonly onMatch: (() => void) | undefined;
 }): ReactElement {
   const m = compareMessages(useLingui().i18n);
-  const said = (l: DrawnLook) => m.look(l.width, l.height, l.dark, Math.round(l.textScale * 100) / 100);
+  const said = (l: DrawnLook) => m.look(l.width, l.height, Math.round(l.textScale * 100) / 100);
   const differs = p.canvas !== undefined && !sameLook(p.device, p.canvas);
   return (
     <div className="compare-looks">

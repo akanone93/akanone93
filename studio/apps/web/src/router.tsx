@@ -152,6 +152,8 @@ const shellLayout = createRoute({
     return { user };
   },
   component: ShellLayout,
+  // An unknown address inside the app keeps the sidebar and the top bar, so there is a way on (#1 of the build log).
+  notFoundComponent: NotFoundPage,
 });
 
 const personalHomeRoute = createRoute({

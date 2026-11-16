@@ -121,8 +121,10 @@ export function profileMessages(i18n: I18n) {
     }),
     keyAdded: i18n._({
       id: "profile.keys.added",
-      message: "Security key added. This session now counts as signed in with it.",
-      comment: "Confirmation after a key was registered.",
+      message:
+        "Security key added. You sign in with it from now on, and protected actions such as publishing ask you to touch it again.",
+      comment:
+        "Confirmation after a key was registered: it is now the second factor of every sign-in, and a protected action still asks for a fresh confirmation with it.",
     }),
     keyKindWebAuthn: i18n._({ id: "profile.keys.kind.webauthn", message: "Security key", comment: "Kind of factor." }),
     keyKindTotp: i18n._({ id: "profile.keys.kind.totp", message: "Authenticator app", comment: "Kind of factor." }),

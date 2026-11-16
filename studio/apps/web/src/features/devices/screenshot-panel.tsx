@@ -19,12 +19,11 @@ export interface Capture {
   readonly look?: DeviceLook | undefined;
 }
 
-/** What a device drew a screenshot under, from the event: logical pixels, bars, mode and text scale (PC-38). */
+/** What a device drew a screenshot under, from the event: logical pixels, bars, text scale and platform (PC-38). */
 export function lookOf(e: {
   readonly width: number;
   readonly height: number;
   readonly pixelRatio: number;
-  readonly dark: boolean;
   readonly textScale: number;
   readonly paddingTop: number;
   readonly paddingBottom: number;
@@ -39,7 +38,6 @@ export function lookOf(e: {
     density: e.pixelRatio,
     top: Math.round(e.paddingTop),
     bottom: Math.round(e.paddingBottom),
-    dark: e.dark,
     textScale: e.textScale,
     ...(e.platform === undefined || e.platform === "" ? {} : { platform: e.platform }),
   };
@@ -71,7 +69,7 @@ export function ScreenshotPanel({
   readonly canvas?: (() => Promise<Uint8Array | null>) | undefined;
   /** What the canvas draws under now, to say whether it matches the device. */
   readonly canvasLook?: DrawnLook | undefined;
-  /** Sets the canvas to the device's conditions (its size, bars, mode and text scale). */
+  /** Sets the canvas to the device's conditions (its size, bars, text scale and platform). */
   readonly onMatch?: ((device: DeviceLook) => void) | undefined;
 }): ReactNode {
   const m = devicesMessages(useLingui().i18n);

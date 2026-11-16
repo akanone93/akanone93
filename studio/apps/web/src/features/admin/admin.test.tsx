@@ -193,17 +193,34 @@ describe("[STU-116] organisation administration", () => {
         restrictions: [
           { id: "r1", subjectKind: "team", subjectId: "t1", patterns: ["function.*"], reason: "no functions" },
         ],
+        teams: [
+          { id: "t1", key: "mobile", name: "Mobile" },
+          { id: "t9", key: "contractors", name: "Contractors" },
+        ],
+        members: [{ userId: "u2", displayName: "Grace", email: "grace@example.org", role: "editor" }],
       },
     };
     open("/restrictions", state);
     await screen.findByText("function.*");
-    type("Team or person ID", "t9");
+    // The list names the team instead of showing its identifier.
+    expect(await screen.findByText("Team · Mobile")).toBeTruthy();
+    // The target is chosen by name: the organisation, a team or a person.
+    fireEvent.click(screen.getByRole("combobox", { name: "Applies to" }));
+    expect(await screen.findByRole("option", { name: "Person · Grace" })).toBeTruthy();
+    const team = await screen.findByRole("option", { name: "Team · Contractors" });
+    // Base UI's select takes a choice once its open animation settles, from a full press.
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    fireEvent.pointerDown(team);
+    fireEvent.mouseDown(team);
+    fireEvent.pointerUp(team);
+    fireEvent.mouseUp(team);
+    fireEvent.click(team);
     type("Permission patterns (comma-separated)", "release.publish, function.*");
     type("Reason", "contractors");
     fireEvent.click(screen.getByRole("button", { name: "Add restriction" }));
     await waitFor(() =>
       expect(calls(state)).toEqual([
-        'createRestriction:{"kind":"organization","subject":"t9","patterns":["release.publish","function.*"],"reason":"contractors"}',
+        'createRestriction:{"kind":"team","subject":"t9","patterns":["release.publish","function.*"],"reason":"contractors"}',
       ]),
     );
     fireEvent.click(screen.getAllByRole("button", { name: "Remove" })[0] as HTMLElement);

@@ -1065,9 +1065,9 @@ export type ScreenshotEvent = Message<"plux.v1.ScreenshotEvent"> & {
   platformViewsNotCaptured: boolean;
 
   /**
-   * dark is true when the device is in dark mode, which pages under the
-   * app's own theme follow; Studio draws the canvas the same way to
-   * compare them.
+   * dark is true when the device is in dark mode. Studio does not compare
+   * modes: the developer sets light or dark alike on the device and the
+   * canvas.
    *
    * @generated from field: bool dark = 7;
    */

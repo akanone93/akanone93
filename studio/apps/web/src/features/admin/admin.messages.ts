@@ -370,21 +370,20 @@ export function adminMessages(i18n: I18n) {
       message: "Organisation",
       comment: "Text in the organisation administration area.",
     }),
-    kindTeam: i18n._({
-      id: "admin.kindTeam",
-      message: "Team",
-      comment: "Text in the organisation administration area.",
-    }),
-    kindUser: i18n._({
-      id: "admin.kindUser",
-      message: "Person",
-      comment: "Text in the organisation administration area.",
-    }),
-    subjectId: i18n._({
-      id: "admin.subjectId",
-      message: "Team or person ID",
-      comment: "Text in the organisation administration area.",
-    }),
+    subjectTeam: (name: string) =>
+      i18n._({
+        id: "admin.restrictions.subjectTeam",
+        message: "Team · {name}",
+        values: { name },
+        comment: "An option of what a restriction applies to: a team, by its name.",
+      }),
+    subjectPerson: (name: string) =>
+      i18n._({
+        id: "admin.restrictions.subjectPerson",
+        message: "Person · {name}",
+        values: { name },
+        comment: "An option of what a restriction applies to: a member of the organisation, by name or email.",
+      }),
     patterns: i18n._({
       id: "admin.patterns",
       message: "Permission patterns (comma-separated)",

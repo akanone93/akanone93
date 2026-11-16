@@ -2,20 +2,48 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { GovernanceService } from "@plux/api";
+import { GovernanceService, OrgService } from "@plux/api";
 import { Button } from "@plux/ui";
 import type { ReactElement } from "react";
 import { adminMessages } from "./admin.messages.ts";
 import { CreateForm, Frame, fmt, Table } from "./parts.tsx";
-import { pageSize, splitList, useAdminQuery, useCan, useRpc, useRun } from "./use-admin.ts";
+import { pageSize, splitList, useAdminQuery, useCan, useOrgId, useRpc, useRun } from "./use-admin.ts";
+
+/** What a restriction can apply to, as one choice: `organization:`, `team:<id>` or `user:<id>`. */
+const subjectValue = (kind: string, id: string): string => `${kind}:${id}`;
+
+function splitSubject(value: string): { kind: string; id: string } {
+  const at = value.indexOf(":");
+  return at < 0 ? { kind: value, id: "" } : { kind: value.slice(0, at), id: value.slice(at + 1) };
+}
 
 /** O22: restriction policies for the organisation, a team or a person; deny always wins (F14, GOV-006). */
 export function RestrictionsPage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const governance = useRpc(GovernanceService);
+  const orgApi = useRpc(OrgService);
+  const organizationId = useOrgId();
   const can = useCan("restrictions.manage");
   const { run, failed, error: saveError } = useRun();
   const list = useAdminQuery(["restrictions"], () => governance.listRestrictions({ page: { pageSize } }));
+  // A restriction applies to the organisation, a team or a person: chosen by name, never typed as an identifier.
+  const teams = useAdminQuery(["teams", organizationId], () =>
+    orgApi.listTeams({ organizationId, page: { pageSize } }),
+  );
+  const members = useAdminQuery(["members", organizationId], () =>
+    orgApi.listMembers({ organizationId, page: { pageSize } }),
+  );
+  const people = (members.data?.members ?? []).filter((p) => p.teamId === "");
+  const subjects = [
+    { value: subjectValue("organization", ""), label: m.kindOrg },
+    ...(teams.data?.teams ?? []).map((t) => ({
+      value: subjectValue("team", t.id),
+      label: m.subjectTeam(t.name || t.key),
+    })),
+    ...people.map((p) => ({ value: subjectValue("user", p.userId), label: m.subjectPerson(p.displayName || p.email) })),
+  ];
+  const nameOf = (kind: string, id: string): string =>
+    subjects.find((o) => o.value === subjectValue(kind, id))?.label ?? `${kind} ${id}`.trim();
   return (
     <Frame
       id="admin-restrictions"
@@ -35,7 +63,7 @@ export function RestrictionsPage(): ReactElement {
         rows={(list.data?.restrictions ?? []).map((r) => ({
           key: r.id,
           cells: [
-            `${r.subjectKind} ${r.subjectId}`.trim(),
+            nameOf(r.subjectKind, r.subjectId),
             r.patterns.join(", "),
             r.reason,
             fmt(r.createdAt, m.never),
@@ -53,16 +81,7 @@ export function RestrictionsPage(): ReactElement {
       />
       <CreateForm
         fields={[
-          {
-            name: "kind",
-            label: m.subjectKind,
-            options: [
-              { value: "organization", label: m.kindOrg },
-              { value: "team", label: m.kindTeam },
-              { value: "user", label: m.kindUser },
-            ],
-          },
-          { name: "subjectId", label: m.subjectId },
+          { name: "subject", label: m.subjectKind, options: subjects },
           { name: "patterns", label: m.patterns, required: true },
           { name: "reason", label: m.reason, required: true },
         ]}
@@ -72,8 +91,8 @@ export function RestrictionsPage(): ReactElement {
         onSubmit={(v) =>
           run(() =>
             governance.createRestriction({
-              subjectKind: v("kind"),
-              subjectId: v("subjectId"),
+              subjectKind: splitSubject(v("subject")).kind,
+              subjectId: splitSubject(v("subject")).id,
               patterns: splitList(v("patterns")),
               reason: v("reason"),
             }),

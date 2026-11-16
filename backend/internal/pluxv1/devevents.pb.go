@@ -2336,9 +2336,9 @@ type ScreenshotEvent struct {
 	// platform_views_not_captured is true when the screen shows platform
 	// views (native slots, maps) the capture could not include.
 	PlatformViewsNotCaptured bool `protobuf:"varint,6,opt,name=platform_views_not_captured,json=platformViewsNotCaptured,proto3" json:"platform_views_not_captured,omitempty"`
-	// dark is true when the device is in dark mode, which pages under the
-	// app's own theme follow; Studio draws the canvas the same way to
-	// compare them.
+	// dark is true when the device is in dark mode. Studio does not compare
+	// modes: the developer sets light or dark alike on the device and the
+	// canvas.
 	Dark bool `protobuf:"varint,7,opt,name=dark,proto3" json:"dark,omitempty"`
 	// text_scale is the device's text scale (1 is the default size).
 	TextScale float64 `protobuf:"fixed64,8,opt,name=text_scale,json=textScale,proto3" json:"text_scale,omitempty"`

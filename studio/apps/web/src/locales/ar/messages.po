@@ -1336,11 +1336,11 @@ msgstr "{w} × {h}، أقل من {min}"
 msgid "preview.matrixSize"
 msgstr "{width} × {height}"
 
-#. What a screen is drawn under: its size in logical pixels, light or dark mode ({mode}), and the text scale.
+#. What a screen is drawn under: its size in logical pixels and the text scale. Light or dark is the developer's to set on both sides.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/compare.messages.ts
-msgid "compare.look"
-msgstr "{width} × {height} · {mode} · النص {scale}×"
+msgid "compare.lookSize"
+msgstr "{width} × {height} · النص {scale}×"
 
 #. Size of an image in the icon picker, in pixels.
 #. js-lingui-explicit-id
@@ -4842,12 +4842,6 @@ msgstr "توقفت عند حد"
 msgid "design.scriptCyrillic"
 msgstr "السيريلية"
 
-#. A screen drawn in dark mode.
-#. js-lingui-explicit-id
-#: apps/web/src/features/devices/compare.messages.ts
-msgid "compare.dark"
-msgstr "داكن"
-
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -7504,6 +7498,12 @@ msgstr "الانتقال إلى الصفحة الرئيسية"
 msgid "cmd.nav.profile"
 msgstr "الانتقال إلى الملف الشخصي"
 
+#. Link on the page shown for an address no page answers.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.notFound.home"
+msgstr "الانتقال إلى الصفحة الرئيسية"
+
 #. Name of the limit on the size of the golden baseline images of a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -9143,12 +9143,6 @@ msgstr "دورة الحياة"
 msgid "admin.tokenDays"
 msgstr "مدة الصلاحية بالأيام"
 
-#. A screen drawn in light mode.
-#. js-lingui-explicit-id
-#: apps/web/src/features/devices/compare.messages.ts
-msgid "compare.light"
-msgstr "فاتح"
-
 #. Theme option.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -9755,7 +9749,7 @@ msgstr "مثل النظام"
 msgid "profile.theme.caption"
 msgstr "مطابقة النظام تتبع الإعداد الفاتح أو الداكن لجهازك."
 
-#. Button: sets the canvas preview to the device's screen size, system bars, light or dark mode and text scale, so the two can be compared.
+#. Button: sets the canvas preview to the device's screen size, system bars, text scale and platform, so the two can be compared; light or dark stays as the developer set it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/compare.messages.ts
 msgid "compare.match"
@@ -12455,11 +12449,11 @@ msgstr "أنماط الصلاحيات (مفصولة بفواصل)"
 msgid "admin.permissionsTree"
 msgstr "الصلاحيات"
 
-#. Text in the organisation administration area.
+#. An option of what a restriction applies to: a member of the organisation, by name or email.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.kindUser"
-msgstr "شخص"
+msgid "admin.restrictions.subjectPerson"
+msgstr "شخص · {name}"
 
 #. Title of the card listing the phones signed in to the Plux Dev app.
 #. js-lingui-explicit-id
@@ -15273,11 +15267,11 @@ msgstr "الأمان"
 msgid "profile.keys.kind.webauthn"
 msgstr "مفتاح أمان"
 
-#. Confirmation after a key was registered.
+#. Confirmation after a key was registered: it is now the second factor of every sign-in, and a protected action still asks for a fresh confirmation with it.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.keys.added"
-msgstr "تمت إضافة مفتاح الأمان. تُعدّ هذه الجلسة الآن مسجّلة الدخول به."
+msgstr "أُضيف مفتاح الأمان. ستسجّل الدخول به من الآن، وتطلب منك الإجراءات المحمية مثل النشر لمسه مرة أخرى."
 
 #. Heading of the card that lists the person's security keys and passkeys.
 #. js-lingui-explicit-id
@@ -16857,11 +16851,11 @@ msgstr "الفريق"
 msgid "admin.teamTitle"
 msgstr "فريق"
 
-#. Text in the organisation administration area.
+#. An option of what a restriction applies to: a team, by its name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.kindTeam"
-msgstr "فريق"
+msgid "admin.restrictions.subjectTeam"
+msgstr "فريق · {name}"
 
 #. The team that owns an app, shown on its card; team is the team's name.
 #. js-lingui-explicit-id
@@ -16874,12 +16868,6 @@ msgstr "الفريق {team}"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.teamMembers"
 msgstr "أعضاء الفريق"
-
-#. Text in the organisation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.subjectId"
-msgstr "معرّف الفريق أو الشخص"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id

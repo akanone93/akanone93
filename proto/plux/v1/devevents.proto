@@ -385,9 +385,9 @@ message ScreenshotEvent {
   // platform_views_not_captured is true when the screen shows platform
   // views (native slots, maps) the capture could not include.
   bool platform_views_not_captured = 6;
-  // dark is true when the device is in dark mode, which pages under the
-  // app's own theme follow; Studio draws the canvas the same way to
-  // compare them.
+  // dark is true when the device is in dark mode. Studio does not compare
+  // modes: the developer sets light or dark alike on the device and the
+  // canvas.
   bool dark = 7;
   // text_scale is the device's text scale (1 is the default size).
   double text_scale = 8;

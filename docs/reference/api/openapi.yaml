@@ -33907,9 +33907,9 @@ components:
           type: boolean
           title: dark
           description: |-
-            dark is true when the device is in dark mode, which pages under the
-             app's own theme follow; Studio draws the canvas the same way to
-             compare them.
+            dark is true when the device is in dark mode. Studio does not compare
+             modes: the developer sets light or dark alike on the device and the
+             canvas.
         textScale:
           type: number
           title: text_scale

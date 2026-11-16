@@ -36,6 +36,13 @@ describe("[STU-013] guards", () => {
     await screen.findByRole("heading", { name: "Page not found" });
   });
 
+  test("an unknown address inside the app keeps the shell and offers the way home", async () => {
+    renderApp(`/o/${orgA}/admin/no-such-page`, {});
+    await screen.findByRole("heading", { name: "Page not found" });
+    expect((await screen.findAllByRole("link", { name: "Go to the home page" })).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("navigation").length).toBeGreaterThan(0);
+  });
+
   test("a page opened directly checks the person's permissions in its organisation", async () => {
     // The server returns permissions only when the call names the organisation; the shell's own user names none.
     renderApp(`/o/${orgA}/approvals`, { permissions: ["app.read"] });

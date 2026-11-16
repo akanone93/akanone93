@@ -5,8 +5,10 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { GovernanceService } from "@plux/api";
 import { Button } from "@plux/ui";
-import { useParams } from "@tanstack/react-router";
+import { buttonVariants } from "@plux/ui/components/button";
+import { Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { PageEmpty, PageHeader } from "../../components/page.tsx";
 import { withReason } from "../../components/refusal.tsx";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
@@ -21,12 +23,27 @@ function Message({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+/**
+ * An address no page answers: inside the app it shows in the shell, outside it on its own; either way with the way to
+ * the home page.
+ */
 export function NotFoundPage() {
   const m = chromeMessages(useLingui().i18n);
   return (
-    <Message title={m.notFoundTitle}>
-      <p className="text-body text-muted-foreground">{m.notFoundBody}</p>
-    </Message>
+    <section aria-labelledby="not-found-title" className="page-frame">
+      <PageHeader id="not-found-title" icon="question" title={m.notFoundTitle} caption={m.notFoundBody} />
+      <div className="page-body">
+        <PageEmpty
+          icon="question"
+          text={m.notFoundBody}
+          action={
+            <Link to="/" className={buttonVariants({ size: "sm" })}>
+              {m.notFoundHome}
+            </Link>
+          }
+        />
+      </div>
+    </section>
   );
 }
 

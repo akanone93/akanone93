@@ -58,7 +58,7 @@ export interface DeviceBayProps {
   readonly route: string;
   /** The canvas's drawing of a screen, to compare a device screenshot with (PC-38). */
   readonly canvasImage?: ((screen: string) => Promise<Uint8Array | null>) | undefined;
-  /** What the canvas draws under now: its frame, bars, mode and text scale (PC-38). */
+  /** What the canvas draws under now: its frame, bars, text scale and platform (PC-38). */
   readonly canvasLook?: DrawnLook | undefined;
   /** Sets the canvas to a device's conditions, to compare its screenshot with (PC-38). */
   readonly onMatchDevice?: ((device: DeviceLook) => void) | undefined;

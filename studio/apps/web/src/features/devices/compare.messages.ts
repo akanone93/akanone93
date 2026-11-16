@@ -55,20 +55,13 @@ export function compareMessages(i18n: I18n) {
       message: "The canvas has not drawn this screen: open it on the canvas, then compare again.",
       comment: "Shown when the canvas has no image of the screen the device shows.",
     }),
-    look: (width: number, height: number, dark: boolean, scale: number) =>
+    look: (width: number, height: number, scale: number) =>
       i18n._({
-        id: "compare.look",
-        message: "{width} × {height} · {mode} · text {scale}×",
-        values: {
-          width,
-          height,
-          mode: dark
-            ? i18n._({ id: "compare.dark", message: "dark", comment: "A screen drawn in dark mode." })
-            : i18n._({ id: "compare.light", message: "light", comment: "A screen drawn in light mode." }),
-          scale,
-        },
+        id: "compare.lookSize",
+        message: "{width} × {height} · text {scale}×",
+        values: { width, height, scale },
         comment:
-          "What a screen is drawn under: its size in logical pixels, light or dark mode ({mode}), and the text scale.",
+          "What a screen is drawn under: its size in logical pixels and the text scale. Light or dark is the developer's to set on both sides.",
       }),
     deviceLook: i18n._({
       id: "compare.deviceLook",
@@ -84,7 +77,7 @@ export function compareMessages(i18n: I18n) {
       id: "compare.match",
       message: "Match the canvas to the device",
       comment:
-        "Button: sets the canvas preview to the device's screen size, system bars, light or dark mode and text scale, so the two can be compared.",
+        "Button: sets the canvas preview to the device's screen size, system bars, text scale and platform, so the two can be compared; light or dark stays as the developer set it.",
     }),
     differs: i18n._({
       id: "compare.differs",

@@ -46,14 +46,13 @@ export function PreviewBarView({
   );
 }
 
-/** What a device drew a screenshot under: its screen in logical pixels, its bars, its mode and text scale. */
+/** What a device drew a screenshot under: its screen in logical pixels, its bars, its text scale and platform. */
 export interface DeviceLook {
   readonly width: number;
   readonly height: number;
   readonly density: number;
   readonly top: number;
   readonly bottom: number;
-  readonly dark: boolean;
   readonly textScale: number;
   /** The device's platform as Flutter names it (`android`, `ios`); absent from a runtime that does not say. */
   readonly platform?: string | undefined;
@@ -62,7 +61,7 @@ export interface DeviceLook {
 /**
  * The preview switches of an app: the render they imply for the canvas, the toolbar that sets them
  * (STU-058), whether the device matrix shows in place of the single frame, and the switch to a device's own look (a
- * frame of its size and bars, its mode and text scale, without the drawn chrome) to compare a screenshot with (PC-38).
+ * frame of its size and bars, its text scale and platform, without the drawn chrome) to compare a screenshot with (PC-38).
  */
 export function usePreviewBar(
   app: string | undefined,
@@ -104,7 +103,6 @@ export function usePreviewBar(
           density: d.density,
           insets: { top: d.top, bottom: d.bottom },
         }),
-        theme: d.dark ? "dark" : "light",
         textScale: d.textScale,
         // An iPhone's screenshot is compared with a Cupertino canvas, an Android one's with Material (R3).
         platform: framePlatformOf(d.platform) ?? state.platform,

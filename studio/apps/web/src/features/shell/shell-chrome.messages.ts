@@ -39,6 +39,11 @@ export function chromeMessages(i18n: I18n) {
       message: "This page does not exist or you cannot see it.",
       comment: "Body of the 404 page.",
     }),
+    notFoundHome: i18n._({
+      id: "chrome.notFound.home",
+      message: "Go to the home page",
+      comment: "Link on the page shown for an address no page answers.",
+    }),
     forbiddenTitle: i18n._({
       id: "chrome.forbidden.title",
       message: "You do not have access",

@@ -56,11 +56,14 @@ screen's labels or flow updates its guide in the same pull request.
      inside the `…Messages(i18n: I18n)` function; the stable key and the translator comment are
      required. Use ICU plural and select forms, never string concatenation.
   2. In a component, `const m = areaMessages(useLingui().i18n)`; there is no global catalogue.
-  3. From `studio/`, run `apps/web/node_modules/.bin/lingui extract --clean`. It rewrites
-     `apps/web/src/locales/{en,de,ar}/messages.po`.
-  4. Fill the `msgstr` of every new or changed entry in `de` and `ar` (`en` holds the source text).
+  3. From `studio/`, run `apps/web/node_modules/.bin/lingui extract --clean --overwrite`. It rewrites
+     `apps/web/src/locales/{en,de,ar}/messages.po`. `--overwrite` matters: the messages have explicit ids, and
+     without it a changed English `message` keeps its old text in `en`, so the change never shows.
+  4. Fill the `msgstr` of every new entry in `de` and `ar`, and rewrite theirs for every entry whose `en` text
+     changed in the diff of `en/messages.po`: their old text stays in place otherwise, since the ids did not change.
   5. `lingui compile --strict` must pass with no missing entry. `make studio-i18n-check` runs 3
-     and 5 and fails when the committed catalogues differ from a fresh extract. Commit the `.po` files.
+     and 5 and fails when the committed catalogues differ from a fresh extract, a changed English text included.
+     Commit the `.po` files.
   Tests that render the app load the English `.po` through `loadSourceCatalogue()`
   (`apps/web/src/test-harness.tsx`), so a new key must be extracted before its test passes.
 - **Workers get cloneable data only.** Everything posted to the canvas, validator or lock worker
