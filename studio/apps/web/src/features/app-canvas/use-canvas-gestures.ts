@@ -4,7 +4,7 @@
 import type { ArrowPick, Guides } from "@plux/canvas";
 import { type RefObject, useEffect, useRef } from "react";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
-import { BOX, type Point, select, snap } from "./app-canvas.model.ts";
+import { BOX, type Point, SNAP_DISTANCE, type Snapped, select, snap } from "./app-canvas.model.ts";
 import { boxOfHits, boxOfItem, type SceneBox } from "./app-canvas.scene.ts";
 
 /** Movement in CSS pixels below which a press is a click, not a drag or a marquee. */
@@ -66,6 +66,8 @@ interface Drag {
   readonly start: Point;
   readonly origin: ReadonlyMap<string, Point>;
   moved: boolean;
+  /** The snaps of the last move, held while the box stays near them. */
+  held?: Snapped["held"];
 }
 
 interface Press {
@@ -256,7 +258,9 @@ export function useCanvasGestures(input: GestureInput) {
     }
     d.moved = true;
     const others = input.boxes.filter((b) => !d.origin.has(b.id));
-    const s = snap({ x: lead.x + dx, y: lead.y + dy }, others);
+    // The snap distance is in screen pixels: at a low zoom a few world units were too close to ever snap.
+    const s = snap({ x: lead.x + dx, y: lead.y + dy }, others, BOX, SNAP_DISTANCE / zoom, d.held);
+    d.held = s.held;
     const lines = s.guides.length === 0 ? null : guideLines(s.guides, s.point, others);
     input.surface()?.setGuides?.(lines === null ? null : { lines, labels: [] });
     input.onGuides?.(lines);
@@ -289,6 +293,29 @@ export function useCanvasGestures(input: GestureInput) {
       labels: [],
       indicator: { l: v.x + r.l / v.zoom, t: v.y + r.t / v.zoom, r: v.x + r.r / v.zoom, b: v.y + r.b / v.zoom },
     });
+  };
+
+  const abandon = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const d = drag.current;
+    if (pan.current !== null) {
+      pan.current = null;
+      delete e.currentTarget.dataset["panning"];
+      tracker.current.end();
+    }
+    drag.current = null;
+    press.current = null;
+    input.surface()?.setGuides?.(null);
+    input.onGuides?.(null);
+    input.onMarquee?.(null);
+    if (d?.moved === true) {
+      input.setPositions((prev) => {
+        const next = new Map(prev);
+        for (const [id, o] of d.origin) {
+          next.set(id, o);
+        }
+        return next;
+      });
+    }
   };
 
   const endPress = (e: React.PointerEvent, p: Press) => {
@@ -377,6 +404,10 @@ export function useCanvasGestures(input: GestureInput) {
         endPress(e, p);
       }
     },
+    // A drag the browser ends without a release (another window, a system gesture, the capture lost) puts the boxes
+    // back where they were and clears its guides; before, the guides stayed and the next move dragged on its own.
+    onPointerCancel: (e: React.PointerEvent<HTMLCanvasElement>) => abandon(e),
+    onLostPointerCapture: (e: React.PointerEvent<HTMLCanvasElement>) => abandon(e),
     onPointerLeave: () => {
       if (drag.current === null && press.current === null && pan.current === null) {
         input.setHover(undefined);

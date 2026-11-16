@@ -6,7 +6,7 @@ import { GestureTracker } from "../../app-canvas/use-canvas-gestures.ts";
 import type { Point } from "../positions.ts";
 import type { CanvasSurface } from "../surface.ts";
 import type { EditFn } from "./edits.ts";
-import { type Box, type Handle, resizeBox, snapBox, translate } from "./geometry.ts";
+import { type Box, type Handle, resizeBox, type SnapResult, snapBox, translate } from "./geometry.ts";
 import { dropAt, finishMove, finishResize, type GestureEnv, planMove } from "./gesture.ts";
 import { handleAt, handleCursor } from "./handles.ts";
 import type { OverlayStore } from "./overlay-store.ts";
@@ -87,7 +87,16 @@ type Mode =
       readonly alt: boolean;
     }
   | { readonly kind: "marquee"; readonly from: Point; to: Point; readonly additive: boolean; readonly alt: boolean }
-  | { readonly kind: "node"; readonly id: string; readonly world: Point; readonly box: Box; delta: Point; last: Point }
+  | {
+      readonly kind: "node";
+      readonly id: string;
+      readonly world: Point;
+      readonly box: Box;
+      delta: Point;
+      last: Point;
+      /** The snaps of the last move, held while the pointer stays near them. */
+      locks?: SnapResult["locks"];
+    }
   | {
       readonly kind: "resize";
       readonly id: string;
@@ -101,6 +110,8 @@ type Mode =
       readonly world: Point;
       readonly origin: ReadonlyMap<string, Point>;
       moved: ReadonlyMap<string, Point>;
+      /** The snaps of the last move, held while the pointer stays near them. */
+      locks?: SnapResult["locks"];
     };
 
 interface PointerLike {
@@ -324,7 +335,8 @@ export function pointerHandlers(
       .filter((k) => k !== m.id)
       .flatMap((k) => i.boxOf(k) ?? []);
     const drop = dropAt(e, [m.id], w.x, w.y);
-    const plan = planMove(m.box, siblings, raw, zoom());
+    const plan = planMove(m.box, siblings, raw, zoom(), m.locks);
+    m.locks = plan.locks;
     const flow = drop !== null && drop.position === undefined;
     m.delta = flow ? raw : plan.delta;
     m.last = w;
@@ -356,7 +368,10 @@ export function pointerHandlers(
     const lead = own[0];
     const others = frames([...all.keys()].filter((s) => !m.origin.has(s)));
     const snap =
-      lead === undefined ? { delta: { x: 0, y: 0 }, guides: [] } : snapBox(translate(lead, raw), others, zoom());
+      lead === undefined
+        ? { delta: { x: 0, y: 0 }, guides: [], locks: {} }
+        : snapBox(translate(lead, raw), others, zoom(), m.locks);
+    m.locks = snap.locks;
     const d = { x: Math.round(raw.x + snap.delta.x), y: Math.round(raw.y + snap.delta.y) };
     m.moved = new Map([...m.origin].map(([s, o]) => [s, { x: o.x + d.x, y: o.y + d.y }]));
     i.screens.preview(m.moved);
@@ -515,22 +530,31 @@ export function pointerHandlers(
     hover(e, local(e));
   };
 
+  const cancel = (e: PointerLike): void => {
+    const m = mode.current;
+    mode.current = null;
+    get().overlay.set({ marquee: null, guides: null, drop: null, ghost: null });
+    if (m?.kind === "screens") {
+      get().screens.preview(m.origin);
+    }
+    if (m?.kind === "pan") {
+      get().canvas()?.removeAttribute("data-panning");
+      tracker.end();
+    }
+    void e;
+  };
+
   return {
     onPointerDown: down,
     onPointerMove: move,
     onPointerUp: up,
-    onPointerCancel: (e: PointerLike) => {
-      const m = mode.current;
-      mode.current = null;
-      get().overlay.set({ marquee: null, guides: null, drop: null, ghost: null });
-      if (m?.kind === "screens") {
-        get().screens.preview(m.origin);
+    onPointerCancel: (e: PointerLike) => cancel(e),
+    // The browser can take the pointer away mid-drag (another window, a system gesture) without a pointerup: the drag
+    // ends as a cancel, so no guide or ghost stays on the canvas and the next move does not drag on its own.
+    onLostPointerCapture: (e: PointerLike) => {
+      if (mode.current !== null) {
+        cancel(e);
       }
-      if (m?.kind === "pan") {
-        get().canvas()?.removeAttribute("data-panning");
-        tracker.end();
-      }
-      void e;
     },
     onPointerLeave: () => {
       if (mode.current === null) {

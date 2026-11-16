@@ -51,6 +51,7 @@ function mount(options: { canEdit?: boolean; selected?: readonly string[]; zoom?
       calls.up += 1;
     },
     cancel: () => undefined,
+    lost: () => undefined,
     menu: (_e, hits) => calls.menu.push(hits),
   };
   const surface = { viewport: { x: -40, y: -60, zoom: options.zoom ?? 1 } } as unknown as CanvasSurface;

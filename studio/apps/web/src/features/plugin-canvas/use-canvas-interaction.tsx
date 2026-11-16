@@ -273,6 +273,7 @@ function useScreenHeaders(
       move: pointer.onPointerMove,
       up: pointer.onPointerUp,
       cancel: pointer.onPointerCancel,
+      lost: pointer.onLostPointerCapture,
       menu: pointer.onContextMenu,
     }),
     [pointer],

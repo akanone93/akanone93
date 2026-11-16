@@ -48,50 +48,93 @@ export interface Guide {
   readonly to: number;
 }
 
+/** How much farther than the snap distance a held snap lets go: past it the box moves freely again (no flicker). */
+export const SNAP_RELEASE = 2;
+
+/** One axis's snap: the line it sits on and which of the moving box's lines (start, centre, end) sits there. */
+export interface SnapLock {
+  readonly target: number;
+  readonly edge: 0 | 1 | 2;
+}
+
 export interface SnapResult {
   readonly delta: Point;
   readonly guides: readonly Guide[];
+  /** The snap of each axis, for the next move to hold (hysteresis). */
+  readonly locks: { readonly x?: SnapLock | undefined; readonly y?: SnapLock | undefined };
 }
 
 const xs = (b: Box): number[] => [b.l, (b.l + b.r) / 2, b.r];
 const ys = (b: Box): number[] => [b.t, (b.t + b.b) / 2, b.b];
 
-function bestOffset(mine: readonly number[], theirs: readonly number[], limit: number): number | null {
-  let best: number | null = null;
-  for (const a of mine) {
-    for (const c of theirs) {
-      const d = c - a;
-      if (Math.abs(d) <= limit && (best === null || Math.abs(d) < Math.abs(best))) {
-        best = d;
-      }
+/**
+ * The offset that puts one of `mine` on the nearest of `theirs` within `limit`. A snap held from the previous move stays
+ * while its line is within `limit × SNAP_RELEASE`: near the threshold the box no longer flips between snapped and free
+ * on every pixel, which read as a vibration while dragging.
+ */
+function bestOffset(
+  mine: readonly number[],
+  theirs: readonly number[],
+  limit: number,
+  held: SnapLock | undefined,
+): SnapLock | undefined {
+  if (held !== undefined && theirs.some((t) => Math.abs(t - held.target) < 1e-6)) {
+    const at = mine[held.edge] ?? 0;
+    if (Math.abs(held.target - at) <= limit * SNAP_RELEASE) {
+      return held;
     }
   }
-  return best;
+  let best: { lock: SnapLock; d: number } | undefined;
+  mine.forEach((a, edge) => {
+    for (const c of theirs) {
+      const d = c - a;
+      if (Math.abs(d) <= limit && (best === undefined || Math.abs(d) < Math.abs(best.d))) {
+        best = { lock: { target: c, edge: edge as 0 | 1 | 2 }, d };
+      }
+    }
+  });
+  return best?.lock;
 }
 
 /**
- * Snaps `moving` (already at its dragged position) to the edges and centres of `others`. `zoom` converts the
- * pixel threshold to world units. Returns the correction to add and the guides to draw on the overlay.
+ * The guides of a snapped box: one line per aligned position, spanning the box and every other box on it, so a row of
+ * aligned screens draws one line rather than one per screen.
  */
-export function snapBox(moving: Box, others: readonly Box[], zoom: number): SnapResult {
-  const limit = SNAP_PX / zoom;
-  const dx = bestOffset(xs(moving), others.flatMap(xs), limit) ?? 0;
-  const dy = bestOffset(ys(moving), others.flatMap(ys), limit) ?? 0;
-  const snapped = translate(moving, { x: dx, y: dy });
-  const guides: Guide[] = [];
+function mergedGuides(snapped: Box, others: readonly Box[]): Guide[] {
+  const lines = new Map<string, Guide>();
+  const add = (g: Guide) => {
+    const key = `${g.axis}:${Math.round(g.at * 1000)}`;
+    const was = lines.get(key);
+    lines.set(key, was === undefined ? g : { ...was, from: Math.min(was.from, g.from), to: Math.max(was.to, g.to) });
+  };
   for (const o of others) {
     for (const at of xs(snapped)) {
       if (xs(o).some((v) => Math.abs(v - at) < 1e-6)) {
-        guides.push({ axis: "x", at, from: Math.min(snapped.t, o.t), to: Math.max(snapped.b, o.b) });
+        add({ axis: "x", at, from: Math.min(snapped.t, o.t), to: Math.max(snapped.b, o.b) });
       }
     }
     for (const at of ys(snapped)) {
       if (ys(o).some((v) => Math.abs(v - at) < 1e-6)) {
-        guides.push({ axis: "y", at, from: Math.min(snapped.l, o.l), to: Math.max(snapped.r, o.r) });
+        add({ axis: "y", at, from: Math.min(snapped.l, o.l), to: Math.max(snapped.r, o.r) });
       }
     }
   }
-  return { delta: { x: dx, y: dy }, guides };
+  return [...lines.values()];
+}
+
+/**
+ * Snaps `moving` (already at its dragged position) to the edges and centres of `others`. `zoom` converts the
+ * pixel threshold to world units; `held` is the previous move's snap, kept until the pointer is clearly away.
+ * Returns the correction to add, the guides to draw on the overlay and the snaps to hold.
+ */
+export function snapBox(moving: Box, others: readonly Box[], zoom: number, held: SnapResult["locks"] = {}): SnapResult {
+  const limit = SNAP_PX / zoom;
+  const lx = bestOffset(xs(moving), others.flatMap(xs), limit, held.x);
+  const ly = bestOffset(ys(moving), others.flatMap(ys), limit, held.y);
+  const dx = lx === undefined ? 0 : lx.target - (xs(moving)[lx.edge] ?? 0);
+  const dy = ly === undefined ? 0 : ly.target - (ys(moving)[ly.edge] ?? 0);
+  const snapped = translate(moving, { x: dx, y: dy });
+  return { delta: { x: dx, y: dy }, guides: mergedGuides(snapped, others), locks: { x: lx, y: ly } };
 }
 
 export type Handle = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";

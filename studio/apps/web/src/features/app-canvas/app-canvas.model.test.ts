@@ -149,3 +149,14 @@ describe("view gestures reach the worker (M-12) [STU-032]", () => {
     expect(calls).toEqual(["zoom:true", "zoom:false", "pan:true", "pan:false"]);
   });
 });
+
+describe("[STU-032] app canvas snapping follows the zoom and holds", () => {
+  test("the distance is the caller's, in world units, and a snap is held while the box stays near", () => {
+    const zoomedOut = snap({ x: 112, y: 400 }, [{ x: 100, y: 0 }], BOX, 6 / 0.5);
+    expect(zoomedOut.point.x).toBe(100);
+    const held = snap({ x: 109, y: 400 }, [{ x: 100, y: 0 }], BOX, 6, zoomedOut.held);
+    expect(held.point.x).toBe(100);
+    const free = snap({ x: 120, y: 400 }, [{ x: 100, y: 0 }], BOX, 6, held.held);
+    expect(free.point.x).toBe(120);
+  });
+});

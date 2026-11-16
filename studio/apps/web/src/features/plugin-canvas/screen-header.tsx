@@ -49,6 +49,8 @@ export interface HeaderPointer {
   readonly move: (e: PointerEvent<HTMLElement>) => void;
   readonly up: (e: PointerEvent<HTMLElement>) => void;
   readonly cancel: (e: PointerEvent<HTMLElement>) => void;
+  /** The bar lost the pointer mid-drag without a release: the drag ends as a cancel. */
+  readonly lost: (e: PointerEvent<HTMLElement>) => void;
   readonly menu: (e: MouseEvent<HTMLElement>, hits: readonly string[]) => void;
 }
 
@@ -265,6 +267,12 @@ function ScreenHeader(p: HeaderProps): ReactNode {
       onPointerCancel={(e) => {
         press.current = null;
         p.pointer.cancel(e);
+      }}
+      onLostPointerCapture={(e) => {
+        if (press.current !== null) {
+          press.current = null;
+          p.pointer.lost(e);
+        }
       }}
       onPointerEnter={() => p.store.set({ hover: p.screen.root })}
       onPointerLeave={() => press.current === null && p.store.set({ hover: null })}

@@ -15,6 +15,7 @@ import {
   wrapRecipe,
 } from "./edits.ts";
 import { distances, nudgeDelta, resizeBox, snapBox } from "./geometry.ts";
+import { planMove } from "./gesture.ts";
 import { handleKey } from "./keys.ts";
 import { announce } from "./live-region.ts";
 import { resolveDrop } from "./reparent.ts";
@@ -241,5 +242,40 @@ describe("guides, resize, reparent target [STU-067]", () => {
     expect(t?.indicator).toEqual(box(50, 0, 50, 40));
     expect(resolveDrop(index, containers, ["a"], 10, 10)?.parent).toBe("root");
     expect(resolveDrop(index, containers, ["a"], 500, 500)).toBeNull();
+  });
+});
+
+describe("[STU-067] guides stay calm while dragging", () => {
+  const other = { l: 100, t: 0, r: 150, b: 50 };
+
+  test("a snap is held until the box is clearly away, so it does not flicker at the threshold", () => {
+    const first = snapBox({ l: 104, t: 200, r: 154, b: 250 }, [other], 1);
+    expect(first.delta.x).toBe(-4);
+    // 8 px off: past the snap distance (6) but within twice it, the held snap stays.
+    const held = snapBox({ l: 108, t: 200, r: 158, b: 250 }, [other], 1, first.locks);
+    expect(held.delta.x).toBe(-8);
+    // 13 px off: past the release distance, the box moves freely again.
+    const free = snapBox({ l: 113, t: 200, r: 163, b: 250 }, [other], 1, held.locks);
+    expect(free.delta.x).toBe(0);
+    expect(free.guides).toEqual([]);
+  });
+
+  test("boxes aligned on one line draw one guide through all of them, not one each", () => {
+    const row = [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ l: i * 100, t: 0, r: i * 100 + 50, b: 50 }));
+    const r = snapBox({ l: 1000, t: 2, r: 1050, b: 52 }, row, 1);
+    const tops = r.guides.filter((g) => g.axis === "y");
+    expect(tops.length).toBe(3);
+    expect(tops.every((g) => g.from === 0 && g.to === 1050)).toBe(true);
+  });
+
+  test("distance labels go to the nearest box on each side only", () => {
+    const siblings = [
+      { l: 0, t: 0, r: 10, b: 10 },
+      { l: 20, t: 0, r: 30, b: 10 },
+      { l: 100, t: 0, r: 110, b: 10 },
+      { l: 200, t: 0, r: 210, b: 10 },
+    ];
+    const plan = planMove({ l: 50, t: 0, r: 60, b: 10 }, siblings, { x: 0, y: 0 }, 1);
+    expect(plan.guides.labels.map((l) => l.text).sort()).toEqual(["20", "40"]);
   });
 });
