@@ -251,6 +251,10 @@ func (b *widgetBuild) slots() string {
 func slotArg(s registry.Slot, fp registry.Parameter) (string, string) {
 	typ := strings.TrimSuffix(fp.Type, "?")
 	switch {
+	case s.List && typ == "List<Widget>" && strings.HasSuffix(fp.Type, "?"):
+		// An optional list gets null when the slot is empty: Flutter treats an empty list as present (a
+		// Scaffold draws its footer bar for empty persistentFooterButtons), and Studio's canvas does not.
+		return fmt.Sprintf("c.slotListOrNull(%d)", s.ID), ""
 	case s.List && typ == "List<Widget>":
 		return fmt.Sprintf("c.slotList(%d)", s.ID), ""
 	case s.List || (typ != "Widget" && typ != "PreferredSizeWidget"):

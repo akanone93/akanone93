@@ -43,6 +43,12 @@ abstract interface class NodeContext implements Decoding {
   /// The nodes filling list slot [id].
   List<Widget> slotList(int id);
 
+  /// The nodes filling list slot [id], or null when it holds none: for a
+  /// Flutter parameter where null and an empty list differ, such as a
+  /// Scaffold's `persistentFooterButtons`, whose empty list still draws a
+  /// footer bar (with its decoration) that Studio's canvas does not.
+  List<Widget>? slotListOrNull(int id);
+
   /// Whether slot [id] is filled.
   bool hasSlot(int id);
 

@@ -1871,7 +1871,7 @@ Widget _buildAppBar(NodeContext c) {
     leading: c.slot(1),
     automaticallyImplyLeading: c.decode(1, asBool) ?? true,
     title: c.slot(2),
-    actions: c.slotList(3),
+    actions: c.slotListOrNull(3),
     automaticallyImplyActions: c.decode(2, asBool) ?? true,
     flexibleSpace: c.slot(4),
     bottom: c.preferredSizeSlot(5),
@@ -2341,7 +2341,7 @@ Widget _buildCupertinoListSection(NodeContext c) {
   return o0 == null
       ? o1 == null
       ? CupertinoListSection(
-    children: c.slotList(3),
+    children: c.slotListOrNull(3),
     header: c.slot(1),
     footer: c.slot(2),
     backgroundColor: c.decode(2, asColor) ?? CupertinoColors.systemGroupedBackground,
@@ -2353,7 +2353,7 @@ Widget _buildCupertinoListSection(NodeContext c) {
     separatorColor: c.decode(9, asColor),
   )
       : CupertinoListSection(
-    children: c.slotList(3),
+    children: c.slotListOrNull(3),
     header: c.slot(1),
     footer: c.slot(2),
     backgroundColor: c.decode(2, asColor) ?? CupertinoColors.systemGroupedBackground,
@@ -2367,7 +2367,7 @@ Widget _buildCupertinoListSection(NodeContext c) {
   )
       : o1 == null
       ? CupertinoListSection(
-    children: c.slotList(3),
+    children: c.slotListOrNull(3),
     header: c.slot(1),
     footer: c.slot(2),
     margin: o0,
@@ -2380,7 +2380,7 @@ Widget _buildCupertinoListSection(NodeContext c) {
     separatorColor: c.decode(9, asColor),
   )
       : CupertinoListSection(
-    children: c.slotList(3),
+    children: c.slotListOrNull(3),
     header: c.slot(1),
     footer: c.slot(2),
     margin: o0,
@@ -3293,7 +3293,7 @@ Widget _buildScaffold(NodeContext c) {
     body: c.slot(2),
     floatingActionButton: c.slot(3),
     floatingActionButtonLocation: c.decode(1, decodeFloatingActionButtonLocation),
-    persistentFooterButtons: c.slotList(4),
+    persistentFooterButtons: c.slotListOrNull(4),
     persistentFooterAlignment: c.decode(2, decodeAlignmentDirectional) ?? _default7,
     persistentFooterDecoration: c.decode(3, decodeBoxDecoration),
     drawer: c.slot(5),
@@ -3455,7 +3455,7 @@ Widget _buildSliverAppBar(NodeContext c) {
     leading: c.slot(1),
     automaticallyImplyLeading: c.decode(1, asBool) ?? true,
     title: c.slot(2),
-    actions: c.slotList(3),
+    actions: c.slotListOrNull(3),
     automaticallyImplyActions: c.decode(2, asBool) ?? true,
     flexibleSpace: c.slot(4),
     bottom: c.preferredSizeSlot(5),

@@ -236,3 +236,25 @@ func TestConstructorChoice(t *testing.T) {
 		t.Error("padding belongs to the unnamed Slider constructor only")
 	}
 }
+
+// An optional list slot that is empty reaches Flutter as null, as an absent parameter does, while a required list
+// keeps its empty list: Flutter draws a Scaffold's footer bar for an empty persistentFooterButtons, which the
+// Studio canvas never drew, so the phone showed a coloured bar under the page.
+//
+// Verifies: WGT-002.
+func TestRenderDartPassesEmptyOptionalListsAsNull(t *testing.T) {
+	t.Parallel()
+	src, err := renderDart(loadRegistry(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := string(src)
+	for _, want := range []string{"persistentFooterButtons: c.slotListOrNull(", "actions: c.slotListOrNull("} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+	if !strings.Contains(out, "children: c.slotList(") {
+		t.Error("a required children list must stay a list")
+	}
+}

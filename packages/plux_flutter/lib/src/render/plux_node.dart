@@ -766,6 +766,12 @@ final class NodeContextImpl implements NodeContext, MotionSource {
   List<Widget> slotList(int id) => expandAll(_fill(id)?.nodes ?? const []);
 
   @override
+  List<Widget>? slotListOrNull(int id) {
+    final list = slotList(id);
+    return list.isEmpty ? null : list;
+  }
+
+  @override
   List<Widget> children() => expandAll(node.children ?? const []);
 
   /// The widgets of a list of nodes: hidden nodes contribute none, `If`,
