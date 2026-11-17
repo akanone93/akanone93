@@ -118,6 +118,7 @@
 }
 
 .pc-tag[data-kind="refused"] {
+  max-inline-size: 22rem;
   color: oklch(0.99 0 0);
   background-color: var(--pc-refused);
 }
@@ -137,15 +138,16 @@
   inset: 0 auto auto 0;
   transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
   translate: -50% calc(-100% - 10px);
-  max-inline-size: 22rem;
+  inline-size: max-content;
+  max-inline-size: 18rem;
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 600;
   line-height: 18px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: center;
+  /* The whole reason, on two lines if it must: it is the only thing the person learns from a refused drop. */
+  white-space: normal;
   color: oklch(0.99 0 0);
   background-color: var(--pc-refused);
   box-shadow: 0 2px 8px color-mix(in oklch, black 22%, transparent);
