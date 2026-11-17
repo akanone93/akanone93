@@ -22,7 +22,7 @@ import { useDeviceFonts } from "../plugin-canvas/device-fonts.ts";
 import { useHostFonts } from "../plugin-canvas/host-fonts.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { browserSurface, type CanvasSurface } from "../plugin-canvas/surface.ts";
-import { useNativeRoutes } from "../plugin-canvas/use-native-widgets.ts";
+import { declaredNativeRoutes, useNativeRoutes } from "../plugin-canvas/use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
 import { type ChangeSet, loadedDocs, useChangeSets } from "../safety/index.ts";
 import { appCanvasMessages } from "./app-canvas.messages.ts";
@@ -415,7 +415,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
 
   // The navigate links of every page, for the arrows and their lane fixes (STU-040, STU-046).
   const project = useAppDocuments(appId);
-  const nativeRoutes = useNativeRoutes(appId);
+  const declared = useMemo(() => declaredNativeRoutes(project.data ?? []), [project.data]);
+  const nativeRoutes = useNativeRoutes(appId, declared);
   const loaded = useMemo(() => loadedDocs(project.data ?? []), [project.data]);
   const graph = useMemo(() => appGraph(loaded, nativeRoutes), [loaded, nativeRoutes]);
 

@@ -159,7 +159,7 @@ import { useAssetsTab } from "./use-assets-tab.ts";
 import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
 import { useGhostLayer } from "./use-ghost-layer.ts";
 import { useLocalePreview, usePluralSamples } from "./use-locale-preview.ts";
-import { useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
+import { declaredNativeRoutes, useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
 import { usePreviewScene } from "./use-preview-scene.ts";
 import { useScreenPositions } from "./use-screen-positions.ts";
@@ -850,7 +850,8 @@ function PluginCanvasView({
   const fittedRef = useRef<CanvasSurface | null>(null);
   const fittedDevice = useRef("");
   const [heights, setHeights] = useState<Heights>(new Map());
-  const nativeRoutes = useNativeRoutes(params.app ?? "");
+  const declared = useMemo(() => declaredNativeRoutes(appDocs.data ?? []), [appDocs.data]);
+  const nativeRoutes = useNativeRoutes(params.app ?? "", declared);
   const appScreens = useMemo(() => readAppScreens(appDocs.data ?? []), [appDocs.data]);
   // Lane titles name the screens as they show (a translated title in the previewed locale).
   const own = useMemo(

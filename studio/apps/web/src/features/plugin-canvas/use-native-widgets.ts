@@ -5,6 +5,7 @@ import { createClient } from "@connectrpc/connect";
 import { NativeCatalogueService } from "@plux/api";
 import type { NativeCatalogueDocument, WidgetDescriptor } from "@plux/schema";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 
 const NONE: readonly WidgetDescriptor[] = [];
@@ -40,8 +41,42 @@ export function nativeDescriptors(doc: NativeCatalogueDocument): readonly Widget
   })) as unknown as readonly WidgetDescriptor[];
 }
 
-/** The native route names of the app's newest host build (NAV-002), cached per app; empty while loading. */
-export function useNativeRoutes(appId: string): readonly string[] {
+/**
+ * The native routes the project's own catalogue declares (SCH-032): the routes of every `nativeCatalogue`
+ * document, sorted. The compiler checks navigation against this document, so the canvases draw these
+ * routes even before a host build is uploaded.
+ */
+export function declaredNativeRoutes(
+  documents: readonly { readonly kind: string; readonly content: Uint8Array }[],
+): string[] {
+  const decoder = new TextDecoder();
+  const names = new Set<string>();
+  for (const d of documents) {
+    if (d.kind !== "nativeCatalogue") {
+      continue;
+    }
+    try {
+      const doc = JSON.parse(decoder.decode(d.content)) as NativeCatalogueDocument;
+      for (const r of doc.routes ?? []) {
+        names.add(r.name);
+      }
+    } catch {
+      // A malformed catalogue declares nothing; the validator reports it.
+    }
+  }
+  return [...names].sort();
+}
+
+/** The routes of `a` and `b`, once each, sorted. */
+export function unionRoutes(a: readonly string[], b: readonly string[]): readonly string[] {
+  return [...new Set([...a, ...b])].sort();
+}
+
+/**
+ * The native route names of the app (NAV-002): the newest host build's, cached per app, with those the
+ * project's catalogue document declares (`declared`); the declared ones alone while the build loads.
+ */
+export function useNativeRoutes(appId: string, declared: readonly string[] = []): readonly string[] {
   const { session } = useApp();
   const q = useQuery({
     queryKey: ["native-routes", appId],
@@ -57,7 +92,8 @@ export function useNativeRoutes(appId: string): readonly string[] {
       return (doc.routes ?? []).map((r) => r.name);
     },
   });
-  return q.data ?? [];
+  const built = q.data;
+  return useMemo(() => unionRoutes(built ?? [], declared), [built, declared]);
 }
 
 /**
