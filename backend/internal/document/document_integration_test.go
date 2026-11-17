@@ -910,7 +910,52 @@ func TestImportExportAndValidation(t *testing.T) {
 	if err != nil || len(plugins) != 1 || plugins[0].Key != "loans" {
 		t.Fatalf("plugins: %+v %v", plugins, err)
 	}
+	// A plugin the import creates takes its manifest's name.
+	if plugins[0].Name != "Loans" {
+		t.Errorf("the imported plugin is named %q, want the manifest's name", plugins[0].Name)
+	}
 	loans := plugins[0].ID
+	// A plugin keeps its key: the same manifest under another key would make
+	// a second plugin with the first one's identifier, so the import is
+	// refused and nothing is written.
+	var renamed []document.File
+	for _, file := range files {
+		if rest, ok := strings.CutPrefix(file.Path, "plugins/loans/"); ok {
+			renamed = append(renamed, document.File{Path: "plugins/loans-renamed/" + rest, Content: file.Content})
+		} else {
+			renamed = append(renamed, file)
+		}
+	}
+	if _, err := f.docs.Import(ctx, f.owner, f.app, "", "import-1", renamed); code(err) != plxerr.DuplicateID {
+		t.Errorf("an import that moves a plugin's identifier to another key: %v", err)
+	}
+	if after, err := f.docs.ListPlugins(ctx, f.viewer, f.app, storage.Cursor{}, 10); err != nil || len(after) != 1 {
+		t.Errorf("a refused import changed the plugins: %+v %v", after, err)
+	}
+	// Importing a manifest with another name renames the plugin to match.
+	var retitled []document.File
+	for _, file := range files {
+		if file.Path == "plugins/loans/plugin.json" {
+			file = document.File{Path: file.Path, Content: []byte(strings.Replace(string(file.Content), `"Loans"`, `"Loan calculator"`, 1))}
+		}
+		retitled = append(retitled, file)
+	}
+	if _, err := f.docs.Import(ctx, f.owner, f.app, "", "import-1", retitled); err != nil {
+		t.Fatal(err)
+	}
+	if after, err := f.docs.ListPlugins(ctx, f.viewer, f.app, storage.Cursor{}, 10); err != nil || len(after) != 1 || after[0].Name != "Loan calculator" {
+		t.Errorf("the plugin's name after importing a renamed manifest: %+v %v", after, err)
+	}
+	twice := append(append([]document.File(nil), files...), renamed...)
+	var both []document.File
+	for _, file := range twice {
+		if strings.HasPrefix(file.Path, "plugins/") || !slices.ContainsFunc(both, func(b document.File) bool { return b.Path == file.Path }) {
+			both = append(both, file)
+		}
+	}
+	if _, err := f.docs.Import(ctx, f.owner, f.app, "", "import-1", both); code(err) != plxerr.DuplicateID {
+		t.Errorf("an import with one identifier in two plugin directories: %v", err)
+	}
 	oneFiles, err := f.docs.Export(ctx, f.viewer, f.app, loans)
 	one := make([]document.File, 0, len(oneFiles))
 	one = append(one, oneFiles...)

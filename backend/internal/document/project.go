@@ -224,25 +224,20 @@ func (s *Service) Import(ctx context.Context, p auth.Principal, appID, pluginID,
 	if pluginID != "" {
 		return s.importDraft(ctx, p, appID, pluginID, session, files, nil)
 	}
+	names, err := s.checkImportedPlugins(ctx, p, appID, byDir)
+	if err != nil {
+		return Written{}, err
+	}
 	assets, err := s.prepareImportedAssets(ctx, p, appID, byDir[""], assetFiles)
 	if err != nil {
 		return Written{}, err
 	}
-	for _, key := range slices.Sorted(maps.Keys(byDir)) {
-		if key == "" {
-			continue
-		}
-		id, err := s.pluginForImport(ctx, p, appID, key)
-		if err != nil {
-			return Written{}, err
-		}
-		w, err := s.importDraft(ctx, p, appID, id, session, byDir[key], nil)
-		if err != nil {
-			return Written{}, err
-		}
-		out.Documents = append(out.Documents, w.Documents...)
-		out.Diagnostics = append(out.Diagnostics, w.Diagnostics...)
+	plugins, err := s.importPlugins(ctx, p, appID, session, byDir, names)
+	if err != nil {
+		return Written{}, err
 	}
+	out.Documents = append(out.Documents, plugins.Documents...)
+	out.Diagnostics = append(out.Diagnostics, plugins.Diagnostics...)
 	w, err := s.importDraft(ctx, p, appID, "", session, byDir[""], assets)
 	if err != nil {
 		return Written{}, err
@@ -257,10 +252,118 @@ func (s *Service) Import(ctx context.Context, p auth.Principal, appID, pluginID,
 	return out, nil
 }
 
-// pluginForImport returns the plugin with a key, creating it and taking
-// its lock for the importing session when it does not exist.
-func (s *Service) pluginForImport(ctx context.Context, p auth.Principal, appID, key string) (string, error) {
-	var id string
+// importPlugins replaces the draft of every plugin directory in the files,
+// creating plugins that do not exist yet; a plugin's name follows its
+// manifest, as Studio's settings keep them.
+func (s *Service) importPlugins(ctx context.Context, p auth.Principal, appID, session string, byDir map[string][]File, names map[string]string) (Written, error) {
+	var out Written
+	for _, key := range slices.Sorted(maps.Keys(byDir)) {
+		if key == "" {
+			continue
+		}
+		id, current, err := s.pluginForImport(ctx, p, appID, key, names[key])
+		if err != nil {
+			return Written{}, err
+		}
+		w, err := s.importDraft(ctx, p, appID, id, session, byDir[key], nil)
+		if err != nil {
+			return Written{}, err
+		}
+		if name := strings.TrimSpace(names[key]); name != "" && name != current {
+			if _, err := s.UpdatePlugin(ctx, p, id, name); err != nil {
+				return Written{}, err
+			}
+		}
+		out.Documents = append(out.Documents, w.Documents...)
+		out.Diagnostics = append(out.Diagnostics, w.Diagnostics...)
+	}
+	return out, nil
+}
+
+// checkImportedPlugins refuses an import whose plugin manifests would give
+// one identifier to two plugins, and returns each plugin directory's name.
+// A plugin is found by its key and a key never changes, so a manifest that
+// carries the identifier of the app's plugin under another key would make a
+// second plugin with that identifier rather than rename the first
+// (SCH-002): the import is refused before anything is written.
+func (s *Service) checkImportedPlugins(ctx context.Context, p auth.Principal, appID string, byDir map[string][]File) (map[string]string, error) {
+	owners, err := s.manifestKeys(ctx, p, appID)
+	if err != nil {
+		return nil, err
+	}
+	names := map[string]string{}
+	imported := map[string]string{}
+	for _, key := range slices.Sorted(maps.Keys(byDir)) {
+		if key == "" {
+			continue
+		}
+		manifest := "plugins/" + key + "/plugin.json"
+		for _, f := range byDir[key] {
+			if f.Path != manifest {
+				continue
+			}
+			var head struct {
+				ID   string `json:"id"`
+				Name string `json:"name"`
+			}
+			if err := json.Unmarshal(f.Content, &head); err != nil {
+				return nil, plxerr.New(plxerr.InvalidProjectLayout, "%s cannot be read: %v", manifest, err)
+			}
+			names[key] = head.Name
+			if other, ok := imported[head.ID]; ok {
+				return nil, plxerr.New(plxerr.DuplicateID, "plugins/%s/plugin.json and %s have the same identifier %s", other, manifest, head.ID)
+			}
+			imported[head.ID] = key
+			if owner, ok := owners[head.ID]; ok && owner != key {
+				return nil, plxerr.New(plxerr.DuplicateID,
+					"%s has the identifier of the plugin %q: a plugin keeps its key, so import it under plugins/%s/ or give it a new identifier",
+					manifest, owner, owner)
+			}
+		}
+	}
+	return names, nil
+}
+
+// manifestKeys maps the identifier of every plugin manifest in an app's
+// drafts to the key of the plugin that holds it.
+func (s *Service) manifestKeys(ctx context.Context, p auth.Principal, appID string) (map[string]string, error) {
+	const pageSize = 500
+	out := map[string]string{}
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		if err := authorize(p, auth.PluginRead, appID); err != nil {
+			return err
+		}
+		app, err := parseID(appID, "app")
+		if err != nil {
+			return err
+		}
+		q := dbgen.New(tx)
+		after := ""
+		for {
+			rows, err := q.ListDocumentsOfKind(ctx, dbgen.ListDocumentsOfKindParams{
+				AppID: app, Kind: string(schema.KindPlugin), AfterPath: after, PageSize: pageSize,
+			})
+			if err != nil {
+				return failure(err, "plugin")
+			}
+			for _, row := range rows {
+				out[storage.ID(row.EntityID)] = strings.TrimSuffix(strings.TrimPrefix(row.Path, "plugins/"), "/plugin.json")
+				after = row.Path
+			}
+			if len(rows) < pageSize {
+				return nil
+			}
+		}
+	})
+	return out, err
+}
+
+// pluginForImport returns the plugin with a key and its current name,
+// creating it with the manifest's name, or the key when the manifest has
+// none, and taking its lock for the importing session when it does not
+// exist.
+func (s *Service) pluginForImport(ctx context.Context, p auth.Principal, appID, key, name string) (string, string, error) {
+	var id, current string
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		app, err := parseID(appID, "app")
@@ -270,20 +373,23 @@ func (s *Service) pluginForImport(ctx context.Context, p auth.Principal, appID, 
 		row, err := q.GetPluginByKey(ctx, dbgen.GetPluginByKeyParams{AppID: app, Key: key})
 		switch {
 		case err == nil:
-			id = storage.ID(row.ID)
+			id, current = storage.ID(row.ID), row.Name
 		case !errors.Is(err, pgx.ErrNoRows):
 			return failure(err, "plugin")
 		}
 		return nil
 	})
 	if err != nil || id != "" {
-		return id, err
+		return id, current, err
 	}
-	created, err := s.CreatePlugin(ctx, p, appID, key, key)
+	if name == "" {
+		name = key
+	}
+	created, err := s.CreatePlugin(ctx, p, appID, key, name)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return created.ID, nil
+	return created.ID, created.Name, nil
 }
 
 // importDraft replaces one draft with files, taking its lock for the
