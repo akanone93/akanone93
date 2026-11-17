@@ -3,7 +3,15 @@
 
 import type { Guides } from "@plux/canvas";
 import { useSyncExternalStore } from "react";
+import type { Refusal } from "./drop-rules.ts";
 import type { Box } from "./geometry.ts";
+
+/** A drop the rules refuse (PC-20): the widget dragged, the widget the refusal is about (null off the screens), why. */
+export interface RefusedDrop {
+  readonly reason: Refusal;
+  readonly type: string;
+  readonly at: string | null;
+}
 
 /**
  * What the canvas shows over the screens while the pointer works (STU-067): the node under the pointer, the marquee,
@@ -19,13 +27,57 @@ export interface OverlayState {
   readonly guides: Guides | null;
   /** The container a drop would land in, or null. */
   readonly drop: string | null;
+  /** The slot of `drop` it would land in, named on its tag; null for its children. */
+  readonly dropSlot: string | null;
+  /** The drop the rules refuse where the pointer is, while dragging, or null. */
+  readonly refused: RefusedDrop | null;
+  /** A refused drop just let go, at world point (x, y): its reason shows there for a moment. */
+  readonly notice: (RefusedDrop & { readonly x: number; readonly y: number }) | null;
   /** The box of a node being moved or resized, in world units, or null. */
   readonly ghost: Box | null;
   /** Changes whenever the view pans or zooms, so the overlay follows it. */
   readonly view: number;
 }
 
-export const idleOverlay: OverlayState = { hover: null, marquee: null, guides: null, drop: null, ghost: null, view: 0 };
+export const idleOverlay: OverlayState = {
+  hover: null,
+  marquee: null,
+  guides: null,
+  drop: null,
+  dropSlot: null,
+  refused: null,
+  notice: null,
+  ghost: null,
+  view: 0,
+};
+
+/** The overlay change that shows a drop plan while dragging: the target, its slot and indicator, or the refusal. */
+export function dropMarks(
+  plan:
+    | {
+        readonly ok: true;
+        readonly target: { readonly parent: string; readonly slot?: string; readonly indicator: Box };
+      }
+    | (Omit<RefusedDrop, "type"> & { readonly ok: false }),
+  type: string,
+): Pick<OverlayState, "drop" | "dropSlot" | "refused" | "guides"> {
+  return plan.ok
+    ? {
+        drop: plan.target.parent,
+        dropSlot: plan.target.slot ?? null,
+        refused: null,
+        guides: { lines: [], labels: [], indicator: plan.target.indicator },
+      }
+    : { drop: null, dropSlot: null, refused: { reason: plan.reason, type, at: plan.at }, guides: null };
+}
+
+/** The overlay change that clears every drop mark. */
+export const noDrop: Pick<OverlayState, "drop" | "dropSlot" | "refused" | "guides"> = {
+  drop: null,
+  dropSlot: null,
+  refused: null,
+  guides: null,
+};
 
 export interface OverlayStore {
   get(): OverlayState;

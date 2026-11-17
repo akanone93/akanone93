@@ -15,8 +15,8 @@ import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { AppContextProvider } from "../../lib/use-app.tsx";
 import { insertWidget } from "../panels/model.ts";
+import { planDrop } from "./select/drop-rules.ts";
 import { stackDropRecipe } from "./select/edits.ts";
-import { type Container, resolveDrop } from "./select/reparent.ts";
 import { indexNodes } from "./select/tree.ts";
 import { useNativeWidgets } from "./use-native-widgets.ts";
 
@@ -30,12 +30,17 @@ const root = () => ({
 });
 
 describe("drop into a Stack [STU-067]", () => {
-  const stack: Container = { id: "stack", box: { l: 100, t: 200, r: 400, b: 500 }, axis: "stack", children: [] };
-
   test("[STU-067] the drop point is rounded and given in the Stack's coordinates", () => {
-    const t = resolveDrop(indexNodes([root()] as never), [stack], [], 150.4, 260.6);
-    expect(t?.position).toEqual({ left: 50, top: 61 });
-    expect(t?.indicator).toEqual({ l: 150, t: 261, r: 150, b: 261 });
+    const index = indexNodes([root()] as never);
+    const boxes: Record<string, { l: number; t: number; r: number; b: number }> = {
+      col: { l: 0, t: 0, r: 500, b: 600 },
+      t: { l: 0, t: 0, r: 500, b: 20 },
+      stack: { l: 100, t: 200, r: 400, b: 500 },
+    };
+    const env = { index, boxOf: (id: string) => boxes[id], typeOf: (id: string) => index.type.get(id) };
+    const t = planDrop(env, { type: "Text", ids: [] }, 150.4, 260.6);
+    expect(t.ok && t.target.position).toEqual({ left: 50, top: 61 });
+    expect(t.ok && t.target.indicator).toEqual({ l: 150, t: 261, r: 150, b: 261 });
   });
 
   test("[STU-067] a canvas drag wraps the node in a Positioned at the drop point", () => {

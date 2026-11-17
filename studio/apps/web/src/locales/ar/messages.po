@@ -1126,6 +1126,12 @@ msgstr "{ratio}:1 AA"
 msgid "design.contrastFails"
 msgstr "{ratio}:1 دون AA"
 
+#. Why a dragged widget cannot be dropped where the pointer is, shown beside it; widget names such as Row stay in English.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.dropRefused"
+msgstr "{reason, select, needsScrollView {يحتاج {type} إلى CustomScrollView} needsFlex {يحتاج {type} إلى Row أو Column أو Flex} needsStack {يحتاج {type} إلى Stack} full {{parent} ممتلئ} offScreen {أفلِته على شاشة} other {لا يمكن وضع {type} هنا}}"
+
 #. Reading of an upload's progress, such as 2 KB of 10 KB.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -11344,6 +11350,12 @@ msgstr "غير متاح"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.consoleIdle"
 msgstr "غير متصل"
+
+#. Shown for a moment where a widget was let go but could not be dropped; {reason} says why.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.dropNotice"
+msgstr "لم يُفلَت: {reason}"
 
 #. Badge of a key whose registration was started but not completed; it cannot be used.
 #. js-lingui-explicit-id

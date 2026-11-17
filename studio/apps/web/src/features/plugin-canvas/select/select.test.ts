@@ -4,6 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { createStore } from "zustand/vanilla";
 import type { Node } from "../plugin-model.ts";
+import { planDrop } from "./drop-rules.ts";
 import {
   cloneWithFreshIds,
   duplicateRecipe,
@@ -18,7 +19,6 @@ import { distances, nudgeDelta, resizeBox, snapBox } from "./geometry.ts";
 import { planMove } from "./gesture.ts";
 import { handleKey } from "./keys.ts";
 import { announce } from "./live-region.ts";
-import { resolveDrop } from "./reparent.ts";
 import * as sel from "./selection.ts";
 import { selectionStoreOf } from "./store.ts";
 
@@ -216,32 +216,39 @@ describe("guides, resize, reparent target [STU-067]", () => {
   });
   test("[STU-067] reparent resolves the smallest valid container and the insertion index", () => {
     const box = (l: number, t: number, r: number, b: number) => ({ l, t, r, b });
-    const containers = [
+    const boxes: Record<string, ReturnType<typeof box>> = {
+      root: box(0, 0, 100, 100),
+      a: box(0, 0, 100, 40),
+      a1: box(0, 0, 40, 40),
+      a2: box(50, 0, 90, 40),
+      b: box(0, 50, 100, 90),
+      b1: box(0, 50, 100, 90),
+    };
+    const typed = indexNodes([
       {
         id: "root",
-        box: box(0, 0, 100, 100),
-        axis: "column" as const,
+        type: "Column",
         children: [
-          { id: "a", box: box(0, 0, 100, 40) },
-          { id: "b", box: box(0, 50, 100, 90) },
+          {
+            id: "a",
+            type: "Row",
+            children: [
+              { id: "a1", type: "Text" },
+              { id: "a2", type: "Text" },
+            ],
+          },
+          { id: "b", type: "Column", children: [{ id: "b1", type: "Text" }] },
         ],
-      },
-      {
-        id: "a",
-        box: box(0, 0, 100, 40),
-        axis: "row" as const,
-        children: [
-          { id: "a1", box: box(0, 0, 40, 40) },
-          { id: "a2", box: box(50, 0, 90, 40) },
-        ],
-      },
-    ];
-    const t = resolveDrop(index, containers, ["b1"], 45, 10);
-    expect(t?.parent).toBe("a");
-    expect(t?.index).toBe(1);
-    expect(t?.indicator).toEqual(box(50, 0, 50, 40));
-    expect(resolveDrop(index, containers, ["a"], 10, 10)?.parent).toBe("root");
-    expect(resolveDrop(index, containers, ["a"], 500, 500)).toBeNull();
+      } as Node,
+    ]);
+    const env = { index: typed, boxOf: (id: string) => boxes[id], typeOf: (id: string) => typed.type.get(id) };
+    const t = planDrop(env, { type: "Text", ids: ["b1"] }, 45, 10);
+    expect(t.ok && t.target.parent).toBe("a");
+    expect(t.ok && t.target.index).toBe(1);
+    expect(t.ok && t.target.indicator).toEqual(box(50, 0, 50, 40));
+    const out = planDrop(env, { type: "Row", ids: ["a"] }, 10, 10);
+    expect(out.ok && out.target.parent).toBe("root");
+    expect(planDrop(env, { type: "Row", ids: ["a"] }, 500, 500)).toEqual({ ok: false, reason: "offScreen", at: null });
   });
 });
 

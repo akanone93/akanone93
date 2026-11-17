@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { I18n } from "@lingui/core";
+import type { Refusal } from "./select/drop-rules.ts";
 
 /** Messages of the plugin canvas (STU-050, STU-056). */
 export function pluginCanvasMessages(i18n: I18n) {
@@ -741,10 +742,37 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "Canvas actions",
       comment: "Accessible name of the menu a secondary click opens on the plugin canvas.",
     }),
+    dropRefused: (reason: Refusal, type: string, parent: string) => dropRefusalMessage(i18n, reason, type, parent),
+    dropNotice: (reason: string) => dropNoticeMessage(i18n, reason),
     positionsFailed: i18n._({
       id: "pluginCanvas.positionsFailed",
       message: "The screen's new place could not be saved. It is back where it was.",
       comment: "Shown when moving a screen on the canvas could not be saved, for example offline.",
     }),
   };
+}
+
+/**
+ * Why a dragged widget cannot go where it is (PC-20), in a few words: `type` is the dragged widget, `parent` the widget
+ * the refusal is about. Shared by the canvas and the Layers tree.
+ */
+export function dropRefusalMessage(i18n: I18n, reason: Refusal, type: string, parent: string): string {
+  return i18n._({
+    id: "pluginCanvas.dropRefused",
+    message:
+      "{reason, select, needsScrollView {{type} needs a CustomScrollView} needsFlex {{type} needs a Row, Column or Flex} needsStack {{type} needs a Stack} full {{parent} is full} offScreen {Drop it on a screen} other {{type} can't go here}}",
+    values: { reason, type, parent },
+    comment:
+      "Why a dragged widget cannot be dropped where the pointer is, shown beside it; widget names such as Row stay in English.",
+  });
+}
+
+/** What a refused drop says once let go: nothing changed, and why. */
+export function dropNoticeMessage(i18n: I18n, reason: string): string {
+  return i18n._({
+    id: "pluginCanvas.dropNotice",
+    message: "Not dropped: {reason}",
+    values: { reason },
+    comment: "Shown for a moment where a widget was let go but could not be dropped; {reason} says why.",
+  });
 }

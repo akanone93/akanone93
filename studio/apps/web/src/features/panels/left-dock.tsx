@@ -7,7 +7,9 @@ import { Icon, type IconName, layerFolders } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ComponentProps, type ReactElement, useCallback, useContext, useMemo, useRef, useState } from "react";
 import type { DesignerDocument } from "../designers/use-document.ts";
+import { dropNoticeMessage, dropRefusalMessage } from "../plugin-canvas/plugin-canvas.messages.ts";
 import type { PlacedScreen } from "../plugin-canvas/scene.ts";
+import type { Refusal } from "../plugin-canvas/select/drop-rules.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
 import type { SelectionStore } from "../plugin-canvas/select/store.ts";
@@ -21,7 +23,7 @@ import { InsertPane } from "./insert-pane.tsx";
 import { InstancePreviewContext } from "./instance-card.tsx";
 import { LayersPane, LayersToolbar } from "./layers-pane.tsx";
 import { LocalePreviewContext } from "./locale-tools.tsx";
-import { insertionPoint, insertWidget, modelOf, moveIntoSlot, moveLayer } from "./model.ts";
+import { insertionPoint, insertWidget, layerRefusal, modelOf, moveIntoSlot, moveLayer } from "./model.ts";
 import { panelsMessages, starterTexts } from "./panels.messages.ts";
 import { selectIds, slotOfRow, treeNodes } from "./selection-model.ts";
 import { metaRecipe } from "./studio-meta.ts";
@@ -54,6 +56,8 @@ export interface LeftDockProps {
   readonly onOpenData?: (() => void) | undefined;
   /** The Assets tab's client, app and editor session; the tab shows only when given. */
   readonly assets?: ComponentProps<typeof AssetsTab> | undefined;
+  /** Told the type of a widget dragged out of the Insert pane, and null when the drag ends (PC-20). */
+  readonly onDragType?: ((type: string | null) => void) | undefined;
 }
 
 /** The room above the canvas's content that the top bar and a screen's name take, in CSS pixels. */
@@ -91,6 +95,7 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   const { index, screenOf, selection, store, edit, canEdit } = props;
   const [query, setQuery] = useState("");
   const [note, setNote] = useState<string | null>(null);
+  const [layerNote, setLayerNote] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const model = useMemo(() => modelOf(props.screens.map((s) => s.root)), [props.screens]);
   const all = useMemo(() => catalogue(props.nativeWidgets), [props.nativeWidgets]);
@@ -137,16 +142,30 @@ export function LeftDock(props: LeftDockProps): ReactElement {
   );
   // A locked layer stays where it is: it neither moves nor takes another layer into it.
   // A layer dropped on a slot's row goes into that slot; a slot's row itself is not a layer and does not move.
+  // A layer that cannot go where it is dragged (PC-20) says why on the row, and once let go, in the pane's note.
+  const nameOf = (id: string | null | undefined) => (id == null ? "" : (nodes[id]?.name ?? index.type.get(id) ?? id));
+  const refusalText = (dragged: string, target: string, r: Refusal): string => {
+    const into = slotOfRow(target);
+    const parent = into === null ? nameOf(index.parent.get(target)) : `${nameOf(into.parent)} › ${into.slot}`;
+    return dropRefusalMessage(i18n, r, index.type.get(dragged) ?? nameOf(dragged), parent);
+  };
+  const dropRefusal = (dragged: string, target: string, half: "before" | "after"): string | null => {
+    if (nodes[dragged]?.locked === true || slotOfRow(dragged) !== null) {
+      return null;
+    }
+    const r = layerRefusal(model, index, dragged, target, half, slotOfRow(target));
+    return r === null ? null : refusalText(dragged, target, r);
+  };
   const dropLayer = (dragged: string, target: string, half: "before" | "after") => {
     if (nodes[dragged]?.locked === true || slotOfRow(dragged) !== null) {
       return;
     }
     const into = slotOfRow(target);
-    if (into !== null) {
-      moveIntoSlot(index, dragged, into.parent, into.slot, edit, docOf, canEdit, model);
-    } else {
-      moveLayer(model, index, dragged, target, half, edit, docOf, canEdit);
-    }
+    const moved =
+      into !== null
+        ? moveIntoSlot(index, dragged, into.parent, into.slot, edit, docOf, canEdit, model)
+        : moveLayer(model, index, dragged, target, half, edit, docOf, canEdit);
+    setLayerNote(typeof moved === "string" ? dropNoticeMessage(i18n, refusalText(dragged, target, moved)) : null);
   };
 
   // The first screen opens at first and the others stay folded (MR-3); a selection unfolds its own path, and the
@@ -175,7 +194,16 @@ export function LeftDock(props: LeftDockProps): ReactElement {
           />
         </InputGroup>
       ),
-      panel: <InsertPane found={found} all={all} canEdit={canEdit} note={note} onInsert={onInsert} />,
+      panel: (
+        <InsertPane
+          found={found}
+          all={all}
+          canEdit={canEdit}
+          note={note}
+          onInsert={onInsert}
+          onDragType={props.onDragType}
+        />
+      ),
     },
     {
       value: "layers",
@@ -202,6 +230,9 @@ export function LeftDock(props: LeftDockProps): ReactElement {
           onReveal={(id) => reveal(props.surface(), props.canvas(), docOf(id), id)}
           onClear={() => store.set({ ids: [], anchor: null, scope: null })}
           onDrop={canEdit ? (d, t, half) => dropLayer(d, t, half) : undefined}
+          dropRefusal={canEdit ? dropRefusal : undefined}
+          onRefused={(reason) => setLayerNote(dropNoticeMessage(i18n, reason))}
+          note={layerNote}
           onMeta={
             canEdit
               ? (id, change) => {

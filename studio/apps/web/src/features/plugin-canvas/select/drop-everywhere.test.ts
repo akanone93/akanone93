@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
-import { intoSlotRecipe, takeOutRecipe } from "./edits.ts";
-import { containersOf, dropAt, finishMove, type GestureEnv } from "./gesture.ts";
+import { planDrop } from "./drop-rules.ts";
+import { moveToRecipe, takeOutRecipe } from "./edits.ts";
+import { dropAt, finishMove, type GestureEnv } from "./gesture.ts";
 import { indexNodes } from "./tree.ts";
 
 type N = { id: string; type: string; props?: Record<string, unknown>; children?: N[]; slots?: Record<string, N> };
@@ -45,7 +46,10 @@ describe("PC-20 drag and drop everywhere [STU-067]", () => {
   test("an empty single-child holder takes a drop into its slot; a full one does not", () => {
     const roots = { A: pageA(), B: pageB() };
     const e = env(roots, []);
-    expect(containersOf(e).find((c) => c.id === "pad")).toMatchObject({ axis: "slot", slot: "child" });
+    expect(planDrop(e, { type: "Text", ids: [] }, 100, 60)).toMatchObject({
+      ok: true,
+      target: { parent: "pad", slot: "child", indicator: boxes["pad"] },
+    });
     expect(dropAt(e, ["t1"], 100, 60)).toMatchObject({ parent: "pad", slot: "child", indicator: boxes["pad"] });
     finishMove(e, "t1", { x: 0, y: 40 }, 100, 60);
     expect(roots.A.children?.map((c) => c.id)).toEqual(["pad"]);
@@ -64,7 +68,7 @@ describe("PC-20 drag and drop everywhere [STU-067]", () => {
 
   test("taking out and filling a slot leave a node inside itself alone", () => {
     const root = pageA();
-    intoSlotRecipe("colA", "pad", "child")(root);
+    moveToRecipe("colA", { parent: "pad", slot: "child", index: 0 })(root);
     expect(root.children?.length).toBe(2);
     let taken: unknown;
     takeOutRecipe("t1", (n) => {

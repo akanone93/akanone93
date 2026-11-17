@@ -409,6 +409,10 @@ export function useCanvasInteraction(input: InteractionInput) {
       ...(input.styled.chrome === undefined ? {} : { frameRadius: input.styled.chrome.radius }),
       childrenOf: (id) => index.children.get(id) ?? [],
       padded: (id) => PADDED.has(index.type.get(id) ?? "") && !repeats(screens, screenOf.get(id), id),
+      dropText: {
+        refused: (r, parent) => messages.dropRefused(r.reason, r.type, parent),
+        notice: messages.dropNotice,
+      },
       ...marks,
       nameOf: (id) =>
         isScreen(id)
@@ -428,6 +432,7 @@ export function useCanvasInteraction(input: InteractionInput) {
       marks,
       screens,
       instances,
+      messages,
     ],
   );
   const preview = useScreenPreview(input, overlay);

@@ -383,12 +383,9 @@ function freeArea(canvas: HTMLCanvasElement, width: number, height: number) {
   // The console bar along the foot covers the canvas under it: the screens' room ends where it starts.
   const bar = stage?.querySelector(".dev-console-bar")?.getBoundingClientRect();
   const bottom = bar === undefined || bar.height === 0 ? height : Math.min(height, bar.top - r.top);
-  return {
-    left,
-    right: right > left ? right : width,
-    top: top < height / 2 ? top : 0,
-    bottom: bottom > height / 2 ? bottom : height,
-  };
+  // Canvas pixels, which the canvas never mirrors: its free room is measured by physical side.
+  const [end, foot] = [right > left ? right : width, bottom > height / 2 ? bottom : height];
+  return { left, right: end, top: top < height / 2 ? top : 0, bottom: foot };
 }
 
 /** Room left under a screen for the line the canvas draws below it (its node count). */
@@ -1079,6 +1076,8 @@ function PluginCanvasView({
   const libraryDialog = useLibraryActions(clipboardInput);
   const selectDropped = usePendingSelect(index, store);
   const starter = useMemo(() => starterTexts(panelsMessages(i18n)), [i18n]);
+  // The widget dragged out of the Insert pane: a drag-over over the canvas cannot read it from the drag (PC-20).
+  const widgetDrag = useRef<string | null>(null);
   const dropHandlers = useMemo(
     () =>
       insertDropHandlers({
@@ -1092,8 +1091,10 @@ function PluginCanvasView({
         descriptors: catalogue(),
         onInserted: selectDropped,
         starter,
+        overlay,
+        dragType: () => widgetDrag.current,
       }),
-    [index, screens, edit, screenOf, canEdit, selectDropped, starter],
+    [index, screens, edit, screenOf, canEdit, selectDropped, starter, overlay],
   );
   const [rustSource, setRustSource] = useState<string | undefined>(undefined);
   const overlays = useOverlayHost({ surface: () => surfaceRef.current, canvas: () => canvasRef.current });
@@ -1710,7 +1711,9 @@ function PluginCanvasView({
                             ref={canvasRef}
                             className="absolute inset-0 h-full w-full touch-none focus-visible:outline-2 focus-visible:-outline-offset-2"
                             tabIndex={0}
-                            {...dropHandlers}
+                            onDragOver={dropHandlers.onDragOver}
+                            onDragLeave={dropHandlers.onDragLeave}
+                            onDrop={dropHandlers.onDrop}
                             data-tool={interaction.tool}
                             onKeyDown={(e) => {
                               // A selection with a locked layer still moves the selection, but edits nothing.
@@ -1848,6 +1851,12 @@ function PluginCanvasView({
                             ))}
                           </ol>
                           <LeftDock
+                            onDragType={(t) => {
+                              widgetDrag.current = t;
+                              if (t === null) {
+                                dropHandlers.onDragEnd();
+                              }
+                            }}
                             title={pluginInfo?.name}
                             nativeWidgets={nativeWidgets}
                             screens={screens}

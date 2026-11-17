@@ -22,7 +22,7 @@ export interface InstancesOverlay {
 
 import type { Box } from "./select/geometry.ts";
 import { HANDLES, handlePoint } from "./select/handles.ts";
-import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
+import { type OverlayState, type OverlayStore, type RefusedDrop, useOverlayState } from "./select/overlay-store.ts";
 import type { Selection } from "./select/selection.ts";
 import type { CanvasSurface } from "./surface.ts";
 import "./interaction-overlay.css";
@@ -63,6 +63,11 @@ export interface OverlayNodes {
   readonly costs?: CostsOverlay;
   /** The component instances, their words, and the one isolated (PC-37). */
   readonly instances?: InstancesOverlay;
+  /** Why a drop is refused, in a few words (PC-20), and what a refused drop says once let go. */
+  readonly dropText?: {
+    readonly refused: (r: RefusedDrop, parent: string) => string;
+    readonly notice: (reason: string) => string;
+  };
   /** The words of the marks. */
   readonly a11yText?: {
     readonly target: (w: number, h: number, min: number) => string;
@@ -102,8 +107,15 @@ const point = (x: number, y: number, v: View): CSSProperties =>
 const sizeText = (b: Box): string => `${Math.round(b.r - b.l)} × ${Math.round(b.b - b.t)}`;
 
 function Tag({ box, view, text, kind }: { box: Box; view: View; text: string; kind: string }): ReactNode {
+  // A drop's tag sits at the box's top right, clear of the selection's name at its top left.
+  const end = kind === "drop" || kind === "refused";
   return (
-    <span className="pc-tag" data-kind={kind} style={point(box.l, box.t, view)}>
+    <span
+      className="pc-tag"
+      data-kind={kind}
+      data-end={end || undefined}
+      style={point(end ? box.r : box.l, box.t, view)}
+    >
       {text}
     </span>
   );
@@ -631,6 +643,70 @@ function selectionMarks(
   };
 }
 
+/** How long a refused drop's notice stays, in milliseconds. */
+const NOTICE_MS = 2800;
+
+/** The text of a refused drop. */
+function refusedText(nodes: OverlayNodes, r: RefusedDrop): string {
+  return nodes.dropText?.refused(r, r.at === null ? "" : nodes.nameOf(r.at)) ?? r.reason;
+}
+
+/** The container a drop lands in, with its slot on the tag; or, refused, the widget it is about and why, in red. */
+function DropMarks({ state, view, nodes }: { state: OverlayState; view: View; nodes: OverlayNodes }): ReactNode {
+  const dropBox = state.drop === null ? undefined : nodes.boxOf(state.drop);
+  const refused = state.refused;
+  const refusedBox = refused?.at == null ? undefined : nodes.boxOf(refused.at);
+  return (
+    <>
+      {dropBox !== undefined && state.drop !== null && (
+        <>
+          <div className="pc-outline" data-kind="drop" style={place(dropBox, view)} />
+          <Tag
+            box={dropBox}
+            view={view}
+            text={
+              state.dropSlot === null ? nodes.nameOf(state.drop) : `${nodes.nameOf(state.drop)} › ${state.dropSlot}`
+            }
+            kind="drop"
+          />
+        </>
+      )}
+      {refused !== null && refusedBox !== undefined && (
+        <>
+          <div className="pc-outline" data-kind="refused" style={place(refusedBox, view)} />
+          <Tag box={refusedBox} view={view} text={refusedText(nodes, refused)} kind="refused" />
+        </>
+      )}
+    </>
+  );
+}
+
+/**
+ * The words a refused drop leaves where it was let go, for a moment, in a polite live region: the overlay is hidden
+ * from assistive technology, the region is not.
+ */
+function DropNotice({ store, view, nodes }: { store: OverlayStore; view: View; nodes: OverlayNodes }): ReactNode {
+  const notice = useOverlayState(store).notice;
+  useEffect(() => {
+    if (notice === null) {
+      return undefined;
+    }
+    const timer = setTimeout(() => store.set({ notice: null }), NOTICE_MS);
+    return () => clearTimeout(timer);
+  }, [notice, store]);
+  const text =
+    notice === null ? "" : (nodes.dropText?.notice(refusedText(nodes, notice)) ?? refusedText(nodes, notice));
+  return (
+    <div role="status" className="pc-notice-region">
+      {notice !== null && (
+        <span className="pc-notice" style={point(notice.x, notice.y, view)}>
+          {text}
+        </span>
+      )}
+    </div>
+  );
+}
+
 /**
  * The interaction overlay of the plugin canvas (STU-067), in the page's DOM above the canvas and below the docks: the
  * selection with its tag, size and handles (a screen as its device frame), the node under the pointer, the container
@@ -659,62 +735,59 @@ export function InteractionOverlay(props: {
   });
   const scopeBox = nodes.scope === null ? undefined : nodes.boxOf(nodes.scope);
   const hoverBox = state.hover === null || selection.ids.includes(state.hover) ? undefined : nodes.boxOf(state.hover);
-  const dropBox = state.drop === null ? undefined : nodes.boxOf(state.drop);
   const busy = state.ghost !== null || state.marquee !== null;
   const { tagAt, focus } = selectionMarks(selected, state.hover, nodes, view);
   return (
-    <div className="pc-overlay" aria-hidden="true" data-busy={busy || undefined}>
-      {scopeBox !== undefined && !nodes.isScreen(nodes.scope ?? "") && (
-        <div className="pc-outline" data-kind="scope" style={place(scopeBox, view)} />
-      )}
-      {hoverBox !== undefined && state.hover !== null && !busy && (
-        <Hover id={state.hover} box={hoverBox} view={view} nodes={nodes} tagAt={tagAt} />
-      )}
-      {dropBox !== undefined && state.drop !== null && (
-        <>
-          <div className="pc-outline" data-kind="drop" style={place(dropBox, view)} />
-          <Tag box={dropBox} view={view} text={nodes.nameOf(state.drop)} kind="drop" />
-        </>
-      )}
-      {selected.map((s) => (
-        <Selected
-          key={s.id}
-          id={s.id}
-          box={s.box}
-          view={view}
-          nodes={nodes}
-          single={selected.length === 1 && state.ghost === null}
-        />
-      ))}
-      {state.ghost !== null && (
-        <>
-          <div className="pc-outline" data-kind="ghost" style={place(state.ghost, view)} />
-          <span className="pc-size" style={point((state.ghost.l + state.ghost.r) / 2, state.ghost.b, view)}>
-            {sizeText(state.ghost)}
-          </span>
-        </>
-      )}
-      <A11yView view={view} nodes={nodes} />
-      <L10nView view={view} nodes={nodes} />
-      <SizesView view={view} nodes={nodes} />
-      <ScreenCosts view={view} nodes={nodes} />
-      <InstanceBadges view={view} nodes={nodes} />
-      <Isolation view={view} nodes={nodes} />
-      <CornerBadges view={view} nodes={nodes} focus={focus} />
-      {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}
-      {state.marquee !== null && (
-        <div
-          className="pc-marquee"
-          style={
-            {
-              "--x": state.marquee.l,
-              "--y": state.marquee.t,
-              "--w": state.marquee.r - state.marquee.l,
-              "--h": state.marquee.b - state.marquee.t,
-            } as CSSProperties
-          }
-        />
-      )}
-    </div>
+    <>
+      <div className="pc-overlay" aria-hidden="true" data-busy={busy || undefined}>
+        {scopeBox !== undefined && !nodes.isScreen(nodes.scope ?? "") && (
+          <div className="pc-outline" data-kind="scope" style={place(scopeBox, view)} />
+        )}
+        {hoverBox !== undefined && state.hover !== null && !busy && (
+          <Hover id={state.hover} box={hoverBox} view={view} nodes={nodes} tagAt={tagAt} />
+        )}
+        <DropMarks state={state} view={view} nodes={nodes} />
+        {selected.map((s) => (
+          <Selected
+            key={s.id}
+            id={s.id}
+            box={s.box}
+            view={view}
+            nodes={nodes}
+            single={selected.length === 1 && state.ghost === null}
+          />
+        ))}
+        {state.ghost !== null && (
+          <>
+            <div className="pc-outline" data-kind="ghost" style={place(state.ghost, view)} />
+            <span className="pc-size" style={point((state.ghost.l + state.ghost.r) / 2, state.ghost.b, view)}>
+              {sizeText(state.ghost)}
+            </span>
+          </>
+        )}
+        <A11yView view={view} nodes={nodes} />
+        <L10nView view={view} nodes={nodes} />
+        <SizesView view={view} nodes={nodes} />
+        <ScreenCosts view={view} nodes={nodes} />
+        <InstanceBadges view={view} nodes={nodes} />
+        <Isolation view={view} nodes={nodes} />
+        <CornerBadges view={view} nodes={nodes} focus={focus} />
+        {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}
+        {state.marquee !== null && (
+          <div
+            className="pc-marquee"
+            style={
+              {
+                "--x": state.marquee.l,
+                "--y": state.marquee.t,
+                "--w": state.marquee.r - state.marquee.l,
+                "--h": state.marquee.b - state.marquee.t,
+              } as CSSProperties
+            }
+          />
+        )}
+      </div>
+      <DropNotice store={props.store} view={view} nodes={nodes} />
+    </>
   );
 }

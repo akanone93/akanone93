@@ -213,8 +213,8 @@ describe("[STU-061] left panels", () => {
       boxOf: (id: string) => boxes[id],
       typeOf: (id: string) => index.type.get(id),
     };
-    expect(dropTarget(env, 80, 20)).toMatchObject({ parent: "row", index: 1 });
-    expect(dropTarget(env, 50, 180)?.parent).toBe("r");
+    expect(dropTarget(env, 80, 20, "Text")).toMatchObject({ ok: true, target: { parent: "row", index: 1 } });
+    expect(dropTarget(env, 50, 180, "Text")).toMatchObject({ ok: true, target: { parent: "r" } });
     const edit = mock<EditFn>();
     const surface = {
       viewport: { x: 0, y: 0, zoom: 1 },

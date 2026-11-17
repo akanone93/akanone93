@@ -83,7 +83,7 @@ describe("PC-18 padding and gap handles [STU-067]", () => {
     const root = { id: "b", type: "SizedBox", props: { width: 100, height: 50 } };
     finishResize(
       {
-        index: { parent: new Map(), children: new Map(), depth: new Map(), type: new Map() },
+        index: { parent: new Map(), children: new Map(), depth: new Map(), type: new Map(), slot: new Map() },
         edit: (_doc, recipe) => {
           recipe(root);
           edits.push(root.props);

@@ -13,6 +13,8 @@ export interface NodeIndex {
   readonly children: ReadonlyMap<string, readonly string[]>;
   readonly depth: ReadonlyMap<string, number>;
   readonly type: ReadonlyMap<string, string>;
+  /** The slot of its parent each node is in; null for a node of its parent's `children`, or a root. */
+  readonly slot: ReadonlyMap<string, string | null>;
 }
 
 /** Children of a node in document order: slots (in key order; a list slot such as an app bar's `actions` in its own order) then `children`. */
@@ -22,14 +24,27 @@ export function childNodes(node: Node): readonly Node[] {
   return [...slots.flatMap((v) => (Array.isArray(v) ? v : [v as Node])), ...(node.children ?? [])];
 }
 
+/** Notes the slot of `n` each of its slotted children is in. */
+function noteSlots(n: Node, slot: Map<string, string | null>): void {
+  for (const [name, v] of Object.entries(n.slots ?? {}) as [string, Node | readonly Node[]][]) {
+    for (const k of Array.isArray(v) ? v : [v as Node]) {
+      slot.set(k.id, name);
+    }
+  }
+}
+
 /** Indexes the trees rooted at `roots`. */
 export function indexNodes(roots: readonly (Node | undefined)[]): NodeIndex {
   const parent = new Map<string, string | null>();
   const children = new Map<string, readonly string[]>();
   const depth = new Map<string, number>();
   const type = new Map<string, string>();
+  const slot = new Map<string, string | null>();
   const visit = (n: Node, p: string | null, d: number): void => {
     parent.set(n.id, p);
+    if (!slot.has(n.id)) {
+      slot.set(n.id, null);
+    }
     depth.set(n.id, d);
     if (n.type !== undefined) {
       type.set(n.id, n.type);
@@ -39,6 +54,7 @@ export function indexNodes(roots: readonly (Node | undefined)[]): NodeIndex {
       n.id,
       kids.map((k) => k.id),
     );
+    noteSlots(n, slot);
     for (const k of kids) {
       visit(k, n.id, d + 1);
     }
@@ -48,7 +64,7 @@ export function indexNodes(roots: readonly (Node | undefined)[]): NodeIndex {
       visit(r, null, 0);
     }
   }
-  return { parent, children, depth, type };
+  return { parent, children, depth, type, slot };
 }
 
 /** `id` and its ancestors, innermost first. */

@@ -65,6 +65,9 @@ export function LayersPane({
   onReveal,
   onClear,
   onDrop,
+  dropRefusal,
+  onRefused,
+  note,
   onMeta,
 }: {
   readonly nodes: Readonly<Record<string, LayerNode>>;
@@ -77,6 +80,12 @@ export function LayersPane({
   readonly onReveal: (id: string) => void;
   readonly onClear: () => void;
   readonly onDrop: ((dragged: string, target: string, half: "before" | "after") => void) | undefined;
+  /** Why a dragged layer cannot go before or after a row, in a few words; null when it can (PC-20). */
+  readonly dropRefusal?: ((dragged: string, target: string, half: "before" | "after") => string | null) | undefined;
+  /** A layer was let go where it cannot go: `reason` says why. */
+  readonly onRefused?: ((reason: string) => void) | undefined;
+  /** A short note on the last drop, such as why it was refused. */
+  readonly note?: string | null;
   /** Rename, hide and lock; absent while the editor is read-only. */
   readonly onMeta?: ((id: string, change: MetaChange) => void) | undefined;
 }): ReactElement {
@@ -115,6 +124,9 @@ export function LayersPane({
         </section>
       )}
       {empty && <p className="dock-note">{m.noLayers}</p>}
+      <p role="status" className="dock-note" hidden={note == null}>
+        {note}
+      </p>
       <LayerTree
         nodes={nodes}
         rootId="plugin"
@@ -126,6 +138,8 @@ export function LayersPane({
         expanded={expanded}
         onExpandedChange={onExpanded}
         onDrop={onDrop}
+        dropRefusal={dropRefusal}
+        onRefused={onRefused}
         actions={
           onMeta === undefined
             ? undefined

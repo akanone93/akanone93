@@ -165,6 +165,7 @@ export const InsertPane = memo(function InsertPane({
   canEdit,
   note,
   onInsert,
+  onDragType,
 }: {
   /** The widgets the search keeps. */
   readonly found: readonly WidgetDescriptor[];
@@ -173,6 +174,8 @@ export const InsertPane = memo(function InsertPane({
   readonly canEdit: boolean;
   readonly note: string | null;
   readonly onInsert: (d: WidgetDescriptor) => void;
+  /** Told the type of a widget dragged out of the pane, and null when the drag ends (PC-20). */
+  readonly onDragType?: ((type: string | null) => void) | undefined;
 }): ReactElement {
   const m = panelsMessages(useLingui().i18n);
   const [details] = useState(createDetails);
@@ -215,6 +218,7 @@ export const InsertPane = memo(function InsertPane({
   const startDrag = (e: DragEvent, d: WidgetDescriptor) => {
     e.dataTransfer.setData(WIDGET_DRAG_TYPE, d.type);
     e.dataTransfer.effectAllowed = "copy";
+    onDragType?.(d.type);
   };
   const tile = (d: WidgetDescriptor, glyph: string) => (
     <button
@@ -223,6 +227,7 @@ export const InsertPane = memo(function InsertPane({
       disabled={!canEdit}
       draggable={canEdit}
       onDragStart={(e) => startDrag(e, d)}
+      onDragEnd={() => onDragType?.(null)}
       aria-label={m.insert(d.type)}
       onClick={() => insert(d)}
       onPointerEnter={(e) => details.set({ d, glyph, spot: spotOf(e.currentTarget) })}

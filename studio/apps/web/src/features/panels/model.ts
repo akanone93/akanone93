@@ -5,10 +5,17 @@ import type { WidgetDescriptor } from "@plux/schema";
 import { widget } from "@plux/schema";
 import type { Node } from "../plugin-canvas/plugin-model.ts";
 import { type IdSource, uuidv7 } from "../plugin-canvas/screens.ts";
+import {
+  chromeSlots,
+  type DropPlan,
+  placement,
+  planDrop,
+  type Refusal,
+  wrapNode,
+} from "../plugin-canvas/select/drop-rules.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
-import { findNode, reparentRecipe, takeOutRecipe } from "../plugin-canvas/select/edits.ts";
-import { containersOf, type GestureEnv } from "../plugin-canvas/select/gesture.ts";
-import { type DropTarget, resolveDrop } from "../plugin-canvas/select/reparent.ts";
+import { moveToRecipe, putRecipe, reparentRecipe } from "../plugin-canvas/select/edits.ts";
+import type { GestureEnv } from "../plugin-canvas/select/gesture.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
 import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
 import { buildNode, type StarterTexts } from "./catalogue.ts";
@@ -26,6 +33,10 @@ export interface Place {
    * for another slot.
    */
   readonly screenContent?: boolean;
+  /** Set when `slot` holds a list: the node goes into it at `index`. */
+  readonly list?: boolean;
+  /** A widget the node goes in first, as the place needs (a `SliverToBoxAdapter` among slivers). */
+  readonly wrap?: string;
 }
 
 /** The page trees by node id, with the `children` arrays kept apart from slots (the tree index mixes both). */
@@ -43,7 +54,9 @@ export function modelOf(roots: readonly (Node | undefined)[]): PanelModel {
       n.id,
       (n.children ?? []).map((c) => c.id),
     );
-    for (const c of [...Object.values(n.slots ?? {}), ...(n.children ?? [])]) {
+    // A list slot (an app bar's `actions`, a scroll view's `slivers`) holds an array of nodes.
+    const slotted = Object.values(n.slots ?? {}) as readonly (Node | readonly Node[])[];
+    for (const c of [...slotted.flat(), ...(n.children ?? [])]) {
       visit(c);
     }
   };
@@ -60,21 +73,8 @@ const holdsChildren = (type: string | undefined): boolean => type !== undefined 
 /** The slot that holds a widget's content, filled first when free: a page's `body`, a wrapper's `child`. */
 const contentSlots = ["body", "child"];
 
-/**
- * The slots that hold a screen's chrome rather than its content, and the widgets each is for: an app bar never takes a
- * button just because it is the first empty slot of a Scaffold.
- */
-const chromeSlots: Readonly<Record<string, readonly string[]>> = {
-  appBar: ["AppBar"],
-  floatingActionButton: ["FloatingActionButton"],
-  bottomNavigationBar: ["NavigationBar", "BottomNavigationBar", "BottomAppBar", "TabBar"],
-  drawer: ["Drawer", "NavigationDrawer"],
-  endDrawer: ["Drawer", "NavigationDrawer"],
-  bottomSheet: ["BottomSheet"],
-};
-
 /** Widgets that are themselves a screen's layout, which go into a screen's body as they are. */
-const layoutRoots = new Set([
+export const layoutRoots: ReadonlySet<string> = new Set([
   "SafeArea",
   "Column",
   "ListView",
@@ -155,24 +155,11 @@ export function insertionPoint(
 }
 
 export function insertRecipe(node: object, place: Place): (draft: unknown) => void {
-  return (draft) => {
-    const target = findNode(draft, place.parent);
-    if (target === null) {
-      return;
-    }
-    if (place.slot !== null) {
-      const slots = (target.node.slots ?? {}) as Record<string, unknown>;
-      slots[place.slot] = node;
-      target.node.slots = slots;
-      return;
-    }
-    if (!Array.isArray(target.node.children)) {
-      target.node.children = [];
-    }
-    const kids = target.node.children as unknown[];
-    kids.splice(Math.min(place.index, kids.length), 0, node);
-  };
+  return putRecipe(node, place);
 }
+
+/** Widgets that place themselves in a Stack: they take the drop point as their own `left` and `top`. */
+const selfPlaced = new Set(["Positioned", "AnimatedPositioned"]);
 
 /** Builds the node and writes it; returns its id, or null when nothing was written. */
 export function insertWidget(
@@ -192,10 +179,14 @@ export function insertWidget(
   const ids = newId ?? uuidv7;
   const built = buildNode(d, ids, starter);
   const node = props === undefined ? built : { ...built, props: { ...(built.props ?? {}), ...props } };
+  // In a Stack the node goes in a `Positioned` at the drop point, or is placed there itself when it is one.
+  const at = place.at;
   const positioned =
-    place.at === undefined
+    at === undefined
       ? node
-      : { id: ids(), type: "Positioned", props: { left: place.at.left, top: place.at.top }, slots: { child: node } };
+      : selfPlaced.has(d.type)
+        ? { ...node, props: { ...(node.props ?? {}), left: at.left, top: at.top } }
+        : { id: ids(), type: "Positioned", props: { left: at.left, top: at.top }, slots: { child: node } };
   const placed =
     place.screenContent === true
       ? {
@@ -212,45 +203,122 @@ export function insertWidget(
             },
           },
         }
-      : positioned;
-  edit(doc, insertRecipe(placed, place), { group: "insert" });
+      : place.wrap === undefined
+        ? positioned
+        : wrapNode(place.wrap, ids(), positioned);
+  edit(doc, insertRecipe(placed as object, place), { group: "insert" });
   return node.id;
 }
 
-/** The drop target for a widget dragged over the canvas at world point (x, y): the S2.5 resolution and indicator. */
-export function dropTarget(env: GestureEnv, x: number, y: number): DropTarget | null {
-  return resolveDrop(env.index, containersOf(env), [], x, y);
+/** Where a new widget of `type` dragged over the canvas at world point (x, y) lands, by the drop rules (PC-20). */
+export function dropTarget(env: GestureEnv, x: number, y: number, type: string): DropPlan {
+  return planDrop(env, { type, ids: [] }, x, y);
 }
 
-/** Where a layer dropped `before`/`after` the row `target` lands: parent and index in the parent's children after removal. */
+/** Whether `parent`'s `slot` (its `children` when null) holds a list. */
+function holdsList(model: PanelModel, parent: string, slot: string | null): boolean {
+  const type = model.nodes.get(parent)?.type;
+  if (slot === null) {
+    return holdsChildren(type);
+  }
+  return type !== undefined && widget(type)?.slots.find((d) => d.name === slot)?.list === true;
+}
+
+/** Where a layer dropped `before`/`after` the row `target` lands: parent, slot and index in the list after removal. */
 export function layerDrop(
   model: PanelModel,
   index: NodeIndex,
   dragged: string,
   target: string,
   half: "before" | "after",
-): { parent: string; index: number } | null {
+): { parent: string; index: number; slot?: string } | null {
   if (dragged === target) {
     return null;
   }
-  const into =
-    half === "after" && holdsChildren(model.nodes.get(target)?.type) && (model.listKids.get(target)?.length ?? 0) > 0;
-  const parent = into ? target : index.parent.get(target);
-  if (parent === null || parent === undefined || !holdsChildren(model.nodes.get(parent)?.type)) {
+  if (
+    half === "after" &&
+    holdsChildren(model.nodes.get(target)?.type) &&
+    (model.listKids.get(target)?.length ?? 0) > 0
+  ) {
+    return { parent: target, index: (model.listKids.get(target) ?? []).filter((k) => k !== dragged).length };
+  }
+  // Beside a node of a list: its parent's `children`, or a list slot such as an app bar's `actions`.
+  const parent = index.parent.get(target);
+  const slot = index.slot.get(target) ?? null;
+  if (parent === null || parent === undefined || !holdsList(model, parent, slot)) {
     return null;
   }
-  const sibs = (model.listKids.get(parent) ?? []).filter((k) => k !== dragged);
-  if (into) {
-    return { parent, index: sibs.length };
-  }
+  const sibs = (index.children.get(parent) ?? []).filter((k) => k !== dragged && (index.slot.get(k) ?? null) === slot);
   const at = sibs.indexOf(target);
-  return at < 0 ? null : { parent, index: half === "before" ? at : at + 1 };
+  return at < 0 ? null : { parent, index: half === "before" ? at : at + 1, ...(slot === null ? {} : { slot }) };
+}
+
+/** Whether `id` is `ancestor` or inside it. */
+const within = (index: NodeIndex, id: string, ancestor: string): boolean => {
+  for (let p: string | null | undefined = id; p !== null && p !== undefined; p = index.parent.get(p)) {
+    if (p === ancestor) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/** Why layer `dragged` cannot go into `parent`'s `slot` (its `children` when null), or the wrapper it goes in. */
+function layerPlacement(
+  model: PanelModel,
+  index: NodeIndex,
+  dragged: string,
+  parent: string,
+  slot: string | null,
+): { readonly wrap?: string } | Refusal {
+  const type = model.nodes.get(parent)?.type;
+  const own = model.nodes.get(dragged)?.type;
+  if (type === undefined || own === undefined || within(index, parent, dragged)) {
+    return "nowhere";
+  }
+  return placement(type, slot, own);
 }
 
 /**
+ * Why layer `dragged` cannot be dropped on the Layers row `target` (a layer, before or after it, or a slot's row when
+ * `into` names it), or null when it can (PC-20).
+ */
+export function layerRefusal(
+  model: PanelModel,
+  index: NodeIndex,
+  dragged: string,
+  target: string,
+  half: "before" | "after",
+  into: { readonly parent: string; readonly slot: string } | null,
+): Refusal | null {
+  if (into !== null) {
+    const declared = widget(model.nodes.get(into.parent)?.type ?? "")?.slots.find((d) => d.name === into.slot);
+    const held = (model.nodes.get(into.parent)?.slots ?? {}) as Readonly<Record<string, unknown>>;
+    if (declared === undefined) {
+      return "nowhere";
+    }
+    if (!declared.list && held[into.slot] !== undefined) {
+      return "full";
+    }
+    const p = layerPlacement(model, index, dragged, into.parent, into.slot);
+    return typeof p === "string" ? p : null;
+  }
+  const to = layerDrop(model, index, dragged, target, half);
+  if (to === null) {
+    return dragged === target ? null : "nowhere";
+  }
+  const p = layerPlacement(model, index, dragged, to.parent, to.slot ?? null);
+  return typeof p === "string" ? p : null;
+}
+
+/** The node `wrap` makes of a moved layer, with a fresh id, when it needs one. */
+const layerWrap = (wrap: string | undefined, ids: IdSource) =>
+  wrap === undefined ? undefined : (node: unknown) => wrapNode(wrap, ids(), node);
+
+/**
  * Moves a layer into `parent`'s slot `slot` (PC-20): a list slot takes it last, a single slot only while it is empty,
- * so a drop never replaces what a slot holds. Refused across documents, into a slot the widget does not declare, or
- * into the moved layer itself.
+ * so a drop never replaces what a slot holds. Refused across documents, into a slot the widget does not declare, into
+ * the moved layer itself, or where Flutter would not build it (the reason is returned).
  */
 export function moveIntoSlot(
   index: NodeIndex,
@@ -261,48 +329,32 @@ export function moveIntoSlot(
   docOf: (id: string) => string | undefined,
   canEdit: boolean,
   model: PanelModel,
-): boolean {
+  newId: IdSource = uuidv7,
+): boolean | Refusal {
   const doc = docOf(dragged);
   const type = model.nodes.get(parent)?.type;
   const declared = type === undefined ? undefined : widget(type)?.slots.find((d) => d.name === slot);
   if (!canEdit || doc === undefined || doc !== docOf(parent) || declared === undefined || dragged === parent) {
     return false;
   }
-  for (let p = index.parent.get(parent); p !== null && p !== undefined; p = index.parent.get(p)) {
-    if (p === dragged) {
-      return false;
-    }
-  }
-  const held = (model.nodes.get(parent)?.slots ?? {}) as Readonly<Record<string, unknown>>;
-  if (!declared.list && held[slot] !== undefined) {
+  // A taken slot or the layer's own subtree is no place for it (false); a Flutter rule says why (its reason).
+  const refused = layerRefusal(model, index, dragged, parent, "after", { parent, slot });
+  if (refused === "full" || refused === "nowhere") {
     return false;
   }
-  edit(
-    doc,
-    (draft) => {
-      let taken: unknown;
-      takeOutRecipe(dragged, (node) => {
-        taken = node;
-      })(draft);
-      const target = findNode(draft, parent);
-      if (taken === undefined || target === null) {
-        return;
-      }
-      const slots = (target.node.slots ?? {}) as Record<string, unknown>;
-      if (declared.list) {
-        const list = Array.isArray(slots[slot]) ? (slots[slot] as unknown[]) : [];
-        list.push(taken);
-        slots[slot] = list;
-      } else {
-        slots[slot] = taken;
-      }
-      target.node.slots = slots;
-    },
-    { group: "reorder" },
-  );
+  if (refused !== null) {
+    return refused;
+  }
+  const p = layerPlacement(model, index, dragged, parent, slot);
+  const wrap = typeof p === "string" ? undefined : p.wrap;
+  const count = (index.children.get(parent) ?? []).filter((k) => k !== dragged && index.slot.get(k) === slot).length;
+  edit(doc, moveToRecipe(dragged, { parent, slot, list: declared.list, index: count }, layerWrap(wrap, newId)), {
+    group: "reorder",
+  });
   return true;
 }
 
+/** Moves a layer before or after another (PC-20); false when nothing moved, the reason when the rules refuse it. */
 export function moveLayer(
   model: PanelModel,
   index: NodeIndex,
@@ -312,12 +364,25 @@ export function moveLayer(
   edit: EditFn,
   docOf: (id: string) => string | undefined,
   canEdit: boolean,
-): boolean {
+  newId: IdSource = uuidv7,
+): boolean | Refusal {
   const to = layerDrop(model, index, dragged, target, half);
   const doc = docOf(dragged);
   if (!canEdit || to === null || doc === undefined || doc !== docOf(to.parent) || index.parent.get(dragged) === null) {
     return false;
   }
-  edit(doc, reparentRecipe([dragged], to.parent, to.index), { group: "reorder" });
+  const p = layerPlacement(model, index, dragged, to.parent, to.slot ?? null);
+  if (typeof p === "string") {
+    return p;
+  }
+  const recipe =
+    to.slot === undefined && p.wrap === undefined
+      ? reparentRecipe([dragged], to.parent, to.index)
+      : moveToRecipe(
+          dragged,
+          { parent: to.parent, index: to.index, slot: to.slot ?? null, list: to.slot !== undefined },
+          layerWrap(p.wrap, newId),
+        );
+  edit(doc, recipe, { group: "reorder" });
   return true;
 }

@@ -7,9 +7,9 @@ import type { Point } from "../positions.ts";
 import type { CanvasSurface } from "../surface.ts";
 import type { EditFn } from "./edits.ts";
 import { type Box, type Handle, resizeBox, type SnapResult, snapBox, translate } from "./geometry.ts";
-import { dropAt, finishMove, finishResize, type GestureEnv, planMove } from "./gesture.ts";
+import { finishMove, finishResize, type GestureEnv, moveDrop, planMove } from "./gesture.ts";
 import { handleAt, handleCursor } from "./handles.ts";
-import type { OverlayStore } from "./overlay-store.ts";
+import { dropMarks, noDrop, type OverlayStore } from "./overlay-store.ts";
 import * as sel from "./selection.ts";
 import type { SelectionStore } from "./store.ts";
 import { itemIdOf, lineage, type NodeIndex, nodesOfHits, screenOfItem } from "./tree.ts";
@@ -199,8 +199,10 @@ export function pointerHandlers(
       index: i.index,
       edit: i.edit,
       docOf: (id) => i.screenOf.get(id),
-      boxOf: (id) => (isRoot(id) ? undefined : i.boxOf(id)),
+      // A screen's root takes drops too: its box is the screen's frame.
+      boxOf: (id) => i.boxOf(id),
       typeOf: (id) => i.index.type.get(id),
+      locked: (id) => i.locked.has(id),
       ...(i.snapSize === undefined ? {} : { snapSize: i.snapSize }),
     };
   };
@@ -339,17 +341,20 @@ export function pointerHandlers(
     const siblings = (i.index.children.get(i.index.parent.get(m.id) ?? "") ?? [])
       .filter((k) => k !== m.id)
       .flatMap((k) => i.boxOf(k) ?? []);
-    const drop = dropAt(e, [m.id], w.x, w.y);
+    const target = moveDrop(e, [m.id], w.x, w.y);
     const plan = planMove(m.box, siblings, raw, zoom(), m.locks);
     m.locks = plan.locks;
-    const flow = drop !== null && drop.position === undefined;
+    const flow = target.ok && target.target.position === undefined;
     m.delta = flow ? raw : plan.delta;
     m.last = w;
     const parent = i.index.parent.get(m.id);
+    // Over a place the widget cannot go, the reason shows instead of a target; in a Stack, the snap guides.
+    const marks = dropMarks(target, i.index.type.get(m.id) ?? "");
     i.overlay.set({
       ghost: translate(m.box, m.delta),
-      guides: flow ? { lines: [], labels: [], indicator: drop.indicator } : plan.guides,
-      drop: flow && drop.parent !== parent ? drop.parent : null,
+      ...marks,
+      guides: target.ok && !flow ? plan.guides : marks.guides,
+      drop: flow && (target.target.parent !== parent || target.target.slot !== undefined) ? target.target.parent : null,
       hover: null,
     });
   };
@@ -496,7 +501,11 @@ export function pointerHandlers(
       return;
     }
     if (m.kind === "node") {
-      finishMove(env(), m.id, m.delta, m.last.x, m.last.y);
+      const plan = finishMove(env(), m.id, m.delta, m.last.x, m.last.y);
+      if (plan !== null && !plan.ok) {
+        const type = get().index.type.get(m.id) ?? "";
+        get().overlay.set({ notice: { reason: plan.reason, type, at: plan.at, x: m.last.x, y: m.last.y } });
+      }
     } else {
       finishResize(env(), m.id, m.delta, m.handle);
     }
@@ -535,7 +544,7 @@ export function pointerHandlers(
       // The release point is the drag's last: a drag that ends without a move event still lands where it was let go.
       dragMove(m, local(e));
     }
-    i.overlay.set({ marquee: null, guides: null, drop: null, ghost: null });
+    i.overlay.set({ marquee: null, ghost: null, ...noDrop });
     if (m !== null) {
       finish(m);
     }
@@ -545,7 +554,7 @@ export function pointerHandlers(
   const cancel = (e: PointerLike): void => {
     const m = mode.current;
     mode.current = null;
-    get().overlay.set({ marquee: null, guides: null, drop: null, ghost: null });
+    get().overlay.set({ marquee: null, ghost: null, ...noDrop });
     if (m?.kind === "screens") {
       get().screens.preview(m.origin);
     }

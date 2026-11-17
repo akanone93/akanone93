@@ -60,6 +60,10 @@ export interface LayerTreeProps {
   readonly onSelect: (id: string, toggle: boolean) => void;
   /** A row was dropped on `target`: before it, or after it (inside it when it is a folder). */
   readonly onDrop?: ((dragged: string, target: string, half: "before" | "after") => void) | undefined;
+  /** Why the dragged row cannot go before or after `target`, in a few words; null when it can. */
+  readonly dropRefusal?: ((dragged: string, target: string, half: "before" | "after") => string | null) | undefined;
+  /** A drag was let go where the row cannot go: `reason` says why, and nothing moved. */
+  readonly onRefused?: ((reason: string) => void) | undefined;
   /** Shows only the rows whose name, type or preview contain this text, with their ancestors, all open. */
   readonly filter?: string;
   /** The open rows, when the caller owns them (expand all, collapse all); otherwise the tree keeps its own. */
@@ -144,6 +148,17 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
   // Headless Tree re-renders when its state changes identity: the open rows are kept stable between renders.
   const open = useMemo(() => (keep === null ? [...expanded] : [...keep]), [keep, expanded]);
   const [drop, setDrop] = useState<Drop>(null);
+  // The row being dragged: a drag-over cannot read the dragged id, so the tree keeps it to check each target.
+  const [dragging, setDragging] = useState<string | null>(null);
+  const refusal =
+    drop === null || dragging === null ? null : (props.dropRefusal?.(dragging, drop.id, drop.half) ?? null);
+  // The refusal at the last row the drag was over: letting go clears the drop line before the drag ends.
+  const lastRefusal = useRef<string | null>(null);
+  useEffect(() => {
+    if (drop !== null) {
+      lastRefusal.current = refusal;
+    }
+  }, [drop, refusal]);
   const box = useRef<HTMLDivElement>(null);
   const tree = useTree<LayerNode>({
     rootItemId: rootId,
@@ -203,7 +218,19 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
             open={item.isExpanded()}
             selected={selected.includes(id)}
             drop={drop?.id === id ? drop.half : null}
+            refusal={drop?.id === id ? refusal : null}
             onDropAt={(half) => setDrop(half === null ? null : { id, half })}
+            onDragging={(on) => {
+              const refused = lastRefusal.current;
+              lastRefusal.current = null;
+              if (!on && refused !== null) {
+                props.onRefused?.(refused);
+              }
+              setDragging(on ? id : null);
+              if (!on) {
+                setDrop(null);
+              }
+            }}
             onToggle={() => toggle(id, item.isExpanded())}
             onSelect={(toggleSel) => onSelect(id, toggleSel)}
             onDrop={onDrop === undefined ? undefined : (dragged, half) => onDrop(dragged, id, half)}
@@ -232,7 +259,11 @@ function LayerRow(props: {
   readonly open: boolean;
   readonly selected: boolean;
   readonly drop: "before" | "after" | null;
+  /** Why the dragged row cannot go where this row's drop line shows; null when it can. */
+  readonly refusal: string | null;
   readonly onDropAt: (half: "before" | "after" | null) => void;
+  /** This row started (true) or ended (false) being dragged. */
+  readonly onDragging: (on: boolean) => void;
   readonly onToggle: () => void;
   readonly onSelect: (toggle: boolean) => void;
   readonly onDrop: ((dragged: string, half: "before" | "after") => void) | undefined;
@@ -295,10 +326,16 @@ function LayerRow(props: {
           props.onToggle();
         }
       }}
-      onDragStart={(e) => e.dataTransfer.setData(DRAG_TYPE, id)}
+      onDragStart={(e) => {
+        e.dataTransfer.setData(DRAG_TYPE, id);
+        props.onDragging(true);
+      }}
+      onDragEnd={() => props.onDragging(false)}
       onDragOver={(e) => {
         if (props.onDrop !== undefined && e.dataTransfer.types.includes(DRAG_TYPE)) {
           e.preventDefault();
+          // A place the row cannot go shows the not-allowed cursor; letting go there moves nothing.
+          e.dataTransfer.dropEffect = props.refusal === null ? "move" : "none";
           const half = halfOf(e);
           if (drop !== half) {
             props.onDropAt(half);
@@ -309,7 +346,7 @@ function LayerRow(props: {
       onDrop={(e) => {
         props.onDropAt(null);
         const dragged = e.dataTransfer.getData(DRAG_TYPE);
-        if (props.onDrop !== undefined && dragged !== "") {
+        if (props.onDrop !== undefined && dragged !== "" && props.refusal === null) {
           e.preventDefault();
           props.onDrop(dragged, halfOf(e));
         }
@@ -318,10 +355,12 @@ function LayerRow(props: {
         "group relative flex h-(--density-tree-row) min-w-0 cursor-default items-center gap-1.5 rounded-md pe-2 text-start text-sm transition-colors",
         focusRing,
         selected ? "bg-primary/12 text-foreground" : "text-foreground hover:bg-muted",
-        drop === "after" && folder && "ring-2 ring-primary/60",
+        drop === "after" &&
+          folder &&
+          (props.refusal === null ? "ring-2 ring-primary/60" : "ring-2 ring-destructive/70"),
       )}
     >
-      <DropLine drop={drop} folder={folder} />
+      <DropLine drop={drop} folder={folder} refusal={props.refusal} />
       <LayerRowContent
         data={data}
         name={props.name}
@@ -348,18 +387,37 @@ function LayerRow(props: {
 }
 
 /** The line where a dragged row would land: above the row, or below it unless it is a folder (which takes it). */
-function DropLine({ drop, folder }: { readonly drop: "before" | "after" | null; readonly folder: boolean }) {
-  if (drop === null || (drop === "after" && folder)) {
+/** The line a dragged row would land at, in the primary colour; red with the reason where it cannot go. */
+function DropLine(props: {
+  readonly drop: "before" | "after" | null;
+  readonly folder: boolean;
+  readonly refusal: string | null;
+}) {
+  const { drop, folder, refusal } = props;
+  if (drop === null) {
     return null;
   }
   return (
-    <span
-      aria-hidden="true"
-      className={cx(
-        "pointer-events-none absolute inset-x-1 h-0.5 rounded-full bg-primary",
-        drop === "before" ? "top-0" : "bottom-0",
+    <>
+      {!(drop === "after" && folder) && (
+        <span
+          aria-hidden="true"
+          className={cx(
+            "pointer-events-none absolute inset-x-1 h-0.5 rounded-full",
+            refusal === null ? "bg-primary" : "bg-destructive",
+            drop === "before" ? "top-0" : "bottom-0",
+          )}
+        />
       )}
-    />
+      {refusal !== null && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute end-1 top-1/2 z-10 max-w-[70%] -translate-y-1/2 truncate rounded bg-destructive px-1.5 py-px text-[11px] font-medium leading-4 text-white shadow-sm"
+        >
+          {refusal}
+        </span>
+      )}
+    </>
   );
 }
 

@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Guides } from "@plux/canvas";
-import { widget } from "@plux/schema";
 import { uuidv7 } from "../screens.ts";
+import { type DropPlan, planDrop, wrapNode } from "./drop-rules.ts";
 import {
   duplicateRecipe,
   type EditFn,
-  intoSlotRecipe,
   moveRecipe,
-  putAtRecipe,
-  putInSlotRecipe,
+  moveToRecipe,
+  putRecipe,
   reparentRecipe,
   resizeRecipe,
   stackDropRecipe,
@@ -28,7 +27,7 @@ import {
   snapBox,
   translate,
 } from "./geometry.ts";
-import { type Container, type DropTarget, resolveDrop } from "./reparent.ts";
+import type { DropTarget } from "./reparent.ts";
 import type { NodeIndex } from "./tree.ts";
 
 export type GestureKind = "move" | "resize";
@@ -91,56 +90,10 @@ export interface GestureEnv {
   readonly typeOf: (id: string) => string | undefined;
   /** A resized width or height snapped to a dimension token near it (PC-18); a whole pixel when absent. */
   readonly snapSize?: (value: number) => number;
-}
-
-const FLOW_TYPES = new Set(["Row", "Column", "Wrap", "Flex", "Stack"]);
-
-/** The slot an empty single-child holder (a `Padding`, a `Center`, a `Card`, a `SizedBox`…) takes a drop in (PC-20). */
-function emptySlotOf(type: string, kids: readonly string[]): string | undefined {
-  const d = widget(type);
-  if (d === undefined || d.children !== undefined || kids.length > 0) {
-    return undefined;
-  }
-  return d.slots.some((s) => s.name === "child") ? "child" : undefined;
-}
-
-/** The flow containers that take a drop, with their children's boxes; only those of screen `doc` when given. */
-export function containersOf(env: GestureEnv, doc?: string): Container[] {
-  const out: Container[] = [];
-  for (const [id, kids] of env.index.children) {
-    const c = containerOf(env, id, kids, doc);
-    if (c !== undefined) {
-      out.push(c);
-    }
-  }
-  return out;
-}
-
-/** Node `id` as a container that takes a drop: a flow container, or an empty single-child holder; else undefined. */
-function containerOf(
-  env: GestureEnv,
-  id: string,
-  kids: readonly string[],
-  doc: string | undefined,
-): Container | undefined {
-  const type = env.typeOf(id);
-  const box = env.boxOf(id);
-  if (box === undefined || type === undefined || (doc !== undefined && env.docOf(id) !== doc)) {
-    return undefined;
-  }
-  const flow = FLOW_TYPES.has(type);
-  const slot = flow ? undefined : emptySlotOf(type, kids);
-  if (!flow && slot === undefined) {
-    return undefined;
-  }
-  const children = kids.flatMap((k) => {
-    const b = env.boxOf(k);
-    return b === undefined ? [] : [{ id: k, box: b }];
-  });
-  if (slot !== undefined) {
-    return { id, box, axis: "slot", children, slot };
-  }
-  return { id, box, axis: type === "Row" ? "row" : type === "Stack" ? "stack" : "column", children };
+  /** Layers that neither move nor take another widget in. */
+  readonly locked?: (id: string) => boolean;
+  /** Whether the canvas previews a right-to-left locale. */
+  readonly rtl?: boolean;
 }
 
 /**
@@ -160,31 +113,59 @@ export function placingStack(env: GestureEnv, id: string): string | undefined {
   return stack !== undefined && env.typeOf(stack) === "Stack" ? stack : undefined;
 }
 
-/** Where dragging \`ids\` to world point (x, y) drops them: a flow container of their own screen, or null. */
-export function dropAt(env: GestureEnv, ids: readonly string[], x: number, y: number): DropTarget | null {
+/**
+ * Where dragging `ids` to world point (x, y) drops them, by the drop rules (PC-20): into the innermost widget under the
+ * pointer that can take them, on any screen, or refused with the reason. A node a `Positioned` places in a Stack moves
+ * by its offset in that Stack wherever the pointer goes.
+ */
+export function moveDrop(env: GestureEnv, ids: readonly string[], x: number, y: number): DropPlan {
   const first = ids[0];
   const stack = first === undefined ? undefined : placingStack(env, first);
   const box = stack === undefined ? undefined : env.boxOf(stack);
   if (stack !== undefined && box !== undefined) {
     const [px, py] = [Math.round(x), Math.round(y)];
     return {
-      parent: stack,
-      index: env.index.children.get(stack)?.length ?? 0,
-      indicator: { l: px, t: py, r: px, b: py },
-      position: { left: px - Math.round(box.l), top: py - Math.round(box.t) },
+      ok: true,
+      target: {
+        parent: stack,
+        index: env.index.children.get(stack)?.length ?? 0,
+        indicator: { l: px, t: py, r: px, b: py },
+        position: { left: px - Math.round(box.l), top: py - Math.round(box.t) },
+      },
     };
   }
-  // Any screen's containers take a drop: a widget moves onto another screen as well (PC-20).
-  return resolveDrop(env.index, containersOf(env), ids, x, y);
+  return planDrop(env, { type: (first === undefined ? undefined : env.typeOf(first)) ?? "", ids }, x, y);
 }
 
-/** The insertion indicator while dragging \`ids\` over flow containers at world point (x, y). */
+/** Where dragging `ids` to world point (x, y) drops them, or null when the drop is refused. */
+export function dropAt(env: GestureEnv, ids: readonly string[], x: number, y: number): DropTarget | null {
+  const plan = moveDrop(env, ids, x, y);
+  return plan.ok ? plan.target : null;
+}
+
+/** The insertion indicator while dragging `ids` over the screens at world point (x, y). */
 export function reparentPreview(env: GestureEnv, ids: readonly string[], x: number, y: number): Guides | null {
   const drop = dropAt(env, ids, x, y);
   return drop === null ? null : { lines: [], labels: [], indicator: drop.indicator };
 }
 
-/** Ends a drag: Stack children move by the offset, flow children are reparented at the indicator. */
+/** The wrapper a drop puts the moved node in, with a fresh id, when it needs one. */
+const wrapperOf = (drop: DropTarget, fresh: () => string) =>
+  drop.wrap === undefined ? undefined : (node: unknown) => wrapNode(drop.wrap as string, fresh(), node);
+
+/** Whether dropping `id` at `drop` leaves it where it is. */
+function staysPut(env: GestureEnv, id: string, drop: DropTarget): boolean {
+  const slot = env.index.slot.get(id) ?? undefined;
+  if (env.index.parent.get(id) !== drop.parent || slot !== drop.slot || drop.wrap !== undefined) {
+    return false;
+  }
+  return drop.slot !== undefined && drop.list !== true ? true : !movesAmongSiblings(env, id, drop);
+}
+
+/**
+ * Ends a drag: a Stack child moves by the offset; anything else goes where the drop rules put it, on its own screen or
+ * another. Returns the plan, refused when the drop was not written.
+ */
 export function finishMove(
   env: GestureEnv,
   id: string,
@@ -192,41 +173,54 @@ export function finishMove(
   x: number,
   y: number,
   fresh: () => string = uuidv7,
-): void {
+): DropPlan | null {
   const doc = env.docOf(id);
   if (doc === undefined) {
-    return;
+    return null;
   }
-  const drop = dropAt(env, [id], x, y);
-  const to = drop === null ? undefined : env.docOf(drop.parent);
-  if (drop !== null && to !== undefined && to !== doc && drop.position === undefined) {
-    moveAcross(env, id, doc, to, drop);
-    return;
+  const plan = moveDrop(env, [id], x, y);
+  if (!plan.ok) {
+    return plan;
   }
-  if (drop?.slot !== undefined) {
-    env.edit(doc, intoSlotRecipe(id, drop.parent, drop.slot), { group: "move" });
-    return;
+  const drop = plan.target;
+  const to = env.docOf(drop.parent);
+  if (to !== undefined && to !== doc && drop.position === undefined) {
+    moveAcross(env, id, doc, to, drop, fresh);
+    return plan;
   }
   const parent = env.index.parent.get(id);
-  const sameStack = parent === drop?.parent || (parent != null && env.index.parent.get(parent) === drop?.parent);
-  if (drop?.position !== undefined && !sameStack) {
-    env.edit(doc, stackDropRecipe(id, drop.parent, drop.position, fresh), { group: "move" });
-    return;
+  if (drop.position !== undefined) {
+    const sameStack = parent === drop.parent || (parent != null && env.index.parent.get(parent) === drop.parent);
+    const recipe = sameStack
+      ? moveRecipe(id, delta.x, delta.y)
+      : stackDropRecipe(id, drop.parent, drop.position, fresh);
+    env.edit(doc, recipe, { group: "move" });
+    return plan;
   }
-  // Into another flow container, or to another place among its siblings: the insertion indicator's index counts the
-  // children without the dragged one, as the recipe inserts after taking it out.
-  if (drop !== null && drop.position === undefined && (drop.parent !== parent || movesAmongSiblings(env, id, drop))) {
-    env.edit(doc, reparentRecipe([id], drop.parent, drop.index), { group: "move" });
-    return;
+  if (staysPut(env, id, drop)) {
+    return plan;
   }
-  env.edit(doc, moveRecipe(id, delta.x, delta.y), { group: "move" });
+  // The insertion index counts the list without the dragged node, as the recipes insert after taking it out.
+  const recipe =
+    drop.slot === undefined && drop.wrap === undefined
+      ? reparentRecipe([id], drop.parent, drop.index)
+      : moveToRecipe(id, drop, wrapperOf(drop, fresh));
+  env.edit(doc, recipe, { group: "move" });
+  return plan;
 }
 
 /**
  * A widget moved onto another screen: taken out of its page and put into the other at the drop, one undo step across
  * the two pages (PC-20). Its ids are kept: they are unique in the app.
  */
-function moveAcross(env: GestureEnv, id: string, from: string, to: string, drop: DropTarget): void {
+function moveAcross(
+  env: GestureEnv,
+  id: string,
+  from: string,
+  to: string,
+  drop: DropTarget,
+  fresh: () => string,
+): void {
   const group = `move-across:${id}:${Date.now()}`;
   let taken: unknown;
   env.edit(
@@ -239,23 +233,16 @@ function moveAcross(env: GestureEnv, id: string, from: string, to: string, drop:
   if (taken === undefined) {
     return;
   }
-  const node = taken;
-  env.edit(
-    to,
-    drop.slot !== undefined
-      ? putInSlotRecipe(node, drop.parent, drop.slot)
-      : putAtRecipe(node, drop.parent, drop.index),
-    {
-      group,
-    },
-  );
+  const wrap = wrapperOf(drop, fresh);
+  env.edit(to, putRecipe(wrap === undefined ? taken : wrap(taken), drop), { group });
 }
 
 /** Whether a drop into the dragged node's own list puts it at another place than where it is. */
 function movesAmongSiblings(env: GestureEnv, id: string, drop: DropTarget): boolean {
-  const kids = (env.index.children.get(drop.parent) ?? []).filter((k) => k !== id);
-  const at = (env.index.children.get(drop.parent) ?? []).indexOf(id);
-  return at >= 0 && drop.index !== at && drop.index <= kids.length;
+  const slot = drop.slot ?? null;
+  const items = (env.index.children.get(drop.parent) ?? []).filter((k) => (env.index.slot.get(k) ?? null) === slot);
+  const at = items.indexOf(id);
+  return at >= 0 && drop.index !== at && drop.index <= items.length - 1;
 }
 
 /** Ends a resize from `handle` (the south-east corner when absent). */

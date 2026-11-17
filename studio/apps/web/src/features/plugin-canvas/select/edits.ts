@@ -40,21 +40,11 @@ export interface Place {
   readonly slot: string | null;
 }
 
-function searchIn(owner: Obj, id: string): Place | null {
-  const slots = isObj(owner.slots) ? owner.slots : {};
-  for (const [name, child] of Object.entries(slots)) {
+/** Node `id` among the nodes of `list` (a `children` array, or a list slot's when `slot` is set), at any depth. */
+function searchList(owner: Obj, list: unknown[], slot: string | null, id: string): Place | null {
+  for (const [i, child] of list.entries()) {
     if (isObj(child) && child.id === id) {
-      return { node: child, parent: owner, list: null, index: -1, slot: name };
-    }
-    const deeper = findNode(child, id, owner);
-    if (deeper !== null) {
-      return deeper;
-    }
-  }
-  const kids = Array.isArray(owner.children) ? owner.children : [];
-  for (const [i, child] of kids.entries()) {
-    if (isObj(child) && child.id === id) {
-      return { node: child, parent: owner, list: kids, index: i, slot: null };
+      return { node: child, parent: owner, list, index: i, slot };
     }
     const deeper = findNode(child, id, owner);
     if (deeper !== null) {
@@ -62,6 +52,22 @@ function searchIn(owner: Obj, id: string): Place | null {
     }
   }
   return null;
+}
+
+function searchIn(owner: Obj, id: string): Place | null {
+  const slots = isObj(owner.slots) ? owner.slots : {};
+  for (const [name, child] of Object.entries(slots)) {
+    // A list slot (an app bar's `actions`, a scroll view's `slivers`) holds its nodes in an array.
+    const found = Array.isArray(child)
+      ? searchList(owner, child, name, id)
+      : isObj(child) && child.id === id
+        ? { node: child, parent: owner, list: null, index: -1, slot: name }
+        : findNode(child, id, owner);
+    if (found !== null) {
+      return found;
+    }
+  }
+  return searchList(owner, Array.isArray(owner.children) ? owner.children : [], null, id);
 }
 
 /** Finds the node `id` below `root` (a draft). */
@@ -321,44 +327,65 @@ export function takeOutRecipe(id: string, taken: (node: unknown) => void): (draf
   };
 }
 
-/** Puts `node` into `parent`'s children at `index`. */
-export function putAtRecipe(node: unknown, parent: string, index: number): (draft: unknown) => void {
-  return (draft) => {
-    const target = findNode(draft, parent);
-    if (target === null) {
-      return;
-    }
-    const kids = Array.isArray(target.node.children) ? (target.node.children as unknown[]) : [];
-    kids.splice(Math.min(index, kids.length), 0, node);
-    target.node.children = kids;
-  };
+/** Where a dropped node goes: `parent`'s `children` at `index`, or its `slot` (at `index` when the slot is a list). */
+export interface Spot {
+  readonly parent: string;
+  readonly index: number;
+  readonly slot?: string | null;
+  readonly list?: boolean;
 }
 
-/** Puts `node` into `parent`'s `slot`. */
-export function putInSlotRecipe(node: unknown, parent: string, slot: string): (draft: unknown) => void {
+/** Inserts `node` into the array `list` at `index`, or at its end; returns the array. */
+function insertAt(list: unknown, index: number, node: unknown): unknown[] {
+  const out = Array.isArray(list) ? list : [];
+  out.splice(Math.min(index, out.length), 0, node);
+  return out;
+}
+
+/** The slot name of `spot`, or undefined for its parent's `children`. */
+const slotName = (spot: Spot): string | undefined => (spot.slot === null ? undefined : spot.slot);
+
+/** Whether `spot` is a single slot that already holds a node. */
+const slotTaken = (target: Place, spot: Spot): boolean => {
+  const name = slotName(spot);
+  return name !== undefined && spot.list !== true && isObj(target.node.slots) && target.node.slots[name] !== undefined;
+};
+
+/** Puts `node` at `spot`: into a list at its index, or into an empty single slot. */
+export function putRecipe(node: unknown, spot: Spot): (draft: unknown) => void {
   return (draft) => {
-    const target = findNode(draft, parent);
-    if (target === null) {
+    const target = findNode(draft, spot.parent);
+    const name = slotName(spot);
+    if (target === null || slotTaken(target, spot)) {
+      return;
+    }
+    if (name === undefined) {
+      target.node.children = insertAt(target.node.children, spot.index, node);
       return;
     }
     const slots = isObj(target.node.slots) ? target.node.slots : {};
-    slots[slot] = node;
+    slots[name] = spot.list === true ? insertAt(slots[name], spot.index, node) : node;
     target.node.slots = slots;
   };
 }
 
-/** Moves node `id` into the empty `slot` of `parent` in the same page (PC-20); nothing when `parent` is inside it. */
-export function intoSlotRecipe(id: string, parent: string, slot: string): (draft: unknown) => void {
+/**
+ * Moves node `id` to `spot` in the same page (PC-20), first into the wrapper `wrap` makes of it when given; nothing when
+ * the spot is inside the node, or is a single slot that is taken. `spot.index` counts the list without the node.
+ */
+export function moveToRecipe(id: string, spot: Spot, wrap?: (node: unknown) => unknown): (draft: unknown) => void {
   return (draft) => {
-    if (findNode(findNode(draft, id)?.node, parent) !== null) {
+    const at = findNode(draft, id);
+    const target = findNode(draft, spot.parent);
+    if (at === null || target === null || findNode(at.node, spot.parent) !== null || slotTaken(target, spot)) {
       return;
     }
-    let taken: unknown;
+    let moved: unknown;
     takeOutRecipe(id, (node) => {
-      taken = node;
+      moved = node;
     })(draft);
-    if (taken !== undefined) {
-      putInSlotRecipe(taken, parent, slot)(draft);
+    if (moved !== undefined) {
+      putRecipe(wrap === undefined ? moved : wrap(moved), spot)(draft);
     }
   };
 }

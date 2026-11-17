@@ -13,6 +13,7 @@
   --pc-measure: oklch(0.63 0.25 350);
   --pc-measure-ink: oklch(0.99 0 0);
   --pc-drop: oklch(0.7 0.17 150);
+  --pc-refused: oklch(0.6 0.21 27);
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -64,6 +65,12 @@
   background-color: color-mix(in oklch, var(--pc-drop) 8%, transparent);
 }
 
+/* Where the dragged widget cannot go: a red outline and the reason on its tag (PC-20). */
+.pc-outline[data-kind="refused"] {
+  outline: 2px dashed var(--pc-refused);
+  background-color: color-mix(in oklch, var(--pc-refused) 7%, transparent);
+}
+
 .pc-outline[data-kind="ghost"] {
   outline: 1.5px dashed var(--pc-select);
   background-color: color-mix(in oklch, var(--pc-select) 10%, transparent);
@@ -104,6 +111,58 @@
 
 .pc-tag[data-kind="drop"] {
   background-color: var(--pc-drop);
+}
+
+.pc-tag[data-end] {
+  translate: -100% calc(-100% - 4px);
+}
+
+.pc-tag[data-kind="refused"] {
+  color: oklch(0.99 0 0);
+  background-color: var(--pc-refused);
+}
+
+/* A refused drop's notice, where it was let go, above the docks' edge of the canvas; it fades in and stays a moment. */
+.pc-notice-region {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pc-notice {
+  --pc-refused: oklch(0.6 0.21 27);
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  translate: -50% calc(-100% - 10px);
+  max-inline-size: 22rem;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: oklch(0.99 0 0);
+  background-color: var(--pc-refused);
+  box-shadow: 0 2px 8px color-mix(in oklch, black 22%, transparent);
+  animation: pc-notice-in 140ms ease-out;
+}
+
+@keyframes pc-notice-in {
+  from {
+    opacity: 0;
+    translate: -50% calc(-100% - 4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-notice {
+    animation: none;
+  }
 }
 
 /* A screen's name, marked over the name the canvas draws above its frame, at its size (`--z` is the zoom). */
