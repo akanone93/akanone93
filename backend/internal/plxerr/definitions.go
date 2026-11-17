@@ -1732,6 +1732,11 @@ var registry = []Definition{
 		"Send the request through the gateway.", false,
 	},
 	{
+		LiveConfigTypeMismatch, "LIVE_CONFIG_TYPE_MISMATCH", SeverityError, "Live configuration value has another type",
+		"A readConfig step names the type the value must have, and the server holds the value with another type, or a decimal that does not read as one; the step fails instead of passing on a value of the wrong type (DAT-090).",
+		"Change the value's type on the server, or the step's type, so that they agree.", false,
+	},
+	{
 		FraudReceiptUnavailable, "FRAUD_RECEIPT_UNAVAILABLE", SeverityError, "Fraud receipt unavailable",
 		"The platform fraud-signal receipt that the request needs could not be obtained or is no longer valid, so the server cannot rely on it (SEC-123).",
 		"Request a new receipt on the device and repeat the call.", false,

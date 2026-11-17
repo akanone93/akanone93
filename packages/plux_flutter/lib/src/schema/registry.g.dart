@@ -2389,6 +2389,12 @@ const List<EnumDescriptor> enumDescriptors = [
     values: {'flex': 1, 'fixed': 2, 'fraction': 3, 'intrinsic': 4},
   ),
   EnumDescriptor(
+    'ConfigValueType',
+    176,
+    revision: 1,
+    values: {'string': 1, 'int': 2, 'decimal': 3, 'bool': 4},
+  ),
+  EnumDescriptor(
     'CountdownFormat',
     132,
     revision: 1,
@@ -3097,7 +3103,7 @@ const List<ActionDescriptor> actionDescriptors = [
     'readConfig',
     57,
     phase: 'P6',
-    inputs: {'key': 1},
+    inputs: {'key': 1, 'type': 2},
   ),
   ActionDescriptor(
     'refreshData',

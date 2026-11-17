@@ -180,3 +180,47 @@ func TestQueryOutputIsTyped(t *testing.T) {
 		wantDiag(t, res, code, page, "/root/slots/body/children/1/events/onPressed/steps/1/input/message")
 	}
 }
+
+// A readConfig step's output has the type its `type` input names, and a
+// step without one has no output to read (DAT-090); naming the type needs
+// the runtime that checks it (PLX-6074).
+func TestConfigOutputIsTyped(t *testing.T) {
+	t.Parallel()
+	const page = "plugins/todo/pages/list.page.json"
+	for _, c := range []struct {
+		typ, src string
+		code     plxerr.Code
+	}{
+		{`"decimal"`, `string(steps.r.output ?? 0d)`, 0},
+		{`"int"`, `string((steps.r.output ?? 0) + 1)`, 0},
+		{`"bool"`, `(steps.r.output ?? false) ? "on" : "off"`, 0},
+		{`"string"`, `steps.r.output ?? ""`, 0},
+		{`"decimal"`, `steps.r.output ?? ""`, plxerr.PXLTypeMismatch},
+		{`null`, `string(steps.r.output)`, plxerr.PXLUnknownField},
+	} {
+		m := project(t, dbDir)
+		edit(t, m, page, func(doc map[string]any) {
+			input := `{"key": "rate"}`
+			if c.typ != "null" {
+				input = `{"key": "rate", "type": ` + c.typ + `}`
+			}
+			at(t, doc, "root/slots/body/children/1/events")["onPressed"] = raw(t, `{"steps": [
+				{"id": "r", "action": "readConfig", "input": `+input+`, "next": "say"},
+				{"id": "say", "action": "showSnackbar", "input": {"message": {"$expr": `+strconv.Quote(c.src)+`}}}]}`)
+		})
+		res := compileFS(m)
+		if c.code != 0 {
+			wantDiag(t, res, c.code, page, "/root/slots/body/children/1/events/onPressed/steps/1/input/message")
+			continue
+		}
+		for _, d := range res.Diagnostics {
+			if d.Severity == plxerr.SeverityError {
+				t.Errorf("%s %s:\n%s", c.typ, c.src, list(res.Diagnostics))
+				break
+			}
+		}
+		if !slices.Contains(res.Plugins[0].Features, "enum.ConfigValueType.v1") {
+			t.Errorf("%s: features %v lack enum.ConfigValueType.v1", c.typ, res.Plugins[0].Features)
+		}
+	}
+}

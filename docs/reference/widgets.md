@@ -6138,6 +6138,19 @@ ID 100 · revision 1
 | `fraction` | 3 |  |
 | `intrinsic` | 4 |  |
 
+### ConfigValueType
+
+The type of a server-held configuration value a readConfig step reads (DAT-090): the step's output has this type, and a value of another type fails closed.
+
+ID 176 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `string` | 1 |  |
+| `int` | 2 |  |
+| `decimal` | 3 |  |
+| `bool` | 4 |  |
+
 ### CountdownFormat
 
 How a countdown writes the time left.

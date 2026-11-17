@@ -715,32 +715,22 @@ func branchTargets(st schema.Step) []string {
 // inference: a concrete action output, made nullable because the step
 // may not have run.
 func (t *typer) stepOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSpec) string {
-	if st.Action == "invokeFunction" {
+	switch st.Action {
+	case "invokeFunction":
 		return t.functionOutput(g, st, synth)
-	}
-	if st.Action == "callFlow" {
-		f, _ := t.u.flowRef(g.plugin, literalString(st.Input["flow"]))
-		if f == nil || f.doc.Output == "" {
-			return ""
-		}
-		te, err := parseTypeExpr(f.doc.Output)
-		if err != nil {
-			return ""
-		}
-		te.nullable = true
-		return te.String()
+	case "callFlow":
+		return t.flowOutput(g, st)
+	case "apiCall":
+		return t.apiCallOutput(g, st)
+	case "submitForm":
+		return t.u.formOutput(g, st)
+	case "dbQuery":
+		return t.queryOutput(g, st, synth)
+	case "readConfig":
+		return configOutput(st)
 	}
 	if out, ok := t.customOutput(st); ok {
 		return out
-	}
-	if st.Action == "apiCall" {
-		return t.apiCallOutput(g, st)
-	}
-	if st.Action == "submitForm" {
-		return t.u.formOutput(g, st)
-	}
-	if st.Action == "dbQuery" {
-		return t.queryOutput(g, st, synth)
 	}
 	a, ok := registry.LookupAction(st.Action)
 	if !ok || a.Output == "" {
@@ -759,6 +749,39 @@ func (t *typer) stepOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSp
 	}
 	te.nullable = true
 	return te.String()
+}
+
+// flowOutput is the output type of a callFlow step: the called flow's
+// declared output, nullable.
+func (t *typer) flowOutput(g *graph, st schema.Step) string {
+	f, _ := t.u.flowRef(g.plugin, literalString(st.Input["flow"]))
+	if f == nil || f.doc.Output == "" {
+		return ""
+	}
+	te, err := parseTypeExpr(f.doc.Output)
+	if err != nil {
+		return ""
+	}
+	te.nullable = true
+	return te.String()
+}
+
+// configOutput is the output type of a readConfig step: the type its
+// literal `type` input names, which the runtime checks the value against
+// (PLX-6074). Without one, or with a computed one, the output has no type
+// and cannot be read.
+func configOutput(st schema.Step) string {
+	switch literalString(st.Input["type"]) {
+	case "string":
+		return "string?"
+	case "int":
+		return "int?"
+	case "decimal":
+		return "decimal?"
+	case "bool":
+		return "bool?"
+	}
+	return ""
 }
 
 // customOutput is the output type of a custom action step, as the native

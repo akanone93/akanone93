@@ -556,11 +556,12 @@ ID 57 · data · P6 · effects: network
 
 Type parameters:
 
-- `T` — The type of the value: string for a string or a decimal, int for an integer, bool for a boolean.
+- `T` — The type of the value, named by `type`: string, int, decimal or bool. Without `type` the step's output cannot be read.
 
 | Input | ID | Type | Default | Description |
 |---|---|---|---|---|
 | `key` | 1 | `string`, required | — | The key of the value. |
+| `type` | 2 | `ConfigValueType` | — | The type the value must have; the step's output has this type. A value of another type fails the step (PLX-6074), and a decimal is read exactly from the string the server carries. |
 
 Output: `T`.
 

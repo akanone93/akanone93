@@ -406,6 +406,7 @@ const (
 	SCAChallengeInvalid          Code = 6071
 	SCADynamicLinkingMismatch    Code = 6072
 	TransactionRequiresGateway   Code = 6073
+	LiveConfigTypeMismatch       Code = 6074
 	FraudReceiptUnavailable      Code = 6080
 	ImportedKeyInvalid           Code = 6081
 	RASPDetection                Code = 6100

@@ -7,6 +7,7 @@ import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/pxl/decimal.dart';
 
 import 'io_support.dart';
 
@@ -90,4 +91,78 @@ void main() {
       expect(source.reads, isEmpty);
     },
   );
+
+  group('a step that names the type [DAT-090]', () {
+    final source = _Source({
+      'rate': const LiveConfigValue(
+        key: 'rate',
+        type: LiveConfigType.decimal,
+        value: '1.0842',
+        strict: true,
+      ),
+      'limit': const LiveConfigValue(
+        key: 'limit',
+        type: LiveConfigType.integer,
+        value: 500,
+        strict: false,
+      ),
+      'broken': const LiveConfigValue(
+        key: 'broken',
+        type: LiveConfigType.decimal,
+        value: 'one',
+        strict: false,
+      ),
+    });
+
+    test('reads a decimal exactly, by name or by permanent ID', () async {
+      for (final type in <Object>['decimal', 3]) {
+        final r = await handler.run(context(source), {
+          'key': 'rate',
+          'type': type,
+        }) as StepDone;
+        expect(r.output, Decimal.tryParse('1.0842'));
+      }
+      final r = await handler.run(context(source), {
+        'key': 'limit',
+        'type': 'int',
+      }) as StepDone;
+      expect(r.output, 500);
+    });
+
+    test('fails closed on a value of another type (PLX-6074)', () async {
+      for (final (key, type) in [
+        ('limit', 'decimal'),
+        ('rate', 'string'),
+        ('broken', 'decimal'),
+      ]) {
+        await expectLater(
+          handler.run(context(source), {'key': key, 'type': type}),
+          throwsA(
+            isA<ActionError>()
+                .having(
+                  (e) => e.code,
+                  'code',
+                  PluxErrorCode.liveConfigTypeMismatch,
+                )
+                .having((e) => e.kind, 'kind', ActionErrorKind.validation),
+          ),
+        );
+      }
+    });
+
+    test('refuses a type it does not know before reading', () async {
+      final reads = source.reads.length;
+      await expectLater(
+        handler.run(context(source), {'key': 'rate', 'type': 'money'}),
+        throwsA(
+          isA<ActionError>().having(
+            (e) => e.code,
+            'code',
+            PluxErrorCode.actionValueInvalid,
+          ),
+        ),
+      );
+      expect(source.reads.length, reads);
+    });
+  });
 }

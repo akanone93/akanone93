@@ -15,6 +15,8 @@ import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/transfers.dart' show CancelToken;
+import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/pxl/decimal.dart';
 
 DataActions _data(StepContext c, String action) =>
     c.data ??
@@ -53,11 +55,15 @@ final Map<String, ActionHandler> dataHandlers = {
         (throw DataFailure.unavailable(
           'readConfig: this runtime has no live configuration',
         ).toActionError());
+    final want = i['type'];
+    final type = want == null ? null : _configType(want);
+    final LiveConfigValue value;
     try {
-      return StepDone((await config.read(key)).value);
+      value = await config.read(key);
     } on DataFailure catch (f) {
       throw f.toActionError();
     }
+    return StepDone(type == null ? value.value : _typed(value, type));
   }),
   'refreshData': FunctionHandler((c, i) async {
     final source = i['source'];
@@ -88,3 +94,36 @@ final Map<String, ActionHandler> dataHandlers = {
     return const StepDone();
   }),
 };
+
+/// The live configuration type a readConfig step's `type` input names; an
+/// unknown name fails the step rather than leaving the value unchecked.
+LiveConfigType _configType(Object want) =>
+    switch (enumMember('ConfigValueType', want)) {
+      'string' => LiveConfigType.string,
+      'int' => LiveConfigType.integer,
+      'decimal' => LiveConfigType.decimal,
+      'bool' => LiveConfigType.boolean,
+      _ => throw const ActionError.validation(
+        'readConfig: type is not a ConfigValueType',
+      ),
+    };
+
+/// The value as the step's declared [type]: a value the server holds with
+/// another type fails closed (PLX-6074), and a decimal, which the server
+/// carries as a string, becomes an exact [Decimal].
+Object _typed(LiveConfigValue v, LiveConfigType type) {
+  if (v.type != type) {
+    throw ActionError(
+      ActionErrorKind.validation,
+      PluxErrorCode.liveConfigTypeMismatch,
+      'readConfig: ${v.key} is a ${v.type.name}, not a ${type.name}',
+    );
+  }
+  if (type != LiveConfigType.decimal) return v.value;
+  return Decimal.tryParse(v.value as String) ??
+      (throw ActionError(
+        ActionErrorKind.validation,
+        PluxErrorCode.liveConfigTypeMismatch,
+        'readConfig: ${v.key} does not read as a decimal',
+      ));
+}

@@ -345,6 +345,15 @@ String? nameColumnWidthKind(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a ConfigValueType, from its permanent value ID or name.
+String? nameConfigValueType(Decoding d, Object? v) => switch (v) {
+  1 || 'string' => 'string',
+  2 || 'int' => 'int',
+  3 || 'decimal' => 'decimal',
+  4 || 'bool' => 'bool',
+  _ => null,
+};
+
 /// The member name of a CountdownFormat, from its permanent value ID or name.
 String? nameCountdownFormat(Decoding d, Object? v) => switch (v) {
   1 || 'hms' => 'hms',

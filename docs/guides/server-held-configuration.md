@@ -47,8 +47,17 @@ If a displayed value changes between the confirmation and the call, the gateway 
 
 ## 4. Read live values on a page
 
-The `readConfig` action returns the value of a key, typed: `string` for a string or a decimal,
-`int` for an integer, `bool` for a boolean.
+The `readConfig` action returns the value of a key. Name its type in the step's `type` input
+(`string`, `int`, `decimal` or `bool`) and `steps.<id>.output` has that type, nullable:
+
+```json
+{ "id": "r", "action": "readConfig", "input": { "key": "ratesEURUSD", "type": "decimal" } }
+```
+
+The runtime checks the value against it: a value the server holds with another type fails the
+step with `PLX-6074` instead of reaching the page, and a decimal, which the server carries as
+a string, arrives as an exact `decimal`. Without `type` the output cannot be read in PXL, so a
+page always states what it expects. The input needs runtime 0.6.0.
 
 - A `strict` value is read from the server each time. Offline, or when the server cannot
   answer, the step fails with `PLX-6068`; handle it with `onError` (`DAT-097`).

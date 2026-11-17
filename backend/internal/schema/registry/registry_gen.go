@@ -4931,6 +4931,12 @@ var enums = [...]Enum{
 		{Name: "fraction", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "intrinsic", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "ConfigValueType", ID: 176, Revision: 1, Runtimes: []string{"0.6.0"}, Description: "The type of a server-held configuration value a readConfig step reads (DAT-090): the step's output has this type, and a value of another type fails closed.", Values: []EnumValue{
+		{Name: "string", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "int", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "decimal", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "bool", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "CountdownFormat", ID: 132, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "How a countdown writes the time left.", Values: []EnumValue{
 		{Name: "hms", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "dhms", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
@@ -5733,6 +5739,7 @@ var actions = [...]Action{
 		TypeParameters: []string{"T"},
 		Inputs: []Input{
 			{Name: "key", ID: 1, Type: "string", Required: true, Default: "", Ref: "", Description: "The key of the value."},
+			{Name: "type", ID: 2, Type: "ConfigValueType", Required: false, Default: "", Ref: "", Description: "The type the value must have; the step's output has this type. A value of another type fails the step (PLX-6074), and a decimal is read exactly from the string the server carries."},
 		},
 		Output:  "T",
 		Effects: []string{"network"},

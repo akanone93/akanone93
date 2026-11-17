@@ -7,6 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **A readConfig step can name its value's type (DAT-090, `enum.ConfigValueType.v1`, build log
+  #112):** with `type` set, the step's output has that type; a value the server holds with
+  another type fails the step with `PLX-6074`, and a decimal arrives as an exact `decimal`
+  rather than its string.
 - **A database source can watch the record a page names (DB-006, `db.v2`, build log #106):**
   a filter's comparison takes `"param": "<name>"` in place of a `value`, and the source's `params`,
   bound in its scope like a REST source's, give it when the watch starts; values reach the

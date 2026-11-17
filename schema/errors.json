@@ -2752,6 +2752,14 @@
       "fix": "Send the request through the gateway."
     },
     {
+      "code": "PLX-6074",
+      "reason": "LIVE_CONFIG_TYPE_MISMATCH",
+      "severity": "error",
+      "title": "Live configuration value has another type",
+      "cause": "A readConfig step names the type the value must have, and the server holds the value with another type, or a decimal that does not read as one; the step fails instead of passing on a value of the wrong type (DAT-090).",
+      "fix": "Change the value's type on the server, or the step's type, so that they agree."
+    },
+    {
       "code": "PLX-6080",
       "reason": "FRAUD_RECEIPT_UNAVAILABLE",
       "severity": "error",

@@ -8,7 +8,7 @@
   "typeParameters": [
     {
       "name": "T",
-      "description": "The type of the value: string for a string or a decimal, int for an integer, bool for a boolean."
+      "description": "The type of the value, named by `type`: string, int, decimal or bool. Without `type` the step's output cannot be read."
     }
   ],
   "inputs": [
@@ -18,6 +18,12 @@
       "type": "string",
       "required": true,
       "description": "The key of the value."
+    },
+    {
+      "name": "type",
+      "id": 2,
+      "type": "ConfigValueType",
+      "description": "The type the value must have; the step's output has this type. A value of another type fails the step (PLX-6074), and a decimal is read exactly from the string the server carries."
     }
   ],
   "output": "T",

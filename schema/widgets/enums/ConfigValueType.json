@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "ConfigValueType",
+  "id": 176,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.6.0"
+    }
+  ],
+  "description": "The type of a server-held configuration value a readConfig step reads (DAT-090): the step's output has this type, and a value of another type fails closed.",
+  "values": [
+    {
+      "name": "string",
+      "id": 1
+    },
+    {
+      "name": "int",
+      "id": 2
+    },
+    {
+      "name": "decimal",
+      "id": 3
+    },
+    {
+      "name": "bool",
+      "id": 4
+    }
+  ]
+}

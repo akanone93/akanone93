@@ -2722,6 +2722,14 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Send the request through the gateway.
 
+### PLX-6074
+
+`LIVE_CONFIG_TYPE_MISMATCH` · error · Live configuration value has another type
+
+**Cause.** A readConfig step names the type the value must have, and the server holds the value with another type, or a decimal that does not read as one; the step fails instead of passing on a value of the wrong type (DAT-090).
+
+**Fix.** Change the value's type on the server, or the step's type, so that they agree.
+
 ### PLX-6080
 
 `FRAUD_RECEIPT_UNAVAILABLE` · error · Fraud receipt unavailable

@@ -1024,6 +1024,9 @@ enum PluxErrorCode {
   /// Transaction requires the gateway.
   transactionRequiresGateway(6073, 'TRANSACTION_REQUIRES_GATEWAY', 'Transaction requires the gateway'),
 
+  /// Live configuration value has another type.
+  liveConfigTypeMismatch(6074, 'LIVE_CONFIG_TYPE_MISMATCH', 'Live configuration value has another type'),
+
   /// Fraud receipt unavailable.
   fraudReceiptUnavailable(6080, 'FRAUD_RECEIPT_UNAVAILABLE', 'Fraud receipt unavailable'),
 

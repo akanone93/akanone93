@@ -7773,6 +7773,19 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "ConfigValueType",
+    "id": 176,
+    "revision": 1,
+    "runtimes": ["0.6.0"],
+    "description": "The type of a server-held configuration value a readConfig step reads (DAT-090): the step's output has this type, and a value of another type fails closed.",
+    "values": [
+      {"name": "string", "id": 1, "revision": 1},
+      {"name": "int", "id": 2, "revision": 1},
+      {"name": "decimal", "id": 3, "revision": 1},
+      {"name": "bool", "id": 4, "revision": 1}
+    ]
+  },
+  {
     "name": "CountdownFormat",
     "id": 132,
     "revision": 1,
@@ -9387,10 +9400,11 @@ export const actions: readonly ActionDescriptor[] = [
     "category": "data",
     "description": "Reads a live server-held configuration value of the app's environment; a strict value is read from the server each time and fails closed when it cannot be (DAT-094, DAT-097).",
     "typeParameters": [
-      {"name": "T", "description": "The type of the value: string for a string or a decimal, int for an integer, bool for a boolean."}
+      {"name": "T", "description": "The type of the value, named by `type`: string, int, decimal or bool. Without `type` the step's output cannot be read."}
     ],
     "inputs": [
-      {"name": "key", "id": 1, "type": "string", "required": true, "description": "The key of the value."}
+      {"name": "key", "id": 1, "type": "string", "required": true, "description": "The key of the value."},
+      {"name": "type", "id": 2, "type": "ConfigValueType", "required": false, "description": "The type the value must have; the step's output has this type. A value of another type fails the step (PLX-6074), and a decimal is read exactly from the string the server carries."}
     ],
     "output": "T",
     "branches": [],
