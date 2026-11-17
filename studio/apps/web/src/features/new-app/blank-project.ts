@@ -7,11 +7,33 @@
  * server validates and creates the whole app in one step (ADR-0102).
  */
 
+import { enums, valueTypes, widgets } from "@plux/schema";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import type { ArchiveFile } from "./plux-archive.ts";
 
 export type SecurityProfileChoice = "standard" | "strict" | "maximum";
 export type EnvironmentChoice = "development" | "staging" | "production";
+
+/** A runtime version as numbers, for ordering. */
+const versionParts = (v: string): number[] => v.split(".").map((x) => Number.parseInt(x, 10) || 0);
+
+/**
+ * The newest runtime any widget, value type or enum of the registry needs (build log #78). A new app has no
+ * installs yet, so it starts there: with an older minimum, a third of the widgets the Insert pane offers (SearchBar,
+ * the animated widgets) are refused when the app is checked (PLX-1119).
+ */
+export function newestRuntime(): string {
+  const all = [...widgets, ...valueTypes, ...enums].flatMap((d) => d.runtimes);
+  return all.reduce((best, v) => {
+    const [a, b] = [versionParts(v), versionParts(best)];
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      if ((a[i] ?? 0) !== (b[i] ?? 0)) {
+        return (a[i] ?? 0) > (b[i] ?? 0) ? v : best;
+      }
+    }
+    return best;
+  }, "0.1.0");
+}
 
 /** The environments an app may declare, in the order the wizard lists them; production is always kept. */
 export const environmentChoices: readonly EnvironmentChoice[] = ["development", "staging", "production"];
@@ -139,7 +161,7 @@ export function blankProject(options: BlankOptions, newId: () => string = uuidv7
         environments,
         securityProfile: options.securityProfile,
         sync: { activation: "atSafePoint", startup: { mode: "useCacheThenSync" } },
-        minRuntimeVersion: "0.1.0",
+        minRuntimeVersion: newestRuntime(),
       }),
     },
     {

@@ -338,10 +338,68 @@ function inViewportHeight(scene: SceneNode, bridge: Bridge): SceneNode {
   };
 }
 
+/** The props of a SliverAppBar that are its toolbar's: they go to the AppBar its header draws. */
+const toolbarProps = [
+  "backgroundColor",
+  "foregroundColor",
+  "elevation",
+  "centerTitle",
+  "titleSpacing",
+  "toolbarHeight",
+  "automaticallyImplyLeading",
+  "titleTextStyle",
+  "toolbarTextStyle",
+] as const;
+
+/**
+ * A SliverAppBar as the scene draws it: a persistent header whose one child is its toolbar, an AppBar built from the
+ * document's `leading`, `title` and `actions`, over its `flexibleSpace` when it has one (the AppBar then transparent,
+ * so the space shows through). Without this a document's SliverAppBar, which has those parts as slots, failed to
+ * build and its whole scroll view was drawn as a placeholder (build log #79).
+ */
+function sliverAppBarScene(node: WidgetNode, bridge: Bridge): SceneNode {
+  const raw = (node.props ?? {}) as Record<string, unknown>;
+  const slots = (node.slots ?? {}) as Record<string, WidgetNode | WidgetNode[] | undefined>;
+  const flexible = slots["flexibleSpace"];
+  const barProps: Record<string, unknown> = Object.fromEntries(
+    toolbarProps.filter((k) => raw[k] !== undefined).map((k) => [k, raw[k]]),
+  );
+  const bar: WidgetNode = {
+    id: `${node.id}.toolbar`,
+    type: "AppBar",
+    props: flexible === undefined ? barProps : { ...barProps, backgroundColor: "#00000000", elevation: 0 },
+    slots: Object.fromEntries(
+      (["leading", "title", "actions"] as const).flatMap((k) => (slots[k] === undefined ? [] : [[k, slots[k]]])),
+    ) as WidgetNode["slots"],
+  };
+  const content: WidgetNode =
+    flexible === undefined || Array.isArray(flexible)
+      ? bar
+      : {
+          id: `${node.id}.space`,
+          type: "Stack",
+          props: { fit: "expand" },
+          children: [
+            ...(raw["backgroundColor"] === undefined
+              ? []
+              : [{ id: `${node.id}.background`, type: "ColoredBox", props: { color: raw["backgroundColor"] } }]),
+            flexible,
+            { id: `${node.id}.top`, type: "Align", props: { alignment: "topCenter" }, slots: { child: bar } },
+          ],
+        };
+  const header = Object.fromEntries(
+    Object.entries(sceneProps("SliverAppBar", raw)).filter(([k]) => !(toolbarProps as readonly string[]).includes(k)),
+  );
+  return { id: node.id, type: "SliverAppBar", props: header, children: [convert(content, bridge, true)] };
+}
+
 /** The scene node of `node`, its descendants converted or built by the screen. */
 function convert(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNode {
   const type = node.type;
   const paint = bridge.ctx.paint;
+  if (type === "SliverAppBar") {
+    return sliverAppBarScene(node, bridge);
+  }
   if (!converts(type, deep, paint !== undefined) || type === undefined) {
     return host(node, bridge);
   }

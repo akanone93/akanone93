@@ -9,6 +9,7 @@ import {
   hexOf,
   isHexColour,
   monogramOf,
+  newestRuntime,
   themePresets,
 } from "./blank-project.ts";
 
@@ -128,5 +129,9 @@ describe("the project of a blank app [STU-024]", () => {
     const custom = customTheme(hexOf(0xab12cd).toLowerCase());
     expect(custom.primary).toBe(custom.dark);
     expect(custom.primary).toBe(hexOf(0xab12cd));
+  });
+
+  test("a new app starts at the newest runtime its widgets need, so every offered widget is allowed (#78)", () => {
+    expect(newestRuntime()).toBe("0.5.0");
   });
 });

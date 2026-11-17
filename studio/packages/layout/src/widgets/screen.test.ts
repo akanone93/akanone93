@@ -148,6 +148,43 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(box?.h ?? 0).toBeLessThan(alone.h * 2);
   });
 
+  test("a SliverAppBar with a title, actions and a flexible space draws, with its scroll view (#79)", () => {
+    const icon = (id: string): WidgetNode => ({ id, type: "Icon", props: { icon: { name: "search" } } });
+    const root: WidgetNode = {
+      id: "s",
+      type: "Scaffold",
+      slots: {
+        body: {
+          id: "scroll",
+          type: "CustomScrollView",
+          slots: {
+            slivers: [
+              {
+                id: "bar",
+                type: "SliverAppBar",
+                props: { pinned: true, expandedHeight: 200 },
+                slots: {
+                  title: text("title", "Apply Register"),
+                  actions: [{ id: "act", type: "IconButton", slots: { icon: icon("ic") } }],
+                  flexibleSpace: { id: "space", type: "Container", props: { color: "#4f46e5" } },
+                },
+              },
+              { id: "box", type: "SliverToBoxAdapter", slots: { child: text("below", "Below") } },
+            ],
+          },
+        },
+      },
+      // A list slot (`slivers`, `actions`) holds an array, which the node type does not spell out.
+    } as unknown as WidgetNode;
+    const painted = layoutScreen(root, { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } });
+    // Before, the scene refused a SliverAppBar with more than one part and the whole scroll view was a placeholder.
+    expect(painted.boxes.filter((b) => b.kind === "placeholder")).toEqual([]);
+    expect(painted.boxes.find((b) => b.id === "title")).toBeDefined();
+    const below = painted.boxes.find((b) => b.id === "below");
+    // The text under the bar starts below its 200 px expanded height.
+    expect(below?.y ?? 0).toBeGreaterThanOrEqual(200);
+  });
+
   test("sizes Material buttons, the FAB and list tiles as Flutter does (S4.3)", () => {
     const button = (id: string, type: string, props: Record<string, unknown>): WidgetNode => ({
       id,
