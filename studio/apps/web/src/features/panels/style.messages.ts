@@ -91,6 +91,12 @@ export function styleMessages(i18n: I18n) {
       message: "Style",
       comment: "Label of the text style select: a role of the type scale or a custom style.",
     }),
+    clearChanges: i18n._({
+      id: "style.clearChanges",
+      message: "Clear changes",
+      comment:
+        "Button beside a text style preset that has fields changed over it (a colour, a size): back to the preset as the theme defines it.",
+    }),
     typeRole: (role: string) =>
       i18n._({
         id: "style.typeRole",

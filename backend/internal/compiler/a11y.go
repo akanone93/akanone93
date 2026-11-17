@@ -248,7 +248,7 @@ func (u *unit) contrast(n *node) {
 		if size >= largeTextSize || size >= largeBoldTextSize && bold {
 			threshold = contrastLargeText
 		}
-		own := objectFields(style)["color"]
+		own := styleField(style, "color")
 		s = contrastSubject{
 			what: "text",
 			fg: func(v variant) colorRes {

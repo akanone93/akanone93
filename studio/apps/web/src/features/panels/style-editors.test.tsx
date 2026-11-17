@@ -8,7 +8,14 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import type { ReactNode } from "react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
-import { ColorField, DecorationEditor, PaintThemeContext, TextStyleEditor } from "./style-editors.tsx";
+import {
+  ColorField,
+  DecorationEditor,
+  PaintThemeContext,
+  RuntimePinContext,
+  TextStyleEditor,
+} from "./style-editors.tsx";
+import { baseRuntime, canExtend } from "./text-style-base.ts";
 
 afterEach(cleanup);
 
@@ -65,5 +72,38 @@ describe("[STU-062] [THM-001] style editors", () => {
       letterSpacing: 0,
       fontStyle: "italic",
     });
+  });
+
+  test("[WGT-004] a change over a type-scale style keeps the style and records only the change (#84)", async () => {
+    const onChange = mock((_: unknown) => undefined);
+    renderI18n(
+      <RuntimePinContext.Provider value="0.6.0">
+        <TextStyleEditor
+          name="style"
+          value={{ base: { $token: "typography.titleLarge" }, color: { $token: "color.onPrimary" } }}
+          onChange={onChange}
+          onEnd={() => undefined}
+        />
+      </RuntimePinContext.Provider>,
+    );
+    // The style shows its base's size, and its own change can be cleared.
+    const size = (await screen.findAllByRole("spinbutton"))[0] as HTMLInputElement;
+    expect(size.value).toBe("22");
+    fireEvent.click(screen.getAllByRole("switch")[0] as HTMLElement);
+    expect(onChange).toHaveBeenLastCalledWith({
+      base: { $token: "typography.titleLarge" },
+      color: { $token: "color.onPrimary" },
+      fontStyle: "italic",
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Clear changes" }));
+    expect(onChange).toHaveBeenLastCalledWith({ $token: "typography.titleLarge" });
+  });
+
+  test("[WGT-004] an app whose oldest runtime predates a style's base gets a custom style instead", () => {
+    expect(baseRuntime()).toBe("0.6.0");
+    expect(canExtend("0.6.0")).toBe(true);
+    expect(canExtend("0.10.0")).toBe(true);
+    expect(canExtend("0.5.0")).toBe(false);
+    expect(canExtend(undefined)).toBe(false);
   });
 });

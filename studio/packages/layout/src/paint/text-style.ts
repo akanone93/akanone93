@@ -101,18 +101,31 @@ export const typeRoleOf = (path: string): TypeRole | undefined => {
   return (typeRoles as readonly string[]).includes(name) ? (name as TypeRole) : undefined;
 };
 
+/** How many bases a style is followed through, as the compiler follows them: a base is a style and may have its own. */
+const MAX_BASE = 8;
+
+/** The style a `TextStyle` object starts from (its `base`), when it names one and the chain is not too deep. */
+const baseOf = (value: Obj, depth: number): unknown => (depth < MAX_BASE ? value["base"] : undefined);
+
 /**
  * The style of a text whose `style` prop is `value`, over `base` (the default text style where it sits: Material's
- * `bodyMedium`). A type-scale token replaces the base; a `TextStyle` object replaces the fields it sets, and may name
- * its own type-scale token to start from.
+ * `bodyMedium`). A type-scale token replaces the base; a `TextStyle` object replaces the fields it sets over the style
+ * it starts from (its own `base`, usually a typography token, as the runtime merges it).
  */
-export function resolveTextStyle(value: unknown, theme: PaintTheme | undefined, base?: ResolvedText): ResolvedText {
+export function resolveTextStyle(
+  value: unknown,
+  theme: PaintTheme | undefined,
+  base?: ResolvedText,
+  depth = 0,
+): ResolvedText {
   const scale = typeScaleOf(theme);
   const start: ResolvedText = base ?? { ...scale.bodyMedium, italic: false };
   if (!isObj(value)) {
     return start;
   }
-  const from = typeof value["$token"] === "string" ? fromToken(value["$token"], start, scale, theme) : start;
+  const own = baseOf(value, depth);
+  const under = isObj(own) ? resolveTextStyle(own, theme, start, depth + 1) : start;
+  const from = typeof value["$token"] === "string" ? fromToken(value["$token"], under, scale, theme) : under;
   return { ...measuredOf(value, from), ...paintedOf(value, from, theme) };
 }
 
@@ -155,19 +168,28 @@ function paintedOf(value: Obj, from: ResolvedText, theme: PaintTheme | undefined
 }
 
 /**
- * The fields a `style` value sets itself, without a base: a type-scale role's metrics for its token, another
- * typography token's fields, then its own fields. The component a text sits in gives the rest.
+ * The fields a `style` value sets itself, without the default where it sits: what its own `base` sets, a type-scale
+ * role's metrics for its token, another typography token's fields, then its own fields. The component a text sits in
+ * gives the rest.
  */
-export function ownTextStyle(value: unknown, theme: PaintTheme | undefined): Partial<TypeSpec> & { italic?: boolean } {
+export function ownTextStyle(
+  value: unknown,
+  theme: PaintTheme | undefined,
+  depth = 0,
+): Partial<TypeSpec> & { italic?: boolean } {
   if (!isObj(value)) {
     return {};
   }
+  // A style that starts from another sets what its base sets, and its own fields over them.
+  const base = baseOf(value, depth);
+  const under = isObj(base) ? ownTextStyle(base, theme, depth + 1) : {};
   const token = typeof value["$token"] === "string" ? value["$token"] : undefined;
   const role = token === undefined ? undefined : typeRoleOf(token);
   const fromToken =
     role !== undefined ? typeScaleOf(theme)[role] : token === undefined ? {} : (theme?.textTokens?.[token] ?? {});
   const set = (name: string, v: number | undefined) => (v === undefined ? {} : { [name]: v });
   return {
+    ...under,
     ...fromToken,
     ...set("size", num(value["fontSize"])),
     ...set("weight", weightOf(value["fontWeight"])),

@@ -132,6 +132,7 @@ describe("the project of a blank app [STU-024]", () => {
   });
 
   test("a new app starts at the newest runtime its widgets need, so every offered widget is allowed (#78)", () => {
-    expect(newestRuntime()).toBe("0.5.0");
+    // TextStyle's `base` (revision 2) is the newest member: it needs runtime 0.6.0.
+    expect(newestRuntime()).toBe("0.6.0");
   });
 });

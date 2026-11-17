@@ -7328,8 +7328,8 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
   {
     "name": "TextStyle",
     "id": 26,
-    "revision": 1,
-    "runtimes": ["0.1.0"],
+    "revision": 2,
+    "runtimes": ["0.1.0", "0.6.0"],
     "description": "The style of text.",
     "fields": [
       {"name": "inherit", "id": 1, "type": "bool", "required": false, "default": true, "revision": 1},
@@ -7351,7 +7351,8 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "decorationThickness", "id": 17, "type": "double", "required": false, "revision": 1},
       {"name": "fontFamily", "id": 18, "type": "string", "required": false, "revision": 1},
       {"name": "fontFamilyFallback", "id": 19, "type": "list<string>", "required": false, "revision": 1},
-      {"name": "overflow", "id": 20, "type": "TextOverflow", "required": false, "revision": 1}
+      {"name": "overflow", "id": 20, "type": "TextOverflow", "required": false, "revision": 1},
+      {"name": "base", "id": 21, "type": "TextStyle", "required": false, "revision": 2, "description": "A style this one starts from, usually a typography token; the fields set here replace the base's, as Flutter's `TextStyle.merge` does. A headline in another colour is `{\"base\": {\"$token\": \"typography.headlineSmall\"}, \"color\": {\"$token\": \"color.onPrimary\"}}`."}
     ],
     "constants": []
   },

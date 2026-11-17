@@ -2219,8 +2219,8 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
   ValueTypeDescriptor(
     'TextStyle',
     26,
-    revision: 1,
-    fields: {'inherit': 1, 'color': 2, 'backgroundColor': 3, 'fontSize': 4, 'fontWeight': 5, 'fontStyle': 6, 'letterSpacing': 7, 'wordSpacing': 8, 'textBaseline': 9, 'height': 10, 'leadingDistribution': 11, 'locale': 12, 'shadows': 13, 'decoration': 14, 'decorationColor': 15, 'decorationStyle': 16, 'decorationThickness': 17, 'fontFamily': 18, 'fontFamilyFallback': 19, 'overflow': 20},
+    revision: 2,
+    fields: {'inherit': 1, 'color': 2, 'backgroundColor': 3, 'fontSize': 4, 'fontWeight': 5, 'fontStyle': 6, 'letterSpacing': 7, 'wordSpacing': 8, 'textBaseline': 9, 'height': 10, 'leadingDistribution': 11, 'locale': 12, 'shadows': 13, 'decoration': 14, 'decorationColor': 15, 'decorationStyle': 16, 'decorationThickness': 17, 'fontFamily': 18, 'fontFamilyFallback': 19, 'overflow': 20, 'base': 21},
   ),
   ValueTypeDescriptor(
     'TimelineStep',

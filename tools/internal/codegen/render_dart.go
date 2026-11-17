@@ -55,6 +55,12 @@ var handDecoders = map[string]string{
 	"VisualDensity":                "VisualDensity",
 }
 
+// mergedBases are the value types with a `base` field of their own type,
+// which is Plux's and names no Flutter parameter: the decoder decodes the
+// base and merges the other fields over it with the Flutter class's
+// `merge`, as `textTheme.headlineSmall.copyWith(color: …)` does.
+var mergedBases = map[string]bool{"TextStyle": true}
+
 // adapters convert a value into a Flutter parameter type its decoder does
 // not return directly: `decoder` is a Dart function of (Decoding, Object?).
 var adapters = map[[2]string]string{
@@ -346,7 +352,12 @@ func (g *renderGen) valueTypeDecoder(t *registry.ValueType) (string, error) {
 		return "", fmt.Errorf("codegen: value type %s: %s is not in the Flutter snapshot", t.Name, fl.Key())
 	}
 	args := map[string]argument{}
+	var base *registry.Field
 	for _, f := range sortedByID(t.Fields, func(f registry.Field) uint32 { return f.ID }) {
+		if f.Name == "base" && f.Type == t.Name && len(f.Flutter) == 0 && mergedBases[t.Name] {
+			base = &f
+			continue
+		}
 		if len(f.Flutter) != 1 {
 			return "", fmt.Errorf("codegen: value type %s: field %s maps onto %d parameters; add the type to handDecoders", t.Name, f.Name, len(f.Flutter))
 		}
@@ -369,7 +380,13 @@ func (g *renderGen) valueTypeDecoder(t *registry.ValueType) (string, error) {
 	for _, l := range locals {
 		b.WriteString("  " + l + "\n")
 	}
-	b.WriteString("  return " + call + ";\n}\n\n")
+	if base == nil {
+		b.WriteString("  return " + call + ";\n}\n\n")
+		return b.String(), nil
+	}
+	fmt.Fprintf(&b, "  final base = decode%s(d, f.get(%d, %s));\n", t.Name, base.ID, quoteDart(base.Name))
+	b.WriteString("  final own = " + call + ";\n")
+	b.WriteString("  return base == null ? own : base.merge(own);\n}\n\n")
 	return b.String(), nil
 }
 

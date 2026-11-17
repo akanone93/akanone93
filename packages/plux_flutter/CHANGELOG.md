@@ -7,6 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **A text style can start from another (WGT-004, build log #84):** TextStyle revision 2 adds
+  `base`, usually a typography token; the style's own fields are merged over it as
+  `TextStyle.merge` does, so a headline in another colour keeps the theme's type scale.
 - **A screenshot says what it was drawn under (DEV-033):** the `screenshot` event carries the
   device's dark mode, text scale and the logical heights of its system bars, so Studio draws its
   canvas the same way to compare them.

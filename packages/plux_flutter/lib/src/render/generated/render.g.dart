@@ -1787,7 +1787,8 @@ TextSpan? decodeTextSpan(Decoding d, Object? v) {
 TextStyle? decodeTextStyle(Decoding d, Object? v) {
   final f = Fields.of(d, v);
   if (f == null) return null;
-  return TextStyle(
+  final base = decodeTextStyle(d, f.get(21, 'base'));
+  final own = TextStyle(
     inherit: asBool(d, f.get(1, 'inherit')) ?? true,
     color: asColor(d, f.get(2, 'color')),
     backgroundColor: asColor(d, f.get(3, 'backgroundColor')),
@@ -1809,6 +1810,7 @@ TextStyle? decodeTextStyle(Decoding d, Object? v) {
     fontFamilyFallback: asStrings(d, f.get(19, 'fontFamilyFallback')),
     overflow: decodeTextOverflow(d, f.get(20, 'overflow')),
   );
+  return base == null ? own : base.merge(own);
 }
 
 /// A list of BoxShadow.

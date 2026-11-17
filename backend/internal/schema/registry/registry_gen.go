@@ -4663,7 +4663,7 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
-		Name: "TextStyle", ID: 26, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "The style of text.",
+		Name: "TextStyle", ID: 26, Revision: 2, Runtimes: []string{"0.1.0", "0.6.0"}, Description: "The style of text.",
 		Fields: []Field{
 			{Name: "inherit", ID: 1, Type: "bool", Required: false, Default: "true", Revision: 1, Deprecated: nil, Translatable: false, Description: ""},
 			{Name: "color", ID: 2, Type: "color", Required: false, Default: "", Revision: 1, Deprecated: nil, Translatable: false, Description: ""},
@@ -4685,6 +4685,7 @@ var valueTypes = [...]ValueType{
 			{Name: "fontFamily", ID: 18, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Translatable: false, Description: ""},
 			{Name: "fontFamilyFallback", ID: 19, Type: "list<string>", Required: false, Default: "", Revision: 1, Deprecated: nil, Translatable: false, Description: ""},
 			{Name: "overflow", ID: 20, Type: "TextOverflow", Required: false, Default: "", Revision: 1, Deprecated: nil, Translatable: false, Description: ""},
+			{Name: "base", ID: 21, Type: "TextStyle", Required: false, Default: "", Revision: 2, Deprecated: nil, Translatable: false, Description: "A style this one starts from, usually a typography token; the fields set here replace the base's, as Flutter's `TextStyle.merge` does. A headline in another colour is `{\"base\": {\"$token\": \"typography.headlineSmall\"}, \"color\": {\"$token\": \"color.onPrimary\"}}`."},
 		},
 	},
 	{

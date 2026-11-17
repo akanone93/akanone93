@@ -2,11 +2,15 @@
   "$schema": "../../json/registry/value-type.schema.json",
   "name": "TextStyle",
   "id": 26,
-  "revision": 1,
+  "revision": 2,
   "revisions": [
     {
       "revision": 1,
       "runtime": "0.1.0"
+    },
+    {
+      "revision": 2,
+      "runtime": "0.6.0"
     }
   ],
   "description": "The style of text.",
@@ -140,6 +144,13 @@
       "id": 20,
       "type": "TextOverflow",
       "flutter": "overflow"
+    },
+    {
+      "name": "base",
+      "id": 21,
+      "type": "TextStyle",
+      "revision": 2,
+      "description": "A style this one starts from, usually a typography token; the fields set here replace the base's, as Flutter's `TextStyle.merge` does. A headline in another colour is `{\"base\": {\"$token\": \"typography.headlineSmall\"}, \"color\": {\"$token\": \"color.onPrimary\"}}`."
     }
   ],
   "excluded": [

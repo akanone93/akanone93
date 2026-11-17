@@ -313,26 +313,30 @@ func stateValue(raw json.RawMessage) (json.RawMessage, bool) {
 	return raw, true
 }
 
+// maxStyleBase bounds how many bases a style is followed through: a base
+// is a style too, and may name its own.
+const maxStyleBase = 8
+
 // textSize returns a text node's font size and whether it is bold, from the
-// style literal or its typography token; the default is bodyMedium.
+// style literal, the style it starts from (its `base`) or its typography
+// token; the default is bodyMedium.
 func (u *unit) textSize(style json.RawMessage) (size float64, bold bool, known bool) {
-	size = defaultTextSize
+	return u.styleSize(style, 0)
+}
+
+func (u *unit) styleSize(style json.RawMessage, depth int) (size float64, bold bool, known bool) {
 	f := objectFields(style)
-	if f == nil {
-		return size, false, true
+	if f == nil || depth > maxStyleBase {
+		return defaultTextSize, false, true
 	}
 	if t, ok := f["$token"]; ok {
-		var path string
-		_ = json.Unmarshal(t, &path)
-		tok, found := u.tokens[path]
-		if !found || tok.typ != "typography" {
+		return u.tokenTextSize(t)
+	}
+	size, bold = defaultTextSize, false
+	if base, ok := f["base"]; ok {
+		if size, bold, known = u.styleSize(base, depth+1); !known {
 			return 0, false, false
 		}
-		tf := objectFields(tok.light)
-		if s, ok := dimensionPx(tf["fontSize"]); ok {
-			size = s
-		}
-		return size, weightOf(tf["fontWeight"]) >= boldWeight, true
 	}
 	if raw, ok := f["fontSize"]; ok {
 		s, ok := dimensionPx(raw)
@@ -341,7 +345,43 @@ func (u *unit) textSize(style json.RawMessage) (size float64, bold bool, known b
 		}
 		size = s
 	}
-	return size, weightOf(f["fontWeight"]) >= boldWeight, true
+	if w, ok := f["fontWeight"]; ok {
+		bold = weightOf(w) >= boldWeight
+	}
+	return size, bold, true
+}
+
+// tokenTextSize reads the font size and weight of a typography token.
+func (u *unit) tokenTextSize(ref json.RawMessage) (size float64, bold bool, known bool) {
+	var path string
+	_ = json.Unmarshal(ref, &path)
+	tok, found := u.tokens[path]
+	if !found || tok.typ != "typography" {
+		return 0, false, false
+	}
+	size = defaultTextSize
+	tf := objectFields(tok.light)
+	if s, ok := dimensionPx(tf["fontSize"]); ok {
+		size = s
+	}
+	return size, weightOf(tf["fontWeight"]) >= boldWeight, true
+}
+
+// styleField returns a field of a style literal, or of the style it starts
+// from (its `base`) when it does not set it; nil when neither does or the
+// style is a token, whose typography sets no colour.
+func styleField(style json.RawMessage, name string) json.RawMessage {
+	for depth := 0; depth <= maxStyleBase; depth++ {
+		f := objectFields(style)
+		if f == nil {
+			return nil
+		}
+		if v, ok := f[name]; ok {
+			return v
+		}
+		style = f["base"]
+	}
+	return nil
 }
 
 // dimensionPx reads a number or a {unit, value} dimension in pixels.

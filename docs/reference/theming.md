@@ -23,6 +23,8 @@ A token that names a role (§2) reads the role from the page's Material theme, s
 
 Any other path — `color.brandAccent`, `spacing.md`, `radius.card`, `elevation.*`, `motion.duration.*`, `motion.easing.*`, `breakpoint.*` — has no role and is read by the props bound to it. A `typography` token sets `fontFamily` (a list gives the fallbacks), `fontSize`, `fontWeight`, `letterSpacing` and `lineHeight`.
 
+A text style that changes some fields of a typography token starts from it: `{"base": {"$token": "typography.headlineSmall"}, "color": {"$token": "color.onPrimary"}}` is the headline in another colour, still following the theme's type scale (TextStyle revision 2, runtime 0.6.0, `WGT-004`). The fields it sets replace the base's, as Flutter's `TextStyle.merge` does; the compiler's contrast check and Studio's canvas read the base the same way. Studio's style editor writes this form when a field of a token-bound style is changed and the app's `minRuntimeVersion` is 0.6.0 or later; for an older app it starts a custom style from what the token resolves to.
+
 ## 3. Modes, contrast and brands
 
 Every token has a light value and may have a dark one (`$extensions.dev.plux.dark`, `THM-002`). The mode is the one the host sets with `Plux.setThemeMode`; under `system` it is the host theme's brightness for `host` and `pluxOverHost`, and the platform's for `plux`.

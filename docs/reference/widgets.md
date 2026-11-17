@@ -5706,7 +5706,7 @@ ID 25 · revision 1 · Flutter `TextSpan`
 
 The style of text.
 
-ID 26 · revision 1 · Flutter `TextStyle`
+ID 26 · revision 2 · Flutter `TextStyle`
 
 | Field | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -5730,6 +5730,7 @@ ID 26 · revision 1 · Flutter `TextStyle`
 | `fontFamily` | 18 | `string` | — |  |
 | `fontFamilyFallback` | 19 | `list<string>` | — |  |
 | `overflow` | 20 | `TextOverflow` | — |  |
+| `base` | 21 | `TextStyle` | — | A style this one starts from, usually a typography token; the fields set here replace the base's, as Flutter's `TextStyle.merge` does. A headline in another colour is `{"base": {"$token": "typography.headlineSmall"}, "color": {"$token": "color.onPrimary"}}`. |
 
 ### TimelineStep
 

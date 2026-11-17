@@ -52,7 +52,7 @@ import { RightDock } from "../panels/right-dock.tsx";
 import { StatePreviewContext } from "../panels/state-editors.tsx";
 import { lockedIds } from "../panels/studio-meta.ts";
 import { styleMessages } from "../panels/style.messages.ts";
-import { PaintThemeContext } from "../panels/style-editors.tsx";
+import { PaintThemeContext, RuntimePinContext } from "../panels/style-editors.tsx";
 import { type ThemeRoundTrip, ThemeRoundTripContext } from "../panels/theme-card.tsx";
 import { TimelineOpenContext } from "../panels/timelines-section.tsx";
 import { insertDropHandlers } from "../panels/use-insert-drop.ts";
@@ -668,6 +668,11 @@ function PluginCanvasView({
   const sourceNames = useMemo(() => Object.fromEntries(sources.map((x) => [x.id, x.name])), [sources]);
   // The screens are previewed in the app's own locales (I18N-002, PC-32).
   const appLocales = useMemo(() => readLocales(jsonOf(appDocs.data ?? [], "app")[0])?.supported ?? [], [appDocs.data]);
+  // The app's oldest runtime: the editors write only what it understands (WGT-004).
+  const runtimePin = useMemo(() => {
+    const pin = jsonOf(appDocs.data ?? [], "app")[0]?.["minRuntimeVersion"];
+    return typeof pin === "string" ? pin : undefined;
+  }, [appDocs.data]);
   const { look, bar, switcher, matrix, closeMatrix, openMatrix, matchDevice } = usePreviewBar(
     params.app,
     sourceIds,
@@ -1924,40 +1929,42 @@ function PluginCanvasView({
                             fixes={problemFixes}
                           />
                           {libraryDialog}
-                          <RightDock
-                            sizeClass={sizeClassOf(look.device.width)}
-                            screenCosts={costsByScreen}
-                            tabRequest={dockTab}
-                            tests={tests}
-                            screens={screens}
-                            index={index}
-                            screenOf={screenOf}
-                            edit={edit}
-                            pathOf={pathOf}
-                            problems={checked?.problems ?? []}
-                            documents={docs.data}
-                            appDocuments={appDocs.data}
-                            sourceDocuments={pickerDocs}
-                            validatePage={checked?.validatePage}
-                            language={checked?.language}
-                            drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
-                            decide={decide}
-                            heroCount={(id) => heroesOf(id).length}
-                            onOpenJson={() => overlays.show("json")}
-                            onOpenLocalisation={() => overlays.show("l10n")}
-                            onOpenState={() => overlays.show("state")}
-                            schemaVersion={stateTarget.schemaVersion}
-                            onOpenOverlay={overlays.show}
-                            onOpenGraph={() => overlays.show("graph")}
-                            onOpenRust={() => {
-                              setRustSource(undefined);
-                              overlays.show("rust");
-                            }}
-                            onOpenFunction={(name) => {
-                              setRustSource(name);
-                              overlays.show("rust");
-                            }}
-                          />
+                          <RuntimePinContext.Provider value={runtimePin}>
+                            <RightDock
+                              sizeClass={sizeClassOf(look.device.width)}
+                              screenCosts={costsByScreen}
+                              tabRequest={dockTab}
+                              tests={tests}
+                              screens={screens}
+                              index={index}
+                              screenOf={screenOf}
+                              edit={edit}
+                              pathOf={pathOf}
+                              problems={checked?.problems ?? []}
+                              documents={docs.data}
+                              appDocuments={appDocs.data}
+                              sourceDocuments={pickerDocs}
+                              validatePage={checked?.validatePage}
+                              language={checked?.language}
+                              drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
+                              decide={decide}
+                              heroCount={(id) => heroesOf(id).length}
+                              onOpenJson={() => overlays.show("json")}
+                              onOpenLocalisation={() => overlays.show("l10n")}
+                              onOpenState={() => overlays.show("state")}
+                              schemaVersion={stateTarget.schemaVersion}
+                              onOpenOverlay={overlays.show}
+                              onOpenGraph={() => overlays.show("graph")}
+                              onOpenRust={() => {
+                                setRustSource(undefined);
+                                overlays.show("rust");
+                              }}
+                              onOpenFunction={(name) => {
+                                setRustSource(name);
+                                overlays.show("rust");
+                              }}
+                            />
+                          </RuntimePinContext.Provider>
                           <DesignersHost
                             open={overlays.open}
                             onClose={overlays.hide}

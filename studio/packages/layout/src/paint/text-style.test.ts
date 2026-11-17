@@ -4,7 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { colorSchemeFromSeed } from "../material-color/scheme.ts";
 import { argbToRgba } from "./paint.ts";
-import { M3_TYPE_SCALE, resolveTextStyle, typeScaleOf, weightOf } from "./text-style.ts";
+import { M3_TYPE_SCALE, ownTextStyle, resolveTextStyle, typeScaleOf, weightOf } from "./text-style.ts";
 
 const theme = { scheme: colorSchemeFromSeed(0xff6750a4, false) };
 
@@ -34,6 +34,23 @@ describe("[STU-006] [THM-004] text styles as Flutter resolves them", () => {
     expect(resolveTextStyle(undefined, own).size).toBe(15);
     const named = { ...theme, textTokens: { "type.headline": { size: 24, weight: 600 } } };
     expect(resolveTextStyle({ $token: "type.headline" }, named)).toMatchObject({ size: 24, weight: 600, height: 1.43 });
+  });
+
+  test("[WGT-004] a style starts from its base and replaces what it sets, as the runtime merges it", () => {
+    const style = { base: { $token: "typography.headlineSmall" }, color: { $token: "color.onPrimary" } };
+    expect(resolveTextStyle(style, theme)).toMatchObject({
+      ...M3_TYPE_SCALE.headlineSmall,
+      color: argbToRgba(theme.scheme.onPrimary),
+    });
+    expect(resolveTextStyle({ base: { $token: "typography.headlineSmall" }, fontSize: 30 }, theme).size).toBe(30);
+    // A base of a base, and the fields a style sets itself where it sits in a component.
+    const nested = { base: { base: { $token: "typography.titleLarge" }, fontWeight: "w700" } };
+    expect(resolveTextStyle(nested, theme)).toMatchObject({ size: 22, weight: 700 });
+    expect(ownTextStyle(nested, theme)).toMatchObject({ size: 22, weight: 700 });
+    // A chain that never ends stops: the canvas never loops on a style.
+    const loop: Record<string, unknown> = { fontSize: 12 };
+    loop["base"] = loop;
+    expect(resolveTextStyle(loop, theme).size).toBe(12);
   });
 
   test("weights by Flutter name or number, clamped to the hundreds", () => {

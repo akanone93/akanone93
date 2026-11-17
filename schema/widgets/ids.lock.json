@@ -992,6 +992,7 @@
     "type/TextSpan/field/text": 1,
     "type/TextStyle": 26,
     "type/TextStyle/field/backgroundColor": 3,
+    "type/TextStyle/field/base": 21,
     "type/TextStyle/field/color": 2,
     "type/TextStyle/field/decoration": 14,
     "type/TextStyle/field/decorationColor": 15,

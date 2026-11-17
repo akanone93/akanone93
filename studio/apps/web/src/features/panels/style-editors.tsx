@@ -13,11 +13,13 @@ import {
   typeRoles,
 } from "@plux/layout";
 import { Select } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { Input } from "@plux/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@plux/ui/components/popover";
 import { Switch } from "@plux/ui/components/switch";
 import { type CSSProperties, createContext, type ReactElement, useContext } from "react";
 import { type StyleMessages, styleMessages } from "./style.messages.ts";
+import { baseTokenOf, canExtend, extendToken, overridesOf } from "./text-style-base.ts";
 import "./style-editors.css";
 
 /**
@@ -28,6 +30,9 @@ import "./style-editors.css";
 
 /** The colours the canvas paints with, for the swatches; null outside a canvas. */
 export const PaintThemeContext = createContext<PaintTheme | null>(null);
+
+/** The app's oldest supported runtime (`minRuntimeVersion`): what the editors may write for it (WGT-004). */
+export const RuntimePinContext = createContext<string | undefined>(undefined);
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -587,7 +592,9 @@ function customFrom(t: ResolvedText): Obj {
 /**
  * A TextStyle: a role of the theme's type scale (a `typography.<role>` token) or another typography token of the theme,
  * or a custom style — size, weight, italic, colour, tracking, line height and a decoration line. Editing a field of a
- * token-bound style starts a custom style from what the token resolves to.
+ * token-bound style keeps the token and changes that field over it (`{"base": {"$token": …}, "color": …}`), so the
+ * text follows the theme's type scale (build log #84); for an app whose oldest runtime predates that, it starts a
+ * custom style from what the token resolves to.
  */
 export function TextStyleEditor({
   name,
@@ -604,29 +611,56 @@ export function TextStyleEditor({
 }): ReactElement {
   const m = styleMessages(useLingui().i18n);
   const theme = useContext(PaintThemeContext);
-  const token = isObj(value) && typeof value["$token"] === "string" ? value["$token"] : undefined;
-  const custom: Obj = isObj(value) && token === undefined ? value : {};
+  const extend = canExtend(useContext(RuntimePinContext));
+  const token = baseTokenOf(value);
+  const custom: Obj = token === undefined ? (isObj(value) ? value : {}) : overridesOf(value);
   const shown = resolveTextStyle(value, theme ?? undefined);
   const set = (field: string, v: unknown) => {
-    const from: Obj = token === undefined ? { ...custom } : customFrom(shown);
+    const linked = token !== undefined && extend;
+    const from: Obj = token === undefined || linked ? { ...custom } : customFrom(shown);
     if (v === undefined) {
       delete from[field];
     } else {
       from[field] = v;
     }
+    if (linked) {
+      onChange(extendToken(token, from));
+      return;
+    }
     onChange(Object.keys(from).length === 0 ? undefined : from);
   };
+  const changed = token !== undefined && Object.keys(custom).length > 0;
   return (
     <fieldset className="deco-editor" aria-label={name} disabled={readOnly}>
-      <Select
-        label={m.textPreset}
-        value={token ?? "custom"}
-        options={textPresets(theme, token).map((path) => ({ value: path, label: presetLabel(m, path) }))}
-        onValueChange={(path) => {
-          onChange(path === "custom" ? customFrom(shown) : { $token: path });
-          onEnd();
-        }}
-      />
+      <div className="flex items-end gap-2">
+        <div className="min-w-0 flex-1">
+          <Select
+            label={m.textPreset}
+            value={token ?? "custom"}
+            options={textPresets(theme, token).map((path) => ({ value: path, label: presetLabel(m, path) }))}
+            onValueChange={(path) => {
+              if (path === "custom") {
+                onChange({ ...customFrom(shown), ...custom });
+              } else {
+                onChange(extend ? extendToken(path, custom) : { $token: path });
+              }
+              onEnd();
+            }}
+          />
+        </div>
+        {changed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              onChange({ $token: token });
+              onEnd();
+            }}
+          >
+            {m.clearChanges}
+          </Button>
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1 text-xs text-muted-foreground">
           {m.size}

@@ -3918,6 +3918,12 @@ msgstr "مسح {name}"
 msgid "panels.clear"
 msgstr "مسح {name}"
 
+#. Button beside a text style preset that has fields changed over it (a colour, a size): back to the preset as the theme defines it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/style.messages.ts
+msgid "style.clearChanges"
+msgstr "مسح التغييرات"
+
 #. Button that resets the search and every filter of the apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts

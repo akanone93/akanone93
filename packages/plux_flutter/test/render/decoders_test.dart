@@ -507,4 +507,39 @@ void main() {
     expect(plainDecoding.image(url: 'u'), isNull);
     expect(plainDecoding.textDirection, TextDirection.ltr);
   });
+
+  test('a text style starts from its base and replaces what it sets '
+      '[THM-001] [WGT-004]', () {
+    // The base is a typography token, which the renderer has resolved to
+    // its fields by the time the style is decoded.
+    final headline = <String, Object?>{
+      'fontFamily': 'Inter',
+      'fontSize': 24.0,
+      'fontWeight': 'w600',
+      'letterSpacing': 0.2,
+      'color': PxlColor(0x111111ff),
+    };
+    final style = decodeTextStyle(plainDecoding, <String, Object?>{
+      'base': headline,
+      'color': PxlColor(0xffffffff),
+    })!;
+    expect(style.fontFamily, 'Inter');
+    expect(style.fontSize, 24);
+    expect(style.fontWeight, FontWeight.w600);
+    expect(style.letterSpacing, 0.2);
+    expect(style.color, const Color(0xffffffff));
+    // Without a base a style is what it sets; a base that does not decode is
+    // no base.
+    expect(
+      decodeTextStyle(plainDecoding, <String, Object?>{'fontSize': 12.0}),
+      const TextStyle(fontSize: 12),
+    );
+    expect(
+      decodeTextStyle(plainDecoding, <String, Object?>{
+        'base': 'not a style',
+        'fontSize': 12.0,
+      }),
+      const TextStyle(fontSize: 12),
+    );
+  });
 }
