@@ -211,7 +211,7 @@ final class DataSourceController extends ChangeNotifier {
       _loadingMore = false;
     });
     if (spec.kind == DataKind.database) {
-      _watchDatabase(rethrowing);
+      _watchDatabase(rethrowing, roots);
       return;
     }
     try {
@@ -249,7 +249,7 @@ final class DataSourceController extends ChangeNotifier {
   /// not change as the same objects. The first result counts as the load
   /// that fires `dataLoaded`; later ones do not, so that a trigger that
   /// writes the collection cannot loop.
-  void _watchDatabase(bool rethrowing) {
+  void _watchDatabase(bool rethrowing, Map<String, Object?> Function() roots) {
     unawaited(_watch?.cancel());
     final db = context.database;
     final q = spec.database;
@@ -268,7 +268,9 @@ final class DataSourceController extends ChangeNotifier {
         .watch(
           caller.pluginKey,
           q.collection,
-          filter: q.filter,
+          // A comparison that names a param takes its value now: a page
+          // watches the record its parameter names (DB-006).
+          filter: q.filter?.bind(_params(roots)),
           orderBy: q.orderBy,
           descending: q.descending,
           limit: q.limit,

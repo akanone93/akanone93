@@ -26,8 +26,9 @@ import (
 // runtime 0.3.0.
 const dbFeature = "db"
 
-// dbRuntimes lists the runtime each revision of dbFeature first shipped in.
-var dbRuntimes = []string{"0.3.0"}
+// dbRuntimes lists the runtime each revision of dbFeature first shipped in:
+// revision 2 binds a filter's comparison to one of the source's params.
+var dbRuntimes = []string{"0.3.0", "0.6.0"}
 
 // dbActions are the actions that read or write the local database.
 var dbActions = map[string]bool{

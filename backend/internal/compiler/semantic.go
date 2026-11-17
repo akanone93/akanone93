@@ -242,7 +242,7 @@ func (u *unit) checkSources(pl *plugin, sources []schema.DataSource, file string
 		case s.Kind == schema.DataSourceKindDatabase:
 			u.checkDatabaseSource(pl, s, file, ptr)
 			if len(s.Config) > 0 {
-				d.config = u.inferred(literalCtx(pl, file, ptr+"/config"), s.Config)
+				d.config = u.databaseConfigValue(pl, s, file, ptr, sc)
 			}
 		case len(s.Config) > 0:
 			d.config = u.inferred(literalCtx(pl, file, ptr+"/config"), s.Config)

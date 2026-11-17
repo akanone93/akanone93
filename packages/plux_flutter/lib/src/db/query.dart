@@ -72,11 +72,20 @@ sealed class DbFilter {
     if (field is! String || parsed.isEmpty) {
       throw _bad('a filter names a field and one of the operators');
     }
-    return DbCompare(field, parsed.first, json['value']);
+    final param = json['param'];
+    if (param != null && param is! String) {
+      throw _bad('a comparison names its param with a string');
+    }
+    return DbCompare(field, parsed.first, json['value'], param as String?);
   }
 
   /// Whether [record] satisfies the condition.
   bool matches(Map<String, Object?> record);
+
+  /// The filter with the value of every comparison that names a param
+  /// taken from [params], the source's params as its scope evaluates them
+  /// (DB-006). Throws `PLX-5206` for a param the source does not give.
+  DbFilter bind(Map<String, Object?> params);
 
   /// Checks the condition against [schema]: known fields, operators the
   /// field's kind supports and values of its type. Throws `PLX-5206`.
@@ -91,8 +100,9 @@ PluxException _bad(String message) =>
 
 /// A field compared with a value.
 final class DbCompare extends DbFilter {
-  /// Creates the comparison.
-  const DbCompare(this.field, this.op, [this.value]);
+  /// Creates the comparison; with [param], its value is the source's param
+  /// of that name, bound when the watch starts.
+  const DbCompare(this.field, this.op, [this.value, this.param]);
 
   /// The field.
   final String field;
@@ -102,6 +112,19 @@ final class DbCompare extends DbFilter {
 
   /// The value; a list for [DbOp.isIn], absent for the null tests.
   final Object? value;
+
+  /// The name of the source's param that gives the value, or null.
+  final String? param;
+
+  @override
+  DbFilter bind(Map<String, Object?> params) {
+    final p = param;
+    if (p == null) return this;
+    if (!params.containsKey(p)) {
+      throw _bad('the filter names param $p, which the source does not give');
+    }
+    return DbCompare(field, op, params[p]);
+  }
 
   @override
   bool matches(Map<String, Object?> record) {
@@ -144,7 +167,7 @@ final class DbCompare extends DbFilter {
         (text.contains(op) && f.kind != DbFieldKind.string)) {
       throw _bad('${op.name} does not apply to $field (${f.type})');
     }
-    if (op == DbOp.isNull || op == DbOp.notNull) return;
+    if (op == DbOp.isNull || op == DbOp.notNull || param != null) return;
     final values = op == DbOp.isIn
         ? (value is List<Object?>
               ? value! as List<Object?>
@@ -168,7 +191,10 @@ final class DbCompare extends DbFilter {
   Object? toJson() => {
     'field': field,
     'op': op == DbOp.isIn ? 'in' : op.name,
-    if (op != DbOp.isNull && op != DbOp.notNull) 'value': value,
+    if (param != null)
+      'param': param
+    else if (op != DbOp.isNull && op != DbOp.notNull)
+      'value': value,
   };
 }
 
@@ -183,6 +209,10 @@ final class DbAnd extends DbFilter {
   @override
   bool matches(Map<String, Object?> record) =>
       filters.every((f) => f.matches(record));
+
+  @override
+  DbFilter bind(Map<String, Object?> params) =>
+      DbAnd([for (final f in filters) f.bind(params)]);
 
   @override
   void check(DbCollectionSchema schema) {
@@ -210,6 +240,10 @@ final class DbOr extends DbFilter {
       filters.any((f) => f.matches(record));
 
   @override
+  DbFilter bind(Map<String, Object?> params) =>
+      DbOr([for (final f in filters) f.bind(params)]);
+
+  @override
   void check(DbCollectionSchema schema) {
     for (final f in filters) {
       f.check(schema);
@@ -232,6 +266,9 @@ final class DbNot extends DbFilter {
 
   @override
   bool matches(Map<String, Object?> record) => !filter.matches(record);
+
+  @override
+  DbFilter bind(Map<String, Object?> params) => DbNot(filter.bind(params));
 
   @override
   void check(DbCollectionSchema schema) => filter.check(schema);

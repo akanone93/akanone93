@@ -7,6 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **A database source can watch the record a page names (DB-006, `db.v2`, build log #106):**
+  a filter's comparison takes `"param": "<name>"` in place of a `value`, and the source's `params`,
+  bound in its scope like a REST source's, give it when the watch starts; values reach the
+  database as bound SQL parameters, never as SQL text.
 - **A text style can start from another (WGT-004, build log #84):** TextStyle revision 2 adds
   `base`, usually a typography token; the style's own fields are merged over it as
   `TextStyle.merge` does, so a headline in another colour keeps the theme's type scale.

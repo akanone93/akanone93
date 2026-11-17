@@ -89,3 +89,62 @@ func TestDatabaseSourceChecks(t *testing.T) {
 		wantDiag(t, compileFS(m), plxerr.DatabaseSourceInvalid, dbPlugin, "/dataSources/0/type")
 	})
 }
+
+// TestDatabaseSourceParams binds a filter's comparison to one of the
+// source's params, a literal or a binding of the declaring scope, and
+// requires db.v2 for it.
+// Verifies: DB-006, BND-008.
+func TestDatabaseSourceParams(t *testing.T) {
+	t.Parallel()
+	bound := func(params map[string]any, filter map[string]any) func(map[string]any) {
+		return func(doc map[string]any) {
+			doc["dataSources"].([]any)[0].(map[string]any)["config"] = map[string]any{
+				"collection": "tasks", "params": params, "filter": filter,
+			}
+		}
+	}
+	for name, params := range map[string]map[string]any{
+		"a literal param": {"want": "a"},
+		"a bound param":   {"want": map[string]any{"$expr": `"a" + "b"`}},
+		"a list for in":   {"want": map[string]any{"$expr": `["a", "b"]`}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			m := project(t, dbDir)
+			op := "eq"
+			if name == "a list for in" {
+				op = "in"
+			}
+			edit(t, m, dbPlugin, bound(params, map[string]any{"field": "id", "op": op, "param": "want"}))
+			res := compileFS(m)
+			for _, d := range res.Diagnostics {
+				if d.Severity == plxerr.SeverityError {
+					t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+				}
+			}
+			if !slices.Contains(res.Plugins[0].Features, "db.v2") {
+				t.Errorf("features %v lack db.v2", res.Plugins[0].Features)
+			}
+		})
+	}
+	for _, c := range []struct {
+		name   string
+		params map[string]any
+		filter map[string]any
+		ptr    string
+	}{
+		{"an undeclared param", map[string]any{"want": "a"}, map[string]any{"field": "id", "op": "eq", "param": "other"}, "/param"},
+		{"a param of another type", map[string]any{"want": 3}, map[string]any{"field": "id", "op": "eq", "param": "want"}, "/param"},
+		{"a single value for in", map[string]any{"want": "a"}, map[string]any{"field": "id", "op": "in", "param": "want"}, "/param"},
+		{"both a value and a param", map[string]any{"want": "a"}, map[string]any{"field": "id", "op": "eq", "param": "want", "value": "a"}, "/param"},
+		{"a null test with a param", map[string]any{"want": "a"}, map[string]any{"field": "note", "op": "isNull", "param": "want"}, "/op"},
+		{"an unknown field", map[string]any{"want": "a"}, map[string]any{"field": "nope", "op": "eq", "param": "want"}, "/field"},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			m := project(t, dbDir)
+			edit(t, m, dbPlugin, bound(c.params, c.filter))
+			wantDiag(t, compileFS(m), plxerr.DatabaseSourceInvalid, dbPlugin, "/dataSources/0/config/filter"+c.ptr)
+		})
+	}
+}

@@ -67,6 +67,20 @@ its rows, and a list re-renders only the items that changed:
 {"type": "ListView", "props": {"items": {"$expr": "data.open.value ?? []"}}}
 ```
 
+A comparison can take its value from one of the source's `params` instead of a literal: the
+params are bound in the source's scope, as a REST source's are, and evaluated when the watch
+starts (`refreshData` starts it again). A page that shows one record watches just that record:
+
+```json
+{"name": "reg", "kind": "database", "type": "list<Registration>",
+ "config": {"collection": "registrations", "params": {"id": {"$expr": "params.id"}},
+            "filter": {"field": "id", "op": "eq", "param": "id"}, "limit": 1}}
+```
+
+The field is a `string`, `int`, `double` or `bool` and the param of its type, a list of it for
+`in`; the operator is one that takes a value. Values reach the database as bound parameters,
+never as SQL text. Such a source requires `db.v2`, first in runtime 0.6.0.
+
 ## 4. Write
 
 `dbInsert`, `dbUpdate`, `dbUpsert` and `dbDelete` write records, and `dbQuery` reads them

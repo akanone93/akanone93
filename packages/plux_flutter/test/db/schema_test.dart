@@ -55,6 +55,55 @@ void main() {
       expect(filter.matches({'id': 'z', 'n': 1, 't': null}), isFalse);
     });
 
+    test('a comparison bound to a param takes its value from the source', () {
+      final json = {
+        'and': [
+          {'field': 'id', 'op': 'eq', 'param': 'id'},
+          {
+            'not': {'field': 'n', 'op': 'in', 'param': 'skip'},
+          },
+        ],
+      };
+      final filter = DbFilter.fromJson(json);
+      expect(filter.toJson(), json);
+      filter.check(_schema());
+      final bound = filter.bind({
+        'id': 'r-001',
+        'skip': [1, 2],
+      });
+      expect(bound.toJson(), {
+        'and': [
+          {'field': 'id', 'op': 'eq', 'value': 'r-001'},
+          {
+            'not': {
+              'field': 'n',
+              'op': 'in',
+              'value': [1, 2],
+            },
+          },
+        ],
+      });
+      bound.check(_schema());
+      expect(bound.matches({'id': 'r-001', 'n': 3, 't': null}), isTrue);
+      expect(bound.matches({'id': 'r-001', 'n': 2, 't': null}), isFalse);
+      expect(bound.matches({'id': 'r-002', 'n': 3, 't': null}), isFalse);
+      expect(
+        () => filter.bind({'id': 'r-001'}),
+        throwsA(
+          isA<PluxException>().having(
+            (e) => e.code,
+            'code',
+            PluxErrorCode.dbQueryInvalid,
+          ),
+        ),
+        reason: 'a param the source does not give',
+      );
+      expect(
+        () => DbFilter.fromJson({'field': 'id', 'op': 'eq', 'param': 3}),
+        throwsA(isA<PluxException>()),
+      );
+    });
+
     test('a malformed filter is PLX-5206', () {
       for (final bad in <Object?>[
         1,

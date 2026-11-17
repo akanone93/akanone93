@@ -210,6 +210,10 @@ func (u *unit) operation(g *graph, ref string) (*schema.DataSource, *operationCo
 func (t *typer) compileDataSources(pl *plugin, sources []schema.DataSource, file string, s *scope, from string) {
 	for i := range sources {
 		src := &sources[i]
+		if src.Kind == schema.DataSourceKindDatabase {
+			t.compileDatabaseParams(src, s, from, file, plxerr.Pointer("dataSources", strconv.Itoa(i), "config"))
+			continue
+		}
 		if !runsData(src.Kind) {
 			continue
 		}
@@ -226,6 +230,21 @@ func (t *typer) compileDataSources(pl *plugin, sources []schema.DataSource, file
 				t.compileAll(p.cfg.Transform, s.with("response", te.String()), from, file, ptr+"/transform")
 			}
 		}
+	}
+}
+
+// compileDatabaseParams compiles the bound params of a database source in
+// the declaring scope, as a REST source's are; its filter takes them by
+// name (DB-006).
+func (t *typer) compileDatabaseParams(src *schema.DataSource, s *scope, from, file, ptr string) {
+	var c struct {
+		Params map[string]json.RawMessage `json:"params"`
+	}
+	if json.Unmarshal(src.Config, &c) != nil {
+		return // reported by the database source check
+	}
+	for _, k := range sortedKeys(c.Params) {
+		t.compileAll(c.Params[k], s, from, file, ptr+plxerr.Pointer("params", k))
 	}
 }
 

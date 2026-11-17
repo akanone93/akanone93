@@ -9,7 +9,8 @@
 /// forms' `forms.v1` (ADR-0047) and `forms.sensitive.v1`, `security.secureui.v1`, the device actions' `device.v1`,
 /// confidential bundles' `security.confidential.v1` (SEC-053, ADR-0055),
 /// animation's `anim.v1`, `anim.timelines.v1` and `anim.transitions.v1`
-/// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049), the
+/// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049) and
+/// `db.v2` (a filter's comparison bound to a source param, 0.6.0), the
 /// experiment variants' `experiments.variant.v1` (ABT-002), the
 /// device-function section `section.wasm.v1` when the host registers a
 /// function engine (FN-050, FN-051), and
@@ -107,7 +108,7 @@ final class RuntimeFeatures {
 
   /// The local database (DB-001, ADR-0049): a bundle declaring a collection
   /// or running a database action requires it.
-  static const Set<String> db = {'db.v1'};
+  static const Set<String> db = {'db.v1', 'db.v2'};
 
   /// Confidential bundles (SEC-053): a release whose bundles arrive encrypted
   /// requires it, so a runtime that cannot decrypt them never downloads one.
