@@ -42,3 +42,26 @@ func TestPropsTypeLiteralsByContext(t *testing.T) {
 		t.Errorf("a centre without lng: %s", list(res.Diagnostics))
 	}
 }
+
+// Verifies: WGT-001.
+// An optional widget prop bound to an expression may be null, which leaves
+// it unset (a field's forced error while there is none); a required prop
+// may not.
+func TestOptionalPropsTakeNull(t *testing.T) {
+	t.Parallel()
+	field := `[{"id": "%ID%", "type": "TextFormField", "props": {"forceErrorText": {"$expr": "size([1]) > 1 ? \"Wrong\" : null"}},
+		"semantics": {"label": "Name"}}]`
+	res := compileFS(a11yProject(t, "standard", "#000000", "#FFFFFF", field))
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	text := `[{"id": "%ID%", "type": "Text", "props": {"data": {"$expr": "size([1]) > 1 ? \"Hello\" : null"}}}]`
+	res = compileFS(a11yProject(t, "standard", "#000000", "#FFFFFF", text))
+	found := false
+	for _, d := range res.Diagnostics {
+		found = found || d.Code == plxerr.PropTypeMismatch
+	}
+	if !found {
+		t.Errorf("a required prop bound to a nullable expression:\n%s", list(res.Diagnostics))
+	}
+}

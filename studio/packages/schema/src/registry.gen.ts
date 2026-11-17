@@ -2864,7 +2864,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "icon", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
-      {"name": "label", "id": 3, "list": false, "required": true, "template": false, "revision": 1}
+      {"name": "label", "id": 3, "list": false, "required": false, "template": false, "revision": 1}
     ]
   },
   {

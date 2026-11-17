@@ -2247,7 +2247,7 @@ ID 83 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `FloatingActionB
 |---|---|---|---|
 | `child` | 1 | one node |  |
 | `icon` | 2 | one node |  |
-| `label` | 3 | one node, required |  |
+| `label` | 3 | one node |  |
 
 ### ForEach
 

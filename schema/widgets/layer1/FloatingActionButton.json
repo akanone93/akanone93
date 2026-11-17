@@ -200,7 +200,6 @@
     {
       "name": "label",
       "id": 3,
-      "required": true,
       "flutter": "label"
     }
   ],

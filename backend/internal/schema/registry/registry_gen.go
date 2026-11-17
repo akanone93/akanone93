@@ -1746,7 +1746,7 @@ var widgets = [...]Widget{
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "icon", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "label", ID: 3, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "label", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
