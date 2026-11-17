@@ -26,6 +26,11 @@ type Options struct {
 	// expression has checked are not null — the condition of an If widget
 	// for its then slot. They read as their non-null type.
 	NonNull []string
+	// Expected is the type the expression's value is bound to, or nil. It
+	// types literals by context: a string naming an enum member is that
+	// enum, and a map literal whose keys name an object type's fields is
+	// that object (ADR-0009).
+	Expected *Type
 }
 
 // OptionsFrom reads the options from a resolved set of the registry.
@@ -71,7 +76,7 @@ func compile(src string, env *Env, opts Options, loc plxerr.Location, folding bo
 	}
 	c := &checker{env: env, limits: opts.Limits, features: map[string]bool{}, nonNull: map[string]bool{}}
 	c.assume(opts.NonNull)
-	root := c.check(tree)
+	root := c.checkAgainst(tree, opts.Expected)
 	for _, x := range c.diags {
 		d.add(x.code, x.span, "%s", x.msg)
 	}

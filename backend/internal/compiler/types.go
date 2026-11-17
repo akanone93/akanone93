@@ -43,10 +43,14 @@ func baseTypes() map[string]pxl.TypeSpec {
 	out := map[string]pxl.TypeSpec{}
 	for _, vt := range registry.ValueTypes() {
 		fields := map[string]string{}
+		var optional []string
 		for _, f := range vt.Fields {
 			fields[f.Name] = f.Type
+			if !f.Required {
+				optional = append(optional, f.Name)
+			}
 		}
-		out[vt.Name] = pxl.TypeSpec{Fields: fields}
+		out[vt.Name] = pxl.TypeSpec{Fields: fields, Optional: optional}
 	}
 	for _, e := range registry.Enums() {
 		members := make([]string, len(e.Values))

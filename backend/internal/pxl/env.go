@@ -29,6 +29,10 @@ type EnvSpec struct {
 type TypeSpec struct {
 	Enum   []string          `json:"enum,omitempty"`
 	Fields map[string]string `json:"fields,omitzero"`
+	// Optional lists the fields an object literal may leave out besides the
+	// nullable ones, such as a registry value type's fields that are not
+	// required; the receiver gives them their defaults.
+	Optional []string `json:"optional,omitempty"`
 }
 
 // Env is a checked EnvSpec. It is immutable and safe for concurrent use.
@@ -77,7 +81,11 @@ func (e *Env) declare(types map[string]TypeSpec) []error {
 		case len(ts.Enum) > 0 && ts.Fields == nil:
 			e.types[name] = &NamedType{Name: name, Members: slices.Clone(ts.Enum)}
 		case len(ts.Enum) == 0 && ts.Fields != nil:
-			e.types[name] = &NamedType{Name: name, Fields: map[string]*Type{}, FieldOrder: sortedKeys(ts.Fields)}
+			optional := map[string]bool{}
+			for _, f := range ts.Optional {
+				optional[f] = true
+			}
+			e.types[name] = &NamedType{Name: name, Fields: map[string]*Type{}, FieldOrder: sortedKeys(ts.Fields), Optional: optional}
 		default:
 			errs = append(errs, fmt.Errorf("type %q: declare either enum members or fields", name))
 		}

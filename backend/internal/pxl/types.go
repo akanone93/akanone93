@@ -59,6 +59,9 @@ type NamedType struct {
 	// Fields are an object's field types; FieldOrder lists their names.
 	Fields     map[string]*Type
 	FieldOrder []string
+	// Optional names the fields an object literal may leave out besides
+	// the nullable ones.
+	Optional map[string]bool
 }
 
 // IsEnum reports whether n is an enum.

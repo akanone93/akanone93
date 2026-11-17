@@ -141,6 +141,145 @@ func (c *checker) checkNode(n *node) *ir {
 // constant returns a constant node.
 func constant(v Value, t *Type, span Span) *ir { return &ir{kind: irConst, typ: t, val: v, span: span} }
 
+// checkAgainst types n where a value of type want is expected, or as
+// usual for a nil want. Literals take their type from the context: a
+// string naming a member of an expected enum is that enum, a list literal
+// types its items against the expected element, and a map literal whose
+// keys name the fields of an expected object type is that object. The
+// branches of ?: and the default of ?? are checked against want, and so is
+// the body of list.map against an expected list's element. Anything else
+// is typed as usual and left to the caller's assignability check.
+func (c *checker) checkAgainst(n *node, want *Type) *ir {
+	if want == nil {
+		return c.check(n)
+	}
+	switch {
+	case n.kind == nLiteral && n.tok.kind == tokString && want.kind == KindEnum:
+		x := c.check(n)
+		if x == nil {
+			return nil
+		}
+		e, _ := c.enumLiteral(x, want)
+		return e
+	case n.kind == nCond:
+		return c.condAgainst(n, want)
+	case n.kind == nBinary && n.op == "??":
+		a, b := c.check(n.a), c.checkAgainst(n.b, want)
+		if a == nil || b == nil {
+			return nil
+		}
+		return c.coalesce(a, b, n.span)
+	case n.kind == nList && want.kind == KindList:
+		return c.listAgainst(n, want)
+	case n.kind == nMapLit && want.kind == KindObject && want.named != nil && !want.named.IsEnum():
+		return c.objectLiteral(n, want)
+	case n.kind == nMacro && n.op == "map" && want.kind == KindList:
+		return c.macroAgainst(n, want.elem)
+	}
+	return c.check(n)
+}
+
+// condAgainst types c ? a : b with both branches checked against want.
+func (c *checker) condAgainst(n *node, want *Type) *ir {
+	whenTrue, whenFalse := facts(n.a)
+	cnd := c.check(n.a)
+	a := c.assumingAgainst(whenTrue, n.b, want)
+	b := c.assumingAgainst(whenFalse, n.c, want)
+	if cnd == nil || a == nil || b == nil {
+		return nil
+	}
+	if !isBool(cnd.typ) {
+		return c.errorf(plxerr.PXLTypeMismatch, n.a.span, "the condition is a %s, not a bool", cnd.typ)
+	}
+	t := unify(a.typ, b.typ)
+	if t == nil {
+		return c.errorf(plxerr.PXLTypeMismatch, n.span, "the branches have different types: %s and %s", a.typ, b.typ)
+	}
+	return &ir{kind: irCond, typ: t, args: []*ir{cnd, convert(a, t), convert(b, t)}, span: n.span}
+}
+
+// listAgainst types a list literal whose items are checked against the
+// expected list's element.
+func (c *checker) listAgainst(n *node, want *Type) *ir {
+	items := make([]*ir, 0, len(n.args))
+	for _, a := range n.args {
+		x := c.checkAgainst(a, want.elem)
+		if x == nil {
+			return nil
+		}
+		if !assignable(x.typ, want.elem) {
+			return c.errorf(plxerr.PXLTypeMismatch, a.span, "a list of %s cannot hold a %s", want.elem, x.typ)
+		}
+		items = append(items, convert(x, want.elem))
+	}
+	return &ir{kind: irList, typ: listOf(want.elem), args: items, span: n.span}
+}
+
+// objectLiteral types a map literal as an object of type want: each key
+// is a string literal naming one of its fields, each value is checked
+// against that field's type, and every field that is neither nullable nor
+// optional is given. The value is built as a map keyed by field name, the
+// form PXL objects take at run time.
+func (c *checker) objectLiteral(n *node, want *Type) *ir {
+	named := want.named
+	out := &ir{kind: irMap, typ: want.nonNull(), span: n.span}
+	seen := map[string]bool{}
+	for i, kn := range n.keys {
+		s, ok := literalString(kn)
+		if !ok {
+			return c.errorf(plxerr.PXLTypeMismatch, kn.span, "a %s is written with string literal keys naming its fields", named.Name)
+		}
+		ft, known := named.Fields[s]
+		switch {
+		case !known:
+			return c.errorf(plxerr.PXLUnknownField, kn.span, "%s has no field %q", named.Name, s)
+		case seen[s]:
+			return c.errorf(plxerr.PXLInvalidLiteral, kn.span, "duplicate key %q", s)
+		}
+		seen[s] = true
+		v := c.checkAgainst(n.args[i], ft)
+		if v == nil {
+			return nil
+		}
+		if !assignable(v.typ, ft) {
+			return c.errorf(plxerr.PXLTypeMismatch, n.args[i].span, "%s.%s is a %s, not a %s", named.Name, s, ft, v.typ)
+		}
+		out.keys = append(out.keys, constant(s, typeString, kn.span))
+		out.args = append(out.args, convert(v, ft))
+	}
+	for _, f := range named.FieldOrder {
+		if !seen[f] && !named.Fields[f].nullable && !named.Optional[f] {
+			return c.errorf(plxerr.PXLTypeMismatch, n.span, "a %s needs the field %q", named.Name, f)
+		}
+	}
+	return out
+}
+
+// literalString returns the value of a string literal node.
+func literalString(n *node) (string, bool) {
+	if n.kind != nLiteral || n.tok.kind != tokString {
+		return "", false
+	}
+	return n.tok.str, true
+}
+
+// macroAgainst types list.map(x, e) with its body checked against the
+// expected element type.
+func (c *checker) macroAgainst(n *node, elem *Type) *ir {
+	return c.macroWith(n, elem)
+}
+
+// assumingAgainst checks n against want with paths assumed not null.
+func (c *checker) assumingAgainst(paths []string, n *node, want *Type) *ir {
+	added := c.assume(paths)
+	defer func() {
+		for _, p := range added {
+			delete(c.nonNull, p)
+		}
+	}()
+	return c.checkAgainst(n, want)
+}
+
 // literal types a literal token.
 func (c *checker) literal(n *node) *ir {
 	t := n.tok
@@ -577,7 +716,11 @@ func (c *checker) mapLiteral(n *node) *ir {
 }
 
 // macro types list.map(x, e) and the other receiver macros.
-func (c *checker) macro(n *node) *ir {
+func (c *checker) macro(n *node) *ir { return c.macroWith(n, nil) }
+
+// macroWith types a receiver macro; the body of map is checked against
+// elem when it is given.
+func (c *checker) macroWith(n *node, elem *Type) *ir {
 	known := false
 	for _, m := range stdMacros {
 		known = known || m == n.op
@@ -603,7 +746,12 @@ func (c *checker) macro(n *node) *ir {
 	c.next += 2
 	c.locals = max(c.locals, c.next)
 	c.scopes = append(c.scopes, map[string]scopeVar{name: {slot: slot, typ: recv.typ.elem}})
-	body := c.check(n.args[1])
+	var body *ir
+	if n.op == "map" && elem != nil {
+		body = c.checkAgainst(n.args[1], elem)
+	} else {
+		body = c.check(n.args[1])
+	}
 	c.scopes = c.scopes[:len(c.scopes)-1]
 	c.next -= 2
 	if body == nil {

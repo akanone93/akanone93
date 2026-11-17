@@ -170,7 +170,10 @@ func (u *unit) binding(c vctx, obj map[string]any, t *texpr) *value {
 
 // exprValue checks a compiled expression against the expected type. An
 // int result where a double or decimal is expected is widened by
-// compiling the conversion, so the program returns the expected type.
+// compiling the conversion, so the program returns the expected type; an
+// expression whose literals take their type from the context (a map
+// literal for a value type, a string for an enum) is compiled again with
+// the expected type.
 func (u *unit) exprValue(c vctx, t *texpr) *value {
 	e, ok := u.exprs[c.file+"#"+c.ptr]
 	if !ok {
@@ -193,6 +196,9 @@ func (u *unit) exprValue(c vctx, t *texpr) *value {
 	if pxl.Assignable(e.typ, want) {
 		return &value{kind: fbs.ValueKindExpr, prog: e.prog}
 	}
+	if typed := u.contextual(c, e, env, want); typed != nil {
+		return typed
+	}
 	if conv := widening(e.typ, want); conv != "" {
 		prog, typ, diags := pxl.Compile(conv+"("+e.src+")", env, e.scope.options(pxl.OptionsFrom(u.opts.Limits)), plxerr.Location{File: c.file, Path: c.ptr + "/$expr"})
 		if prog != nil && pxl.Assignable(typ, want) {
@@ -202,6 +208,20 @@ func (u *unit) exprValue(c vctx, t *texpr) *value {
 	}
 	u.report(u.mismatchCode(c, e), c.file, c.ptr+"/$expr", "expected %s, the expression is %s", t, e.typ)
 	return nil
+}
+
+// contextual compiles an expression again with the expected type, which
+// types its literals by context (pxl.Options.Expected); nil when that does
+// not give an assignable result, so the caller reports the mismatch.
+func (u *unit) contextual(c vctx, e *expr, env *pxl.Env, want *pxl.Type) *value {
+	opts := e.scope.options(pxl.OptionsFrom(u.opts.Limits))
+	opts.Expected = want
+	prog, typ, diags := pxl.Compile(e.src, env, opts, plxerr.Location{File: c.file, Path: c.ptr + "/$expr"})
+	if prog == nil || !pxl.Assignable(typ, want) {
+		return nil
+	}
+	u.diags = append(u.diags, diags...)
+	return &value{kind: fbs.ValueKindExpr, prog: prog}
 }
 
 // widening names the conversion from an int to a double or decimal.

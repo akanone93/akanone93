@@ -404,7 +404,12 @@ func (t *typer) nodeExprs(n *node, s *scope) {
 	file, from := n.owner.file(), ownerID(n.owner)
 	doc := n.doc
 	for _, name := range sortedKeys(doc.Props) {
-		t.compileAll(doc.Props[name], s, from, file, n.ptr+plxerr.Pointer("props", name))
+		ptr := n.ptr + plxerr.Pointer("props", name)
+		if src, ok := bareExpr(doc.Props[name]); ok {
+			t.compileExpecting(src, propType(n, name), s, from, file, ptr)
+			continue
+		}
+		t.compileAll(doc.Props[name], s, from, file, ptr)
 	}
 	t.compileAll(doc.Visible, s, from, file, n.ptr+"/visible")
 	if sem := doc.Semantics; sem != nil {
@@ -838,9 +843,52 @@ func (t *typer) walk(v any, s *scope, from, file, ptr string) {
 	}
 }
 
+// bareExpr returns the source of a prop bound to one expression.
+func bareExpr(raw json.RawMessage) (string, bool) {
+	var b struct {
+		Expr *string `json:"$expr"`
+	}
+	if json.Unmarshal(raw, &b) != nil || b.Expr == nil {
+		return "", false
+	}
+	return *b.Expr, true
+}
+
+// propType is the declared type of a widget's or component's prop, "" when
+// it names a type parameter or is not known: an expression bound to the
+// prop types its literals against it.
+func propType(n *node, name string) string {
+	switch {
+	case n.widget != nil:
+		if p, ok := n.widget.Prop(name); ok && len(n.widget.TypeParameters) == 0 {
+			return p.Type
+		}
+	case n.target != nil:
+		for _, p := range n.target.doc.Props {
+			if p.Name == name {
+				return p.Type
+			}
+		}
+	}
+	return ""
+}
+
+// compileExpecting compiles one expression whose value is bound where a
+// value of type want is expected ("" for none), so that its literals take
+// their type from the context (pxl.Options.Expected).
+func (t *typer) compileExpecting(src, want string, s *scope, from, file, ptr string) {
+	t.compileWith(src, want, s, from, file, ptr)
+}
+
 // compile compiles one expression and records it by its binding's
 // pointer; diagnostics point at the source text (CMP-004).
 func (t *typer) compile(src string, s *scope, from, file, ptr string) {
+	t.compileWith(src, "", s, from, file, ptr)
+}
+
+// compileWith compiles one expression against an expected type, "" for
+// none, and records it by its binding's pointer.
+func (t *typer) compileWith(src, want string, s *scope, from, file, ptr string) {
 	e := &expr{src: src, file: file, ptr: ptr, scope: s}
 	t.u.exprs[file+"#"+ptr] = e
 	env, err := t.u.env(s)
@@ -848,7 +896,13 @@ func (t *typer) compile(src string, s *scope, from, file, ptr string) {
 		t.u.internalError("%v", err)
 		return
 	}
-	prog, typ, diags := pxl.Compile(src, env, s.options(t.opts), plxerr.Location{File: file, Path: ptr + "/$expr"})
+	opts := s.options(t.opts)
+	if want != "" {
+		if typ, err := env.ParseType(want); err == nil {
+			opts.Expected = typ
+		}
+	}
+	prog, typ, diags := pxl.Compile(src, env, opts, plxerr.Location{File: file, Path: ptr + "/$expr"})
 	t.u.diags = append(t.u.diags, diags...)
 	e.prog, e.typ = prog, typ
 	t.u.noteProgram(prog)
