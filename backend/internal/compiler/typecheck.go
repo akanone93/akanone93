@@ -739,6 +739,9 @@ func (t *typer) stepOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSp
 	if st.Action == "submitForm" {
 		return t.u.formOutput(g, st)
 	}
+	if st.Action == "dbQuery" {
+		return t.queryOutput(g, st, synth)
+	}
 	a, ok := registry.LookupAction(st.Action)
 	if !ok || a.Output == "" {
 		return ""

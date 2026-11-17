@@ -43,12 +43,32 @@ func (t *typer) recordScope(g *graph, st schema.Step, s *scope) *scope {
 	if c == nil {
 		return s // reported by the collection reference
 	}
+	name, spec := recordType(c)
+	return s.with("record", name).withTypes(map[string]pxl.TypeSpec{name: spec})
+}
+
+// recordType is the type of a collection's records: PluxRecord and the
+// collection's key in UpperCamelCase, with its fields.
+func recordType(c *schema.Collection) (string, pxl.TypeSpec) {
 	var name strings.Builder
 	name.WriteString("PluxRecord")
 	for _, part := range strings.Split(c.Key, "-") {
 		name.WriteString(upperFirst(part))
 	}
-	return s.with("record", name.String()).withTypes(map[string]pxl.TypeSpec{name.String(): objectType(recordFields(c))})
+	return name.String(), objectType(recordFields(c))
+}
+
+// queryOutput types a dbQuery step's output as the list of its
+// collection's records (DB-007), adding the record type to synth; "" when
+// the step names no collection.
+func (t *typer) queryOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSpec) string {
+	c := t.u.collectionOf(g.plugin, literalString(st.Input["collection"]))
+	if c == nil {
+		return ""
+	}
+	name, spec := recordType(c)
+	synth[name] = spec
+	return "list<" + name + ">?"
 }
 
 // emptyValued are the types a reset can fill with an empty value.

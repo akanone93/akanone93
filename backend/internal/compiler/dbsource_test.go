@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"testing"
 
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -146,5 +147,36 @@ func TestDatabaseSourceParams(t *testing.T) {
 			edit(t, m, dbPlugin, bound(c.params, c.filter))
 			wantDiag(t, compileFS(m), plxerr.DatabaseSourceInvalid, dbPlugin, "/dataSources/0/config/filter"+c.ptr)
 		})
+	}
+}
+
+// TestQueryOutputIsTyped reads a dbQuery step's output in the next step:
+// the list of its collection's records, with their fields (DB-007).
+// Verifies: DB-007.
+func TestQueryOutputIsTyped(t *testing.T) {
+	t.Parallel()
+	const page = "plugins/todo/pages/list.page.json"
+	for src, code := range map[string]plxerr.Code{
+		`first(steps.q.output ?? [])?.title ?? ""`: 0,
+		`string(size(steps.q.output ?? []))`:       0,
+		`first(steps.q.output ?? [])?.nothing`:     plxerr.PXLUnknownField,
+	} {
+		m := project(t, dbDir)
+		edit(t, m, page, func(doc map[string]any) {
+			at(t, doc, "root/slots/body/children/1/events")["onPressed"] = raw(t, `{"steps": [
+				{"id": "q", "action": "dbQuery", "input": {"collection": "tasks", "where": {"$expr": "!record.done"}}, "next": "say"},
+				{"id": "say", "action": "showSnackbar", "input": {"message": {"$expr": `+strconv.Quote(src)+`}}}]}`)
+		})
+		res := compileFS(m)
+		if code == 0 {
+			for _, d := range res.Diagnostics {
+				if d.Severity == plxerr.SeverityError {
+					t.Errorf("%s:\n%s", src, list(res.Diagnostics))
+					break
+				}
+			}
+			continue
+		}
+		wantDiag(t, res, code, page, "/root/slots/body/children/1/events/onPressed/steps/1/input/message")
 	}
 }
