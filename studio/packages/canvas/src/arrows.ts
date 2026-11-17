@@ -268,9 +268,14 @@ function unit(dx: number, dy: number): Point {
   return len > 0 ? { x: dx / len, y: dy / len } : { x: 1, y: 0 };
 }
 
-/** A cubic from `p` leaving along `u` to `q` arriving along `v` (both unit, direction of travel). */
+/**
+ * A cubic from `p` leaving along `u` to `q` arriving along `v` (both unit, direction of travel). Its arms
+ * are never longer than half the chord, so a short hop between close waypoints cannot overshoot into a
+ * loop or a kink.
+ */
 function piece(p: Point, u: Point, q: Point, v: Point): Cubic {
-  const k = Math.min(MAX_BEND, Math.max(MIN_BEND, Math.hypot(q.x - p.x, q.y - p.y) * 0.4));
+  const d = Math.hypot(q.x - p.x, q.y - p.y);
+  const k = Math.min(MAX_BEND, Math.max(Math.min(MIN_BEND, d / 2), d * 0.4));
   return { from: p, c1: add(p, u.x * k, u.y * k), c2: add(q, -v.x * k, -v.y * k), to: q };
 }
 
@@ -466,6 +471,7 @@ export class ArrowRouter {
       this.curve(state);
       this.current.set(state.bundle.id, state.route as Route);
     }
+    this.unblock(this.states.values());
   }
 
   /**
@@ -548,13 +554,73 @@ export class ArrowRouter {
   }
 
   private recurve(dirty: ReadonlySet<BundleState>): string[] {
-    const ids: string[] = [];
+    const ids = new Set<string>();
     for (const state of dirty) {
       this.curve(state);
       this.current.set(state.bundle.id, state.route as Route);
-      ids.push(state.bundle.id);
+      ids.add(state.bundle.id);
     }
-    return ids.sort();
+    // While a box is dragged, bundles not attached to it wait for the drop.
+    const own = this.drag ? new Set(this.byBox.get(this.drag.id)) : undefined;
+    for (const state of this.unblock(dirty, own)) {
+      ids.add(state.bundle.id);
+    }
+    return [...ids].sort();
+  }
+
+  /**
+   * Hysteresis keeps a bundle's side pair only while it routes clear and straight: a bundle that is
+   * blocked, or needs a detour, on a remembered pair that is not the shortest takes the shortest, and the
+   * bundles sharing the sides it leaves or joins are spread and routed again. Each bundle switches at most
+   * once, so this ends. Bundles not in `own` (when given) are left for the drag to catch up. Returns the
+   * bundles routed again.
+   */
+  private unblock(states: Iterable<BundleState>, own?: ReadonlySet<BundleState>): BundleState[] {
+    const touched = new Set<string>();
+    const switched = [...states].filter((state) => this.giveWay(state, touched, own));
+    if (switched.length === 0) {
+      return [];
+    }
+    const again = new Set<BundleState>(switched);
+    for (const key of [...touched].sort()) {
+      this.spread(key);
+      for (const member of this.members.get(key) ?? []) {
+        if (own === undefined || own.has(member.state)) {
+          again.add(member.state);
+        } else {
+          this.drag?.pending.add(member.state);
+        }
+      }
+    }
+    const out = [...again].sort((x, y) => byId(x.bundle, y.bundle));
+    for (const state of out) {
+      this.curve(state);
+      this.current.set(state.bundle.id, state.route as Route);
+    }
+    return out;
+  }
+
+  /**
+   * Moves a blocked or detoured bundle from a remembered side pair to the shortest one, noting the sides it
+   * leaves and joins in `touched`. False when the bundle keeps its sides.
+   */
+  private giveWay(state: BundleState, touched: Set<string>, own?: ReadonlySet<BundleState>): boolean {
+    const route = state.route;
+    if (route === undefined || (route.clear && route.segments.length === 1) || (own !== undefined && !own.has(state))) {
+      return false;
+    }
+    const a = this.boxes.get(state.bundle.source) as MBox;
+    const b = this.boxes.get(state.bundle.target) as MBox;
+    const [sa, sb] = chooseSides(a, b, undefined);
+    if (sa === state.sa && sb === state.sb) {
+      return false;
+    }
+    this.leave(state, touched);
+    state.sa = sa;
+    state.sb = sb;
+    this.history.set(state.bundle.id, sa * 4 + sb);
+    this.join(state, touched);
+    return true;
   }
 
   private selectSides(state: BundleState): void {
@@ -655,7 +721,10 @@ export class ArrowRouter {
       for (const s of segments) {
         controlBounds(s, envelope);
       }
-      const result = { segments, hit: this.collide(segments, [a, b]) };
+      const hit = this.collide(segments, [a, b]);
+      // A curve that dips back into its own box hides under it: not clear (the anchors sit on the edges).
+      const own = hit.boxes.length === 0 && this.entersEnds(hit.points, [a, b]);
+      const result = { segments, hit: own ? { boxes: [a], segment: 0, points: hit.points } : hit };
       tried.push(result);
       return result;
     };
@@ -674,6 +743,21 @@ export class ArrowRouter {
       clear: found !== undefined,
       envelope,
     };
+  }
+
+  /** Whether a flattened path enters the inside of one of its end boxes, a little in from their edges. */
+  private entersEnds(points: readonly number[], ends: readonly MBox[]): boolean {
+    const inset = 2;
+    for (let i = 0; i + 1 < points.length; i += 2) {
+      const x = points[i] as number;
+      const y = points[i + 1] as number;
+      for (const box of ends) {
+        if (x > box.x + inset && x < box.x + box.w - inset && y > box.y + inset && y < box.y + box.h - inset) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /** Up to six detours: one waypoint around the first box in the way, then a second around the next. */
@@ -705,10 +789,19 @@ export class ArrowRouter {
     for (const w2 of this.detours(second.hit.boxes[0] as MBox, early ? p0 : w, early ? w : p3)) {
       const third = attempt(early ? [w2, w] : [w, w2]);
       if (third.hit.boxes.length === 0) {
-        return third;
+        return this.oneBend(third, w, w2, attempt);
       }
     }
     return undefined;
+  }
+
+  /** Two waypoints this close wiggle the curve: their midpoint, where it routes clear, is one bend. */
+  private oneBend(clear: Attempt, w: Point, w2: Point, attempt: (waypoints: readonly Point[]) => Attempt): Attempt {
+    if (Math.hypot(w2.x - w.x, w2.y - w.y) >= 2 * MIN_BEND) {
+      return clear;
+    }
+    const one = attempt([{ x: (w.x + w2.x) / 2, y: (w.y + w2.y) / 2 }]);
+    return one.hit.boxes.length === 0 ? one : clear;
   }
 
   /** Two waypoints beside `box`, across the chord p–q; the side the box leans away from first. */

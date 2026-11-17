@@ -219,6 +219,120 @@ describe("[STU-043] perpendicular Béziers routed around boxes", () => {
   });
 });
 
+describe("[STU-042] [STU-043] routes stay off their own boxes and keep smooth", () => {
+  /** Whether a sampled point of `route` lies inside one of its own end boxes, a little in from the edges. */
+  function entersEnds(route: Route, boxes: readonly ArrowBox[]): boolean {
+    const ends = boxes.filter((b) => b.id === route.bundle.source || b.id === route.bundle.target);
+    return route.segments.some((seg) =>
+      Array.from({ length: 201 }, (_, i) => cubicAt(seg, i / 200)).some((p) =>
+        ends.some((b) => p.x > b.x + 2 && p.x < b.x + b.w - 2 && p.y > b.y + 2 && p.y < b.y + b.h - 2),
+      ),
+    );
+  }
+
+  test("a remembered side pair that no longer routes clear gives way to the shortest", () => {
+    // Apply Register's canvas: Account under Console, Launch to their right. Account → Launch first leaves
+    // from Account's top; once the boxes close up, that side is under Console and its detour would dip
+    // back into Account.
+    const edges = [edge("x", "account", "launch"), edge("y", "account", "launch")];
+    const before = [
+      box("account", 0, 800, 260, 152),
+      box("console", 0, 600, 260, 152),
+      box("launch", 356, 400, 260, 152),
+    ];
+    const after = [
+      box("account", 0, 600, 260, 152),
+      box("console", 0, 400, 260, 152),
+      box("launch", 356, 300, 260, 152),
+    ];
+    const router = new ArrowRouter(before, deriveBundles(edges));
+    expect(router.routes.get("account→launch")?.sourceSide).toBe(0);
+    router.setGraph(after, deriveBundles(edges));
+    const route = router.routes.get("account→launch") as Route;
+    expect(route.clear).toBe(true);
+    expect(route.sourceSide).toBe(1);
+    expect(entersEnds(route, after)).toBe(false);
+    expect(crosses(route, after)).toEqual([]);
+  });
+
+  test("no route of a grid scene dips into its own boxes, and no arm is longer than half its piece", () => {
+    const { boxes, edges } = grid(24, 80);
+    const router = new ArrowRouter(boxes, deriveBundles(edges));
+    for (const route of router.routes.values()) {
+      if (route.clear) {
+        expect(entersEnds(route, boxes)).toBe(false);
+      }
+      for (const s of route.segments) {
+        const chord = Math.hypot(s.to.x - s.from.x, s.to.y - s.from.y);
+        expect(Math.hypot(s.c1.x - s.from.x, s.c1.y - s.from.y)).toBeLessThanOrEqual(chord / 2 + 1e-9);
+        expect(Math.hypot(s.to.x - s.c2.x, s.to.y - s.c2.y)).toBeLessThanOrEqual(chord / 2 + 1e-9);
+      }
+    }
+  });
+
+  /** The largest change of heading between neighbouring samples of a route, in degrees: a kink is large. */
+  function sharpest(route: Route): number {
+    const points = route.segments.flatMap((s) => Array.from({ length: 400 }, (_, i) => cubicAt(s, i / 399)));
+    let worst = 0;
+    let previous: number | undefined;
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1] as { x: number; y: number };
+      const b = points[i] as { x: number; y: number };
+      if (Math.hypot(b.x - a.x, b.y - a.y) < 0.05) {
+        continue;
+      }
+      const heading = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+      if (previous !== undefined) {
+        worst = Math.max(worst, Math.abs(((heading - previous + 540) % 360) - 180));
+      }
+      previous = heading;
+    }
+    return worst;
+  }
+
+  test("detours around neighbouring corners bend smoothly, without a kink", () => {
+    // Apply Register's app canvas as laid out: Explore → Launch detoured through two waypoints 22 units
+    // apart, and the short piece between them overshot its arms into a notch beside the "10" badge.
+    const at: Record<string, [number, number]> = {
+      verify: [0, 0],
+      pay: [0, 200],
+      console: [0, 400],
+      account: [0, 600],
+      launch: [356, 300],
+      partner: [712, 190],
+      passes: [712, 520],
+      explore: [1068, 465],
+    };
+    const boxes = Object.entries(at).map(([id, [x, y]]) => box(id, x, y, 260, 152));
+    const links: [string, string, number][] = [
+      ["verify", "launch", 1],
+      ["pay", "launch", 1],
+      ["console", "launch", 1],
+      ["account", "launch", 2],
+      ["account", "passes", 1],
+      ["launch", "partner", 1],
+      ["partner", "launch", 2],
+      ["launch", "explore", 10],
+      ["explore", "launch", 1],
+      ["launch", "passes", 1],
+      ["passes", "launch", 1],
+      ["passes", "explore", 2],
+    ];
+    const edges = links.flatMap(([a, b, n]) => Array.from({ length: n }, (_, i) => edge(`${a}-${b}-${i}`, a, b)));
+    const router = new ArrowRouter(boxes, deriveBundles(edges));
+    for (const route of router.routes.values()) {
+      expect(route.clear).toBe(true);
+      expect(entersEnds(route, boxes)).toBe(false);
+      expect(sharpest(route)).toBeLessThan(3);
+      for (const s of route.segments) {
+        const chord = Math.hypot(s.to.x - s.from.x, s.to.y - s.from.y);
+        expect(Math.hypot(s.c1.x - s.from.x, s.c1.y - s.from.y)).toBeLessThanOrEqual(chord / 2 + 1e-9);
+      }
+    }
+    expect((router.routes.get("explore→launch") as Route).segments.length).toBeLessThanOrEqual(2);
+  });
+});
+
 describe("[STU-045] determinism and incremental re-routing", () => {
   test("same input gives identical routes", () => {
     const { boxes, edges } = grid(30, 120);
