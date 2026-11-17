@@ -1285,6 +1285,29 @@ enum DeviceAPI {
   String toJson() => json;
 }
 
+final class DynamicIcon {
+  const DynamicIcon({required this.name, this.set});
+
+  /// Decodes a JSON object.
+  factory DynamicIcon.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return DynamicIcon(
+      name: m['name']! as String,
+      set: m['set'] == null ? null : m['set']! as String,
+    );
+  }
+
+  final String name;
+  /// The icon set, material when absent.
+  final String? set;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'name': name,
+        if (set != null) 'set': set!,
+      };
+}
+
 /// An environment with values for the declared variables (DAT-003).
 final class Environment {
   const Environment({required this.key, required this.name, this.values});
@@ -3185,7 +3208,7 @@ enum Placement {
 /// A plugin: its pages, state, collections and requested capabilities
 /// (SCH-021). File: `plugins/<key>/plugin.json`.
 final class PluginDocument {
-  const PluginDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, required this.name, this.description, required this.icon, required this.team, required this.entryPage, required this.pages, this.fallbackPage, this.capabilities, this.tags, this.types, this.state, this.collections, this.droppedCollections, this.dataSources, this.triggers});
+  const PluginDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, required this.name, this.description, required this.icon, required this.team, required this.entryPage, required this.pages, this.fallbackPage, this.capabilities, this.tags, this.dynamicIcons, this.types, this.state, this.collections, this.droppedCollections, this.dataSources, this.triggers});
 
   /// Decodes a JSON object.
   factory PluginDocument.fromJson(Object json) {
@@ -3204,6 +3227,7 @@ final class PluginDocument {
       fallbackPage: m['fallbackPage'] == null ? null : m['fallbackPage']! as String,
       capabilities: m['capabilities'] == null ? null : Capabilities.fromJson(m['capabilities']!),
       tags: m['tags'] == null ? null : [for (final e in m['tags']! as List<Object?>) e! as String],
+      dynamicIcons: m['dynamicIcons'] == null ? null : [for (final e in m['dynamicIcons']! as List<Object?>) DynamicIcon.fromJson(e!)],
       types: m['types'] == null ? null : [for (final e in m['types']! as List<Object?>) TypeDecl.fromJson(e!)],
       state: m['state'] == null ? null : [for (final e in m['state']! as List<Object?>) StateEntry.fromJson(e!)],
       collections: m['collections'] == null ? null : [for (final e in m['collections']! as List<Object?>) Collection.fromJson(e!)],
@@ -3238,6 +3262,11 @@ final class PluginDocument {
   /// Capabilities the plugin requests; everything else is denied (SEC-080).
   final Capabilities? capabilities;
   final List<String>? tags;
+  /// The icons an expression bound to an icon may choose at run time, such as a
+  /// category's icon read from data (THM-005). The plugin's icon font carries
+  /// exactly these glyphs besides the literal ones, so a computed icon always
+  /// has its glyph and the font grows only by what is declared.
+  final List<DynamicIcon>? dynamicIcons;
   final List<TypeDecl>? types;
   final List<StateEntry>? state;
   final List<Collection>? collections;
@@ -3266,6 +3295,7 @@ final class PluginDocument {
         if (fallbackPage != null) 'fallbackPage': fallbackPage!,
         if (capabilities != null) 'capabilities': capabilities!.toJson(),
         if (tags != null) 'tags': [for (final e in tags!) e],
+        if (dynamicIcons != null) 'dynamicIcons': [for (final e in dynamicIcons!) e.toJson()],
         if (types != null) 'types': [for (final e in types!) e.toJson()],
         if (state != null) 'state': [for (final e in state!) e.toJson()],
         if (collections != null) 'collections': [for (final e in collections!) e.toJson()],

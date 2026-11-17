@@ -401,6 +401,13 @@ A device API a plugin may request (SEC-080).
 
 One of `camera`, `photos`, `files`, `location`, `contacts`, `biometrics`, `notifications`, `clipboard`, `share`, `haptics`.
 
+### DynamicIcon
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `name` | string | yes |  |
+| `set` | string |  | The icon set, material when absent. |
+
 ### Environment
 
 An environment with values for the declared variables (DAT-003).
@@ -991,6 +998,7 @@ A plugin: its pages, state, collections and requested capabilities (SCH-021). Fi
 | `fallbackPage` | string |  | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
 | `capabilities` | [Capabilities](#capabilities) |  | Capabilities the plugin requests; everything else is denied (SEC-080). |
 | `tags` | list of string |  |  |
+| `dynamicIcons` | list of [DynamicIcon](#dynamicicon) |  | The icons an expression bound to an icon may choose at run time, such as a category's icon read from data (THM-005). The plugin's icon font carries exactly these glyphs besides the literal ones, so a computed icon always has its glyph and the font grows only by what is declared. |
 | `types` | list of [TypeDecl](#typedecl) |  |  |
 | `state` | list of [StateEntry](#stateentry) |  |  |
 | `collections` | list of [Collection](#collection) |  |  |

@@ -706,6 +706,14 @@ func (v DeviceAPI) Valid() bool {
 	return false
 }
 
+// DynamicIcon — is generated from
+// plugin.schema.json#/properties/dynamicIcons/items.
+type DynamicIcon struct {
+	Name string `json:"name"`
+	// Set: The icon set, material when absent.
+	Set string `json:"set,omitempty"`
+}
+
 // Environment — An environment with values for the declared variables
 // (DAT-003).
 type Environment struct {
@@ -1698,6 +1706,12 @@ type PluginDocument struct {
 	// (SEC-080).
 	Capabilities *Capabilities `json:"capabilities,omitempty"`
 	Tags         []string      `json:"tags,omitempty"`
+	// DynamicIcons: The icons an expression bound to an icon may choose at run
+	// time, such as a category's icon read from data (THM-005). The plugin's
+	// icon font carries exactly these glyphs besides the literal ones, so a
+	// computed icon always has its glyph and the font grows only by what is
+	// declared.
+	DynamicIcons []DynamicIcon `json:"dynamicIcons,omitempty"`
 	Types        []TypeDecl    `json:"types,omitempty"`
 	State        []StateEntry  `json:"state,omitempty"`
 	Collections  []Collection  `json:"collections,omitempty"`

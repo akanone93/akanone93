@@ -138,6 +138,31 @@
       },
       "uniqueItems": true
     },
+    "dynamicIcons": {
+      "type": "array",
+      "description": "The icons an expression bound to an icon may choose at run time, such as a category's icon read from data (THM-005). The plugin's icon font carries exactly these glyphs besides the literal ones, so a computed icon always has its glyph and the font grows only by what is declared.",
+      "items": {
+        "type": "object",
+        "x-plux-type": "DynamicIcon",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$",
+            "maxLength": 64
+          },
+          "set": {
+            "type": "string",
+            "pattern": "^(material|cupertino)$",
+            "description": "The icon set, material when absent."
+          }
+        },
+        "additionalProperties": false
+      },
+      "maxItems": 256
+    },
     "types": {
       "type": "array",
       "items": {

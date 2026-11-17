@@ -441,6 +441,14 @@ export interface DeepLinkRoute {
 /** A device API a plugin may request (SEC-080). */
 export type DeviceAPI = "camera" | "photos" | "files" | "location" | "contacts" | "biometrics" | "notifications" | "clipboard" | "share" | "haptics";
 
+export interface DynamicIcon {
+  readonly name: string;
+  /** The icon set, material when absent. */
+  readonly set?: string;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
 /** An environment with values for the declared variables (DAT-003). */
 export interface Environment {
   /** Human-readable lower-kebab slug, unique within its parent (SCH-002). Files in the Git layout are named after it. */
@@ -1133,6 +1141,8 @@ export interface PluginDocument {
   /** Capabilities the plugin requests; everything else is denied (SEC-080). */
   readonly capabilities?: Capabilities;
   readonly tags?: readonly string[];
+  /** The icons an expression bound to an icon may choose at run time, such as a category's icon read from data (THM-005). The plugin's icon font carries exactly these glyphs besides the literal ones, so a computed icon always has its glyph and the font grows only by what is declared. */
+  readonly dynamicIcons?: readonly DynamicIcon[];
   readonly types?: readonly TypeDecl[];
   readonly state?: readonly StateEntry[];
   readonly collections?: readonly Collection[];

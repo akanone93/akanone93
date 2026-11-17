@@ -65,3 +65,47 @@ func TestOptionalPropsTakeNull(t *testing.T) {
 		t.Errorf("a required prop bound to a nullable expression:\n%s", list(res.Diagnostics))
 	}
 }
+
+// Verifies: THM-005.
+// An icon chosen by an expression is admitted when the plugin declares the
+// icons its expressions may choose; their glyphs join the plugin's font.
+// Without the declaration, or with an icon its set lacks, it is refused.
+func TestDynamicIcons(t *testing.T) {
+	t.Parallel()
+	node := `[{"id": "%ID%", "type": "Icon", "props": {"icon": {"$expr": "device.darkMode ? {\"name\": \"school\"} : {\"name\": \"home\"}"},
+		"semanticLabel": "Kind"}}]`
+	declare := func(icons ...string) func(map[string]any) {
+		return func(doc map[string]any) {
+			list := make([]any, len(icons))
+			for i, name := range icons {
+				list[i] = map[string]any{"name": name}
+			}
+			doc["dynamicIcons"] = list
+		}
+	}
+	m := a11yProject(t, "standard", "#000000", "#FFFFFF", node)
+	res := compileFS(m)
+	if !anyDiag(res, plxerr.UnknownIcon) {
+		t.Errorf("an undeclared computed icon:\n%s", list(res.Diagnostics))
+	}
+	m = a11yProject(t, "standard", "#000000", "#FFFFFF", node)
+	edit(t, m, "plugins/loans/plugin.json", declare("school", "home"))
+	res = compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("declared computed icons:\n%s", list(res.Diagnostics))
+	}
+	m = a11yProject(t, "standard", "#000000", "#FFFFFF", node)
+	edit(t, m, "plugins/loans/plugin.json", declare("school", "no_such_icon_at_all"))
+	if !anyDiag(compileFS(m), plxerr.UnknownIcon) {
+		t.Error("a declared icon its set lacks is refused")
+	}
+}
+
+func anyDiag(res *Result, code plxerr.Code) bool {
+	for _, d := range res.Diagnostics {
+		if d.Code == code {
+			return true
+		}
+	}
+	return false
+}

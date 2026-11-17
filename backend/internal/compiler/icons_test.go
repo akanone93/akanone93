@@ -16,8 +16,9 @@ import (
 )
 
 // Verifies: THM-005.
-// An icon names one of its set's glyphs, literally: an unknown name, one
-// of the other set, or a computed name or icon is refused (PLX-1123).
+// An icon names one of its set's glyphs: an unknown name or one of the
+// other set is refused, and so is a computed name or icon when the plugin
+// declares no dynamicIcons (PLX-1123); see TestDynamicIcons.
 func TestIconsAreCheckedAtCompileTime(t *testing.T) {
 	t.Parallel()
 	decoration := "/" + amountNode + "/props/decoration"
@@ -26,7 +27,7 @@ func TestIconsAreCheckedAtCompileTime(t *testing.T) {
 		{name: "icon of the other set", edit: setProp(amountNode, "decoration", `{"icon": {"name": "left_chevron", "set": "material"}}`), ptr: decoration + "/icon/name"},
 		{name: "unknown cupertino icon", edit: setProp(amountNode, "decoration", `{"icon": {"name": "home_rounded", "set": "cupertino"}}`), ptr: decoration + "/icon/name"},
 		{name: "computed name", edit: setProp(amountNode, "decoration", `{"icon": {"name": {"$expr": "'home'"}}}`), ptr: decoration + "/icon"},
-		{name: "computed icon", edit: setProp(amountNode, "decoration", `{"icon": {"$expr": "page.amount"}}`), ptr: decoration + "/icon"},
+		{name: "computed icon", edit: setProp(amountNode, "decoration", `{"icon": {"$expr": "page.amount > 0d ? {\"name\": \"home\"} : {\"name\": \"search\"}"}}`), ptr: decoration + "/icon"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

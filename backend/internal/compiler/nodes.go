@@ -190,17 +190,7 @@ func (u *unit) checkProps(n *node, sh *shape, raw map[string]json.RawMessage, c 
 		if te == nil {
 			continue
 		}
-		// An optional widget prop bound to an expression may be null, which
-		// leaves it unset: the runtime then gives the widget its default, as
-		// Flutter does for a parameter that is not passed (forceErrorText is
-		// null while a field has no error). A component's props keep their
-		// declared nullability, since its own bindings read them typed.
-		if sh.widget != nil && !m.required && isExprRaw(raw[name]) {
-			nullable := *te
-			nullable.nullable = true
-			te = &nullable
-		}
-		if v := u.checkRaw(pc, raw[name], te); v != nil {
+		if v := u.checkRaw(pc, raw[name], boundType(sh, m, raw[name], te)); v != nil {
 			out = append(out, &prop{name: name, id: m.id, ptr: ptr, value: v})
 		}
 	}
@@ -237,6 +227,21 @@ func typeBindings(n *node) map[string]*texpr {
 		}
 	}
 	return bind
+}
+
+// boundType is the type a prop's value is checked against. An optional
+// widget prop bound to an expression may be null, which leaves it unset:
+// the runtime then gives the widget its default, as Flutter does for a
+// parameter that is not passed (forceErrorText is null while a field has no
+// error). A component's props keep their declared nullability, since its
+// own bindings read them typed.
+func boundType(sh *shape, m member, raw json.RawMessage, te *texpr) *texpr {
+	if sh.widget == nil || m.required || !isExprRaw(raw) {
+		return te
+	}
+	nullable := *te
+	nullable.nullable = true
+	return &nullable
 }
 
 // isExprRaw reports whether a raw value is a `$expr` binding.

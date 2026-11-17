@@ -73,7 +73,7 @@ func (u *unit) checkRaw(c vctx, raw json.RawMessage, t *texpr) *value {
 // nil after reporting a problem.
 func (u *unit) check(c vctx, v any, t *texpr) *value {
 	if obj, ok := v.(map[string]any); ok {
-		if t.name == iconType && isBinding(obj) {
+		if t.name == iconType && isBinding(obj) && obj["$expr"] == nil {
 			u.report(plxerr.UnknownIcon, c.file, c.ptr, "an icon is written literally, so that its glyph is delivered")
 			return nil
 		}
@@ -175,6 +175,17 @@ func (u *unit) binding(c vctx, obj map[string]any, t *texpr) *value {
 // literal for a value type, a string for an enum) is compiled again with
 // the expected type.
 func (u *unit) exprValue(c vctx, t *texpr) *value {
+	v := u.typedExpr(c, t)
+	// An icon chosen at run time is one of the plugin's declared icons.
+	if v != nil && t.name == iconType && !u.useDynamicIcons(c) {
+		return nil
+	}
+	return v
+}
+
+// typedExpr checks a compiled expression against the expected type, as
+// exprValue describes.
+func (u *unit) typedExpr(c vctx, t *texpr) *value {
 	e, ok := u.exprs[c.file+"#"+c.ptr]
 	if !ok {
 		u.internalError("expression at %s#%s was not type-checked", c.file, c.ptr)
@@ -569,6 +580,10 @@ func (u *unit) useIcon(c vctx, v *value, vt *registry.ValueType) bool {
 			name = e.value.s
 		case e.id == setField.ID && e.value.kind == fbs.ValueKindEnum:
 			set = icons.Set(enumName(setField.Type, e.value.i))
+		case e.value.kind == fbs.ValueKindExpr:
+			// An icon chosen at run time is one of the plugin's declared
+			// dynamic icons, whose glyphs the font carries.
+			return u.useDynamicIcons(c)
 		default:
 			u.report(plxerr.UnknownIcon, c.file, c.ptr, "an icon is written literally, so that its glyph is delivered")
 			return false
@@ -588,6 +603,50 @@ func (u *unit) useIcon(c vctx, v *value, vt *registry.ValueType) bool {
 	}
 	used[set][name] = true
 	return true
+}
+
+// useDynamicIcons admits an icon chosen at run time: the plugin declares the
+// icons its expressions may choose (dynamicIcons), and their glyphs join
+// the plugin's icon font, so a computed icon always has its glyph and the
+// font grows only by what is declared (THM-005).
+func (u *unit) useDynamicIcons(c vctx) bool {
+	if c.pl == nil || len(c.pl.doc.DynamicIcons) == 0 {
+		u.report(plxerr.UnknownIcon, c.file, c.ptr, "an icon chosen by an expression is one of the plugin's dynamicIcons, whose glyphs are delivered; declare them in the plugin, or write the icon literally")
+		return false
+	}
+	used := u.icons[c.pl]
+	if used == nil {
+		used = map[icons.Set]map[string]bool{}
+		u.icons[c.pl] = used
+	}
+	for _, d := range c.pl.doc.DynamicIcons {
+		set := icons.Material
+		if d.Set != "" {
+			set = icons.Set(d.Set)
+		}
+		if _, ok := icons.Lookup(set, d.Name); !ok {
+			continue // reported by checkDynamicIcons
+		}
+		if used[set] == nil {
+			used[set] = map[string]bool{}
+		}
+		used[set][d.Name] = true
+	}
+	return true
+}
+
+// checkDynamicIcons checks that every icon a plugin declares for its
+// expressions is a glyph of its set.
+func (u *unit) checkDynamicIcons(pl *plugin) {
+	for i, d := range pl.doc.DynamicIcons {
+		set := icons.Material
+		if d.Set != "" {
+			set = icons.Set(d.Set)
+		}
+		if _, ok := icons.Lookup(set, d.Name); !ok {
+			u.report(plxerr.UnknownIcon, pl.file, plxerr.Pointer("dynamicIcons", strconv.Itoa(i), "name"), "the %s icon set has no icon %q", set, d.Name)
+		}
+	}
 }
 
 // constantOrObject resolves a value type's constant by name, or returns

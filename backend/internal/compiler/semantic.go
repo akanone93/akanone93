@@ -48,6 +48,7 @@ func semantic(u *unit) {
 func (u *unit) checkPlugin(pl *plugin) {
 	if u.inFocus(pl.file) {
 		u.checkTriggers(pl.triggers, pl)
+		u.checkDynamicIcons(pl)
 	}
 	for _, c := range pl.components {
 		if u.inFocus(c.file) {

@@ -15,7 +15,9 @@ An icon is an `IconData` value: a `name` and a `set`, `material` (the default) o
 | `material` | Material Symbols Outlined, the variable font (axes `FILL`, `wght`, `GRAD`, `opsz`) | the names of [Material Symbols](https://fonts.google.com/icons?icon.set=Material+Symbols), e.g. `home`, `arrow_back` |
 | `cupertino` | the font of the `cupertino_icons` package | the member names of Flutter's `CupertinoIcons`, e.g. `left_chevron`, `share` |
 
-The names are checked at compile time: a name its set does not have is `PLX-1123`. An icon is written literally — never computed by an expression or translated — because the server delivers only the glyphs a bundle names (`PLX-1123` otherwise).
+The names are checked at compile time: a name its set does not have is `PLX-1123`. An icon is written literally, or chosen by an expression from the icons its plugin declares, because the server delivers only the glyphs a bundle names (`PLX-1123` otherwise).
+
+An icon read from data, such as a category's, is chosen by an expression: `{"$expr": "{\"name\": item.icon}"}`, or a `name` bound to one. The plugin lists the icons its expressions may choose in `dynamicIcons` (`[{"name": "school"}, {"name": "left_chevron", "set": "cupertino"}]`, material when `set` is absent); a plugin that binds an icon to an expression and declares none is `PLX-1123`, and so is a declared name its set lacks. Their glyphs join the plugin's icon font once an expression uses them, so the font grows only by what is declared. A name the expression gives at run time that the list lacks has no glyph: the runtime reports it and draws no icon.
 
 Icons Flutter mirrors in right-to-left text (`arrow_back`, `left_chevron` and the other directional icons) are mirrored in Plux pages too. The `Icon` widget's `fill`, `weight`, `grade` and `opticalSize` set the Material Symbols axes; the Cupertino font has none.
 
