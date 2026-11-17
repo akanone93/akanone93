@@ -338,11 +338,15 @@ type graph struct {
 	// eventSensitive is true when a handler running the graph has a
 	// sensitive payload: `event` is then a sensitive path (SCH-012).
 	eventSensitive bool
-	scope          *scope
-	lowered        []*step
-	navs           []navigation
-	output         string
-	used           bool
+	// items are the `item` and `index` roots of the item template an
+	// inline node handler sits in: the runtime runs the handler with the
+	// row it was built for (Appendix E.2). Nil outside item templates.
+	items   map[string]string
+	scope   *scope
+	lowered []*step
+	navs    []navigation
+	output  string
+	used    bool
 	// state are the run's variables (STA-001).
 	state []*stateEntry
 }

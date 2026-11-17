@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -295,6 +296,46 @@ func TestForEachBodyScope(t *testing.T) {
 		res := compileFS(m)
 		wantDiag(t, res, tc.code, listFile, "/"+button+"/steps/"+tc.step+"/input/"+tc.input)
 	}
+}
+
+// Verifies: PXL-002.
+// The handlers of an item template's nodes see the row they were built
+// for, `item` typed by the template's items and `index`, as the runtime
+// runs them (Appendix E.2); a handler outside any template does not.
+func TestItemTemplateHandlerScope(t *testing.T) {
+	t.Parallel()
+	const listFile = "plugins/tasks/pages/list.page.json"
+	const row = "root/slots/body/children/3/slots/item"
+	const outside = "root/slots/body/children/8/events/onPressed/steps/4/input/record/text"
+	for expr, code := range map[string]plxerr.Code{
+		"item + string(index)": 0,
+		"item.title":           plxerr.PXLTypeMismatch,  // item is a string
+		"index":                plxerr.PropTypeMismatch, // index is an int
+	} {
+		m := project(t, featuresDir)
+		edit(t, m, listFile, func(doc map[string]any) {
+			forEach := at(t, doc, "root/slots/body/children/3")
+			forEach["slots"].(map[string]any)["item"] = raw(t, `{
+				"id": "01b0c450-6c00-7000-8000-00000000a0f1", "type": "TextButton", "testId": "row",
+				"slots": {"child": {"id": "01b0c450-6c00-7000-8000-00000000a0f2", "type": "Text",
+					"props": {"data": {"$expr": "item"}}}},
+				"events": {"onPressed": {"steps": [{"id": "say", "action": "showSnackbar",
+					"input": {"message": {"$expr": `+strconv.Quote(expr)+`}}}]}}}`)
+		})
+		res := compileFS(m)
+		if code == 0 {
+			if len(res.Diagnostics) > 0 {
+				t.Errorf("%s:\n%s", expr, list(res.Diagnostics))
+			}
+			continue
+		}
+		wantDiag(t, res, code, listFile, "/"+row+"/events/onPressed/steps/0/input/message")
+	}
+	m := project(t, featuresDir)
+	edit(t, m, listFile, func(doc map[string]any) {
+		at(t, doc, "root/slots/body/children/8/events/onPressed/steps/4/input/record")["text"] = map[string]any{"$expr": "item"}
+	})
+	wantDiag(t, compileFS(m), plxerr.PXLUnknownIdentifier, listFile, "/"+outside)
 }
 
 // Verifies: PXL-002.

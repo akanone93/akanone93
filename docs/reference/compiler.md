@@ -50,7 +50,7 @@ Every expression is compiled against the roots of its use site (spec Appendix E.
 | `component`, `props` | a component definition and its inline graphs | the component's state entries and props |
 | `params` | a plugin flow | the flow's inputs |
 | `event` | an action graph run by handlers | the payload of the events that run it; all handlers of one graph must agree on it (`PLX-1113`) |
-| `item`, `index` | the nodes of an item template (`ListView.item`, `ForEach.item`, …) and the steps reachable from a `forEach` step's `body` branch | the element type of the bound items, and `int`; the innermost loop wins |
+| `item`, `index` | the nodes of an item template (`ListView.item`, `ForEach.item`, …), the inline handlers of those nodes, which run with the row their node was built for, and the steps reachable from a `forEach` step's `body` branch | the element type of the bound items, and `int`; the innermost loop wins. A handler gets the row, never an enclosing `If`'s narrowing, since it runs after the guarded value may have changed |
 | `steps.<id>` | action graph inputs | `output` (the action's output type, nullable: the step may not have run) and `error` (`PluxActionError?`) |
 | `data.<source>` | everywhere a data source is visible (app, plugin, page) | `value` (nullable), `loading`, `error` |
 | `flags`, `env`, `user` | everywhere | the app's flags, variables and user context; `user` also has the built-in `authenticated` (`bool`, the host auth delegate's answer, ADR-0040), so the user context cannot declare an attribute of that name (`PLX-1101`) |

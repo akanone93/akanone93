@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"math"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode"
@@ -250,8 +251,12 @@ func hasText(n *node) bool {
 	return false
 }
 
-// valueHasText reports whether a value-type object sets a text field.
+// valueHasText reports whether a value-type object sets a text field, or
+// a list holds such an object, such as a TabBar's labelled tabs.
 func valueHasText(v *value) bool {
+	if v != nil && v.kind == fbs.ValueKindList {
+		return slices.ContainsFunc(v.items, valueHasText)
+	}
 	if v == nil || v.kind != fbs.ValueKindObject || v.valueType == 0 {
 		return false
 	}

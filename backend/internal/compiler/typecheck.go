@@ -295,7 +295,7 @@ func (t *typer) page(pg *page, base *scope) {
 	t.formHandlers(pg.plugin, pg, pg.doc.Forms, pg.file, from, s)
 	for _, g := range pg.plugin.inline {
 		if g.page == pg {
-			t.graph(g, s)
+			t.graph(g, withItems(s, g.items))
 		}
 	}
 }
@@ -325,7 +325,7 @@ func (t *typer) component(c *component, base *scope) {
 	}
 	for _, g := range graphs {
 		if g.page == nil && g.file == c.file {
-			t.graph(g, s)
+			t.graph(g, withItems(s, g.items))
 		}
 	}
 }
@@ -337,7 +337,11 @@ func (t *typer) node(n *node, s *scope) {
 	t.nodeExprs(n, s)
 	t.bindTypeArgs(n)
 	for _, name := range sortedKeys(n.graphs) {
-		t.useGraph(n.graphs[name], t.payload(n, name), file, n.ptr+plxerr.Pointer("events", name))
+		g := n.graphs[name]
+		if g.inline {
+			g.items = itemRoots(s)
+		}
+		t.useGraph(g, t.payload(n, name), file, n.ptr+plxerr.Pointer("events", name))
 	}
 	for _, c := range n.children {
 		t.node(c, s)
@@ -348,6 +352,27 @@ func (t *typer) node(n *node, s *scope) {
 			t.node(c, inner)
 		}
 	}
+}
+
+// itemRoots returns the `item` and `index` roots of scope s, set by the
+// innermost item template around it, or nil outside templates. Only the
+// roots carry over to the handlers of a template's nodes, never an If's
+// narrowing: a handler runs later, when the guarded value may have
+// changed, but always with the row its node was built for.
+func itemRoots(s *scope) map[string]string {
+	item, ok := s.roots["item"]
+	if !ok {
+		return nil
+	}
+	return map[string]string{"item": item, "index": s.roots["index"]}
+}
+
+// withItems returns s with the item roots of an inline node handler.
+func withItems(s *scope, items map[string]string) *scope {
+	for _, root := range sortedKeys(items) {
+		s = s.with(root, items[root])
+	}
+	return s
 }
 
 // slotScope is the scope of a slot's nodes: item templates add `item`

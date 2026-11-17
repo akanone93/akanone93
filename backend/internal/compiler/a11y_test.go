@@ -355,6 +355,23 @@ func TestLiveRegion_A11Y_006(t *testing.T) {
 	}
 }
 
+// Verifies: A11Y-002.
+// A list of value-type objects names its node when an item sets a text
+// field, as a TabBar's labelled tabs do; icons alone do not.
+func TestListItemsGiveAccessibleNames_A11Y_002(t *testing.T) {
+	t.Parallel()
+	for segments, want := range map[string]int{
+		`[{"value": "a", "label": "List"}, {"value": "b", "icon": {"name": "map"}}]`:          0,
+		`[{"value": "a", "icon": {"name": "list"}}, {"value": "b", "icon": {"name": "map"}}]`: 1,
+	} {
+		node := `{"id": "%ID%", "type": "SegmentedButton", "props": {"segments": ` + segments + `, "selected": ["a"]}}`
+		res := compileFS(a11yProject(t, "standard", "#000000", "#FFFFFF", "["+node+"]"))
+		if got := findings(res, plxerr.AccessibleNameMissing); len(got) != want {
+			t.Errorf("%s: %d PLX-1401, want %d:\n%s", segments, len(got), want, list(res.Diagnostics))
+		}
+	}
+}
+
 // Verifies: A11Y-002, A11Y-003, A11Y-004.
 func TestSeverityFollowsTheProfile_A11Y_002(t *testing.T) {
 	t.Parallel()
