@@ -395,8 +395,11 @@ const ICON_THEMES: Readonly<Record<string, readonly [ColorRole, number]>> = {
   TextField: ["onSurfaceVariant", 24],
 };
 
-/** The icon theme `node`'s child in `slot` sees: its component's, an app bar's leading icon in `onSurface`. */
-function iconContextOf(node: PaintNode, slot: string | undefined, theme: PaintTheme, above: IconContext): IconContext {
+/**
+ * The icon and text colours a component sets for what it holds, whatever the slot: a control's foreground, or an app
+ * bar's foregroundColor, which Flutter's AppBar gives its title and its icons (build log #85).
+ */
+function ownForeground(node: PaintNode, theme: PaintTheme, above: IconContext): IconContext | undefined {
   const control = controlForeground(node, theme) ?? cupertinoForeground(node, theme);
   if (control !== undefined) {
     return {
@@ -404,6 +407,17 @@ function iconContextOf(node: PaintNode, slot: string | undefined, theme: PaintTh
       size: control.iconSize ?? above.size,
       ...(control.text === undefined ? {} : { text: control.text }),
     };
+  }
+  const bars = node.type === "AppBar" || node.type === "SliverAppBar";
+  const bar = bars ? resolveColor(node.props?.["foregroundColor"], theme) : undefined;
+  return bar === undefined ? undefined : { ...above, color: bar, size: 24, text: bar };
+}
+
+/** The icon theme `node`'s child in `slot` sees: its component's, an app bar's leading icon in `onSurface`. */
+function iconContextOf(node: PaintNode, slot: string | undefined, theme: PaintTheme, above: IconContext): IconContext {
+  const own = ownForeground(node, theme, above);
+  if (own !== undefined) {
+    return own;
   }
   const entry = ICON_THEMES[node.type ?? ""];
   const text = node.type === "ListTile" && slot === "subtitle" ? "onSurfaceVariant" : TEXT_THEMES[node.type ?? ""];
@@ -496,6 +510,30 @@ function partsPaintOf(
 /** `Colors.black54`: the scrim under a drawer or a modal route (Material's `DrawerThemeData` and `ModalBarrier`). */
 const SCRIM: Rgba = 0x0000008a;
 
+/** Scroll views that run across when their `scrollDirection` says so; a `PageView` does by default. */
+const acrossByDefault: ReadonlySet<string> = new Set(["PageView"]);
+const scrollViews: ReadonlySet<string> = new Set([
+  "SingleChildScrollView",
+  "ListView",
+  "GridView",
+  "CustomScrollView",
+  "PageView",
+  "ReorderableListView",
+]);
+
+/**
+ * A scroll view that runs across shows its content inside its own box, as Flutter clips a scroll view (`hardEdge`):
+ * the canvas lays the content out whole, and what lies past its end would otherwise be drawn beyond the device. A
+ * vertical one is drawn whole, its content past the device in the screen's overflow band (STU-056).
+ */
+function scrollClip(node: PaintNode, r: Rect): Rect | undefined {
+  const props = node.props ?? {};
+  const across =
+    props["scrollDirection"] === "horizontal" ||
+    (props["scrollDirection"] === undefined && acrossByDefault.has(node.type ?? ""));
+  return scrollViews.has(node.type ?? "") && across && props["clipBehavior"] !== "none" ? r : undefined;
+}
+
 /**
  * What a widget paints in its box `r`; a widget laid out over a scrim (a drawer shown open, a dialog or sheet page)
  * paints the scrim first, over everything below it (PC-12, PC-13).
@@ -504,10 +542,9 @@ function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap
   const scrim = rects.get(`${node.id}#scrim`);
   const viewport = rects.get(`${node.id}#viewport`);
   // A scroll view of a live screen shows its content only inside its viewport (PC-15).
-  const own =
-    viewport === undefined
-      ? ownPaintOf(node, r, theme, rects)
-      : { ...ownPaintOf(node, r, theme, rects), clip: viewport };
+  const across = viewport === undefined ? scrollClip(node, r) : undefined;
+  const clip = viewport ?? across;
+  const own = clip === undefined ? ownPaintOf(node, r, theme, rects) : { ...ownPaintOf(node, r, theme, rects), clip };
   if (scrim === undefined) {
     return own;
   }

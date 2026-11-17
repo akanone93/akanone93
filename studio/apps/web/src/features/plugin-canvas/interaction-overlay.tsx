@@ -39,6 +39,8 @@ export interface OverlayNodes {
   readonly resizable: (id: string) => boolean;
   /** The container the selection is inside (its scope), drawn faintly; null at the top level. */
   readonly scope: string | null;
+  /** The bottom of a screen's content below its frame (its overflow band, STU-056), by its root; none when it fits. */
+  readonly overflowBottom?: (root: string) => number | undefined;
   /** The device frame's corner radius in world units (PC-11); a generic phone's when absent. */
   readonly frameRadius?: number;
   /** A node's children, in order, whose padding and gaps the selection shows (PC-16). */
@@ -476,8 +478,10 @@ function ScreenCosts({ view, nodes }: { view: View; nodes: OverlayNodes }): Reac
       return [];
     }
     const words = c.text(cost);
+    // Below the screen's overflow band, when its content runs past the frame, so it never covers that content.
+    const foot = Math.max(b.b, nodes.overflowBottom?.(root) ?? b.b);
     return [
-      <span key={root} className="pc-cost" data-status={cost.status} title={words.title} style={point(b.r, b.b, view)}>
+      <span key={root} className="pc-cost" data-status={cost.status} title={words.title} style={point(b.r, foot, view)}>
         <span className="pc-cost-nodes">{words.nodes}</span>
         {words.timelines !== undefined && (
           <span className="pc-cost-part" data-kind="warning">

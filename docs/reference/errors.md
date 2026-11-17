@@ -964,7 +964,7 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 `CONTRAST_NOT_CHECKED` · info · Contrast not checked
 
-**Cause.** A colour or background depends on an expression, a gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003).
+**Cause.** A colour or background depends on an expression, a translucent colour or gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003). A gradient of known colours is checked against every colour it blends through.
 
 **Fix.** Check the contrast at run time, or use literal colours or theme tokens.
 

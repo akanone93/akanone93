@@ -117,8 +117,26 @@ function dataValue(expr: string, mocks: SourceMocks, states: Readonly<Record<str
 }
 
 /**
+ * The value of an expression that is a constant list or map literal written as JSON (`[{"name": "Nordvia"}]`), as a
+ * list's `items` holds before a data source feeds it (build log #83); undefined for anything else. Parsing runs no
+ * code, and only a list or a map is read, so a path such as `state.count` never reaches it.
+ */
+function constantLiteral(expr: string): unknown {
+  const text = expr.trim();
+  if (!(text.startsWith("[") || text.startsWith("{"))) {
+    return undefined;
+  }
+  try {
+    const value: unknown = JSON.parse(text);
+    return typeof value === "object" && value !== null ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * The value of one binding expression under the selected mock states, `undefined` when the expression is not a
- * plain path this module reads (it is left as it is) and `null` when the path reaches nothing.
+ * plain path or a constant literal this module reads (it is left as it is) and `null` when the path reaches nothing.
  */
 export function evaluateMockBinding(
   expr: string,
@@ -127,6 +145,10 @@ export function evaluateMockBinding(
   scope: DesignScope = emptyScope,
 ): unknown {
   // `null` (a path reaching nothing) is an answer; only `undefined` passes the expression to the next reader.
+  const constant = constantLiteral(expr);
+  if (constant !== undefined) {
+    return constant;
+  }
   const item = itemValue(expr, scope);
   if (item !== undefined) {
     return item;

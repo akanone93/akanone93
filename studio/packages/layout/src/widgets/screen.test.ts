@@ -185,6 +185,37 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(below?.y ?? 0).toBeGreaterThanOrEqual(200);
   });
 
+  test("a scroll view that runs across lays its content out whole, from its start edge (#92)", () => {
+    const strip: WidgetNode = {
+      id: "sv",
+      type: "SingleChildScrollView",
+      props: { scrollDirection: "horizontal" },
+      slots: {
+        child: {
+          id: "row",
+          type: "Row",
+          children: ["a", "b", "c"].map((id) => ({ id, type: "SizedBox", props: { width: 200, height: 50 } })),
+        },
+      },
+    };
+    const boxes = (textDirection: TextDirection) => {
+      const paint = { scheme: colorSchemeFromSeed(0xff6750a4, false) };
+      const layout = layoutScreen(strip, { engine, theme, paint, textDirection });
+      return (id: string) => layout.boxes.find((b) => b.id === id);
+    };
+    const ltr = boxes(TextDirection.ltr);
+    // The row is as wide as its three boxes, wider than the screen; the scroll view keeps the screen's width.
+    expect(ltr("row")?.w).toBe(600);
+    expect(ltr("sv")?.w).toBeLessThanOrEqual(390);
+    expect(ltr("a")?.x).toBe(ltr("sv")?.x ?? Number.NaN);
+    expect(ltr("b")?.x).toBe((ltr("a")?.x ?? 0) + 200);
+    // Right to left, the first box is at the scroll view's right edge, the others to its left.
+    const rtl = boxes(TextDirection.rtl);
+    const edge = (rtl("sv")?.x ?? 0) + (rtl("sv")?.w ?? 0);
+    expect((rtl("a")?.x ?? 0) + 200).toBeCloseTo(edge, 5);
+    expect(rtl("b")?.x).toBeCloseTo((rtl("a")?.x ?? 0) - 200, 5);
+  });
+
   test("sizes Material buttons, the FAB and list tiles as Flutter does (S4.3)", () => {
     const button = (id: string, type: string, props: Record<string, unknown>): WidgetNode => ({
       id,

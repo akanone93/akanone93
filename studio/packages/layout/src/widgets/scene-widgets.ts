@@ -559,6 +559,32 @@ function safeAreaScene(
 const part = (id: string, name: string): string => `${id}#${name}`;
 
 /**
+ * The content of a scroll view that runs across: laid out as wide as it is, free of the screen's width, and placed at
+ * the scroll view's start (its end when reversed), where Flutter's scroll offset 0 shows it — at the right in a
+ * right-to-left screen. The scroll view's painter clips it to the scroll view's box (build log #92).
+ */
+function across(
+  node: WidgetNode,
+  props: Record<string, unknown>,
+  own: { readonly children?: SceneNode[] },
+): { readonly children?: SceneNode[] } {
+  if (props["scrollDirection"] !== "horizontal" || own.children === undefined) {
+    return own;
+  }
+  const alignment = props["reverse"] === true ? "topEnd" : "topStart";
+  return {
+    children: [
+      {
+        id: `${node.id}.across`,
+        type: "UnconstrainedBox",
+        props: { constrainedAxis: "vertical", alignment },
+        children: own.children,
+      },
+    ],
+  };
+}
+
+/**
  * A faithful type as scene nodes: most are the scene's own; a `Container` is what Flutter's `build` makes of it
  * (margin, constraints, padding, alignment), and a scroll view, safe area or coloured box lays its child out padded.
  */
@@ -568,7 +594,12 @@ function faithfulScene(node: WidgetNode, props: Record<string, unknown>, childre
     case "Container":
       return containerScene(node.id, props, children);
     case "SingleChildScrollView":
-      return { id: node.id, type: "Padding", props: { padding: props["padding"] ?? ZERO }, ...own };
+      return {
+        id: node.id,
+        type: "Padding",
+        props: { padding: props["padding"] ?? ZERO },
+        ...across(node, props, own),
+      };
     case "ColoredBox":
       return { id: node.id, type: "Padding", props: { padding: ZERO }, ...own };
     case "ListView":

@@ -89,6 +89,7 @@ import {
   RenderStack,
   RenderTable,
   RenderTransform,
+  RenderUnconstrainedBox,
   RenderView,
   RenderViewport,
   RenderWrap,
@@ -214,6 +215,7 @@ export const boxTypes: ReadonlySet<string> = new Set([
   "FittedBox",
   "AspectRatio",
   "FractionallySizedBox",
+  "UnconstrainedBox",
   "Baseline",
   "IntrinsicWidth",
   "IntrinsicHeight",
@@ -858,6 +860,15 @@ function buildOtherBox(node: SceneNode, child: RenderBox | null, textDirection: 
       });
     case "AspectRatio":
       return new RenderAspectRatio({ aspectRatio: num(field(props, "aspectRatio"), "aspectRatio"), child });
+    case "UnconstrainedBox": {
+      const axis = field(props, "constrainedAxis");
+      return new RenderUnconstrainedBox({
+        alignment: alignment(field(props, "alignment")),
+        textDirection,
+        constrainedAxis: axis === Axis.horizontal || axis === Axis.vertical ? axis : null,
+        child,
+      });
+    }
     case "FractionallySizedBox":
       return new RenderFractionallySizedOverflowBox({
         alignment: alignment(field(props, "alignment")),

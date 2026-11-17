@@ -8,6 +8,7 @@
 /** Shifted boxes: fractionally sized overflow boxes and baseline-positioned boxes. */
 
 import { BoxConstraints } from "./constraints.ts";
+import { Axis } from "./flex.ts";
 import { type AlignmentGeometry, Offset, Size, type TextDirection } from "./geometry.ts";
 import { BoxParentData, type RenderBox, type TextBaseline } from "./render-box.ts";
 import { RenderAligningShiftedBox, RenderShiftedBox } from "./shifted-box.ts";
@@ -219,5 +220,53 @@ export class RenderBaseline extends RenderShiftedBox {
     if (child !== null && child.parentData instanceof BoxParentData) {
       child.parentData.offset = new Offset(0, top);
     }
+  }
+}
+
+/**
+ * Lays its child out free of the incoming constraints, except along `constrainedAxis` when one is given, sizes itself
+ * to the child within its own constraints, and aligns the child in it (`UnconstrainedBox`,
+ * `RenderConstraintsTransformBox` with the unconstrained transform). What overflows is left to an ancestor to clip.
+ */
+export class RenderUnconstrainedBox extends RenderAligningShiftedBox {
+  private readonly constrainedAxis: Axis | null;
+
+  constructor(options: {
+    alignment: AlignmentGeometry;
+    textDirection: TextDirection | null;
+    constrainedAxis: Axis | null;
+    child: RenderBox | null;
+  }) {
+    super(options);
+    this.constrainedAxis = options.constrainedAxis;
+  }
+
+  private childConstraints(c: BoxConstraints): BoxConstraints {
+    switch (this.constrainedAxis) {
+      case Axis.horizontal:
+        return new BoxConstraints({ minWidth: c.minWidth, maxWidth: c.maxWidth });
+      case Axis.vertical:
+        return new BoxConstraints({ minHeight: c.minHeight, maxHeight: c.maxHeight });
+      default:
+        return new BoxConstraints();
+    }
+  }
+
+  protected override computeDryLayout(constraints: BoxConstraints): Size {
+    const child = this.child;
+    return child === null
+      ? constraints.smallest
+      : constraints.constrain(child.getDryLayout(this.childConstraints(constraints)));
+  }
+
+  protected override performLayout(): void {
+    const child = this.child;
+    if (child === null) {
+      this.size = this.constraints.smallest;
+      return;
+    }
+    child.layout(this.childConstraints(this.constraints), { parentUsesSize: true });
+    this.size = this.constraints.constrain(child.size);
+    this.alignChild();
   }
 }

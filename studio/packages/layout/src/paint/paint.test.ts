@@ -119,6 +119,47 @@ describe("[STU-005] what each widget paints, in paint order", () => {
     expect(paints.get("faded")).toMatchObject({ role: "placeholder", opacity: 0.5 });
   });
 
+  test("a scroll view that runs across clips its content to its box; a vertical one shows it whole (STU-056)", () => {
+    const strip = (direction?: string): PaintNode => ({
+      id: "sv",
+      type: "SingleChildScrollView",
+      props: direction === undefined ? {} : { scrollDirection: direction },
+      slots: {
+        child: {
+          id: "row",
+          type: "Row",
+          children: [{ id: "far", type: "ColoredBox", props: { color: hex("00FF00") } }],
+        },
+      },
+    });
+    const at = new Map([
+      ["sv", { x: 0, y: 0, w: 390, h: 100 }],
+      ["row", { x: 0, y: 0, w: 900, h: 100 }],
+      ["far", { x: 600, y: 0, w: 300, h: 100 }],
+    ]);
+    expect(paintTree(strip("horizontal"), at, theme).get("far")?.clips).toEqual([{ x: 0, y: 0, w: 390, h: 100 }]);
+    expect(paintTree(strip(), at, theme).get("far")?.clips).toEqual([]);
+    const pages: PaintNode = { id: "sv", type: "PageView", children: [{ id: "far", type: "ColoredBox" }] };
+    expect(paintTree(pages, at, theme).get("far")?.clips).toEqual([{ x: 0, y: 0, w: 390, h: 100 }]);
+  });
+
+  test("an app bar's foregroundColor colours its title and its icons (#85)", () => {
+    const bar: PaintNode = {
+      id: "bar",
+      type: "AppBar",
+      props: { foregroundColor: { $token: "color.onPrimary" } },
+      slots: {
+        title: { id: "title", type: "Text", props: { data: "Apply" } },
+        actions: [{ id: "act", type: "Icon", props: { icon: { name: "translate" } } }],
+      },
+    };
+    const at = new Map(["bar", "title", "act"].map((id, i) => [id, { x: 0, y: i * 10, w: 100, h: 10 }]));
+    const painted = paintTree(bar, at, theme);
+    const on = argbToRgba(scheme.onPrimary);
+    expect(painted.get("title")?.textColor).toBe(on);
+    expect(painted.get("act")?.icon?.color).toBe(on);
+  });
+
   test("an IndexedStack paints only the child at its index", () => {
     expect(paints.get("a")?.role).toBe("hidden");
     expect(paints.get("b")?.role).toBe("text");

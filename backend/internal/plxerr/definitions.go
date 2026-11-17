@@ -620,7 +620,7 @@ var registry = []Definition{
 	},
 	{
 		ContrastNotChecked, "CONTRAST_NOT_CHECKED", SeverityInfo, "Contrast not checked",
-		"A colour or background depends on an expression, a gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003).",
+		"A colour or background depends on an expression, a translucent colour or gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003). A gradient of known colours is checked against every colour it blends through.",
 		"Check the contrast at run time, or use literal colours or theme tokens.", false,
 	},
 	{

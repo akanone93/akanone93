@@ -87,4 +87,27 @@ describe("PC-25 conditions on the canvas [SCH-023]", () => {
     const plain = { id: "c", type: "Column", children: [text("a")] };
     expect(draw(plain)).toBe(plain as unknown as Tree);
   });
+
+  test("a ForEach whose items are a constant list expression repeats its template with them (#83)", () => {
+    const row = {
+      id: "row",
+      type: "Row",
+      children: [
+        {
+          id: "fe",
+          type: "ForEach",
+          props: { items: { $expr: '[{"name": "Nordvia Bank"}, {"name": "Aster University"}]' } },
+          slots: { item: { id: "t", type: "Text", props: { data: { $expr: "item.name" } } } },
+        },
+      ],
+    };
+    const drawn = draw(row);
+    expect(drawn.children?.[0]).toMatchObject({ type: "Flex", props: { direction: "horizontal" } });
+    expect(drawn.children?.[0]?.children?.map((c) => c.props?.["data"])).toEqual(["Nordvia Bank", "Aster University"]);
+    // Anything but a list or a map literal is not read as one: a path, a number, broken JSON.
+    for (const items of ["state.rows", "[1, 2", "42"]) {
+      const other = { ...row, children: [{ ...row.children[0], props: { items: { $expr: items } } }] };
+      expect(draw(other).children?.[0]?.["type"]).toBe("ForEach");
+    }
+  });
 });

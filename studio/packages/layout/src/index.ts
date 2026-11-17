@@ -90,7 +90,7 @@ export {
   RenderPositionedBox,
   RenderShiftedBox,
 } from "./flutter/shifted-box.ts";
-export { RenderBaseline, RenderFractionallySizedOverflowBox } from "./flutter/shifted-boxes.ts";
+export { RenderBaseline, RenderFractionallySizedOverflowBox, RenderUnconstrainedBox } from "./flutter/shifted-boxes.ts";
 export {
   AxisDirection,
   applyGrowthDirectionToAxisDirection,

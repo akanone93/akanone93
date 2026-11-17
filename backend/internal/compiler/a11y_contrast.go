@@ -78,6 +78,16 @@ func contrastRatio(a, b rgb) float64 {
 	return (la + 0.05) / (lb + 0.05)
 }
 
+// worstContrast is the lowest contrast of fg against a background's colour
+// and the other colours its gradient shows.
+func worstContrast(fg rgb, bg background) float64 {
+	worst := contrastRatio(fg, bg.c)
+	for _, c := range bg.more {
+		worst = min(worst, contrastRatio(fg, c))
+	}
+	return worst
+}
+
 // parseHex parses #RGB, #RRGGBB and #RRGGBBAA.
 func parseHex(s string) (rgb, uint8, bool) {
 	if !strings.HasPrefix(s, "#") {
@@ -181,6 +191,9 @@ func (u *unit) tokenColor(path string, v variant, depth int) colorRes {
 // colour that is the default foreground on it.
 type background struct {
 	colorRes
+	// more holds the other colours a gradient shows behind the node: the
+	// contrast is the worst against any of them.
+	more   []rgb
 	fgRole string
 	// src is the ancestor that paints the background; nil for the theme's
 	// surface.
@@ -208,6 +221,9 @@ func (u *unit) backgroundBehind(n *node, v variant) background {
 		}
 		var r colorRes
 		switch {
+		case role == gradientFill:
+			r, more := u.gradientColours(raw, v)
+			return background{colorRes: r, more: more, fgRole: fg, src: a}
 		case set:
 			r = u.resolveColor(raw, v)
 		case role == "surfaceContainerLow":
@@ -225,6 +241,56 @@ func (u *unit) backgroundBehind(n *node, v variant) background {
 		return background{colorRes: r, fgRole: fg, src: a}
 	}
 	return background{colorRes: u.roleColor("surface", v), fgRole: "onSurface"}
+}
+
+// gradientFill is the role ownFill gives a box painted with a gradient: its
+// raw value is the gradient.
+const gradientFill = "gradient"
+
+// gradientColoursField is the Gradient value type's field of colours,
+// spelt as Flutter spells it.
+const gradientColoursField = "colors" //nolint:misspell // the registry's field name
+
+// gradientSamples is how many colours between two of a gradient's colours
+// the check measures. Flutter blends them in sRGB, where the darkest or the
+// lightest colour can lie between two of them.
+const gradientSamples = 16
+
+// gradientColours resolves the colours of a gradient for the contrast check:
+// the first, with every colour blended between each two after it; or the
+// reason it cannot be known (a colour that is an expression, translucent, or
+// none at all).
+func (u *unit) gradientColours(raw json.RawMessage, v variant) (colorRes, []rgb) {
+	var cols []json.RawMessage
+	if json.Unmarshal(objectFields(raw)[gradientColoursField], &cols) != nil || len(cols) == 0 {
+		return colorRes{reason: "the background is a gradient without colours"}, nil
+	}
+	stops := make([]rgb, 0, len(cols))
+	used := false
+	for _, col := range cols {
+		r := u.resolveColor(col, v)
+		switch {
+		case r.unknown():
+			return colorRes{reason: "a colour of the background gradient is unknown: " + r.reason, hostTheme: r.hostTheme}, nil
+		case !r.opaque:
+			return colorRes{reason: "the background gradient is translucent"}, nil
+		}
+		used = used || r.usedVar
+		stops = append(stops, r.c)
+	}
+	var more []rgb
+	for i := 1; i < len(stops); i++ {
+		for k := 1; k <= gradientSamples; k++ {
+			more = append(more, lerpRGB(stops[i-1], stops[i], float64(k)/gradientSamples))
+		}
+	}
+	return colorRes{c: stops[0], opaque: true, usedVar: used}, more
+}
+
+// lerpRGB blends two colours in sRGB, as Flutter's Color.lerp does.
+func lerpRGB(a, b rgb, t float64) rgb {
+	mix := func(x, y uint8) uint8 { return uint8(math.Round(float64(x) + (float64(y)-float64(x))*t)) }
+	return rgb{mix(a.r, b.r), mix(a.g, b.g), mix(a.b, b.b)}
 }
 
 // isFilledButton reports the buttons whose label is onPrimary on primary.
@@ -269,8 +335,8 @@ func propFill(p map[string]json.RawMessage, key, defaultRole string) (raw json.R
 func boxFill(p map[string]json.RawMessage) (raw json.RawMessage, role string, set bool, stop string) {
 	if dec, ok := p["decoration"]; ok {
 		f := objectFields(dec)
-		if _, g := f["gradient"]; g {
-			return nil, "", false, "the background is a gradient"
+		if g, ok := f["gradient"]; ok {
+			return g, gradientFill, false, ""
 		}
 		if c, ok := f["color"]; ok {
 			return c, "", true, ""
@@ -459,7 +525,7 @@ func checkContrastPair(s contrastSubject) contrastOutcome {
 		if v != variantLight && !fg.usedVar && !bg.usedVar {
 			continue
 		}
-		if ratio := contrastRatio(fg.c, bg.c); ratio < s.threshold {
+		if ratio := worstContrast(fg.c, bg); ratio < s.threshold {
 			fails = append(fails, fmt.Sprintf("%s %.2f:1", v.name(), ratio))
 		}
 	}

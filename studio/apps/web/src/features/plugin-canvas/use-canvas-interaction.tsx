@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Guides, ScreenStyle } from "@plux/canvas";
+import { type Guides, overflowId, type ScreenStyle } from "@plux/canvas";
 import { widget } from "@plux/schema";
 import { type ReactNode, type RefObject, useCallback, useMemo, useRef, useState } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
@@ -408,6 +408,10 @@ export function useCanvasInteraction(input: InteractionInput) {
       scope: selection.scope,
       ...(input.styled.chrome === undefined ? {} : { frameRadius: input.styled.chrome.radius }),
       childrenOf: (id) => index.children.get(id) ?? [],
+      overflowBottom: (root) => {
+        const screen = screenOf.get(root);
+        return screen === undefined ? undefined : surface()?.boundsOf?.(overflowId(screen))?.b;
+      },
       padded: (id) => PADDED.has(index.type.get(id) ?? "") && !repeats(screens, screenOf.get(id), id),
       dropText: {
         refused: (r, parent) => messages.dropRefused(r.reason, r.type, parent),
@@ -421,6 +425,7 @@ export function useCanvasInteraction(input: InteractionInput) {
     }),
     [
       boxOf,
+      surface,
       isScreen,
       resizable,
       selection.scope,

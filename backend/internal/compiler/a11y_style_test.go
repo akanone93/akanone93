@@ -62,3 +62,35 @@ func TestTextStyleBaseNeedsItsRuntime_WGT_004(t *testing.T) {
 		t.Fatalf("want one PLX-1119 at the style's base:\n%s", list(res.Diagnostics))
 	}
 }
+
+// A text over a gradient is checked against every colour the gradient
+// blends through, as Flutter blends them in sRGB: the darkest point can lie
+// between two of its colours (A11Y-003).
+//
+// Verifies: A11Y-003.
+func TestGradientBackgroundContrast_A11Y_003(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		name            string
+		colours, colour string
+		failing, notChk int
+	}{
+		{"white text on a dark gradient passes", `"#311B92", "#880E4F"`, `"#FFFFFF"`, 0, 0},
+		{"the darkest blend between two colours counts", `"#FF0000", "#00FF00"`, `"#141414"`, 1, 0},
+		{"both ends alone would pass that text", `"#FF0000", "#FF0000"`, `"#141414"`, 0, 0},
+		{"a translucent gradient is not checked", `"#FF000080", "#00FF00"`, `"#141414"`, 0, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			node := `[{"id": "%ID%", "type": "Container", "props": {"decoration": {"gradient": {"kind": "linear", "` + gradientColoursField + `": [` +
+				tc.colours + `]}}}, "slots": {"child": ` + text(`{"color": `+tc.colour+`}`, "") + `}}]`
+			res := compileFS(a11yProject(t, "standard", "#767676", "#EEEEEE", node))
+			if got := len(findings(res, plxerr.ContrastInsufficient)); got != tc.failing {
+				t.Errorf("got %d PLX-1403, want %d:\n%s", got, tc.failing, list(res.Diagnostics))
+			}
+			if got := len(findings(res, plxerr.ContrastNotChecked)); got != tc.notChk {
+				t.Errorf("got %d PLX-1409, want %d:\n%s", got, tc.notChk, list(res.Diagnostics))
+			}
+		})
+	}
+}
