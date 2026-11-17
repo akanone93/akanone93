@@ -612,7 +612,8 @@ function screenItems(
   const radius = style.chrome?.radius ?? DEFAULT_FRAME_RADIUS;
   const corners = { x: s.x, y: s.y, w: width, h: style.deviceHeight, r: radius };
   for (const b of boxes) {
-    items.push(...boxItems(s, b, paints, style, glyphs).map((item) => inCorners(item, corners)));
+    const made = boxItems(s, b, paints, style, glyphs);
+    items.push(...made.map((item) => inCorners(item, corners)), ...ghostItems(s, paintOfItems(b, paints), made));
   }
   return items;
 }
@@ -634,6 +635,92 @@ function inCorners(item: ItemSpec, f: { x: number; y: number; w: number; h: numb
   }
   const clip: ClipSpec = { x: f.x, y: f.y, w: f.w, h: f.h, radii: [f.r, f.r, f.r, f.r] };
   return { ...item, clips: [clip, ...(item.clips ?? [])] };
+}
+
+/**
+ * How a list's continuation past its edge fades: the share of the ghost region each band takes, nearest the edge first,
+ * and how opaque the items are in it.
+ */
+const GHOST_BANDS: readonly { readonly share: number; readonly opacity: number }[] = [
+  { share: 0.6, opacity: 0.45 },
+  { share: 0.4, opacity: 0.18 },
+];
+
+interface Rect {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+}
+
+/**
+ * The bands of a ghost region, the one touching the clip first: past its right or left edge (a list that runs across),
+ * or below it (the fade at the foot of a list in a fixed height), each band fainter than the one before.
+ */
+function ghostBands(clip: Rect, ghost: Rect): { readonly opacity: number; readonly rect: Rect }[] {
+  const side = ghost.y >= clip.y + clip.h - 0.5 ? "below" : ghost.x + ghost.w <= clip.x + 0.5 ? "left" : "right";
+  let from = 0;
+  return GHOST_BANDS.map((band) => {
+    const along = side === "below" ? ghost.h : ghost.w;
+    const size = along * band.share;
+    const at = from;
+    from += size;
+    const rect =
+      side === "below"
+        ? { x: ghost.x, y: ghost.y + at, w: ghost.w, h: size }
+        : side === "right"
+          ? { x: ghost.x + at, y: ghost.y, w: size, h: ghost.h }
+          : { x: ghost.x + ghost.w - at - size, y: ghost.y, w: size, h: ghost.h };
+    return { opacity: band.opacity, rect };
+  });
+}
+
+/**
+ * The faded copies of a box's items past the edge of the list that clips it (its clip's `ghost`): the same items at
+ * their real size, clipped to each band of the ghost region in turn, fainter further out. They belong to no frame, so
+ * they are neither read out nor cut to the device's corners; a click on one is a click on its widget (`~`).
+ */
+function ghostItems(s: ScreenDocument, paint: NodePaint | undefined, made: readonly ItemSpec[]): ItemSpec[] {
+  const at = paint?.clips.findIndex((c) => c.ghost !== undefined) ?? -1;
+  const ghost = at < 0 ? undefined : paint?.clips[at]?.ghost;
+  const clip = at < 0 ? undefined : paint?.clips[at];
+  if (ghost === undefined || clip === undefined) {
+    return [];
+  }
+  const bands = ghostBands(clip, ghost).map((b) => ({
+    opacity: b.opacity,
+    rect: { x: s.x + b.rect.x, y: s.y + b.rect.y, w: b.rect.w, h: b.rect.h },
+  }));
+  return made.flatMap((item) => {
+    // An item clipped as its widget's paint says, one clip for each: the list's clip is at the same place.
+    const kind = item.kind === "rect" || item.kind === "text";
+    if (!kind || item.clips === undefined || item.clips.length !== paint?.clips.length) {
+      return [];
+    }
+    const { frame: _frame, ...free } = item;
+    // Only what reaches into the region is copied: the items wholly inside the list draw nothing there.
+    // A text's height is its lines at its size: as many as it may wrap to, else one.
+    const h = item.kind === "rect" ? item.h : item.size * (item.height ?? 1.5) * (item.maxLines ?? 1);
+    const reaches = (b: Rect) => item.x < b.x + b.w && item.x + item.w > b.x && item.y < b.y + b.h && item.y + h > b.y;
+    return bands.flatMap((band, k): ItemSpec[] =>
+      reaches(band.rect)
+        ? [
+            {
+              ...free,
+              id: `${item.id}~ghost${k}`,
+              clips: (item.clips ?? []).map((c, i) => (i === at ? band.rect : c)),
+              opacity: (item.opacity ?? 1) * band.opacity,
+            },
+          ]
+        : [],
+    );
+  });
+}
+
+/** The paint a box's items are clipped by: its own, or for a part of a widget (`<id>#p…`), its widget's. */
+function paintOfItems(b: Placed, paints: ReadonlyMap<string, NodePaint>): NodePaint | undefined {
+  const cut = typeof b.id === "string" ? b.id.indexOf("#p") : -1;
+  return b.paint ?? (cut < 0 ? undefined : paints.get(b.id.slice(0, cut)));
 }
 
 /** The scene items of one laid-out box of a screen. */

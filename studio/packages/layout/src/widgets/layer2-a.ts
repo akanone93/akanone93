@@ -26,6 +26,7 @@ import type { TextStyle } from "../flutter/text-style.ts";
 import { RenderWrap, WrapAlignment } from "../flutter/wrap.ts";
 import { formatMoney, moneyOf } from "./layer2.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
+import { withNextPage } from "./structural.ts";
 
 function text(node: WidgetNode, name: string): string | undefined {
   const value = node.props?.[name];
@@ -432,15 +433,18 @@ const barChart: WidgetBuilder = (node, ctx) => {
   );
 };
 
-/** `Carousel`: a `PageView` as wide as the space and 16:9 of it high, its first page filling it; indicators float over it. */
+/**
+ * `Carousel`: a `PageView` as wide as the space and 16:9 of it high, its first page filling it, the next past its end;
+ * indicators float over it.
+ */
 const carousel: WidgetBuilder = (node, ctx) => {
   const width = ctx.available();
-  const page = node.children?.[0];
+  const height = (width * 9) / 16;
   return named(
     node,
     new RenderConstrainedBox({
-      additionalConstraints: BoxConstraints.tightFor({ width, height: (width * 9) / 16 }),
-      ...(page === undefined ? {} : { child: ctx.build(page) }),
+      additionalConstraints: BoxConstraints.tightFor({ width, height }),
+      child: withNextPage(ctx, node.children?.[0], node.children?.[1], height),
     }),
   );
 };

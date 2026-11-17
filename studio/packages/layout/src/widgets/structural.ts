@@ -11,10 +11,12 @@
  */
 
 import { BoxConstraints } from "../flutter/constraints.ts";
-import { Alignment } from "../flutter/geometry.ts";
+import { Axis, CrossAxisAlignment, MainAxisSize, RenderFlex } from "../flutter/flex.ts";
+import { Alignment, AlignmentDirectional, TextDirection } from "../flutter/geometry.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPositionedBox } from "../flutter/shifted-box.ts";
+import { RenderUnconstrainedBox } from "../flutter/shifted-boxes.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 import { paintedRichTextOf } from "./screen.ts";
 import { RESPONSIVE_FALLBACK, sizeClassOf } from "./size-class.ts";
@@ -95,11 +97,50 @@ const dataScope: WidgetBuilder = (node, ctx) => show(firstFilled(node, ["success
 const crossFade: WidgetBuilder = (node, ctx) =>
   show(slot(node, prop(node, "crossFadeState") === "showSecond" ? "secondChild" : "firstChild"), ctx);
 
-/** `TabBarView`: the child at `index` (the first by default). */
+/**
+ * A pager's page as the canvas shows it: `page` as wide as the space (and `height` high when given), and the `next`
+ * page laid out past its end, which the pager's painter clips to the pager's box and shows faded beyond it (build log
+ * #96). Without a next page, the page alone.
+ */
+export function withNextPage(
+  ctx: WidgetContext,
+  page: WidgetNode | undefined,
+  next: WidgetNode | undefined,
+  height?: number,
+): RenderBox {
+  const width = ctx.available();
+  const sized = (shown: WidgetNode | undefined) =>
+    new RenderConstrainedBox({
+      additionalConstraints: BoxConstraints.tightFor({ width, ...(height === undefined ? {} : { height }) }),
+      child: shown === undefined ? null : ctx.build(shown),
+    });
+  if (next === undefined) {
+    return sized(page);
+  }
+  const textDirection = ctx.textDirection ?? TextDirection.ltr;
+  return new RenderUnconstrainedBox({
+    alignment: AlignmentDirectional.topStart,
+    textDirection,
+    constrainedAxis: Axis.vertical,
+    child: new RenderFlex({
+      direction: Axis.horizontal,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      textDirection,
+      children: [sized(page), sized(next)],
+    }),
+  });
+}
+
+/** `TabBarView`: the child at `index` (the first by default), the next one past its end. */
 const tabBarView: WidgetBuilder = (node, ctx) => {
   const index = prop(node, "index");
   const children = node.children ?? [];
-  return show(children[typeof index === "number" ? index : 0] ?? children[0], ctx);
+  const at = typeof index === "number" && children[index] !== undefined ? index : 0;
+  // Its own box, so the canvas clips its pages to it and shows the next one faded past its edge.
+  const box = withNextPage(ctx, children[at], children[at + 1]);
+  box.debugId = node.id;
+  return box;
 };
 
 /** A labelled placeholder box: `width` and `height` when the node declares them, else the available width and the control height. */

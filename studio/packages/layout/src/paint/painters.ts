@@ -62,6 +62,8 @@ interface Painted {
   readonly texts?: readonly PaintText[];
   readonly glyphs?: readonly PlacedGlyph[];
   readonly clip?: PaintClip;
+  /** Whether `clip` cuts the widget's own paint too, not only its children's: a strip that paints its own parts. */
+  readonly clipOwn?: boolean;
   readonly opacity?: number;
 }
 
@@ -510,28 +512,108 @@ function partsPaintOf(
 /** `Colors.black54`: the scrim under a drawer or a modal route (Material's `DrawerThemeData` and `ModalBarrier`). */
 const SCRIM: Rgba = 0x0000008a;
 
-/** Scroll views that run across when their `scrollDirection` says so; a `PageView` does by default. */
-const acrossByDefault: ReadonlySet<string> = new Set(["PageView"]);
+/**
+ * The widgets whose content is expected to run past their box (build log #94–#97): lists and strips that scroll
+ * across, pagers whose next page waits past their edge, and scroll views squeezed into a fixed height. Each is
+ * clipped to its box, as Flutter clips a scroll view (`hardEdge`), and shows a little of what follows, faded, so the
+ * person sees it goes on: across, past its edge at the content's real size; down, over the last stretch inside its
+ * box, where a continuation below would cover the widgets under it. The screen's own scroll view is drawn whole
+ * instead, its content past the device in the overflow band (STU-056).
+ */
+const runsAcross: ReadonlySet<string> = new Set([
+  "PageView",
+  "TabBarView",
+  "Carousel",
+  "ImageGallery",
+  "OnboardingPager",
+  "FilterBar",
+]);
 const scrollViews: ReadonlySet<string> = new Set([
   "SingleChildScrollView",
   "ListView",
   "GridView",
   "CustomScrollView",
-  "PageView",
+  "NestedScrollView",
   "ReorderableListView",
+  ...runsAcross,
 ]);
+/** Widgets that paint what overflows themselves (their own parts), so their own paint is clipped too. */
+const ownParts: ReadonlySet<string> = new Set(["TabBar", "FilterBar"]);
+/** Parts of a widget's laid-out rectangles that are not its content. */
+const notContent = new Set(["viewport", "page", "scrim"]);
 
-/**
- * A scroll view that runs across shows its content inside its own box, as Flutter clips a scroll view (`hardEdge`):
- * the canvas lays the content out whole, and what lies past its end would otherwise be drawn beyond the device. A
- * vertical one is drawn whole, its content past the device in the screen's overflow band (STU-056).
- */
-function scrollClip(node: PaintNode, r: Rect): Rect | undefined {
+/** How much of a box's width its faded continuation may take past its edge; how far up from its foot a fade starts. */
+const GHOST_SHARE = 0.4;
+const FADE_MAX = 32;
+
+/** Whether `node` scrolls across: its `scrollDirection`, a pager's or a strip's own, a scrollable tab bar. */
+function scrollsAcross(node: PaintNode): boolean {
   const props = node.props ?? {};
-  const across =
+  if (node.type === "TabBar") {
+    return props["isScrollable"] === true;
+  }
+  return (
     props["scrollDirection"] === "horizontal" ||
-    (props["scrollDirection"] === undefined && acrossByDefault.has(node.type ?? ""));
-  return scrollViews.has(node.type ?? "") && across && props["clipBehavior"] !== "none" ? r : undefined;
+    (props["scrollDirection"] === undefined && runsAcross.has(node.type ?? ""))
+  );
+}
+
+/** The extent of `node`'s content: its children's rectangles and its own parts' (`<id>.…`, `<id>#…`). */
+function contentOf(node: PaintNode, rects: ReadonlyMap<string, Rect>): Rect | undefined {
+  const kids = slotEntries(node).flatMap(([, c]) => rects.get(c.id) ?? []);
+  const parts = ownParts.has(node.type ?? "")
+    ? [...rects].flatMap(([id, r]) =>
+        (id.startsWith(`${node.id}.`) || id.startsWith(`${node.id}#`)) && !notContent.has(id.split("#")[1] ?? "")
+          ? [r]
+          : [],
+      )
+    : [];
+  const all = [...kids, ...parts];
+  if (all.length === 0) {
+    return undefined;
+  }
+  const x = Math.min(...all.map((k) => k.x));
+  const y = Math.min(...all.map((k) => k.y));
+  return { x, y, w: Math.max(...all.map((k) => k.x + k.w)) - x, h: Math.max(...all.map((k) => k.y + k.h)) - y };
+}
+
+/** Across: the box, with the region past its edge where the content goes on, at most `GHOST_SHARE` of its width. */
+function acrossClip(r: Rect, content: Rect | undefined): PaintClip {
+  const reach = Math.round(r.w * GHOST_SHARE);
+  const after = content === undefined ? 0 : content.x + content.w - (r.x + r.w);
+  const before = content === undefined ? 0 : r.x - content.x;
+  if (after > 0.5) {
+    return { ...r, ghost: { x: r.x + r.w, y: r.y, w: Math.min(after, reach), h: r.h } };
+  }
+  if (before > 0.5) {
+    const w = Math.min(before, reach);
+    return { ...r, ghost: { x: r.x - w, y: r.y, w, h: r.h } };
+  }
+  return r;
+}
+
+/** Down, in a fixed height: the box above a fade at its foot, and the fade, where the content shows fainter. */
+function downClip(r: Rect, content: Rect | undefined): PaintClip | undefined {
+  if (content === undefined || content.y + content.h <= r.y + r.h + 0.5) {
+    return undefined;
+  }
+  const band = Math.min(FADE_MAX, Math.round(r.h / 4));
+  return { x: r.x, y: r.y, w: r.w, h: r.h - band, ghost: { x: r.x, y: r.y + r.h - band, w: r.w, h: band } };
+}
+
+/** The clip of a widget whose content runs past its box, with its faded continuation; undefined for any other. */
+function scrollClip(node: PaintNode, r: Rect, rects: ReadonlyMap<string, Rect>): PaintClip | undefined {
+  const type = node.type ?? "";
+  const scrolls = scrollViews.has(type) || ownParts.has(type);
+  if (!scrolls || node.props?.["clipBehavior"] === "none") {
+    return undefined;
+  }
+  const content = contentOf(node, rects);
+  if (scrollsAcross(node)) {
+    return acrossClip(r, content);
+  }
+  // The screen's own vertical scroll view is drawn whole, its content past the device in the overflow band.
+  return type === "TabBar" || rects.has(`${node.id}#page`) ? undefined : downClip(r, content);
 }
 
 /**
@@ -542,9 +624,13 @@ function paintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap
   const scrim = rects.get(`${node.id}#scrim`);
   const viewport = rects.get(`${node.id}#viewport`);
   // A scroll view of a live screen shows its content only inside its viewport (PC-15).
-  const across = viewport === undefined ? scrollClip(node, r) : undefined;
-  const clip = viewport ?? across;
-  const own = clip === undefined ? ownPaintOf(node, r, theme, rects) : { ...ownPaintOf(node, r, theme, rects), clip };
+  const runs = viewport === undefined ? scrollClip(node, r, rects) : undefined;
+  const clip = viewport ?? runs;
+  const clipOwn = runs !== undefined && ownParts.has(node.type ?? "");
+  const own =
+    clip === undefined
+      ? ownPaintOf(node, r, theme, rects)
+      : { ...ownPaintOf(node, r, theme, rects), clip, ...(clipOwn ? { clipOwn } : {}) };
   if (scrim === undefined) {
     return own;
   }
@@ -691,7 +777,7 @@ class TreePainter {
       boxes: painted.boxes ?? [],
       order: draws ? this.order++ : Math.max(0, this.order - 1),
       opacity,
-      clips,
+      clips: ownClips(painted, clips),
       ...(role === "text" ? { textColor: textColor(node, this.theme, own.text) } : {}),
       ...(icon === undefined ? {} : { icon }),
       ...(painted.texts === undefined || painted.texts.length === 0 ? {} : { texts: painted.texts }),
@@ -700,6 +786,11 @@ class TreePainter {
       ...(painted.lines === undefined || painted.lines.length === 0 ? {} : { lines: painted.lines }),
     });
   }
+}
+
+/** The clips of a widget's own paint: its ancestors', and its own clip when it cuts its own parts too. */
+function ownClips(painted: Painted, clips: readonly PaintClip[]): readonly PaintClip[] {
+  return painted.clipOwn === true && painted.clip !== undefined ? [...clips, painted.clip] : clips;
 }
 
 /**

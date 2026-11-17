@@ -24,6 +24,7 @@ import type { TextStyle } from "../flutter/text-style.ts";
 import { RenderWrap, WrapCrossAlignment } from "../flutter/wrap.ts";
 import { formatMoney, moneyOf } from "./layer2.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
+import { withNextPage } from "./structural.ts";
 
 function text(node: WidgetNode, name: string): string | undefined {
   const value = node.props?.[name];
@@ -248,10 +249,11 @@ const offlineBanner: WidgetBuilder = (node) =>
 const onboardingPager: WidgetBuilder = (node, ctx) => {
   const label = text(node, "nextLabel") ?? "Next";
   const pages = node.children ?? [];
-  const current = pages[Math.min(Math.max(0, count(node, "currentPage") ?? 0), pages.length - 1)];
+  const at = Math.min(Math.max(0, count(node, "currentPage") ?? 0), pages.length - 1);
+  // The current page, the next past its end (build log #96).
   const page = new RenderConstrainedBox({
     additionalConstraints: BoxConstraints.tightFor({ width: ctx.available(), height: 360 }),
-    child: current === undefined ? null : ctx.build(current),
+    child: withNextPage(ctx, pages[at], pages[at + 1], 360),
   });
   const indicators = new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ height: 16 }) });
   return target(

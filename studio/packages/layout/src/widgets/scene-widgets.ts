@@ -181,8 +181,16 @@ function sceneProps(type: string, props: Record<string, unknown>): Record<string
       return isRecord(props["constraints"]) ? { ...props["constraints"] } : {};
     case "DecoratedBox":
       return {};
-    case "GridView":
     case "PageView":
+      // A pixel of cache lays out the next page past the viewport, which the canvas shows faded (build log #96).
+      // A PageView pages across unless it says otherwise, the widget's default (build log #98).
+      return {
+        ...props,
+        shrinkWrap: true,
+        scrollDirection: props["scrollDirection"] ?? "horizontal",
+        cacheExtent: props["cacheExtent"] ?? 1,
+      };
+    case "GridView":
     case "CustomScrollView":
     case "NestedScrollView":
     case "ReorderableListView":

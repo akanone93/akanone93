@@ -65,6 +65,11 @@ export type BorderPaint =
 export interface PaintClip extends Rect {
   readonly radii?: Radii;
   readonly oval?: boolean;
+  /**
+   * Past the clip, the region where what it cuts off is still shown, faded: a list's continuation beyond its edge, so
+   * the person sees the list goes on (a horizontal list's next items, at their real size).
+   */
+  readonly ghost?: Rect;
 }
 
 /** One painted box. */

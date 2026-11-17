@@ -100,7 +100,12 @@ export class RenderPageBody extends RenderShiftedBox {
 export function pageBody(child: RenderBox, node: WidgetNode, ctx: WidgetContext): RenderBox {
   const scrolls = SCROLLING.has(node.type ?? "");
   if (ctx.live === undefined || !scrolls) {
-    return new RenderPageBody(child, scrolls);
+    const body = new RenderPageBody(child, scrolls);
+    // The screen's own scroll view: its content past the device goes in the overflow band, not faded in its box.
+    if (scrolls) {
+      body.debugId = `${node.id}#page`;
+    }
+    return body;
   }
   const extent: ScrollExtent = { node: node.id, max: 0 };
   ctx.live.push(extent);

@@ -137,10 +137,21 @@ describe("[STU-005] what each widget paints, in paint order", () => {
       ["row", { x: 0, y: 0, w: 900, h: 100 }],
       ["far", { x: 600, y: 0, w: 300, h: 100 }],
     ]);
-    expect(paintTree(strip("horizontal"), at, theme).get("far")?.clips).toEqual([{ x: 0, y: 0, w: 390, h: 100 }]);
+    // What runs past the strip shows faded beyond its edge, at most 40 % of its width (the clip's ghost).
+    expect(paintTree(strip("horizontal"), at, theme).get("far")?.clips).toEqual([
+      { x: 0, y: 0, w: 390, h: 100, ghost: { x: 390, y: 0, w: 156, h: 100 } },
+    ]);
     expect(paintTree(strip(), at, theme).get("far")?.clips).toEqual([]);
+    // Squeezed into a fixed height, a vertical one fades over its foot, inside its box.
+    const tall = new Map([...at, ["row", { x: 0, y: 0, w: 390, h: 300 }]]);
+    expect(paintTree(strip(), tall, theme).get("far")?.clips).toEqual([
+      { x: 0, y: 0, w: 390, h: 75, ghost: { x: 0, y: 75, w: 390, h: 25 } },
+    ]);
     const pages: PaintNode = { id: "sv", type: "PageView", children: [{ id: "far", type: "ColoredBox" }] };
-    expect(paintTree(pages, at, theme).get("far")?.clips).toEqual([{ x: 0, y: 0, w: 390, h: 100 }]);
+    // A page view's next page waits past its edge, shown faded as well.
+    expect(paintTree(pages, at, theme).get("far")?.clips).toEqual([
+      { x: 0, y: 0, w: 390, h: 100, ghost: { x: 390, y: 0, w: 156, h: 100 } },
+    ]);
   });
 
   test("an app bar's foregroundColor colours its title and its icons (#85)", () => {

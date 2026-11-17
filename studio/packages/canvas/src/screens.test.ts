@@ -285,6 +285,130 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     engine.dispose();
   });
 
+  test("[STU-056] a list that runs past the screen shows a little of what follows, faded, at its real size", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const card = (id: string): WidgetNode => ({
+      id,
+      type: "Container",
+      props: { width: 200, height: 80, decoration: { color: { $token: "color.primary" } } },
+    });
+    const strip = (type: string, props: Record<string, unknown>): WidgetNode => ({
+      id: "sv",
+      type,
+      props: { scrollDirection: "horizontal", ...props },
+      slots: { child: { id: "row", type: "Row", children: [card("a"), card("b"), card("c")] } },
+    });
+    const drawn = (root: WidgetNode, direction = TextDirection.ltr) => {
+      const out = layoutScreens(
+        [{ id: "s", title: "S", x: 0, y: 0, root }],
+        { ...style, paint: { scheme }, textDirection: direction },
+        engine,
+      );
+      return new Map(out.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])));
+    };
+    const items = drawn(strip("SingleChildScrollView", {}));
+    const rect = (id: string) => {
+      const item = items.get(id);
+      return item?.kind === "rect" ? item : undefined;
+    };
+    // The second card crosses the strip's edge: drawn inside it, and faded past it; the third fades further out.
+    const own = rect("s/b#paint0");
+    const near = rect("s/b#paint0~ghost0");
+    const far = rect("s/c#paint0~ghost1");
+    expect(own).toMatchObject({ kind: "rect", w: 200 });
+    expect(near).toMatchObject({ kind: "rect", w: 200, opacity: 0.45 });
+    expect(far).toMatchObject({ kind: "rect", w: 200, opacity: 0.18 });
+    expect(near).not.toHaveProperty("frame");
+    const edge = (own?.clips?.[0]?.x ?? 0) + (own?.clips?.[0]?.w ?? 0);
+    expect(near?.clips?.[0]?.x).toBeCloseTo(edge, 5);
+    expect(far?.clips?.[0]?.x).toBeCloseTo(edge + (near?.clips?.[0]?.w ?? 0), 5);
+    // At most 40 % of the strip's width shows past it.
+    expect((near?.clips?.[0]?.w ?? 0) + (far?.clips?.[0]?.w ?? 0)).toBeCloseTo((own?.clips?.[0]?.w ?? 0) * 0.4, 0);
+    // Right to left, the ghost is on the strip's left.
+    const rtl = drawn(strip("SingleChildScrollView", {}), TextDirection.rtl);
+    const rtlRect = (id: string) => {
+      const item = rtl.get(id);
+      return item?.kind === "rect" ? item : undefined;
+    };
+    const rtlNear = rtlRect("s/b#paint0~ghost0");
+    expect((rtlNear?.clips?.[0]?.x ?? 0) + (rtlNear?.clips?.[0]?.w ?? 0)).toBeCloseTo(
+      rtlRect("s/b#paint0")?.clips?.[0]?.x ?? Number.NaN,
+      5,
+    );
+    // The first card lies wholly inside the strip: nothing of it is copied.
+    expect(items.has("s/a#paint0~ghost0")).toBe(false);
+    // A page view's next page waits past its edge: it shows faded too.
+    const pages = drawn({ id: "sv", type: "PageView", children: [card("a"), card("b")] });
+    expect([...pages.keys()].some((id) => id.startsWith("s/b#paint0~ghost"))).toBe(true);
+    engine.dispose();
+  });
+
+  test("[STU-056] every widget expected to run past its box is clipped there and shows what follows, faded", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const cases: Record<string, WidgetNode> = {
+      // A scrollable tab bar and a filter bar paint their own tabs and chips.
+      tabs: {
+        id: "x",
+        type: "TabBar",
+        props: { isScrollable: true, tabs: Array.from({ length: 8 }, (_, i) => ({ label: `Category ${i}` })) },
+      },
+      filters: {
+        id: "x",
+        type: "FilterBar",
+        props: { filters: Array.from({ length: 8 }, (_, i) => ({ label: `Filter ${i}`, value: `f${i}` })) },
+      },
+      // Pagers: the next page waits past the edge, across (a PageView's default axis).
+      pages: { id: "x", type: "PageView", children: [text("p0", "Page zero"), text("p1", "Page one")] },
+      carousel: { id: "x", type: "Carousel", children: [text("p0", "Slide zero"), text("p1", "Slide one")] },
+      tabView: { id: "x", type: "TabBarView", children: [text("p0", "First tab"), text("p1", "Second tab")] },
+      // A list squeezed into a fixed height: it fades over its foot, inside its box, never over what follows.
+      squeezed: {
+        id: "col",
+        type: "Column",
+        children: [
+          {
+            id: "x",
+            type: "SizedBox",
+            props: { height: 120 },
+            slots: {
+              child: {
+                id: "lv",
+                type: "ListView",
+                children: Array.from({ length: 10 }, (_, i) => text(`i${i}`, `Item ${i}`)),
+              },
+            },
+          },
+          text("after", "Below the list"),
+        ],
+      },
+    };
+    const drawn = (root: WidgetNode) => {
+      const out = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+      return out.ops.flatMap((op) => (op.op === "add" ? [op.item] : []));
+    };
+    const reach = (item: { kind: string; x: number; w?: number; clips?: readonly { x: number; w: number }[] }) =>
+      Math.min(item.x + (item.w ?? 0), ...(item.clips ?? []).map((c) => c.x + c.w));
+    for (const [name, root] of Object.entries(cases)) {
+      const items = drawn(root);
+      const ghosts = items.filter((i) => i.id.includes("~ghost"));
+      // Nothing is drawn past the screen's side at full strength; something is drawn there faded.
+      const loose = items.filter(
+        (i) => i.kind !== "frame" && !i.id.includes("~ghost") && reach(i as never) > (style.theme.width ?? 390) + 1,
+      );
+      expect({ name, loose: loose.map((i) => i.id) }).toEqual({ name, loose: [] });
+      expect({ name, ghosts: ghosts.length > 0 }).toEqual({ name, ghosts: true });
+    }
+    // The squeezed list's fade is inside its 120 px: the text below it is never covered.
+    const squeezed = drawn(cases["squeezed"] as WidgetNode);
+    const fade = squeezed
+      .filter((i) => i.id.includes("~ghost"))
+      .flatMap((i) => (i.kind === "text" ? (i.clips ?? []) : []));
+    expect(Math.max(...fade.map((c) => c.y + c.h))).toBeLessThanOrEqual(120.5);
+    engine.dispose();
+  });
+
   test("[I18N-010] a painted screen reports the widgets whose text does not fit its box, a cut line included (PC-32)", () => {
     const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
     const scheme = colorSchemeFromSeed(0xff6750a4, false);
