@@ -1950,12 +1950,12 @@ var registry = []Definition{
 	},
 	{
 		FunctionDependencyNotVendored, "FUNCTION_DEPENDENCY_NOT_VENDORED", SeverityError, "Function dependency not vendored",
-		"The source archive lacks a dependency under `vendor/`, and builds are offline and locked (FN-016).",
-		"Run `cargo vendor` and include the result in the archive.", false,
+		"A dependency the lock file names was not sent as its published crate archive, an archive does not match its checksum or is malformed, or the source holds a `vendor/` directory; builds are offline and locked (FN-003, FN-016, ADR-0105).",
+		"Deploy with `plux fn deploy`, which runs `cargo fetch` and sends the published archive of every crates.io dependency; remove any `vendor/` directory from the source.", false,
 	},
 	{
 		FunctionBuildScriptRefused, "FUNCTION_BUILD_SCRIPT_REFUSED", SeverityError, "Function build script refused",
-		"A dependency uses a build script or procedural macro that is not on the builder's allowlist (FN-016).",
+		"A dependency uses a build script or procedural macro that is not on the builder's allowlist, does not come from crates.io, or is not the published archive the allowlist pins (FN-016, ADR-0105).",
 		"Remove the dependency, or ask the operator to review and allowlist it.", false,
 	},
 	{

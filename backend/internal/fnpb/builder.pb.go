@@ -29,10 +29,10 @@ type BuildRequest struct {
 	// build_id names the build in the builder's logs.
 	BuildId string `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
 	// source is the whole gzip-compressed tar archive: Cargo.toml, Cargo.lock,
-	// src/, vendor/ and function.json at its root. It travels in the request,
-	// not as a pre-signed object-store URL, so that the builder needs no route
-	// to the object store; the request is bounded by the registry maximum of
-	// function.sourceArchiveSize.
+	// src/ and function.json at its root. It travels in the request, with
+	// crates, not as a pre-signed object-store URL, so that the builder needs
+	// no route to the object store; the request is bounded by the registry
+	// maximum of function.sourceArchiveSize.
 	Source []byte `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
 	// source_sha256 is the hex SHA-256 of source, which the builder verifies.
 	SourceSha256 string `protobuf:"bytes,3,opt,name=source_sha256,json=sourceSha256,proto3" json:"source_sha256,omitempty"`
@@ -41,8 +41,13 @@ type BuildRequest struct {
 	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	// placement is the placement asked for, or empty for the one function.json
 	// declares (PLX-7205).
-	Placement     string       `protobuf:"bytes,5,opt,name=placement,proto3" json:"placement,omitempty"`
-	Limits        *BuildLimits `protobuf:"bytes,6,opt,name=limits,proto3" json:"limits,omitempty"`
+	Placement string       `protobuf:"bytes,5,opt,name=placement,proto3" json:"placement,omitempty"`
+	Limits    *BuildLimits `protobuf:"bytes,6,opt,name=limits,proto3" json:"limits,omitempty"`
+	// crates are the `.crate` archives, as crates.io publishes them, of the
+	// crates.io packages the source's Cargo.lock names, each once. The builder
+	// checks each against its checksum and makes vendor/ from them (FN-003,
+	// ADR-0105).
+	Crates        [][]byte `protobuf:"bytes,7,rep,name=crates,proto3" json:"crates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -115,6 +120,13 @@ func (x *BuildRequest) GetPlacement() string {
 func (x *BuildRequest) GetLimits() *BuildLimits {
 	if x != nil {
 		return x.Limits
+	}
+	return nil
+}
+
+func (x *BuildRequest) GetCrates() [][]byte {
+	if x != nil {
+		return x.Crates
 	}
 	return nil
 }
@@ -556,10 +568,15 @@ type LinkRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// link_id names the link in the builder's logs.
 	LinkId string `protobuf:"bytes,1,opt,name=link_id,json=linkId,proto3" json:"link_id,omitempty"`
-	// sources are the archives to link, one per function. Their total size is
-	// bounded by the registry maximum of function.sourceArchiveSize.
-	Sources       []*LinkSource `protobuf:"bytes,2,rep,name=sources,proto3" json:"sources,omitempty"`
-	Limits        *BuildLimits  `protobuf:"bytes,3,opt,name=limits,proto3" json:"limits,omitempty"`
+	// sources are the archives to link, one per function. Their total size,
+	// with crates, is bounded by the registry maximum of
+	// function.sourceArchiveSize.
+	Sources []*LinkSource `protobuf:"bytes,2,rep,name=sources,proto3" json:"sources,omitempty"`
+	Limits  *BuildLimits  `protobuf:"bytes,3,opt,name=limits,proto3" json:"limits,omitempty"`
+	// crates are the `.crate` archives the sources' lock files name, each
+	// once however many sources name it; each source is given those its own
+	// Cargo.lock names (FN-003, ADR-0105).
+	Crates        [][]byte `protobuf:"bytes,4,rep,name=crates,proto3" json:"crates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -611,6 +628,13 @@ func (x *LinkRequest) GetSources() []*LinkSource {
 func (x *LinkRequest) GetLimits() *BuildLimits {
 	if x != nil {
 		return x.Limits
+	}
+	return nil
+}
+
+func (x *LinkRequest) GetCrates() [][]byte {
+	if x != nil {
+		return x.Crates
 	}
 	return nil
 }
@@ -828,7 +852,10 @@ type LanguageOpenRequest struct {
 	// memory_bytes is the address space the language server may map; the role
 	// uses the smaller of it and the registry maximum of
 	// `function.buildMemory`.
-	MemoryBytes   uint64 `protobuf:"varint,6,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
+	MemoryBytes uint64 `protobuf:"varint,6,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
+	// crates are the `.crate` archives the source's Cargo.lock names, as for a
+	// build (ADR-0105).
+	Crates        [][]byte `protobuf:"bytes,7,rep,name=crates,proto3" json:"crates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -903,6 +930,13 @@ func (x *LanguageOpenRequest) GetMemoryBytes() uint64 {
 		return x.MemoryBytes
 	}
 	return 0
+}
+
+func (x *LanguageOpenRequest) GetCrates() [][]byte {
+	if x != nil {
+		return x.Crates
+	}
+	return nil
 }
 
 // LanguageOpenResponse is one event of a session's server stream.
@@ -1319,14 +1353,15 @@ var File_plux_internal_fn_v1_builder_proto protoreflect.FileDescriptor
 
 const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\n" +
-	"!plux/internal/fn/v1/builder.proto\x12\x13plux.internal.fn.v1\"\xd2\x01\n" +
+	"!plux/internal/fn/v1/builder.proto\x12\x13plux.internal.fn.v1\"\xea\x01\n" +
 	"\fBuildRequest\x12\x19\n" +
 	"\bbuild_id\x18\x01 \x01(\tR\abuildId\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\fR\x06source\x12#\n" +
 	"\rsource_sha256\x18\x03 \x01(\tR\fsourceSha256\x12\x12\n" +
 	"\x04name\x18\x04 \x01(\tR\x04name\x12\x1c\n" +
 	"\tplacement\x18\x05 \x01(\tR\tplacement\x128\n" +
-	"\x06limits\x18\x06 \x01(\v2 .plux.internal.fn.v1.BuildLimitsR\x06limits\"O\n" +
+	"\x06limits\x18\x06 \x01(\v2 .plux.internal.fn.v1.BuildLimitsR\x06limits\x12\x16\n" +
+	"\x06crates\x18\a \x03(\fR\x06crates\"O\n" +
 	"\vBuildLimits\x12\x1d\n" +
 	"\n" +
 	"timeout_ms\x18\x01 \x01(\rR\ttimeoutMs\x12!\n" +
@@ -1364,11 +1399,12 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x0fBuildTestResult\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06passed\x18\x02 \x01(\bR\x06passed\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\x9b\x01\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xb3\x01\n" +
 	"\vLinkRequest\x12\x17\n" +
 	"\alink_id\x18\x01 \x01(\tR\x06linkId\x129\n" +
 	"\asources\x18\x02 \x03(\v2\x1f.plux.internal.fn.v1.LinkSourceR\asources\x128\n" +
-	"\x06limits\x18\x03 \x01(\v2 .plux.internal.fn.v1.BuildLimitsR\x06limits\"]\n" +
+	"\x06limits\x18\x03 \x01(\v2 .plux.internal.fn.v1.BuildLimitsR\x06limits\x12\x16\n" +
+	"\x06crates\x18\x04 \x03(\fR\x06crates\"]\n" +
 	"\n" +
 	"LinkSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
@@ -1385,14 +1421,15 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x10diagnostics_json\x18\x05 \x01(\fR\x0fdiagnosticsJson\":\n" +
 	"\x0eLinkedFunction\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05index\x18\x02 \x01(\rR\x05index\"\xd0\x01\n" +
+	"\x05index\x18\x02 \x01(\rR\x05index\"\xe8\x01\n" +
 	"\x13LanguageOpenRequest\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\fR\x06source\x12#\n" +
 	"\rsource_sha256\x18\x02 \x01(\tR\fsourceSha256\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1c\n" +
 	"\tplacement\x18\x04 \x01(\tR\tplacement\x12'\n" +
 	"\x0fsession_minutes\x18\x05 \x01(\rR\x0esessionMinutes\x12!\n" +
-	"\fmemory_bytes\x18\x06 \x01(\x04R\vmemoryBytes\"\xb9\x01\n" +
+	"\fmemory_bytes\x18\x06 \x01(\x04R\vmemoryBytes\x12\x16\n" +
+	"\x06crates\x18\a \x03(\fR\x06crates\"\xb9\x01\n" +
 	"\x14LanguageOpenResponse\x12=\n" +
 	"\x06opened\x18\x01 \x01(\v2#.plux.internal.fn.v1.LanguageOpenedH\x00R\x06opened\x12\x1a\n" +
 	"\amessage\x18\x02 \x01(\fH\x00R\amessage\x12=\n" +

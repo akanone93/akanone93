@@ -4,13 +4,14 @@
 package builder
 
 import (
+	"encoding/json"
 	"flag"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"testing"
-	"testing/fstest"
 
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
@@ -41,7 +42,7 @@ func golden(t *testing.T, name string, got []byte) {
 // prepared returns the two fixture functions, sorted.
 func prepared(t *testing.T) []preparedFunction {
 	t.Helper()
-	funcs, err := prepareSources(twoFunctions())
+	funcs, err := prepareSources(twoFunctions(), 1<<20)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,12 +64,12 @@ func TestGeneratedWorkspaceFilesMatchTheGoldenFiles_FN_019(t *testing.T) {
 
 // Verifies: FN-003.
 func TestStageWorkspaceMergesVendorDirectories_FN_003(t *testing.T) {
-	other := lockPackage{Name: "itoa", Version: "1.0.18", Source: cratesIOSource, Checksum: "c9"}
+	other := registryCrate("itoa", "1.0.18")
 	srcs := []FunctionSource{
 		fnSource("a.one", "one", PlacementDevice, serdeLock),
 		fnSource("b.two", "two", PlacementDevice, serdeLock, other),
 	}
-	funcs, err := prepareSources(srcs)
+	funcs, err := prepareSources(srcs, 1<<20)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +103,7 @@ func TestStageWorkspaceMergesVendorDirectories_FN_003(t *testing.T) {
 // Verifies: FN-003.
 func TestSourceHashCoversEveryFileIncludingVendor_FN_003(t *testing.T) {
 	hash := func(s FunctionSource) string {
-		funcs, err := prepareSources([]FunctionSource{s})
+		funcs, err := prepareSources([]FunctionSource{s}, 1<<20)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -113,10 +114,9 @@ func TestSourceHashCoversEveryFileIncludingVendor_FN_003(t *testing.T) {
 		return h.source
 	}
 	base := hash(fnSource("a.one", "one", PlacementDevice, serdeLock))
-	edited := fnSource("a.one", "one", PlacementDevice, serdeLock)
-	edited.Files.(fstest.MapFS)["vendor/serde/src/lib.rs"] = &fstest.MapFile{Data: []byte("// tampered\n")}
+	edited := withCrate(fnSource("a.one", "one", PlacementDevice, serdeLock), "serde", "1.0.229", "// another release\n")
 	if hash(edited) == base {
-		t.Error("a change in a vendored file did not change the source hash")
+		t.Error("another archive of a dependency did not change the source hash")
 	}
 	renamed := hash(fnSource("a.two", "one", PlacementDevice, serdeLock))
 	if renamed == base {
@@ -126,12 +126,10 @@ func TestSourceHashCoversEveryFileIncludingVendor_FN_003(t *testing.T) {
 
 // Verifies: FN-003.
 func TestVendorChecksumConflictIsPLX7201_FN_003(t *testing.T) {
-	other := serdeLock
-	other.Checksum = "different"
 	funcs, err := prepareSources([]FunctionSource{
 		fnSource("a.one", "one", PlacementDevice, serdeLock),
-		fnSource("b.two", "two", PlacementDevice, other),
-	})
+		withCrate(fnSource("b.two", "two", PlacementDevice, serdeLock), "serde", "1.0.229", "// another archive\n"),
+	}, 1<<20)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,21 +143,31 @@ func TestVendorChecksumConflictIsPLX7201_FN_003(t *testing.T) {
 }
 
 // Verifies: FN-003.
-func TestVendorWithoutRegistryChecksumsMustBeIdentical_FN_003(t *testing.T) {
-	mk := func(sum string) FunctionSource {
-		s := fnSource("a", "a", PlacementDevice, serdeLock)
-		s.Files.(fstest.MapFS)["vendor/serde/.cargo-checksum.json"] = &fstest.MapFile{Data: []byte(sum)}
-		return s
-	}
-	a, b := mk(`{"files":{"x":"1"},"package":null}`), mk(`{"files":{"x":"2"},"package":null}`)
-	b.Name, b.Placement = "b", PlacementDevice
-	b.Files.(fstest.MapFS)["Cargo.toml"] = &fstest.MapFile{Data: []byte("[package]\nname = \"b\"\n")}
-	funcs, err := prepareSources([]FunctionSource{a, b})
+// vendor/ is the builder's own: its checksum files are written from the bytes
+// the builder extracted, with the archive's SHA-256 as the package checksum,
+// so Cargo checks every vendored file against the verified archive.
+func TestVendorIsWrittenFromTheVerifiedArchives_FN_003(t *testing.T) {
+	funcs, err := prepareSources([]FunctionSource{fnSource("a", "a", PlacementDevice, serdeLock)}, 1<<20)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := mergeVendorPlan(funcs); err == nil {
-		t.Error("expected a conflict for differing file digests")
+	raw, err := fs.ReadFile(funcs[0].Files, "vendor/serde-1.0.229/.cargo-checksum.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var sums struct {
+		Files   map[string]string `json:"files"`
+		Package string            `json:"package"`
+	}
+	if err := json.Unmarshal(raw, &sums); err != nil {
+		t.Fatal(err)
+	}
+	if sums.Package != serdeLock.Checksum || sums.Files["src/lib.rs"] != hexSum([]byte(defaultLib("serde"))) || len(sums.Files) != 2 {
+		t.Errorf("checksum file %s", raw)
+	}
+	lib, err := fs.ReadFile(funcs[0].Files, "vendor/serde-1.0.229/src/lib.rs")
+	if err != nil || string(lib) != defaultLib("serde") {
+		t.Errorf("vendored lib.rs %q, %v", lib, err)
 	}
 }
 

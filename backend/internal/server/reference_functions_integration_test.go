@@ -163,6 +163,17 @@ func exampleArchive(t *testing.T, crate string) []byte {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The examples are members of the SDK's workspace and have no lock file
+	// of their own. The stand-in builder never compiles the source, so its
+	// lock file names no registry package and no crate archive travels with
+	// it; the real path is TestRustBuildEndToEnd_FN_016 in internal/function.
+	lock := []byte("version = 4\n\n[[package]]\nname = \"" + crate + "\"\nversion = \"0.1.0\"\n")
+	if err := tw.WriteHeader(&tar.Header{Name: "Cargo.lock", Mode: 0o644, Size: int64(len(lock))}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tw.Write(lock); err != nil {
+		t.Fatal(err)
+	}
 	if err := tw.Close(); err != nil {
 		t.Fatal(err)
 	}

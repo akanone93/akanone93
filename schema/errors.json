@@ -3100,15 +3100,15 @@
       "reason": "FUNCTION_DEPENDENCY_NOT_VENDORED",
       "severity": "error",
       "title": "Function dependency not vendored",
-      "cause": "The source archive lacks a dependency under `vendor/`, and builds are offline and locked (FN-016).",
-      "fix": "Run `cargo vendor` and include the result in the archive."
+      "cause": "A dependency the lock file names was not sent as its published crate archive, an archive does not match its checksum or is malformed, or the source holds a `vendor/` directory; builds are offline and locked (FN-003, FN-016, ADR-0105).",
+      "fix": "Deploy with `plux fn deploy`, which runs `cargo fetch` and sends the published archive of every crates.io dependency; remove any `vendor/` directory from the source."
     },
     {
       "code": "PLX-7202",
       "reason": "FUNCTION_BUILD_SCRIPT_REFUSED",
       "severity": "error",
       "title": "Function build script refused",
-      "cause": "A dependency uses a build script or procedural macro that is not on the builder's allowlist (FN-016).",
+      "cause": "A dependency uses a build script or procedural macro that is not on the builder's allowlist, does not come from crates.io, or is not the published archive the allowlist pins (FN-016, ADR-0105).",
       "fix": "Remove the dependency, or ask the operator to review and allowlist it."
     },
     {

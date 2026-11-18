@@ -4,6 +4,7 @@
 package function_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -14,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/function"
+	"github.com/nightCode42/plux3/backend/internal/function/functiontest"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -73,7 +75,7 @@ func TestFailBuildEndsABuildThatNeverRan_FN_016(t *testing.T) {
 	w := newWorld(t, nil, nil)
 	w.builder.set(goodOutput(fnName), nil)
 	w.signer.err = errors.New("kms unavailable at 10.0.0.7")
-	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, strings.NewReader("source"))
+	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, bytes.NewReader(functiontest.SourceArchive("source")))
 	if err != nil {
 		t.Fatal(err)
 	}

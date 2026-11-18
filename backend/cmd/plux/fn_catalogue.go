@@ -192,11 +192,11 @@ func (e env) linkFunctions(ctx context.Context, project string, names []string) 
 	defer closeBuilder()
 	sources := make([]builder.FunctionSource, 0, len(names))
 	for _, name := range names {
-		files, decl, err := e.readCrate(ctx, project, name, set)
+		src, _, err := e.readCrate(ctx, project, name, set)
 		if err != nil {
 			return compiler.DeviceModule{}, err
 		}
-		sources = append(sources, decl.Source(files))
+		sources = append(sources, src)
 	}
 	artifact, err := b.Build(ctx, sources, builder.Options{})
 	if err != nil {

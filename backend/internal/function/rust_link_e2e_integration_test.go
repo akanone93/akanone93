@@ -20,7 +20,7 @@ import (
 )
 
 // loanManifest is the standalone manifest of the loan example: the workspace
-// form of sdk/fn/examples/loan, with the patch that `cargo vendor` needs
+// form of sdk/fn/examples/loan, with the patch that Cargo needs
 // while plux-fn is unpublished.
 const loanManifest = `[package]
 name = "loan"
@@ -39,8 +39,8 @@ rust_decimal = { version = "1.43", default-features = false, features = ["std", 
 plux-fn = { path = %q }
 `
 
-// loanSource lays out the loan example as an uploadable crate with its
-// vendored dependencies.
+// loanSource lays out the loan example as an uploadable crate, with its
+// dependencies fetched into Cargo's cache.
 func loanSource(t *testing.T, sdk, examples string) string {
 	t.Helper()
 	proj := filepath.Join(t.TempDir(), "loan")
@@ -59,7 +59,7 @@ func loanSource(t *testing.T, sdk, examples string) string {
 			t.Fatal(err)
 		}
 	}
-	runIn(t, proj, "cargo", "vendor", "--quiet")
+	runIn(t, proj, "cargo", "fetch", "--quiet")
 	return proj
 }
 
@@ -77,7 +77,8 @@ func TestRustLinkEndToEnd_FN_051(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	archive := packSource(t, loanSource(t, filepath.Join(root, "plux-fn"), filepath.Join(root, "examples")))
+	proj := loanSource(t, filepath.Join(root, "plux-fn"), filepath.Join(root, "examples"))
+	archive := packSource(t, proj)
 	wasmOpt := filepath.Join(t.TempDir(), "binaryen")
 	if err := os.MkdirAll(wasmOpt, 0o750); err != nil {
 		t.Fatal(err)
@@ -105,6 +106,7 @@ func TestRustLinkEndToEnd_FN_051(t *testing.T) {
 
 	ctx := t.Context()
 	const name = "loan.calculateSchedule"
+	w.uploadCrates(t, proj)
 	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], name, bytes.NewReader(archive))
 	if err != nil {
 		t.Fatal(err)

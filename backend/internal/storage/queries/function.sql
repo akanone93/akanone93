@@ -7,6 +7,26 @@ RETURNING *;
 -- name: GetFunctionSource :one
 SELECT * FROM function_sources WHERE id = $1;
 
+-- name: InsertFunctionCrate :execrows
+INSERT INTO function_crates (organization_id, sha256, object_key, size_bytes, created_by)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (organization_id, sha256) DO NOTHING;
+
+-- name: ListFunctionCrates :many
+SELECT sha256, object_key, size_bytes FROM function_crates
+WHERE organization_id = $1 AND sha256 = ANY(sqlc.arg(sums)::bytea[])
+ORDER BY sha256;
+
+-- name: InsertFunctionSourceCrate :exec
+INSERT INTO function_source_crates (source_id, organization_id, sha256) VALUES ($1, $2, $3);
+
+-- name: ListFunctionSourceCrates :many
+SELECT c.sha256, c.object_key, c.size_bytes
+FROM function_source_crates sc
+JOIN function_crates c ON c.organization_id = sc.organization_id AND c.sha256 = sc.sha256
+WHERE sc.source_id = $1
+ORDER BY c.sha256;
+
 -- name: InsertFunctionBuild :one
 INSERT INTO function_builds
     (id, organization_id, app_id, environment_id, source_id, name, placement, created_by)

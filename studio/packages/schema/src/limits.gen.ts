@@ -1431,7 +1431,17 @@ export const limits = [
     max: 536870912,
     scopes: ["installation", "organization", "app"],
     phase: "P7",
-    description: "Size of an uploaded function source archive, including vendored sources.",
+    description: "Size of a function's source: the uploaded archive and the published crate archives it depends on, as stored.",
+  },
+  {
+    key: "function.sourceCrates",
+    unit: "count",
+    default: 512,
+    warning: 0,
+    max: 4096,
+    scopes: ["installation", "organization", "app"],
+    phase: "P11",
+    description: "Number of published crate archives one function source may depend on, and that one request may ask about.",
   },
   {
     key: "function.testCases",

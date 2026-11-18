@@ -51,7 +51,7 @@ func (s FunctionAdmin) UploadSource(ctx context.Context, stream *connect.ClientS
 		return nil, plxerr.New(plxerr.MissingProperty, "the first message must name the function")
 	}
 	first := stream.Msg()
-	r := &chunkReader{stream: stream, pending: first.GetChunk()}
+	r := newChunkReader(stream, first.GetChunk(), (*pluxv1.UploadSourceRequest).GetChunk)
 	src, err := s.h.Functions.UploadSource(ctx, p, first.GetAppId(), first.GetEnvironmentId(), first.GetName(), r)
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
@@ -59,27 +59,82 @@ func (s FunctionAdmin) UploadSource(ctx context.Context, stream *connect.ClientS
 	return connect.NewResponse(&pluxv1.UploadSourceResponse{SourceId: src.ID, SourceSha256: hexOf(src.SHA256)}), nil
 }
 
-// chunkReader presents the chunks of an upload as a reader. It is used by
-// one goroutine.
+// chunkReader presents the chunks of an upload as a reader: pending holds
+// the bytes not yet read, and next receives the following chunk.
 type chunkReader struct {
-	stream  *connect.ClientStream[pluxv1.UploadSourceRequest]
+	next    func() ([]byte, error)
 	pending []byte
+}
+
+// newChunkReader reads the chunks of a client stream, starting with those of
+// the first message, which the caller has already received.
+func newChunkReader[T any](stream *connect.ClientStream[T], first []byte, chunk func(*T) []byte) *chunkReader {
+	return &chunkReader{pending: first, next: func() ([]byte, error) {
+		if !stream.Receive() {
+			if err := stream.Err(); err != nil {
+				return nil, err //nolint:wrapcheck // the stream's own error
+			}
+			return nil, io.EOF
+		}
+		return chunk(stream.Msg()), nil
+	}}
 }
 
 // Read returns the bytes of the next chunks.
 func (r *chunkReader) Read(b []byte) (int, error) {
 	for len(r.pending) == 0 {
-		if !r.stream.Receive() {
-			if err := r.stream.Err(); err != nil {
-				return 0, err //nolint:wrapcheck // the stream's own error
-			}
-			return 0, io.EOF
+		chunk, err := r.next()
+		if err != nil {
+			return 0, err
 		}
-		r.pending = r.stream.Msg().GetChunk()
+		r.pending = chunk
 	}
 	n := copy(b, r.pending)
 	r.pending = r.pending[n:]
 	return n, nil
+}
+
+// ListMissingCrates names, of the checksums asked about, the crate archives
+// the organisation has not sent (FN-003, ADR-0105).
+func (s FunctionAdmin) ListMissingCrates(ctx context.Context, req *connect.Request[pluxv1.ListMissingCratesRequest]) (*connect.Response[pluxv1.ListMissingCratesResponse], error) {
+	if s.h.Functions == nil {
+		return s.UnimplementedFunctionAdminServiceHandler.ListMissingCrates(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
+	}
+	p, err := s.h.principal(ctx, req.Header(), "")
+	if err != nil {
+		return nil, err
+	}
+	missing, err := s.h.Functions.ListMissingCrates(ctx, p, req.Msg.GetAppId(), req.Msg.GetChecksums())
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.ListMissingCratesResponse{Missing: missing}), nil
+}
+
+// UploadCrate receives one published crate archive in chunks; the first
+// message names the app and the archive's SHA-256 and carries no bytes. The
+// service keeps it only if its bytes have that SHA-256 (FN-003, ADR-0105).
+func (s FunctionAdmin) UploadCrate(ctx context.Context, stream *connect.ClientStream[pluxv1.UploadCrateRequest]) (*connect.Response[pluxv1.UploadCrateResponse], error) {
+	if s.h.Functions == nil {
+		return nil, connect.NewError(connect.CodeUnimplemented, errors.New("this server runs no function service"))
+	}
+	p, err := s.h.principal(ctx, stream.RequestHeader(), "")
+	if err != nil {
+		return nil, err
+	}
+	if !stream.Receive() {
+		if err := stream.Err(); err != nil && !errors.Is(err, io.EOF) {
+			return nil, err //nolint:wrapcheck // the stream's own error
+		}
+		return nil, plxerr.New(plxerr.MissingProperty, "the first message must name the crate archive")
+	}
+	first := stream.Msg()
+	r := newChunkReader(stream, first.GetChunk(), (*pluxv1.UploadCrateRequest).GetChunk)
+	stored, err := s.h.Functions.UploadCrate(ctx, p, first.GetAppId(), first.GetSha256(), r)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.UploadCrateResponse{Sha256: first.GetSha256(), Stored: stored}), nil
 }
 
 // Build queues a build of an uploaded source (FN-016).

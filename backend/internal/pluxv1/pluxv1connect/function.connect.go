@@ -43,6 +43,12 @@ const (
 	// FunctionAdminServiceUploadSourceProcedure is the fully-qualified name of the
 	// FunctionAdminService's UploadSource RPC.
 	FunctionAdminServiceUploadSourceProcedure = "/plux.v1.FunctionAdminService/UploadSource"
+	// FunctionAdminServiceListMissingCratesProcedure is the fully-qualified name of the
+	// FunctionAdminService's ListMissingCrates RPC.
+	FunctionAdminServiceListMissingCratesProcedure = "/plux.v1.FunctionAdminService/ListMissingCrates"
+	// FunctionAdminServiceUploadCrateProcedure is the fully-qualified name of the
+	// FunctionAdminService's UploadCrate RPC.
+	FunctionAdminServiceUploadCrateProcedure = "/plux.v1.FunctionAdminService/UploadCrate"
 	// FunctionAdminServiceBuildProcedure is the fully-qualified name of the FunctionAdminService's
 	// Build RPC.
 	FunctionAdminServiceBuildProcedure = "/plux.v1.FunctionAdminService/Build"
@@ -161,9 +167,24 @@ func (UnimplementedFunctionServiceHandler) Invoke(context.Context, *connect.Requ
 // FunctionAdminServiceClient is a client for the plux.v1.FunctionAdminService service.
 type FunctionAdminServiceClient interface {
 	// UploadSource streams a source archive. The first message carries the
-	// metadata and no bytes. The archive holds the crate and its `vendor/`
-	// directory and is bounded by `function.sourceArchiveSize` (FN-016).
+	// metadata and no bytes. The archive holds the crate: Cargo.toml,
+	// Cargo.lock, src/ and function.json, never a `vendor/` directory. Every
+	// crates.io package its Cargo.lock names must be a crate archive the
+	// organisation has sent with UploadCrate; the archive and those crates
+	// together are bounded by `function.sourceArchiveSize`, their number by
+	// `function.sourceCrates` (FN-003, FN-016, ADR-0105).
 	UploadSource(context.Context) *connect.ClientStreamForClient[pluxv1.UploadSourceRequest, pluxv1.UploadSourceResponse]
+	// ListMissingCrates names, of the SHA-256 checksums asked about, those
+	// whose crate archive the organisation has not sent yet, so that a client
+	// sends each archive once. At most `function.sourceCrates` checksums per
+	// request (FN-003, ADR-0105).
+	ListMissingCrates(context.Context, *connect.Request[pluxv1.ListMissingCratesRequest]) (*connect.Response[pluxv1.ListMissingCratesResponse], error)
+	// UploadCrate streams one `.crate` archive as crates.io publishes it. The
+	// first message names the app and the archive's SHA-256 and carries no
+	// bytes; the archive is kept only if its bytes have that SHA-256, and is
+	// bounded by `function.sourceArchiveSize`. Sending an archive the
+	// organisation already has changes nothing (FN-003, ADR-0105).
+	UploadCrate(context.Context) *connect.ClientStreamForClient[pluxv1.UploadCrateRequest, pluxv1.UploadCrateResponse]
 	// Build starts a build of an uploaded source on the builder role
 	// (FN-016, FN-019).
 	Build(context.Context, *connect.Request[pluxv1.BuildRequest]) (*connect.Response[pluxv1.BuildResponse], error)
@@ -214,6 +235,18 @@ func NewFunctionAdminServiceClient(httpClient connect.HTTPClient, baseURL string
 			httpClient,
 			baseURL+FunctionAdminServiceUploadSourceProcedure,
 			connect.WithSchema(functionAdminServiceMethods.ByName("UploadSource")),
+			connect.WithClientOptions(opts...),
+		),
+		listMissingCrates: connect.NewClient[pluxv1.ListMissingCratesRequest, pluxv1.ListMissingCratesResponse](
+			httpClient,
+			baseURL+FunctionAdminServiceListMissingCratesProcedure,
+			connect.WithSchema(functionAdminServiceMethods.ByName("ListMissingCrates")),
+			connect.WithClientOptions(opts...),
+		),
+		uploadCrate: connect.NewClient[pluxv1.UploadCrateRequest, pluxv1.UploadCrateResponse](
+			httpClient,
+			baseURL+FunctionAdminServiceUploadCrateProcedure,
+			connect.WithSchema(functionAdminServiceMethods.ByName("UploadCrate")),
 			connect.WithClientOptions(opts...),
 		),
 		build: connect.NewClient[pluxv1.BuildRequest, pluxv1.BuildResponse](
@@ -287,23 +320,35 @@ func NewFunctionAdminServiceClient(httpClient connect.HTTPClient, baseURL string
 
 // functionAdminServiceClient implements FunctionAdminServiceClient.
 type functionAdminServiceClient struct {
-	uploadSource    *connect.Client[pluxv1.UploadSourceRequest, pluxv1.UploadSourceResponse]
-	build           *connect.Client[pluxv1.BuildRequest, pluxv1.BuildResponse]
-	getBuild        *connect.Client[pluxv1.GetBuildRequest, pluxv1.GetBuildResponse]
-	getFunction     *connect.Client[pluxv1.GetFunctionRequest, pluxv1.GetFunctionResponse]
-	listFunctions   *connect.Client[pluxv1.ListFunctionsRequest, pluxv1.ListFunctionsResponse]
-	listVersions    *connect.Client[pluxv1.ListVersionsRequest, pluxv1.ListVersionsResponse]
-	deploy          *connect.Client[pluxv1.DeployRequest, pluxv1.DeployResponse]
-	promoteFunction *connect.Client[pluxv1.PromoteFunctionRequest, pluxv1.PromoteFunctionResponse]
-	setAlias        *connect.Client[pluxv1.SetAliasRequest, pluxv1.SetAliasResponse]
-	listLogs        *connect.Client[pluxv1.ListLogsRequest, pluxv1.ListLogsResponse]
-	getMetrics      *connect.Client[pluxv1.GetMetricsRequest, pluxv1.GetMetricsResponse]
-	runTests        *connect.Client[pluxv1.RunTestsRequest, pluxv1.RunTestsResponse]
+	uploadSource      *connect.Client[pluxv1.UploadSourceRequest, pluxv1.UploadSourceResponse]
+	listMissingCrates *connect.Client[pluxv1.ListMissingCratesRequest, pluxv1.ListMissingCratesResponse]
+	uploadCrate       *connect.Client[pluxv1.UploadCrateRequest, pluxv1.UploadCrateResponse]
+	build             *connect.Client[pluxv1.BuildRequest, pluxv1.BuildResponse]
+	getBuild          *connect.Client[pluxv1.GetBuildRequest, pluxv1.GetBuildResponse]
+	getFunction       *connect.Client[pluxv1.GetFunctionRequest, pluxv1.GetFunctionResponse]
+	listFunctions     *connect.Client[pluxv1.ListFunctionsRequest, pluxv1.ListFunctionsResponse]
+	listVersions      *connect.Client[pluxv1.ListVersionsRequest, pluxv1.ListVersionsResponse]
+	deploy            *connect.Client[pluxv1.DeployRequest, pluxv1.DeployResponse]
+	promoteFunction   *connect.Client[pluxv1.PromoteFunctionRequest, pluxv1.PromoteFunctionResponse]
+	setAlias          *connect.Client[pluxv1.SetAliasRequest, pluxv1.SetAliasResponse]
+	listLogs          *connect.Client[pluxv1.ListLogsRequest, pluxv1.ListLogsResponse]
+	getMetrics        *connect.Client[pluxv1.GetMetricsRequest, pluxv1.GetMetricsResponse]
+	runTests          *connect.Client[pluxv1.RunTestsRequest, pluxv1.RunTestsResponse]
 }
 
 // UploadSource calls plux.v1.FunctionAdminService.UploadSource.
 func (c *functionAdminServiceClient) UploadSource(ctx context.Context) *connect.ClientStreamForClient[pluxv1.UploadSourceRequest, pluxv1.UploadSourceResponse] {
 	return c.uploadSource.CallClientStream(ctx)
+}
+
+// ListMissingCrates calls plux.v1.FunctionAdminService.ListMissingCrates.
+func (c *functionAdminServiceClient) ListMissingCrates(ctx context.Context, req *connect.Request[pluxv1.ListMissingCratesRequest]) (*connect.Response[pluxv1.ListMissingCratesResponse], error) {
+	return c.listMissingCrates.CallUnary(ctx, req)
+}
+
+// UploadCrate calls plux.v1.FunctionAdminService.UploadCrate.
+func (c *functionAdminServiceClient) UploadCrate(ctx context.Context) *connect.ClientStreamForClient[pluxv1.UploadCrateRequest, pluxv1.UploadCrateResponse] {
+	return c.uploadCrate.CallClientStream(ctx)
 }
 
 // Build calls plux.v1.FunctionAdminService.Build.
@@ -364,9 +409,24 @@ func (c *functionAdminServiceClient) RunTests(ctx context.Context, req *connect.
 // FunctionAdminServiceHandler is an implementation of the plux.v1.FunctionAdminService service.
 type FunctionAdminServiceHandler interface {
 	// UploadSource streams a source archive. The first message carries the
-	// metadata and no bytes. The archive holds the crate and its `vendor/`
-	// directory and is bounded by `function.sourceArchiveSize` (FN-016).
+	// metadata and no bytes. The archive holds the crate: Cargo.toml,
+	// Cargo.lock, src/ and function.json, never a `vendor/` directory. Every
+	// crates.io package its Cargo.lock names must be a crate archive the
+	// organisation has sent with UploadCrate; the archive and those crates
+	// together are bounded by `function.sourceArchiveSize`, their number by
+	// `function.sourceCrates` (FN-003, FN-016, ADR-0105).
 	UploadSource(context.Context, *connect.ClientStream[pluxv1.UploadSourceRequest]) (*connect.Response[pluxv1.UploadSourceResponse], error)
+	// ListMissingCrates names, of the SHA-256 checksums asked about, those
+	// whose crate archive the organisation has not sent yet, so that a client
+	// sends each archive once. At most `function.sourceCrates` checksums per
+	// request (FN-003, ADR-0105).
+	ListMissingCrates(context.Context, *connect.Request[pluxv1.ListMissingCratesRequest]) (*connect.Response[pluxv1.ListMissingCratesResponse], error)
+	// UploadCrate streams one `.crate` archive as crates.io publishes it. The
+	// first message names the app and the archive's SHA-256 and carries no
+	// bytes; the archive is kept only if its bytes have that SHA-256, and is
+	// bounded by `function.sourceArchiveSize`. Sending an archive the
+	// organisation already has changes nothing (FN-003, ADR-0105).
+	UploadCrate(context.Context, *connect.ClientStream[pluxv1.UploadCrateRequest]) (*connect.Response[pluxv1.UploadCrateResponse], error)
 	// Build starts a build of an uploaded source on the builder role
 	// (FN-016, FN-019).
 	Build(context.Context, *connect.Request[pluxv1.BuildRequest]) (*connect.Response[pluxv1.BuildResponse], error)
@@ -413,6 +473,18 @@ func NewFunctionAdminServiceHandler(svc FunctionAdminServiceHandler, opts ...con
 		FunctionAdminServiceUploadSourceProcedure,
 		svc.UploadSource,
 		connect.WithSchema(functionAdminServiceMethods.ByName("UploadSource")),
+		connect.WithHandlerOptions(opts...),
+	)
+	functionAdminServiceListMissingCratesHandler := connect.NewUnaryHandler(
+		FunctionAdminServiceListMissingCratesProcedure,
+		svc.ListMissingCrates,
+		connect.WithSchema(functionAdminServiceMethods.ByName("ListMissingCrates")),
+		connect.WithHandlerOptions(opts...),
+	)
+	functionAdminServiceUploadCrateHandler := connect.NewClientStreamHandler(
+		FunctionAdminServiceUploadCrateProcedure,
+		svc.UploadCrate,
+		connect.WithSchema(functionAdminServiceMethods.ByName("UploadCrate")),
 		connect.WithHandlerOptions(opts...),
 	)
 	functionAdminServiceBuildHandler := connect.NewUnaryHandler(
@@ -485,6 +557,10 @@ func NewFunctionAdminServiceHandler(svc FunctionAdminServiceHandler, opts ...con
 		switch r.URL.Path {
 		case FunctionAdminServiceUploadSourceProcedure:
 			functionAdminServiceUploadSourceHandler.ServeHTTP(w, r)
+		case FunctionAdminServiceListMissingCratesProcedure:
+			functionAdminServiceListMissingCratesHandler.ServeHTTP(w, r)
+		case FunctionAdminServiceUploadCrateProcedure:
+			functionAdminServiceUploadCrateHandler.ServeHTTP(w, r)
 		case FunctionAdminServiceBuildProcedure:
 			functionAdminServiceBuildHandler.ServeHTTP(w, r)
 		case FunctionAdminServiceGetBuildProcedure:
@@ -518,6 +594,14 @@ type UnimplementedFunctionAdminServiceHandler struct{}
 
 func (UnimplementedFunctionAdminServiceHandler) UploadSource(context.Context, *connect.ClientStream[pluxv1.UploadSourceRequest]) (*connect.Response[pluxv1.UploadSourceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FunctionAdminService.UploadSource is not implemented"))
+}
+
+func (UnimplementedFunctionAdminServiceHandler) ListMissingCrates(context.Context, *connect.Request[pluxv1.ListMissingCratesRequest]) (*connect.Response[pluxv1.ListMissingCratesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FunctionAdminService.ListMissingCrates is not implemented"))
+}
+
+func (UnimplementedFunctionAdminServiceHandler) UploadCrate(context.Context, *connect.ClientStream[pluxv1.UploadCrateRequest]) (*connect.Response[pluxv1.UploadCrateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FunctionAdminService.UploadCrate is not implemented"))
 }
 
 func (UnimplementedFunctionAdminServiceHandler) Build(context.Context, *connect.Request[pluxv1.BuildRequest]) (*connect.Response[pluxv1.BuildResponse], error) {

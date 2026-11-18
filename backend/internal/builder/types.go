@@ -37,10 +37,14 @@ type FunctionSource struct {
 	Name string
 	// Placement is the placement in the function document.
 	Placement Placement
-	// Files is the root of the crate: Cargo.toml, Cargo.lock (FN-003), src/
-	// and the output of `cargo vendor` in vendor/ (FN-003). Entries other than
-	// directories and regular files are refused.
+	// Files is the root of the crate: Cargo.toml, Cargo.lock (FN-003) and
+	// src/. Entries other than directories and regular files are refused, and
+	// so is a vendor/ directory: the builder makes vendor/ from Crates.
 	Files fs.FS
+	// Crates are the `.crate` archives, as crates.io publishes them, of the
+	// registry packages Cargo.lock lists, each once. The SHA-256 of each must
+	// be the checksum Cargo.lock records for it (FN-003, ADR-0105).
+	Crates [][]byte
 }
 
 // FunctionSchemas are the JSON Schemas derived from a function's Rust types

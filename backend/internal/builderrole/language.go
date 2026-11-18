@@ -143,7 +143,9 @@ func (s *Service) openLanguage(ctx context.Context, in *fnpb.LanguageOpenRequest
 		return nil, "", connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("the builder is not configured to run a language server: %w", err))
 	}
 	minutes := ceiling(limits.LspSessionMinutes, int64(in.GetSessionMinutes()))
-	sess, err := b.OpenLanguage(ctx, decl.Source(files), builder.LanguageOptions{
+	src := decl.Source(files)
+	src.Crates = in.GetCrates()
+	sess, err := b.OpenLanguage(ctx, src, builder.LanguageOptions{
 		Server: s.o.LanguageServer, Args: s.o.LanguageArgs, Env: s.o.LanguageEnv,
 		Wall:         time.Duration(minutes) * time.Minute,
 		Memory:       uint64(ceiling(limits.FunctionBuildMemory, int64(min(in.GetMemoryBytes(), 1<<62)))), //nolint:gosec // G115: a ceiling of the registry is positive.

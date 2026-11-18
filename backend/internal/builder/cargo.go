@@ -20,11 +20,11 @@ const cratesIOSource = "registry+https://github.com/rust-lang/crates.io-index"
 // stringField matches `key = "value"` on one line of a manifest or lock file.
 var stringField = regexp.MustCompile(`^([A-Za-z0-9_-]+)\s*=\s*"([^"]*)"\s*(#.*)?$`)
 
-// tomlStringFields returns the string-valued keys of the named top-level table
-// of a Cargo manifest, for example "package". It reads the line-oriented form
-// cargo itself writes and the one developers write by hand; it is not a TOML
-// parser and ignores nested tables, arrays and multi-line values.
-func tomlStringFields(manifest []byte, table string) map[string]string {
+// packageFields returns the string-valued keys of the [package] table of a
+// Cargo manifest. It reads the line-oriented form cargo itself writes and the
+// one developers write by hand; it is not a TOML parser and ignores nested
+// tables, arrays and multi-line values.
+func packageFields(manifest []byte) map[string]string {
 	out := map[string]string{}
 	in := false
 	sc := bufio.NewScanner(bytes.NewReader(manifest))
@@ -32,7 +32,7 @@ func tomlStringFields(manifest []byte, table string) map[string]string {
 	for sc.Scan() {
 		line := strings.TrimSpace(sc.Text())
 		if strings.HasPrefix(line, "[") {
-			in = line == "["+table+"]"
+			in = line == "[package]"
 			continue
 		}
 		if !in {

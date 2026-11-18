@@ -79,7 +79,7 @@ func TestLinkReportsAMalformedArchiveAsDiagnostics_FN_051(t *testing.T) {
 func TestLinkRefusesWhenTheKernelDeniesTheSandbox_FN_051(t *testing.T) {
 	s := newService(t, refusingSandbox{}, false, nil, nil)
 	device := archive(t, map[string]string{
-		"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile, "vendor/": "",
+		"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile,
 		"function.json": strings.NewReplacer("bank.transferFee", "bank.a", `"server"`, `"device"`).Replace(declaration),
 	})
 	_, err := s.Link(t.Context(), connect.NewRequest(&fnpb.LinkRequest{Sources: []*fnpb.LinkSource{linkSource("bank.a", device)}}))

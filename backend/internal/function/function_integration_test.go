@@ -23,6 +23,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/function"
+	"github.com/nightCode42/plux3/backend/internal/function/functiontest"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -275,7 +276,7 @@ func goodOutput(name string) function.BuildOutput {
 func (w *world) built(t *testing.T, env, name string) function.Build {
 	t.Helper()
 	ctx := context.Background()
-	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs[env], name, strings.NewReader("source of "+name))
+	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs[env], name, bytes.NewReader(functiontest.SourceArchive("source of "+name)))
 	if err != nil {
 		t.Fatalf("UploadSource: %v", err)
 	}
@@ -457,7 +458,7 @@ func TestDeployRefusals_FN_031(t *testing.T) {
 	}
 
 	w.builder.set(goodOutput(fnName), nil)
-	src, _ := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, strings.NewReader("x"))
+	src, _ := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, bytes.NewReader(functiontest.SourceArchive("x")))
 	queued, err := w.svc.RequestBuild(ctx, w.developer, src.ID, "")
 	if err != nil {
 		t.Fatal(err)
@@ -527,7 +528,7 @@ func TestProductionDeploy_FN_007(t *testing.T) {
 	if _, err := w.svc.Deploy(ctx, w.developer, dev.ID, ""); err != nil {
 		t.Errorf("a developer deploying to development: %v", err)
 	}
-	if _, err := w.svc.UploadSource(ctx, w.viewer, w.app, w.envs["development"], fnName, strings.NewReader("x")); code(err) != plxerr.PermissionDenied {
+	if _, err := w.svc.UploadSource(ctx, w.viewer, w.app, w.envs["development"], fnName, bytes.NewReader(functiontest.SourceArchive("x"))); code(err) != plxerr.PermissionDenied {
 		t.Errorf("a viewer uploading a source: %v", err)
 	}
 	if _, err := w.svc.GetBuild(ctx, w.viewer, b.ID); err != nil {
@@ -709,27 +710,29 @@ func TestKeyValueStore_FN_018(t *testing.T) {
 func TestSourceArchiveLimit_FN_016(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
+	archive := functiontest.SourceArchive("at the limit")
 	w := newWorld(t, nil, func(l *limits.Set) {
-		tight, err := l.Tighten(limits.FunctionSourceArchiveSize, limits.ScopeApp, 16)
+		tight, err := l.Tighten(limits.FunctionSourceArchiveSize, limits.ScopeApp, int64(len(archive)))
 		if err != nil {
 			t.Fatal(err)
 		}
 		*l = tight
 	})
-	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, strings.NewReader(strings.Repeat("x", 17))); code(err) != plxerr.FunctionBuildLimitExceeded {
+	above := append(append([]byte{}, archive...), 0)
+	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, bytes.NewReader(above)); code(err) != plxerr.FunctionBuildLimitExceeded {
 		t.Errorf("an archive above the limit: %v", err)
 	}
-	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, strings.NewReader(strings.Repeat("x", 16)))
-	if err != nil || src.Size != 16 || len(src.SHA256) != 32 {
+	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, bytes.NewReader(archive))
+	if err != nil || src.Size != int64(len(archive)) || len(src.SHA256) != 32 {
 		t.Fatalf("an archive at the limit: %v %+v", err, src)
 	}
-	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], "Bad", strings.NewReader("x")); code(err) != plxerr.InvalidFormat {
+	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], "Bad", bytes.NewReader(functiontest.SourceArchive("x"))); code(err) != plxerr.InvalidFormat {
 		t.Errorf("a bad name: %v", err)
 	}
-	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["production"], fnName, strings.NewReader("x")); err != nil {
+	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["production"], fnName, bytes.NewReader(functiontest.SourceArchive("x"))); err != nil {
 		t.Errorf("an upload to production needs only function.deploy: %v", err)
 	}
-	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.otherEnvs["development"], fnName, strings.NewReader("x")); code(err) != plxerr.ResourceNotFound {
+	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.otherEnvs["development"], fnName, bytes.NewReader(functiontest.SourceArchive("x"))); code(err) != plxerr.ResourceNotFound {
 		t.Errorf("an environment of another app: %v", err)
 	}
 }
@@ -783,7 +786,7 @@ func TestBuildJobPath_FN_016(t *testing.T) {
 		}
 	})
 
-	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, strings.NewReader("source"))
+	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, bytes.NewReader(functiontest.SourceArchive("source")))
 	if err != nil {
 		t.Fatal(err)
 	}

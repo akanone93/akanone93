@@ -85,9 +85,24 @@ message FunctionBusinessError {
 // engine (FN-007).
 service FunctionAdminService {
   // UploadSource streams a source archive. The first message carries the
-  // metadata and no bytes. The archive holds the crate and its `vendor/`
-  // directory and is bounded by `function.sourceArchiveSize` (FN-016).
+  // metadata and no bytes. The archive holds the crate: Cargo.toml,
+  // Cargo.lock, src/ and function.json, never a `vendor/` directory. Every
+  // crates.io package its Cargo.lock names must be a crate archive the
+  // organisation has sent with UploadCrate; the archive and those crates
+  // together are bounded by `function.sourceArchiveSize`, their number by
+  // `function.sourceCrates` (FN-003, FN-016, ADR-0105).
   rpc UploadSource(stream UploadSourceRequest) returns (UploadSourceResponse) {}
+  // ListMissingCrates names, of the SHA-256 checksums asked about, those
+  // whose crate archive the organisation has not sent yet, so that a client
+  // sends each archive once. At most `function.sourceCrates` checksums per
+  // request (FN-003, ADR-0105).
+  rpc ListMissingCrates(ListMissingCratesRequest) returns (ListMissingCratesResponse) {}
+  // UploadCrate streams one `.crate` archive as crates.io publishes it. The
+  // first message names the app and the archive's SHA-256 and carries no
+  // bytes; the archive is kept only if its bytes have that SHA-256, and is
+  // bounded by `function.sourceArchiveSize`. Sending an archive the
+  // organisation already has changes nothing (FN-003, ADR-0105).
+  rpc UploadCrate(stream UploadCrateRequest) returns (UploadCrateResponse) {}
   // Build starts a build of an uploaded source on the builder role
   // (FN-016, FN-019).
   rpc Build(BuildRequest) returns (BuildResponse) {}
@@ -273,8 +288,7 @@ message UploadSourceRequest {
   // name is the dotted function name the archive builds (FN-006).
   string name = 3;
   string session = 4;
-  // chunk is a part of the archive of the crate and its `vendor/`
-  // directory (FN-016).
+  // chunk is a part of the archive of the crate (FN-016).
   bytes chunk = 5;
 }
 message UploadSourceResponse {
@@ -282,6 +296,32 @@ message UploadSourceResponse {
   string source_id = 1;
   // source_sha256 is the hex SHA-256 of the archive (FN-005).
   string source_sha256 = 2;
+}
+
+message ListMissingCratesRequest {
+  string app_id = 1;
+  // checksums are the lower-case hex SHA-256 checksums of crate archives,
+  // as Cargo.lock records them.
+  repeated string checksums = 2;
+}
+message ListMissingCratesResponse {
+  // missing are the checksums asked about whose archive the organisation
+  // has not sent, in the order asked, each once.
+  repeated string missing = 1;
+}
+
+message UploadCrateRequest {
+  string app_id = 1;
+  // sha256 is the lower-case hex SHA-256 of the archive, as Cargo.lock
+  // records it.
+  string sha256 = 2;
+  // chunk is a part of the archive.
+  bytes chunk = 3;
+}
+message UploadCrateResponse {
+  string sha256 = 1;
+  // stored is false when the organisation had already sent the archive.
+  bool stored = 2;
 }
 
 message BuildRequest {

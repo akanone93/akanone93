@@ -4,10 +4,14 @@
 package builder
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -102,7 +106,49 @@ type fixture struct {
 }
 
 // serdeLock is the one registry crate the fixtures depend on.
-var serdeLock = lockPackage{Name: "serde", Version: "1.0.229", Source: cratesIOSource, Checksum: "c1"}
+var serdeLock = registryCrate("serde", "1.0.229")
+
+// fakeCrate is a `.crate` archive as crates.io publishes one: every file below
+// <name>-<version>/, here a manifest and a library whose text is lib.
+func fakeCrate(name, version, lib string) []byte {
+	return crateArchive(name+"-"+version, map[string]string{
+		"Cargo.toml": "[package]\nname = \"" + name + "\"\nversion = \"" + version + "\"\n",
+		"src/lib.rs": lib,
+	})
+}
+
+// crateArchive packs files below top into a gzip-compressed tar archive, in
+// sorted order, so that the same files give the same bytes.
+func crateArchive(top string, files map[string]string) []byte {
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+	tw := tar.NewWriter(zw)
+	names := make([]string, 0, len(files))
+	for n := range files {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		name := n
+		if top != "" {
+			name = top + "/" + n
+		}
+		_ = tw.WriteHeader(&tar.Header{Name: name, Mode: 0o644, Size: int64(len(files[n])), Typeflag: tar.TypeReg})
+		_, _ = tw.Write([]byte(files[n]))
+	}
+	_ = tw.Close()
+	_ = zw.Close()
+	return buf.Bytes()
+}
+
+// defaultLib is the library of a fixture crate.
+func defaultLib(name string) string { return "// " + name + "\n" }
+
+// registryCrate is the lock entry of a fixture crates.io crate: its checksum
+// is the SHA-256 of fakeCrate with the default library.
+func registryCrate(name, version string) lockPackage {
+	return lockPackage{Name: name, Version: version, Source: cratesIOSource, Checksum: CrateSHA256(fakeCrate(name, version, defaultLib(name)))}
+}
 
 func newFixture(t *testing.T) *fixture {
 	t.Helper()
@@ -115,7 +161,7 @@ func newFixture(t *testing.T) *fixture {
 	f.write("rustc-version", "rustc 1.97.0 (2d8144b78 2026-07-07)\n")
 	f.write("wasmopt-version", "wasm-opt version 132 (version_132)\n")
 	f.write("lock.out", lockText(serdeLock))
-	f.write("metadata.json", `{"packages":[{"name":"serde","version":"1.0.229","targets":[{"kind":["custom-build"]}]},`+
+	f.write("metadata.json", `{"packages":[{"name":"serde","version":"1.0.229","source":"`+cratesIOSource+`","targets":[{"kind":["custom-build"]}]},`+
 		`{"name":"loan","version":"0.1.0","targets":[{"kind":["lib"]}]}]}`)
 	f.write("tree.txt", "plux-module v0.1.0 (/x)\nserde v1.0.229\n")
 	if err := os.WriteFile(filepath.Join(f.sdk, "Cargo.toml"), []byte("[package]\nname = \"plux-fn\"\n"), 0o600); err != nil {
@@ -133,6 +179,9 @@ func newFixture(t *testing.T) *fixture {
 		WasmOpt: []string{filepath.Join(f.dir, "wasm-opt")},
 		Clock:   func() time.Time { return time.Date(2026, 10, 13, 9, 30, 0, 0, time.FixedZone("x", 3600)) },
 		Limits:  Limits{Wall: 20 * time.Second, OutputBytes: 1 << 20}, SourceBytes: 1 << 20,
+		// The fixture's serde is not the published one, so the fixtures pin
+		// their own archive of it.
+		Allowlist: Allowlist{"serde": {"1.0.229": serdeLock.Checksum}},
 		Getenv: func(k string) string {
 			return map[string]string{"PATH": "/usr/bin:/bin", "HOME": "/home/dev", "RUSTUP_TOOLCHAIN": "1.97.0", "SECRET": "x"}[k]
 		},
@@ -186,21 +235,41 @@ func lockText(pkgs ...lockPackage) string {
 	return b.String()
 }
 
-// fnSource returns a function source whose crate depends on deps.
+// fnSource returns a function source whose crate depends on deps, each sent
+// as the fixture crate archive with the default library.
 func fnSource(name, pkg string, placement Placement, deps ...lockPackage) FunctionSource {
 	fsys := fstest.MapFS{
-		"Cargo.toml":      {Data: []byte("[package]\nname = \"" + pkg + "\"\nversion = \"0.1.0\"\n")},
-		"src/lib.rs":      {Data: []byte("// " + name + "\n")},
-		"Cargo.lock":      {Data: []byte(lockText(append([]lockPackage{{Name: pkg, Version: "0.1.0"}}, deps...)...))},
-		"vendor/.gitkeep": {Data: []byte{}},
+		"Cargo.toml": {Data: []byte("[package]\nname = \"" + pkg + "\"\nversion = \"0.1.0\"\n")},
+		"src/lib.rs": {Data: []byte("// " + name + "\n")},
+		"Cargo.lock": {Data: []byte(lockText(append([]lockPackage{{Name: pkg, Version: "0.1.0"}}, deps...)...))},
 	}
+	var crates [][]byte
 	for _, d := range deps {
-		dir := "vendor/" + d.Name + "/"
-		fsys[dir+"Cargo.toml"] = &fstest.MapFile{Data: []byte("[package]\nname = \"" + d.Name + "\"\nversion = \"" + d.Version + "\"\n")}
-		fsys[dir+".cargo-checksum.json"] = &fstest.MapFile{Data: []byte(`{"files":{},"package":"` + d.Checksum + `"}`)}
-		fsys[dir+"src/lib.rs"] = &fstest.MapFile{Data: []byte("// " + d.Name + "\n")}
+		crates = append(crates, fakeCrate(d.Name, d.Version, defaultLib(d.Name)))
 	}
-	return FunctionSource{Name: name, Placement: placement, Files: fsys}
+	return FunctionSource{Name: name, Placement: placement, Files: fsys, Crates: crates}
+}
+
+// withCrate returns s with its lock entry for the crate replaced by one for an
+// archive whose library is lib, and that archive sent in place of the old one.
+func withCrate(s FunctionSource, name, version, lib string) FunctionSource {
+	data := fakeCrate(name, version, lib)
+	files := fstest.MapFS{}
+	for k, v := range s.Files.(fstest.MapFS) {
+		files[k] = v
+	}
+	old := CrateSHA256(fakeCrate(name, version, defaultLib(name)))
+	lock := strings.Replace(string(files["Cargo.lock"].Data), old, CrateSHA256(data), 1)
+	files["Cargo.lock"] = &fstest.MapFile{Data: []byte(lock)}
+	var crates [][]byte
+	for _, c := range s.Crates {
+		if CrateSHA256(c) != old {
+			crates = append(crates, c)
+		}
+	}
+	crates = append(crates, data)
+	s.Files, s.Crates = files, crates
+	return s
 }
 
 // wantCode fails the test unless err carries the Plux code.

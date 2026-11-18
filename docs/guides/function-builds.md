@@ -14,8 +14,9 @@ it, and why you can trust the chain. The decisions are in
 
 Compiling Rust runs code: build scripts (`build.rs`) and procedural macros are native programs
 that execute with the compiler's privileges. A module built on a laptop also proves nothing about
-its source. So Plux never deploys a module you built. You upload **source and vendored
-dependencies**; the `builder` role compiles them in a sandbox; the result is signed. Only
+its source. So Plux never deploys a module you built. You upload **your crate's source and the
+published archives of its dependencies**; the `builder` role checks every archive, compiles them in
+a sandbox; the result is signed. Only
 artifacts built by the `builder` role and signed with the function-artifact key are deployable,
 and `fnrunner` checks the signature before it compiles a module (`FN-009`).
 
@@ -23,7 +24,7 @@ and `fnrunner` checks the signature before it compiles a module (`FN-009`).
 tests. Its output is never uploaded.
 
 ```text
-plux fn deploy ─ source + vendor/ ─▶ api ─▶ worker ─▶ builder   (no network, no keys, no database)
+plux fn deploy ─ source + .crate archives ─▶ api ─▶ worker ─▶ builder   (no network, no keys, no database)
                                               │             │
                                               │◀ module, schemas, provenance
                                               ├─ signing/ signs the artifact statement
@@ -39,9 +40,15 @@ For each build the pipeline:
 
 1. Validates `function.json` against the document schema and the request (`PLX-7205` on a
    mismatch) and unpacks the source archive. It must be at most `function.sourceArchiveSize`
-   (64 MiB by default) and carry `Cargo.toml`, `Cargo.lock`, `src/` and a `vendor/` directory made
-   by `cargo vendor`. `plux fn deploy` packs all of these; it runs `cargo vendor` into a temporary
-   directory for each deploy, so your project keeps no copy of the dependencies.
+   (64 MiB by default) with its crate archives, and carry `Cargo.toml`, `Cargo.lock`, `src/` and
+   `function.json`; a `vendor/` directory is refused. The dependencies are the `.crate` archives
+   crates.io publishes for the packages `Cargo.lock` names (at most `function.sourceCrates`, 512 by
+   default). `plux fn deploy` runs `cargo fetch`, reads each archive from Cargo's cache by its
+   checksum, asks the server which ones your organisation has not sent yet and sends only those;
+   each is stored once, under its SHA-256 ([ADR-0105](../adr/0105-function-dependencies-as-verified-crates.md)).
+   The builder checks every archive's SHA-256 against `Cargo.lock`, refuses anything unexpected in
+   it (a path outside `<name>-<version>/`, a link, its own checksum file, a manifest naming another
+   crate) and makes `vendor/` itself, with the checksums Cargo verifies.
 2. Wraps your crate in a generated crate, `plux-module`, that emits the ABI exports with a
    dispatch table ([ABI](../functions/abi.md)) and checks your handler's placement.
 3. Resolves the dependencies from the lock file and checks every build script and procedural
@@ -86,16 +93,19 @@ is refused as unavailable instead of queued without end.
 
 ## 4. Allowlisted build scripts and procedural macros
 
-A crate that has a build script or is a procedural macro must be on an allowlist, by crate name
-and exact version, checked against `Cargo.lock` and the vendored checksums. A crate that is not
-on it fails the build with `PLX-7202`. Only crates actually built for `wasm32-wasip1` are
+A crate that has a build script or is a procedural macro must come from crates.io and be on an
+allowlist, by crate name, exact version and the SHA-256 of the archive crates.io publishes for
+that version. Since the builder makes `vendor/` only from archives whose SHA-256 is the lock
+file's checksum, the code that runs is the published code: a modified copy of an allowlisted
+crate, or a path crate that takes an allowlisted name, fails the build with `PLX-7202`. Only crates actually built for `wasm32-wasip1` are
 checked, so an optional dependency that is never compiled does not count.
 
 The list is `backend/internal/builder/allowlist.json`. It holds the crates the SDK needs and a
 small set of widely used ones: `proc-macro2`, `quote`, `syn`, `unicode-ident`, `serde`,
 `serde_core`, `serde_derive`, `serde_json`, `schemars`, `schemars_derive`, `ref-cast`,
 `ref-cast-impl`, `rust_decimal`, `num-traits`, `itoa`, `memchr` and others, each at the versions
-listed in the file. A crate without a build script or procedural macro, such as a pure-Rust
+listed in the file, and each version pinned to the SHA-256 of its crates.io archive, the one
+`sdk/fn/Cargo.lock` records (a test checks they agree). A crate without a build script or procedural macro, such as a pure-Rust
 library, needs no entry. Adding a crate to the list is a security decision; ask the maintainers,
 who change it in a reviewed commit. The sandbox is the second line of defence, not a substitute.
 
@@ -107,7 +117,7 @@ different crate, pin a version that is on the list, or ask for the crate to be a
 The same source, lock file and toolchain give a byte-identical module (`FN-019`,
 `CMP-002`). To get there the build:
 
-- uses vendored sources only, offline;
+- uses the verified crate archives only, offline;
 - remaps every path (`--remap-path-prefix`) so the module holds no host path;
 - sets `SOURCE_DATE_EPOCH` and an empty environment;
 - runs one pinned `wasm-opt`: Binaryen `version_132` from the npm package `binaryen@132.0.0`,
@@ -126,9 +136,9 @@ Every build records, with the module (`FN-005`):
 
 | Field | Content |
 |---|---|
-| Source hash | SHA-256 over the canonical list of every source file, vendored files included |
+| Source hash | SHA-256 over the canonical list of every source file, the files the builder extracted from the crate archives included |
 | SDK hash | The same construction over the pinned `plux-fn` crate, which is a path crate and so absent from the lock file |
-| Dependencies | The registry crates of the lock file with versions and checksums |
+| Dependencies | The registry crates of the lock file with versions and checksums, each the verified SHA-256 of the archive built |
 | Toolchain | The full `rustc --version` line |
 | `wasm-opt` | The optimiser version |
 | Build time | UTC, from the builder's clock; it does not enter the module |

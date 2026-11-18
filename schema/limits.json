@@ -2684,7 +2684,27 @@
       "requirements": [
         "FN-016"
       ],
-      "description": "Size of an uploaded function source archive, including vendored sources."
+      "description": "Size of a function's source: the uploaded archive and the published crate archives it depends on, as stored."
+    },
+    {
+      "key": "function.sourceCrates",
+      "unit": "count",
+      "default": 512,
+      "max": 4096,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "FN-003",
+        "FN-016"
+      ],
+      "description": "Number of published crate archives one function source may depend on, and that one request may ask about."
     },
     {
       "key": "function.testCases",

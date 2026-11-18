@@ -151,7 +151,7 @@ type run struct {
 // links the functions in the order of their names. Failures carry the codes
 // PLX-7200 to PLX-7206; a sandbox the kernel refuses is [ErrSandboxUnavailable].
 func (b *Builder) Build(ctx context.Context, srcs []FunctionSource, opts Options) (*Artifact, error) {
-	funcs, err := prepareSources(srcs)
+	funcs, err := prepareSources(srcs, b.cfg.SourceBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (b *Builder) Build(ctx context.Context, srcs []FunctionSource, opts Options
 	if err != nil {
 		return nil, err
 	}
-	if err := r.checkBuildCode(ctx); err != nil {
+	if err := r.checkBuildCode(ctx, deps); err != nil {
 		return nil, err
 	}
 	schemas, err := r.deriveSchemas(ctx, funcs)
@@ -365,8 +365,8 @@ func (r *run) resolve(ctx context.Context, funcs []preparedFunction) ([]Dependen
 }
 
 // checkBuildCode applies the allowlist to the crates the build compiles
-// (FN-016).
-func (r *run) checkBuildCode(ctx context.Context) error {
+// (FN-016), with the checksums of the resolved dependencies.
+func (r *run) checkBuildCode(ctx context.Context, deps []Dependency) error {
 	lim := r.b.cfg.Limits
 	lim.OutputBytes *= metadataOutputFactor
 	meta, err := r.cargo(ctx, "cargo metadata", lim, "metadata", "--offline", "--locked", "--format-version", "1")
@@ -382,7 +382,11 @@ func (r *run) checkBuildCode(ctx context.Context) error {
 	if err != nil {
 		return plxerr.Wrap(plxerr.FunctionBuildFailed, err, "reading the dependency tree")
 	}
-	return checkAllowlist(meta.Stdout, built, r.b.cfg.Allowlist)
+	checksums := make(map[string]string, len(deps))
+	for _, d := range deps {
+		checksums[d.Name+" "+d.Version] = d.Checksum
+	}
+	return checkAllowlist(meta.Stdout, built, checksums, r.b.cfg.Allowlist)
 }
 
 // compile builds the wrapper into a target directory and returns the raw

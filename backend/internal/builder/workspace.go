@@ -125,6 +125,11 @@ func stageWorkspace(root string, sdk fs.FS, funcs []preparedFunction, budget int
 	if err != nil {
 		return stagedHashes{}, err
 	}
+	// Cargo reads the dependencies from vendor/ only; it exists even when no
+	// function has a registry dependency.
+	if err := os.MkdirAll(filepath.Join(root, vendorDir), 0o750); err != nil {
+		return stagedHashes{}, fmt.Errorf("builder.stageWorkspace: %w", err)
+	}
 	owner, err := mergeVendorPlan(funcs)
 	if err != nil {
 		return stagedHashes{}, err

@@ -76,7 +76,9 @@ func (s *Service) build(ctx context.Context, in *fnpb.BuildRequest) (*fnpb.Build
 	if err != nil {
 		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("the builder is not configured to build: %w", err))
 	}
-	artifact, err := b.Build(ctx, []builder.FunctionSource{decl.Source(files)}, builder.Options{})
+	src := decl.Source(files)
+	src.Crates = in.GetCrates()
+	artifact, err := b.Build(ctx, []builder.FunctionSource{src}, builder.Options{})
 	if err != nil {
 		return refusal(err)
 	}

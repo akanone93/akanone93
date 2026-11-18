@@ -4,22 +4,30 @@
 package builder
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/tetratelabs/wazero"
+
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
 // e2eManifest is the standalone manifest of the loan example: the workspace
-// form of sdk/fn/examples/loan, with the patch that `cargo vendor` needs while
-// plux-fn is unpublished.
+// form of sdk/fn/examples/loan, with the patch that Cargo needs while plux-fn is
+// unpublished.
 const e2eManifest = `[package]
 name = "loan"
 version = "0.1.0"
@@ -108,7 +116,15 @@ func TestBuildLoanExampleEndToEnd_FN_019(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(proj, "Cargo.toml"), manifest, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	runSetup(t, proj, "cargo", "vendor", "--quiet")
+	runSetup(t, proj, "cargo", "fetch", "--quiet")
+	lockData, err := os.ReadFile(filepath.Join(proj, "Cargo.lock"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	crates, err := LocalCrates(cargoHome(t), lockData)
+	if err != nil {
+		t.Fatal(err)
+	}
 	bin := filepath.Join(work, "binaryen")
 	if err := os.MkdirAll(bin, 0o750); err != nil {
 		t.Fatal(err)
@@ -126,7 +142,7 @@ func TestBuildLoanExampleEndToEnd_FN_019(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	src := []FunctionSource{{Name: "loan.calculateSchedule", Placement: PlacementDevice, Files: os.DirFS(proj)}}
+	src := []FunctionSource{{Name: "loan.calculateSchedule", Placement: PlacementDevice, Files: os.DirFS(proj), Crates: crates}}
 
 	start := time.Now()
 	a1, err := b.Build(t.Context(), src, Options{Verify: true})
@@ -162,4 +178,105 @@ func TestBuildLoanExampleEndToEnd_FN_019(t *testing.T) {
 	if a1.Provenance.Toolchain == "" || len(a1.Provenance.Dependencies) == 0 {
 		t.Errorf("provenance incomplete: %+v", a1.Provenance)
 	}
+
+	// Build log #159: serde's build script, changed and repacked, with
+	// Cargo.lock naming the new archive, is refused before anything compiles.
+	tampered, tamperedLock := tamperSerde(t, crates, lockData)
+	files := os.DirFS(proj)
+	_, err = b.Build(t.Context(), []FunctionSource{{
+		Name: "loan.calculateSchedule", Placement: PlacementDevice,
+		Files: overlayFile(t, files, "Cargo.lock", tamperedLock), Crates: tampered,
+	}}, Options{})
+	wantCode(t, err, plxerr.FunctionBuildScriptRefused)
+}
+
+// cargoHome is the Cargo home of the machine running the test.
+func cargoHome(t *testing.T) string {
+	t.Helper()
+	if h := os.Getenv("CARGO_HOME"); h != "" {
+		return h
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return filepath.Join(home, ".cargo")
+}
+
+// tamperSerde returns the crates with serde's archive repacked with a line
+// added to its build script, and the lock file naming the repacked archive.
+func tamperSerde(t *testing.T, crates [][]byte, lockData []byte) ([][]byte, []byte) {
+	t.Helper()
+	locked, err := LockedCrates(lockData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var serdeSum string
+	for _, c := range locked {
+		if c.Name == "serde" {
+			serdeSum = c.Checksum
+		}
+	}
+	out := make([][]byte, 0, len(crates))
+	var repacked []byte
+	for _, data := range crates {
+		if CrateSHA256(data) != serdeSum {
+			out = append(out, data)
+			continue
+		}
+		files := map[string]string{}
+		zr, err := gzip.NewReader(bytes.NewReader(data))
+		if err != nil {
+			t.Fatal(err)
+		}
+		tr := tar.NewReader(zr)
+		top := ""
+		for {
+			h, err := tr.Next()
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if h.Typeflag != tar.TypeReg {
+				continue
+			}
+			b, err := io.ReadAll(tr)
+			if err != nil {
+				t.Fatal(err)
+			}
+			first, rel, _ := strings.Cut(h.Name, "/")
+			top, files[rel] = first, string(b)
+		}
+		files["build.rs"] = strings.Replace(files["build.rs"], "fn main() {", "fn main() {\n    // changed\n", 1)
+		repacked = crateArchive(top, files)
+		out = append(out, repacked)
+	}
+	if repacked == nil {
+		t.Fatal("serde is not among the crates")
+	}
+	return out, bytes.Replace(lockData, []byte(serdeSum), []byte(CrateSHA256(repacked)), 1)
+}
+
+// overlayFile returns fsys with one file replaced.
+func overlayFile(t *testing.T, fsys fs.FS, name string, data []byte) fs.FS {
+	t.Helper()
+	out := fstest.MapFS{}
+	err := fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		b, err := fs.ReadFile(fsys, p)
+		if err != nil {
+			return err
+		}
+		out[p] = &fstest.MapFile{Data: b, Mode: 0o644}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	out[name] = &fstest.MapFile{Data: data, Mode: 0o644}
+	return out
 }

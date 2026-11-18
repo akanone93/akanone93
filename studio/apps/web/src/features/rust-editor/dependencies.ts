@@ -3,8 +3,9 @@
 
 /**
  * Dependency management for the Rust editor (FN-033): the `[dependencies]` table of the function's `Cargo.toml`.
- * Any crate that compiles for `wasm32-wasip1` may be declared (FN-003); the builder works from vendored sources and a
- * lock file only (FN-016), so a crate added here takes effect when the source is uploaded again with its `vendor/`.
+ * Any crate that compiles for `wasm32-wasip1` may be declared (FN-003); the builder works from a lock file and the
+ * published crate archives it names only (FN-016, ADR-0105), so a crate added here takes effect when the source is
+ * uploaded again with its dependencies (`plux fn deploy`).
  */
 
 export interface Dependency {

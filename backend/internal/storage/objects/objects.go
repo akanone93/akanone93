@@ -41,6 +41,10 @@ const (
 	KindExport Kind = "exports"
 	// KindSource holds uploaded function source archives (FN-016).
 	KindSource Kind = "sources"
+	// KindCrate holds the published `.crate` archives function sources
+	// depend on, each once under its SHA-256, which the server checks when
+	// it receives one (FN-003, ADR-0105).
+	KindCrate Kind = "crates"
 	// KindModule holds built function modules (FN-005).
 	KindModule Kind = "modules"
 	// KindLinked holds the modules that link a plugin's device-placed
@@ -54,7 +58,7 @@ const (
 )
 
 // kinds lists the valid kinds, for validation and for tests.
-var kinds = []Kind{KindBundle, KindDelta, KindAsset, KindExport, KindSource, KindModule, KindLinked, KindGolden}
+var kinds = []Kind{KindBundle, KindDelta, KindAsset, KindExport, KindSource, KindCrate, KindModule, KindLinked, KindGolden}
 
 // hexDigest matches a lower-case SHA-256.
 var hexDigest = regexp.MustCompile(`^[0-9a-f]{64}$`)

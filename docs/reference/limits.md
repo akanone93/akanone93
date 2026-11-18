@@ -146,7 +146,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `function.memory` | bytes | 67108864 | 80% | 536870912 | installation, organization, app | P7 | FN-011 | Linear memory one server function invocation may use. |
 | `function.moduleSize` | bytes | 16777216 | 80% | 67108864 | installation, organization, app | P7 | FN-010 | Size of the WebAssembly module of one server function. |
 | `function.outputSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app | P7 | FN-011 | Size of the JSON output of one function invocation. |
-| `function.sourceArchiveSize` | bytes | 67108864 | 80% | 536870912 | installation, organization, app | P7 | FN-016 | Size of an uploaded function source archive, including vendored sources. |
+| `function.sourceArchiveSize` | bytes | 67108864 | 80% | 536870912 | installation, organization, app | P7 | FN-016 | Size of a function's source: the uploaded archive and the published crate archives it depends on, as stored. |
+| `function.sourceCrates` | count | 512 | 80% | 4096 | installation, organization, app | P11 | FN-003, FN-016 | Number of published crate archives one function source may depend on, and that one request may ask about. |
 | `function.testCases` | count | 100 | 80% | 1000 | installation, organization, app | P7 | FN-031 | Stored test cases of one function. |
 | `function.timeout` | milliseconds | 2000 | 80% | 30000 | installation, organization, app | P7 | FN-011 | Wall-clock time one server function invocation may run. |
 | `gateway.requestBytes` | bytes | 1048576 | 80% | 33554432 | installation, organization, app | P6 | SEC-031, LIM-004 | Bytes of request body the gateway forwards to an upstream. |

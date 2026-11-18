@@ -386,6 +386,34 @@ func (q *Queries) InsertFunctionBuild(ctx context.Context, arg InsertFunctionBui
 	return i, err
 }
 
+const insertFunctionCrate = `-- name: InsertFunctionCrate :execrows
+INSERT INTO function_crates (organization_id, sha256, object_key, size_bytes, created_by)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (organization_id, sha256) DO NOTHING
+`
+
+type InsertFunctionCrateParams struct {
+	OrganizationID pgtype.UUID
+	Sha256         []byte
+	ObjectKey      string
+	SizeBytes      int64
+	CreatedBy      pgtype.UUID
+}
+
+func (q *Queries) InsertFunctionCrate(ctx context.Context, arg InsertFunctionCrateParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertFunctionCrate,
+		arg.OrganizationID,
+		arg.Sha256,
+		arg.ObjectKey,
+		arg.SizeBytes,
+		arg.CreatedBy,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const insertFunctionSource = `-- name: InsertFunctionSource :one
 INSERT INTO function_sources
     (id, organization_id, app_id, environment_id, name, object_key, sha256, size_bytes, created_by)
@@ -431,6 +459,21 @@ func (q *Queries) InsertFunctionSource(ctx context.Context, arg InsertFunctionSo
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const insertFunctionSourceCrate = `-- name: InsertFunctionSourceCrate :exec
+INSERT INTO function_source_crates (source_id, organization_id, sha256) VALUES ($1, $2, $3)
+`
+
+type InsertFunctionSourceCrateParams struct {
+	SourceID       pgtype.UUID
+	OrganizationID pgtype.UUID
+	Sha256         []byte
+}
+
+func (q *Queries) InsertFunctionSourceCrate(ctx context.Context, arg InsertFunctionSourceCrateParams) error {
+	_, err := q.db.Exec(ctx, insertFunctionSourceCrate, arg.SourceID, arg.OrganizationID, arg.Sha256)
+	return err
 }
 
 const insertFunctionVersion = `-- name: InsertFunctionVersion :one
@@ -537,6 +580,77 @@ func (q *Queries) ListFunctionAliases(ctx context.Context, arg ListFunctionAlias
 			&i.UpdatedBy,
 			&i.UpdatedAt,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFunctionCrates = `-- name: ListFunctionCrates :many
+SELECT sha256, object_key, size_bytes FROM function_crates
+WHERE organization_id = $1 AND sha256 = ANY($2::bytea[])
+ORDER BY sha256
+`
+
+type ListFunctionCratesParams struct {
+	OrganizationID pgtype.UUID
+	Sums           [][]byte
+}
+
+type ListFunctionCratesRow struct {
+	Sha256    []byte
+	ObjectKey string
+	SizeBytes int64
+}
+
+func (q *Queries) ListFunctionCrates(ctx context.Context, arg ListFunctionCratesParams) ([]ListFunctionCratesRow, error) {
+	rows, err := q.db.Query(ctx, listFunctionCrates, arg.OrganizationID, arg.Sums)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListFunctionCratesRow{}
+	for rows.Next() {
+		var i ListFunctionCratesRow
+		if err := rows.Scan(&i.Sha256, &i.ObjectKey, &i.SizeBytes); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFunctionSourceCrates = `-- name: ListFunctionSourceCrates :many
+SELECT c.sha256, c.object_key, c.size_bytes
+FROM function_source_crates sc
+JOIN function_crates c ON c.organization_id = sc.organization_id AND c.sha256 = sc.sha256
+WHERE sc.source_id = $1
+ORDER BY c.sha256
+`
+
+type ListFunctionSourceCratesRow struct {
+	Sha256    []byte
+	ObjectKey string
+	SizeBytes int64
+}
+
+func (q *Queries) ListFunctionSourceCrates(ctx context.Context, sourceID pgtype.UUID) ([]ListFunctionSourceCratesRow, error) {
+	rows, err := q.db.Query(ctx, listFunctionSourceCrates, sourceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListFunctionSourceCratesRow{}
+	for rows.Next() {
+		var i ListFunctionSourceCratesRow
+		if err := rows.Scan(&i.Sha256, &i.ObjectKey, &i.SizeBytes); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

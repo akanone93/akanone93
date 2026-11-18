@@ -50,7 +50,9 @@ type Editor interface {
 type EditorInput struct {
 	SourceObjectKey string
 	SourceSHA256    string
-	Name            string
+	// Crates are the stored crate archives the source depends on (ADR-0105).
+	Crates []CrateRef
+	Name   string
 	// SessionMinutes is lsp.sessionMinutes of the app (a language session).
 	SessionMinutes uint32
 	// MemoryBytes and Timeout are function.buildMemory and
@@ -199,8 +201,12 @@ func (s *Service) editorSource(ctx context.Context, p auth.Principal, sourceID s
 		if set, err = s.o.Limits(ctx, tx, p.OrganizationID, app); err != nil {
 			return fmt.Errorf("function: limits: %w", err)
 		}
+		crates, err := sourceCrates(ctx, dbgen.New(tx), src.ID)
+		if err != nil {
+			return err
+		}
 		in = EditorInput{
-			SourceObjectKey: src.ObjectKey, SourceSHA256: hex.EncodeToString(src.Sha256), Name: src.Name,
+			SourceObjectKey: src.ObjectKey, SourceSHA256: hex.EncodeToString(src.Sha256), Crates: crates, Name: src.Name,
 			SessionMinutes: uint32(min(set.Get(limits.LspSessionMinutes), 1<<31)), //nolint:gosec // G115: bounded and non-negative.
 			MemoryBytes:    set.Get(limits.FunctionBuildMemory),
 			Timeout:        time.Duration(set.Get(limits.FunctionBuildTimeout)) * time.Millisecond,

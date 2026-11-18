@@ -17,6 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/function/functiontest"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 )
 
@@ -905,6 +906,13 @@ var matrix = map[string]entry{
 	// FunctionAdminService
 	"FunctionAdminService/UploadSource": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
 		_, err := f.w.uploadSource(t, c, f.app, f.dev, "matrix.fn", "archive")
+		return err
+	}},
+	"FunctionAdminService/ListMissingCrates": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListMissingCratesRequest{AppId: f.app, Checksums: []string{functiontest.NewCrate("matrix", "1.0.0", "//").SHA256()}}
+	})),
+	"FunctionAdminService/UploadCrate": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		_, err := f.w.uploadCrate(t, c, f.app, functiontest.NewCrate("matrix", "1.0.0", "// "+f.name()))
 		return err
 	}},
 	"FunctionAdminService/Build": atPerm(auth.FunctionDeploy, func(t *testing.T, f *matrixFixture) proto.Message {

@@ -250,7 +250,7 @@ func gzipOf(t *testing.T, text string) []byte {
 // Verifies: FN-016.
 func TestBuildRefusesWhenTheKernelDeniesTheSandbox_FN_016(t *testing.T) {
 	s := newService(t, refusingSandbox{}, false, nil, nil)
-	good := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile, "vendor/": "", "function.json": declaration})
+	good := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile, "function.json": declaration})
 	_, err := s.Build(t.Context(), connect.NewRequest(request(good)))
 	if codeOf(err) != connect.CodeFailedPrecondition || !strings.Contains(err.Error(), "builder.sandbox") {
 		t.Errorf("error = %v; a refused sandbox must refuse the build and name the setting", err)
@@ -309,7 +309,7 @@ func TestUnsandboxedBuildsWarnOnStartAndOnEveryBuild_FN_016(t *testing.T) {
 func TestBuildsAreBoundedInNumber_FN_016(t *testing.T) {
 	sb := &blockingSandbox{started: make(chan struct{}), release: make(chan struct{})}
 	s := newService(t, sb, false, nil, nil)
-	good := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile, "vendor/": "", "function.json": declaration})
+	good := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile, "function.json": declaration})
 	first := make(chan error, 1)
 	go func() {
 		_, err := s.Build(t.Context(), connect.NewRequest(request(good)))

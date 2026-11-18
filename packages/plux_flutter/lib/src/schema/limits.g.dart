@@ -360,8 +360,12 @@ enum PluxLimit {
   functionModuleSize('function.moduleSize', PluxLimitUnit.bytes, 16777216, 0, 67108864),
   /// Size of the JSON output of one function invocation.
   functionOutputSize('function.outputSize', PluxLimitUnit.bytes, 1048576, 0, 16777216),
-  /// Size of an uploaded function source archive, including vendored sources.
+  /// Size of a function's source: the uploaded archive and the published crate
+  /// archives it depends on, as stored.
   functionSourceArchiveSize('function.sourceArchiveSize', PluxLimitUnit.bytes, 67108864, 0, 536870912),
+  /// Number of published crate archives one function source may depend on, and
+  /// that one request may ask about.
+  functionSourceCrates('function.sourceCrates', PluxLimitUnit.count, 512, 0, 4096),
   /// Stored test cases of one function.
   functionTestCases('function.testCases', PluxLimitUnit.count, 100, 0, 1000),
   /// Wall-clock time one server function invocation may run.

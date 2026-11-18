@@ -4,14 +4,15 @@
 package function_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
-	"strings"
 	"testing"
 
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/function"
+	"github.com/nightCode42/plux3/backend/internal/function/functiontest"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
 )
@@ -104,7 +105,7 @@ func TestProductionDeployNeedsApproval_FN_007(t *testing.T) {
 	}
 
 	standard := w.service(t, func(o *function.Options) { o.Approvals = w.engine(t, settings.Standard) })
-	src, err := w.svc.UploadSource(ctx, w.developer, w.otherApp, w.otherEnvs["production"], fnName, strings.NewReader("source"))
+	src, err := w.svc.UploadSource(ctx, w.developer, w.otherApp, w.otherEnvs["production"], fnName, bytes.NewReader(functiontest.SourceArchive("source")))
 	if err != nil {
 		t.Fatal(err)
 	}

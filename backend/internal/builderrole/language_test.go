@@ -54,7 +54,7 @@ func languageFixture(t *testing.T, server string, sessions int) (fnpbconnect.Bui
 	srv := httptest.NewServer(s.http.Handler)
 	t.Cleanup(srv.Close)
 	t.Cleanup(func() { _ = s.Stop(t.Context()) })
-	files := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\nversion = \"0.1.0\"\n", "Cargo.lock": lockFile, "vendor/": "", "src/lib.rs": "", "function.json": declaration})
+	files := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\nversion = \"0.1.0\"\n", "Cargo.lock": lockFile, "src/lib.rs": "", "function.json": declaration})
 	sum := sha256.Sum256(files)
 	return fnpbconnect.NewBuilderServiceClient(srv.Client(), srv.URL),
 		&fnpb.LanguageOpenRequest{Source: files, SourceSha256: hex.EncodeToString(sum[:]), Name: "bank.transferFee"}
@@ -156,7 +156,7 @@ func TestLanguageOpenRefusesWithoutAServerOrAGoodRequest_FN_033(t *testing.T) {
 
 // Verifies: FN-034.
 func TestTestRunsInTheBuildSandboxAndReturnsOnlyResults_FN_034(t *testing.T) {
-	files := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile, "vendor/": "", "function.json": declaration})
+	files := archive(t, map[string]string{"Cargo.toml": "[package]\nname = \"fee\"\n", "Cargo.lock": lockFile, "function.json": declaration})
 	s := newService(t, refusingSandbox{}, false, nil, nil)
 	if _, err := s.Test(t.Context(), connect.NewRequest(&fnpb.TestRequest{Build: request(files)})); codeOf(err) != connect.CodeFailedPrecondition {
 		t.Errorf("a refused sandbox: error = %v; want a failed precondition, as for a build", err)

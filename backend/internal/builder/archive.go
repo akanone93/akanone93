@@ -22,8 +22,10 @@ import (
 const tarBlock = 512
 
 // ExtractArchive reads a gzip-compressed tar archive of one function's source
-// into memory: Cargo.toml, Cargo.lock, src/, vendor/ and function.json at its
-// root (FN-016). The archive may hold only regular files and directories on
+// into memory: Cargo.toml, Cargo.lock, src/ and function.json at its root
+// (FN-016). The dependencies travel separately as their `.crate` archives; a
+// vendor/ directory in the source is refused when the build prepares it
+// (ADR-0105). The archive may hold only regular files and directories on
 // clean relative paths; everything extracted, charged per entry as at least a
 // tar block, is bounded by maxBytes (function.sourceArchiveSize), and a larger
 // archive is PLX-7203. A malformed archive is PLX-7200.
@@ -70,8 +72,6 @@ func addEntry(files fstest.MapFS, tr *tar.Reader, h *tar.Header) error {
 	}
 	switch h.Typeflag {
 	case tar.TypeDir:
-		// An empty vendor/ directory is a statement: nothing is vendored
-		// (FN-003).
 		if _, dup := files[name]; !dup {
 			files[name] = &fstest.MapFile{Mode: fs.ModeDir | 0o755}
 		}

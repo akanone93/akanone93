@@ -167,7 +167,7 @@ func (e env) fnBuild(args []string) int {
 	set := flag.NewFlagSet("fn build", flag.ContinueOnError)
 	l.register(set, true)
 	verify := set.Bool("verify", false, "build twice and fail unless the two modules are byte-identical (FN-019)")
-	pos, code, ok := parseFn(set, args, e.stderr, "Usage: plux fn build <name> [--verify] [--sdk dir] [-C dir] [--json]\n\nVendors the dependencies and builds the module without a sandbox, for development only: the server rebuilds in its sandbox on deploy. Writes the module, the schemas and the provenance to functions/<name>/"+outputDir+"/.", 1)
+	pos, code, ok := parseFn(set, args, e.stderr, "Usage: plux fn build <name> [--verify] [--sdk dir] [-C dir] [--json]\n\nFetches the dependencies with Cargo and builds the module without a sandbox, for development only: the server rebuilds in its sandbox on deploy. Writes the module, the schemas and the provenance to functions/<name>/"+outputDir+"/.", 1)
 	if !ok {
 		return code
 	}

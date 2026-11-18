@@ -4,10 +4,10 @@
 package function_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -15,6 +15,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/function"
+	"github.com/nightCode42/plux3/backend/internal/function/functiontest"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
@@ -74,7 +75,7 @@ func editorWorld(t *testing.T, sessions int64) (*world, *fakeEditor, string) {
 	})
 	ed := newFakeEditor()
 	w.svc = w.service(t, func(o *function.Options) { o.Editor = ed })
-	src, err := w.svc.UploadSource(t.Context(), w.developer, w.app, w.envs["development"], fnName, strings.NewReader("source"))
+	src, err := w.svc.UploadSource(t.Context(), w.developer, w.app, w.envs["development"], fnName, bytes.NewReader(functiontest.SourceArchive("source")))
 	if err != nil {
 		t.Fatal(err)
 	}

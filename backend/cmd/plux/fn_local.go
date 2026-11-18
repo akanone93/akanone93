@@ -188,13 +188,13 @@ func ignoreSharedTarget(project string) error {
 	return nil
 }
 
-// sourceEntries are the parts of a crate the server builds from (FN-016);
-// the vendored dependencies are added by vendoredSource.
+// sourceEntries are the parts of a crate the server builds from (FN-016); the
+// dependencies travel as their published archives (crateSource).
 var sourceEntries = []string{"Cargo.toml", "Cargo.lock", builder.DeclarationFile, "src"}
 
 // collectSource reads the files of a crate that make up its source archive:
 // the manifest, the lock file, src/ and function.json. A vendor/ directory
-// in the crate is not read: vendoredSource adds a fresh one.
+// in the crate is never read: the builder makes vendor/ itself.
 func collectSource(dir string) (fstest.MapFS, error) {
 	files := fstest.MapFS{}
 	for _, entry := range sourceEntries {
@@ -277,56 +277,69 @@ func packArchive(files fstest.MapFS) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// vendorCrate runs `cargo vendor` in the crate dir, writing every dependency
-// to out (FN-003); Cargo.lock is written beside the manifest.
-func (e env) vendorCrate(ctx context.Context, dir, out string) error {
-	if e.vendor != nil {
-		return e.vendor(ctx, dir, out)
+// fetchCrate runs `cargo fetch` in the crate dir, so that Cargo.lock exists
+// and Cargo's cache holds the archive of every dependency it names (FN-003).
+func (e env) fetchCrate(ctx context.Context, dir string) error {
+	if e.fetch != nil {
+		return e.fetch(ctx, dir)
 	}
 	var errOut bytes.Buffer
-	if err := runTool(ctx, dir, io.Discard, &errOut, "cargo", "vendor", "--quiet", out); err != nil {
+	if err := runTool(ctx, dir, io.Discard, &errOut, "cargo", "fetch", "--quiet"); err != nil {
 		_, _ = e.stderr.Write(errOut.Bytes())
 		return err
 	}
 	return nil
 }
 
-// vendoredSource reads the source of the crate in dir with its dependencies
-// under vendor/, as the server builds it (FN-003, FN-016). Cargo copies the
-// dependencies from its own cache, which every function and project on the
-// machine shares, into a temporary directory that is removed afterwards, so
-// no function keeps a copy of them. The archive is the same as from a vendor/
-// directory in the crate.
-func (e env) vendoredSource(ctx context.Context, dir string) (files fstest.MapFS, err error) {
-	tmp, err := os.MkdirTemp("", "plux-vendor-")
+// cargoHomeDir is Cargo's home on this machine: $CARGO_HOME, or ~/.cargo.
+func (e env) cargoHomeDir() (string, error) {
+	if e.cargoHome != "" {
+		return e.cargoHome, nil
+	}
+	if h := os.Getenv("CARGO_HOME"); h != "" {
+		return h, nil
+	}
+	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("create a directory for the dependencies: %w", err)
+		return "", fmt.Errorf("find Cargo's home: %w", err)
 	}
-	defer func() {
-		if rmErr := os.RemoveAll(tmp); rmErr != nil && err == nil {
-			err = fmt.Errorf("remove %s: %w", tmp, rmErr)
-		}
-	}()
-	vendor := filepath.Join(tmp, "vendor")
-	if err := e.vendorCrate(ctx, dir, vendor); err != nil {
-		return nil, err
+	return filepath.Join(home, ".cargo"), nil
+}
+
+// crateSource reads the source of the crate in dir and the published crate
+// archives of the dependencies its Cargo.lock names, from Cargo's cache,
+// which every function and project on the machine shares, so no function
+// keeps a copy of them (FN-003, ADR-0105). Each archive is the one whose
+// SHA-256 Cargo.lock records; the builder checks them again.
+func (e env) crateSource(ctx context.Context, dir string) (fstest.MapFS, [][]byte, error) {
+	if err := e.fetchCrate(ctx, dir); err != nil {
+		return nil, nil, err
 	}
-	if files, err = collectSource(dir); err != nil {
-		return nil, err
+	files, err := collectSource(dir)
+	if err != nil {
+		return nil, nil, err
 	}
-	if info, statErr := os.Lstat(vendor); statErr == nil {
-		if err := collectEntry(files, tmp, vendor, info); err != nil {
-			return nil, fmt.Errorf("collect the dependencies: %w", err)
-		}
+	lock, ok := files["Cargo.lock"]
+	if !ok {
+		return nil, nil, fmt.Errorf("%s has no Cargo.lock after cargo fetch", dir)
+	}
+	home, err := e.cargoHomeDir()
+	if err != nil {
+		return nil, nil, err
+	}
+	crates, err := builder.LocalCrates(home, lock.Data)
+	if err != nil {
+		return nil, nil, err //nolint:wrapcheck // a Plux error that says what to do
 	}
 	e.dropOldVendor(dir)
-	return files, nil
+	return files, crates, nil
 }
 
 // dropOldVendor removes the vendor/ directory that earlier versions of plux
-// fn wrote into each crate and that `cargo vendor` rewrote on every run. It
-// is removed only when it holds nothing but crates written by `cargo vendor`
-// (each with a .cargo-checksum.json); anything else is left alone.
+// fn wrote into each crate and that `cargo vendor` rewrote on every run; the
+// builder now makes vendor/ itself from the published archives. It is removed
+// only when it holds nothing but crates written by `cargo vendor` (each with
+// a .cargo-checksum.json); anything else is left alone.
 func (e env) dropOldVendor(dir string) {
 	vendor := filepath.Join(dir, "vendor")
 	entries, err := os.ReadDir(vendor)
@@ -346,7 +359,7 @@ func (e env) dropOldVendor(dir string) {
 		_, _ = fmt.Fprintf(e.stderr, "could not remove %s, which plux fn no longer uses: %v\n", vendor, err)
 		return
 	}
-	_, _ = fmt.Fprintf(e.stderr, "removed %s: the dependencies are now read from Cargo's cache, not copied into each function\n", vendor)
+	_, _ = fmt.Fprintf(e.stderr, "removed %s: the dependencies are now sent as their published archives from Cargo's cache, not copied into each function\n", vendor)
 }
 
 // builtFunction is the result of a development build.
@@ -406,30 +419,32 @@ func (e env) localBuilder(ctx context.Context, sdkFlag string, set limits.Set) (
 	return b, func() { _ = engine.Close(context.WithoutCancel(ctx)) }, nil
 }
 
-// readCrate vendors the dependencies of a function's crate and reads its
-// source and validated declaration.
-func (e env) readCrate(ctx context.Context, project, name string, set limits.Set) (fstest.MapFS, *builder.Declaration, error) {
+// readCrate reads a function's source, the published archives of its
+// dependencies and its validated declaration, as one builder source.
+func (e env) readCrate(ctx context.Context, project, name string, set limits.Set) (builder.FunctionSource, *builder.Declaration, error) {
 	if err := checkFunctionName(name); err != nil {
-		return nil, nil, err
+		return builder.FunctionSource{}, nil, err
 	}
-	files, err := e.vendoredSource(ctx, crateDir(project, name))
+	files, crates, err := e.crateSource(ctx, crateDir(project, name))
 	if err != nil {
-		return nil, nil, err
+		return builder.FunctionSource{}, nil, err
 	}
 	decl, diags, err := readDeclaration(files, name, set)
 	if err != nil {
-		return nil, nil, err
+		return builder.FunctionSource{}, nil, err
 	}
 	if decl == nil {
 		for _, d := range diags {
 			_, _ = fmt.Fprintln(e.stderr, d.String())
 		}
-		return nil, nil, errors.New("function.json is invalid")
+		return builder.FunctionSource{}, nil, errors.New("function.json is invalid")
 	}
-	return files, decl, nil
+	src := decl.Source(files)
+	src.Crates = crates
+	return src, decl, nil
 }
 
-// buildFunction vendors, validates and builds a function without a sandbox,
+// buildFunction fetches, validates and builds a function without a sandbox,
 // and writes the module, its schemas and the provenance to target/plux/.
 // It is for development only: the server rebuilds in its sandbox (FN-016).
 func (e env) buildFunction(ctx context.Context, project, name, sdkFlag string, verify bool) (*builtFunction, error) {
@@ -442,11 +457,11 @@ func (e env) buildFunction(ctx context.Context, project, name, sdkFlag string, v
 		return nil, err
 	}
 	defer closeBuilder()
-	files, decl, err := e.readCrate(ctx, project, name, set)
+	src, decl, err := e.readCrate(ctx, project, name, set)
 	if err != nil {
 		return nil, err
 	}
-	artifact, err := b.Build(ctx, []builder.FunctionSource{decl.Source(files)}, builder.Options{Verify: verify})
+	artifact, err := b.Build(ctx, []builder.FunctionSource{src}, builder.Options{Verify: verify})
 	if err != nil {
 		return nil, fmt.Errorf("build %s: %w", name, err)
 	}

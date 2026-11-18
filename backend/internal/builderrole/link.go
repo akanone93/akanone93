@@ -63,7 +63,9 @@ func (s *Service) link(ctx context.Context, in *fnpb.LinkRequest) (*fnpb.LinkRes
 			diags = append(diags, found...)
 			continue
 		}
-		sources = append(sources, decl.Source(files))
+		src := decl.Source(files)
+		src.Crates = builder.CratesFor(files, in.GetCrates())
+		sources = append(sources, src)
 	}
 	if len(diags) > 0 {
 		return linkDiagnosed(diags)
@@ -103,8 +105,11 @@ func checkLinkRequest(in *fnpb.LinkRequest) error {
 		}
 		total += int64(len(src.GetSource()))
 	}
+	for _, c := range in.GetCrates() {
+		total += int64(len(c))
+	}
 	if total > maxSource() {
-		return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("the source archives total %d bytes, above function.sourceArchiveSize = %d", total, maxSource()))
+		return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("the source and crate archives total %d bytes, above function.sourceArchiveSize = %d", total, maxSource()))
 	}
 	return nil
 }

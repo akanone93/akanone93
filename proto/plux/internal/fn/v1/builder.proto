@@ -54,10 +54,10 @@ message BuildRequest {
   // build_id names the build in the builder's logs.
   string build_id = 1;
   // source is the whole gzip-compressed tar archive: Cargo.toml, Cargo.lock,
-  // src/, vendor/ and function.json at its root. It travels in the request,
-  // not as a pre-signed object-store URL, so that the builder needs no route
-  // to the object store; the request is bounded by the registry maximum of
-  // function.sourceArchiveSize.
+  // src/ and function.json at its root. It travels in the request, with
+  // crates, not as a pre-signed object-store URL, so that the builder needs
+  // no route to the object store; the request is bounded by the registry
+  // maximum of function.sourceArchiveSize.
   bytes source = 2;
   // source_sha256 is the hex SHA-256 of source, which the builder verifies.
   string source_sha256 = 3;
@@ -68,6 +68,11 @@ message BuildRequest {
   // declares (PLX-7205).
   string placement = 5;
   BuildLimits limits = 6;
+  // crates are the `.crate` archives, as crates.io publishes them, of the
+  // crates.io packages the source's Cargo.lock names, each once. The builder
+  // checks each against its checksum and makes vendor/ from them (FN-003,
+  // ADR-0105).
+  repeated bytes crates = 7;
 }
 
 // BuildLimits are the limits of the app in force for the build, resolved from
@@ -126,10 +131,15 @@ message BuildTestResult {
 message LinkRequest {
   // link_id names the link in the builder's logs.
   string link_id = 1;
-  // sources are the archives to link, one per function. Their total size is
-  // bounded by the registry maximum of function.sourceArchiveSize.
+  // sources are the archives to link, one per function. Their total size,
+  // with crates, is bounded by the registry maximum of
+  // function.sourceArchiveSize.
   repeated LinkSource sources = 2;
   BuildLimits limits = 3;
+  // crates are the `.crate` archives the sources' lock files name, each
+  // once however many sources name it; each source is given those its own
+  // Cargo.lock names (FN-003, ADR-0105).
+  repeated bytes crates = 4;
 }
 
 message LinkSource {
@@ -176,6 +186,9 @@ message LanguageOpenRequest {
   // uses the smaller of it and the registry maximum of
   // `function.buildMemory`.
   uint64 memory_bytes = 6;
+  // crates are the `.crate` archives the source's Cargo.lock names, as for a
+  // build (ADR-0105).
+  repeated bytes crates = 7;
 }
 
 // LanguageOpenResponse is one event of a session's server stream.

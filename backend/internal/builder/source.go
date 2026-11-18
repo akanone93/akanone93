@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"regexp"
@@ -57,13 +58,14 @@ func sourceError(format string, args ...any) error {
 
 // prepareSources validates every function source and orders them by name,
 // which fixes each function's index in the module (E5).
-func prepareSources(srcs []FunctionSource) ([]preparedFunction, error) {
+func prepareSources(srcs []FunctionSource, maxBytes int64) ([]preparedFunction, error) {
 	if len(srcs) == 0 {
 		return nil, sourceError("a module needs at least one function")
 	}
+	budget := &sizeBudget{remaining: maxBytes}
 	out := make([]preparedFunction, 0, len(srcs))
 	for _, s := range srcs {
-		p, err := prepareSource(s)
+		p, err := prepareSource(s, budget)
 		if err != nil {
 			return nil, err
 		}
@@ -85,9 +87,10 @@ func prepareSources(srcs []FunctionSource) ([]preparedFunction, error) {
 	return out, nil
 }
 
-// prepareSource checks one function source: its identity, its manifest, its
-// lock file (FN-003) and its vendor directory.
-func prepareSource(s FunctionSource) (preparedFunction, error) {
+// prepareSource checks one function source: its identity, its manifest and
+// its lock file (FN-003), and makes its vendor directory from the verified
+// crate archives (ADR-0105), charging them to budget.
+func prepareSource(s FunctionSource, budget *sizeBudget) (preparedFunction, error) {
 	if !functionName.MatchString(s.Name) {
 		return preparedFunction{}, sourceError("function name %q is not valid", s.Name)
 	}
@@ -104,7 +107,7 @@ func prepareSource(s FunctionSource) (preparedFunction, error) {
 	if declaresWorkspace(manifest) {
 		return preparedFunction{}, sourceError("function %q: Cargo.toml declares a [workspace]; the builder owns the workspace", s.Name)
 	}
-	pkg := tomlStringFields(manifest, "package")["name"]
+	pkg := packageFields(manifest)["name"]
 	if pkg == "" {
 		return preparedFunction{}, sourceError("function %q: Cargo.toml has no package name", s.Name)
 	}
@@ -112,6 +115,11 @@ func prepareSource(s FunctionSource) (preparedFunction, error) {
 	if err != nil {
 		return preparedFunction{}, err
 	}
+	files, err := assembleSource(s, lock, budget)
+	if err != nil {
+		return preparedFunction{}, err
+	}
+	s.Files, s.Crates = files, nil
 	vendor, err := readVendor(s)
 	if err != nil {
 		return preparedFunction{}, err
@@ -155,12 +163,15 @@ type checksumFile struct {
 	Package *string `json:"package"`
 }
 
-// readVendor lists the crates in vendor/ with their identity.
+// readVendor lists the crates in the vendor/ directory the builder made, with
+// their identity. A function without registry dependencies has none.
 func readVendor(s FunctionSource) ([]vendorCrate, error) {
 	entries, err := fs.ReadDir(s.Files, "vendor")
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil, nil
+	}
 	if err != nil {
-		return nil, plxerr.New(plxerr.FunctionDependencyNotVendored,
-			"function %q has no vendor/ directory; run `cargo vendor` (FN-003)", s.Name)
+		return nil, sourceError("function %q: reading vendor/: %v", s.Name, err)
 	}
 	var out []vendorCrate
 	for _, e := range entries {
@@ -183,7 +194,7 @@ func readVendorCrate(s FunctionSource, top string) (vendorCrate, error) {
 		return vendorCrate{}, plxerr.New(plxerr.FunctionDependencyNotVendored,
 			"function %q: vendored crate %q has no Cargo.toml", s.Name, top)
 	}
-	fields := tomlStringFields(manifest, "package")
+	fields := packageFields(manifest)
 	if fields["name"] == "" || fields["version"] == "" {
 		return vendorCrate{}, plxerr.New(plxerr.FunctionDependencyNotVendored,
 			"function %q: vendored crate %q has no name or version", s.Name, top)

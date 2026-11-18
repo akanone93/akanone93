@@ -8179,6 +8179,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListLogsResponse'
+  /plux.v1.FunctionAdminService/ListMissingCrates:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: ListMissingCrates
+      description: |-
+        ListMissingCrates names, of the SHA-256 checksums asked about, those
+         whose crate archive the organisation has not sent yet, so that a client
+         sends each archive once. At most `function.sourceCrates` checksums per
+         request (FN-003, ADR-0105).
+      operationId: plux.v1.FunctionAdminService.ListMissingCrates
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListMissingCratesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListMissingCratesResponse'
   /plux.v1.FunctionAdminService/ListVersions:
     post:
       tags:
@@ -8301,6 +8344,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.SetAliasResponse'
+  /plux.v1.FunctionAdminService/UploadCrate: {}
   /plux.v1.FunctionAdminService/UploadSource: {}
   /plux.v1.FunctionService/Invoke:
     post:
@@ -28958,6 +29002,35 @@ components:
           title: page
       title: ListMembersResponse
       additionalProperties: false
+    plux.v1.ListMissingCratesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        checksums:
+          type: array
+          items:
+            type: string
+          title: checksums
+          description: |-
+            checksums are the lower-case hex SHA-256 checksums of crate archives,
+             as Cargo.lock records them.
+      title: ListMissingCratesRequest
+      additionalProperties: false
+    plux.v1.ListMissingCratesResponse:
+      type: object
+      properties:
+        missing:
+          type: array
+          items:
+            type: string
+          title: missing
+          description: |-
+            missing are the checksums asked about whose archive the organisation
+             has not sent, in the order asked, each once.
+      title: ListMissingCratesResponse
+      additionalProperties: false
     plux.v1.ListNotificationChannelsRequest:
       type: object
       title: ListNotificationChannelsRequest
@@ -36273,6 +36346,37 @@ components:
           title: asset
       title: UploadAssetResponse
       additionalProperties: false
+    plux.v1.UploadCrateRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        sha256:
+          type: string
+          title: sha256
+          description: |-
+            sha256 is the lower-case hex SHA-256 of the archive, as Cargo.lock
+             records it.
+        chunk:
+          type: string
+          title: chunk
+          format: byte
+          description: chunk is a part of the archive.
+      title: UploadCrateRequest
+      additionalProperties: false
+    plux.v1.UploadCrateResponse:
+      type: object
+      properties:
+        sha256:
+          type: string
+          title: sha256
+        stored:
+          type: boolean
+          title: stored
+          description: stored is false when the organisation had already sent the archive.
+      title: UploadCrateResponse
+      additionalProperties: false
     plux.v1.UploadNativeCatalogueRequest:
       type: object
       properties:
@@ -36378,9 +36482,7 @@ components:
           type: string
           title: chunk
           format: byte
-          description: |-
-            chunk is a part of the archive of the crate and its `vendor/`
-             directory (FN-016).
+          description: chunk is a part of the archive of the crate (FN-016).
       title: UploadSourceRequest
       additionalProperties: false
     plux.v1.UploadSourceResponse:

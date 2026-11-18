@@ -31,7 +31,10 @@ network or the platform's secrets (`FN-016`). This ADR decides how.
 ## Decision
 
 Chosen option: **2**. Source and vendored dependencies are uploaded; the `builder` role
-builds them and the worker has `signing/` sign the artifact. Only server builds are
+builds them and the worker has `signing/` sign the artifact. *(Amended by
+[ADR-0105](0105-function-dependencies-as-verified-crates.md): dependencies travel as the
+published `.crate` archives, verified by SHA-256 and stored once; the builder makes `vendor/`
+from them.)* Only server builds are
 deployable; `plux fn build` runs the same pipeline locally for development and tests.
 
 **Build.** `cargo build --release --locked --offline --frozen` over `cargo vendor` sources,
@@ -63,7 +66,10 @@ server logs a distinct warning on start and with every build (security default r
 
 **Allowlist of build scripts and procedural macros.** A crate that has a build script or is a
 procedural macro must be on an allowlist, by crate name and exact version, checked against
-`Cargo.lock` and the vendored checksums. Initial list: `proc-macro2`, `quote`, `syn`,
+`Cargo.lock` and the vendored checksums. *(Amended by ADR-0105: the allowlist pins each version
+to the SHA-256 of its published archive, the crate must come from crates.io, and the builder
+verifies the archive itself, since the uploader writes both `Cargo.lock` and the vendored
+checksums.)* Initial list: `proc-macro2`, `quote`, `syn`,
 `unicode-ident`, `serde`, `serde_derive`, `serde_json`, `schemars`, `schemars_derive`,
 `rust_decimal`, `libm`, `thiserror`, `thiserror-impl`, `itoa`, `ryu`, `memchr`, and — found
 by the first real build (W2, 2026-10-13) as required dependencies of crates already on the list

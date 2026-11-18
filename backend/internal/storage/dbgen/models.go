@@ -906,6 +906,15 @@ type FunctionBuild struct {
 	FinishedAt        pgtype.Timestamptz
 }
 
+type FunctionCrate struct {
+	OrganizationID pgtype.UUID
+	Sha256         []byte
+	ObjectKey      string
+	SizeBytes      int64
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
 type FunctionDeclaration struct {
 	BuildID        pgtype.UUID
 	OrganizationID pgtype.UUID
@@ -982,6 +991,12 @@ type FunctionSource struct {
 	SizeBytes      int64
 	CreatedBy      pgtype.UUID
 	CreatedAt      pgtype.Timestamptz
+}
+
+type FunctionSourceCrate struct {
+	SourceID       pgtype.UUID
+	OrganizationID pgtype.UUID
+	Sha256         []byte
 }
 
 type FunctionTrigger struct {

@@ -42,6 +42,9 @@ type LinkInput struct {
 	LinkID string
 	// Sources are the functions to link, sorted by name.
 	Sources []LinkSource
+	// Crates are the stored crate archives the sources depend on, each once
+	// however many sources name it (ADR-0105).
+	Crates []CrateRef
 	// Timeout and MemoryBytes are function.buildTimeout and
 	// function.buildMemory (FN-010).
 	Timeout     time.Duration
@@ -108,6 +111,7 @@ type linkMember struct {
 	version      int32
 	moduleSHA256 []byte
 	source       dbgen.FunctionSource
+	crates       []CrateRef
 }
 
 // deviceModule returns the module linking the functions: from the cache,
@@ -195,7 +199,11 @@ func linkMemberOf(ctx context.Context, q *dbgen.Queries, environment pgtype.UUID
 	if err != nil {
 		return linkMember{}, fmt.Errorf("function: read the source of version %d of %s: %w", row.Version, row.Name, err)
 	}
-	return linkMember{name: row.Name, version: row.Version, moduleSHA256: row.ModuleSha256, source: source}, nil
+	crates, err := sourceCrates(ctx, q, source.ID)
+	if err != nil {
+		return linkMember{}, err
+	}
+	return linkMember{name: row.Name, version: row.Version, moduleSHA256: row.ModuleSha256, source: source, crates: crates}, nil
 }
 
 // linkDigest is the digest the cache is keyed by: the SHA-256 of the sorted
@@ -218,8 +226,15 @@ func linkInput(key string, members []linkMember, lim limits.Set) LinkInput {
 		Timeout:     time.Duration(lim.Get(limits.FunctionBuildTimeout)) * time.Millisecond,
 		MemoryBytes: lim.Get(limits.FunctionBuildMemory),
 	}
+	seen := map[string]bool{}
 	for _, m := range members {
 		in.Sources = append(in.Sources, LinkSource{Name: m.name, SourceObjectKey: m.source.ObjectKey, SourceSHA256: hex.EncodeToString(m.source.Sha256)})
+		for _, c := range m.crates {
+			if !seen[c.SHA256] {
+				seen[c.SHA256] = true
+				in.Crates = append(in.Crates, c)
+			}
+		}
 	}
 	return in
 }

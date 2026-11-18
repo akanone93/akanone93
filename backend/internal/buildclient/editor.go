@@ -39,8 +39,12 @@ func (c *Client) OpenLanguage(ctx context.Context, in function.EditorInput, send
 	if err != nil {
 		return err
 	}
+	crates, err := c.crates(ctx, in.Crates)
+	if err != nil {
+		return err
+	}
 	stream, err := c.stream.LanguageOpen(ctx, connect.NewRequest(&fnpb.LanguageOpenRequest{
-		Source: source, SourceSha256: in.SourceSHA256, Name: in.Name,
+		Source: source, SourceSha256: in.SourceSHA256, Name: in.Name, Crates: crates,
 		SessionMinutes: in.SessionMinutes, MemoryBytes: uint64(max(in.MemoryBytes, 0)), //nolint:gosec // G115: non-negative.
 	}))
 	if err != nil {
@@ -83,13 +87,17 @@ func (c *Client) Test(ctx context.Context, in function.EditorInput) (function.Ed
 	if err != nil {
 		return function.EditorTests{}, err
 	}
+	crates, err := c.crates(ctx, in.Crates)
+	if err != nil {
+		return function.EditorTests{}, err
+	}
 	if in.Timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, in.Timeout*BuildSteps+transferSlack)
 		defer cancel()
 	}
 	resp, err := c.rpc.Test(ctx, connect.NewRequest(&fnpb.TestRequest{Build: &fnpb.BuildRequest{
-		BuildId: "editor-test", Source: source, SourceSha256: in.SourceSHA256, Name: in.Name,
+		BuildId: "editor-test", Source: source, SourceSha256: in.SourceSHA256, Name: in.Name, Crates: crates,
 		Limits: &fnpb.BuildLimits{TimeoutMs: uint32(min(in.Timeout.Milliseconds(), 1<<32-1)), MemoryBytes: uint64(max(in.MemoryBytes, 0))}, //nolint:gosec // G115: bounded and non-negative.
 	}}))
 	if err != nil {

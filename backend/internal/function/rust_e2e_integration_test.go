@@ -33,7 +33,7 @@ import (
 )
 
 // feeManifest is the standalone manifest of the fee example: the workspace
-// form of sdk/fn/examples/fee, with the patch that `cargo vendor` needs while
+// form of sdk/fn/examples/fee, with the patch that Cargo needs while
 // plux-fn is unpublished.
 const feeManifest = `[package]
 name = "fee"
@@ -62,8 +62,8 @@ func runIn(t *testing.T, dir, name string, args ...string) {
 }
 
 // feeSource lays out the fee example as an uploadable crate: its sources,
-// its document (the example's identifiers are made valid), the vendored
-// dependencies and the lock file.
+// its document (the example's identifiers are made valid) and the lock file,
+// with its dependencies fetched into Cargo's cache.
 func feeSource(t *testing.T, sdk, examples string) string {
 	t.Helper()
 	proj := filepath.Join(t.TempDir(), "fee")
@@ -86,8 +86,36 @@ func feeSource(t *testing.T, sdk, examples string) string {
 			t.Fatal(err)
 		}
 	}
-	runIn(t, proj, "cargo", "vendor", "--quiet")
+	runIn(t, proj, "cargo", "fetch", "--quiet")
 	return proj
+}
+
+// uploadCrates sends, as the developer, the crate archive of every crates.io
+// package the crate's lock file names, read from Cargo's cache, as plux fn
+// deploy does before it sends the source (ADR-0105).
+func (w *world) uploadCrates(t *testing.T, proj string) {
+	t.Helper()
+	lock, err := os.ReadFile(filepath.Join(proj, "Cargo.lock")) //nolint:gosec // G304: the test's own directory.
+	if err != nil {
+		t.Fatal(err)
+	}
+	home := os.Getenv("CARGO_HOME")
+	if home == "" {
+		user, err := os.UserHomeDir()
+		if err != nil {
+			t.Fatal(err)
+		}
+		home = filepath.Join(user, ".cargo")
+	}
+	crates, err := builder.LocalCrates(home, lock)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range crates {
+		if _, err := w.svc.UploadCrate(t.Context(), w.developer, w.app, builder.CrateSHA256(c), bytes.NewReader(c)); err != nil {
+			t.Fatal(err)
+		}
+	}
 }
 
 // packSource packs a crate directory as the gzip-compressed tar archive the
@@ -206,6 +234,7 @@ func TestRustBuildEndToEnd_FN_016(t *testing.T) {
 	w.builder.delegate, w.signer.delegate = client, signer
 
 	ctx := t.Context()
+	w.uploadCrates(t, proj)
 	src, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], "bank.transferFee", bytes.NewReader(archive))
 	if err != nil {
 		t.Fatal(err)

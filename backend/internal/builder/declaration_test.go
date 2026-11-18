@@ -176,14 +176,16 @@ func TestExtractArchiveReadsACleanCrate_FN_016(t *testing.T) {
 }
 
 // Verifies: FN-003.
-func TestExtractArchiveKeepsAnEmptyVendorDirectory_FN_003(t *testing.T) {
-	files, err := ExtractArchive(bytes.NewReader(tarball(t, file("Cargo.toml", "x"), dir("vendor/"))), 1<<20)
+// A vendor/ directory in an uploaded archive, even an empty one, is refused:
+// only the builder makes vendor/, from verified crate archives (ADR-0105).
+func TestAnUploadedVendorDirectoryIsRefused_FN_003(t *testing.T) {
+	archive := tarball(t, file("Cargo.toml", "[package]\nname = \"a\"\n"), file("Cargo.lock", "version = 4\n"), dir("vendor/"))
+	files, err := ExtractArchive(bytes.NewReader(archive), 1<<20)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if entries, err := fs.ReadDir(files, "vendor"); err != nil || len(entries) != 0 {
-		t.Errorf("vendor = %v, %v; an empty vendor/ means nothing is vendored", entries, err)
-	}
+	_, err = prepareSources([]FunctionSource{{Name: "a.b", Placement: PlacementDevice, Files: files}}, 1<<20)
+	wantCode(t, err, plxerr.FunctionDependencyNotVendored)
 }
 
 // Verifies: FN-016.

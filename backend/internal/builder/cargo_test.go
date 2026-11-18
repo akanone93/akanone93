@@ -18,7 +18,7 @@ edition.workspace = true
 [dependencies]
 name = "not-the-package"
 `)
-	got := tomlStringFields(manifest, "package")
+	got := packageFields(manifest)
 	if got["name"] != "loan-calc" || got["version"] != "0.1.0" || len(got) != 2 {
 		t.Errorf("fields = %v", got)
 	}

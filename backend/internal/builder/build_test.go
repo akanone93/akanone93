@@ -45,7 +45,7 @@ func TestBuildProducesAnArtifactWithProvenance_FN_005(t *testing.T) {
 		p.BuildTime != "2026-10-13T08:30:00Z" || p.BuilderIdentity != "builder-1" {
 		t.Errorf("provenance = %+v", p)
 	}
-	if len(p.Dependencies) != 1 || p.Dependencies[0] != (Dependency{Name: "serde", Version: "1.0.229", Checksum: "c1"}) {
+	if len(p.Dependencies) != 1 || p.Dependencies[0] != (Dependency{Name: "serde", Version: "1.0.229", Checksum: serdeLock.Checksum}) {
 		t.Errorf("dependencies = %+v", p.Dependencies)
 	}
 	if len(p.SourceSHA256) != 64 || len(p.SDKSHA256) != 64 {
@@ -115,10 +115,10 @@ func TestBuildVerifyComparesTwoBuilds_FN_019(t *testing.T) {
 // Verifies: FN-003.
 func TestBuildRejectsLockDrift_FN_003(t *testing.T) {
 	cases := map[string]string{
-		"another version":    lockText(lockPackage{Name: "serde", Version: "1.0.230", Source: cratesIOSource, Checksum: "c1"}),
+		"another version":    lockText(lockPackage{Name: "serde", Version: "1.0.230", Source: cratesIOSource, Checksum: serdeLock.Checksum}),
 		"another checksum":   lockText(lockPackage{Name: "serde", Version: "1.0.229", Source: cratesIOSource, Checksum: "c2"}),
 		"an extra crate":     lockText(serdeLock, lockPackage{Name: "extra", Version: "1.0.0", Source: cratesIOSource, Checksum: "c3"}),
-		"a git source":       lockText(lockPackage{Name: "serde", Version: "1.0.229", Source: "git+https://example.invalid/serde", Checksum: "c1"}),
+		"a git source":       lockText(lockPackage{Name: "serde", Version: "1.0.229", Source: "git+https://example.invalid/serde", Checksum: serdeLock.Checksum}),
 		"an unparsable lock": "not a lock file",
 	}
 	for name, lock := range cases {
@@ -417,37 +417,60 @@ func TestPrepareSourcesRejectsMalformedInput_FN_003(t *testing.T) {
 		"bad placement":     {[]FunctionSource{{Name: "x", Placement: "cloud", Files: ok.Files}}, plxerr.FunctionBuildFailed},
 		"no files":          {[]FunctionSource{{Name: "x", Placement: PlacementDevice}}, plxerr.FunctionBuildFailed},
 		"duplicate name":    {[]FunctionSource{ok, ok}, plxerr.FunctionBuildFailed},
-		"duplicate crate":   {[]FunctionSource{ok, {Name: "other", Placement: PlacementServer, Files: ok.Files}}, plxerr.FunctionBuildFailed},
+		"duplicate crate":   {[]FunctionSource{ok, {Name: "other", Placement: PlacementServer, Files: ok.Files, Crates: ok.Crates}}, plxerr.FunctionBuildFailed},
 		"no manifest":       {[]FunctionSource{without("Cargo.toml")}, plxerr.FunctionBuildFailed},
 		"workspace table":   {[]FunctionSource{withFile("Cargo.toml", "[package]\nname = \"a\"\n[workspace]\n")}, plxerr.FunctionBuildFailed},
 		"no package name":   {[]FunctionSource{withFile("Cargo.toml", "[dependencies]\n")}, plxerr.FunctionBuildFailed},
 		"no lock":           {[]FunctionSource{without("Cargo.lock")}, plxerr.FunctionDependencyNotVendored},
 		"empty lock":        {[]FunctionSource{withFile("Cargo.lock", "")}, plxerr.FunctionDependencyNotVendored},
 		"git in lock":       {[]FunctionSource{withFile("Cargo.lock", lockText(lockPackage{Name: "x", Version: "1", Source: "git+https://x", Checksum: "c"}))}, plxerr.FunctionDependencyNotVendored},
-		"no vendor":         {[]FunctionSource{withoutPrefix(ok, "vendor/")}, plxerr.FunctionDependencyNotVendored},
-		"vendor no toml":    {[]FunctionSource{without("vendor/serde/Cargo.toml")}, plxerr.FunctionDependencyNotVendored},
-		"vendor no version": {[]FunctionSource{withFile("vendor/serde/Cargo.toml", "[package]\nname = \"serde\"\n")}, plxerr.FunctionDependencyNotVendored},
-		"vendor no sum":     {[]FunctionSource{without("vendor/serde/.cargo-checksum.json")}, plxerr.FunctionDependencyNotVendored},
-		"vendor bad sum":    {[]FunctionSource{withFile("vendor/serde/.cargo-checksum.json", "{")}, plxerr.FunctionDependencyNotVendored},
+		"uploaded vendor":   {[]FunctionSource{withFile("vendor/serde/Cargo.toml", "[package]\nname = \"serde\"\n")}, plxerr.FunctionDependencyNotVendored},
+		"crate not sent":    {[]FunctionSource{withCrates(ok)}, plxerr.FunctionDependencyNotVendored},
+		"crate not in lock": {[]FunctionSource{withCrates(ok, ok.Crates[0], fakeCrate("extra", "1.0.0", "//"))}, plxerr.FunctionDependencyNotVendored},
+		"crate twice":       {[]FunctionSource{withCrates(ok, ok.Crates[0], ok.Crates[0])}, plxerr.FunctionDependencyNotVendored},
+		"crate tampered":    {[]FunctionSource{withCrates(ok, fakeCrate("serde", "1.0.229", "// tampered\n"))}, plxerr.FunctionDependencyNotVendored},
+		"crate misnamed":    {[]FunctionSource{withCrateFiles(ok, "serde-1.0.229", map[string]string{"Cargo.toml": "[package]\nname = \"serde\"\nversion = \"9.9.9\"\n"})}, plxerr.FunctionDependencyNotVendored},
+		"crate no manifest": {[]FunctionSource{withCrateFiles(ok, "serde-1.0.229", map[string]string{"src/lib.rs": "//"})}, plxerr.FunctionDependencyNotVendored},
+		"crate escapes":     {[]FunctionSource{withCrateFiles(ok, "serde-1.0.229", map[string]string{"../../escape.rs": "//"})}, plxerr.FunctionDependencyNotVendored},
+		"crate other top":   {[]FunctionSource{withCrateFiles(ok, "other-1.0.0", map[string]string{"Cargo.toml": "[package]\nname = \"serde\"\nversion = \"1.0.229\"\n"})}, plxerr.FunctionDependencyNotVendored},
+		"crate own sums":    {[]FunctionSource{withCrateFiles(ok, "serde-1.0.229", map[string]string{"Cargo.toml": "[package]\nname = \"serde\"\nversion = \"1.0.229\"\n", ".cargo-checksum.json": "{}"})}, plxerr.FunctionDependencyNotVendored},
+		"crate not gzip":    {[]FunctionSource{withCrates(withLockedCrate(ok, []byte("not an archive")), []byte("not an archive"))}, plxerr.FunctionDependencyNotVendored},
 	}
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
-			_, err := prepareSources(c.src)
+			_, err := prepareSources(c.src, 1<<20)
 			wantCode(t, err, c.code)
 		})
 	}
+	_, err := prepareSources([]FunctionSource{ok}, 512)
+	wantCode(t, err, plxerr.FunctionBuildLimitExceeded)
 }
 
-// withoutPrefix drops every file below a directory.
-func withoutPrefix(s FunctionSource, prefix string) FunctionSource {
-	out := fstest.MapFS{}
-	for k, v := range s.Files.(fstest.MapFS) {
-		if !strings.HasPrefix(k, prefix) {
-			out[k] = v
-		}
-	}
-	s.Files = out
+// withCrates returns s with exactly the crate archives given.
+func withCrates(s FunctionSource, crates ...[]byte) FunctionSource {
+	s.Crates = crates
 	return s
+}
+
+// withLockedCrate returns s with serde's lock checksum set to that of data,
+// so that the archive is the one Cargo.lock names.
+func withLockedCrate(s FunctionSource, data []byte) FunctionSource {
+	files := fstest.MapFS{}
+	for k, v := range s.Files.(fstest.MapFS) {
+		files[k] = v
+	}
+	lock := strings.Replace(string(files["Cargo.lock"].Data), serdeLock.Checksum, CrateSHA256(data), 1)
+	files["Cargo.lock"] = &fstest.MapFile{Data: []byte(lock)}
+	s.Files = files
+	return s
+}
+
+// withCrateFiles returns s with serde sent as an archive of the files below
+// top, locked by its own checksum: the archive matches Cargo.lock, so only
+// its contents can be at fault.
+func withCrateFiles(s FunctionSource, top string, files map[string]string) FunctionSource {
+	data := crateArchive(top, files)
+	return withCrates(withLockedCrate(s, data), data)
 }
 
 func TestBuildRefusesSymlinksInSources(t *testing.T) {

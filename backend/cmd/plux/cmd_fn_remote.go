@@ -20,6 +20,7 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/nightCode42/plux3/backend/internal/builder"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 )
 
@@ -71,7 +72,7 @@ func (e env) fnDeploy(args []string) int {
 	c.register(set, true)
 	envKey := set.String("env", "", "the environment `key` (default plux.json, then development)")
 	alias := set.String("alias", "", "point this `alias` at the new version")
-	pos, code, ok := parseFn(set, args, e.stderr, "Usage: plux fn deploy <name> [--env key] [--alias name] [-C dir] [--app id] [--json]\n\nPacks the crate with its vendored dependencies, uploads it, waits for the server's build and tests, and deploys the version. Production needs a second factor: sign in again with plux login when the server asks.", 1)
+	pos, code, ok := parseFn(set, args, e.stderr, "Usage: plux fn deploy <name> [--env key] [--alias name] [-C dir] [--app id] [--json]\n\nPacks the crate, sends the published archives of its dependencies that the server does not hold yet, uploads the crate, waits for the server's build and tests, and deploys the version. Production needs a second factor: sign in again with plux login when the server asks.", 1)
 	if !ok {
 		return code
 	}
@@ -85,12 +86,15 @@ func (e env) fnDeploy(args []string) int {
 	}
 	ctx, cancel := e.context()
 	defer cancel()
-	archive, err := e.packFunction(ctx, c.dir, name)
+	archive, crates, err := e.packFunction(ctx, c.dir, name)
 	if err != nil {
 		return e.fail("fn deploy", err)
 	}
 	sum := sha256.Sum256(archive)
 	_, _ = fmt.Fprintf(e.stderr, "packed %d bytes, sha256 %s\n", len(archive), hex.EncodeToString(sum[:]))
+	if err := e.sendCrates(ctx, t, crates); err != nil {
+		return e.fail("fn deploy", err)
+	}
 	source, err := e.upload(ctx, t, name, archive)
 	if err != nil {
 		return e.fail("fn deploy", err)
@@ -139,14 +143,75 @@ func stepUp(err error) error {
 	return err
 }
 
-// packFunction packs the source of a function with its vendored
-// dependencies.
-func (e env) packFunction(ctx context.Context, project, name string) ([]byte, error) {
-	files, err := e.vendoredSource(ctx, crateDir(project, name))
+// packFunction packs the source of a function and returns it with the
+// published archives of its dependencies.
+func (e env) packFunction(ctx context.Context, project, name string) ([]byte, [][]byte, error) {
+	files, crates, err := e.crateSource(ctx, crateDir(project, name))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return packArchive(files)
+	archive, err := packArchive(files)
+	if err != nil {
+		return nil, nil, err
+	}
+	return archive, crates, nil
+}
+
+// sendCrates sends the published crate archives that the organisation does
+// not hold yet: it asks which are missing and sends only those, so that each
+// archive crosses the network and is stored once (FN-003, ADR-0105).
+func (e env) sendCrates(ctx context.Context, t fnTarget, crates [][]byte) error {
+	if len(crates) == 0 {
+		return nil
+	}
+	byChecksum := make(map[string][]byte, len(crates))
+	sums := make([]string, 0, len(crates))
+	for _, c := range crates {
+		sum := builder.CrateSHA256(c)
+		if _, dup := byChecksum[sum]; !dup {
+			byChecksum[sum] = c
+			sums = append(sums, sum)
+		}
+	}
+	res, err := t.cl.fn.ListMissingCrates(ctx, connect.NewRequest(&pluxv1.ListMissingCratesRequest{AppId: t.app, Checksums: sums}))
+	if err != nil {
+		return fmt.Errorf("ask which crate archives the server lacks: %w", err)
+	}
+	var sent int
+	for _, sum := range res.Msg.GetMissing() {
+		data, ok := byChecksum[sum]
+		if !ok {
+			return fmt.Errorf("the server asked for the crate archive %s, which was not offered", sum)
+		}
+		if err := e.uploadCrate(ctx, t, sum, data); err != nil {
+			return err
+		}
+		sent += len(data)
+	}
+	missing := len(res.Msg.GetMissing())
+	_, _ = fmt.Fprintf(e.stderr, "dependencies: %d crate archives, %d already on the server, %d sent (%d bytes)\n", len(sums), len(sums)-missing, missing, sent)
+	return nil
+}
+
+// uploadCrate streams one crate archive in chunks.
+func (env) uploadCrate(ctx context.Context, t fnTarget, sum string, data []byte) error {
+	stream := t.cl.fn.UploadCrate(ctx)
+	if err := stream.Send(&pluxv1.UploadCrateRequest{AppId: t.app, Sha256: sum}); err != nil {
+		_, _ = stream.CloseAndReceive()
+		return fmt.Errorf("send the crate archive %s: %w", sum, err)
+	}
+	for rest := data; len(rest) > 0; {
+		n := min(len(rest), uploadChunk)
+		if err := stream.Send(&pluxv1.UploadCrateRequest{Chunk: rest[:n]}); err != nil {
+			_, _ = stream.CloseAndReceive()
+			return fmt.Errorf("send the crate archive %s: %w", sum, err)
+		}
+		rest = rest[n:]
+	}
+	if _, err := stream.CloseAndReceive(); err != nil {
+		return fmt.Errorf("send the crate archive %s: %w", sum, err)
+	}
+	return nil
 }
 
 // upload streams the archive in chunks and returns the source identifier.

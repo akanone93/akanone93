@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/function"
+	"github.com/nightCode42/plux3/backend/internal/function/functiontest"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 )
 
@@ -116,9 +117,10 @@ func (*functionFakes) SignStatement(_ context.Context, statement []byte) ([]byte
 
 const apiFunction = "payments.charge"
 
-// upload sends a source archive as c.
-func (w *world) uploadSource(t testing.TB, c caller, appID, envID, name, archive string) (*pluxv1.UploadSourceResponse, error) {
+// uploadSource sends, as c, a source archive whose src/lib.rs holds seed.
+func (w *world) uploadSource(t testing.TB, c caller, appID, envID, name, seed string) (*pluxv1.UploadSourceResponse, error) {
 	t.Helper()
+	archive := string(functiontest.SourceArchive(seed))
 	stream := w.functionAdmin.UploadSource(context.Background())
 	withHeaders(stream.RequestHeader(), c)
 	half := len(archive) / 2
@@ -328,5 +330,57 @@ func TestLanguageServerService_FN_033(t *testing.T) {
 	}
 	if codeOf(send(dev, 3)) != connect.CodeNotFound {
 		t.Errorf("a message after the end: %v; want not found", send(dev, 3))
+	}
+}
+
+// uploadCrate sends, as c, one crate archive in two chunks.
+func (w *world) uploadCrate(t testing.TB, c caller, appID string, crate functiontest.Crate) (*pluxv1.UploadCrateResponse, error) {
+	t.Helper()
+	stream := w.functionAdmin.UploadCrate(context.Background())
+	withHeaders(stream.RequestHeader(), c)
+	half := len(crate.Archive) / 2
+	for i, m := range []*pluxv1.UploadCrateRequest{
+		{AppId: appID, Sha256: crate.SHA256()},
+		{Chunk: crate.Archive[:half]},
+		{Chunk: crate.Archive[half:]},
+	} {
+		if err := stream.Send(m); err != nil {
+			if errors.Is(err, io.EOF) && i > 0 {
+				break
+			}
+			t.Fatal(err)
+		}
+	}
+	res, err := stream.CloseAndReceive()
+	if err != nil {
+		return nil, err //nolint:wrapcheck // the code is what the test reads
+	}
+	return res.Msg, nil
+}
+
+// Verifies: FN-003.
+// Over the API, a client asks which crate archives the organisation lacks,
+// sends them, and is then told none is missing; a second send stores
+// nothing new.
+func TestCratesOverTheAPI_FN_003(t *testing.T) {
+	t.Parallel()
+	f := newMatrixFixture(t)
+	w := f.w
+	crate := functiontest.NewCrate("serde", "1.0.229", "// serde\n")
+	ctx := context.Background()
+	missing := must(w.functionAdmin.ListMissingCrates(ctx, req(f.owner(), &pluxv1.ListMissingCratesRequest{AppId: f.app, Checksums: []string{crate.SHA256()}})))(t)
+	if len(missing.GetMissing()) != 1 {
+		t.Fatalf("missing = %v", missing)
+	}
+	res, err := w.uploadCrate(t, f.owner(), f.app, crate)
+	if err != nil || !res.GetStored() || res.GetSha256() != crate.SHA256() {
+		t.Fatalf("UploadCrate = %v, %v", res, err)
+	}
+	if res, err = w.uploadCrate(t, f.owner(), f.app, crate); err != nil || res.GetStored() {
+		t.Errorf("a second UploadCrate = %v, %v", res, err)
+	}
+	missing = must(w.functionAdmin.ListMissingCrates(ctx, req(f.owner(), &pluxv1.ListMissingCratesRequest{AppId: f.app, Checksums: []string{crate.SHA256()}})))(t)
+	if len(missing.GetMissing()) != 0 {
+		t.Errorf("missing after the upload = %v", missing)
 	}
 }

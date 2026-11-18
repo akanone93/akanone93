@@ -424,9 +424,13 @@ const (
 	// FunctionOutputSize: Size of the JSON output of one function invocation.
 	// (FN-011)
 	FunctionOutputSize Key = "function.outputSize"
-	// FunctionSourceArchiveSize: Size of an uploaded function source archive,
-	// including vendored sources. (FN-016)
+	// FunctionSourceArchiveSize: Size of a function's source: the uploaded
+	// archive and the published crate archives it depends on, as stored.
+	// (FN-016)
 	FunctionSourceArchiveSize Key = "function.sourceArchiveSize"
+	// FunctionSourceCrates: Number of published crate archives one function
+	// source may depend on, and that one request may ask about. (FN-003, FN-016)
+	FunctionSourceCrates Key = "function.sourceCrates"
 	// FunctionTestCases: Stored test cases of one function. (FN-031)
 	FunctionTestCases Key = "function.testCases"
 	// FunctionTimeout: Wall-clock time one server function invocation may run.
@@ -858,7 +862,8 @@ var registry = [...]Definition{
 	{Key: FunctionMemory, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 536870912, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Linear memory one server function invocation may use."},
 	{Key: FunctionModuleSize, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of one server function."},
 	{Key: FunctionOutputSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of the JSON output of one function invocation."},
-	{Key: FunctionSourceArchiveSize, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 536870912, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of an uploaded function source archive, including vendored sources."},
+	{Key: FunctionSourceArchiveSize, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 536870912, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of a function's source: the uploaded archive and the published crate archives it depends on, as stored."},
+	{Key: FunctionSourceCrates, Unit: UnitCount, Default: 512, Warning: 0, Max: 4096, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Number of published crate archives one function source may depend on, and that one request may ask about."},
 	{Key: FunctionTestCases, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Stored test cases of one function."},
 	{Key: FunctionTimeout, Unit: UnitMilliseconds, Default: 2000, Warning: 0, Max: 30000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one server function invocation may run."},
 	{Key: GatewayRequestBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 33554432, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of request body the gateway forwards to an upstream."},

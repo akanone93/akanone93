@@ -82,6 +82,10 @@ func (c *Client) Build(ctx context.Context, in function.BuildInput) (function.Bu
 	if sum := sha256.Sum256(source); !strings.EqualFold(hex.EncodeToString(sum[:]), in.SourceSHA256) {
 		return function.BuildOutput{}, errors.New("buildclient.Build: the stored source does not match its recorded SHA-256")
 	}
+	crates, err := c.crates(ctx, in.Crates)
+	if err != nil {
+		return function.BuildOutput{}, err
+	}
 	if in.Timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, in.Timeout*BuildSteps+transferSlack)
@@ -90,6 +94,7 @@ func (c *Client) Build(ctx context.Context, in function.BuildInput) (function.Bu
 	resp, err := c.rpc.Build(ctx, connect.NewRequest(&fnpb.BuildRequest{
 		BuildId: in.BuildID, Source: source, SourceSha256: in.SourceSHA256, Name: in.Name, Placement: string(in.Placement),
 		Limits: &fnpb.BuildLimits{TimeoutMs: uint32(min(in.Timeout.Milliseconds(), 1<<32-1)), MemoryBytes: uint64(max(in.MemoryBytes, 0))}, //nolint:gosec // G115: bounded and non-negative.
+		Crates: crates,
 	}))
 	if err != nil {
 		return function.BuildOutput{}, fmt.Errorf("buildclient.Build: %w", err)
@@ -163,13 +168,17 @@ func (c *Client) Link(ctx context.Context, in function.LinkInput) (function.Link
 		}
 		sources = append(sources, &fnpb.LinkSource{Name: src.Name, Source: data, SourceSha256: src.SourceSHA256})
 	}
+	crates, err := c.crates(ctx, in.Crates)
+	if err != nil {
+		return function.LinkOutput{}, err
+	}
 	if in.Timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, in.Timeout*BuildSteps+transferSlack)
 		defer cancel()
 	}
 	resp, err := c.rpc.Link(ctx, connect.NewRequest(&fnpb.LinkRequest{
-		LinkId: in.LinkID, Sources: sources,
+		LinkId: in.LinkID, Sources: sources, Crates: crates,
 		Limits: &fnpb.BuildLimits{TimeoutMs: uint32(min(in.Timeout.Milliseconds(), 1<<32-1)), MemoryBytes: uint64(max(in.MemoryBytes, 0))}, //nolint:gosec // G115: bounded and non-negative.
 	}))
 	if err != nil {
@@ -191,6 +200,24 @@ func linkOutputOf(r *fnpb.LinkResponse) (function.LinkOutput, error) {
 	}
 	if len(out.Module) == 0 && !out.Diagnostics.HasErrors() {
 		return function.LinkOutput{}, errors.New("buildclient.Link: the builder returned neither a module nor an error diagnostic")
+	}
+	return out, nil
+}
+
+// crates reads stored crate archives and checks each against its SHA-256, so
+// that a damaged or replaced object never reaches the builder; the builder
+// checks them again against the source's lock file (ADR-0105).
+func (c *Client) crates(ctx context.Context, refs []function.CrateRef) ([][]byte, error) {
+	out := make([][]byte, 0, len(refs))
+	for _, r := range refs {
+		data, _, err := c.objects.Get(ctx, r.ObjectKey)
+		if err != nil {
+			return nil, fmt.Errorf("buildclient: read the crate archive %s: %w", r.SHA256, err)
+		}
+		if sum := sha256.Sum256(data); !strings.EqualFold(hex.EncodeToString(sum[:]), r.SHA256) {
+			return nil, fmt.Errorf("buildclient: the stored crate archive %s does not match its SHA-256", r.SHA256)
+		}
+		out = append(out, data)
 	}
 	return out, nil
 }

@@ -50,7 +50,9 @@ type BuildInput struct {
 	BuildID         string
 	SourceObjectKey string
 	SourceSHA256    string
-	Name            string
+	// Crates are the stored crate archives the source depends on (ADR-0105).
+	Crates []CrateRef
+	Name   string
 	// Placement is the one asked for, or "" for the one the function's
 	// document declares.
 	Placement Placement
@@ -229,6 +231,7 @@ func buildOf(row dbgen.FunctionBuild) (Build, error) {
 type claimed struct {
 	build  dbgen.FunctionBuild
 	source dbgen.FunctionSource
+	crates []CrateRef
 	lim    limits.Set
 }
 
@@ -249,7 +252,7 @@ func (s *Service) RunBuild(ctx context.Context, job BuildJob) error {
 	}
 	in := BuildInput{
 		BuildID: job.BuildID, SourceObjectKey: c.source.ObjectKey, SourceSHA256: hex.EncodeToString(c.source.Sha256),
-		Name: c.build.Name, Placement: Placement(c.build.Placement),
+		Crates: c.crates, Name: c.build.Name, Placement: Placement(c.build.Placement),
 		Timeout:     time.Duration(c.lim.Get(limits.FunctionBuildTimeout)) * time.Millisecond,
 		MemoryBytes: c.lim.Get(limits.FunctionBuildMemory), ModuleBytes: c.lim.Get(limits.FunctionModuleSize),
 	}
@@ -355,6 +358,9 @@ func (s *Service) claim(ctx context.Context, job BuildJob) (claimed, bool, error
 		}
 		if c.source, err = q.GetFunctionSource(ctx, c.build.SourceID); err != nil {
 			return failure(err, "function source")
+		}
+		if c.crates, err = sourceCrates(ctx, q, c.source.ID); err != nil {
+			return err
 		}
 		if c.lim, err = s.o.Limits(ctx, tx, job.OrganizationID, storage.ID(c.build.AppID)); err != nil {
 			return fmt.Errorf("function: %w", err)

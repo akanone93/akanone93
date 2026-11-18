@@ -112,7 +112,7 @@ func (b *Builder) OpenLanguage(ctx context.Context, src FunctionSource, o Langua
 	if err != nil {
 		return nil, fmt.Errorf("builder.OpenLanguage: language server %q: %w", o.Server, err)
 	}
-	funcs, err := prepareSources([]FunctionSource{src})
+	funcs, err := prepareSources([]FunctionSource{src}, b.cfg.SourceBytes)
 	if err != nil {
 		return nil, err
 	}

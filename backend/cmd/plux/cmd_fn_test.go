@@ -25,6 +25,7 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/nightCode42/plux3/backend/internal/builder"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -40,11 +41,15 @@ type fakeFunctions struct {
 	deployErr error
 	uploaded  []byte
 	upload    *pluxv1.UploadSourceRequest
-	deploy    *pluxv1.DeployRequest
-	alias     *pluxv1.SetAliasRequest
-	promote   *pluxv1.PromoteFunctionRequest
-	logs      []*pluxv1.FunctionLogLine
-	logReqs   []*pluxv1.ListLogsRequest
+	// asked are the checksums ListMissingCrates was asked about; crates the
+	// archives UploadCrate received, by checksum.
+	asked   []string
+	crates  map[string][]byte
+	deploy  *pluxv1.DeployRequest
+	alias   *pluxv1.SetAliasRequest
+	promote *pluxv1.PromoteFunctionRequest
+	logs    []*pluxv1.FunctionLogLine
+	logReqs []*pluxv1.ListLogsRequest
 }
 
 func (f *fakeFunctions) UploadSource(_ context.Context, s *connect.ClientStream[pluxv1.UploadSourceRequest]) (*connect.Response[pluxv1.UploadSourceResponse], error) {
@@ -59,6 +64,40 @@ func (f *fakeFunctions) UploadSource(_ context.Context, s *connect.ClientStream[
 		f.uploaded = append(f.uploaded, m.GetChunk()...)
 	}
 	return connect.NewResponse(&pluxv1.UploadSourceResponse{SourceId: "src-1"}), s.Err()
+}
+
+// ListMissingCrates answers that every crate not yet received is missing.
+func (f *fakeFunctions) ListMissingCrates(_ context.Context, r *connect.Request[pluxv1.ListMissingCratesRequest]) (*connect.Response[pluxv1.ListMissingCratesResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.asked = append(f.asked, r.Msg.GetChecksums()...)
+	var missing []string
+	for _, c := range r.Msg.GetChecksums() {
+		if _, ok := f.crates[c]; !ok {
+			missing = append(missing, c)
+		}
+	}
+	return connect.NewResponse(&pluxv1.ListMissingCratesResponse{Missing: missing}), nil
+}
+
+// UploadCrate keeps the archive under the checksum it was sent as.
+func (f *fakeFunctions) UploadCrate(_ context.Context, s *connect.ClientStream[pluxv1.UploadCrateRequest]) (*connect.Response[pluxv1.UploadCrateResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	var sum string
+	var data []byte
+	for s.Receive() {
+		if sum == "" {
+			sum = s.Msg().GetSha256()
+			continue
+		}
+		data = append(data, s.Msg().GetChunk()...)
+	}
+	if f.crates == nil {
+		f.crates = map[string][]byte{}
+	}
+	f.crates[sum] = data
+	return connect.NewResponse(&pluxv1.UploadCrateResponse{Sha256: sum, Stored: true}), s.Err()
 }
 
 func (*fakeFunctions) Build(context.Context, *connect.Request[pluxv1.BuildRequest]) (*connect.Response[pluxv1.BuildResponse], error) {
@@ -162,25 +201,56 @@ func (r *fnRig) run(args ...string) int {
 	r.err.Reset()
 	e := env{
 		stdout: &r.out, stderr: &r.err, stdin: strings.NewReader(""), creds: credentials{dir: r.t.TempDir()}, httpClient: r.srv.Client(),
-		pollInterval: time.Millisecond, ctx: r.ctx, vendor: fakeVendor,
+		pollInterval: time.Millisecond, ctx: r.ctx, fetch: noFetch, cargoHome: r.cargoHome(),
 	}
 	full := append([]string{args[0]}, "--server", r.srv.URL, "--app", "a1", "-C", r.project)
 	return e.fn(append(full, args[1:]...))
 }
 
-// fakeVendor stands in for `cargo vendor`: it writes one vendored crate to
-// out, as cargo does, without reaching the network.
-func fakeVendor(_ context.Context, _, out string) error {
-	for rel, content := range map[string]string{"dep/Cargo.toml": "[package]\n", "dep/.cargo-checksum.json": "{}"} {
-		p := filepath.Join(out, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
-			return err
+// noFetch stands in for `cargo fetch`: the crate's lock file and Cargo's
+// cache are already in place, and tests must not reach the network.
+func noFetch(context.Context, string) error { return nil }
+
+// depCrate is the published archive of the one dependency of the fixture
+// crate: dep-1.0.0/Cargo.toml and src/lib.rs, packed the same way each time.
+func depCrate(t *testing.T) []byte {
+	t.Helper()
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+	tw := tar.NewWriter(zw)
+	for _, f := range []struct{ name, body string }{
+		{"dep-1.0.0/Cargo.toml", "[package]\nname = \"dep\"\nversion = \"1.0.0\"\n"},
+		{"dep-1.0.0/src/lib.rs", "// dep\n"},
+	} {
+		if err := tw.WriteHeader(&tar.Header{Name: f.name, Mode: 0o644, Size: int64(len(f.body)), Typeflag: tar.TypeReg}); err != nil {
+			t.Fatal(err)
 		}
-		if err := os.WriteFile(p, []byte(content), 0o600); err != nil {
-			return err
+		if _, err := tw.Write([]byte(f.body)); err != nil {
+			t.Fatal(err)
 		}
 	}
-	return nil
+	if err := tw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return buf.Bytes()
+}
+
+// depLock is the fixture crate's lock file: the crate and its dependency.
+func depLock(t *testing.T) string {
+	t.Helper()
+	return "version = 4\n\n[[package]]\nname = \"bank_fee\"\nversion = \"0.1.0\"\n\n[[package]]\nname = \"dep\"\nversion = \"1.0.0\"\n" +
+		"source = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"" + builder.CrateSHA256(depCrate(t)) + "\"\n"
+}
+
+// cargoHome is a Cargo home whose cache holds the dependency's archive.
+func (r *fnRig) cargoHome() string {
+	r.t.Helper()
+	home := filepath.Join(r.project, ".cargo-home")
+	putFile2(r.t, filepath.Join(home, "registry", "cache", "index.crates.io-test", "dep-1.0.0.crate"), string(depCrate(r.t)))
+	return home
 }
 
 // crate writes a minimal function crate, bank.fee.
@@ -188,7 +258,7 @@ func (r *fnRig) crate() {
 	r.t.Helper()
 	dir := crateDir(r.project, "bank.fee")
 	for rel, content := range map[string]string{
-		"Cargo.toml": "[package]\nname = \"bank_fee\"\n", "Cargo.lock": "version = 4\n", "src/lib.rs": "// code\n",
+		"Cargo.toml": "[package]\nname = \"bank_fee\"\n", "Cargo.lock": depLock(r.t), "src/lib.rs": "// code\n",
 		"target/plux/module.wasm": "not part of the source", ".cargo/config.toml": "[patch.crates-io]\n",
 		"function.json": `{"schemaVersion":"1.0.0","kind":"function","id":"01a137b5-6b91-728a-b602-f8bbfb8dee11","name":"bank.fee","placement":"server"}`,
 	} {
@@ -287,9 +357,10 @@ func TestFnNew_FN_030(t *testing.T) { //nolint:paralleltest // the environment i
 }
 
 // Verifies: FN-006, FN-016, FN-031.
-// plux fn deploy packs the crate, vendor directory, lock file and function
-// document, uploads it in chunks, polls the build with backoff, prints the
-// test results and deploys the version with the alias.
+// plux fn deploy packs the crate, lock file and function document, sends the
+// dependency archives the server lacks (and only those), uploads the source
+// in chunks, polls the build with backoff, prints the test results and
+// deploys the version with the alias.
 func TestFnDeploy_FN_006(t *testing.T) { //nolint:paralleltest // the environment is process-wide
 	r := newFnRig(t)
 	r.crate()
@@ -319,8 +390,12 @@ func TestFnDeploy_FN_006(t *testing.T) { //nolint:paralleltest // the environmen
 		names = append(names, n)
 	}
 	sort.Strings(names)
-	if strings.Join(names, ",") != "Cargo.lock,Cargo.toml,function.json,src/lib.rs,vendor/dep/.cargo-checksum.json,vendor/dep/Cargo.toml" {
+	if strings.Join(names, ",") != "Cargo.lock,Cargo.toml,function.json,src/lib.rs" {
 		t.Errorf("archive holds %v", names)
+	}
+	dep := builder.CrateSHA256(depCrate(t))
+	if len(r.f.asked) != 1 || r.f.asked[0] != dep || !bytes.Equal(r.f.crates[dep], depCrate(t)) {
+		t.Errorf("crates asked about %v, sent %d", r.f.asked, len(r.f.crates))
 	}
 	if r.f.deploy.GetBuildId() != "b-1" || r.f.deploy.GetAlias() != "stable" {
 		t.Errorf("deploy %v", r.f.deploy)
@@ -331,6 +406,9 @@ func TestFnDeploy_FN_006(t *testing.T) { //nolint:paralleltest // the environmen
 	r.f.polls, r.f.builds = 0, []*pluxv1.Build{succeeded()}
 	if code := r.run("deploy", "bank.fee", "--json"); code != exitOK || !strings.Contains(r.out.String(), `"version": 4`) {
 		t.Errorf("--json: %d %s", code, r.out.String())
+	}
+	if !strings.Contains(r.err.String(), "1 already on the server, 0 sent") {
+		t.Errorf("a crate the server holds was sent again:\n%s", r.err.String())
 	}
 }
 
@@ -578,38 +656,30 @@ func TestFnEndToEnd_FN_030(t *testing.T) { //nolint:paralleltest // the environm
 }
 
 // Verifies: FN-003.
-// The dependencies are vendored into a temporary directory that is removed
-// afterwards, so no function keeps a copy of them; the archive still holds
-// them under vendor/. A vendor/ directory an earlier plux fn wrote into the
-// crate is removed and never packed; any other vendor/ is left alone.
-func TestVendoredSourceKeepsNoCopy_FN_003(t *testing.T) {
+// The dependencies are read as their published archives from Cargo's cache,
+// by the checksum Cargo.lock records, so no function keeps a copy of them and
+// nothing vendored is ever packed. A vendor/ directory an earlier plux fn
+// wrote into the crate is removed; any other vendor/ is left alone.
+func TestCrateSourceReadsCargosCache_FN_003(t *testing.T) {
 	t.Parallel()
 	r := &fnRig{t: t, project: t.TempDir()}
 	r.crate()
 	dir := crateDir(r.project, "bank.fee")
 	putFile2(t, filepath.Join(dir, "vendor", "old", "Cargo.toml"), "stale")
 	putFile2(t, filepath.Join(dir, "vendor", "old", ".cargo-checksum.json"), "{}")
-	var used string
 	var errBuf bytes.Buffer
-	e := env{stderr: &errBuf, vendor: func(ctx context.Context, crate, out string) error {
-		used = out
-		return fakeVendor(ctx, crate, out)
-	}}
-	files, err := e.vendoredSource(context.Background(), dir)
+	e := env{stderr: &errBuf, fetch: noFetch, cargoHome: r.cargoHome()}
+	files, crates, err := e.crateSource(context.Background(), dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := files["vendor/dep/Cargo.toml"]; !ok {
-		t.Errorf("the archive lacks the vendored crate: %v", files)
+	if len(crates) != 1 || !bytes.Equal(crates[0], depCrate(t)) {
+		t.Errorf("crates = %d archives", len(crates))
 	}
-	if _, ok := files["vendor/old/Cargo.toml"]; ok {
-		t.Error("the old vendor/ of the crate was packed")
-	}
-	if strings.HasPrefix(used, dir) {
-		t.Errorf("vendored into the crate: %s", used)
-	}
-	if _, err := os.Stat(used); !errors.Is(err, fs.ErrNotExist) {
-		t.Errorf("the temporary vendor directory %s was kept: %v", used, err)
+	for name := range files {
+		if strings.HasPrefix(name, "vendor/") {
+			t.Errorf("the source holds %s", name)
+		}
 	}
 	if _, err := os.Stat(filepath.Join(dir, "vendor")); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("the old vendor/ written by cargo vendor was kept: %v", err)
@@ -617,13 +687,16 @@ func TestVendoredSourceKeepsNoCopy_FN_003(t *testing.T) {
 	if !strings.Contains(errBuf.String(), "removed") {
 		t.Errorf("the removal was not reported: %q", errBuf.String())
 	}
-
 	putFile2(t, filepath.Join(dir, "vendor", "README.md"), "mine")
-	if _, err := e.vendoredSource(context.Background(), dir); err != nil {
+	if _, _, err := e.crateSource(context.Background(), dir); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(filepath.Join(dir, "vendor", "README.md")); err != nil {
 		t.Errorf("a vendor/ not written by cargo vendor was removed: %v", err)
+	}
+	e.cargoHome = t.TempDir()
+	if _, _, err := e.crateSource(context.Background(), dir); err == nil || !strings.Contains(err.Error(), "cargo fetch") {
+		t.Errorf("a crate missing from Cargo's cache: %v", err)
 	}
 }
 

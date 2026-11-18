@@ -113,5 +113,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0101](0101-structural-session-replay.md) | Structural session replay: consent-gated, redacted, bounded, kept per app with retention | P11 | Proposed |
 | [0103](0103-shadcn-stock-design.md) | Studio uses shadcn/ui as it ships: Base UI, base-nova, its neutral theme, Inter and lucide | P11 | Accepted |
 | [0104](0104-dev-app-phone-sign-in.md) | The Dev app signs a phone in once and joins Studio sessions with a number match | P11 | Accepted |
+| [0105](0105-function-dependencies-as-verified-crates.md) | Function dependencies travel as verified crate archives, stored once, and the allowlist pins their contents | P11 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.
