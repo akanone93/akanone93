@@ -79,6 +79,9 @@ func (u *unit) checkStep(g *graph, i int, index map[string]int32) *step {
 	out.inputs = u.checkInputs(g, &a, input, ptr)
 	u.stepFeatures(g, &a, st, ptr)
 	u.checkDeviceStep(g, a.Name, input, ptr)
+	if a.Name == "signTransaction" {
+		u.checkSignedOperation(g, input, ptr)
+	}
 	if stateWrites[a.Name] {
 		u.checkStateWrite(g, a.Name, input, ptr)
 	}
@@ -748,5 +751,22 @@ func (u *unit) checkRedirects() {
 				u.report(plxerr.RedirectLoop, start.file, "/lifecycle/onEnter", "page %q redirects from onEnter in a cycle back to itself", start.doc.Key)
 			}
 		}
+	}
+}
+
+// checkSignedOperation checks that a signTransaction step names a
+// transaction: a mutating operation of a source that declares the fields
+// the user signs (SEC-027, SEC-028). Any other would ask the user to
+// confirm a summary that no request is held to. An operation that does
+// not exist is the reference check's to report.
+func (u *unit) checkSignedOperation(g *graph, input map[string]json.RawMessage, ptr string) {
+	name := literalString(input["transaction"])
+	src, op := u.operation(g, name)
+	if src == nil {
+		return
+	}
+	if src.Transaction == nil || !isMutation(op, src.Kind == schema.DataSourceKindGraphql) {
+		u.report(plxerr.UnresolvedReference, g.file, ptr+"/input/transaction",
+			"%q is not a transaction: its source declares no transaction, or the operation does not change data", name)
 	}
 }

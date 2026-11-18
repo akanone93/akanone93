@@ -9572,7 +9572,7 @@ export const actions: readonly ActionDescriptor[] = [
     "description": "Signs a transaction for strong customer authentication with dynamic linking of amount and payee (SEC-027).",
     "typeParameters": [],
     "inputs": [
-      {"name": "transaction", "id": 1, "type": "string", "required": true, "description": "The server-issued transaction challenge."},
+      {"name": "transaction", "id": 1, "type": "string", "required": true, "ref": "operation", "description": "The transaction to confirm, `<source>.<operation>` as apiCall names it: a mutating operation of a source that declares `transaction`. The runtime asks the server for its challenge."},
       {"name": "amount", "id": 2, "type": "money", "required": true, "description": "The amount shown to and confirmed by the user."},
       {"name": "payee", "id": 3, "type": "string", "required": true, "description": "The payee shown to and confirmed by the user."}
     ],

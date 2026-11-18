@@ -700,7 +700,7 @@ ID 48 · security · P6 · effects: network, security
 
 | Input | ID | Type | Default | Description |
 |---|---|---|---|---|
-| `transaction` | 1 | `string`, required | — | The server-issued transaction challenge. |
+| `transaction` | 1 | `string`, required | — | The transaction to confirm, `<source>.<operation>` as apiCall names it: a mutating operation of a source that declares `transaction`. The runtime asks the server for its challenge. Names a operation. |
 | `amount` | 2 | `money`, required | — | The amount shown to and confirmed by the user. |
 | `payee` | 3 | `string`, required | — | The payee shown to and confirmed by the user. |
 

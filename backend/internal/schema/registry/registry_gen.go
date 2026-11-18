@@ -5837,7 +5837,7 @@ var actions = [...]Action{
 	{
 		Name: "signTransaction", ID: 48, Phase: "P6", Category: "security", Description: "Signs a transaction for strong customer authentication with dynamic linking of amount and payee (SEC-027).",
 		Inputs: []Input{
-			{Name: "transaction", ID: 1, Type: "string", Required: true, Default: "", Ref: "", Description: "The server-issued transaction challenge."},
+			{Name: "transaction", ID: 1, Type: "string", Required: true, Default: "", Ref: "operation", Description: "The transaction to confirm, `<source>.<operation>` as apiCall names it: a mutating operation of a source that declares `transaction`. The runtime asks the server for its challenge."},
 			{Name: "amount", ID: 2, Type: "money", Required: true, Default: "", Ref: "", Description: "The amount shown to and confirmed by the user."},
 			{Name: "payee", ID: 3, Type: "string", Required: true, Default: "", Ref: "", Description: "The payee shown to and confirmed by the user."},
 		},

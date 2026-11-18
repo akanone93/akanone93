@@ -11,7 +11,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The server-issued transaction challenge."
+      "ref": "operation",
+      "description": "The transaction to confirm, `<source>.<operation>` as apiCall names it: a mutating operation of a source that declares `transaction`. The runtime asks the server for its challenge."
     },
     {
       "name": "amount",
