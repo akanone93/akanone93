@@ -562,6 +562,7 @@ function buildFlex(node: SceneNode, children: RenderBox[], textDirection: TextDi
     crossAxisAlignment: (field(props, "crossAxisAlignment") ?? CrossAxisAlignment.center) as CrossAxisAlignment,
     textDirection,
     verticalDirection: (field(props, "verticalDirection") ?? VerticalDirection.down) as VerticalDirection,
+    textBaseline: (field(props, "textBaseline") ?? null) as TextBaseline | null,
     spacing: optionalNum(props, "spacing") ?? 0,
   });
 }

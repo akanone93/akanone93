@@ -11,7 +11,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart' show CupertinoTheme, DefaultCupertinoLocalizations;
+import 'package:flutter/cupertino.dart'
+    show CupertinoTheme, DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -38,7 +39,10 @@ class _Direction {
   final String locale;
 }
 
-const List<_Frame> _frames = <_Frame>[_Frame('phone', 360, 800, 3), _Frame('tablet', 800, 1280, 2)];
+const List<_Frame> _frames = <_Frame>[
+  _Frame('phone', 360, 800, 3),
+  _Frame('tablet', 800, 1280, 2),
+];
 
 const List<_Direction> _directions = <_Direction>[
   _Direction('ltr', TextDirection.ltr, 'en'),
@@ -61,8 +65,11 @@ const List<(String, String)> _fonts = <(String, String)>[
 Future<void> _loadFonts() async {
   final Map<String, FontLoader> loaders = <String, FontLoader>{};
   for (final (String family, String file) in _fonts) {
-    final Uint8List bytes = File('../../schema/goldens/fonts/$file').readAsBytesSync();
-    (loaders[family] ??= FontLoader(family)).addFont(Future<ByteData>.value(ByteData.sublistView(bytes)));
+    final Uint8List bytes = File('../../schema/goldens/fonts/$file')
+        .readAsBytesSync();
+    (loaders[family] ??= FontLoader(
+      family,
+    )).addFont(Future<ByteData>.value(ByteData.sublistView(bytes)));
   }
   for (final FontLoader loader in loaders.values) {
     await loader.load();
@@ -76,7 +83,9 @@ StrutStyle _strut(Map<String, Object?> strut) => StrutStyle(
   leading: _optionalNumber(strut, 'leading'),
   forceStrutHeight: strut['forceStrutHeight'] as bool?,
   leadingDistribution: strut.containsKey('leadingDistribution')
-      ? TextLeadingDistribution.values.byName(strut['leadingDistribution']! as String)
+      ? TextLeadingDistribution.values.byName(
+          strut['leadingDistribution']! as String,
+        )
       : null,
 );
 
@@ -84,21 +93,30 @@ void _collectTextIds(Map<String, Object?> node, List<String> into) {
   if (node['type'] == 'Text') {
     into.add(node['id']! as String);
   }
-  if (node['type'] == 'CupertinoPicker' && ((node['children'] as List<Object?>?) ?? const <Object?>[]).isEmpty) {
-    final int count = ((node['props'] as Map<String, Object?>)['itemCount'] as int?) ?? 3;
+  if (node['type'] == 'CupertinoPicker' &&
+      ((node['children'] as List<Object?>?) ?? const <Object?>[]).isEmpty) {
+    final int count =
+        ((node['props'] as Map<String, Object?>)['itemCount'] as int?) ?? 3;
     for (int i = 0; i < count; i++) {
       into.add('${node['id']}.item$i');
     }
   }
-  for (final Object? child in (node['children'] as List<Object?>?) ?? const <Object?>[]) {
+  for (final Object? child
+      in (node['children'] as List<Object?>?) ?? const <Object?>[]) {
     _collectTextIds(child! as Map<String, Object?>, into);
   }
 }
 
 /// Types that draw text of their own from props, so their scenes are captured at both text scales.
 const Set<String> _labelledTypes = <String>{
-  'Autocomplete', 'CalendarDatePicker', 'DataTable', 'DropdownMenu', 'NavigationDrawer', 'PopupMenuButton',
-  'SegmentedButton', 'Stepper',
+  'Autocomplete',
+  'CalendarDatePicker',
+  'DataTable',
+  'DropdownMenu',
+  'NavigationDrawer',
+  'PopupMenuButton',
+  'SegmentedButton',
+  'Stepper',
 };
 
 bool _hasText(Map<String, Object?> node) =>
@@ -120,7 +138,12 @@ double? _optionalNumber(Map<String, Object?> props, String name) =>
 
 EdgeInsetsGeometry _padding(Object? value) {
   if (value is List<Object?>) {
-    return EdgeInsets.fromLTRB(_number(value[0]), _number(value[1]), _number(value[2]), _number(value[3]));
+    return EdgeInsets.fromLTRB(
+      _number(value[0]),
+      _number(value[1]),
+      _number(value[2]),
+      _number(value[3]),
+    );
   }
   final Map<String, Object?> sides = value! as Map<String, Object?>;
   return EdgeInsetsDirectional.fromSTEB(
@@ -173,12 +196,19 @@ TableColumnWidth _columnWidth(Object? spec) {
 
 const Duration _animationDuration = Duration(seconds: 1);
 
-
 /// Viewport and sliver scene nodes (STU-068, S4.1): their children are built lazily, so a scene
 /// golden holds only the nodes Flutter has built.
 const Set<String> _lazyTypes = <String>{
-  'ListView', 'GridView', 'PageView', 'ReorderableListView', 'SliverList', 'SliverFixedExtentList',
-  'SliverVariedExtentList', 'SliverGrid', 'SliverFillViewport', 'CupertinoPicker',
+  'ListView',
+  'GridView',
+  'PageView',
+  'ReorderableListView',
+  'SliverList',
+  'SliverFixedExtentList',
+  'SliverVariedExtentList',
+  'SliverGrid',
+  'SliverFillViewport',
+  'CupertinoPicker',
 };
 
 bool _hasLazy(Map<String, Object?> node) =>
@@ -201,7 +231,11 @@ class _FixedHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => max;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => child;
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) => child;
 
   @override
   bool shouldRebuild(covariant _FixedHeaderDelegate oldDelegate) => true;
@@ -209,8 +243,10 @@ class _FixedHeaderDelegate extends SliverPersistentHeaderDelegate {
 
 SliverGridDelegate _gridDelegate(Map<String, Object?> props) {
   final double mainAxisSpacing = _optionalNumber(props, 'mainAxisSpacing') ?? 0;
-  final double crossAxisSpacing = _optionalNumber(props, 'crossAxisSpacing') ?? 0;
-  final double childAspectRatio = _optionalNumber(props, 'childAspectRatio') ?? 1;
+  final double crossAxisSpacing =
+      _optionalNumber(props, 'crossAxisSpacing') ?? 0;
+  final double childAspectRatio =
+      _optionalNumber(props, 'childAspectRatio') ?? 1;
   final double? mainAxisExtent = _optionalNumber(props, 'mainAxisExtent');
   if (props.containsKey('maxCrossAxisExtent')) {
     return SliverGridDelegateWithMaxCrossAxisExtent(
@@ -230,28 +266,48 @@ SliverGridDelegate _gridDelegate(Map<String, Object?> props) {
   );
 }
 
-SliverChildListDelegate _listDelegate(List<Widget> children) => SliverChildListDelegate(
-  children,
-  addAutomaticKeepAlives: false,
-  addRepaintBoundaries: false,
-  addSemanticIndexes: false,
-);
+SliverChildListDelegate _listDelegate(List<Widget> children) =>
+    SliverChildListDelegate(
+      children,
+      addAutomaticKeepAlives: false,
+      addRepaintBoundaries: false,
+      addSemanticIndexes: false,
+    );
 
 ScrollCacheExtent? _cacheExtent(Map<String, Object?> props) =>
-    props.containsKey('cacheExtent') ? ScrollCacheExtent.pixels(_number(props['cacheExtent'])) : null;
+    props.containsKey('cacheExtent')
+    ? ScrollCacheExtent.pixels(_number(props['cacheExtent']))
+    : null;
 
-Widget _buildScroll(String type, Key key, Map<String, Object?> props, List<Widget> children) {
-  final Axis scrollDirection = _enum(Axis.values, props['scrollDirection'], Axis.vertical);
+Widget _buildScroll(
+  String type,
+  Key key,
+  Map<String, Object?> props,
+  List<Widget> children,
+) {
+  final Axis scrollDirection = _enum(
+    Axis.values,
+    props['scrollDirection'],
+    Axis.vertical,
+  );
   final bool reverse = props['reverse'] == true;
   final bool shrinkWrap = props['shrinkWrap'] == true;
-  final ScrollController controller = ScrollController(initialScrollOffset: _optionalNumber(props, 'scrollOffset') ?? 0);
-  final EdgeInsetsGeometry? padding = props.containsKey('padding') ? _padding(props['padding']) : null;
+  final ScrollController controller = ScrollController(
+    initialScrollOffset: _optionalNumber(props, 'scrollOffset') ?? 0,
+  );
+  final EdgeInsetsGeometry? padding = props.containsKey('padding')
+      ? _padding(props['padding'])
+      : null;
   final double? itemExtent = _optionalNumber(props, 'itemExtent');
   switch (type) {
     case 'Viewport':
       return Viewport(
         key: key,
-        axisDirection: _enum(AxisDirection.values, props['axisDirection'], AxisDirection.down),
+        axisDirection: _enum(
+          AxisDirection.values,
+          props['axisDirection'],
+          AxisDirection.down,
+        ),
         anchor: _optionalNumber(props, 'anchor') ?? 0,
         offset: ViewportOffset.fixed(_optionalNumber(props, 'offset') ?? 0),
         scrollCacheExtent: _cacheExtent(props),
@@ -260,7 +316,11 @@ Widget _buildScroll(String type, Key key, Map<String, Object?> props, List<Widge
     case 'ShrinkWrappingViewport':
       return ShrinkWrappingViewport(
         key: key,
-        axisDirection: _enum(AxisDirection.values, props['axisDirection'], AxisDirection.down),
+        axisDirection: _enum(
+          AxisDirection.values,
+          props['axisDirection'],
+          AxisDirection.down,
+        ),
         offset: ViewportOffset.fixed(_optionalNumber(props, 'offset') ?? 0),
         slivers: children,
       );
@@ -338,25 +398,36 @@ Widget _buildScroll(String type, Key key, Map<String, Object?> props, List<Widge
         ],
         child: Material(
           type: MaterialType.transparency,
-          child: Overlay(initialEntries: <OverlayEntry>[OverlayEntry(builder: (BuildContext context) => ReorderableListView(
-            key: key,
-            scrollDirection: scrollDirection,
-            reverse: reverse,
-            scrollController: controller,
-            primary: false,
-            shrinkWrap: shrinkWrap,
-            padding: padding is EdgeInsets ? padding : null,
-            itemExtent: itemExtent,
-            onReorderItem: (int oldIndex, int newIndex) {},
-            children: children,
-          ))]),
+          child: Overlay(
+            initialEntries: <OverlayEntry>[
+              OverlayEntry(
+                builder: (BuildContext context) => ReorderableListView(
+                  key: key,
+                  scrollDirection: scrollDirection,
+                  reverse: reverse,
+                  scrollController: controller,
+                  primary: false,
+                  shrinkWrap: shrinkWrap,
+                  padding: padding is EdgeInsets ? padding : null,
+                  itemExtent: itemExtent,
+                  onReorderItem: (int oldIndex, int newIndex) {},
+                  children: children,
+                ),
+              ),
+            ],
+          ),
         ),
       );
   }
   throw ArgumentError('unknown scroll view type "$type"');
 }
 
-Widget _buildSliver(String type, Key key, Map<String, Object?> props, List<Widget> children) {
+Widget _buildSliver(
+  String type,
+  Key key,
+  Map<String, Object?> props,
+  List<Widget> children,
+) {
   final Widget? child = children.length == 1 ? children.single : null;
   switch (type) {
     case 'SliverToBoxAdapter':
@@ -364,16 +435,28 @@ Widget _buildSliver(String type, Key key, Map<String, Object?> props, List<Widge
     case 'SliverList':
       return SliverList(key: key, delegate: _listDelegate(children));
     case 'SliverFixedExtentList':
-      return SliverFixedExtentList(key: key, itemExtent: _number(props['itemExtent']), delegate: _listDelegate(children));
+      return SliverFixedExtentList(
+        key: key,
+        itemExtent: _number(props['itemExtent']),
+        delegate: _listDelegate(children),
+      );
     case 'SliverVariedExtentList':
-      final List<double> extents = <double>[for (final Object? e in props['itemExtents']! as List<Object?>) _number(e)];
+      final List<double> extents = <double>[
+        for (final Object? e in props['itemExtents']! as List<Object?>)
+          _number(e),
+      ];
       return SliverVariedExtentList(
         key: key,
-        itemExtentBuilder: (int index, SliverLayoutDimensions dimensions) => index < extents.length ? extents[index] : null,
+        itemExtentBuilder: (int index, SliverLayoutDimensions dimensions) =>
+            index < extents.length ? extents[index] : null,
         delegate: _listDelegate(children),
       );
     case 'SliverGrid':
-      return SliverGrid(key: key, gridDelegate: _gridDelegate(props), delegate: _listDelegate(children));
+      return SliverGrid(
+        key: key,
+        gridDelegate: _gridDelegate(props),
+        delegate: _listDelegate(children),
+      );
     case 'SliverFillViewport':
       return SliverFillViewport(
         key: key,
@@ -389,16 +472,24 @@ Widget _buildSliver(String type, Key key, Map<String, Object?> props, List<Widge
         child: child,
       );
     case 'SliverPadding':
-      return SliverPadding(key: key, padding: _padding(props['padding']), sliver: child);
+      return SliverPadding(
+        key: key,
+        padding: _padding(props['padding']),
+        sliver: child,
+      );
     case 'SliverPersistentHeader':
     case 'SliverAppBar':
       final double min;
       final double max;
       if (type == 'SliverAppBar') {
         // SliverAppBar's delegate: collapsedHeight or toolbarHeight collapsed, expandedHeight or toolbarHeight expanded.
-        final double toolbarHeight = _optionalNumber(props, 'toolbarHeight') ?? kToolbarHeight;
+        final double toolbarHeight =
+            _optionalNumber(props, 'toolbarHeight') ?? kToolbarHeight;
         min = _optionalNumber(props, 'collapsedHeight') ?? toolbarHeight;
-        max = math.max(_optionalNumber(props, 'expandedHeight') ?? toolbarHeight, min);
+        max = math.max(
+          _optionalNumber(props, 'expandedHeight') ?? toolbarHeight,
+          min,
+        );
       } else {
         min = _number(props['minExtent']);
         max = _number(props['maxExtent']);
@@ -407,7 +498,11 @@ Widget _buildSliver(String type, Key key, Map<String, Object?> props, List<Widge
         key: key,
         pinned: props['pinned'] == true,
         floating: props['floating'] == true,
-        delegate: _FixedHeaderDelegate(min, max, child ?? const SizedBox.expand()),
+        delegate: _FixedHeaderDelegate(
+          min,
+          max,
+          child ?? const SizedBox.expand(),
+        ),
       );
   }
   throw ArgumentError('unknown sliver type "$type"');
@@ -416,10 +511,15 @@ Widget _buildSliver(String type, Key key, Map<String, Object?> props, List<Widge
 /// The rect of the render object a scene id keys: a box's global rect, a sliver's paint area.
 List<double> _rectOf(WidgetTester tester, String id) {
   // A segment of a sliding control builds its content twice; the first copy is the one that is shown.
-  final Finder finder = find.byKey(ValueKey<String>(id), skipOffstage: false).first;
+  final Finder finder = find
+      .byKey(ValueKey<String>(id), skipOffstage: false)
+      .first;
   final RenderObject renderObject = tester.element(finder).renderObject!;
   if (renderObject is RenderSliver) {
-    final Offset origin = MatrixUtils.transformPoint(renderObject.getTransformTo(null), Offset.zero);
+    final Offset origin = MatrixUtils.transformPoint(
+      renderObject.getTransformTo(null),
+      Offset.zero,
+    );
     final Rect bounds = renderObject.paintBounds;
     return <double>[origin.dx, origin.dy, bounds.width, bounds.height];
   }
@@ -427,16 +527,53 @@ List<double> _rectOf(WidgetTester tester, String id) {
   return <double>[rect.left, rect.top, rect.width, rect.height];
 }
 
-
 /// The Material composites (S4.3): scenes name the part of a composite a child
 /// fills with `slot` (default `child`); the golden writer builds the real widget.
 const Set<String> _materialTypes = <String>{
-  'Icon', 'ElevatedButton', 'FilledButton', 'FilledTonalButton', 'OutlinedButton', 'TextButton', 'IconButton',
-  'FloatingActionButton', 'ListTile', 'PreferredSize', 'AppBar', 'Scaffold',
-  'Chip', 'FilterChip', 'InputChip', 'ActionChip', 'ChoiceChip', 'Checkbox', 'Switch', 'Radio', 'Divider', 'VerticalDivider',
-  'CircleAvatar', 'CircularProgressIndicator', 'LinearProgressIndicator', 'Card', 'Badge', 'TextField', 'NavigationBar', 'NavigationDestination', 'NavigationRail', 'NavigationRailDestination', 'Drawer',
-  'BackButton', 'CloseButton', 'Slider', 'RangeSlider', 'CheckboxListTile', 'SwitchListTile', 'RadioListTile',
-  'SearchBar', 'SearchAnchor', 'BottomNavigationBar', 'ExpansionTile',
+  'Icon',
+  'ElevatedButton',
+  'FilledButton',
+  'FilledTonalButton',
+  'OutlinedButton',
+  'TextButton',
+  'IconButton',
+  'FloatingActionButton',
+  'ListTile',
+  'PreferredSize',
+  'AppBar',
+  'Scaffold',
+  'Chip',
+  'FilterChip',
+  'InputChip',
+  'ActionChip',
+  'ChoiceChip',
+  'Checkbox',
+  'Switch',
+  'Radio',
+  'Divider',
+  'VerticalDivider',
+  'CircleAvatar',
+  'CircularProgressIndicator',
+  'LinearProgressIndicator',
+  'Card',
+  'Badge',
+  'TextField',
+  'NavigationBar',
+  'NavigationDestination',
+  'NavigationRail',
+  'NavigationRailDestination',
+  'Drawer',
+  'BackButton',
+  'CloseButton',
+  'Slider',
+  'RangeSlider',
+  'CheckboxListTile',
+  'SwitchListTile',
+  'RadioListTile',
+  'SearchBar',
+  'SearchAnchor',
+  'BottomNavigationBar',
+  'ExpansionTile',
   ...materialCompositeTypes,
 };
 
@@ -461,35 +598,54 @@ Widget _materialScope(Widget child, TextDirection direction) => Localizations(
       // The `Overlay` is what tooltips and slider value indicators need; it fills the frame as the view does.
       child: Material(
         type: MaterialType.transparency,
-        child: Overlay(initialEntries: <OverlayEntry>[OverlayEntry(builder: (BuildContext context) => child)]),
+        child: Overlay(
+          initialEntries: <OverlayEntry>[
+            OverlayEntry(builder: (BuildContext context) => child),
+          ],
+        ),
       ),
     ),
   ),
 );
 
 MaterialTapTargetSize _tapTarget(Map<String, Object?> props) =>
-    props['tapTargetSize'] == 'shrinkWrap' ? MaterialTapTargetSize.shrinkWrap : MaterialTapTargetSize.padded;
+    props['tapTargetSize'] == 'shrinkWrap'
+    ? MaterialTapTargetSize.shrinkWrap
+    : MaterialTapTargetSize.padded;
 
-VisualDensity _density(Map<String, Object?> props) => switch (props['density']) {
-  'comfortable' => VisualDensity.comfortable,
-  'compact' => VisualDensity.compact,
-  _ => VisualDensity.standard,
-};
+VisualDensity _density(Map<String, Object?> props) =>
+    switch (props['density']) {
+      'comfortable' => VisualDensity.comfortable,
+      'compact' => VisualDensity.compact,
+      _ => VisualDensity.standard,
+    };
 
 /// The slot children of [node] built, keyed by slot name.
-Map<String, List<Widget>> _buildSlots(Map<String, Object?> node, String phase, double t) {
+Map<String, List<Widget>> _buildSlots(
+  Map<String, Object?> node,
+  String phase,
+  double t,
+) {
   final Map<String, List<Widget>> slots = <String, List<Widget>>{};
-  for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+  for (final Object? raw
+      in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     final Map<String, Object?> child = raw! as Map<String, Object?>;
-    (slots[(child['slot'] as String?) ?? 'child'] ??= <Widget>[]).add(_build(child, phase, t));
+    (slots[(child['slot'] as String?) ?? 'child'] ??= <Widget>[]).add(
+      _build(child, phase, t),
+    );
   }
   return slots;
 }
 
 /// A [NavigationDestination] node: the icon slot and the `label` prop. The tooltip is left empty,
 /// as it needs an `Overlay` that has no effect on layout.
-NavigationDestination _destination(Map<String, Object?> node, String phase, double t) {
-  final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+NavigationDestination _destination(
+  Map<String, Object?> node,
+  String phase,
+  double t,
+) {
+  final Map<String, Object?> props =
+      (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
   final Map<String, List<Widget>> slots = _buildSlots(node, phase, t);
   return NavigationDestination(
     key: ValueKey<String>(node['id']! as String),
@@ -500,7 +656,13 @@ NavigationDestination _destination(Map<String, Object?> node, String phase, doub
   );
 }
 
-Widget _buildNavigationBar(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+Widget _buildNavigationBar(
+  Map<String, Object?> node,
+  Map<String, Object?> props,
+  Key key,
+  String phase,
+  double t,
+) {
   return NavigationBar(
     key: key,
     selectedIndex: (props['selectedIndex'] as num?)?.toInt() ?? 0,
@@ -511,18 +673,29 @@ Widget _buildNavigationBar(Map<String, Object?> node, Map<String, Object?> props
       _ => NavigationDestinationLabelBehavior.alwaysShow,
     },
     destinations: <Widget>[
-      for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[])
+      for (final Object? raw
+          in (node['children'] as List<Object?>?) ?? <Object?>[])
         _destination(raw! as Map<String, Object?>, phase, t),
     ],
   );
 }
 
-Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> props, Key key, String phase, double t) {
+Widget _buildNavigationRail(
+  Map<String, Object?> node,
+  Map<String, Object?> props,
+  Key key,
+  String phase,
+  double t,
+) {
   final List<Map<String, Object?>> all = <Map<String, Object?>>[
-    for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) raw! as Map<String, Object?>,
+    for (final Object? raw
+        in (node['children'] as List<Object?>?) ?? <Object?>[])
+      raw! as Map<String, Object?>,
   ];
   Widget? part(String name) {
-    final Iterable<Map<String, Object?>> found = all.where((Map<String, Object?> c) => c['slot'] == name);
+    final Iterable<Map<String, Object?>> found = all.where(
+      (Map<String, Object?> c) => c['slot'] == name,
+    );
     return found.isEmpty ? null : _build(found.single, phase, t);
   }
 
@@ -541,11 +714,18 @@ Widget _buildNavigationRail(Map<String, Object?> node, Map<String, Object?> prop
       _ => NavigationRailLabelType.none,
     },
     destinations: <NavigationRailDestination>[
-      for (final Map<String, Object?> raw in all.where((Map<String, Object?> c) => c['slot'] == null))
+      for (final Map<String, Object?> raw in all.where(
+        (Map<String, Object?> c) => c['slot'] == null,
+      ))
         NavigationRailDestination(
-          icon: (_buildSlots(raw, phase, t)['icon'] ?? _buildSlots(raw, phase, t)['selectedIcon']!).single,
+          icon:
+              (_buildSlots(raw, phase, t)['icon'] ??
+                      _buildSlots(raw, phase, t)['selectedIcon']!)
+                  .single,
           selectedIcon: _buildSlots(raw, phase, t)['selectedIcon']?.single,
-          label: Text((raw['props']! as Map<String, Object?>)['label']! as String),
+          label: Text(
+            (raw['props']! as Map<String, Object?>)['label']! as String,
+          ),
         ),
     ],
   );
@@ -555,9 +735,14 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
   final Key key = ValueKey<String>(id);
-  final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  final Map<String, Object?> props =
+      (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
   if (materialCompositeTypes.contains(type)) {
-    return buildMaterialComposite(node, key, (Map<String, Object?> child) => _build(child, phase, t));
+    return buildMaterialComposite(
+      node,
+      key,
+      (Map<String, Object?> child) => _build(child, phase, t),
+    );
   }
   if (type == 'NavigationBar') {
     return _buildNavigationBar(node, props, key, phase, t);
@@ -566,9 +751,12 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
     return _buildNavigationRail(node, props, key, phase, t);
   }
   final Map<String, List<Widget>> slots = <String, List<Widget>>{};
-  for (final Object? raw in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+  for (final Object? raw
+      in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     final Map<String, Object?> child = raw! as Map<String, Object?>;
-    (slots[(child['slot'] as String?) ?? 'child'] ??= <Widget>[]).add(_build(child, phase, t));
+    (slots[(child['slot'] as String?) ?? 'child'] ??= <Widget>[]).add(
+      _build(child, phase, t),
+    );
   }
   Widget? one(String name) {
     final List<Widget>? found = slots[name];
@@ -578,7 +766,10 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
     return found?.single;
   }
 
-  final ButtonStyle style = ButtonStyle(tapTargetSize: _tapTarget(props), visualDensity: _density(props));
+  final ButtonStyle style = ButtonStyle(
+    tapTargetSize: _tapTarget(props),
+    visualDensity: _density(props),
+  );
   void onPressed() {}
   switch (type) {
     case 'Icon':
@@ -586,42 +777,127 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
     case 'ElevatedButton':
       final Widget? icon = one('icon');
       return icon == null
-          ? ElevatedButton(key: key, onPressed: onPressed, style: style, child: one('child'))
-          : ElevatedButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+          ? ElevatedButton(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              child: one('child'),
+            )
+          : ElevatedButton.icon(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              icon: icon,
+              label: one('child')!,
+            );
     case 'FilledButton':
     case 'FilledTonalButton':
       final Widget? icon = one('icon');
       final bool tonal = type == 'FilledTonalButton';
       if (icon == null) {
         return tonal
-            ? FilledButton.tonal(key: key, onPressed: onPressed, style: style, child: one('child'))
-            : FilledButton(key: key, onPressed: onPressed, style: style, child: one('child'));
+            ? FilledButton.tonal(
+                key: key,
+                onPressed: onPressed,
+                style: style,
+                child: one('child'),
+              )
+            : FilledButton(
+                key: key,
+                onPressed: onPressed,
+                style: style,
+                child: one('child'),
+              );
       }
       return tonal
-          ? FilledButton.tonalIcon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!)
-          : FilledButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+          ? FilledButton.tonalIcon(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              icon: icon,
+              label: one('child')!,
+            )
+          : FilledButton.icon(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              icon: icon,
+              label: one('child')!,
+            );
     case 'OutlinedButton':
       final Widget? icon = one('icon');
       return icon == null
-          ? OutlinedButton(key: key, onPressed: onPressed, style: style, child: one('child'))
-          : OutlinedButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+          ? OutlinedButton(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              child: one('child'),
+            )
+          : OutlinedButton.icon(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              icon: icon,
+              label: one('child')!,
+            );
     case 'TextButton':
       final Widget? icon = one('icon');
       return icon == null
-          ? TextButton(key: key, onPressed: onPressed, style: style, child: one('child')!)
-          : TextButton.icon(key: key, onPressed: onPressed, style: style, icon: icon, label: one('child')!);
+          ? TextButton(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              child: one('child')!,
+            )
+          : TextButton.icon(
+              key: key,
+              onPressed: onPressed,
+              style: style,
+              icon: icon,
+              label: one('child')!,
+            );
     case 'IconButton':
       return switch (props['variant']) {
-        'filled' => IconButton.filled(key: key, onPressed: onPressed, style: style, icon: one('child')!),
-        'tonal' => IconButton.filledTonal(key: key, onPressed: onPressed, style: style, icon: one('child')!),
-        'outlined' => IconButton.outlined(key: key, onPressed: onPressed, style: style, icon: one('child')!),
-        _ => IconButton(key: key, onPressed: onPressed, style: style, icon: one('child')!),
+        'filled' => IconButton.filled(
+          key: key,
+          onPressed: onPressed,
+          style: style,
+          icon: one('child')!,
+        ),
+        'tonal' => IconButton.filledTonal(
+          key: key,
+          onPressed: onPressed,
+          style: style,
+          icon: one('child')!,
+        ),
+        'outlined' => IconButton.outlined(
+          key: key,
+          onPressed: onPressed,
+          style: style,
+          icon: one('child')!,
+        ),
+        _ => IconButton(
+          key: key,
+          onPressed: onPressed,
+          style: style,
+          icon: one('child')!,
+        ),
       };
     case 'FloatingActionButton':
       final MaterialTapTargetSize target = _tapTarget(props);
       return switch (props['kind']) {
-        'small' => FloatingActionButton.small(key: key, onPressed: onPressed, materialTapTargetSize: target, child: one('child')),
-        'large' => FloatingActionButton.large(key: key, onPressed: onPressed, materialTapTargetSize: target, child: one('child')),
+        'small' => FloatingActionButton.small(
+          key: key,
+          onPressed: onPressed,
+          materialTapTargetSize: target,
+          child: one('child'),
+        ),
+        'large' => FloatingActionButton.large(
+          key: key,
+          onPressed: onPressed,
+          materialTapTargetSize: target,
+          child: one('child'),
+        ),
         'extended' => FloatingActionButton.extended(
           key: key,
           onPressed: onPressed,
@@ -629,10 +905,19 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
           icon: one('child'),
           label: one('label')!,
         ),
-        _ => FloatingActionButton(key: key, onPressed: onPressed, materialTapTargetSize: target, child: one('child')),
+        _ => FloatingActionButton(
+          key: key,
+          onPressed: onPressed,
+          materialTapTargetSize: target,
+          child: one('child'),
+        ),
       };
     case 'PreferredSize':
-      return PreferredSize(key: key, preferredSize: Size.fromHeight(_number(props['height'])), child: one('child')!);
+      return PreferredSize(
+        key: key,
+        preferredSize: Size.fromHeight(_number(props['height'])),
+        child: one('child')!,
+      );
     case 'AppBar':
       return AppBar(
         key: key,
@@ -652,17 +937,18 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         appBar: one('appBar') as PreferredSizeWidget?,
         body: one('child'),
         floatingActionButton: one('floatingActionButton'),
-        floatingActionButtonLocation: switch (props['floatingActionButtonLocation']) {
-          'startTop' => FloatingActionButtonLocation.startTop,
-          'centerTop' => FloatingActionButtonLocation.centerTop,
-          'endTop' => FloatingActionButtonLocation.endTop,
-          'startFloat' => FloatingActionButtonLocation.startFloat,
-          'centerFloat' => FloatingActionButtonLocation.centerFloat,
-          'startDocked' => FloatingActionButtonLocation.startDocked,
-          'centerDocked' => FloatingActionButtonLocation.centerDocked,
-          'endDocked' => FloatingActionButtonLocation.endDocked,
-          _ => FloatingActionButtonLocation.endFloat,
-        },
+        floatingActionButtonLocation:
+            switch (props['floatingActionButtonLocation']) {
+              'startTop' => FloatingActionButtonLocation.startTop,
+              'centerTop' => FloatingActionButtonLocation.centerTop,
+              'endTop' => FloatingActionButtonLocation.endTop,
+              'startFloat' => FloatingActionButtonLocation.startFloat,
+              'centerFloat' => FloatingActionButtonLocation.centerFloat,
+              'startDocked' => FloatingActionButtonLocation.startDocked,
+              'centerDocked' => FloatingActionButtonLocation.centerDocked,
+              'endDocked' => FloatingActionButtonLocation.endDocked,
+              _ => FloatingActionButtonLocation.endFloat,
+            },
         bottomNavigationBar: one('bottomNavigationBar'),
         bottomSheet: one('bottomSheet'),
       );
@@ -712,15 +998,33 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         ),
       );
     case 'Divider':
-      return Divider(key: key, height: _optionalNumber(props, 'height'), thickness: _optionalNumber(props, 'thickness'));
+      return Divider(
+        key: key,
+        height: _optionalNumber(props, 'height'),
+        thickness: _optionalNumber(props, 'thickness'),
+      );
     case 'VerticalDivider':
-      return VerticalDivider(key: key, width: _optionalNumber(props, 'width'), thickness: _optionalNumber(props, 'thickness'));
+      return VerticalDivider(
+        key: key,
+        width: _optionalNumber(props, 'width'),
+        thickness: _optionalNumber(props, 'thickness'),
+      );
     case 'CircleAvatar':
-      return CircleAvatar(key: key, radius: _optionalNumber(props, 'radius'), child: one('child'));
+      return CircleAvatar(
+        key: key,
+        radius: _optionalNumber(props, 'radius'),
+        child: one('child'),
+      );
     case 'CircularProgressIndicator':
-      return CircularProgressIndicator(key: key, value: _optionalNumber(props, 'value'));
+      return CircularProgressIndicator(
+        key: key,
+        value: _optionalNumber(props, 'value'),
+      );
     case 'LinearProgressIndicator':
-      return LinearProgressIndicator(key: key, value: _optionalNumber(props, 'value'));
+      return LinearProgressIndicator(
+        key: key,
+        value: _optionalNumber(props, 'value'),
+      );
     case 'Card':
       return Card(
         key: key,
@@ -729,9 +1033,17 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
       );
     case 'Badge':
       final String? label = props['label'] as String?;
-      return Badge(key: key, label: label == null ? null : Text(label), child: one('child'));
+      return Badge(
+        key: key,
+        label: label == null ? null : Text(label),
+        child: one('child'),
+      );
     case 'Drawer':
-      return Drawer(key: key, width: _optionalNumber(props, 'width'), child: one('child'));
+      return Drawer(
+        key: key,
+        width: _optionalNumber(props, 'width'),
+        child: one('child'),
+      );
     case 'TextField':
       return TextField(
         key: key,
@@ -741,7 +1053,9 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
           helperText: props['helperText'] as String?,
           errorText: props['errorText'] as String?,
           filled: props['filled'] == true,
-          border: props['border'] == 'outline' ? const OutlineInputBorder() : const UnderlineInputBorder(),
+          border: props['border'] == 'outline'
+              ? const OutlineInputBorder()
+              : const UnderlineInputBorder(),
           isDense: props['isDense'] == true ? true : null,
           prefixIcon: one('prefixIcon'),
           suffixIcon: one('suffixIcon'),
@@ -757,7 +1071,9 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
     case 'InputChip':
       final Widget label = one('label')!;
       final Widget? avatar = one('avatar');
-      final Widget? deleteIcon = props['deletable'] == true ? one('deleteIcon') : null;
+      final Widget? deleteIcon = props['deletable'] == true
+          ? one('deleteIcon')
+          : null;
       final VoidCallback? onDeleted = deleteIcon == null ? null : () {};
       final bool selected = props['selected'] == true;
       final VisualDensity density = _density(props);
@@ -820,20 +1136,34 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
         key: key,
         child: SearchAnchor.bar(
           barHintText: props['hintText'] as String?,
-          suggestionsBuilder: (BuildContext context, SearchController controller) => const <Widget>[],
+          suggestionsBuilder: (
+            BuildContext context,
+            SearchController controller,
+          ) => const <Widget>[],
         ),
       );
     case 'BottomNavigationBar':
       return BottomNavigationBar(
         key: key,
-        type: props['type'] == 'shifting' ? BottomNavigationBarType.shifting : BottomNavigationBarType.fixed,
+        type: props['type'] == 'shifting'
+            ? BottomNavigationBarType.shifting
+            : BottomNavigationBarType.fixed,
         items: <BottomNavigationBarItem>[
           for (int i = 0; i < (props['items']! as num).toInt(); i++)
-            BottomNavigationBarItem(icon: const Icon(Icons.star), label: 'Item', tooltip: ''),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.star),
+              label: 'Item',
+              tooltip: '',
+            ),
         ],
       );
     case 'ExpansionTile':
-      return ExpansionTile(key: key, leading: one('leading'), title: one('title')!, subtitle: one('subtitle'));
+      return ExpansionTile(
+        key: key,
+        leading: one('leading'),
+        title: one('title')!,
+        subtitle: one('subtitle'),
+      );
     case 'BackButton':
       return BackButton(key: key, onPressed: () {});
     case 'CloseButton':
@@ -841,7 +1171,11 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
     case 'Slider':
       return Slider(key: key, value: 0.5, onChanged: (double _) {});
     case 'RangeSlider':
-      return RangeSlider(key: key, values: const RangeValues(0.25, 0.75), onChanged: (RangeValues _) {});
+      return RangeSlider(
+        key: key,
+        values: const RangeValues(0.25, 0.75),
+        onChanged: (RangeValues _) {},
+      );
     case 'CheckboxListTile':
       return CheckboxListTile(
         key: key,
@@ -888,18 +1222,31 @@ Widget _buildMaterial(Map<String, Object?> node, String phase, double t) {
 Widget _build(Map<String, Object?> node, String phase, double t) {
   final String id = node['id']! as String;
   final String type = node['type']! as String;
-  final Map<String, Object?> props = (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
+  final Map<String, Object?> props =
+      (node['props'] as Map<String, Object?>?) ?? <String, Object?>{};
   if (_materialTypes.contains(type)) {
     return _buildMaterial(node, phase, t);
   }
   final List<Widget> children = <Widget>[
-    for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[])
+    for (final Object? child
+        in (node['children'] as List<Object?>?) ?? <Object?>[])
       _build(child! as Map<String, Object?>, phase, t),
   ];
   const Set<String> multiChild = <String>{
     'Row', 'Column', 'Flex', 'Stack', 'IndexedStack', 'Wrap', 'Table', //
-    'Viewport', 'ShrinkWrappingViewport', 'CustomScrollView', 'ListView', 'GridView', 'PageView', 'NestedScrollView', //
-    'ReorderableListView', 'SliverList', 'SliverFixedExtentList', 'SliverVariedExtentList', 'SliverGrid', 'SliverFillViewport',
+    'Viewport',
+    'ShrinkWrappingViewport',
+    'CustomScrollView',
+    'ListView',
+    'GridView',
+    'PageView',
+    'NestedScrollView', //
+    'ReorderableListView',
+    'SliverList',
+    'SliverFixedExtentList',
+    'SliverVariedExtentList',
+    'SliverGrid',
+    'SliverFillViewport',
     ...cupertinoMultiChild,
   };
   if (!multiChild.contains(type) && children.length > 1) {
@@ -908,7 +1255,13 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
   final Widget? child = children.length == 1 ? children.single : null;
   final Key key = ValueKey<String>(id);
   const Set<String> scrollTypes = <String>{
-    'Viewport', 'ShrinkWrappingViewport', 'CustomScrollView', 'ListView', 'GridView', 'PageView', 'NestedScrollView',
+    'Viewport',
+    'ShrinkWrappingViewport',
+    'CustomScrollView',
+    'ListView',
+    'GridView',
+    'PageView',
+    'NestedScrollView',
     'ReorderableListView',
   };
   if (scrollTypes.contains(type)) {
@@ -922,7 +1275,11 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
   }
   switch (type) {
     case 'TestBox':
-      return SizedBox(key: key, width: _number(props['width']), height: _number(props['height']));
+      return SizedBox(
+        key: key,
+        width: _number(props['width']),
+        height: _number(props['height']),
+      );
     case 'SizedBox':
       return SizedBox(
         key: key,
@@ -942,7 +1299,11 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child,
       );
     case 'Padding':
-      return Padding(key: key, padding: _padding(props['padding']), child: child);
+      return Padding(
+        key: key,
+        padding: _padding(props['padding']),
+        child: child,
+      );
     case 'Align':
       return Align(
         key: key,
@@ -962,7 +1323,9 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
       final String hex = (props['color'] as String?) ?? '#000000';
       return DecoratedBox(
         key: key,
-        decoration: BoxDecoration(color: Color(0xff000000 | int.parse(hex.substring(1), radix: 16))),
+        decoration: BoxDecoration(
+          color: Color(0xff000000 | int.parse(hex.substring(1), radix: 16)),
+        ),
         child: child,
       );
     case 'Row':
@@ -975,24 +1338,47 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
           'Column' => Axis.vertical,
           _ => _enum(Axis.values, props['direction'], Axis.horizontal),
         },
-        mainAxisAlignment: _enum(MainAxisAlignment.values, props['mainAxisAlignment'], MainAxisAlignment.start),
-        mainAxisSize: _enum(MainAxisSize.values, props['mainAxisSize'], MainAxisSize.max),
-        crossAxisAlignment: _enum(CrossAxisAlignment.values, props['crossAxisAlignment'], CrossAxisAlignment.center),
-        verticalDirection: _enum(VerticalDirection.values, props['verticalDirection'], VerticalDirection.down),
+        mainAxisAlignment: _enum(
+          MainAxisAlignment.values,
+          props['mainAxisAlignment'],
+          MainAxisAlignment.start,
+        ),
+        mainAxisSize: _enum(
+          MainAxisSize.values,
+          props['mainAxisSize'],
+          MainAxisSize.max,
+        ),
+        crossAxisAlignment: _enum(
+          CrossAxisAlignment.values,
+          props['crossAxisAlignment'],
+          CrossAxisAlignment.center,
+        ),
+        verticalDirection: _enum(
+          VerticalDirection.values,
+          props['verticalDirection'],
+          VerticalDirection.down,
+        ),
+        textBaseline: props.containsKey('textBaseline')
+            ? TextBaseline.values.byName(props['textBaseline']! as String)
+            : null,
         spacing: _optionalNumber(props, 'spacing') ?? 0,
         children: children,
       );
     case 'Stack':
       return Stack(
         key: key,
-        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : AlignmentDirectional.topStart,
+        alignment: props.containsKey('alignment')
+            ? _alignment(props['alignment'])
+            : AlignmentDirectional.topStart,
         fit: _enum(StackFit.values, props['fit'], StackFit.loose),
         children: children,
       );
     case 'IndexedStack':
       return IndexedStack(
         key: key,
-        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : AlignmentDirectional.topStart,
+        alignment: props.containsKey('alignment')
+            ? _alignment(props['alignment'])
+            : AlignmentDirectional.topStart,
         sizing: _enum(StackFit.values, props['sizing'], StackFit.loose),
         index: (props['index'] as int?) ?? 0,
         children: children,
@@ -1023,17 +1409,36 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
       return Wrap(
         key: key,
         direction: _enum(Axis.values, props['direction'], Axis.horizontal),
-        alignment: _enum(WrapAlignment.values, props['alignment'], WrapAlignment.start),
+        alignment: _enum(
+          WrapAlignment.values,
+          props['alignment'],
+          WrapAlignment.start,
+        ),
         spacing: _optionalNumber(props, 'spacing') ?? 0,
-        runAlignment: _enum(WrapAlignment.values, props['runAlignment'], WrapAlignment.start),
+        runAlignment: _enum(
+          WrapAlignment.values,
+          props['runAlignment'],
+          WrapAlignment.start,
+        ),
         runSpacing: _optionalNumber(props, 'runSpacing') ?? 0,
-        crossAxisAlignment:
-            _enum(WrapCrossAlignment.values, props['crossAxisAlignment'], WrapCrossAlignment.start),
-        verticalDirection: _enum(VerticalDirection.values, props['verticalDirection'], VerticalDirection.down),
+        crossAxisAlignment: _enum(
+          WrapCrossAlignment.values,
+          props['crossAxisAlignment'],
+          WrapCrossAlignment.start,
+        ),
+        verticalDirection: _enum(
+          VerticalDirection.values,
+          props['verticalDirection'],
+          VerticalDirection.down,
+        ),
         children: children,
       );
     case 'Expanded':
-      return Expanded(key: key, flex: (props['flex'] as int?) ?? 1, child: child!);
+      return Expanded(
+        key: key,
+        flex: (props['flex'] as int?) ?? 1,
+        child: child!,
+      );
     case 'Flexible':
       return Flexible(
         key: key,
@@ -1042,7 +1447,8 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child!,
       );
     case 'Text':
-      final Map<String, Object?> style = (props['style'] as Map<String, Object?>?) ?? <String, Object?>{};
+      final Map<String, Object?> style =
+          (props['style'] as Map<String, Object?>?) ?? <String, Object?>{};
       return Text(
         props['text']! as String,
         key: key,
@@ -1050,18 +1456,28 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
           fontFamily: style['fontFamily'] as String?,
           fontSize: _optionalNumber(style, 'fontSize'),
           fontWeight: style.containsKey('fontWeight')
-              ? FontWeight.values.firstWhere((FontWeight w) => w.value == style['fontWeight'])
+              ? FontWeight.values.firstWhere(
+                  (FontWeight w) => w.value == style['fontWeight'],
+                )
               : null,
           height: _optionalNumber(style, 'height'),
           letterSpacing: _optionalNumber(style, 'letterSpacing'),
           leadingDistribution: style.containsKey('leadingDistribution')
-              ? TextLeadingDistribution.values.byName(style['leadingDistribution']! as String)
+              ? TextLeadingDistribution.values.byName(
+                  style['leadingDistribution']! as String,
+                )
               : null,
         ),
-        strutStyle: props.containsKey('strutStyle') ? _strut(props['strutStyle']! as Map<String, Object?>) : null,
-        textAlign: props.containsKey('textAlign') ? TextAlign.values.byName(props['textAlign']! as String) : null,
+        strutStyle: props.containsKey('strutStyle')
+            ? _strut(props['strutStyle']! as Map<String, Object?>)
+            : null,
+        textAlign: props.containsKey('textAlign')
+            ? TextAlign.values.byName(props['textAlign']! as String)
+            : null,
         maxLines: props['maxLines'] as int?,
-        overflow: props.containsKey('overflow') ? TextOverflow.values.byName(props['overflow']! as String) : null,
+        overflow: props.containsKey('overflow')
+            ? TextOverflow.values.byName(props['overflow']! as String)
+            : null,
         softWrap: props['softWrap'] as bool?,
       );
     case 'LimitedBox':
@@ -1079,7 +1495,11 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child,
       );
     case 'AspectRatio':
-      return AspectRatio(key: key, aspectRatio: _number(props['aspectRatio']), child: child);
+      return AspectRatio(
+        key: key,
+        aspectRatio: _number(props['aspectRatio']),
+        child: child,
+      );
     case 'FractionallySizedBox':
       return FractionallySizedBox(
         key: key,
@@ -1092,7 +1512,11 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
       return Baseline(
         key: key,
         baseline: _number(props['baseline']),
-        baselineType: _enum(TextBaseline.values, props['baselineType'], TextBaseline.alphabetic),
+        baselineType: _enum(
+          TextBaseline.values,
+          props['baselineType'],
+          TextBaseline.alphabetic,
+        ),
         child: child,
       );
     case 'IntrinsicWidth':
@@ -1110,7 +1534,9 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         key: key,
         columnWidths: <int, TableColumnWidth>{
           for (final MapEntry<String, Object?> entry
-              in ((props['columnWidths'] as Map<String, Object?>?) ?? <String, Object?>{}).entries)
+              in ((props['columnWidths'] as Map<String, Object?>?) ??
+                      <String, Object?>{})
+                  .entries)
             int.parse(entry.key): _columnWidth(entry.value),
         },
         defaultColumnWidth: props.containsKey('defaultColumnWidth')
@@ -1121,7 +1547,9 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
           props['defaultVerticalAlignment'],
           TableCellVerticalAlignment.top,
         ),
-        textBaseline: props.containsKey('textBaseline') ? TextBaseline.values.byName(props['textBaseline']! as String) : null,
+        textBaseline: props.containsKey('textBaseline')
+            ? TextBaseline.values.byName(props['textBaseline']! as String)
+            : null,
         children: <TableRow>[
           for (int row = 0; row < children.length; row += columns)
             TableRow(children: children.sublist(row, row + columns)),
@@ -1131,43 +1559,64 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
       return TableCell(
         key: key,
         verticalAlignment: props.containsKey('verticalAlignment')
-            ? TableCellVerticalAlignment.values.byName(props['verticalAlignment']! as String)
+            ? TableCellVerticalAlignment.values.byName(
+                props['verticalAlignment']! as String,
+              )
             : null,
         child: child!,
       );
     case 'Transform':
       final Object scale = props['scale'] ?? 1;
-      final List<Object?> translate = (props['translate'] as List<Object?>?) ?? <Object?>[0, 0];
+      final List<Object?> translate =
+          (props['translate'] as List<Object?>?) ?? <Object?>[0, 0];
       return Transform(
         key: key,
-        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : null,
-        transform: Matrix4.translationValues(_number(translate[0]), _number(translate[1]), 0)
-          ..rotateZ(_optionalNumber(props, 'rotate') ?? 0)
-          ..scaleByDouble(
-            scale is List<Object?> ? _number(scale[0]) : _number(scale),
-            scale is List<Object?> ? _number(scale[1]) : _number(scale),
-            1,
-            1,
-          ),
+        alignment: props.containsKey('alignment')
+            ? _alignment(props['alignment'])
+            : null,
+        transform:
+            Matrix4.translationValues(
+                _number(translate[0]),
+                _number(translate[1]),
+                0,
+              )
+              ..rotateZ(_optionalNumber(props, 'rotate') ?? 0)
+              ..scaleByDouble(
+                scale is List<Object?> ? _number(scale[0]) : _number(scale),
+                scale is List<Object?> ? _number(scale[1]) : _number(scale),
+                1,
+                1,
+              ),
         child: child,
       );
     case 'ClipRect':
       return ClipRect(key: key, child: child);
     case 'ClipRRect':
-      return ClipRRect(key: key, borderRadius: BorderRadius.circular(8), child: child);
+      return ClipRRect(
+        key: key,
+        borderRadius: BorderRadius.circular(8),
+        child: child,
+      );
     case 'ClipOval':
       return ClipOval(key: key, child: child);
     case 'ClipPath':
       return ClipPath(key: key, child: child);
     case 'Opacity':
-      return Opacity(key: key, opacity: _optionalNumber(props, 'opacity') ?? 1, child: child);
+      return Opacity(
+        key: key,
+        opacity: _optionalNumber(props, 'opacity') ?? 1,
+        child: child,
+      );
     case 'AnimatedContainer':
-      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      final Map<String, Object?> p =
+          (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
       return AnimatedContainer(
         key: key,
         duration: _animationDuration,
         curve: Curves.linear,
-        alignment: p.containsKey('alignment') ? _alignment(p['alignment']) : null,
+        alignment: p.containsKey('alignment')
+            ? _alignment(p['alignment'])
+            : null,
         padding: p.containsKey('padding') ? _padding(p['padding']) : null,
         margin: p.containsKey('margin') ? _padding(p['margin']) : null,
         width: _optionalNumber(p, 'width'),
@@ -1175,7 +1624,8 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child,
       );
     case 'AnimatedPadding':
-      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      final Map<String, Object?> p =
+          (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
       return AnimatedPadding(
         key: key,
         duration: _animationDuration,
@@ -1184,7 +1634,8 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child,
       );
     case 'AnimatedAlign':
-      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      final Map<String, Object?> p =
+          (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
       return AnimatedAlign(
         key: key,
         duration: _animationDuration,
@@ -1195,7 +1646,8 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child,
       );
     case 'AnimatedPositioned':
-      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      final Map<String, Object?> p =
+          (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
       return AnimatedPositioned(
         key: key,
         duration: _animationDuration,
@@ -1209,7 +1661,8 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         child: child!,
       );
     case 'AnimatedOpacity':
-      final Map<String, Object?> p = (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
+      final Map<String, Object?> p =
+          (props[phase] as Map<String, Object?>?) ?? <String, Object?>{};
       return AnimatedOpacity(
         key: key,
         duration: _animationDuration,
@@ -1222,12 +1675,19 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
         key: key,
         axis: _enum(Axis.values, props['axis'], Axis.vertical),
         sizeFactor: _animation(props, t),
-        alignment: props.containsKey('alignment') ? _alignment(props['alignment']) : null,
-        fixedCrossAxisSizeFactor: _optionalNumber(props, 'fixedCrossAxisSizeFactor'),
+        alignment: props.containsKey('alignment')
+            ? _alignment(props['alignment'])
+            : null,
+        fixedCrossAxisSizeFactor: _optionalNumber(
+          props,
+          'fixedCrossAxisSizeFactor',
+        ),
         child: child,
       );
     case 'ScaleTransition':
-      return ScaleTransition(key: key, scale: _animation(props, t),
+      return ScaleTransition(
+        key: key,
+        scale: _animation(props, t),
         alignment: _alignment(props['alignment']) as Alignment,
         child: child,
       );
@@ -1235,13 +1695,19 @@ Widget _build(Map<String, Object?> node, String phase, double t) {
       return SlideTransition(
         key: key,
         position: Tween<Offset>(
-          begin: props.containsKey('begin') ? _offset(props['begin']) : Offset.zero,
+          begin: props.containsKey('begin')
+              ? _offset(props['begin'])
+              : Offset.zero,
           end: props.containsKey('end') ? _offset(props['end']) : Offset.zero,
         ).animate(AlwaysStoppedAnimation<double>(t)),
         child: child,
       );
     case 'FadeTransition':
-      return FadeTransition(key: key, opacity: _animation(props, t), child: child);
+      return FadeTransition(
+        key: key,
+        opacity: _animation(props, t),
+        child: child,
+      );
     case 'Spacer':
       return Spacer(key: key, flex: (props['flex'] as int?) ?? 1);
   }
@@ -1253,7 +1719,8 @@ void _collectDatePickerIds(Map<String, Object?> node, List<String> ids) {
   if (node['type'] == 'CupertinoDatePicker') {
     ids.add(node['id']! as String);
   }
-  for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+  for (final Object? child
+      in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     _collectDatePickerIds(child! as Map<String, Object?>, ids);
   }
 }
@@ -1263,16 +1730,30 @@ void _collectDatePickerIds(Map<String, Object?> node, List<String> ids) {
 Map<String, List<double>> _wheelRowRects(WidgetTester tester, String id) {
   final Map<String, List<double>> rects = <String, List<double>>{};
   final Iterable<Element> wheels = find
-      .descendant(of: find.byKey(ValueKey<String>(id), skipOffstage: false), matching: find.byType(ListWheelViewport), skipOffstage: false)
+      .descendant(
+        of: find.byKey(ValueKey<String>(id), skipOffstage: false),
+        matching: find.byType(ListWheelViewport),
+        skipOffstage: false,
+      )
       .evaluate();
   int column = 0;
   for (final Element wheel in wheels) {
-    (wheel.renderObject! as RenderListWheelViewport).visitChildren((RenderObject row) {
+    (wheel.renderObject! as RenderListWheelViewport).visitChildren((
+      RenderObject row,
+    ) {
       final RenderBox box = row as RenderBox;
       final int index = (box.parentData! as ListWheelParentData).index!;
       // As WidgetTester.getRect: the transformed corners.
-      final Rect rect = Rect.fromPoints(box.localToGlobal(Offset.zero), box.localToGlobal(box.size.bottomRight(Offset.zero)));
-      rects['$id.c$column.i$index'] = <double>[rect.left, rect.top, rect.width, rect.height];
+      final Rect rect = Rect.fromPoints(
+        box.localToGlobal(Offset.zero),
+        box.localToGlobal(box.size.bottomRight(Offset.zero)),
+      );
+      rects['$id.c$column.i$index'] = <double>[
+        rect.left,
+        rect.top,
+        rect.width,
+        rect.height,
+      ];
     });
     column++;
   }
@@ -1285,13 +1766,16 @@ void _collectIds(Map<String, Object?> node, List<String> ids) {
     ids.add(node['id']! as String);
   }
   // A CupertinoPicker without children builds `Item i` rows, keyed `<id>.item<i>`.
-  if (node['type'] == 'CupertinoPicker' && ((node['children'] as List<Object?>?) ?? <Object?>[]).isEmpty) {
-    final int count = ((node['props'] as Map<String, Object?>)['itemCount'] as int?) ?? 3;
+  if (node['type'] == 'CupertinoPicker' &&
+      ((node['children'] as List<Object?>?) ?? <Object?>[]).isEmpty) {
+    final int count =
+        ((node['props'] as Map<String, Object?>)['itemCount'] as int?) ?? 3;
     for (int i = 0; i < count; i++) {
       ids.add('${node['id']}.item$i');
     }
   }
-  for (final Object? child in (node['children'] as List<Object?>?) ?? <Object?>[]) {
+  for (final Object? child
+      in (node['children'] as List<Object?>?) ?? <Object?>[]) {
     _collectIds(child! as Map<String, Object?>, ids);
   }
 }
@@ -1306,19 +1790,32 @@ bool _expectsOverflow(Map<String, Object?> node) {
   );
 }
 
-String _goldenName(String scene, _Frame frame, _Direction direction, double scale) =>
-    '$scene.${frame.name}.${direction.name}.${scale.toStringAsFixed(1)}.json';
+String _goldenName(
+  String scene,
+  _Frame frame,
+  _Direction direction,
+  double scale,
+) => '$scene.${frame.name}.${direction.name}.${scale.toStringAsFixed(1)}.json';
 
 void main() {
   final bool update = Platform.environment['UPDATE_GOLDENS'] == '1';
   final List<File> sceneFiles =
-      Directory('scenes').listSync().whereType<File>().where((File file) => file.path.endsWith('.json') && !file.uri.pathSegments.last.startsWith('layer2-')).toList()
+      Directory('scenes')
+          .listSync()
+          .whereType<File>()
+          .where(
+            (File file) =>
+                file.path.endsWith('.json') &&
+                !file.uri.pathSegments.last.startsWith('layer2-'),
+          )
+          .toList()
         ..sort((File a, File b) => a.path.compareTo(b.path));
   final Set<String> expectedGoldens = <String>{};
   setUpAll(_loadFonts);
 
   for (final File sceneFile in sceneFiles) {
-    final Map<String, Object?> scene = jsonDecode(sceneFile.readAsStringSync()) as Map<String, Object?>;
+    final Map<String, Object?> scene =
+        jsonDecode(sceneFile.readAsStringSync()) as Map<String, Object?>;
     final String name = scene['name']! as String;
     final Map<String, Object?> root = scene['root']! as Map<String, Object?>;
     final double? sceneT = scene.containsKey('t') ? _number(scene['t']) : null;
@@ -1329,7 +1826,8 @@ void main() {
 
     for (final _Frame frame in _frames) {
       for (final _Direction direction in _directions) {
-        for (final double scale in _hasText(root) ? _textScales : _textScales.take(1)) {
+        for (final double scale
+            in _hasText(root) ? _textScales : _textScales.take(1)) {
           final String goldenName = _goldenName(name, frame, direction, scale);
           expectedGoldens.add(goldenName);
           testWidgets(goldenName, (WidgetTester tester) async {
@@ -1355,12 +1853,20 @@ void main() {
                       ],
                       child: Directionality(
                         textDirection: direction.textDirection,
-                        child: CupertinoTheme(data: cupertinoTestTheme, child: _build(root, phase, sceneT ?? 1)),
+                        child: CupertinoTheme(
+                          data: cupertinoTestTheme,
+                          child: _build(root, phase, sceneT ?? 1),
+                        ),
                       ),
                     )
                   : Directionality(
                       textDirection: direction.textDirection,
-                      child: useMaterial ? _materialScope(_build(root, phase, sceneT ?? 1), direction.textDirection) : _build(root, phase, sceneT ?? 1),
+                      child: useMaterial
+                          ? _materialScope(
+                              _build(root, phase, sceneT ?? 1),
+                              direction.textDirection,
+                            )
+                          : _build(root, phase, sceneT ?? 1),
                     ),
             );
             if (sceneT == null) {
@@ -1370,7 +1876,9 @@ void main() {
               await tester.pumpWidget(frameWidget('from'));
               await tester.pumpWidget(frameWidget('to'));
               await tester.pump();
-              await tester.pump(Duration(microseconds: (sceneT * 1000000).round()));
+              await tester.pump(
+                Duration(microseconds: (sceneT * 1000000).round()),
+              );
             }
             final Object? exception = tester.takeException();
             if (exception != null && !_expectsOverflow(root)) {
@@ -1382,7 +1890,11 @@ void main() {
             final bool lazy = _hasLazy(root);
             final Map<String, List<double>> rects = <String, List<double>>{
               for (final String id in ids)
-                if (!lazy || find.byKey(ValueKey<String>(id), skipOffstage: false).evaluate().isNotEmpty)
+                if (!lazy ||
+                    find
+                        .byKey(ValueKey<String>(id), skipOffstage: false)
+                        .evaluate()
+                        .isNotEmpty)
                   id: _rectOf(tester, id),
             };
             final List<String> datePickerIds = <String>[];
@@ -1395,17 +1907,30 @@ void main() {
             textIds.sort();
             final Map<String, double> baselines = <String, double>{
               for (final String id in textIds)
-                if (!lazy || find.byKey(ValueKey<String>(id), skipOffstage: false).evaluate().isNotEmpty)
-                id: () {
-                  final RenderParagraph paragraph = tester.renderObject<RenderParagraph>(
-                    find.descendant(
-                      of: find.byKey(ValueKey<String>(id), skipOffstage: false).first,
-                      matching: find.byType(RichText),
-                      skipOffstage: false,
-                    ),
-                  );
-                  return paragraph.getDryBaseline(paragraph.constraints, TextBaseline.alphabetic)!;
-                }(),
+                if (!lazy ||
+                    find
+                        .byKey(ValueKey<String>(id), skipOffstage: false)
+                        .evaluate()
+                        .isNotEmpty)
+                  id: () {
+                    final RenderParagraph paragraph = tester
+                        .renderObject<RenderParagraph>(
+                          find.descendant(
+                            of: find
+                                .byKey(
+                                  ValueKey<String>(id),
+                                  skipOffstage: false,
+                                )
+                                .first,
+                            matching: find.byType(RichText),
+                            skipOffstage: false,
+                          ),
+                        );
+                    return paragraph.getDryBaseline(
+                      paragraph.constraints,
+                      TextBaseline.alphabetic,
+                    )!;
+                  }(),
             };
             final String content =
                 '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
@@ -1422,11 +1947,17 @@ void main() {
             if (update) {
               golden.writeAsStringSync(content);
             } else {
-              expect(golden.existsSync(), isTrue, reason: '$goldenName is missing: run make studio-conformance-update');
+              expect(
+                golden.existsSync(),
+                isTrue,
+                reason:
+                    '$goldenName is missing: run make studio-conformance-update',
+              );
               expect(
                 golden.readAsStringSync(),
                 content,
-                reason: '$goldenName is stale: run make studio-conformance-update',
+                reason:
+                    '$goldenName is stale: run make studio-conformance-update',
               );
             }
           });
@@ -1440,7 +1971,10 @@ void main() {
         .listSync()
         .whereType<File>()
         .map((File file) => file.uri.pathSegments.last)
-        .where((String name) => name.endsWith('.json') && !name.startsWith('layer2-'))
+        .where(
+          (String name) =>
+              name.endsWith('.json') && !name.startsWith('layer2-'),
+        )
         .toSet();
     if (update) {
       for (final String orphan in present.difference(expectedGoldens)) {

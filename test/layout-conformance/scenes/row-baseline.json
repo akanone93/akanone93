@@ -1,0 +1,107 @@
+{
+  "name": "row-baseline",
+  "root": {
+    "id": "root",
+    "type": "Align",
+    "props": {
+      "alignment": {
+        "start": -1,
+        "y": -1
+      }
+    },
+    "children": [
+      {
+        "id": "col",
+        "type": "Column",
+        "props": {
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "start"
+        },
+        "children": [
+          {
+            "id": "r1",
+            "type": "Row",
+            "props": {
+              "mainAxisSize": "min",
+              "crossAxisAlignment": "baseline",
+              "textBaseline": "alphabetic"
+            },
+            "children": [
+              {
+                "id": "aa",
+                "type": "Text",
+                "props": {
+                  "text": "Plux",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 28
+                  }
+                }
+              },
+              {
+                "id": "ab",
+                "type": "Text",
+                "props": {
+                  "text": "Hg",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              },
+              {
+                "id": "ac",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 20
+                }
+              }
+            ]
+          },
+          {
+            "id": "r2",
+            "type": "Row",
+            "props": {
+              "mainAxisSize": "min",
+              "crossAxisAlignment": "baseline",
+              "textBaseline": "ideographic"
+            },
+            "children": [
+              {
+                "id": "ia",
+                "type": "Text",
+                "props": {
+                  "text": "Plux",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 28
+                  }
+                }
+              },
+              {
+                "id": "ib",
+                "type": "Text",
+                "props": {
+                  "text": "Hg",
+                  "style": {
+                    "fontFamily": "NotoSans",
+                    "fontSize": 14
+                  }
+                }
+              },
+              {
+                "id": "ic",
+                "type": "TestBox",
+                "props": {
+                  "width": 30,
+                  "height": 20
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
