@@ -380,6 +380,8 @@ func TestLoadsFunctionDocuments_FN_008(t *testing.T) {
 	t.Parallel()
 	fsys := exampleFS(t)
 	fsys["functions/billing.charge/function.json"] = &fstest.MapFile{Data: []byte(functionDoc)}
+	// The build directory the functions share is a dot-directory, not a function.
+	fsys["functions/.target/debug/deps/libserde.rlib"] = &fstest.MapFile{Data: []byte("rlib")}
 	p, diags := newLoader(t).Load(fsys)
 	if len(diags) != 0 {
 		t.Fatalf("unexpected diagnostics:\n%s", list(diags))

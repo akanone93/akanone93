@@ -139,13 +139,10 @@ func stepUp(err error) error {
 	return err
 }
 
-// packFunction vendors the crate when needed and packs its source.
+// packFunction packs the source of a function with its vendored
+// dependencies.
 func (e env) packFunction(ctx context.Context, project, name string) ([]byte, error) {
-	dir := crateDir(project, name)
-	if err := e.vendorCrate(ctx, dir); err != nil {
-		return nil, err
-	}
-	files, err := collectSource(dir)
+	files, err := e.vendoredSource(ctx, crateDir(project, name))
 	if err != nil {
 		return nil, err
 	}

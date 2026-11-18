@@ -9,7 +9,9 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -160,19 +162,34 @@ func (r *fnRig) run(args ...string) int {
 	r.err.Reset()
 	e := env{
 		stdout: &r.out, stderr: &r.err, stdin: strings.NewReader(""), creds: credentials{dir: r.t.TempDir()}, httpClient: r.srv.Client(),
-		pollInterval: time.Millisecond, ctx: r.ctx, vendor: func(context.Context, string) error { return nil },
+		pollInterval: time.Millisecond, ctx: r.ctx, vendor: fakeVendor,
 	}
 	full := append([]string{args[0]}, "--server", r.srv.URL, "--app", "a1", "-C", r.project)
 	return e.fn(append(full, args[1:]...))
 }
 
-// crate writes a minimal function crate with its vendored dependencies.
-func (r *fnRig) crate(name string) {
+// fakeVendor stands in for `cargo vendor`: it writes one vendored crate to
+// out, as cargo does, without reaching the network.
+func fakeVendor(_ context.Context, _, out string) error {
+	for rel, content := range map[string]string{"dep/Cargo.toml": "[package]\n", "dep/.cargo-checksum.json": "{}"} {
+		p := filepath.Join(out, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
+			return err
+		}
+		if err := os.WriteFile(p, []byte(content), 0o600); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// crate writes a minimal function crate, bank.fee.
+func (r *fnRig) crate() {
 	r.t.Helper()
-	dir := crateDir(r.project, name)
+	dir := crateDir(r.project, "bank.fee")
 	for rel, content := range map[string]string{
 		"Cargo.toml": "[package]\nname = \"bank_fee\"\n", "Cargo.lock": "version = 4\n", "src/lib.rs": "// code\n",
-		"vendor/dep/Cargo.toml": "[package]\n", "target/plux/module.wasm": "not part of the source", ".cargo/config.toml": "[patch.crates-io]\n",
+		"target/plux/module.wasm": "not part of the source", ".cargo/config.toml": "[patch.crates-io]\n",
 		"function.json": `{"schemaVersion":"1.0.0","kind":"function","id":"01a137b5-6b91-728a-b602-f8bbfb8dee11","name":"bank.fee","placement":"server"}`,
 	} {
 		putFile2(r.t, filepath.Join(dir, filepath.FromSlash(rel)), content)
@@ -228,6 +245,9 @@ func TestFnNew_FN_030(t *testing.T) { //nolint:paralleltest // the environment i
 			t.Fatalf("%s: %d %s", placement, code, errOut.String())
 		}
 		dir := crateDir(project, "bank.transferFee")
+		if ignore, err := os.ReadFile(filepath.Join(project, "functions", ".gitignore")); err != nil || string(ignore) != "/.target\n" {
+			t.Errorf("functions/.gitignore %q %v", ignore, err)
+		}
 		read := func(rel string) string {
 			data, err := os.ReadFile(filepath.Join(dir, rel))
 			if err != nil {
@@ -238,7 +258,7 @@ func TestFnNew_FN_030(t *testing.T) { //nolint:paralleltest // the environment i
 		if c := read("Cargo.toml"); !strings.Contains(c, `name = "bank_transfer_fee"`) || !strings.Contains(c, `plux-fn = "0.1"`) || !strings.Contains(c, "schemars") || !strings.Contains(c, "serde_json") {
 			t.Errorf("Cargo.toml:\n%s", c)
 		}
-		if c := read(".cargo/config.toml"); !strings.Contains(c, "[patch.crates-io]") || !strings.Contains(c, sdk) {
+		if c := read(".cargo/config.toml"); !strings.Contains(c, "[patch.crates-io]") || !strings.Contains(c, sdk) || !strings.Contains(c, `target-dir = "../.target"`) || !strings.Contains(c, `debug = "line-tables-only"`) {
 			t.Errorf("config.toml:\n%s", c)
 		}
 		want := map[string]string{"server": "ServerContext", "device": "DeviceContext"}[placement]
@@ -272,7 +292,7 @@ func TestFnNew_FN_030(t *testing.T) { //nolint:paralleltest // the environment i
 // test results and deploys the version with the alias.
 func TestFnDeploy_FN_006(t *testing.T) { //nolint:paralleltest // the environment is process-wide
 	r := newFnRig(t)
-	r.crate("bank.fee")
+	r.crate()
 	r.f.builds = []*pluxv1.Build{
 		{Id: "b-1", State: pluxv1.BuildState_BUILD_STATE_QUEUED},
 		{Id: "b-1", State: pluxv1.BuildState_BUILD_STATE_RUNNING},
@@ -299,7 +319,7 @@ func TestFnDeploy_FN_006(t *testing.T) { //nolint:paralleltest // the environmen
 		names = append(names, n)
 	}
 	sort.Strings(names)
-	if strings.Join(names, ",") != "Cargo.lock,Cargo.toml,function.json,src/lib.rs,vendor/dep/Cargo.toml" {
+	if strings.Join(names, ",") != "Cargo.lock,Cargo.toml,function.json,src/lib.rs,vendor/dep/.cargo-checksum.json,vendor/dep/Cargo.toml" {
 		t.Errorf("archive holds %v", names)
 	}
 	if r.f.deploy.GetBuildId() != "b-1" || r.f.deploy.GetAlias() != "stable" {
@@ -319,7 +339,7 @@ func TestFnDeploy_FN_006(t *testing.T) { //nolint:paralleltest // the environmen
 // the findings.
 func TestFnDeployRefusals_FN_031(t *testing.T) { //nolint:paralleltest // the environment is process-wide
 	r := newFnRig(t)
-	r.crate("bank.fee")
+	r.crate()
 	r.f.builds = []*pluxv1.Build{succeeded(&pluxv1.FunctionTestResult{Name: "adds", Passed: true}, &pluxv1.FunctionTestResult{Name: "subtracts", Message: "expected 1; got 2"})}
 	if code := r.run("deploy", "bank.fee"); code != exitFailed || r.f.deploy != nil {
 		t.Errorf("failed tests: %d, deployed %v", code, r.f.deploy)
@@ -475,7 +495,7 @@ func TestFnLogs_FN_032(t *testing.T) { //nolint:paralleltest // the environment 
 func TestPackArchiveIsDeterministic_FN_019(t *testing.T) {
 	t.Parallel()
 	r := &fnRig{t: t, project: t.TempDir()}
-	r.crate("bank.fee")
+	r.crate()
 	dir := crateDir(r.project, "bank.fee")
 	files, err := collectSource(dir)
 	if err != nil {
@@ -554,5 +574,91 @@ func TestFnEndToEnd_FN_030(t *testing.T) { //nolint:paralleltest // the environm
 			}
 			t.Logf("%s: new, test and invoke took %s", placement, time.Since(started).Round(time.Second))
 		})
+	}
+}
+
+// Verifies: FN-003.
+// The dependencies are vendored into a temporary directory that is removed
+// afterwards, so no function keeps a copy of them; the archive still holds
+// them under vendor/. A vendor/ directory an earlier plux fn wrote into the
+// crate is removed and never packed; any other vendor/ is left alone.
+func TestVendoredSourceKeepsNoCopy_FN_003(t *testing.T) {
+	t.Parallel()
+	r := &fnRig{t: t, project: t.TempDir()}
+	r.crate()
+	dir := crateDir(r.project, "bank.fee")
+	putFile2(t, filepath.Join(dir, "vendor", "old", "Cargo.toml"), "stale")
+	putFile2(t, filepath.Join(dir, "vendor", "old", ".cargo-checksum.json"), "{}")
+	var used string
+	var errBuf bytes.Buffer
+	e := env{stderr: &errBuf, vendor: func(ctx context.Context, crate, out string) error {
+		used = out
+		return fakeVendor(ctx, crate, out)
+	}}
+	files, err := e.vendoredSource(context.Background(), dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := files["vendor/dep/Cargo.toml"]; !ok {
+		t.Errorf("the archive lacks the vendored crate: %v", files)
+	}
+	if _, ok := files["vendor/old/Cargo.toml"]; ok {
+		t.Error("the old vendor/ of the crate was packed")
+	}
+	if strings.HasPrefix(used, dir) {
+		t.Errorf("vendored into the crate: %s", used)
+	}
+	if _, err := os.Stat(used); !errors.Is(err, fs.ErrNotExist) {
+		t.Errorf("the temporary vendor directory %s was kept: %v", used, err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "vendor")); !errors.Is(err, fs.ErrNotExist) {
+		t.Errorf("the old vendor/ written by cargo vendor was kept: %v", err)
+	}
+	if !strings.Contains(errBuf.String(), "removed") {
+		t.Errorf("the removal was not reported: %q", errBuf.String())
+	}
+
+	putFile2(t, filepath.Join(dir, "vendor", "README.md"), "mine")
+	if _, err := e.vendoredSource(context.Background(), dir); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "vendor", "README.md")); err != nil {
+		t.Errorf("a vendor/ not written by cargo vendor was removed: %v", err)
+	}
+}
+
+// Verifies: FN-030.
+// The native tests of every function of a project build in one shared
+// directory, which functions/.gitignore names exactly once; a
+// CARGO_TARGET_DIR the developer set is kept.
+func TestCargoTargetIsShared_FN_030(t *testing.T) { //nolint:paralleltest // t.Setenv
+	project := t.TempDir()
+	t.Setenv("CARGO_TARGET_DIR", "")
+	for range 2 {
+		extra, err := cargoTargetEnv(project)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want, _ := filepath.Abs(filepath.Join(project, "functions", ".target"))
+		if len(extra) != 1 || extra[0] != "CARGO_TARGET_DIR="+want {
+			t.Errorf("env %v; want the shared directory %s", extra, want)
+		}
+	}
+	ignore, err := os.ReadFile(filepath.Join(project, "functions", ".gitignore"))
+	if err != nil || string(ignore) != "/.target\n" {
+		t.Errorf("functions/.gitignore %q %v", ignore, err)
+	}
+
+	putFile2(t, filepath.Join(project, "functions", ".gitignore"), "*.log")
+	if err := ignoreSharedTarget(project); err != nil {
+		t.Fatal(err)
+	}
+	if ignore, _ := os.ReadFile(filepath.Join(project, "functions", ".gitignore")); string(ignore) != "*.log\n/.target\n" {
+		t.Errorf("appended %q", ignore)
+	}
+
+	t.Setenv("CARGO_TARGET_DIR", "/elsewhere")
+	if extra, err := cargoTargetEnv(project); err != nil || extra != nil {
+		t.Errorf("overrode the developer's CARGO_TARGET_DIR: %v %v", extra, err)
 	}
 }

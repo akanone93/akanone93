@@ -54,7 +54,7 @@ func scaffold(name, placement, id, sdk string) (map[string][]byte, error) {
 		"src/lib.rs":         []byte(source),
 		"function.json":      append(document, '\n'),
 		".cargo/config.toml": []byte(fmt.Sprintf(cargoConfigToml, sdk)),
-		".gitignore":         []byte("/target\n/vendor\n/.cargo\n"),
+		".gitignore":         []byte("/target\n/.cargo\n"),
 	}, nil
 }
 
@@ -73,10 +73,25 @@ schemars = "1.2"
 
 // cargoConfigToml resolves the unpublished plux-fn to the pinned SDK on this
 // machine; the server resolves it to its own pinned copy (ADR-0063), so the
-// file stays out of the source archive and out of version control.
+// file stays out of the source archive and out of version control. It also
+// sends cargo, run by hand or by plux fn test, to the build directory that
+// the functions of the project share (functions/.target), and keeps that
+// directory small: line tables only, which backtraces need, and no
+// incremental state. The module itself is built by the builder, whatever
+// this file says (FN-016).
 const cargoConfigToml = `# Written by plux fn new. It points plux-fn at the SDK on this machine.
 [patch.crates-io]
 plux-fn = { path = %q }
+
+# Every function of the project shares one build directory, so each
+# dependency compiles once; plux fn test uses the same directory. These
+# settings apply to native builds and tests only, never to the module.
+[build]
+target-dir = "../.target"
+incremental = false
+
+[profile.dev]
+debug = "line-tables-only"
 `
 
 //nolint:misspell // Rust's serde derive is spelled Serialize.

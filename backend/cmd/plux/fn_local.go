@@ -117,19 +117,84 @@ func resolveWasmOpt(ctx context.Context, stderr io.Writer) ([]string, error) {
 
 // runTool runs a developer tool in dir.
 func runTool(ctx context.Context, dir string, stdout, stderr io.Writer, tool string, args ...string) error {
+	return runToolEnv(ctx, dir, nil, stdout, stderr, tool, args...)
+}
+
+// runToolEnv runs a developer tool in dir with extra environment variables
+// added to the CLI's own.
+func runToolEnv(ctx context.Context, dir string, extra []string, stdout, stderr io.Writer, tool string, args ...string) error {
 	cmd := exec.CommandContext(ctx, tool, args...) //nolint:gosec // G204: the developer's own toolchain.
 	cmd.Dir, cmd.Stdout, cmd.Stderr = dir, stdout, stderr
+	if len(extra) > 0 {
+		cmd.Env = append(os.Environ(), extra...)
+	}
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("%s %s: %w", tool, strings.Join(args, " "), err)
 	}
 	return nil
 }
 
-// sourceEntries are the parts of a crate the server builds from (FN-016).
-var sourceEntries = []string{"Cargo.toml", "Cargo.lock", builder.DeclarationFile, "src", "vendor"}
+// sharedTargetDir is the Cargo build directory that every function of a
+// project shares, so the native tests compile each dependency once per
+// project rather than once per function. It is a dot-directory, which the
+// project layout, plux push and plux dev all skip: every other directory
+// under functions/ is a function.
+func sharedTargetDir(project string) string { return filepath.Join(project, "functions", ".target") }
+
+// cargoTargetEnv points Cargo at the project's shared build directory and
+// makes sure version control ignores it. A CARGO_TARGET_DIR the developer
+// set is kept.
+func cargoTargetEnv(project string) ([]string, error) {
+	if os.Getenv("CARGO_TARGET_DIR") != "" {
+		return nil, nil
+	}
+	dir, err := filepath.Abs(sharedTargetDir(project))
+	if err != nil {
+		return nil, fmt.Errorf("find the shared build directory: %w", err)
+	}
+	if err := ignoreSharedTarget(project); err != nil {
+		return nil, err
+	}
+	return []string{"CARGO_TARGET_DIR=" + dir}, nil
+}
+
+// targetIgnoreLine is the functions/.gitignore line for the shared build
+// directory.
+const targetIgnoreLine = "/.target"
+
+// ignoreSharedTarget adds the shared build directory to functions/.gitignore,
+// creating the file when there is none.
+func ignoreSharedTarget(project string) error {
+	p := filepath.Join(project, "functions", ".gitignore")
+	data, err := os.ReadFile(p) //nolint:gosec // G304: the developer's own project.
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return fmt.Errorf("read %s: %w", p, err)
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if l := strings.TrimSpace(line); l == targetIgnoreLine || l == targetIgnoreLine+"/" {
+			return nil
+		}
+	}
+	if len(data) > 0 && !bytes.HasSuffix(data, []byte("\n")) {
+		data = append(data, '\n')
+	}
+	data = append(data, targetIgnoreLine+"\n"...)
+	if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
+		return fmt.Errorf("create %s: %w", filepath.Dir(p), err)
+	}
+	if err := os.WriteFile(p, data, 0o600); err != nil { //nolint:gosec // G703: the project directory the developer named.
+		return fmt.Errorf("write %s: %w", p, err)
+	}
+	return nil
+}
+
+// sourceEntries are the parts of a crate the server builds from (FN-016);
+// the vendored dependencies are added by vendoredSource.
+var sourceEntries = []string{"Cargo.toml", "Cargo.lock", builder.DeclarationFile, "src"}
 
 // collectSource reads the files of a crate that make up its source archive:
-// the manifest, the lock file, src/, vendor/ and function.json.
+// the manifest, the lock file, src/ and function.json. A vendor/ directory
+// in the crate is not read: vendoredSource adds a fresh one.
 func collectSource(dir string) (fstest.MapFS, error) {
 	files := fstest.MapFS{}
 	for _, entry := range sourceEntries {
@@ -212,18 +277,76 @@ func packArchive(files fstest.MapFS) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// vendorCrate runs `cargo vendor` so that the source holds every dependency
-// (FN-003); Cargo.lock is written beside it.
-func (e env) vendorCrate(ctx context.Context, dir string) error {
+// vendorCrate runs `cargo vendor` in the crate dir, writing every dependency
+// to out (FN-003); Cargo.lock is written beside the manifest.
+func (e env) vendorCrate(ctx context.Context, dir, out string) error {
 	if e.vendor != nil {
-		return e.vendor(ctx, dir)
+		return e.vendor(ctx, dir, out)
 	}
 	var errOut bytes.Buffer
-	if err := runTool(ctx, dir, io.Discard, &errOut, "cargo", "vendor", "--quiet"); err != nil {
+	if err := runTool(ctx, dir, io.Discard, &errOut, "cargo", "vendor", "--quiet", out); err != nil {
 		_, _ = e.stderr.Write(errOut.Bytes())
 		return err
 	}
 	return nil
+}
+
+// vendoredSource reads the source of the crate in dir with its dependencies
+// under vendor/, as the server builds it (FN-003, FN-016). Cargo copies the
+// dependencies from its own cache, which every function and project on the
+// machine shares, into a temporary directory that is removed afterwards, so
+// no function keeps a copy of them. The archive is the same as from a vendor/
+// directory in the crate.
+func (e env) vendoredSource(ctx context.Context, dir string) (files fstest.MapFS, err error) {
+	tmp, err := os.MkdirTemp("", "plux-vendor-")
+	if err != nil {
+		return nil, fmt.Errorf("create a directory for the dependencies: %w", err)
+	}
+	defer func() {
+		if rmErr := os.RemoveAll(tmp); rmErr != nil && err == nil {
+			err = fmt.Errorf("remove %s: %w", tmp, rmErr)
+		}
+	}()
+	vendor := filepath.Join(tmp, "vendor")
+	if err := e.vendorCrate(ctx, dir, vendor); err != nil {
+		return nil, err
+	}
+	if files, err = collectSource(dir); err != nil {
+		return nil, err
+	}
+	if info, statErr := os.Lstat(vendor); statErr == nil {
+		if err := collectEntry(files, tmp, vendor, info); err != nil {
+			return nil, fmt.Errorf("collect the dependencies: %w", err)
+		}
+	}
+	e.dropOldVendor(dir)
+	return files, nil
+}
+
+// dropOldVendor removes the vendor/ directory that earlier versions of plux
+// fn wrote into each crate and that `cargo vendor` rewrote on every run. It
+// is removed only when it holds nothing but crates written by `cargo vendor`
+// (each with a .cargo-checksum.json); anything else is left alone.
+func (e env) dropOldVendor(dir string) {
+	vendor := filepath.Join(dir, "vendor")
+	entries, err := os.ReadDir(vendor)
+	if err != nil || len(entries) == 0 {
+		return
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			return
+		}
+		info, err := os.Lstat(filepath.Join(vendor, entry.Name(), ".cargo-checksum.json"))
+		if err != nil || !info.Mode().IsRegular() {
+			return
+		}
+	}
+	if err := os.RemoveAll(vendor); err != nil {
+		_, _ = fmt.Fprintf(e.stderr, "could not remove %s, which plux fn no longer uses: %v\n", vendor, err)
+		return
+	}
+	_, _ = fmt.Fprintf(e.stderr, "removed %s: the dependencies are now read from Cargo's cache, not copied into each function\n", vendor)
 }
 
 // builtFunction is the result of a development build.
@@ -289,11 +412,7 @@ func (e env) readCrate(ctx context.Context, project, name string, set limits.Set
 	if err := checkFunctionName(name); err != nil {
 		return nil, nil, err
 	}
-	dir := crateDir(project, name)
-	if err := e.vendorCrate(ctx, dir); err != nil {
-		return nil, nil, err
-	}
-	files, err := collectSource(dir)
+	files, err := e.vendoredSource(ctx, crateDir(project, name))
 	if err != nil {
 		return nil, nil, err
 	}

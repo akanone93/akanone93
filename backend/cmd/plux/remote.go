@@ -62,9 +62,10 @@ type env struct {
 	// ctx ends long-running commands such as plux fn logs --follow; nil
 	// means an interrupt ends them.
 	ctx context.Context
-	// vendor runs `cargo vendor` in a crate; nil runs cargo. Replaceable in
-	// tests, which must not reach the network.
-	vendor func(ctx context.Context, dir string) error
+	// vendor runs `cargo vendor` in the crate dir, writing the dependencies
+	// to out; nil runs cargo. Replaceable in tests, which must not reach the
+	// network.
+	vendor func(ctx context.Context, dir, out string) error
 	// clone fetches a repository into an empty dir for plux git import;
 	// nil in tests that must not reach the network.
 	clone func(ctx context.Context, url, dir string) error

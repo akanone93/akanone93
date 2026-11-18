@@ -40,7 +40,8 @@ For each build the pipeline:
 1. Validates `function.json` against the document schema and the request (`PLX-7205` on a
    mismatch) and unpacks the source archive. It must be at most `function.sourceArchiveSize`
    (64 MiB by default) and carry `Cargo.toml`, `Cargo.lock`, `src/` and a `vendor/` directory made
-   by `cargo vendor`. `plux fn deploy` packs all of these.
+   by `cargo vendor`. `plux fn deploy` packs all of these; it runs `cargo vendor` into a temporary
+   directory for each deploy, so your project keeps no copy of the dependencies.
 2. Wraps your crate in a generated crate, `plux-module`, that emits the ABI exports with a
    dispatch table ([ABI](../functions/abi.md)) and checks your handler's placement.
 3. Resolves the dependencies from the lock file and checks every build script and procedural

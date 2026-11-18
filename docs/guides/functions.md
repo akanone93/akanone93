@@ -50,7 +50,16 @@ functions/bank.transferFee/
   src/lib.rs
   .cargo/config.toml     # points plux-fn at the SDK on this machine; not committed
   .gitignore
+functions/.gitignore     # ignores functions/.target, the build directory the functions share
 ```
+
+A function directory holds only your source and, after a build, `target/plux/`. The dependencies
+are not copied into it: `plux fn` vendors them for each build or deploy into a temporary directory,
+from Cargo's own cache, and removes it afterwards. Native builds and tests of every function in the
+project share one build directory, `functions/.target`, so each dependency compiles once per project
+rather than once per function. The scaffold's `.cargo/config.toml` points a hand-run `cargo` there
+too and keeps it small (line tables only, no incremental state); a `CARGO_TARGET_DIR` you set
+yourself wins. None of this affects the module, which the builder compiles from the source alone.
 
 `--placement` is `server` (the default) or `device`. `--sdk dir` names the pinned `plux-fn` crate
 when `$PLUX_SDK` and the copy next to the binary do not apply.
@@ -235,7 +244,7 @@ standard output.
 plux fn deploy bank.transferFee --env development
 ```
 
-packs the crate with its vendored dependencies, uploads the source, waits for the server to
+packs the crate with its dependencies, vendored afresh from Cargo's cache, uploads the source, waits for the server to
 build and test it, and deploys the version. `--alias name` points an alias at the new version in
 the same step. `--env` defaults to the environment in `plux.json`, then `development`. Add
 `--app id` to name the app when the project does not.

@@ -154,6 +154,9 @@ func (e env) fnNew(args []string) int {
 			return e.fail("fn new", fmt.Errorf("write %s: %w", p, err))
 		}
 	}
+	if err := ignoreSharedTarget(l.project); err != nil {
+		return e.fail("fn new", err)
+	}
 	return e.emit(l.json, map[string]string{"directory": dir, "name": name, "placement": *placement, "id": id.String()},
 		fmt.Sprintf("created %s\nnext: plux fn test %s", dir, name))
 }
@@ -205,7 +208,11 @@ func (e env) fnTest(args []string) int {
 		return e.fail("fn test", err)
 	}
 	if !*skipNative {
-		if err := runTool(ctx, crateDir(l.project, name), e.stderr, e.stderr, "cargo", "test", "--quiet"); err != nil {
+		target, err := cargoTargetEnv(l.project)
+		if err != nil {
+			return e.fail("fn test", err)
+		}
+		if err := runToolEnv(ctx, crateDir(l.project, name), target, e.stderr, e.stderr, "cargo", "test", "--quiet"); err != nil {
 			return e.fail("fn test", fmt.Errorf("native tests failed: %w", err))
 		}
 	}
