@@ -58,6 +58,8 @@ func TestContextualLiterals(t *testing.T) {
 		{`maybe ?? {"lat": 0.0, "lng": 0.0}`, "LatLng"},
 		{`sent ? "current" : "done"`, "Stage"},
 		{`sent ? {"lat": 1.0, "lng": 1.0} : {"lat": 2.0, "lng": 2.0}`, "LatLng"},
+		{`orgs.map(o, {"id": o.slug, "position": {"lat": o.lat, "lng": o.lng}, "title": o.name}) + [{"id": "b", "position": {"lat": 0.0, "lng": 0.0}, "title": null}]`, "list<Marker>"},
+		{`[{"lat": 1.0, "lng": 2.0}] + [] + [{"lat": 3.0, "lng": 4.0}]`, "list<LatLng>"},
 	} {
 		prog, typ, diags := Compile(tc.src, env, expecting(t, env, tc.want), plxerr.Location{})
 		if prog == nil || diags.HasErrors() {
@@ -91,6 +93,8 @@ func TestContextualLiteralErrors(t *testing.T) {
 		{`{"lat": 1.0, "lat": 2.0, "lng": 0.0}`, "LatLng", plxerr.PXLInvalidLiteral},
 		{`sent ? "current" : "later"`, "Stage", plxerr.PXLUnknownEnumMember},
 		{`{"id": "a", "title": null}`, "Marker", plxerr.PXLTypeMismatch},
+		{`[{"lat": 1.0, "lng": 2.0}] + [{"lat": "north", "lng": 2.0}]`, "list<LatLng>", plxerr.PXLTypeMismatch},
+		{`sent + [{"lat": 1.0, "lng": 2.0}]`, "list<LatLng>", plxerr.PXLTypeMismatch},
 	} {
 		_, _, diags := Compile(tc.src, env, expecting(t, env, tc.want), plxerr.Location{})
 		if !hasCode(diags, tc.code) {
@@ -117,6 +121,30 @@ func TestContextualObjectsEvaluate(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := List{Map{"id": "bank", "position": Map{"lat": 52.5, "lng": 13.4}, "title": "Nordvia"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %#v, want %#v", got, want)
+	}
+}
+
+// Verifies: PXL-001.
+// An append to a list of objects, `list + [literal]`, builds the literal as
+// the list's element and evaluates to both lists joined in order.
+func TestContextualConcatEvaluates(t *testing.T) {
+	t.Parallel()
+	env := contextualEnv(t)
+	src := `[{"lat": 1.0, "lng": 2.0}] + [{"lat": 3.0, "lng": 4.0}]`
+	prog, typ, diags := Compile(src, env, expecting(t, env, "list<LatLng>"), plxerr.Location{})
+	if prog == nil || diags.HasErrors() {
+		t.Fatal(diags)
+	}
+	if typ.String() != "list<LatLng>" {
+		t.Errorf("type %s, want list<LatLng>", typ)
+	}
+	got, err := prog.Eval(map[string]Value{"orgs": List{}, "sent": false, "maybe": nil}, DefaultOptions().Limits)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := List{Map{"lat": 1.0, "lng": 2.0}, Map{"lat": 3.0, "lng": 4.0}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %#v, want %#v", got, want)
 	}

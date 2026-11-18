@@ -146,9 +146,10 @@ func constant(v Value, t *Type, span Span) *ir { return &ir{kind: irConst, typ: 
 // string naming a member of an expected enum is that enum, a list literal
 // types its items against the expected element, and a map literal whose
 // keys name the fields of an expected object type is that object. The
-// branches of ?: and the default of ?? are checked against want, and so is
-// the body of list.map against an expected list's element. Anything else
-// is typed as usual and left to the caller's assignability check.
+// branches of ?: and the default of ?? are checked against want, and so are
+// both operands of + where a list is expected and the body of list.map
+// against an expected list's element. Anything else is typed as usual and
+// left to the caller's assignability check.
 func (c *checker) checkAgainst(n *node, want *Type) *ir {
 	if want == nil {
 		return c.check(n)
@@ -171,6 +172,8 @@ func (c *checker) checkAgainst(n *node, want *Type) *ir {
 		return c.coalesce(a, b, n.span)
 	case n.kind == nList && want.kind == KindList:
 		return c.listAgainst(n, want)
+	case n.kind == nBinary && n.op == "+" && want.kind == KindList:
+		return c.concatAgainst(n, want)
 	case n.kind == nMapLit && want.kind == KindObject && want.named != nil && !want.named.IsEnum():
 		return c.objectLiteral(n, want)
 	case n.kind == nMacro && n.op == "map" && want.kind == KindList:
@@ -196,6 +199,18 @@ func (c *checker) condAgainst(n *node, want *Type) *ir {
 		return c.errorf(plxerr.PXLTypeMismatch, n.span, "the branches have different types: %s and %s", a.typ, b.typ)
 	}
 	return &ir{kind: irCond, typ: t, args: []*ir{cnd, convert(a, t), convert(b, t)}, span: n.span}
+}
+
+// concatAgainst types a + b where a list is expected: both operands are
+// checked against that list type, so the literal items of an append such
+// as `markers + [{"id": "b", …}]` build the expected element. An operand
+// that is not a list is typed as usual and refused by arith.
+func (c *checker) concatAgainst(n *node, want *Type) *ir {
+	a, b := c.checkAgainst(n.a, want), c.checkAgainst(n.b, want)
+	if a == nil || b == nil {
+		return nil
+	}
+	return c.arith(n, a, b)
 }
 
 // listAgainst types a list literal whose items are checked against the
