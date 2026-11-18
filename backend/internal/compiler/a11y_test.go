@@ -545,3 +545,50 @@ func TestNotCheckedIsAnInfoOrCountedOnly_A11Y_003(t *testing.T) {
 		t.Errorf("notChecked = %d, want both counted", u.a11y.notChecked)
 	}
 }
+
+// Verifies: A11Y-003.
+// An app bar paints its own background behind its title and actions: an
+// icon in the bar's foreground passes against the bar, not against the
+// page's surface, and unstyled text takes the bar's foregroundColor.
+func TestAppBarIsTheBackgroundOfItsSlots_A11Y_003(t *testing.T) {
+	t.Parallel()
+	contrast := func(bar string) []plxerr.Diagnostic {
+		m := a11yProject(t, "standard", "#000000", "#FFFFFF", "[]")
+		edit(t, m, calculatorPage, func(doc map[string]any) {
+			at(t, doc, "root/slots")["appBar"] = raw(t, bar)
+		})
+		var out []plxerr.Diagnostic
+		for _, d := range compileFS(m).Diagnostics {
+			if d.Code == plxerr.ContrastInsufficient && strings.HasPrefix(d.Path, "/root/slots/appBar/") {
+				out = append(out, d)
+			}
+		}
+		return out
+	}
+	const id = `"id": "01a0c450-6c00-7fff-8000-0000000000b`
+	bar := func(props, title string) string {
+		return `{` + id + `1", "type": "AppBar", "props": {"backgroundColor": "#202020"` + props + `}, "slots": {"title": ` + title + `}}`
+	}
+	icon := func(colour string) string {
+		return `{` + id + `2", "type": "Icon", "props": {"icon": {"name": "home"}, "color": "` + colour + `"}, "semantics": {"label": "Home"}}`
+	}
+	plain := `{` + id + `3", "type": "Text", "props": {"data": "Nordvia"}}`
+	if got := contrast(bar("", icon("#FFFFFF"))); len(got) != 0 {
+		t.Errorf("a white icon on a dark bar: %v", got)
+	}
+	if got := contrast(bar("", icon("#303030"))); len(got) != 1 {
+		t.Errorf("a dark icon on a dark bar: want one finding, got %v", got)
+	}
+	if got := contrast(bar(`, "foregroundColor": "#FFFFFF"`, plain)); len(got) != 0 {
+		t.Errorf("text in the bar's white foreground: %v", got)
+	}
+	if got := contrast(bar("", plain)); len(got) != 1 {
+		t.Errorf("onSurface text on a dark bar: want one finding, got %v", got)
+	}
+	// An action without its own colour takes the bar's foreground, as on a device.
+	action := `{` + id + `4", "type": "IconButton", "props": {"tooltip": "Inbox"}, "slots": {"icon": ` +
+		`{` + id + `5", "type": "Icon", "props": {"icon": {"name": "home"}}, "semantics": {"decorative": true}}}}`
+	if got := contrast(bar(`, "foregroundColor": "#FFFFFF"`, action)); len(got) != 0 {
+		t.Errorf("an action in the bar's white foreground: %v", got)
+	}
+}

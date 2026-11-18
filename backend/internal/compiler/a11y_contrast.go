@@ -218,6 +218,8 @@ func (u *unit) backgroundBehind(n *node, v variant) background {
 		fg := "onSurface"
 		if isFilledButton(a) {
 			fg = "onPrimary"
+		} else if role, ok := barForegrounds[a.widget.Type]; ok {
+			fg = role
 		}
 		var r colorRes
 		switch {
@@ -318,7 +320,27 @@ func ownFill(n *node) (raw json.RawMessage, role string, set bool, stop string) 
 		}
 		return nil, "primary", false, ""
 	}
+	if role, ok := barFills[n.widget.Type]; ok {
+		return propFill(p, "backgroundColor", role)
+	}
 	return nil, "", false, ""
+}
+
+// barFills are the bars and buttons that paint their own Material behind
+// their slots, with the Material 3 role each paints by default; their
+// title, actions and icons are read against it.
+var barFills = map[string]string{
+	"AppBar":               "surface",
+	"SliverAppBar":         "surface",
+	"BottomAppBar":         "surfaceContainer",
+	"NavigationBar":        "surfaceContainer",
+	"FloatingActionButton": "primaryContainer",
+}
+
+// barForegrounds is the Material 3 role of the text and icons a bar draws
+// when it sets no foregroundColor.
+var barForegrounds = map[string]string{
+	"FloatingActionButton": "onPrimaryContainer",
 }
 
 // propFill is the fill a colour prop sets; without the prop, the theme role

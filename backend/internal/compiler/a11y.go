@@ -273,7 +273,9 @@ func (u *unit) contrast(n *node) {
 			if c := n.doc.Props["color"]; len(c) > 0 {
 				return u.resolveColor(c, v)
 			}
-			return u.roleColor("onSurface", v)
+			// Without its own colour an icon takes the foreground it sits on, as text does: a bar's
+			// foregroundColor, or onSurface.
+			return u.defaultTextColor(n, v)
 		}
 		s = contrastSubject{what: n.widget.Type, fg: colour, bg: func(v variant) background { return u.backgroundBehind(n, v) }, threshold: contrastComponent}
 	default:
@@ -299,7 +301,21 @@ func (u *unit) defaultTextColor(n *node, v variant) colorRes {
 			return u.resolveColor(c, v)
 		}
 	}
+	// A bar's foregroundColor colours the title, actions and icons it holds.
+	if _, bar := barFills[typeOf(bg.src)]; bar {
+		if c, ok := bg.src.doc.Props["foregroundColor"]; ok {
+			return u.resolveColor(c, v)
+		}
+	}
 	return u.roleColor(bg.fgRole, v)
+}
+
+// typeOf is the widget type of n, "" for none.
+func typeOf(n *node) string {
+	if n == nil || n.widget == nil {
+		return ""
+	}
+	return n.widget.Type
 }
 
 // fixedSizes returns the width and height a node is fixed to by its own

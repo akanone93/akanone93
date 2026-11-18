@@ -19,7 +19,7 @@ never guessed.
 |---|---|---|
 | `PLX-1401` | `accessibleName` | An interactive node with no accessible name. |
 | `PLX-1402` | `imageAlternative` | An image with neither alternative text nor `decorative`. |
-| `PLX-1403` | `contrast` | Text or a UI component below 4.5:1, or 3:1 for text of 24 px or more, 18.66 px bold or more, and for component boundaries. Checked against the nearest opaque background in the light, dark and high-contrast token sets. |
+| `PLX-1403` | `contrast` | Text or a UI component below 4.5:1, or 3:1 for text of 24 px or more, 18.66 px bold or more, and for component boundaries. Checked against the nearest opaque background in the light, dark and high-contrast token sets: a container's colour, a card, a filled button, or the bar a widget sits in (an app bar, bottom app bar or navigation bar, or a floating action button), whose `foregroundColor` is then the colour of unstyled text and icons. |
 | `PLX-1404` | `touchTarget` | A fixed target below 44 × 44, or 48 × 48 when the release targets Android. |
 | `PLX-1405` | `fixedHeightText` | Text under a fixed-height ancestor. |
 | `PLX-1406` | `focusOrder` | An invalid focus order. |
