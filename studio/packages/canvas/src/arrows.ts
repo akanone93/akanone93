@@ -7,9 +7,10 @@
  * side history give the same routes — no clock, randomness or hash order.
  *
  * Derivation turns the navigate edges of the reference graph (SCH-041) into
- * bundles: all links from one box to another in one direction. Routing picks
- * the shortest side pair per bundle with hysteresis, spreads the anchors along
- * each side in an order that keeps parallel bundles from crossing, and draws
+ * bundles: all links from one box to another in one direction. Routing
+ * attaches each end at the point of its side nearest the other box, picks the
+ * side pair whose anchors are closest (with hysteresis), keeps the anchors that
+ * share a side apart in an order that keeps parallel bundles from crossing, and draws
  * cubic Béziers that leave and enter perpendicular to their sides, detouring
  * around other boxes through at most two waypoints. A drag re-routes only the
  * bundles it can affect (`moveBox`); the result equals a full re-route with
@@ -84,6 +85,8 @@ export interface RouterOptions {
   readonly hysteresisMin?: number;
   /** Anchors keep this distance from a side's corners. */
   readonly cornerInset?: number;
+  /** Anchors sharing a side keep at least this distance apart. */
+  readonly anchorGap?: number;
 }
 
 /** The id of the bundle from box `source` to box `target`. */
@@ -175,6 +178,12 @@ interface BundleState {
   route: Route | undefined;
   /** Flattened polylines (x, y, x, y, …) of every candidate tried for `route`. */
   paths: number[][];
+  /**
+   * The straight connections of other side pairs tried while the bundle looked for a clear one, as far
+   * as each was checked, with their bounds: a box moved across them can change the sides it takes.
+   */
+  probes: number[][];
+  probeBounds: Rect | undefined;
 }
 
 interface Member {
@@ -202,9 +211,58 @@ export function sidePoint(box: ArrowBox, side: Side, f: number): Point {
   }
 }
 
-function pairCost(a: ArrowBox, sa: Side, b: ArrowBox, sb: Side): number {
-  const pa = sidePoint(a, sa, 0.5);
-  const pb = sidePoint(b, sb, 0.5);
+/** Whether `side` runs along x (top and bottom) rather than y. */
+function horizontal(side: Side): boolean {
+  return side === 0 || side === 2;
+}
+
+/** The stretch of `side` an anchor may use, along its axis: the side less its corner insets. */
+function usable(box: ArrowBox, side: Side, cornerInset: number): [number, number] {
+  const [start, length] = horizontal(side) ? [box.x, box.w] : [box.y, box.h];
+  const inset = Math.min(cornerInset, length / 4);
+  return [start + inset, start + length - inset];
+}
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, v));
+}
+
+/**
+ * Where on `side` of `here` an end attaches to reach `other` by the shortest way, along the side's axis
+ * (STU-042): facing parallel sides that overlap meet in the middle of their overlap, so the connection is
+ * straight; otherwise the end goes to the point of its side nearest the other box's centre.
+ */
+export function attachAlong(here: ArrowBox, side: Side, other: ArrowBox, otherSide: Side, cornerInset = 12): number {
+  const [lo, hi] = usable(here, side, cornerInset);
+  if (horizontal(side) === horizontal(otherSide)) {
+    const [olo, ohi] = usable(other, otherSide, cornerInset);
+    const from = Math.max(lo, olo);
+    const to = Math.min(hi, ohi);
+    if (from <= to) {
+      return (from + to) / 2;
+    }
+  }
+  return clamp(horizontal(side) ? other.x + other.w / 2 : other.y + other.h / 2, lo, hi);
+}
+
+/** The point on `side` of `box` at `along` on its axis. */
+function sideAt(box: ArrowBox, side: Side, along: number): Point {
+  switch (side) {
+    case 0:
+      return { x: along, y: box.y };
+    case 1:
+      return { x: box.x + box.w, y: along };
+    case 2:
+      return { x: along, y: box.y + box.h };
+    default:
+      return { x: box.x, y: along };
+  }
+}
+
+/** The length of the connection between the anchors of side pair (`sa`, `sb`), plus a penalty per end facing away. */
+function pairCost(a: ArrowBox, sa: Side, b: ArrowBox, sb: Side, cornerInset: number): number {
+  const pa = sideAt(a, sa, attachAlong(a, sa, b, sb, cornerInset));
+  const pb = sideAt(b, sb, attachAlong(b, sb, a, sa, cornerInset));
   const dx = pb.x - pa.x;
   const dy = pb.y - pa.y;
   let cost = Math.hypot(dx, dy);
@@ -218,22 +276,23 @@ function pairCost(a: ArrowBox, sa: Side, b: ArrowBox, sb: Side): number {
 }
 
 /**
- * The shortest side pair from `a` to `b` (STU-042), keeping `previous` (a
- * pair encoded `sa * 4 + sb`) unless the best is shorter by the hysteresis
- * margin, so nearly equidistant boxes do not flicker between sides.
+ * The side pair from `a` to `b` whose anchors are closest (STU-042), keeping `previous` (a pair encoded
+ * `sa * 4 + sb`) unless the best is shorter by the hysteresis margin, so nearly equidistant boxes do not
+ * flicker between sides. Ties go to the first pair in side order, so the choice is a function of the boxes.
  */
 export function chooseSides(
   a: ArrowBox,
   b: ArrowBox,
   previous: number | undefined,
-  hysteresis = 0.1,
-  hysteresisMin = 8,
+  hysteresis = 0.03,
+  hysteresisMin = 12,
+  cornerInset = 12,
 ): [Side, Side] {
   let best = Number.POSITIVE_INFINITY;
   let pick: [Side, Side] = [1, 3];
   for (const sa of SIDES) {
     for (const sb of SIDES) {
-      const cost = pairCost(a, sa, b, sb);
+      const cost = pairCost(a, sa, b, sb, cornerInset);
       if (cost < best) {
         best = cost;
         pick = [sa, sb];
@@ -243,11 +302,50 @@ export function chooseSides(
   if (previous !== undefined) {
     const pa = (previous >> 2) as Side;
     const pb = (previous & 3) as Side;
-    if (pairCost(a, pa, b, pb) <= best * (1 + hysteresis) + hysteresisMin) {
+    if (pairCost(a, pa, b, pb, cornerInset) <= best * (1 + hysteresis) + hysteresisMin) {
       return [pa, pb];
     }
   }
   return pick;
+}
+
+/**
+ * Places anchors wanted at `want` (sorted) on a stretch [`lo`, `hi`] at least `gap` apart, each as near
+ * its wish as the others allow (least squares, by pooling adjacent violators): with the i-th shifted
+ * back by i gaps, the positions must rise, and their best rising fit clamped to the stretch is the
+ * answer. When the stretch is too short for the gaps, the anchors are spaced evenly over it.
+ */
+export function placeAnchors(want: readonly number[], lo: number, hi: number, gap: number): number[] {
+  const n = want.length;
+  if (n === 0) {
+    return [];
+  }
+  if ((n - 1) * gap > hi - lo) {
+    return want.map((_, i) => (n === 1 ? (lo + hi) / 2 : lo + ((hi - lo) * i) / (n - 1)));
+  }
+  const blocks: { sum: number; count: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    blocks.push({ sum: (want[i] as number) - i * gap, count: 1 });
+    while (blocks.length > 1) {
+      const last = blocks[blocks.length - 1] as { sum: number; count: number };
+      const prev = blocks[blocks.length - 2] as { sum: number; count: number };
+      if (prev.sum / prev.count <= last.sum / last.count) {
+        break;
+      }
+      prev.sum += last.sum;
+      prev.count += last.count;
+      blocks.pop();
+    }
+  }
+  const out: number[] = [];
+  const top = hi - (n - 1) * gap;
+  for (const block of blocks) {
+    const z = clamp(block.sum / block.count, lo, top);
+    for (let k = 0; k < block.count; k++) {
+      out.push(z + out.length * gap);
+    }
+  }
+  return out;
 }
 
 /**
@@ -386,6 +484,7 @@ export class ArrowRouter {
   private readonly hysteresis: number;
   private readonly hysteresisMin: number;
   private readonly cornerInset: number;
+  private readonly anchorGap: number;
   private readonly boxes = new Map<string, MBox>();
   private readonly grid = new Map<number, MBox[]>();
   private readonly states = new Map<string, BundleState>();
@@ -397,9 +496,10 @@ export class ArrowRouter {
 
   constructor(boxes: readonly ArrowBox[], bundles: readonly Bundle[], options: RouterOptions = {}) {
     this.clearance = options.clearance ?? 12;
-    this.hysteresis = options.hysteresis ?? 0.1;
-    this.hysteresisMin = options.hysteresisMin ?? 8;
+    this.hysteresis = options.hysteresis ?? 0.03;
+    this.hysteresisMin = options.hysteresisMin ?? 12;
     this.cornerInset = options.cornerInset ?? 12;
+    this.anchorGap = options.anchorGap ?? 20;
     this.setGraph(boxes, bundles);
   }
 
@@ -437,7 +537,17 @@ export class ArrowRouter {
       if (!this.boxes.has(bundle.source) || !this.boxes.has(bundle.target)) {
         continue;
       }
-      const state: BundleState = { bundle, sa: 1, sb: 3, fa: 0.5, fb: 0.5, route: undefined, paths: [] };
+      const state: BundleState = {
+        bundle,
+        sa: 1,
+        sb: 3,
+        fa: 0.5,
+        fb: 0.5,
+        route: undefined,
+        paths: [],
+        probes: [],
+        probeBounds: undefined,
+      };
       this.states.set(bundle.id, state);
       keep.add(bundle.id);
       for (const end of [bundle.source, bundle.target]) {
@@ -496,8 +606,10 @@ export class ArrowRouter {
     if (!(drag && box)) {
       return [];
     }
-    const dirty = new Set(drag.pending);
-    this.collectMet(dirty, drag.start, this.inflated(box), new Set(this.byBox.get(drag.id)));
+    const dirty = new Set<BundleState>();
+    const met = new Set(drag.pending);
+    this.collectMet(met, drag.start, this.inflated(box), new Set(this.byBox.get(drag.id)));
+    this.reselect(met, dirty);
     return this.recurve(dirty);
   }
 
@@ -533,9 +645,40 @@ export class ArrowRouter {
       }
     }
     if (!dragging) {
-      this.collectMet(dirty, old, this.inflated(box), own);
+      const met = new Set<BundleState>();
+      this.collectMet(met, old, this.inflated(box), own);
+      this.reselect(met, dirty);
     }
     return this.recurve(dirty);
+  }
+
+  /**
+   * Chooses the sides of `states` again, as a full re-route would, and adds them to `dirty`; a bundle
+   * that changes sides leaves and joins its sides, whose members are spread again and added too.
+   */
+  private reselect(states: ReadonlySet<BundleState>, dirty: Set<BundleState>): void {
+    const touched = new Set<string>();
+    for (const state of [...states].sort((x, y) => byId(x.bundle, y.bundle))) {
+      dirty.add(state);
+      const [sa, sb] = [state.sa, state.sb];
+      this.selectSides(state);
+      if (state.sa === sa && state.sb === sb) {
+        continue;
+      }
+      const [na, nb] = [state.sa, state.sb];
+      state.sa = sa;
+      state.sb = sb;
+      this.leave(state, touched);
+      state.sa = na;
+      state.sb = nb;
+      this.join(state, touched);
+    }
+    for (const key of [...touched].sort()) {
+      this.spread(key);
+      for (const member of this.members.get(key) ?? []) {
+        dirty.add(member.state);
+      }
+    }
   }
 
   private inflated(box: MBox): Rect {
@@ -547,10 +690,22 @@ export class ArrowRouter {
   private collectMet(dirty: Set<BundleState>, a: Rect, b: Rect, skip: ReadonlySet<BundleState>): void {
     for (const state of this.states.values()) {
       const env = state.route?.envelope;
-      if (env && !skip.has(state) && !dirty.has(state) && (meets(state, env, a) || meets(state, env, b))) {
+      if (
+        env &&
+        !skip.has(state) &&
+        !dirty.has(state) &&
+        (this.affects(state, env, a) || this.affects(state, env, b))
+      ) {
         dirty.add(state);
       }
     }
+  }
+
+  /** Whether a box moved to or from `rect` can change `state`: it crosses a candidate or a probe. */
+  private affects(state: BundleState, env: Rect, rect: Rect): boolean {
+    return (
+      meets(state.paths, env, rect) || (state.probeBounds !== undefined && meets(state.probes, state.probeBounds, rect))
+    );
   }
 
   private recurve(dirty: ReadonlySet<BundleState>): string[] {
@@ -570,7 +725,7 @@ export class ArrowRouter {
 
   /**
    * Hysteresis keeps a bundle's side pair only while it routes clear and straight: a bundle that is
-   * blocked, or needs a detour, on a remembered pair that is not the shortest takes the shortest, and the
+   * blocked, or needs a detour, takes the shortest pair that routes clear and straight, and the
    * bundles sharing the sides it leaves or joins are spread and routed again. Each bundle switches at most
    * once, so this ends. Bundles not in `own` (when given) are left for the drag to catch up. Returns the
    * bundles routed again.
@@ -601,32 +756,88 @@ export class ArrowRouter {
   }
 
   /**
-   * Moves a blocked or detoured bundle from a remembered side pair to the shortest one, noting the sides it
-   * leaves and joins in `touched`. False when the bundle keeps its sides.
+   * Moves a blocked or detoured bundle to the shortest side pair that routes straight and clear (or the
+   * shortest of all when none does), noting the sides it leaves and joins in `touched`. False when the
+   * bundle keeps its sides.
    */
   private giveWay(state: BundleState, touched: Set<string>, own?: ReadonlySet<BundleState>): boolean {
     const route = state.route;
-    if (route === undefined || (route.clear && route.segments.length === 1) || (own !== undefined && !own.has(state))) {
+    if (own !== undefined && !own.has(state)) {
+      return false;
+    }
+    if (route === undefined || (route.clear && route.segments.length === 1)) {
+      state.probes = [];
+      state.probeBounds = undefined;
       return false;
     }
     const a = this.boxes.get(state.bundle.source) as MBox;
     const b = this.boxes.get(state.bundle.target) as MBox;
-    const [sa, sb] = chooseSides(a, b, undefined);
+    const [sa, sb] = this.clearestSides(a, b, state);
     if (sa === state.sa && sb === state.sb) {
       return false;
     }
+    // The history keeps the geometric choice: the way round a box is worked out again from the boxes
+    // each time, so where a box was dragged through does not decide where a bundle ends up.
     this.leave(state, touched);
     state.sa = sa;
     state.sb = sb;
-    this.history.set(state.bundle.id, sa * 4 + sb);
     this.join(state, touched);
     return true;
+  }
+
+  /**
+   * The shortest side pair from `a` to `b` whose connection runs straight and clear of every box, or,
+   * when none does, the shortest of all. Pairs are tried by length, then in side order.
+   */
+  private clearestSides(a: MBox, b: MBox, state: BundleState): [Side, Side] {
+    const pairs: { sa: Side; sb: Side; cost: number }[] = [];
+    for (const sa of SIDES) {
+      for (const sb of SIDES) {
+        const cost = pairCost(a, sa, b, sb, this.cornerInset);
+        if (cost < BACKFACE) {
+          pairs.push({ sa, sb, cost });
+        }
+      }
+    }
+    pairs.sort((x, y) => x.cost - y.cost || x.sa * 4 + x.sb - (y.sa * 4 + y.sb));
+    state.probes = [];
+    const bounds: Rect = { l: Number.POSITIVE_INFINITY, t: Number.POSITIVE_INFINITY, r: -Infinity, b: -Infinity };
+    state.probeBounds = bounds;
+    for (const { sa, sb } of pairs) {
+      if (this.straightClear(a, sa, b, sb, state.probes, bounds)) {
+        return [sa, sb];
+      }
+    }
+    return chooseSides(a, b, undefined, 0, 0, this.cornerInset);
+  }
+
+  /**
+   * Whether the undetoured curve between the nearest anchors of side pair (`sa`, `sb`) meets no box;
+   * the points it checked go to `probes` and their bounds to `bounds`.
+   */
+  private straightClear(a: MBox, sa: Side, b: MBox, sb: Side, probes: number[][], bounds: Rect): boolean {
+    const p0 = sideAt(a, sa, attachAlong(a, sa, b, sb, this.cornerInset));
+    const p3 = sideAt(b, sb, attachAlong(b, sb, a, sa, this.cornerInset));
+    const segments = pathThrough(p0, sideNormal(sa), [], p3, sideNormal(sb));
+    for (const segment of segments) {
+      controlBounds(segment, bounds);
+    }
+    const hit = this.collide(segments, [a, b]);
+    probes.push(hit.points);
+    return hit.boxes.length === 0 && !this.entersEnds(hit.points, [a, b]);
   }
 
   private selectSides(state: BundleState): void {
     const a = this.boxes.get(state.bundle.source) as MBox;
     const b = this.boxes.get(state.bundle.target) as MBox;
-    const [sa, sb] = chooseSides(a, b, this.history.get(state.bundle.id), this.hysteresis, this.hysteresisMin);
+    const [sa, sb] = chooseSides(
+      a,
+      b,
+      this.history.get(state.bundle.id),
+      this.hysteresis,
+      this.hysteresisMin,
+      this.cornerInset,
+    );
     state.sa = sa;
     state.sb = sb;
     this.history.set(state.bundle.id, sa * 4 + sb);
@@ -661,6 +872,11 @@ export class ArrowRouter {
   }
 
   /** Spreads the anchors on one side, ordered to minimise crossings (STU-042). */
+  /**
+   * Places the anchors sharing one side (STU-042): each where it reaches its other box by the shortest
+   * way, kept `anchorGap` apart in an order that keeps them from crossing — by where they want to be,
+   * then the two directions of a box pair side by side as parallel lanes.
+   */
   private spread(key: string): void {
     const list = this.members.get(key);
     if (!list || list.length === 0) {
@@ -668,37 +884,42 @@ export class ArrowRouter {
       return;
     }
     const keyed = list.map((member) => {
-      const { bundle } = member.state;
-      const side = member.end === 0 ? member.state.sa : member.state.sb;
+      const { bundle, sa, sb } = member.state;
+      const [side, otherSide] = member.end === 0 ? [sa, sb] : [sb, sa];
+      const here = this.boxes.get(member.end === 0 ? bundle.source : bundle.target) as MBox;
       const other = this.boxes.get(member.end === 0 ? bundle.target : bundle.source) as MBox;
-      const along = side === 0 || side === 2 ? other.x + other.w / 2 : other.y + other.h / 2;
-      const here = member.end === 0 ? bundle.source : bundle.target;
+      const want = attachAlong(here, side, other, otherSide, this.cornerInset);
       const canonicalSource = bundle.source < bundle.target ? bundle.source : bundle.target;
       const offset = bundle.source < bundle.target ? -1 : 1;
-      const tie = offset * laneSign(side, here === canonicalSource);
-      return { member, along, tie };
+      const tie = offset * laneSign(side, here.id === canonicalSource);
+      return { member, want, tie };
     });
     keyed.sort(
       (a, b) =>
-        a.along - b.along ||
+        a.want - b.want ||
         a.tie - b.tie ||
         byId(a.member.state.bundle, b.member.state.bundle) ||
         a.member.end - b.member.end,
     );
-    const n = keyed.length;
-    for (let i = 0; i < n; i++) {
-      const { member } = keyed[i] as (typeof keyed)[number];
-      const side = member.end === 0 ? member.state.sa : member.state.sb;
-      const box = this.boxes.get(member.end === 0 ? member.state.bundle.source : member.state.bundle.target) as MBox;
-      const length = side === 0 || side === 2 ? box.w : box.h;
-      const inset = Math.min(this.cornerInset, length / 4) / length;
-      const f = inset + (1 - 2 * inset) * ((i + 1) / (n + 1));
+    const first = keyed[0]?.member as Member;
+    const side = first.end === 0 ? first.state.sa : first.state.sb;
+    const box = this.boxes.get(first.end === 0 ? first.state.bundle.source : first.state.bundle.target) as MBox;
+    const [lo, hi] = usable(box, side, this.cornerInset);
+    const [start, length] = horizontal(side) ? [box.x, box.w] : [box.y, box.h];
+    const placed = placeAnchors(
+      keyed.map((k) => k.want),
+      lo,
+      hi,
+      this.anchorGap,
+    );
+    keyed.forEach(({ member }, i) => {
+      const f = ((placed[i] as number) - start) / length;
       if (member.end === 0) {
         member.state.fa = f;
       } else {
         member.state.fb = f;
       }
-    }
+    });
     this.members.set(
       key,
       keyed.map((k) => k.member),
@@ -906,11 +1127,11 @@ export class ArrowRouter {
 }
 
 /** Whether a candidate tried for `state` meets `rect`: only then can a box there change its route. */
-function meets(state: BundleState, envelope: Rect, rect: Rect): boolean {
+function meets(paths: readonly number[][], envelope: Rect, rect: Rect): boolean {
   if (!overlaps(envelope, rect)) {
     return false;
   }
-  for (const path of state.paths) {
+  for (const path of paths) {
     for (let i = 2; i + 1 < path.length; i += 2) {
       const px = path[i - 2] as number;
       const py = path[i - 1] as number;

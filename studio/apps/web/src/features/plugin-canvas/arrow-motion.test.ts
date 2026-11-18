@@ -80,10 +80,10 @@ describe("[STU-044] [STU-045] arrows that move", () => {
 
   test("[STU-045] the arrows of a screen shown at a dragged place re-route before the drop", () => {
     const s = setup();
-    s.motion.follow(new Map([["form", { x: 800, y: 1400 }]]));
+    s.motion.follow(new Map([["form", { x: 0, y: 1400 }]]));
     const moved = s.patches.at(-1) ?? [];
     expect(moved.length).toBeGreaterThan(0);
-    // The bundle now enters the form screen from above: its tip sits on the form's top edge.
+    // The form is now under the home screen: the bundle enters it from above, its tip on the form's top edge.
     const tip = moved.flatMap((o) => ("item" in o && o.item.kind === "link" ? [o.item.to] : []));
     expect(tip.some((p) => p.y === 1400)).toBe(true);
     s.motion.follow(new Map());

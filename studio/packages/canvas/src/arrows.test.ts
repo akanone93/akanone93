@@ -6,6 +6,7 @@ import { ArrowCanvas } from "./arrow-layer.ts";
 import {
   type ArrowBox,
   ArrowRouter,
+  attachAlong,
   type Bundle,
   type Cubic,
   chooseSides,
@@ -14,7 +15,9 @@ import {
   deriveBundles,
   derivePluginBundles,
   type NavigateEdge,
+  placeAnchors,
   type Route,
+  type Side,
 } from "./arrows.ts";
 import { HitIndex } from "./hit.ts";
 import {
@@ -197,11 +200,28 @@ describe("[STU-043] perpendicular Béziers routed around boxes", () => {
   });
 
   test("a box in the way is avoided (sampled)", () => {
-    const boxes = [box("a", 0, 0), box("o", 300, 0), box("b", 600, 0)];
+    // Boxes above and below wall off the arcs over and under `o`, so only a detour gets past it.
+    const boxes = [
+      box("a", 0, 0),
+      box("o", 300, 0),
+      box("b", 600, 0),
+      box("u", 150, -200, 400, 60),
+      box("d", 150, 200, 400, 60),
+    ];
     const router = new ArrowRouter(boxes, deriveBundles([edge("x", "a", "b")]));
     const route = router.routes.get("a→b") as Route;
     expect(route.clear).toBe(true);
     expect(route.segments.length).toBeGreaterThan(1);
+    expect(crosses(route, boxes)).toEqual([]);
+  });
+
+  test("[STU-042] a side pair that connects straight and clear is preferred to a detour", () => {
+    const boxes = [box("a", 0, 0), box("o", 300, 0), box("b", 600, 0)];
+    const router = new ArrowRouter(boxes, deriveBundles([edge("x", "a", "b")]));
+    const route = router.routes.get("a→b") as Route;
+    expect(route.clear).toBe(true);
+    expect(route.segments.length).toBe(1);
+    expect(route.sourceSide).toBe(route.targetSide);
     expect(crosses(route, boxes)).toEqual([]);
   });
 
@@ -219,6 +239,73 @@ describe("[STU-043] perpendicular Béziers routed around boxes", () => {
   });
 });
 
+/** The point on `side` of `b` at `along` on the side's axis. */
+function onSide(b: ArrowBox, side: Side, along: number): { x: number; y: number } {
+  if (side === 0 || side === 2) {
+    return { x: along, y: side === 0 ? b.y : b.y + b.h };
+  }
+  return { x: side === 1 ? b.x + b.w : b.x, y: along };
+}
+
+/** The length of the connection between the nearest anchors of side pair (`sa`, `sb`). */
+function connection(a: ArrowBox, sa: Side, b: ArrowBox, sb: Side): number {
+  const p = onSide(a, sa, attachAlong(a, sa, b, sb));
+  const q = onSide(b, sb, attachAlong(b, sb, a, sa));
+  return Math.hypot(q.x - p.x, q.y - p.y);
+}
+
+describe("[STU-042] [STU-045] anchors follow the shortest connection while a box moves", () => {
+  test("an end attaches where its side is nearest the other box; overlapping sides connect straight", () => {
+    const a = box("a", 0, 0, 100, 400);
+    const router = new ArrowRouter([a, box("b", 300, 0)], deriveBundles([edge("x", "a", "b")]));
+    router.beginDrag("b");
+    for (const y of [0, 100, 200, 300, 340]) {
+      router.moveBox("b", 300, y);
+      const route = router.routes.get("a→b") as Route;
+      const first = route.segments[0] as Cubic;
+      const last = route.segments.at(-1) as Cubic;
+      expect(route.sourceSide).toBe(1);
+      // b spans y … y + 60 and a 0 … 400: they overlap, so the arrow is straight across the overlap.
+      expect(first.from.y).toBeCloseTo(last.to.y, 9);
+      expect(first.from.y).toBeCloseTo(attachAlong(a, 1, box("b", 300, y), 3), 9);
+    }
+    router.endDrag();
+  });
+
+  test("dragging a box round another re-picks the closest side pair live, without flicker", () => {
+    const a = box("a", 0, 0, 200, 120);
+    const router = new ArrowRouter([a, box("b", 500, 30, 200, 120)], deriveBundles([edge("x", "a", "b")]));
+    router.beginDrag("b");
+    const seen: number[] = [];
+    for (let deg = 0; deg <= 360; deg += 3) {
+      const t = (deg * Math.PI) / 180;
+      const b = box("b", 500 * Math.cos(t), 30 + 400 * Math.sin(t), 200, 120);
+      router.moveBox("b", b.x, b.y);
+      const route = router.routes.get("a→b") as Route;
+      // The pair in use is never more than the hysteresis margin longer than the shortest one.
+      const [sa, sb] = chooseSides(a, b, undefined, 0, 0);
+      expect(connection(a, route.sourceSide, b, route.targetSide)).toBeLessThanOrEqual(
+        connection(a, sa, b, sb) * 1.03 + 12 + 1e-9,
+      );
+      seen.push(route.sourceSide * 4 + route.targetSide);
+    }
+    router.endDrag();
+    // Every side of a is used on the way round, and each switch happens once per crossing (no flicker).
+    expect(new Set(seen.map((p) => p >> 2))).toEqual(new Set([0, 1, 2, 3]));
+    const switches = seen.filter((p, i) => i > 0 && p !== seen[i - 1]).length;
+    expect(switches).toBeLessThanOrEqual(12);
+  });
+
+  test("anchors sharing a side sit where they want, kept apart in order", () => {
+    expect(placeAnchors([50, 200, 300], 0, 400, 20)).toEqual([50, 200, 300]);
+    expect(placeAnchors([100, 100, 100], 0, 400, 20)).toEqual([80, 100, 120]);
+    expect(placeAnchors([0, 0], 10, 400, 20)).toEqual([10, 30]);
+    expect(placeAnchors([400, 400], 0, 400, 20)).toEqual([380, 400]);
+    // Too short for the gaps: spaced evenly.
+    expect(placeAnchors([5, 6, 7], 0, 20, 20)).toEqual([0, 10, 20]);
+  });
+});
+
 describe("[STU-042] [STU-043] routes stay off their own boxes and keep smooth", () => {
   /** Whether a sampled point of `route` lies inside one of its own end boxes, a little in from the edges. */
   function entersEnds(route: Route, boxes: readonly ArrowBox[]): boolean {
@@ -231,13 +318,12 @@ describe("[STU-042] [STU-043] routes stay off their own boxes and keep smooth", 
   }
 
   test("a remembered side pair that no longer routes clear gives way to the shortest", () => {
-    // Apply Register's canvas: Account under Console, Launch to their right. Account → Launch first leaves
-    // from Account's top; once the boxes close up, that side is under Console and its detour would dip
-    // back into Account.
+    // Apply Register's canvas: Account → Launch first leaves from Account's top; once Console moves above
+    // Account and the boxes close up, that side is under Console and its detour would dip back into Account.
     const edges = [edge("x", "account", "launch"), edge("y", "account", "launch")];
     const before = [
       box("account", 0, 800, 260, 152),
-      box("console", 0, 600, 260, 152),
+      box("console", -600, 600, 260, 152),
       box("launch", 356, 400, 260, 152),
     ];
     const after = [
