@@ -47,7 +47,9 @@ type Options struct {
 	IconFont func(set icons.Set, names []string) ([]byte, error)
 	// Functions describes the functions of the app and environment being
 	// compiled (FN-004, FN-008); nil checks only that an invokeFunction
-	// step names a function its plugin grants.
+	// step names a function its plugin grants. The step's output then has
+	// no type: validating a page leaves an expression that reads it
+	// unjudged, and a compilation refuses it.
 	Functions FunctionCatalogue
 	// DeviceModules supplies the linked device module of a plugin that
 	// grants device-placed functions (FN-051); nil packs none.

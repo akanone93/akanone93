@@ -98,8 +98,9 @@ type unit struct {
 	// sources, by source ID (ADR-0048).
 	dataConfigs map[string]*parsedConfig
 	// fnSteps are the invokeFunction steps whose output a function schema
-	// types, by file (ACT-001).
-	fnSteps map[string]map[string]bool
+	// types, by file (ACT-001); fnUntyped are those whose output has no
+	// type because the compilation has no function catalogue.
+	fnSteps, fnUntyped map[string]map[string]bool
 
 	// Encoding state and outputs.
 	appOut     *out

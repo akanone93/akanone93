@@ -39,7 +39,7 @@ var unitFields = map[string]string{
 	"deviceUses": "report", "stored": "report", "collections": "report",
 	"files":    "plugin level",
 	"appScope": "plugin level", "appState": "plugin level", "appSources": "plugin level", "envs": "plugin level", "exprs": "per page",
-	"dataConfigs": "plugin level", "fnSteps": "per page",
+	"dataConfigs": "plugin level", "fnSteps": "per page", "fnUntyped": "per page",
 	"appOut": "plugin level", "pluginOuts": "plugin level", "app": "plugin level", "outputs": "plugin level",
 }
 

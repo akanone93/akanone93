@@ -957,6 +957,12 @@ func (t *typer) compileWith(src, want string, s *scope, from, file, ptr string) 
 		}
 	}
 	prog, typ, diags := pxl.Compile(src, env, opts, plxerr.Location{File: file, Path: ptr + "/$expr"})
+	if t.u.validating && diags.HasErrors() && t.u.readsUntypedOutput(file, src) {
+		// Without a function catalogue a function step's output has no type, so validating a
+		// page (Studio) does not judge an expression that reads it (Options.Functions); the
+		// compilation that builds the release has the catalogue and checks it in full.
+		diags = nil
+	}
 	t.u.diags = append(t.u.diags, diags...)
 	e.prog, e.typ = prog, typ
 	t.u.noteProgram(prog)

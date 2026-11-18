@@ -4,6 +4,7 @@
 package compiler
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -264,5 +265,46 @@ func TestValidatorTakesAssetStandIns(t *testing.T) {
 	}
 	if _, diags := NewValidator(m, DefaultOptions()); !hasLayoutFinding(diags) {
 		t.Errorf("a listed file that is not stored is still reported: %v", diags)
+	}
+}
+
+// Verifies: ACT-001.
+// Without a function catalogue, as in Studio, validating a page does not
+// refuse an expression that reads a granted function's output, whose type
+// only the catalogue knows; any other expression is still checked, and a
+// compilation without the catalogue still refuses the read.
+func TestValidatePageWithoutCatalogueReadsFunctionOutput(t *testing.T) {
+	t.Parallel()
+	m := withFunctions(t, "loans.quote")
+	v := newValidator(t, m)
+	read := func(value string) []byte {
+		return pageEdit(t, func(doc map[string]any) {
+			doc["lifecycle"] = map[string]any{"onEnter": map[string]any{"steps": []any{
+				map[string]any{
+					"id": "quote", "action": "invokeFunction", "next": "keep",
+					"input": map[string]any{"function": "loans.quote", "input": map[string]any{"months": 12}},
+				},
+				map[string]any{
+					"id": "keep", "action": "setState",
+					"input": map[string]any{"path": "page.months", "value": map[string]any{"$expr": value}},
+				},
+			}}}
+		})
+	}
+	if diags := v.ValidatePage(calculatorPage, read("steps.quote.output?.months ?? 0")); diags.HasErrors() {
+		t.Errorf("a function's output without a catalogue: %v", diags)
+	}
+	if diags := v.ValidatePage(calculatorPage, read("page.nothing")); !diags.HasErrors() {
+		t.Error("an expression that reads no function output is still checked")
+	}
+	edit(t, m, calculatorPage, func(doc map[string]any) {
+		var page map[string]any
+		if err := json.Unmarshal(read("steps.quote.output?.months ?? 0"), &page); err != nil {
+			t.Fatal(err)
+		}
+		doc["lifecycle"] = page["lifecycle"]
+	})
+	if res := Compile(m, DefaultOptions()); len(errorsOf(res)) == 0 {
+		t.Error("a compilation without a catalogue refuses the read")
 	}
 }

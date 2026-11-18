@@ -350,31 +350,47 @@ func (u *unit) matchFunctionObject(c vctx, v any, t *fnType) {
 func (t *typer) functionOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSpec) string {
 	info := t.u.stepFunction(g, st)
 	if info == nil || len(info.OutputSchema) == 0 {
+		if t.u.opts.Functions == nil && grantOf(g.plugin, literalString(st.Input["function"])) != nil {
+			t.u.fnUntyped = noteStep(t.u.fnUntyped, g.file, st.ID)
+		}
 		return ""
 	}
 	out := parseFnSchema(info.OutputSchema)
 	out.nullable = true
 	expr := out.typeExpr("PluxFn"+upperFirst(st.ID)+"Out", synth)
 	if expr != "" {
-		t.u.noteFunctionStep(g.file, st.ID)
+		t.u.fnSteps = noteStep(t.u.fnSteps, g.file, st.ID)
 	}
 	return expr
 }
 
-// noteFunctionStep records a step whose output the function schema types,
-// so that a mismatch on its use is reported as PLX-7032.
-func (u *unit) noteFunctionStep(file, id string) {
-	if u.fnSteps == nil {
-		u.fnSteps = map[string]map[string]bool{}
+// noteStep records step id of file in steps, creating the maps it needs,
+// and returns steps.
+func noteStep(steps map[string]map[string]bool, file, id string) map[string]map[string]bool {
+	if steps == nil {
+		steps = map[string]map[string]bool{}
 	}
-	if u.fnSteps[file] == nil {
-		u.fnSteps[file] = map[string]bool{}
+	if steps[file] == nil {
+		steps[file] = map[string]bool{}
 	}
-	u.fnSteps[file][id] = true
+	steps[file][id] = true
+	return steps
 }
 
 // functionOutputUse matches a read of a step's output.
 var functionOutputUse = regexp.MustCompile(`\bsteps\.([A-Za-z][A-Za-z0-9]*)\.output\b`)
+
+// readsUntypedOutput reports whether an expression of file reads the
+// output of an invokeFunction step that has no type because there is no
+// function catalogue.
+func (u *unit) readsUntypedOutput(file, src string) bool {
+	for _, m := range functionOutputUse.FindAllStringSubmatch(src, -1) {
+		if u.fnUntyped[file][m[1]] {
+			return true
+		}
+	}
+	return false
+}
 
 // mismatchCode is the code of a type mismatch of an expression: PLX-7032
 // when the expression reads the output of an invokeFunction step, whose
