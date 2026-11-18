@@ -83,10 +83,34 @@ export function useCommands(): CommandsValue {
   return value;
 }
 
-/** Registers \`commands\` while the calling component is mounted (page-scoped commands). */
+/** What the palette shows of a command: registering again is needed only when this changes. */
+function shown(commands: readonly Command[]): string {
+  return JSON.stringify(
+    commands.map((c) => [c.id, c.title, c.group, c.shortcut ?? "", c.permission, c.disabledReason ?? null]),
+  );
+}
+
+/**
+ * Registers \`commands\` while the calling component is mounted (page-scoped commands). A registration re-renders
+ * every reader of the commands, so the caller's list is registered again only when what it shows changes; each
+ * \`run\` is called through the latest list, so a caller that builds new closures every render neither loops nor
+ * runs a stale one.
+ */
 export function useScopedCommands(key: string, commands: readonly Command[]): void {
   const register = use(RegisterContext);
-  useEffect(() => (register === null ? undefined : register(key, commands)), [register, key, commands]);
+  const latest = useRef(commands);
+  latest.current = commands;
+  const signature = shown(commands);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: rebuilt only when what the palette shows changes
+  const stable = useMemo<readonly Command[]>(
+    () =>
+      latest.current.map((c) => ({
+        ...c,
+        run: () => (latest.current.find((now) => now.id === c.id) ?? c).run(),
+      })),
+    [signature],
+  );
+  useEffect(() => (register === null ? undefined : register(key, stable)), [register, key, stable]);
 }
 
 /** The commands when a provider surrounds the caller, else null: a reader for views that also render without the shell. */

@@ -20,6 +20,7 @@ import {
   type PlacedGhost,
   placeGhosts,
   SceneSync,
+  sameEntries,
 } from "./ghosts.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { arrowStyle, contentBounds, DEVICE, ghostStyle, type Heights, type PlacedScreen } from "./scene.ts";
@@ -127,7 +128,10 @@ export function useGhostLayer(input: GhostLayerInput): {
           loaded.current.add(i.key);
         }
       }
-      setImageKeys(new Map(images.map((i) => [i.screenId, i.key])));
+      // The same keys keep the same map: a new one would re-render the canvas, which places the ghosts and loads
+      // their images again, without end.
+      const next = new Map(images.map((i) => [i.screenId, i.key]));
+      setImageKeys((was) => (sameEntries(was, next) ? was : next));
     });
     return () => {
       current = false;

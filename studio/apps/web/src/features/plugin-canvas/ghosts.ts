@@ -353,3 +353,16 @@ export function pulseSteps(
   steps.push({ at: PULSE_MS, ops: [{ op: "remove", id }] });
   return steps;
 }
+
+/** Whether two maps hold the same entries. */
+export function sameEntries<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>): boolean {
+  if (a.size !== b.size) {
+    return false;
+  }
+  for (const [k, v] of a) {
+    if (!b.has(k) || b.get(k) !== v) {
+      return false;
+    }
+  }
+  return true;
+}

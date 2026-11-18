@@ -5,12 +5,19 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { createStudioI18n } from "@plux/i18n";
 import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from "@tanstack/react-router";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { ShortcutsPage } from "../../features/profile/shortcuts-page.tsx";
 import { CommandPalette } from "../../features/shell/command-palette.tsx";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
-import { type Command, CommandsProvider, createRegistry, mergeScoped } from "./index.ts";
+import {
+  type Command,
+  CommandsProvider,
+  createRegistry,
+  mergeScoped,
+  useCommands,
+  useScopedCommands,
+} from "./index.ts";
 
 afterEach(cleanup);
 
@@ -114,5 +121,40 @@ describe("[STU-013] global shortcuts", () => {
     fireEvent.keyDown(document.body, { key: "t", code: "KeyT", altKey: true });
     fireEvent.keyDown(input, { key: "t", code: "KeyT", altKey: true });
     expect(hits).toEqual(["t"]);
+  });
+});
+
+describe("[STU-013] page-scoped commands", () => {
+  /** Builds a new list and new closures on every render, and re-renders whenever the commands change. */
+  function Fresh(props: { readonly hits: string[]; readonly renders: { n: number } }): ReactNode {
+    const { states } = useCommands();
+    const [count, setCount] = useState(0);
+    props.renders.n++;
+    useScopedCommands("page", [
+      cmd("page.go", "Go", { shortcut: "alt+g", run: () => void props.hits.push(`go ${count}`) }),
+    ]);
+    return (
+      <button type="button" onClick={() => setCount((c) => c + 1)}>
+        {`${states.length} commands`}
+      </button>
+    );
+  }
+
+  test("a list rebuilt every render registers once, does not loop, and runs its latest closure", async () => {
+    const hits: string[] = [];
+    const renders = { n: 0 };
+    render(wrap([], [], <Fresh hits={hits} renders={renders} />));
+    await screen.findByText("1 commands");
+    // Settled: the registration re-rendered the reader once, not without end.
+    await new Promise((r) => setTimeout(r, 50));
+    const settled = renders.n;
+    expect(settled).toBeLessThan(6);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(renders.n).toBe(settled);
+    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() => {
+      fireEvent.keyDown(document.body, { key: "g", code: "KeyG", altKey: true });
+      expect(hits.at(-1)).toBe("go 1");
+    });
   });
 });

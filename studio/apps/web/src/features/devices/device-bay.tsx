@@ -76,10 +76,13 @@ type Dialog = "pair" | "send" | null;
 /** Pairing and send-to-device as palette commands (the plugin canvas action bar runs them (STU-060)). */
 function useDeviceCommands(open: (d: Dialog) => void): void {
   const m = devicesMessages(useLingui().i18n);
-  const list: readonly Command[] = [
-    { id: "device.pair", title: m.pairAction, group: "navigate", permission: null, run: () => open("pair") },
-    { id: "device.send", title: m.sendAction, group: "navigate", permission: null, run: () => open("send") },
-  ];
+  const list = useMemo<readonly Command[]>(
+    () => [
+      { id: "device.pair", title: m.pairAction, group: "navigate", permission: null, run: () => open("pair") },
+      { id: "device.send", title: m.sendAction, group: "navigate", permission: null, run: () => open("send") },
+    ],
+    [m.pairAction, m.sendAction, open],
+  );
   useScopedCommands("devices", list);
 }
 

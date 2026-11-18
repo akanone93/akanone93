@@ -14,6 +14,7 @@ import {
   pulseSteps,
   readAppScreens,
   SceneSync,
+  sameEntries,
 } from "./ghosts.ts";
 import { ghostStyle } from "./scene.ts";
 
@@ -127,5 +128,34 @@ describe("[STU-053] pulse", () => {
     expect(steps.at(-1)).toMatchObject({ at: PULSE_MS, ops: [{ op: "remove", id: "p" }] });
     expect(steps.map((s) => s.at)).toEqual([...steps.map((s) => s.at)].sort((a, b) => a - b));
     expect(PULSE_MS).toBe(2000);
+  });
+});
+
+describe("ghost images", () => {
+  test("the same image keys compare equal, so loading them again leaves the canvas still", () => {
+    const a = new Map([
+      ["s1", "k1"],
+      ["s2", "k2"],
+    ]);
+    expect(
+      sameEntries(
+        a,
+        new Map([
+          ["s2", "k2"],
+          ["s1", "k1"],
+        ]),
+      ),
+    ).toBe(true);
+    expect(sameEntries(a, new Map([["s1", "k1"]]))).toBe(false);
+    expect(
+      sameEntries(
+        a,
+        new Map([
+          ["s1", "k1"],
+          ["s2", "k3"],
+        ]),
+      ),
+    ).toBe(false);
+    expect(sameEntries(new Map(), new Map())).toBe(true);
   });
 });
