@@ -617,14 +617,7 @@ func (t *typer) graph(g *graph, s *scope) {
 	from := ownerOrGraphID(g)
 	entries := stepEntries(g)
 	compileStep := func(i int, s *scope) {
-		s = s.narrow(entries[i])
-		for _, name := range sortedKeys(g.steps[i].Input) {
-			is := s
-			if g.steps[i].Action == "dbQuery" && name == "where" {
-				is = t.recordScope(g, g.steps[i], s)
-			}
-			t.compileAll(g.steps[i].Input[name], is, from, g.file, g.ptr+plxerr.Pointer("steps", strconv.Itoa(i), "input", name))
-		}
+		t.stepInputs(g, i, s.narrow(entries[i]), from)
 	}
 	t.loops(g, s, compileStep)
 	g.scope = s
@@ -763,6 +756,41 @@ func (t *typer) flowOutput(g *graph, st schema.Step) string {
 		return ""
 	}
 	te.nullable = true
+	return te.String()
+}
+
+// stepInputs compiles the inputs of step i of a graph in scope s.
+func (t *typer) stepInputs(g *graph, i int, s *scope, from string) {
+	st := g.steps[i]
+	for _, name := range sortedKeys(st.Input) {
+		is := s
+		if st.Action == "dbQuery" && name == "where" {
+			is = t.recordScope(g, st, s)
+		}
+		ptr := g.ptr + plxerr.Pointer("steps", strconv.Itoa(i), "input", name)
+		// A value written to state takes its literals' types from the entry it writes, as a prop's
+		// binding does from the prop: {"a": 1, "b": true} is then the entry's object type.
+		if want := stateValueType(st, name, is); want != "" {
+			if src, ok := bareExpr(st.Input[name]); ok {
+				t.compileExpecting(src, want, is, from, g.file, ptr)
+				continue
+			}
+		}
+		t.compileAll(st.Input[name], is, from, g.file, ptr)
+	}
+}
+
+// stateValueType is the type a setState step's value must have: the
+// declared type of the entry its literal path names, "" for any other
+// input or a path that names none.
+func stateValueType(st schema.Step, input string, s *scope) string {
+	if st.Action != "setState" || input != "value" {
+		return ""
+	}
+	te := stateTypeIn(s, literalString(st.Input["path"]))
+	if te == nil {
+		return ""
+	}
 	return te.String()
 }
 

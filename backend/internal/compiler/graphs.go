@@ -329,17 +329,25 @@ func literalString(raw json.RawMessage) string {
 
 // statePathType resolves "<scope>.<name>" to the state entry's type.
 func statePathType(g *graph, path string) *texpr {
+	return stateTypeIn(g.scope, path)
+}
+
+// stateTypeIn resolves "<scope>.<name>" to the state entry's type in s.
+func stateTypeIn(s *scope, path string) *texpr {
+	if s == nil {
+		return nil
+	}
 	root, name, ok := strings.Cut(path, ".")
 	if !ok {
 		return nil
 	}
-	typ, isRoot := g.scope.roots[root]
+	typ, isRoot := s.roots[root]
 	if !isRoot {
 		return nil
 	}
 	// A form's state is nested: <form>.values.<field> (STA-020).
 	for _, part := range strings.Split(name, ".") {
-		spec, ok := g.scope.synth[typ]
+		spec, ok := s.synth[typ]
 		if !ok {
 			return nil
 		}

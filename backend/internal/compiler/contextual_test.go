@@ -4,6 +4,7 @@
 package compiler
 
 import (
+	"strconv"
 	"testing"
 	"testing/fstest"
 
@@ -108,4 +109,57 @@ func anyDiag(res *Result, code plxerr.Code) bool {
 		}
 	}
 	return false
+}
+
+// Verifies: STA-002.
+// A value written to state takes its literals' types from the entry it
+// writes: an object literal becomes the entry's object type, a string an
+// enum member, so a whole record is written in one typed step.
+func TestStateWritesTypeLiteralsByContext(t *testing.T) {
+	t.Parallel()
+	compileWith := func(value string) *Result {
+		m := fixture(t)
+		edit(t, m, "app.json", func(doc map[string]any) {
+			types, _ := doc["types"].([]any)
+			doc["types"] = append(types, map[string]any{"name": "Pick", "fields": []any{
+				map[string]any{"name": "label", "type": "string"},
+				map[string]any{"name": "on", "type": "bool"},
+				map[string]any{"name": "note", "type": "string?"},
+			}})
+		})
+		edit(t, m, calculatorPage, func(doc map[string]any) {
+			state, _ := doc["state"].([]any)
+			doc["state"] = append(state, map[string]any{
+				"id": "01a0c450-6c00-7fff-8000-0000000000aa", "name": "pick",
+				"type": "Pick", "default": map[string]any{"label": "", "on": false, "note": nil},
+			})
+			col := at(t, doc, pageColumn)
+			col["children"] = append(col["children"].([]any), raw(t, `{"id": "01a0c450-6c00-7fff-8000-0000000000ab",
+				"type": "TextButton", "slots": {"child": {"id": "01a0c450-6c00-7fff-8000-0000000000ac", "type": "Text",
+				"props": {"data": "Pick"}}}, "events": {"onPressed": {"steps": [{"id": "set", "action": "setState",
+				"input": {"path": "page.pick", "value": {"$expr": `+strconv.Quote(value)+`}}}]}}}`))
+		})
+		return compileFS(m)
+	}
+	for _, ok := range []string{
+		`{"label": "A", "on": true, "note": null}`,
+		`{"label": page.pick.label, "on": !page.pick.on, "note": "x"}`,
+	} {
+		if res := compileWith(ok); res.Diagnostics.HasErrors() {
+			t.Errorf("%s:\n%s", ok, list(res.Diagnostics))
+		}
+	}
+	for bad, code := range map[string]plxerr.Code{
+		`{"label": "A", "on": true, "colour": "red"}`: plxerr.PXLUnknownField,
+		`{"label": "A"}`: plxerr.PXLTypeMismatch,
+	} {
+		res := compileWith(bad)
+		found := false
+		for _, d := range res.Diagnostics {
+			found = found || d.Code == code
+		}
+		if !found {
+			t.Errorf("%s: want %s in\n%s", bad, code, list(res.Diagnostics))
+		}
+	}
 }
