@@ -166,12 +166,12 @@ A function that calls an API, reads a secret and keeps a counter adds what it ne
 {
   "capabilities": {
     "http": ["rates.example.com", "*.partner.example.net"],
-    "secrets": ["ratesApiKey"],
+    "secrets": ["RATES_API_KEY"],
     "kv": true,
     "functions": ["bank.roundAmount"],
     "claims": true
   },
-  "env": ["feeTable"],
+  "env": ["FEE_TABLE"],
   "limits": {"timeoutMs": 1500, "httpCalls": 3},
   "assurance": "AL2",
   "attestation": false,
@@ -184,6 +184,8 @@ A function that calls an API, reads a secret and keeps a counter adds what it ne
 - A device function may declare `kv` and `functions` that are themselves device-placed. A
   declaration of `http`, `secrets` or `claims` on a device function is a compile error
   (`PLX-7030`).
+- Secret and environment variable names are upper snake case (`RATES_API_KEY`, `FEE_TABLE`); the
+  schema refuses any other spelling.
 - `limits` can only tighten the registry values for this function (`FN-011`, `LIM-002`). The
   registry maximum wins over a larger value.
 - `assurance`, `attestation` and `sca` say what a device must prove to invoke the function: an
