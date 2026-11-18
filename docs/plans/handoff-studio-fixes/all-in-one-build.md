@@ -154,3 +154,7 @@ Numbered in the order found. State: `open`, `fixed (<commit>)`, `decision`.
 | 122 | Studio canvas › AmountInput | The amount field draws as its currency and a stray "A" ("EUR A") instead of its label and an empty amount. | open |
 | 123 | Studio canvas › Stepper | A `Stepper` draws as a box with its type name instead of its steps. | open |
 | 124 | Studio canvas › TermsViewer | The terms viewer draws its scroll hint and accept label but not the terms text it is given. | open |
+| 125 | Canvas › arrows when boxed in | When every side pair of a bundle is blocked and no detour of two bends gets past (Pay right of Explore, level with Launch, with Partner, licenses and Nordvia Bank around), the arrow is drawn straight through the box in the way. | open (needs a router with more bends, such as a visibility graph) |
+| 126 | Studio canvas › glyphs | "→" in a message ("EUR → USD today") draws as a missing glyph; the canvas fonts lack it, as they lack Ethiopic (#116). | open |
+| 127 | Studio canvas › placeholders | SegmentedButton, SecurePinPad, CurrencyPicker and MapView draw as grey boxes on the canvas instead of a likeness. | open |
+| 128 | Apply Register › ex-org | On the organisation page the collapsing header shows no organisation name and the registration button has no label on the canvas. | open (to check whether the page, the compiler or the canvas drops them) |
