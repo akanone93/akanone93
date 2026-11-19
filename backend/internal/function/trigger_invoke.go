@@ -98,19 +98,33 @@ func (i *Invoker) InvokeServer(ctx context.Context, c ServerCall) (Result, error
 // serverAllowed refuses a function whose declaration asks for what a
 // trigger cannot present.
 func (i *Invoker) serverAllowed(ctx context.Context, c ServerCall, decl Declaration) error {
+	return triggerReaches(c.Function, decl, func() (string, error) {
+		return i.o.DefaultAssurance(ctx, c.AppID, c.EnvironmentID)
+	})
+}
+
+// triggerReaches refuses, with PLX-6002, a function that a schedule or a
+// webhook can never run: one that needs a device (SCA or attestation), or an
+// assurance other than AL0, which is what a trigger runs at (SEC-080,
+// ADR-0081). defaultAssurance gives the environment's defaultFunctionAssurance
+// for a declaration that names none. The invocation of a trigger applies it,
+// and so does the creation of a trigger and every move of an alias a trigger
+// calls, so a trigger that could never run is refused when it is made
+// (build log #157).
+func triggerReaches(function string, decl Declaration, defaultAssurance func() (string, error)) error {
 	if decl.SCA || decl.Attestation {
-		return plxerr.New(plxerr.AssuranceInsufficient, "the function %s needs a device (sca or attestation), and a trigger has none", c.Function)
+		return plxerr.New(plxerr.AssuranceInsufficient, "the function %s needs a device (sca or attestation), and a trigger has none", function)
 	}
 	need := decl.Assurance
 	if need == "" {
 		var err error
-		if need, err = i.o.DefaultAssurance(ctx, c.AppID, c.EnvironmentID); err != nil {
+		if need, err = defaultAssurance(); err != nil {
 			return err
 		}
 	}
 	if device.Level(need).Rank() != 0 {
 		return plxerr.New(plxerr.AssuranceInsufficient,
-			"the function %s needs assurance %s; a trigger runs at AL0, so declare assurance AL0 for a function a trigger may call", c.Function, need)
+			"the function %s needs assurance %s; a trigger runs at AL0, so declare assurance AL0 for a function a trigger may call", function, need)
 	}
 	return nil
 }

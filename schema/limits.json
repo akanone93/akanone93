@@ -2381,6 +2381,24 @@
       "description": "Depth of nested function-to-function calls within one invocation."
     },
     {
+      "key": "function.devBuildCacheSize",
+      "unit": "bytes",
+      "default": 2147483648,
+      "max": 68719476736,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "cli"
+      ],
+      "phase": "P11",
+      "requirements": [
+        "FN-019",
+        "FN-030"
+      ],
+      "description": "Size of the compiled dependencies that development builds on a developer's machine keep between builds (plux fn build, plux fn test); the cache is emptied when a build leaves it larger."
+    },
+    {
       "key": "function.deviceMemory",
       "unit": "bytes",
       "default": 33554432,

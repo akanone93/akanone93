@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/fs"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -70,13 +71,20 @@ func (s *Service) ListMissingCrates(ctx context.Context, p auth.Principal, appID
 			return failure(err, "function crates")
 		}
 		have := make(map[string]bool, len(rows))
+		present := make([][]byte, 0, len(rows))
 		for _, r := range rows {
 			have[hex.EncodeToString(r.Sha256)] = true
+			present = append(present, r.Sha256)
 		}
 		for _, sum := range order {
 			if !have[sum] {
 				missing = append(missing, sum)
 			}
+		}
+		// A deploy that is told an archive is held relies on it: it is not
+		// removed for crateRetention (build log #163).
+		if err := q.TouchFunctionCrates(ctx, dbgen.TouchFunctionCratesParams{OrganizationID: org, Sums: present}); err != nil {
+			return failure(err, "function crates")
 		}
 		return nil
 	})
@@ -128,11 +136,18 @@ func (s *Service) UploadCrate(ctx context.Context, p auth.Principal, appID, sha 
 	if err != nil {
 		return false, fmt.Errorf("function: %w", err)
 	}
-	if _, err := s.o.Objects.Put(ctx, key, data, crateMediaType); err != nil {
-		return false, fmt.Errorf("function: store a crate archive: %w", err)
-	}
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		n, err := dbgen.New(tx).InsertFunctionCrate(ctx, dbgen.InsertFunctionCrateParams{
+		q := dbgen.New(tx)
+		// The bytes are stored and the row written under the archive's
+		// lock, which the clean-up takes too, so it cannot remove bytes an
+		// organisation is just storing (build log #163).
+		if err := q.LockFunction(ctx, crateLock(sha)); err != nil {
+			return fmt.Errorf("function: lock a crate archive: %w", err)
+		}
+		if _, err := s.o.Objects.Put(ctx, key, data, crateMediaType); err != nil {
+			return fmt.Errorf("function: store a crate archive: %w", err)
+		}
+		n, err := q.InsertFunctionCrate(ctx, dbgen.InsertFunctionCrateParams{
 			OrganizationID: org, Sha256: sum[:], ObjectKey: key, SizeBytes: int64(len(data)), CreatedBy: createdBy(p),
 		})
 		if err != nil {
@@ -253,9 +268,11 @@ func checkSourceCrates(ctx context.Context, q *dbgen.Queries, org pgtype.UUID, l
 	return nil
 }
 
-// insertSourceCrates records the crates a stored source depends on.
+// insertSourceCrates records the crates a stored source depends on, and
+// marks them used.
 func insertSourceCrates(ctx context.Context, q *dbgen.Queries, src dbgen.FunctionSource, locked []builder.LockedCrate) error {
 	done := map[string]bool{}
+	sums := make([][]byte, 0, len(locked))
 	for _, c := range locked {
 		if done[c.Checksum] {
 			continue
@@ -269,6 +286,10 @@ func insertSourceCrates(ctx context.Context, q *dbgen.Queries, src dbgen.Functio
 		if err != nil {
 			return failure(err, "function source crate")
 		}
+		sums = append(sums, sum)
+	}
+	if err := q.TouchFunctionCrates(ctx, dbgen.TouchFunctionCratesParams{OrganizationID: src.OrganizationID, Sums: sums}); err != nil {
+		return failure(err, "function crates")
 	}
 	return nil
 }
@@ -284,4 +305,70 @@ func sourceCrates(ctx context.Context, q *dbgen.Queries, sourceID pgtype.UUID) (
 		out = append(out, CrateRef{SHA256: hex.EncodeToString(r.Sha256), ObjectKey: r.ObjectKey})
 	}
 	return out, nil
+}
+
+// crateRetention is how long an archive no stored source names is kept
+// after the organisation last needed it: long enough for a deploy that was
+// told the archive is held to finish, and for a function removed by mistake
+// to come back without sending its crates again.
+const crateRetention = 7 * 24 * time.Hour
+
+// crateLock is the lock under which an archive's bytes are stored and
+// removed.
+func crateLock(sha string) string { return "function:crate:" + sha }
+
+// PurgeCrates removes the crate archives of an organisation that no stored
+// source names and that nobody has needed for crateRetention, and removes
+// the bytes of each from the object store when no organisation holds it any
+// more (ADR-0105, build log #163). It returns how many archives the
+// organisation gave up.
+func (s *Service) PurgeCrates(ctx context.Context, org string) (int64, error) {
+	var removed []dbgen.PurgeFunctionCratesRow
+	err := s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		removed, err = dbgen.New(tx).PurgeFunctionCrates(ctx, dbgen.PurgeFunctionCratesParams{
+			OrganizationID: storage.MustUUID(org), LastUsedAt: storage.Timestamp(s.o.Now().Add(-crateRetention)),
+		})
+		if err != nil {
+			return failure(err, "function crates")
+		}
+		if len(removed) == 0 {
+			return nil
+		}
+		return s.record(ctx, tx, auth.System(org), audit.FunctionCratesPurged, "function_crate", org,
+			fmt.Sprintf("%d crate archives no stored source names, unused for %s", len(removed), crateRetention))
+	})
+	if err != nil {
+		return 0, err
+	}
+	for _, r := range removed {
+		if err := s.dropCrateBytes(ctx, r.Sha256, r.ObjectKey); err != nil {
+			return int64(len(removed)), err
+		}
+	}
+	return int64(len(removed)), nil
+}
+
+// dropCrateBytes removes an archive's bytes from the object store unless an
+// organisation still holds the archive. It holds the archive's lock, so an
+// upload of the same archive waits for it or is seen by it.
+func (s *Service) dropCrateBytes(ctx context.Context, sum []byte, key string) error {
+	sha := hex.EncodeToString(sum)
+	return s.inTenant(ctx, storage.Tenant{Scope: storage.ScopeCrateStore}, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		if err := q.LockFunction(ctx, crateLock(sha)); err != nil {
+			return fmt.Errorf("function: lock a crate archive: %w", err)
+		}
+		held, err := q.FunctionCrateHeld(ctx, sum)
+		if err != nil {
+			return failure(err, "function crates")
+		}
+		if held {
+			return nil
+		}
+		if err := s.o.Objects.Delete(ctx, key); err != nil {
+			return fmt.Errorf("function: remove the crate archive %s: %w", sha, err)
+		}
+		return nil
+	})
 }

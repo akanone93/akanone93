@@ -104,6 +104,27 @@ func (q *Queries) ClaimDueDeliveries(ctx context.Context, arg ClaimDueDeliveries
 	return items, nil
 }
 
+const countFunctionTriggersOnAlias = `-- name: CountFunctionTriggersOnAlias :one
+SELECT (SELECT count(*) FROM function_triggers t
+        WHERE t.environment_id = $1 AND t.function_name = $2 AND t.alias = $3)
+     + (SELECT count(*) FROM function_hooks h
+        WHERE h.environment_id = $1 AND h.function_name = $2 AND h.alias = $3)
+       AS n
+`
+
+type CountFunctionTriggersOnAliasParams struct {
+	EnvironmentID pgtype.UUID
+	FunctionName  string
+	Alias         string
+}
+
+func (q *Queries) CountFunctionTriggersOnAlias(ctx context.Context, arg CountFunctionTriggersOnAliasParams) (int32, error) {
+	row := q.db.QueryRow(ctx, countFunctionTriggersOnAlias, arg.EnvironmentID, arg.FunctionName, arg.Alias)
+	var n int32
+	err := row.Scan(&n)
+	return n, err
+}
+
 const countUnreadNotifications = `-- name: CountUnreadNotifications :one
 SELECT count(*) FROM notifications WHERE user_id = $1 AND read_at IS NULL
 `

@@ -61,6 +61,12 @@ type Options struct {
 	Signer ArtifactSigner
 	// Limits returns the limits in force for an app (LIM-001).
 	Limits func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error)
+	// DefaultAssurance returns an environment's defaultFunctionAssurance
+	// (SEC-007), which applies to a function that declares no assurance.
+	// It lets the creation of a trigger and the move of an alias a trigger
+	// calls refuse a function no trigger can run (build log #157); nil
+	// leaves such a function to the check at every run.
+	DefaultAssurance func(ctx context.Context, appID, environmentID string) (string, error)
 	// DeviceFunctions returns the environment's effective security setting
 	// deviceFunctions (FN-055); nil reads it as false, the deny-by-default
 	// answer (SEC-080).

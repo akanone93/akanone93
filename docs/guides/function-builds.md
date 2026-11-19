@@ -48,7 +48,8 @@ For each build the pipeline:
    each is stored once, under its SHA-256 ([ADR-0105](../adr/0105-function-dependencies-as-verified-crates.md)).
    The builder checks every archive's SHA-256 against `Cargo.lock`, refuses anything unexpected in
    it (a path outside `<name>-<version>/`, a link, its own checksum file, a manifest naming another
-   crate) and makes `vendor/` itself, with the checksums Cargo verifies.
+   crate) and makes `vendor/` itself, with the checksums Cargo verifies. Archives no stored source
+   names and nobody needed for a week are removed; their bytes go once no organisation holds them.
 2. Wraps your crate in a generated crate, `plux-module`, that emits the ABI exports with a
    dispatch table ([ABI](../functions/abi.md)) and checks your handler's placement.
 3. Resolves the dependencies from the lock file and checks every build script and procedural

@@ -1274,6 +1274,16 @@ export const limits = [
     description: "Depth of nested function-to-function calls within one invocation.",
   },
   {
+    key: "function.devBuildCacheSize",
+    unit: "bytes",
+    default: 2147483648,
+    warning: 0,
+    max: 68719476736,
+    scopes: ["installation"],
+    phase: "P11",
+    description: "Size of the compiled dependencies that development builds on a developer's machine keep between builds (plux fn build, plux fn test); the cache is emptied when a build leaves it larger.",
+  },
+  {
     key: "function.deviceMemory",
     unit: "bytes",
     default: 33554432,

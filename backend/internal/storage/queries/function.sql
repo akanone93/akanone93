@@ -17,6 +17,19 @@ SELECT sha256, object_key, size_bytes FROM function_crates
 WHERE organization_id = $1 AND sha256 = ANY(sqlc.arg(sums)::bytea[])
 ORDER BY sha256;
 
+-- name: TouchFunctionCrates :exec
+UPDATE function_crates SET last_used_at = now()
+WHERE organization_id = $1 AND sha256 = ANY(sqlc.arg(sums)::bytea[]);
+
+-- name: PurgeFunctionCrates :many
+DELETE FROM function_crates c
+WHERE c.organization_id = $1 AND c.last_used_at < $2
+  AND NOT EXISTS (SELECT 1 FROM function_source_crates sc WHERE sc.organization_id = c.organization_id AND sc.sha256 = c.sha256)
+RETURNING c.sha256, c.object_key;
+
+-- name: FunctionCrateHeld :one
+SELECT EXISTS (SELECT 1 FROM function_crates WHERE sha256 = $1);
+
 -- name: InsertFunctionSourceCrate :exec
 INSERT INTO function_source_crates (source_id, organization_id, sha256) VALUES ($1, $2, $3);
 

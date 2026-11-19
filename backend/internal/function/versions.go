@@ -103,8 +103,8 @@ func (s *Service) insertVersion(ctx context.Context, tx pgx.Tx, p auth.Principal
 	}
 	detail := fmt.Sprintf("function %s, version %d, build %s, module %x", row.Name, next, storage.ID(row.ID), row.ModuleSha256)
 	if alias != "" {
-		if _, err := q.UpsertFunctionAlias(ctx, aliasParams(p, v, alias)); err != nil {
-			return Version{}, failure(err, "function alias")
+		if err := s.pointAlias(ctx, q, p, v, alias); err != nil {
+			return Version{}, err
 		}
 		detail += ", alias " + alias
 	}
@@ -261,8 +261,8 @@ func (s *Service) copyVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 		return Version{}, fmt.Errorf("function: read a version: %w", err)
 	}
 	if alias != "" {
-		if _, err := q.UpsertFunctionAlias(ctx, aliasParams(p, v, alias)); err != nil {
-			return Version{}, failure(err, "function alias")
+		if err := s.pointAlias(ctx, q, p, v, alias); err != nil {
+			return Version{}, err
 		}
 		if held {
 			detail := fmt.Sprintf("function %s, alias %s, version %d", src.Name, alias, src.Version)
@@ -305,8 +305,8 @@ func (s *Service) SetAlias(ctx context.Context, p auth.Principal, appID, environ
 		}); err != nil {
 			return err
 		}
-		if _, err := q.UpsertFunctionAlias(ctx, aliasParams(p, v, alias)); err != nil {
-			return failure(err, "function alias")
+		if err := s.pointAlias(ctx, q, p, v, alias); err != nil {
+			return err
 		}
 		detail := fmt.Sprintf("function %s, alias %s, version %d", name, alias, version)
 		if err := s.record(ctx, tx, p, audit.FunctionAliasSet, "function", storage.ID(env.ID)+"/"+name, detail); err != nil {

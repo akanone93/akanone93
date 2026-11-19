@@ -116,6 +116,10 @@ func buildScheduler(svc *Services, log *slog.Logger, db *storage.DB) (*scheduler
 			scheduler.JobFunc{Label: "function hook purge", F: func(ctx context.Context, org string) error {
 				_, err := svc.Functions.PurgeHooks(ctx, org)
 				return err //nolint:wrapcheck // a domain error
+			}},
+			scheduler.JobFunc{Label: "function crate purge", F: func(ctx context.Context, org string) error {
+				_, err := svc.Functions.PurgeCrates(ctx, org)
+				return err //nolint:wrapcheck // a domain error
 			}})
 	}
 	if svc.Replays != nil {

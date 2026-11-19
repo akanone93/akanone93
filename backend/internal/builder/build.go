@@ -76,6 +76,20 @@ type Config struct {
 	Limits Limits
 	// SourceBytes bounds the sources of one build (function.sourceArchiveSize).
 	SourceBytes int64
+	// CacheDir, when set, keeps the workspace, Cargo home and target
+	// directory of builds there, at paths that do not change, so a build
+	// reuses the dependencies an earlier one compiled; empty builds each
+	// time from scratch. Only a development build on the developer's own
+	// machine may use it (Sandbox NoSandbox): sandboxed builds share no
+	// writable state (build log #164). Builds take the cache in turn; one
+	// that finds it in use builds from scratch. The module is the same
+	// either way (FN-019); Options.Verify builds its second copy from
+	// scratch to prove it.
+	CacheDir string
+	// CacheBytes bounds CacheDir: after a build that leaves its target
+	// directory larger, the target directory is emptied
+	// (function.devBuildCacheSize).
+	CacheBytes int64
 	// Getenv reads the builder's own environment; nil means os.Getenv.
 	Getenv func(string) string
 }
@@ -102,6 +116,11 @@ func New(cfg Config) (*Builder, error) {
 		return nil, errors.New("builder.New: the wasm-opt command is required")
 	case cfg.Limits.Wall <= 0 || cfg.Limits.OutputBytes <= 0 || cfg.SourceBytes <= 0:
 		return nil, errors.New("builder.New: the wall time, output and source limits are required (LIM-001)")
+	case cfg.CacheDir != "" && cfg.CacheBytes <= 0:
+		return nil, errors.New("builder.New: a cache needs its size limit (function.devBuildCacheSize)")
+	}
+	if _, unsandboxed := cfg.Sandbox.(NoSandbox); cfg.CacheDir != "" && !unsandboxed {
+		return nil, errors.New("builder.New: a build cache is for development builds only; sandboxed builds share no writable state")
 	}
 	if cfg.Getenv == nil {
 		cfg.Getenv = os.Getenv
@@ -144,6 +163,9 @@ type run struct {
 	scratch string
 	paths   envPaths
 	env     []string
+	// cachedTarget is the target directory in the cache when this build
+	// holds the cache, and "" otherwise.
+	cachedTarget string
 }
 
 // Build compiles the functions into one module and returns it with its
@@ -155,7 +177,7 @@ func (b *Builder) Build(ctx context.Context, srcs []FunctionSource, opts Options
 	if err != nil {
 		return nil, err
 	}
-	r, cleanup, err := b.newRun()
+	r, cleanup, err := b.newRun(true)
 	if err != nil {
 		return nil, err
 	}
@@ -168,9 +190,18 @@ func (b *Builder) Build(ctx context.Context, srcs []FunctionSource, opts Options
 	if err := r.checkWasmOpt(ctx); err != nil {
 		return nil, err
 	}
-	staged, err := stageWorkspace(r.paths.Workspace, b.sdk, funcs, b.cfg.SourceBytes)
+	stageRoot := r.paths.Workspace
+	if r.cachedTarget != "" {
+		stageRoot = filepath.Join(r.scratch, "ws")
+	}
+	staged, err := stageWorkspace(stageRoot, b.sdk, funcs, b.cfg.SourceBytes)
 	if err != nil {
 		return nil, err
+	}
+	if r.cachedTarget != "" {
+		if err := syncTree(stageRoot, r.paths.Workspace); err != nil {
+			return nil, fmt.Errorf("builder.Build: update the cached workspace: %w", err)
+		}
 	}
 	deps, err := r.resolve(ctx, funcs)
 	if err != nil {
@@ -186,6 +217,9 @@ func (b *Builder) Build(ctx context.Context, srcs []FunctionSource, opts Options
 	module, err := r.artifact(ctx, opts.Verify)
 	if err != nil {
 		return nil, err
+	}
+	if r.cachedTarget != "" {
+		pruneCache(r.cachedTarget, b.cfg.CacheBytes)
 	}
 	return &Artifact{
 		Module:       module,
@@ -216,8 +250,43 @@ func describe(funcs []preparedFunction, schemas []FunctionSchemas) []Function {
 	return out
 }
 
-// newRun creates the scratch directory and the environment of a build.
-func (b *Builder) newRun() (*run, func(), error) {
+// newRun creates the scratch directory and the environment of a build. With
+// cached, and a CacheDir that is free, the workspace, Cargo home and home are
+// the cache's, at paths that do not change between builds, so Cargo's
+// fingerprints match and compiled dependencies are reused; the cache is held
+// until the returned function runs.
+func (b *Builder) newRun(cached bool) (*run, func(), error) {
+	r, cleanup, err := b.newScratchRun()
+	if err != nil || !cached || b.cfg.CacheDir == "" {
+		return r, cleanup, err
+	}
+	dir, err := filepath.Abs(b.cfg.CacheDir)
+	if err != nil || strings.IndexFunc(dir, unicode.IsSpace) >= 0 {
+		// A path RUSTFLAGS cannot carry builds from scratch.
+		return r, cleanup, nil //nolint:nilerr // the cache is an optimisation; the build goes on without it
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return r, cleanup, nil //nolint:nilerr // as above
+	}
+	unlock, held := tryLock(filepath.Join(dir, "lock"))
+	if !held {
+		return r, cleanup, nil
+	}
+	p := r.paths
+	p.Workspace, p.CargoHome, p.Home = filepath.Join(dir, "ws"), filepath.Join(dir, "cargo"), filepath.Join(dir, "home")
+	for _, d := range []string{p.Workspace, p.CargoHome, p.Home} {
+		if err := os.MkdirAll(d, 0o700); err != nil {
+			unlock()
+			return r, cleanup, nil //nolint:nilerr // as above
+		}
+	}
+	r.paths, r.env, r.cachedTarget = p, buildEnv(b.cfg.Getenv, p), filepath.Join(dir, sharedTarget)
+	return r, func() { unlock(); cleanup() }, nil
+}
+
+// newScratchRun creates a run whose directories are all in a new scratch
+// directory.
+func (b *Builder) newScratchRun() (*run, func(), error) {
 	scratch, err := os.MkdirTemp(b.cfg.TempDir, "plux-build-")
 	if err != nil {
 		return nil, nil, fmt.Errorf("builder.Build: scratch directory: %w", err)
@@ -389,10 +458,19 @@ func (r *run) checkBuildCode(ctx context.Context, deps []Dependency) error {
 	return checkAllowlist(meta.Stdout, built, checksums, r.b.cfg.Allowlist)
 }
 
+// sharedTarget is the target directory the schema build and the artefact
+// build of one Build share: the dependencies compiled for the schema build
+// are reused by the artefact build, which recompiles only what the feature
+// plux-schema changes. Nothing is shared between Build calls.
+const sharedTarget = "target"
+
 // compile builds the wrapper into a target directory and returns the raw
 // module; with schema it enables the feature plux-schema (FN-004).
 func (r *run) compile(ctx context.Context, name string, schema bool) ([]byte, error) {
 	target := filepath.Join(r.scratch, name)
+	if name == sharedTarget && r.cachedTarget != "" {
+		target = r.cachedTarget
+	}
 	args := []string{
 		"build", "--release", "--locked", "--offline", "--frozen",
 		"--target", wasmTarget, "-p", moduleName, "--target-dir", target,
@@ -413,7 +491,7 @@ func (r *run) compile(ctx context.Context, name string, schema bool) ([]byte, er
 // deriveSchemas builds the module with plux-schema, runs it through the
 // SchemaReader and returns the canonical schema of every function (FN-004).
 func (r *run) deriveSchemas(ctx context.Context, funcs []preparedFunction) ([]FunctionSchemas, error) {
-	raw, err := r.compile(ctx, "target-schema", true)
+	raw, err := r.compile(ctx, sharedTarget, true)
 	if err != nil {
 		return nil, err
 	}
@@ -444,11 +522,13 @@ func (r *run) deriveSchemas(ctx context.Context, funcs []preparedFunction) ([]Fu
 // verify it does so twice into separate target directories and compares the
 // bytes (FN-019, PLX-7206).
 func (r *run) artifact(ctx context.Context, verify bool) ([]byte, error) {
-	first, err := r.compileAndOptimise(ctx, "target-a")
+	first, err := r.compileAndOptimise(ctx, sharedTarget)
 	if err != nil || !verify {
 		return first, err
 	}
-	second, err := r.compileAndOptimise(ctx, "target-b")
+	// The second build starts from an empty target directory, so Verify also
+	// proves that reusing the schema build's dependencies changed nothing.
+	second, err := r.compileAndOptimise(ctx, "target-fresh")
 	if err != nil {
 		return nil, err
 	}
@@ -492,4 +572,126 @@ func (r *run) optimise(ctx context.Context, name string, raw []byte) ([]byte, er
 		return nil, plxerr.Wrap(plxerr.FunctionBuildFailed, err, "wasm-opt produced no module")
 	}
 	return opt, nil
+}
+
+// pruneCache empties a cached target directory that has grown beyond most
+// bytes, so the cache stays bounded (function.devBuildCacheSize); the next
+// build fills it again with what it needs.
+func pruneCache(target string, most int64) {
+	var size int64
+	_ = filepath.WalkDir(target, func(_ string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil //nolint:nilerr // a file that vanished counts as nothing
+		}
+		if info, err := d.Info(); err == nil {
+			size += info.Size()
+		}
+		return nil
+	})
+	if size > most {
+		_ = os.RemoveAll(target)
+	}
+}
+
+// syncTree makes dst hold exactly the files of src. A file whose bytes are
+// already in dst is left as it is, so its modification time, which Cargo
+// compares for path and vendored packages, does not change and what was
+// compiled from it is reused; a changed file is written; everything dst holds
+// beyond src is removed, so no crate of an earlier build is left in vendor/.
+// Both trees are opened as roots, so no symbolic link can lead a write or a
+// removal outside them.
+func syncTree(src, dst string) error {
+	from, err := os.OpenRoot(src)
+	if err != nil {
+		return fmt.Errorf("open %s: %w", src, err)
+	}
+	defer func() { _ = from.Close() }()
+	to, err := os.OpenRoot(dst)
+	if err != nil {
+		return fmt.Errorf("open %s: %w", dst, err)
+	}
+	defer func() { _ = to.Close() }()
+	want, err := copyChanged(from, to)
+	if err != nil {
+		return err
+	}
+	return removeExtra(to, want)
+}
+
+// copyChanged writes into to every file of from that to does not already
+// hold with the same bytes, and returns the paths of from.
+func copyChanged(from, to *os.Root) (map[string]bool, error) {
+	want := map[string]bool{".": true}
+	err := fs.WalkDir(from.FS(), ".", func(rel string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		want[rel] = true
+		if d.IsDir() {
+			return ensureDir(to, rel)
+		}
+		data, err := from.ReadFile(rel)
+		if err != nil {
+			return err //nolint:wrapcheck // wrapped below
+		}
+		return writeIfChanged(to, rel, data)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("copy the workspace: %w", err)
+	}
+	return want, nil
+}
+
+// ensureDir makes rel a directory in root, replacing a file of that name.
+func ensureDir(root *os.Root, rel string) error {
+	if info, err := root.Lstat(rel); err == nil && !info.IsDir() {
+		if err := root.RemoveAll(rel); err != nil {
+			return err //nolint:wrapcheck // wrapped by the caller
+		}
+	}
+	return root.MkdirAll(rel, 0o750) //nolint:wrapcheck // wrapped by the caller
+}
+
+// writeIfChanged writes data to rel in root unless a regular file with the
+// same bytes is already there.
+func writeIfChanged(root *os.Root, rel string, data []byte) error {
+	if info, err := root.Lstat(rel); err == nil {
+		if info.Mode().IsRegular() {
+			if old, err := root.ReadFile(rel); err == nil && bytes.Equal(old, data) {
+				return nil
+			}
+		}
+		if err := root.RemoveAll(rel); err != nil {
+			return err //nolint:wrapcheck // wrapped by the caller
+		}
+	}
+	return root.WriteFile(rel, data, 0o600) //nolint:wrapcheck // wrapped by the caller
+}
+
+// removeExtra removes from root every path not in want.
+func removeExtra(root *os.Root, want map[string]bool) error {
+	var extra []string
+	err := fs.WalkDir(root.FS(), ".", func(rel string, d fs.DirEntry, err error) error {
+		switch {
+		case err != nil:
+			return err
+		case want[rel]:
+			return nil
+		case d.IsDir():
+			extra = append(extra, rel)
+			return fs.SkipDir
+		default:
+			extra = append(extra, rel)
+			return nil
+		}
+	})
+	if err != nil {
+		return fmt.Errorf("list the cached workspace: %w", err)
+	}
+	for _, rel := range extra {
+		if err := root.RemoveAll(rel); err != nil {
+			return fmt.Errorf("remove %s from the cached workspace: %w", rel, err)
+		}
+	}
+	return nil
 }

@@ -6,13 +6,22 @@ package function_test
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
+	"errors"
 	"slices"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/nightCode42/plux3/backend/internal/function"
 
 	"github.com/nightCode42/plux3/backend/internal/function/functiontest"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 )
 
 // Verifies: FN-003, FN-016.
@@ -115,5 +124,65 @@ func TestSourceNeedsItsCrates_FN_003(t *testing.T) {
 	calls := w.builder.calls
 	if len(calls) != 1 || len(calls[0].Crates) != 1 || calls[0].Crates[0].SHA256 != serde.SHA256() {
 		t.Errorf("the build was given %+v", calls)
+	}
+}
+
+// Verifies: FN-003.
+// The crate archives an organisation no longer uses — no stored source names
+// them and nobody needed them for a week — are removed; their bytes go from
+// the object store unless another organisation still holds them (build log
+// #163). An archive a source names is kept however old.
+func TestUnusedCrateArchivesAreRemoved_FN_003(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	w := newWorld(t, nil, nil)
+	used := functiontest.NewCrate("serde", "1.0.229", "// serde\n")
+	shared := functiontest.NewCrate("itoa", "1.0.18", "// itoa\n")
+	alone := functiontest.NewCrate("memchr", "2.8.3", "// memchr\n")
+	for _, c := range []functiontest.Crate{used, shared, alone} {
+		if _, err := w.svc.UploadCrate(ctx, w.developer, w.app, c.SHA256(), bytes.NewReader(c.Archive)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := w.svc.UploadSource(ctx, w.developer, w.app, w.envs["development"], fnName, bytes.NewReader(functiontest.SourceArchive("uses serde", used))); err != nil {
+		t.Fatal(err)
+	}
+	o2, err := w.tenancy.CreateOrganization(ctx, w.adminID, "beta", "Beta")
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := func(c functiontest.Crate) string {
+		k, err := objects.Key(objects.KindCrate, c.SHA256())
+		if err != nil {
+			t.Fatal(err)
+		}
+		return k
+	}
+	err = w.db.InTx(ctx, storage.Tenant{OrganizationID: o2.ID}, func(ctx context.Context, tx pgx.Tx) error {
+		sum, _ := hex.DecodeString(shared.SHA256())
+		_, err := tx.Exec(ctx, `INSERT INTO function_crates (organization_id, sha256, object_key, size_bytes) VALUES ($1, $2, $3, $4)`,
+			o2.ID, sum, key(shared), len(shared.Archive))
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if n, err := w.svc.PurgeCrates(ctx, w.org); err != nil || n != 0 {
+		t.Fatalf("archives used today were removed: %d %v", n, err)
+	}
+	later := w.service(t, func(o *function.Options) { o.Now = func() time.Time { return time.Now().Add(8 * 24 * time.Hour) } })
+	if n, err := later.PurgeCrates(ctx, w.org); err != nil || n != 2 {
+		t.Fatalf("PurgeCrates removed %d archives (%v); want the two no source names", n, err)
+	}
+	missing, err := w.svc.ListMissingCrates(ctx, w.developer, w.app, []string{used.SHA256(), shared.SHA256(), alone.SHA256()})
+	if err != nil || !slices.Equal(missing, []string{shared.SHA256(), alone.SHA256()}) {
+		t.Errorf("after the clean-up the organisation lacks %v (%v); want itoa and memchr", missing, err)
+	}
+	for c, kept := range map[string]bool{key(used): true, key(shared): true, key(alone): false} {
+		_, err := w.store.Stat(ctx, c)
+		if kept && err != nil || !kept && !errors.Is(err, objects.ErrNotFound) {
+			t.Errorf("%s: kept %v, stat %v", c, kept, err)
+		}
 	}
 }

@@ -109,6 +109,13 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 		Limits: func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error) {
 			return ten.Effective(ctx, tx, organizationID, appID, "") //nolint:wrapcheck // a domain error
 		},
+		DefaultAssurance: func(ctx context.Context, appID, environmentID string) (string, error) {
+			values, _, err := configs.Effective(ctx, appID, environmentID)
+			if err != nil {
+				return "", err //nolint:wrapcheck // a domain error
+			}
+			return values.Get(settings.DefaultFunctionAssurance).Text(), nil
+		},
 	}
 	if link != nil {
 		// FN-023: a deploy asks the runner to compile the module, so the

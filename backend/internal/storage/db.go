@@ -146,6 +146,10 @@ const (
 	// by its identifier alone: the files are signed and public, and a
 	// device fetches them before it can authenticate (SEC-050).
 	ScopeMetadata Scope = "metadata"
+	// ScopeCrateStore lets the clean-up of function crate archives see
+	// whether any organisation still holds an archive before it removes the
+	// bytes they share (ADR-0105); it reads function_crates and nothing else.
+	ScopeCrateStore Scope = "crate_store"
 	// ScopeHook lets an inbound function hook be found by its app and
 	// function name before its organisation is known; the request is
 	// then rescoped to that organisation (FN-025). Only function_hooks

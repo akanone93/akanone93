@@ -381,6 +381,11 @@ const (
 	// FunctionCallDepth: Depth of nested function-to-function calls within one
 	// invocation. (FN-011)
 	FunctionCallDepth Key = "function.callDepth"
+	// FunctionDevBuildCacheSize: Size of the compiled dependencies that
+	// development builds on a developer's machine keep between builds (plux fn
+	// build, plux fn test); the cache is emptied when a build leaves it larger.
+	// (FN-019, FN-030)
+	FunctionDevBuildCacheSize Key = "function.devBuildCacheSize"
 	// FunctionDeviceMemory: Linear memory one device function invocation may
 	// use. (FN-053)
 	FunctionDeviceMemory Key = "function.deviceMemory"
@@ -847,6 +852,7 @@ var registry = [...]Definition{
 	{Key: FunctionBuildMemory, Unit: UnitBytes, Default: 4294967296, Warning: 0, Max: 17179869184, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Memory one function build may use."},
 	{Key: FunctionBuildTimeout, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one function build may run."},
 	{Key: FunctionCallDepth, Unit: UnitCount, Default: 3, Warning: 0, Max: 3, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Depth of nested function-to-function calls within one invocation."},
+	{Key: FunctionDevBuildCacheSize, Unit: UnitBytes, Default: 2147483648, Warning: 0, Max: 68719476736, Scopes: ScopeInstallation, EnforcedBy: EnforcerCli, Phase: "P11", Description: "Size of the compiled dependencies that development builds on a developer's machine keep between builds (plux fn build, plux fn test); the cache is emptied when a build leaves it larger."},
 	{Key: FunctionDeviceMemory, Unit: UnitBytes, Default: 33554432, Warning: 0, Max: 134217728, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P7", Description: "Linear memory one device function invocation may use."},
 	{Key: FunctionDeviceTimeout, Unit: UnitMilliseconds, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P7", Description: "Wall-clock time one device function invocation may run."},
 	{Key: FunctionHTTPCalls, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Outbound HTTP calls one server function invocation may make."},

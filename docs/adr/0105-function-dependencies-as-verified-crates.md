@@ -89,6 +89,13 @@ package never runs code at build time — (b) be a listed version, and (c) have 
 pinned checksum; otherwise `PLX-7202`. Because vendor/ is made only from archives whose SHA-256
 is the lock file's checksum, (c) means the code that runs is the published code.
 
+**Clean-up.** A per-organisation job removes the organisation's archives that no stored source
+names and that nobody needed for a week (`last_used_at`, set when an archive is sent, when a deploy
+is told the organisation holds it, and when a source names it), and removes an archive's bytes
+from the object store only when no organisation holds it any more — checked in the read-only
+`crate_store` scope, under a per-archive lock that the upload takes too, so bytes being stored are
+never removed. Each run that removes archives is audited (`function.crates_purged`).
+
 **Provenance.** The dependency list keeps name, version and checksum; each checksum is now the
 SHA-256 of the archive actually built, verified by the builder.
 
@@ -108,8 +115,8 @@ removed. Native tests of all functions share one build directory, `functions/.ta
   deploy uploads the new form. The API process now parses the lock file of an uploaded
   archive (bounded, with the builder's hardened extractor).
 - **Follow-up:** module builds reuse compiled dependencies — locally first, then per
-  organisation once this ADR is in place (build log #161, own ADR). A crate store per
-  organisation has no clean-up yet: archives a deleted source no longer names stay stored.
+  organisation once builds are isolated from one another on the builder's filesystem
+  (build log #161, #164, own ADR).
 
 ## Options in detail
 

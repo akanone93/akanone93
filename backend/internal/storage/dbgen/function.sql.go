@@ -79,6 +79,17 @@ func (q *Queries) FailFunctionBuild(ctx context.Context, arg FailFunctionBuildPa
 	return i, err
 }
 
+const functionCrateHeld = `-- name: FunctionCrateHeld :one
+SELECT EXISTS (SELECT 1 FROM function_crates WHERE sha256 = $1)
+`
+
+func (q *Queries) FunctionCrateHeld(ctx context.Context, sha256 []byte) (bool, error) {
+	row := q.db.QueryRow(ctx, functionCrateHeld, sha256)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const functionKVUsage = `-- name: FunctionKVUsage :one
 SELECT count(*)::bigint AS keys,
        coalesce(sum(octet_length(key) + octet_length(value)), 0)::bigint AS total_bytes
@@ -804,6 +815,43 @@ func (q *Queries) NextFunctionVersion(ctx context.Context, arg NextFunctionVersi
 	return version, err
 }
 
+const purgeFunctionCrates = `-- name: PurgeFunctionCrates :many
+DELETE FROM function_crates c
+WHERE c.organization_id = $1 AND c.last_used_at < $2
+  AND NOT EXISTS (SELECT 1 FROM function_source_crates sc WHERE sc.organization_id = c.organization_id AND sc.sha256 = c.sha256)
+RETURNING c.sha256, c.object_key
+`
+
+type PurgeFunctionCratesParams struct {
+	OrganizationID pgtype.UUID
+	LastUsedAt     pgtype.Timestamptz
+}
+
+type PurgeFunctionCratesRow struct {
+	Sha256    []byte
+	ObjectKey string
+}
+
+func (q *Queries) PurgeFunctionCrates(ctx context.Context, arg PurgeFunctionCratesParams) ([]PurgeFunctionCratesRow, error) {
+	rows, err := q.db.Query(ctx, purgeFunctionCrates, arg.OrganizationID, arg.LastUsedAt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PurgeFunctionCratesRow{}
+	for rows.Next() {
+		var i PurgeFunctionCratesRow
+		if err := rows.Scan(&i.Sha256, &i.ObjectKey); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const startFunctionBuild = `-- name: StartFunctionBuild :one
 UPDATE function_builds
    SET state = 'running', started_at = $2
@@ -916,6 +964,21 @@ func (q *Queries) SucceedFunctionBuild(ctx context.Context, arg SucceedFunctionB
 		&i.FinishedAt,
 	)
 	return i, err
+}
+
+const touchFunctionCrates = `-- name: TouchFunctionCrates :exec
+UPDATE function_crates SET last_used_at = now()
+WHERE organization_id = $1 AND sha256 = ANY($2::bytea[])
+`
+
+type TouchFunctionCratesParams struct {
+	OrganizationID pgtype.UUID
+	Sums           [][]byte
+}
+
+func (q *Queries) TouchFunctionCrates(ctx context.Context, arg TouchFunctionCratesParams) error {
+	_, err := q.db.Exec(ctx, touchFunctionCrates, arg.OrganizationID, arg.Sums)
+	return err
 }
 
 const upsertFunctionAlias = `-- name: UpsertFunctionAlias :one

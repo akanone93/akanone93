@@ -315,14 +315,27 @@ func TestBuildsAreBoundedInNumber_FN_016(t *testing.T) {
 		_, err := s.Build(t.Context(), connect.NewRequest(request(good)))
 		first <- err
 	}()
-	<-sb.started
+	// A first build that ends before it reaches the sandbox fails the test
+	// with its own error instead of leaving it waiting (build log #162).
+	select {
+	case <-sb.started:
+	case err := <-first:
+		t.Fatalf("the first build ended before it reached the sandbox (error %v; a source the role refuses comes back as diagnostics, with no error)", err)
+	case <-time.After(time.Minute):
+		t.Fatal("the first build did not reach the sandbox within a minute")
+	}
 	_, err := s.Build(t.Context(), connect.NewRequest(request(good)))
 	if codeOf(err) != connect.CodeResourceExhausted {
 		t.Errorf("the second build: %v; want resource exhausted", err)
 	}
 	close(sb.release)
-	if err := <-first; err == nil {
-		t.Error("the blocked build should have ended with the sandbox's refusal")
+	select {
+	case err := <-first:
+		if err == nil {
+			t.Error("the blocked build should have ended with the sandbox's refusal")
+		}
+	case <-time.After(time.Minute):
+		t.Fatal("the blocked build did not end within a minute of its release")
 	}
 }
 

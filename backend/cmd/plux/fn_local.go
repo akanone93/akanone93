@@ -388,6 +388,21 @@ func newEngine(ctx context.Context, set limits.Set, interpreter bool) (*fnhost.E
 	})
 }
 
+// devBuildCache is where development builds keep the dependencies they
+// compiled, so the next build of any function on this machine reuses them:
+// plux/fn-build in the user's cache directory, readable by the user alone.
+func devBuildCache() (string, error) {
+	dir, err := os.UserCacheDir()
+	if err != nil {
+		return "", fmt.Errorf("find the cache directory: %w", err)
+	}
+	dir = filepath.Join(dir, "plux", "fn-build")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", fmt.Errorf("create %s: %w", dir, err)
+	}
+	return dir, nil
+}
+
 // localBuilder sets up the unsandboxed builder of the development commands:
 // the SDK, the optimiser and the host that reads the schemas. closeFn
 // releases the host.
@@ -404,8 +419,14 @@ func (e env) localBuilder(ctx context.Context, sdkFlag string, set limits.Set) (
 	if err != nil {
 		return nil, nil, err
 	}
+	cache, err := devBuildCache()
+	if err != nil {
+		_ = engine.Close(context.WithoutCancel(ctx))
+		return nil, nil, err
+	}
 	b, err = builder.New(builder.Config{
 		Sandbox: builder.NoSandbox{}, Clock: time.Now, Identity: "plux-cli", SDKDir: sdk, WasmOpt: wasmOpt,
+		CacheDir: cache, CacheBytes: set.Get(limits.FunctionDevBuildCacheSize),
 		Schemas: builder.NewWasmSchemaReader(engine, fnhost.Limits{
 			Timeout: time.Duration(set.Get(limits.FunctionTimeout)) * time.Millisecond, MemoryBytes: uint64(set.Get(limits.FunctionMemory)), //nolint:gosec // G115: registry values are non-negative.
 			OutputBytes: int(set.Get(limits.FunctionOutputSize)), LogBytes: int(set.Get(limits.FunctionLogBytes)),

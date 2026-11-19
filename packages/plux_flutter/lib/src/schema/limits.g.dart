@@ -329,6 +329,10 @@ enum PluxLimit {
   functionBuildTimeout('function.buildTimeout', PluxLimitUnit.milliseconds, 600000, 0, 3600000),
   /// Depth of nested function-to-function calls within one invocation.
   functionCallDepth('function.callDepth', PluxLimitUnit.count, 3, 0, 3),
+  /// Size of the compiled dependencies that development builds on a developer's
+  /// machine keep between builds (plux fn build, plux fn test); the cache is
+  /// emptied when a build leaves it larger.
+  functionDevBuildCacheSize('function.devBuildCacheSize', PluxLimitUnit.bytes, 2147483648, 0, 68719476736),
   /// Linear memory one device function invocation may use.
   functionDeviceMemory('function.deviceMemory', PluxLimitUnit.bytes, 33554432, 0, 134217728),
   /// Wall-clock time one device function invocation may run.

@@ -174,7 +174,10 @@ const (
 	FunctionSourceUploaded Action = "function.source_uploaded"
 	// FunctionCrateUploaded: an organisation sent a published crate archive
 	// for the first time (FN-003, ADR-0105).
-	FunctionCrateUploaded  Action = "function.crate_uploaded"
+	FunctionCrateUploaded Action = "function.crate_uploaded"
+	// FunctionCratesPurged: crate archives an organisation no longer uses
+	// were removed (ADR-0105).
+	FunctionCratesPurged   Action = "function.crates_purged"
 	FunctionBuildRequested Action = "function.build_requested"
 	FunctionBuildFinished  Action = "function.build_finished"
 	FunctionDeployed       Action = "function.deployed"
@@ -492,7 +495,7 @@ var actions = sorted(
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
 	ConfigValueSet, ConfigValueDeleted,
-	FunctionSourceUploaded, FunctionCrateUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
+	FunctionSourceUploaded, FunctionCrateUploaded, FunctionCratesPurged, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
 	FunctionEditorStarted, FunctionEditorStopped,
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,

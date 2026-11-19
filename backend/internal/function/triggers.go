@@ -5,6 +5,7 @@ package function
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -155,12 +156,8 @@ func (s *Service) CreateTrigger(ctx context.Context, p auth.Principal, spec Trig
 		if most := lim.Get(limits.FunctionInputSize); int64(len(spec.Input)) > most {
 			return plxerr.New(plxerr.FunctionInputTooLarge, "the input is at most function.inputSize = %d bytes", most)
 		}
-		res, err := ResolveVersionTx(ctx, tx, spec.AppID, spec.EnvironmentID, spec.Function, spec.Alias)
-		if err != nil {
+		if err := s.triggerFunction(ctx, tx, env, spec.Function, spec.Alias); err != nil {
 			return err
-		}
-		if res.Placement != PlacementServer {
-			return plxerr.New(plxerr.FunctionNotFound, "the function %s does not run on the server", spec.Function)
 		}
 		row, err := q.InsertFunctionTrigger(ctx, dbgen.InsertFunctionTriggerParams{
 			ID: storage.MustUUID(id), OrganizationID: env.OrganizationID, AppID: env.AppID, EnvironmentID: env.ID,
@@ -476,12 +473,8 @@ func (s *Service) insertHook(ctx context.Context, tx pgx.Tx, p auth.Principal, s
 	if err := authorizeEnv(p, spec.AppID, env); err != nil {
 		return Hook{}, err
 	}
-	res, err := ResolveVersionTx(ctx, tx, spec.AppID, spec.EnvironmentID, spec.Function, spec.Alias)
-	if err != nil {
+	if err := s.triggerFunction(ctx, tx, env, spec.Function, spec.Alias); err != nil {
 		return Hook{}, err
-	}
-	if res.Placement != PlacementServer {
-		return Hook{}, plxerr.New(plxerr.FunctionNotFound, "the function %s does not run on the server", spec.Function)
 	}
 	row, err := q.InsertFunctionHook(ctx, dbgen.InsertFunctionHookParams{
 		ID: storage.MustUUID(id), OrganizationID: env.OrganizationID, AppID: env.AppID, EnvironmentID: env.ID,
@@ -596,4 +589,65 @@ func (s *Service) RotateHookSecret(ctx context.Context, p auth.Principal, id str
 		return s.record(ctx, tx, p, audit.FunctionHookSecretRotated, "function_hook", id, "overlap "+overlap.String())
 	})
 	return secret, err
+}
+
+// triggerFunction checks, when a schedule or a webhook is made, that it may
+// call name@alias: the alias exists and points at a server-placed version
+// that a trigger is not refused at every run (build log #157).
+func (s *Service) triggerFunction(ctx context.Context, tx pgx.Tx, env dbgen.Environment, name, alias string) error {
+	res, err := ResolveVersionTx(ctx, tx, storage.ID(env.AppID), storage.ID(env.ID), name, alias)
+	if err != nil {
+		return err
+	}
+	if res.Placement != PlacementServer {
+		return plxerr.New(plxerr.FunctionNotFound, "the function %s does not run on the server", name)
+	}
+	q := dbgen.New(tx)
+	v, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: env.ID, Name: name, Version: res.Version})
+	if err != nil {
+		return versionMissing(err, name, res.Version)
+	}
+	return s.versionReachable(ctx, q, v)
+}
+
+// versionReachable applies triggerReaches to the declaration of a version.
+// Without a DefaultAssurance, a declaration that names no assurance is left
+// to the check at every run.
+func (s *Service) versionReachable(ctx context.Context, q *dbgen.Queries, v dbgen.FunctionVersion) error {
+	row, err := q.GetFunctionDeclaration(ctx, v.BuildID)
+	if err != nil {
+		return fmt.Errorf("function: read the declaration of version %d of %s: %w", v.Version, v.Name, err)
+	}
+	var decl Declaration
+	if err := json.Unmarshal(row.Declaration, &decl); err != nil {
+		return fmt.Errorf("function: read the declaration of version %d of %s: %w", v.Version, v.Name, err)
+	}
+	if decl.Assurance == "" && !decl.SCA && !decl.Attestation && s.o.DefaultAssurance == nil {
+		return nil
+	}
+	return triggerReaches(v.Name, decl, func() (string, error) {
+		if s.o.DefaultAssurance == nil {
+			return "", nil
+		}
+		return s.o.DefaultAssurance(ctx, storage.ID(v.AppID), storage.ID(v.EnvironmentID))
+	})
+}
+
+// pointAlias points an alias at a version. When a schedule or a webhook of
+// the environment calls that alias, the version must be one a trigger can
+// run, so moving the alias cannot break a trigger (build log #157).
+func (s *Service) pointAlias(ctx context.Context, q *dbgen.Queries, p auth.Principal, v dbgen.FunctionVersion, alias string) error {
+	n, err := q.CountFunctionTriggersOnAlias(ctx, dbgen.CountFunctionTriggersOnAliasParams{EnvironmentID: v.EnvironmentID, FunctionName: v.Name, Alias: alias})
+	if err != nil {
+		return failure(err, "function triggers")
+	}
+	if n > 0 {
+		if err := s.versionReachable(ctx, q, v); err != nil {
+			return fmt.Errorf("a schedule or webhook calls %s@%s: %w", v.Name, alias, err)
+		}
+	}
+	if _, err := q.UpsertFunctionAlias(ctx, aliasParams(p, v, alias)); err != nil {
+		return failure(err, "function alias")
+	}
+	return nil
 }

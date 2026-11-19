@@ -131,6 +131,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `function.buildMemory` | bytes | 4294967296 | 80% | 17179869184 | installation, organization, app | P7 | FN-016 | Memory one function build may use. |
 | `function.buildTimeout` | milliseconds | 600000 | 80% | 3600000 | installation, organization, app | P7 | FN-016 | Wall-clock time one function build may run. |
 | `function.callDepth` | count | 3 | 80% | 3 | installation, organization, app | P7 | FN-011 | Depth of nested function-to-function calls within one invocation. |
+| `function.devBuildCacheSize` | bytes | 2147483648 | 80% | 68719476736 | installation | P11 | FN-019, FN-030 | Size of the compiled dependencies that development builds on a developer's machine keep between builds (plux fn build, plux fn test); the cache is emptied when a build leaves it larger. |
 | `function.deviceMemory` | bytes | 33554432 | 80% | 134217728 | installation, organization, app, plugin | P7 | FN-053 | Linear memory one device function invocation may use. |
 | `function.deviceTimeout` | milliseconds | 500 | 80% | 5000 | installation, organization, app, plugin | P7 | FN-053 | Wall-clock time one device function invocation may run. |
 | `function.httpCalls` | count | 10 | 80% | 100 | installation, organization, app | P7 | FN-011 | Outbound HTTP calls one server function invocation may make. |

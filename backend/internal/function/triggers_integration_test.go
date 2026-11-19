@@ -372,3 +372,63 @@ func TestHookSecretRotation_FN_025(t *testing.T) {
 		t.Error("only the new secret verifies after the overlap")
 	}
 }
+
+// Verifies: FN-025, SEC-080.
+// A schedule or a webhook on a function a trigger can never run — one that
+// needs a device or an assurance above AL0 — is refused when it is made,
+// with PLX-6002, not at every run (build log #157); so is a move of an alias
+// that a trigger calls to such a version, while an alias no trigger calls
+// moves freely. The environment's default assurance applies to a function
+// that declares none.
+func TestTriggersNeedAFunctionATriggerCanRun_FN_025(t *testing.T) {
+	t.Parallel()
+	tw := newTriggerWorld(t)
+	ctx := context.Background()
+	dev := tw.envs["development"]
+	for name, decl := range map[string]string{
+		"payments.strong": `{"name":"payments.strong","placement":"server","assurance":"AL2"}`,
+		"payments.sca":    `{"name":"payments.sca","placement":"server","assurance":"AL0","sca":true}`,
+	} {
+		tw.deployWith(t, "development", name, function.PlacementServer, decl, "live")
+		spec := tw.spec("@daily", "")
+		spec.Function = name
+		if _, err := tw.svc.CreateTrigger(ctx, tw.developer, spec); code(err) != plxerr.AssuranceInsufficient {
+			t.Errorf("a schedule on %s: %v", name, err)
+		}
+		if _, _, err := tw.svc.CreateHook(ctx, tw.developer, function.HookSpec{AppID: tw.app, EnvironmentID: dev, Function: name, Alias: "live"}); code(err) != plxerr.AssuranceInsufficient {
+			t.Errorf("a webhook on %s: %v", name, err)
+		}
+	}
+
+	if _, err := tw.svc.CreateTrigger(ctx, tw.developer, tw.spec("@daily", "")); err != nil {
+		t.Fatalf("a schedule on a function a trigger can run: %v", err)
+	}
+	strong := `{"name":"payments.charge","placement":"server","assurance":"AL2"}`
+	tw.builder.set(goodOutput(fnName), nil)
+	b := tw.built(t, "development", fnName)
+	tw.declare(t, b.ID, strong)
+	if _, err := tw.svc.Deploy(ctx, tw.developer, b.ID, "live"); code(err) != plxerr.AssuranceInsufficient {
+		t.Errorf("a deploy moved the scheduled alias to an AL2 version: %v", err)
+	}
+	v, err := tw.svc.Deploy(ctx, tw.developer, b.ID, "canary")
+	if err != nil {
+		t.Fatalf("an alias no trigger calls: %v", err)
+	}
+	if _, err := tw.svc.SetAlias(ctx, tw.developer, tw.app, dev, fnName, "live", v.Version); code(err) != plxerr.AssuranceInsufficient {
+		t.Errorf("SetAlias moved the scheduled alias to an AL2 version: %v", err)
+	}
+
+	tw.deployWith(t, "development", "payments.plain", function.PlacementServer, `{"name":"payments.plain","placement":"server"}`, "live")
+	plain := tw.spec("@daily", "")
+	plain.Function = "payments.plain"
+	for level, ok := range map[string]bool{"AL1": false, "AL0": true} {
+		svc := tw.world.service(t, func(o *function.Options) {
+			o.Now, o.Secrets, o.Notify = tw.clock.now, tw.secrets, tw.publisher
+			o.DefaultAssurance = func(context.Context, string, string) (string, error) { return level, nil }
+		})
+		_, err := svc.CreateTrigger(ctx, tw.developer, plain)
+		if ok && err != nil || !ok && code(err) != plxerr.AssuranceInsufficient {
+			t.Errorf("a function without assurance under the default %s: %v", level, err)
+		}
+	}
+}

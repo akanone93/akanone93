@@ -239,3 +239,10 @@ ON CONFLICT DO NOTHING;
 
 -- name: PurgeHookSeen :execrows
 DELETE FROM function_hook_seen WHERE seen_at < $1;
+
+-- name: CountFunctionTriggersOnAlias :one
+SELECT (SELECT count(*) FROM function_triggers t
+        WHERE t.environment_id = sqlc.arg(environment_id) AND t.function_name = sqlc.arg(function_name) AND t.alias = sqlc.arg(alias))
+     + (SELECT count(*) FROM function_hooks h
+        WHERE h.environment_id = sqlc.arg(environment_id) AND h.function_name = sqlc.arg(function_name) AND h.alias = sqlc.arg(alias))
+       AS n;

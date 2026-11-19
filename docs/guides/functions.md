@@ -226,7 +226,11 @@ cases under `cargo test`, so CI that only runs `cargo test` still checks them.
 
 `plux fn build <name>` builds locally and writes the module, the schemas and the provenance to
 `functions/<name>/target/plux/`. It runs without the server's sandbox and prints a warning to
-say so: it is for development. `--verify` builds twice and fails unless the two modules are
+say so: it is for development. Development builds keep the dependencies they compiled in
+`plux/fn-build` under your user cache directory, so the next build of any function reuses them
+(about 4 s instead of about 10 s here); the cache is emptied when a build leaves it above
+`function.devBuildCacheSize` (2 GiB by default), and two builds at once simply take turns or build
+from scratch. The module is the same either way. `--verify` builds twice and fails unless the two modules are
 byte-identical (`FN-019`). The server rebuilds from your source on every deploy; a module built
 on your machine is never uploaded.
 

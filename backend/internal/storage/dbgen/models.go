@@ -913,6 +913,7 @@ type FunctionCrate struct {
 	SizeBytes      int64
 	CreatedBy      pgtype.UUID
 	CreatedAt      pgtype.Timestamptz
+	LastUsedAt     pgtype.Timestamptz
 }
 
 type FunctionDeclaration struct {

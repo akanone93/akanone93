@@ -225,7 +225,7 @@ func TestBuildReportsLimitBreachesAsPLX7203_FN_016(t *testing.T) {
 
 func TestFailureClassification(t *testing.T) {
 	f := newFixture(t)
-	r, cleanup, err := f.builder().newRun()
+	r, cleanup, err := f.builder().newRun(false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -267,7 +267,7 @@ func TestBuildReturnsCompilerDiagnosticsWithRemappedPaths_FN_016(t *testing.T) {
 // Verifies: FN-016.
 func TestDiagnosticsAreBoundedTo64KiB_FN_016(t *testing.T) {
 	f := newFixture(t)
-	r, cleanup, err := f.builder().newRun()
+	r, cleanup, err := f.builder().newRun(false)
 	if err != nil {
 		t.Fatal(err)
 	}
