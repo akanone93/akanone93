@@ -13,7 +13,7 @@ import { objectUrl } from "../../lib/object-url.ts";
 import { type AssetUse, assetBudget, assetFileLimit } from "../plugin-canvas/asset-uses.ts";
 import { AssetDetails } from "./asset-details.tsx";
 import { assetsMessages } from "./assets.messages.ts";
-import { type UploadFailure, type UploadState, uploadAsset, uploadFailure } from "./upload-asset.ts";
+import { assetNameOf, type UploadFailure, type UploadState, uploadAsset, uploadFailure } from "./upload-asset.ts";
 
 type AssetClient = Pick<Client<typeof AssetService>, "listAssets" | "deleteAsset"> & Parameters<typeof uploadAsset>[0];
 
@@ -239,7 +239,6 @@ export function AssetsTab({
     }
   };
 
-  const nameOf = (file: File) => `images/${file.name.toLowerCase().replaceAll(/[^a-z0-9._-]/g, "-")}`;
   // A file above asset.fileSize is refused here, before its bytes are sent (AST-003).
   const fits = (file: File) => file.size <= assetFileLimit();
   const pick = (files: readonly File[]) => {
@@ -249,7 +248,7 @@ export function AssetsTab({
       const p: Pending = {
         key: keys.current,
         file,
-        name: nameOf(file),
+        name: assetNameOf(file),
         state: { current: null },
         received: 0,
         failed: false,
@@ -281,7 +280,7 @@ export function AssetsTab({
     try {
       const made = await uploadAsset(
         client,
-        { appId, name: nameOf(file), session, file },
+        { appId, name: assetNameOf(file), session, file },
         { current: null },
         () => undefined,
       );

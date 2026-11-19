@@ -10,6 +10,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
 import { AssetsTab } from "./assets-tab.tsx";
+import { assetNameOf } from "./upload-asset.ts";
 
 afterEach(cleanup);
 
@@ -99,6 +100,16 @@ describe("S2.6 the Assets tab [SRV-060]", () => {
     const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", await file.arrayBuffer()));
     expect(Array.from(server.declared)).toEqual(Array.from(digest));
     expect(await screen.findByText("images/logo.png")).toBeDefined();
+  });
+
+  test("an upload is named in the folder of its kind, in lower case with safe characters only", () => {
+    expect(assetNameOf({ name: "Brand Sans.TTF" })).toBe("fonts/brand-sans.ttf");
+    expect(assetNameOf({ name: "Display.otf" })).toBe("fonts/display.otf");
+    expect(assetNameOf({ name: "success.lottie" })).toBe("motion/success.lottie");
+    expect(assetNameOf({ name: "welcome.json" })).toBe("motion/welcome.json");
+    expect(assetNameOf({ name: "goal-meter.riv" })).toBe("motion/goal-meter.riv");
+    expect(assetNameOf({ name: "Hero Image.PNG" })).toBe("images/hero-image.png");
+    expect(assetNameOf({ name: "../../etc/passwd" })).toBe("images/..-..-etc-passwd");
   });
 
   test("a failed chunk offers Resume, which continues at the server's offset", async () => {

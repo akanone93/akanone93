@@ -218,7 +218,8 @@ export function dropBaseToken(tokens: Json, path: readonly string[]): void {
 
 /**
  * The value text typed for a new token, as its type stores it: a number for `number`, a numeric weight for
- * `fontWeight`, a list of families for a comma-separated `fontFamily`, JSON for a composite type's object; an alias
+ * `fontWeight`, a list of families for a comma-separated `fontFamily`, `{value, unit}` for a `dimension` or `duration`
+ * (the inverse of `tokenText`), four numbers for a `cubicBezier`, JSON for a composite type's object; an alias
  * (`{color.primary}`) and anything else stays text.
  */
 export function typedValue(type: string | undefined, text: string): unknown {
@@ -226,14 +227,9 @@ export function typedValue(type: string | undefined, text: string): unknown {
   if (ALIAS.test(t)) {
     return t;
   }
-  if ((type === "number" || type === "fontWeight") && t !== "" && Number.isFinite(Number(t))) {
-    return Number(t);
-  }
-  if (type === "fontFamily" && t.includes(",")) {
-    return t
-      .split(",")
-      .map((f) => f.trim())
-      .filter((f) => f !== "");
+  const typed = type === undefined ? undefined : PARSERS[type]?.(t);
+  if (typed !== undefined) {
+    return typed;
   }
   if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
     try {
@@ -243,6 +239,51 @@ export function typedValue(type: string | undefined, text: string): unknown {
     }
   }
   return t;
+}
+
+/** How the text of a type is stored, or undefined to keep it as text or JSON. */
+const PARSERS: Readonly<Record<string, (t: string) => unknown>> = {
+  number: numberOf,
+  fontWeight: numberOf,
+  fontFamily: familiesOf,
+  dimension: dimensionOf,
+  duration: durationOf,
+  cubicBezier: curveOf,
+};
+
+/** A finite number. */
+function numberOf(t: string): number | undefined {
+  return t !== "" && Number.isFinite(Number(t)) ? Number(t) : undefined;
+}
+
+/** A comma-separated list of font families. */
+function familiesOf(t: string): string[] | undefined {
+  return t.includes(",")
+    ? t
+        .split(",")
+        .map((f) => f.trim())
+        .filter((f) => f !== "")
+    : undefined;
+}
+
+/** `16`, `16px` or `1.5rem` as a DTCG dimension, in px when no unit is written, as the compiler and runtime read it. */
+function dimensionOf(t: string): { value: number; unit: string } | undefined {
+  const m = /^(-?(?:\d+(?:\.\d+)?|\.\d+))\s*(px|rem)?$/i.exec(t);
+  return m === null ? undefined : { value: Number(m[1]), unit: (m[2] ?? "px").toLowerCase() };
+}
+
+/** `250`, `250ms` or `0.3s` as a DTCG duration, in ms when no unit is written. */
+function durationOf(t: string): { value: number; unit: string } | undefined {
+  const m = /^(\d+(?:\.\d+)?|\.\d+)\s*(ms|s)?$/i.exec(t);
+  return m === null ? undefined : { value: Number(m[1]), unit: (m[2] ?? "ms").toLowerCase() };
+}
+
+/** `cubic-bezier(0.4, 0, 0.2, 1)` or `0.4, 0, 0.2, 1` as the four numbers of a curve, its x values within 0 to 1. */
+function curveOf(t: string): number[] | undefined {
+  const parts = (/^cubic-bezier\((.*)\)$/i.exec(t)?.[1] ?? t).split(",").map((p) => p.trim());
+  const n = parts.map((p) => (p === "" ? Number.NaN : Number(p)));
+  const [x1 = -1, , x2 = -1] = n;
+  return n.length === 4 && n.every(Number.isFinite) && x1 >= 0 && x1 <= 1 && x2 >= 0 && x2 <= 1 ? n : undefined;
 }
 
 /** Merges imported groups into the tokens: groups are merged, tokens replaced. */

@@ -120,6 +120,31 @@ describe("pure helpers", () => {
     expect(typedValue("color", "#fff")).toBe("#fff");
   });
 
+  test("a dimension, duration or curve is stored as the compiler and runtime read it, and shown back as typed", () => {
+    expect(typedValue("dimension", "16")).toEqual({ value: 16, unit: "px" });
+    expect(typedValue("dimension", "4px")).toEqual({ value: 4, unit: "px" });
+    expect(typedValue("dimension", "1.5 REM")).toEqual({ value: 1.5, unit: "rem" });
+    expect(typedValue("dimension", "-2px")).toEqual({ value: -2, unit: "px" });
+    expect(typedValue("duration", "250ms")).toEqual({ value: 250, unit: "ms" });
+    expect(typedValue("duration", "0.3s")).toEqual({ value: 0.3, unit: "s" });
+    expect(typedValue("duration", "200")).toEqual({ value: 200, unit: "ms" });
+    expect(typedValue("cubicBezier", "cubic-bezier(0.4, 0, 0.2, 1)")).toEqual([0.4, 0, 0.2, 1]);
+    expect(typedValue("cubicBezier", "0.4,0,0.2,1")).toEqual([0.4, 0, 0.2, 1]);
+    // What is not a value of the type stays as written, for validation to report; aliases and JSON keep working.
+    expect(typedValue("dimension", "4em")).toBe("4em");
+    expect(typedValue("duration", "-1s")).toBe("-1s");
+    expect(typedValue("cubicBezier", "cubic-bezier(2, 0, 0.2, 1)")).toBe("cubic-bezier(2, 0, 0.2, 1)");
+    expect(typedValue("dimension", "{size.base}")).toBe("{size.base}");
+    expect(typedValue("dimension", '{"value": 2, "unit": "rem"}')).toEqual({ value: 2, unit: "rem" });
+    for (const [type, text] of [
+      ["dimension", "16px"],
+      ["duration", "150ms"],
+      ["cubicBezier", "cubic-bezier(0.4, 0, 0.2, 1)"],
+    ] as const) {
+      expect(tokenText(type, typedValue(type, text))).toBe(text);
+    }
+  });
+
   test("a DTCG file is data: types and names are checked and what is left out is reported", () => {
     const ok = parseDtcg(
       JSON.stringify({

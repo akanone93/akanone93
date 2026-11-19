@@ -109,7 +109,18 @@ export async function uploadUnderAppLock(
   }
 }
 
-/** The asset name an uploaded file is stored under: `images/` and its name in lower case, safe characters only. */
+/** The folder of each kind of file, by its extension; anything else is an image. */
+const FOLDERS: readonly (readonly [RegExp, string])[] = [
+  [/\.(ttf|otf)$/, "fonts"],
+  [/\.(json|lottie|riv)$/, "motion"],
+];
+
+/**
+ * The asset name an uploaded file is stored under: its name in lower case, safe characters only, in the folder of its
+ * kind — `fonts/`, `motion/` (Lottie and Rive) or `images/`. The folder only sorts the list: the server tells the type
+ * from the bytes (SRV-060).
+ */
 export function assetNameOf(file: { readonly name: string }): string {
-  return `images/${file.name.toLowerCase().replaceAll(/[^a-z0-9._-]/g, "-")}`;
+  const name = file.name.toLowerCase().replaceAll(/[^a-z0-9._-]/g, "-");
+  return `${FOLDERS.find(([extension]) => extension.test(name))?.[1] ?? "images"}/${name}`;
 }
