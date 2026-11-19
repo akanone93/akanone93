@@ -99,11 +99,17 @@ step() { echo "── $*"; }
 # upgrade, with a pod annotation that rolls every role (the pre-upgrade hook
 # migrates the database first).
 install() {
+	# The builder's AppArmor profile, where the host has AppArmor (loaded in
+	# the cluster's setup below).
+	local apparmor=""
+	if host_apparmor; then
+		apparmor=plux-builder
+	fi
 	# shellcheck disable=SC2086 # HELM_ARGS is a word list by design
 	"$HELM" upgrade --install plux "$chart" --namespace "$NAMESPACE" \
 		-f "$chart/ci/kind-values.yaml" \
 		--set image.repository="$repository" --set image.tag="$tag" --set image.pullPolicy=Never \
-		--set builder.enabled=true --set builder.replicas=1 \
+		--set builder.enabled=true --set builder.replicas=1 --set builder.appArmorProfile="$apparmor" \
 		--set builderImage.repository="${BUILDER_IMAGE%:*}" --set builderImage.tag="${BUILDER_IMAGE##*:}" --set builderImage.pullPolicy=Never \
 		--set server.publicBaseURL="https://127.0.0.1:$API_PORT" \
 		--set server.tls.existingSecret="$TLS_SECRET" \
@@ -119,6 +125,12 @@ install() {
 		--set-json "networkPolicy.extraEgress.worker=$WALKTHROUGH_EGRESS" \
 		--set-json "networkPolicy.extraEgress.migrate=[$SIGNER_EGRESS]" \
 		$HELM_ARGS --wait --timeout 15m "$@"
+}
+
+# host_apparmor tells whether the host's kernel, which the kind nodes share,
+# enforces AppArmor.
+host_apparmor() {
+	[ "$(cat /sys/module/apparmor/parameters/enabled 2>/dev/null)" = Y ]
 }
 
 # `walkthrough-kind.sh upgrade` is the upgrade hook the walkthrough runs in
@@ -225,6 +237,16 @@ for node in $("$KIND" get nodes --name "$CLUSTER"); do
 	docker exec "$node" mkdir -p /var/lib/kubelet/seccomp/profiles
 	docker cp "$repo/deploy/compose/seccomp-builder.json" "$node:/var/lib/kubelet/seccomp/profiles/plux-builder.json"
 done
+# Where the host has AppArmor, the runtime's default profile denies the mounts
+# that build each build's private view (ADR-0106); the nodes share the host's
+# kernel, so the builder's profile is loaded there and install names it.
+if host_apparmor; then
+	if [ "$(id -u)" -eq 0 ]; then
+		apparmor_parser -r -W "$repo/deploy/compose/apparmor-plux-builder"
+	else
+		sudo apparmor_parser -r -W "$repo/deploy/compose/apparmor-plux-builder"
+	fi
+fi
 
 step "CloudNativePG $CNPG_VERSION"
 curl -fsSL --retry 5 -o "$work/cnpg.yaml" \

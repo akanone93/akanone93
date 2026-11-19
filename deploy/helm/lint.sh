@@ -63,6 +63,11 @@ if grep -En 'privileged: true|runAsUser: 0$|allowPrivilegeEscalation: true|hostN
 fi
 # L-4: the roles that run tenant code hold no credential, keys or token.
 funcs=$(render -f "$chart/ci/ha-values.yaml" --show-only templates/functions.yaml)
+# An unmasked /proc is the builder's alone, and only in a user namespace of
+# its own (ADR-0106).
+[ "$(grep -c 'procMount: Unmasked' "$ha")" -eq 1 ] || fail "procMount: Unmasked is set on a workload other than the builder"
+grep -q 'procMount: Unmasked' <<<"$funcs" && grep -q 'hostUsers: false' <<<"$funcs" ||
+	fail "the builder's /proc is unmasked without a user namespace of its own (hostUsers: false)"
 if grep -En 'secretKeyRef|valueFrom|PLUX_|postgres-ca|name: keys|name: trust|projected' <<<"$funcs"; then
 	fail "fnrunner, egress or builder holds a data credential (L-4)"
 fi

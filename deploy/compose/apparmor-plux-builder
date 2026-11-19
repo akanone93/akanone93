@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: Moby contributors
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# AppArmor profile of the function builder (FN-016, ADR-0106): Docker's
+# default profile (moby/profiles, apparmor/template.go, "docker-default")
+# with one change. Docker's profile denies every mount; the builder's sandbox
+# helper builds each build's private view of the filesystem with mount(2),
+# umount2(2) and pivot_root(2) inside that build's own user and mount
+# namespaces, before it restricts itself with Landlock. So this profile
+# allows those three and nothing else that Docker's profile denies.
+#
+# The kernel still requires CAP_SYS_ADMIN in the namespace that owns the
+# mounts, which the builder does not hold in the container's namespaces; the
+# container's seccomp profile (seccomp-builder.json) allows only the flags the
+# helper uses; and Landlock refuses every mount of the build tools and their
+# children before any filesystem code runs.
+#
+# Load it on the host (or on every Kubernetes node) before the builder starts:
+#   sudo apparmor_parser -r -W deploy/compose/apparmor-plux-builder
+# then run the container with "apparmor=plux-builder" (compose security_opt)
+# or set builder.appArmorProfile to plux-builder (Helm chart).
+
+#include <tunables/global>
+
+profile plux-builder flags=(attach_disconnected,mediate_deleted) {
+
+  #include <abstractions/base>
+
+  network,
+  capability,
+  file,
+  umount,
+  # Host (privileged) processes may send signals to container processes.
+  signal (receive) peer=unconfined,
+  # The container runtime may send signals to container processes.
+  signal (receive) peer=runc,
+  signal (receive) peer=crun,
+  signal (receive) peer=dockerd,
+  # Container processes may send signals amongst themselves.
+  signal (send,receive) peer=plux-builder,
+
+  deny @{PROC}/* w,   # deny write for all files directly in /proc (not in a subdir)
+  # deny write to files not in /proc/<number>/** or /proc/sys/**
+  deny @{PROC}/{[^1-9],[^1-9][^0-9],[^1-9s][^0-9y][^0-9s],[^1-9][^0-9][^0-9][^0-9/]*}/** w,
+  deny @{PROC}/sys/[^k]** w,  # deny /proc/sys except /proc/sys/k* (effectively /proc/sys/kernel)
+  deny @{PROC}/sys/kernel/{?,??,[^s][^h][^m]**} w,  # deny everything except shm* in /proc/sys/kernel/
+  deny @{PROC}/sysrq-trigger rwklx,
+  deny @{PROC}/kcore rwklx,
+
+  # Docker's profile has "deny mount," here. The build sandbox's helper
+  # builds each build's view (ADR-0106).
+  mount,
+  pivot_root,
+
+  deny /sys/[^f]*/** wklx,
+  deny /sys/f[^s]*/** wklx,
+  deny /sys/fs/[^c]*/** wklx,
+  deny /sys/fs/c[^g]*/** wklx,
+  deny /sys/fs/cg[^r]*/** wklx,
+  deny /sys/firmware/** rwklx,
+  deny /sys/devices/virtual/powercap/** rwklx,
+  deny /sys/kernel/security/** rwklx,
+
+  # suppress ptrace denials when using 'docker ps' or using 'ps' inside a container
+  ptrace (trace,read,tracedby,readby) peer=plux-builder,
+}

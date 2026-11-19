@@ -5,12 +5,33 @@ package builder
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
 // shell returns a command that runs script with sh.
+// testSandbox is the LinuxSandbox with this test binary as its helper
+// (TestMain runs the helper).
+func testSandbox(t *testing.T) LinuxSandbox {
+	t.Helper()
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return LinuxSandbox{Helper: exe}
+}
+
+// inScratch gives a command a scratch directory of its own, writable and its
+// working directory, as the builder does for every tool.
+func inScratch(t *testing.T, c Command) Command {
+	t.Helper()
+	dir := t.TempDir()
+	c.Writable, c.Dir = []string{dir}, dir
+	return c
+}
+
 func shell(script string, lim Limits) Command {
 	return Command{Path: "/bin/sh", Args: []string{"-c", script}, Env: []string{"PATH=/usr/bin:/bin"}, Limits: lim}
 }

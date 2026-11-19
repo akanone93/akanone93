@@ -426,10 +426,19 @@ builder:
   # The scratch directory of builds: memory-backed, executable (cargo runs
   # build scripts from it), owned by the builder's user.
   scratchSize: 2Gi
-  # deploy/compose/seccomp-builder.json is Docker's default profile plus one
-  # rule that lets the build sandbox create namespaces. Kubernetes loads a
-  # Localhost profile from the node's kubelet seccomp directory.
+  # deploy/compose/seccomp-builder.json is Docker's default profile plus the
+  # rules the build sandbox needs: clone may create user, network, mount and
+  # PID namespaces, and the sandbox helper may build each build's view with
+  # mount, umount2 and pivot_root (ADR-0106). Kubernetes loads a Localhost
+  # profile from the node's kubelet seccomp directory.
   seccompProfile: profiles/plux-builder.json
+  # The builder pod runs with hostUsers: false and procMount: Unmasked, which
+  # need Kubernetes 1.33 or later with user namespaces on the nodes (Linux 6.3
+  # or later, containerd 2.0 or CRI-O 1.25, runc 1.2). On nodes with AppArmor,
+  # load deploy/compose/apparmor-plux-builder on every node and name it here
+  # (plux-builder): the runtime's default profile denies the sandbox's mounts,
+  # and the builder then refuses to build.
+  appArmorProfile: ""
   autoscaling: {enabled: false, minReplicas: 2, maxReplicas: 4, targetCPUUtilizationPercentage: 70}
   podDisruptionBudget: {maxUnavailable: 1}
   topologySpreadConstraints: []

@@ -19,6 +19,7 @@ import (
 	"github.com/nightCode42/plux3/backend/ext/export"
 	"github.com/nightCode42/plux3/backend/ext/governance"
 	"github.com/nightCode42/plux3/backend/ext/identity"
+	"github.com/nightCode42/plux3/backend/internal/builder"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -103,6 +104,12 @@ type Options struct {
 // termination signals and returns the exit code for os.Exit. The core's
 // cmd/plux-server and the enterprise binary both call it.
 func Main(args []string, stdout, stderr io.Writer, opts Options) int {
+	// A child of the builder's sandbox starts as this very program: it
+	// prepares its isolation and replaces itself with the tool, before any
+	// signal handling or configuration (build log #164).
+	if len(args) > 0 && args[0] == builder.SandboxHelperArg {
+		return builder.RunSandboxHelper(args[1:])
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	return Run(ctx, args, stdout, stderr, opts)

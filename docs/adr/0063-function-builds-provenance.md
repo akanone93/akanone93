@@ -63,6 +63,10 @@ vendored sources read-only and a scratch directory, and no inherited environment
 kernel refuses namespaces, the builder **refuses to build**. The setting `builder.sandbox:
 none` allows builds without the sandbox for development only; it is never a default and the
 server logs a distinct warning on start and with every build (security default rules).
+*(Amended by ADR-0106: each build runs in a private view of the filesystem — the toolchain
+read-only, its scratch directory writable, a `/proc` of its own PID namespace — restricted to
+the same by Landlock and with no capabilities; a machine that cannot provide this refuses to
+build.)*
 
 **Allowlist of build scripts and procedural macros.** A crate that has a build script or is a
 procedural macro must be on an allowlist, by crate name and exact version, checked against

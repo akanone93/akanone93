@@ -29,6 +29,9 @@ const fakeLanguageServerEnv = "PLUX_FAKE_LANGUAGE_SERVER"
 // TestMain turns the test binary into the stand-in language server when the
 // language-server tests start it as a child; otherwise it runs the tests.
 func TestMain(m *testing.M) {
+	if len(os.Args) > 1 && os.Args[1] == SandboxHelperArg {
+		os.Exit(RunSandboxHelper(os.Args[2:]))
+	}
 	if os.Getenv(fakeLanguageServerEnv) == "1" {
 		runFakeLanguageServer(os.Stdin, os.Stdout)
 		os.Exit(0)
@@ -381,7 +384,7 @@ func TestLanguageSessionEnds_FN_033(t *testing.T) {
 // Verifies: FN-033, FN-016.
 func TestLanguageSessionRunsInTheNamespaceSandbox_FN_033(t *testing.T) {
 	requireNamespaces(t)
-	s := languageFixture(t, LinuxSandbox{}, loanSource(), func(o *LanguageOptions) { o.Memory = 4 << 30 })
+	s := languageFixture(t, testSandbox(t), loanSource(), func(o *LanguageOptions) { o.Memory = 4 << 30 })
 	seq := uint64(1)
 	send(t, s, &seq, rpc{"jsonrpc": "2.0", "id": 2, "method": "textDocument/hover", "params": rpc{"hi": 1}})
 	if m := next(t, s); string(m["id"]) != "2" {

@@ -103,28 +103,50 @@ installation signs through Vault Transit or an HSM and lists that key's public h
 ### Function builder
 
 `plux-builder` runs every build in new user, network, mount and PID namespaces
-(`builder.sandbox: namespaces`, `backend/internal/builder/sandbox_linux.go`); where the
-kernel denies them it refuses to build, and the unsandboxed `none` setting is not used here.
-It starts with the hardened defaults of the other services (`read_only`, `cap_drop: [ALL]`,
-`no-new-privileges`, user `65532`, no credential, the `functions` network only) and has
-exactly two additions:
+(`builder.sandbox: namespaces`, `backend/internal/builder/sandbox_linux.go`). Each build's
+first process is the sandbox helper (the builder's own executable), which gives the build a
+private view of the filesystem — the system directories and the toolchain read-only, the
+build's own scratch directory writable, a `/proc` of its own PID namespace, nothing else —
+restricts it to the same with Landlock, drops every capability and starts the tool
+([ADR-0106](../../docs/adr/0106-builds-isolated-by-a-private-view-and-landlock.md)). Where the
+kernel or the container refuses any of this, the builder refuses to build, and the unsandboxed
+`none` setting is not used here. It starts with the hardened defaults of the other services
+(`read_only`, `cap_drop: [ALL]`, `no-new-privileges`, user `65532`, no credential, the
+`functions` network only) and has exactly three additions:
 
 | Addition | Why it is needed |
 |---|---|
-| `seccomp=./seccomp-builder.json` | The sandbox starts each compiler process with `clone(2)` and `CLONE_NEWUSER`, `CLONE_NEWNET`, `CLONE_NEWNS` and `CLONE_NEWPID`. Docker's default profile allows `clone` only without a namespace flag unless the container has `CAP_SYS_ADMIN`, so the call fails with `EPERM` and the builder refuses to build. The profile is Docker's default (`moby/profiles`, `seccomp/default.json`, SHA-256 `6416b47770785a41ac59073cdc77d9fe98517df2799dc83ef207e622de3053f6`) plus one rule that allows `clone` when `CLONE_NEWIPC`, `CLONE_NEWUTS` and `CLONE_NEWCGROUP` are clear, so those three stay denied. No capability is added: creating a user namespace needs none, and the root-like capabilities a process holds inside it apply to that namespace only. The filter is inherited by the sandboxed processes, so `mount`, `unshare` and `setns` stay denied inside it. |
+| `seccomp=./seccomp-builder.json` | The sandbox starts each build with `clone(2)` and `CLONE_NEWUSER`, `CLONE_NEWNET`, `CLONE_NEWNS` and `CLONE_NEWPID`, and its helper builds the view with `mount(2)`, `umount2(2)` and `pivot_root(2)` inside those namespaces. Docker's default profile allows `clone` only without a namespace flag, and the three others not at all, unless the container has `CAP_SYS_ADMIN`, so the calls fail with `EPERM` and the builder refuses to build. The profile is Docker's default (`moby/profiles`, `seccomp/default.json`, SHA-256 `6416b47770785a41ac59073cdc77d9fe98517df2799dc83ef207e622de3053f6`) plus four rules: `clone` when `CLONE_NEWIPC`, `CLONE_NEWUTS` and `CLONE_NEWCGROUP` are clear, so those three stay denied; `mount` with only the flags the helper uses (`MS_RDONLY`, `MS_NOSUID`, `MS_NODEV`, `MS_NOEXEC`, `MS_REMOUNT`, `MS_NOATIME`, `MS_NODIRATIME`, `MS_BIND`, `MS_REC`, `MS_PRIVATE`, `MS_RELATIME`); `umount2` with `MNT_DETACH` only; and `pivot_root`. No capability is added: creating a user namespace needs none, the root-like capabilities a process holds inside it apply to that namespace only, and outside its own namespaces a mount still fails. The build tools cannot use the mount calls: Landlock refuses every mount of a restricted process and its children before any filesystem code runs, and `unshare` and `setns` stay denied. |
+| `systempaths=unconfined` | The helper mounts a `/proc` of the build's own PID namespace, so a build sees only its own processes. The kernel allows that inside a user namespace only where the container's `/proc` is not partly hidden, and Docker hides parts of it by default (`/proc/kcore`, `/proc/keys`, `/proc/timer_list` and others), so the mount fails and the builder refuses to build. With this setting the builder container's `/proc` and `/sys` are not masked; the build's view hides the same `/proc` files again (`maskedProc` in `sandbox_view_linux.go`), has no `/sys`, and gives the tools nothing to write in `/proc`. The builder itself runs as user `65532` with no capability, so the masked files Docker protects with root-only permissions stay closed to it. |
 | `tmpfs` `/var/lib/plux/build` with `exec` | Each build unpacks into a scratch directory under `builder.workDir`, and cargo runs build scripts and procedural macros (compiled for the build host) from there. Docker mounts a `tmpfs` `noexec` by default. The mount is memory-backed, `nosuid`, `nodev`, mode `0700`, owned by the builder's user, limited to 2 GiB, and gone with the container. |
 
 Not granted: `privileged`, `cap_add`, `seccomp=unconfined`, `apparmor=unconfined`, the host's
 PID, network or IPC namespace, the Docker socket, any volume with data, and any network but
 `functions`, which has no route out. The sandbox gives builds no network inside the
-container either, and cargo runs offline on vendored crates.
+container either (and, where the kernel has Landlock network rules, no TCP at all), and cargo
+runs offline on vendored crates.
+
+**AppArmor.** On a host with AppArmor (Ubuntu, for example) Docker applies its default
+AppArmor profile, which denies every mount, so the helper cannot build the view and the
+builder refuses to build. Load the builder's profile, `apparmor-plux-builder` — Docker's
+default with `mount` and `pivot_root` allowed and nothing else changed — and name it:
+
+```bash
+sudo apparmor_parser -r -W deploy/compose/apparmor-plux-builder
+```
+
+then add `"apparmor=plux-builder"` to the `security_opt` of `plux-builder` (compose.yaml says
+where). With AppArmor 4 and `kernel.apparmor_restrict_unprivileged_userns=1` (Ubuntu 24.04),
+the profile also needs a `userns,` rule, or the sysctl relaxed as described below.
 
 The host kernel must allow unprivileged user namespaces for the container's user
 (`user.max_user_namespaces` above 0; on Debian `kernel.unprivileged_userns_clone=1`). Some
 distributions restrict them further, for example Ubuntu 24.04 with
 `kernel.apparmor_restrict_unprivileged_userns=1`; then the builder logs that its sandbox is
 unavailable and refuses every build. Allow it for the container's AppArmor profile or relax
-the sysctl on a development machine; do not switch the sandbox off.
+the sysctl on a development machine; do not switch the sandbox off. The kernel must also
+offer Landlock (Linux 5.13 or later, with `landlock` among its active security modules:
+`cat /sys/kernel/security/lsm`); without it the builder refuses every build.
 
 The image (`backend/Dockerfile`, target `builder`) pins Rust 1.97.0 with `wasm32-wasip1`,
 Bun 1.3.11 running the npm package `binaryen@132.0.0`, and the SDK crate `sdk/fn/plux-fn`
@@ -214,7 +236,8 @@ The runtime wants at least two distinct pins; make the second from a spare key w
 | `compose.yaml` | The stack |
 | `plux-server.yaml` | The server's configuration inside the stack, including `server.tls`, the internal listener and the routes to the function roles |
 | `plux-fnrunner.yaml`, `plux-egress.yaml`, `plux-builder.yaml` | The configuration of the function roles; the first is completed in `.secrets/`. The render worker takes its settings as flags (`deploy/render-worker/Dockerfile`) and has no file |
-| `seccomp-builder.json` | The builder's seccomp profile: Docker's default plus the `clone` rule for the build sandbox |
+| `seccomp-builder.json` | The builder's seccomp profile: Docker's default plus the rules of the build sandbox (`clone` with namespaces, and the mounts of each build's view) |
+| `apparmor-plux-builder` | The builder's AppArmor profile, for hosts with AppArmor: Docker's default with the mounts of each build's view allowed |
 | `init-secrets.sh` | Generates the credentials, the development CA and certificate, the internal CA and identities, and the function-artifact key |
 | `compose.dev.yaml` | Overlay for `make dev`: rebuilds and restarts the server on source changes |
 | `compose.test.yaml` | Overlay for `make compose-test`: publishes the stores on high local ports |

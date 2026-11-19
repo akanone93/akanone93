@@ -14,22 +14,38 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	"unsafe"
 )
 
 // LinuxSandbox runs each child in new user, network, mount and PID namespaces:
 // the child sees no network interface but loopback, cannot signal processes
 // outside the sandbox and is killed with its whole group when the wall time
-// ends or the builder dies (FN-016, ADR-0063). The CPU-time and memory limits
-// are in force before the tool's first instruction: /bin/sh sets them and
-// replaces itself with the tool (limitedCommand), and prlimit(2) asserts them
-// again once the child exists. It is safe for concurrent use.
-type LinuxSandbox struct{}
+// ends or the builder dies (FN-016, ADR-0063). It sees a private view of the
+// filesystem — the system directories, Command.Readable read-only and
+// Command.Writable writable, nothing else — and Landlock restricts it to the
+// same, so no build can reach another build's files or the builder's own
+// (build log #164). The helper (SandboxHelperArg) builds the view, applies
+// Landlock and the CPU-time and memory limits, and replaces itself with the
+// tool through /bin/sh, which sets the limits again (limitedCommand). It is
+// safe for concurrent use.
+type LinuxSandbox struct {
+	// Helper is the executable that runs as the sandbox helper: the
+	// program's own, which calls RunSandboxHelper when its first argument
+	// is SandboxHelperArg.
+	Helper string
+}
 
 // Run implements Sandbox. It returns ErrSandboxUnavailable when the kernel
-// refuses the namespaces.
-func (LinuxSandbox) Run(ctx context.Context, cmd Command) (Result, error) {
-	return runChild(ctx, limitedCommand(cmd), childHooks{prepare: isolate, afterStart: applyLimits, classifyStart: classifyStartError})
+// refuses the namespaces or offers no Landlock.
+func (s LinuxSandbox) Run(ctx context.Context, cmd Command) (Result, error) {
+	wrapped, err := helperCommand(s.Helper, cmd)
+	if err != nil {
+		return Result{}, err
+	}
+	res, err := runChild(ctx, wrapped, childHooks{prepare: isolate, classifyStart: classifyStartError})
+	if err == nil && helperRefused(res) {
+		return res, fmt.Errorf("%w: %s", ErrSandboxUnavailable, strings.TrimSpace(string(res.Stderr)))
+	}
+	return res, err
 }
 
 // limitedCommand runs cmd through /bin/sh, which sets its CPU-time and
@@ -66,6 +82,11 @@ func isolate(c *exec.Cmd) {
 	c.SysProcAttr.UidMappings = []syscall.SysProcIDMap{{ContainerID: uid, HostID: uid, Size: 1}}
 	c.SysProcAttr.GidMappings = []syscall.SysProcIDMap{{ContainerID: gid, HostID: gid, Size: 1}}
 	c.SysProcAttr.GidMappingsEnableSetgroups = false
+	// The child keeps its own user ID, so it would lose the capabilities of
+	// its new user namespace when it starts the helper. The helper needs two
+	// of them, in its own namespaces only, to build the view and then drop
+	// every capability before the tool starts (dropCapabilities).
+	c.SysProcAttr.AmbientCaps = []uintptr{capSysAdmin, capSetPCap}
 	c.SysProcAttr.Pdeathsig = syscall.SIGKILL
 }
 
@@ -79,33 +100,4 @@ func classifyStartError(err error) error {
 	default:
 		return err
 	}
-}
-
-// applyLimits sets the CPU-time and address-space limits of the started child
-// again; limitedCommand has already set them before the tool started.
-func applyLimits(c *exec.Cmd, l Limits) error {
-	pid := c.Process.Pid
-	if l.CPUTime > 0 {
-		secs := uint64((l.CPUTime + time.Second - 1) / time.Second)
-		// The soft limit raises SIGXCPU; a second later the hard limit kills.
-		if err := setRlimit(pid, syscall.RLIMIT_CPU, syscall.Rlimit{Cur: secs, Max: secs + 1}); err != nil {
-			return err
-		}
-	}
-	if l.Memory > 0 {
-		if err := setRlimit(pid, syscall.RLIMIT_AS, syscall.Rlimit{Cur: l.Memory, Max: l.Memory}); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// setRlimit calls prlimit64(2) on a child.
-func setRlimit(pid, resource int, lim syscall.Rlimit) error {
-	_, _, errno := syscall.RawSyscall6(syscall.SYS_PRLIMIT64, uintptr(pid), uintptr(resource),
-		uintptr(unsafe.Pointer(&lim)), 0, 0, 0) //nolint:gosec // G103: the pointer is to a stack value that outlives this one syscall.
-	if errno != 0 {
-		return fmt.Errorf("prlimit64 resource %d: %w", resource, errno)
-	}
-	return nil
 }

@@ -142,10 +142,11 @@ services:
   # Compiles uploaded function sources (FN-016, ADR-0063), under the
   # `functions` profile: `docker compose --profile functions up -d`. The
   # image is large (Rust toolchain, Bun, Binaryen). No credential and no
-  # network but `functions`. The builds run in a sandbox of user, network,
-  # mount and PID namespaces. That needs one privilege beyond the hardened
-  # defaults, the seccomp rule below, and a scratch directory that can run
-  # what cargo builds; README.md ("Function builder") says why.
+  # network but `functions`. Each build runs in a sandbox of user, network,
+  # mount and PID namespaces, in a private view of the filesystem, restricted
+  # by Landlock (ADR-0106). That needs, beyond the hardened defaults, the
+  # seccomp rules and the unmasked /proc below, and a scratch directory that
+  # can run what cargo builds; README.md ("Function builder") says why.
   plux-builder:
     <<: *hardened
     profiles: [functions]
@@ -157,9 +158,18 @@ services:
     user: "65532:65532"
     security_opt:
       - "no-new-privileges:true"
-      # Docker's default seccomp profile plus one rule: clone may create user,
-      # network, mount and PID namespaces. No capability is added.
+      # Docker's default seccomp profile plus the sandbox's rules: clone may
+      # create user, network, mount and PID namespaces, and the sandbox helper
+      # may build each build's view (mount with a fixed set of flags,
+      # umount2, pivot_root). No capability is added.
       - "seccomp=./seccomp-builder.json"
+      # Each build mounts a /proc of its own PID namespace, which the kernel
+      # allows only where the container's /proc is not masked; the build's
+      # view hides the files Docker would.
+      - "systempaths=unconfined"
+      # On a host with AppArmor, Docker's default profile denies the
+      # sandbox's mounts and the builder refuses to build: load
+      # ./apparmor-plux-builder and add "apparmor=plux-builder" here.
     volumes:
       - ./plux-builder.yaml:/etc/plux/plux.yaml:ro
       - ./.secrets/internal/plux-builder:/etc/plux/internal:ro

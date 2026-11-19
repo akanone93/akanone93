@@ -16,6 +16,12 @@ import (
 	"time"
 )
 
+// SandboxHelperArg is the first argument with which the builder's executable
+// runs as the sandbox helper of the LinuxSandbox. A program whose builder
+// uses the LinuxSandbox calls RunSandboxHelper when it sees it, before
+// anything else.
+const SandboxHelperArg = "__plux-sandbox-child"
+
 // ErrSandboxUnavailable is returned by a sandbox that cannot isolate a child,
 // for example because the kernel refuses user or network namespaces
 // (FN-016). The builder never retries without the sandbox; running unsandboxed
@@ -60,6 +66,15 @@ type Command struct {
 	// written, and Result.Stdout stays empty; the caller bounds what it
 	// accepts. Standard error is always captured and bounded.
 	Stdout io.Writer
+	// Writable are the directories the child may change: a build's own
+	// scratch directory. In the LinuxSandbox the child sees nothing else
+	// writable, and the first one also holds its temporary files.
+	Writable []string
+	// Readable are further directories the child may read and run from:
+	// the toolchain and the tools. In the LinuxSandbox the child sees the
+	// system directories, these and Writable, and nothing else (build log
+	// #164).
+	Readable []string
 }
 
 // Result is the outcome of a command that ran to an end, whatever its exit

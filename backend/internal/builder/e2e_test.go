@@ -161,7 +161,7 @@ func TestBuildLoanExampleEndToEnd_FN_019(t *testing.T) {
 	if !bytes.Equal(a1.Module, a2.Module) || a1.Provenance.SourceSHA256 != a2.Provenance.SourceSHA256 {
 		t.Error("two builds differ")
 	}
-	cfg.Sandbox = LinuxSandbox{}
+	cfg.Sandbox = testSandbox(t)
 	sandboxed, err := New(cfg)
 	if err != nil {
 		t.Fatal(err)

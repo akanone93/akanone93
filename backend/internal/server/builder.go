@@ -32,9 +32,15 @@ func (s *Server) buildBuilder() error {
 	if err != nil {
 		return fmt.Errorf("server: builder: %w", err)
 	}
-	var sandbox builder.Sandbox = builder.LinuxSandbox{}
-	if b.Sandbox == "none" {
-		sandbox = builder.NoSandbox{}
+	var sandbox builder.Sandbox = builder.NoSandbox{}
+	if b.Sandbox != "none" {
+		// The process itself is the sandbox helper of every child: its
+		// main runs builder.RunSandboxHelper for builder.SandboxHelperArg.
+		self, err := os.Executable()
+		if err != nil {
+			return fmt.Errorf("server: builder: find the executable that isolates each build: %w", err)
+		}
+		sandbox = builder.LinuxSandbox{Helper: self}
 	}
 	identity := b.Identity
 	if identity == "" {

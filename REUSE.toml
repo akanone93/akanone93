@@ -227,8 +227,9 @@ SPDX-FileCopyrightText = "2022 gitlost"
 SPDX-License-Identifier = "BSD-3-Clause"
 
 # Docker's default seccomp profile (moby/profiles, seccomp/default.json) with
-# one added rule that lets the function builder create the namespaces of its
-# build sandbox (deploy/compose/README.md, "Function builder"; FN-016).
+# the added rules that let the function builder create the namespaces of its
+# build sandbox and build each build's private view (deploy/compose/README.md,
+# "Function builder"; FN-016, ADR-0106).
 [[annotations]]
 path = "deploy/compose/seccomp-builder.json"
 precedence = "override"

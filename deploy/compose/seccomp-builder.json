@@ -1086,6 +1086,41 @@
 		},
 		{
 			"names": [
+				"mount"
+			],
+			"action": "SCMP_ACT_ALLOW",
+			"args": [
+				{
+					"index": 3,
+					"value": 18446744073707168720,
+					"op": "SCMP_CMP_MASKED_EQ"
+				}
+			],
+			"comment": "Plux builder (FN-016, ADR-0106): the sandbox helper builds each build's private filesystem view with mount(2) inside the build's own user and mount namespaces, before it restricts itself with Landlock. Only the flags it uses may be set: MS_RDONLY, MS_NOSUID, MS_NODEV, MS_NOEXEC, MS_REMOUNT, MS_NOATIME, MS_NODIRATIME, MS_BIND, MS_REC, MS_PRIVATE and MS_RELATIME (0x245C2F). No capability is added, so outside its own namespaces the call still fails with EPERM, and Landlock refuses every mount of the tool and its children before any filesystem code runs."
+		},
+		{
+			"names": [
+				"umount2"
+			],
+			"action": "SCMP_ACT_ALLOW",
+			"args": [
+				{
+					"index": 1,
+					"value": 18446744073709551613,
+					"op": "SCMP_CMP_MASKED_EQ"
+				}
+			],
+			"comment": "Plux builder (FN-016, ADR-0106): the sandbox helper detaches the machine's root from the build's view (MNT_DETACH only)."
+		},
+		{
+			"names": [
+				"pivot_root"
+			],
+			"action": "SCMP_ACT_ALLOW",
+			"comment": "Plux builder (FN-016, ADR-0106): the sandbox helper makes the build's view its root; in its own mount namespace only, and Landlock refuses it to the tool."
+		},
+		{
+			"names": [
 				"clone3"
 			],
 			"action": "SCMP_ACT_ERRNO",

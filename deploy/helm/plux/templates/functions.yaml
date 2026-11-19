@@ -38,6 +38,12 @@ spec:
     spec:
       serviceAccountName: {{ include "plux.serviceAccountName" $root }}
       automountServiceAccountToken: false
+      {{- if eq $role "builder" }}
+      # The builder runs in a user namespace of its own (ADR-0106): its
+      # users are not the node's, and its /proc can be unmasked (below)
+      # without showing the node's.
+      hostUsers: false
+      {{- end }}
       terminationGracePeriodSeconds: {{ include "plux.terminationGrace" $root }}
       {{- with $root.Values.imagePullSecrets }}
       imagePullSecrets:
@@ -78,6 +84,18 @@ spec:
             {{- toYaml $v.resources | nindent 12 }}
           securityContext:
             {{- include "plux.containerSecurityContext" $root | nindent 12 }}
+            {{- if eq $role "builder" }}
+            # Each build mounts a /proc of its own PID namespace, which the
+            # kernel allows only where the container's /proc is not masked;
+            # the build's view hides the same files the runtime would
+            # (ADR-0106).
+            procMount: Unmasked
+            {{- with $root.Values.builder.appArmorProfile }}
+            # The sandbox helper builds each build's view with mount(2);
+            # the runtime's default AppArmor profile denies every mount.
+            appArmorProfile: {type: Localhost, localhostProfile: {{ . | quote }}}
+            {{- end }}
+            {{- end }}
           volumeMounts:
             - {name: config, mountPath: /etc/plux/plux.yaml, subPath: plux.yaml, readOnly: true}
             - {name: internal-tls, mountPath: /etc/plux/internal, readOnly: true}

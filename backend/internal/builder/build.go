@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 	"unicode"
@@ -99,6 +100,9 @@ type Config struct {
 type Builder struct {
 	cfg Config
 	sdk fs.FS
+	// readable are the directories a sandboxed tool may read and run from:
+	// the toolchain and the tools (Command.Readable).
+	readable []string
 }
 
 // New validates the configuration and returns a Builder.
@@ -141,7 +145,29 @@ func New(cfg Config) (*Builder, error) {
 	if cfg.WasmOpt[0], err = resolveTool(cfg.WasmOpt[0], ""); err != nil {
 		return nil, err
 	}
-	return &Builder{cfg: cfg, sdk: os.DirFS(cfg.SDKDir)}, nil
+	return &Builder{cfg: cfg, sdk: os.DirFS(cfg.SDKDir), readable: toolDirs(cfg)}, nil
+}
+
+// toolDirs are the directories the tools of a build live in: those of cargo
+// and rustc, of each part of the wasm-opt command and its parent (the Bun
+// binary and the Binaryen package), and the toolchain directory.
+func toolDirs(cfg Config) []string {
+	var out []string
+	add := func(p string) {
+		if p != "" && filepath.IsAbs(p) && !slices.Contains(out, p) {
+			out = append(out, p)
+		}
+	}
+	add(filepath.Dir(cfg.Cargo))
+	add(filepath.Dir(cfg.Rustc))
+	for _, part := range cfg.WasmOpt {
+		if filepath.IsAbs(part) {
+			add(filepath.Dir(part))
+			add(filepath.Dir(filepath.Dir(part)))
+		}
+	}
+	add(rustupHome(cfg.Getenv))
+	return out
 }
 
 // resolveTool returns the absolute path of a tool, looked up on PATH when it
@@ -322,7 +348,9 @@ func (r *run) exec(ctx context.Context, path string, args []string) (Result, err
 
 // execIn runs one tool in dir.
 func (r *run) execIn(ctx context.Context, dir, path string, args []string, lim Limits) (Result, error) {
-	res, err := r.b.cfg.Sandbox.Run(ctx, Command{Path: path, Args: args, Dir: dir, Env: r.env, Limits: lim})
+	res, err := r.b.cfg.Sandbox.Run(ctx, Command{
+		Path: path, Args: args, Dir: dir, Env: r.env, Limits: lim, Writable: []string{r.scratch}, Readable: r.b.readable,
+	})
 	if err != nil {
 		return res, fmt.Errorf("builder: run %s: %w", filepath.Base(path), err)
 	}

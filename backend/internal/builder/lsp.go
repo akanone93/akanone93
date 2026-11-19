@@ -11,6 +11,8 @@ import (
 	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -153,6 +155,7 @@ func (b *Builder) OpenLanguage(ctx context.Context, src FunctionSource, o Langua
 		Env:    append(append([]string{}, r.env...), o.Env...),
 		Limits: Limits{CPUTime: o.Wall, Memory: o.Memory, Wall: o.Wall, OutputBytes: stderrCapture},
 		Stdin:  pr, Stdout: fw,
+		Writable: []string{r.scratch}, Readable: append(slices.Clone(b.readable), filepath.Dir(server)),
 	}
 	go func() {
 		defer cleanup()

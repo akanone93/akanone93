@@ -1185,6 +1185,10 @@
         "seccompProfile": {
           "type": "string",
           "minLength": 1
+        },
+        "appArmorProfile": {
+          "type": "string",
+          "pattern": "^([a-zA-Z0-9][a-zA-Z0-9._-]*)?$"
         }
       }
     },
