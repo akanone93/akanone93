@@ -432,6 +432,7 @@ const adminRoutes = [
   adminRoute("/restrictions", "RestrictionsPage", "restrictions.manage"),
   adminRoute("/access", "AccessPage", "roles.manage", accessSearchSchema),
   adminRoute("/sso", "SsoPage", "sso.manage"),
+  adminRoute("/environments", "EnvironmentsPage", "secrets.manage"),
   adminRoute("/tokens", "TokensPage", "tokens.manage"),
   adminRoute("/sessions", "SessionsPage", "sessions.manage"),
   adminRoute("/audit", "AuditPage", "audit.read", auditSearchSchema),

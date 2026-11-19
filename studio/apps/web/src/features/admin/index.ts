@@ -4,6 +4,7 @@
 export { AccessPage } from "./access-page.tsx";
 export { AuditPage } from "./audit-page.tsx";
 export { CompliancePage } from "./compliance-page.tsx";
+export { EnvironmentsPage } from "./environments-page.tsx";
 export { LicensePage } from "./license-page.tsx";
 export { LimitsPage } from "./limits-page.tsx";
 export { MemberPage, MembersPage } from "./members-pages.tsx";

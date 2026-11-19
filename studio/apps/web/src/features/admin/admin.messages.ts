@@ -76,6 +76,75 @@ export function adminMessages(i18n: I18n) {
       message: "Licence",
       comment: "Text in the organisation administration area.",
     }),
+    navEnvironments: i18n._({
+      id: "admin.navEnvironments",
+      message: "Environments and secrets",
+      comment: "Text in the organisation administration area.",
+    }),
+    environmentsTitle: i18n._({
+      id: "admin.environmentsTitle",
+      message: "Environments and secrets",
+      comment: "Heading of the administration page for each app's environments and their secrets.",
+    }),
+    environmentsCaption: i18n._({
+      id: "admin.environmentsCaption",
+      message:
+        "Each app's environments, and the secrets the server holds for each: functions and gateway upstreams name them, devices never receive them.",
+      comment: "Caption under the environments heading.",
+    }),
+    environmentsApp: i18n._({
+      id: "admin.environmentsApp",
+      message: "App",
+      comment: "Label of the app chooser on the environments page.",
+    }),
+    environmentsProduction: i18n._({
+      id: "admin.environmentsProduction",
+      message: "Production",
+      comment: "Column heading and field label: whether an environment is a production environment.",
+    }),
+    environmentsShowSecrets: i18n._({
+      id: "admin.environmentsShowSecrets",
+      message: "Show secrets",
+      comment: "Button that shows the secrets of an environment below the list.",
+    }),
+    environmentsCreate: i18n._({
+      id: "admin.environmentsCreate",
+      message: "Create environment",
+      comment: "Button that creates an environment of the chosen app.",
+    }),
+    secretsOf: (environment: string) =>
+      i18n._({
+        id: "admin.secretsOf",
+        message: "Secrets of {environment}",
+        values: { environment },
+        comment: "Heading of the secrets of one environment; {environment} is its name.",
+      }),
+    secretsNote: i18n._({
+      id: "admin.secretsNote",
+      message:
+        "A value is stored encrypted and never shown again: only its last characters, to tell values apart. Setting or deleting a secret asks for your security key.",
+      comment: "Note under the secrets heading.",
+    }),
+    secretsHint: i18n._({
+      id: "admin.secretsHint",
+      message: "Ends with",
+      comment: "Column heading: the last characters of a secret's value.",
+    }),
+    secretsUpdated: i18n._({
+      id: "admin.secretsUpdated",
+      message: "Changed",
+      comment: "Column heading: when a secret was last set.",
+    }),
+    secretsValue: i18n._({
+      id: "admin.secretsValue",
+      message: "Value",
+      comment: "Label of the write-only field for a secret's value.",
+    }),
+    secretsSet: i18n._({
+      id: "admin.secretsSet",
+      message: "Set secret",
+      comment: "Button that stores a secret, or replaces the value of one with the same key.",
+    }),
     navLimits: i18n._({
       id: "admin.navLimits",
       message: "Limits",

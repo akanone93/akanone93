@@ -71,6 +71,7 @@ import { applyPatch, type JsonPatchOp, type JsonValue } from "./features/editor/
 import {
   type AdminData,
   analyticsAdmin,
+  appAdmin,
   auditAdmin,
   complianceAdmin,
   federationAdmin,
@@ -740,6 +741,7 @@ export function createUpstream(state: UpstreamData) {
         state.restored?.push(req.id);
         return {};
       },
+      ...appAdmin(admin),
     });
     service(TemplateService, {
       listLibraryTemplates: (req) => libraryList(state.library, "template", req.visibility, req.query),

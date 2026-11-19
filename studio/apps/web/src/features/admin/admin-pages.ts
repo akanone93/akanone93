@@ -18,6 +18,7 @@ export function adminPages(i18n: I18n) {
     { path: "/restrictions", label: m.navRestrictions, permission: "restrictions.manage" },
     { path: "/access", label: m.navAccess, permission: "roles.manage" },
     { path: "/sso", label: m.navSso, permission: "sso.manage" },
+    { path: "/environments", label: m.navEnvironments, permission: "secrets.manage" },
     { path: "/tokens", label: m.navTokens, permission: "tokens.manage" },
     { path: "/sessions", label: m.navSessions, permission: "sessions.manage" },
     { path: "/audit", label: m.navAudit, permission: "audit.read" },

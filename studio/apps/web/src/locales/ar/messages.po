@@ -1432,6 +1432,12 @@ msgstr "لا يجوز أن تخفض المرحلة نسبة المرحلة ال�
 msgid "themeCard.live"
 msgstr "قيمة الرمز تغيّر كل عنصر يستخدمه في كل شاشة."
 
+#. Note under the secrets heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretsNote"
+msgstr "تُخزَّن القيمة مشفّرة ولا تُعرض مرة أخرى، بل آخر أحرفها فقط للتمييز بين القيم. يطلب تعيين سرّ أو حذفه مفتاح الأمان الخاص بك."
+
 #. Title shown when the number picked on a phone was not the one Studio showed; phone is its name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/join.messages.ts
@@ -2419,6 +2425,12 @@ msgstr "التطبيق"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.appColumn"
+msgstr "التطبيق"
+
+#. Label of the app chooser on the environments page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsApp"
 msgstr "التطبيق"
 
 #. Name of the app bundle in the publish steps: the app-level documents a release carries beside its plugins.
@@ -3636,6 +3648,12 @@ msgstr "متغيّر"
 msgid "publish.diffChanged"
 msgstr "تغيّر"
 
+#. Column heading: when a secret was last set.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretsUpdated"
+msgstr "آخر تغيير"
+
 #. Heading of the JSON diff of a plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -4733,6 +4751,12 @@ msgstr "إنشاء تطبيق"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.apps.create"
 msgstr "إنشاء تطبيق"
+
+#. Button that creates an environment of the chosen app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsCreate"
+msgstr "إنشاء بيئة"
 
 #. Button that creates the experiment.
 #. js-lingui-explicit-id
@@ -5970,6 +5994,12 @@ msgstr "المدة (ms)"
 msgid "analytics.replayDuration"
 msgstr "المدة (مللي ثانية)"
 
+#. Caption under the environments heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsCaption"
+msgstr "بيئات كل تطبيق والأسرار التي يحفظها الخادم لكل منها: تشير إليها الدوال وخوادم البوابة، ولا تصل إلى الأجهزة أبدًا."
+
 #. Switch that sets a radius per corner instead of one for all.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -6233,6 +6263,12 @@ msgstr "منتهٍ"
 msgid "releases.abortHint"
 msgstr "ينهي الطرح ويعيد القناة إلى إصدارها السابق. يلزم تحقق أمني."
 
+#. Column heading: the last characters of a secret's value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretsHint"
+msgstr "ينتهي بـ"
+
 #. The transition a widget plays when it appears.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/motion-panel.messages.ts
@@ -6484,6 +6520,18 @@ msgstr "البيئات"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.fieldEnvironments"
 msgstr "البيئات (مفصولة بفواصل)"
+
+#. Text in the organisation administration area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.navEnvironments"
+msgstr "البيئات والأسرار"
+
+#. Heading of the administration page for each app's environments and their secrets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsTitle"
+msgstr "البيئات والأسرار"
 
 #. Level label of a console line.
 #. js-lingui-explicit-id
@@ -13127,6 +13175,12 @@ msgstr "المشكلات"
 msgid "devices.tabFlow"
 msgstr "تدفق العملية"
 
+#. Column heading and field label: whether an environment is a production environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsProduction"
+msgstr "الإنتاج"
+
 #. Name of the production environment, which every app has.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -15429,6 +15483,12 @@ msgstr "السر (يُعرض مرة واحدة)"
 msgid "functions.capSecrets"
 msgstr "الأسرار التي يمكنها قراءتها"
 
+#. Heading of the secrets of one environment; {environment} is its name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretsOf"
+msgstr "أسرار {environment}"
+
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -15753,6 +15813,12 @@ msgstr "المعيّنة فقط"
 msgid "style.eachCornerSet"
 msgstr "معيّن لكل زاوية"
 
+#. Button that stores a secret, or replaces the value of one with the same key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretsSet"
+msgstr "تعيين السرّ"
+
 #. Column head: the setting's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -15986,6 +16052,12 @@ msgstr "إظهار الإضافات"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.layers.show-panel"
 msgstr "إظهار لوحة الإضافات"
+
+#. Button that shows the secrets of an environment below the list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsShowSecrets"
+msgstr "عرض الأسرار"
 
 #. Accessible name of an asset card's button that opens its details.
 #. js-lingui-explicit-id
@@ -19844,6 +19916,12 @@ msgstr "القيمة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.replayStateValue"
+msgstr "القيمة"
+
+#. Label of the write-only field for a secret's value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretsValue"
 msgstr "القيمة"
 
 #. Label of a step input written as a plain value.

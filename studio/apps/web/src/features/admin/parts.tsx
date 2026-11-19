@@ -71,7 +71,7 @@ export function fmt(time: Timestamp | undefined, never: string): string {
 export interface FormField {
   readonly name: string;
   readonly label: string;
-  readonly type?: "text" | "date" | "number";
+  readonly type?: "text" | "date" | "number" | "password";
   readonly required?: boolean;
   readonly options?: readonly { readonly value: string; readonly label: string }[];
   readonly initial?: string;

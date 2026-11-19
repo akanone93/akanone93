@@ -43,6 +43,54 @@ describe("[STU-116] organisation administration", () => {
     expect(calls(state)).toEqual([`updateOrganization:{"id":"${orgA}","name":"Beta"}`]);
   });
 
+  test("O32 lists an app's environments and one's secrets without their values, sets and deletes a secret", async () => {
+    const state: Upstream = {
+      admin: {
+        calls: [],
+        apps: [{ id: "app1", name: "Apply Register" }],
+        secrets: { "env-dev": [{ key: "AR_GATEWAY_KEY", hint: "…x9Qa" }] },
+      },
+    };
+    renderApp(`${base}/environments`, { permissions: [...all, "secrets.manage", "environment.manage"], ...state });
+    await screen.findByText("AR_GATEWAY_KEY");
+    expect(screen.getByText("…x9Qa")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Secrets of development" })).toBeTruthy();
+    fireEvent.change(screen.getAllByRole("textbox", { name: "Key" })[1] as HTMLElement, {
+      target: { value: "AR_PARTNER_KEY" },
+    });
+    const value = screen.getByLabelText("Value") as HTMLInputElement;
+    expect(value.type).toBe("password");
+    fireEvent.change(value, { target: { value: "s3cret-value" } });
+    fireEvent.click(screen.getByRole("button", { name: "Set secret" }));
+    await waitFor(() =>
+      expect(calls(state)).toContain('setSecret:{"environmentId":"env-dev","key":"AR_PARTNER_KEY","valueLength":12}'),
+    );
+    await waitFor(() => expect((screen.getByLabelText("Value") as HTMLInputElement).value).toBe(""));
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await waitFor(() =>
+      expect(calls(state)).toContain('deleteSecret:{"environmentId":"env-dev","key":"AR_GATEWAY_KEY"}'),
+    );
+  });
+
+  test("O32 creates an environment, and only with environment.manage", async () => {
+    const state: Upstream = { admin: { calls: [], apps: [{ id: "app1", name: "Apply Register" }] } };
+    renderApp(`${base}/environments`, { permissions: [...all, "secrets.manage", "environment.manage"], ...state });
+    const key = (await screen.findAllByRole("textbox", { name: "Key" }))[0] as HTMLElement;
+    fireEvent.change(key, { target: { value: "qa" } });
+    fireEvent.change(screen.getAllByRole("textbox", { name: "Name" })[0] as HTMLElement, { target: { value: "QA" } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Create environment" }).getAttribute("aria-disabled")).not.toBe("true"),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Create environment" }));
+    await waitFor(() =>
+      expect(calls(state)).toContain('createEnvironment:{"appId":"app1","key":"qa","name":"QA","production":false}'),
+    );
+    cleanup();
+    renderApp(`${base}/environments`, { permissions: [...all, "secrets.manage"], ...state });
+    await screen.findByRole("button", { name: "Set secret" });
+    expect(screen.getByRole("button", { name: "Create environment" }).getAttribute("aria-disabled")).toBe("true");
+  });
+
   test("a page without its permission shows the forbidden page", async () => {
     renderApp(`${base}/members`, { permissions: [] });
     await screen.findByText("Your role does not include the permission this page needs.");

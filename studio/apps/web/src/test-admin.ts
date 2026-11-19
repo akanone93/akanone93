@@ -5,6 +5,7 @@ import { timestampFromMs } from "@bufbuild/protobuf/wkt";
 import { Code, ConnectError, type ServiceImpl } from "@connectrpc/connect";
 import type {
   AnalyticsService,
+  AppService,
   AuditService,
   ComplianceService,
   FederationService,
@@ -35,6 +36,10 @@ export interface AdminData {
   retention?: { dataClass: string; days: number }[];
   license?: { state: string; licenseId?: string; organization?: string };
   limits?: { key: string; unit: string; value: bigint; effective: bigint; hardMax: bigint }[];
+  /** The organisation's apps (O32); when set, they answer ListApps. */
+  apps?: { id: string; name: string }[];
+  /** Each environment's secrets (O32), by environment id: what ListSecrets returns. */
+  secrets?: Record<string, { key: string; hint: string }[]>;
   /** The secret the server returns once when a token or invitation is created. */
   secret?: string;
   installation?: {
@@ -169,6 +174,31 @@ export function governanceAdmin(a: AdminData): Partial<ServiceImpl<typeof Govern
     },
     deleteRestriction: (req) => {
       rec("deleteRestriction", { id: req.id });
+      return {};
+    },
+  };
+}
+
+/** O32: environments and their secrets; a value is recorded only as its length, as the server keeps no readable copy. */
+export function appAdmin(a: AdminData): Partial<ServiceImpl<typeof AppService>> {
+  const rec = recorder(a);
+  return {
+    ...(a.apps !== undefined && { listApps: () => ({ apps: a.apps ?? [] }) }),
+    createEnvironment: (req) => {
+      rec("createEnvironment", { appId: req.appId, key: req.key, name: req.name, production: req.production });
+      return { environment: { id: `env-${req.key}`, appId: req.appId, key: req.key, name: req.name } };
+    },
+    listSecrets: (req) => {
+      guard(a);
+      return { secrets: a.secrets?.[req.environmentId] ?? [] };
+    },
+    setSecret: (req) => {
+      refuse(a, "setSecret");
+      rec("setSecret", { environmentId: req.environmentId, key: req.key, valueLength: req.value.length });
+      return { secret: { key: req.key, hint: req.value.length < 8 ? "" : `…${req.value.slice(-4)}` } };
+    },
+    deleteSecret: (req) => {
+      rec("deleteSecret", { environmentId: req.environmentId, key: req.key });
       return {};
     },
   };
