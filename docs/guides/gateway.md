@@ -56,8 +56,11 @@ Rules:
 ## 3. Register an upstream
 
 An upstream belongs to one app and environment. Register it through
-`SecurityAdminService`; Studio gets a view in P11. You need `app.manage` to change one and
-`app.read` to read it. Every change is audited.
+`SecurityAdminService`. You need `gateway.manage` on the environment to change one, and a
+step-up with your security key within the last five minutes, because an upstream decides where
+the gateway sends a secret ([ADR-0108](../adr/0108-gateway-changes-need-a-step-up.md)); `app.read`
+reads it. The same holds for the identity provider whose user tokens an environment trusts.
+Every change is audited.
 
 The upstream's **name** is the data source's `name`: a lower-case letter followed by up to 63
 letters and digits.

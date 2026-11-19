@@ -67,6 +67,12 @@ const (
 	// AnalyticsManage creates, changes and deletes funnel definitions
 	// (ANL-020).
 	AnalyticsManage Permission = "analytics.manage"
+	// GatewayManage registers and changes gateway upstreams, the identity
+	// provider whose user tokens an environment trusts, and server-held
+	// configuration values. Each decides where the gateway sends secrets,
+	// whose tokens it believes and what it binds into transactions, so it
+	// needs a step-up (SEC-103, ADR-0108).
+	GatewayManage Permission = "gateway.manage"
 )
 
 // allPermissions is every permission of the catalogue, sorted.

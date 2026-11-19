@@ -746,29 +746,29 @@ var matrix = map[string]entry{
 	"SecurityAdminService/GetEffectiveSecurityConfig": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetEffectiveSecurityConfigRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/CreateUpstream": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"SecurityAdminService/CreateUpstream": atPerm(auth.GatewayManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.CreateUpstreamRequest{Upstream: f.upstream("")}
 	}),
 	"SecurityAdminService/GetUpstream": atPerm(auth.AppRead, anyone(&pluxv1.GetUpstreamRequest{Id: unknownID})),
 	"SecurityAdminService/ListUpstreams": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListUpstreamsRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/UpdateUpstream": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"SecurityAdminService/UpdateUpstream": atPerm(auth.GatewayManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.UpdateUpstreamRequest{Upstream: f.upstream(f.freshUpstream(t).GetId())}
 	}),
-	"SecurityAdminService/DeleteUpstream": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"SecurityAdminService/DeleteUpstream": atPerm(auth.GatewayManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteUpstreamRequest{Id: f.freshUpstream(t).GetId()}
 	}),
-	"SecurityAdminService/SetUserIdentityProvider": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+	"SecurityAdminService/SetUserIdentityProvider": atPerm(auth.GatewayManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetUserIdentityProviderRequest{Provider: &pluxv1.UserIdentityProvider{AppId: f.app, EnvironmentId: f.dev}}
 	})),
 	"SecurityAdminService/GetUserIdentityProvider": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetUserIdentityProviderRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/DeleteUserIdentityProvider": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+	"SecurityAdminService/DeleteUserIdentityProvider": atPerm(auth.GatewayManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteUserIdentityProviderRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/SetConfigValue": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+	"SecurityAdminService/SetConfigValue": atPerm(auth.GatewayManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetConfigValueRequest{AppId: f.app, EnvironmentId: f.dev, Value: &pluxv1.ConfigValue{
 			Key: "matrix", Tier: pluxv1.ConfigTier_CONFIG_TIER_LIVE, Type: pluxv1.ConfigType_CONFIG_TYPE_STRING, Value: "v",
 		}}
@@ -779,7 +779,7 @@ var matrix = map[string]entry{
 	"SecurityAdminService/ListConfigValues": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListConfigValuesRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/DeleteConfigValue": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+	"SecurityAdminService/DeleteConfigValue": atPerm(auth.GatewayManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteConfigValueRequest{AppId: f.app, EnvironmentId: f.dev, Key: "absent"}
 	})),
 	"ConfigService/GetLiveConfig": {kind: deviceRPC, build: anyone(&pluxv1.GetLiveConfigRequest{})},

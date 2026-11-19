@@ -58,7 +58,7 @@ func sealBinding(environmentID, key string) []byte {
 // epoch reaches the cache store before the change commits, so no gateway
 // uses a value older than a change that has been acknowledged (DAT-092).
 func (c *Configs) Set(ctx context.Context, p auth.Principal, v ConfigValue, expected *int64) (ConfigValue, error) {
-	if err := p.AuthorizeApp(auth.AppManage, v.AppID); err != nil {
+	if err := p.AuthorizeSomeEnvironment(auth.GatewayManage, v.AppID); err != nil {
 		return ConfigValue{}, fmt.Errorf("gateway: %w", err)
 	}
 	var out ConfigValue
@@ -79,7 +79,7 @@ func (c *Configs) Set(ctx context.Context, p auth.Principal, v ConfigValue, expe
 // also when a later step failed, so that the caller can take it back.
 func (c *Configs) set(ctx context.Context, tx pgx.Tx, p auth.Principal, v ConfigValue, expected *int64) (ConfigValue, *epochWrite, error) {
 	q := dbgen.New(tx)
-	env, err := environmentOf(ctx, q, v.AppID, v.EnvironmentID)
+	env, err := managedEnvironment(ctx, q, p, v.AppID, v.EnvironmentID)
 	if err != nil {
 		return ConfigValue{}, nil, err
 	}
@@ -175,13 +175,13 @@ func (c *Configs) upsertParams(ctx context.Context, env dbgen.Environment, p aut
 
 // Delete removes a value.
 func (c *Configs) Delete(ctx context.Context, p auth.Principal, appID, environmentID, key string) error {
-	if err := p.AuthorizeApp(auth.AppManage, appID); err != nil {
+	if err := p.AuthorizeSomeEnvironment(auth.GatewayManage, appID); err != nil {
 		return fmt.Errorf("gateway: %w", err)
 	}
 	var published *epochWrite
 	err := c.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		env, err := environmentOf(ctx, q, appID, environmentID)
+		env, err := managedEnvironment(ctx, q, p, appID, environmentID)
 		if err != nil {
 			return err
 		}

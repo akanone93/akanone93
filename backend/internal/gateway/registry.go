@@ -75,7 +75,7 @@ func NewRegistry(o RegistryOptions) (*Registry, error) {
 
 // Create registers an upstream and audits it (SEC-031, SEC-140).
 func (r *Registry) Create(ctx context.Context, p auth.Principal, u Upstream) (Upstream, error) {
-	if err := p.AuthorizeApp(auth.AppManage, u.AppID); err != nil {
+	if err := p.AuthorizeSomeEnvironment(auth.GatewayManage, u.AppID); err != nil {
 		return Upstream{}, fmt.Errorf("gateway: %w", err)
 	}
 	if err := u.Validate(); err != nil {
@@ -88,7 +88,7 @@ func (r *Registry) Create(ctx context.Context, p auth.Principal, u Upstream) (Up
 	var out Upstream
 	err = r.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		env, err := environmentOf(ctx, q, u.AppID, u.EnvironmentID)
+		env, err := managedEnvironment(ctx, q, p, u.AppID, u.EnvironmentID)
 		if err != nil {
 			return err
 		}
@@ -127,8 +127,8 @@ func (r *Registry) Update(ctx context.Context, p auth.Principal, u Upstream) (Up
 		if err != nil {
 			return failure(err, "upstream")
 		}
-		if err := p.AuthorizeApp(auth.AppManage, storage.ID(current.AppID)); err != nil {
-			return fmt.Errorf("gateway: %w", err)
+		if _, err := managedEnvironment(ctx, q, p, storage.ID(current.AppID), storage.ID(current.EnvironmentID)); err != nil {
+			return err
 		}
 		oldName = current.Name
 		if (u.AppID != "" && u.AppID != storage.ID(current.AppID)) ||
@@ -169,8 +169,8 @@ func (r *Registry) Delete(ctx context.Context, p auth.Principal, id string) erro
 		if err != nil {
 			return failure(err, "upstream")
 		}
-		if err := p.AuthorizeApp(auth.AppManage, storage.ID(row.AppID)); err != nil {
-			return fmt.Errorf("gateway: %w", err)
+		if _, err := managedEnvironment(ctx, q, p, storage.ID(row.AppID), storage.ID(row.EnvironmentID)); err != nil {
+			return err
 		}
 		if gone, err = upstreamOf(row); err != nil {
 			return err
@@ -310,6 +310,22 @@ func (r *Registry) record(ctx context.Context, tx pgx.Tx, p auth.Principal, acti
 }
 
 // environmentOf reads an environment of an app.
+// managedEnvironment returns the environment of the app after checking that
+// p holds gateway.manage on it, which needs a recent step-up with the
+// security key (SEC-103, ADR-0108): an upstream decides where the gateway
+// sends a secret, an identity provider whose tokens it believes, and a
+// configuration value what it binds into requests and transactions.
+func managedEnvironment(ctx context.Context, q *dbgen.Queries, p auth.Principal, appID, environmentID string) (dbgen.Environment, error) {
+	env, err := environmentOf(ctx, q, appID, environmentID)
+	if err != nil {
+		return dbgen.Environment{}, err
+	}
+	if err := p.AuthorizeEnvironment(auth.GatewayManage, appID, env.Key); err != nil {
+		return dbgen.Environment{}, fmt.Errorf("gateway: %w", err)
+	}
+	return env, nil
+}
+
 func environmentOf(ctx context.Context, q *dbgen.Queries, appID, environmentID string) (dbgen.Environment, error) {
 	app, err := storage.UUID(appID)
 	if err != nil {

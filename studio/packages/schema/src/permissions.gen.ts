@@ -27,6 +27,7 @@ export type PermissionName =
   | "function.deploy"
   | "function.deploy.production"
   | "function.read"
+  | "gateway.manage"
   | "git.export"
   | "goldens.approve"
   | "keys.manage"
@@ -323,6 +324,17 @@ export const permissions = [
     stepUp: false,
     scope: "app",
     readOnly: true,
+  },
+  {
+    name: "gateway.manage",
+    description: "Register and change gateway upstreams, the identity provider whose user tokens an environment trusts, and server-held configuration values.",
+    area: "gateway",
+    feature: "gateway",
+    action: "manage",
+    risk: "high",
+    stepUp: true,
+    scope: "environment",
+    readOnly: false,
   },
   {
     name: "git.export",
@@ -737,6 +749,7 @@ export const roles = [
       "function.deploy",
       "function.deploy.production",
       "function.read",
+      "gateway.manage",
       "git.export",
       "goldens.approve",
       "keys.manage",
@@ -787,6 +800,7 @@ export const roles = [
       "function.deploy",
       "function.deploy.production",
       "function.read",
+      "gateway.manage",
       "goldens.approve",
       "library.manage",
       "library.publish",

@@ -29,7 +29,10 @@ plux config set transferLimit --tier live --type integer --value 5000 --strict -
 plux config list --env production
 ```
 
-Changes need `app.manage` and are audited. A sensitive value is read from standard input,
+Changes need `gateway.manage` on the environment and a step-up with your security key, which
+`plux config` asks for, and are audited ([ADR-0108](../adr/0108-gateway-changes-need-a-step-up.md)):
+a server-bound value is bound into requests and transactions, such as a payee's account. A
+sensitive value is read from standard input,
 sealed at rest and never shown again. `--expected-version` refuses a change when someone else
 changed the value since you read it.
 

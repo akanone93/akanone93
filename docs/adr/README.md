@@ -116,5 +116,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0105](0105-function-dependencies-as-verified-crates.md) | Function dependencies travel as verified crate archives, stored once, and the allowlist pins their contents | P11 | Accepted |
 | [0106](0106-builds-isolated-by-a-private-view-and-landlock.md) | Each build runs in a private view of the filesystem, restricted by Landlock, with no capabilities | P11 | Accepted |
 | [0107](0107-per-organisation-build-caches.md) | Server builds reuse the compiled dependencies of their own organisation, and never a compiled function | P11 | Accepted |
+| [0108](0108-gateway-changes-need-a-step-up.md) | Changes to the gateway need their own permission and a step-up | P11 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

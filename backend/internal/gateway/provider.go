@@ -56,7 +56,7 @@ func (p IdentityProvider) Validate() error {
 
 // SetProvider sets the identity provider of an environment (SEC-026).
 func (r *Registry) SetProvider(ctx context.Context, p auth.Principal, idp IdentityProvider) error {
-	if err := p.AuthorizeApp(auth.AppManage, idp.AppID); err != nil {
+	if err := p.AuthorizeSomeEnvironment(auth.GatewayManage, idp.AppID); err != nil {
 		return fmt.Errorf("gateway: %w", err)
 	}
 	if err := idp.Validate(); err != nil {
@@ -64,7 +64,7 @@ func (r *Registry) SetProvider(ctx context.Context, p auth.Principal, idp Identi
 	}
 	err := r.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		env, err := environmentOf(ctx, q, idp.AppID, idp.EnvironmentID)
+		env, err := managedEnvironment(ctx, q, p, idp.AppID, idp.EnvironmentID)
 		if err != nil {
 			return err
 		}
@@ -110,12 +110,12 @@ func (r *Registry) GetProvider(ctx context.Context, p auth.Principal, appID, env
 
 // DeleteProvider removes the identity provider of an environment.
 func (r *Registry) DeleteProvider(ctx context.Context, p auth.Principal, appID, environmentID string) error {
-	if err := p.AuthorizeApp(auth.AppManage, appID); err != nil {
+	if err := p.AuthorizeSomeEnvironment(auth.GatewayManage, appID); err != nil {
 		return fmt.Errorf("gateway: %w", err)
 	}
 	err := r.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		env, err := environmentOf(ctx, q, appID, environmentID)
+		env, err := managedEnvironment(ctx, q, p, appID, environmentID)
 		if err != nil {
 			return err
 		}

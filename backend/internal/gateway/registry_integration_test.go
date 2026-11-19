@@ -294,3 +294,79 @@ type secretsOf struct{ t *tenancy.Service }
 func (s secretsOf) OpenSecret(ctx context.Context, org, env, key string) ([]byte, error) {
 	return s.t.OpenEnvironmentSecret(ctx, org, env, key)
 }
+
+// Verifies: SEC-103, DAT-090, SEC-026, SEC-031.
+// Every change to how the gateway reaches the customer — an upstream, the
+// identity provider whose user tokens it believes, a configuration value it
+// binds into requests and transactions — needs gateway.manage on the
+// environment and a step-up with the security key within five minutes
+// (ADR-0108): app.manage, even with secrets.manage, is refused, and so is
+// gateway.manage with a step-up that is too old. Reads keep app.read.
+func TestGatewayChangesNeedGatewayManageAndAStepUp_SEC_103(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	w := newWorld(t)
+	appOnly := w.owner
+	appOnly.Permissions = []auth.Permission{auth.AppRead, auth.AppManage, auth.SecretsManage, auth.EnvironmentManage}
+	appOnly.AppPermissions, appOnly.EnvPermissions = nil, nil
+	stale := w.owner
+	stale.Identity = stale.WithStepUp(auth.StepUpWindow + time.Minute)
+
+	up, err := w.registry.Create(ctx, w.owner, w.upstream("production", "bank"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	idp := gateway.IdentityProvider{
+		AppID: w.app, EnvironmentID: w.envs["production"], Issuer: "https://login.example", JWKSURL: "https://login.example/keys",
+		Audiences: []string{"app"},
+	}
+	if err := w.registry.SetProvider(ctx, w.owner, idp); err != nil {
+		t.Fatal(err)
+	}
+	payee := w.value("payee", gateway.TierServerBound, gateway.TypeString, "DE89370400440532013000")
+	if _, err := w.configs.Set(ctx, w.owner, payee, nil); err != nil {
+		t.Fatal(err)
+	}
+	changes := map[string]func(auth.Principal) error{
+		"create an upstream": func(p auth.Principal) error {
+			_, err := w.registry.Create(ctx, p, w.upstream("production", "other"))
+			return err
+		},
+		"change an upstream": func(p auth.Principal) error {
+			changed := up
+			changed.BaseURL = "https://attacker.example/v1"
+			_, err := w.registry.Update(ctx, p, changed)
+			return err
+		},
+		"delete an upstream": func(p auth.Principal) error { return w.registry.Delete(ctx, p, up.ID) },
+		"set the identity provider": func(p auth.Principal) error {
+			other := idp
+			other.Issuer, other.JWKSURL = "https://attacker.example", "https://attacker.example/keys"
+			return w.registry.SetProvider(ctx, p, other)
+		},
+		"delete the identity provider": func(p auth.Principal) error {
+			return w.registry.DeleteProvider(ctx, p, w.app, w.envs["production"])
+		},
+		"set a configuration value": func(p auth.Principal) error {
+			_, err := w.configs.Set(ctx, p, w.value("payee", gateway.TierServerBound, gateway.TypeString, "GB33BUKB20201555555555"), nil)
+			return err
+		},
+		"delete a configuration value": func(p auth.Principal) error {
+			return w.configs.Delete(ctx, p, w.app, w.envs["production"], "payee")
+		},
+	}
+	for name, change := range changes {
+		if got := code(change(appOnly)); got != plxerr.PermissionDenied {
+			t.Errorf("%s with app.manage and secrets.manage but not gateway.manage: %v, want PermissionDenied", name, got)
+		}
+		if got := code(change(stale)); got != plxerr.StepUpExpired {
+			t.Errorf("%s with a step-up older than five minutes: %v, want StepUpExpired", name, got)
+		}
+	}
+	if got, err := w.registry.Get(ctx, w.owner, up.ID); err != nil || got.BaseURL != up.BaseURL {
+		t.Errorf("the upstream changed: %+v, %v", got, err)
+	}
+	if _, err := w.registry.List(ctx, appOnly, w.app, w.envs["production"], storage.Cursor{}, 10); err != nil {
+		t.Errorf("reading the upstreams with app.read was refused: %v", err)
+	}
+}

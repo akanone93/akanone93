@@ -144,6 +144,14 @@ The catalogue is grouped as area, feature, action (`GOV-002`). A restriction pol
 | `function.deploy.production` | `deploy.production` | Deploy a function to a production environment. | high | yes | environment |  |
 | `function.read` | `read` | Read functions, their versions and builds. | low |  | app | yes |
 
+### Area `gateway`
+
+#### Feature `gateway`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `gateway.manage` | `manage` | Register and change gateway upstreams, the identity provider whose user tokens an environment trusts, and server-held configuration values. | high | yes | environment |  |
+
 ### Area `git`
 
 #### Feature `git`
@@ -406,6 +414,7 @@ A role holds exactly the permissions marked below; there is no inheritance.
 | `function.deploy` | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |
 | `function.deploy.production` | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |
 | `function.read` | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ | ✓ | ✓ | ✓ |
+| `gateway.manage` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `git.export` | ✓ |  |  |  |  |  |  |  |  |  |
 | `goldens.approve` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `keys.manage` | ✓ |  |  |  |  |  |  |  |  |  |
