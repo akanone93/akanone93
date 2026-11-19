@@ -311,6 +311,61 @@ func (q *Queries) ListAuditEntries(ctx context.Context, arg ListAuditEntriesPara
 	return items, nil
 }
 
+const listAuditEntriesNewestFirst = `-- name: ListAuditEntriesNewestFirst :many
+SELECT id, organization_id, sequence, occurred_at, actor_kind, actor_id, actor_display, action, target_kind, target_id, source_ip, user_agent, request_id, before_hash, after_hash, previous_hash, entry_hash, detail FROM audit_log
+ WHERE organization_id IS NOT DISTINCT FROM $1::uuid
+   AND sequence < $2
+ ORDER BY sequence DESC
+ LIMIT $3
+`
+
+type ListAuditEntriesNewestFirstParams struct {
+	OrganizationID pgtype.UUID
+	BeforeSequence int64
+	PageSize       int32
+}
+
+// The same chain newest first, before a sequence number; the unique
+// (organization_id, sequence) index serves it backwards.
+func (q *Queries) ListAuditEntriesNewestFirst(ctx context.Context, arg ListAuditEntriesNewestFirstParams) ([]AuditLog, error) {
+	rows, err := q.db.Query(ctx, listAuditEntriesNewestFirst, arg.OrganizationID, arg.BeforeSequence, arg.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AuditLog{}
+	for rows.Next() {
+		var i AuditLog
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.Sequence,
+			&i.OccurredAt,
+			&i.ActorKind,
+			&i.ActorID,
+			&i.ActorDisplay,
+			&i.Action,
+			&i.TargetKind,
+			&i.TargetID,
+			&i.SourceIp,
+			&i.UserAgent,
+			&i.RequestID,
+			&i.BeforeHash,
+			&i.AfterHash,
+			&i.PreviousHash,
+			&i.EntryHash,
+			&i.Detail,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const lockAuditChain = `-- name: LockAuditChain :exec
 SELECT pg_advisory_xact_lock(hashtextextended('plux.audit:' || coalesce($1::uuid::text, 'installation'), 0))
 `

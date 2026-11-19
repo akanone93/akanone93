@@ -434,7 +434,7 @@ describe("[STU-116] organisation administration", () => {
     await screen.findByText("Grace");
     // The sidebar names the signed-in person (Ada); the audit rows are in the page's main region.
     expect(within(screen.getByRole("main")).queryByText("Ada")).toBeNull();
-    expect(calls(state)[0]).toBe('listAuditEntries:{"filter":"action = \\"role.create\\""}');
+    expect(calls(state)[0]).toBe('listAuditEntries:{"filter":"action = \\"role.create\\"","orderBy":"sequence desc"}');
     expect(screen.getByRole("button", { name: "Export CSV" })).toBeTruthy();
   });
 

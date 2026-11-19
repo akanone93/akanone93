@@ -558,7 +558,7 @@ func TestTenancyChangesAreAudited(t *testing.T) {
 	if _, err := f.svc.CreateApp(ctx, f.owner, "shop", "Shop"); err != nil {
 		t.Fatal(err)
 	}
-	entries, err := f.svc.AuditEntries(ctx, f.owner, 0, 100)
+	entries, err := f.svc.AuditEntries(ctx, f.owner, tenancy.AuditPage{Size: 100})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -578,15 +578,36 @@ func TestTenancyChangesAreAudited(t *testing.T) {
 	if err := audit.Verify(entries, ""); err != nil {
 		t.Errorf("Verify: %v", err)
 	}
+	// Newest first, page by page: the same entries backwards (#171).
+	var newest []audit.Entry
+	for page := (tenancy.AuditPage{Size: 2, NewestFirst: true}); ; {
+		got, err := f.svc.AuditEntries(ctx, f.owner, page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		newest = append(newest, got...)
+		if len(got) < int(page.Size) {
+			break
+		}
+		page.From = got[len(got)-1].Sequence
+	}
+	if len(newest) != len(entries) {
+		t.Fatalf("newest first: %d entries; want %d", len(newest), len(entries))
+	}
+	for i, e := range newest {
+		if want := entries[len(entries)-1-i]; e.ID != want.ID {
+			t.Errorf("newest first, entry %d = %d; want %d", i, e.Sequence, want.Sequence)
+		}
+	}
 	viewer := f.principal(t, f.member(t, "v@example.com", "viewer"), f.org)
-	if _, err := f.svc.AuditEntries(ctx, viewer, 0, 10); code(err) != plxerr.PermissionDenied {
+	if _, err := f.svc.AuditEntries(ctx, viewer, tenancy.AuditPage{Size: 10}); code(err) != plxerr.PermissionDenied {
 		t.Errorf("a viewer read the audit log: %v", err)
 	}
-	installation, err := f.svc.InstallationAuditEntries(ctx, f.admin, 0, 100)
+	installation, err := f.svc.InstallationAuditEntries(ctx, f.admin, tenancy.AuditPage{Size: 100})
 	if err != nil || len(installation) == 0 {
 		t.Errorf("InstallationAuditEntries = %d entries, %v", len(installation), err)
 	}
-	if _, err := f.svc.InstallationAuditEntries(ctx, person(f.admin.UserID, false), 0, 10); code(err) != plxerr.PermissionDenied {
+	if _, err := f.svc.InstallationAuditEntries(ctx, person(f.admin.UserID, false), tenancy.AuditPage{Size: 10}); code(err) != plxerr.PermissionDenied {
 		t.Errorf("a non-administrator read the installation's log: %v", err)
 	}
 }
@@ -939,7 +960,7 @@ func TestInstallationOrganizationsCrossTheTenantWallOnce(t *testing.T) {
 		t.Errorf("an organisation owner who is not an installation administrator listed every organisation: %v", err)
 	}
 
-	entries, err := f.svc.InstallationAuditEntries(ctx, f.admin, 0, 100)
+	entries, err := f.svc.InstallationAuditEntries(ctx, f.admin, tenancy.AuditPage{Size: 100})
 	if err != nil {
 		t.Fatal(err)
 	}

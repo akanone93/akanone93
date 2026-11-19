@@ -16,7 +16,10 @@ import { pageSize, useAdminQuery, useCan, useOrgId, useRpc } from "./use-admin.t
 
 const filters = ["from", "to", "actor", "action", "resource"] as const;
 
-/** O27: the organisation's audit log with filters in the URL and a CSV export of what is shown (STU-116). */
+/** The audit log's ordering with today's changes on the first page (SRV-004). */
+const newestFirst = "sequence desc";
+
+/** O27: the organisation's audit log, newest first, with filters in the URL and a CSV export of what is shown (STU-116). */
 export function AuditPage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const organizationId = useOrgId();
@@ -32,7 +35,10 @@ export function AuditPage(): ReactElement {
     queryKey: ["admin", "audit", organizationId, filter],
     initialPageParam: "",
     queryFn: ({ pageParam }) =>
-      identity.listAuditEntries({ organizationId, page: { pageSize, pageToken: pageParam, filter } }),
+      identity.listAuditEntries({
+        organizationId,
+        page: { pageSize, pageToken: pageParam, filter, orderBy: newestFirst },
+      }),
     getNextPageParam: (last) => last.page?.nextPageToken || undefined,
   });
   const destinations = useAdminQuery(["export-destinations"], () =>

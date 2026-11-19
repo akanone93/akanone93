@@ -178,14 +178,16 @@ export function IssuersPage(): ReactElement {
 /** I7: the installation's own audit chain, newest first. */
 export function InstallationAuditPage(): ReactElement {
   const m = installationMessages(useLingui().i18n);
-  const q = useInstallationQuery("audit", (c) => c.identity.listAuditEntries({ page: { pageSize: 200 } }));
+  const q = useInstallationQuery("audit", (c) =>
+    c.identity.listAuditEntries({ page: { pageSize: 200, orderBy: "sequence desc" } }),
+  );
   return (
     <Frame id="inst-audit" title={m.auditTitle} caption={m.auditCaption} loading={q.isPending} failed={q.isError}>
       <Table
         caption={m.auditTitle}
         heads={[m.colTime, m.colActor, m.colAction, m.colResource]}
         empty={m.nothing}
-        rows={[...(q.data?.entries ?? [])].reverse().map((e) => ({
+        rows={(q.data?.entries ?? []).map((e) => ({
           key: e.id,
           cells: [
             e.time === undefined ? "" : timestampDate(e.time).toLocaleString(),

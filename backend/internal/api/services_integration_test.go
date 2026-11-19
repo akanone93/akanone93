@@ -1048,6 +1048,35 @@ func TestServicesEndToEnd(t *testing.T) {
 	if len(entries.GetEntries()) != 4 {
 		t.Errorf("app.created entries = %d; want 4", len(entries.GetEntries()))
 	}
+	// Newest first, page by page, is the log backwards, and a page token
+	// is valid only for the ordering it was issued for (SRV-004, #171).
+	inOrder := must(w.identity.ListAuditEntries(ctx, req(admin, &pluxv1.ListAuditEntriesRequest{Page: &pluxv1.Page{PageSize: 500}})))(t)
+	if inOrder.GetPage().GetNextPageToken() != "" {
+		t.Fatal("the audit log does not fit one page")
+	}
+	var newest []*pluxv1.AuditEntry
+	page = &pluxv1.Page{PageSize: 3, OrderBy: "sequence desc"}
+	for {
+		got := must(w.identity.ListAuditEntries(ctx, req(admin, &pluxv1.ListAuditEntriesRequest{Page: page})))(t)
+		newest = append(newest, got.GetEntries()...)
+		next := got.GetPage().GetNextPageToken()
+		if next == "" {
+			break
+		}
+		if _, err := w.identity.ListAuditEntries(ctx, req(admin, &pluxv1.ListAuditEntriesRequest{Page: &pluxv1.Page{PageSize: 3, PageToken: next}})); err == nil {
+			t.Error("a newest-first page token was accepted for the log in order")
+		}
+		page = &pluxv1.Page{PageSize: 3, OrderBy: "sequence desc", PageToken: next}
+	}
+	all := inOrder.GetEntries()
+	if len(newest) != len(all) || len(all) < 4 {
+		t.Fatalf("newest first: %d entries; in order: %d", len(newest), len(all))
+	}
+	for i, e := range newest {
+		if want := all[len(all)-1-i]; e.GetId() != want.GetId() {
+			t.Errorf("newest first, entry %d = %s %s; want %s %s", i, e.GetAction(), e.GetId(), want.GetAction(), want.GetId())
+		}
+	}
 	installation := admin
 	installation.org = ""
 	if log := must(w.identity.ListAuditEntries(ctx, req(installation, &pluxv1.ListAuditEntriesRequest{})))(t); len(log.GetEntries()) == 0 {

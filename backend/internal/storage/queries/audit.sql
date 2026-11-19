@@ -24,6 +24,15 @@ SELECT * FROM audit_log
  ORDER BY sequence
  LIMIT sqlc.arg(page_size);
 
+-- name: ListAuditEntriesNewestFirst :many
+-- The same chain newest first, before a sequence number; the unique
+-- (organization_id, sequence) index serves it backwards.
+SELECT * FROM audit_log
+ WHERE organization_id IS NOT DISTINCT FROM sqlc.narg(organization_id)::uuid
+   AND sequence < sqlc.arg(before_sequence)
+ ORDER BY sequence DESC
+ LIMIT sqlc.arg(page_size);
+
 -- name: GetAuditEntry :one
 SELECT * FROM audit_log
  WHERE organization_id IS NOT DISTINCT FROM sqlc.narg(organization_id)::uuid

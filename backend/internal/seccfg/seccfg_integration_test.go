@@ -274,7 +274,7 @@ func TestChangeIsAudited(t *testing.T) {
 	f := newFixture(t, limits.Set{})
 	f.mustSet(t, "production", "strict", `{"inactivityLockTimeout": 61}`, 0)
 	f.mustSet(t, "production", "strict", `{"inactivityLockTimeout": 61}`, 1) // unchanged: not audited
-	entries, err := f.tenancy.AuditEntries(context.Background(), f.owner, 0, 100)
+	entries, err := f.tenancy.AuditEntries(context.Background(), f.owner, tenancy.AuditPage{Size: 100})
 	if err != nil {
 		t.Fatal(err)
 	}

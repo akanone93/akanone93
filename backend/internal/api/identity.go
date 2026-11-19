@@ -14,6 +14,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
 // IdentityPublic are the IdentityService procedures that take no
@@ -505,7 +506,7 @@ func (s Identity) ExchangeWorkloadIdentity(ctx context.Context, req *connect.Req
 func (s Identity) ListAuditEntries(ctx context.Context, req *connect.Request[pluxv1.ListAuditEntriesRequest]) (*connect.Response[pluxv1.ListAuditEntriesResponse], error) {
 	return read(ctx, func(ctx context.Context) (*pluxv1.ListAuditEntriesResponse, error) {
 		page := req.Msg.GetPage()
-		q := Query{OrderBy: "sequence", Filters: map[string]func(m Item) string{
+		q := Query{OrderBy: "sequence", Reverse: "sequence desc", Filters: map[string]func(m Item) string{
 			"action":      func(m Item) string { return m.(*pluxv1.AuditEntry).GetAction() },
 			"target_kind": func(m Item) string { return m.(*pluxv1.AuditEntry).GetTargetKind() },
 			"target_id":   func(m Item) string { return m.(*pluxv1.AuditEntry).GetTargetId() },
@@ -514,7 +515,7 @@ func (s Identity) ListAuditEntries(ctx context.Context, req *connect.Request[plu
 		if err != nil {
 			return nil, err
 		}
-		scope, entries, size, err := s.auditPage(ctx, req)
+		scope, entries, size, err := s.auditPage(ctx, req, q.Reversed(page))
 		if err != nil {
 			return nil, err
 		}
@@ -533,8 +534,9 @@ func (s Identity) ListAuditEntries(ctx context.Context, req *connect.Request[plu
 
 // auditPage reads one page of the audit log the request names: an
 // organisation's, or the installation's for an administrator who names
-// none. It returns the page's scope for its token.
-func (s Identity) auditPage(ctx context.Context, req *connect.Request[pluxv1.ListAuditEntriesRequest]) (string, []audit.Entry, int32, error) {
+// none; newest first when asked. It returns the page's scope for its
+// token.
+func (s Identity) auditPage(ctx context.Context, req *connect.Request[pluxv1.ListAuditEntriesRequest], newestFirst bool) (string, []audit.Entry, int32, error) {
 	id, err := identity(ctx)
 	if err != nil {
 		return "", nil, 0, err
@@ -545,7 +547,7 @@ func (s Identity) auditPage(ctx context.Context, req *connect.Request[pluxv1.Lis
 		if err != nil {
 			return "", nil, 0, err
 		}
-		entries, err := s.h.Tenancy.InstallationAuditEntries(ctx, id, after.Sequence, size)
+		entries, err := s.h.Tenancy.InstallationAuditEntries(ctx, id, tenancy.AuditPage{From: after.Sequence, Size: size, NewestFirst: newestFirst})
 		return "installation", entries, size, err //nolint:wrapcheck // a domain error
 	}
 	p, err := s.h.principal(ctx, req.Header(), req.Msg.GetOrganizationId())
@@ -556,7 +558,7 @@ func (s Identity) auditPage(ctx context.Context, req *connect.Request[pluxv1.Lis
 	if err != nil {
 		return "", nil, 0, err
 	}
-	entries, err := s.h.Tenancy.AuditEntries(ctx, p, after.Sequence, size)
+	entries, err := s.h.Tenancy.AuditEntries(ctx, p, tenancy.AuditPage{From: after.Sequence, Size: size, NewestFirst: newestFirst})
 	return p.OrganizationID, entries, size, err //nolint:wrapcheck // a domain error
 }
 

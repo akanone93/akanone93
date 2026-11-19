@@ -147,9 +147,12 @@ type Query struct {
 	// Filters maps each filterable field to a function reading it from
 	// an item.
 	Filters map[string]func(proto.Message) string
-	// OrderBy is the one ordering the list is served in; an empty
-	// order_by or this value is accepted.
+	// OrderBy is the ordering the list is served in by default; an
+	// empty order_by or this value is accepted.
 	OrderBy string
+	// Reverse, when set, is the one other ordering accepted: OrderBy
+	// backwards, such as "sequence desc" for newest first.
+	Reverse string
 }
 
 // clause is one "field = value" condition of a filter.
@@ -160,7 +163,10 @@ type clause struct{ field, value string }
 // `key = "value" AND production = "true"`, which every list can serve
 // on its keyset without a query planner.
 func (q Query) Parse(page *pluxv1.Page) ([]clause, error) {
-	if o := strings.TrimSpace(page.GetOrderBy()); o != "" && o != q.OrderBy {
+	if o := strings.TrimSpace(page.GetOrderBy()); o != "" && o != q.OrderBy && (q.Reverse == "" || o != q.Reverse) {
+		if q.Reverse != "" {
+			return nil, plxerr.New(plxerr.InvalidFormat, "this list is ordered by %q or %q only", q.OrderBy, q.Reverse)
+		}
 		return nil, plxerr.New(plxerr.InvalidFormat, "this list is ordered by %q only", q.OrderBy)
 	}
 	filter := strings.TrimSpace(page.GetFilter())
@@ -180,6 +186,12 @@ func (q Query) Parse(page *pluxv1.Page) ([]clause, error) {
 		out = append(out, clause{field: field, value: value[1 : len(value)-1]})
 	}
 	return out, nil
+}
+
+// Reversed reports whether a page asks for the list's other ordering; a
+// page token is bound to the ordering it was issued for.
+func (q Query) Reversed(page *pluxv1.Page) bool {
+	return q.Reverse != "" && strings.TrimSpace(page.GetOrderBy()) == q.Reverse
 }
 
 // splitAnd splits a filter on the AND keyword.

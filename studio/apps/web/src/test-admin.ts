@@ -239,9 +239,10 @@ export function identityAdmin(a: AdminData): Partial<ServiceImpl<typeof Identity
     },
     listAuditEntries: (req) => {
       guard(a);
-      rec("listAuditEntries", { filter: req.page?.filter ?? "" });
+      rec("listAuditEntries", { filter: req.page?.filter ?? "", orderBy: req.page?.orderBy ?? "" });
+      const entries = req.page?.orderBy === "sequence desc" ? [...(a.audit ?? [])].reverse() : (a.audit ?? []);
       return {
-        entries: (a.audit ?? []).map((e) => ({
+        entries: entries.map((e) => ({
           id: e.id,
           action: e.action,
           actor: { display: e.actor },

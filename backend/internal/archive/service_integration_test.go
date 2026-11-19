@@ -156,7 +156,7 @@ func defaultLimits() limits.Set { return limits.Defaults() }
 
 func actions(t *testing.T, f *fixture, p auth.Principal) []audit.Action {
 	t.Helper()
-	entries, err := f.tenancy.AuditEntries(context.Background(), p, 0, 500)
+	entries, err := f.tenancy.AuditEntries(context.Background(), p, tenancy.AuditPage{Size: 500})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -133,6 +133,23 @@ func TestFiltersOrderingsAndMasks(t *testing.T) {
 			t.Errorf("Parse(%+v) was accepted", bad)
 		}
 	}
+	if query.Reversed(&pluxv1.Page{OrderBy: "key desc"}) {
+		t.Error("a list without a reverse ordering reported one")
+	}
+	both := api.Query{OrderBy: "sequence", Reverse: "sequence desc"}
+	for _, ok := range []string{"", "sequence", "sequence desc", " sequence desc "} {
+		if _, err := both.Parse(&pluxv1.Page{OrderBy: ok}); err != nil {
+			t.Errorf("order_by %q: %v", ok, err)
+		}
+		if got, want := both.Reversed(&pluxv1.Page{OrderBy: ok}), strings.TrimSpace(ok) == "sequence desc"; got != want {
+			t.Errorf("Reversed(%q) = %v", ok, got)
+		}
+	}
+	for _, bad := range []string{"sequence asc", "time desc", "desc"} {
+		if _, err := both.Parse(&pluxv1.Page{OrderBy: bad}); err == nil {
+			t.Errorf("order_by %q was accepted", bad)
+		}
+	}
 	items := []*pluxv1.App{{Id: "1", Key: "a", Name: "A"}, {Id: "2", Key: "b", Name: "B"}}
 	if err := api.Mask(&fieldmaskpb.FieldMask{Paths: []string{"id", "key"}}, items); err != nil {
 		t.Fatal(err)

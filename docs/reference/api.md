@@ -54,7 +54,8 @@ filter and the ordering it was issued for, authenticated with an HMAC under
 an installation key, valid for a day, and rejected elsewhere
 (`invalid_argument`, `PLX-1032`). A filter is a conjunction of equalities
 on the fields each list documents, `key = "shop" AND production = "true"`;
-each list is served in one ordering, which `order_by` may name. A filtered
+each list is served in one ordering, which `order_by` may name, and the
+audit log (`ListAuditEntries`) also newest first, `order_by: "sequence desc"`. A filtered
 page may hold fewer items than asked for; the token continues after the
 last item read. No endpoint returns an unbounded list (`SRV-004`).
 

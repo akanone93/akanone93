@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -116,15 +117,40 @@ func (l *Log) Append(ctx context.Context, tx pgx.Tx, e Entry) (Entry, error) {
 // List returns entries of a chain after a sequence number, in order;
 // organizationID "" is the installation's chain.
 func (*Log) List(ctx context.Context, tx pgx.Tx, organizationID string, afterSequence int64, limit int32) ([]Entry, error) {
+	return list(ctx, tx, organizationID, afterSequence, limit, false)
+}
+
+// ListNewestFirst returns entries of a chain before a sequence number,
+// newest first; beforeSequence 0 starts at the newest entry. It is for
+// people reading the log; checking the chain reads it in order (List).
+func (*Log) ListNewestFirst(ctx context.Context, tx pgx.Tx, organizationID string, beforeSequence int64, limit int32) ([]Entry, error) {
+	return list(ctx, tx, organizationID, beforeSequence, limit, true)
+}
+
+// list reads one page of a chain in either direction from a sequence
+// number.
+func list(ctx context.Context, tx pgx.Tx, organizationID string, from int64, limit int32, newestFirst bool) ([]Entry, error) {
 	org, err := storage.NullUUID(organizationID)
 	if err != nil {
 		return nil, fmt.Errorf("audit: %w", err)
 	}
-	rows, err := dbgen.New(tx).ListAuditEntries(ctx, dbgen.ListAuditEntriesParams{
-		OrganizationID: org,
-		AfterSequence:  afterSequence,
-		PageSize:       limit,
-	})
+	var rows []dbgen.AuditLog
+	if newestFirst {
+		if from == 0 {
+			from = math.MaxInt64
+		}
+		rows, err = dbgen.New(tx).ListAuditEntriesNewestFirst(ctx, dbgen.ListAuditEntriesNewestFirstParams{
+			OrganizationID: org,
+			BeforeSequence: from,
+			PageSize:       limit,
+		})
+	} else {
+		rows, err = dbgen.New(tx).ListAuditEntries(ctx, dbgen.ListAuditEntriesParams{
+			OrganizationID: org,
+			AfterSequence:  from,
+			PageSize:       limit,
+		})
+	}
 	if err != nil {
 		return nil, fmt.Errorf("audit: list: %w", err)
 	}
