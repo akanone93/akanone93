@@ -70,6 +70,12 @@ type Options struct {
 	// Verify builds the artefact twice into separate target directories and
 	// fails with PLX-7206 unless the two modules are byte-identical (FN-019).
 	Verify bool
+	// CacheKey names the build cache this build may use (Config.CacheDir):
+	// on a server, the organisation's ID, so builds of one organisation
+	// share compiled dependencies and no build ever sees another
+	// organisation's cache. It is 1 to 64 lower-case letters, digits and
+	// hyphens; any other key, or none in a sandbox, builds from scratch.
+	CacheKey string
 }
 
 // Function describes one function of a module.

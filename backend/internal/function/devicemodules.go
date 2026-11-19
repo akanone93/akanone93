@@ -49,6 +49,8 @@ type LinkInput struct {
 	// function.buildMemory (FN-010).
 	Timeout     time.Duration
 	MemoryBytes int64
+	// CacheKey is the organisation's ID, as in BuildInput (ADR-0107).
+	CacheKey string
 }
 
 // LinkSource is the stored source archive of one function.
@@ -132,7 +134,9 @@ func (s *Service) deviceModule(ctx context.Context, organizationID, appID, envir
 	if s.o.Linker == nil {
 		return compiler.DeviceModule{}, errors.New("function: this process cannot link device modules: it has no route to the builder")
 	}
-	out, err := s.o.Linker.Link(ctx, linkInput(key, members, lim))
+	in := linkInput(key, members, lim)
+	in.CacheKey = organizationID
+	out, err := s.o.Linker.Link(ctx, in)
 	if err != nil {
 		return compiler.DeviceModule{}, fmt.Errorf("function: link: %w", err)
 	}

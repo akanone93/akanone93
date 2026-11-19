@@ -128,6 +128,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `experiments.segmentsPerTargeting` | count | 10 | 80% | 50 | installation, organization, app | P11 | ABT-001 | Segments one experiment may target; a device in any of them is eligible. |
 | `flags.perApp` | count | 500 | 80% | 10000 | installation, organization, app | P9 | ABT-001 | Feature flags one app may define. |
 | `flags.segmentValues` | count | 20 | 80% | 100 | installation, organization, app | P11 | ABT-006 | Per-segment values one flag may have. |
+| `function.buildCacheSize` | bytes | 2147483648 | 80% | 68719476736 | installation | P11 | FN-016, FN-019 | Size of the compiled crates.io dependencies the builder role keeps for one organisation between its builds; that organisation's cache is emptied when a build leaves it larger (ADR-0107). |
 | `function.buildMemory` | bytes | 4294967296 | 80% | 17179869184 | installation, organization, app | P7 | FN-016 | Memory one function build may use. |
 | `function.buildTimeout` | milliseconds | 600000 | 80% | 3600000 | installation, organization, app | P7 | FN-016 | Wall-clock time one function build may run. |
 | `function.callDepth` | count | 3 | 80% | 3 | installation, organization, app | P7 | FN-011 | Depth of nested function-to-function calls within one invocation. |

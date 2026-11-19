@@ -73,6 +73,11 @@ message BuildRequest {
   // checks each against its checksum and makes vendor/ from them (FN-003,
   // ADR-0105).
   repeated bytes crates = 7;
+  // cache_key names the build cache the build may use: the ID of the
+  // organisation the function belongs to, so builds of one organisation
+  // reuse the crates.io dependencies they compiled and no build sees another
+  // organisation's cache (ADR-0107). Empty builds from scratch.
+  string cache_key = 8;
 }
 
 // BuildLimits are the limits of the app in force for the build, resolved from
@@ -140,6 +145,8 @@ message LinkRequest {
   // once however many sources name it; each source is given those its own
   // Cargo.lock names (FN-003, ADR-0105).
   repeated bytes crates = 4;
+  // cache_key is the organisation's build cache, as in BuildRequest.
+  string cache_key = 5;
 }
 
 message LinkSource {

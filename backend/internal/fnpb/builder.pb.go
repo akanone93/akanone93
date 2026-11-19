@@ -47,7 +47,12 @@ type BuildRequest struct {
 	// crates.io packages the source's Cargo.lock names, each once. The builder
 	// checks each against its checksum and makes vendor/ from them (FN-003,
 	// ADR-0105).
-	Crates        [][]byte `protobuf:"bytes,7,rep,name=crates,proto3" json:"crates,omitempty"`
+	Crates [][]byte `protobuf:"bytes,7,rep,name=crates,proto3" json:"crates,omitempty"`
+	// cache_key names the build cache the build may use: the ID of the
+	// organisation the function belongs to, so builds of one organisation
+	// reuse the crates.io dependencies they compiled and no build sees another
+	// organisation's cache (ADR-0107). Empty builds from scratch.
+	CacheKey      string `protobuf:"bytes,8,opt,name=cache_key,json=cacheKey,proto3" json:"cache_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -129,6 +134,13 @@ func (x *BuildRequest) GetCrates() [][]byte {
 		return x.Crates
 	}
 	return nil
+}
+
+func (x *BuildRequest) GetCacheKey() string {
+	if x != nil {
+		return x.CacheKey
+	}
+	return ""
 }
 
 // BuildLimits are the limits of the app in force for the build, resolved from
@@ -576,7 +588,9 @@ type LinkRequest struct {
 	// crates are the `.crate` archives the sources' lock files name, each
 	// once however many sources name it; each source is given those its own
 	// Cargo.lock names (FN-003, ADR-0105).
-	Crates        [][]byte `protobuf:"bytes,4,rep,name=crates,proto3" json:"crates,omitempty"`
+	Crates [][]byte `protobuf:"bytes,4,rep,name=crates,proto3" json:"crates,omitempty"`
+	// cache_key is the organisation's build cache, as in BuildRequest.
+	CacheKey      string `protobuf:"bytes,5,opt,name=cache_key,json=cacheKey,proto3" json:"cache_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -637,6 +651,13 @@ func (x *LinkRequest) GetCrates() [][]byte {
 		return x.Crates
 	}
 	return nil
+}
+
+func (x *LinkRequest) GetCacheKey() string {
+	if x != nil {
+		return x.CacheKey
+	}
+	return ""
 }
 
 type LinkSource struct {
@@ -1353,7 +1374,7 @@ var File_plux_internal_fn_v1_builder_proto protoreflect.FileDescriptor
 
 const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\n" +
-	"!plux/internal/fn/v1/builder.proto\x12\x13plux.internal.fn.v1\"\xea\x01\n" +
+	"!plux/internal/fn/v1/builder.proto\x12\x13plux.internal.fn.v1\"\x87\x02\n" +
 	"\fBuildRequest\x12\x19\n" +
 	"\bbuild_id\x18\x01 \x01(\tR\abuildId\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\fR\x06source\x12#\n" +
@@ -1361,7 +1382,8 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x04name\x18\x04 \x01(\tR\x04name\x12\x1c\n" +
 	"\tplacement\x18\x05 \x01(\tR\tplacement\x128\n" +
 	"\x06limits\x18\x06 \x01(\v2 .plux.internal.fn.v1.BuildLimitsR\x06limits\x12\x16\n" +
-	"\x06crates\x18\a \x03(\fR\x06crates\"O\n" +
+	"\x06crates\x18\a \x03(\fR\x06crates\x12\x1b\n" +
+	"\tcache_key\x18\b \x01(\tR\bcacheKey\"O\n" +
 	"\vBuildLimits\x12\x1d\n" +
 	"\n" +
 	"timeout_ms\x18\x01 \x01(\rR\ttimeoutMs\x12!\n" +
@@ -1399,12 +1421,13 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x0fBuildTestResult\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06passed\x18\x02 \x01(\bR\x06passed\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xb3\x01\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xd0\x01\n" +
 	"\vLinkRequest\x12\x17\n" +
 	"\alink_id\x18\x01 \x01(\tR\x06linkId\x129\n" +
 	"\asources\x18\x02 \x03(\v2\x1f.plux.internal.fn.v1.LinkSourceR\asources\x128\n" +
 	"\x06limits\x18\x03 \x01(\v2 .plux.internal.fn.v1.BuildLimitsR\x06limits\x12\x16\n" +
-	"\x06crates\x18\x04 \x03(\fR\x06crates\"]\n" +
+	"\x06crates\x18\x04 \x03(\fR\x06crates\x12\x1b\n" +
+	"\tcache_key\x18\x05 \x01(\tR\bcacheKey\"]\n" +
 	"\n" +
 	"LinkSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +

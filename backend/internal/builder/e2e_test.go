@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -178,6 +179,7 @@ func TestBuildLoanExampleEndToEnd_FN_019(t *testing.T) {
 	if a1.Provenance.Toolchain == "" || len(a1.Provenance.Dependencies) == 0 {
 		t.Errorf("provenance incomplete: %+v", a1.Provenance)
 	}
+	checkCachedBuilds(t, cfg, src, a1.Module)
 
 	// Build log #159: serde's build script, changed and repacked, with
 	// Cargo.lock naming the new archive, is refused before anything compiles.
@@ -188,6 +190,71 @@ func TestBuildLoanExampleEndToEnd_FN_019(t *testing.T) {
 		Files: overlayFile(t, files, "Cargo.lock", tamperedLock), Crates: tampered,
 	}}, Options{})
 	wantCode(t, err, plxerr.FunctionBuildScriptRefused)
+}
+
+// checkCachedBuilds proves the build cache of ADR-0107 with the real
+// toolchain: a cached build makes the same module as one from scratch, and a
+// changed source is compiled again even when every file of the cache claims
+// to be newer than it, so a module is never made from an earlier build's
+// compilation of another source.
+func checkCachedBuilds(t *testing.T, cfg Config, src []FunctionSource, want []byte) {
+	t.Helper()
+	cache := t.TempDir()
+	cfg.CacheDir, cfg.CacheBytes, cfg.CacheTotalBytes = cache, 4<<30, 8<<30
+	const key = "org-e2e"
+	if _, err := cfg.Sandbox.Run(t.Context(), inScratch(t, Command{Path: "/bin/true", Limits: Limits{Wall: 10 * time.Second}})); errors.Is(err, ErrSandboxUnavailable) {
+		cfg.Sandbox = NoSandbox{}
+	}
+	b, err := New(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cold, err := b.Build(t.Context(), src, Options{CacheKey: key})
+	if err != nil {
+		t.Fatalf("cached build: %v", err)
+	}
+	if !bytes.Equal(cold.Module, want) {
+		t.Error("the cached build differs from the build from scratch")
+	}
+	// A changed source whose cached compilation looks up to date: every
+	// file of the cache is dated in the future.
+	lib, err := fs.ReadFile(src[0].Files, "src/lib.rs")
+	if err != nil {
+		t.Fatal(err)
+	}
+	changed := bytes.Replace(lib, []byte("Decimal::from(12)"), []byte("Decimal::from(13)"), 1)
+	if bytes.Equal(changed, lib) {
+		t.Fatal("the example no longer divides by 12")
+	}
+	future := time.Now().Add(24 * time.Hour)
+	if err := filepath.WalkDir(cache, func(p string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		return os.Chtimes(p, future, future)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	next := slices.Clone(src)
+	next[0].Files = overlayFile(t, src[0].Files, "src/lib.rs", changed)
+	start := time.Now()
+	warm, err := b.Build(t.Context(), next, Options{CacheKey: key})
+	if err != nil {
+		t.Fatalf("cached build of the changed source: %v", err)
+	}
+	t.Logf("cached build of a changed source took %s", time.Since(start).Round(100*time.Millisecond))
+	cfg.CacheDir = ""
+	scratch, err := New(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fresh, err := scratch.Build(t.Context(), next, Options{})
+	if err != nil {
+		t.Fatalf("build of the changed source from scratch: %v", err)
+	}
+	if bytes.Equal(warm.Module, want) || !bytes.Equal(warm.Module, fresh.Module) {
+		t.Error("the cached build reused the earlier compilation of the function instead of compiling the changed source")
+	}
 }
 
 // cargoHome is the Cargo home of the machine running the test.

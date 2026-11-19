@@ -39,6 +39,8 @@ func TestBuilderRoleValidation_FN_016(t *testing.T) {
 		{"no SDK", "server:\n  roles: [builder]\nbuilder:\n  listen: \":1\"\n  wasmOpt: [wasm-opt]\n  internalTLS:\n    caFile: a\n    certFile: b\n    keyFile: c\n", "builder.sdkDir"},
 		{"unknown sandbox", "server:\n  roles: [builder]\n" + strings.Replace(builderSection, "builder:\n", "builder:\n  sandbox: chroot\n", 1), "builder.sandbox"},
 		{"no concurrency", "server:\n  roles: [builder]\n" + strings.Replace(builderSection, "builder:\n", "builder:\n  concurrency: 0\n", 1), "builder.concurrency"},
+		{"cache without its total", "server:\n  roles: [builder]\n" + strings.Replace(builderSection, "builder:\n", "builder:\n  cacheDir: /var/cache/plux/build\n", 1), "builder.cacheBytes"},
+		{"total without a cache", "server:\n  roles: [builder]\n" + strings.Replace(builderSection, "builder:\n", "builder:\n  cacheBytes: 1000\n", 1), "builder.cacheBytes"},
 		{"worker without mutual TLS", withServer("  roles: [api, worker]\n") + "builder:\n  address: \"https://builder:8443\"\n", "server.internalTLS"},
 	})
 }

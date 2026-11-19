@@ -43,8 +43,9 @@ type Options struct {
 	// TLS must require and verify a client certificate (httpx.InternalServerTLS).
 	TLS *tls.Config
 	// Tools configures the pipeline: Sandbox, Cargo, Rustc, WasmOpt, SDKDir,
-	// TempDir, Identity, Clock, Getenv and Allowlist. Schemas, Limits and
-	// SourceBytes are set by the Service.
+	// TempDir, Identity, Clock, Getenv, Allowlist, and CacheDir with
+	// CacheTotalBytes. Schemas, Limits, SourceBytes and CacheBytes
+	// (function.buildCacheSize) are set by the Service.
 	Tools builder.Config
 	// Unsandboxed states that Tools.Sandbox does not isolate builds
 	// (builder.sandbox: none); the Service then warns on start and on every

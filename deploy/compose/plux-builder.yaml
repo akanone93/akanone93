@@ -23,5 +23,9 @@ builder:
   sdkDir: "/opt/plux/sdk/plux-fn"
   wasmOpt: ["bun", "/opt/binaryen/node_modules/binaryen/bin/wasm-opt"]
   workDir: "/var/lib/plux/build"
+  # One build cache per organisation, which only that organisation's builds
+  # see (ADR-0107); 2.5 GiB together, on a 3 GiB tmpfs (compose.yaml).
+  cacheDir: "/var/cache/plux/build"
+  cacheBytes: 2684354560
   concurrency: 1
   identity: "compose-builder"

@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -79,18 +80,26 @@ type Config struct {
 	SourceBytes int64
 	// CacheDir, when set, keeps the workspace, Cargo home and target
 	// directory of builds there, at paths that do not change, so a build
-	// reuses the dependencies an earlier one compiled; empty builds each
-	// time from scratch. Only a development build on the developer's own
-	// machine may use it (Sandbox NoSandbox): sandboxed builds share no
-	// writable state (build log #164). Builds take the cache in turn; one
-	// that finds it in use builds from scratch. The module is the same
-	// either way (FN-019); Options.Verify builds its second copy from
-	// scratch to prove it.
+	// reuses the crates.io dependencies an earlier one compiled; empty
+	// builds each time from scratch. A sandboxed builder keeps one cache per
+	// Options.CacheKey below CacheDir, which only that key's builds can see
+	// or change (ADR-0106, ADR-0107); an unsandboxed development build with
+	// no key uses CacheDir itself. Builds take a cache in turn; one that
+	// finds it in use builds from scratch. The crates of the build's own
+	// workspace — the functions, the module wrapper and the SDK — are
+	// compiled again in every build, so a module is always compiled from its
+	// own sources, and it is the same with or without the cache (FN-019);
+	// Options.Verify builds its second copy from scratch to prove it.
 	CacheDir string
-	// CacheBytes bounds CacheDir: after a build that leaves its target
+	// CacheBytes bounds one cache: after a build that leaves its target
 	// directory larger, the target directory is emptied
-	// (function.devBuildCacheSize).
+	// (function.buildCacheSize on a server, function.devBuildCacheSize on a
+	// developer's machine).
 	CacheBytes int64
+	// CacheTotalBytes bounds the keyed caches together: after a build, the
+	// caches used least recently are removed until the rest fit. A
+	// sandboxed builder with a cache needs it.
+	CacheTotalBytes int64
 	// Getenv reads the builder's own environment; nil means os.Getenv.
 	Getenv func(string) string
 }
@@ -121,10 +130,10 @@ func New(cfg Config) (*Builder, error) {
 	case cfg.Limits.Wall <= 0 || cfg.Limits.OutputBytes <= 0 || cfg.SourceBytes <= 0:
 		return nil, errors.New("builder.New: the wall time, output and source limits are required (LIM-001)")
 	case cfg.CacheDir != "" && cfg.CacheBytes <= 0:
-		return nil, errors.New("builder.New: a cache needs its size limit (function.devBuildCacheSize)")
+		return nil, errors.New("builder.New: a cache needs its size limit (function.buildCacheSize)")
 	}
-	if _, unsandboxed := cfg.Sandbox.(NoSandbox); cfg.CacheDir != "" && !unsandboxed {
-		return nil, errors.New("builder.New: a build cache is for development builds only; sandboxed builds share no writable state")
+	if _, unsandboxed := cfg.Sandbox.(NoSandbox); cfg.CacheDir != "" && !unsandboxed && cfg.CacheTotalBytes < cfg.CacheBytes {
+		return nil, errors.New("builder.New: a sandboxed builder's caches need a total size limit of at least one cache's")
 	}
 	if cfg.Getenv == nil {
 		cfg.Getenv = os.Getenv
@@ -192,6 +201,11 @@ type run struct {
 	// cachedTarget is the target directory in the cache when this build
 	// holds the cache, and "" otherwise.
 	cachedTarget string
+	// cache is the cache directory this build holds, writable to its tools
+	// beside the scratch directory, and "" otherwise.
+	cache string
+	// keyed is set when the cache is one organisation's (Options.CacheKey).
+	keyed bool
 }
 
 // Build compiles the functions into one module and returns it with its
@@ -203,7 +217,7 @@ func (b *Builder) Build(ctx context.Context, srcs []FunctionSource, opts Options
 	if err != nil {
 		return nil, err
 	}
-	r, cleanup, err := b.newRun(true)
+	r, cleanup, err := b.newRun(opts.CacheKey, true)
 	if err != nil {
 		return nil, err
 	}
@@ -229,11 +243,14 @@ func (b *Builder) Build(ctx context.Context, srcs []FunctionSource, opts Options
 			return nil, fmt.Errorf("builder.Build: update the cached workspace: %w", err)
 		}
 	}
-	deps, err := r.resolve(ctx, funcs)
+	deps, local, err := r.resolve(ctx, funcs)
 	if err != nil {
 		return nil, err
 	}
 	if err := r.checkBuildCode(ctx, deps); err != nil {
+		return nil, err
+	}
+	if err := r.forgetLocalCrates(ctx, local); err != nil {
 		return nil, err
 	}
 	schemas, err := r.deriveSchemas(ctx, funcs)
@@ -277,22 +294,22 @@ func describe(funcs []preparedFunction, schemas []FunctionSchemas) []Function {
 }
 
 // newRun creates the scratch directory and the environment of a build. With
-// cached, and a CacheDir that is free, the workspace, Cargo home and home are
-// the cache's, at paths that do not change between builds, so Cargo's
+// cached, and a cache for key that is free, the workspace, Cargo home and home
+// are the cache's, at paths that do not change between builds, so Cargo's
 // fingerprints match and compiled dependencies are reused; the cache is held
-// until the returned function runs.
-func (b *Builder) newRun(cached bool) (*run, func(), error) {
+// until the returned function runs, which also keeps the caches within
+// CacheTotalBytes.
+func (b *Builder) newRun(key string, cached bool) (*run, func(), error) {
 	r, cleanup, err := b.newScratchRun()
-	if err != nil || !cached || b.cfg.CacheDir == "" {
+	if err != nil || !cached {
 		return r, cleanup, err
 	}
-	dir, err := filepath.Abs(b.cfg.CacheDir)
-	if err != nil || strings.IndexFunc(dir, unicode.IsSpace) >= 0 {
-		// A path RUSTFLAGS cannot carry builds from scratch.
-		return r, cleanup, nil //nolint:nilerr // the cache is an optimisation; the build goes on without it
+	dir, keyed := b.cacheDir(key)
+	if dir == "" {
+		return r, cleanup, nil
 	}
 	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return r, cleanup, nil //nolint:nilerr // as above
+		return r, cleanup, nil //nolint:nilerr // the cache is an optimisation; the build goes on without it
 	}
 	unlock, held := tryLock(filepath.Join(dir, "lock"))
 	if !held {
@@ -306,8 +323,45 @@ func (b *Builder) newRun(cached bool) (*run, func(), error) {
 			return r, cleanup, nil //nolint:nilerr // as above
 		}
 	}
-	r.paths, r.env, r.cachedTarget = p, buildEnv(b.cfg.Getenv, p), filepath.Join(dir, sharedTarget)
-	return r, func() { unlock(); cleanup() }, nil
+	// The lock file's time says when the cache was last used; the least
+	// recently used caches are removed first.
+	now := time.Now()
+	_ = os.Chtimes(filepath.Join(dir, "lock"), now, now)
+	r.paths, r.env, r.cachedTarget, r.cache, r.keyed = p, buildEnv(b.cfg.Getenv, p), filepath.Join(dir, sharedTarget), dir, keyed
+	return r, func() {
+		unlock()
+		cleanup()
+		if keyed {
+			pruneCaches(filepath.Dir(dir), b.cfg.CacheTotalBytes)
+		}
+	}, nil
+}
+
+// cacheKeyPattern is what a cache key may be: it names a directory below
+// CacheDir, so it can never name another one.
+var cacheKeyPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,63}$`)
+
+// cacheDir returns the cache directory of key and whether it is one of
+// several keyed caches; "" means the build has no cache.
+func (b *Builder) cacheDir(key string) (string, bool) {
+	if b.cfg.CacheDir == "" {
+		return "", false
+	}
+	root, err := filepath.Abs(b.cfg.CacheDir)
+	if err != nil || strings.IndexFunc(root, unicode.IsSpace) >= 0 {
+		// A path RUSTFLAGS cannot carry builds from scratch.
+		return "", false
+	}
+	if key == "" {
+		if _, unsandboxed := b.cfg.Sandbox.(NoSandbox); unsandboxed {
+			return root, false
+		}
+		return "", false
+	}
+	if !cacheKeyPattern.MatchString(key) {
+		return "", false
+	}
+	return filepath.Join(root, key), true
 }
 
 // newScratchRun creates a run whose directories are all in a new scratch
@@ -349,12 +403,21 @@ func (r *run) exec(ctx context.Context, path string, args []string) (Result, err
 // execIn runs one tool in dir.
 func (r *run) execIn(ctx context.Context, dir, path string, args []string, lim Limits) (Result, error) {
 	res, err := r.b.cfg.Sandbox.Run(ctx, Command{
-		Path: path, Args: args, Dir: dir, Env: r.env, Limits: lim, Writable: []string{r.scratch}, Readable: r.b.readable,
+		Path: path, Args: args, Dir: dir, Env: r.env, Limits: lim, Writable: r.writable(), Readable: r.b.readable,
 	})
 	if err != nil {
 		return res, fmt.Errorf("builder: run %s: %w", filepath.Base(path), err)
 	}
 	return res, nil
+}
+
+// writable are the directories the build's tools may change: its scratch
+// directory, first, and the cache it holds.
+func (r *run) writable() []string {
+	if r.cache == "" {
+		return []string{r.scratch}
+	}
+	return []string{r.scratch, r.cache}
 }
 
 // cargo runs cargo in the workspace and turns a failure into a Plux error.
@@ -443,22 +506,48 @@ func containsAny(text string, markers []string) bool {
 
 // resolve generates the workspace lock file offline and checks it against the
 // functions' own lock files (FN-003).
-func (r *run) resolve(ctx context.Context, funcs []preparedFunction) ([]Dependency, error) {
+func (r *run) resolve(ctx context.Context, funcs []preparedFunction) ([]Dependency, []lockPackage, error) {
 	if _, err := r.cargo(ctx, "cargo generate-lockfile", r.b.cfg.Limits, "generate-lockfile", "--offline"); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	data, err := os.ReadFile(filepath.Join(r.paths.Workspace, "Cargo.lock"))
 	if err != nil {
-		return nil, fmt.Errorf("builder.resolve: %w", err)
+		return nil, nil, fmt.Errorf("builder.resolve: %w", err)
 	}
 	resolved, err := parseLock(data)
 	if err != nil {
-		return nil, plxerr.Wrap(plxerr.FunctionBuildFailed, err, "reading the generated lock file")
+		return nil, nil, plxerr.Wrap(plxerr.FunctionBuildFailed, err, "reading the generated lock file")
 	}
 	if err := checkLockAgainst(funcs, resolved); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return dependenciesOf(resolved), nil
+	var local []lockPackage
+	for _, p := range resolved {
+		if !p.registry() {
+			local = append(local, p)
+		}
+	}
+	return dependenciesOf(resolved), local, nil
+}
+
+// forgetLocalCrates removes from an organisation's cached target directory
+// what earlier builds compiled of the workspace's own crates — the
+// functions, the module wrapper and the SDK — so this build compiles them
+// from its own sources whatever their files' times say, and the module the
+// server signs is made from the source its provenance names. Only crates.io
+// dependencies, made from archives verified against their checksums, are
+// reused (ADR-0107). A developer's own cache (no key) keeps them, as Cargo
+// does, for speed: its modules are not signed.
+func (r *run) forgetLocalCrates(ctx context.Context, local []lockPackage) error {
+	if r.cachedTarget == "" || !r.keyed || len(local) == 0 {
+		return nil
+	}
+	args := []string{"clean", "--offline", "--locked", "--release", "--target", wasmTarget, "--target-dir", r.cachedTarget}
+	for _, p := range local {
+		args = append(args, "-p", p.Name+"@"+p.Version)
+	}
+	_, err := r.cargo(ctx, "cargo clean", r.b.cfg.Limits, args...)
+	return err
 }
 
 // checkBuildCode applies the allowlist to the crates the build compiles
@@ -602,21 +691,79 @@ func (r *run) optimise(ctx context.Context, name string, raw []byte) ([]byte, er
 	return opt, nil
 }
 
+// pruneCaches removes the keyed caches below root that were used least
+// recently, until those left take at most total bytes. A cache in use is
+// never removed.
+func pruneCaches(root string, total int64) {
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		return
+	}
+	type cache struct {
+		dir  string
+		used time.Time
+		size int64
+	}
+	var caches []cache
+	var sum int64
+	for _, e := range entries {
+		if strings.HasPrefix(e.Name(), ".removed-") {
+			_ = os.RemoveAll(filepath.Join(root, e.Name())) // left by a process that stopped
+			continue
+		}
+		if !e.IsDir() || !cacheKeyPattern.MatchString(e.Name()) {
+			continue
+		}
+		dir := filepath.Join(root, e.Name())
+		info, err := os.Stat(filepath.Join(dir, "lock"))
+		if err != nil {
+			continue
+		}
+		size := dirSize(dir)
+		caches = append(caches, cache{dir: dir, used: info.ModTime(), size: size})
+		sum += size
+	}
+	slices.SortFunc(caches, func(a, b cache) int { return a.used.Compare(b.used) })
+	for _, c := range caches {
+		if sum <= total {
+			return
+		}
+		unlock, held := tryLock(filepath.Join(c.dir, "lock"))
+		if !held {
+			continue
+		}
+		// Renamed first, under its lock, so a build that starts now finds
+		// no cache and makes a new one rather than one being removed.
+		trash := filepath.Join(root, ".removed-"+filepath.Base(c.dir))
+		err := os.Rename(c.dir, trash)
+		unlock()
+		if err == nil {
+			_ = os.RemoveAll(trash)
+			sum -= c.size
+		}
+	}
+}
+
+// dirSize is the size of the regular files below dir; a file that vanishes
+// meanwhile counts as nothing.
+func dirSize(dir string) int64 {
+	var size int64
+	_ = filepath.WalkDir(dir, func(_ string, d fs.DirEntry, err error) error {
+		if err == nil && d.Type().IsRegular() {
+			if info, err := d.Info(); err == nil {
+				size += info.Size()
+			}
+		}
+		return nil
+	})
+	return size
+}
+
 // pruneCache empties a cached target directory that has grown beyond most
 // bytes, so the cache stays bounded (function.devBuildCacheSize); the next
 // build fills it again with what it needs.
 func pruneCache(target string, most int64) {
-	var size int64
-	_ = filepath.WalkDir(target, func(_ string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return nil //nolint:nilerr // a file that vanished counts as nothing
-		}
-		if info, err := d.Info(); err == nil {
-			size += info.Size()
-		}
-		return nil
-	})
-	if size > most {
+	if dirSize(target) > most {
 		_ = os.RemoveAll(target)
 	}
 }

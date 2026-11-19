@@ -61,6 +61,9 @@ type BuildInput struct {
 	Timeout     time.Duration
 	MemoryBytes int64
 	ModuleBytes int64
+	// CacheKey is the organisation's ID: builds of one organisation share
+	// a build cache on the builder, and no build sees another's (ADR-0107).
+	CacheKey string
 }
 
 // Export describes one function a module exports (FN-004).
@@ -255,6 +258,9 @@ func (s *Service) RunBuild(ctx context.Context, job BuildJob) error {
 		Crates: c.crates, Name: c.build.Name, Placement: Placement(c.build.Placement),
 		Timeout:     time.Duration(c.lim.Get(limits.FunctionBuildTimeout)) * time.Millisecond,
 		MemoryBytes: c.lim.Get(limits.FunctionBuildMemory), ModuleBytes: c.lim.Get(limits.FunctionModuleSize),
+		// The build was claimed in this organisation's tenant scope, so the
+		// key is the organisation the source belongs to.
+		CacheKey: job.OrganizationID,
 	}
 	out, err := s.o.Builder.Build(ctx, in)
 	if err != nil {

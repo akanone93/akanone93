@@ -78,7 +78,7 @@ func (s *Service) build(ctx context.Context, in *fnpb.BuildRequest) (*fnpb.Build
 	}
 	src := decl.Source(files)
 	src.Crates = in.GetCrates()
-	artifact, err := b.Build(ctx, []builder.FunctionSource{src}, builder.Options{})
+	artifact, err := b.Build(ctx, []builder.FunctionSource{src}, builder.Options{CacheKey: in.GetCacheKey()})
 	if err != nil {
 		return refusal(err)
 	}
@@ -116,6 +116,12 @@ func (s *Service) toolConfig(req *fnpb.BuildLimits) builder.Config {
 	memory := ceiling(limits.FunctionBuildMemory, int64(min(req.GetMemoryBytes(), 1<<62)))
 	cfg.Limits = builder.Limits{Wall: time.Duration(wall) * time.Millisecond, Memory: uint64(memory), OutputBytes: buildOutputBytes} //nolint:gosec // G115: a ceiling of the registry is positive.
 	cfg.SourceBytes = maxSource()
+	if cfg.CacheDir != "" {
+		// One organisation's cache (ADR-0107); the caches together are
+		// bounded by the role's configuration.
+		cfg.CacheBytes = s.o.Limits.Get(limits.FunctionBuildCacheSize)
+		cfg.CacheBytes = min(cfg.CacheBytes, cfg.CacheTotalBytes)
+	}
 	return cfg
 }
 

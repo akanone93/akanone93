@@ -323,6 +323,10 @@ enum PluxLimit {
   flagsPerApp('flags.perApp', PluxLimitUnit.count, 500, 0, 10000),
   /// Per-segment values one flag may have.
   flagsSegmentValues('flags.segmentValues', PluxLimitUnit.count, 20, 0, 100),
+  /// Size of the compiled crates.io dependencies the builder role keeps for one
+  /// organisation between its builds; that organisation's cache is emptied when
+  /// a build leaves it larger (ADR-0107).
+  functionBuildCacheSize('function.buildCacheSize', PluxLimitUnit.bytes, 2147483648, 0, 68719476736),
   /// Memory one function build may use.
   functionBuildMemory('function.buildMemory', PluxLimitUnit.bytes, 4294967296, 0, 17179869184),
   /// Wall-clock time one function build may run.

@@ -199,6 +199,11 @@ builder:
   sdkDir: /opt/plux/sdk/plux-fn
   wasmOpt: [bun, /opt/binaryen/node_modules/binaryen/bin/wasm-opt]
   workDir: /var/lib/plux/build
+  {{- if .Values.builder.cache.sizeGi }}
+  # One build cache per organisation (ADR-0107), kept to 90% of its volume.
+  cacheDir: /var/cache/plux/build
+  cacheBytes: {{ mul .Values.builder.cache.sizeGi 966367641 }}
+  {{- end }}
   concurrency: 1
   identity: {{ printf "%s-builder" (include "plux.fullname" .) | quote }}
 {{- end -}}

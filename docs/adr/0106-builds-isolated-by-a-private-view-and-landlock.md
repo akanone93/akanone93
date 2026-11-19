@@ -133,5 +133,5 @@ The chart's lint checks that only the builder has an unmasked `/proc` and only t
   AppArmor profile now allow mount calls, which serve only the helper; the builder container's
   `/proc` is unmasked. The Kubernetes and AppArmor settings are proven by the CI walkthrough on
   kind; this repository's sandbox tests prove the rest in hardened Docker and on the host.
-- **Follow-up:** the per-organisation server build cache (#161); macOS and Windows builders
-  keep refusing the sandbox as before.
+- **Follow-up:** the per-organisation server build cache (#161, [ADR-0107](0107-per-organisation-build-caches.md));
+  macOS and Windows builders keep refusing the sandbox as before.

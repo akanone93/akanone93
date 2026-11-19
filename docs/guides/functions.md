@@ -232,7 +232,10 @@ say so: it is for development. Development builds keep the dependencies they com
 `function.devBuildCacheSize` (2 GiB by default), and two builds at once simply take turns or build
 from scratch. The module is the same either way. `--verify` builds twice and fails unless the two modules are
 byte-identical (`FN-019`). The server rebuilds from your source on every deploy; a module built
-on your machine is never uploaded.
+on your machine is never uploaded. The server keeps one cache of compiled dependencies per
+organisation, which no other organisation's build can see, and always compiles your functions
+themselves from the source you deployed ([ADR-0107](../adr/0107-per-organisation-build-caches.md)):
+a deploy after the first takes about half as long.
 
 `plux fn invoke <name> --input '{"amount": 100, "currency": "EUR"}'` runs the built module under
 the limits and capabilities of the document, with an in-memory key-value store. `--input @file`

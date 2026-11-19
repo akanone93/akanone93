@@ -1244,6 +1244,16 @@ export const limits = [
     description: "Per-segment values one flag may have.",
   },
   {
+    key: "function.buildCacheSize",
+    unit: "bytes",
+    default: 2147483648,
+    warning: 0,
+    max: 68719476736,
+    scopes: ["installation"],
+    phase: "P11",
+    description: "Size of the compiled crates.io dependencies the builder role keeps for one organisation between its builds; that organisation's cache is emptied when a build leaves it larger (ADR-0107).",
+  },
+  {
     key: "function.buildMemory",
     unit: "bytes",
     default: 4294967296,

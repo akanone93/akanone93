@@ -178,6 +178,10 @@ services:
       # Scratch for builds: cargo's output includes executables (build scripts,
       # procedural macros) that run from here, so it is not noexec.
       - /var/lib/plux/build:exec,nosuid,nodev,uid=65532,gid=65532,mode=0700,size=2g
+      # The organisations' build caches (ADR-0107): compiled crates.io
+      # dependencies, build scripts among them, so it is not noexec either;
+      # memory-backed and gone with the container.
+      - /var/cache/plux/build:exec,nosuid,nodev,uid=65532,gid=65532,mode=0700,size=3g
     networks: [functions]
     restart: unless-stopped
 

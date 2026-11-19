@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.17.0
+**Version:** 1.18.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-19
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -1384,7 +1384,7 @@ plux_fn::function!(calculate_schedule);
 | `FN-007` | P7 | MUST | Deploying a function to production **MUST** go through the approval engine (`GOV-020`, P9). Until that engine exists, it **MUST** require a dedicated RBAC permission with step-up authentication (the stand-in already used for release promotion); P9 replaces the stand-in. | DONE |
 | `FN-008` | P7 | MUST | Each function **MUST** declare exactly one placement, `server` or `device`; the compiler **MUST** reject device-placed functions that request server-only capabilities (secrets, HTTP, user claims). | DONE |
 | `FN-009` | P7 | MUST | Only artifacts built by the `builder` role and signed with the function-artifact key **MUST** be deployable; `fnrunner` **MUST** verify the signature before it compiles a module. | DONE |
-| `FN-016` | P7 | MUST | The `builder` role **MUST** build with the pinned toolchain and `wasm-opt`, from vendored sources only (`--locked --offline`), with no network and bounded CPU, memory and time, each build in a private view of the filesystem — the toolchain read-only, its own scratch directory writable, a `/proc` of its own PID namespace — restricted to the same by Landlock and holding no capabilities, so that it can neither read nor change another build's files or processes, and refusing to build where the machine cannot provide this (ADR-0106); build scripts and procedural macros run only from an allowlist that pins each crate version to the SHA-256 of its published crates.io archive, and only from crates.io (ADR-0105). It holds no database credentials and no signing keys (L-4). | DONE |
+| `FN-016` | P7 | MUST | The `builder` role **MUST** build with the pinned toolchain and `wasm-opt`, from vendored sources only (`--locked --offline`), with no network and bounded CPU, memory and time, each build in a private view of the filesystem — the toolchain read-only, its own scratch directory writable, a `/proc` of its own PID namespace — restricted to the same by Landlock and holding no capabilities, so that it can neither read nor change another build's files or processes, and refusing to build where the machine cannot provide this (ADR-0106) — except that the builds of one organisation share one cache of the crates.io dependencies they compiled, which no other organisation's build can see and from which no function's own compilation is ever reused (ADR-0107); build scripts and procedural macros run only from an allowlist that pins each crate version to the SHA-256 of its published crates.io archive, and only from crates.io (ADR-0105). It holds no database credentials and no signing keys (L-4). | DONE |
 | `FN-017` | P7 | MUST | The `egress` role **MUST** be a standard-library forward proxy (HTTP and `CONNECT`) and the only route out of `fnrunner`, enforcing the function's domain allowlist and the gateway's private-address refusals. | DONE |
 | `FN-018` | P7 | MUST | The server key-value store **MUST** be PostgreSQL with one namespace per app, environment and function, under row-level security and bounded by limits from the registry (`function.kv*`); `fnrunner` **MUST** reach it only through host calls served by `api`. Device functions use the plugin's key-value namespace. | DONE |
 | `FN-019` | P7 | MUST | Function builds **MUST** be reproducible: the same source, lock file and toolchain give a byte-identical module (`CMP-002`, `CI-006`). | DONE |
@@ -2903,6 +2903,8 @@ builder:                             # compiles Rust sources to WebAssembly (FN-
   sdkDir: "/opt/plux/sdk/plux-fn"
   concurrency: 1
   workDir: ""
+  cacheDir: ""                       # one cache of compiled dependencies per organisation (ADR-0107); empty: none
+  cacheBytes: 0                      # all caches together; required with cacheDir
   identity: ""                       # empty: the host name, recorded in provenance (FN-005)
 # The dev-session relay of the api role (§20, ADR-0087). The lifetime of a pairing token, devices
 # per session, session lifetime and idle time, commands per minute, patch size and the relay's
@@ -3134,10 +3136,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.17.0 |
+| Version | 1.18.0 |
 | Status | Draft (living document) |
 | Date | 2026-11-19 |
-| Supersedes | 1.16.0 |
+| Supersedes | 1.17.0 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3180,3 +3182,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.15.0 | 2026-11-11 | Dev app phone sign-in (maintainer, 2026-11-11; ADR-0104): `DEV-002` lets the pairing token reach a phone the session's person signed in to the Plux Dev app, after that person picks on the phone the number their Studio session shows, as well as by QR code; Appendix F adds `PLX-9210` (number does not match), `PLX-9211` (no live Studio session) and `PLX-9212` (phone request closed). |
 | 1.16.0 | 2026-11-18 | Function dependencies (maintainer, 2026-11-18; ADR-0105, amending ADR-0063): `FN-003` — dependencies travel as the `.crate` archives crates.io publishes, checked against the lock file's SHA-256 and stored once per organisation, and the builder makes the vendored tree from them; `FN-016` — the allowlist of build scripts and procedural macros pins each version to the SHA-256 of its published archive and accepts them from crates.io only. New registry limit `function.sourceCrates`; `function.sourceArchiveSize` bounds a source with its crate archives. The upload format and the internal builder protocol change incompatibly before 0.0.1 (`SRV-000`). |
 | 1.17.0 | 2026-11-19 | Build isolation (maintainer, 2026-11-19; ADR-0106, amending ADR-0063): `FN-016` — each build runs in a private view of the filesystem (the toolchain read-only, its own scratch directory writable, a `/proc` of its own PID namespace), restricted to the same by Landlock and holding no capabilities, so it can neither read nor change another build's files or processes; a machine that cannot provide this refuses to build. The builder's deployment gains seccomp rules for the sandbox's mounts, an unmasked `/proc` for the builder container (a user-namespaced pod in Kubernetes) and an AppArmor profile for hosts with AppArmor. |
+| 1.18.0 | 2026-11-19 | Build caches (maintainer, 2026-11-18, build log #161; ADR-0107): `FN-016` — the builds of one organisation share one cache of the crates.io dependencies they compiled, which no other organisation's build can see and from which no function's own compilation is ever reused. New registry limit `function.buildCacheSize`; the builder role's `builder.cacheDir` and `builder.cacheBytes`; the internal builder protocol gains `cache_key`. |

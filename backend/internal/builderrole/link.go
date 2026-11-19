@@ -76,7 +76,7 @@ func (s *Service) link(ctx context.Context, in *fnpb.LinkRequest) (*fnpb.LinkRes
 	}
 	// FN-051: each function was built, tested and verified on its own, and
 	// linking is deterministic, so the link does not build twice.
-	artifact, err := b.Build(ctx, sources, builder.Options{})
+	artifact, err := b.Build(ctx, sources, builder.Options{CacheKey: in.GetCacheKey()})
 	if err != nil {
 		return linkRefusal(err)
 	}

@@ -100,6 +100,9 @@ func TestDeviceModulesLinkEachSetOnce_FN_051(t *testing.T) {
 	if len(in.Sources) != 2 || in.Sources[0].Name != "loans.alpha" || in.Sources[1].Name != "loans.beta" || in.Sources[0].SourceObjectKey == "" || in.Timeout == 0 {
 		t.Errorf("link input = %+v; the sources of the versions, sorted by name", in)
 	}
+	if in.CacheKey != w.org {
+		t.Errorf("link cache key = %q; want the organisation, %q (ADR-0107)", in.CacheKey, w.org)
+	}
 	again, err := mods.Module("accounts", refs(b, a))
 	if err != nil || string(again.Wasm) != string(first.Wasm) || w.linker.linked() != 1 {
 		t.Errorf("the same set linked %d times: %v", w.linker.linked(), err)

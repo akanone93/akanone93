@@ -118,7 +118,7 @@ func (b *Builder) OpenLanguage(ctx context.Context, src FunctionSource, o Langua
 	if err != nil {
 		return nil, err
 	}
-	r, cleanup, err := b.newRun(false)
+	r, cleanup, err := b.newRun("", false)
 	if err != nil {
 		return nil, err
 	}

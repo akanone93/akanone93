@@ -426,6 +426,11 @@ builder:
   # The scratch directory of builds: memory-backed, executable (cargo runs
   # build scripts from it), owned by the builder's user.
   scratchSize: 2Gi
+  # One cache of compiled crates.io dependencies per organisation, on the
+  # node's disk, which only that organisation's builds see (ADR-0107); the
+  # caches keep to 90% of the volume, each to function.buildCacheSize. 0
+  # builds every time from scratch.
+  cache: {sizeGi: 8}
   # deploy/compose/seccomp-builder.json is Docker's default profile plus the
   # rules the build sandbox needs: clone may create user, network, mount and
   # PID namespaces, and the sandbox helper may build each build's view with

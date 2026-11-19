@@ -374,6 +374,11 @@ const (
 	FlagsPerApp Key = "flags.perApp"
 	// FlagsSegmentValues: Per-segment values one flag may have. (ABT-006)
 	FlagsSegmentValues Key = "flags.segmentValues"
+	// FunctionBuildCacheSize: Size of the compiled crates.io dependencies the
+	// builder role keeps for one organisation between its builds; that
+	// organisation's cache is emptied when a build leaves it larger (ADR-0107).
+	// (FN-016, FN-019)
+	FunctionBuildCacheSize Key = "function.buildCacheSize"
 	// FunctionBuildMemory: Memory one function build may use. (FN-016)
 	FunctionBuildMemory Key = "function.buildMemory"
 	// FunctionBuildTimeout: Wall-clock time one function build may run. (FN-016)
@@ -849,6 +854,7 @@ var registry = [...]Definition{
 	{Key: ExperimentsSegmentsPerTargeting, Unit: UnitCount, Default: 10, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Segments one experiment may target; a device in any of them is eligible."},
 	{Key: FlagsPerApp, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Feature flags one app may define."},
 	{Key: FlagsSegmentValues, Unit: UnitCount, Default: 20, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Per-segment values one flag may have."},
+	{Key: FunctionBuildCacheSize, Unit: UnitBytes, Default: 2147483648, Warning: 0, Max: 68719476736, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P11", Description: "Size of the compiled crates.io dependencies the builder role keeps for one organisation between its builds; that organisation's cache is emptied when a build leaves it larger (ADR-0107)."},
 	{Key: FunctionBuildMemory, Unit: UnitBytes, Default: 4294967296, Warning: 0, Max: 17179869184, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Memory one function build may use."},
 	{Key: FunctionBuildTimeout, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one function build may run."},
 	{Key: FunctionCallDepth, Unit: UnitCount, Default: 3, Warning: 0, Max: 3, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Depth of nested function-to-function calls within one invocation."},

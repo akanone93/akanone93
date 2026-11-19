@@ -22,6 +22,8 @@ import (
 	"math/big"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -302,6 +304,42 @@ func TestUnsandboxedBuildsWarnOnStartAndOnEveryBuild_FN_016(t *testing.T) {
 	}
 	if strings.Contains(sandboxed.String(), "builder.sandbox is none") {
 		t.Error("a sandboxed role warned about the sandbox")
+	}
+}
+
+// Verifies: FN-016, FN-019.
+// A build uses the cache of the organisation the request names, below the
+// role's cache directory, bounded by function.buildCacheSize within the
+// role's total; a key that is not a plain name reaches no cache at all.
+func TestBuildsUseTheirOrganisationsCache_FN_016(t *testing.T) {
+	s := newService(t, builder.NoSandbox{}, false, nil, nil)
+	cache := filepath.Join(t.TempDir(), "cache")
+	s.o.Tools.CacheDir, s.o.Tools.CacheTotalBytes = cache, 1<<40
+	perOrg, _ := limits.Lookup(limits.FunctionBuildCacheSize)
+	if cfg := s.toolConfig(nil); cfg.CacheBytes != perOrg.Default {
+		t.Errorf("one cache's limit = %d; want function.buildCacheSize, %d", cfg.CacheBytes, perOrg.Default)
+	}
+	s.o.Tools.CacheTotalBytes = 1 << 20
+	if cfg := s.toolConfig(nil); cfg.CacheBytes != 1<<20 {
+		t.Errorf("one cache's limit = %d; want the total, which is smaller", cfg.CacheBytes)
+	}
+	src := archive(t, map[string]string{
+		"Cargo.toml": "[package]\nname = \"fee\"\nversion = \"0.1.0\"\n", "Cargo.lock": "version = 4\n\n[[package]]\nname = \"fee\"\nversion = \"0.1.0\"\n",
+		"src/lib.rs": "// fee\n", "function.json": declaration,
+	})
+	for _, key := range []string{"0198d1c2-7a54-7e1e-9c4f-1f0a2b3c4d5e", "../escape"} {
+		req := request(src)
+		req.CacheKey = key
+		if _, err := s.Build(t.Context(), connect.NewRequest(req)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	entries, err := os.ReadDir(cache)
+	if err != nil || len(entries) != 1 || entries[0].Name() != "0198d1c2-7a54-7e1e-9c4f-1f0a2b3c4d5e" {
+		t.Errorf("caches = %v (%v); want the organisation's only", entries, err)
+	}
+	if _, err := os.Stat(filepath.Join(filepath.Dir(cache), "escape")); !os.IsNotExist(err) {
+		t.Errorf("a key reached outside the cache directory: %v", err)
 	}
 }
 

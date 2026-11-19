@@ -55,6 +55,7 @@ func (s *Server) buildBuilder() error {
 			Tools: builder.Config{
 				Sandbox: sandbox, Clock: time.Now, Identity: identity, SDKDir: b.SDKDir, TempDir: b.WorkDir,
 				Cargo: b.Cargo, Rustc: b.Rustc, WasmOpt: b.WasmOpt,
+				CacheDir: b.CacheDir, CacheTotalBytes: b.CacheBytes,
 			},
 			LanguageServer: b.LanguageServer, LanguageSessions: b.LanguageSessions,
 			Unsandboxed: b.Sandbox == "none",

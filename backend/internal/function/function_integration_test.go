@@ -313,6 +313,10 @@ func TestLifecycle_FN_006_FN_009(t *testing.T) {
 	if len(w.builder.calls) != 1 || w.builder.calls[0].SourceObjectKey == "" || w.builder.calls[0].ModuleBytes != w.limits.Get(limits.FunctionModuleSize) {
 		t.Errorf("builder input = %+v", w.builder.calls)
 	}
+	// ADR-0107: the build uses the cache of its own organisation only.
+	if len(w.builder.calls) == 1 && w.builder.calls[0].CacheKey != w.org {
+		t.Errorf("build cache key = %q; want the organisation, %q", w.builder.calls[0].CacheKey, w.org)
+	}
 	if len(w.signer.statements) != 1 || !bytes.Contains(w.signer.statements[0], []byte(`"moduleSha256":"`)) || !bytes.Contains(w.signer.statements[0], []byte(`"sourceSha256":"`)) {
 		t.Errorf("signed statement = %s", w.signer.statements)
 	}

@@ -43,6 +43,19 @@ func (c *Config) validateBuilder(p *problems) {
 	if b.LanguageServer != "" && b.LanguageSessions == 0 {
 		p.addf("builder.languageSessions", "must be at least 1 when builder.languageServer is set")
 	}
+	b.validateCache(p)
+}
+
+// validateCache checks the organisations' build caches (ADR-0107): a cache
+// directory needs the limit of all caches together, and the limit needs the
+// directory.
+func (b Builder) validateCache(p *problems) {
+	if b.CacheDir != "" && b.CacheBytes <= 0 {
+		p.addf("builder.cacheBytes", "must be set when builder.cacheDir is: it bounds the organisations' build caches together")
+	}
+	if b.CacheDir == "" && b.CacheBytes != 0 {
+		p.addf("builder.cacheBytes", "is set but builder.cacheDir is not")
+	}
 }
 
 // builderWarnings lists the builder settings that are valid but unsafe.

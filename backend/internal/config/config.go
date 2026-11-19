@@ -149,6 +149,16 @@ type Builder struct {
 	// WorkDir is the parent of the scratch directories of builds; empty
 	// means the system's temporary directory.
 	WorkDir string `json:"workDir"`
+	// CacheDir keeps one build cache per organisation: the crates.io
+	// dependencies its builds compiled, reused by its next builds and seen
+	// by no other organisation's (ADR-0107). Empty, the default, builds
+	// every time from scratch. Each cache is bounded by the registry's
+	// function.buildCacheSize.
+	CacheDir string `json:"cacheDir"`
+	// CacheBytes bounds the caches together; the least recently used are
+	// removed beyond it. Required with CacheDir; keep it below the size of
+	// the volume that holds CacheDir.
+	CacheBytes int64 `json:"cacheBytes"`
 	// Identity names this builder in the provenance of its modules; empty
 	// means the host name.
 	Identity string `json:"identity"`

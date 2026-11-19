@@ -102,6 +102,9 @@ spec:
             - {name: tmp, mountPath: /tmp}
             {{- if eq $role "builder" }}
             - {name: scratch, mountPath: /var/lib/plux/build}
+            {{- if $root.Values.builder.cache.sizeGi }}
+            - {name: cache, mountPath: /var/cache/plux/build}
+            {{- end }}
             {{- end }}
       volumes:
         - name: config
@@ -116,6 +119,13 @@ spec:
         # user and gone with the pod.
         - name: scratch
           emptyDir: {medium: Memory, sizeLimit: {{ $root.Values.builder.scratchSize }}}
+        {{- if $root.Values.builder.cache.sizeGi }}
+        # The organisations' build caches (ADR-0107): on the node's disk,
+        # executable like the scratch directory, gone with the pod; each
+        # build sees only its own organisation's cache.
+        - name: cache
+          emptyDir: {sizeLimit: {{ printf "%dGi" (int $root.Values.builder.cache.sizeGi) }}}
+        {{- end }}
         {{- end }}
 ---
 apiVersion: v1

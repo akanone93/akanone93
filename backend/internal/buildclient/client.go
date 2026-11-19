@@ -94,7 +94,7 @@ func (c *Client) Build(ctx context.Context, in function.BuildInput) (function.Bu
 	resp, err := c.rpc.Build(ctx, connect.NewRequest(&fnpb.BuildRequest{
 		BuildId: in.BuildID, Source: source, SourceSha256: in.SourceSHA256, Name: in.Name, Placement: string(in.Placement),
 		Limits: &fnpb.BuildLimits{TimeoutMs: uint32(min(in.Timeout.Milliseconds(), 1<<32-1)), MemoryBytes: uint64(max(in.MemoryBytes, 0))}, //nolint:gosec // G115: bounded and non-negative.
-		Crates: crates,
+		Crates: crates, CacheKey: in.CacheKey,
 	}))
 	if err != nil {
 		return function.BuildOutput{}, fmt.Errorf("buildclient.Build: %w", err)
@@ -178,7 +178,7 @@ func (c *Client) Link(ctx context.Context, in function.LinkInput) (function.Link
 		defer cancel()
 	}
 	resp, err := c.rpc.Link(ctx, connect.NewRequest(&fnpb.LinkRequest{
-		LinkId: in.LinkID, Sources: sources, Crates: crates,
+		LinkId: in.LinkID, Sources: sources, Crates: crates, CacheKey: in.CacheKey,
 		Limits: &fnpb.BuildLimits{TimeoutMs: uint32(min(in.Timeout.Milliseconds(), 1<<32-1)), MemoryBytes: uint64(max(in.MemoryBytes, 0))}, //nolint:gosec // G115: bounded and non-negative.
 	}))
 	if err != nil {
