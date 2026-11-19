@@ -81,19 +81,24 @@ function initialValues(fields: readonly FormField[]): Record<string, string> {
   return Object.fromEntries(fields.map((f) => [f.name, f.initial ?? f.options?.[0]?.value ?? ""]));
 }
 
-/** A small create form: text, date, number and single-choice fields; it clears itself after a successful change. */
+/**
+ * A small create form: text, date, number and single-choice fields, and `children` for fields whose choices depend on
+ * one another, which the page holds; it clears its own fields after a successful change.
+ */
 export function CreateForm({
   fields,
   submit,
   disabled,
   deniedReason,
   onSubmit,
+  children,
 }: {
   readonly fields: readonly FormField[];
   readonly submit: string;
   readonly disabled: boolean;
   readonly deniedReason: string;
   readonly onSubmit: (value: (name: string) => string) => Promise<boolean>;
+  readonly children?: ReactNode;
 }): ReactElement {
   const [values, setValues] = useState(() => initialValues(fields));
   // Options may arrive after the first render, so an unchosen field holds its first option.
@@ -125,6 +130,7 @@ export function CreateForm({
           )}
         </Field>
       ))}
+      {children}
       <Button type="submit" disabled={disabled} title={disabled ? deniedReason : undefined}>
         {submit}
       </Button>

@@ -453,6 +453,38 @@ export function adminMessages(i18n: I18n) {
         values: { name },
         comment: "An option of what a restriction applies to: a member of the organisation, by name or email.",
       }),
+    restrictionApp: i18n._({
+      id: "admin.restrictions.app",
+      message: "In app",
+      comment: "Label of the chooser that limits a restriction to one app, or none for every app.",
+    }),
+    restrictionEnvironment: i18n._({
+      id: "admin.restrictions.environment",
+      message: "In environment",
+      comment: "Label of the chooser that limits a restriction to one environment of the chosen app.",
+    }),
+    everyApp: i18n._({
+      id: "admin.restrictions.everyApp",
+      message: "Every app",
+      comment: "A restriction that applies in every app of the organisation.",
+    }),
+    everyEnvironment: i18n._({
+      id: "admin.restrictions.everyEnvironment",
+      message: "Every environment",
+      comment: "A restriction that applies in every environment of its app.",
+    }),
+    restrictionWhere: (app: string, environment: string) =>
+      i18n._({
+        id: "admin.restrictions.where",
+        message: "{app} › {environment}",
+        values: { app, environment },
+        comment: "Where a restriction applies: an app, then one of its environments by key.",
+      }),
+    colWhere: i18n._({
+      id: "admin.colWhere",
+      message: "Where",
+      comment: "Column of the restriction table: the app and environment a restriction is limited to.",
+    }),
     patterns: i18n._({
       id: "admin.patterns",
       message: "Permission patterns (comma-separated)",

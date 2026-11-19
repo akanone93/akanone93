@@ -25,6 +25,12 @@ msgstr "{a, select, start {البداية} center {الوسط} end {النهاي
 msgid "functions.aliasAt"
 msgstr "{alias} يشير إلى الإصدار {version}"
 
+#. Where a restriction applies: an app, then one of its environments by key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictions.where"
+msgstr "{app} › {environment}"
+
 #. The version an app adopted.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -6701,11 +6707,23 @@ msgstr "الأحداث"
 msgid "analytics.trendLabel"
 msgstr "الأحداث يوميًا"
 
+#. A restriction that applies in every app of the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictions.everyApp"
+msgstr "كل التطبيقات"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.auditCaption"
 msgstr "كل تغيير في هذه المؤسسة، قابل للبحث والتصدير."
+
+#. A restriction that applies in every environment of its app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictions.everyEnvironment"
+msgstr "كل البيئات"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -8259,6 +8277,18 @@ msgstr "في {locale}"
 #: apps/web/src/features/panels/layout-panel.messages.ts
 msgid "layout.inStack"
 msgstr "داخل مكدس"
+
+#. Label of the chooser that limits a restriction to one app, or none for every app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictions.app"
+msgstr "في التطبيق"
+
+#. Label of the chooser that limits a restriction to one environment of the chosen app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.restrictions.environment"
+msgstr "في البيئة"
 
 #. Option: lost when the plugin closes.
 #. js-lingui-explicit-id
@@ -20343,6 +20373,12 @@ msgstr "عند"
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.action"
 msgstr "عند فشل الفحص"
+
+#. Column of the restriction table: the app and environment a restriction is limited to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colWhere"
+msgstr "أين"
 
 #. Label of the list that chooses how long the entry's value is kept.
 #. js-lingui-explicit-id

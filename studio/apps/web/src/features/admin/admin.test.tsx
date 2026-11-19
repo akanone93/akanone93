@@ -27,6 +27,15 @@ const all = [
 const open = (path: string, state: Upstream = {}) =>
   renderApp(`${base}${path}`, { permissions: all, ...state, admin: { calls: [], ...state.admin } });
 const calls = (state: Upstream) => state.admin?.calls ?? [];
+/** Chooses an option of an open Base UI select: it takes a choice once its open animation settles, from a full press. */
+async function choose(option: HTMLElement): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  fireEvent.pointerDown(option);
+  fireEvent.mouseDown(option);
+  fireEvent.pointerUp(option);
+  fireEvent.mouseUp(option);
+  fireEvent.click(option);
+}
 const type = (label: string | RegExp, value: string) =>
   fireEvent.change(screen.getByRole("textbox", { name: label }), { target: { value } });
 
@@ -256,13 +265,7 @@ describe("[STU-116] organisation administration", () => {
     fireEvent.click(screen.getByRole("combobox", { name: "Applies to" }));
     expect(await screen.findByRole("option", { name: "Person · Grace" })).toBeTruthy();
     const team = await screen.findByRole("option", { name: "Team · Contractors" });
-    // Base UI's select takes a choice once its open animation settles, from a full press.
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    fireEvent.pointerDown(team);
-    fireEvent.mouseDown(team);
-    fireEvent.pointerUp(team);
-    fireEvent.mouseUp(team);
-    fireEvent.click(team);
+    await choose(team);
     type("Permission patterns (comma-separated)", "release.publish, function.*");
     type("Reason", "contractors");
     fireEvent.click(screen.getByRole("button", { name: "Add restriction" }));
@@ -273,6 +276,45 @@ describe("[STU-116] organisation administration", () => {
     );
     fireEvent.click(screen.getAllByRole("button", { name: "Remove" })[0] as HTMLElement);
     await waitFor(() => expect(calls(state)).toContain('deleteRestriction:{"id":"r1"}'));
+  });
+
+  test("O22 limits a restriction to one app and environment, and lists where each applies [GOV-006]", async () => {
+    const state: Upstream = {
+      admin: {
+        calls: [],
+        apps: [{ id: "app1", name: "Apply Register" }],
+        teams: [{ id: "t1", key: "orgs", name: "Orgs" }],
+        restrictions: [
+          {
+            id: "r1",
+            subjectKind: "team",
+            subjectId: "t1",
+            patterns: ["release.*"],
+            reason: "production is the release managers'",
+            appId: "app1",
+            environment: "production",
+          },
+          { id: "r2", subjectKind: "organization", subjectId: "", patterns: ["function.*"], reason: "no functions" },
+        ],
+      },
+    };
+    open("/restrictions", state);
+    await screen.findByText("Apply Register › production");
+    const rows = screen.getAllByRole("row").map((r) => r.textContent ?? "");
+    expect(rows.find((r) => r.includes("function.*"))).toContain("Every app");
+    // An environment is chosen within an app, so the server never gets an environment without its app.
+    fireEvent.click(screen.getByRole("combobox", { name: "In app" }));
+    await choose(await screen.findByRole("option", { name: "Apply Register" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "In environment" }));
+    await choose(await screen.findByRole("option", { name: "production" }));
+    type("Permission patterns (comma-separated)", "secrets.manage");
+    type("Reason", "production secrets");
+    fireEvent.click(screen.getByRole("button", { name: "Add restriction" }));
+    await waitFor(() =>
+      expect(calls(state)).toEqual([
+        'createRestriction:{"kind":"organization","subject":"","patterns":["secrets.manage"],"reason":"production secrets","app":"app1","environment":"production"}',
+      ]),
+    );
   });
 
   test("O23 explains an allow naming the grant and a deny naming the restriction", async () => {

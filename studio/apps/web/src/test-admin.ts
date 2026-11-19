@@ -23,7 +23,15 @@ export interface AdminData {
   roles?: { key: string; name: string; predefined?: boolean; permissions: string[] }[];
   permissions?: { name: string; description?: string; stepUp?: boolean }[];
   grants?: { id: string; userId?: string; teamId?: string; role: string; scope: string; appId?: string }[];
-  restrictions?: { id: string; subjectKind: string; subjectId: string; patterns: string[]; reason: string }[];
+  restrictions?: {
+    id: string;
+    subjectKind: string;
+    subjectId: string;
+    patterns: string[];
+    reason: string;
+    appId?: string;
+    environment?: string;
+  }[];
   explain?: { decision: string; allowingGrantIds?: string[]; removingRestrictionIds?: string[]; ownerFloor?: boolean };
   tokens?: { id: string; name: string; prefix: string; revoked?: boolean }[];
   workloads?: { id: string; issuer: string; audience: string; subjectPattern: string; scopes: string[] }[];
@@ -169,6 +177,8 @@ export function governanceAdmin(a: AdminData): Partial<ServiceImpl<typeof Govern
         subject: req.subjectId,
         patterns: req.patterns,
         reason: req.reason,
+        ...(req.appId !== "" && { app: req.appId }),
+        ...(req.environment !== "" && { environment: req.environment }),
       });
       return {};
     },
