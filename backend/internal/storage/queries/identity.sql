@@ -25,6 +25,11 @@ UPDATE users
  WHERE id = $1 AND password_hash = ''
 RETURNING *;
 
+-- name: RevokeInvitation :execrows
+-- Voids the invitation of an account that has not accepted it.
+UPDATE users SET invitation_hash = NULL, invitation_expires_at = NULL
+ WHERE id = $1 AND password_hash = '' AND invitation_hash IS NOT NULL;
+
 -- name: SetUserPassword :exec
 UPDATE users SET password_hash = $2 WHERE id = $1;
 

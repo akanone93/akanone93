@@ -2047,6 +2047,20 @@ func (q *Queries) RevokeAccessToken(ctx context.Context, id pgtype.UUID) (int64,
 	return result.RowsAffected(), nil
 }
 
+const revokeInvitation = `-- name: RevokeInvitation :execrows
+UPDATE users SET invitation_hash = NULL, invitation_expires_at = NULL
+ WHERE id = $1 AND password_hash = '' AND invitation_hash IS NOT NULL
+`
+
+// Voids the invitation of an account that has not accepted it.
+func (q *Queries) RevokeInvitation(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, revokeInvitation, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const revokeSession = `-- name: RevokeSession :execrows
 UPDATE sessions SET revoked_at = $2 WHERE id = $1 AND revoked_at IS NULL
 `

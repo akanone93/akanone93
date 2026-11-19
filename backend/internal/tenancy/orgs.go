@@ -283,6 +283,15 @@ func (s *Service) AddMember(ctx context.Context, p auth.Principal, teamID, email
 	if err != nil {
 		return Member{}, "", err
 	}
+	// An account that has not accepted an earlier invitation gets a fresh
+	// one, which voids the earlier, when it is invited again after it was
+	// removed or when its invitation has expired — but only when no other
+	// organisation holds a membership of it: otherwise this organisation
+	// could take over an account another one invited (build log #169).
+	renew, err := s.mayRenewInvitation(ctx, p, email)
+	if err != nil {
+		return Member{}, "", err
+	}
 	var (
 		out        Member
 		invitation string
@@ -292,6 +301,11 @@ func (s *Service) AddMember(ctx context.Context, p auth.Principal, teamID, email
 		user, inv, err := s.o.Auth.Invite(ctx, tx, email)
 		if err != nil {
 			return err //nolint:wrapcheck // already a domain error
+		}
+		if inv == "" && renew != "" && renew == user.ID {
+			if inv, err = s.o.Auth.RenewInvitation(ctx, tx, user.ID); err != nil {
+				return err //nolint:wrapcheck // already wrapped by the auth service
+			}
 		}
 		invitation = inv
 		if inv != "" {
@@ -375,6 +389,12 @@ func (s *Service) RemoveMember(ctx context.Context, p auth.Principal, teamID, us
 			return err
 		}
 	}
+	// A pending account's invitation is voided with its last membership,
+	// unless another organisation also holds one (build log #169).
+	elsewhere, err := s.memberElsewhere(ctx, p.OrganizationID, userID)
+	if err != nil {
+		return err
+	}
 	return s.inOrgChanging(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		// Removing a person can remove the last owner (PLX-8103), directly
@@ -389,9 +409,99 @@ func (s *Service) RemoveMember(ctx context.Context, p auth.Principal, teamID, us
 			if n == 0 {
 				return plxerr.New(plxerr.ResourceNotFound, "no such membership")
 			}
-			return s.record(ctx, tx, p, audit.MemberRemoved, "user", userID)
+			if err := s.record(ctx, tx, p, audit.MemberRemoved, "user", userID); err != nil {
+				return err
+			}
+			return s.voidLastInvitation(ctx, tx, p, userID, elsewhere)
 		})
 	})
+}
+
+// voidLastInvitation voids the invitation of an account that has not
+// accepted it once it holds no membership of this organisation and none
+// elsewhere, so a removed person's invitation cannot be used later, for
+// example after they are invited again (build log #169).
+func (s *Service) voidLastInvitation(ctx context.Context, tx pgx.Tx, p auth.Principal, userID string, elsewhere bool) error {
+	if elsewhere || s.o.Auth == nil {
+		return nil
+	}
+	left, err := dbgen.New(tx).CountMembershipsIn(ctx, dbgen.CountMembershipsInParams{
+		OrganizationID: storage.MustUUID(p.OrganizationID), UserID: storage.MustUUID(userID),
+	})
+	if err != nil {
+		return failure(err, "membership")
+	}
+	if left > 0 {
+		return nil
+	}
+	revoked, err := s.o.Auth.RevokeInvitation(ctx, tx, userID)
+	if err != nil || !revoked {
+		return err //nolint:wrapcheck // already wrapped by the auth service
+	}
+	return s.record(ctx, tx, p, audit.InvitationRevoked, "user", userID)
+}
+
+// memberElsewhere reports whether the user holds a membership of an
+// organisation other than orgID. It reads in the 'invitation' scope, which
+// admits counting memberships across organisations for this purpose only;
+// the answer never leaves the service (build log #169).
+func (s *Service) memberElsewhere(ctx context.Context, orgID, userID string) (bool, error) {
+	uid, err := parseID(userID, "user")
+	if err != nil {
+		return false, err
+	}
+	var n int64
+	err = s.o.DB.InTx(ctx, storage.Tenant{Scope: storage.ScopeInvitation}, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		n, err = dbgen.New(tx).CountMembershipsElsewhere(ctx, dbgen.CountMembershipsElsewhereParams{
+			UserID: uid, OrganizationID: storage.MustUUID(orgID),
+		})
+		if err != nil {
+			return failure(err, "membership")
+		}
+		return nil
+	})
+	if err != nil {
+		return false, fmt.Errorf("tenancy: count memberships: %w", err)
+	}
+	return n > 0, nil
+}
+
+// mayRenewInvitation returns the ID of the pending account with this email
+// address when a new invitation may be issued to it, and "" otherwise. It
+// may when no other organisation holds a membership of the account, and
+// the account either holds none here (it is being invited again) or its
+// invitation has expired; a person who is still a member keeps the
+// invitation they were given.
+func (s *Service) mayRenewInvitation(ctx context.Context, p auth.Principal, email string) (string, error) {
+	if s.o.Auth == nil {
+		return "", nil
+	}
+	var pending string
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		id, live, err := s.o.Auth.PendingAccount(ctx, tx, email)
+		if err != nil || id == "" {
+			return err //nolint:wrapcheck // already a domain error
+		}
+		here, err := dbgen.New(tx).CountMembershipsIn(ctx, dbgen.CountMembershipsInParams{
+			OrganizationID: storage.MustUUID(p.OrganizationID), UserID: storage.MustUUID(id),
+		})
+		if err != nil {
+			return failure(err, "membership")
+		}
+		if here == 0 || !live {
+			pending = id
+		}
+		return nil
+	})
+	if err != nil || pending == "" {
+		return "", err
+	}
+	elsewhere, err := s.memberElsewhere(ctx, p.OrganizationID, pending)
+	if err != nil || elsewhere {
+		return "", err
+	}
+	return pending, nil
 }
 
 // ListMembers lists the direct members of the organisation, or the

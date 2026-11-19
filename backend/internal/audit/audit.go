@@ -39,6 +39,7 @@ const (
 
 	UserInvited          Action = "user.invited"
 	InvitationAccepted   Action = "user.invitation_accepted"
+	InvitationRevoked    Action = "user.invitation_revoked"
 	UserSignedIn         Action = "user.signed_in"
 	UserSignInRefused    Action = "user.sign_in_refused"
 	UserSignedOut        Action = "user.signed_out"
@@ -480,7 +481,7 @@ const (
 var actions = sorted(
 	OrganizationCreated, OrganizationUpdated, TeamCreated, TeamUpdated, TeamDeleted,
 	MemberAdded, MemberRemoved,
-	UserInvited, InvitationAccepted, UserSignedIn, UserSignInRefused, UserSignedOut,
+	UserInvited, InvitationAccepted, InvitationRevoked, UserSignedIn, UserSignInRefused, UserSignedOut,
 	PasswordChanged, SecondFactorVerified, IdentityLinked, FactorEnrolled, FactorConfirmed, FactorDeleted,
 	TokenCreated, TokenRevoked, DeviceAuthApproved, DeviceAuthDenied,
 	WorkloadIdentityCreated, WorkloadIdentityDeleted, WorkloadExchanged,

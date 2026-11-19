@@ -84,6 +84,14 @@ Administer grants with the CLI (see [the CLI reference](../reference/cli.md)):
 Teams group people. Approval policies can require approvers from distinct teams, and SCIM
 groups map to teams ([SSO and SCIM guide](sso-and-scim.md)).
 
+Inviting someone who has no account creates one and shows its invitation once. Until the person
+accepts it, the invitation lives only as long as the account belongs to an organisation:
+removing them voids it, unless another organisation also invited them, and inviting them again
+gives a fresh invitation, which stops the earlier one from working. Re-adding someone who is
+still a member keeps the invitation they have, unless it has expired. An organisation never
+receives a new invitation for an account another organisation also invited, so it cannot take
+that account over.
+
 ## 5. Custom roles
 
 Custom roles are an enterprise feature. A custom role is a named set of catalogue permissions,

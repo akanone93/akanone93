@@ -81,6 +81,40 @@ func (q *Queries) AddTeamMembership(ctx context.Context, arg AddTeamMembershipPa
 	return i, err
 }
 
+const countMembershipsElsewhere = `-- name: CountMembershipsElsewhere :one
+SELECT count(*) FROM memberships WHERE user_id = $1 AND organization_id <> $2
+`
+
+type CountMembershipsElsewhereParams struct {
+	UserID         pgtype.UUID
+	OrganizationID pgtype.UUID
+}
+
+// In the 'invitation' scope: the memberships an account holds in other
+// organisations (build log #169).
+func (q *Queries) CountMembershipsElsewhere(ctx context.Context, arg CountMembershipsElsewhereParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countMembershipsElsewhere, arg.UserID, arg.OrganizationID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countMembershipsIn = `-- name: CountMembershipsIn :one
+SELECT count(*) FROM memberships WHERE organization_id = $1 AND user_id = $2
+`
+
+type CountMembershipsInParams struct {
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+}
+
+func (q *Queries) CountMembershipsIn(ctx context.Context, arg CountMembershipsInParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countMembershipsIn, arg.OrganizationID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countOwners = `-- name: CountOwners :one
 SELECT count(*) FROM (
     SELECT m.user_id FROM memberships m

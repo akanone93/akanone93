@@ -117,6 +117,60 @@ func (s *Service) Invite(ctx context.Context, tx pgx.Tx, email string) (User, st
 	}
 }
 
+// PendingAccount reports the account with an email address that has not
+// accepted its invitation: its ID, or "" when there is no such account or
+// it has a password, and whether its invitation still works (build log
+// #169).
+func (s *Service) PendingAccount(ctx context.Context, tx pgx.Tx, email string) (string, bool, error) {
+	email, err := normaliseEmail(email)
+	if err != nil {
+		return "", false, err
+	}
+	row, err := dbgen.New(tx).GetUserByEmail(ctx, email)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return "", false, nil
+	case err != nil:
+		return "", false, fmt.Errorf("auth: read a user: %w", err)
+	case row.PasswordHash != "":
+		return "", false, nil
+	}
+	live := row.InvitationHash != nil && storage.Time(row.InvitationExpiresAt).After(s.now())
+	return storage.ID(row.ID), live, nil
+}
+
+// RenewInvitation issues a fresh invitation to an account that has not
+// accepted one, replacing any earlier invitation, which stops working
+// (build log #169). The caller decides that it may: no other organisation
+// holds a membership of the account. It returns "" for an account with a
+// password.
+func (s *Service) RenewInvitation(ctx context.Context, tx pgx.Tx, userID string) (string, error) {
+	secret, err := NewSecret(PrefixInvitation, 32)
+	if err != nil {
+		return "", err
+	}
+	_, err = dbgen.New(tx).RenewInvitation(ctx, dbgen.RenewInvitationParams{
+		ID: storage.MustUUID(userID), InvitationHash: secret.Hash, InvitationExpiresAt: storage.Timestamp(s.now().Add(invitationTTL)),
+	})
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return "", nil
+	case err != nil:
+		return "", fmt.Errorf("auth: renew an invitation: %w", err)
+	}
+	return secret.Value, nil
+}
+
+// RevokeInvitation voids the invitation of an account that has not
+// accepted it; it reports whether there was one (build log #169).
+func (*Service) RevokeInvitation(ctx context.Context, tx pgx.Tx, userID string) (bool, error) {
+	n, err := dbgen.New(tx).RevokeInvitation(ctx, storage.MustUUID(userID))
+	if err != nil {
+		return false, fmt.Errorf("auth: revoke an invitation: %w", err)
+	}
+	return n > 0, nil
+}
+
 // createInvited adds an account without a password and returns its
 // invitation.
 func (s *Service) createInvited(ctx context.Context, tx pgx.Tx, email string, admin bool) (User, string, error) {

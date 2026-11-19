@@ -70,6 +70,14 @@ SELECT m.*, u.display_name, u.email
 -- name: ListMembershipsForUser :many
 SELECT * FROM memberships WHERE organization_id = $1 AND user_id = $2 ORDER BY id;
 
+-- name: CountMembershipsElsewhere :one
+-- In the 'invitation' scope: the memberships an account holds in other
+-- organisations (build log #169).
+SELECT count(*) FROM memberships WHERE user_id = $1 AND organization_id <> $2;
+
+-- name: CountMembershipsIn :one
+SELECT count(*) FROM memberships WHERE organization_id = $1 AND user_id = $2;
+
 -- name: ListAllMembershipsForUser :many
 SELECT * FROM memberships WHERE user_id = $1 ORDER BY organization_id, id LIMIT sqlc.arg(page_size);
 

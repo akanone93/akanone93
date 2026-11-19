@@ -967,3 +967,54 @@ func TestInstallationOrganizationsCrossTheTenantWallOnce(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// Verifies: GOV-001, SEC-102.
+// An invitation nobody accepted ends with the person's last membership
+// (build log #169): removing them voids it, and inviting them again issues a
+// fresh invitation that voids any earlier one. While another organisation
+// also holds a membership of the account, removing it here leaves the
+// invitation working, and this organisation gets no new invitation, so it
+// cannot take over an account another organisation invited.
+func TestInvitationsEndWithTheLastMembership_GOV_001(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	f := newFixture(t)
+	const password = "correct horse battery"
+
+	m, first, err := f.svc.AddMember(ctx, f.owner, "", "pending@example.com", "translator")
+	if err != nil || first == "" {
+		t.Fatalf("AddMember: invitation %v, %v", first != "", err)
+	}
+	if err := f.svc.RemoveMember(ctx, f.owner, "", m.UserID); err != nil {
+		t.Fatal(err)
+	}
+	_, second, err := f.svc.AddMember(ctx, f.owner, "", "pending@example.com", "translator")
+	if err != nil || second == "" || second == first {
+		t.Fatalf("inviting a removed person again: fresh invitation %v, %v", second != "" && second != first, err)
+	}
+	if _, err := f.auth.AcceptInvitation(ctx, first, "Pending", password); err == nil {
+		t.Error("the invitation of a removed person still works")
+	}
+
+	other, err := f.svc.CreateOrganization(ctx, f.admin, "beta", "Beta")
+	if err != nil {
+		t.Fatal(err)
+	}
+	otherOwner := f.principal(t, f.admin, other.ID)
+	shared, third, err := f.svc.AddMember(ctx, f.owner, "", "shared@example.com", "translator")
+	if err != nil || third == "" {
+		t.Fatalf("AddMember: %v", err)
+	}
+	if _, fourth, err := f.svc.AddMember(ctx, otherOwner, "", "shared@example.com", "translator"); err != nil || fourth != "" {
+		t.Errorf("a second organisation was given an invitation to an account the first invited: %v, %v", fourth != "", err)
+	}
+	if err := f.svc.RemoveMember(ctx, f.owner, "", shared.UserID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.auth.AcceptInvitation(ctx, third, "Shared", password); err != nil {
+		t.Errorf("removing an account here voided the invitation another organisation still needs: %v", err)
+	}
+	if _, err := f.auth.AcceptInvitation(ctx, second, "Pending", password); err != nil {
+		t.Errorf("the fresh invitation does not work: %v", err)
+	}
+}

@@ -150,6 +150,10 @@ const (
 	// whether any organisation still holds an archive before it removes the
 	// bytes they share (ADR-0105); it reads function_crates and nothing else.
 	ScopeCrateStore Scope = "crate_store"
+	// ScopeInvitation lets the service count the memberships an account
+	// holds in other organisations before it voids or renews the account's
+	// invitation (build log #169); it reads memberships and nothing else.
+	ScopeInvitation Scope = "invitation"
 	// ScopeHook lets an inbound function hook be found by its app and
 	// function name before its organisation is known; the request is
 	// then rescoped to that organisation (FN-025). Only function_hooks
