@@ -571,6 +571,30 @@ describe("[STU-116] organisation administration", () => {
     expect(screen.getByRole("button", { name: "Export CSV" })).toBeTruthy();
   });
 
+  test("O27 adds an export destination; without the licence only syslog is offered, and a key is not kept", async () => {
+    const state: Upstream = { admin: { calls: [], license: { state: "absent" } } };
+    open("/audit", state);
+    const form = await screen.findByRole("form", { name: "New export destination" });
+    expect(await within(form).findByText(/CEF, OTLP logs and signed webhooks need an enterprise licence/)).toBeTruthy();
+    fireEvent.click(within(form).getByRole("combobox", { name: "Kind" }));
+    expect(await screen.findByRole("option", { name: "Syslog (RFC 5424)" })).toBeTruthy();
+    expect(screen.queryByRole("option", { name: "CEF" })).toBeNull();
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+    fireEvent.change(within(form).getByRole("textbox", { name: "Name" }), { target: { value: "siem" } });
+    fireEvent.change(within(form).getByRole("textbox", { name: "Address" }), {
+      target: { value: "siem.example.com:6514" },
+    });
+    const key = within(form).getByRole("textbox", { name: "Client private key (PEM, optional)" });
+    fireEvent.change(key, { target: { value: "a key in PEM" } });
+    fireEvent.click(within(form).getByRole("button", { name: "Add destination" }));
+    await waitFor(() => expect(calls(state).some((c) => c.startsWith("createExportDestination"))).toBe(true));
+    expect(calls(state).find((c) => c.startsWith("createExportDestination"))).toBe(
+      'createExportDestination:{"name":"siem","kind":"syslog","address":"siem.example.com:6514","allowPrivate":false,"clientKey":true,"signingSecret":false}',
+    );
+    expect(await screen.findByRole("cell", { name: "Syslog (RFC 5424)" })).toBeTruthy();
+    await waitFor(() => expect((key as HTMLTextAreaElement).value).toBe(""));
+  });
+
   test("O28 creates a compliance report for a period", async () => {
     const state: Upstream = {
       admin: {

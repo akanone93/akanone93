@@ -307,7 +307,26 @@ export function complianceAdmin(a: AdminData): Partial<ServiceImpl<typeof Compli
 }
 
 export function auditAdmin(a: AdminData): Partial<ServiceImpl<typeof AuditService>> {
-  return { listExportDestinations: () => ({ destinations: a.destinations ?? [] }) };
+  const rec = recorder(a);
+  return {
+    listExportDestinations: () => ({ destinations: a.destinations ?? [] }),
+    createExportDestination: (req) => {
+      // What the server is sent, with the credentials reduced to whether they were sent at all.
+      rec("createExportDestination", {
+        name: req.name,
+        kind: req.kind,
+        address: req.address,
+        allowPrivate: req.allowPrivate,
+        clientKey: req.clientKeyPem !== "",
+        signingSecret: req.signingSecret !== "",
+      });
+      a.destinations = [
+        ...(a.destinations ?? []),
+        { id: `d${(a.destinations?.length ?? 0) + 1}`, name: req.name, kind: req.kind, enabled: true },
+      ];
+      return {};
+    },
+  };
 }
 
 export function analyticsAdmin(a: AdminData): Partial<ServiceImpl<typeof AnalyticsService>> {

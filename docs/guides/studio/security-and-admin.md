@@ -90,7 +90,7 @@ before they become overdue ([Approval deadlock and break-glass](../../runbooks/a
 | Explain access | Choose a person, a permission and, optionally, an app and one of its environments, and see why the person holds or lacks the permission: the grants it rests on (role, where, and the team it comes through) and the restrictions that remove it (patterns, where, reason) |
 | SSO and SCIM | Identity providers and SCIM tokens |
 | Tokens, Sessions | API and CI tokens, workload identities, and active sessions you can revoke |
-| Audit log | Search by date, actor, action and resource; **Export CSV**; export destinations |
+| Audit log | Search by date, actor, action and resource; **Export CSV**; export destinations, and **Add destination** to export the log to a SIEM: syslog (RFC 5424) always, CEF, OTLP logs and signed webhooks with a licence that includes them. A client key or signing secret is sent once and never shown again; a private or local address is refused unless allowed, which is for development |
 | Compliance, Retention | Signed reports of changes in a period; how long each data class is kept |
 | Licence, Limits | The enterprise licence (verified offline) and the organisation's limits and usage |
 

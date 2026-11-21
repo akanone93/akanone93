@@ -453,6 +453,62 @@ export function adminMessages(i18n: I18n) {
         values: { name },
         comment: "An option of what a restriction applies to: a member of the organisation, by name or email.",
       }),
+    destinationNew: i18n._({
+      id: "admin.destinations.new",
+      message: "New export destination",
+      comment: "Accessible name of the form that adds a destination the audit log is exported to.",
+    }),
+    destinationKind: (kind: string) =>
+      i18n._({
+        id: "admin.destinations.kind",
+        message:
+          "{kind, select, syslog {Syslog (RFC 5424)} cef {CEF} otlp {OTLP logs} webhook {Signed webhook} other {{kind}}}",
+        values: { kind },
+        comment: "The kind of an audit export destination; the protocol names stay as they are.",
+      }),
+    destinationAddress: i18n._({
+      id: "admin.destinations.address",
+      message: "Address",
+      comment:
+        "Where an audit export destination receives entries: host:port for syslog and CEF, an https URL otherwise.",
+    }),
+    destinationCa: i18n._({
+      id: "admin.destinations.ca",
+      message: "Trusted CA certificate (PEM, optional)",
+      comment:
+        "The certificate authority that must have signed the destination's certificate; empty uses the system's.",
+    }),
+    destinationClientCertificate: i18n._({
+      id: "admin.destinations.clientCertificate",
+      message: "Client certificate (PEM, optional)",
+      comment: "The certificate this installation presents to the destination (mutual TLS).",
+    }),
+    destinationClientKey: i18n._({
+      id: "admin.destinations.clientKey",
+      message: "Client private key (PEM, optional)",
+      comment: "The private key of the client certificate; it is stored sealed and never shown again.",
+    }),
+    destinationSigningSecret: i18n._({
+      id: "admin.destinations.signingSecret",
+      message: "Signing secret (whsec_…)",
+      comment: "The secret a signed webhook destination verifies deliveries with; stored sealed, never shown again.",
+    }),
+    destinationAllowPrivate: i18n._({
+      id: "admin.destinations.allowPrivate",
+      message: "Allow a private or local address (development only)",
+      comment: "Lets a destination be on a private, loopback or local address, which is refused otherwise.",
+    }),
+    destinationAdd: i18n._({
+      id: "admin.destinations.add",
+      message: "Add destination",
+      comment: "Button that adds an audit export destination.",
+    }),
+    destinationsNeedLicence: i18n._({
+      id: "admin.licence.siem",
+      message:
+        "CEF, OTLP logs and signed webhooks need an enterprise licence that includes them; syslog is always available.",
+      comment: "Shown under the destination form when the licence does not include the extended SIEM export.",
+    }),
     licenceLink: i18n._({
       id: "admin.licence.link",
       message: "See the licence",

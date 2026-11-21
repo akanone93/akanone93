@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import type { BuildRef, PublishJob } from "@plux/api";
+import { type BuildRef, type PublishJob, Severity } from "@plux/api";
 import { Button, StatusPill } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { bundleName } from "./bundle-name.ts";
@@ -67,8 +67,12 @@ function JobRow({
 }): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const state = job?.state ?? "queued";
-  // Why a build failed: the job's own diagnostics, as the server reported them (code, message, where).
-  const reasons = state === "failed" || state === "cancelled" ? (job?.diagnostics ?? []) : [];
+  // Why a build failed: the job's own errors, as the server reported them (code, message, where). Its warnings and
+  // notes did not stop it; they wait for the reports step.
+  const reasons =
+    state === "failed" || state === "cancelled"
+      ? (job?.diagnostics ?? []).filter((d) => d.severity === Severity.ERROR)
+      : [];
   return (
     <li className="flex flex-col gap-1 text-body">
       <span className="flex items-center gap-3">

@@ -9,10 +9,11 @@ import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { adminMessages } from "./admin.messages.ts";
 import type { AuditSearch } from "./admin.schema.ts";
+import { DestinationForm } from "./audit-destinations.tsx";
 import { auditCsv, keepEntry, serverFilter } from "./audit-model.ts";
 import { download } from "./download.ts";
 import { Frame, fmt, Table } from "./parts.tsx";
-import { pageSize, useAdminQuery, useCan, useOrgId, useRpc } from "./use-admin.ts";
+import { pageSize, useAdminQuery, useCan, useOrgId, useRpc, useRun } from "./use-admin.ts";
 
 const filters = ["from", "to", "actor", "action", "resource"] as const;
 
@@ -29,6 +30,7 @@ export function AuditPage(): ReactElement {
   const identity = useRpc(IdentityService);
   const audit = useRpc(AuditService);
   const canExport = useCan("audit.export");
+  const { run, failed: saveFailed, error: saveError } = useRun();
   const [draft, setDraft] = useState<AuditSearch>(search);
   const filter = serverFilter(search.action, search.resource);
   const entries = useInfiniteQuery({
@@ -56,6 +58,8 @@ export function AuditPage(): ReactElement {
       loading={entries.isPending}
       failed={entries.isError}
       error={entries.error}
+      saveFailed={saveFailed}
+      saveError={saveError}
     >
       <form
         className="flex flex-wrap items-end gap-3"
@@ -110,9 +114,10 @@ export function AuditPage(): ReactElement {
         empty={m.nothing}
         rows={(destinations.data?.destinations ?? []).map((d) => ({
           key: d.id,
-          cells: [d.name, d.kind, d.enabled ? m.yes : m.no, fmt(d.lastSuccessAt, m.never)],
+          cells: [d.name, m.destinationKind(d.kind), d.enabled ? m.yes : m.no, fmt(d.lastSuccessAt, m.never)],
         }))}
       />
+      <DestinationForm can={canExport} run={run} />
     </Frame>
   );
 }

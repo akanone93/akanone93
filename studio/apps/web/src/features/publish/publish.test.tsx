@@ -180,7 +180,12 @@ describe("[STU-100] publish flow", () => {
         jobState: "failed",
         evidence: {
           versions: {},
-          diagnostics: { "job-p1": [{ code: "PLX-1001", message: "the page is not valid", severity: 1 }] },
+          diagnostics: {
+            "job-p1": [
+              { code: "PLX-1001", message: "the page is not valid", severity: 3 },
+              { code: "PLX-2013", message: "the expression needs the runtime feature pxl.format.v1", severity: 1 },
+            ],
+          },
         },
       },
     );
@@ -190,6 +195,8 @@ describe("[STU-100] publish flow", () => {
     const reasons = await screen.findByRole("list", { name: "Failed" });
     within(reasons).getByText("PLX-1001");
     within(reasons).getByText(/the page is not valid/);
+    // Only what stopped the build: a note (info) did not (build log #186).
+    expect(within(reasons).queryByText("PLX-2013")).toBeNull();
     screen.getByRole("button", { name: "Freeze again" });
   });
 

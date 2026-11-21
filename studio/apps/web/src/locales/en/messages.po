@@ -676,6 +676,12 @@ msgstr "{kind, select, roundedRectangle {Rounded rectangle} stadium {Pill} circl
 msgid "motion.reduceKind"
 msgstr "{kind, select, skip {Skip} shorten {Shorten} ignore {Play as declared} other {Default}}"
 
+#. The kind of an audit export destination; the protocol names stay as they are.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.kind"
+msgstr "{kind, select, syslog {Syslog (RFC 5424)} cef {CEF} otlp {OTLP logs} webhook {Signed webhook} other {{kind}}}"
+
 #. A shadow preset of the decoration editor, by Material elevation, e.g. Elevation 3.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -1924,6 +1930,12 @@ msgstr "Add custom gate"
 msgid "designers.dataAdd"
 msgstr "Add data source"
 
+#. Button that adds an audit export destination.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.add"
+msgstr "Add destination"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -2097,6 +2109,12 @@ msgstr "Added"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.reasonDependency"
 msgstr "Added because another plugin needs it"
+
+#. Where an audit export destination receives entries: host:port for syslog and CEF, an https URL otherwise.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.address"
+msgstr "Address"
 
 #. Link in the top bar to the organisation's administration area; shown only with the permission the area needs.
 #. js-lingui-explicit-id
@@ -2306,6 +2324,12 @@ msgstr "All types"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.stepAllocation"
 msgstr "Allocation"
+
+#. Lets a destination be on a private, loopback or local address, which is refused otherwise.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.allowPrivate"
+msgstr "Allow a private or local address (development only)"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -3594,6 +3618,12 @@ msgstr "Categories"
 msgid "library.category"
 msgstr "Category"
 
+#. Shown under the destination form when the licence does not include the extended SIEM export.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licence.siem"
+msgstr "CEF, OTLP logs and signed webhooks need an enterprise licence that includes them; syslog is always available."
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -4013,6 +4043,18 @@ msgstr "Click to rename"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.colClient"
 msgstr "Client"
+
+#. The certificate this installation presents to the destination (mutual TLS).
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.clientCertificate"
+msgstr "Client certificate (PEM, optional)"
+
+#. The private key of the client certificate; it is stored sealed and never shown again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.clientKey"
+msgstr "Client private key (PEM, optional)"
 
 #. A device API.
 #. js-lingui-explicit-id
@@ -10703,6 +10745,12 @@ msgstr "New experiment"
 msgid "experiments.wizardTitle"
 msgstr "New experiment"
 
+#. Accessible name of the form that adds a destination the audit log is exported to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.new"
+msgstr "New export destination"
+
 #. Text in a sample app screen drawn beside the sign-in form. Heading of a shop screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -16287,6 +16335,12 @@ msgstr "Signing in"
 msgid "security.keysTitle"
 msgstr "Signing keys"
 
+#. The secret a signed webhook destination verifies deliveries with; stored sealed, never shown again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.signingSecret"
+msgstr "Signing secret (whsec_…)"
+
 #. Button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -19503,6 +19557,12 @@ msgstr "Trash"
 #: apps/web/src/features/analytics/analytics.messages.ts
 msgid "analytics.trendColumn"
 msgstr "Trend"
+
+#. The certificate authority that must have signed the destination's certificate; empty uses the system's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.destinations.ca"
+msgstr "Trusted CA certificate (PEM, optional)"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
