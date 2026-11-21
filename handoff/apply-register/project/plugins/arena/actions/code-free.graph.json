@@ -1,0 +1,58 @@
+{
+  "description": "Asks the server whether a member code is free.",
+  "id": "01a289d4-fc16-7dc8-acd7-4e82e917b194",
+  "key": "code-free",
+  "kind": "actionGraph",
+  "output": "string?",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "apiCall",
+      "id": "f",
+      "input": {
+        "input": {
+          "code": {
+            "$expr": "event"
+          }
+        },
+        "operation": "api.codeFree"
+      },
+      "next": "free",
+      "retry": {
+        "backoffMs": 200,
+        "count": 2
+      }
+    },
+    {
+      "action": "condition",
+      "branches": {
+        "else": "no",
+        "then": "ok"
+      },
+      "id": "free",
+      "input": {
+        "when": {
+          "$expr": "steps.f.output?.free ?? false"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "ok",
+      "input": {
+        "result": {
+          "$expr": "null"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "no",
+      "input": {
+        "result": {
+          "$t": "01a2c9d3-77b6-771c-b1d1-cc1d388815f4"
+        }
+      }
+    }
+  ]
+}

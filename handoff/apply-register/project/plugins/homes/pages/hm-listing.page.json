@@ -1,0 +1,514 @@
+{
+  "id": "01a2d45b-dc45-7939-bc81-c4f742e1c926",
+  "key": "hm-listing",
+  "kind": "page",
+  "pageKind": "screen",
+  "params": [
+    {
+      "mock": "h-1",
+      "name": "id",
+      "type": "string"
+    }
+  ],
+  "root": {
+    "id": "01a2fe3c-15aa-7445-9ef0-e26e89b09409",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a27663-fb20-782d-9665-07bcb3f4c065",
+        "slots": {
+          "slivers": [
+            {
+              "id": "01a2c1f4-c2ad-789e-b430-e9aaaa66cb84",
+              "props": {
+                "backgroundColor": {
+                  "$token": "color.surface"
+                },
+                "expandedHeight": 280,
+                "foregroundColor": {
+                  "$token": "color.onSurface"
+                },
+                "pinned": true
+              },
+              "slots": {
+                "flexibleSpace": {
+                  "id": "01a2f754-6069-76ba-87c8-f6baef1c2764",
+                  "props": {
+                    "tag": {
+                      "$expr": "\"home-\" + params.id"
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "id": "01a285ea-a67c-7eaa-af04-f4c018da6e0b",
+                      "props": {
+                        "images": {
+                          "$expr": "(first((data.listings.value ?? []).filter(l, l.id == params.id))?.images ?? []).map(u, {\"url\": u})"
+                        },
+                        "indicators": true,
+                        "semanticLabel": {
+                          "$t": "01a20aaa-3f97-7b72-aaed-a6d41211add1"
+                        }
+                      },
+                      "testId": "hm-gallery",
+                      "type": "ImageGallery"
+                    }
+                  },
+                  "type": "Hero"
+                },
+                "title": {
+                  "id": "01a21d58-795f-72e2-9ba1-3c10b5d7d1d1",
+                  "props": {
+                    "data": {
+                      "$expr": "first((data.listings.value ?? []).filter(l, l.id == params.id))?.title ?? \"\""
+                    },
+                    "maxLines": 1,
+                    "overflow": "ellipsis"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "SliverAppBar"
+            },
+            {
+              "id": "01a2f39f-efb2-773e-bd2b-ebab178fd96c",
+              "slots": {
+                "child": {
+                  "id": "01a2bc28-e385-7564-a6e0-111d2e1638bc",
+                  "props": {
+                    "padding": {
+                      "all": 16
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "id": "01a2f853-2a80-760f-a7f4-b438a24fbcc8",
+                              "props": {
+                                "max": 5,
+                                "ofLabel": {
+                                  "$t": "01a22757-b30f-7b6e-8d0d-230455472ec0"
+                                },
+                                "semanticLabel": {
+                                  "$t": "01a27ed3-b8ff-7855-bada-ecd3bbce6b44"
+                                },
+                                "value": {
+                                  "$expr": "first((data.listings.value ?? []).filter(l, l.id == params.id))?.rating ?? 0.0"
+                                }
+                              },
+                              "type": "RatingBar"
+                            },
+                            {
+                              "id": "01a29955-f5b5-7785-b052-8559eaca1eb6",
+                              "props": {
+                                "condition": {
+                                  "$expr": "first((data.listings.value ?? []).filter(l, l.id == params.id))?.verified ?? false"
+                                }
+                              },
+                              "slots": {
+                                "then": {
+                                  "id": "01a2146c-cb22-7032-aa62-c5f4e0da1e2b",
+                                  "props": {
+                                    "message": {
+                                      "$t": "01a2c140-1e53-7989-9307-46e8c96780cb"
+                                    },
+                                    "preferBelow": false,
+                                    "waitDuration": 300
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a295f6-b004-7ef3-b181-df12d2a040b4",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.primary"
+                                        },
+                                        "icon": {
+                                          "name": "verified"
+                                        },
+                                        "semanticLabel": {
+                                          "$t": "01a2c140-1e53-7989-9307-46e8c96780cb"
+                                        }
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Tooltip"
+                                }
+                              },
+                              "type": "If"
+                            }
+                          ],
+                          "id": "01a28a7f-3a09-7dd0-81ab-aa3a25306c7b",
+                          "props": {
+                            "spacing": 8
+                          },
+                          "type": "Row"
+                        },
+                        {
+                          "children": [
+                            {
+                              "id": "01a2148a-4b11-7b5c-a120-7b3865f8b433",
+                              "props": {
+                                "items": {
+                                  "$expr": "first((data.listings.value ?? []).filter(l, l.id == params.id))?.amenities ?? []"
+                                }
+                              },
+                              "slots": {
+                                "item": {
+                                  "id": "01a262ee-5d44-7d05-8946-04d11e3966af",
+                                  "slots": {
+                                    "avatar": {
+                                      "id": "01a20b11-bea4-7458-a1d1-167edae9081e",
+                                      "props": {
+                                        "cases": [
+                                          "balcony",
+                                          "lift",
+                                          "garden"
+                                        ],
+                                        "value": {
+                                          "$expr": "item"
+                                        }
+                                      },
+                                      "slots": {
+                                        "branches": [
+                                          {
+                                            "id": "01a23905-8dca-7f5e-ab45-dc6583eb643d",
+                                            "props": {
+                                              "icon": {
+                                                "name": "balcony"
+                                              },
+                                              "size": 18
+                                            },
+                                            "semantics": {
+                                              "decorative": true
+                                            },
+                                            "type": "Icon"
+                                          },
+                                          {
+                                            "id": "01a298ab-4b59-7d84-be1c-eb180bfc7c0f",
+                                            "props": {
+                                              "icon": {
+                                                "name": "elevator"
+                                              },
+                                              "size": 18
+                                            },
+                                            "semantics": {
+                                              "decorative": true
+                                            },
+                                            "type": "Icon"
+                                          },
+                                          {
+                                            "id": "01a2b977-6e1f-7d84-898f-17fb06578f72",
+                                            "props": {
+                                              "icon": {
+                                                "name": "yard"
+                                              },
+                                              "size": 18
+                                            },
+                                            "semantics": {
+                                              "decorative": true
+                                            },
+                                            "type": "Icon"
+                                          }
+                                        ]
+                                      },
+                                      "type": "Match"
+                                    },
+                                    "label": {
+                                      "id": "01a2cb5d-924d-72b8-8da6-a79dbeb74abf",
+                                      "props": {
+                                        "cases": [
+                                          "balcony",
+                                          "lift",
+                                          "garden"
+                                        ],
+                                        "value": {
+                                          "$expr": "item"
+                                        }
+                                      },
+                                      "slots": {
+                                        "branches": [
+                                          {
+                                            "id": "01a23bde-4cfd-7438-b34a-695d7847247a",
+                                            "props": {
+                                              "data": {
+                                                "$t": "01a2892f-4eb2-7593-8365-41ef1607bf80"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          },
+                                          {
+                                            "id": "01a2f296-7910-7483-afc1-a6d074450e22",
+                                            "props": {
+                                              "data": {
+                                                "$t": "01a2f25d-267f-7e8f-8ce9-cf30939a7f15"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          },
+                                          {
+                                            "id": "01a2b642-096f-7911-80db-584aed07b67a",
+                                            "props": {
+                                              "data": {
+                                                "$t": "01a240c0-c9ed-7bb3-87f7-c5737b7ff111"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          }
+                                        ]
+                                      },
+                                      "type": "Match"
+                                    }
+                                  },
+                                  "type": "Chip"
+                                }
+                              },
+                              "type": "ForEach"
+                            }
+                          ],
+                          "id": "01a2e650-5781-78ba-9340-901fd8a3787a",
+                          "props": {
+                            "runSpacing": 8,
+                            "spacing": 8
+                          },
+                          "type": "Wrap"
+                        },
+                        {
+                          "id": "01a21d30-adb5-7d11-ba8a-0a1c84f1b8ed",
+                          "props": {
+                            "data": {
+                              "$t": "01a23184-1a56-7b5a-a3f3-01cfe3fac461"
+                            },
+                            "style": {
+                              "$token": "typography.titleMedium"
+                            }
+                          },
+                          "semantics": {
+                            "header": true
+                          },
+                          "type": "Text"
+                        },
+                        {
+                          "id": "01a28dd5-0c1d-7c7b-8b14-10ebf0809a7a",
+                          "props": {
+                            "aspectRatio": 1.3333333333333333
+                          },
+                          "slots": {
+                            "child": {
+                              "id": "01a217c4-1488-7e43-913d-73e92edfe914",
+                              "props": {
+                                "borderRadius": {
+                                  "all": {
+                                    "$token": "radius.lg"
+                                  }
+                                }
+                              },
+                              "slots": {
+                                "child": {
+                                  "events": {
+                                    "onInteractionEnd": {
+                                      "steps": [
+                                        {
+                                          "action": "trackEvent",
+                                          "id": "t",
+                                          "input": {
+                                            "name": "floorplan_zoom"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "id": "01a2748d-607a-7c01-b5da-48c25837896d",
+                                  "props": {
+                                    "boundaryMargin": {
+                                      "all": 40
+                                    },
+                                    "constrained": true,
+                                    "maxScale": 4,
+                                    "minScale": 0.5,
+                                    "panAxis": "free"
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a2875d-b717-7289-b55a-130bb272e41f",
+                                      "props": {
+                                        "fit": "contain",
+                                        "semanticLabel": {
+                                          "$t": "01a26f02-147f-7ba9-b92c-64d28aa4e362"
+                                        },
+                                        "source": {
+                                          "$expr": "{\"url\": \"https://api.applyregister.app/media/homes/plan-\" + params.id + \".png\"}"
+                                        }
+                                      },
+                                      "type": "Image"
+                                    }
+                                  },
+                                  "testId": "hm-plan",
+                                  "type": "InteractiveViewer"
+                                }
+                              },
+                              "type": "ClipRRect"
+                            }
+                          },
+                          "type": "AspectRatio"
+                        },
+                        {
+                          "id": "01a2ef32-b24f-70dc-9ef3-a4a2041e4d1b",
+                          "props": {
+                            "height": 80
+                          },
+                          "type": "SizedBox"
+                        }
+                      ],
+                      "id": "01a20816-0e75-7575-add3-b1dc8e8dcf04",
+                      "props": {
+                        "crossAxisAlignment": "stretch",
+                        "spacing": 12
+                      },
+                      "type": "Column"
+                    }
+                  },
+                  "type": "Padding"
+                }
+              },
+              "type": "SliverToBoxAdapter"
+            }
+          ]
+        },
+        "type": "CustomScrollView"
+      },
+      "floatingActionButton": {
+        "events": {
+          "onPressed": {
+            "steps": [
+              {
+                "action": "navigate",
+                "id": "go",
+                "input": {
+                  "params": {
+                    "id": {
+                      "$expr": "params.id"
+                    }
+                  },
+                  "route": "hm-apply"
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a22c8b-e3ef-7864-9419-d0445b79d5e3",
+        "props": {
+          "isExtended": true
+        },
+        "slots": {
+          "icon": {
+            "id": "01a28454-3e6e-7778-b7fc-f7b60e231192",
+            "props": {
+              "icon": {
+                "name": "edit_document"
+              }
+            },
+            "semantics": {
+              "decorative": true
+            },
+            "type": "Icon"
+          },
+          "label": {
+            "id": "01a23e7e-5687-7f6c-9b69-02e547f22608",
+            "props": {
+              "data": {
+                "$t": "01a29bbb-a5f3-7ed3-a7bd-de77c47029ae"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "testId": "hm-apply-go",
+        "type": "FloatingActionButton"
+      },
+      "persistentFooterButtons": [
+        {
+          "events": {
+            "onPressed": {
+              "concurrency": "drop",
+              "steps": [
+                {
+                  "action": "openDialog",
+                  "id": "ask",
+                  "input": {
+                    "route": "hm-viewing"
+                  },
+                  "next": "got"
+                },
+                {
+                  "action": "condition",
+                  "branches": {
+                    "then": "send"
+                  },
+                  "id": "got",
+                  "input": {
+                    "when": {
+                      "$expr": "steps.ask.output != null"
+                    }
+                  }
+                },
+                {
+                  "action": "apiCall",
+                  "id": "send",
+                  "input": {
+                    "input": {
+                      "at": {
+                        "$expr": "steps.ask.output ?? dateTime(\"2026-12-01T10:00:00+01:00\")"
+                      },
+                      "listingId": {
+                        "$expr": "params.id"
+                      }
+                    },
+                    "operation": "api.viewing"
+                  },
+                  "next": "say"
+                },
+                {
+                  "action": "showSnackbar",
+                  "id": "say",
+                  "input": {
+                    "message": {
+                      "$t": "01a2333c-1ecc-76f0-9d93-42690074b5b7"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "id": "01a2336a-5a96-7312-81c5-7c94f2816544",
+          "slots": {
+            "child": {
+              "id": "01a2c0a9-602c-7175-b10f-3be3abc423e5",
+              "props": {
+                "data": {
+                  "$t": "01a23aa4-ed51-7439-860f-46519253e4d1"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "testId": "hm-viewing-go",
+          "type": "OutlinedButton"
+        }
+      ]
+    },
+    "type": "Scaffold"
+  },
+  "route": "hm-listing",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2ab2e-aa8e-70e2-82e4-796c7a00da05"
+  }
+}

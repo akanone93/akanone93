@@ -1,0 +1,134 @@
+{
+  "id": "01a2931b-c23f-783d-8c0a-95b6f6ac6997",
+  "key": "vf-step-up",
+  "kind": "page",
+  "pageKind": "dialog",
+  "params": [
+    {
+      "mock": "Confirm the transfer",
+      "name": "reason",
+      "type": "string"
+    }
+  ],
+  "result": "bool",
+  "root": {
+    "id": "01a2f8a0-d9e6-7c96-8427-834d4979f10d",
+    "props": {
+      "padding": {
+        "all": 24
+      }
+    },
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a2f56d-2f70-7aed-b215-1b6e4593887e",
+            "props": {
+              "data": {
+                "$t": "01a233aa-f0bc-7432-a7f9-624fca01d13c"
+              },
+              "style": {
+                "$token": "typography.headlineSmall"
+              }
+            },
+            "semantics": {
+              "header": true
+            },
+            "type": "Text"
+          },
+          {
+            "id": "01a21195-d735-7973-99ef-04f9608ac9fd",
+            "props": {
+              "data": {
+                "$expr": "params.reason"
+              },
+              "style": {
+                "$token": "typography.bodyMedium"
+              }
+            },
+            "type": "Text"
+          },
+          {
+            "events": {
+              "onFailure": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "no",
+                    "input": {
+                      "result": false
+                    }
+                  }
+                ]
+              },
+              "onSuccess": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "yes",
+                    "input": {
+                      "result": true
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2d7e1-8b08-761f-964e-3f6e1c629907",
+            "props": {
+              "label": {
+                "$t": "01a24dfe-113d-7dca-88aa-f93a8eeaf7e6"
+              },
+              "reason": {
+                "$expr": "params.reason"
+              }
+            },
+            "testId": "stepup-confirm",
+            "type": "BiometricButton"
+          },
+          {
+            "events": {
+              "onPressed": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "no",
+                    "input": {
+                      "result": false
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a23c71-3535-70ec-bc29-f218222074ff",
+            "slots": {
+              "child": {
+                "id": "01a2c7c4-619d-7e0b-8079-d2c854d61deb",
+                "props": {
+                  "data": {
+                    "$t": "01a26a5f-2011-7a94-b889-6224396e49dd"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "stepup-cancel",
+            "type": "TextButton"
+          }
+        ],
+        "id": "01a26a71-21a8-759a-b617-8e979d6fb09e",
+        "props": {
+          "crossAxisAlignment": "stretch",
+          "mainAxisSize": "min",
+          "spacing": 16
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Padding"
+  },
+  "route": "vf-step-up",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a233aa-f0bc-7432-a7f9-624fca01d13c"
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "id": "01a28fbc-d864-747e-a0d6-ab8f0f743741",
+  "key": "ac-security",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2db75-6a56-7ac4-a874-0a42a6fb8f55",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a25894-8e17-7824-a8ed-52df914eb66c",
+        "slots": {
+          "title": {
+            "id": "01a2c881-157c-78d0-8dc8-59f0f8a6e575",
+            "props": {
+              "data": {
+                "$t": "01a29b08-0975-7fb4-96b2-7255a9f264cb"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a25c55-4cd4-7270-afed-357366aa91c2",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "biometricAuth",
+                        "branches": {
+                          "success": "set"
+                        },
+                        "id": "ask",
+                        "input": {
+                          "allowDeviceCredential": true,
+                          "reason": {
+                            "$t": "01a29c00-fc46-719f-a412-0adf597946da"
+                          }
+                        }
+                      },
+                      {
+                        "action": "setState",
+                        "id": "set",
+                        "input": {
+                          "path": "page.lock",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2f7e4-7d92-77ef-b353-8b9d355b17fe",
+                "props": {
+                  "value": {
+                    "$expr": "page.lock"
+                  }
+                },
+                "slots": {
+                  "secondary": {
+                    "id": "01a2dad9-ebaf-7f3b-8748-b6a6f000cfc2",
+                    "props": {
+                      "icon": {
+                        "name": "fingerprint"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2f74e-2a5f-7e16-a496-cdfbc74b4189",
+                    "props": {
+                      "data": {
+                        "$t": "01a23dc3-3b33-7a30-94c1-35fbeb26d985"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "security-lock",
+                "type": "SwitchListTile"
+              },
+              {
+                "id": "01a2d69a-193c-71fb-8e48-c8e6ac6c21f6",
+                "slots": {
+                  "leading": {
+                    "id": "01a2414a-cca3-7812-9668-240499dd01d7",
+                    "props": {
+                      "icon": {
+                        "name": "pin"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "subtitle": {
+                    "id": "01a2874e-f85a-787a-9126-9f9c2e6d2e98",
+                    "props": {
+                      "data": {
+                        "$t": "01a24781-0e12-7955-b9cd-b66c552a881c"
+                      },
+                      "style": {
+                        "$token": "typography.bodySmall"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  "title": {
+                    "id": "01a2929e-dd80-7e54-998d-8fb42f5387a5",
+                    "props": {
+                      "data": {
+                        "$t": "01a29e22-d47a-7057-b4b1-8b8cf7595a26"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "ListTile"
+              },
+              {
+                "id": "01a23dd5-6bfd-7927-9e92-467cf6394b73",
+                "props": {
+                  "padding": {
+                    "horizontal": 32,
+                    "vertical": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onCompleted": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "keep",
+                            "input": {
+                              "path": "app.pinHash",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            },
+                            "next": "say"
+                          },
+                          {
+                            "action": "showToast",
+                            "id": "say",
+                            "input": {
+                              "message": {
+                                "$t": "01a2d94f-e8ec-78ed-9efc-3d78c58e539b"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2b994-3998-7ca5-b0f3-d99a0c5cddd9",
+                    "props": {
+                      "haptics": true,
+                      "length": 4,
+                      "randomizeLayout": false
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a29e22-d47a-7057-b4b1-8b8cf7595a26"
+                      }
+                    },
+                    "testId": "security-pin",
+                    "type": "SecurePinPad"
+                  }
+                },
+                "type": "Padding"
+              }
+            ],
+            "id": "01a2c983-736c-7dd7-b0c6-48a2a7b413de",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "ac-security",
+  "routeOptions": {
+    "guards": [
+      {
+        "$graph": "01a26974-ec12-7eeb-a23c-9d7ef8d932fd"
+      }
+    ]
+  },
+  "schemaVersion": "1.0.0",
+  "security": {
+    "requiresAssurance": "AL1",
+    "secure": true
+  },
+  "state": [
+    {
+      "default": false,
+      "id": "01a2ad11-7a2b-7bd4-be00-6a06a85a3d80",
+      "name": "lock",
+      "persistence": "persisted",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a29b08-0975-7fb4-96b2-7255a9f264cb"
+  }
+}

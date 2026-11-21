@@ -1,0 +1,488 @@
+{
+  "id": "01a29773-9ef3-7d52-9786-64ed007a5817",
+  "key": "nb-identity",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2d6d9-c3c7-77fd-ba9b-4eee1743e6b5",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a28761-06f7-7d90-bce3-bf242a6a0140",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.primary"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onPrimary"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "children": [
+              {
+                "id": "01a2260d-0c3f-705d-b580-b4f11ab5aaa8",
+                "props": {
+                  "color": {
+                    "$token": "color.onPrimary"
+                  },
+                  "icon": {
+                    "name": "account_balance"
+                  },
+                  "size": 24
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              },
+              {
+                "id": "01a2972d-a05c-72fd-922a-2f4cf0fba8ef",
+                "slots": {
+                  "child": {
+                    "id": "01a26445-5939-7dbd-a784-24eeb96b40b4",
+                    "props": {
+                      "data": {
+                        "$t": "01a2edb2-a03b-77cb-bab3-f0f7927271df"
+                      },
+                      "maxLines": 1,
+                      "overflow": "ellipsis"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Flexible"
+              }
+            ],
+            "id": "01a2172d-598e-758e-8581-cb5367b9f7a7",
+            "props": {
+              "spacing": 8
+            },
+            "type": "Row"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2e0dd-a685-7f73-9671-5290a239ab5f",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a21eae-19d6-74cf-bf83-c231be9172c5",
+                "props": {
+                  "padding": {
+                    "left": 16,
+                    "right": 16,
+                    "top": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a2f5a8-3800-7566-b2ee-3cca43eca9ef",
+                        "props": {
+                          "borderRadius": {
+                            "all": {
+                              "$token": "radius.pill"
+                            }
+                          },
+                          "minHeight": 4,
+                          "semanticsLabel": {
+                            "$t": "01a279b0-8496-75a2-b958-69e0bc01f8da",
+                            "args": {
+                              "n": {
+                                "$expr": "string(2)"
+                              }
+                            }
+                          },
+                          "value": 0.4
+                        },
+                        "type": "LinearProgressIndicator"
+                      },
+                      {
+                        "id": "01a21362-b476-74b1-a09e-1309a0835f76",
+                        "props": {
+                          "data": {
+                            "$t": "01a279b0-8496-75a2-b958-69e0bc01f8da",
+                            "args": {
+                              "n": {
+                                "$expr": "string(2)"
+                              }
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.labelMedium"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a240a6-2b0f-7010-8460-76382d879afc",
+                        "props": {
+                          "data": {
+                            "$t": "01a22af4-4301-7764-ba97-d00218bbd211"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "id": "01a21d81-f8c9-75b6-89bc-af794890ea40",
+                    "props": {
+                      "crossAxisAlignment": "start",
+                      "spacing": 4
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a2edd2-9c80-7f31-ad45-2cab31385438",
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onStepCancel": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "back",
+                            "input": {
+                              "path": "page.step",
+                              "value": {
+                                "$expr": "max(0, page.step - 1)"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "onStepContinue": {
+                        "concurrency": "drop",
+                        "steps": [
+                          {
+                            "action": "switch",
+                            "branches": {
+                              "doc": "doc",
+                              "phone": "phone",
+                              "where": "where"
+                            },
+                            "id": "which",
+                            "input": {
+                              "cases": [
+                                "phone",
+                                "doc",
+                                "where"
+                              ],
+                              "value": {
+                                "$expr": "page.step == 0 ? \"phone\" : page.step == 1 ? \"doc\" : \"where\""
+                              }
+                            }
+                          },
+                          {
+                            "action": "callFlow",
+                            "id": "phone",
+                            "input": {
+                              "flow": "verify/verify-phone",
+                              "input": {
+                                "phone": {
+                                  "$expr": "data.me.value?.phone ?? \"\""
+                                }
+                              }
+                            },
+                            "next": "phoneOk"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "phoneOk",
+                            "input": {
+                              "path": "page.phoneOk",
+                              "value": {
+                                "$expr": "steps.phone.output?.verified ?? false"
+                              }
+                            },
+                            "next": "phoneNext"
+                          },
+                          {
+                            "action": "condition",
+                            "branches": {
+                              "then": "toDoc"
+                            },
+                            "id": "phoneNext",
+                            "input": {
+                              "when": {
+                                "$expr": "page.phoneOk"
+                              }
+                            }
+                          },
+                          {
+                            "action": "setState",
+                            "id": "toDoc",
+                            "input": {
+                              "path": "page.step",
+                              "value": 1
+                            }
+                          },
+                          {
+                            "action": "callFlow",
+                            "id": "doc",
+                            "input": {
+                              "flow": "verify/capture-identity"
+                            },
+                            "next": "docOk",
+                            "onError": "docFailed"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "docOk",
+                            "input": {
+                              "path": "page.idOk",
+                              "value": true
+                            },
+                            "next": "docClear"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "docClear",
+                            "input": {
+                              "path": "page.idError",
+                              "value": false
+                            },
+                            "next": "toAddr"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "toAddr",
+                            "input": {
+                              "path": "page.step",
+                              "value": 2
+                            }
+                          },
+                          {
+                            "action": "setState",
+                            "id": "docFailed",
+                            "input": {
+                              "path": "page.idError",
+                              "value": true
+                            },
+                            "next": "docSay"
+                          },
+                          {
+                            "action": "showSnackbar",
+                            "id": "docSay",
+                            "input": {
+                              "message": {
+                                "$t": "01a2b339-d2f0-7b27-aaff-67956f33ee87"
+                              }
+                            }
+                          },
+                          {
+                            "action": "openDialog",
+                            "id": "where",
+                            "input": {
+                              "route": "vf-address"
+                            },
+                            "next": "keep"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "keep",
+                            "input": {
+                              "path": "page.addr",
+                              "value": {
+                                "$expr": "steps.where.output"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "onStepTapped": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "go",
+                            "input": {
+                              "path": "page.step",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2ab9f-bfae-7d31-9369-a0fcfdb5c06f",
+                    "props": {
+                      "connectorColor": {
+                        "$token": "color.primary"
+                      },
+                      "currentStep": {
+                        "$expr": "page.step"
+                      },
+                      "steps": {
+                        "$expr": "[{\"title\": t(\"01a2ebf7-3493-7970-bccf-4c3316cc10d8\"), \"state\": page.phoneOk ? \"complete\" : \"editing\", \"isActive\": page.step == 0}, {\"title\": t(\"01a2762c-30a3-74b9-884b-c869dbac5331\"), \"state\": page.idError ? \"error\" : page.idOk ? \"complete\" : page.step >= 1 ? \"indexed\" : \"disabled\", \"isActive\": page.step == 1}, {\"title\": t(\"01a2b0ea-7c9b-7188-9425-8dfee27b7709\"), \"state\": page.addr != null ? \"complete\" : \"indexed\", \"isActive\": page.step == 2}]"
+                      },
+                      "type": "horizontal"
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a22af4-4301-7764-ba97-d00218bbd211"
+                      }
+                    },
+                    "testId": "nb-stepper",
+                    "type": "Stepper"
+                  }
+                },
+                "type": "Expanded"
+              },
+              {
+                "id": "01a253d5-fedb-7f4c-862e-11c2b89fe671",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a26d23-1f19-7594-9581-e8eb373391bc",
+                    "props": {
+                      "condition": {
+                        "$expr": "page.phoneOk && page.idOk && page.addr != null"
+                      }
+                    },
+                    "slots": {
+                      "else": {
+                        "id": "01a252c3-e9f7-718d-a0c1-97847d9460fa",
+                        "props": {
+                          "style": {
+                            "minimumSize": {
+                              "value": {
+                                "height": 52,
+                                "width": 64
+                              }
+                            }
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01a2299f-1fea-7a7e-b99a-42f7796c5e3c",
+                            "props": {
+                              "data": {
+                                "$t": "01a2b455-f0f1-71d0-bb32-9bdadbf7ed72"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "nb-id-next-off",
+                        "type": "FilledButton"
+                      },
+                      "then": {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "nb-details"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a27085-ec3e-7d30-adde-97a490edf5f9",
+                        "props": {
+                          "style": {
+                            "minimumSize": {
+                              "value": {
+                                "height": 52,
+                                "width": 64
+                              }
+                            }
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01a265f3-dc27-7c0e-b9ec-240bafdb6f87",
+                            "props": {
+                              "data": {
+                                "$t": "01a2b455-f0f1-71d0-bb32-9bdadbf7ed72"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "nb-id-next",
+                        "type": "FilledButton"
+                      }
+                    },
+                    "type": "If"
+                  }
+                },
+                "type": "Padding"
+              }
+            ],
+            "id": "01a23c92-79c3-72a3-baa8-575537458416",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "nb-identity",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01a23045-f0c5-7a63-9809-4ddce0ea405d",
+      "name": "step",
+      "type": "int"
+    },
+    {
+      "default": false,
+      "id": "01a265ed-5424-7bfe-8794-c9ac99bbcb89",
+      "name": "phoneOk",
+      "type": "bool"
+    },
+    {
+      "default": false,
+      "id": "01a2ae04-8b48-7562-983d-b2ac840d8845",
+      "name": "idOk",
+      "type": "bool"
+    },
+    {
+      "default": false,
+      "id": "01a278a0-d4ed-7fb8-96bc-fe0c510271dc",
+      "name": "idError",
+      "type": "bool"
+    },
+    {
+      "default": null,
+      "id": "01a2fcb2-9c38-7e64-a554-b15d5edcb20c",
+      "name": "addr",
+      "type": "Address?"
+    }
+  ],
+  "title": {
+    "$t": "01a22af4-4301-7764-ba97-d00218bbd211"
+  }
+}

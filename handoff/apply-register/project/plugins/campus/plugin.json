@@ -1,0 +1,281 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "files",
+      "haptics"
+    ],
+    "functions": [
+      {
+        "alias": "stable",
+        "function": "fees.quote",
+        "id": "01a2df9e-73d6-7405-aa8c-95dcf5366251"
+      },
+      {
+        "alias": "stable",
+        "function": "essay.stats",
+        "id": "01a2d353-2e3d-73ae-b6a6-f398c526f74e"
+      }
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "collections": [
+    {
+      "description": "Where an unfinished application stopped, by programme; the answers stay in plugin state.",
+      "fields": [
+        {
+          "name": "programmeId",
+          "type": "string"
+        },
+        {
+          "name": "level",
+          "type": "string"
+        },
+        {
+          "name": "step",
+          "type": "int"
+        }
+      ],
+      "id": "01a2d18c-caa2-79c0-a925-27cc26f3cc1c",
+      "key": "drafts",
+      "primaryKey": [
+        "programmeId"
+      ],
+      "version": 1
+    }
+  ],
+  "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "operations": {
+          "register": {
+            "auth": true,
+            "input": "CampusRegistration",
+            "method": "POST",
+            "offlineCapable": true,
+            "output": "RegRef",
+            "path": "/campus/registrations"
+          },
+          "upload": {
+            "auth": true,
+            "input": "CampusUpload",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/campus/documents",
+            "transfer": {
+              "body": "multipart",
+              "field": "document",
+              "fileParam": "file",
+              "kind": "upload"
+            }
+          }
+        },
+        "path": "/campus/registrations/last"
+      },
+      "id": "01a26f95-bbd4-7dcb-92a6-3de00f4806a3",
+      "kind": "rest",
+      "mock": {
+        "id": "AU-p-101"
+      },
+      "name": "api",
+      "route": "plux",
+      "type": "RegRef"
+    }
+  ],
+  "description": "Apply to Aster University in four steps.",
+  "entryPage": "01a21c2f-8004-7e41-b95a-a410d03469bb",
+  "fallbackPage": "01a25a9c-bb41-7d18-8eae-4d0af00d645f",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a201cf-971f-7e8a-a12b-3cb7c544325a",
+  "key": "campus",
+  "kind": "plugin",
+  "name": "Aster University",
+  "pages": [
+    "01a21c2f-8004-7e41-b95a-a410d03469bb",
+    "01a26c7d-ef55-7348-9daa-b225149a1afb",
+    "01a2842e-e237-7758-996f-696ff4eb36f0",
+    "01a2d09f-d6c3-73c7-88b2-b3c80e4385a4",
+    "01a269d2-7b40-7460-a00c-eeb9130e6a8b",
+    "01a23bc1-366f-7d18-b44e-1fa302d75a60",
+    "01a2ab8c-9067-7738-ad14-9aca007571da",
+    "01a23063-f84f-733c-98ce-8a638e5d8585",
+    "01a25a9c-bb41-7d18-8eae-4d0af00d645f"
+  ],
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": {
+        "level": "bachelor",
+        "programmeId": "",
+        "step": 0
+      },
+      "id": "01a29b28-562c-71bf-be99-a303c57cdc37",
+      "name": "app",
+      "persistence": "persisted",
+      "type": "CampusApp"
+    },
+    {
+      "default": null,
+      "id": "01a271a1-f4dd-71c3-8e2e-5805f7db4a07",
+      "name": "personal",
+      "persistence": "secure",
+      "sensitive": true,
+      "type": "CampusPersonal?"
+    },
+    {
+      "default": [],
+      "id": "01a2da38-6b8b-7873-a155-7e6407396ced",
+      "name": "schools",
+      "persistence": "persisted",
+      "type": "list<School>"
+    },
+    {
+      "default": 1,
+      "id": "01a28110-7d28-7640-ad38-74d27bb953b9",
+      "name": "schoolSeq",
+      "persistence": "persisted",
+      "type": "int"
+    },
+    {
+      "default": [
+        "main",
+        "city",
+        "online"
+      ],
+      "id": "01a2bad9-b6a7-7dd2-9cb2-8fd2f396344a",
+      "name": "choices",
+      "persistence": "persisted",
+      "type": "list<string>"
+    },
+    {
+      "default": [],
+      "id": "01a20fd1-f2d7-7a0d-a095-d64f7262ac42",
+      "name": "docs",
+      "persistence": "persisted",
+      "type": "list<UploadedDoc>"
+    },
+    {
+      "default": "",
+      "id": "01a20c35-1119-729f-84f2-98911ac79210",
+      "name": "essay",
+      "persistence": "persisted",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01a2caed-a97f-7629-b438-a1a625e83ab0",
+      "name": "pendingId",
+      "persistence": "persisted",
+      "type": "string"
+    }
+  ],
+  "tags": [
+    "education"
+  ],
+  "team": "apply-register",
+  "triggers": {
+    "dataSources": {
+      "api": {
+        "onConflict": {
+          "steps": [
+            {
+              "action": "openDialog",
+              "id": "ask",
+              "input": {
+                "params": {
+                  "title": {
+                    "$t": "01a21e2a-3218-7a5c-bcd2-e971d09d56fe"
+                  }
+                },
+                "route": "ps-confirm"
+              }
+            }
+          ]
+        },
+        "onSyncFailed": {
+          "steps": [
+            {
+              "action": "showSnackbar",
+              "id": "say",
+              "input": {
+                "message": {
+                  "$t": "01a2c446-8380-72d2-8315-7247eb91638a"
+                }
+              }
+            }
+          ]
+        },
+        "onSynced": {
+          "steps": [
+            {
+              "action": "showToast",
+              "id": "say",
+              "input": {
+                "message": {
+                  "$t": "01a289d4-630a-7c52-bc17-b18a99040cfc"
+                }
+              },
+              "next": "tell"
+            },
+            {
+              "action": "emitHostEvent",
+              "id": "tell",
+              "input": {
+                "event": "registrationSubmitted",
+                "payload": {
+                  "orgSlug": "campus",
+                  "registrationId": {
+                    "$expr": "plugin.pendingId"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "onAppPause": {
+      "detached": true,
+      "steps": [
+        {
+          "action": "condition",
+          "branches": {
+            "then": "keep"
+          },
+          "id": "when",
+          "input": {
+            "when": {
+              "$expr": "plugin.app.step > 0"
+            }
+          }
+        },
+        {
+          "action": "dbUpsert",
+          "id": "keep",
+          "input": {
+            "collection": "drafts",
+            "key": {
+              "$expr": "plugin.app.programmeId"
+            },
+            "record": {
+              "$expr": "plugin.app"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

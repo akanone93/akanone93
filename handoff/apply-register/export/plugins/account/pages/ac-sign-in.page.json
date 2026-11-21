@@ -1,0 +1,193 @@
+{
+  "id": "01a2d3a2-d9c4-7fe6-9cbb-5a3215ae0557",
+  "key": "ac-sign-in",
+  "kind": "page",
+  "pageKind": "screen",
+  "params": [
+    {
+      "default": "profile",
+      "mock": "profile",
+      "name": "reason",
+      "type": "string"
+    }
+  ],
+  "root": {
+    "id": "01a23d46-45b0-7dae-b0bf-cfc1c6a150ee",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a23c1d-b6cb-7998-95e2-d4e23c175622",
+        "slots": {
+          "child": {
+            "id": "01a248e5-f88c-7141-85a4-bd9e2bffd8bb",
+            "slots": {
+              "child": {
+                "id": "01a24f2b-cc69-7976-8c23-977b2bb45e52",
+                "props": {
+                  "padding": {
+                    "all": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a23aa1-0829-702f-8242-10dca391e17f",
+                        "props": {
+                          "color": {
+                            "$token": "color.primary"
+                          },
+                          "icon": {
+                            "name": "lock_person"
+                          },
+                          "size": 72
+                        },
+                        "semantics": {
+                          "decorative": true
+                        },
+                        "type": "Icon"
+                      },
+                      {
+                        "id": "01a28706-2557-7e17-bc83-30adf4a62c5d",
+                        "props": {
+                          "data": {
+                            "$t": "01a20c75-9ff7-7670-a2ca-f18f133dfe39"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          },
+                          "textAlign": "center"
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a2f7b8-70b1-7e50-8e86-88e9c73080c7",
+                        "props": {
+                          "data": {
+                            "$t": "01a232f0-e8de-7a3f-80de-90f697c1ebb4"
+                          },
+                          "style": {
+                            "$token": "typography.bodyLarge"
+                          },
+                          "textAlign": "center"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "params": {
+                                    "reason": {
+                                      "$expr": "params.reason"
+                                    }
+                                  },
+                                  "route": "sign-in"
+                                },
+                                "next": "back"
+                              },
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "then": "profile"
+                                },
+                                "id": "back",
+                                "input": {
+                                  "when": {
+                                    "$expr": "user.authenticated"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "navigate",
+                                "id": "profile",
+                                "input": {
+                                  "mode": "replace",
+                                  "route": "profile"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2b993-3e9f-71ca-9606-7415fe50a4c9",
+                        "slots": {
+                          "child": {
+                            "id": "01a2031d-dd4f-7091-bfae-fb8abfc64960",
+                            "props": {
+                              "data": {
+                                "$t": "01a20c75-9ff7-7670-a2ca-f18f133dfe39"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "signin-go",
+                        "type": "FilledButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "switchTab",
+                                "id": "home",
+                                "input": {
+                                  "tab": "home"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2b54f-a0e0-7a49-91b1-d9b3b7d3c3e2",
+                        "slots": {
+                          "child": {
+                            "id": "01a2c853-f5e2-76b3-89f6-eea1a969a526",
+                            "props": {
+                              "data": {
+                                "$t": "01a21f9e-7000-7ee9-a22b-322a90cf762a"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "signin-later",
+                        "type": "TextButton"
+                      }
+                    ],
+                    "id": "01a207a4-3fe1-708b-9ffe-b7ca66b4a080",
+                    "props": {
+                      "crossAxisAlignment": "center",
+                      "mainAxisSize": "min",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              }
+            },
+            "type": "Center"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "ac-sign-in",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a20c75-9ff7-7670-a2ca-f18f133dfe39"
+  }
+}

@@ -1,0 +1,696 @@
+{
+  "id": "01a23063-f84f-733c-98ce-8a638e5d8585",
+  "key": "cp-review",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "invokeFunction",
+          "id": "quote",
+          "input": {
+            "function": "fees.quote",
+            "input": {
+              "currency": "EUR",
+              "org": "campus",
+              "quantity": 1,
+              "tier": {
+                "$expr": "plugin.app.level"
+              }
+            }
+          },
+          "next": "keep",
+          "onError": "noFee"
+        },
+        {
+          "action": "setState",
+          "id": "keep",
+          "input": {
+            "path": "page.fee",
+            "value": {
+              "$expr": "{\"subtotal\": steps.quote.output?.subtotal ?? \"0\", \"tax\": steps.quote.output?.tax ?? \"0\", \"total\": steps.quote.output?.total ?? \"0\", \"currency\": steps.quote.output?.currency ?? \"EUR\"}"
+            }
+          }
+        },
+        {
+          "action": "setState",
+          "id": "noFee",
+          "input": {
+            "path": "page.feeError",
+            "value": true
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a25b26-5617-7345-85e2-975c5639feaa",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2e148-1071-77a5-8254-4001e7248d52",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a22131-15a7-7388-b89d-691a769e884c",
+            "props": {
+              "data": {
+                "$t": "01a29e76-d76e-7198-955f-d84585078a12"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2f108-873f-738f-a8bc-e45d7c14ddb4",
+        "slots": {
+          "child": {
+            "id": "01a29776-f213-72d6-b39a-c606b0f7c39d",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a2dffb-8a42-730a-bbb9-34077d0a93ee",
+                    "props": {
+                      "data": {
+                        "$t": "01a27742-aae5-7657-9b79-d3c827dda303"
+                      },
+                      "style": {
+                        "$token": "typography.headlineSmall"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "events": {
+                      "onStepTapped": {
+                        "steps": [
+                          {
+                            "action": "switch",
+                            "branches": {
+                              "s0": "p",
+                              "s1": "e",
+                              "s2": "d",
+                              "s3": "s"
+                            },
+                            "id": "which",
+                            "input": {
+                              "cases": [
+                                "s0",
+                                "s1",
+                                "s2",
+                                "s3"
+                              ],
+                              "value": {
+                                "$expr": "\"s\" + string(event)"
+                              }
+                            }
+                          },
+                          {
+                            "action": "navigate",
+                            "id": "p",
+                            "input": {
+                              "route": "cp-personal"
+                            }
+                          },
+                          {
+                            "action": "navigate",
+                            "id": "e",
+                            "input": {
+                              "route": "cp-education"
+                            }
+                          },
+                          {
+                            "action": "navigate",
+                            "id": "d",
+                            "input": {
+                              "route": "cp-documents"
+                            }
+                          },
+                          {
+                            "action": "navigate",
+                            "id": "s",
+                            "input": {
+                              "route": "cp-essay"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a282c9-0c89-798b-a1bc-abd22985c612",
+                    "props": {
+                      "currentStep": 0,
+                      "elevation": 0,
+                      "steps": {
+                        "$expr": "[{\"title\": t(\"01a28d48-9b28-7280-806c-debb91f1841f\"), \"state\": plugin.personal != null ? \"complete\" : \"error\", \"isActive\": true}, {\"title\": t(\"01a2bd0f-8886-7840-a3d9-428ebac34cf2\"), \"state\": !isEmpty(plugin.schools) ? \"complete\" : \"error\", \"isActive\": true}, {\"title\": t(\"01a29bf4-86a6-7554-b122-6e54e5b31735\"), \"state\": !isEmpty(plugin.docs) ? \"complete\" : \"error\", \"isActive\": true}, {\"title\": t(\"01a2a0c6-5006-7dcb-9feb-f388dbb47a0f\"), \"state\": len(plugin.essay) > 0 ? \"complete\" : \"error\", \"isActive\": true}]"
+                      },
+                      "type": "vertical"
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a27742-aae5-7657-9b79-d3c827dda303"
+                      }
+                    },
+                    "testId": "cp-stepper",
+                    "type": "Stepper"
+                  },
+                  {
+                    "id": "01a2fe81-88a1-7034-a95f-591b81e547a5",
+                    "props": {
+                      "data": {
+                        "$t": "01a2d02d-351e-789c-b7aa-21277aa0e731",
+                        "args": {
+                          "first": {
+                            "$expr": "first(plugin.schools)?.name ?? \"\""
+                          },
+                          "n": {
+                            "$expr": "size(plugin.schools)"
+                          }
+                        }
+                      },
+                      "style": {
+                        "$token": "typography.bodyMedium"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a22085-aa37-7d6e-9ab3-1a3be75863d5",
+                    "props": {
+                      "height": 16
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "id": "01a2dd67-6b0b-79e5-aec2-f47650d004f9",
+                    "props": {
+                      "color": {
+                        "$token": "color.surfaceContainerLow"
+                      },
+                      "elevation": 0,
+                      "margin": {
+                        "vertical": 8
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01a2b199-0a47-7ad5-8950-1f6d76c4f053",
+                        "props": {
+                          "padding": {
+                            "all": 16
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "children": [
+                              {
+                                "id": "01a23d8d-ae29-7004-b6c2-c628d433ff1a",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a2ccca-1db6-7e6a-9f98-021937eaa667"
+                                  },
+                                  "style": {
+                                    "$token": "typography.titleMedium"
+                                  }
+                                },
+                                "semantics": {
+                                  "header": true
+                                },
+                                "type": "Text"
+                              },
+                              {
+                                "id": "01a29a9b-775e-7905-9adc-2fafb3837137",
+                                "props": {
+                                  "condition": {
+                                    "$expr": "page.fee != null"
+                                  }
+                                },
+                                "slots": {
+                                  "else": {
+                                    "id": "01a2da51-501f-7924-aa0c-ee90fe1e31d2",
+                                    "props": {
+                                      "condition": {
+                                        "$expr": "page.feeError"
+                                      }
+                                    },
+                                    "slots": {
+                                      "else": {
+                                        "id": "01a27e37-fede-72f2-ba2c-345e00aa6b69",
+                                        "slots": {
+                                          "child": {
+                                            "id": "01a2f03b-bf1e-7b17-a80c-5fea6ddf7855",
+                                            "props": {
+                                              "padding": {
+                                                "all": 24
+                                              }
+                                            },
+                                            "slots": {
+                                              "child": {
+                                                "id": "01a233b9-55c3-7e7f-80e8-1744d704989e",
+                                                "props": {
+                                                  "semanticsLabel": {
+                                                    "$t": "01a2de36-046d-71e2-964f-ec4f497ddf3a"
+                                                  }
+                                                },
+                                                "type": "CircularProgressIndicator"
+                                              }
+                                            },
+                                            "type": "Padding"
+                                          }
+                                        },
+                                        "type": "Center"
+                                      },
+                                      "then": {
+                                        "id": "01a25fe4-ae0f-7d7e-af0b-36160c13e911",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a28987-4337-7738-a87e-a39ed6a36a08"
+                                          },
+                                          "style": {
+                                            "$token": "typography.bodyMedium"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    },
+                                    "type": "If"
+                                  },
+                                  "then": {
+                                    "children": [
+                                      {
+                                        "component": {
+                                          "id": "01a23d46-d5ff-73db-81e5-ad37733808a6",
+                                          "version": 1
+                                        },
+                                        "id": "01a21f0e-9939-7278-9b99-ca4ba92f0601",
+                                        "props": {
+                                          "amount": {
+                                            "$expr": "money(page.fee?.subtotal ?? \"0\", \"EUR\")"
+                                          },
+                                          "label": {
+                                            "$t": "01a28171-a7c4-72de-b9fa-249b673dea69"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "component": {
+                                          "id": "01a23d46-d5ff-73db-81e5-ad37733808a6",
+                                          "version": 1
+                                        },
+                                        "id": "01a2a31c-0270-7b31-848f-551b4e293336",
+                                        "props": {
+                                          "amount": {
+                                            "$expr": "money(page.fee?.tax ?? \"0\", \"EUR\")"
+                                          },
+                                          "label": {
+                                            "$t": "01a22438-02d1-757f-991e-7da221065565"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "id": "01a260be-3641-7ebd-9b38-0ff2f3cc6e3b",
+                                        "type": "Divider"
+                                      },
+                                      {
+                                        "component": {
+                                          "id": "01a23d46-d5ff-73db-81e5-ad37733808a6",
+                                          "version": 1
+                                        },
+                                        "id": "01a2b9a8-be26-7456-adf2-de78cdc157a1",
+                                        "props": {
+                                          "amount": {
+                                            "$expr": "money(page.fee?.total ?? \"0\", \"EUR\")"
+                                          },
+                                          "label": {
+                                            "$t": "01a2bb5f-b0e3-7a37-8707-80a27134ff52"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "id": "01a2faf8-cc39-7188-9722-3a1bd959575a",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch"
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "If"
+                              }
+                            ],
+                            "id": "01a24916-9722-76bf-81c1-56e84ce96f6e",
+                            "props": {
+                              "crossAxisAlignment": "stretch",
+                              "spacing": 12
+                            },
+                            "type": "Column"
+                          }
+                        },
+                        "type": "Padding"
+                      }
+                    },
+                    "type": "Card"
+                  },
+                  {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "page.consent",
+                              "value": {
+                                "$expr": "event ?? false"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a26e6e-e7e0-7873-ab6e-62152ff46583",
+                    "props": {
+                      "contentPadding": {
+                        "all": 0
+                      },
+                      "controlAffinity": "leading",
+                      "value": {
+                        "$expr": "page.consent"
+                      }
+                    },
+                    "slots": {
+                      "title": {
+                        "id": "01a2b617-5a36-7062-b67a-e98de75491cb",
+                        "props": {
+                          "data": {
+                            "$t": "01a2cd2b-2e3b-7acc-86f9-e8980f371ded"
+                          },
+                          "style": {
+                            "$token": "typography.bodyMedium"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "cp-consent",
+                    "type": "CheckboxListTile"
+                  }
+                ],
+                "id": "01a21762-f361-76dd-8e7c-f5704d5b0146",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "bottomNavigationBar": {
+        "component": {
+          "id": "01a2b909-cbad-77df-b6b6-d36ce2fb1df9",
+          "version": 1
+        },
+        "events": {
+          "onSubmit": {
+            "concurrency": "drop",
+            "steps": [
+              {
+                "action": "setState",
+                "id": "busy",
+                "input": {
+                  "path": "page.submitting",
+                  "value": true
+                },
+                "next": "pay"
+              },
+              {
+                "action": "callFlow",
+                "id": "pay",
+                "input": {
+                  "flow": "pay/pay-with-wallet",
+                  "input": {
+                    "req": {
+                      "amount": {
+                        "$expr": "money(page.fee?.total ?? \"0\", \"EUR\")"
+                      },
+                      "payee": "Aster University",
+                      "purpose": {
+                        "$t": "01a2122e-38ac-771a-88ff-19d93e05faec"
+                      },
+                      "reference": {
+                        "$expr": "\"AU-\" + plugin.app.programmeId"
+                      }
+                    }
+                  }
+                },
+                "next": "how",
+                "onError": "failed"
+              },
+              {
+                "action": "switch",
+                "branches": {
+                  "default": "idle",
+                  "error": "failed",
+                  "success": "id"
+                },
+                "id": "how",
+                "input": {
+                  "cases": [
+                    "success",
+                    "error"
+                  ],
+                  "value": {
+                    "$expr": "steps.pay.output?.status ?? \"cancelled\""
+                  }
+                }
+              },
+              {
+                "action": "setState",
+                "id": "id",
+                "input": {
+                  "path": "plugin.pendingId",
+                  "value": {
+                    "$expr": "\"AU-\" + plugin.app.programmeId"
+                  }
+                },
+                "next": "send"
+              },
+              {
+                "action": "apiCall",
+                "id": "send",
+                "input": {
+                  "input": {
+                    "choices": {
+                      "$expr": "plugin.choices"
+                    },
+                    "documents": {
+                      "$expr": "plugin.docs.map(d, d.name)"
+                    },
+                    "essay": {
+                      "$expr": "plugin.essay"
+                    },
+                    "level": {
+                      "$expr": "plugin.app.level"
+                    },
+                    "paymentId": {
+                      "$expr": "steps.pay.output?.transactionId ?? \"\""
+                    },
+                    "personal": {
+                      "$expr": "plugin.personal"
+                    },
+                    "programmeId": {
+                      "$expr": "plugin.app.programmeId"
+                    },
+                    "schools": {
+                      "$expr": "plugin.schools"
+                    }
+                  },
+                  "operation": "api.register"
+                },
+                "next": "drop"
+              },
+              {
+                "action": "dbDelete",
+                "id": "drop",
+                "input": {
+                  "collection": "drafts",
+                  "key": {
+                    "$expr": "plugin.app.programmeId"
+                  }
+                },
+                "next": "forget"
+              },
+              {
+                "action": "setState",
+                "id": "forget",
+                "input": {
+                  "path": "plugin.personal",
+                  "value": {
+                    "$expr": "null"
+                  }
+                },
+                "next": "clear1"
+              },
+              {
+                "action": "setState",
+                "id": "clear1",
+                "input": {
+                  "path": "plugin.schools",
+                  "value": {
+                    "$expr": "[]"
+                  }
+                },
+                "next": "clear2"
+              },
+              {
+                "action": "setState",
+                "id": "clear2",
+                "input": {
+                  "path": "plugin.docs",
+                  "value": {
+                    "$expr": "[]"
+                  }
+                },
+                "next": "clear3"
+              },
+              {
+                "action": "setState",
+                "id": "clear3",
+                "input": {
+                  "path": "plugin.essay",
+                  "value": ""
+                },
+                "next": "reset"
+              },
+              {
+                "action": "patchState",
+                "id": "reset",
+                "input": {
+                  "patch": {
+                    "step": 0
+                  },
+                  "path": "plugin.app"
+                },
+                "next": "tell"
+              },
+              {
+                "action": "announce",
+                "id": "tell",
+                "input": {
+                  "message": {
+                    "$t": "01a2a852-7b7b-7ca9-8a98-bf2417a648d4"
+                  }
+                },
+                "next": "home"
+              },
+              {
+                "action": "navigate",
+                "id": "home",
+                "input": {
+                  "mode": "popUntil",
+                  "route": "cp-home",
+                  "until": "cp-home"
+                }
+              },
+              {
+                "action": "showSnackbar",
+                "id": "failed",
+                "input": {
+                  "message": {
+                    "$t": "01a20e8b-8c43-77d5-b69e-b3adfe43e769"
+                  }
+                },
+                "next": "idle"
+              },
+              {
+                "action": "setState",
+                "id": "idle",
+                "input": {
+                  "path": "page.submitting",
+                  "value": false
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a2f8a9-19c1-7112-b3e0-13885f215459",
+        "props": {
+          "busy": {
+            "$expr": "page.submitting"
+          },
+          "enabled": {
+            "$expr": "page.consent && page.fee != null && plugin.personal != null && !isEmpty(plugin.schools) && !isEmpty(plugin.docs) && len(plugin.essay) > 0"
+          },
+          "label": {
+            "$t": "01a288a7-a7e9-784e-9b7a-3b0e9b763edf"
+          }
+        },
+        "testId": "cp-submit"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cp-review",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "state": [
+    {
+      "default": null,
+      "id": "01a23857-c2e7-7d98-9940-41feb37d1cd9",
+      "name": "fee",
+      "type": "FeeQuote?"
+    },
+    {
+      "default": false,
+      "id": "01a2b13a-7fdc-7744-a7ea-086fadd803e5",
+      "name": "feeError",
+      "type": "bool"
+    },
+    {
+      "default": false,
+      "id": "01a2aad4-8bea-731b-80b1-d16b68fcd884",
+      "name": "consent",
+      "type": "bool"
+    },
+    {
+      "default": false,
+      "id": "01a29c40-d372-7d7a-85b8-8a3c1cfd30a9",
+      "name": "submitting",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a27742-aae5-7657-9b79-d3c827dda303"
+  }
+}

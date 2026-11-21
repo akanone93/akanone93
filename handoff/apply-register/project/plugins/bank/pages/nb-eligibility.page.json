@@ -1,0 +1,864 @@
+{
+  "forms": [
+    {
+      "fields": [
+        {
+          "initial": null,
+          "name": "income",
+          "type": "money?",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2b9ee-2dc2-7a85-9ec7-24a3535be979"
+              }
+            },
+            {
+              "kind": "custom",
+              "message": {
+                "$t": "01a2b9ee-2dc2-7a85-9ec7-24a3535be979"
+              },
+              "rule": {
+                "$expr": "value == null || amount(value) >= 0d && amount(value) <= 100000d"
+              }
+            }
+          ]
+        },
+        {
+          "initial": 18,
+          "name": "age",
+          "type": "int",
+          "validators": [
+            {
+              "kind": "range",
+              "max": 100,
+              "min": 16
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "employment",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ccc2-1da0-7f0d-9ff7-dffbe2c3a567"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "01a27b6d-7f26-75a9-917f-fb60c8a392eb",
+      "name": "elig"
+    }
+  ],
+  "id": "01a221cd-86eb-7b40-827c-0e4d5a540ff5",
+  "key": "nb-eligibility",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a25dd7-6d10-7ab5-8de8-783647cecf61",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a21ffc-94bf-7802-9e4d-f7101363750d",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.primary"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onPrimary"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "children": [
+              {
+                "id": "01a2e6ab-020a-7a72-b14e-7ac5c6172865",
+                "props": {
+                  "color": {
+                    "$token": "color.onPrimary"
+                  },
+                  "icon": {
+                    "name": "account_balance"
+                  },
+                  "size": 24
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              },
+              {
+                "id": "01a2abff-6876-7a3b-b055-4315cf08ea85",
+                "slots": {
+                  "child": {
+                    "id": "01a20110-d244-73d0-a79a-1b6d5d9a77de",
+                    "props": {
+                      "data": {
+                        "$t": "01a2edb2-a03b-77cb-bab3-f0f7927271df"
+                      },
+                      "maxLines": 1,
+                      "overflow": "ellipsis"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Flexible"
+              }
+            ],
+            "id": "01a2b849-d0e9-760c-bd37-4799f2a2670c",
+            "props": {
+              "spacing": 8
+            },
+            "type": "Row"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2b772-1623-7c12-8b33-820cbfa1017d",
+        "slots": {
+          "child": {
+            "id": "01a2eb31-cfec-71fb-b4f0-45b44a4a8168",
+            "props": {
+              "form": "elig"
+            },
+            "slots": {
+              "child": {
+                "id": "01a25b0e-6f04-7faf-8fd3-e6cf79be8d89",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "id": "01a2d17f-4977-7f70-ba1b-73ccb61511c1",
+                            "props": {
+                              "borderRadius": {
+                                "all": {
+                                  "$token": "radius.pill"
+                                }
+                              },
+                              "minHeight": 4,
+                              "semanticsLabel": {
+                                "$t": "01a279b0-8496-75a2-b958-69e0bc01f8da",
+                                "args": {
+                                  "n": {
+                                    "$expr": "string(1)"
+                                  }
+                                }
+                              },
+                              "value": 0.2
+                            },
+                            "type": "LinearProgressIndicator"
+                          },
+                          {
+                            "id": "01a2d02b-89a5-7363-9730-fbcf38eacecf",
+                            "props": {
+                              "data": {
+                                "$t": "01a279b0-8496-75a2-b958-69e0bc01f8da",
+                                "args": {
+                                  "n": {
+                                    "$expr": "string(1)"
+                                  }
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "id": "01a2aa95-9827-7441-894c-ac47dc745010",
+                            "props": {
+                              "data": {
+                                "$t": "01a2ef8a-6cf0-7af2-80bd-37c5c953d05f"
+                              },
+                              "style": {
+                                "$token": "typography.headlineSmall"
+                              }
+                            },
+                            "semantics": {
+                              "header": true
+                            },
+                            "type": "Text"
+                          }
+                        ],
+                        "id": "01a24115-6440-7118-8417-60b466e8cb80",
+                        "props": {
+                          "crossAxisAlignment": "start",
+                          "spacing": 4
+                        },
+                        "type": "Column"
+                      },
+                      {
+                        "id": "01a24a94-451f-701e-8d76-8634e9b62cd8",
+                        "props": {
+                          "condition": {
+                            "$expr": "page.underage"
+                          }
+                        },
+                        "slots": {
+                          "then": {
+                            "events": {
+                              "onVisible": {
+                                "steps": [
+                                  {
+                                    "action": "announce",
+                                    "id": "say",
+                                    "input": {
+                                      "assertiveness": "assertive",
+                                      "message": {
+                                        "$t": "01a26785-b849-7ec3-8847-172356134232"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a22e43-9947-70dc-86a1-db927ab89295",
+                            "props": {
+                              "forceActionsBelow": false,
+                              "overflowAlignment": "end"
+                            },
+                            "slots": {
+                              "actions": [
+                                {
+                                  "events": {
+                                    "onPressed": {
+                                      "steps": [
+                                        {
+                                          "action": "setState",
+                                          "id": "hide",
+                                          "input": {
+                                            "path": "page.underage",
+                                            "value": false
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "id": "01a2fe6d-f567-786f-b6f0-9a5a5ce7f831",
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a20122-1833-7645-bf64-8896a80154c2",
+                                      "props": {
+                                        "data": {
+                                          "$t": "01a27507-3cd3-7692-b1bb-0e7d67fba054"
+                                        }
+                                      },
+                                      "type": "Text"
+                                    }
+                                  },
+                                  "testId": "nb-underage-ok",
+                                  "type": "TextButton"
+                                }
+                              ],
+                              "content": {
+                                "id": "01a25db7-8e1a-746f-b48e-000287724674",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a26785-b849-7ec3-8847-172356134232"
+                                  }
+                                },
+                                "type": "Text"
+                              },
+                              "leading": {
+                                "id": "01a2a1dc-ccbe-7cc7-9d61-d1213d87794c",
+                                "props": {
+                                  "color": {
+                                    "$token": "color.error"
+                                  },
+                                  "icon": {
+                                    "name": "info"
+                                  }
+                                },
+                                "semantics": {
+                                  "decorative": true
+                                },
+                                "type": "Icon"
+                              }
+                            },
+                            "type": "MaterialBanner"
+                          }
+                        },
+                        "type": "If"
+                      },
+                      {
+                        "id": "01a240e9-12ad-725f-b495-958eb0daec59",
+                        "props": {
+                          "height": 8
+                        },
+                        "type": "SizedBox"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.elig.values.income",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2917b-5d18-7598-8eac-33e565896fd2",
+                        "props": {
+                          "currency": "EUR",
+                          "label": {
+                            "$t": "01a22399-a78f-79b8-96c6-8a717fd84835"
+                          },
+                          "max": {
+                            "$expr": "money(\"100000\", \"EUR\")"
+                          },
+                          "min": {
+                            "$expr": "money(\"0\", \"EUR\")"
+                          },
+                          "rangeMessage": {
+                            "$t": "01a2b9ee-2dc2-7a85-9ec7-24a3535be979"
+                          },
+                          "value": {
+                            "$expr": "form.values.income"
+                          }
+                        },
+                        "testId": "nb-income",
+                        "type": "AmountInput"
+                      },
+                      {
+                        "id": "01a20ffb-dd1b-73ec-a493-bc6ffe0d3e29",
+                        "props": {
+                          "height": 16
+                        },
+                        "type": "SizedBox"
+                      },
+                      {
+                        "id": "01a21017-59c1-79cb-b8f4-c1d691c92e20",
+                        "props": {
+                          "data": {
+                            "$t": "01a2358a-925b-717a-90a9-eeac0f5ec189",
+                            "args": {
+                              "age": {
+                                "$expr": "string(form.values.age)"
+                              }
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.elig.values.age",
+                                  "value": {
+                                    "$expr": "int(round(event))"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a23a67-02e9-77cc-9ae3-497b567a0084",
+                        "props": {
+                          "allowedInteraction": "tapAndSlide",
+                          "divisions": 84,
+                          "label": {
+                            "$expr": "string(form.values.age)"
+                          },
+                          "max": 100,
+                          "min": 16,
+                          "secondaryTrackValue": 18,
+                          "value": {
+                            "$expr": "double(form.values.age)"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a28df4-fa31-7308-989e-e55449f7c588"
+                          }
+                        },
+                        "testId": "nb-age",
+                        "type": "Slider"
+                      },
+                      {
+                        "id": "01a2e3a1-6836-7f09-b01d-1596c46fd22b",
+                        "props": {
+                          "height": 8
+                        },
+                        "type": "SizedBox"
+                      },
+                      {
+                        "id": "01a208b2-86ac-7245-ad9e-d3b99575fc45",
+                        "props": {
+                          "data": {
+                            "$t": "01a241b6-4125-7795-8733-9b2b7a2b9824"
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.elig.values.employment",
+                                  "value": {
+                                    "$expr": "event ?? \"\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a23a69-2edf-7b85-83b0-8712fd34f754",
+                        "props": {
+                          "groupValue": {
+                            "$expr": "form.values.employment"
+                          },
+                          "value": "employed"
+                        },
+                        "slots": {
+                          "secondary": {
+                            "id": "01a28fbf-604e-709a-8b44-ccab9e9bd9c6",
+                            "props": {
+                              "icon": {
+                                "name": "work"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "title": {
+                            "id": "01a2d4af-b5b7-7fb2-b475-5e605bc2943a",
+                            "props": {
+                              "data": {
+                                "$t": "01a21ebc-087b-74be-a9c6-4cb080c884d9"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "nb-emp-employed",
+                        "type": "RadioListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.elig.values.employment",
+                                  "value": {
+                                    "$expr": "event ?? \"\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2d89c-706e-723d-8c6d-20f6364f6714",
+                        "props": {
+                          "groupValue": {
+                            "$expr": "form.values.employment"
+                          },
+                          "value": "self"
+                        },
+                        "slots": {
+                          "secondary": {
+                            "id": "01a21e10-522a-7e0d-a308-34d298954b17",
+                            "props": {
+                              "icon": {
+                                "name": "storefront"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "title": {
+                            "id": "01a2ed08-f087-74d3-83ff-794dff67b79e",
+                            "props": {
+                              "data": {
+                                "$t": "01a204e5-95fe-7cd5-8503-7b85d2016289"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "nb-emp-self",
+                        "type": "RadioListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.elig.values.employment",
+                                  "value": {
+                                    "$expr": "event ?? \"\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a25d55-ad78-7078-bcc7-df7aa7173323",
+                        "props": {
+                          "groupValue": {
+                            "$expr": "form.values.employment"
+                          },
+                          "value": "student"
+                        },
+                        "slots": {
+                          "secondary": {
+                            "id": "01a28a17-e747-7077-8dc1-363b6c1530f1",
+                            "props": {
+                              "icon": {
+                                "name": "school"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "title": {
+                            "id": "01a2e8db-79c5-7ca7-b676-019584560f59",
+                            "props": {
+                              "data": {
+                                "$t": "01a2a382-dacd-7295-9fb1-3715f5abd2c1"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "nb-emp-student",
+                        "type": "RadioListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.elig.values.employment",
+                                  "value": {
+                                    "$expr": "event ?? \"\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2449f-0a42-7abc-af02-0c25fe04192c",
+                        "props": {
+                          "groupValue": {
+                            "$expr": "form.values.employment"
+                          },
+                          "value": "retired"
+                        },
+                        "slots": {
+                          "secondary": {
+                            "id": "01a23c08-4eeb-7bd1-ac7d-4cc22691fa0f",
+                            "props": {
+                              "icon": {
+                                "name": "elderly"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "title": {
+                            "id": "01a27642-b231-782a-95e9-617058c82f74",
+                            "props": {
+                              "data": {
+                                "$t": "01a26b8d-bd2d-783b-91ac-4d9f78bc46a4"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "nb-emp-retired",
+                        "type": "RadioListTile"
+                      },
+                      {
+                        "id": "01a2def8-fda8-7f17-8381-6011bf2e091d",
+                        "props": {
+                          "curve": "easeInOut",
+                          "duration": 300
+                        },
+                        "slots": {
+                          "child": {
+                            "children": [
+                              {
+                                "id": "01a26578-b48b-7425-bf05-d266ce27d5a5",
+                                "props": {
+                                  "items": {
+                                    "$expr": "page.reasons"
+                                  }
+                                },
+                                "slots": {
+                                  "item": {
+                                    "id": "01a2dc48-35fb-71a1-8a0f-0a900e6094cf",
+                                    "props": {
+                                      "dense": true
+                                    },
+                                    "slots": {
+                                      "leading": {
+                                        "id": "01a24ae9-fc83-7ee2-ad1d-2e36f0e928cf",
+                                        "props": {
+                                          "color": {
+                                            "$token": "color.error"
+                                          },
+                                          "icon": {
+                                            "name": "info"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "decorative": true
+                                        },
+                                        "type": "Icon"
+                                      },
+                                      "title": {
+                                        "id": "01a251b9-e46a-7a4f-ad28-87361d89478c",
+                                        "props": {
+                                          "data": {
+                                            "$expr": "item"
+                                          },
+                                          "style": {
+                                            "$token": "typography.bodyMedium"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    },
+                                    "type": "ListTile"
+                                  }
+                                },
+                                "type": "ForEach"
+                              }
+                            ],
+                            "id": "01a284f9-a6ed-73dc-ab01-54988dcb014a",
+                            "props": {
+                              "crossAxisAlignment": "stretch"
+                            },
+                            "type": "Column"
+                          }
+                        },
+                        "type": "AnimatedSize"
+                      }
+                    ],
+                    "id": "01a2f344-90eb-706d-8ec6-d7b00939a76e",
+                    "props": {
+                      "crossAxisAlignment": "stretch"
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "SingleChildScrollView"
+              }
+            },
+            "type": "FormScope"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "bottomNavigationBar": {
+        "component": {
+          "id": "01a2b909-cbad-77df-b6b6-d36ce2fb1df9",
+          "version": 1
+        },
+        "events": {
+          "onSubmit": {
+            "concurrency": "drop",
+            "steps": [
+              {
+                "action": "submitForm",
+                "branches": {
+                  "invalid": "fix"
+                },
+                "id": "check",
+                "input": {
+                  "form": "elig"
+                },
+                "next": "young"
+              },
+              {
+                "action": "announce",
+                "id": "fix",
+                "input": {
+                  "assertiveness": "assertive",
+                  "message": {
+                    "$t": "01a2c3dd-6ebd-7df9-96b1-f1a13795033f"
+                  }
+                }
+              },
+              {
+                "action": "condition",
+                "branches": {
+                  "else": "ask",
+                  "then": "under"
+                },
+                "id": "young",
+                "input": {
+                  "when": {
+                    "$expr": "page.elig.values.age < 18"
+                  }
+                }
+              },
+              {
+                "action": "setState",
+                "id": "under",
+                "input": {
+                  "path": "page.underage",
+                  "value": true
+                }
+              },
+              {
+                "action": "apiCall",
+                "id": "ask",
+                "input": {
+                  "input": {
+                    "age": {
+                      "$expr": "page.elig.values.age"
+                    },
+                    "currency": "EUR",
+                    "employment": {
+                      "$expr": "page.elig.values.employment"
+                    },
+                    "monthlyIncome": {
+                      "$expr": "amount(page.elig.values.income ?? money(\"0\", \"EUR\"))"
+                    }
+                  },
+                  "operation": "eligibility.check"
+                },
+                "next": "ok"
+              },
+              {
+                "action": "condition",
+                "branches": {
+                  "else": "why",
+                  "then": "keep"
+                },
+                "id": "ok",
+                "input": {
+                  "when": {
+                    "$expr": "steps.ask.output?.eligible ?? false"
+                  }
+                }
+              },
+              {
+                "action": "setState",
+                "id": "keep",
+                "input": {
+                  "path": "plugin.application",
+                  "value": {
+                    "$expr": "{\"product\": plugin.application.product, \"eligible\": true, \"detailsSent\": plugin.application.detailsSent, \"marketing\": plugin.application.marketing}"
+                  }
+                },
+                "next": "go"
+              },
+              {
+                "action": "navigate",
+                "id": "go",
+                "input": {
+                  "route": "nb-identity"
+                }
+              },
+              {
+                "action": "setState",
+                "id": "why",
+                "input": {
+                  "path": "page.reasons",
+                  "value": {
+                    "$expr": "steps.ask.output?.reasons ?? []"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a2f703-1078-7ac4-9a02-fc5acc128f3e",
+        "props": {
+          "busy": {
+            "$expr": "page.elig.status == \"submitting\""
+          },
+          "label": {
+            "$t": "01a2b455-f0f1-71d0-bb32-9bdadbf7ed72"
+          }
+        },
+        "testId": "nb-elig-next"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "nb-eligibility",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": [],
+      "id": "01a2883b-7895-782c-93c2-79ed4b87dab0",
+      "name": "reasons",
+      "type": "list<string>"
+    },
+    {
+      "default": false,
+      "id": "01a29afb-7e0b-7be9-8bae-a75ece0d23da",
+      "name": "underage",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a2ef8a-6cf0-7af2-80bd-37c5c953d05f"
+  }
+}

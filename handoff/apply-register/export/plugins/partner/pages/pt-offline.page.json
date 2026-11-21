@@ -1,0 +1,72 @@
+{
+  "id": "01a2f8d2-ee4a-7797-811e-56c25cdd3e24",
+  "key": "pt-offline",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a289ee-0b30-7844-9102-9e001faacc10",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a2da78-b08a-7cd1-9e38-386d43ad3e58",
+        "slots": {
+          "child": {
+            "id": "01a24551-2907-794f-9173-a455bb0e80a1",
+            "slots": {
+              "child": {
+                "events": {
+                  "onRetry": {
+                    "steps": [
+                      {
+                        "action": "sync",
+                        "id": "sync",
+                        "next": "home"
+                      },
+                      {
+                        "action": "navigate",
+                        "id": "home",
+                        "input": {
+                          "mode": "clearAndPush",
+                          "route": "home"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2558e-ffa1-7e31-917d-16f827014db4",
+                "props": {
+                  "icon": {
+                    "name": "cloud_off"
+                  },
+                  "message": {
+                    "$t": "01a233ff-cf73-71c3-9a66-4dea16db231a"
+                  },
+                  "retryLabel": {
+                    "$t": "01a26fb7-0dd0-72d4-b18d-8d6be59b1b27"
+                  },
+                  "title": {
+                    "$t": "01a29c0c-c3f8-7c27-a718-c654b1c0f4ea"
+                  }
+                },
+                "testId": "pt-offline-retry",
+                "type": "ErrorState"
+              }
+            },
+            "type": "Center"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "pt-offline",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a29c0c-c3f8-7c27-a718-c654b1c0f4ea"
+  }
+}

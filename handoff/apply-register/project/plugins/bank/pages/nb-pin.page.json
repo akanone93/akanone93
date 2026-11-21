@@ -1,0 +1,396 @@
+{
+  "id": "01a28cfd-a2ca-79d8-ab84-7338bb10aa37",
+  "key": "nb-pin",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a26019-2fdf-7d08-ad9a-ae02b9c645ec",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a21786-1b17-7d6e-b4fb-90cbb5698e95",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.primary"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onPrimary"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "children": [
+              {
+                "id": "01a22103-63ab-72e4-ac31-da3488c3218e",
+                "props": {
+                  "color": {
+                    "$token": "color.onPrimary"
+                  },
+                  "icon": {
+                    "name": "account_balance"
+                  },
+                  "size": 24
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              },
+              {
+                "id": "01a2b81b-627d-73ea-964c-dd7b49602da5",
+                "slots": {
+                  "child": {
+                    "id": "01a2c532-c895-7fe1-9714-60afe2b6e59c",
+                    "props": {
+                      "data": {
+                        "$t": "01a2edb2-a03b-77cb-bab3-f0f7927271df"
+                      },
+                      "maxLines": 1,
+                      "overflow": "ellipsis"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Flexible"
+              }
+            ],
+            "id": "01a228f3-1c41-7776-9112-22c96b6ae9b4",
+            "props": {
+              "spacing": 8
+            },
+            "type": "Row"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a22fbf-9bd8-75db-b0eb-9ec6a56434cf",
+        "slots": {
+          "child": {
+            "id": "01a26e01-61b8-7d82-a5dd-e7d1f699d5de",
+            "props": {
+              "padding": {
+                "all": 24
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "id": "01a26e22-9e54-7891-ae22-2d33e772a1ae",
+                        "props": {
+                          "borderRadius": {
+                            "all": {
+                              "$token": "radius.pill"
+                            }
+                          },
+                          "minHeight": 4,
+                          "semanticsLabel": {
+                            "$t": "01a279b0-8496-75a2-b958-69e0bc01f8da",
+                            "args": {
+                              "n": {
+                                "$expr": "string(4)"
+                              }
+                            }
+                          },
+                          "value": 0.8
+                        },
+                        "type": "LinearProgressIndicator"
+                      },
+                      {
+                        "id": "01a2a9ab-e1a3-7997-9d30-5d7fafec3ac4",
+                        "props": {
+                          "data": {
+                            "$t": "01a279b0-8496-75a2-b958-69e0bc01f8da",
+                            "args": {
+                              "n": {
+                                "$expr": "string(4)"
+                              }
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.labelMedium"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a23bae-7fb2-7813-b1bd-9d23fd7e42b5",
+                        "props": {
+                          "data": {
+                            "$t": "01a278ff-c218-7467-a16d-613e0f6bb0b3"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "id": "01a22cea-5b2c-7fc8-bb1a-d9e913d8b2b9",
+                    "props": {
+                      "crossAxisAlignment": "start",
+                      "spacing": 4
+                    },
+                    "type": "Column"
+                  },
+                  {
+                    "id": "01a2d4d3-5651-740f-93c1-91689f39e60e",
+                    "props": {
+                      "data": {
+                        "$expr": "page.stage == 0 ? t(\"01a2a0f4-1b9b-7a32-883a-55e9126953f7\") : t(\"01a260ec-e163-7ed9-b6ec-2a8ae82c996a\")"
+                      },
+                      "style": {
+                        "$token": "typography.titleMedium"
+                      },
+                      "textAlign": "center"
+                    },
+                    "semantics": {
+                      "liveRegion": true
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a2de54-8efc-7ef1-901b-13fc838e4d1d",
+                    "props": {
+                      "curve": "elasticOut",
+                      "duration": 80,
+                      "offset": {
+                        "$expr": "{\"dx\": page.shake, \"dy\": 0.0}"
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "events": {
+                          "onCompleted": {
+                            "concurrency": "drop",
+                            "steps": [
+                              {
+                                "action": "switch",
+                                "branches": {
+                                  "default": "same",
+                                  "first": "first"
+                                },
+                                "id": "stage",
+                                "input": {
+                                  "cases": [
+                                    "first"
+                                  ],
+                                  "value": {
+                                    "$expr": "page.stage == 0 ? \"first\" : \"second\""
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "first",
+                                "input": {
+                                  "path": "page.first",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "next"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "next",
+                                "input": {
+                                  "path": "page.stage",
+                                  "value": 1
+                                },
+                                "next": "sayRepeat"
+                              },
+                              {
+                                "action": "announce",
+                                "id": "sayRepeat",
+                                "input": {
+                                  "message": {
+                                    "$t": "01a260ec-e163-7ed9-b6ec-2a8ae82c996a"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "else": "forget",
+                                  "then": "set"
+                                },
+                                "id": "same",
+                                "input": {
+                                  "when": {
+                                    "$expr": "event == page.first"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "apiCall",
+                                "id": "set",
+                                "input": {
+                                  "input": {
+                                    "pin": {
+                                      "$expr": "event"
+                                    }
+                                  },
+                                  "operation": "accounts.setPin"
+                                },
+                                "next": "clear",
+                                "onError": "forget"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "clear",
+                                "input": {
+                                  "path": "page.first",
+                                  "value": ""
+                                },
+                                "next": "go"
+                              },
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "nb-deposit"
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "forget",
+                                "input": {
+                                  "path": "page.first",
+                                  "value": ""
+                                },
+                                "next": "buzz"
+                              },
+                              {
+                                "action": "haptic",
+                                "id": "buzz",
+                                "input": {
+                                  "pattern": "heavy"
+                                },
+                                "next": "shake"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "shake",
+                                "input": {
+                                  "path": "page.shake",
+                                  "value": 0.05
+                                },
+                                "next": "wait"
+                              },
+                              {
+                                "action": "delay",
+                                "id": "wait",
+                                "input": {
+                                  "duration": 160
+                                },
+                                "next": "still"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "still",
+                                "input": {
+                                  "path": "page.shake",
+                                  "value": 0.0
+                                },
+                                "next": "again"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "again",
+                                "input": {
+                                  "path": "page.stage",
+                                  "value": 0
+                                },
+                                "next": "sayDiffer"
+                              },
+                              {
+                                "action": "announce",
+                                "id": "sayDiffer",
+                                "input": {
+                                  "assertiveness": "assertive",
+                                  "message": {
+                                    "$t": "01a2b380-e210-72d4-86a4-1f2ab450ffef"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2fd22-a96b-7c54-b33b-44c17ea50225",
+                        "props": {
+                          "haptics": true,
+                          "length": 6,
+                          "randomizeLayout": true
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a2a0f4-1b9b-7a32-883a-55e9126953f7"
+                          }
+                        },
+                        "testId": "nb-pinpad",
+                        "type": "SecurePinPad"
+                      }
+                    },
+                    "type": "AnimatedSlide"
+                  }
+                ],
+                "id": "01a2b4ae-b964-7711-91d9-09f5b80531ac",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 24
+                },
+                "type": "Column"
+              }
+            },
+            "type": "Padding"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "nb-pin",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "state": [
+    {
+      "default": "",
+      "id": "01a25681-b829-79b2-9208-e7006384e345",
+      "name": "first",
+      "sensitive": true,
+      "type": "string"
+    },
+    {
+      "default": 0,
+      "id": "01a23861-dec6-78ca-bb06-40ad1255f9ba",
+      "name": "stage",
+      "type": "int"
+    },
+    {
+      "default": 0.0,
+      "id": "01a264c6-cdc1-7445-a415-09ffb594a889",
+      "name": "shake",
+      "type": "double"
+    }
+  ],
+  "title": {
+    "$t": "01a278ff-c218-7467-a16d-613e0f6bb0b3"
+  }
+}

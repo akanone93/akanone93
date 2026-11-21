@@ -1,0 +1,1030 @@
+{
+  "id": "01a262d4-858f-7bbf-9477-a3a4435bbcbd",
+  "key": "ex-filters",
+  "kind": "page",
+  "lifecycle": {
+    "onInit": {
+      "steps": [
+        {
+          "action": "setState",
+          "id": "copy",
+          "input": {
+            "path": "page.f",
+            "value": {
+              "$expr": "params.current"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "fullscreenDialog",
+  "params": [
+    {
+      "mock": {
+        "category": "",
+        "fee": "any",
+        "openNow": false,
+        "radiusKm": 10,
+        "verified": false
+      },
+      "name": "current",
+      "type": "Filters"
+    }
+  ],
+  "result": "Filters",
+  "root": {
+    "id": "01a22330-0751-7d2a-87b8-7fb6285d732a",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a20f81-23c4-7346-aaa2-36708ba29c28",
+        "props": {
+          "automaticallyImplyLeading": false
+        },
+        "slots": {
+          "actions": [
+            {
+              "events": {
+                "onPressed": {
+                  "steps": [
+                    {
+                      "action": "resetState",
+                      "id": "reset",
+                      "input": {
+                        "path": "page.f"
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "01a2044e-fd04-7c02-96ff-4af7e5dea8e8",
+              "slots": {
+                "child": {
+                  "id": "01a26e28-c4b1-7e59-8303-91e1d78883d2",
+                  "props": {
+                    "data": {
+                      "$t": "01a2bdef-20e7-7dd9-a5f1-0a0c140bf1f1"
+                    }
+                  },
+                  "type": "Text"
+                }
+              },
+              "testId": "filters-reset",
+              "type": "TextButton"
+            }
+          ],
+          "leading": {
+            "events": {
+              "onPressed": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "back"
+                  }
+                ]
+              }
+            },
+            "id": "01a2b5a5-37cb-7ae2-b565-8fc5b8f92f81",
+            "semantics": {
+              "label": {
+                "$t": "01a23542-43c9-703c-8d4e-a4320d2855b0"
+              }
+            },
+            "testId": "filters-close",
+            "type": "CloseButton"
+          },
+          "title": {
+            "id": "01a20f4e-de20-7201-996c-af005596c61e",
+            "props": {
+              "data": {
+                "$t": "01a2a006-88a4-7f22-b0ce-5d7c63be467c"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a26b5d-859e-7415-8042-5345e7533d6d",
+        "props": {
+          "padding": {
+            "vertical": 8
+          }
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a24d1c-9d38-75be-b578-3a36b2210d77",
+                "slots": {
+                  "title": {
+                    "id": "01a2c8b1-bf64-7b51-9ea0-3288078e7bcd",
+                    "props": {
+                      "data": {
+                        "$t": "01a2bc00-3648-7fba-8d40-458f445d475e"
+                      },
+                      "style": {
+                        "$token": "typography.titleSmall"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  },
+                  "trailing": {
+                    "id": "01a23d8a-fbf6-7e0c-a5c1-1170e77afef5",
+                    "props": {
+                      "data": {
+                        "$t": "01a2da44-5d4e-7acf-a730-08b4e380cc6b",
+                        "args": {
+                          "n": {
+                            "$expr": "string(page.f.radiusKm)"
+                          }
+                        }
+                      },
+                      "style": {
+                        "$token": "typography.labelLarge"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "ListTile"
+              },
+              {
+                "events": {
+                  "onChangeEnd": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "radiusKm": {
+                              "$expr": "round(event)"
+                            }
+                          },
+                          "path": "page.f"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2d744-b8e6-73cd-8ebd-07ecb79c7964",
+                "props": {
+                  "divisions": 49,
+                  "label": {
+                    "$expr": "string(page.f.radiusKm)"
+                  },
+                  "max": 50,
+                  "min": 1,
+                  "value": {
+                    "$expr": "double(page.f.radiusKm)"
+                  }
+                },
+                "semantics": {
+                  "label": {
+                    "$t": "01a2bc00-3648-7fba-8d40-458f445d475e"
+                  }
+                },
+                "testId": "filters-distance",
+                "type": "Slider"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "openNow": {
+                              "$expr": "event"
+                            }
+                          },
+                          "path": "page.f"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2b955-7975-7a93-95ea-28171ac52074",
+                "props": {
+                  "value": {
+                    "$expr": "page.f.openNow"
+                  }
+                },
+                "slots": {
+                  "title": {
+                    "id": "01a269c2-7eed-7ff8-a5b9-b46a9e7f410a",
+                    "props": {
+                      "data": {
+                        "$t": "01a20499-02b2-75c4-8a7e-6127ba726d9b"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "filters-open-now",
+                "type": "SwitchListTile"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "verified": {
+                              "$expr": "event ?? false"
+                            }
+                          },
+                          "path": "page.f"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a28996-498f-7515-b258-65abd2981224",
+                "props": {
+                  "tristate": false,
+                  "value": {
+                    "$expr": "page.f.verified"
+                  }
+                },
+                "slots": {
+                  "title": {
+                    "id": "01a2d417-7575-7ce4-8437-6b706e2bb5c7",
+                    "props": {
+                      "data": {
+                        "$t": "01a2af3b-88b8-72d0-9c75-9250e5a33e76"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "filters-verified",
+                "type": "CheckboxListTile"
+              },
+              {
+                "id": "01a2e3a8-6912-76f0-b383-7501a910eb4c",
+                "props": {
+                  "padding": {
+                    "horizontal": 16,
+                    "vertical": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onSelected": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "plugin.sort",
+                              "value": {
+                                "$expr": "event ?? plugin.sort"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2e6cf-6532-758f-98e3-de75b0dc2cc5",
+                    "props": {
+                      "dropdownMenuEntries": [
+                        {
+                          "label": {
+                            "$t": "01a27d22-d781-7904-9c36-1c26b19e9d30"
+                          },
+                          "value": "relevance"
+                        },
+                        {
+                          "label": {
+                            "$t": "01a29f9f-11f7-7c53-9cd7-744def981a39"
+                          },
+                          "value": "closing"
+                        },
+                        {
+                          "label": {
+                            "$t": "01a2749a-8435-7f1b-af67-dfcb8bb2c0cb"
+                          },
+                          "value": "distance"
+                        },
+                        {
+                          "label": {
+                            "$t": "01a23c4c-70d5-7c55-9480-18bc5de0be7f"
+                          },
+                          "value": "name"
+                        }
+                      ],
+                      "enableFilter": false,
+                      "initialSelection": {
+                        "$expr": "plugin.sort"
+                      },
+                      "width": 280
+                    },
+                    "slots": {
+                      "label": {
+                        "id": "01a25128-8340-7108-8a7b-f4d349a34efa",
+                        "props": {
+                          "data": {
+                            "$t": "01a2aedf-d1ec-77bf-9d46-d6705e7be39a"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "filters-sort",
+                    "type": "DropdownMenu"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a28e6f-1c87-7b89-a288-18754d266f0c",
+                "props": {
+                  "padding": {
+                    "end": 16,
+                    "start": 16,
+                    "top": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a212a3-3564-777e-81f0-c75388931750",
+                    "props": {
+                      "data": {
+                        "$t": "01a2a325-da5e-79a5-aac2-116d1789bc8b"
+                      },
+                      "style": {
+                        "$token": "typography.titleSmall"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "fee": {
+                              "$expr": "event ?? \"any\""
+                            }
+                          },
+                          "path": "page.f"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a200f0-545f-756b-a86a-285b1fc1e64d",
+                "props": {
+                  "groupValue": {
+                    "$expr": "page.f.fee"
+                  },
+                  "value": "any"
+                },
+                "slots": {
+                  "title": {
+                    "id": "01a2f19f-eba9-7d93-814c-b5a86d67ffec",
+                    "props": {
+                      "data": {
+                        "$t": "01a27b3d-3b29-7b2b-8ed3-dfd15212f5a8"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "filters-fee-any",
+                "type": "RadioListTile"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "fee": {
+                              "$expr": "event ?? \"any\""
+                            }
+                          },
+                          "path": "page.f"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a25a45-942f-7414-94f0-dadd47e97192",
+                "props": {
+                  "groupValue": {
+                    "$expr": "page.f.fee"
+                  },
+                  "value": "free"
+                },
+                "slots": {
+                  "title": {
+                    "id": "01a249fe-aa5f-728a-a73c-6d4d7f9d1abc",
+                    "props": {
+                      "data": {
+                        "$t": "01a26664-b3c4-76dc-86fc-bcafba9e9fcf"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "filters-fee-free",
+                "type": "RadioListTile"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "fee": {
+                              "$expr": "event ?? \"any\""
+                            }
+                          },
+                          "path": "page.f"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2dca0-48ee-76fe-9026-ee46bebd9d02",
+                "props": {
+                  "groupValue": {
+                    "$expr": "page.f.fee"
+                  },
+                  "value": "paid"
+                },
+                "slots": {
+                  "title": {
+                    "id": "01a28c07-68ab-71d2-9476-ef03cbdc956d",
+                    "props": {
+                      "data": {
+                        "$t": "01a21ea0-51ff-73f5-9fd9-5eaf230fd3b9"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "filters-fee-paid",
+                "type": "RadioListTile"
+              },
+              {
+                "id": "01a2555a-2589-7997-8faf-865def23df34",
+                "props": {
+                  "padding": {
+                    "bottom": 8,
+                    "end": 16,
+                    "start": 16,
+                    "top": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a2d7db-a90d-7cc9-bcb8-d66dfc04802f",
+                    "props": {
+                      "data": {
+                        "$t": "01a2370a-211e-736b-b71f-e83f0d254a16"
+                      },
+                      "style": {
+                        "$token": "typography.titleSmall"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a2c00f-6929-7621-b32f-7d7a15e65d82",
+                "props": {
+                  "padding": {
+                    "horizontal": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"education\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2311a-f687-7687-ac7c-cdf147615379",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"education\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a29aa4-3001-70d0-92e7-ebb14a6d6af4",
+                            "props": {
+                              "icon": {
+                                "name": "school"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a2cfd7-194d-7fd4-a914-3952127067c5",
+                            "props": {
+                              "data": {
+                                "$t": "01a2948e-880b-7854-a9ec-de669448ce5e"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-education",
+                        "type": "ChoiceChip"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"finance\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2c781-74bd-7d71-8938-183dd89d9b0a",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"finance\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a2c0a3-1f16-7625-9f3e-4389dbfbe158",
+                            "props": {
+                              "icon": {
+                                "name": "account_balance"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a29d0b-fb79-74d3-a8d2-eda025c523ef",
+                            "props": {
+                              "data": {
+                                "$t": "01a23d3d-a72e-7c8c-b3fb-3338a9f21f25"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-finance",
+                        "type": "ChoiceChip"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"sports\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2a3d4-31dc-78f2-9363-c960d38ce721",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"sports\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a26858-a276-7db1-8360-2bc7a63837fb",
+                            "props": {
+                              "icon": {
+                                "name": "directions_run"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a20fed-bffa-7b79-b31b-8dac78665846",
+                            "props": {
+                              "data": {
+                                "$t": "01a28b38-3bbe-719b-b725-793109b4a21f"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-sports",
+                        "type": "ChoiceChip"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"charity\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2d2a6-2655-7ec0-a2eb-a4c1e379289d",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"charity\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a2518f-2162-78ac-bb11-ddc313e9ae72",
+                            "props": {
+                              "icon": {
+                                "name": "volunteer_activism"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a24166-6c26-7964-bf00-88e03e85c191",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f4f1-a0a2-70bf-ae0b-d8eb448738b0"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-charity",
+                        "type": "ChoiceChip"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"health\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2754c-8722-7202-8fc7-ffb7ce226778",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"health\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a26199-f3c4-7eb5-aa6d-afd2df0f4c68",
+                            "props": {
+                              "icon": {
+                                "name": "local_hospital"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a2bc80-153a-770c-b51c-db75dff7ffad",
+                            "props": {
+                              "data": {
+                                "$t": "01a27c20-d5ed-7607-a47e-5869b34b97b3"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-health",
+                        "type": "ChoiceChip"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"housing\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2de9c-a789-7739-a9de-ebd8f11e179f",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"housing\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a24815-c4d1-72b2-89ff-4f5492e6714b",
+                            "props": {
+                              "icon": {
+                                "name": "home_work"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a23cbb-f55f-7156-adc6-7bc535e1d8ca",
+                            "props": {
+                              "data": {
+                                "$t": "01a20d93-a324-7d7c-b5c3-9c9fceeadecf"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-housing",
+                        "type": "ChoiceChip"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"events\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2b616-8d14-705c-9b29-864323eb8d21",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"events\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a22e32-7a53-7317-84af-f7883b55ffd5",
+                            "props": {
+                              "icon": {
+                                "name": "festival"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a2d633-a6d9-7cc8-86b0-2654d0f589d0",
+                            "props": {
+                              "data": {
+                                "$t": "01a24d3b-3b4a-738f-a898-a5466d05112f"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-events",
+                        "type": "ChoiceChip"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "event ? \"venues\" : \"\""
+                                    }
+                                  },
+                                  "path": "page.f"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2c799-153d-76eb-b68b-e5f88093949b",
+                        "props": {
+                          "selected": {
+                            "$expr": "page.f.category == \"venues\""
+                          }
+                        },
+                        "slots": {
+                          "avatar": {
+                            "id": "01a2ad54-95dc-7501-9daf-d2e7a6b956ef",
+                            "props": {
+                              "icon": {
+                                "name": "stadium"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a2ef4b-ea7e-771d-9184-e2fc8a513328",
+                            "props": {
+                              "data": {
+                                "$t": "01a2948d-d706-76cd-b71a-94557dc75644"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "filters-category-venues",
+                        "type": "ChoiceChip"
+                      }
+                    ],
+                    "id": "01a29df2-8201-79c8-9791-d2a3703ea171",
+                    "props": {
+                      "runSpacing": 8,
+                      "spacing": 8
+                    },
+                    "type": "Wrap"
+                  }
+                },
+                "type": "Padding"
+              }
+            ],
+            "id": "01a20bb8-91ae-7230-a4ec-fc7cc3feb12d",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      },
+      "persistentFooterButtons": [
+        {
+          "events": {
+            "onPressed": {
+              "steps": [
+                {
+                  "action": "pop",
+                  "id": "done",
+                  "input": {
+                    "result": {
+                      "$expr": "page.f"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "id": "01a209e1-88b6-7ae2-8a3b-45022eee2d91",
+          "slots": {
+            "child": {
+              "id": "01a2792e-004a-7892-b844-bb083bf648ef",
+              "props": {
+                "data": {
+                  "$t": "01a2c71e-bc82-703b-9af6-983a3fb46767"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "testId": "filters-apply",
+          "type": "FilledButton"
+        }
+      ]
+    },
+    "type": "Scaffold"
+  },
+  "route": "ex-filters",
+  "routeOptions": {
+    "transition": "slideUp"
+  },
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": {
+        "category": "",
+        "fee": "any",
+        "openNow": false,
+        "radiusKm": 10,
+        "verified": false
+      },
+      "id": "01a2e235-f195-7579-98d6-bb786a55d0f2",
+      "name": "f",
+      "type": "Filters"
+    }
+  ],
+  "title": {
+    "$t": "01a2a006-88a4-7f22-b0ce-5d7c63be467c"
+  }
+}

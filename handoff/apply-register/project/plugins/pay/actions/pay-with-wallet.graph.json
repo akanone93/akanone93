@@ -1,0 +1,85 @@
+{
+  "description": "Pays with the wallet and returns how it ended.",
+  "exported": true,
+  "id": "01a2d636-9cbd-7abb-beb4-b61f8274d69e",
+  "inputs": [
+    {
+      "id": "01a2fe16-a354-7ac7-9c2f-ba0722956fbd",
+      "mock": {
+        "amount": {
+          "amount": "25.00",
+          "currency": "EUR"
+        },
+        "payee": "Riverton City Run",
+        "purpose": "Race entry",
+        "reference": "CR-2027-0042"
+      },
+      "name": "req",
+      "required": true,
+      "type": "PayRequest"
+    }
+  ],
+  "key": "pay-with-wallet",
+  "kind": "actionGraph",
+  "output": "PayResult",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "openDialog",
+      "id": "pay",
+      "input": {
+        "dismissible": false,
+        "params": {
+          "amount": {
+            "$expr": "params.req.amount"
+          },
+          "payee": {
+            "$expr": "params.req.payee"
+          },
+          "purpose": {
+            "$expr": "params.req.purpose"
+          },
+          "reference": {
+            "$expr": "params.req.reference"
+          }
+        },
+        "route": "pay"
+      },
+      "next": "out"
+    },
+    {
+      "action": "condition",
+      "branches": {
+        "else": "closed",
+        "then": "paid"
+      },
+      "id": "out",
+      "input": {
+        "when": {
+          "$expr": "steps.pay.output != null"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "paid",
+      "input": {
+        "result": {
+          "$expr": "steps.pay.output"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "closed",
+      "input": {
+        "result": {
+          "errorCode": null,
+          "message": null,
+          "status": "cancelled",
+          "transactionId": null
+        }
+      }
+    }
+  ]
+}

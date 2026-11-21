@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "function",
+  "id": "01a1ed57-bd5b-7116-916d-da985e07eea5",
+  "name": "fees.quote",
+  "description": "Prices a registration from the environment's fee table, with 19 % tax rounded half-even.",
+  "placement": "server",
+  "capabilities": {},
+  "env": [
+    "FEE_TABLE"
+  ],
+  "pure": true,
+  "cacheTtlSeconds": 300,
+  "tests": [
+    {
+      "name": "no quantity is refused",
+      "input": {
+        "org": "campus",
+        "tier": "bachelor",
+        "quantity": 0,
+        "currency": "EUR"
+      },
+      "error": {
+        "code": "QUANTITY_INVALID"
+      }
+    },
+    {
+      "name": "no fee table, no price",
+      "input": {
+        "org": "campus",
+        "tier": "bachelor",
+        "quantity": 1,
+        "currency": "EUR"
+      },
+      "error": {
+        "code": "FEES_UNAVAILABLE"
+      }
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "id": "01a2680d-38c6-7b2b-9d58-dc53fbcdf2ea",
+  "key": "ac-about",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2fec7-2b78-7f11-a977-9bafe8147a65",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2a089-cf0d-7d47-ab30-08df0293b615",
+        "slots": {
+          "title": {
+            "id": "01a25193-74af-77e2-8d74-aca8a43e5009",
+            "props": {
+              "data": {
+                "$t": "01a2784f-1ad8-741b-bc0c-df712dcbc94f"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2091f-e10c-79ca-a4c2-0b9d540f384e",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "navigate",
+                        "id": "go",
+                        "input": {
+                          "route": "licenses"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2c4a4-0e1f-771c-b82b-31680c8b3c26",
+                "slots": {
+                  "leading": {
+                    "id": "01a27435-1365-7547-b47f-a2fcc416bf32",
+                    "props": {
+                      "icon": {
+                        "name": "gavel"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2ad4a-a250-7f96-a78f-533e6066376f",
+                    "props": {
+                      "data": {
+                        "$t": "01a2540b-09e3-723c-898c-764991caa005"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "about-licenses",
+                "type": "ListTile"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "requestReview",
+                        "id": "ask"
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2adb0-b09b-73c9-a9e6-e1af1bb6ff13",
+                "slots": {
+                  "leading": {
+                    "id": "01a23801-1d1f-7580-9069-fb0bbd5fcd23",
+                    "props": {
+                      "icon": {
+                        "name": "star_rate"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a28780-a77d-7ba6-b25c-d13bf17a4612",
+                    "props": {
+                      "data": {
+                        "$t": "01a2a1e9-9a26-7394-9244-c051aaca5c0c"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "about-rate",
+                "type": "ListTile"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "openUrl",
+                        "id": "open",
+                        "input": {
+                          "url": {
+                            "$expr": "env.privacyUrl"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2fd57-59cf-7119-9d06-0c7967af31e3",
+                "slots": {
+                  "leading": {
+                    "id": "01a22a9a-bb29-78fa-82e9-120b8c73843f",
+                    "props": {
+                      "icon": {
+                        "name": "policy"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2a268-1c0d-7b32-8932-9f861a4440bb",
+                    "props": {
+                      "data": {
+                        "$t": "01a20979-2790-7760-a081-072a76e73003"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "about-privacy",
+                "type": "ListTile"
+              }
+            ],
+            "id": "01a2942c-9ad7-7745-b188-d960ce7b795a",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "ac-about",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2784f-1ad8-741b-bc0c-df712dcbc94f"
+  }
+}

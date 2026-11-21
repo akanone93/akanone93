@@ -1,0 +1,1058 @@
+{
+  "id": "01a21ff7-8c7c-771c-bc90-f98ea271eac6",
+  "key": "hm-listings",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "emitHostEvent",
+          "id": "brand",
+          "input": {
+            "event": "brandRequested",
+            "payload": {
+              "brand": "brickyard"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2636b-13dd-735e-934a-d9f36fece9f8",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a253f1-21f2-7256-a220-4e2f412efc2f",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a297a4-7e34-7222-a184-0cfc4738d8fc",
+            "props": {
+              "data": {
+                "$t": "01a26ebf-197e-7b1d-a743-5b5d1c658be0"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a25d8f-3a86-7e10-a0fc-a862f1b53a6a",
+        "slots": {
+          "child": {
+            "id": "01a28f12-7517-79d5-926d-7d025a2afc88",
+            "slots": {
+              "compact": {
+                "id": "01a207c4-f2e6-7c1d-a772-0b112c4a5254",
+                "props": {
+                  "items": {
+                    "$expr": "page.nav == 1 ? (data.listings.value ?? []).filter(l, l.id in plugin.saved) : (data.listings.value ?? [])"
+                  },
+                  "padding": {
+                    "all": 12
+                  },
+                  "status": {
+                    "$expr": "data.listings.status"
+                  }
+                },
+                "slots": {
+                  "item": {
+                    "id": "01a22291-fec8-7cf4-bd48-72dfddd57008",
+                    "props": {
+                      "padding": {
+                        "vertical": 6
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "component": {
+                          "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                          "version": 1
+                        },
+                        "events": {
+                          "onTap": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "params": {
+                                    "id": {
+                                      "$expr": "item.id"
+                                    }
+                                  },
+                                  "route": "hm-listing"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a259bd-0178-7130-9e74-73ea313b229a",
+                        "props": {
+                          "tappable": true,
+                          "variant": "raised"
+                        },
+                        "slots": {
+                          "content": {
+                            "id": "01a20d4d-9b8c-7ea7-8a44-afe863b5d8ec",
+                            "slots": {
+                              "subtitle": {
+                                "id": "01a23a6c-5b92-7f08-852a-2895f862a2e2",
+                                "props": {
+                                  "data": {
+                                    "$expr": "item.title + \" · \" + item.address"
+                                  },
+                                  "maxLines": 2,
+                                  "overflow": "ellipsis",
+                                  "style": {
+                                    "$token": "typography.bodySmall"
+                                  }
+                                },
+                                "type": "Text"
+                              },
+                              "title": {
+                                "id": "01a213fd-43fe-702d-9c6d-4bc7cf6189e4",
+                                "props": {
+                                  "style": {
+                                    "$token": "typography.titleMedium"
+                                  },
+                                  "value": {
+                                    "$expr": "item.rent"
+                                  }
+                                },
+                                "type": "MoneyText"
+                              },
+                              "trailing": {
+                                "component": {
+                                  "id": "01a28548-7902-7e3d-b463-5bac01370528",
+                                  "version": 1
+                                },
+                                "id": "01a2e90c-a91f-7238-aeb1-b47f8e2cc2f2",
+                                "props": {
+                                  "status": {
+                                    "$expr": "item.available ? \"live\" : \"done\""
+                                  }
+                                }
+                              }
+                            },
+                            "type": "ListTile"
+                          },
+                          "media": {
+                            "children": [
+                              {
+                                "id": "01a2ec1c-3c44-776d-a8b9-d8117fd0cfeb",
+                                "props": {
+                                  "aspectRatio": 1.3333333333333333
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2cf95-c643-7bb2-95fb-ede62a326977",
+                                    "props": {
+                                      "fit": "cover",
+                                      "repeat": "noRepeat",
+                                      "semanticLabel": {
+                                        "$expr": "item.title"
+                                      },
+                                      "source": {
+                                        "$expr": "{\"url\": first(item.images) ?? \"\"}"
+                                      }
+                                    },
+                                    "type": "Image"
+                                  }
+                                },
+                                "type": "AspectRatio"
+                              },
+                              {
+                                "id": "01a284f9-b216-73c6-ac78-0b2d8a95ea15",
+                                "props": {
+                                  "right": 8,
+                                  "top": 8
+                                },
+                                "slots": {
+                                  "child": {
+                                    "events": {
+                                      "onPressed": {
+                                        "steps": [
+                                          {
+                                            "action": "condition",
+                                            "branches": {
+                                              "else": "add",
+                                              "then": "drop"
+                                            },
+                                            "id": "has",
+                                            "input": {
+                                              "when": {
+                                                "$expr": "item.id in plugin.saved"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "action": "setState",
+                                            "id": "drop",
+                                            "input": {
+                                              "path": "plugin.saved",
+                                              "value": {
+                                                "$expr": "plugin.saved.filter(s, s != item.id)"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "action": "setState",
+                                            "id": "add",
+                                            "input": {
+                                              "path": "plugin.saved",
+                                              "value": {
+                                                "$expr": "plugin.saved + [item.id]"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "id": "01a26ebe-645a-7ca8-bd00-600b93d5a1d9",
+                                    "props": {
+                                      "isSelected": {
+                                        "$expr": "item.id in plugin.saved"
+                                      },
+                                      "style": {
+                                        "backgroundColor": {
+                                          "value": {
+                                            "$token": "color.surface"
+                                          }
+                                        }
+                                      },
+                                      "tooltip": {
+                                        "$t": "01a23de8-baea-757d-90eb-e54a84fa2de2"
+                                      }
+                                    },
+                                    "slots": {
+                                      "icon": {
+                                        "id": "01a2d39b-e1ce-75d8-8541-5b3d037d3ea5",
+                                        "props": {
+                                          "icon": {
+                                            "name": "favorite_border"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "decorative": true
+                                        },
+                                        "type": "Icon"
+                                      },
+                                      "selectedIcon": {
+                                        "id": "01a27524-724d-7529-8110-41744f5d4f82",
+                                        "props": {
+                                          "color": {
+                                            "$token": "color.error"
+                                          },
+                                          "icon": {
+                                            "name": "favorite"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "decorative": true
+                                        },
+                                        "type": "Icon"
+                                      }
+                                    },
+                                    "testId": "hm-save",
+                                    "type": "IconButton"
+                                  }
+                                },
+                                "type": "Positioned"
+                              }
+                            ],
+                            "id": "01a22084-cce3-732b-bd10-350d74b1deca",
+                            "type": "Stack"
+                          }
+                        },
+                        "testId": "hm-listing-card"
+                      }
+                    },
+                    "type": "Padding"
+                  }
+                },
+                "testId": "hm-list",
+                "type": "ListView"
+              },
+              "expanded": {
+                "children": [
+                  {
+                    "events": {
+                      "onDestinationSelected": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "n",
+                            "input": {
+                              "path": "page.nav",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2ad42-34cc-73d8-bdec-5d19678e0800",
+                    "props": {
+                      "destinations": [
+                        {
+                          "icon": {
+                            "name": "home_work"
+                          },
+                          "label": {
+                            "$t": "01a29575-2bac-79c5-9e20-2bb69e4bd6e8"
+                          }
+                        },
+                        {
+                          "icon": {
+                            "name": "favorite_border"
+                          },
+                          "label": {
+                            "$t": "01a2eb8f-a599-774e-8459-f5a8a29b090b"
+                          },
+                          "selectedIcon": {
+                            "name": "favorite"
+                          }
+                        },
+                        {
+                          "icon": {
+                            "name": "assignment"
+                          },
+                          "label": {
+                            "$t": "01a237e3-410a-7f81-8969-e15ab4d07505"
+                          }
+                        }
+                      ],
+                      "extended": true,
+                      "indicatorColor": {
+                        "$token": "color.secondaryContainer"
+                      },
+                      "labelType": "none",
+                      "selectedIndex": {
+                        "$expr": "page.nav"
+                      }
+                    },
+                    "testId": "hm-rail",
+                    "type": "NavigationRail"
+                  },
+                  {
+                    "id": "01a29f51-837a-7072-8bd6-c5a264fbe710",
+                    "props": {
+                      "thickness": 1,
+                      "width": 1
+                    },
+                    "type": "VerticalDivider"
+                  },
+                  {
+                    "id": "01a2b06c-b16b-76d6-8c7b-2e08ae48feb7",
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01a2e78f-0975-7112-848a-d569eb291e73",
+                            "props": {
+                              "flex": 3
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a27f1d-e94e-7fb3-94f5-0b4f35bd0e0e",
+                                "props": {
+                                  "crossAxisCount": 3,
+                                  "crossAxisSpacing": 12,
+                                  "items": {
+                                    "$expr": "page.nav == 1 ? (data.listings.value ?? []).filter(l, l.id in plugin.saved) : (data.listings.value ?? [])"
+                                  },
+                                  "mainAxisExtent": 330,
+                                  "mainAxisSpacing": 12,
+                                  "padding": {
+                                    "all": 12
+                                  }
+                                },
+                                "slots": {
+                                  "item": {
+                                    "component": {
+                                      "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                                      "version": 1
+                                    },
+                                    "events": {
+                                      "onTap": {
+                                        "steps": [
+                                          {
+                                            "action": "navigate",
+                                            "id": "go",
+                                            "input": {
+                                              "params": {
+                                                "id": {
+                                                  "$expr": "item.id"
+                                                }
+                                              },
+                                              "route": "hm-listing"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "id": "01a26e3e-9da0-7030-86a4-5c49bfa87f5e",
+                                    "props": {
+                                      "tappable": true,
+                                      "variant": "raised"
+                                    },
+                                    "slots": {
+                                      "content": {
+                                        "id": "01a2be81-d98d-75db-bcb7-dfad4abe7a72",
+                                        "slots": {
+                                          "subtitle": {
+                                            "id": "01a20a7f-2b61-7b81-a449-c3d59efd441f",
+                                            "props": {
+                                              "data": {
+                                                "$expr": "item.title + \" · \" + item.address"
+                                              },
+                                              "maxLines": 2,
+                                              "overflow": "ellipsis",
+                                              "style": {
+                                                "$token": "typography.bodySmall"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          },
+                                          "title": {
+                                            "id": "01a215e2-1a93-78ed-b4af-1da6d6271184",
+                                            "props": {
+                                              "style": {
+                                                "$token": "typography.titleMedium"
+                                              },
+                                              "value": {
+                                                "$expr": "item.rent"
+                                              }
+                                            },
+                                            "type": "MoneyText"
+                                          },
+                                          "trailing": {
+                                            "component": {
+                                              "id": "01a28548-7902-7e3d-b463-5bac01370528",
+                                              "version": 1
+                                            },
+                                            "id": "01a21a53-d9f9-7d86-9489-716b1da84c0c",
+                                            "props": {
+                                              "status": {
+                                                "$expr": "item.available ? \"live\" : \"done\""
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "type": "ListTile"
+                                      },
+                                      "media": {
+                                        "children": [
+                                          {
+                                            "id": "01a2a110-e3cb-705b-9580-92410a0c86d3",
+                                            "props": {
+                                              "aspectRatio": 1.3333333333333333
+                                            },
+                                            "slots": {
+                                              "child": {
+                                                "id": "01a2fa10-9d07-7f8d-9385-71250fe1f550",
+                                                "props": {
+                                                  "fit": "cover",
+                                                  "repeat": "noRepeat",
+                                                  "semanticLabel": {
+                                                    "$expr": "item.title"
+                                                  },
+                                                  "source": {
+                                                    "$expr": "{\"url\": first(item.images) ?? \"\"}"
+                                                  }
+                                                },
+                                                "type": "Image"
+                                              }
+                                            },
+                                            "type": "AspectRatio"
+                                          },
+                                          {
+                                            "id": "01a29f46-91af-75f6-b473-5b799c71a86e",
+                                            "props": {
+                                              "right": 8,
+                                              "top": 8
+                                            },
+                                            "slots": {
+                                              "child": {
+                                                "events": {
+                                                  "onPressed": {
+                                                    "steps": [
+                                                      {
+                                                        "action": "condition",
+                                                        "branches": {
+                                                          "else": "add",
+                                                          "then": "drop"
+                                                        },
+                                                        "id": "has",
+                                                        "input": {
+                                                          "when": {
+                                                            "$expr": "item.id in plugin.saved"
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "action": "setState",
+                                                        "id": "drop",
+                                                        "input": {
+                                                          "path": "plugin.saved",
+                                                          "value": {
+                                                            "$expr": "plugin.saved.filter(s, s != item.id)"
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "action": "setState",
+                                                        "id": "add",
+                                                        "input": {
+                                                          "path": "plugin.saved",
+                                                          "value": {
+                                                            "$expr": "plugin.saved + [item.id]"
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                "id": "01a233b9-9de3-75b2-939f-3b766bb0c829",
+                                                "props": {
+                                                  "isSelected": {
+                                                    "$expr": "item.id in plugin.saved"
+                                                  },
+                                                  "style": {
+                                                    "backgroundColor": {
+                                                      "value": {
+                                                        "$token": "color.surface"
+                                                      }
+                                                    }
+                                                  },
+                                                  "tooltip": {
+                                                    "$t": "01a23de8-baea-757d-90eb-e54a84fa2de2"
+                                                  }
+                                                },
+                                                "slots": {
+                                                  "icon": {
+                                                    "id": "01a2d992-26d0-7923-86ed-260f334e27f9",
+                                                    "props": {
+                                                      "icon": {
+                                                        "name": "favorite_border"
+                                                      }
+                                                    },
+                                                    "semantics": {
+                                                      "decorative": true
+                                                    },
+                                                    "type": "Icon"
+                                                  },
+                                                  "selectedIcon": {
+                                                    "id": "01a2b8f8-6200-7e7e-bfab-81b137fd1871",
+                                                    "props": {
+                                                      "color": {
+                                                        "$token": "color.error"
+                                                      },
+                                                      "icon": {
+                                                        "name": "favorite"
+                                                      }
+                                                    },
+                                                    "semantics": {
+                                                      "decorative": true
+                                                    },
+                                                    "type": "Icon"
+                                                  }
+                                                },
+                                                "testId": "hm-save",
+                                                "type": "IconButton"
+                                              }
+                                            },
+                                            "type": "Positioned"
+                                          }
+                                        ],
+                                        "id": "01a21dde-b334-77a7-827a-7e03215c1d7a",
+                                        "type": "Stack"
+                                      }
+                                    },
+                                    "testId": "hm-listing-card"
+                                  }
+                                },
+                                "testId": "hm-grid-wide",
+                                "type": "GridView"
+                              }
+                            },
+                            "type": "Expanded"
+                          },
+                          {
+                            "id": "01a2eb2c-a73c-7eb0-b4d1-0a846dcfaea4",
+                            "props": {
+                              "thickness": 1,
+                              "width": 1
+                            },
+                            "type": "VerticalDivider"
+                          },
+                          {
+                            "id": "01a212d8-bfde-7e62-b7b6-d1c819c1ddd0",
+                            "props": {
+                              "flex": 2
+                            },
+                            "slots": {
+                              "child": {
+                                "events": {
+                                  "onMarkerTap": {
+                                    "steps": [
+                                      {
+                                        "action": "navigate",
+                                        "id": "go",
+                                        "input": {
+                                          "params": {
+                                            "id": {
+                                              "$expr": "event"
+                                            }
+                                          },
+                                          "route": "hm-listing"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a233f9-91a3-71aa-9e20-ecfc8a848e96",
+                                "props": {
+                                  "attribution": {
+                                    "$t": "01a264c2-cc1f-78e8-b26f-fa0bd0ad379a"
+                                  },
+                                  "center": {
+                                    "$expr": "{\"lat\": 51.340, \"lng\": 12.369}"
+                                  },
+                                  "markers": {
+                                    "$expr": "(page.nav == 1 ? (data.listings.value ?? []).filter(l, l.id in plugin.saved) : (data.listings.value ?? [])).map(l, {\"id\": l.id, \"position\": {\"lat\": l.lat, \"lng\": l.lng}, \"title\": l.title})"
+                                  },
+                                  "semanticLabel": {
+                                    "$t": "01a27bba-9600-7dea-870a-7a021a68d59f"
+                                  },
+                                  "tileUrlTemplate": {
+                                    "$expr": "env.mapTiles"
+                                  },
+                                  "zoom": 15
+                                },
+                                "testId": "hm-map",
+                                "type": "MapView"
+                              }
+                            },
+                            "type": "Expanded"
+                          }
+                        ],
+                        "id": "01a24e57-87f9-77e9-b6ca-b95dc3fe3e43",
+                        "type": "Row"
+                      }
+                    },
+                    "type": "Expanded"
+                  }
+                ],
+                "id": "01a2f24a-048d-738d-827f-86471b7cde9c",
+                "type": "Row"
+              },
+              "medium": {
+                "children": [
+                  {
+                    "events": {
+                      "onDestinationSelected": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "n",
+                            "input": {
+                              "path": "page.nav",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a24044-31e0-7efd-b967-bf82e34cf4be",
+                    "props": {
+                      "destinations": [
+                        {
+                          "icon": {
+                            "name": "home_work"
+                          },
+                          "label": {
+                            "$t": "01a29575-2bac-79c5-9e20-2bb69e4bd6e8"
+                          }
+                        },
+                        {
+                          "icon": {
+                            "name": "favorite_border"
+                          },
+                          "label": {
+                            "$t": "01a2eb8f-a599-774e-8459-f5a8a29b090b"
+                          },
+                          "selectedIcon": {
+                            "name": "favorite"
+                          }
+                        },
+                        {
+                          "icon": {
+                            "name": "assignment"
+                          },
+                          "label": {
+                            "$t": "01a237e3-410a-7f81-8969-e15ab4d07505"
+                          }
+                        }
+                      ],
+                      "extended": false,
+                      "indicatorColor": {
+                        "$token": "color.secondaryContainer"
+                      },
+                      "labelType": "all",
+                      "selectedIndex": {
+                        "$expr": "page.nav"
+                      }
+                    },
+                    "testId": "hm-rail",
+                    "type": "NavigationRail"
+                  },
+                  {
+                    "id": "01a25a2a-f50c-7f85-bb51-147eedb6ade3",
+                    "props": {
+                      "thickness": 1,
+                      "width": 1
+                    },
+                    "type": "VerticalDivider"
+                  },
+                  {
+                    "id": "01a2cd78-8896-784b-9bfa-45d534825a72",
+                    "slots": {
+                      "child": {
+                        "id": "01a23bae-af48-7fd1-aba0-cdecffc38dc2",
+                        "props": {
+                          "crossAxisCount": 2,
+                          "crossAxisSpacing": 12,
+                          "items": {
+                            "$expr": "page.nav == 1 ? (data.listings.value ?? []).filter(l, l.id in plugin.saved) : (data.listings.value ?? [])"
+                          },
+                          "mainAxisExtent": 330,
+                          "mainAxisSpacing": 12,
+                          "padding": {
+                            "all": 12
+                          }
+                        },
+                        "slots": {
+                          "item": {
+                            "component": {
+                              "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                              "version": 1
+                            },
+                            "events": {
+                              "onTap": {
+                                "steps": [
+                                  {
+                                    "action": "navigate",
+                                    "id": "go",
+                                    "input": {
+                                      "params": {
+                                        "id": {
+                                          "$expr": "item.id"
+                                        }
+                                      },
+                                      "route": "hm-listing"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a2046f-5817-7a63-93de-aac7931c2ec3",
+                            "props": {
+                              "tappable": true,
+                              "variant": "raised"
+                            },
+                            "slots": {
+                              "content": {
+                                "id": "01a2de0b-7c27-739e-ae75-b9abbae5b3b9",
+                                "slots": {
+                                  "subtitle": {
+                                    "id": "01a27d12-509e-7c1b-96ec-b4ab6e6a7998",
+                                    "props": {
+                                      "data": {
+                                        "$expr": "item.title + \" · \" + item.address"
+                                      },
+                                      "maxLines": 2,
+                                      "overflow": "ellipsis",
+                                      "style": {
+                                        "$token": "typography.bodySmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  },
+                                  "title": {
+                                    "id": "01a23793-6214-7dc1-bed4-fee33830572f",
+                                    "props": {
+                                      "style": {
+                                        "$token": "typography.titleMedium"
+                                      },
+                                      "value": {
+                                        "$expr": "item.rent"
+                                      }
+                                    },
+                                    "type": "MoneyText"
+                                  },
+                                  "trailing": {
+                                    "component": {
+                                      "id": "01a28548-7902-7e3d-b463-5bac01370528",
+                                      "version": 1
+                                    },
+                                    "id": "01a29e33-fead-79f3-a96e-de6719ef7d10",
+                                    "props": {
+                                      "status": {
+                                        "$expr": "item.available ? \"live\" : \"done\""
+                                      }
+                                    }
+                                  }
+                                },
+                                "type": "ListTile"
+                              },
+                              "media": {
+                                "children": [
+                                  {
+                                    "id": "01a288d7-e73f-7e41-8a2e-d33d0a7c7f2f",
+                                    "props": {
+                                      "aspectRatio": 1.3333333333333333
+                                    },
+                                    "slots": {
+                                      "child": {
+                                        "id": "01a22a3b-76dd-73f2-8e32-3b473c741389",
+                                        "props": {
+                                          "fit": "cover",
+                                          "repeat": "noRepeat",
+                                          "semanticLabel": {
+                                            "$expr": "item.title"
+                                          },
+                                          "source": {
+                                            "$expr": "{\"url\": first(item.images) ?? \"\"}"
+                                          }
+                                        },
+                                        "type": "Image"
+                                      }
+                                    },
+                                    "type": "AspectRatio"
+                                  },
+                                  {
+                                    "id": "01a216a2-08aa-7e9c-84c1-8803ad6a7b68",
+                                    "props": {
+                                      "right": 8,
+                                      "top": 8
+                                    },
+                                    "slots": {
+                                      "child": {
+                                        "events": {
+                                          "onPressed": {
+                                            "steps": [
+                                              {
+                                                "action": "condition",
+                                                "branches": {
+                                                  "else": "add",
+                                                  "then": "drop"
+                                                },
+                                                "id": "has",
+                                                "input": {
+                                                  "when": {
+                                                    "$expr": "item.id in plugin.saved"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "action": "setState",
+                                                "id": "drop",
+                                                "input": {
+                                                  "path": "plugin.saved",
+                                                  "value": {
+                                                    "$expr": "plugin.saved.filter(s, s != item.id)"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "action": "setState",
+                                                "id": "add",
+                                                "input": {
+                                                  "path": "plugin.saved",
+                                                  "value": {
+                                                    "$expr": "plugin.saved + [item.id]"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "id": "01a225b5-ad2c-7be0-9465-bb075d6bdafc",
+                                        "props": {
+                                          "isSelected": {
+                                            "$expr": "item.id in plugin.saved"
+                                          },
+                                          "style": {
+                                            "backgroundColor": {
+                                              "value": {
+                                                "$token": "color.surface"
+                                              }
+                                            }
+                                          },
+                                          "tooltip": {
+                                            "$t": "01a23de8-baea-757d-90eb-e54a84fa2de2"
+                                          }
+                                        },
+                                        "slots": {
+                                          "icon": {
+                                            "id": "01a2b800-2675-7f9e-aa24-ff8234a6035c",
+                                            "props": {
+                                              "icon": {
+                                                "name": "favorite_border"
+                                              }
+                                            },
+                                            "semantics": {
+                                              "decorative": true
+                                            },
+                                            "type": "Icon"
+                                          },
+                                          "selectedIcon": {
+                                            "id": "01a2ccd2-db66-72aa-92f5-cf9b062bf0f6",
+                                            "props": {
+                                              "color": {
+                                                "$token": "color.error"
+                                              },
+                                              "icon": {
+                                                "name": "favorite"
+                                              }
+                                            },
+                                            "semantics": {
+                                              "decorative": true
+                                            },
+                                            "type": "Icon"
+                                          }
+                                        },
+                                        "testId": "hm-save",
+                                        "type": "IconButton"
+                                      }
+                                    },
+                                    "type": "Positioned"
+                                  }
+                                ],
+                                "id": "01a251b9-2ec7-76ee-bff7-a6f3a9107cff",
+                                "type": "Stack"
+                              }
+                            },
+                            "testId": "hm-listing-card"
+                          }
+                        },
+                        "testId": "hm-grid",
+                        "type": "GridView"
+                      }
+                    },
+                    "type": "Expanded"
+                  }
+                ],
+                "id": "01a2f93d-5ce5-7277-9690-d79b30e1bf1a",
+                "type": "Row"
+              }
+            },
+            "type": "Responsive"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "bottomNavigationBar": {
+        "events": {
+          "onDestinationSelected": {
+            "steps": [
+              {
+                "action": "setState",
+                "id": "n",
+                "input": {
+                  "path": "page.nav",
+                  "value": {
+                    "$expr": "event"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a24492-cb73-7808-801e-bafaa1e418cd",
+        "props": {
+          "destinations": [
+            {
+              "icon": {
+                "name": "home_work"
+              },
+              "label": {
+                "$t": "01a29575-2bac-79c5-9e20-2bb69e4bd6e8"
+              }
+            },
+            {
+              "icon": {
+                "name": "favorite_border"
+              },
+              "label": {
+                "$t": "01a2eb8f-a599-774e-8459-f5a8a29b090b"
+              },
+              "selectedIcon": {
+                "name": "favorite"
+              }
+            },
+            {
+              "icon": {
+                "name": "assignment"
+              },
+              "label": {
+                "$t": "01a237e3-410a-7f81-8969-e15ab4d07505"
+              }
+            }
+          ],
+          "height": 72,
+          "indicatorColor": {
+            "$token": "color.secondaryContainer"
+          },
+          "labelBehavior": "onlyShowSelected",
+          "selectedIndex": {
+            "$expr": "page.nav"
+          }
+        },
+        "testId": "hm-nav",
+        "type": "NavigationBar",
+        "visible": {
+          "$expr": "device.sizeClass == \"compact\""
+        }
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "hm-listings",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01a2891d-4f98-73bf-bd40-db9636890a89",
+      "name": "nav",
+      "type": "int"
+    }
+  ],
+  "title": {
+    "$t": "01a27cb8-41ab-73b2-aea8-8fd40d5c1811"
+  }
+}

@@ -1,0 +1,416 @@
+{
+  "dataSources": [
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkFirst",
+          "ttlSeconds": 300
+        },
+        "params": {
+          "slug": {
+            "$expr": "params.slug"
+          }
+        },
+        "path": "/orgs/{slug}"
+      },
+      "id": "01a2b672-6e63-711f-9b8e-1aaac8b9e9da",
+      "kind": "rest",
+      "mock": {
+        "category": "finance",
+        "city": "Berlin",
+        "closesAt": "2026-11-19T18:00:00+01:00",
+        "cover": "",
+        "description": "Open an account in minutes. Bring an ID document.",
+        "fee": null,
+        "lat": 52.52,
+        "lng": 13.4,
+        "logo": "",
+        "name": "Nordvia Bank",
+        "seatsLeft": 40,
+        "slug": "bank",
+        "tags": [
+          "account",
+          "kyc"
+        ],
+        "verified": true
+      },
+      "name": "org",
+      "route": "plux",
+      "type": "Org"
+    },
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "params": {
+          "slug": {
+            "$expr": "params.slug"
+          }
+        },
+        "path": "/orgs/{slug}/status"
+      },
+      "id": "01a2d4d5-c3f1-73b5-ac5d-8b85c9b63767",
+      "kind": "rest",
+      "mock": {
+        "closesAt": "2026-11-19T18:00:00+01:00",
+        "open": true,
+        "seatsLeft": 40
+      },
+      "name": "status",
+      "route": "plux",
+      "type": "OrgStatus"
+    }
+  ],
+  "id": "01a238c5-7cf0-7a6c-a3b3-bf34f0043c0a",
+  "key": "ex-peek",
+  "kind": "page",
+  "pageKind": "bottomSheet",
+  "params": [
+    {
+      "mock": "bank",
+      "name": "slug",
+      "type": "string"
+    }
+  ],
+  "result": "PeekResult",
+  "root": {
+    "id": "01a2a4d4-e8a9-729d-8411-dbf1071c154e",
+    "slots": {
+      "child": {
+        "id": "01a2bb91-3782-7071-bc1e-7766b453466b",
+        "props": {
+          "padding": {
+            "all": 16
+          }
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a2dc6d-05c1-736a-b970-73665ff813e8",
+                "props": {
+                  "duration": 200,
+                  "opacity": {
+                    "$expr": "(data.status.value?.open ?? false) ? 1.0 : 0.6"
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a2f9dc-2170-74a0-9e77-08400e3f7291",
+                    "props": {
+                      "tag": {
+                        "$expr": "\"org-\" + params.slug"
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01a299d9-7067-7732-87af-6455369b4f2b",
+                        "props": {
+                          "condition": {
+                            "$expr": "data.org.value != null"
+                          }
+                        },
+                        "slots": {
+                          "else": {
+                            "id": "01a2fd14-bf3d-7063-805f-59a7b20ded98",
+                            "props": {
+                              "avatar": true,
+                              "lines": 2,
+                              "shimmer": true
+                            },
+                            "type": "SkeletonLoader"
+                          },
+                          "then": {
+                            "component": {
+                              "id": "01a253a9-df06-7bd7-8427-310390ac2a2d",
+                              "version": 1
+                            },
+                            "id": "01a20717-e951-7e10-a265-2122667c9371",
+                            "props": {
+                              "org": {
+                                "$expr": "data.org.value"
+                              },
+                              "showFee": true
+                            }
+                          }
+                        },
+                        "type": "If"
+                      }
+                    },
+                    "type": "Hero"
+                  }
+                },
+                "type": "AnimatedOpacity"
+              },
+              {
+                "children": [
+                  {
+                    "id": "01a2eee8-339e-7f42-bc6b-6782f60259b8",
+                    "props": {
+                      "condition": {
+                        "$expr": "data.status.value?.closesAt != null"
+                      }
+                    },
+                    "slots": {
+                      "then": {
+                        "id": "01a2b59e-489f-7989-b5df-9a77594a92be",
+                        "slots": {
+                          "avatar": {
+                            "id": "01a29ef2-b462-75f8-9412-4d68714c96f1",
+                            "props": {
+                              "icon": {
+                                "name": "schedule"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "events": {
+                              "onFinished": {
+                                "steps": [
+                                  {
+                                    "action": "refreshData",
+                                    "id": "load",
+                                    "input": {
+                                      "source": "status"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a2e6f5-acd3-7d99-b6c0-4f3f69b30de6",
+                            "props": {
+                              "endsAt": {
+                                "$expr": "data.status.value?.closesAt ?? now"
+                              },
+                              "format": "dhms"
+                            },
+                            "type": "CountdownTimer"
+                          }
+                        },
+                        "type": "Chip"
+                      }
+                    },
+                    "type": "If"
+                  },
+                  {
+                    "id": "01a20f82-94a0-798d-9ec3-aa1d50bf363c",
+                    "props": {
+                      "condition": {
+                        "$expr": "data.status.value?.seatsLeft != null"
+                      }
+                    },
+                    "slots": {
+                      "then": {
+                        "id": "01a2fd19-d4cb-70aa-9b8b-cd3b7558cdf9",
+                        "slots": {
+                          "avatar": {
+                            "id": "01a2a860-b73f-7f8e-b2ed-8fc2590f4824",
+                            "props": {
+                              "icon": {
+                                "name": "event_seat"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          "label": {
+                            "id": "01a2cf6e-72f6-713e-af38-5255e6a7629f",
+                            "props": {
+                              "data": {
+                                "$t": "01a2a6fc-83f9-738f-9396-53a796670842",
+                                "args": {
+                                  "n": {
+                                    "$expr": "string(data.status.value?.seatsLeft ?? 0)"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Chip"
+                      }
+                    },
+                    "type": "If"
+                  }
+                ],
+                "id": "01a24fa7-6e6b-7910-80d1-206a769f5661",
+                "props": {
+                  "runSpacing": 8,
+                  "spacing": 8
+                },
+                "type": "Wrap"
+              },
+              {
+                "children": [
+                  {
+                    "id": "01a2b6a1-f50f-75cd-8c72-71946b2b1c7c",
+                    "slots": {
+                      "child": {
+                        "id": "01a276b4-cce0-71cd-aef7-35c2aa7ad166",
+                        "props": {
+                          "condition": {
+                            "$expr": "(data.status.value?.open ?? false)"
+                          }
+                        },
+                        "slots": {
+                          "else": {
+                            "id": "01a248e7-d41f-7d8c-8ba0-743c14bd54a8",
+                            "slots": {
+                              "child": {
+                                "id": "01a222cd-4bb2-7a39-8a32-919452f19f62",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a20e47-2d62-7cee-8394-fe734c563759"
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "testId": "peek-register-closed",
+                            "type": "FilledButton"
+                          },
+                          "then": {
+                            "events": {
+                              "onPressed": {
+                                "steps": [
+                                  {
+                                    "action": "pop",
+                                    "id": "go",
+                                    "input": {
+                                      "result": {
+                                        "action": "register"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a2a534-4ddb-75c3-9d3a-e0b09edb717f",
+                            "slots": {
+                              "child": {
+                                "id": "01a2f1b0-325e-7394-b8a3-be568ae677a7",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a20791-5478-7b0a-84ca-1edd02a84c01"
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "testId": "peek-register",
+                            "type": "FilledButton"
+                          }
+                        },
+                        "type": "If"
+                      }
+                    },
+                    "type": "Expanded"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "pop",
+                            "id": "go",
+                            "input": {
+                              "result": {
+                                "action": "details"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a203e2-4120-7f47-8088-9bfc6cda205b",
+                    "slots": {
+                      "child": {
+                        "id": "01a28a55-1574-729b-ad37-9020e5bb1c27",
+                        "props": {
+                          "data": {
+                            "$t": "01a28ada-97f6-7e8f-8bf4-ec261dc923f5"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "peek-details",
+                    "type": "OutlinedButton"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "share",
+                            "id": "share",
+                            "input": {
+                              "url": {
+                                "$expr": "\"https://applyregister.app/o/\" + params.slug"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2df4e-bf73-76e1-aa5c-cdd59d8c2121",
+                    "props": {
+                      "tooltip": {
+                        "$t": "01a21998-a21f-7c2c-a08a-7038553de0dd"
+                      }
+                    },
+                    "slots": {
+                      "icon": {
+                        "id": "01a2fa37-e0ad-792d-a8d7-053d7cdda8e3",
+                        "props": {
+                          "icon": {
+                            "name": "share"
+                          }
+                        },
+                        "semantics": {
+                          "decorative": true
+                        },
+                        "type": "Icon"
+                      }
+                    },
+                    "testId": "peek-share",
+                    "type": "IconButton"
+                  }
+                ],
+                "id": "01a24eb3-214d-7779-b732-af589fe4cc62",
+                "props": {
+                  "spacing": 8
+                },
+                "type": "Row"
+              }
+            ],
+            "id": "01a2065c-5146-7686-802f-55aa938efe8a",
+            "props": {
+              "crossAxisAlignment": "stretch",
+              "mainAxisSize": "min",
+              "spacing": 12
+            },
+            "type": "Column"
+          }
+        },
+        "type": "Padding"
+      }
+    },
+    "type": "SafeArea"
+  },
+  "route": "ex-peek",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a24e2c-7f5f-7ddc-b8d8-98861ccb1e59"
+  }
+}

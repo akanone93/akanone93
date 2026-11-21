@@ -1,0 +1,442 @@
+{
+  "id": "01a28570-28d8-777a-ab98-b997b0c7038f",
+  "key": "mt-l10n",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2b216-61fb-7855-a058-cd32fefc1d3d",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a267fd-4c2e-7b14-842d-7c1f27668e20",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a265cd-daa0-7042-abb7-7d5ad24d9995",
+            "props": {
+              "data": {
+                "$t": "01a2b655-28fa-7bb0-82ad-78ccd43a374d"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2fe16-3a09-7057-ab03-2854649f0e2d",
+        "slots": {
+          "child": {
+            "id": "01a278f8-fe07-73f7-8357-0e230f430d13",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "id": "01a2cbac-2b77-7b25-a60e-8d274ca7dff8",
+                        "props": {
+                          "data": {
+                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                            "args": {
+                              "v": "CalendarSystem"
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "children": [
+                          {
+                            "id": "01a28315-4971-72a0-acb0-ce45fb31b462",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a2c6a8-c885-762d-9261-ac6c1b11f096",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a2c429-1ef2-7c0a-bd3a-b541214dab01",
+                                        "props": {
+                                          "width": 300
+                                        },
+                                        "slots": {
+                                          "child": {
+                                            "id": "01a25061-a47e-72c1-9db0-056a624e7aa2",
+                                            "props": {
+                                              "calendar": "gregorian",
+                                              "firstDate": {
+                                                "$expr": "date(\"2026-01-01\")"
+                                              },
+                                              "lastDate": {
+                                                "$expr": "date(\"2027-12-31\")"
+                                              }
+                                            },
+                                            "semantics": {
+                                              "label": {
+                                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                                "args": {
+                                                  "v": "gregorian"
+                                                }
+                                              }
+                                            },
+                                            "type": "DualCalendarDatePicker"
+                                          }
+                                        },
+                                        "type": "SizedBox"
+                                      },
+                                      {
+                                        "id": "01a231a2-acd7-752d-b499-1276470b18f6",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "gregorian"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a2e402-6ddf-73a5-af61-718aead49c2e",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          },
+                          {
+                            "id": "01a27650-dda8-7dc2-867b-8b3af44e304a",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a27412-fbc0-7db5-b9b2-6156e42cf934",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a29e78-de77-7502-93bc-a04f94b0a9cd",
+                                        "props": {
+                                          "width": 300
+                                        },
+                                        "slots": {
+                                          "child": {
+                                            "id": "01a23f40-3065-7872-b99c-2736cfcb2645",
+                                            "props": {
+                                              "calendar": "ethiopic",
+                                              "firstDate": {
+                                                "$expr": "date(\"2026-01-01\")"
+                                              },
+                                              "lastDate": {
+                                                "$expr": "date(\"2027-12-31\")"
+                                              }
+                                            },
+                                            "semantics": {
+                                              "label": {
+                                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                                "args": {
+                                                  "v": "ethiopic"
+                                                }
+                                              }
+                                            },
+                                            "type": "DualCalendarDatePicker"
+                                          }
+                                        },
+                                        "type": "SizedBox"
+                                      },
+                                      {
+                                        "id": "01a296cd-d5ea-7f21-9733-d2bba66a6e53",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "ethiopic"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a26a35-d5ca-7720-bc82-bcefca596f83",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          },
+                          {
+                            "id": "01a21ef8-12e0-7339-b203-04ac45aaabd3",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a2d342-0080-725f-95e4-07b0f1b5046c",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a2f760-a483-75cd-b977-f113bdcb041d",
+                                        "props": {
+                                          "width": 300
+                                        },
+                                        "slots": {
+                                          "child": {
+                                            "id": "01a28645-47b1-796f-863c-debc9f441383",
+                                            "props": {
+                                              "calendar": "islamicUmalqura",
+                                              "firstDate": {
+                                                "$expr": "date(\"2026-01-01\")"
+                                              },
+                                              "lastDate": {
+                                                "$expr": "date(\"2027-12-31\")"
+                                              }
+                                            },
+                                            "semantics": {
+                                              "label": {
+                                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                                "args": {
+                                                  "v": "islamicUmalqura"
+                                                }
+                                              }
+                                            },
+                                            "type": "DualCalendarDatePicker"
+                                          }
+                                        },
+                                        "type": "SizedBox"
+                                      },
+                                      {
+                                        "id": "01a2b079-a9ea-7d75-a3d4-d3101cb66f6d",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "islamicUmalqura"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a2691a-50c2-72f2-9c75-9cbb9a4694b4",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          },
+                          {
+                            "id": "01a2f487-03f0-7af7-984d-2868764183fe",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a22e36-5794-7136-9dc1-be6e416b3c57",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a2dd80-cd66-774c-9ba7-49671bba7d49",
+                                        "props": {
+                                          "width": 300
+                                        },
+                                        "slots": {
+                                          "child": {
+                                            "id": "01a276d3-8050-7161-a5a5-6ec92461635d",
+                                            "props": {
+                                              "calendar": "persian",
+                                              "firstDate": {
+                                                "$expr": "date(\"2026-01-01\")"
+                                              },
+                                              "lastDate": {
+                                                "$expr": "date(\"2027-12-31\")"
+                                              }
+                                            },
+                                            "semantics": {
+                                              "label": {
+                                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                                "args": {
+                                                  "v": "persian"
+                                                }
+                                              }
+                                            },
+                                            "type": "DualCalendarDatePicker"
+                                          }
+                                        },
+                                        "type": "SizedBox"
+                                      },
+                                      {
+                                        "id": "01a2cfbc-ebf6-7042-abdf-0ea6bbd2a49b",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "persian"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a27e32-3c5c-7dad-8d59-f200b9323aef",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          }
+                        ],
+                        "id": "01a2f425-6823-78f5-97de-d9155d96edc0",
+                        "props": {
+                          "runSpacing": 8,
+                          "spacing": 8
+                        },
+                        "type": "Wrap"
+                      }
+                    ],
+                    "id": "01a2d3c1-e6b8-7e67-884c-115d31f42869",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 8
+                    },
+                    "type": "Column"
+                  }
+                ],
+                "id": "01a216f9-886c-7b5a-942f-ca7c69f0817c",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 20
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "mt-l10n",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2b655-28fa-7bb0-82ad-78ccd43a374d"
+  }
+}

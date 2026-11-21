@@ -1,0 +1,650 @@
+{
+  "id": "01a29289-8842-7d04-ad1d-fd56eb0a1fb7",
+  "key": "cl-welcome",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "emitHostEvent",
+          "id": "brand",
+          "input": {
+            "event": "brandRequested",
+            "payload": {
+              "brand": "willow"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a24e7a-c178-77b7-9111-ab99954a94ce",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a26e89-578a-7683-9826-8e46d29b1b80",
+        "props": {
+          "automaticBackgroundVisibility": true,
+          "enableBackgroundFilterBlur": true,
+          "previousPageTitle": {
+            "$t": "01a26163-27fc-7b7f-838f-c0d58f42bb81"
+          },
+          "transitionBetweenRoutes": true
+        },
+        "slots": {
+          "middle": {
+            "id": "01a2bc0a-334a-7261-a123-ec067f81ea93",
+            "props": {
+              "data": {
+                "$t": "01a2d75a-2140-7706-aa3f-8d611dd3edc0"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          },
+          "trailing": {
+            "events": {
+              "onPressed": {
+                "steps": [
+                  {
+                    "action": "openUrl",
+                    "id": "open",
+                    "input": {
+                      "url": {
+                        "$expr": "env.helpUrl"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a20cd6-92bd-7088-97aa-d4df8aba16ba",
+            "props": {
+              "sizeStyle": "small"
+            },
+            "semantics": {
+              "label": {
+                "$t": "01a2aaa6-c08b-773d-a0df-a9e904da842a"
+              }
+            },
+            "slots": {
+              "child": {
+                "id": "01a2400a-51c7-7243-8e95-afbcea70c25a",
+                "props": {
+                  "icon": {
+                    "name": "info"
+                  }
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              }
+            },
+            "testId": "cl-info",
+            "type": "CupertinoButton"
+          }
+        },
+        "type": "CupertinoNavigationBar"
+      },
+      "body": {
+        "id": "01a275f3-acf6-7f4e-ab8c-cf568354f71c",
+        "slots": {
+          "child": {
+            "id": "01a29743-a5bc-78be-8d72-7116d649feae",
+            "props": {
+              "padding": {
+                "bottom": 24
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a29972-9fd6-7c7e-8f8d-e4daebc03e75",
+                    "props": {
+                      "hasLeading": true,
+                      "separatorColor": {
+                        "$token": "color.outlineVariant"
+                      }
+                    },
+                    "slots": {
+                      "children": [
+                        {
+                          "events": {
+                            "onTap": {
+                              "steps": [
+                                {
+                                  "action": "navigate",
+                                  "id": "go",
+                                  "input": {
+                                    "route": "cl-patient"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "id": "01a25a8e-2bd0-7d3e-8a61-41759aaa3e6e",
+                          "slots": {
+                            "additionalInfo": {
+                              "id": "01a2339d-94fa-7d14-85ac-d459e18846f8",
+                              "props": {
+                                "data": {
+                                  "$t": "01a2723f-22dd-7922-a0c2-85024c61b889"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "leading": {
+                              "id": "01a2fbe4-e6f2-7aff-9e52-59045ead082f",
+                              "props": {
+                                "color": {
+                                  "$token": "color.primary"
+                                },
+                                "icon": {
+                                  "name": "stethoscope"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            },
+                            "subtitle": {
+                              "id": "01a20923-5b34-740c-ac4e-a62662213808",
+                              "props": {
+                                "data": {
+                                  "$t": "01a2fb7b-042c-78a6-b881-f3ada2d29cec"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "title": {
+                              "id": "01a2e203-b768-7fbb-b7c4-beb662108f11",
+                              "props": {
+                                "data": {
+                                  "$t": "01a23b4f-a6ce-77bb-b5b0-196aa582b59f"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "trailing": {
+                              "id": "01a229cc-d101-74dc-aff2-e00e5ae260ce",
+                              "props": {
+                                "color": {
+                                  "$token": "color.outline"
+                                },
+                                "icon": {
+                                  "name": "chevron_right"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            }
+                          },
+                          "testId": "cl-service-0",
+                          "type": "CupertinoListTile"
+                        },
+                        {
+                          "events": {
+                            "onTap": {
+                              "steps": [
+                                {
+                                  "action": "navigate",
+                                  "id": "go",
+                                  "input": {
+                                    "route": "cl-patient"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "id": "01a2943b-0c3a-7d92-88fd-dee2574767e8",
+                          "slots": {
+                            "additionalInfo": {
+                              "id": "01a28f0a-0c6c-7896-adb4-8951126f0c46",
+                              "props": {
+                                "data": {
+                                  "$t": "01a2723f-22dd-7922-a0c2-85024c61b889"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "leading": {
+                              "id": "01a21fa3-db5c-7929-bce5-35de77795ad6",
+                              "props": {
+                                "color": {
+                                  "$token": "color.primary"
+                                },
+                                "icon": {
+                                  "name": "vaccines"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            },
+                            "subtitle": {
+                              "id": "01a2715d-23e1-7267-ac27-9c7f70fb975f",
+                              "props": {
+                                "data": {
+                                  "$t": "01a26b05-d4cd-7f29-aaee-faec3998353c"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "title": {
+                              "id": "01a298d2-4bfd-75ed-81ae-0276f3bdc48d",
+                              "props": {
+                                "data": {
+                                  "$t": "01a25780-f51a-7b9f-a09f-40d145151742"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "trailing": {
+                              "id": "01a2cfbc-e53a-7ad6-84b2-fef36f71ec6d",
+                              "props": {
+                                "color": {
+                                  "$token": "color.outline"
+                                },
+                                "icon": {
+                                  "name": "chevron_right"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            }
+                          },
+                          "testId": "cl-service-1",
+                          "type": "CupertinoListTile"
+                        },
+                        {
+                          "events": {
+                            "onTap": {
+                              "steps": [
+                                {
+                                  "action": "navigate",
+                                  "id": "go",
+                                  "input": {
+                                    "route": "cl-patient"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "id": "01a23e77-2f12-71ce-9687-b4f144affbcd",
+                          "slots": {
+                            "additionalInfo": {
+                              "id": "01a2f1ac-4dba-7283-97e5-d411574c7c95",
+                              "props": {
+                                "data": {
+                                  "$t": "01a2723f-22dd-7922-a0c2-85024c61b889"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "leading": {
+                              "id": "01a2e950-a75f-72e4-ab85-c4af8fd5f0fb",
+                              "props": {
+                                "color": {
+                                  "$token": "color.primary"
+                                },
+                                "icon": {
+                                  "name": "bloodtype"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            },
+                            "subtitle": {
+                              "id": "01a26e46-0664-75b5-ab82-59c26fdee97e",
+                              "props": {
+                                "data": {
+                                  "$t": "01a215f9-4f41-7552-a8bc-82e6f88a25a2"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "title": {
+                              "id": "01a244c3-1354-7131-9c64-59da0a7a559e",
+                              "props": {
+                                "data": {
+                                  "$t": "01a283ad-96f6-70ef-b506-c0ccae38d99c"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "trailing": {
+                              "id": "01a25ca8-6dc9-78fb-bddc-205c00f43199",
+                              "props": {
+                                "color": {
+                                  "$token": "color.outline"
+                                },
+                                "icon": {
+                                  "name": "chevron_right"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            }
+                          },
+                          "testId": "cl-service-2",
+                          "type": "CupertinoListTile"
+                        },
+                        {
+                          "events": {
+                            "onTap": {
+                              "steps": [
+                                {
+                                  "action": "navigate",
+                                  "id": "go",
+                                  "input": {
+                                    "route": "cl-patient"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "id": "01a25c29-c6ad-71e7-8926-543149f4a264",
+                          "slots": {
+                            "additionalInfo": {
+                              "id": "01a2bcc5-305d-7c8e-b0ca-e62afcea4181",
+                              "props": {
+                                "data": {
+                                  "$t": "01a2723f-22dd-7922-a0c2-85024c61b889"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "leading": {
+                              "id": "01a2d0d3-28d7-78c8-a603-1d66626a39d1",
+                              "props": {
+                                "color": {
+                                  "$token": "color.primary"
+                                },
+                                "icon": {
+                                  "name": "accessibility_new"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            },
+                            "subtitle": {
+                              "id": "01a2341d-8020-78b4-8a05-e389cb3dc8d4",
+                              "props": {
+                                "data": {
+                                  "$t": "01a2de61-9f4b-7910-a07c-b7d5fd346362"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "title": {
+                              "id": "01a21d3a-46c4-79d5-bf2c-ee8122ae0aed",
+                              "props": {
+                                "data": {
+                                  "$t": "01a2c762-83fe-79f7-8610-42bee306cf4e"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "trailing": {
+                              "id": "01a276ac-7c9a-72ef-8530-c548710b6976",
+                              "props": {
+                                "color": {
+                                  "$token": "color.outline"
+                                },
+                                "icon": {
+                                  "name": "chevron_right"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            }
+                          },
+                          "testId": "cl-service-3",
+                          "type": "CupertinoListTile"
+                        }
+                      ],
+                      "footer": {
+                        "id": "01a21b6d-2031-7d4e-8704-bfdccf71a3fc",
+                        "props": {
+                          "data": {
+                            "$t": "01a2f0ef-6fe2-7d28-b363-eb392e36fcf2"
+                          },
+                          "style": {
+                            "$token": "typography.bodySmall"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      "header": {
+                        "id": "01a23ef2-c741-7fc7-809e-891706e6e867",
+                        "props": {
+                          "data": {
+                            "$t": "01a2284a-d6ed-756d-b055-c5a523d3dba2"
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "CupertinoListSection"
+                  },
+                  {
+                    "id": "01a2f2bc-44b9-796a-a5b3-2f02152da234",
+                    "props": {
+                      "padding": {
+                        "horizontal": 16
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01a2a514-5b44-75dd-948a-3766c1ffd0ca",
+                            "slots": {
+                              "child": {
+                                "id": "01a2fac3-eb39-72e3-ad8c-b7d7df95a0f0",
+                                "props": {
+                                  "alignment": "center",
+                                  "color": {
+                                    "$token": "color.primaryContainer"
+                                  },
+                                  "height": 56,
+                                  "width": 56
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a23c66-549d-7c22-9478-ffdfdcb49b2b",
+                                    "props": {
+                                      "color": {
+                                        "$token": "color.onPrimaryContainer"
+                                      },
+                                      "icon": {
+                                        "name": "person"
+                                      }
+                                    },
+                                    "semantics": {
+                                      "decorative": true
+                                    },
+                                    "type": "Icon"
+                                  }
+                                },
+                                "type": "Container"
+                              }
+                            },
+                            "type": "ClipOval"
+                          },
+                          {
+                            "id": "01a2383b-51a9-736a-a453-207f0e96db56",
+                            "slots": {
+                              "child": {
+                                "id": "01a2aa06-218a-7fab-8e68-ff2244cf7ea5",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a20b58-c44b-7a39-8d18-2bf3adda595c"
+                                  },
+                                  "style": {
+                                    "$token": "typography.bodyLarge"
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Expanded"
+                          }
+                        ],
+                        "id": "01a24bfd-1c3e-720d-b526-b0765cf5fdc4",
+                        "props": {
+                          "spacing": 12
+                        },
+                        "type": "Row"
+                      }
+                    },
+                    "type": "Padding"
+                  },
+                  {
+                    "id": "01a200b4-677e-7a06-850c-4f6ead05aa58",
+                    "props": {
+                      "padding": {
+                        "horizontal": 16
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01a2bd46-b674-741f-923b-3f3295034bd8",
+                        "props": {
+                          "aspectRatio": 1.7777777777777777,
+                          "autoplay": false,
+                          "captions": {
+                            "$t": "01a2b196-2f03-70ed-a3a9-b0ecb91541f2"
+                          },
+                          "captionsLabel": {
+                            "$t": "01a2ccdb-bc6a-7f40-a119-25b622ff4122"
+                          },
+                          "loop": false,
+                          "pauseLabel": {
+                            "$t": "01a25699-c809-7de9-a99a-23ff62ad4227"
+                          },
+                          "playLabel": {
+                            "$t": "01a20fec-0816-70ea-ae89-f8b455caf7d0"
+                          },
+                          "positionLabel": {
+                            "$t": "01a29f69-9684-7a40-91b4-93334c4d22d7"
+                          },
+                          "semanticLabel": {
+                            "$t": "01a23cb8-7211-7449-a5de-5f788770296a"
+                          },
+                          "url": "https://api.applyregister.app/media/clinic/intro.mp4"
+                        },
+                        "testId": "cl-video",
+                        "type": "VideoPlayer"
+                      }
+                    },
+                    "type": "Padding"
+                  },
+                  {
+                    "id": "01a26fa6-5a98-793f-9940-dc45879f2f8c",
+                    "props": {
+                      "padding": {
+                        "horizontal": 16
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "cl-patient"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2c727-0210-7756-9462-f723f86aa6ff",
+                        "props": {
+                          "borderRadius": {
+                            "all": 12
+                          },
+                          "color": {
+                            "$token": "color.primary"
+                          },
+                          "foregroundColor": {
+                            "$token": "color.onPrimary"
+                          },
+                          "minimumSize": {
+                            "height": 50,
+                            "width": 44
+                          },
+                          "sizeStyle": "large"
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01a2dc39-a402-7f4a-b0ac-893a55f832a8",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f2b6-19c9-744f-8434-a2b75271c0b6"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "cl-register",
+                        "type": "CupertinoButton"
+                      }
+                    },
+                    "type": "Padding"
+                  }
+                ],
+                "id": "01a28940-902e-7ac4-974a-0d71b5d30a68",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 16
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cl-welcome",
+  "routeOptions": {
+    "transition": "platform"
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2d75a-2140-7706-aa3f-8d611dd3edc0"
+  }
+}

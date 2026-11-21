@@ -1,0 +1,242 @@
+{
+  "id": "01a2a5cf-b2a1-7e9e-946f-5368472c39a3",
+  "key": "cs-checkin",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "requestPermission",
+          "id": "ask",
+          "input": {
+            "permission": "camera"
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a247e9-47ba-7319-80dc-22da2c6f0b61",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a292e2-8113-70e8-9682-da01f908d73a",
+        "slots": {
+          "title": {
+            "id": "01a29ebe-68d8-79f0-8d6a-9dca3bccbfcb",
+            "props": {
+              "data": {
+                "$t": "01a214cb-46c6-7f21-86c7-8895252292f1"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "children": [
+          {
+            "events": {
+              "onDetected": {
+                "concurrency": "throttle:1500",
+                "steps": [
+                  {
+                    "action": "apiCall",
+                    "id": "c",
+                    "input": {
+                      "input": {
+                        "passCode": {
+                          "$expr": "event.value"
+                        }
+                      },
+                      "operation": "subs.checkin"
+                    },
+                    "next": "buzz",
+                    "onError": "unknown"
+                  },
+                  {
+                    "action": "haptic",
+                    "id": "buzz",
+                    "input": {
+                      "pattern": "medium"
+                    },
+                    "next": "count"
+                  },
+                  {
+                    "action": "setState",
+                    "id": "count",
+                    "input": {
+                      "path": "page.count",
+                      "value": {
+                        "$expr": "page.count + 1"
+                      }
+                    },
+                    "next": "hi"
+                  },
+                  {
+                    "action": "showToast",
+                    "id": "hi",
+                    "input": {
+                      "message": {
+                        "$t": "01a2a91c-ac2b-7ed7-974f-393ffca62051",
+                        "args": {
+                          "name": {
+                            "$expr": "steps.c.output?.name ?? \"\""
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "action": "haptic",
+                    "id": "unknown",
+                    "input": {
+                      "pattern": "vibrate"
+                    },
+                    "next": "say"
+                  },
+                  {
+                    "action": "showSnackbar",
+                    "id": "say",
+                    "input": {
+                      "message": {
+                        "$t": "01a2e49a-d497-78fa-8e73-9ae5d4c730d2"
+                      }
+                    }
+                  }
+                ]
+              },
+              "onError": {
+                "steps": [
+                  {
+                    "action": "showSnackbar",
+                    "id": "say",
+                    "input": {
+                      "message": {
+                        "$t": "01a2c442-fb6d-702a-a1c8-752b7db0bc33"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a29f5b-c163-79f3-9b18-897993f395b7",
+            "props": {
+              "continuous": true,
+              "formats": [
+                "qrCode",
+                "code128",
+                "ean13",
+                "pdf417"
+              ],
+              "overlayHint": {
+                "$t": "01a22f34-f6ab-77e5-ae15-aad447e85aa9"
+              },
+              "scanWindow": [
+                0.1,
+                0.3,
+                0.9,
+                0.7
+              ],
+              "semanticLabel": {
+                "$t": "01a214cb-46c6-7f21-86c7-8895252292f1"
+              }
+            },
+            "testId": "checkin-scanner",
+            "type": "BarcodeScanner"
+          },
+          {
+            "id": "01a2f9d1-cddf-7f93-b7af-3e7eb09c5b79",
+            "props": {
+              "alignment": "bottomCenter"
+            },
+            "slots": {
+              "child": {
+                "id": "01a23100-3d25-78a3-8b87-67131d6899f5",
+                "slots": {
+                  "child": {
+                    "id": "01a2b90d-26fb-7923-b4df-a5d51051ad47",
+                    "props": {
+                      "padding": {
+                        "all": 16
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "component": {
+                          "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                          "version": 1
+                        },
+                        "id": "01a271b4-269e-7157-b35f-60ad1ebad2ad",
+                        "props": {
+                          "variant": "raised"
+                        },
+                        "slots": {
+                          "content": {
+                            "id": "01a2f90d-78a4-708e-a1aa-c01f42b6b973",
+                            "props": {
+                              "data": {
+                                "$t": "01a2e6c3-a81c-724d-8b96-39fa44f5a89b",
+                                "args": {
+                                  "n": {
+                                    "$expr": "string(page.count)"
+                                  }
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.titleMedium"
+                              }
+                            },
+                            "semantics": {
+                              "liveRegion": true
+                            },
+                            "type": "Text"
+                          }
+                        }
+                      }
+                    },
+                    "type": "Padding"
+                  }
+                },
+                "type": "SafeArea"
+              }
+            },
+            "type": "Align"
+          }
+        ],
+        "id": "01a25732-cf70-7af6-9c21-b0e89e593f80",
+        "props": {
+          "fit": "expand"
+        },
+        "type": "Stack"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cs-checkin",
+  "routeOptions": {
+    "guards": [
+      {
+        "$graph": "01a28c0a-756e-7399-b9fb-8f610a8db201"
+      }
+    ]
+  },
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01a2c6bd-2a1a-73e7-bebc-918093f4b33a",
+      "name": "count",
+      "type": "int"
+    }
+  ],
+  "title": {
+    "$t": "01a214cb-46c6-7f21-86c7-8895252292f1"
+  }
+}

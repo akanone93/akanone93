@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "function",
+  "id": "01a1ed57-bd69-7450-8cf2-28aa747dce79",
+  "name": "partner.submit",
+  "description": "Forwards an organisation's request to Apply Register's API with the server-held key, once per e-mail.",
+  "placement": "server",
+  "capabilities": {
+    "http": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ],
+    "secrets": [
+      "AR_PARTNER_KEY"
+    ],
+    "kv": true
+  },
+  "env": [
+    "AR_BASE"
+  ],
+  "limits": {
+    "timeoutMs": 4000,
+    "httpCalls": 1
+  },
+  "tests": [
+    {
+      "name": "an address without a domain is refused",
+      "input": {
+        "orgName": "Aster University",
+        "email": "admissions",
+        "category": "education",
+        "pages": 4,
+        "needs": [],
+        "plan": "standard",
+        "notes": null
+      },
+      "error": {
+        "code": "INPUT_INVALID"
+      }
+    },
+    {
+      "name": "an unknown plan is refused",
+      "input": {
+        "orgName": "Aster University",
+        "email": "a@aster.example",
+        "category": "education",
+        "pages": 4,
+        "needs": [],
+        "plan": "gold",
+        "notes": null
+      },
+      "error": {
+        "code": "INPUT_INVALID"
+      }
+    }
+  ]
+}

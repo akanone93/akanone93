@@ -1,0 +1,145 @@
+{
+  "description": "A section's title, with an optional subtitle and action.",
+  "events": [
+    {
+      "name": "onAction"
+    }
+  ],
+  "id": "01a2d792-c87a-7768-bc5e-245c44cd2ac6",
+  "key": "section-header",
+  "kind": "component",
+  "name": "SectionHeader",
+  "props": [
+    {
+      "name": "title",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "subtitle",
+      "type": "string?"
+    },
+    {
+      "name": "actionLabel",
+      "type": "string?"
+    }
+  ],
+  "root": {
+    "id": "01a2325d-4ac4-72b6-91d9-3984f2ee995b",
+    "props": {
+      "padding": {
+        "bottom": 4,
+        "left": 16,
+        "right": 8,
+        "top": 16
+      }
+    },
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a24a06-e3f4-7860-8b1a-c96a63da5462",
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a21d80-4643-7a5a-a8b1-17ba7a01b0e9",
+                    "props": {
+                      "data": {
+                        "$expr": "props.title"
+                      },
+                      "style": {
+                        "$token": "typography.titleMedium"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a2c237-6a3d-7caf-9ee6-4176f0e82bf7",
+                    "props": {
+                      "condition": {
+                        "$expr": "props.subtitle != null"
+                      }
+                    },
+                    "slots": {
+                      "then": {
+                        "id": "01a2de03-e85b-7435-bad5-25638b010bcc",
+                        "props": {
+                          "data": {
+                            "$expr": "props.subtitle ?? \"\""
+                          },
+                          "style": {
+                            "$token": "typography.bodySmall"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "If"
+                  }
+                ],
+                "id": "01a2e0a3-114f-7539-b5a3-42710d10f26f",
+                "props": {
+                  "crossAxisAlignment": "start",
+                  "mainAxisSize": "min"
+                },
+                "type": "Column"
+              }
+            },
+            "type": "Expanded"
+          },
+          {
+            "id": "01a263fe-7cd2-7579-a578-d23855b46ca5",
+            "props": {
+              "condition": {
+                "$expr": "props.actionLabel != null"
+              }
+            },
+            "slots": {
+              "then": {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "emitEvent",
+                        "id": "emit",
+                        "input": {
+                          "event": "onAction"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2e41f-de1d-7c8c-8256-dec9507600d4",
+                "slots": {
+                  "child": {
+                    "id": "01a2bebb-d3b8-73cd-b85f-4fe5d42df97b",
+                    "props": {
+                      "data": {
+                        "$expr": "props.actionLabel ?? \"\""
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "TextButton"
+              }
+            },
+            "type": "If"
+          }
+        ],
+        "id": "01a248e0-7562-7126-9efe-b3ef80e45490",
+        "props": {
+          "crossAxisAlignment": "center"
+        },
+        "type": "Row"
+      }
+    },
+    "type": "Padding"
+  },
+  "schemaVersion": "1.0.0",
+  "version": 1
+}

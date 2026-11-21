@@ -1,0 +1,608 @@
+{
+  "id": "01a2989e-67b1-73db-8f54-6edc7de7efa5",
+  "key": "explore",
+  "kind": "page",
+  "lifecycle": {
+    "onInit": {
+      "steps": [
+        {
+          "action": "refreshData",
+          "id": "load",
+          "input": {
+            "source": "orgs"
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a29510-fdff-77a6-b4b0-0768a89a3588",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2aba7-5ee3-7581-ba1a-109bfb751d67",
+        "slots": {
+          "bottom": {
+            "id": "01a2ca24-78a8-7196-8638-f9e71b4dcea7",
+            "props": {
+              "padding": {
+                "bottom": 8,
+                "end": 16,
+                "start": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "events": {
+                  "onSelected": {
+                    "concurrency": "debounce:300",
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "q",
+                        "input": {
+                          "path": "plugin.query",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        },
+                        "next": "keep"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "keep",
+                        "input": {
+                          "path": "app.recentSearches",
+                          "value": {
+                            "$expr": "slice(distinct([event] + app.recentSearches), 0, min(8, size(distinct([event] + app.recentSearches))))"
+                          }
+                        },
+                        "next": "load"
+                      },
+                      {
+                        "action": "refreshData",
+                        "id": "load",
+                        "input": {
+                          "source": "orgs"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a222a3-74c1-777c-aa3a-ba9080ec735f",
+                "props": {
+                  "hintText": {
+                    "$t": "01a2bee8-ab15-77e6-a277-ff2c3ebdd9e1"
+                  },
+                  "isFullScreen": true,
+                  "suggestions": {
+                    "$expr": "app.recentSearches"
+                  },
+                  "viewHintText": {
+                    "$t": "01a23978-a53c-7ae6-a33c-f4a9a4c18a6d"
+                  }
+                },
+                "semantics": {
+                  "label": {
+                    "$t": "01a2bee8-ab15-77e6-a277-ff2c3ebdd9e1"
+                  }
+                },
+                "testId": "explore-search",
+                "type": "SearchAnchor"
+              }
+            },
+            "type": "Padding"
+          },
+          "title": {
+            "id": "01a29658-c2f2-7419-b884-e9aadcc9e630",
+            "props": {
+              "data": {
+                "$t": "01a26c7d-a0ef-7eb9-805d-d8236bd42415"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "children": [
+          {
+            "id": "01a2edf0-d288-7b61-87da-3514f0d4d3ba",
+            "props": {
+              "padding": {
+                "bottom": 4,
+                "end": 8,
+                "start": 16,
+                "top": 8
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a2cbd2-d1bb-78a2-beba-34e1d229b783",
+                    "slots": {
+                      "child": {
+                        "events": {
+                          "onToggle": {
+                            "steps": [
+                              {
+                                "action": "patchState",
+                                "id": "pick",
+                                "input": {
+                                  "patch": {
+                                    "category": {
+                                      "$expr": "plugin.filters.category == event.id ? \"\" : event.id"
+                                    }
+                                  },
+                                  "path": "plugin.filters"
+                                },
+                                "next": "load"
+                              },
+                              {
+                                "action": "refreshData",
+                                "id": "load",
+                                "input": {
+                                  "source": "orgs"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2e9f0-90ea-75fe-874b-7913878ed7ac",
+                        "props": {
+                          "filters": [
+                            {
+                              "id": "education",
+                              "label": {
+                                "$t": "01a2948e-880b-7854-a9ec-de669448ce5e"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"education\""
+                              }
+                            },
+                            {
+                              "id": "finance",
+                              "label": {
+                                "$t": "01a23d3d-a72e-7c8c-b3fb-3338a9f21f25"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"finance\""
+                              }
+                            },
+                            {
+                              "id": "sports",
+                              "label": {
+                                "$t": "01a28b38-3bbe-719b-b725-793109b4a21f"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"sports\""
+                              }
+                            },
+                            {
+                              "id": "charity",
+                              "label": {
+                                "$t": "01a2f4f1-a0a2-70bf-ae0b-d8eb448738b0"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"charity\""
+                              }
+                            },
+                            {
+                              "id": "health",
+                              "label": {
+                                "$t": "01a27c20-d5ed-7607-a47e-5869b34b97b3"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"health\""
+                              }
+                            },
+                            {
+                              "id": "housing",
+                              "label": {
+                                "$t": "01a20d93-a324-7d7c-b5c3-9c9fceeadecf"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"housing\""
+                              }
+                            },
+                            {
+                              "id": "events",
+                              "label": {
+                                "$t": "01a24d3b-3b4a-738f-a898-a5466d05112f"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"events\""
+                              }
+                            },
+                            {
+                              "id": "venues",
+                              "label": {
+                                "$t": "01a2948d-d706-76cd-b71a-94557dc75644"
+                              },
+                              "selected": {
+                                "$expr": "plugin.filters.category == \"venues\""
+                              }
+                            }
+                          ]
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a2370a-211e-736b-b71f-e83f0d254a16"
+                          }
+                        },
+                        "testId": "explore-categories",
+                        "type": "FilterBar"
+                      }
+                    },
+                    "type": "Expanded"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "openDialog",
+                            "id": "f",
+                            "input": {
+                              "params": {
+                                "current": {
+                                  "$expr": "plugin.filters"
+                                }
+                              },
+                              "route": "ex-filters"
+                            },
+                            "next": "got"
+                          },
+                          {
+                            "action": "condition",
+                            "branches": {
+                              "then": "keep"
+                            },
+                            "id": "got",
+                            "input": {
+                              "when": {
+                                "$expr": "steps.f.output != null"
+                              }
+                            }
+                          },
+                          {
+                            "action": "setState",
+                            "id": "keep",
+                            "input": {
+                              "path": "plugin.filters",
+                              "value": {
+                                "$expr": "steps.f.output ?? plugin.filters"
+                              }
+                            },
+                            "next": "load"
+                          },
+                          {
+                            "action": "refreshData",
+                            "id": "load",
+                            "input": {
+                              "source": "orgs"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2472d-eb6b-7b3d-bf83-25d0f02cee43",
+                    "props": {
+                      "tooltip": {
+                        "$t": "01a290d5-4651-761d-b698-2dd9225ab205"
+                      }
+                    },
+                    "slots": {
+                      "icon": {
+                        "id": "01a2b9d5-3ae0-7e5c-a118-47625d428d2f",
+                        "props": {
+                          "icon": {
+                            "name": "tune"
+                          }
+                        },
+                        "semantics": {
+                          "decorative": true
+                        },
+                        "type": "Icon"
+                      }
+                    },
+                    "testId": "explore-filters",
+                    "type": "IconButton"
+                  },
+                  {
+                    "events": {
+                      "onSelectionChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "plugin.view",
+                              "value": {
+                                "$expr": "first(event) ?? \"list\""
+                              }
+                            },
+                            "next": "map"
+                          },
+                          {
+                            "action": "condition",
+                            "branches": {
+                              "then": "go"
+                            },
+                            "id": "map",
+                            "input": {
+                              "when": {
+                                "$expr": "first(event) == \"map\""
+                              }
+                            }
+                          },
+                          {
+                            "action": "navigate",
+                            "id": "go",
+                            "input": {
+                              "route": "ex-map"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2956a-8640-781a-ae95-c530c553bbf0",
+                    "props": {
+                      "segments": [
+                        {
+                          "icon": {
+                            "name": "view_list"
+                          },
+                          "tooltip": {
+                            "$t": "01a2beff-3ed1-77a7-bfbf-164eb22c5cd4"
+                          },
+                          "value": "list"
+                        },
+                        {
+                          "icon": {
+                            "name": "map"
+                          },
+                          "tooltip": {
+                            "$t": "01a2febb-de02-7b85-9b56-a509f0731167"
+                          },
+                          "value": "map"
+                        }
+                      ],
+                      "selected": {
+                        "$expr": "[plugin.view]"
+                      },
+                      "showSelectedIcon": false
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a21231-ff61-7b52-a40b-c018189c77dd"
+                      }
+                    },
+                    "testId": "explore-view",
+                    "type": "SegmentedButton"
+                  }
+                ],
+                "id": "01a26469-3fae-7b9e-ab11-d7a6fb39867c",
+                "props": {
+                  "spacing": 4
+                },
+                "type": "Row"
+              }
+            },
+            "type": "Padding"
+          },
+          {
+            "id": "01a2ac39-a552-732c-be30-6a2d9197614b",
+            "slots": {
+              "child": {
+                "id": "01a2d2fc-267b-7e6f-800c-76ed6a1ee3ca",
+                "props": {
+                  "interactive": true,
+                  "thumbVisibility": true
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onEndReached": {
+                        "concurrency": "drop",
+                        "steps": [
+                          {
+                            "action": "refreshData",
+                            "id": "more",
+                            "input": {
+                              "more": true,
+                              "source": "orgs"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a27207-cd47-7642-bb61-fb5410af002e",
+                    "props": {
+                      "hasMore": {
+                        "$expr": "data.orgs.hasMore"
+                      },
+                      "items": {
+                        "$expr": "data.orgs.value ?? []"
+                      },
+                      "padding": {
+                        "all": 16
+                      },
+                      "status": {
+                        "$expr": "data.orgs.status"
+                      }
+                    },
+                    "slots": {
+                      "empty": {
+                        "component": {
+                          "id": "01a266bd-c9c7-7bb0-b0ed-64508b5f61cf",
+                          "version": 1
+                        },
+                        "id": "01a226dd-138e-7380-bb99-798a51454d58",
+                        "props": {
+                          "message": {
+                            "$t": "01a2a7ec-d9c7-7bcd-a7ba-cb5907d56f05"
+                          },
+                          "title": {
+                            "$t": "01a25295-69ea-71e6-8b9f-796930cff8d3"
+                          }
+                        }
+                      },
+                      "error": {
+                        "component": {
+                          "id": "01a27edb-0415-79a1-892d-61fa84ed0fb3",
+                          "version": 1
+                        },
+                        "events": {
+                          "onRetry": {
+                            "steps": [
+                              {
+                                "action": "refreshData",
+                                "id": "load",
+                                "input": {
+                                  "source": "orgs"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2e31a-ecd4-7ccf-b93a-4a5c56c427b3",
+                        "props": {
+                          "retryLabel": {
+                            "$t": "01a26fb7-0dd0-72d4-b18d-8d6be59b1b27"
+                          },
+                          "title": {
+                            "$t": "01a26c93-28b1-727d-932b-bde61d609ff5"
+                          }
+                        }
+                      },
+                      "item": {
+                        "id": "01a28f7b-e00a-7f99-9510-1b5674257b6f",
+                        "props": {
+                          "padding": {
+                            "bottom": 12
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "component": {
+                              "id": "01a253a9-df06-7bd7-8427-310390ac2a2d",
+                              "version": 1
+                            },
+                            "events": {
+                              "onOpen": {
+                                "steps": [
+                                  {
+                                    "action": "navigate",
+                                    "id": "go",
+                                    "input": {
+                                      "params": {
+                                        "slug": {
+                                          "$expr": "event.slug"
+                                        }
+                                      },
+                                      "route": "ex-org"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a237fd-c715-7829-b0c2-d936f8305a61",
+                            "props": {
+                              "compact": {
+                                "$expr": "device.sizeClass == \"compact\""
+                              },
+                              "org": {
+                                "$expr": "item"
+                              }
+                            },
+                            "testId": "explore-org"
+                          }
+                        },
+                        "type": "Padding"
+                      },
+                      "loading": {
+                        "id": "01a2913d-0c20-7d96-a950-55c759ff0b21",
+                        "props": {
+                          "avatar": true,
+                          "lines": 3,
+                          "shimmer": true
+                        },
+                        "type": "SkeletonLoader"
+                      }
+                    },
+                    "type": "InfiniteList"
+                  }
+                },
+                "type": "Scrollbar"
+              }
+            },
+            "type": "Expanded"
+          }
+        ],
+        "id": "01a28a64-b421-7d50-a2c6-8ab4f3ae2aac",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "type": "Column"
+      },
+      "floatingActionButton": {
+        "events": {
+          "onPressed": {
+            "steps": [
+              {
+                "action": "navigate",
+                "id": "go",
+                "input": {
+                  "route": "ex-scan"
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a20a64-5bfd-7aa8-af6a-203918a19947",
+        "props": {
+          "isExtended": true
+        },
+        "slots": {
+          "icon": {
+            "id": "01a2423b-830d-7724-99e3-ea048f59d64a",
+            "props": {
+              "icon": {
+                "name": "qr_code_scanner"
+              }
+            },
+            "semantics": {
+              "decorative": true
+            },
+            "type": "Icon"
+          },
+          "label": {
+            "id": "01a283eb-1a97-778f-862a-6b846da071be",
+            "props": {
+              "data": {
+                "$t": "01a2c570-2bc6-7ca9-98b4-46bda8b1cec5"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "testId": "explore-scan",
+        "type": "FloatingActionButton"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "explore",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a26c7d-a0ef-7eb9-805d-d8236bd42415"
+  }
+}

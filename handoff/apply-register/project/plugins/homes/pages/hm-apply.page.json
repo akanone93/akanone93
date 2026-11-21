@@ -1,0 +1,1455 @@
+{
+  "forms": [
+    {
+      "fields": [
+        {
+          "initial": null,
+          "name": "income",
+          "sensitive": true,
+          "type": "money?",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "iban",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "iban",
+              "message": {
+                "$t": "01a2d26a-4a4d-7eba-92b5-a456e786e65b"
+              }
+            }
+          ]
+        },
+        {
+          "initial": null,
+          "name": "movein",
+          "type": "date?",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "dateRange",
+              "max": "2027-06-30",
+              "min": "2026-11-01"
+            }
+          ]
+        }
+      ],
+      "id": "01a2123a-48cd-76b5-a569-4c959cc789d7",
+      "name": "rent"
+    }
+  ],
+  "id": "01a28f56-cbc6-712b-b8ee-341a3a777092",
+  "key": "hm-apply",
+  "kind": "page",
+  "pageKind": "screen",
+  "params": [
+    {
+      "mock": "h-1",
+      "name": "id",
+      "type": "string"
+    }
+  ],
+  "root": {
+    "id": "01a2a4cd-6eae-7c07-81be-996d20cc6244",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a20fde-d5e6-7647-ae44-018182f96405",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a2b4e0-fcc4-79d8-96ad-0321f4fe4be5",
+            "props": {
+              "data": {
+                "$t": "01a26ebf-197e-7b1d-a743-5b5d1c658be0"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a26322-be94-79ea-803e-cde4fa1b301c",
+        "slots": {
+          "child": {
+            "id": "01a28289-a350-714e-8915-70f09ab65b4a",
+            "props": {
+              "form": "rent"
+            },
+            "slots": {
+              "child": {
+                "id": "01a27e88-ca96-7908-906e-d413a6db3130",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a2f814-9e1a-783a-90ae-8929ee129c41",
+                        "props": {
+                          "data": {
+                            "$t": "01a254b6-9197-7d29-b37c-d7e07e9ce5fb"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.rent.values.income",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.rent.touched.income",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a20395-80fb-7c94-9688-04ea06d1d7f2",
+                        "props": {
+                          "currency": "EUR",
+                          "label": {
+                            "$t": "01a2f60e-c1c1-7460-a139-0170bf39f2c5"
+                          },
+                          "value": {
+                            "$expr": "form.values.income"
+                          }
+                        },
+                        "testId": "hm-income",
+                        "type": "AmountInput"
+                      },
+                      {
+                        "id": "01a2497e-a1d2-7ae0-9ef2-53d8564b0e63",
+                        "props": {
+                          "data": {
+                            "$t": "01a22424-bc65-7f66-bbc4-d935006b6c40",
+                            "args": {
+                              "a": {
+                                "$expr": "string(page.bMin)"
+                              },
+                              "b": {
+                                "$expr": "string(page.bMax)"
+                              }
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "a",
+                                "input": {
+                                  "path": "page.bMin",
+                                  "value": {
+                                    "$expr": "int(event.start)"
+                                  }
+                                },
+                                "next": "b"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "b",
+                                "input": {
+                                  "path": "page.bMax",
+                                  "value": {
+                                    "$expr": "int(event.end)"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2efa8-c1a8-7fcb-a897-d6c889e853e7",
+                        "props": {
+                          "divisions": 25,
+                          "labels": {
+                            "$expr": "{\"start\": string(page.bMin), \"end\": string(page.bMax)}"
+                          },
+                          "max": 3000,
+                          "min": 500,
+                          "values": {
+                            "$expr": "{\"start\": double(page.bMin), \"end\": double(page.bMax)}"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a22424-bc65-7f66-bbc4-d935006b6c40",
+                            "args": {
+                              "a": {
+                                "$expr": "string(page.bMin)"
+                              },
+                              "b": {
+                                "$expr": "string(page.bMax)"
+                              }
+                            }
+                          }
+                        },
+                        "testId": "hm-budget",
+                        "type": "RangeSlider"
+                      },
+                      {
+                        "direction": "ltr",
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.rent.values.iban",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.rent.touched.iban",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a241eb-86d9-76d0-ab3d-c83cfab4a9d2",
+                        "props": {
+                          "invalidMessage": {
+                            "$t": "01a2d26a-4a4d-7eba-92b5-a456e786e65b"
+                          },
+                          "label": {
+                            "$t": "01a2f93d-b629-7e32-b6ac-e014f7b73da8"
+                          },
+                          "value": {
+                            "$expr": "form.values.iban"
+                          }
+                        },
+                        "testId": "hm-iban",
+                        "type": "IbanInput"
+                      },
+                      {
+                        "id": "01a2a805-514c-7169-a16d-7055a868b31b",
+                        "props": {
+                          "data": {
+                            "$t": "01a2701a-cca6-71bb-9b8f-6f2dffd5490f"
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onDateChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.rent.values.movein",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.rent.touched.movein",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a25f4c-7eea-7871-bc5e-c83f1abf53b1",
+                        "props": {
+                          "firstDate": {
+                            "$expr": "date(\"2026-11-01\")"
+                          },
+                          "initialDate": {
+                            "$expr": "form.values.movein ?? date(\"2026-12-01\")"
+                          },
+                          "lastDate": {
+                            "$expr": "date(\"2027-06-30\")"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a2701a-cca6-71bb-9b8f-6f2dffd5490f"
+                          }
+                        },
+                        "testId": "hm-movein",
+                        "type": "CalendarDatePicker"
+                      },
+                      {
+                        "id": "01a2b0f8-4363-7efb-b287-1eb25dbf8027",
+                        "props": {
+                          "data": {
+                            "$t": "01a21932-2856-79de-8e51-30c141b4494f"
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "children": [
+                          {
+                            "id": "01a22f56-323f-734a-9ff1-a844fd7bf026",
+                            "slots": {
+                              "child": {
+                                "events": {
+                                  "onAccept": {
+                                    "steps": [
+                                      {
+                                        "action": "setState",
+                                        "id": "rank",
+                                        "input": {
+                                          "path": "page.ranked",
+                                          "value": {
+                                            "$expr": "slice(page.ranked.filter(r, r != event), 0, min(0, size(page.ranked.filter(r, r != event)))) + [event] + slice(page.ranked.filter(r, r != event), min(0, size(page.ranked.filter(r, r != event))), size(page.ranked.filter(r, r != event)))"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a26c29-3837-7f09-8007-da7e0510217c",
+                                "props": {
+                                  "accepts": {
+                                    "$expr": "page.dragging"
+                                  },
+                                  "highlightColor": {
+                                    "$token": "color.primaryContainer"
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a27fb1-762c-71c1-96c2-b8474eb87156",
+                                    "props": {
+                                      "alignment": "center",
+                                      "decoration": {
+                                        "border": {
+                                          "all": {
+                                            "color": {
+                                              "$token": "color.outline"
+                                            },
+                                            "width": 1.0
+                                          }
+                                        },
+                                        "borderRadius": {
+                                          "all": {
+                                            "$token": "radius.md"
+                                          }
+                                        },
+                                        "color": {
+                                          "$token": "color.surfaceContainerLow"
+                                        }
+                                      },
+                                      "height": {
+                                        "$expr": "72.0 * device.textScale"
+                                      },
+                                      "padding": {
+                                        "all": 8
+                                      }
+                                    },
+                                    "slots": {
+                                      "child": {
+                                        "children": [
+                                          {
+                                            "id": "01a20317-517e-7410-b00d-7fc100ee8f62",
+                                            "props": {
+                                              "data": {
+                                                "$t": "01a2cde0-5413-769f-b3d0-9e8dd61516fe"
+                                              },
+                                              "style": {
+                                                "$token": "typography.labelSmall"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          },
+                                          {
+                                            "id": "01a22f03-f97b-7a44-b3b6-ce4bc753fea3",
+                                            "props": {
+                                              "cases": [
+                                                "light",
+                                                "quiet",
+                                                "transport"
+                                              ],
+                                              "value": {
+                                                "$expr": "at(page.ranked, 0) ?? \"\""
+                                              }
+                                            },
+                                            "slots": {
+                                              "branches": [
+                                                {
+                                                  "id": "01a2ea49-f511-7401-80df-c2402e0b279d",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a24081-f762-7559-8d68-f3c95a5db6f2"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a27a6a-f435-725c-b8a0-ed68df233e01",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a26b9b-4444-78ae-9b5f-65ee774b9688"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a21000-03c8-7f99-bb53-fe6e5693025d",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a2996b-8b2d-7c6d-b7fd-ccd5641c1dec"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                }
+                                              ],
+                                              "otherwise": {
+                                                "id": "01a29281-dff3-7e67-9ffd-77c6c589da9a",
+                                                "props": {
+                                                  "data": "—",
+                                                  "style": {
+                                                    "$token": "typography.titleSmall"
+                                                  }
+                                                },
+                                                "type": "Text"
+                                              }
+                                            },
+                                            "type": "Match"
+                                          }
+                                        ],
+                                        "id": "01a258c0-3148-7a08-9867-8599bfa8723d",
+                                        "props": {
+                                          "mainAxisSize": "min",
+                                          "spacing": 2
+                                        },
+                                        "type": "Column"
+                                      }
+                                    },
+                                    "type": "Container"
+                                  }
+                                },
+                                "testId": "hm-target-0",
+                                "type": "DragTarget"
+                              }
+                            },
+                            "type": "Expanded"
+                          },
+                          {
+                            "id": "01a26fa5-f3c5-74ca-a908-a3b33aa6c63d",
+                            "slots": {
+                              "child": {
+                                "events": {
+                                  "onAccept": {
+                                    "steps": [
+                                      {
+                                        "action": "setState",
+                                        "id": "rank",
+                                        "input": {
+                                          "path": "page.ranked",
+                                          "value": {
+                                            "$expr": "slice(page.ranked.filter(r, r != event), 0, min(1, size(page.ranked.filter(r, r != event)))) + [event] + slice(page.ranked.filter(r, r != event), min(1, size(page.ranked.filter(r, r != event))), size(page.ranked.filter(r, r != event)))"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a28635-308b-7216-805b-41109d1987ae",
+                                "props": {
+                                  "accepts": {
+                                    "$expr": "page.dragging"
+                                  },
+                                  "highlightColor": {
+                                    "$token": "color.primaryContainer"
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a25c1f-d1a9-7799-ac29-284379544850",
+                                    "props": {
+                                      "alignment": "center",
+                                      "decoration": {
+                                        "border": {
+                                          "all": {
+                                            "color": {
+                                              "$token": "color.outline"
+                                            },
+                                            "width": 1.0
+                                          }
+                                        },
+                                        "borderRadius": {
+                                          "all": {
+                                            "$token": "radius.md"
+                                          }
+                                        },
+                                        "color": {
+                                          "$token": "color.surfaceContainerLow"
+                                        }
+                                      },
+                                      "height": {
+                                        "$expr": "72.0 * device.textScale"
+                                      },
+                                      "padding": {
+                                        "all": 8
+                                      }
+                                    },
+                                    "slots": {
+                                      "child": {
+                                        "children": [
+                                          {
+                                            "id": "01a2c7fb-df41-7316-8f96-7f957ed80958",
+                                            "props": {
+                                              "data": {
+                                                "$t": "01a2dd3a-0387-7073-b5c7-f7c6dc225b2f"
+                                              },
+                                              "style": {
+                                                "$token": "typography.labelSmall"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          },
+                                          {
+                                            "id": "01a2aed4-c954-7c5b-988b-ce5a6aac08fb",
+                                            "props": {
+                                              "cases": [
+                                                "light",
+                                                "quiet",
+                                                "transport"
+                                              ],
+                                              "value": {
+                                                "$expr": "at(page.ranked, 1) ?? \"\""
+                                              }
+                                            },
+                                            "slots": {
+                                              "branches": [
+                                                {
+                                                  "id": "01a2c013-144e-7f1a-ba1c-29b8ee4d92ec",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a24081-f762-7559-8d68-f3c95a5db6f2"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a20822-bab9-70ec-96c0-439a0860f677",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a26b9b-4444-78ae-9b5f-65ee774b9688"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a277c2-1a1a-74f2-aa42-ae9f5eb9dd1f",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a2996b-8b2d-7c6d-b7fd-ccd5641c1dec"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                }
+                                              ],
+                                              "otherwise": {
+                                                "id": "01a263cb-64ed-7c68-b445-a6e358d3fb26",
+                                                "props": {
+                                                  "data": "—",
+                                                  "style": {
+                                                    "$token": "typography.titleSmall"
+                                                  }
+                                                },
+                                                "type": "Text"
+                                              }
+                                            },
+                                            "type": "Match"
+                                          }
+                                        ],
+                                        "id": "01a2cef7-0f8f-786c-ac71-f563d19dd5ad",
+                                        "props": {
+                                          "mainAxisSize": "min",
+                                          "spacing": 2
+                                        },
+                                        "type": "Column"
+                                      }
+                                    },
+                                    "type": "Container"
+                                  }
+                                },
+                                "testId": "hm-target-1",
+                                "type": "DragTarget"
+                              }
+                            },
+                            "type": "Expanded"
+                          },
+                          {
+                            "id": "01a206ca-342a-7bd6-8cf3-7d43045a7f84",
+                            "slots": {
+                              "child": {
+                                "events": {
+                                  "onAccept": {
+                                    "steps": [
+                                      {
+                                        "action": "setState",
+                                        "id": "rank",
+                                        "input": {
+                                          "path": "page.ranked",
+                                          "value": {
+                                            "$expr": "slice(page.ranked.filter(r, r != event), 0, min(2, size(page.ranked.filter(r, r != event)))) + [event] + slice(page.ranked.filter(r, r != event), min(2, size(page.ranked.filter(r, r != event))), size(page.ranked.filter(r, r != event)))"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a263a6-ce13-71e7-96a0-f6e9423cdc55",
+                                "props": {
+                                  "accepts": {
+                                    "$expr": "page.dragging"
+                                  },
+                                  "highlightColor": {
+                                    "$token": "color.primaryContainer"
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2a956-d2ce-7501-b24f-56c5bdaa0108",
+                                    "props": {
+                                      "alignment": "center",
+                                      "decoration": {
+                                        "border": {
+                                          "all": {
+                                            "color": {
+                                              "$token": "color.outline"
+                                            },
+                                            "width": 1.0
+                                          }
+                                        },
+                                        "borderRadius": {
+                                          "all": {
+                                            "$token": "radius.md"
+                                          }
+                                        },
+                                        "color": {
+                                          "$token": "color.surfaceContainerLow"
+                                        }
+                                      },
+                                      "height": {
+                                        "$expr": "72.0 * device.textScale"
+                                      },
+                                      "padding": {
+                                        "all": 8
+                                      }
+                                    },
+                                    "slots": {
+                                      "child": {
+                                        "children": [
+                                          {
+                                            "id": "01a20549-8d03-7c95-b10b-613305f476e6",
+                                            "props": {
+                                              "data": {
+                                                "$t": "01a29298-890f-72cd-86ed-73fd957f9c58"
+                                              },
+                                              "style": {
+                                                "$token": "typography.labelSmall"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          },
+                                          {
+                                            "id": "01a21449-49e3-79dd-9db0-426e785c53ab",
+                                            "props": {
+                                              "cases": [
+                                                "light",
+                                                "quiet",
+                                                "transport"
+                                              ],
+                                              "value": {
+                                                "$expr": "at(page.ranked, 2) ?? \"\""
+                                              }
+                                            },
+                                            "slots": {
+                                              "branches": [
+                                                {
+                                                  "id": "01a2236e-c709-7f8d-9a70-e3727ee24315",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a24081-f762-7559-8d68-f3c95a5db6f2"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a2f5ab-6cc6-7bba-91cc-f3f969ab5310",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a26b9b-4444-78ae-9b5f-65ee774b9688"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a2ec19-da9a-772f-9513-9b55ac937df3",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a2996b-8b2d-7c6d-b7fd-ccd5641c1dec"
+                                                    },
+                                                    "style": {
+                                                      "$token": "typography.titleSmall"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                }
+                                              ],
+                                              "otherwise": {
+                                                "id": "01a21654-2590-7459-b023-1bddc4e04370",
+                                                "props": {
+                                                  "data": "—",
+                                                  "style": {
+                                                    "$token": "typography.titleSmall"
+                                                  }
+                                                },
+                                                "type": "Text"
+                                              }
+                                            },
+                                            "type": "Match"
+                                          }
+                                        ],
+                                        "id": "01a22e0f-9055-7f1d-968a-dd947148e068",
+                                        "props": {
+                                          "mainAxisSize": "min",
+                                          "spacing": 2
+                                        },
+                                        "type": "Column"
+                                      }
+                                    },
+                                    "type": "Container"
+                                  }
+                                },
+                                "testId": "hm-target-2",
+                                "type": "DragTarget"
+                              }
+                            },
+                            "type": "Expanded"
+                          }
+                        ],
+                        "id": "01a25970-7283-7c43-8fe6-1f309f061fac",
+                        "props": {
+                          "spacing": 8
+                        },
+                        "type": "Row"
+                      },
+                      {
+                        "children": [
+                          {
+                            "id": "01a28b03-97d5-7ffe-9ae7-f5d3d401790d",
+                            "props": {
+                              "items": {
+                                "$expr": "plugin.prefs"
+                              }
+                            },
+                            "slots": {
+                              "item": {
+                                "children": [
+                                  {
+                                    "events": {
+                                      "onDragStarted": {
+                                        "steps": [
+                                          {
+                                            "action": "setState",
+                                            "id": "which",
+                                            "input": {
+                                              "path": "page.dragging",
+                                              "value": {
+                                                "$expr": "item"
+                                              }
+                                            },
+                                            "next": "h"
+                                          },
+                                          {
+                                            "action": "haptic",
+                                            "id": "h",
+                                            "input": {
+                                              "pattern": "selection"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "onDraggableCanceled": {
+                                        "steps": [
+                                          {
+                                            "action": "showToast",
+                                            "id": "say",
+                                            "input": {
+                                              "message": {
+                                                "$t": "01a2f312-8f23-775d-b642-8170d3229736"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "id": "01a297f7-f357-7fe4-9682-f72100d3f38d",
+                                    "props": {
+                                      "data": {
+                                        "$expr": "item"
+                                      },
+                                      "maxSimultaneousDrags": 1
+                                    },
+                                    "semantics": {
+                                      "hint": {
+                                        "$t": "01a25807-062f-70cf-b20e-d994c76b71a5"
+                                      }
+                                    },
+                                    "slots": {
+                                      "child": {
+                                        "id": "01a2d746-2861-714e-ae83-6b97ed8053be",
+                                        "slots": {
+                                          "avatar": {
+                                            "id": "01a2c5de-8607-7db3-b709-cd2d17523d82",
+                                            "props": {
+                                              "icon": {
+                                                "name": "drag_indicator"
+                                              },
+                                              "size": 18
+                                            },
+                                            "semantics": {
+                                              "decorative": true
+                                            },
+                                            "type": "Icon"
+                                          },
+                                          "label": {
+                                            "id": "01a2471a-40db-7c89-912f-fbf68803ff0f",
+                                            "props": {
+                                              "cases": [
+                                                "light",
+                                                "quiet",
+                                                "transport"
+                                              ],
+                                              "value": {
+                                                "$expr": "item"
+                                              }
+                                            },
+                                            "slots": {
+                                              "branches": [
+                                                {
+                                                  "id": "01a24102-dd1f-77f5-9780-fd68a640dd42",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a24081-f762-7559-8d68-f3c95a5db6f2"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a22b54-03b1-771a-9f4a-3880adac5c86",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a26b9b-4444-78ae-9b5f-65ee774b9688"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                },
+                                                {
+                                                  "id": "01a2c696-bdef-77f7-b928-6a08b075177e",
+                                                  "props": {
+                                                    "data": {
+                                                      "$t": "01a2996b-8b2d-7c6d-b7fd-ccd5641c1dec"
+                                                    }
+                                                  },
+                                                  "type": "Text"
+                                                }
+                                              ]
+                                            },
+                                            "type": "Match"
+                                          }
+                                        },
+                                        "type": "Chip"
+                                      },
+                                      "childWhenDragging": {
+                                        "id": "01a2de2d-a35c-761f-8072-a0e2dbb2a83f",
+                                        "props": {
+                                          "opacity": 0.3
+                                        },
+                                        "slots": {
+                                          "child": {
+                                            "id": "01a255b3-c6a6-7395-b1cc-387644d7a515",
+                                            "slots": {
+                                              "avatar": {
+                                                "id": "01a2a64e-e2c1-7715-943c-4891d736ce31",
+                                                "props": {
+                                                  "icon": {
+                                                    "name": "drag_indicator"
+                                                  },
+                                                  "size": 18
+                                                },
+                                                "semantics": {
+                                                  "decorative": true
+                                                },
+                                                "type": "Icon"
+                                              },
+                                              "label": {
+                                                "id": "01a2a48b-e5c4-74cd-9a55-85977c8ef3a3",
+                                                "props": {
+                                                  "cases": [
+                                                    "light",
+                                                    "quiet",
+                                                    "transport"
+                                                  ],
+                                                  "value": {
+                                                    "$expr": "item"
+                                                  }
+                                                },
+                                                "slots": {
+                                                  "branches": [
+                                                    {
+                                                      "id": "01a224e5-a222-70e1-b2be-e22354c720fb",
+                                                      "props": {
+                                                        "data": {
+                                                          "$t": "01a24081-f762-7559-8d68-f3c95a5db6f2"
+                                                        }
+                                                      },
+                                                      "type": "Text"
+                                                    },
+                                                    {
+                                                      "id": "01a2615f-80cb-7286-adfb-a34d27977845",
+                                                      "props": {
+                                                        "data": {
+                                                          "$t": "01a26b9b-4444-78ae-9b5f-65ee774b9688"
+                                                        }
+                                                      },
+                                                      "type": "Text"
+                                                    },
+                                                    {
+                                                      "id": "01a2a64c-f980-729b-9628-d8f9247912e7",
+                                                      "props": {
+                                                        "data": {
+                                                          "$t": "01a2996b-8b2d-7c6d-b7fd-ccd5641c1dec"
+                                                        }
+                                                      },
+                                                      "type": "Text"
+                                                    }
+                                                  ]
+                                                },
+                                                "type": "Match"
+                                              }
+                                            },
+                                            "type": "Chip"
+                                          }
+                                        },
+                                        "type": "Opacity"
+                                      },
+                                      "feedback": {
+                                        "id": "01a27c8d-aa68-751b-9245-89466838c42a",
+                                        "props": {
+                                          "elevation": 6
+                                        },
+                                        "slots": {
+                                          "child": {
+                                            "id": "01a2642c-6ea8-7dc4-a51b-5a65c0b57d51",
+                                            "slots": {
+                                              "avatar": {
+                                                "id": "01a28981-91ab-7375-8f8a-1bd4a570edfd",
+                                                "props": {
+                                                  "icon": {
+                                                    "name": "drag_indicator"
+                                                  },
+                                                  "size": 18
+                                                },
+                                                "semantics": {
+                                                  "decorative": true
+                                                },
+                                                "type": "Icon"
+                                              },
+                                              "label": {
+                                                "id": "01a219c6-3891-7c48-99e8-8f6f780546ba",
+                                                "props": {
+                                                  "cases": [
+                                                    "light",
+                                                    "quiet",
+                                                    "transport"
+                                                  ],
+                                                  "value": {
+                                                    "$expr": "item"
+                                                  }
+                                                },
+                                                "slots": {
+                                                  "branches": [
+                                                    {
+                                                      "id": "01a209f2-10a1-7bc7-b312-86751071c3bc",
+                                                      "props": {
+                                                        "data": {
+                                                          "$t": "01a24081-f762-7559-8d68-f3c95a5db6f2"
+                                                        }
+                                                      },
+                                                      "type": "Text"
+                                                    },
+                                                    {
+                                                      "id": "01a290b9-5c69-7f44-a7c6-eb5147a3b8b7",
+                                                      "props": {
+                                                        "data": {
+                                                          "$t": "01a26b9b-4444-78ae-9b5f-65ee774b9688"
+                                                        }
+                                                      },
+                                                      "type": "Text"
+                                                    },
+                                                    {
+                                                      "id": "01a2efaa-9c54-7be8-9199-8bd651605d53",
+                                                      "props": {
+                                                        "data": {
+                                                          "$t": "01a2996b-8b2d-7c6d-b7fd-ccd5641c1dec"
+                                                        }
+                                                      },
+                                                      "type": "Text"
+                                                    }
+                                                  ]
+                                                },
+                                                "type": "Match"
+                                              }
+                                            },
+                                            "type": "Chip"
+                                          }
+                                        },
+                                        "type": "Card"
+                                      }
+                                    },
+                                    "testId": "hm-pref",
+                                    "type": "Draggable"
+                                  },
+                                  {
+                                    "events": {
+                                      "onSelected": {
+                                        "steps": [
+                                          {
+                                            "action": "switch",
+                                            "branches": {
+                                              "p0": "m0",
+                                              "p1": "m1",
+                                              "p2": "m2"
+                                            },
+                                            "id": "which",
+                                            "input": {
+                                              "cases": [
+                                                "p0",
+                                                "p1",
+                                                "p2"
+                                              ],
+                                              "value": {
+                                                "$expr": "\"p\" + event"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "action": "setState",
+                                            "id": "m0",
+                                            "input": {
+                                              "path": "page.ranked",
+                                              "value": {
+                                                "$expr": "slice(page.ranked.filter(r, r != item), 0, min(0, size(page.ranked.filter(r, r != item)))) + [item] + slice(page.ranked.filter(r, r != item), min(0, size(page.ranked.filter(r, r != item))), size(page.ranked.filter(r, r != item)))"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "action": "setState",
+                                            "id": "m1",
+                                            "input": {
+                                              "path": "page.ranked",
+                                              "value": {
+                                                "$expr": "slice(page.ranked.filter(r, r != item), 0, min(1, size(page.ranked.filter(r, r != item)))) + [item] + slice(page.ranked.filter(r, r != item), min(1, size(page.ranked.filter(r, r != item))), size(page.ranked.filter(r, r != item)))"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "action": "setState",
+                                            "id": "m2",
+                                            "input": {
+                                              "path": "page.ranked",
+                                              "value": {
+                                                "$expr": "slice(page.ranked.filter(r, r != item), 0, min(2, size(page.ranked.filter(r, r != item)))) + [item] + slice(page.ranked.filter(r, r != item), min(2, size(page.ranked.filter(r, r != item))), size(page.ranked.filter(r, r != item)))"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "id": "01a232d4-76bb-7b8b-ab82-3323fbdc7716",
+                                    "props": {
+                                      "items": [
+                                        {
+                                          "label": {
+                                            "$t": "01a2cde0-5413-769f-b3d0-9e8dd61516fe"
+                                          },
+                                          "value": "0"
+                                        },
+                                        {
+                                          "label": {
+                                            "$t": "01a2dd3a-0387-7073-b5c7-f7c6dc225b2f"
+                                          },
+                                          "value": "1"
+                                        },
+                                        {
+                                          "label": {
+                                            "$t": "01a29298-890f-72cd-86ed-73fd957f9c58"
+                                          },
+                                          "value": "2"
+                                        }
+                                      ],
+                                      "tooltip": {
+                                        "$t": "01a207b2-518d-7e08-a9cd-4e894f7cb2f7"
+                                      }
+                                    },
+                                    "slots": {
+                                      "icon": {
+                                        "id": "01a2e281-46d5-7a56-80f9-ddcf1fbec6a3",
+                                        "props": {
+                                          "icon": {
+                                            "name": "more_vert"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "decorative": true
+                                        },
+                                        "type": "Icon"
+                                      }
+                                    },
+                                    "testId": "hm-pref-menu",
+                                    "type": "PopupMenuButton"
+                                  }
+                                ],
+                                "id": "01a2aa02-c4a2-7fd8-8be3-7062cfcd8b06",
+                                "props": {
+                                  "mainAxisSize": "min"
+                                },
+                                "type": "Row"
+                              }
+                            },
+                            "type": "ForEach"
+                          }
+                        ],
+                        "id": "01a283dc-2e51-7cd2-9f55-57c72203e6f4",
+                        "props": {
+                          "runSpacing": 8,
+                          "spacing": 8
+                        },
+                        "type": "Wrap"
+                      }
+                    ],
+                    "id": "01a2c0f4-f5f1-75b6-96f8-996a043c9a6e",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "SingleChildScrollView"
+              }
+            },
+            "type": "FormScope"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "bottomNavigationBar": {
+        "component": {
+          "id": "01a2b909-cbad-77df-b6b6-d36ce2fb1df9",
+          "version": 1
+        },
+        "events": {
+          "onSubmit": {
+            "concurrency": "drop",
+            "steps": [
+              {
+                "action": "submitForm",
+                "branches": {
+                  "invalid": "fix"
+                },
+                "id": "check",
+                "input": {
+                  "form": "rent"
+                },
+                "next": "busy"
+              },
+              {
+                "action": "announce",
+                "id": "fix",
+                "input": {
+                  "assertiveness": "assertive",
+                  "message": {
+                    "$t": "01a2c3dd-6ebd-7df9-96b1-f1a13795033f"
+                  }
+                }
+              },
+              {
+                "action": "setState",
+                "id": "busy",
+                "input": {
+                  "path": "page.submitting",
+                  "value": true
+                },
+                "next": "pay"
+              },
+              {
+                "action": "callFlow",
+                "id": "pay",
+                "input": {
+                  "flow": "pay/pay-with-wallet",
+                  "input": {
+                    "req": {
+                      "amount": {
+                        "$expr": "first((data.listings.value ?? []).filter(l, l.id == params.id))?.rent ?? money(\"0\", \"EUR\")"
+                      },
+                      "payee": "Brickyard Homes",
+                      "purpose": {
+                        "$t": "01a27b8b-52b5-7d1c-8701-1e5e64d7cbb9"
+                      },
+                      "reference": {
+                        "$expr": "\"BH-\" + params.id"
+                      }
+                    }
+                  }
+                },
+                "next": "paid",
+                "onError": "idle"
+              },
+              {
+                "action": "condition",
+                "branches": {
+                  "else": "idle",
+                  "then": "send"
+                },
+                "id": "paid",
+                "input": {
+                  "when": {
+                    "$expr": "steps.pay.output?.status == \"success\""
+                  }
+                }
+              },
+              {
+                "action": "apiCall",
+                "id": "send",
+                "input": {
+                  "input": {
+                    "budgetMax": {
+                      "$expr": "page.bMax"
+                    },
+                    "budgetMin": {
+                      "$expr": "page.bMin"
+                    },
+                    "iban": {
+                      "$expr": "page.rent.values.iban"
+                    },
+                    "income": {
+                      "$expr": "page.rent.values.income ?? money(\"0\", \"EUR\")"
+                    },
+                    "listingId": {
+                      "$expr": "params.id"
+                    },
+                    "moveIn": {
+                      "$expr": "page.rent.values.movein ?? date(\"2026-12-01\")"
+                    },
+                    "paymentId": {
+                      "$expr": "steps.pay.output?.transactionId ?? \"\""
+                    },
+                    "prefs": {
+                      "$expr": "page.ranked"
+                    }
+                  },
+                  "operation": "api.apply"
+                },
+                "next": "lease",
+                "onError": "idle"
+              },
+              {
+                "action": "navigate",
+                "id": "lease",
+                "input": {
+                  "mode": "replace",
+                  "params": {
+                    "id": {
+                      "$expr": "params.id"
+                    }
+                  },
+                  "route": "hm-lease"
+                }
+              },
+              {
+                "action": "setState",
+                "id": "idle",
+                "input": {
+                  "path": "page.submitting",
+                  "value": false
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a2167a-4ca8-7107-a507-a0d4f70421ce",
+        "props": {
+          "busy": {
+            "$expr": "page.submitting"
+          },
+          "enabled": {
+            "$expr": "first((data.listings.value ?? []).filter(l, l.id == params.id)) != null && size(page.ranked) == 3"
+          },
+          "label": {
+            "$t": "01a2c4b3-e11f-7347-b491-6a05f146be36"
+          }
+        },
+        "testId": "hm-submit"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "hm-apply",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "state": [
+    {
+      "default": 800,
+      "id": "01a268c0-2b5b-7996-81e3-d6d64bafb7aa",
+      "name": "bMin",
+      "type": "int"
+    },
+    {
+      "default": 1400,
+      "id": "01a2e80f-2664-7fab-b828-0f1c6e6e4300",
+      "name": "bMax",
+      "type": "int"
+    },
+    {
+      "default": [],
+      "id": "01a26ce1-7126-7b57-bd98-a94c49c118b6",
+      "name": "ranked",
+      "type": "list<string>"
+    },
+    {
+      "default": false,
+      "id": "01a276da-407f-701a-9edc-66f8ef8105fd",
+      "name": "submitting",
+      "type": "bool"
+    },
+    {
+      "default": "",
+      "id": "01a25ff2-3276-73bf-86bf-1f5063640847",
+      "name": "dragging",
+      "type": "string"
+    }
+  ],
+  "title": {
+    "$t": "01a254b6-9197-7d29-b37c-d7e07e9ce5fb"
+  }
+}

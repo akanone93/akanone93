@@ -1,0 +1,123 @@
+{
+  "description": "Checks a promotion code with promo.check for the tickets in the order.",
+  "id": "01a2c238-ba9f-7447-b1fa-89ca52c34719",
+  "key": "check-promo",
+  "kind": "actionGraph",
+  "output": "string?",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "condition",
+      "branches": {
+        "else": "check",
+        "then": "none"
+      },
+      "id": "empty",
+      "input": {
+        "when": {
+          "$expr": "trim(event) == \"\""
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "none",
+      "input": {
+        "result": {
+          "$expr": "null"
+        }
+      }
+    },
+    {
+      "action": "invokeFunction",
+      "id": "check",
+      "input": {
+        "function": "promo.check",
+        "input": {
+          "code": {
+            "$expr": "event"
+          },
+          "quantity": {
+            "$expr": "plugin.qty"
+          }
+        }
+      },
+      "next": "keep",
+      "onError": "bad"
+    },
+    {
+      "action": "setState",
+      "id": "keep",
+      "input": {
+        "path": "plugin.promo",
+        "value": {
+          "$expr": "steps.check.output?.code ?? \"\""
+        }
+      },
+      "next": "ok"
+    },
+    {
+      "action": "stop",
+      "id": "ok",
+      "input": {
+        "result": {
+          "$expr": "null"
+        }
+      }
+    },
+    {
+      "action": "setState",
+      "id": "bad",
+      "input": {
+        "path": "plugin.promo",
+        "value": ""
+      },
+      "next": "why"
+    },
+    {
+      "action": "switch",
+      "branches": {
+        "cond": "cond",
+        "default": "inv",
+        "exp": "exp"
+      },
+      "id": "why",
+      "input": {
+        "cases": [
+          "cond",
+          "exp"
+        ],
+        "value": {
+          "$expr": "steps.check.error?.code == \"PROMO_CONDITION\" ? \"cond\" : steps.check.error?.code == \"PROMO_EXPIRED\" ? \"exp\" : \"inv\""
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "cond",
+      "input": {
+        "result": {
+          "$t": "01a2ea7f-102a-76ca-9cbb-ec568bd89b3f"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "exp",
+      "input": {
+        "result": {
+          "$t": "01a23115-e919-7392-bc32-b68a582ed282"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "inv",
+      "input": {
+        "result": {
+          "$t": "01a21906-8ac2-77de-99aa-b80be8cf90aa"
+        }
+      }
+    }
+  ]
+}

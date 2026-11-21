@@ -1,0 +1,57 @@
+{
+  "description": "A label and its value on one row.",
+  "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+  "key": "info-row",
+  "kind": "component",
+  "name": "InfoRow",
+  "props": [
+    {
+      "name": "label",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "value",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "root": {
+    "id": "01a27e57-30ec-7a68-bde6-1cd8c12b98f8",
+    "props": {
+      "contentPadding": {
+        "all": 0
+      },
+      "dense": true
+    },
+    "slots": {
+      "title": {
+        "id": "01a2d466-0ae5-7c23-a6ca-1885d874f203",
+        "props": {
+          "data": {
+            "$expr": "props.label"
+          },
+          "style": {
+            "$token": "typography.bodyMedium"
+          }
+        },
+        "type": "Text"
+      },
+      "trailing": {
+        "id": "01a2f826-8d2e-7b04-8de5-037b56649b87",
+        "props": {
+          "data": {
+            "$expr": "props.value"
+          },
+          "style": {
+            "$token": "typography.bodyLarge"
+          }
+        },
+        "type": "SelectableText"
+      }
+    },
+    "type": "ListTile"
+  },
+  "schemaVersion": "1.0.0",
+  "version": 1
+}

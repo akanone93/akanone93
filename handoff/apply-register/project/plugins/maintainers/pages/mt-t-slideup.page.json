@@ -1,0 +1,75 @@
+{
+  "id": "01a2dc6f-6341-7cdb-9b14-f72ce8e3b5fa",
+  "key": "mt-t-slideup",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2fccf-577a-706d-9127-d9b270072ae5",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2b30c-d2bc-74f1-98c8-243fadb3efb4",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          }
+        },
+        "slots": {
+          "title": {
+            "id": "01a29bba-17aa-77f0-a61d-7226937d3d94",
+            "props": {
+              "data": {
+                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                "args": {
+                  "v": "slideUp"
+                }
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2ecbc-f1bd-7736-b212-b1e15287b6d4",
+        "slots": {
+          "child": {
+            "id": "01a260be-9c38-7fde-afaf-acfdda3ffe17",
+            "props": {
+              "data": {
+                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                "args": {
+                  "v": "slideUp"
+                }
+              },
+              "style": {
+                "$token": "typography.headlineMedium"
+              }
+            },
+            "semantics": {
+              "header": true
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Center"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "mt-t-slideup",
+  "routeOptions": {
+    "transition": "slideUp"
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a22617-a854-79e2-a42b-52c5b3f681b4"
+  }
+}

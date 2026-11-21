@@ -1,0 +1,151 @@
+{
+  "id": "01a28b9e-efa7-782a-bfda-68db93ca9f85",
+  "key": "cr-route",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2f0c2-0595-7d71-b171-f18c9f480d39",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2b02b-b2cc-7293-ab32-3f4c72d78070",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a2777b-2b52-71d5-9cc9-80d4c91132f0",
+            "props": {
+              "data": {
+                "$t": "01a27dee-e3d9-7aa2-82c4-05e9b4acd6ee"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "children": [
+          {
+            "id": "01a267bc-47ac-7e63-83de-0f6c8fc90a6e",
+            "props": {
+              "flex": 3
+            },
+            "slots": {
+              "child": {
+                "events": {
+                  "onMarkerTap": {
+                    "steps": [
+                      {
+                        "action": "showSnackbar",
+                        "id": "say",
+                        "input": {
+                          "message": {
+                            "$expr": "first((data.race.value?.aid ?? []).filter(a, a.id == event))?.title ?? \"\""
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2047c-a711-7e13-8827-13296b23147e",
+                "props": {
+                  "attribution": {
+                    "$t": "01a264c2-cc1f-78e8-b26f-fa0bd0ad379a"
+                  },
+                  "center": {
+                    "$expr": "{\"lat\": data.race.value?.start?.lat ?? 52.5, \"lng\": data.race.value?.start?.lng ?? 13.4}"
+                  },
+                  "markers": {
+                    "$expr": "(data.race.value?.aid ?? []).map(a, {\"id\": a.id, \"position\": {\"lat\": a.position.lat, \"lng\": a.position.lng}, \"title\": a.title, \"icon\": a.icon})"
+                  },
+                  "polylines": {
+                    "$expr": "[{\"points\": (data.race.value?.route ?? []).map(p, {\"lat\": p.lat, \"lng\": p.lng}), \"color\": \"#EA580C\", \"width\": 5.0}]"
+                  },
+                  "semanticLabel": {
+                    "$t": "01a2a8b7-dd3b-7208-8d0d-84983dcc4fba"
+                  },
+                  "tileUrlTemplate": {
+                    "$expr": "env.mapTiles"
+                  },
+                  "zoom": 13
+                },
+                "testId": "cr-map",
+                "type": "MapView"
+              }
+            },
+            "type": "Expanded"
+          },
+          {
+            "id": "01a27e55-ef08-7755-b472-e552d2e0846f",
+            "props": {
+              "flex": 2
+            },
+            "slots": {
+              "child": {
+                "id": "01a24c79-b14b-73a9-9420-606460ddfbe5",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a280a4-36a0-79b0-93f8-d4a05f4143b6",
+                    "props": {
+                      "labels": {
+                        "$expr": "data.race.value?.kmLabels"
+                      },
+                      "series": {
+                        "$expr": "[{\"name\": t(\"01a227d7-8af1-7711-b8c9-c285459c24f3\"), \"values\": data.race.value?.elevation ?? []}]"
+                      },
+                      "showTable": true,
+                      "title": {
+                        "$t": "01a227d7-8af1-7711-b8c9-c285459c24f3"
+                      }
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a2fca6-cbc7-76d6-af54-b12a9a71e1ed"
+                      }
+                    },
+                    "testId": "cr-elevation",
+                    "type": "LineChart"
+                  }
+                },
+                "type": "Padding"
+              }
+            },
+            "type": "Expanded"
+          }
+        ],
+        "id": "01a234de-abb0-70aa-82e6-c1923729aa2b",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cr-route",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a27dee-e3d9-7aa2-82c4-05e9b4acd6ee"
+  }
+}

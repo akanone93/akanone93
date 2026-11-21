@@ -1,0 +1,221 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "location",
+      "camera",
+      "haptics",
+      "share"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "cacheFirst",
+          "ttlSeconds": 120
+        },
+        "mocks": {
+          "empty": [],
+          "error": {
+            "kind": "http",
+            "message": "Service unavailable",
+            "status": 503
+          }
+        },
+        "pagination": {
+          "cursorParam": "cursor",
+          "hasMore": "more",
+          "nextCursor": "next",
+          "pageSize": 20,
+          "style": "cursor"
+        },
+        "params": {
+          "category": {
+            "$expr": "plugin.filters.category"
+          },
+          "q": {
+            "$expr": "plugin.query"
+          },
+          "radiusKm": {
+            "$expr": "plugin.filters.radiusKm"
+          },
+          "sort": {
+            "$expr": "plugin.sort"
+          }
+        },
+        "path": "/orgs",
+        "select": "items"
+      },
+      "id": "01a239e4-4aab-783d-bd49-d9b321a140b5",
+      "kind": "rest",
+      "mock": [
+        {
+          "category": "finance",
+          "city": "Berlin",
+          "closesAt": "2026-11-19T18:00:00+01:00",
+          "cover": "",
+          "description": "Open an account in minutes.",
+          "fee": null,
+          "lat": 52.52,
+          "lng": 13.4,
+          "logo": "",
+          "name": "Nordvia Bank",
+          "seatsLeft": 40,
+          "slug": "bank",
+          "tags": [
+            "account",
+            "kyc"
+          ],
+          "verified": true
+        },
+        {
+          "category": "education",
+          "city": "Addis Ababa",
+          "closesAt": "2026-11-22T12:00:00+03:00",
+          "cover": "",
+          "description": "Apply for the winter intake.",
+          "fee": {
+            "amount": "25.00",
+            "currency": "EUR"
+          },
+          "lat": 9.03,
+          "lng": 38.74,
+          "logo": "",
+          "name": "Aster University",
+          "seatsLeft": 120,
+          "slug": "campus",
+          "tags": [
+            "admission"
+          ],
+          "verified": true
+        },
+        {
+          "category": "sports",
+          "city": "Riverton",
+          "closesAt": "2026-11-26T09:00:00+01:00",
+          "cover": "",
+          "description": "10 km and half marathon along the river.",
+          "fee": {
+            "amount": "35.00",
+            "currency": "EUR"
+          },
+          "lat": 52.5,
+          "lng": 13.42,
+          "logo": "",
+          "name": "Riverton City Run",
+          "seatsLeft": 300,
+          "slug": "cityrun",
+          "tags": [
+            "10k",
+            "half"
+          ],
+          "verified": false
+        }
+      ],
+      "name": "orgs",
+      "route": "plux",
+      "type": "list<Org>"
+    },
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "operations": {
+          "notifyMe": {
+            "input": "OrgRef",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/orgs/{slug}/notify"
+          }
+        },
+        "params": {
+          "slug": {
+            "$expr": "app.lastOrg"
+          }
+        },
+        "path": "/orgs/{slug}/status"
+      },
+      "id": "01a24649-f772-7629-a804-73e33fb1e081",
+      "kind": "rest",
+      "mock": {
+        "closesAt": null,
+        "open": true,
+        "seatsLeft": 40
+      },
+      "name": "api",
+      "route": "plux",
+      "type": "OrgStatus"
+    }
+  ],
+  "description": "Search, filter, browse and scan to find an organisation.",
+  "entryPage": "01a2989e-67b1-73db-8f54-6edc7de7efa5",
+  "fallbackPage": "01a2e900-957f-7f43-bfed-f57807f2506f",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a292d9-4e62-7244-93b9-627d4045d2f3",
+  "key": "explore",
+  "kind": "plugin",
+  "name": "Explore",
+  "pages": [
+    "01a2989e-67b1-73db-8f54-6edc7de7efa5",
+    "01a262d4-858f-7bbf-9477-a3a4435bbcbd",
+    "01a2425b-96ce-7db7-b9d4-16f59ddf6839",
+    "01a2e2cb-f0f7-7ca3-b328-82e35b76968f",
+    "01a238c5-7cf0-7a6c-a3b3-bf34f0043c0a",
+    "01a2a19a-d11b-74ad-aedd-18024d609824",
+    "01a21662-247b-72b1-b3b0-da4acdccc939",
+    "01a2e900-957f-7f43-bfed-f57807f2506f"
+  ],
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "",
+      "id": "01a2748f-b3b8-7d29-98fb-bb990027be15",
+      "name": "query",
+      "persistence": "session",
+      "type": "string"
+    },
+    {
+      "default": "relevance",
+      "id": "01a28c8a-7d42-7468-b807-c09f044120dd",
+      "name": "sort",
+      "persistence": "persisted",
+      "type": "string"
+    },
+    {
+      "default": {
+        "category": "",
+        "fee": "any",
+        "openNow": false,
+        "radiusKm": 10,
+        "verified": false
+      },
+      "id": "01a29534-fe31-7c52-96b4-c7da82ce6af0",
+      "name": "filters",
+      "persistence": "persisted",
+      "type": "Filters"
+    },
+    {
+      "default": "list",
+      "id": "01a214e8-85f7-797d-b5a0-c164b4767577",
+      "name": "view",
+      "type": "string"
+    }
+  ],
+  "tags": [
+    "discovery"
+  ],
+  "team": "apply-register"
+}

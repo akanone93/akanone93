@@ -1,0 +1,333 @@
+{
+  "id": "01a2a543-b17c-7f93-a091-f7581b909436",
+  "key": "ac-privacy",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a20e27-80dc-7a77-bb68-474d7785226f",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a226f4-fc57-7575-905a-9f74739b8f1a",
+        "slots": {
+          "title": {
+            "id": "01a2ff5b-f86d-7361-a077-e1f1782f843c",
+            "props": {
+              "data": {
+                "$t": "01a228ba-402d-77ef-ba2d-d4fac6e35d9e"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a225cb-e2e5-7c25-902a-fa36f734f6d2",
+        "props": {
+          "padding": {
+            "all": 16
+          }
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a2fbb2-0ff9-7f80-976a-783807b237c1",
+                "props": {
+                  "data": {
+                    "$t": "01a2d421-1ecc-720a-ab37-7bb0d496ab6a"
+                  },
+                  "style": {
+                    "$token": "typography.bodyLarge"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "analytics": {
+                              "$expr": "event"
+                            }
+                          },
+                          "path": "plugin.consent"
+                        }
+                      }
+                    ]
+                  },
+                  "onLinkTap": {
+                    "steps": [
+                      {
+                        "action": "openUrl",
+                        "id": "open",
+                        "input": {
+                          "url": {
+                            "$expr": "env.privacyUrl"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2b8a7-b2d2-7fee-9249-2cbfb803bf1a",
+                "props": {
+                  "documentVersion": {
+                    "$expr": "env.termsVersion"
+                  },
+                  "label": {
+                    "$t": "01a2aa27-f946-79b5-83a4-da72e7221763"
+                  },
+                  "linkLabel": {
+                    "$t": "01a24cef-f9f7-7dca-a832-f4535717e3c6"
+                  },
+                  "value": {
+                    "$expr": "plugin.consent.analytics"
+                  }
+                },
+                "testId": "privacy-analytics",
+                "type": "ConsentCheckbox"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "experiments": {
+                              "$expr": "event"
+                            }
+                          },
+                          "path": "plugin.consent"
+                        }
+                      }
+                    ]
+                  },
+                  "onLinkTap": {
+                    "steps": [
+                      {
+                        "action": "openUrl",
+                        "id": "open",
+                        "input": {
+                          "url": {
+                            "$expr": "env.privacyUrl"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a26ba8-9d96-7ce7-a185-11cdae49967c",
+                "props": {
+                  "documentVersion": {
+                    "$expr": "env.termsVersion"
+                  },
+                  "label": {
+                    "$t": "01a2664f-2947-7547-beb0-d66baec547df"
+                  },
+                  "linkLabel": {
+                    "$t": "01a24cef-f9f7-7dca-a832-f4535717e3c6"
+                  },
+                  "value": {
+                    "$expr": "plugin.consent.experiments"
+                  }
+                },
+                "testId": "privacy-experiments",
+                "type": "ConsentCheckbox"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "patchState",
+                        "id": "set",
+                        "input": {
+                          "patch": {
+                            "replay": {
+                              "$expr": "event"
+                            }
+                          },
+                          "path": "plugin.consent"
+                        }
+                      }
+                    ]
+                  },
+                  "onLinkTap": {
+                    "steps": [
+                      {
+                        "action": "openUrl",
+                        "id": "open",
+                        "input": {
+                          "url": {
+                            "$expr": "env.privacyUrl"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2be0e-d598-74c7-ac94-0c7ecbcbb9cd",
+                "props": {
+                  "documentVersion": {
+                    "$expr": "env.termsVersion"
+                  },
+                  "label": {
+                    "$t": "01a2da2f-9bf5-7f88-9fda-7a50d02c54a9"
+                  },
+                  "linkLabel": {
+                    "$t": "01a24cef-f9f7-7dca-a832-f4535717e3c6"
+                  },
+                  "value": {
+                    "$expr": "plugin.consent.replay"
+                  }
+                },
+                "testId": "privacy-replay",
+                "type": "ConsentCheckbox"
+              },
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "emitHostEvent",
+                        "id": "tell",
+                        "input": {
+                          "event": "consentChanged",
+                          "payload": {
+                            "analytics": {
+                              "$expr": "plugin.consent.analytics"
+                            },
+                            "experiments": {
+                              "$expr": "plugin.consent.experiments"
+                            },
+                            "replay": {
+                              "$expr": "plugin.consent.replay"
+                            }
+                          }
+                        },
+                        "next": "say"
+                      },
+                      {
+                        "action": "showToast",
+                        "id": "say",
+                        "input": {
+                          "message": {
+                            "$t": "01a2b235-be6c-7fb7-b54f-cb8046a2f4e5"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a24686-5c9f-7e9d-a905-736f971c55fd",
+                "slots": {
+                  "child": {
+                    "id": "01a2c696-c312-75c0-b697-a95b2b1eb531",
+                    "props": {
+                      "data": {
+                        "$t": "01a2e9ca-6bbc-7dee-b22f-8c05fcf6ebfe"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "privacy-save",
+                "type": "FilledButton"
+              },
+              {
+                "id": "01a2c40a-4524-7d1e-9aa8-fa6e7dc9e7db",
+                "type": "Divider"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "apiCall",
+                        "id": "x",
+                        "input": {
+                          "input": {},
+                          "operation": "me.export"
+                        },
+                        "next": "share"
+                      },
+                      {
+                        "action": "share",
+                        "id": "share",
+                        "input": {
+                          "url": {
+                            "$expr": "steps.x.output?.url ?? \"\""
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2b9f9-2fb1-7762-a717-840f1455bff8",
+                "slots": {
+                  "leading": {
+                    "id": "01a2e2f1-43f5-7a51-8e9d-b30e2c5edcf3",
+                    "props": {
+                      "icon": {
+                        "name": "download"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2b077-2533-7e22-b795-fea8e2caba7b",
+                    "props": {
+                      "data": {
+                        "$t": "01a2dd2e-5504-724a-8d3b-195cc177e280"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "privacy-export",
+                "type": "ListTile"
+              }
+            ],
+            "id": "01a2bd30-9ad5-77d2-86d8-b2f964ebcff3",
+            "props": {
+              "crossAxisAlignment": "stretch",
+              "spacing": 12
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "ac-privacy",
+  "routeOptions": {
+    "guards": [
+      {
+        "$graph": "01a26974-ec12-7eeb-a23c-9d7ef8d932fd"
+      }
+    ]
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a228ba-402d-77ef-ba2d-d4fac6e35d9e"
+  }
+}

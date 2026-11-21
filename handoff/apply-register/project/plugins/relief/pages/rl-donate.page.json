@@ -1,0 +1,567 @@
+{
+  "id": "01a2168a-2137-7bf8-b911-bc2f14b021f4",
+  "key": "rl-donate",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2301a-7960-7f67-83a1-1027160c3546",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2e8bd-8cba-7b85-8c10-54a0095a76fb",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a239d3-adc5-79e5-bc23-5beef536cb9e",
+            "props": {
+              "data": {
+                "$t": "01a297ef-b7e9-708d-ada7-2994fae4f9a7"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a25a8c-6b10-754c-bf6a-e642eb2b1f7b",
+        "slots": {
+          "child": {
+            "id": "01a273c3-bef7-7a44-ab19-2fee13f7a8f6",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a267ac-d171-7b5e-b588-32d9f45eff07",
+                    "props": {
+                      "data": {
+                        "$t": "01a2b37e-ce04-7898-b70f-50cbdc9e70d0"
+                      },
+                      "style": {
+                        "$token": "typography.titleMedium"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "events": {
+                      "onSelectionChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "p",
+                            "input": {
+                              "path": "page.preset",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a23ca9-15d7-7dd1-9571-e99ae674e0a4",
+                    "props": {
+                      "direction": "horizontal",
+                      "emptySelectionAllowed": false,
+                      "multiSelectionEnabled": false,
+                      "segments": [
+                        {
+                          "label": {
+                            "$t": "01a2ef81-f607-7fb0-939c-a61e8389eb59"
+                          },
+                          "value": "10"
+                        },
+                        {
+                          "label": {
+                            "$t": "01a261ba-8fb4-7546-90de-b0a847ff1a5b"
+                          },
+                          "value": "25"
+                        },
+                        {
+                          "label": {
+                            "$t": "01a27461-48ef-7f97-88d5-42821892b254"
+                          },
+                          "value": "50"
+                        },
+                        {
+                          "label": {
+                            "$t": "01a27666-d187-773d-a77b-32a7adcd50bf"
+                          },
+                          "value": "other"
+                        }
+                      ],
+                      "selected": {
+                        "$expr": "page.preset"
+                      }
+                    },
+                    "responsive": {
+                      "medium": {
+                        "direction": "vertical"
+                      }
+                    },
+                    "testId": "rl-preset",
+                    "type": "SegmentedButton"
+                  },
+                  {
+                    "id": "01a264ca-d70d-7f85-8193-cd724c5447a8",
+                    "props": {
+                      "condition": {
+                        "$expr": "first(page.preset) == \"other\""
+                      }
+                    },
+                    "slots": {
+                      "then": {
+                        "children": [
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "c",
+                                    "input": {
+                                      "path": "page.custom",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a25cd7-c505-7efb-82f9-48a5a250c89b",
+                            "props": {
+                              "currency": {
+                                "$expr": "page.currency"
+                              },
+                              "label": {
+                                "$t": "01a2f18c-bc7c-7372-bc9f-96d0ee75ff98"
+                              },
+                              "max": {
+                                "$expr": "money(\"10000\", page.currency)"
+                              },
+                              "min": {
+                                "$expr": "money(\"1\", page.currency)"
+                              },
+                              "rangeMessage": {
+                                "$t": "01a213a4-6ee5-7102-ab40-c954bea863e4"
+                              },
+                              "value": {
+                                "$expr": "page.custom"
+                              }
+                            },
+                            "testId": "rl-amount",
+                            "type": "AmountInput"
+                          },
+                          {
+                            "events": {
+                              "onSelected": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "cur",
+                                    "input": {
+                                      "path": "page.currency",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "reset"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "reset",
+                                    "input": {
+                                      "path": "page.custom",
+                                      "value": {
+                                        "$expr": "null"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a23fcf-1d06-7738-b75c-73a2d60cda60",
+                            "props": {
+                              "currencies": [
+                                "EUR",
+                                "USD",
+                                "SAR",
+                                "AED",
+                                "ETB"
+                              ],
+                              "searchHint": {
+                                "$t": "01a203dc-445c-78c3-9683-99df73fa3868"
+                              },
+                              "value": {
+                                "$expr": "page.currency"
+                              }
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a203dc-445c-78c3-9683-99df73fa3868"
+                              }
+                            },
+                            "testId": "rl-currency",
+                            "type": "CurrencyPicker"
+                          }
+                        ],
+                        "id": "01a24f35-e286-76b1-b7a4-bb496ba2ea90",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 12
+                        },
+                        "type": "Column"
+                      }
+                    },
+                    "type": "If"
+                  },
+                  {
+                    "events": {
+                      "onFlip": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "f",
+                            "input": {
+                              "path": "page.flip",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a20ee9-6c1b-74b8-802b-cac79c75890e",
+                    "props": {
+                      "backLabel": {
+                        "$t": "01a28585-03ae-71f1-851a-a576abf2e474"
+                      },
+                      "brand": "visa",
+                      "expiry": "08/29",
+                      "flipped": {
+                        "$expr": "page.flip"
+                      },
+                      "holder": {
+                        "$expr": "data.me.value?.name ?? \"\""
+                      },
+                      "maskedNumber": "•••• 4242"
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a2d741-4d98-7309-bff2-e5222f8500af"
+                      }
+                    },
+                    "testId": "rl-card",
+                    "type": "PaymentCard"
+                  },
+                  {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "m",
+                            "input": {
+                              "path": "page.monthly",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2e647-61a2-7390-8b14-0a32e69e946f",
+                    "props": {
+                      "contentPadding": {
+                        "all": 0
+                      },
+                      "value": {
+                        "$expr": "page.monthly"
+                      }
+                    },
+                    "slots": {
+                      "title": {
+                        "id": "01a2e89f-8eea-7eac-8742-fec6b87b6fca",
+                        "props": {
+                          "data": {
+                            "$t": "01a2d995-fc31-76d6-89f2-f38699ab63b9"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "rl-monthly",
+                    "type": "SwitchListTile"
+                  },
+                  {
+                    "id": "01a2666b-3847-77a7-b6b3-8fb9376ffb74",
+                    "props": {
+                      "condition": {
+                        "$expr": "amount((first(page.preset) == \"other\" ? (page.custom ?? money(\"0\", page.currency)) : money(first(page.preset) ?? \"0\", page.currency))) > decimal(\"0\")"
+                      }
+                    },
+                    "slots": {
+                      "else": {
+                        "id": "01a2fc46-1dcf-7163-8fb1-27f05bc73863",
+                        "props": {
+                          "data": {
+                            "$t": "01a2bc43-3453-715b-9e23-29e690a8a2e0"
+                          },
+                          "style": {
+                            "$token": "typography.bodyMedium"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      "then": {
+                        "children": [
+                          {
+                            "events": {
+                              "onPressed": {
+                                "concurrency": "drop",
+                                "steps": [
+                                  {
+                                    "action": "callFlow",
+                                    "id": "pay",
+                                    "input": {
+                                      "flow": "pay/pay-with-wallet",
+                                      "input": {
+                                        "req": {
+                                          "amount": {
+                                            "$expr": "(first(page.preset) == \"other\" ? (page.custom ?? money(\"0\", page.currency)) : money(first(page.preset) ?? \"0\", page.currency))"
+                                          },
+                                          "payee": "Hands Together",
+                                          "purpose": {
+                                            "$t": "01a23eb5-0793-77ca-b028-2628af17e1be"
+                                          },
+                                          "reference": {
+                                            "$expr": "\"HT-\" + (page.monthly ? \"M\" : \"O\") + \"-\" + string(int(amount((first(page.preset) == \"other\" ? (page.custom ?? money(\"0\", page.currency)) : money(first(page.preset) ?? \"0\", page.currency)))))"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": "ok",
+                                    "onError": "failed"
+                                  },
+                                  {
+                                    "action": "condition",
+                                    "branches": {
+                                      "then": "thanks"
+                                    },
+                                    "id": "ok",
+                                    "input": {
+                                      "when": {
+                                        "$expr": "steps.pay.output?.status == \"success\""
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "action": "navigate",
+                                    "id": "thanks",
+                                    "input": {
+                                      "mode": "replace",
+                                      "route": "rl-thanks"
+                                    }
+                                  },
+                                  {
+                                    "action": "showSnackbar",
+                                    "id": "failed",
+                                    "input": {
+                                      "message": {
+                                        "$t": "01a2a1b6-f0f7-70c7-bb05-c7cc8b4f5c11"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a2aae2-b9fc-7333-bc75-2eb9180762cb",
+                            "slots": {
+                              "child": {
+                                "id": "01a2b14d-b71b-7866-8cd4-72f2c7a7e352",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a2d530-d6ff-7b74-b78d-f5918225a724"
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "testId": "rl-pay-wallet",
+                            "type": "FilledButton"
+                          },
+                          {
+                            "events": {
+                              "onPressed": {
+                                "concurrency": "drop",
+                                "steps": [
+                                  {
+                                    "action": "signTransaction",
+                                    "id": "sign",
+                                    "input": {
+                                      "amount": {
+                                        "$expr": "(first(page.preset) == \"other\" ? (page.custom ?? money(\"0\", page.currency)) : money(first(page.preset) ?? \"0\", page.currency))"
+                                      },
+                                      "payee": "Hands Together e.V.",
+                                      "transaction": "reliefTransfer.donate"
+                                    },
+                                    "next": "send",
+                                    "onError": "failed"
+                                  },
+                                  {
+                                    "action": "apiCall",
+                                    "id": "send",
+                                    "input": {
+                                      "input": {
+                                        "amount": {
+                                          "$expr": "amount((first(page.preset) == \"other\" ? (page.custom ?? money(\"0\", page.currency)) : money(first(page.preset) ?? \"0\", page.currency)))"
+                                        },
+                                        "currency": {
+                                          "$expr": "page.currency"
+                                        },
+                                        "monthly": {
+                                          "$expr": "page.monthly"
+                                        },
+                                        "reference": {
+                                          "$expr": "\"HT-\" + (page.monthly ? \"M\" : \"O\") + \"-\" + string(int(amount((first(page.preset) == \"other\" ? (page.custom ?? money(\"0\", page.currency)) : money(first(page.preset) ?? \"0\", page.currency)))))"
+                                        }
+                                      },
+                                      "operation": "reliefTransfer.donate"
+                                    },
+                                    "next": "thanks",
+                                    "onError": "failed"
+                                  },
+                                  {
+                                    "action": "navigate",
+                                    "id": "thanks",
+                                    "input": {
+                                      "mode": "replace",
+                                      "route": "rl-thanks"
+                                    }
+                                  },
+                                  {
+                                    "action": "showSnackbar",
+                                    "id": "failed",
+                                    "input": {
+                                      "message": {
+                                        "$t": "01a2a1b6-f0f7-70c7-bb05-c7cc8b4f5c11"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a2a427-146f-780c-8ddc-098311f3fd67",
+                            "slots": {
+                              "child": {
+                                "id": "01a28760-211f-781e-939e-e83b97d80c1e",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a23336-5fdd-7e09-ab47-646213cf79a3"
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "testId": "rl-pay-bank",
+                            "type": "OutlinedButton"
+                          }
+                        ],
+                        "id": "01a22805-6623-7cd7-9fa8-9187b19cd570",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 8
+                        },
+                        "type": "Column"
+                      }
+                    },
+                    "type": "If"
+                  }
+                ],
+                "id": "01a2cc59-01c3-7cb2-9155-7e449bf0c2e2",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 16
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "rl-donate",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "state": [
+    {
+      "default": [
+        "25"
+      ],
+      "id": "01a21ffd-1571-7439-b6e3-92c9ba400cbe",
+      "name": "preset",
+      "type": "list<string>"
+    },
+    {
+      "default": null,
+      "id": "01a2c5ea-eb80-7014-9283-f7456f8fee04",
+      "name": "custom",
+      "type": "money?"
+    },
+    {
+      "default": "EUR",
+      "id": "01a2e6cc-8793-7e45-a5f4-2ed7007e8d60",
+      "name": "currency",
+      "type": "string"
+    },
+    {
+      "default": false,
+      "id": "01a29b5f-82b6-7101-9db2-a5d180444e35",
+      "name": "monthly",
+      "type": "bool"
+    },
+    {
+      "default": false,
+      "id": "01a2b5c0-14bb-7424-877b-0c05432c0ed5",
+      "name": "flip",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a297ef-b7e9-708d-ada7-2994fae4f9a7"
+  }
+}

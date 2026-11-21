@@ -1,0 +1,19 @@
+{
+  "description": "A route guard that answers allow.",
+  "id": "01a2d0fd-a38e-72fb-83ec-935ab8c28a90",
+  "key": "guard-allow",
+  "kind": "actionGraph",
+  "output": "GuardResult",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "stop",
+      "id": "answer",
+      "input": {
+        "result": {
+          "decision": "allow"
+        }
+      }
+    }
+  ]
+}

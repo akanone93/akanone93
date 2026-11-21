@@ -1,0 +1,564 @@
+{
+  "id": "01a21783-7651-740e-b3a6-2dffcd5d7ecb",
+  "key": "profile",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "refreshData",
+          "id": "load",
+          "input": {
+            "source": "me"
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2d39c-975b-731b-914b-ae4731a4ceef",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2114e-77d3-716d-ae31-f85827abbb13",
+        "slots": {
+          "title": {
+            "id": "01a27263-cbb3-7cb9-88f9-95c191e9bc00",
+            "props": {
+              "data": {
+                "$t": "01a2e89b-6af5-74d7-a42e-c1729c9a9741"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2eba1-b54e-737c-ace7-8393554d421f",
+        "props": {
+          "items": {
+            "$expr": "[0]"
+          },
+          "padding": {
+            "bottom": 24
+          }
+        },
+        "slots": {
+          "item": {
+            "children": [
+              {
+                "id": "01a242f5-1a9f-7b74-a887-d0bb7c15120f",
+                "props": {
+                  "name": {
+                    "$expr": "data.me.value?.name ?? \"\""
+                  },
+                  "radius": 36,
+                  "subtitle": {
+                    "$expr": "data.me.value?.email ?? \"\""
+                  }
+                },
+                "slots": {
+                  "actions": {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "navigate",
+                            "id": "go",
+                            "input": {
+                              "route": "ac-edit"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2ebe9-cd20-7531-85a0-2d32c0027f36",
+                    "props": {
+                      "tooltip": {
+                        "$t": "01a2a9cf-c951-7d6d-a488-53e597c99c18"
+                      }
+                    },
+                    "slots": {
+                      "icon": {
+                        "id": "01a2162e-3955-7d21-b7ff-517b90754d17",
+                        "props": {
+                          "icon": {
+                            "name": "edit"
+                          }
+                        },
+                        "semantics": {
+                          "decorative": true
+                        },
+                        "type": "Icon"
+                      }
+                    },
+                    "testId": "account-edit",
+                    "type": "IconButton"
+                  }
+                },
+                "type": "ProfileHeader"
+              },
+              {
+                "id": "01a24a9a-fc4b-7350-b20a-d694bb05b382",
+                "props": {
+                  "padding": {
+                    "bottom": 4,
+                    "end": 16,
+                    "start": 16,
+                    "top": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a28a85-e604-7bca-976c-d574baa502ca",
+                    "props": {
+                      "data": {
+                        "$t": "01a2e04c-4ab3-751a-92a5-e33edcc81056"
+                      },
+                      "style": {
+                        "$token": "typography.titleSmall"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "navigate",
+                        "id": "go",
+                        "input": {
+                          "route": "ac-preferences"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a23908-0613-7514-bf23-ffba0e6ee111",
+                "slots": {
+                  "leading": {
+                    "id": "01a23be8-83cf-7fc0-bd8f-5666139adbcf",
+                    "props": {
+                      "icon": {
+                        "name": "tune"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2a3bf-1e34-7878-980a-85a36a8eff2b",
+                    "props": {
+                      "data": {
+                        "$t": "01a25512-6d96-71e0-9b1b-b525550e25c7"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  "trailing": {
+                    "id": "01a2a52c-3b30-7959-96c9-6b18f5101802",
+                    "props": {
+                      "icon": {
+                        "name": "chevron_right"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  }
+                },
+                "testId": "account-preferences",
+                "type": "ListTile"
+              },
+              {
+                "id": "01a29f3a-1592-70d0-8e00-be842db24be6",
+                "props": {
+                  "padding": {
+                    "bottom": 4,
+                    "end": 16,
+                    "start": 16,
+                    "top": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a2601a-d8b8-7e2e-8c9b-c3543636d619",
+                    "props": {
+                      "data": {
+                        "$t": "01a27502-d95b-76b9-9287-55a074b9ac50"
+                      },
+                      "style": {
+                        "$token": "typography.titleSmall"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "navigate",
+                        "id": "go",
+                        "input": {
+                          "route": "ac-privacy"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a262fa-8c92-72ac-bb47-cfc241ccd28b",
+                "slots": {
+                  "leading": {
+                    "id": "01a2a967-7742-7cf7-9680-a94d8b988543",
+                    "props": {
+                      "icon": {
+                        "name": "privacy_tip"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2d4ca-ad20-7cc6-98ec-484393e83e83",
+                    "props": {
+                      "data": {
+                        "$t": "01a228ba-402d-77ef-ba2d-d4fac6e35d9e"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  "trailing": {
+                    "id": "01a2a37a-4b52-7595-8e3d-1c200f9db581",
+                    "props": {
+                      "icon": {
+                        "name": "chevron_right"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  }
+                },
+                "testId": "account-privacy",
+                "type": "ListTile"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "navigate",
+                        "id": "go",
+                        "input": {
+                          "route": "ac-security"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2a952-3830-7a47-9452-f99c606cb11a",
+                "slots": {
+                  "leading": {
+                    "id": "01a22566-636d-7cda-b848-122379633c1d",
+                    "props": {
+                      "icon": {
+                        "name": "lock"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2247d-fd5a-7e34-95ee-5a1d382960e1",
+                    "props": {
+                      "data": {
+                        "$t": "01a29b08-0975-7fb4-96b2-7255a9f264cb"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  "trailing": {
+                    "id": "01a254c1-56ed-7380-87b9-f16e3a110bab",
+                    "props": {
+                      "icon": {
+                        "name": "chevron_right"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  }
+                },
+                "testId": "account-security",
+                "type": "ListTile"
+              },
+              {
+                "id": "01a2932b-60f1-75cb-89a6-dfa02a37af2e",
+                "props": {
+                  "padding": {
+                    "bottom": 4,
+                    "end": 16,
+                    "start": 16,
+                    "top": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a2965a-9981-7f7d-86ab-9b78003796a2",
+                    "props": {
+                      "data": {
+                        "$t": "01a27c45-9999-706f-84fc-f6750a0ccce5"
+                      },
+                      "style": {
+                        "$token": "typography.titleSmall"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "navigate",
+                        "id": "go",
+                        "input": {
+                          "route": "ac-about"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2e251-3107-7b7e-91ce-bf772714487c",
+                "slots": {
+                  "leading": {
+                    "id": "01a236f5-2db4-797f-aec3-ed567eea48d1",
+                    "props": {
+                      "icon": {
+                        "name": "info"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2b868-847e-7369-9b73-824279c17d73",
+                    "props": {
+                      "data": {
+                        "$t": "01a2784f-1ad8-741b-bc0c-df712dcbc94f"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  "trailing": {
+                    "id": "01a2f718-a794-787f-bb65-b8d7e6e62177",
+                    "props": {
+                      "icon": {
+                        "name": "chevron_right"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  }
+                },
+                "testId": "account-about",
+                "type": "ListTile"
+              },
+              {
+                "id": "01a2327c-3a6d-737e-8575-9e3a972f1e5c",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "openDialog",
+                            "id": "ask",
+                            "input": {
+                              "params": {
+                                "message": {
+                                  "$t": "01a29e8e-da8b-765d-ba87-75ac86e7a615"
+                                },
+                                "title": {
+                                  "$t": "01a24c41-bdb6-7354-a305-72c1e23b81bf"
+                                }
+                              },
+                              "route": "ps-confirm"
+                            },
+                            "next": "sure"
+                          },
+                          {
+                            "action": "condition",
+                            "branches": {
+                              "then": "out"
+                            },
+                            "id": "sure",
+                            "input": {
+                              "when": {
+                                "$expr": "steps.ask.output == true"
+                              }
+                            }
+                          },
+                          {
+                            "action": "logout",
+                            "id": "out",
+                            "next": "say"
+                          },
+                          {
+                            "action": "showToast",
+                            "id": "say",
+                            "input": {
+                              "message": {
+                                "$t": "01a24cd6-e4be-78ef-a765-0008bac952b0"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2455e-8132-709a-b562-d3ef0c14589c",
+                    "slots": {
+                      "child": {
+                        "id": "01a2ee48-1aa0-76f3-b18d-ba331c142ec4",
+                        "props": {
+                          "data": {
+                            "$t": "01a255bb-3a64-7e6e-80ac-8961dd303424"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "account-sign-out",
+                    "type": "OutlinedButton"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "openDialog",
+                        "id": "ask",
+                        "input": {
+                          "route": "ac-delete"
+                        },
+                        "next": "gone"
+                      },
+                      {
+                        "action": "condition",
+                        "branches": {
+                          "then": "home"
+                        },
+                        "id": "gone",
+                        "input": {
+                          "when": {
+                            "$expr": "steps.ask.output == true"
+                          }
+                        }
+                      },
+                      {
+                        "action": "switchTab",
+                        "id": "home",
+                        "input": {
+                          "tab": "home"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2875c-8e5f-7b42-b15e-d1b6c3842578",
+                "props": {
+                  "style": {
+                    "foregroundColor": {
+                      "value": {
+                        "$token": "color.error"
+                      }
+                    }
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a27603-0495-7472-ac32-ab783a5b13d2",
+                    "props": {
+                      "data": {
+                        "$t": "01a2bc7a-ce6a-7402-836c-f4c787be3640"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "account-delete",
+                "type": "TextButton"
+              }
+            ],
+            "id": "01a238b1-599d-7d88-880c-ac7ff72d93c0",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "ListView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "profile",
+  "routeOptions": {
+    "guards": [
+      {
+        "$graph": "01a26974-ec12-7eeb-a23c-9d7ef8d932fd"
+      }
+    ]
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2e89b-6af5-74d7-a42e-c1729c9a9741"
+  }
+}

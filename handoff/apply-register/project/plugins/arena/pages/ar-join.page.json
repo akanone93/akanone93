@@ -1,0 +1,1365 @@
+{
+  "forms": [
+    {
+      "fields": [
+        {
+          "initial": "",
+          "name": "name",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "length",
+              "max": 60,
+              "message": {
+                "$t": "01a2e8a4-044e-787a-b9ce-3d174d3f9222"
+              },
+              "min": 2
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "email",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "email",
+              "message": {
+                "$t": "01a2940c-9b10-7283-af82-70e5f33c085a"
+              }
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "phone",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "phone",
+              "message": {
+                "$t": "01a29c5d-4c93-7ebe-912d-d18cd991940d"
+              },
+              "region": "DE"
+            }
+          ]
+        },
+        {
+          "initial": 18,
+          "name": "age",
+          "type": "int",
+          "validators": [
+            {
+              "kind": "range",
+              "max": 99,
+              "message": {
+                "$t": "01a2cbf3-95bb-755d-9ff8-ed4ce4d01293"
+              },
+              "min": 6
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "memberCode",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "regex",
+              "message": {
+                "$t": "01a218fc-f41e-7eda-aa8b-49c4f253963d"
+              },
+              "pattern": "^PA-[0-9]{4}$"
+            },
+            {
+              "$graph": "01a289d4-fc16-7dc8-acd7-4e82e917b194",
+              "debounceMs": 500,
+              "kind": "async"
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "iban",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "iban",
+              "message": {
+                "$t": "01a22acf-7ac5-751d-99a4-fa0fc0c80ec0"
+              }
+            }
+          ]
+        },
+        {
+          "initial": null,
+          "name": "start",
+          "type": "date?",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "dateRange",
+              "max": "2027-01-31",
+              "message": {
+                "$t": "01a2cf64-cd3c-7517-ab44-b00931d53d4b"
+              },
+              "min": "2026-12-01"
+            }
+          ]
+        },
+        {
+          "initial": null,
+          "name": "extra",
+          "type": "decimal?",
+          "validators": [
+            {
+              "kind": "decimalPrecision",
+              "maxIntegerDigits": 4,
+              "maxScale": 2,
+              "message": {
+                "$t": "01a28e49-8188-7185-855c-7666af94f97b"
+              }
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "guardian",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "custom",
+              "message": {
+                "$t": "01a283a9-91ad-7784-b14d-db5fc046ac9d"
+              },
+              "rule": {
+                "$expr": "form.age >= 16 || value != \"\""
+              }
+            }
+          ]
+        },
+        {
+          "initial": "basic",
+          "name": "tier",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "01a21a2a-0d4b-71e6-aa96-81ac3e9a8cad",
+      "name": "join"
+    }
+  ],
+  "id": "01a271e8-f558-72ba-8f1f-ffc73aa4fe91",
+  "key": "ar-join",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "emitHostEvent",
+          "id": "brand",
+          "input": {
+            "event": "brandRequested",
+            "payload": {
+              "brand": "pulse"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a215e7-26af-72c2-94a1-8927db289946",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2f132-33b3-7cad-9833-4cbdbbaf1589",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.primary"
+          },
+          "foregroundColor": {
+            "$token": "color.onPrimary"
+          },
+          "shape": {
+            "borderRadius": {
+              "bottomLeft": {
+                "circular": 24
+              },
+              "bottomRight": {
+                "circular": 24
+              }
+            },
+            "kind": "roundedRectangle"
+          },
+          "titleTextStyle": {
+            "$token": "typography.headlineSmall"
+          },
+          "toolbarHeight": 72
+        },
+        "slots": {
+          "title": {
+            "id": "01a2dae8-2c37-70b9-ade0-f4358aa17c72",
+            "props": {
+              "data": {
+                "$t": "01a279b7-c4e8-7ce0-bb3b-0d855d3bbfd1"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a25290-c915-7f68-ba1e-0aa33a86edba",
+        "slots": {
+          "child": {
+            "id": "01a2bfdf-abcd-7ff4-9a79-e6d82cb77753",
+            "props": {
+              "form": "join"
+            },
+            "slots": {
+              "child": {
+                "id": "01a2031d-2d1d-76c4-ac51-cfc4bdf4bfcb",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "events": {
+                          "onSelectionChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.tier",
+                                  "value": {
+                                    "$expr": "first(event) ?? \"basic\""
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.tier",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a20b0b-3e8a-79ca-acc1-51602107323f",
+                        "props": {
+                          "emptySelectionAllowed": false,
+                          "multiSelectionEnabled": false,
+                          "segments": [
+                            {
+                              "label": {
+                                "$t": "01a2f9b5-d7a2-7d42-a39e-5e0520758fbd"
+                              },
+                              "value": "basic"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a2a93e-215e-7af9-a14a-4b1865170d31"
+                              },
+                              "value": "plus"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a2db4c-81af-7bd5-8ac3-c42df8735932"
+                              },
+                              "value": "family"
+                            }
+                          ],
+                          "selected": {
+                            "$expr": "[form.values.tier]"
+                          }
+                        },
+                        "testId": "ar-tier",
+                        "type": "SegmentedButton"
+                      },
+                      {
+                        "id": "01a27e07-72fc-724b-bab2-2d0c1a9b0cde",
+                        "props": {
+                          "cases": [
+                            "basic",
+                            "plus",
+                            "family"
+                          ],
+                          "value": {
+                            "$expr": "form.values.tier"
+                          }
+                        },
+                        "slots": {
+                          "branches": [
+                            {
+                              "id": "01a23cfd-d7a5-7b4b-9cd6-77cab0e7bdfd",
+                              "props": {
+                                "data": {
+                                  "$t": "01a294a0-06b8-7ced-96c4-6856b3a0b7b3"
+                                },
+                                "style": {
+                                  "$token": "typography.bodyMedium"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            {
+                              "children": [
+                                {
+                                  "id": "01a2f840-7656-76f8-8a91-c851708f22bd",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a2e9e4-b690-7ae7-8b48-4d687febd1a6"
+                                    },
+                                    "style": {
+                                      "$token": "typography.bodyMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                },
+                                {
+                                  "events": {
+                                    "onChanged": {
+                                      "steps": [
+                                        {
+                                          "action": "setState",
+                                          "id": "set",
+                                          "input": {
+                                            "path": "page.join.values.extra",
+                                            "value": {
+                                              "$expr": "isNumeric(event) ? decimal(event) : null"
+                                            }
+                                          },
+                                          "next": "touch"
+                                        },
+                                        {
+                                          "action": "setState",
+                                          "id": "touch",
+                                          "input": {
+                                            "path": "page.join.touched.extra",
+                                            "value": true
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "id": "01a2262e-953a-773e-8737-a8e7c3e03ab8",
+                                  "props": {
+                                    "decoration": {
+                                      "filled": true,
+                                      "labelText": {
+                                        "$t": "01a224fc-2bca-7efa-8367-00021863fa5d"
+                                      }
+                                    },
+                                    "forceErrorText": {
+                                      "$expr": "page.join.touched.extra ? page.join.errors.extra : null"
+                                    },
+                                    "keyboardType": "decimal",
+                                    "textCapitalization": "none",
+                                    "textInputAction": "next",
+                                    "value": {
+                                      "$expr": "form.values.extra == null ? \"\" : string(form.values.extra ?? decimal(\"0\"))"
+                                    }
+                                  },
+                                  "testId": "ar-extra",
+                                  "type": "TextFormField"
+                                }
+                              ],
+                              "id": "01a2819e-699e-7e18-a403-afde90c30758",
+                              "props": {
+                                "crossAxisAlignment": "stretch",
+                                "spacing": 8
+                              },
+                              "type": "Column"
+                            },
+                            {
+                              "children": [
+                                {
+                                  "id": "01a280a1-b874-7a81-a1e8-77e4c4058bd0",
+                                  "props": {
+                                    "items": {
+                                      "$expr": "page.members"
+                                    }
+                                  },
+                                  "slots": {
+                                    "item": {
+                                      "events": {
+                                        "onDismissed": {
+                                          "steps": [
+                                            {
+                                              "action": "setState",
+                                              "id": "drop",
+                                              "input": {
+                                                "path": "page.members",
+                                                "value": {
+                                                  "$expr": "page.members.filter(m, m.id != item.id)"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "id": "01a234ac-3ec8-742e-8fdd-35a5610109ef",
+                                      "props": {
+                                        "direction": "endToStart"
+                                      },
+                                      "slots": {
+                                        "background": {
+                                          "id": "01a2f745-fac0-7b76-be6b-66c552d99b09",
+                                          "props": {
+                                            "alignment": "centerEnd",
+                                            "color": {
+                                              "$token": "color.errorContainer"
+                                            },
+                                            "padding": {
+                                              "horizontal": 24
+                                            }
+                                          },
+                                          "slots": {
+                                            "child": {
+                                              "id": "01a21fc8-9599-75ee-b443-ec52a7f79671",
+                                              "props": {
+                                                "color": {
+                                                  "$token": "color.onErrorContainer"
+                                                },
+                                                "icon": {
+                                                  "name": "delete"
+                                                }
+                                              },
+                                              "semantics": {
+                                                "decorative": true
+                                              },
+                                              "type": "Icon"
+                                            }
+                                          },
+                                          "type": "Container"
+                                        },
+                                        "child": {
+                                          "id": "01a2db38-d089-70e2-b95e-0a21917b4715",
+                                          "props": {
+                                            "padding": {
+                                              "vertical": 4
+                                            }
+                                          },
+                                          "slots": {
+                                            "child": {
+                                              "children": [
+                                                {
+                                                  "id": "01a2e5eb-733b-7ac0-a1bd-c168a1791914",
+                                                  "props": {
+                                                    "flex": 3
+                                                  },
+                                                  "slots": {
+                                                    "child": {
+                                                      "events": {
+                                                        "onChanged": {
+                                                          "steps": [
+                                                            {
+                                                              "action": "setState",
+                                                              "id": "n",
+                                                              "input": {
+                                                                "path": "page.members",
+                                                                "value": {
+                                                                  "$expr": "page.members.map(m, m.id == item.id ? {\"id\": m.id, \"name\": event, \"age\": m.age} : m)"
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      "id": "01a2b5bd-0094-7d0e-ab8a-e153aa5599c3",
+                                                      "props": {
+                                                        "decoration": {
+                                                          "filled": true,
+                                                          "labelText": {
+                                                            "$t": "01a2947b-face-730a-81b0-305440e4f15f"
+                                                          }
+                                                        },
+                                                        "textCapitalization": "words",
+                                                        "value": {
+                                                          "$expr": "item.name"
+                                                        }
+                                                      },
+                                                      "type": "TextFormField"
+                                                    }
+                                                  },
+                                                  "type": "Expanded"
+                                                },
+                                                {
+                                                  "id": "01a2950e-1e04-734e-bd6a-c1e99e720796",
+                                                  "props": {
+                                                    "flex": 1
+                                                  },
+                                                  "slots": {
+                                                    "child": {
+                                                      "events": {
+                                                        "onChanged": {
+                                                          "steps": [
+                                                            {
+                                                              "action": "setState",
+                                                              "id": "a",
+                                                              "input": {
+                                                                "path": "page.members",
+                                                                "value": {
+                                                                  "$expr": "page.members.map(m, m.id == item.id ? {\"id\": m.id, \"name\": m.name, \"age\": isNumeric(event) ? int(event) : m.age} : m)"
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      "id": "01a2bb85-7b52-723d-a567-856826cca96a",
+                                                      "props": {
+                                                        "decoration": {
+                                                          "filled": true,
+                                                          "labelText": {
+                                                            "$t": "01a21a70-79f6-7e89-8bec-b7207aecb161"
+                                                          }
+                                                        },
+                                                        "keyboardType": "number",
+                                                        "value": {
+                                                          "$expr": "string(item.age)"
+                                                        }
+                                                      },
+                                                      "type": "TextFormField"
+                                                    }
+                                                  },
+                                                  "type": "Expanded"
+                                                }
+                                              ],
+                                              "id": "01a2a7a9-f078-7348-97ad-d624cf22de1c",
+                                              "props": {
+                                                "spacing": 8
+                                              },
+                                              "type": "Row"
+                                            }
+                                          },
+                                          "type": "Padding"
+                                        }
+                                      },
+                                      "testId": "ar-member",
+                                      "type": "Dismissible"
+                                    }
+                                  },
+                                  "type": "ForEach"
+                                },
+                                {
+                                  "events": {
+                                    "onPressed": {
+                                      "steps": [
+                                        {
+                                          "action": "setState",
+                                          "id": "add",
+                                          "input": {
+                                            "path": "page.members",
+                                            "value": {
+                                              "$expr": "page.members + [{\"id\": \"m\" + string(page.seq), \"name\": \"\", \"age\": 10}]"
+                                            }
+                                          },
+                                          "next": "seq"
+                                        },
+                                        {
+                                          "action": "setState",
+                                          "id": "seq",
+                                          "input": {
+                                            "path": "page.seq",
+                                            "value": {
+                                              "$expr": "page.seq + 1"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "id": "01a2966a-d19b-7f28-b7f3-dffa9d43bde1",
+                                  "slots": {
+                                    "child": {
+                                      "children": [
+                                        {
+                                          "id": "01a21f0a-aaad-7bef-8c62-18edffe9590c",
+                                          "props": {
+                                            "icon": {
+                                              "name": "person_add"
+                                            }
+                                          },
+                                          "semantics": {
+                                            "decorative": true
+                                          },
+                                          "type": "Icon"
+                                        },
+                                        {
+                                          "id": "01a275d0-455e-7d1c-99ac-518930c7bc45",
+                                          "props": {
+                                            "data": {
+                                              "$t": "01a25ff7-afdf-7e44-a51f-2b5fb90c4af0"
+                                            }
+                                          },
+                                          "type": "Text"
+                                        }
+                                      ],
+                                      "id": "01a23c36-991c-744b-9076-859f7255faff",
+                                      "props": {
+                                        "mainAxisSize": "min",
+                                        "spacing": 8
+                                      },
+                                      "type": "Row"
+                                    }
+                                  },
+                                  "testId": "ar-add-member",
+                                  "type": "TextButton"
+                                }
+                              ],
+                              "id": "01a2fbaa-91ba-7fed-a053-63fd0367d522",
+                              "props": {
+                                "crossAxisAlignment": "stretch"
+                              },
+                              "type": "Column"
+                            }
+                          ]
+                        },
+                        "type": "Match"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.name",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.name",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a223ba-f031-729d-8ae8-6150069888dd",
+                        "props": {
+                          "decoration": {
+                            "filled": true,
+                            "labelText": {
+                              "$t": "01a231f1-d466-797f-afe7-7758cf3ea6cf"
+                            }
+                          },
+                          "forceErrorText": {
+                            "$expr": "page.join.touched.name ? page.join.errors.name : null"
+                          },
+                          "keyboardType": "text",
+                          "textCapitalization": "words",
+                          "textInputAction": "next",
+                          "value": {
+                            "$expr": "form.values.name"
+                          }
+                        },
+                        "testId": "ar-name",
+                        "type": "TextFormField"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.email",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.email",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a29b9c-ffc0-7bf2-af30-ae3c7f55c507",
+                        "props": {
+                          "decoration": {
+                            "filled": true,
+                            "labelText": {
+                              "$t": "01a2b98b-5076-7845-8c8e-9b3c781c0ca7"
+                            }
+                          },
+                          "forceErrorText": {
+                            "$expr": "page.join.touched.email ? page.join.errors.email : null"
+                          },
+                          "keyboardType": "emailAddress",
+                          "textCapitalization": "none",
+                          "textInputAction": "next",
+                          "value": {
+                            "$expr": "form.values.email"
+                          }
+                        },
+                        "testId": "ar-email",
+                        "type": "TextFormField"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.phone",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.phone",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a23c10-ab0f-74db-85f5-d06e4fbf9e4d",
+                        "props": {
+                          "invalidMessage": {
+                            "$t": "01a29c5d-4c93-7ebe-912d-d18cd991940d"
+                          },
+                          "label": {
+                            "$t": "01a2b07b-abe9-7066-a726-8c8d4df2c102"
+                          },
+                          "region": "DE",
+                          "value": {
+                            "$expr": "form.values.phone"
+                          }
+                        },
+                        "testId": "ar-phone",
+                        "type": "PhoneInput"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.age",
+                                  "value": {
+                                    "$expr": "isNumeric(event) ? int(event) : 0"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.age",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a249bb-f369-74a8-bf38-cd4f2747142c",
+                        "props": {
+                          "decoration": {
+                            "filled": true,
+                            "labelText": {
+                              "$t": "01a22c3a-d747-763e-8fa2-b5172c6a0520"
+                            }
+                          },
+                          "forceErrorText": {
+                            "$expr": "page.join.touched.age ? page.join.errors.age : null"
+                          },
+                          "keyboardType": "number",
+                          "textCapitalization": "none",
+                          "textInputAction": "next",
+                          "value": {
+                            "$expr": "string(form.values.age)"
+                          }
+                        },
+                        "testId": "ar-age",
+                        "type": "TextFormField"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.memberCode",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.memberCode",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a20afe-57ad-71b9-a044-361a91a0b8d2",
+                        "props": {
+                          "decoration": {
+                            "filled": true,
+                            "helperText": {
+                              "$t": "01a26436-b7ac-7117-bcdc-fbb01c11dab1"
+                            },
+                            "labelText": {
+                              "$t": "01a2f7f9-b626-70f4-b828-43c829cbdf23"
+                            }
+                          },
+                          "forceErrorText": {
+                            "$expr": "page.join.touched.memberCode ? page.join.errors.memberCode : null"
+                          },
+                          "keyboardType": "text",
+                          "textCapitalization": "characters",
+                          "textInputAction": "next",
+                          "value": {
+                            "$expr": "form.values.memberCode"
+                          }
+                        },
+                        "testId": "ar-code",
+                        "type": "TextFormField"
+                      },
+                      {
+                        "id": "01a20793-d2d2-7a1a-84a0-896271810999",
+                        "props": {
+                          "condition": {
+                            "$expr": "page.join.validating"
+                          }
+                        },
+                        "slots": {
+                          "then": {
+                            "id": "01a2d6de-6472-765a-9518-14037d6157ee",
+                            "props": {
+                              "minHeight": 2,
+                              "semanticsLabel": {
+                                "$t": "01a2be1f-27f5-764a-ba3c-99d9b10e99f8"
+                              }
+                            },
+                            "type": "LinearProgressIndicator"
+                          }
+                        },
+                        "type": "If"
+                      },
+                      {
+                        "direction": "ltr",
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.iban",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.iban",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a27197-5cba-7c4f-b110-16852e095fa0",
+                        "props": {
+                          "invalidMessage": {
+                            "$t": "01a22acf-7ac5-751d-99a4-fa0fc0c80ec0"
+                          },
+                          "label": {
+                            "$t": "01a2dd36-9b43-7c3b-a69d-feee190d8192"
+                          },
+                          "value": {
+                            "$expr": "form.values.iban"
+                          }
+                        },
+                        "testId": "ar-iban",
+                        "type": "IbanInput"
+                      },
+                      {
+                        "id": "01a2b375-37da-7d8c-b229-1c5ff8b55191",
+                        "props": {
+                          "data": {
+                            "$t": "01a23c04-fc8e-78a0-86fb-3c93c5039ba3"
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.join.values.start",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.join.touched.start",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a27de9-e497-7ad6-a717-82d01c0d880d",
+                        "props": {
+                          "calendar": "gregorian",
+                          "firstDate": {
+                            "$expr": "date(\"2026-12-01\")"
+                          },
+                          "lastDate": {
+                            "$expr": "date(\"2027-01-31\")"
+                          },
+                          "value": {
+                            "$expr": "form.values.start"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a23c04-fc8e-78a0-86fb-3c93c5039ba3"
+                          }
+                        },
+                        "testId": "ar-start",
+                        "type": "DualCalendarDatePicker"
+                      },
+                      {
+                        "id": "01a27c5a-cf47-710f-bf24-7a104315a46b",
+                        "props": {
+                          "condition": {
+                            "$expr": "form.values.age < 16"
+                          }
+                        },
+                        "slots": {
+                          "then": {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.join.values.guardian",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.join.touched.guardian",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a23bd7-2617-72bf-a7cc-7cb5cf18d65f",
+                            "props": {
+                              "autovalidateMode": "always",
+                              "decoration": {
+                                "filled": true,
+                                "labelText": {
+                                  "$t": "01a2f86a-0f88-7951-8df6-4c34c659713d"
+                                }
+                              },
+                              "forceErrorText": {
+                                "$expr": "page.join.touched.guardian ? page.join.errors.guardian : null"
+                              },
+                              "textCapitalization": "words",
+                              "value": {
+                                "$expr": "form.values.guardian"
+                              }
+                            },
+                            "testId": "ar-guardian",
+                            "type": "TextFormField"
+                          }
+                        },
+                        "type": "If"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "c",
+                                "input": {
+                                  "path": "page.consent",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a211ec-33e9-7f8d-9b0c-4bead0389e4c",
+                        "props": {
+                          "documentVersion": {
+                            "$expr": "env.termsVersion"
+                          },
+                          "label": {
+                            "$t": "01a295d7-23c5-7ca4-952d-4fcce8d2c185"
+                          },
+                          "value": {
+                            "$expr": "page.consent"
+                          }
+                        },
+                        "testId": "ar-consent",
+                        "type": "ConsentCheckbox"
+                      }
+                    ],
+                    "id": "01a2d506-da56-7b0c-b992-2a6f5b7badc4",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "SingleChildScrollView"
+              }
+            },
+            "type": "FormScope"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "persistentFooterButtons": [
+        {
+          "id": "01a2d4f5-17cf-7bfc-b2db-91e63c832d6a",
+          "props": {
+            "condition": {
+              "$expr": "page.join.valid && !page.join.validating && page.consent"
+            }
+          },
+          "slots": {
+            "else": {
+              "id": "01a255e3-570e-7153-9159-18071bcbb1a5",
+              "slots": {
+                "child": {
+                  "id": "01a2db20-979f-7e18-a5cc-7511338a16d4",
+                  "props": {
+                    "data": {
+                      "$t": "01a2b82d-bf8f-7de4-910f-cc30bb1cc3e9"
+                    }
+                  },
+                  "type": "Text"
+                }
+              },
+              "testId": "ar-join-off",
+              "type": "FilledButton"
+            },
+            "then": {
+              "events": {
+                "onPressed": {
+                  "concurrency": "drop",
+                  "steps": [
+                    {
+                      "action": "submitForm",
+                      "branches": {
+                        "invalid": "fix"
+                      },
+                      "id": "check",
+                      "input": {
+                        "form": "join"
+                      },
+                      "next": "pay"
+                    },
+                    {
+                      "action": "announce",
+                      "id": "fix",
+                      "input": {
+                        "assertiveness": "assertive",
+                        "message": {
+                          "$t": "01a2c3dd-6ebd-7df9-96b1-f1a13795033f"
+                        }
+                      }
+                    },
+                    {
+                      "action": "callFlow",
+                      "id": "pay",
+                      "input": {
+                        "flow": "pay/pay-with-wallet",
+                        "input": {
+                          "req": {
+                            "amount": {
+                              "$expr": "page.join.values.tier == \"family\" ? money(\"89.00\", \"EUR\") : page.join.values.tier == \"plus\" ? money(\"49.00\", \"EUR\") : money(\"29.00\", \"EUR\")"
+                            },
+                            "payee": "Pulse Arena",
+                            "purpose": {
+                              "$t": "01a2d57c-a657-7b3f-8b10-839295884557"
+                            },
+                            "reference": {
+                              "$expr": "page.join.values.memberCode"
+                            }
+                          }
+                        }
+                      },
+                      "next": "paid",
+                      "onError": "failed"
+                    },
+                    {
+                      "action": "condition",
+                      "branches": {
+                        "then": "reg"
+                      },
+                      "id": "paid",
+                      "input": {
+                        "when": {
+                          "$expr": "steps.pay.output?.status == \"success\""
+                        }
+                      }
+                    },
+                    {
+                      "action": "apiCall",
+                      "id": "reg",
+                      "input": {
+                        "input": {
+                          "age": {
+                            "$expr": "page.join.values.age"
+                          },
+                          "consentVersion": {
+                            "$expr": "env.termsVersion"
+                          },
+                          "email": {
+                            "$expr": "page.join.values.email"
+                          },
+                          "extra": {
+                            "$expr": "page.join.values.extra"
+                          },
+                          "guardian": {
+                            "$expr": "page.join.values.guardian"
+                          },
+                          "iban": {
+                            "$expr": "page.join.values.iban"
+                          },
+                          "memberCode": {
+                            "$expr": "page.join.values.memberCode"
+                          },
+                          "members": {
+                            "$expr": "page.members"
+                          },
+                          "name": {
+                            "$expr": "page.join.values.name"
+                          },
+                          "paymentId": {
+                            "$expr": "steps.pay.output?.transactionId ?? \"\""
+                          },
+                          "phone": {
+                            "$expr": "page.join.values.phone"
+                          },
+                          "start": {
+                            "$expr": "page.join.values.start ?? date(\"2026-12-01\")"
+                          },
+                          "tier": {
+                            "$expr": "page.join.values.tier"
+                          }
+                        },
+                        "operation": "api.register"
+                      },
+                      "next": "welcome",
+                      "onError": "failed"
+                    },
+                    {
+                      "action": "openDialog",
+                      "id": "welcome",
+                      "input": {
+                        "params": {
+                          "code": {
+                            "$expr": "page.join.values.memberCode"
+                          }
+                        },
+                        "route": "ar-welcome"
+                      },
+                      "next": "pass"
+                    },
+                    {
+                      "action": "navigate",
+                      "id": "pass",
+                      "input": {
+                        "mode": "clearAndPush",
+                        "params": {
+                          "id": {
+                            "$expr": "steps.reg.output?.id ?? \"\""
+                          }
+                        },
+                        "route": "pass"
+                      }
+                    },
+                    {
+                      "action": "showSnackbar",
+                      "id": "failed",
+                      "input": {
+                        "message": {
+                          "$t": "01a2ddac-484c-751b-b16f-3467309ae5a3"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "01a22073-a9a1-78a0-b226-eb80945d08d6",
+              "slots": {
+                "child": {
+                  "id": "01a242f0-dfe3-7c3f-815f-cb1daac5a875",
+                  "props": {
+                    "data": {
+                      "$t": "01a2b82d-bf8f-7de4-910f-cc30bb1cc3e9"
+                    }
+                  },
+                  "type": "Text"
+                }
+              },
+              "testId": "ar-join",
+              "type": "FilledButton"
+            }
+          },
+          "type": "If"
+        }
+      ]
+    },
+    "type": "Scaffold"
+  },
+  "route": "ar-join",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "state": [
+    {
+      "default": [],
+      "id": "01a23956-39f5-73b2-a8d1-675e09f46d10",
+      "name": "members",
+      "type": "list<Member>"
+    },
+    {
+      "default": 1,
+      "id": "01a22f85-11e9-7c3a-97d8-2cfed02900df",
+      "name": "seq",
+      "type": "int"
+    },
+    {
+      "default": false,
+      "id": "01a28eb1-ddd9-70d2-b2b2-3b58a9fcb0e9",
+      "name": "consent",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a279b7-c4e8-7ce0-bb3b-0d855d3bbfd1"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "01a26452-556a-7f13-9aed-d63598d3772e",
+  "key": "mt-k-sheet",
+  "kind": "page",
+  "pageKind": "bottomSheet",
+  "result": "string",
+  "root": {
+    "id": "01a29cf2-b559-7c7d-b3bb-415abe676f82",
+    "props": {
+      "padding": {
+        "all": 24
+      }
+    },
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a257e2-083c-7ec7-b7ee-e76482b843de",
+            "props": {
+              "data": {
+                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                "args": {
+                  "v": "bottomSheet"
+                }
+              },
+              "style": {
+                "$token": "typography.titleLarge"
+              }
+            },
+            "semantics": {
+              "header": true
+            },
+            "type": "Text"
+          },
+          {
+            "events": {
+              "onPressed": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "done",
+                    "input": {
+                      "result": "bottomSheet"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a274b3-6ebf-7bac-947b-7d4e81d6e593",
+            "slots": {
+              "child": {
+                "id": "01a250b5-c9f5-7cc3-abc7-9ff2aa7e0b14",
+                "props": {
+                  "data": {
+                    "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                    "args": {
+                      "v": "ok"
+                    }
+                  },
+                  "style": {
+                    "$token": "typography.labelMedium"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "mt-k-sheet-done",
+            "type": "FilledButton"
+          }
+        ],
+        "id": "01a24cc1-3854-7df4-a892-c7bb4b548a89",
+        "props": {
+          "mainAxisSize": "min",
+          "spacing": 12
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Padding"
+  },
+  "route": "mt-k-sheet",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a270a1-5130-71a7-8f58-5a5d80653dcd"
+  }
+}

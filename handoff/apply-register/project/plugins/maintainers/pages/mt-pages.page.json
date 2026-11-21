@@ -1,0 +1,250 @@
+{
+  "id": "01a25779-a663-7128-a908-60b086a9804e",
+  "key": "mt-pages",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2dec0-f52a-7819-ae58-a92b9850b34a",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2fec6-2258-786b-94ae-b8728d42e5b7",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a239ca-8a40-7df0-9f70-ad07f69f2951",
+            "props": {
+              "data": {
+                "$t": "01a2e3a9-8663-7b7b-ad36-dd10a8ea9c91"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a266c6-8468-7b69-9333-50ca7e34f882",
+        "slots": {
+          "child": {
+            "id": "01a2be3b-a943-7143-96cb-1e77cc1622df",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "openDialog",
+                                "id": "open",
+                                "input": {
+                                  "route": "mt-k-dialog"
+                                },
+                                "next": "keep"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "keep",
+                                "input": {
+                                  "path": "page.last",
+                                  "value": {
+                                    "$expr": "steps.open.output ?? \"none\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2b283-9290-7243-ad53-769c382b9d01",
+                        "slots": {
+                          "child": {
+                            "id": "01a24a02-a3a0-766a-8381-6ff5a869d0bd",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "dialog"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-open-mt-k-dialog",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "openBottomSheet",
+                                "id": "open",
+                                "input": {
+                                  "route": "mt-k-sheet"
+                                },
+                                "next": "keep"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "keep",
+                                "input": {
+                                  "path": "page.last",
+                                  "value": {
+                                    "$expr": "steps.open.output ?? \"none\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2417a-34a3-7fb8-83d4-3c7d7fb5937e",
+                        "slots": {
+                          "child": {
+                            "id": "01a2fbdb-e7a8-768b-9f49-910bd1b225d4",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "bottomSheet"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-open-mt-k-sheet",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "openDialog",
+                                "id": "open",
+                                "input": {
+                                  "route": "mt-k-full"
+                                },
+                                "next": "keep"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "keep",
+                                "input": {
+                                  "path": "page.last",
+                                  "value": {
+                                    "$expr": "steps.open.output ?? \"none\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a280ef-7b8d-7f30-b80e-feaa50ffbd3b",
+                        "slots": {
+                          "child": {
+                            "id": "01a23c53-494f-7d83-abe0-289fc0c85983",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "fullscreenDialog"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-open-mt-k-full",
+                        "type": "OutlinedButton"
+                      }
+                    ],
+                    "id": "01a2c944-ecaa-7a5a-9d35-e10656db8941",
+                    "props": {
+                      "runSpacing": 8,
+                      "spacing": 8
+                    },
+                    "type": "Wrap"
+                  },
+                  {
+                    "component": {
+                      "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                      "version": 1
+                    },
+                    "id": "01a2ecb5-fcce-725e-8c8f-4952e3c668c8",
+                    "props": {
+                      "label": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "result"
+                        }
+                      },
+                      "value": {
+                        "$expr": "page.last"
+                      }
+                    }
+                  }
+                ],
+                "id": "01a2c751-8835-7e0a-9f33-4fbad7686ea9",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 20
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "mt-pages",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "none",
+      "id": "01a2d5fd-6125-755d-8400-41926b5c6093",
+      "name": "last",
+      "type": "string"
+    }
+  ],
+  "title": {
+    "$t": "01a2e3a9-8663-7b7b-ad36-dd10a8ea9c91"
+  }
+}

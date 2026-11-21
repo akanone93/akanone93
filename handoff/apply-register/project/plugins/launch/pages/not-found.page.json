@@ -1,0 +1,81 @@
+{
+  "id": "01a26cbb-c443-762a-9e3e-d5d7d1dc8e2c",
+  "key": "not-found",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2de6f-cf9f-7d07-9466-93af107e63ef",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a25228-062c-7ec8-92ee-38fb266179af",
+        "slots": {
+          "child": {
+            "id": "01a287e0-7658-7218-914a-47c5ced5be38",
+            "slots": {
+              "child": {
+                "id": "01a22478-2b95-7b5e-957c-66f5bf74eae9",
+                "props": {
+                  "icon": {
+                    "name": "search_off"
+                  },
+                  "message": {
+                    "$t": "01a211a4-4462-7604-8135-70860a40bf6b"
+                  },
+                  "title": {
+                    "$t": "01a211bc-631f-750b-aebd-f7b3d150a02b"
+                  }
+                },
+                "slots": {
+                  "action": {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "navigate",
+                            "id": "home",
+                            "input": {
+                              "mode": "clearAndPush",
+                              "route": "home"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2da02-f05b-7853-932c-fc5c0992f494",
+                    "slots": {
+                      "child": {
+                        "id": "01a2bba3-5ba3-7e0e-a3ac-61591aaae7d4",
+                        "props": {
+                          "data": {
+                            "$t": "01a27c45-17de-7bb4-8a6b-e7b5e2b8e319"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "not-found-home",
+                    "type": "FilledButton"
+                  }
+                },
+                "type": "EmptyState"
+              }
+            },
+            "type": "Center"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "not-found",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a211bc-631f-750b-aebd-f7b3d150a02b"
+  }
+}

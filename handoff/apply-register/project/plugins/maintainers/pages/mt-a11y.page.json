@@ -1,0 +1,371 @@
+{
+  "id": "01a248e6-7448-799e-b6b2-3fb6bd378435",
+  "key": "mt-a11y",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a25d4b-248b-7094-9a46-cf7fc928009f",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a23010-afde-7a87-a8b3-a0a93f515ba2",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a28c32-95e5-7668-bfbb-67ef6ea123b4",
+            "props": {
+              "data": {
+                "$t": "01a29543-24e7-7d77-8a8c-07bb3f8d52f3"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2d6cc-b360-72f4-8c78-8dff8049bf49",
+        "slots": {
+          "child": {
+            "id": "01a2dd12-3a4f-7672-ad84-3fb31242a33b",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a2f962-df22-7496-b1e3-58185fd531b5",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "label"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "A semantics label"
+                        }
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a25e48-4425-756b-a655-81decda582ad",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "hint"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "hint": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "A semantics hint"
+                        }
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a20c99-0be2-7b53-a18b-94823154756c",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "value"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "value": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "42"
+                        }
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a25b3f-ce24-76db-8243-ec91836d234f",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "heading 1"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "header": true,
+                      "headingLevel": 1
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a2ba9d-56ee-78aa-930f-6ad40dc79da8",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "heading 2"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "header": true,
+                      "headingLevel": 2
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a24eff-3d12-7fb0-94c6-f8a7e493db1f",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "heading 3"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "header": true,
+                      "headingLevel": 3
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a21533-c3ac-766e-b147-d355180c72e0",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "heading 4"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "header": true,
+                      "headingLevel": 4
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a20441-4e39-7517-8076-6a73692e5b46",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "heading 5"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "header": true,
+                      "headingLevel": 5
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a25ad3-4c7e-769e-82d4-d09fcecdcb46",
+                    "props": {
+                      "data": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "heading 6"
+                        }
+                      }
+                    },
+                    "semantics": {
+                      "header": true,
+                      "headingLevel": 6
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a29bf0-f41e-7ade-ba60-a78c9d58f4b8",
+                    "props": {
+                      "data": {
+                        "$expr": "\"liveRegion \" + string(plugin.count)"
+                      }
+                    },
+                    "semantics": {
+                      "liveRegion": true
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "inc",
+                            "input": {
+                              "path": "plugin.count",
+                              "value": {
+                                "$expr": "plugin.count + 1"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a24a13-297b-78b6-b200-535726f87b88",
+                    "slots": {
+                      "child": {
+                        "id": "01a25ffb-a79e-7c74-a26f-c3c5ebc256d4",
+                        "props": {
+                          "data": {
+                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                            "args": {
+                              "v": "+1"
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.labelMedium"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "mt-live",
+                    "type": "OutlinedButton"
+                  },
+                  {
+                    "id": "01a2158c-d6c3-7eeb-a75f-f7f499e88386",
+                    "props": {
+                      "icon": {
+                        "name": "star"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "announce",
+                            "id": "a",
+                            "input": {
+                              "assertiveness": "polite",
+                              "message": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "announced"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a29578-00d9-7c29-82c3-90d5de10865e",
+                    "slots": {
+                      "child": {
+                        "id": "01a2cdc3-27ec-737e-b0bc-6e91943474f7",
+                        "props": {
+                          "data": {
+                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                            "args": {
+                              "v": "announce"
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.labelMedium"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "mt-announce",
+                    "type": "OutlinedButton"
+                  },
+                  {
+                    "component": {
+                      "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                      "version": 1
+                    },
+                    "id": "01a27b28-5bd8-7a21-afac-cff7b425fdbc",
+                    "props": {
+                      "label": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "reduceMotion"
+                        }
+                      },
+                      "value": {
+                        "$expr": "string(device.reduceMotion)"
+                      }
+                    }
+                  },
+                  {
+                    "component": {
+                      "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                      "version": 1
+                    },
+                    "id": "01a21ce1-e121-7e87-b5ac-3cc472ef4ed9",
+                    "props": {
+                      "label": {
+                        "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                        "args": {
+                          "v": "screenReader"
+                        }
+                      },
+                      "value": {
+                        "$expr": "string(device.screenReader)"
+                      }
+                    }
+                  }
+                ],
+                "id": "01a2f7e7-b39c-7008-adae-5815c60ff01b",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 20
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "mt-a11y",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a29543-24e7-7d77-8a8c-07bb3f8d52f3"
+  }
+}

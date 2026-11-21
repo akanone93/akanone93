@@ -1,0 +1,276 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "share",
+      "clipboard",
+      "notifications",
+      "haptics"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "collection": "registrations",
+        "filter": {
+          "field": "status",
+          "op": "in",
+          "value": [
+            "submitted",
+            "approved"
+          ]
+        },
+        "orderBy": "rank"
+      },
+      "id": "01a2593e-ef77-7dd5-873d-2d58234fa918",
+      "kind": "database",
+      "mock": [
+        {
+          "amount": null,
+          "currency": null,
+          "eventAt": "2026-11-20T09:00:00+01:00",
+          "formKey": "account",
+          "id": "r-001",
+          "note": null,
+          "orgName": "Nordvia Bank",
+          "orgSlug": "bank",
+          "passCode": "NB-7Q4K-2291",
+          "pinned": true,
+          "rank": 0,
+          "status": "approved",
+          "submittedAt": "2026-11-12T10:15:00+01:00"
+        },
+        {
+          "amount": "25.00",
+          "currency": "EUR",
+          "eventAt": null,
+          "formKey": "admission",
+          "id": "r-002",
+          "note": null,
+          "orgName": "Aster University",
+          "orgSlug": "campus",
+          "passCode": "AU-31KD-8810",
+          "pinned": false,
+          "rank": 1,
+          "status": "submitted",
+          "submittedAt": "2026-11-15T16:40:00+03:00"
+        }
+      ],
+      "name": "active",
+      "type": "list<Registration>"
+    },
+    {
+      "config": {
+        "collection": "registrations",
+        "descending": true,
+        "filter": {
+          "field": "status",
+          "op": "eq",
+          "value": "draft"
+        },
+        "orderBy": "submittedAt"
+      },
+      "id": "01a2853e-6223-7716-8751-f4b87fc0226b",
+      "kind": "database",
+      "mock": [
+        {
+          "amount": "25.00",
+          "currency": "EUR",
+          "eventAt": null,
+          "formKey": "admission",
+          "id": "r-003",
+          "note": null,
+          "orgName": "Riverton City Run",
+          "orgSlug": "cityrun",
+          "passCode": "",
+          "pinned": false,
+          "rank": 1,
+          "status": "draft",
+          "submittedAt": "2026-11-15T16:40:00+03:00"
+        }
+      ],
+      "name": "drafts",
+      "type": "list<Registration>"
+    },
+    {
+      "config": {
+        "collection": "registrations",
+        "descending": true,
+        "filter": {
+          "field": "status",
+          "op": "in",
+          "value": [
+            "done",
+            "withdrawn"
+          ]
+        },
+        "orderBy": "submittedAt"
+      },
+      "id": "01a2295a-71bc-7564-9405-0418d22e8537",
+      "kind": "database",
+      "mock": [
+        {
+          "amount": null,
+          "currency": null,
+          "eventAt": "2026-11-20T09:00:00+01:00",
+          "formKey": "account",
+          "id": "r-000",
+          "note": null,
+          "orgName": "Nordvia Bank",
+          "orgSlug": "bank",
+          "passCode": "NB-7Q4K-2291",
+          "pinned": true,
+          "rank": 0,
+          "status": "done",
+          "submittedAt": "2026-06-01T09:00:00+02:00"
+        }
+      ],
+      "name": "past",
+      "type": "list<Registration>"
+    },
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "encrypted": true,
+          "policy": "networkFirst",
+          "ttlSeconds": 300
+        },
+        "operations": {
+          "feedback": {
+            "auth": true,
+            "input": "Feedback",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/me/registrations/{id}/feedback"
+          },
+          "withdraw": {
+            "auth": true,
+            "input": "RegRef",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/me/registrations/{id}/withdraw"
+          }
+        },
+        "pagination": {
+          "hasMore": "more",
+          "offsetParam": "offset",
+          "pageSize": 25,
+          "style": "offset"
+        },
+        "path": "/me/registrations",
+        "select": "items"
+      },
+      "id": "01a2f428-ee92-703e-8423-4c3767c1acd7",
+      "kind": "rest",
+      "mock": [
+        {
+          "amount": null,
+          "currency": null,
+          "eventAt": "2026-11-20T09:00:00+01:00",
+          "formKey": "account",
+          "id": "r-001",
+          "note": null,
+          "orgName": "Nordvia Bank",
+          "orgSlug": "bank",
+          "passCode": "NB-7Q4K-2291",
+          "pinned": true,
+          "rank": 0,
+          "status": "approved",
+          "submittedAt": "2026-11-12T10:15:00+01:00"
+        },
+        {
+          "amount": "25.00",
+          "currency": "EUR",
+          "eventAt": null,
+          "formKey": "admission",
+          "id": "r-002",
+          "note": null,
+          "orgName": "Aster University",
+          "orgSlug": "campus",
+          "passCode": "AU-31KD-8810",
+          "pinned": false,
+          "rank": 1,
+          "status": "submitted",
+          "submittedAt": "2026-11-15T16:40:00+03:00"
+        }
+      ],
+      "name": "remote",
+      "route": "plux",
+      "type": "list<Registration>"
+    }
+  ],
+  "description": "Your registrations and their passes.",
+  "entryPage": "01a23ec9-b99a-7b43-a5c4-8cd19da29718",
+  "fallbackPage": "01a2996c-3529-7f81-b8ee-8c5c7a7bd1df",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a227cb-2ca5-7315-9fa3-09194d334ad0",
+  "key": "passes",
+  "kind": "plugin",
+  "name": "Passes",
+  "pages": [
+    "01a23ec9-b99a-7b43-a5c4-8cd19da29718",
+    "01a26400-a7ca-79fd-a4ee-41273f580e76",
+    "01a24b2d-b159-73ba-9bdf-d16db832f65c",
+    "01a252d8-32f2-711f-87f1-d22fc426f433",
+    "01a2343d-7c78-71ad-95dc-52fa47959554",
+    "01a25dac-d5fd-75d2-a6ca-c171165cb1f4",
+    "01a2333f-9293-7253-b398-c00affeed02a",
+    "01a2996c-3529-7f81-b8ee-8c5c7a7bd1df"
+  ],
+  "schemaVersion": "1.0.0",
+  "tags": [
+    "registrations"
+  ],
+  "team": "apply-register",
+  "triggers": {
+    "onAppResume": {
+      "concurrency": "queue",
+      "steps": [
+        {
+          "action": "refreshData",
+          "id": "load",
+          "input": {
+            "source": "remote"
+          },
+          "next": "keep"
+        },
+        {
+          "action": "forEach",
+          "branches": {
+            "body": "put"
+          },
+          "id": "keep",
+          "input": {
+            "items": {
+              "$expr": "data.remote.value ?? []"
+            }
+          }
+        },
+        {
+          "action": "dbUpsert",
+          "id": "put",
+          "input": {
+            "collection": "registrations",
+            "key": {
+              "$expr": "item.id"
+            },
+            "record": {
+              "$expr": "item"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

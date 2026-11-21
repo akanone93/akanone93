@@ -1,0 +1,156 @@
+{
+  "id": "01a2ce93-7790-7cab-afb0-fa2c6e97f43e",
+  "key": "vf-signature",
+  "kind": "page",
+  "pageKind": "bottomSheet",
+  "result": "VerifyResult",
+  "root": {
+    "id": "01a253a8-a2da-7646-a70b-a78dc54bad4e",
+    "slots": {
+      "child": {
+        "id": "01a2c563-e376-720b-ad23-ea5a9ae58c91",
+        "props": {
+          "padding": {
+            "all": 16
+          }
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a254d8-a9e8-7314-aa83-4135808d8862",
+                "props": {
+                  "data": {
+                    "$t": "01a27dd1-b349-7c92-ab2a-82c948c7908c"
+                  },
+                  "style": {
+                    "$token": "typography.titleLarge"
+                  }
+                },
+                "semantics": {
+                  "header": true
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "keep",
+                        "input": {
+                          "path": "page.svg",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a22dd7-b173-7d52-88ce-1d3e5cea907d",
+                "props": {
+                  "clearLabel": {
+                    "$t": "01a23118-5156-703c-bb15-92dfebe77d46"
+                  },
+                  "format": "svg",
+                  "height": 200,
+                  "semanticLabel": {
+                    "$t": "01a27dd1-b349-7c92-ab2a-82c948c7908c"
+                  },
+                  "strokeWidth": 2.5
+                },
+                "testId": "signature-pad",
+                "type": "SignaturePad"
+              },
+              {
+                "id": "01a2045d-c282-7bc0-b604-16944ed386a8",
+                "props": {
+                  "condition": {
+                    "$expr": "page.svg != \"\""
+                  }
+                },
+                "slots": {
+                  "else": {
+                    "id": "01a219a9-06ab-706a-a865-4bc55feb2dbd",
+                    "slots": {
+                      "child": {
+                        "id": "01a22a8a-83aa-7f3f-8432-7c2dea54df7e",
+                        "props": {
+                          "data": {
+                            "$t": "01a2114e-3f45-7992-84e5-296fc8d23344"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "signature-use-disabled",
+                    "type": "FilledButton"
+                  },
+                  "then": {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "pop",
+                            "id": "done",
+                            "input": {
+                              "result": {
+                                "value": {
+                                  "$expr": "page.svg"
+                                },
+                                "verified": true
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a20021-fa5f-711a-8cf2-dce14c8a803b",
+                    "slots": {
+                      "child": {
+                        "id": "01a216fd-dae1-7942-8739-5295a0ec806d",
+                        "props": {
+                          "data": {
+                            "$t": "01a2114e-3f45-7992-84e5-296fc8d23344"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "signature-use",
+                    "type": "FilledButton"
+                  }
+                },
+                "type": "If"
+              }
+            ],
+            "id": "01a21a9f-df4a-78ae-a979-711a999cb1ff",
+            "props": {
+              "crossAxisAlignment": "stretch",
+              "mainAxisSize": "min",
+              "spacing": 12
+            },
+            "type": "Column"
+          }
+        },
+        "type": "Padding"
+      }
+    },
+    "type": "SafeArea"
+  },
+  "route": "vf-signature",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "",
+      "id": "01a22c0d-5052-7558-96f0-af422dffaded",
+      "name": "svg",
+      "type": "string"
+    }
+  ],
+  "title": {
+    "$t": "01a27dd1-b349-7c92-ab2a-82c948c7908c"
+  }
+}

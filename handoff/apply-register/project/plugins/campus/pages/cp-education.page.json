@@ -1,0 +1,940 @@
+{
+  "id": "01a269d2-7b40-7460-a00c-eeb9130e6a8b",
+  "key": "cp-education",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a22aff-e857-7e22-9ab5-1ba2bec061f7",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a26c41-1d03-7f98-a4c1-e50bb490106d",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "actions": [
+            {
+              "events": {
+                "onPressed": {
+                  "concurrency": "drop",
+                  "steps": [
+                    {
+                      "action": "dbUpsert",
+                      "id": "keep",
+                      "input": {
+                        "collection": "drafts",
+                        "key": {
+                          "$expr": "plugin.app.programmeId"
+                        },
+                        "record": {
+                          "$expr": "plugin.app"
+                        }
+                      },
+                      "next": "ask"
+                    },
+                    {
+                      "action": "openDialog",
+                      "id": "ask",
+                      "input": {
+                        "route": "cp-saved"
+                      },
+                      "next": "pick"
+                    },
+                    {
+                      "action": "switch",
+                      "branches": {
+                        "exit": "out"
+                      },
+                      "id": "pick",
+                      "input": {
+                        "cases": [
+                          "exit"
+                        ],
+                        "value": {
+                          "$expr": "steps.ask.output ?? \"stay\""
+                        }
+                      }
+                    },
+                    {
+                      "action": "navigate",
+                      "id": "out",
+                      "input": {
+                        "mode": "popUntil",
+                        "route": "cp-home",
+                        "until": "cp-home"
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "01a29e40-0e7e-7333-adc8-bd9ea02e8134",
+              "slots": {
+                "child": {
+                  "id": "01a21a85-85c3-7296-bcdd-f0e44ec77ebd",
+                  "props": {
+                    "data": {
+                      "$t": "01a21b73-bca3-719b-b245-6317c2c02d05"
+                    }
+                  },
+                  "type": "Text"
+                }
+              },
+              "testId": "cp-save-2",
+              "type": "TextButton"
+            }
+          ],
+          "title": {
+            "id": "01a2713a-62be-775d-ab2b-9b541f9ca212",
+            "props": {
+              "data": {
+                "$t": "01a29e76-d76e-7198-955f-d84585078a12"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2f99b-e01f-7583-80a5-666377f878c3",
+        "slots": {
+          "child": {
+            "id": "01a27331-947c-7776-af15-1e3042538a1c",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "id": "01a28687-f2ca-716b-91fb-bd4de527047f",
+                        "props": {
+                          "borderRadius": {
+                            "all": {
+                              "$token": "radius.pill"
+                            }
+                          },
+                          "minHeight": 4,
+                          "semanticsLabel": {
+                            "$t": "01a233a0-9ca2-7fa8-86cf-b33f1131294c",
+                            "args": {
+                              "n": {
+                                "$expr": "string(2)"
+                              }
+                            }
+                          },
+                          "value": 0.5
+                        },
+                        "type": "LinearProgressIndicator"
+                      },
+                      {
+                        "id": "01a2b0e5-7b96-7a2a-8606-5fa2af55a4ca",
+                        "props": {
+                          "data": {
+                            "$t": "01a233a0-9ca2-7fa8-86cf-b33f1131294c",
+                            "args": {
+                              "n": {
+                                "$expr": "string(2)"
+                              }
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.labelMedium"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a26396-abf2-722c-9cab-cdb4f8a295be",
+                        "props": {
+                          "data": {
+                            "$t": "01a2bd0f-8886-7840-a3d9-428ebac34cf2"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "id": "01a291ec-132b-7acc-b0c8-fa4e8ed05afb",
+                    "props": {
+                      "crossAxisAlignment": "start",
+                      "spacing": 4
+                    },
+                    "type": "Column"
+                  },
+                  {
+                    "id": "01a2d337-f553-78ed-9705-529d223d4cb4",
+                    "props": {
+                      "height": 8
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "id": "01a2be75-a6e7-716f-a83c-4526746e519d",
+                    "props": {
+                      "condition": {
+                        "$expr": "isEmpty(plugin.schools)"
+                      }
+                    },
+                    "slots": {
+                      "then": {
+                        "id": "01a2fd9d-45be-7c28-9468-98d171b511be",
+                        "props": {
+                          "data": {
+                            "$t": "01a2038c-d06c-7ca2-abe2-f89db9b389b2"
+                          },
+                          "style": {
+                            "$token": "typography.bodyMedium"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "If"
+                  },
+                  {
+                    "id": "01a2ed52-02e3-7fb8-945f-d6aafaa8a2a9",
+                    "props": {
+                      "items": {
+                        "$expr": "plugin.schools"
+                      }
+                    },
+                    "slots": {
+                      "item": {
+                        "events": {
+                          "onDismissed": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "drop",
+                                "input": {
+                                  "path": "plugin.schools",
+                                  "value": {
+                                    "$expr": "plugin.schools.filter(s, s.id != item.id)"
+                                  }
+                                },
+                                "next": "say"
+                              },
+                              {
+                                "action": "announce",
+                                "id": "say",
+                                "input": {
+                                  "message": {
+                                    "$t": "01a25722-3da3-71e0-a3d3-21a321e0aa68"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a29c24-9f23-7baa-9bf2-8225fc1bd470",
+                        "props": {
+                          "direction": "horizontal"
+                        },
+                        "slots": {
+                          "background": {
+                            "id": "01a2a448-346b-760b-9193-196ae60625f1",
+                            "props": {
+                              "alignment": "centerStart",
+                              "color": {
+                                "$token": "color.errorContainer"
+                              },
+                              "padding": {
+                                "horizontal": 24
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a2d30b-62c6-7008-84a1-71ef9afd9b4b",
+                                "props": {
+                                  "color": {
+                                    "$token": "color.onErrorContainer"
+                                  },
+                                  "icon": {
+                                    "name": "delete"
+                                  }
+                                },
+                                "semantics": {
+                                  "decorative": true
+                                },
+                                "type": "Icon"
+                              }
+                            },
+                            "type": "Container"
+                          },
+                          "child": {
+                            "id": "01a2c9b8-7813-781d-9ea8-3134af597752",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "vertical": 8
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a2dc5c-6cea-744f-8402-45c243a0cad1",
+                                "props": {
+                                  "padding": {
+                                    "all": 16
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a2e266-9aa9-7dc7-9c0a-005641322e73",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a28636-d017-7866-ad76-bdba02b449d7",
+                                            "args": {
+                                              "n": {
+                                                "$expr": "index + 1"
+                                              }
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.titleMedium"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      },
+                                      {
+                                        "events": {
+                                          "onChanged": {
+                                            "steps": [
+                                              {
+                                                "action": "setState",
+                                                "id": "set",
+                                                "input": {
+                                                  "path": "plugin.schools",
+                                                  "value": {
+                                                    "$expr": "plugin.schools.map(s, s.id == item.id ? {\"id\": s.id, \"name\": event, \"year\": s.year, \"grade\": s.grade} : s)"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "id": "01a2e513-0ced-7e09-a152-d5e40900a30c",
+                                        "props": {
+                                          "decoration": {
+                                            "filled": true,
+                                            "labelText": {
+                                              "$t": "01a24469-c4a2-7ebf-9c01-504a931f8cd3"
+                                            }
+                                          },
+                                          "textCapitalization": "words",
+                                          "value": {
+                                            "$expr": "item.name"
+                                          }
+                                        },
+                                        "testId": "cp-school-name",
+                                        "type": "TextFormField"
+                                      },
+                                      {
+                                        "events": {
+                                          "onSelected": {
+                                            "steps": [
+                                              {
+                                                "action": "setState",
+                                                "id": "set",
+                                                "input": {
+                                                  "path": "plugin.schools",
+                                                  "value": {
+                                                    "$expr": "plugin.schools.map(s, s.id == item.id ? {\"id\": s.id, \"name\": s.name, \"year\": event ?? \"\", \"grade\": s.grade} : s)"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "id": "01a288d5-b3d4-720e-a123-3b000277f264",
+                                        "props": {
+                                          "dropdownMenuEntries": [
+                                            {
+                                              "label": "2026",
+                                              "value": "2026"
+                                            },
+                                            {
+                                              "label": "2025",
+                                              "value": "2025"
+                                            },
+                                            {
+                                              "label": "2024",
+                                              "value": "2024"
+                                            },
+                                            {
+                                              "label": "2023",
+                                              "value": "2023"
+                                            },
+                                            {
+                                              "label": "2022",
+                                              "value": "2022"
+                                            },
+                                            {
+                                              "label": "2021",
+                                              "value": "2021"
+                                            },
+                                            {
+                                              "label": "2020",
+                                              "value": "2020"
+                                            },
+                                            {
+                                              "label": "2019",
+                                              "value": "2019"
+                                            },
+                                            {
+                                              "label": "2018",
+                                              "value": "2018"
+                                            },
+                                            {
+                                              "label": "2017",
+                                              "value": "2017"
+                                            },
+                                            {
+                                              "label": "2016",
+                                              "value": "2016"
+                                            },
+                                            {
+                                              "label": "2015",
+                                              "value": "2015"
+                                            },
+                                            {
+                                              "label": "2014",
+                                              "value": "2014"
+                                            },
+                                            {
+                                              "label": "2013",
+                                              "value": "2013"
+                                            },
+                                            {
+                                              "label": "2012",
+                                              "value": "2012"
+                                            },
+                                            {
+                                              "label": "2011",
+                                              "value": "2011"
+                                            },
+                                            {
+                                              "label": "2010",
+                                              "value": "2010"
+                                            },
+                                            {
+                                              "label": "2009",
+                                              "value": "2009"
+                                            },
+                                            {
+                                              "label": "2008",
+                                              "value": "2008"
+                                            },
+                                            {
+                                              "label": "2007",
+                                              "value": "2007"
+                                            },
+                                            {
+                                              "label": "2006",
+                                              "value": "2006"
+                                            },
+                                            {
+                                              "label": "2005",
+                                              "value": "2005"
+                                            },
+                                            {
+                                              "label": "2004",
+                                              "value": "2004"
+                                            },
+                                            {
+                                              "label": "2003",
+                                              "value": "2003"
+                                            },
+                                            {
+                                              "label": "2002",
+                                              "value": "2002"
+                                            },
+                                            {
+                                              "label": "2001",
+                                              "value": "2001"
+                                            },
+                                            {
+                                              "label": "2000",
+                                              "value": "2000"
+                                            }
+                                          ],
+                                          "expandedInsets": {
+                                            "all": 0
+                                          },
+                                          "initialSelection": {
+                                            "$expr": "item.year"
+                                          },
+                                          "menuHeight": 240,
+                                          "requestFocusOnTap": false
+                                        },
+                                        "slots": {
+                                          "label": {
+                                            "id": "01a2eb69-f68a-7ef1-8fff-fbdea023cef7",
+                                            "props": {
+                                              "data": {
+                                                "$t": "01a2de4e-3b59-7735-94d7-4ff62ad06206"
+                                              }
+                                            },
+                                            "type": "Text"
+                                          }
+                                        },
+                                        "testId": "cp-school-year",
+                                        "type": "DropdownMenu"
+                                      },
+                                      {
+                                        "events": {
+                                          "onChanged": {
+                                            "steps": [
+                                              {
+                                                "action": "setState",
+                                                "id": "set",
+                                                "input": {
+                                                  "path": "plugin.schools",
+                                                  "value": {
+                                                    "$expr": "plugin.schools.map(s, s.id == item.id ? {\"id\": s.id, \"name\": s.name, \"year\": s.year, \"grade\": event} : s)"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "id": "01a23d5c-7048-76e7-a0fb-c82157fff5ab",
+                                        "props": {
+                                          "decoration": {
+                                            "filled": true,
+                                            "labelText": {
+                                              "$t": "01a28966-eb5c-7e39-9560-38c33e398dc2"
+                                            }
+                                          },
+                                          "keyboardType": "decimal",
+                                          "value": {
+                                            "$expr": "item.grade"
+                                          }
+                                        },
+                                        "testId": "cp-school-grade",
+                                        "type": "TextFormField"
+                                      }
+                                    ],
+                                    "id": "01a2fde1-82d6-7c59-92f9-52ea0bd54687",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch",
+                                      "spacing": 12
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          },
+                          "secondaryBackground": {
+                            "id": "01a2a941-f5c2-75b7-96bd-5258f5ad75c6",
+                            "props": {
+                              "alignment": "centerEnd",
+                              "color": {
+                                "$token": "color.errorContainer"
+                              },
+                              "padding": {
+                                "horizontal": 24
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a299bd-9d8d-7c51-9abc-07e4e5d2985d",
+                                "props": {
+                                  "color": {
+                                    "$token": "color.onErrorContainer"
+                                  },
+                                  "icon": {
+                                    "name": "delete"
+                                  }
+                                },
+                                "semantics": {
+                                  "decorative": true
+                                },
+                                "type": "Icon"
+                              }
+                            },
+                            "type": "Container"
+                          }
+                        },
+                        "testId": "cp-school",
+                        "type": "Dismissible"
+                      }
+                    },
+                    "type": "ForEach"
+                  },
+                  {
+                    "id": "01a26d26-042f-73a9-95fc-880bcd3f83b3",
+                    "props": {
+                      "condition": {
+                        "$expr": "size(plugin.schools) < 5"
+                      }
+                    },
+                    "slots": {
+                      "else": {
+                        "children": [
+                          {
+                            "id": "01a22874-844c-7ff5-85e6-5d9dd72926fd",
+                            "slots": {
+                              "child": {
+                                "children": [
+                                  {
+                                    "id": "01a21c15-8240-72a9-8291-f76d63cc4471",
+                                    "props": {
+                                      "icon": {
+                                        "name": "add"
+                                      }
+                                    },
+                                    "semantics": {
+                                      "decorative": true
+                                    },
+                                    "type": "Icon"
+                                  },
+                                  {
+                                    "id": "01a2fa1a-328a-7848-8275-fc3cefaed20a",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a27b43-782e-7c2b-9201-5a969c227b6d"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                ],
+                                "id": "01a2edb5-c7c5-72f5-9791-607af3cade52",
+                                "props": {
+                                  "mainAxisSize": "min",
+                                  "spacing": 8
+                                },
+                                "type": "Row"
+                              }
+                            },
+                            "testId": "cp-add-school-off",
+                            "type": "OutlinedButton"
+                          },
+                          {
+                            "id": "01a2c118-8f93-7016-953d-a2a324c49f2c",
+                            "props": {
+                              "data": {
+                                "$t": "01a243b9-73e8-7cf5-b9ab-2f8984c93651"
+                              },
+                              "style": {
+                                "$token": "typography.bodySmall"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        ],
+                        "id": "01a2d2e2-99e9-7978-9209-79dd0d4bb7cd",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 4
+                        },
+                        "type": "Column"
+                      },
+                      "then": {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "plugin.schools",
+                                  "value": {
+                                    "$expr": "plugin.schools + [{\"id\": \"s\" + string(plugin.schoolSeq), \"name\": \"\", \"year\": \"\", \"grade\": \"\"}]"
+                                  }
+                                },
+                                "next": "seq"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "seq",
+                                "input": {
+                                  "path": "plugin.schoolSeq",
+                                  "value": {
+                                    "$expr": "plugin.schoolSeq + 1"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a230cb-f316-71de-95b3-7167d04244ea",
+                        "slots": {
+                          "child": {
+                            "children": [
+                              {
+                                "id": "01a2e281-fe77-7cab-bb31-2d2246dbd7d5",
+                                "props": {
+                                  "icon": {
+                                    "name": "add"
+                                  }
+                                },
+                                "semantics": {
+                                  "decorative": true
+                                },
+                                "type": "Icon"
+                              },
+                              {
+                                "id": "01a27106-bb87-7f8a-8550-7814c055b90c",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a27b43-782e-7c2b-9201-5a969c227b6d"
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            ],
+                            "id": "01a2dacc-0b65-7a7f-a6e1-2510816b15eb",
+                            "props": {
+                              "mainAxisSize": "min",
+                              "spacing": 8
+                            },
+                            "type": "Row"
+                          }
+                        },
+                        "testId": "cp-add-school",
+                        "type": "OutlinedButton"
+                      }
+                    },
+                    "type": "If"
+                  },
+                  {
+                    "id": "01a2b0a3-5ef0-7e6b-8272-037317693903",
+                    "props": {
+                      "height": 24
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "id": "01a25833-c254-7329-ae9d-99d8bcef57b7",
+                    "props": {
+                      "data": {
+                        "$t": "01a2d0f0-8f36-7c36-a7d2-6c2dab9eec7e"
+                      },
+                      "style": {
+                        "$token": "typography.titleMedium"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a2acd5-f8c1-719e-a64c-62a5aedcd24d",
+                    "props": {
+                      "data": {
+                        "$t": "01a27f31-dcdb-7cd8-abe2-3515310b6dbe"
+                      },
+                      "style": {
+                        "$token": "typography.bodySmall"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "events": {
+                      "onReorder": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "move",
+                            "input": {
+                              "path": "plugin.choices",
+                              "value": {
+                                "$expr": "slice((slice(plugin.choices, 0, event[\"oldIndex\"] ?? 0) + slice(plugin.choices, event[\"oldIndex\"] ?? 0 + 1, size(plugin.choices))), 0, event[\"newIndex\"] ?? 0) + [at(plugin.choices, event[\"oldIndex\"] ?? 0) ?? \"\"] + slice((slice(plugin.choices, 0, event[\"oldIndex\"] ?? 0) + slice(plugin.choices, event[\"oldIndex\"] ?? 0 + 1, size(plugin.choices))), event[\"newIndex\"] ?? 0, size((slice(plugin.choices, 0, event[\"oldIndex\"] ?? 0) + slice(plugin.choices, event[\"oldIndex\"] ?? 0 + 1, size(plugin.choices)))))"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a211aa-0230-7a08-b4ec-1d89343d0530",
+                    "props": {
+                      "buildDefaultDragHandles": true,
+                      "items": {
+                        "$expr": "plugin.choices"
+                      },
+                      "physics": "never",
+                      "shrinkWrap": true
+                    },
+                    "slots": {
+                      "item": {
+                        "id": "01a296d1-e0a5-7e03-852b-45a04ee19803",
+                        "slots": {
+                          "leading": {
+                            "id": "01a22d3e-6299-7e05-a5ee-c1477ab97e05",
+                            "props": {
+                              "data": {
+                                "$t": "01a25449-f5c7-72ff-a111-dcde04e85a84",
+                                "args": {
+                                  "n": {
+                                    "$expr": "index + 1"
+                                  }
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelLarge"
+                              }
+                            },
+                            "type": "Text"
+                          },
+                          "title": {
+                            "id": "01a20fb7-6a81-7eb0-88bd-f1f31fcbfecd",
+                            "props": {
+                              "cases": [
+                                "main",
+                                "city",
+                                "online"
+                              ],
+                              "value": {
+                                "$expr": "item"
+                              }
+                            },
+                            "slots": {
+                              "branches": [
+                                {
+                                  "id": "01a20f46-8eaf-73f8-9257-06d6dcf3f0b4",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a2ef9c-0ace-7f16-9324-4cc8f243de6a"
+                                    },
+                                    "style": {
+                                      "$token": "typography.bodyLarge"
+                                    }
+                                  },
+                                  "type": "Text"
+                                },
+                                {
+                                  "id": "01a24017-d197-7224-9fde-5c8e3c31c1bc",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a2767a-f2f7-7ff6-8b7e-40067167437e"
+                                    },
+                                    "style": {
+                                      "$token": "typography.bodyLarge"
+                                    }
+                                  },
+                                  "type": "Text"
+                                },
+                                {
+                                  "id": "01a25693-52e3-7c58-902e-deebb65737d6",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a22786-f51f-7325-8b2b-31d5075a5ec4"
+                                    },
+                                    "style": {
+                                      "$token": "typography.bodyLarge"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ]
+                            },
+                            "type": "Match"
+                          }
+                        },
+                        "type": "ListTile"
+                      }
+                    },
+                    "testId": "cp-choices",
+                    "type": "ReorderableListView"
+                  }
+                ],
+                "id": "01a26d77-9c49-753a-a2fa-a4e47d1a7185",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "bottomNavigationBar": {
+        "component": {
+          "id": "01a2b909-cbad-77df-b6b6-d36ce2fb1df9",
+          "version": 1
+        },
+        "events": {
+          "onSubmit": {
+            "concurrency": "drop",
+            "steps": [
+              {
+                "action": "patchState",
+                "id": "step",
+                "input": {
+                  "patch": {
+                    "step": 3
+                  },
+                  "path": "plugin.app"
+                },
+                "next": "go"
+              },
+              {
+                "action": "navigate",
+                "id": "go",
+                "input": {
+                  "route": "cp-documents"
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a2f661-2c16-71eb-b4dc-e2566c267c43",
+        "props": {
+          "enabled": {
+            "$expr": "!isEmpty(plugin.schools)"
+          },
+          "label": {
+            "$t": "01a2cae3-6a94-71e6-ac01-6c2f09ad3f1d"
+          }
+        },
+        "testId": "cp-education-next"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cp-education",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2bd0f-8886-7840-a3d9-428ebac34cf2"
+  }
+}

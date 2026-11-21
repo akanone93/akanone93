@@ -1,0 +1,74 @@
+{
+  "description": "Captures an identity document, then a selfie; fails with ID_CANCELLED.",
+  "exported": true,
+  "id": "01a25b7e-f6bd-7d21-aaca-7837717af69d",
+  "key": "capture-identity",
+  "kind": "actionGraph",
+  "output": "IdentityResult",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "openDialog",
+      "id": "doc",
+      "input": {
+        "route": "vf-id"
+      },
+      "next": "docOk"
+    },
+    {
+      "action": "condition",
+      "branches": {
+        "else": "cancelled",
+        "then": "selfie"
+      },
+      "id": "docOk",
+      "input": {
+        "when": {
+          "$expr": "steps.doc.output?.verified ?? false"
+        }
+      }
+    },
+    {
+      "action": "openDialog",
+      "id": "selfie",
+      "input": {
+        "route": "vf-selfie"
+      },
+      "next": "selfieOk"
+    },
+    {
+      "action": "condition",
+      "branches": {
+        "else": "cancelled",
+        "then": "done"
+      },
+      "id": "selfieOk",
+      "input": {
+        "when": {
+          "$expr": "steps.selfie.output?.verified ?? false"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "done",
+      "input": {
+        "result": {
+          "document": {
+            "$expr": "steps.doc.output?.value ?? \"\""
+          },
+          "selfie": {
+            "$expr": "steps.selfie.output?.value ?? \"\""
+          }
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "cancelled",
+      "input": {
+        "error": "ID_CANCELLED"
+      }
+    }
+  ]
+}

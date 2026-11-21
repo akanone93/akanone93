@@ -1,0 +1,1172 @@
+{
+  "forms": [
+    {
+      "fields": [
+        {
+          "initial": "",
+          "name": "name",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "length",
+              "max": 100
+            }
+          ]
+        },
+        {
+          "initial": null,
+          "name": "dob",
+          "sensitive": true,
+          "type": "date?",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "dateRange",
+              "max": "2026-12-31",
+              "min": "1900-01-01"
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "insurer",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "insuranceNo",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "regex",
+              "message": {
+                "$t": "01a2bf9e-fa3c-7443-8e23-97942c86df91"
+              },
+              "pattern": "^[A-Z][0-9]{9}$"
+            }
+          ]
+        },
+        {
+          "initial": true,
+          "name": "insured",
+          "type": "bool"
+        },
+        {
+          "initial": "other",
+          "name": "sex",
+          "type": "string"
+        },
+        {
+          "initial": 70.0,
+          "name": "weight",
+          "sensitive": true,
+          "type": "double",
+          "validators": [
+            {
+              "kind": "range",
+              "max": 250.0,
+              "min": 2.0
+            }
+          ]
+        }
+      ],
+      "id": "01a2a195-119d-70b2-9df7-1cd5f00f44b2",
+      "name": "patient"
+    }
+  ],
+  "id": "01a2a97d-9ee9-79d6-b205-b1c58a242889",
+  "key": "cl-patient",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "condition",
+          "branches": {
+            "then": "name"
+          },
+          "id": "had",
+          "input": {
+            "when": {
+              "$expr": "plugin.patient != null"
+            }
+          }
+        },
+        {
+          "action": "setState",
+          "id": "name",
+          "input": {
+            "path": "page.patient.values.name",
+            "value": {
+              "$expr": "plugin.patient?.name ?? \"\""
+            }
+          },
+          "next": "dob"
+        },
+        {
+          "action": "setState",
+          "id": "dob",
+          "input": {
+            "path": "page.patient.values.dob",
+            "value": {
+              "$expr": "plugin.patient?.dob"
+            }
+          },
+          "next": "insurer"
+        },
+        {
+          "action": "setState",
+          "id": "insurer",
+          "input": {
+            "path": "page.patient.values.insurer",
+            "value": {
+              "$expr": "plugin.patient?.insurer ?? \"\""
+            }
+          },
+          "next": "insuranceNo"
+        },
+        {
+          "action": "setState",
+          "id": "insuranceNo",
+          "input": {
+            "path": "page.patient.values.insuranceNo",
+            "value": {
+              "$expr": "plugin.patient?.insuranceNo ?? \"\""
+            }
+          },
+          "next": "insured"
+        },
+        {
+          "action": "setState",
+          "id": "insured",
+          "input": {
+            "path": "page.patient.values.insured",
+            "value": {
+              "$expr": "plugin.patient?.insured ?? true"
+            }
+          },
+          "next": "sex"
+        },
+        {
+          "action": "setState",
+          "id": "sex",
+          "input": {
+            "path": "page.patient.values.sex",
+            "value": {
+              "$expr": "plugin.patient?.sex ?? \"other\""
+            }
+          },
+          "next": "weight"
+        },
+        {
+          "action": "setState",
+          "id": "weight",
+          "input": {
+            "path": "page.patient.values.weight",
+            "value": {
+              "$expr": "plugin.patient?.weight ?? 70.0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2c7d5-ba48-7d60-adaa-2380dad13597",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a27d17-b055-73df-92cb-9201ab0579d4",
+        "props": {
+          "automaticBackgroundVisibility": true,
+          "enableBackgroundFilterBlur": true,
+          "previousPageTitle": {
+            "$t": "01a26163-27fc-7b7f-838f-c0d58f42bb81"
+          },
+          "transitionBetweenRoutes": true
+        },
+        "slots": {
+          "middle": {
+            "id": "01a22ba7-d988-7076-86f9-e88c32b4ec0f",
+            "props": {
+              "data": {
+                "$t": "01a239fe-6efe-7845-a324-50a53336b323"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "CupertinoNavigationBar"
+      },
+      "body": {
+        "id": "01a23fcc-3e11-75c1-8dbd-528a516c86fb",
+        "slots": {
+          "child": {
+            "id": "01a2bfd3-fdca-7b12-b236-e8c5b7d58a13",
+            "props": {
+              "form": "patient"
+            },
+            "slots": {
+              "child": {
+                "id": "01a26b9f-a6f9-7be8-b9e2-d14e2d2c04dc",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a279ea-5059-7e05-a71c-a19249a4ba7c",
+                        "props": {
+                          "data": {
+                            "$t": "01a29d55-42bf-7d1d-a032-aa61f52ab085"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "children": [
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.patient.values.name",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.patient.touched.name",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a23536-fdc4-7f88-97d6-791e59a34c10",
+                            "props": {
+                              "autocorrect": false,
+                              "clearButtonMode": "editing",
+                              "decoration": {
+                                "border": {
+                                  "all": {
+                                    "color": {
+                                      "$token": "color.outline"
+                                    },
+                                    "width": 1.0
+                                  }
+                                },
+                                "borderRadius": {
+                                  "all": 10
+                                }
+                              },
+                              "enableSuggestions": false,
+                              "keyboardType": "name",
+                              "padding": {
+                                "all": 12
+                              },
+                              "placeholder": {
+                                "$t": "01a2e12f-3c53-738f-8b0d-e37c32da7a75"
+                              },
+                              "prefixMode": "always",
+                              "suffixMode": "notEditing",
+                              "textCapitalization": "words",
+                              "textInputAction": "next",
+                              "value": {
+                                "$expr": "form.values.name"
+                              }
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a2e12f-3c53-738f-8b0d-e37c32da7a75"
+                              }
+                            },
+                            "slots": {
+                              "prefix": {
+                                "id": "01a2fb7b-092c-7d8d-b376-930a6f00c179",
+                                "props": {
+                                  "padding": {
+                                    "left": 10
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a24f49-4b98-75d6-b52e-6405106c1a63",
+                                    "props": {
+                                      "color": {
+                                        "$token": "color.outline"
+                                      },
+                                      "icon": {
+                                        "name": "person"
+                                      }
+                                    },
+                                    "semantics": {
+                                      "decorative": true
+                                    },
+                                    "type": "Icon"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "testId": "cl-name",
+                            "type": "CupertinoTextField"
+                          },
+                          {
+                            "id": "01a2943d-3b30-76db-88d6-69f75c032d4e",
+                            "props": {
+                              "condition": {
+                                "$expr": "page.patient.touched.name && page.patient.errors.name != null"
+                              }
+                            },
+                            "slots": {
+                              "then": {
+                                "id": "01a27557-b8da-7d3a-aca2-e067419fb066",
+                                "props": {
+                                  "data": {
+                                    "$expr": "page.patient.errors.name ?? \"\""
+                                  },
+                                  "style": {
+                                    "base": {
+                                      "$token": "typography.bodySmall"
+                                    },
+                                    "color": {
+                                      "$token": "color.error"
+                                    }
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "If"
+                          }
+                        ],
+                        "id": "01a22aba-ee42-7380-87ad-c3efef612404",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 4
+                        },
+                        "type": "Column"
+                      },
+                      {
+                        "id": "01a2bd25-f78c-7146-a03f-e99a6413528a",
+                        "props": {
+                          "data": {
+                            "$t": "01a27eca-c658-7d2b-9f6a-39151c189d9d"
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a2bd2c-b1f6-75ae-aa02-9a7bc48962f3",
+                        "props": {
+                          "height": {
+                            "$expr": "180.0 * device.textScale"
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "events": {
+                              "onDateTimeChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.patient.values.dob",
+                                      "value": {
+                                        "$expr": "date(event)"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.patient.touched.dob",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a20ae2-d45d-7540-9018-193855686502",
+                            "props": {
+                              "itemExtent": {
+                                "$expr": "32.0 * device.textScale"
+                              },
+                              "maximumYear": 2026,
+                              "minimumYear": 1900,
+                              "mode": "date",
+                              "showDayOfWeek": false,
+                              "use24hFormat": true
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a27eca-c658-7d2b-9f6a-39151c189d9d"
+                              }
+                            },
+                            "testId": "cl-dob",
+                            "type": "CupertinoDatePicker"
+                          }
+                        },
+                        "type": "SizedBox"
+                      },
+                      {
+                        "id": "01a2b183-46b2-7830-82cd-c707ceaca31d",
+                        "props": {
+                          "condition": {
+                            "$expr": "page.patient.touched.dob && page.patient.errors.dob != null"
+                          }
+                        },
+                        "slots": {
+                          "then": {
+                            "id": "01a27d9c-f82c-7607-b055-292298cc75cf",
+                            "props": {
+                              "data": {
+                                "$expr": "page.patient.errors.dob ?? \"\""
+                              },
+                              "style": {
+                                "base": {
+                                  "$token": "typography.bodySmall"
+                                },
+                                "color": {
+                                  "$token": "color.error"
+                                }
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "If"
+                      },
+                      {
+                        "children": [
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.patient.values.insurer",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.patient.touched.insurer",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a23525-6013-777b-8da8-8a6e46db4a7d",
+                            "props": {
+                              "autocorrect": false,
+                              "clearButtonMode": "editing",
+                              "decoration": {
+                                "border": {
+                                  "all": {
+                                    "color": {
+                                      "$token": "color.outline"
+                                    },
+                                    "width": 1.0
+                                  }
+                                },
+                                "borderRadius": {
+                                  "all": 10
+                                }
+                              },
+                              "enableSuggestions": false,
+                              "keyboardType": "text",
+                              "padding": {
+                                "all": 12
+                              },
+                              "placeholder": {
+                                "$t": "01a2ef53-7f2f-7c71-a35a-b03ed508b61b"
+                              },
+                              "prefixMode": "always",
+                              "suffixMode": "notEditing",
+                              "textCapitalization": "words",
+                              "textInputAction": "next",
+                              "value": {
+                                "$expr": "form.values.insurer"
+                              }
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a2ef53-7f2f-7c71-a35a-b03ed508b61b"
+                              }
+                            },
+                            "slots": {
+                              "prefix": {
+                                "id": "01a2e56b-3dd1-7854-ad19-0e3489b3c568",
+                                "props": {
+                                  "padding": {
+                                    "left": 10
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2cfd1-f18a-742f-a98e-610bcb34569a",
+                                    "props": {
+                                      "color": {
+                                        "$token": "color.outline"
+                                      },
+                                      "icon": {
+                                        "name": "health_and_safety"
+                                      }
+                                    },
+                                    "semantics": {
+                                      "decorative": true
+                                    },
+                                    "type": "Icon"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "testId": "cl-insurer",
+                            "type": "CupertinoTextField"
+                          },
+                          {
+                            "id": "01a2a89e-346c-73b5-9f58-bf90135d8a2b",
+                            "props": {
+                              "condition": {
+                                "$expr": "page.patient.touched.insurer && page.patient.errors.insurer != null"
+                              }
+                            },
+                            "slots": {
+                              "then": {
+                                "id": "01a20c93-d63d-7d15-9b5f-dc4641e0ffe5",
+                                "props": {
+                                  "data": {
+                                    "$expr": "page.patient.errors.insurer ?? \"\""
+                                  },
+                                  "style": {
+                                    "base": {
+                                      "$token": "typography.bodySmall"
+                                    },
+                                    "color": {
+                                      "$token": "color.error"
+                                    }
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "If"
+                          }
+                        ],
+                        "id": "01a29a02-bc0c-787b-9d8b-044234452ba3",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 4
+                        },
+                        "type": "Column"
+                      },
+                      {
+                        "children": [
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.patient.values.insuranceNo",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.patient.touched.insuranceNo",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a24747-b31a-7fcf-92db-4f3c86d7740e",
+                            "props": {
+                              "autocorrect": false,
+                              "clearButtonMode": "editing",
+                              "decoration": {
+                                "border": {
+                                  "all": {
+                                    "color": {
+                                      "$token": "color.outline"
+                                    },
+                                    "width": 1.0
+                                  }
+                                },
+                                "borderRadius": {
+                                  "all": 10
+                                }
+                              },
+                              "enableSuggestions": false,
+                              "keyboardType": "text",
+                              "padding": {
+                                "all": 12
+                              },
+                              "placeholder": {
+                                "$t": "01a290b3-569f-7c4d-84e3-9e4a28e77b52"
+                              },
+                              "prefixMode": "always",
+                              "suffixMode": "notEditing",
+                              "textCapitalization": "characters",
+                              "textInputAction": "next",
+                              "value": {
+                                "$expr": "form.values.insuranceNo"
+                              }
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a290b3-569f-7c4d-84e3-9e4a28e77b52"
+                              }
+                            },
+                            "slots": {
+                              "prefix": {
+                                "id": "01a2d34b-ebc2-716d-abf0-7b1ac9dc484e",
+                                "props": {
+                                  "padding": {
+                                    "left": 10
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2c630-7eb5-755e-8f93-accb4e458610",
+                                    "props": {
+                                      "color": {
+                                        "$token": "color.outline"
+                                      },
+                                      "icon": {
+                                        "name": "badge"
+                                      }
+                                    },
+                                    "semantics": {
+                                      "decorative": true
+                                    },
+                                    "type": "Icon"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "testId": "cl-insno",
+                            "type": "CupertinoTextField"
+                          },
+                          {
+                            "id": "01a2bc95-fe4e-7772-aae5-9c44f9b5a632",
+                            "props": {
+                              "condition": {
+                                "$expr": "page.patient.touched.insuranceNo && page.patient.errors.insuranceNo != null"
+                              }
+                            },
+                            "slots": {
+                              "then": {
+                                "id": "01a2767d-0fe6-744b-a73a-1f9b9dcc5eed",
+                                "props": {
+                                  "data": {
+                                    "$expr": "page.patient.errors.insuranceNo ?? \"\""
+                                  },
+                                  "style": {
+                                    "base": {
+                                      "$token": "typography.bodySmall"
+                                    },
+                                    "color": {
+                                      "$token": "color.error"
+                                    }
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "If"
+                          }
+                        ],
+                        "id": "01a216a3-e391-7d58-8b67-39b51bea1ea5",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 4
+                        },
+                        "type": "Column"
+                      },
+                      {
+                        "children": [
+                          {
+                            "id": "01a294e7-137d-74b2-ac1d-ae1d78b21d0f",
+                            "slots": {
+                              "child": {
+                                "id": "01a20ea5-806b-7aab-81ce-1e0867fd7694",
+                                "props": {
+                                  "data": {
+                                    "$t": "01a28f7c-4bd1-7fb1-96a5-c3291408ba42"
+                                  },
+                                  "style": {
+                                    "$token": "typography.bodyLarge"
+                                  }
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Expanded"
+                          },
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.patient.values.insured",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.patient.touched.insured",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a20d20-6617-7a5a-9255-74112851d5f7",
+                            "props": {
+                              "activeTrackColor": {
+                                "$token": "color.primary"
+                              },
+                              "value": {
+                                "$expr": "form.values.insured"
+                              }
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a28f7c-4bd1-7fb1-96a5-c3291408ba42"
+                              }
+                            },
+                            "testId": "cl-insured",
+                            "type": "CupertinoSwitch"
+                          }
+                        ],
+                        "id": "01a24f6d-cdcb-7f2b-9af7-879e31ab9239",
+                        "props": {
+                          "spacing": 12
+                        },
+                        "type": "Row"
+                      },
+                      {
+                        "events": {
+                          "onValueChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.patient.values.sex",
+                                  "value": {
+                                    "$expr": "event ?? \"other\""
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.patient.touched.sex",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a27dc2-396c-780b-9730-b218f2001ea5",
+                        "props": {
+                          "backgroundColor": {
+                            "$token": "color.surfaceContainerHigh"
+                          },
+                          "groupValue": {
+                            "$expr": "form.values.sex"
+                          },
+                          "proportionalWidth": true,
+                          "thumbColor": {
+                            "$token": "color.surface"
+                          },
+                          "values": [
+                            "female",
+                            "male",
+                            "other"
+                          ]
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a21c01-bbc1-7b37-9719-ae1294c1a99c"
+                          }
+                        },
+                        "slots": {
+                          "segments": [
+                            {
+                              "id": "01a2d905-2bb9-7fb9-8330-8059f8c2f434",
+                              "props": {
+                                "padding": {
+                                  "horizontal": 2,
+                                  "vertical": 6
+                                }
+                              },
+                              "slots": {
+                                "child": {
+                                  "id": "01a28853-9a9f-724b-b61d-31c6b85e529e",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a2d8c8-e29b-736c-9be9-becd57333eb7"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              },
+                              "type": "Padding"
+                            },
+                            {
+                              "id": "01a2d234-fc9e-7b17-8f28-33abbcdc48bc",
+                              "props": {
+                                "padding": {
+                                  "horizontal": 2,
+                                  "vertical": 6
+                                }
+                              },
+                              "slots": {
+                                "child": {
+                                  "id": "01a2b144-ead9-7021-9114-4faebd161ddd",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a2f22d-5d0f-7aa6-aad7-61890e3af3be"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              },
+                              "type": "Padding"
+                            },
+                            {
+                              "id": "01a24e7e-2bc9-7bee-9415-8430531118db",
+                              "props": {
+                                "padding": {
+                                  "horizontal": 2,
+                                  "vertical": 6
+                                }
+                              },
+                              "slots": {
+                                "child": {
+                                  "id": "01a2118b-6f4b-7fa8-a1e1-7d9a27fcceb5",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a28c5f-b487-7e75-aa01-19cd62c9de10"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              },
+                              "type": "Padding"
+                            }
+                          ]
+                        },
+                        "testId": "cl-sex",
+                        "type": "CupertinoSlidingSegmentedControl"
+                      },
+                      {
+                        "id": "01a28b4f-caa9-716d-8ac1-54c2d1caec1e",
+                        "props": {
+                          "data": {
+                            "$t": "01a20dd7-2cf0-72e9-8cf2-476282184b13",
+                            "args": {
+                              "kg": {
+                                "$expr": "format.number(form.values.weight)"
+                              }
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChangeEnd": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.patient.values.weight",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.patient.touched.weight",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          },
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.patient.values.weight",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a27729-a956-7766-b56b-e51fb60a8cf0",
+                        "props": {
+                          "activeColor": {
+                            "$token": "color.primary"
+                          },
+                          "divisions": 248,
+                          "max": 250,
+                          "min": 2,
+                          "value": {
+                            "$expr": "form.values.weight"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a20dd7-2cf0-72e9-8cf2-476282184b13",
+                            "args": {
+                              "kg": {
+                                "$expr": "format.number(form.values.weight)"
+                              }
+                            }
+                          }
+                        },
+                        "testId": "cl-weight",
+                        "type": "CupertinoSlider"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "concurrency": "drop",
+                            "steps": [
+                              {
+                                "action": "submitForm",
+                                "branches": {
+                                  "invalid": "fix"
+                                },
+                                "id": "check",
+                                "input": {
+                                  "form": "patient"
+                                },
+                                "next": "keep"
+                              },
+                              {
+                                "action": "announce",
+                                "id": "fix",
+                                "input": {
+                                  "assertiveness": "assertive",
+                                  "message": {
+                                    "$t": "01a2c3dd-6ebd-7df9-96b1-f1a13795033f"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "keep",
+                                "input": {
+                                  "path": "plugin.patient",
+                                  "value": {
+                                    "$expr": "{\"name\": page.patient.values.name, \"dob\": page.patient.values.dob, \"insurer\": page.patient.values.insurer, \"insuranceNo\": page.patient.values.insuranceNo, \"insured\": page.patient.values.insured, \"sex\": page.patient.values.sex, \"weight\": page.patient.values.weight}"
+                                  }
+                                },
+                                "next": "pick"
+                              },
+                              {
+                                "action": "openBottomSheet",
+                                "id": "pick",
+                                "input": {
+                                  "route": "cl-slot"
+                                },
+                                "next": "got"
+                              },
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "then": "slot"
+                                },
+                                "id": "got",
+                                "input": {
+                                  "when": {
+                                    "$expr": "steps.pick.output != null"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "slot",
+                                "input": {
+                                  "path": "plugin.slot",
+                                  "value": {
+                                    "$expr": "steps.pick.output"
+                                  }
+                                },
+                                "next": "go"
+                              },
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "cl-symptoms"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a25a4a-85f6-742b-9e38-33bafc69c8d2",
+                        "props": {
+                          "borderRadius": {
+                            "all": 12
+                          },
+                          "color": {
+                            "$token": "color.primary"
+                          },
+                          "foregroundColor": {
+                            "$token": "color.onPrimary"
+                          },
+                          "minimumSize": {
+                            "height": 50,
+                            "width": 44
+                          },
+                          "sizeStyle": "large"
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01a2da53-f3cd-7bae-aa81-0edbf388d68a",
+                            "props": {
+                              "data": {
+                                "$t": "01a2edb7-5186-7eec-94d5-9efc8b892877"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "cl-choose",
+                        "type": "CupertinoButton"
+                      }
+                    ],
+                    "id": "01a20efb-f075-7413-b63b-62db03e5a516",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "SingleChildScrollView"
+              }
+            },
+            "type": "FormScope"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cl-patient",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "title": {
+    "$t": "01a29d55-42bf-7d1d-a032-aa61f52ab085"
+  }
+}

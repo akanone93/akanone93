@@ -1,0 +1,147 @@
+{
+  "id": "01a2d09f-d6c3-73c7-88b2-b3c80e4385a4",
+  "key": "cp-saved",
+  "kind": "page",
+  "pageKind": "dialog",
+  "result": "string",
+  "root": {
+    "id": "01a28dc9-7952-7aa6-a61e-2aa208a317f7",
+    "props": {
+      "padding": {
+        "all": 24
+      }
+    },
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a2e4f9-2380-70ef-9e64-6fc7db37507d",
+            "props": {
+              "color": {
+                "$token": "color.primary"
+              },
+              "icon": {
+                "name": "save"
+              },
+              "size": 40
+            },
+            "semantics": {
+              "decorative": true
+            },
+            "type": "Icon"
+          },
+          {
+            "id": "01a2830e-e1c6-781f-b8b9-1d4e602cff96",
+            "props": {
+              "data": {
+                "$t": "01a21b4b-f38f-78cb-abc6-ec2381f66670"
+              },
+              "style": {
+                "$token": "typography.headlineSmall"
+              },
+              "textAlign": "center"
+            },
+            "semantics": {
+              "header": true
+            },
+            "type": "Text"
+          },
+          {
+            "id": "01a2da67-4085-735b-a07e-b20a6aca97f4",
+            "props": {
+              "data": {
+                "$t": "01a2dc81-a00a-7968-bc0d-4f04f2398327"
+              },
+              "style": {
+                "$token": "typography.bodyMedium"
+              },
+              "textAlign": "center"
+            },
+            "type": "Text"
+          },
+          {
+            "children": [
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "pop",
+                        "id": "stay",
+                        "input": {
+                          "result": "stay"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a23147-3c78-7d88-ac64-09e9e5410061",
+                "slots": {
+                  "child": {
+                    "id": "01a22015-4fb4-7421-9a33-5129785cd195",
+                    "props": {
+                      "data": {
+                        "$t": "01a217ae-4059-7ade-a210-c716d67b7f3d"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "cp-saved-stay",
+                "type": "TextButton"
+              },
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "pop",
+                        "id": "exit",
+                        "input": {
+                          "result": "exit"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a25afd-c954-7426-9081-6c4652cc52df",
+                "slots": {
+                  "child": {
+                    "id": "01a290be-958b-7ba1-80f8-dc6f934fe17b",
+                    "props": {
+                      "data": {
+                        "$t": "01a2bfa2-5d5b-73e3-aebe-504dd33c5d26"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "cp-saved-exit",
+                "type": "FilledButton"
+              }
+            ],
+            "id": "01a26522-3445-7d52-a294-8c510fb2f65f",
+            "props": {
+              "mainAxisAlignment": "end",
+              "spacing": 8
+            },
+            "type": "Row"
+          }
+        ],
+        "id": "01a29941-2a54-751b-95e1-b0bb5e409136",
+        "props": {
+          "crossAxisAlignment": "stretch",
+          "mainAxisSize": "min",
+          "spacing": 16
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Padding"
+  },
+  "route": "cp-saved",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a21b4b-f38f-78cb-abc6-ec2381f66670"
+  }
+}

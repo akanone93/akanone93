@@ -1,0 +1,1141 @@
+{
+  "id": "01a1e536-7a5f-7761-8f7e-45163969805e",
+  "key": "home",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a1e536-7a5f-703c-b52c-33e060b863ba",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a1e537-0056-7000-8000-000000000056",
+        "slots": {
+          "slivers": [
+            {
+              "id": "01a1e537-0006-7000-8000-000000000006",
+              "props": {
+                "backgroundColor": {
+                  "$token": "color.primary"
+                },
+                "expandedHeight": 200,
+                "foregroundColor": {
+                  "$token": "color.onPrimary"
+                },
+                "pinned": true
+              },
+              "slots": {
+                "actions": [
+                  {
+                    "id": "01a1e537-0008-7000-8000-000000000008",
+                    "props": {
+                      "tooltip": {
+                        "$t": "01a1e8f0-93ad-75e3-a4fd-3a9745368633"
+                      }
+                    },
+                    "slots": {
+                      "icon": {
+                        "id": "01a1e537-0009-7000-8000-000000000009",
+                        "props": {
+                          "icon": {
+                            "name": "notifications"
+                          }
+                        },
+                        "semantics": {
+                          "decorative": true
+                        },
+                        "type": "Icon"
+                      }
+                    },
+                    "type": "IconButton"
+                  },
+                  {
+                    "id": "01a1e537-000a-7000-8000-00000000000a",
+                    "props": {
+                      "tooltip": {
+                        "$t": "01a1e8f0-93ad-71ae-ba76-b8838f70afa4"
+                      }
+                    },
+                    "slots": {
+                      "icon": {
+                        "id": "01a1e537-000b-7000-8000-00000000000b",
+                        "props": {
+                          "icon": {
+                            "name": "translate"
+                          }
+                        },
+                        "semantics": {
+                          "decorative": true
+                        },
+                        "type": "Icon"
+                      }
+                    },
+                    "type": "IconButton"
+                  }
+                ],
+                "flexibleSpace": {
+                  "id": "01a1e537-0005-7000-8000-000000000005",
+                  "props": {
+                    "decoration": {
+                      "gradient": {
+                        "begin": "topLeft",
+                        "colors": [
+                          {
+                            "$token": "color.gradientA"
+                          },
+                          {
+                            "$token": "color.gradientB"
+                          }
+                        ],
+                        "end": "bottomRight",
+                        "kind": "linear"
+                      }
+                    },
+                    "padding": {
+                      "bottom": 24,
+                      "left": 20,
+                      "right": 20
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "children": [
+                        {
+                          "id": "01a1e537-0001-7000-8000-000000000001",
+                          "props": {
+                            "data": {
+                              "$t": "01a1e8f0-93ad-77f6-a750-9803e735008c"
+                            },
+                            "style": {
+                              "base": {
+                                "$token": "typography.headlineSmall"
+                              },
+                              "color": {
+                                "$token": "color.onPrimary"
+                              }
+                            }
+                          },
+                          "type": "Text"
+                        },
+                        {
+                          "id": "01a1e537-0002-7000-8000-000000000002",
+                          "props": {
+                            "height": 6
+                          },
+                          "type": "SizedBox"
+                        },
+                        {
+                          "id": "01a1e537-0003-7000-8000-000000000003",
+                          "props": {
+                            "data": {
+                              "$t": "01a1e8f0-93ad-7644-a186-bf5e3641fe49"
+                            },
+                            "style": {
+                              "base": {
+                                "$token": "typography.bodyMedium"
+                              },
+                              "color": {
+                                "$token": "color.onPrimary"
+                              }
+                            }
+                          },
+                          "type": "Text"
+                        }
+                      ],
+                      "id": "01a1e537-0004-7000-8000-000000000004",
+                      "props": {
+                        "crossAxisAlignment": "start",
+                        "mainAxisAlignment": "end"
+                      },
+                      "type": "Column"
+                    }
+                  },
+                  "type": "Container"
+                },
+                "title": {
+                  "id": "01a1e537-0007-7000-8000-000000000007",
+                  "props": {
+                    "data": {
+                      "$t": "01a1e536-7a5f-7d2b-a5db-17c6d9418528"
+                    }
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "SliverAppBar"
+            },
+            {
+              "id": "01a1e537-000c-7000-8000-00000000000c",
+              "props": {
+                "padding": {
+                  "horizontal": 16,
+                  "vertical": 12
+                }
+              },
+              "slots": {
+                "sliver": {
+                  "id": "01a1e537-000f-7000-8000-00000000000f",
+                  "slots": {
+                    "child": {
+                      "id": "01a1e537-000d-7000-8000-00000000000d",
+                      "props": {
+                        "hintText": {
+                          "$t": "01a1e8f0-93ad-7536-9ce7-61d25fdc26fd"
+                        }
+                      },
+                      "slots": {
+                        "leading": {
+                          "id": "01a1e537-000e-7000-8000-00000000000e",
+                          "props": {
+                            "icon": {
+                              "name": "search"
+                            }
+                          },
+                          "semantics": {
+                            "decorative": true
+                          },
+                          "type": "Icon"
+                        }
+                      },
+                      "type": "SearchBar"
+                    }
+                  },
+                  "type": "SliverToBoxAdapter"
+                }
+              },
+              "type": "SliverPadding"
+            },
+            {
+              "id": "01a1e537-005c-7000-8000-00000000005c",
+              "slots": {
+                "child": {
+                  "id": "01a1e537-005b-7000-8000-00000000005b",
+                  "props": {
+                    "padding": {
+                      "left": 16,
+                      "right": 8,
+                      "top": 8
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "children": [
+                        {
+                          "id": "01a1e537-0057-7000-8000-000000000057",
+                          "props": {
+                            "data": {
+                              "$t": "01a1e8f0-93ad-728f-bbc1-138fd74bd6f2"
+                            },
+                            "style": {
+                              "$token": "typography.titleMedium"
+                            }
+                          },
+                          "type": "Text"
+                        },
+                        {
+                          "id": "01a1e537-0058-7000-8000-000000000058",
+                          "slots": {
+                            "child": {
+                              "id": "01a1e537-0059-7000-8000-000000000059",
+                              "props": {
+                                "data": {
+                                  "$t": "01a1e8f0-93ad-7249-94d2-848b9a418174"
+                                }
+                              },
+                              "type": "Text"
+                            }
+                          },
+                          "type": "TextButton"
+                        }
+                      ],
+                      "id": "01a1e537-005a-7000-8000-00000000005a",
+                      "props": {
+                        "mainAxisAlignment": "spaceBetween"
+                      },
+                      "type": "Row"
+                    }
+                  },
+                  "type": "Padding"
+                }
+              },
+              "type": "SliverToBoxAdapter"
+            },
+            {
+              "id": "01a1e537-001a-7000-8000-00000000001a",
+              "slots": {
+                "child": {
+                  "id": "01a1e537-0017-7000-8000-000000000017",
+                  "props": {
+                    "padding": {
+                      "horizontal": 16
+                    },
+                    "scrollDirection": "horizontal"
+                  },
+                  "slots": {
+                    "child": {
+                      "children": [
+                        {
+                          "id": "01a1e537-0018-7000-8000-000000000018",
+                          "props": {
+                            "items": {
+                              "$expr": "[{\"name\": \"Nordvia Bank\", \"closes\": \"Closes in 2 days\"}, {\"name\": \"Aster University\", \"closes\": \"Closes in 5 days\"}, {\"name\": \"Riverton City Run\", \"closes\": \"Closes in 9 days\"}]"
+                            }
+                          },
+                          "slots": {
+                            "item": {
+                              "id": "01a1e537-0016-7000-8000-000000000016",
+                              "props": {
+                                "decoration": {
+                                  "borderRadius": {
+                                    "all": 20
+                                  },
+                                  "color": {
+                                    "$token": "color.primaryContainer"
+                                  }
+                                },
+                                "padding": {
+                                  "all": 16
+                                },
+                                "width": 232
+                              },
+                              "slots": {
+                                "child": {
+                                  "children": [
+                                    {
+                                      "id": "01a1e537-0010-7000-8000-000000000010",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onPrimaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "apartment"
+                                        },
+                                        "size": 28
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    },
+                                    {
+                                      "id": "01a1e537-0011-7000-8000-000000000011",
+                                      "props": {
+                                        "height": 20
+                                      },
+                                      "type": "SizedBox"
+                                    },
+                                    {
+                                      "id": "01a1e537-0012-7000-8000-000000000012",
+                                      "props": {
+                                        "data": {
+                                          "$expr": "item.name"
+                                        },
+                                        "style": {
+                                          "$token": "typography.titleMedium"
+                                        }
+                                      },
+                                      "type": "Text"
+                                    },
+                                    {
+                                      "id": "01a1e537-0013-7000-8000-000000000013",
+                                      "props": {
+                                        "height": 4
+                                      },
+                                      "type": "SizedBox"
+                                    },
+                                    {
+                                      "id": "01a1e537-0014-7000-8000-000000000014",
+                                      "props": {
+                                        "data": {
+                                          "$expr": "item.closes"
+                                        },
+                                        "style": {
+                                          "$token": "typography.bodySmall"
+                                        }
+                                      },
+                                      "type": "Text"
+                                    }
+                                  ],
+                                  "id": "01a1e537-0015-7000-8000-000000000015",
+                                  "props": {
+                                    "crossAxisAlignment": "start",
+                                    "mainAxisSize": "min"
+                                  },
+                                  "type": "Column"
+                                }
+                              },
+                              "type": "Container"
+                            }
+                          },
+                          "type": "ForEach"
+                        }
+                      ],
+                      "id": "01a1e537-0019-7000-8000-000000000019",
+                      "props": {
+                        "crossAxisAlignment": "start",
+                        "spacing": 12
+                      },
+                      "type": "Row"
+                    }
+                  },
+                  "type": "SingleChildScrollView"
+                }
+              },
+              "type": "SliverToBoxAdapter"
+            },
+            {
+              "id": "01a1e537-0060-7000-8000-000000000060",
+              "slots": {
+                "child": {
+                  "id": "01a1e537-005f-7000-8000-00000000005f",
+                  "props": {
+                    "padding": {
+                      "left": 16,
+                      "right": 8,
+                      "top": 8
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "children": [
+                        {
+                          "id": "01a1e537-005d-7000-8000-00000000005d",
+                          "props": {
+                            "data": {
+                              "$t": "01a1e8f0-93ad-7693-aff9-faf3efd954f0"
+                            },
+                            "style": {
+                              "$token": "typography.titleMedium"
+                            }
+                          },
+                          "type": "Text"
+                        }
+                      ],
+                      "id": "01a1e537-005e-7000-8000-00000000005e",
+                      "props": {
+                        "mainAxisAlignment": "spaceBetween"
+                      },
+                      "type": "Row"
+                    }
+                  },
+                  "type": "Padding"
+                }
+              },
+              "type": "SliverToBoxAdapter"
+            },
+            {
+              "id": "01a1e537-004d-7000-8000-00000000004d",
+              "slots": {
+                "child": {
+                  "id": "01a1e537-004c-7000-8000-00000000004c",
+                  "props": {
+                    "padding": {
+                      "horizontal": 16,
+                      "vertical": 8
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "children": [
+                        {
+                          "id": "01a1e537-0020-7000-8000-000000000020",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-001c-7000-8000-00000000001c",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-001b-7000-8000-00000000001b",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "school"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-001d-7000-8000-00000000001d",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-001e-7000-8000-00000000001e",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-70fa-af3c-e23cd1885b79"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-001f-7000-8000-00000000001f",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        },
+                        {
+                          "id": "01a1e537-0026-7000-8000-000000000026",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-0022-7000-8000-000000000022",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-0021-7000-8000-000000000021",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "account_balance"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-0023-7000-8000-000000000023",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-0024-7000-8000-000000000024",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-718f-bf02-ce8d15e941d9"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-0025-7000-8000-000000000025",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        },
+                        {
+                          "id": "01a1e537-002c-7000-8000-00000000002c",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-0028-7000-8000-000000000028",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-0027-7000-8000-000000000027",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "directions_run"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-0029-7000-8000-000000000029",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-002a-7000-8000-00000000002a",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-707b-a1b9-0c87d5d594b4"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-002b-7000-8000-00000000002b",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        },
+                        {
+                          "id": "01a1e537-0032-7000-8000-000000000032",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-002e-7000-8000-00000000002e",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-002d-7000-8000-00000000002d",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "volunteer_activism"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-002f-7000-8000-00000000002f",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-0030-7000-8000-000000000030",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-722e-8528-312646efd58b"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-0031-7000-8000-000000000031",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        },
+                        {
+                          "id": "01a1e537-0038-7000-8000-000000000038",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-0034-7000-8000-000000000034",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-0033-7000-8000-000000000033",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "local_hospital"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-0035-7000-8000-000000000035",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-0036-7000-8000-000000000036",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-7343-8e3e-84b48653bd84"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-0037-7000-8000-000000000037",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        },
+                        {
+                          "id": "01a1e537-003e-7000-8000-00000000003e",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-003a-7000-8000-00000000003a",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-0039-7000-8000-000000000039",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "home_work"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-003b-7000-8000-00000000003b",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-003c-7000-8000-00000000003c",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-767a-9f54-c10271ecb6c8"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-003d-7000-8000-00000000003d",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        },
+                        {
+                          "id": "01a1e537-0044-7000-8000-000000000044",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-0040-7000-8000-000000000040",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-003f-7000-8000-00000000003f",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "festival"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-0041-7000-8000-000000000041",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-0042-7000-8000-000000000042",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-73fe-a0f9-a65184d30363"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-0043-7000-8000-000000000043",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        },
+                        {
+                          "id": "01a1e537-004a-7000-8000-00000000004a",
+                          "props": {
+                            "width": 78
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a1e537-0046-7000-8000-000000000046",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": 16
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a1e537-0045-7000-8000-000000000045",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "name": "stadium"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a1e537-0047-7000-8000-000000000047",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a1e537-0048-7000-8000-000000000048",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a1e8f0-93ad-76d1-b775-d29e2da2ce59"
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    }
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a1e537-0049-7000-8000-000000000049",
+                              "props": {
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Container"
+                        }
+                      ],
+                      "id": "01a1e537-004b-7000-8000-00000000004b",
+                      "props": {
+                        "runSpacing": 12,
+                        "spacing": 8
+                      },
+                      "type": "Wrap"
+                    }
+                  },
+                  "type": "Padding"
+                }
+              },
+              "type": "SliverToBoxAdapter"
+            },
+            {
+              "id": "01a1e537-0055-7000-8000-000000000055",
+              "slots": {
+                "child": {
+                  "id": "01a1e537-0054-7000-8000-000000000054",
+                  "props": {
+                    "padding": {
+                      "all": 16
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "id": "01a1e537-004e-7000-8000-00000000004e",
+                      "props": {
+                        "color": {
+                          "$token": "color.surfaceContainer"
+                        },
+                        "elevation": 0
+                      },
+                      "slots": {
+                        "child": {
+                          "id": "01a1e537-004f-7000-8000-00000000004f",
+                          "slots": {
+                            "leading": {
+                              "id": "01a1e537-0050-7000-8000-000000000050",
+                              "props": {
+                                "color": {
+                                  "$token": "color.primary"
+                                },
+                                "icon": {
+                                  "name": "handshake"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            },
+                            "subtitle": {
+                              "id": "01a1e537-0052-7000-8000-000000000052",
+                              "props": {
+                                "data": {
+                                  "$t": "01a1e8f0-93ae-77bb-8820-9213bc4d8b28"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "title": {
+                              "id": "01a1e537-0051-7000-8000-000000000051",
+                              "props": {
+                                "data": {
+                                  "$t": "01a1e8f0-93ae-75f5-bedd-f740a8b8a859"
+                                }
+                              },
+                              "type": "Text"
+                            },
+                            "trailing": {
+                              "id": "01a1e537-0053-7000-8000-000000000053",
+                              "props": {
+                                "icon": {
+                                  "name": "chevron_right"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            }
+                          },
+                          "type": "ListTile"
+                        }
+                      },
+                      "type": "Card"
+                    }
+                  },
+                  "type": "Padding"
+                }
+              },
+              "type": "SliverToBoxAdapter"
+            }
+          ]
+        },
+        "type": "CustomScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "home",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a1e536-7a5f-7d2b-a5db-17c6d9418528"
+  }
+}

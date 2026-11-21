@@ -1,0 +1,264 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "share",
+      "biometrics"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "staleWhileRevalidate",
+          "ttlSeconds": 600
+        },
+        "path": "/orgs/relief/campaign"
+      },
+      "id": "01a21fc7-ba3a-7190-ac6e-5ba80b15e446",
+      "kind": "rest",
+      "mock": {
+        "allocation": [
+          {
+            "label": "Food parcels",
+            "share": 45.0
+          },
+          {
+            "label": "School kits",
+            "share": 25.0
+          },
+          {
+            "label": "Clean water",
+            "share": 20.0
+          },
+          {
+            "label": "Running costs",
+            "share": 10.0
+          }
+        ],
+        "donors": [
+          12.0,
+          18.0,
+          15.0,
+          22.0,
+          30.0,
+          27.0,
+          35.0,
+          41.0
+        ],
+        "goal": {
+          "amount": "50000.00",
+          "currency": "EUR"
+        },
+        "monthly": [
+          3100.0,
+          4200.0,
+          5900.0,
+          6400.0,
+          8100.0,
+          9550.0
+        ],
+        "months": [
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov"
+        ],
+        "raised": {
+          "amount": "37250.00",
+          "currency": "EUR"
+        }
+      },
+      "name": "campaign",
+      "route": "plux",
+      "type": "Campaign"
+    },
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "encrypted": true,
+          "policy": "networkFirst",
+          "ttlSeconds": 120
+        },
+        "path": "/me/donations",
+        "select": "items"
+      },
+      "id": "01a2cf94-ac6b-7338-8505-a243670bfaa6",
+      "kind": "rest",
+      "mock": [
+        {
+          "amount": {
+            "amount": "25.00",
+            "currency": "EUR"
+          },
+          "at": "2026-11-01T09:00:00+01:00",
+          "id": "d-1",
+          "receiptId": "r-101",
+          "status": "completed",
+          "subtitle": "November",
+          "title": "Monthly gift"
+        },
+        {
+          "amount": {
+            "amount": "100.00",
+            "currency": "EUR"
+          },
+          "at": "2026-11-15T18:20:00+01:00",
+          "id": "d-2",
+          "receiptId": "r-102",
+          "status": "pending",
+          "subtitle": "Bank transfer",
+          "title": "Winter appeal"
+        },
+        {
+          "amount": {
+            "amount": "50.00",
+            "currency": "EUR"
+          },
+          "at": "2026-10-03T12:00:00+02:00",
+          "id": "d-3",
+          "receiptId": "r-103",
+          "status": "failed",
+          "subtitle": "Wallet",
+          "title": "Clean water"
+        },
+        {
+          "amount": {
+            "amount": "10.00",
+            "currency": "EUR"
+          },
+          "at": "2026-09-12T08:30:00+02:00",
+          "id": "d-4",
+          "receiptId": "r-104",
+          "status": "reversed",
+          "subtitle": "Refunded",
+          "title": "School kits"
+        }
+      ],
+      "name": "donations",
+      "route": "plux",
+      "type": "list<Donation>"
+    },
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "path": "/me"
+      },
+      "id": "01a270d9-7868-7b35-97ab-bd7198fe8d37",
+      "kind": "rest",
+      "mock": {
+        "avatar": null,
+        "email": "mira@example.org",
+        "id": "u-1",
+        "name": "Mira Haile",
+        "phone": "+491701234567",
+        "region": "DE",
+        "role": "member"
+      },
+      "name": "me",
+      "route": "plux",
+      "type": "Me"
+    },
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "operations": {
+          "volunteer": {
+            "auth": true,
+            "input": "VolunteerOffer",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/orgs/relief/volunteers"
+          }
+        },
+        "path": "/orgs/relief/volunteers/mine"
+      },
+      "id": "01a20c57-1ed7-7e2d-a664-5311c1bc9d3c",
+      "kind": "rest",
+      "mock": {
+        "ok": true
+      },
+      "name": "api",
+      "route": "plux",
+      "type": "Ack"
+    },
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "operations": {
+          "donate": {
+            "auth": true,
+            "input": "DonationTransfer",
+            "method": "POST",
+            "output": "TransferResult",
+            "path": "/transfers/relief"
+          }
+        },
+        "path": "/transfers/relief/last"
+      },
+      "id": "01a29f73-bfe5-744f-a975-170750fc76ef",
+      "kind": "rest",
+      "mock": {
+        "id": "tr-0002",
+        "status": "done"
+      },
+      "name": "reliefTransfer",
+      "requiresAssurance": "AL2",
+      "route": "plux",
+      "transaction": {
+        "amount": "/amount",
+        "currency": "/currency",
+        "payee": "/payee",
+        "summary": "/reference"
+      },
+      "type": "TransferResult"
+    }
+  ],
+  "description": "Give or volunteer with Hands Together.",
+  "entryPage": "01a21960-b6ec-7fac-9f48-08db864abc86",
+  "fallbackPage": "01a264ba-27d4-7ce6-b67b-93b53b7db9bd",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a273e7-b088-7015-9048-fc16c6b87d9b",
+  "key": "relief",
+  "kind": "plugin",
+  "name": "Hands Together",
+  "pages": [
+    "01a21960-b6ec-7fac-9f48-08db864abc86",
+    "01a26cc4-b2fb-7fd3-aaff-cc4308bd5785",
+    "01a2168a-2137-7bf8-b911-bc2f14b021f4",
+    "01a2dc52-7fea-7f02-ad7e-3a7fb3c65f97",
+    "01a2c28f-0fe9-76d2-ba0c-3d1ebda569e1",
+    "01a264ba-27d4-7ce6-b67b-93b53b7db9bd"
+  ],
+  "schemaVersion": "1.0.0",
+  "tags": [
+    "charity"
+  ],
+  "team": "apply-register"
+}

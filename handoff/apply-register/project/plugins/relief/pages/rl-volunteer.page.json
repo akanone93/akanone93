@@ -1,0 +1,1882 @@
+{
+  "forms": [
+    {
+      "fields": [
+        {
+          "initial": null,
+          "name": "from",
+          "type": "date?",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "dateRange",
+              "max": "2027-12-31",
+              "min": "2026-01-01"
+            }
+          ]
+        }
+      ],
+      "id": "01a2ee5f-58e1-79eb-bb39-14ff7dea8fad",
+      "name": "vol"
+    }
+  ],
+  "id": "01a26cc4-b2fb-7fd3-aaff-cc4308bd5785",
+  "key": "rl-volunteer",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2a78e-77a7-781b-8126-9418f7297c75",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a25245-5416-7347-a4dd-4857e2d1ca37",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a22f84-42bd-701a-80be-ac8f53b7a624",
+            "props": {
+              "data": {
+                "$t": "01a2597b-3039-7506-95f6-79b69027df53"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2668a-6667-76dc-84a8-87c8038575c8",
+        "slots": {
+          "child": {
+            "id": "01a2f2f8-b533-723c-ba21-e64fb7002568",
+            "props": {
+              "form": "vol"
+            },
+            "slots": {
+              "child": {
+                "id": "01a2a53e-4d68-71ef-bdac-d4a88f427b5f",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a251dc-4d49-7298-8835-e246a74d09e4",
+                        "props": {
+                          "data": {
+                            "$t": "01a2fe68-6872-7931-acb1-06284ecfca00"
+                          },
+                          "style": {
+                            "$token": "typography.titleMedium"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "children": [
+                          {
+                            "id": "01a24155-fd31-7017-a697-63d930e81968",
+                            "props": {
+                              "items": {
+                                "$expr": "page.skills"
+                              }
+                            },
+                            "slots": {
+                              "item": {
+                                "events": {
+                                  "onDeleted": {
+                                    "steps": [
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.skills",
+                                          "value": {
+                                            "$expr": "page.skills.filter(k, k != item)"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2a6a5-beeb-7996-9b34-faa037f6201f",
+                                "props": {
+                                  "deleteButtonTooltipMessage": {
+                                    "$t": "01a24e35-fd90-77d6-a7a7-a7f90d889df2"
+                                  },
+                                  "selected": true
+                                },
+                                "slots": {
+                                  "deleteIcon": {
+                                    "id": "01a2b974-544c-7a66-a456-c6e1e009abd8",
+                                    "props": {
+                                      "icon": {
+                                        "name": "close"
+                                      },
+                                      "size": 18
+                                    },
+                                    "semantics": {
+                                      "decorative": true
+                                    },
+                                    "type": "Icon"
+                                  },
+                                  "label": {
+                                    "id": "01a29040-bd2a-714b-ad30-d8d0df4217fa",
+                                    "props": {
+                                      "data": {
+                                        "$expr": "item"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "testId": "rl-skill",
+                                "type": "InputChip"
+                              }
+                            },
+                            "type": "ForEach"
+                          }
+                        ],
+                        "id": "01a285de-4af5-704e-9aea-a852f52cbd94",
+                        "props": {
+                          "runSpacing": 6,
+                          "spacing": 6
+                        },
+                        "type": "Wrap"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "d",
+                                "input": {
+                                  "path": "page.draft",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "onSubmitted": {
+                            "steps": [
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "then": "add"
+                                },
+                                "id": "any",
+                                "input": {
+                                  "when": {
+                                    "$expr": "trim(event) != \"\" && !(trim(event) in page.skills) && size(page.skills) < 10"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "page.skills",
+                                  "value": {
+                                    "$expr": "page.skills + [trim(event)]"
+                                  }
+                                },
+                                "next": "clear"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "clear",
+                                "input": {
+                                  "path": "page.draft",
+                                  "value": ""
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a211e4-342c-7165-bd3f-4c2bf5857428",
+                        "props": {
+                          "decoration": {
+                            "border": {
+                              "kind": "outline"
+                            },
+                            "hintText": {
+                              "$t": "01a26f61-b9b1-7355-8117-64a6910470f8"
+                            }
+                          },
+                          "textInputAction": "done",
+                          "value": {
+                            "$expr": "page.draft"
+                          }
+                        },
+                        "testId": "rl-skill-new",
+                        "type": "TextField"
+                      },
+                      {
+                        "id": "01a2173c-331b-7663-ae79-0e432992b127",
+                        "props": {
+                          "condition": {
+                            "$expr": "isEmpty(page.skills)"
+                          }
+                        },
+                        "slots": {
+                          "then": {
+                            "id": "01a22a24-0568-7f8f-b0e0-05115c1675ef",
+                            "props": {
+                              "data": {
+                                "$t": "01a29550-8c24-75ed-90b0-c807d6e8be95"
+                              },
+                              "style": {
+                                "$token": "typography.bodySmall"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "If"
+                      },
+                      {
+                        "id": "01a2a2f0-1492-720e-9369-c202ffb13e22",
+                        "props": {
+                          "data": {
+                            "$t": "01a26fc7-6ee0-7ece-9691-3ce2e3c77dfa"
+                          },
+                          "style": {
+                            "$token": "typography.titleMedium"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a22a0c-c1f0-7c20-b735-c2c05ada7902",
+                        "props": {
+                          "scrollDirection": "horizontal"
+                        },
+                        "slots": {
+                          "child": {
+                            "children": [
+                              {
+                                "id": "01a2a7e1-2d63-7658-b6fd-0d146da8f764",
+                                "type": "SizedBox"
+                              },
+                              {
+                                "id": "01a2b1c4-ac56-7f17-887d-65ff6a03ee92",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a23cf6-2aa3-72f1-ba13-4a60f30a1d9b",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a26237-7729-7b3e-aa63-049e977df5b9"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelSmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Center"
+                              },
+                              {
+                                "id": "01a277ba-fb26-7782-81f6-05f4161dcea4",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a28dd8-1003-75ff-be51-593ad8a88e9a",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a2bd68-e81f-7c69-a026-b81966b3627f"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelSmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Center"
+                              },
+                              {
+                                "id": "01a277c9-cbb3-706a-b0d9-ee0518570151",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a26cf8-2028-7b85-a045-79686f99ee38",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a2c790-4d58-73d4-91fb-718cb379e43d"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelSmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Center"
+                              },
+                              {
+                                "id": "01a21b94-e929-7a85-8d6d-2e589ee9c28e",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2616f-571c-7d1a-907f-32fc532e9101",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a2536a-76ae-7b79-ad3a-5fd289472fbd"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelSmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Center"
+                              },
+                              {
+                                "id": "01a20c01-e9f6-7e51-934b-25e5cf60395f",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2cc7a-d42a-7589-8a1f-6e21f6f65656",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a2bdfa-9a50-77f1-8369-9e4db1cbfacf"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelSmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Center"
+                              },
+                              {
+                                "id": "01a2ffd2-d1f1-760c-b108-6bae456e116a",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a213c6-d404-7996-84c6-e1c0cfca5e09",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a25233-a6bc-76c9-9638-9c0874f4cb26"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelSmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Center"
+                              },
+                              {
+                                "id": "01a2dd81-ad8d-71db-aa04-10527c96513c",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a291a4-9e24-78cf-844f-57f086bffe0f",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a2dffc-bf96-798b-a75d-0126f9d4d55c"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelSmall"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Center"
+                              },
+                              {
+                                "id": "01a21568-3f92-7e74-aae0-8b5e07b3cc00",
+                                "props": {
+                                  "padding": {
+                                    "end": 4,
+                                    "vertical": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a29bca-db5f-712d-b5ec-d4c2e152c00d",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a2fb15-021d-76d5-9be9-322d714ef9c6"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelMedium"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Padding"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"mon-am\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"mon-am\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a20114-6efa-7a54-a111-7533c8b2944f",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2f41a-1ec5-76af-8331-e3707091035e"
+                                  },
+                                  "value": {
+                                    "$expr": "\"mon-am\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-mon-am",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"tue-am\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"tue-am\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a27899-adc6-7043-b523-85c84f7fc9f6",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a25b36-1728-7ed1-b2a9-418317df3f75"
+                                  },
+                                  "value": {
+                                    "$expr": "\"tue-am\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-tue-am",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"wed-am\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"wed-am\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a25e02-b5c3-745c-84ac-b7398c4fb2e6",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a22752-10eb-7460-8cf0-2d4d25ae011b"
+                                  },
+                                  "value": {
+                                    "$expr": "\"wed-am\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-wed-am",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"thu-am\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"thu-am\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a23f80-5fcc-77ca-9621-1a813a18c546",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2ca08-705e-7b4a-9b47-bc91594d69a4"
+                                  },
+                                  "value": {
+                                    "$expr": "\"thu-am\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-thu-am",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"fri-am\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"fri-am\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2ff52-cb91-7ee8-9328-96177664212d",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2087a-b2a2-7dd5-aa75-904ad69e41a8"
+                                  },
+                                  "value": {
+                                    "$expr": "\"fri-am\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-fri-am",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"sat-am\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"sat-am\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2b4c5-712e-7bc7-9579-07e1afa134ee",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a284e6-15b7-7fcb-83d4-59e25fc8518f"
+                                  },
+                                  "value": {
+                                    "$expr": "\"sat-am\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-sat-am",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"sun-am\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"sun-am\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a22e38-521b-768f-aa02-7cc288125c3a",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2b0d2-6653-7dbe-b3ce-a455a975c21e"
+                                  },
+                                  "value": {
+                                    "$expr": "\"sun-am\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-sun-am",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "id": "01a2859b-a8ec-745c-be70-f1795eb296ad",
+                                "props": {
+                                  "padding": {
+                                    "end": 4,
+                                    "vertical": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2133c-7d96-766f-bed6-9f078c5b7044",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a2babb-197c-7d4e-92ec-ff58ae2485d2"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelMedium"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Padding"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"mon-pm\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"mon-pm\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a24567-9c3e-7732-89b4-e1c0ea7caa83",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2ef0f-4a59-76d0-b9bf-a184d06cb827"
+                                  },
+                                  "value": {
+                                    "$expr": "\"mon-pm\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-mon-pm",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"tue-pm\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"tue-pm\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2aeb5-21ea-72bd-892c-7094c8704579",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a28054-388d-78ee-9d17-6b73512fdeae"
+                                  },
+                                  "value": {
+                                    "$expr": "\"tue-pm\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-tue-pm",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"wed-pm\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"wed-pm\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2db2f-6fad-77ab-8961-50e40adc0fef",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2239d-559d-7282-8104-acbf69391088"
+                                  },
+                                  "value": {
+                                    "$expr": "\"wed-pm\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-wed-pm",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"thu-pm\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"thu-pm\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a22e73-7626-7107-b1e2-1fb2fe4b6525",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a24651-8fba-7f0f-9618-2feab4a26f97"
+                                  },
+                                  "value": {
+                                    "$expr": "\"thu-pm\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-thu-pm",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"fri-pm\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"fri-pm\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a246d7-153a-71a5-a514-0b7619cf5030",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a22634-4453-70b3-8793-fa728f89550d"
+                                  },
+                                  "value": {
+                                    "$expr": "\"fri-pm\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-fri-pm",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"sat-pm\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"sat-pm\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2018c-76a5-75e1-9690-41dcd9fa028c",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a29cf0-460c-788e-8674-fdae84887743"
+                                  },
+                                  "value": {
+                                    "$expr": "\"sat-pm\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-sat-pm",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"sun-pm\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"sun-pm\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a245fa-3c07-721b-9865-3d7af1731454",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a28797-249e-7a50-9cd4-7dcf68e77862"
+                                  },
+                                  "value": {
+                                    "$expr": "\"sun-pm\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-sun-pm",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "id": "01a23647-97ce-7556-b1a2-dd705163712d",
+                                "props": {
+                                  "padding": {
+                                    "end": 4,
+                                    "vertical": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2a877-c054-7d23-8bfa-81f242159d10",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a277d6-dd23-72ba-a634-c59db27e07c5"
+                                      },
+                                      "style": {
+                                        "$token": "typography.labelMedium"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Padding"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"mon-eve\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"mon-eve\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a25de9-48ba-7167-8ee9-e56c8524df45",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2cd79-f412-7c74-bc65-aee19ea84585"
+                                  },
+                                  "value": {
+                                    "$expr": "\"mon-eve\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-mon-eve",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"tue-eve\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"tue-eve\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2e456-13a5-7919-a2c9-2f5ba50207c8",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a24203-dbe1-7d17-a1c3-7ead7f1bc884"
+                                  },
+                                  "value": {
+                                    "$expr": "\"tue-eve\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-tue-eve",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"wed-eve\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"wed-eve\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a24128-eb30-7411-a01f-486499f70677",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a25ee6-efe5-7372-95ac-3dde50a8c9f2"
+                                  },
+                                  "value": {
+                                    "$expr": "\"wed-eve\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-wed-eve",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"thu-eve\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"thu-eve\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2d99b-bcbb-7d8d-bc06-c61d65808c8b",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a280e9-f476-7395-9cbf-bcdd14971b5f"
+                                  },
+                                  "value": {
+                                    "$expr": "\"thu-eve\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-thu-eve",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"fri-eve\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"fri-eve\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2ec09-2960-790e-a04c-8e96c1ffe9da",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a2f52d-a7ca-7a91-a3f5-044e84ec236d"
+                                  },
+                                  "value": {
+                                    "$expr": "\"fri-eve\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-fri-eve",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"sat-eve\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"sat-eve\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2098b-1010-7965-a568-f5afb540b3bd",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a22f00-af9c-71fd-aa4c-eb5ea11f30b2"
+                                  },
+                                  "value": {
+                                    "$expr": "\"sat-eve\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-sat-eve",
+                                "type": "Checkbox"
+                              },
+                              {
+                                "events": {
+                                  "onChanged": {
+                                    "steps": [
+                                      {
+                                        "action": "condition",
+                                        "branches": {
+                                          "else": "drop",
+                                          "then": "add"
+                                        },
+                                        "id": "on",
+                                        "input": {
+                                          "when": {
+                                            "$expr": "event ?? false"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "add",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots + [\"sun-eve\"]"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "action": "setState",
+                                        "id": "drop",
+                                        "input": {
+                                          "path": "page.slots",
+                                          "value": {
+                                            "$expr": "page.slots.filter(s, s != \"sun-eve\")"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": "01a2d009-740e-71f3-9c9b-299cbecdcf2c",
+                                "props": {
+                                  "semanticLabel": {
+                                    "$t": "01a22635-0eac-708c-bc9f-fe673b288831"
+                                  },
+                                  "value": {
+                                    "$expr": "\"sun-eve\" in page.slots"
+                                  }
+                                },
+                                "testId": "rl-slot-sun-eve",
+                                "type": "Checkbox"
+                              }
+                            ],
+                            "id": "01a2eab5-6f5e-7ad6-8b1e-76ce54411152",
+                            "props": {
+                              "border": {
+                                "color": {
+                                  "$token": "color.outlineVariant"
+                                },
+                                "width": 1.0
+                              },
+                              "columns": 8,
+                              "defaultColumnWidth": {
+                                "kind": "intrinsic"
+                              },
+                              "defaultVerticalAlignment": "middle"
+                            },
+                            "testId": "rl-availability",
+                            "type": "Table"
+                          }
+                        },
+                        "type": "SingleChildScrollView"
+                      },
+                      {
+                        "id": "01a206ec-7e7e-7bee-a06a-79c7fedf86c5",
+                        "props": {
+                          "data": {
+                            "$t": "01a2f68c-d10d-71cc-b783-f075f2ad8e20",
+                            "args": {
+                              "a": {
+                                "$expr": "string(page.hStart)"
+                              },
+                              "b": {
+                                "$expr": "string(page.hEnd)"
+                              }
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "a",
+                                "input": {
+                                  "path": "page.hStart",
+                                  "value": {
+                                    "$expr": "int(event.start)"
+                                  }
+                                },
+                                "next": "b"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "b",
+                                "input": {
+                                  "path": "page.hEnd",
+                                  "value": {
+                                    "$expr": "int(event.end)"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a25f1a-d7d1-7ec1-807e-e78fcb82b780",
+                        "props": {
+                          "divisions": 18,
+                          "labels": {
+                            "$expr": "{\"start\": string(page.hStart), \"end\": string(page.hEnd)}"
+                          },
+                          "max": 20,
+                          "min": 2,
+                          "values": {
+                            "$expr": "{\"start\": double(page.hStart), \"end\": double(page.hEnd)}"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a2f68c-d10d-71cc-b783-f075f2ad8e20",
+                            "args": {
+                              "a": {
+                                "$expr": "string(page.hStart)"
+                              },
+                              "b": {
+                                "$expr": "string(page.hEnd)"
+                              }
+                            }
+                          }
+                        },
+                        "testId": "rl-hours",
+                        "type": "RangeSlider"
+                      },
+                      {
+                        "id": "01a26ed6-9410-777c-a4e7-db620aaaf5a8",
+                        "props": {
+                          "data": {
+                            "$t": "01a261ba-7e8e-7ef0-a943-c0893410453d"
+                          },
+                          "style": {
+                            "$token": "typography.titleMedium"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.vol.values.from",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                },
+                                "next": "touch"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "touch",
+                                "input": {
+                                  "path": "page.vol.touched.from",
+                                  "value": true
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a29aba-3906-78e1-a6c1-a6021b1aa4f8",
+                        "props": {
+                          "calendar": "islamicUmalqura",
+                          "firstDate": {
+                            "$expr": "date(\"2026-01-01\")"
+                          },
+                          "lastDate": {
+                            "$expr": "date(\"2027-12-31\")"
+                          },
+                          "secondaryCalendar": "gregorian",
+                          "value": {
+                            "$expr": "form.values.from"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a261ba-7e8e-7ef0-a943-c0893410453d"
+                          }
+                        },
+                        "testId": "rl-from",
+                        "type": "DualCalendarDatePicker"
+                      }
+                    ],
+                    "id": "01a28ecb-d428-7359-a076-c7f05f5a57af",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "SingleChildScrollView"
+              }
+            },
+            "type": "FormScope"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "bottomNavigationBar": {
+        "component": {
+          "id": "01a2b909-cbad-77df-b6b6-d36ce2fb1df9",
+          "version": 1
+        },
+        "events": {
+          "onSubmit": {
+            "concurrency": "drop",
+            "steps": [
+              {
+                "action": "submitForm",
+                "branches": {
+                  "invalid": "fix"
+                },
+                "id": "check",
+                "input": {
+                  "form": "vol"
+                },
+                "next": "send"
+              },
+              {
+                "action": "announce",
+                "id": "fix",
+                "input": {
+                  "assertiveness": "assertive",
+                  "message": {
+                    "$t": "01a2c3dd-6ebd-7df9-96b1-f1a13795033f"
+                  }
+                }
+              },
+              {
+                "action": "apiCall",
+                "id": "send",
+                "input": {
+                  "input": {
+                    "from": {
+                      "$expr": "page.vol.values.from ?? date(\"2026-01-01\")"
+                    },
+                    "hoursEnd": {
+                      "$expr": "page.hEnd"
+                    },
+                    "hoursStart": {
+                      "$expr": "page.hStart"
+                    },
+                    "skills": {
+                      "$expr": "page.skills"
+                    },
+                    "slots": {
+                      "$expr": "page.slots"
+                    }
+                  },
+                  "operation": "api.volunteer"
+                },
+                "next": "say"
+              },
+              {
+                "action": "showSnackbar",
+                "id": "say",
+                "input": {
+                  "message": {
+                    "$t": "01a2d3a7-6203-7ed8-8ea9-2de81794817b"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a221b0-e889-7b2d-afdf-df2d0438a3be",
+        "props": {
+          "busy": {
+            "$expr": "page.vol.status == \"submitting\""
+          },
+          "enabled": {
+            "$expr": "!isEmpty(page.skills)"
+          },
+          "label": {
+            "$t": "01a2084a-2c8f-7660-bb81-662aef6d85d9"
+          }
+        },
+        "testId": "rl-offer"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "rl-volunteer",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": [],
+      "id": "01a29bd4-9e7b-703d-90ba-386121c52955",
+      "name": "skills",
+      "type": "list<string>"
+    },
+    {
+      "default": "",
+      "id": "01a24eaa-2585-78e3-b3c6-c42e4a4ff043",
+      "name": "draft",
+      "type": "string"
+    },
+    {
+      "default": [],
+      "id": "01a2565c-eeb1-747c-ba08-16e5dae7ada7",
+      "name": "slots",
+      "type": "list<string>"
+    },
+    {
+      "default": 4,
+      "id": "01a2d3e5-aee3-77f5-b0d3-d8ff8765b0c5",
+      "name": "hStart",
+      "type": "int"
+    },
+    {
+      "default": 8,
+      "id": "01a23f68-638e-764d-8dd1-0f083452108a",
+      "name": "hEnd",
+      "type": "int"
+    }
+  ],
+  "title": {
+    "$t": "01a2597b-3039-7506-95f6-79b69027df53"
+  }
+}

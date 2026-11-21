@@ -1,0 +1,272 @@
+{
+  "id": "01a2b6a3-b432-7ac2-af1e-de91bd02d6f9",
+  "key": "hm-viewing",
+  "kind": "page",
+  "pageKind": "dialog",
+  "result": "dateTime",
+  "root": {
+    "id": "01a2ee1b-6760-73d8-b201-bbb3994ee4b1",
+    "props": {
+      "padding": {
+        "all": 20
+      }
+    },
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a20000-6ff5-74f8-b6fc-d3ad55bcb816",
+            "props": {
+              "data": {
+                "$t": "01a26c32-0107-7fce-bcea-41e6fc307546"
+              },
+              "style": {
+                "$token": "typography.titleLarge"
+              }
+            },
+            "semantics": {
+              "header": true
+            },
+            "type": "Text"
+          },
+          {
+            "events": {
+              "onDateChanged": {
+                "steps": [
+                  {
+                    "action": "setState",
+                    "id": "d",
+                    "input": {
+                      "path": "page.day",
+                      "value": {
+                        "$expr": "event"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a214c8-da05-7be6-b147-a95ecb2f9838",
+            "props": {
+              "firstDate": {
+                "$expr": "date(\"2026-11-01\")"
+              },
+              "initialDate": {
+                "$expr": "page.day"
+              },
+              "lastDate": {
+                "$expr": "date(\"2027-06-30\")"
+              }
+            },
+            "semantics": {
+              "label": {
+                "$t": "01a26c32-0107-7fce-bcea-41e6fc307546"
+              }
+            },
+            "testId": "hm-viewing-day",
+            "type": "CalendarDatePicker"
+          },
+          {
+            "children": [
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "t",
+                        "input": {
+                          "path": "page.time",
+                          "value": "10:00"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2d9e8-6078-7da5-9465-b6ac97fc42ef",
+                "props": {
+                  "selected": {
+                    "$expr": "page.time == \"10:00\""
+                  }
+                },
+                "slots": {
+                  "label": {
+                    "id": "01a2a0af-1acf-77b1-882d-959e6f68756f",
+                    "props": {
+                      "data": "10:00"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "hm-time-1000",
+                "type": "ChoiceChip"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "t",
+                        "input": {
+                          "path": "page.time",
+                          "value": "12:00"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a22460-332b-799d-8006-58448923ff6e",
+                "props": {
+                  "selected": {
+                    "$expr": "page.time == \"12:00\""
+                  }
+                },
+                "slots": {
+                  "label": {
+                    "id": "01a2496d-13de-741d-bbe5-78ff8d588770",
+                    "props": {
+                      "data": "12:00"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "hm-time-1200",
+                "type": "ChoiceChip"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "t",
+                        "input": {
+                          "path": "page.time",
+                          "value": "15:00"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a29a09-da11-73af-b6c4-64be819439eb",
+                "props": {
+                  "selected": {
+                    "$expr": "page.time == \"15:00\""
+                  }
+                },
+                "slots": {
+                  "label": {
+                    "id": "01a23558-16b2-769f-a0f1-cdfd3add331d",
+                    "props": {
+                      "data": "15:00"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "hm-time-1500",
+                "type": "ChoiceChip"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "t",
+                        "input": {
+                          "path": "page.time",
+                          "value": "17:30"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2bf06-4a20-7e54-9d1d-204678355420",
+                "props": {
+                  "selected": {
+                    "$expr": "page.time == \"17:30\""
+                  }
+                },
+                "slots": {
+                  "label": {
+                    "id": "01a27a3c-1d74-723e-9173-cad445c4fcc9",
+                    "props": {
+                      "data": "17:30"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "hm-time-1730",
+                "type": "ChoiceChip"
+              }
+            ],
+            "id": "01a25b08-892e-7d3a-902d-0ff799f445be",
+            "props": {
+              "spacing": 8
+            },
+            "type": "Wrap"
+          },
+          {
+            "events": {
+              "onPressed": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "done",
+                    "input": {
+                      "result": {
+                        "$expr": "dateTime(string(page.day) + \"T\" + page.time + \":00+01:00\")"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2aa69-ea4a-7a45-879d-5139c5f11063",
+            "slots": {
+              "child": {
+                "id": "01a2d3ad-0b0f-7ac1-876f-2e245aa98daa",
+                "props": {
+                  "data": {
+                    "$t": "01a20ba4-bc82-77b4-94bf-899d22e43f9c"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "hm-viewing-ok",
+            "type": "FilledButton"
+          }
+        ],
+        "id": "01a2f546-8561-74d8-99df-672ab13cc199",
+        "props": {
+          "crossAxisAlignment": "stretch",
+          "mainAxisSize": "min",
+          "spacing": 12
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Padding"
+  },
+  "route": "hm-viewing",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "2026-12-01",
+      "id": "01a21146-24ad-74ca-8c20-dee4ac2be2ea",
+      "name": "day",
+      "type": "date"
+    },
+    {
+      "default": "10:00",
+      "id": "01a2fe60-25cb-7498-909f-9422aa2d38a9",
+      "name": "time",
+      "type": "string"
+    }
+  ],
+  "title": {
+    "$t": "01a26c32-0107-7fce-bcea-41e6fc307546"
+  }
+}

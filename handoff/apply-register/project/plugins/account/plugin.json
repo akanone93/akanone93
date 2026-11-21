@@ -1,0 +1,110 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "camera",
+      "photos",
+      "biometrics",
+      "notifications",
+      "share"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app",
+      "applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "encrypted": true,
+          "policy": "networkFirst",
+          "ttlSeconds": 300
+        },
+        "operations": {
+          "deleteAccount": {
+            "auth": true,
+            "input": "Empty",
+            "method": "DELETE",
+            "output": "Ack",
+            "path": "/me"
+          },
+          "export": {
+            "auth": true,
+            "input": "Empty",
+            "method": "POST",
+            "output": "ExportLink",
+            "path": "/me/export"
+          },
+          "updateMe": {
+            "auth": true,
+            "input": "MeUpdate",
+            "method": "PATCH",
+            "output": "Me",
+            "path": "/me"
+          }
+        },
+        "path": "/me"
+      },
+      "id": "01a29de2-fdd3-7886-9bc5-b5ed157c8b3e",
+      "kind": "rest",
+      "mock": {
+        "avatar": null,
+        "email": "selam@example.org",
+        "id": "u-1",
+        "name": "Selam Tesfaye",
+        "phone": "+491701234567",
+        "region": "DE",
+        "role": "member"
+      },
+      "name": "me",
+      "route": "plux",
+      "type": "Me"
+    }
+  ],
+  "description": "Profile, preferences, privacy and security.",
+  "entryPage": "01a21783-7651-740e-b3a6-2dffcd5d7ecb",
+  "fallbackPage": "01a2970d-6c30-72a0-8c9f-2d61cf462d69",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a2a3bf-a5d7-7e6c-a810-a1a48906608a",
+  "key": "account",
+  "kind": "plugin",
+  "name": "Account",
+  "pages": [
+    "01a21783-7651-740e-b3a6-2dffcd5d7ecb",
+    "01a2d3a2-d9c4-7fe6-9cbb-5a3215ae0557",
+    "01a26b5a-61aa-73ea-a664-0df85cf7f4d9",
+    "01a22ac9-fc5e-7004-9dbb-eb6295a3e6af",
+    "01a2a543-b17c-7f93-a091-f7581b909436",
+    "01a28fbc-d864-747e-a0d6-ab8f0f743741",
+    "01a2859c-59ad-738b-9f08-65c64c1f9857",
+    "01a2680d-38c6-7b2b-9d58-dc53fbcdf2ea",
+    "01a2970d-6c30-72a0-8c9f-2d61cf462d69"
+  ],
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": {
+        "analytics": false,
+        "experiments": false,
+        "replay": false
+      },
+      "id": "01a25358-d0af-7be9-b807-888e90dcf281",
+      "name": "consent",
+      "persistence": "persisted",
+      "type": "Consent"
+    }
+  ],
+  "tags": [
+    "account"
+  ],
+  "team": "apply-register"
+}

@@ -1,0 +1,162 @@
+{
+  "id": "01a2e3ed-8cff-71e0-a649-dfde9abd623d",
+  "key": "hm-lease",
+  "kind": "page",
+  "pageKind": "screen",
+  "params": [
+    {
+      "mock": "h-1",
+      "name": "id",
+      "type": "string"
+    }
+  ],
+  "root": {
+    "id": "01a2dd12-4014-74a1-9399-e1d4ff146e8e",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a22fef-e708-7386-b719-23b2fac40e70",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a2aab7-8bfb-728d-aec0-cdcdefe51dea",
+            "props": {
+              "data": {
+                "$t": "01a2df5a-1bc5-7f57-bfb4-d86a5fe52a14"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a22b25-c2d8-747d-9341-a68f83c08aed",
+        "slots": {
+          "child": {
+            "id": "01a224a2-647b-708c-b9e9-01813352c27c",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "events": {
+                  "onAccepted": {
+                    "concurrency": "drop",
+                    "steps": [
+                      {
+                        "action": "openBottomSheet",
+                        "id": "s",
+                        "input": {
+                          "route": "vf-signature"
+                        },
+                        "next": "ok"
+                      },
+                      {
+                        "action": "condition",
+                        "branches": {
+                          "then": "sign"
+                        },
+                        "id": "ok",
+                        "input": {
+                          "when": {
+                            "$expr": "steps.s.output?.verified ?? false"
+                          }
+                        }
+                      },
+                      {
+                        "action": "apiCall",
+                        "id": "sign",
+                        "input": {
+                          "input": {
+                            "listingId": {
+                              "$expr": "params.id"
+                            },
+                            "signature": {
+                              "$expr": "steps.s.output?.value ?? \"\""
+                            },
+                            "termsVersion": "L-2027-1"
+                          },
+                          "operation": "api.sign"
+                        },
+                        "next": "say"
+                      },
+                      {
+                        "action": "showSnackbar",
+                        "id": "say",
+                        "input": {
+                          "message": {
+                            "$t": "01a2fa7d-a057-7d89-a809-7a141f28d47f"
+                          }
+                        },
+                        "next": "home"
+                      },
+                      {
+                        "action": "navigate",
+                        "id": "home",
+                        "input": {
+                          "mode": "popUntil",
+                          "route": "hm-listings",
+                          "until": "hm-listings"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2be60-bdd9-75ce-9e7f-910131fa76a1",
+                "props": {
+                  "acceptLabel": {
+                    "$t": "01a2b664-80e0-7a07-bd8f-65af7ff3702d"
+                  },
+                  "scrollHint": {
+                    "$t": "01a24e72-7bb4-74b8-b836-e12e8aa7ef37"
+                  },
+                  "source": {
+                    "$t": "01a23ac5-e66d-72a7-b2cd-295342b78816"
+                  },
+                  "version": "L-2027-1"
+                },
+                "semantics": {
+                  "label": {
+                    "$t": "01a2df5a-1bc5-7f57-bfb4-d86a5fe52a14"
+                  }
+                },
+                "testId": "hm-lease",
+                "type": "TermsViewer"
+              }
+            },
+            "type": "Padding"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "hm-lease",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "title": {
+    "$t": "01a2df5a-1bc5-7f57-bfb4-d86a5fe52a14"
+  }
+}

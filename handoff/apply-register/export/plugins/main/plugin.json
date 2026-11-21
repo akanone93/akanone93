@@ -1,0 +1,18 @@
+{
+  "entryPage": "01a1e536-7a5f-7761-8f7e-45163969805e",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a1e536-7a5f-754b-8c9e-6b97cd596ea3",
+  "key": "main",
+  "kind": "plugin",
+  "name": "Main",
+  "pages": [
+    "01a1e536-7a5f-7761-8f7e-45163969805e"
+  ],
+  "schemaVersion": "1.0.0",
+  "team": "apply-register"
+}

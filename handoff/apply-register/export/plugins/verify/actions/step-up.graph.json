@@ -1,0 +1,42 @@
+{
+  "description": "Asks for biometrics before a sensitive action; true when confirmed.",
+  "exported": true,
+  "id": "01a24c4e-17ae-7aa2-8fab-7c52a974880e",
+  "inputs": [
+    {
+      "id": "01a268af-f019-7440-9b78-9ba68b2f5808",
+      "mock": "Confirm the transfer",
+      "name": "reason",
+      "required": true,
+      "type": "string"
+    }
+  ],
+  "key": "step-up",
+  "kind": "actionGraph",
+  "output": "bool",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "openDialog",
+      "id": "ask",
+      "input": {
+        "params": {
+          "reason": {
+            "$expr": "params.reason"
+          }
+        },
+        "route": "vf-step-up"
+      },
+      "next": "out"
+    },
+    {
+      "action": "stop",
+      "id": "out",
+      "input": {
+        "result": {
+          "$expr": "steps.ask.output ?? false"
+        }
+      }
+    }
+  ]
+}

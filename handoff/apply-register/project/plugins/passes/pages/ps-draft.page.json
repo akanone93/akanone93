@@ -1,0 +1,152 @@
+{
+  "id": "01a2333f-9293-7253-b398-c00affeed02a",
+  "key": "ps-draft",
+  "kind": "page",
+  "pageKind": "dialog",
+  "params": [
+    {
+      "mock": "r-003",
+      "name": "id",
+      "type": "string"
+    }
+  ],
+  "result": "string",
+  "root": {
+    "id": "01a20459-cc4e-7283-a761-9e2066ec83a7",
+    "props": {
+      "padding": {
+        "vertical": 16
+      }
+    },
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a26579-96da-7148-9b98-c1dfeceacb66",
+            "props": {
+              "padding": {
+                "bottom": 8,
+                "horizontal": 24
+              }
+            },
+            "slots": {
+              "child": {
+                "id": "01a23695-c2e6-75bc-8962-6c2e7003eccc",
+                "props": {
+                  "data": {
+                    "$t": "01a272ce-c623-7104-a89c-06b6752a4467"
+                  },
+                  "style": {
+                    "$token": "typography.headlineSmall"
+                  }
+                },
+                "semantics": {
+                  "header": true
+                },
+                "type": "Text"
+              }
+            },
+            "type": "Padding"
+          },
+          {
+            "events": {
+              "onTap": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "r",
+                    "input": {
+                      "result": "resume"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2b7d6-28fc-7098-8c25-7287873c403a",
+            "slots": {
+              "leading": {
+                "id": "01a2fd77-9340-779e-95e9-47a5c944ce39",
+                "props": {
+                  "icon": {
+                    "name": "play_arrow"
+                  }
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              },
+              "title": {
+                "id": "01a2a46f-4080-7f78-9288-e7ab9cbad0da",
+                "props": {
+                  "data": {
+                    "$t": "01a2027a-16e7-730b-8c00-e34602800418"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "draft-resume",
+            "type": "ListTile"
+          },
+          {
+            "events": {
+              "onTap": {
+                "steps": [
+                  {
+                    "action": "pop",
+                    "id": "d",
+                    "input": {
+                      "result": "discard"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2d7ae-351c-749c-8a2c-6ebc74ca1913",
+            "slots": {
+              "leading": {
+                "id": "01a2897c-3990-78d4-a84b-98fcc4ae13ce",
+                "props": {
+                  "color": {
+                    "$token": "color.error"
+                  },
+                  "icon": {
+                    "name": "delete_outline"
+                  }
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              },
+              "title": {
+                "id": "01a28d86-5c1c-7149-85fd-dc493d8fa1ea",
+                "props": {
+                  "data": {
+                    "$t": "01a238cd-5588-7751-a61c-82e62c0026f2"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "draft-discard",
+            "type": "ListTile"
+          }
+        ],
+        "id": "01a26487-e39e-75ed-8328-af351ade2f72",
+        "props": {
+          "crossAxisAlignment": "stretch",
+          "mainAxisSize": "min"
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Padding"
+  },
+  "route": "ps-draft",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a272ce-c623-7104-a89c-06b6752a4467"
+  }
+}

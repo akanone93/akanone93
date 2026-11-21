@@ -1,0 +1,161 @@
+{
+  "id": "01a2c28f-0fe9-76d2-ba0c-3d1ebda569e1",
+  "key": "rl-thanks",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a246fb-3346-7cdb-a530-630b47daa3f9",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a2276c-c2d4-7279-b204-aa978d8c2844",
+        "slots": {
+          "child": {
+            "id": "01a234bf-a4ea-7de4-8239-6f7d2f643e55",
+            "slots": {
+              "child": {
+                "id": "01a2cc53-9298-7c5a-a7f3-3c38a6d4a5ed",
+                "props": {
+                  "padding": {
+                    "all": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a2cf2b-c03b-7576-96a1-c40d7ae995e1",
+                        "props": {
+                          "animate": true,
+                          "fit": "contain",
+                          "height": 200,
+                          "reduceMotion": "skip",
+                          "repeat": false,
+                          "url": "https://api.applyregister.app/media/relief/confetti.lottie",
+                          "width": 200
+                        },
+                        "semantics": {
+                          "decorative": true
+                        },
+                        "type": "LottieView"
+                      },
+                      {
+                        "id": "01a2f7e7-ce56-7614-b2e4-26831e4cd544",
+                        "props": {
+                          "data": {
+                            "$t": "01a2e799-fe88-7c6c-966b-caf1de73c9b5"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          },
+                          "textAlign": "center"
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a2dccb-bbb4-763b-abe7-1f36a2309433",
+                        "props": {
+                          "data": {
+                            "$t": "01a24716-7853-7342-b972-cb09fb341cfc"
+                          },
+                          "style": {
+                            "$token": "typography.bodyMedium"
+                          },
+                          "textAlign": "center"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "share",
+                                "id": "share",
+                                "input": {
+                                  "text": {
+                                    "$t": "01a23d9b-5c58-7935-a695-575cfc2300df"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2ebdd-718e-73f7-a0a2-6a3f27e6d836",
+                        "slots": {
+                          "child": {
+                            "id": "01a297fc-4c7e-70e7-afc8-da4605fbd7bf",
+                            "props": {
+                              "data": {
+                                "$t": "01a21998-a21f-7c2c-a08a-7038553de0dd"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "rl-thanks-share",
+                        "type": "TextButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "mode": "replace",
+                                  "route": "rl-history"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a22a6c-641c-70dd-b60d-5ba7749be115",
+                        "slots": {
+                          "child": {
+                            "id": "01a2fe36-76b3-73fa-9d3d-4468dd31d606",
+                            "props": {
+                              "data": {
+                                "$t": "01a2a3eb-fd0e-72e1-aba9-b6d8eb449c4d"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "rl-thanks-history",
+                        "type": "FilledButton"
+                      }
+                    ],
+                    "id": "01a2a28b-c2e0-7fd3-a44f-a1629a20c4af",
+                    "props": {
+                      "mainAxisSize": "min",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              }
+            },
+            "type": "Center"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "rl-thanks",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2e799-fe88-7c6c-966b-caf1de73c9b5"
+  }
+}

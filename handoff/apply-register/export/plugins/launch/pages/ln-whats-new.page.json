@@ -1,0 +1,120 @@
+{
+  "id": "01a2cd6e-a4c9-7027-872f-e31b7e20e10e",
+  "key": "ln-whats-new",
+  "kind": "page",
+  "pageKind": "dialog",
+  "root": {
+    "id": "01a23cdb-5c93-7571-b730-52546317d6a5",
+    "props": {
+      "padding": {
+        "all": 24
+      }
+    },
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a244c4-0808-7d97-ad72-2d22d54e23a7",
+            "props": {
+              "data": {
+                "$t": "01a2826f-67d3-7a2d-b390-70efe8136ec4"
+              },
+              "style": {
+                "$token": "typography.headlineSmall"
+              }
+            },
+            "semantics": {
+              "header": true
+            },
+            "type": "Text"
+          },
+          {
+            "id": "01a211db-b63b-7ad2-bc51-5962c7b48628",
+            "props": {
+              "constraints": {
+                "maxHeight": 420
+              }
+            },
+            "slots": {
+              "child": {
+                "id": "01a2e9f7-2dc1-7708-b98e-74c96f933280",
+                "slots": {
+                  "child": {
+                    "id": "01a2d51e-fc8a-7a1f-a92c-47fbacf7940f",
+                    "props": {
+                      "source": {
+                        "$t": "01a2e8ab-5cee-7c15-bae6-94fd5968729f"
+                      }
+                    },
+                    "type": "MarkdownView"
+                  }
+                },
+                "type": "SingleChildScrollView"
+              }
+            },
+            "type": "ConstrainedBox"
+          },
+          {
+            "children": [
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "seen",
+                        "input": {
+                          "path": "plugin.whatsNewSeen",
+                          "value": {
+                            "$expr": "env.termsVersion"
+                          }
+                        },
+                        "next": "close"
+                      },
+                      {
+                        "action": "pop",
+                        "id": "close"
+                      }
+                    ]
+                  }
+                },
+                "id": "01a23f6a-e1b8-728b-8ff4-41d37e736d4b",
+                "slots": {
+                  "child": {
+                    "id": "01a2a9a1-aee5-72a7-bac8-b7519ccff827",
+                    "props": {
+                      "data": {
+                        "$t": "01a23542-43c9-703c-8d4e-a4320d2855b0"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "whats-new-close",
+                "type": "TextButton"
+              }
+            ],
+            "id": "01a2e4d4-8b72-7a28-8103-85b2c42f97ae",
+            "props": {
+              "mainAxisAlignment": "end"
+            },
+            "type": "Row"
+          }
+        ],
+        "id": "01a22582-ca04-7623-96ca-9b49e7b858b1",
+        "props": {
+          "crossAxisAlignment": "start",
+          "mainAxisSize": "min",
+          "spacing": 16
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Padding"
+  },
+  "route": "ln-whats-new",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2826f-67d3-7a2d-b390-70efe8136ec4"
+  }
+}

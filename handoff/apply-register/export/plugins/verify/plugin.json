@@ -1,0 +1,85 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "camera",
+      "location",
+      "biometrics",
+      "haptics"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "operations": {
+          "otpStart": {
+            "auth": true,
+            "input": "OtpStart",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/verify/otp"
+          },
+          "otpVerify": {
+            "auth": true,
+            "input": "OtpCheck",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/verify/otp/check"
+          },
+          "upload": {
+            "auth": true,
+            "input": "Upload",
+            "method": "POST",
+            "output": "Uploaded",
+            "path": "/verify/uploads"
+          }
+        },
+        "path": "/verify/health"
+      },
+      "id": "01a23c78-dbfc-7cea-b036-1f1ee47ac537",
+      "kind": "rest",
+      "mock": {
+        "ok": true
+      },
+      "name": "verify",
+      "route": "plux",
+      "type": "Ack"
+    }
+  ],
+  "description": "Reusable checks: phone, identity, signature, address, step-up.",
+  "entryPage": "01a2931b-c23f-783d-8c0a-95b6f6ac6997",
+  "fallbackPage": "01a268db-fedb-7612-95ce-a9f2270e8a64",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a20574-b4df-7a07-837d-34abd46170c6",
+  "key": "verify",
+  "kind": "plugin",
+  "name": "Verify",
+  "pages": [
+    "01a2931b-c23f-783d-8c0a-95b6f6ac6997",
+    "01a28c8d-8602-7d1f-be20-e8b95649b8bb",
+    "01a26889-ff1c-74cb-90f2-0eef842b2195",
+    "01a2c946-813a-7550-a168-91a1965eb5e7",
+    "01a2ce93-7790-7cab-afb0-fa2c6e97f43e",
+    "01a217cc-d352-7a7a-9206-628f54766a24",
+    "01a268db-fedb-7612-95ce-a9f2270e8a64"
+  ],
+  "schemaVersion": "1.0.0",
+  "tags": [
+    "identity"
+  ],
+  "team": "apply-register"
+}

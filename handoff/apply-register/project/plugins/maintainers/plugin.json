@@ -1,0 +1,207 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "camera",
+      "photos",
+      "files",
+      "location",
+      "biometrics",
+      "notifications",
+      "clipboard",
+      "share",
+      "haptics"
+    ],
+    "functions": [
+      {
+        "alias": "stable",
+        "function": "fees.quote",
+        "id": "01a23c89-7055-7efa-a264-90136acfed1d"
+      }
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "params": {
+          "limit": "3"
+        },
+        "path": "/orgs",
+        "select": "items"
+      },
+      "id": "01a25235-819b-7b48-a155-a419a5242018",
+      "kind": "rest",
+      "mock": [],
+      "name": "cacheNet",
+      "route": "plux",
+      "type": "list<Org>"
+    },
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "cacheFirst",
+          "ttlSeconds": 60
+        },
+        "params": {
+          "limit": "3"
+        },
+        "path": "/orgs",
+        "select": "items"
+      },
+      "id": "01a286a9-0f59-77d8-b444-4ec38fb72a41",
+      "kind": "rest",
+      "mock": [],
+      "name": "cacheFirst",
+      "route": "plux",
+      "type": "list<Org>"
+    },
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkFirst",
+          "ttlSeconds": 60
+        },
+        "params": {
+          "limit": "3"
+        },
+        "path": "/orgs",
+        "select": "items"
+      },
+      "id": "01a2c013-28ab-78ca-a010-d23ecb031d53",
+      "kind": "rest",
+      "mock": [],
+      "name": "cacheNF",
+      "route": "plux",
+      "type": "list<Org>"
+    },
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "staleWhileRevalidate",
+          "ttlSeconds": 30
+        },
+        "params": {
+          "limit": "3"
+        },
+        "path": "/orgs",
+        "select": "items"
+      },
+      "id": "01a22cd7-2d3a-72b4-8097-8b3ff34ec5e6",
+      "kind": "rest",
+      "mock": [],
+      "name": "cacheSWR",
+      "route": "plux",
+      "type": "list<Org>"
+    },
+    {
+      "config": {},
+      "id": "01a266db-cc75-72ee-bd9f-55985057744a",
+      "kind": "static",
+      "mock": [
+        "one",
+        "two",
+        "three"
+      ],
+      "name": "liveStatic",
+      "type": "list<string>"
+    },
+    {
+      "config": {
+        "collection": "registrations",
+        "descending": true,
+        "orderBy": "submittedAt"
+      },
+      "id": "01a2ae9c-1200-7359-adaf-371793bae9f3",
+      "kind": "database",
+      "mock": [],
+      "name": "db",
+      "type": "list<Registration>"
+    }
+  ],
+  "description": "Every widget option, action and platform feature, for maintainers.",
+  "entryPage": "01a25385-c900-7268-88c2-e9d11fe3464b",
+  "fallbackPage": "01a2a0dd-0471-761b-b183-3e80e532dda9",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a27208-2a74-7ee1-9edd-dabbef24feb9",
+  "key": "maintainers",
+  "kind": "plugin",
+  "name": "Plux showcase",
+  "pages": [
+    "01a25385-c900-7268-88c2-e9d11fe3464b",
+    "01a2a38d-88fa-7d5e-b36e-b7b7ecd4acc7",
+    "01a276a7-d1eb-7793-9f05-29efd727f416",
+    "01a27007-87bf-746d-853e-30f1cef8c5d6",
+    "01a202e2-8a1d-75b5-888b-b45220ab1dba",
+    "01a25bb8-f36f-79bb-957d-d0935648db55",
+    "01a28570-28d8-777a-ab98-b997b0c7038f",
+    "01a24ba0-442b-7b63-ad49-7e8092f0f191",
+    "01a236ba-9f29-7c33-b6d4-80c2b1be10e1",
+    "01a2411f-96a6-70fe-8bf8-1b634c4fb530",
+    "01a28423-ccfc-7473-9d17-f4daae3089a8",
+    "01a286c6-3aac-79c6-8e29-fd669ce1034b",
+    "01a2ab8b-2e7b-7002-a96f-de154f2e680f",
+    "01a26662-a13e-7f69-8a08-e6bf3f4d1ddc",
+    "01a2004f-2f98-7dee-9d41-fa3723f5985c",
+    "01a2b5de-1345-7f65-8665-1f2b1822f0e6",
+    "01a2442f-16f2-70aa-95dc-f197cfd8d549",
+    "01a25162-0ba1-74b7-b605-31c2c7a0682c",
+    "01a29f62-7c2c-7f23-9c28-00237f57c6b7",
+    "01a2c0ed-8e20-7e58-89f3-3635f48ff29b",
+    "01a23657-7e8d-7f79-8d33-2d0c3081e96d",
+    "01a2dc6f-6341-7cdb-9b14-f72ce8e3b5fa",
+    "01a28c22-2c46-7c9a-856b-4625ed747791",
+    "01a22e8c-1f7e-78c5-8b67-da9e68c8a39b",
+    "01a23ca7-bc78-7f4e-8b56-4d7973913ea1",
+    "01a213ab-a0c8-7ffd-a200-78e918ea114d",
+    "01a2aba1-b5cb-7eb3-81da-1875f139f71a",
+    "01a25779-a663-7128-a908-60b086a9804e",
+    "01a2dc88-9e0d-727e-ac6c-7b7db76c78e8",
+    "01a26452-556a-7f13-9aed-d63598d3772e",
+    "01a20b79-909e-793c-8616-95d11da85e16",
+    "01a2998d-e329-7db1-bf7f-d55d8e226baa",
+    "01a21a10-e583-7dbe-90ef-930786afd9d9",
+    "01a2bcb4-afff-71ff-982e-12f77d062ecb",
+    "01a29a50-3cc0-7e65-9b72-c9a6deb29f69",
+    "01a2028e-66db-7b3f-81ef-39b04db15d10",
+    "01a2edc6-05d2-738e-b321-4697e9e19d5a",
+    "01a248e6-7448-799e-b6b2-3fb6bd378435",
+    "01a2dd41-e8ca-72fa-a55d-0a2d96cd52b7",
+    "01a2a0dd-0471-761b-b183-3e80e532dda9"
+  ],
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01a22958-f1c4-7f68-bead-9a8071fdc1ad",
+      "name": "count",
+      "type": "int"
+    },
+    {
+      "default": "",
+      "id": "01a2bd54-9437-7539-9679-1c8684aa1d6d",
+      "name": "kept",
+      "persistence": "persisted",
+      "type": "string"
+    }
+  ],
+  "tags": [
+    "qa"
+  ],
+  "team": "apply-register"
+}

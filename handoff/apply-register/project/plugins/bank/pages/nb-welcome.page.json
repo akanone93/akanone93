@@ -1,0 +1,540 @@
+{
+  "id": "01a21e6e-d1f3-7ddc-883c-bf397510d49f",
+  "key": "nb-welcome",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "emitHostEvent",
+          "id": "brand",
+          "input": {
+            "event": "brandRequested",
+            "payload": {
+              "brand": "nordvia"
+            }
+          },
+          "next": "rate"
+        },
+        {
+          "action": "readConfig",
+          "id": "rate",
+          "input": {
+            "key": "ratesEURUSD",
+            "type": "decimal"
+          },
+          "next": "keep",
+          "onError": "offline"
+        },
+        {
+          "action": "setState",
+          "id": "keep",
+          "input": {
+            "path": "page.rate",
+            "value": {
+              "$expr": "steps.rate.output"
+            }
+          },
+          "next": "online"
+        },
+        {
+          "action": "setState",
+          "id": "online",
+          "input": {
+            "path": "page.rateError",
+            "value": false
+          }
+        },
+        {
+          "action": "setState",
+          "id": "offline",
+          "input": {
+            "path": "page.rateError",
+            "value": true
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2fdbc-237f-75df-8e8f-fcf20dd31d54",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a21e50-4a6c-7e5e-a484-238f56d1b676",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.primary"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onPrimary"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "actions": [
+            {
+              "events": {
+                "onPressed": {
+                  "steps": [
+                    {
+                      "action": "openUrl",
+                      "id": "open",
+                      "input": {
+                        "url": {
+                          "$expr": "env.helpUrl"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "01a2f69f-5994-77ee-aa93-65dfb25662a9",
+              "props": {
+                "color": {
+                  "$token": "color.onPrimary"
+                },
+                "tooltip": {
+                  "$t": "01a2090e-1fdc-752d-8f13-b33215cc35dd"
+                }
+              },
+              "slots": {
+                "icon": {
+                  "id": "01a29ff6-1953-7903-b50e-1db11a8741d9",
+                  "props": {
+                    "icon": {
+                      "name": "help_outline"
+                    }
+                  },
+                  "semantics": {
+                    "decorative": true
+                  },
+                  "type": "Icon"
+                }
+              },
+              "testId": "nb-help",
+              "type": "IconButton"
+            }
+          ],
+          "title": {
+            "children": [
+              {
+                "id": "01a215db-02ea-72f6-bd82-2672153b4be2",
+                "props": {
+                  "color": {
+                    "$token": "color.onPrimary"
+                  },
+                  "icon": {
+                    "name": "account_balance"
+                  },
+                  "size": 24
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              },
+              {
+                "id": "01a20b20-680f-751e-b46b-c192c1676aad",
+                "slots": {
+                  "child": {
+                    "id": "01a291be-b593-7f84-8f6e-6cf2255f48f9",
+                    "props": {
+                      "data": {
+                        "$t": "01a2edb2-a03b-77cb-bab3-f0f7927271df"
+                      },
+                      "maxLines": 1,
+                      "overflow": "ellipsis"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Flexible"
+              }
+            ],
+            "id": "01a26004-3afe-7ff8-8167-baadbe97da10",
+            "props": {
+              "spacing": 8
+            },
+            "type": "Row"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a22288-dc9e-7310-9537-298e187cb71f",
+        "slots": {
+          "child": {
+            "id": "01a21848-1bca-73b2-b449-567f444d1018",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "events": {
+                      "onFlip": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "flip",
+                            "input": {
+                              "path": "page.flipped",
+                              "value": {
+                                "$expr": "!page.flipped"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2ef01-7112-79e6-abb4-60f139160de9",
+                    "props": {
+                      "backLabel": {
+                        "$t": "01a2a023-2b8d-7157-b07c-9a99bbd2e70c"
+                      },
+                      "balance": {
+                        "$expr": "money(\"0.00\", \"EUR\")"
+                      },
+                      "flipped": {
+                        "$expr": "page.flipped"
+                      },
+                      "maskedNumber": "•••• 4821",
+                      "name": {
+                        "$t": "01a2c32b-7791-71fd-a6c7-28641afbdcf6"
+                      }
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01a2c32b-7791-71fd-a6c7-28641afbdcf6"
+                      }
+                    },
+                    "testId": "nb-card",
+                    "type": "AccountCard"
+                  },
+                  {
+                    "id": "01a28629-f4a8-735d-a86b-238cc262a69c",
+                    "props": {
+                      "height": 16
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "events": {
+                      "onSelectionChanged": {
+                        "steps": [
+                          {
+                            "action": "switch",
+                            "branches": {
+                              "default": "everyday",
+                              "plus": "plus"
+                            },
+                            "id": "pick",
+                            "input": {
+                              "cases": [
+                                "plus"
+                              ],
+                              "value": {
+                                "$expr": "first(event) ?? \"everyday\""
+                              }
+                            }
+                          },
+                          {
+                            "action": "setState",
+                            "id": "plus",
+                            "input": {
+                              "path": "page.product",
+                              "value": "plus"
+                            }
+                          },
+                          {
+                            "action": "setState",
+                            "id": "everyday",
+                            "input": {
+                              "path": "page.product",
+                              "value": "everyday"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a234e1-8209-7f24-98d5-a188f6b905e7",
+                    "props": {
+                      "segments": [
+                        {
+                          "icon": {
+                            "name": "account_balance_wallet"
+                          },
+                          "label": {
+                            "$t": "01a2c32b-7791-71fd-a6c7-28641afbdcf6"
+                          },
+                          "value": "everyday"
+                        },
+                        {
+                          "icon": {
+                            "name": "workspace_premium"
+                          },
+                          "label": {
+                            "$t": "01a2a6d2-ceca-7919-8bde-1fa97163b1d9"
+                          },
+                          "value": "plus"
+                        }
+                      ],
+                      "selected": {
+                        "$expr": "[page.product]"
+                      }
+                    },
+                    "testId": "nb-product",
+                    "type": "SegmentedButton"
+                  },
+                  {
+                    "id": "01a2154f-4fa7-7133-b88a-31f3fded660a",
+                    "props": {
+                      "height": 12
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "id": "01a26511-99ee-7477-94d9-16c2ed0e199e",
+                    "props": {
+                      "crossFadeState": {
+                        "$expr": "page.product == \"plus\" ? \"showSecond\" : \"showFirst\""
+                      },
+                      "duration": 300,
+                      "sizeCurve": "easeInOut"
+                    },
+                    "slots": {
+                      "firstChild": {
+                        "id": "01a2cde6-fa77-768f-b3fd-3bbda315cc5e",
+                        "props": {
+                          "data": {
+                            "$t": "01a2a8d5-3842-79f7-83f9-6eff2a438a2a"
+                          },
+                          "style": {
+                            "$token": "typography.bodyLarge"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      "secondChild": {
+                        "id": "01a21140-f257-7622-8d43-1324ea713e7c",
+                        "props": {
+                          "data": {
+                            "$t": "01a27094-b888-7aab-9296-dbb14c83b9da"
+                          },
+                          "style": {
+                            "$token": "typography.bodyLarge"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "AnimatedCrossFade"
+                  },
+                  {
+                    "id": "01a2f183-822c-7251-8480-9079594ab287",
+                    "props": {
+                      "condition": {
+                        "$expr": "page.rateError"
+                      }
+                    },
+                    "slots": {
+                      "else": {
+                        "component": {
+                          "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                          "version": 1
+                        },
+                        "id": "01a21e41-e0b3-7449-9fef-7302291eac5f",
+                        "props": {
+                          "label": {
+                            "$t": "01a202bf-9d81-7119-8343-8904a5ba6e70"
+                          },
+                          "value": {
+                            "$expr": "page.rate == null ? \"…\" : format.number(page.rate)"
+                          }
+                        }
+                      },
+                      "then": {
+                        "component": {
+                          "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                          "version": 1
+                        },
+                        "id": "01a28559-4d79-7c7b-9b00-cf8aad2854d4",
+                        "props": {
+                          "label": {
+                            "$t": "01a202bf-9d81-7119-8343-8904a5ba6e70"
+                          },
+                          "value": {
+                            "$t": "01a26232-fe97-7a43-8809-077502b90994"
+                          }
+                        }
+                      }
+                    },
+                    "type": "If"
+                  },
+                  {
+                    "id": "01a279a6-179c-7999-ac9d-4be033cb3910",
+                    "props": {
+                      "height": 24
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "keep",
+                            "input": {
+                              "path": "plugin.application",
+                              "value": {
+                                "$expr": "{\"product\": page.product, \"eligible\": plugin.application.eligible, \"detailsSent\": plugin.application.detailsSent, \"marketing\": plugin.application.marketing}"
+                              }
+                            },
+                            "next": "go"
+                          },
+                          {
+                            "action": "navigate",
+                            "id": "go",
+                            "input": {
+                              "route": "nb-eligibility"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2b6f9-c8f2-7521-90c1-4aeace2af646",
+                    "props": {
+                      "style": {
+                        "minimumSize": {
+                          "value": {
+                            "height": 52,
+                            "width": 64
+                          }
+                        },
+                        "shape": {
+                          "value": {
+                            "kind": "stadium"
+                          }
+                        }
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01a2ee31-2f0e-7b3e-9c39-be5afdef8c4b",
+                        "props": {
+                          "data": {
+                            "$t": "01a25b22-72de-73d7-bbda-9c332cdff08d"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "nb-open",
+                    "type": "FilledButton"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "openDialog",
+                            "id": "read",
+                            "input": {
+                              "route": "nb-terms"
+                            },
+                            "next": "keep"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "keep",
+                            "input": {
+                              "path": "page.termsRead",
+                              "value": {
+                                "$expr": "steps.read.output ?? false"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2b848-af79-7e0c-a2a1-a92d81aa046c",
+                    "slots": {
+                      "child": {
+                        "id": "01a2605e-4940-7eed-866d-4461a1d8f722",
+                        "props": {
+                          "data": {
+                            "$t": "01a25e37-9fad-75c5-8f59-5d97eb5cab02"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "nb-terms",
+                    "type": "TextButton"
+                  }
+                ],
+                "id": "01a2d624-2b21-7a20-a2e6-4ac93037a85d",
+                "props": {
+                  "crossAxisAlignment": "stretch"
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "nb-welcome",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "everyday",
+      "id": "01a2a5cc-7784-7aa9-bc84-b0e01cc8a171",
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "default": false,
+      "id": "01a2fb48-0e25-7f9c-a4b0-82b335f1eb9a",
+      "name": "flipped",
+      "type": "bool"
+    },
+    {
+      "default": null,
+      "id": "01a2264b-973e-773c-97fc-4b2813ec9eee",
+      "name": "rate",
+      "type": "decimal?"
+    },
+    {
+      "default": false,
+      "id": "01a2ce4a-1be1-7744-98da-148fb87b7761",
+      "name": "rateError",
+      "type": "bool"
+    },
+    {
+      "default": false,
+      "id": "01a28221-cb33-73c7-a622-93dd78689a03",
+      "name": "termsRead",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a29347-ad03-7676-94ac-94d05c94fc20"
+  }
+}

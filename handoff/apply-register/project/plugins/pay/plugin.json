@@ -1,0 +1,72 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "haptics",
+      "biometrics"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "operations": {
+          "charge": {
+            "auth": true,
+            "input": "ChargeInput",
+            "method": "POST",
+            "output": "PayResult",
+            "path": "/payments"
+          }
+        },
+        "path": "/payments/last"
+      },
+      "id": "01a252e2-2083-7ec7-a87d-f51ec31bd6b3",
+      "kind": "rest",
+      "mock": {
+        "errorCode": null,
+        "message": null,
+        "status": "success",
+        "transactionId": "tx-20261117-0042"
+      },
+      "name": "payments",
+      "route": "plux",
+      "transaction": {
+        "amount": "/amount",
+        "currency": "/currency",
+        "payee": "/payee"
+      },
+      "type": "PayResult"
+    }
+  ],
+  "description": "The wallet payment: typed in, typed out.",
+  "entryPage": "01a2cae4-bc66-7907-b90b-cb20e65e3150",
+  "fallbackPage": "01a20c0f-f620-7289-9851-4ed7194b5cd2",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a2b964-d7c2-7c45-bd09-68975959380c",
+  "key": "pay",
+  "kind": "plugin",
+  "name": "Pay",
+  "pages": [
+    "01a2cae4-bc66-7907-b90b-cb20e65e3150",
+    "01a20c0f-f620-7289-9851-4ed7194b5cd2"
+  ],
+  "schemaVersion": "1.0.0",
+  "tags": [
+    "payments"
+  ],
+  "team": "apply-register"
+}

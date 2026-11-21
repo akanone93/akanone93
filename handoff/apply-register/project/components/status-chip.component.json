@@ -1,0 +1,256 @@
+{
+  "description": "A registration's or an organisation's status as a coloured chip.",
+  "id": "01a28548-7902-7e3d-b463-5bac01370528",
+  "key": "status-chip",
+  "kind": "component",
+  "name": "StatusChip",
+  "props": [
+    {
+      "name": "status",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "label",
+      "type": "string?"
+    }
+  ],
+  "root": {
+    "id": "01a27e2b-0de3-7542-a57b-f898ddf5cc8c",
+    "props": {
+      "cases": [
+        "new",
+        "submitted",
+        "approved",
+        "rejected",
+        "live"
+      ],
+      "value": {
+        "$expr": "props.status"
+      }
+    },
+    "slots": {
+      "branches": [
+        {
+          "id": "01a28c3e-bf18-7483-8164-cf513c9ab51c",
+          "props": {
+            "backgroundColor": {
+              "$token": "color.secondaryContainer"
+            }
+          },
+          "slots": {
+            "avatar": {
+              "id": "01a2baa8-93a2-71fb-9997-92f129011e93",
+              "props": {
+                "icon": {
+                  "name": "fiber_new"
+                },
+                "size": 18
+              },
+              "semantics": {
+                "decorative": true
+              },
+              "type": "Icon"
+            },
+            "label": {
+              "id": "01a21cad-31a9-72b6-a469-78ce9eb13de9",
+              "props": {
+                "data": {
+                  "$expr": "props.label ?? props.status"
+                },
+                "style": {
+                  "$token": "typography.labelMedium"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Chip"
+        },
+        {
+          "id": "01a2ba45-554d-7c31-abc9-c5de4c46ba3e",
+          "props": {
+            "backgroundColor": {
+              "$token": "color.primaryContainer"
+            }
+          },
+          "slots": {
+            "avatar": {
+              "id": "01a2c509-0151-7b28-87ee-db8ceaa45d5f",
+              "props": {
+                "icon": {
+                  "name": "send"
+                },
+                "size": 18
+              },
+              "semantics": {
+                "decorative": true
+              },
+              "type": "Icon"
+            },
+            "label": {
+              "id": "01a26470-6adc-70e5-aede-68b590892957",
+              "props": {
+                "data": {
+                  "$expr": "props.label ?? props.status"
+                },
+                "style": {
+                  "$token": "typography.labelMedium"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Chip"
+        },
+        {
+          "id": "01a2452f-e242-7e22-841d-114be50c0eb0",
+          "props": {
+            "backgroundColor": {
+              "$token": "color.surfaceContainerHigh"
+            }
+          },
+          "slots": {
+            "avatar": {
+              "id": "01a2126e-15d4-73cc-a845-b39cbf6eb33f",
+              "props": {
+                "icon": {
+                  "name": "check_circle"
+                },
+                "size": 18
+              },
+              "semantics": {
+                "decorative": true
+              },
+              "type": "Icon"
+            },
+            "label": {
+              "id": "01a2c931-3ba1-786f-abcc-b3c418e68de7",
+              "props": {
+                "data": {
+                  "$expr": "props.label ?? props.status"
+                },
+                "style": {
+                  "$token": "typography.labelMedium"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Chip"
+        },
+        {
+          "id": "01a26439-a2a7-702f-add0-c5fe035dfdd2",
+          "props": {
+            "backgroundColor": {
+              "$token": "color.errorContainer"
+            }
+          },
+          "slots": {
+            "avatar": {
+              "id": "01a2a323-26d4-705f-99a1-f0116c23cb67",
+              "props": {
+                "icon": {
+                  "name": "cancel"
+                },
+                "size": 18
+              },
+              "semantics": {
+                "decorative": true
+              },
+              "type": "Icon"
+            },
+            "label": {
+              "id": "01a2dd92-fd68-7624-b746-b5d3e4bb370c",
+              "props": {
+                "data": {
+                  "$expr": "props.label ?? props.status"
+                },
+                "style": {
+                  "$token": "typography.labelMedium"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Chip"
+        },
+        {
+          "id": "01a26d05-d297-7994-99cd-fdb11d5f3121",
+          "props": {
+            "backgroundColor": {
+              "$token": "color.tertiaryContainer"
+            }
+          },
+          "slots": {
+            "avatar": {
+              "id": "01a240ac-8d5b-7716-88bd-11b067b12715",
+              "props": {
+                "icon": {
+                  "name": "sensors"
+                },
+                "size": 18
+              },
+              "semantics": {
+                "decorative": true
+              },
+              "type": "Icon"
+            },
+            "label": {
+              "id": "01a21807-e0b9-7492-834f-33b4e18ba8c2",
+              "props": {
+                "data": {
+                  "$expr": "props.label ?? props.status"
+                },
+                "style": {
+                  "$token": "typography.labelMedium"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Chip"
+        }
+      ],
+      "otherwise": {
+        "id": "01a22366-3647-79fc-9067-97090299c516",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surfaceContainerHigh"
+          }
+        },
+        "slots": {
+          "avatar": {
+            "id": "01a25ca2-863c-709b-801a-9d7155cc03bc",
+            "props": {
+              "icon": {
+                "name": "info"
+              },
+              "size": 18
+            },
+            "semantics": {
+              "decorative": true
+            },
+            "type": "Icon"
+          },
+          "label": {
+            "id": "01a2bae3-cc4b-74d5-a44b-97ef16a128c1",
+            "props": {
+              "data": {
+                "$expr": "props.label ?? props.status"
+              },
+              "style": {
+                "$token": "typography.labelMedium"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Chip"
+      }
+    },
+    "type": "Match"
+  },
+  "schemaVersion": "1.0.0",
+  "version": 1
+}

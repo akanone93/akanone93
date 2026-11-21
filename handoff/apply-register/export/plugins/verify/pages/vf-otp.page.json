@@ -1,0 +1,310 @@
+{
+  "id": "01a28c8d-8602-7d1f-be20-e8b95649b8bb",
+  "key": "vf-otp",
+  "kind": "page",
+  "pageKind": "bottomSheet",
+  "params": [
+    {
+      "mock": "+491701234567",
+      "name": "phone",
+      "type": "string"
+    }
+  ],
+  "result": "VerifyResult",
+  "root": {
+    "id": "01a2679c-3c69-7224-9b95-24d90ab48c94",
+    "slots": {
+      "child": {
+        "id": "01a2cd89-8141-73c5-a45c-6e5c9f112829",
+        "props": {
+          "padding": {
+            "all": 24
+          }
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a2dcd5-3c5f-74ba-a00c-e6adca4963a1",
+                "props": {
+                  "data": {
+                    "$t": "01a24d9d-4725-7324-b119-6899fa5406bc"
+                  },
+                  "style": {
+                    "$token": "typography.titleLarge"
+                  }
+                },
+                "semantics": {
+                  "header": true
+                },
+                "type": "Text"
+              },
+              {
+                "id": "01a24285-4b5f-76d2-ad8f-f1af8945100b",
+                "props": {
+                  "data": {
+                    "$t": "01a28212-0933-7250-a182-8616ba84bb53",
+                    "args": {
+                      "phone": {
+                        "$expr": "params.phone"
+                      }
+                    }
+                  },
+                  "style": {
+                    "$token": "typography.bodyMedium"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onCompleted": {
+                    "concurrency": "drop",
+                    "steps": [
+                      {
+                        "action": "apiCall",
+                        "id": "check",
+                        "input": {
+                          "input": {
+                            "code": {
+                              "$expr": "event"
+                            },
+                            "phone": {
+                              "$expr": "params.phone"
+                            }
+                          },
+                          "operation": "verify.otpVerify"
+                        },
+                        "next": "ok",
+                        "onError": "wrong"
+                      },
+                      {
+                        "action": "pop",
+                        "id": "ok",
+                        "input": {
+                          "result": {
+                            "value": {
+                              "$expr": "params.phone"
+                            },
+                            "verified": true
+                          }
+                        }
+                      },
+                      {
+                        "action": "haptic",
+                        "id": "wrong",
+                        "input": {
+                          "pattern": "heavy"
+                        },
+                        "next": "mark"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "mark",
+                        "input": {
+                          "path": "page.err",
+                          "value": true
+                        },
+                        "next": "say"
+                      },
+                      {
+                        "action": "announce",
+                        "id": "say",
+                        "input": {
+                          "assertiveness": "assertive",
+                          "message": {
+                            "$t": "01a2b659-c787-7163-b7cf-fa2f068080d7"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a23caf-a3dc-7640-8787-71d62f3370cd",
+                "props": {
+                  "alphabet": "numeric",
+                  "autofill": true,
+                  "length": 6
+                },
+                "semantics": {
+                  "label": {
+                    "$t": "01a24d9d-4725-7324-b119-6899fa5406bc"
+                  }
+                },
+                "testId": "otp-code",
+                "type": "OtpInput"
+              },
+              {
+                "id": "01a280d9-64c4-7524-8294-07b0819d385e",
+                "props": {
+                  "condition": {
+                    "$expr": "page.err"
+                  }
+                },
+                "slots": {
+                  "then": {
+                    "id": "01a2090b-e8b4-7042-93fb-7ae98316f4e2",
+                    "props": {
+                      "data": {
+                        "$t": "01a2b659-c787-7163-b7cf-fa2f068080d7"
+                      },
+                      "style": {
+                        "base": {
+                          "$token": "typography.bodyMedium"
+                        },
+                        "color": {
+                          "$token": "color.error"
+                        }
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "If"
+              },
+              {
+                "id": "01a2e641-d2e2-7afb-98ba-a88f3100d0f0",
+                "props": {
+                  "condition": {
+                    "$expr": "page.left == 0"
+                  }
+                },
+                "slots": {
+                  "else": {
+                    "id": "01a2a5b6-b860-7400-b662-8c992acbb600",
+                    "slots": {
+                      "child": {
+                        "id": "01a25983-7b24-7487-9073-694589b9a8bf",
+                        "props": {
+                          "data": {
+                            "$t": "01a273bf-74b0-75fa-9f92-bb8f7b5b13da",
+                            "args": {
+                              "s": {
+                                "$expr": "string(page.left)"
+                              }
+                            }
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "otp-resend-wait",
+                    "type": "TextButton"
+                  },
+                  "then": {
+                    "events": {
+                      "onPressed": {
+                        "concurrency": "drop",
+                        "steps": [
+                          {
+                            "action": "apiCall",
+                            "id": "send",
+                            "input": {
+                              "input": {
+                                "phone": {
+                                  "$expr": "params.phone"
+                                }
+                              },
+                              "operation": "verify.otpStart"
+                            },
+                            "next": "reset"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "reset",
+                            "input": {
+                              "path": "page.left",
+                              "value": 60
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2a35a-65ff-7cc9-a646-a7412aa29306",
+                    "slots": {
+                      "child": {
+                        "id": "01a26246-1ae3-73eb-ac79-0817c0a62d66",
+                        "props": {
+                          "data": {
+                            "$t": "01a201ef-1b1a-775c-8ea5-997068bdccfe"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "otp-resend",
+                    "type": "TextButton"
+                  }
+                },
+                "type": "If"
+              }
+            ],
+            "id": "01a2de6e-0037-7bba-ae52-e450a85c5aa4",
+            "props": {
+              "crossAxisAlignment": "stretch",
+              "mainAxisSize": "min",
+              "spacing": 16
+            },
+            "type": "Column"
+          }
+        },
+        "type": "Padding"
+      }
+    },
+    "type": "SafeArea"
+  },
+  "route": "vf-otp",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 60,
+      "id": "01a23dc9-a7eb-7030-90a7-81ed58d066ee",
+      "name": "left",
+      "type": "int"
+    },
+    {
+      "default": false,
+      "id": "01a22841-e104-7256-9f5e-5eacf3d011df",
+      "name": "err",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a24d9d-4725-7324-b119-6899fa5406bc"
+  },
+  "triggers": {
+    "timers": [
+      {
+        "handler": {
+          "steps": [
+            {
+              "action": "condition",
+              "branches": {
+                "then": "count"
+              },
+              "id": "more",
+              "input": {
+                "when": {
+                  "$expr": "page.left > 0"
+                }
+              }
+            },
+            {
+              "action": "setState",
+              "id": "count",
+              "input": {
+                "path": "page.left",
+                "value": {
+                  "$expr": "page.left - 1"
+                }
+              }
+            }
+          ]
+        },
+        "intervalMs": 1000,
+        "name": "tick",
+        "repeat": true
+      }
+    ]
+  }
+}

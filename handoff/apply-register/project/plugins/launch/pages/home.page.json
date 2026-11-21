@@ -1,0 +1,778 @@
+{
+  "id": "01a2a0f0-40c5-78d2-a4fc-fd47d54fb511",
+  "key": "home",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "emitHostEvent",
+          "id": "brand",
+          "input": {
+            "event": "brandRequested",
+            "payload": {
+              "brand": null
+            }
+          },
+          "next": "first"
+        },
+        {
+          "action": "condition",
+          "branches": {
+            "else": "seen",
+            "then": "welcome"
+          },
+          "id": "first",
+          "input": {
+            "when": {
+              "$expr": "!app.onboarded"
+            }
+          }
+        },
+        {
+          "action": "openDialog",
+          "id": "welcome",
+          "input": {
+            "dismissible": false,
+            "route": "ln-welcome"
+          },
+          "next": "keep"
+        },
+        {
+          "action": "setState",
+          "id": "keep",
+          "input": {
+            "path": "app.interests",
+            "value": {
+              "$expr": "steps.welcome.output ?? app.interests"
+            }
+          },
+          "next": "done"
+        },
+        {
+          "action": "setState",
+          "id": "done",
+          "input": {
+            "path": "app.onboarded",
+            "value": true
+          }
+        },
+        {
+          "action": "condition",
+          "branches": {
+            "then": "news"
+          },
+          "id": "seen",
+          "input": {
+            "when": {
+              "$expr": "plugin.whatsNewSeen != env.termsVersion"
+            }
+          }
+        },
+        {
+          "action": "openDialog",
+          "id": "news",
+          "input": {
+            "route": "ln-whats-new"
+          }
+        }
+      ]
+    },
+    "onResume": {
+      "steps": [
+        {
+          "action": "refreshData",
+          "id": "load",
+          "input": {
+            "source": "featured"
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2fc02-49ce-7272-9bdf-bc4936a9b37f",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "events": {
+          "onRefresh": {
+            "concurrency": "restart",
+            "steps": [
+              {
+                "action": "refreshData",
+                "id": "load",
+                "input": {
+                  "source": "featured"
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a2366c-acea-7232-917e-5b10dd5e7451",
+        "props": {
+          "displacement": 56
+        },
+        "slots": {
+          "child": {
+            "id": "01a2dbd9-67eb-7569-8f7e-cd1450d1b0d3",
+            "props": {
+              "keyboardDismissBehavior": "onDrag"
+            },
+            "slots": {
+              "slivers": [
+                {
+                  "id": "01a28503-ca2a-715b-9968-733b6fee3ed9",
+                  "props": {
+                    "backgroundColor": {
+                      "$token": "color.primary"
+                    },
+                    "expandedHeight": 200,
+                    "foregroundColor": {
+                      "$token": "color.onPrimary"
+                    },
+                    "pinned": true
+                  },
+                  "slots": {
+                    "actions": [
+                      {
+                        "id": "01a21fb2-49fb-7ab3-8c0b-67050a6dff48",
+                        "props": {
+                          "isLabelVisible": {
+                            "$expr": "app.unreadCount > 0"
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "events": {
+                              "onPressed": {
+                                "steps": [
+                                  {
+                                    "action": "navigate",
+                                    "id": "go",
+                                    "input": {
+                                      "route": "inbox"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a290b1-a77d-7a92-b428-3d86761140ed",
+                            "props": {
+                              "tooltip": {
+                                "$t": "01a2d698-5025-752e-b447-a60030137e06"
+                              }
+                            },
+                            "slots": {
+                              "icon": {
+                                "id": "01a2e155-02f3-7d2c-b652-7f381a921c50",
+                                "props": {
+                                  "icon": {
+                                    "name": "notifications"
+                                  }
+                                },
+                                "semantics": {
+                                  "decorative": true
+                                },
+                                "type": "Icon"
+                              }
+                            },
+                            "testId": "home-inbox",
+                            "type": "IconButton"
+                          },
+                          "label": {
+                            "id": "01a29cf5-83de-7189-a553-8a25c428c2cb",
+                            "props": {
+                              "data": {
+                                "$expr": "string(app.unreadCount)"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Badge"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "openBottomSheet",
+                                "id": "pick",
+                                "input": {
+                                  "route": "ln-language"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2a5c3-0161-77a7-85cb-a511e322ba55",
+                        "props": {
+                          "tooltip": {
+                            "$t": "01a2a04a-8d68-78c1-94e2-a6c61e0c6c9c"
+                          }
+                        },
+                        "slots": {
+                          "icon": {
+                            "id": "01a2abfa-0fd3-73f3-9fe0-7a9a36e83959",
+                            "props": {
+                              "icon": {
+                                "name": "translate"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          }
+                        },
+                        "testId": "home-language",
+                        "type": "IconButton"
+                      }
+                    ],
+                    "flexibleSpace": {
+                      "component": {
+                        "id": "01a218d7-cb2d-7c04-90ba-72fc7a72c1ca",
+                        "version": 1
+                      },
+                      "id": "01a2a77e-9422-7878-b6a8-bb99d7548201",
+                      "props": {
+                        "subtitle": {
+                          "$t": "01a2bcee-c3e7-77e1-9634-4435981d84b4"
+                        },
+                        "title": {
+                          "$t": "01a2c051-c2af-75f3-85eb-a696ea755a34"
+                        }
+                      }
+                    },
+                    "title": {
+                      "id": "01a269c6-e7ac-7e21-aab9-74d94d12a0bd",
+                      "props": {
+                        "data": {
+                          "$t": "01a29e57-fd6c-79e2-a6a2-173bd0c99d5f"
+                        }
+                      },
+                      "type": "Text"
+                    }
+                  },
+                  "type": "SliverAppBar"
+                },
+                {
+                  "id": "01a2b0ea-f988-74b6-8ba2-2c00e77cafe4",
+                  "props": {
+                    "padding": {
+                      "horizontal": 16,
+                      "vertical": 12
+                    }
+                  },
+                  "slots": {
+                    "sliver": {
+                      "id": "01a2d8b4-c533-7939-8a47-99965f7cc9d0",
+                      "slots": {
+                        "child": {
+                          "events": {
+                            "onTap": {
+                              "steps": [
+                                {
+                                  "action": "switchTab",
+                                  "id": "go",
+                                  "input": {
+                                    "tab": "explore"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "id": "01a22b60-e168-704b-a4e9-0a33bf160806",
+                          "props": {
+                            "hintText": {
+                              "$t": "01a22146-d440-76f9-ba66-a74157f0a6d9"
+                            }
+                          },
+                          "slots": {
+                            "leading": {
+                              "id": "01a2b6fe-5fe5-7057-bc85-b795a153d321",
+                              "props": {
+                                "icon": {
+                                  "name": "search"
+                                }
+                              },
+                              "semantics": {
+                                "decorative": true
+                              },
+                              "type": "Icon"
+                            }
+                          },
+                          "testId": "home-search",
+                          "type": "SearchBar"
+                        }
+                      },
+                      "type": "SliverToBoxAdapter"
+                    }
+                  },
+                  "type": "SliverPadding"
+                },
+                {
+                  "id": "01a272a8-83bf-781b-b73c-d793f51c03dc",
+                  "slots": {
+                    "child": {
+                      "id": "01a23f66-a2d1-7248-b0af-ce54558ced88",
+                      "props": {
+                        "message": {
+                          "$t": "01a29cf6-311b-7c21-8e51-079b5de63850"
+                        },
+                        "visible": {
+                          "$expr": "data.featured.error != null"
+                        }
+                      },
+                      "type": "OfflineBanner"
+                    }
+                  },
+                  "type": "SliverToBoxAdapter"
+                },
+                {
+                  "id": "01a2f958-c949-7faa-a469-6164967864b9",
+                  "slots": {
+                    "child": {
+                      "component": {
+                        "id": "01a2d792-c87a-7768-bc5e-245c44cd2ac6",
+                        "version": 1
+                      },
+                      "events": {
+                        "onAction": {
+                          "steps": [
+                            {
+                              "action": "switchTab",
+                              "id": "go",
+                              "input": {
+                                "tab": "explore"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "id": "01a2ba39-598b-730d-a6b0-1dc89c867326",
+                      "props": {
+                        "actionLabel": {
+                          "$t": "01a2043c-7795-7f75-9618-1972901b677d"
+                        },
+                        "title": {
+                          "$t": "01a207aa-db35-7325-9bd2-f14d2b69f0f2"
+                        }
+                      }
+                    }
+                  },
+                  "type": "SliverToBoxAdapter"
+                },
+                {
+                  "id": "01a2f1d5-3ac5-7f10-b732-7075cca562bc",
+                  "slots": {
+                    "child": {
+                      "id": "01a20ff5-3d40-7529-93b9-866c24c99edf",
+                      "props": {
+                        "padding": {
+                          "horizontal": 16,
+                          "vertical": 4
+                        },
+                        "scrollDirection": "horizontal"
+                      },
+                      "slots": {
+                        "child": {
+                          "children": [
+                            {
+                              "id": "01a21d87-b20d-7ae9-981f-5e41311d821e",
+                              "props": {
+                                "items": {
+                                  "$expr": "data.featured.value ?? []"
+                                }
+                              },
+                              "slots": {
+                                "item": {
+                                  "id": "01a24f9a-ca2d-7b68-9598-b880fb7b8ad6",
+                                  "props": {
+                                    "width": 260
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "component": {
+                                        "id": "01a253a9-df06-7bd7-8427-310390ac2a2d",
+                                        "version": 1
+                                      },
+                                      "events": {
+                                        "onOpen": {
+                                          "steps": [
+                                            {
+                                              "action": "navigate",
+                                              "id": "go",
+                                              "input": {
+                                                "params": {
+                                                  "slug": {
+                                                    "$expr": "event.slug"
+                                                  }
+                                                },
+                                                "route": "ex-org"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "id": "01a2d8db-a0df-75a7-a20d-5301aa154c3d",
+                                      "props": {
+                                        "org": {
+                                          "$expr": "item"
+                                        },
+                                        "showFee": true
+                                      },
+                                      "testId": "home-featured-card"
+                                    }
+                                  },
+                                  "type": "SizedBox"
+                                }
+                              },
+                              "type": "ForEach"
+                            }
+                          ],
+                          "id": "01a210f6-ece0-7505-8999-92cf7157d662",
+                          "props": {
+                            "crossAxisAlignment": "start",
+                            "spacing": 12
+                          },
+                          "type": "Row"
+                        }
+                      },
+                      "type": "SingleChildScrollView"
+                    }
+                  },
+                  "type": "SliverToBoxAdapter"
+                },
+                {
+                  "id": "01a2ef93-f026-76fd-a0e7-d193d95b6d97",
+                  "slots": {
+                    "child": {
+                      "component": {
+                        "id": "01a266bd-c9c7-7bb0-b0ed-64508b5f61cf",
+                        "version": 1
+                      },
+                      "id": "01a2ea5a-ce92-7106-9712-fbeeaf49e293",
+                      "props": {
+                        "message": {
+                          "$t": "01a2f742-bce7-7d8e-b9bd-2e664afb30a9"
+                        },
+                        "title": {
+                          "$t": "01a240a1-a160-79e4-9957-bbbbc43180db"
+                        }
+                      }
+                    }
+                  },
+                  "type": "SliverToBoxAdapter",
+                  "visible": {
+                    "$expr": "isEmpty(data.featured.value ?? [])"
+                  }
+                },
+                {
+                  "id": "01a2e535-d77b-704b-85c3-f90bcc0147b5",
+                  "slots": {
+                    "child": {
+                      "component": {
+                        "id": "01a2d792-c87a-7768-bc5e-245c44cd2ac6",
+                        "version": 1
+                      },
+                      "events": {
+                        "onAction": {
+                          "steps": [
+                            {
+                              "action": "switchTab",
+                              "id": "go",
+                              "input": {
+                                "tab": "explore"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "id": "01a2aee6-121d-7dcb-8f4d-7e6765d81290",
+                      "props": {
+                        "actionLabel": {
+                          "$t": "01a2043c-7795-7f75-9618-1972901b677d"
+                        },
+                        "title": {
+                          "$t": "01a2cc26-8cf1-7323-9532-7e393f43ed23"
+                        }
+                      }
+                    }
+                  },
+                  "type": "SliverToBoxAdapter"
+                },
+                {
+                  "id": "01a2e439-471e-7f99-810e-d4c4d5cd6c48",
+                  "props": {
+                    "padding": {
+                      "horizontal": 16,
+                      "vertical": 8
+                    }
+                  },
+                  "slots": {
+                    "sliver": {
+                      "id": "01a207de-a7d2-7836-8214-2766721ee5a2",
+                      "props": {
+                        "crossAxisCount": 4,
+                        "crossAxisSpacing": 8,
+                        "items": {
+                          "$expr": "data.categories.value ?? []"
+                        },
+                        "mainAxisExtent": 96,
+                        "mainAxisSpacing": 8
+                      },
+                      "responsive": {
+                        "expanded": {
+                          "crossAxisCount": 8
+                        },
+                        "medium": {
+                          "crossAxisCount": 6
+                        }
+                      },
+                      "slots": {
+                        "item": {
+                          "events": {
+                            "onTap": {
+                              "steps": [
+                                {
+                                  "action": "navigate",
+                                  "id": "go",
+                                  "input": {
+                                    "params": {
+                                      "key": {
+                                        "$expr": "item.key"
+                                      }
+                                    },
+                                    "route": "ex-category"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "id": "01a28461-8a73-7545-8ac8-71654cb8f84b",
+                          "props": {
+                            "borderRadius": {
+                              "all": {
+                                "$token": "radius.md"
+                              }
+                            }
+                          },
+                          "semantics": {
+                            "button": true,
+                            "label": {
+                              "$expr": "item.key == \"education\" ? t(\"01a2948e-880b-7854-a9ec-de669448ce5e\") : item.key == \"finance\" ? t(\"01a23d3d-a72e-7c8c-b3fb-3338a9f21f25\") : item.key == \"sports\" ? t(\"01a28b38-3bbe-719b-b725-793109b4a21f\") : item.key == \"charity\" ? t(\"01a2f4f1-a0a2-70bf-ae0b-d8eb448738b0\") : item.key == \"health\" ? t(\"01a27c20-d5ed-7607-a47e-5869b34b97b3\") : item.key == \"housing\" ? t(\"01a20d93-a324-7d7c-b5c3-9c9fceeadecf\") : item.key == \"events\" ? t(\"01a24d3b-3b4a-738f-a898-a5466d05112f\") : item.key == \"venues\" ? t(\"01a2948d-d706-76cd-b71a-94557dc75644\") : \"\""
+                            }
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "id": "01a29633-f2a3-7c24-aa9c-f8f63dbb697c",
+                                  "props": {
+                                    "decoration": {
+                                      "borderRadius": {
+                                        "all": {
+                                          "$token": "radius.lg"
+                                        }
+                                      },
+                                      "color": {
+                                        "$token": "color.secondaryContainer"
+                                      }
+                                    },
+                                    "padding": {
+                                      "all": 12
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01a201b3-b661-7855-afe3-572d49f04072",
+                                      "props": {
+                                        "color": {
+                                          "$token": "color.onSecondaryContainer"
+                                        },
+                                        "icon": {
+                                          "$expr": "{\"name\": item.icon}"
+                                        },
+                                        "size": 26
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "type": "Icon"
+                                    }
+                                  },
+                                  "type": "Container"
+                                },
+                                {
+                                  "id": "01a26715-4f93-7dc1-bc6c-d396547b9a20",
+                                  "props": {
+                                    "height": 6
+                                  },
+                                  "type": "SizedBox"
+                                },
+                                {
+                                  "id": "01a28a14-e1c9-750f-b39a-28164ea0134a",
+                                  "props": {
+                                    "data": {
+                                      "$expr": "item.key == \"education\" ? t(\"01a2948e-880b-7854-a9ec-de669448ce5e\") : item.key == \"finance\" ? t(\"01a23d3d-a72e-7c8c-b3fb-3338a9f21f25\") : item.key == \"sports\" ? t(\"01a28b38-3bbe-719b-b725-793109b4a21f\") : item.key == \"charity\" ? t(\"01a2f4f1-a0a2-70bf-ae0b-d8eb448738b0\") : item.key == \"health\" ? t(\"01a27c20-d5ed-7607-a47e-5869b34b97b3\") : item.key == \"housing\" ? t(\"01a20d93-a324-7d7c-b5c3-9c9fceeadecf\") : item.key == \"events\" ? t(\"01a24d3b-3b4a-738f-a898-a5466d05112f\") : item.key == \"venues\" ? t(\"01a2948d-d706-76cd-b71a-94557dc75644\") : \"\""
+                                    },
+                                    "maxLines": 1,
+                                    "overflow": "ellipsis",
+                                    "style": {
+                                      "$token": "typography.labelMedium"
+                                    },
+                                    "textAlign": "center"
+                                  },
+                                  "type": "Text"
+                                }
+                              ],
+                              "id": "01a2fc30-cd0b-7c22-bcbd-33df78be7455",
+                              "props": {
+                                "mainAxisAlignment": "center",
+                                "mainAxisSize": "min"
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "testId": "home-category",
+                          "type": "InkWell"
+                        }
+                      },
+                      "testId": "home-categories",
+                      "type": "SliverGrid"
+                    }
+                  },
+                  "type": "SliverPadding"
+                },
+                {
+                  "id": "01a2874d-08fa-7675-9a09-18b46d979034",
+                  "slots": {
+                    "child": {
+                      "id": "01a2ac56-8e16-71c1-87a4-fdb905804714",
+                      "props": {
+                        "padding": {
+                          "all": 16
+                        }
+                      },
+                      "slots": {
+                        "child": {
+                          "component": {
+                            "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                            "version": 1
+                          },
+                          "events": {
+                            "onTap": {
+                              "steps": [
+                                {
+                                  "action": "navigate",
+                                  "id": "go",
+                                  "input": {
+                                    "route": "pt-pitch"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "id": "01a264e8-6212-71c5-b80b-ed0552b9791d",
+                          "props": {
+                            "tappable": true,
+                            "variant": "outlined"
+                          },
+                          "slots": {
+                            "content": {
+                              "id": "01a21a5b-1d8e-740b-89af-2aa546ed3fa5",
+                              "props": {
+                                "contentPadding": {
+                                  "all": 0
+                                }
+                              },
+                              "slots": {
+                                "leading": {
+                                  "id": "01a2d360-597e-772f-9614-f1a9f30a62b0",
+                                  "props": {
+                                    "color": {
+                                      "$token": "color.primary"
+                                    },
+                                    "icon": {
+                                      "name": "handshake"
+                                    }
+                                  },
+                                  "semantics": {
+                                    "decorative": true
+                                  },
+                                  "type": "Icon"
+                                },
+                                "subtitle": {
+                                  "id": "01a2548f-83f8-71b4-bc61-9c3044805ea8",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a21702-814a-7a18-91c9-8c33ad806cea"
+                                    },
+                                    "style": {
+                                      "$token": "typography.bodySmall"
+                                    }
+                                  },
+                                  "type": "Text"
+                                },
+                                "title": {
+                                  "id": "01a25e0b-fbe4-7ed7-b2f1-ae46198195cf",
+                                  "props": {
+                                    "data": {
+                                      "$t": "01a2d2a2-35c0-7844-b319-001c4594ac3a"
+                                    },
+                                    "style": {
+                                      "$token": "typography.titleSmall"
+                                    }
+                                  },
+                                  "type": "Text"
+                                },
+                                "trailing": {
+                                  "id": "01a2f38b-21a8-704a-9339-3d5006332a20",
+                                  "props": {
+                                    "icon": {
+                                      "name": "chevron_right"
+                                    }
+                                  },
+                                  "semantics": {
+                                    "decorative": true
+                                  },
+                                  "type": "Icon"
+                                }
+                              },
+                              "type": "ListTile"
+                            }
+                          },
+                          "testId": "home-partner"
+                        }
+                      },
+                      "type": "Padding"
+                    }
+                  },
+                  "type": "SliverToBoxAdapter"
+                }
+              ]
+            },
+            "type": "CustomScrollView"
+          }
+        },
+        "type": "RefreshIndicator"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "home",
+  "routeOptions": {
+    "transition": "fade"
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a29e57-fd6c-79e2-a6a2-173bd0c99d5f"
+  }
+}

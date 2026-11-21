@@ -1,0 +1,344 @@
+{
+  "id": "01a24ff5-ba68-7d41-bef8-c481f05c99d2",
+  "key": "ln-welcome",
+  "kind": "page",
+  "pageKind": "fullscreenDialog",
+  "result": "list<string>",
+  "root": {
+    "id": "01a2b40d-521d-792d-a6c0-0bf340d45e6b",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a29583-cd15-7455-ad24-dff51c8f9eec",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a215cc-d3d6-7f98-886d-78dc9c1d04a5",
+                "props": {
+                  "padding": {
+                    "all": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a2b8f0-b217-76ef-a99b-ced161c78622",
+                        "props": {
+                          "decoration": {
+                            "color": {
+                              "$token": "color.primaryContainer"
+                            },
+                            "shape": "circle"
+                          },
+                          "padding": {
+                            "all": 28
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01a2a944-47d8-792a-a9a4-e9b107293fe8",
+                            "props": {
+                              "color": {
+                                "$token": "color.onPrimaryContainer"
+                              },
+                              "icon": {
+                                "name": "travel_explore"
+                              },
+                              "size": 72
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          }
+                        },
+                        "type": "Container"
+                      },
+                      {
+                        "id": "01a235f6-70dd-798a-9782-65c3a92c984b",
+                        "props": {
+                          "data": {
+                            "$t": "01a2d1cc-f64d-7648-88eb-1cb301e88a34"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          },
+                          "textAlign": "center"
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a28e02-aba4-76b3-a534-52764f7fef7c",
+                        "props": {
+                          "data": {
+                            "$t": "01a286c9-24b9-7f99-bc12-ee9e57dfc7c9"
+                          },
+                          "style": {
+                            "$token": "typography.bodyLarge"
+                          },
+                          "textAlign": "center"
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "id": "01a20811-2dd9-7afe-a2ab-9cf1af859908",
+                    "props": {
+                      "crossAxisAlignment": "center",
+                      "mainAxisAlignment": "center",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a20608-b329-72f1-9de0-d03022ac72c7",
+                "props": {
+                  "padding": {
+                    "all": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a20e21-39a3-711d-bcb6-d84758720262",
+                        "props": {
+                          "decoration": {
+                            "color": {
+                              "$token": "color.primaryContainer"
+                            },
+                            "shape": "circle"
+                          },
+                          "padding": {
+                            "all": 28
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01a2d40d-ab25-7a40-bf73-e45282552045",
+                            "props": {
+                              "color": {
+                                "$token": "color.onPrimaryContainer"
+                              },
+                              "icon": {
+                                "name": "search"
+                              },
+                              "size": 72
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          }
+                        },
+                        "type": "Container"
+                      },
+                      {
+                        "id": "01a2b66f-b6e5-7725-99e4-776cffbd368c",
+                        "props": {
+                          "data": {
+                            "$t": "01a20fc5-88de-7baf-af29-af14ddb30c9e"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          },
+                          "textAlign": "center"
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a27175-d461-7c6e-8813-6721b1603b0f",
+                        "props": {
+                          "data": {
+                            "$t": "01a27b43-5de0-7a94-a2d3-118041ffa6ac"
+                          },
+                          "style": {
+                            "$token": "typography.bodyLarge"
+                          },
+                          "textAlign": "center"
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "id": "01a21765-dae3-7f92-aafa-843dc0a66d10",
+                    "props": {
+                      "crossAxisAlignment": "center",
+                      "mainAxisAlignment": "center",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a2b179-183c-74ac-af22-37b025ba7f57",
+                "props": {
+                  "padding": {
+                    "all": 24
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a247d8-7d3a-79ba-928a-6f448df64083",
+                        "props": {
+                          "decoration": {
+                            "color": {
+                              "$token": "color.primaryContainer"
+                            },
+                            "shape": "circle"
+                          },
+                          "padding": {
+                            "all": 28
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01a244ac-7795-7f53-8bd0-754d8ab96245",
+                            "props": {
+                              "color": {
+                                "$token": "color.onPrimaryContainer"
+                              },
+                              "icon": {
+                                "name": "verified_user"
+                              },
+                              "size": 72
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          }
+                        },
+                        "type": "Container"
+                      },
+                      {
+                        "id": "01a26d0a-1431-71ab-89dc-cff40fe9f04a",
+                        "props": {
+                          "data": {
+                            "$t": "01a2b73e-8218-745c-986a-23731db86df7"
+                          },
+                          "style": {
+                            "$token": "typography.headlineSmall"
+                          },
+                          "textAlign": "center"
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01a25b74-18dc-7d74-9479-1b98e19d907b",
+                        "props": {
+                          "data": {
+                            "$t": "01a24681-ac3a-7866-9ab7-c4e4c0798c50"
+                          },
+                          "style": {
+                            "$token": "typography.bodyLarge"
+                          },
+                          "textAlign": "center"
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "id": "01a29daa-7a05-77be-87bd-9bdf82bc0b7b",
+                    "props": {
+                      "crossAxisAlignment": "center",
+                      "mainAxisAlignment": "center",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              }
+            ],
+            "events": {
+              "onDone": {
+                "steps": [
+                  {
+                    "action": "navigate",
+                    "id": "go",
+                    "input": {
+                      "mode": "replace",
+                      "route": "ln-interests"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2fcc5-9947-7cba-a24e-0d66b5bbc480",
+            "props": {
+              "doneLabel": {
+                "$t": "01a2b081-3998-76b2-b6b3-649a09206570"
+              },
+              "nextLabel": {
+                "$t": "01a2cae3-6a94-71e6-ac01-6c2f09ad3f1d"
+              }
+            },
+            "testId": "welcome-pager",
+            "type": "OnboardingPager"
+          }
+        },
+        "type": "SafeArea"
+      },
+      "persistentFooterButtons": [
+        {
+          "events": {
+            "onPressed": {
+              "steps": [
+                {
+                  "action": "pop",
+                  "id": "back",
+                  "input": {
+                    "result": []
+                  }
+                }
+              ]
+            }
+          },
+          "id": "01a2bdf9-36f6-733d-b43c-bc00bbce3cfc",
+          "slots": {
+            "child": {
+              "id": "01a2ba7f-a831-7c49-ad1b-39e37c87a0bd",
+              "props": {
+                "data": {
+                  "$t": "01a274b9-5541-791d-89af-2e031404c5e3"
+                }
+              },
+              "type": "Text"
+            }
+          },
+          "testId": "welcome-skip",
+          "type": "TextButton"
+        }
+      ]
+    },
+    "type": "Scaffold"
+  },
+  "route": "ln-welcome",
+  "routeOptions": {
+    "transition": "slideUp"
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2f6e2-9d23-76df-8ff3-d19a59bbaeae"
+  }
+}

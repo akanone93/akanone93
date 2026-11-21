@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "function",
+  "id": "01a1ed57-bda0-7298-b0bd-a0dc4b3fc2ee",
+  "name": "promo.check",
+  "description": "Checks a DevHarbor promotion code: EARLY20 until sales close, TEAM5 for five tickets or more.",
+  "placement": "server",
+  "capabilities": {},
+  "env": [
+    "PROMO_EARLY_CLOSES"
+  ],
+  "tests": [
+    {
+      "name": "TEAM5 for five tickets",
+      "input": {
+        "code": "team5",
+        "quantity": 5
+      },
+      "output": {
+        "code": "TEAM5",
+        "discountPercent": 15
+      }
+    },
+    {
+      "name": "TEAM5 needs five tickets",
+      "input": {
+        "code": "TEAM5",
+        "quantity": 2
+      },
+      "error": {
+        "code": "PROMO_CONDITION"
+      }
+    },
+    {
+      "name": "EARLY20 without a closing time has expired",
+      "input": {
+        "code": "EARLY20",
+        "quantity": 1
+      },
+      "error": {
+        "code": "PROMO_EXPIRED"
+      }
+    },
+    {
+      "name": "an unknown code is refused",
+      "input": {
+        "code": "FREE",
+        "quantity": 1
+      },
+      "error": {
+        "code": "PROMO_INVALID"
+      }
+    }
+  ]
+}

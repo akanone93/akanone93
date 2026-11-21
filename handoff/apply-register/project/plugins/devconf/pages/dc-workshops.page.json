@@ -1,0 +1,521 @@
+{
+  "id": "01a24b44-1859-7599-88fc-99ba5a3e71ec",
+  "key": "dc-workshops",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "invokeFunction",
+          "id": "p",
+          "input": {
+            "function": "fees.quote",
+            "input": {
+              "currency": "EUR",
+              "org": "devconf",
+              "quantity": 1,
+              "tier": "workshop"
+            }
+          },
+          "next": "keep"
+        },
+        {
+          "action": "setState",
+          "id": "keep",
+          "input": {
+            "path": "page.price",
+            "value": {
+              "$expr": "steps.p.output?.total ?? \"0\""
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a20572-83bb-76a8-b36c-e052ef27d51d",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2830a-e080-7b78-8e2a-42116085802a",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "actions": [
+            {
+              "events": {
+                "onPressed": {
+                  "steps": [
+                    {
+                      "action": "navigate",
+                      "id": "go",
+                      "input": {
+                        "route": "dc-cart"
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "01a25b00-2139-7be5-8971-399f583ece43",
+              "props": {
+                "tooltip": {
+                  "$t": "01a22e36-c48a-73ad-a71d-d6c6efe3f6b8"
+                }
+              },
+              "slots": {
+                "icon": {
+                  "id": "01a234ad-eabf-73c0-a822-07f1b38c98dd",
+                  "props": {
+                    "isLabelVisible": {
+                      "$expr": "size(data.cartLines.value ?? []) > 0"
+                    }
+                  },
+                  "slots": {
+                    "child": {
+                      "id": "01a28b8a-ca49-7507-b2bb-e265fd12cd22",
+                      "props": {
+                        "icon": {
+                          "name": "shopping_cart"
+                        }
+                      },
+                      "semantics": {
+                        "decorative": true
+                      },
+                      "type": "Icon"
+                    },
+                    "label": {
+                      "id": "01a28100-8361-78b3-b983-114d878dccdf",
+                      "props": {
+                        "data": {
+                          "$expr": "string(size(data.cartLines.value ?? []))"
+                        }
+                      },
+                      "type": "Text"
+                    }
+                  },
+                  "type": "Badge"
+                }
+              },
+              "testId": "dc-cart-go",
+              "type": "IconButton"
+            }
+          ],
+          "title": {
+            "id": "01a28bba-0cfa-70bc-9b2c-049f60e1958a",
+            "props": {
+              "data": {
+                "$t": "01a271b6-c8ef-79e3-a567-db3012ac71ce"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "children": [
+          {
+            "id": "01a25eaa-0ca2-7698-aed1-ad90f719e10f",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "id": "01a23fe3-caf4-7886-8121-c2d4af7edea7",
+                "props": {
+                  "data": {
+                    "$t": "01a2aea7-1ab8-7628-934e-515384e1f7c2",
+                    "args": {
+                      "n": {
+                        "$expr": "flags.maxWorkshops"
+                      }
+                    }
+                  },
+                  "style": {
+                    "$token": "typography.bodyMedium"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "type": "Padding"
+          },
+          {
+            "id": "01a24a35-0d27-76d9-afde-784d53b111f1",
+            "slots": {
+              "child": {
+                "id": "01a2a894-0228-7b9e-b41e-e39098250796",
+                "props": {
+                  "items": {
+                    "$expr": "data.workshops.value ?? []"
+                  },
+                  "status": {
+                    "$expr": "data.workshops.status"
+                  }
+                },
+                "slots": {
+                  "item": {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "condition",
+                            "branches": {
+                              "else": "drop",
+                              "then": "add"
+                            },
+                            "id": "on",
+                            "input": {
+                              "when": {
+                                "$expr": "event ?? false"
+                              }
+                            }
+                          },
+                          {
+                            "action": "setState",
+                            "id": "add",
+                            "input": {
+                              "path": "page.picked",
+                              "value": {
+                                "$expr": "page.picked + [item.id]"
+                              }
+                            }
+                          },
+                          {
+                            "action": "setState",
+                            "id": "drop",
+                            "input": {
+                              "path": "page.picked",
+                              "value": {
+                                "$expr": "page.picked.filter(p, p != item.id)"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a22fa7-ea70-7c07-b1bc-37534143c647",
+                    "props": {
+                      "enabled": {
+                        "$expr": "item.id in page.picked || size(page.picked) < flags.maxWorkshops"
+                      },
+                      "value": {
+                        "$expr": "item.id in page.picked"
+                      }
+                    },
+                    "slots": {
+                      "secondary": {
+                        "id": "01a2a94b-cdd3-793b-917b-e57f2eaa1774",
+                        "props": {
+                          "backgroundColor": {
+                            "$token": "color.secondaryContainer"
+                          },
+                          "largeSize": 22,
+                          "textColor": {
+                            "$token": "color.onSecondaryContainer"
+                          }
+                        },
+                        "slots": {
+                          "label": {
+                            "id": "01a226fa-6097-730a-8eba-b53a25a8838b",
+                            "props": {
+                              "data": {
+                                "$t": "01a21e11-f0e5-72b9-9a8d-8177277478be",
+                                "args": {
+                                  "n": {
+                                    "$expr": "string(at(page.left, index) ?? 0)"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Badge"
+                      },
+                      "subtitle": {
+                        "id": "01a26892-6324-73b0-b8f6-b5ab5af03be4",
+                        "props": {
+                          "data": {
+                            "$expr": "item.subtitle"
+                          },
+                          "style": {
+                            "$token": "typography.bodySmall"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      "title": {
+                        "id": "01a24ab5-9f8b-761f-ba37-32ac76c6b608",
+                        "props": {
+                          "data": {
+                            "$expr": "item.title"
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "dc-workshop",
+                    "type": "CheckboxListTile"
+                  }
+                },
+                "testId": "dc-workshops",
+                "type": "ListView"
+              }
+            },
+            "type": "Expanded"
+          },
+          {
+            "id": "01a244e7-dcee-7328-b88d-20fa4f1fde07",
+            "props": {
+              "top": false
+            },
+            "slots": {
+              "child": {
+                "id": "01a2dcef-b3e5-7380-93d5-2a7d7c055caa",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01a201d4-c5a8-7c7a-b7ba-8922000285b2",
+                    "props": {
+                      "condition": {
+                        "$expr": "!isEmpty(page.picked)"
+                      }
+                    },
+                    "slots": {
+                      "else": {
+                        "id": "01a272cf-e442-7e60-ace2-e853bc6753cc",
+                        "slots": {
+                          "child": {
+                            "id": "01a292e9-b605-72b8-b933-1ba48324ac30",
+                            "props": {
+                              "data": {
+                                "$t": "01a2af24-d2df-7a19-bda8-280620746684"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "dc-workshops-add-off",
+                        "type": "FilledButton"
+                      },
+                      "then": {
+                        "events": {
+                          "onPressed": {
+                            "concurrency": "drop",
+                            "steps": [
+                              {
+                                "action": "invokeFunction",
+                                "id": "check",
+                                "input": {
+                                  "function": "workshops.capacity",
+                                  "input": {
+                                    "ids": {
+                                      "$expr": "page.picked"
+                                    }
+                                  }
+                                },
+                                "next": "each",
+                                "onError": "full"
+                              },
+                              {
+                                "action": "forEach",
+                                "branches": {
+                                  "body": "line"
+                                },
+                                "id": "each",
+                                "input": {
+                                  "items": {
+                                    "$expr": "page.picked"
+                                  }
+                                },
+                                "next": "go"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "line",
+                                "input": {
+                                  "path": "plugin.line",
+                                  "value": {
+                                    "$expr": "{\"sku\": item, \"title\": first((data.workshops.value ?? []).filter(w, w.id == item))?.title ?? item, \"unitAmount\": decimal(page.price), \"currency\": \"EUR\", \"qty\": 1, \"kind\": \"workshop\"}"
+                                  }
+                                },
+                                "next": "put"
+                              },
+                              {
+                                "action": "dbUpsert",
+                                "id": "put",
+                                "input": {
+                                  "collection": "cart",
+                                  "key": {
+                                    "$expr": "item"
+                                  },
+                                  "record": {
+                                    "$expr": "plugin.line"
+                                  }
+                                },
+                                "next": "reload"
+                              },
+                              {
+                                "action": "refreshData",
+                                "id": "reload",
+                                "input": {
+                                  "source": "cartLines"
+                                }
+                              },
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "dc-cart"
+                                }
+                              },
+                              {
+                                "action": "showSnackbar",
+                                "id": "full",
+                                "input": {
+                                  "message": {
+                                    "$t": "01a2e7a7-9035-78e7-97a4-edfc90e9c60e"
+                                  }
+                                },
+                                "next": "recount"
+                              },
+                              {
+                                "action": "refreshData",
+                                "id": "recount",
+                                "input": {
+                                  "source": "workshops"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a271fb-b477-78fe-8bdc-92424437bf5a",
+                        "slots": {
+                          "child": {
+                            "id": "01a27689-b83a-75ba-b1c2-2d02eb8d7e72",
+                            "props": {
+                              "data": {
+                                "$t": "01a2af24-d2df-7a19-bda8-280620746684"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "dc-workshops-add",
+                        "type": "FilledButton"
+                      }
+                    },
+                    "type": "If"
+                  }
+                },
+                "type": "Padding"
+              }
+            },
+            "type": "SafeArea"
+          }
+        ],
+        "id": "01a21414-4373-7cd3-835b-de48495ad152",
+        "props": {
+          "crossAxisAlignment": "stretch"
+        },
+        "type": "Column"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "dc-workshops",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": [],
+      "id": "01a204ec-048d-7064-bb2f-779f4d69850a",
+      "name": "picked",
+      "type": "list<string>"
+    },
+    {
+      "default": [],
+      "id": "01a26863-cdc6-76ed-8514-e3727bc696f9",
+      "name": "left",
+      "type": "list<int>"
+    },
+    {
+      "default": "0",
+      "id": "01a22a59-1899-7676-a7a4-6a8b18ddb9f0",
+      "name": "price",
+      "type": "string"
+    }
+  ],
+  "title": {
+    "$t": "01a271b6-c8ef-79e3-a567-db3012ac71ce"
+  },
+  "triggers": {
+    "dataSources": {
+      "workshops": {
+        "onLoaded": {
+          "steps": [
+            {
+              "action": "invokeFunction",
+              "id": "c",
+              "input": {
+                "function": "workshops.capacity",
+                "input": {
+                  "ids": {
+                    "$expr": "(data.workshops.value ?? []).map(w, w.id)"
+                  }
+                }
+              },
+              "next": "keep",
+              "onError": "none"
+            },
+            {
+              "action": "setState",
+              "id": "keep",
+              "input": {
+                "path": "page.left",
+                "value": {
+                  "$expr": "(steps.c.output?.left ?? []).map(n, int(n))"
+                }
+              }
+            },
+            {
+              "action": "setState",
+              "id": "none",
+              "input": {
+                "path": "page.left",
+                "value": {
+                  "$expr": "[]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

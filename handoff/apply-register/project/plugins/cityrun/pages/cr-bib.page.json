@@ -1,0 +1,266 @@
+{
+  "id": "01a26019-3bbc-7791-856b-37a730d33a25",
+  "key": "cr-bib",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a25f59-fe03-7943-a90e-bee8d4c6fa86",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2255c-5bb9-7969-be1e-b7b475d3a0cf",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a285bf-6f4c-7832-a70e-c99081cd1a31",
+            "props": {
+              "data": {
+                "$t": "01a2d0a0-4326-7c39-a70b-80e09a5d1cc9"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a265cb-9329-7a8f-a592-6127467f023c",
+        "slots": {
+          "child": {
+            "id": "01a2701a-1fab-78f6-a0a6-c319408bb066",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a25b10-98ec-724b-ab26-0ee7afae5426",
+                    "props": {
+                      "tag": "bib"
+                    },
+                    "slots": {
+                      "child": {
+                        "component": {
+                          "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                          "version": 1
+                        },
+                        "id": "01a2927a-197a-73da-ad80-00a81fd55dac",
+                        "props": {
+                          "variant": "raised"
+                        },
+                        "slots": {
+                          "content": {
+                            "id": "01a228bc-4498-7996-8a90-8e15302d1313",
+                            "props": {
+                              "padding": {
+                                "all": 24
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "children": [
+                                  {
+                                    "id": "01a22fd6-7dee-73f8-8209-6fb7850608c2",
+                                    "props": {
+                                      "data": {
+                                        "$t": "01a23efc-e688-7070-888a-5a2e87329507"
+                                      },
+                                      "style": {
+                                        "$token": "typography.titleMedium"
+                                      }
+                                    },
+                                    "type": "Text"
+                                  },
+                                  {
+                                    "id": "01a2830c-3655-7139-abe8-e648320fcc4f",
+                                    "props": {
+                                      "fit": "scaleDown"
+                                    },
+                                    "slots": {
+                                      "child": {
+                                        "id": "01a278e5-920f-7d5a-be94-4e4923fd8e30",
+                                        "props": {
+                                          "data": {
+                                            "$expr": "plugin.bib"
+                                          },
+                                          "style": {
+                                            "$token": "typography.displayLarge"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      }
+                                    },
+                                    "type": "FittedBox"
+                                  },
+                                  {
+                                    "id": "01a2f7b0-ecbf-7544-b290-6eff83056f0c",
+                                    "props": {
+                                      "background": {
+                                        "$token": "color.surface"
+                                      },
+                                      "data": {
+                                        "$expr": "plugin.bib"
+                                      },
+                                      "errorCorrection": "high",
+                                      "foreground": {
+                                        "$token": "color.primary"
+                                      },
+                                      "semanticLabel": {
+                                        "$t": "01a20e0f-7276-73d0-89e0-73be8ad94f30"
+                                      },
+                                      "size": 180
+                                    },
+                                    "testId": "cr-bib-qr",
+                                    "type": "QrCodeView"
+                                  }
+                                ],
+                                "id": "01a27e0f-c034-7bbd-b07a-4435481a241b",
+                                "props": {
+                                  "mainAxisSize": "min",
+                                  "spacing": 16
+                                },
+                                "type": "Column"
+                              }
+                            },
+                            "type": "Padding"
+                          }
+                        }
+                      }
+                    },
+                    "type": "Hero"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "share",
+                            "id": "share",
+                            "input": {
+                              "text": {
+                                "$t": "01a2198d-b373-76ab-a807-88d0404b06ab",
+                                "args": {
+                                  "bib": {
+                                    "$expr": "plugin.bib"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a29699-2d63-7d41-98dc-c6bf44f17291",
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01a2e5bf-c682-7e0e-8326-ff85fd123b6c",
+                            "props": {
+                              "icon": {
+                                "name": "share"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          {
+                            "id": "01a2d84a-1e84-7db2-a07c-9cbd11b120cb",
+                            "props": {
+                              "data": {
+                                "$t": "01a21998-a21f-7c2c-a08a-7038553de0dd"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        ],
+                        "id": "01a2ff45-558b-7ca6-bb0f-0f0c1a221f05",
+                        "props": {
+                          "mainAxisSize": "min",
+                          "spacing": 8
+                        },
+                        "type": "Row"
+                      }
+                    },
+                    "testId": "cr-share-bib",
+                    "type": "OutlinedButton"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "navigate",
+                            "id": "go",
+                            "input": {
+                              "route": "cr-live"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2db6f-d175-75a0-9f7e-b87acdf1d42e",
+                    "slots": {
+                      "child": {
+                        "id": "01a27d53-6c3f-7c12-bfd7-be3a8cd63ee3",
+                        "props": {
+                          "data": {
+                            "$t": "01a2f6c9-0e19-7bb8-bbea-100d1ddd47ee"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "cr-follow",
+                    "type": "FilledButton"
+                  }
+                ],
+                "id": "01a2426c-87ce-78d6-91d8-56435c18f48a",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 12
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cr-bib",
+  "routeOptions": {
+    "transition": "sharedAxis"
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2d0a0-4326-7c39-a70b-80e09a5d1cc9"
+  }
+}

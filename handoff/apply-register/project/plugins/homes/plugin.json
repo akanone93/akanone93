@@ -1,0 +1,186 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "haptics"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "staleWhileRevalidate",
+          "ttlSeconds": 300
+        },
+        "path": "/orgs/homes/listings",
+        "select": "items"
+      },
+      "id": "01a29aa8-3be0-7ea5-8420-6cec07041a93",
+      "kind": "rest",
+      "mock": [
+        {
+          "address": "Ziegelstraße 4, Leipzig",
+          "amenities": [
+            "balcony",
+            "lift"
+          ],
+          "available": true,
+          "id": "h-1",
+          "images": [
+            "https://api.applyregister.app/media/homes/h-1-1.webp",
+            "https://api.applyregister.app/media/homes/h-1-2.webp",
+            "https://api.applyregister.app/media/homes/h-1-3.webp"
+          ],
+          "lat": 51.341,
+          "lng": 12.371,
+          "rating": 4.3,
+          "rent": {
+            "amount": "1180.00",
+            "currency": "EUR"
+          },
+          "title": "Loft above the kiln",
+          "verified": true
+        },
+        {
+          "address": "Kanalweg 12, Leipzig",
+          "amenities": [
+            "garden"
+          ],
+          "available": true,
+          "id": "h-2",
+          "images": [
+            "https://api.applyregister.app/media/homes/h-2-1.webp",
+            "https://api.applyregister.app/media/homes/h-2-2.webp",
+            "https://api.applyregister.app/media/homes/h-2-3.webp"
+          ],
+          "lat": 51.338,
+          "lng": 12.366,
+          "rating": 4.0,
+          "rent": {
+            "amount": "890.00",
+            "currency": "EUR"
+          },
+          "title": "Two rooms by the canal",
+          "verified": false
+        },
+        {
+          "address": "Ziegelstraße 4, Leipzig",
+          "amenities": [
+            "lift"
+          ],
+          "available": false,
+          "id": "h-3",
+          "images": [
+            "https://api.applyregister.app/media/homes/h-3-1.webp",
+            "https://api.applyregister.app/media/homes/h-3-2.webp",
+            "https://api.applyregister.app/media/homes/h-3-3.webp"
+          ],
+          "lat": 51.341,
+          "lng": 12.372,
+          "rating": 3.8,
+          "rent": {
+            "amount": "640.00",
+            "currency": "EUR"
+          },
+          "title": "Studio under the roof",
+          "verified": true
+        }
+      ],
+      "name": "listings",
+      "route": "plux",
+      "type": "list<Listing>"
+    },
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "operations": {
+          "apply": {
+            "auth": true,
+            "input": "RentApplication",
+            "method": "POST",
+            "output": "RegRef",
+            "path": "/orgs/homes/applications"
+          },
+          "sign": {
+            "auth": true,
+            "input": "LeaseSignature",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/orgs/homes/leases"
+          },
+          "viewing": {
+            "auth": true,
+            "input": "ViewingRequest",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/orgs/homes/viewings"
+          }
+        },
+        "path": "/orgs/homes/applications/mine"
+      },
+      "id": "01a2c113-2ec0-7543-967f-f2aaddd2f262",
+      "kind": "rest",
+      "mock": {
+        "id": "a-001"
+      },
+      "name": "api",
+      "route": "plux",
+      "type": "RegRef"
+    }
+  ],
+  "description": "Find and apply for a flat at Brickyard Homes.",
+  "entryPage": "01a21ff7-8c7c-771c-bc90-f98ea271eac6",
+  "fallbackPage": "01a2ed78-4f1d-7911-915f-6d90bad349a2",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a228d0-7b9a-7e14-9efc-c1fc235d4b45",
+  "key": "homes",
+  "kind": "plugin",
+  "name": "Brickyard Homes",
+  "pages": [
+    "01a21ff7-8c7c-771c-bc90-f98ea271eac6",
+    "01a2d45b-dc45-7939-bc81-c4f742e1c926",
+    "01a28f56-cbc6-712b-b8ee-341a3a777092",
+    "01a2b6a3-b432-7ac2-af1e-de91bd02d6f9",
+    "01a2e3ed-8cff-71e0-a649-dfde9abd623d",
+    "01a2ed78-4f1d-7911-915f-6d90bad349a2"
+  ],
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": [],
+      "id": "01a27a66-a664-7046-a2f1-5e8028666891",
+      "name": "saved",
+      "persistence": "persisted",
+      "type": "list<string>"
+    },
+    {
+      "default": [
+        "light",
+        "quiet",
+        "transport"
+      ],
+      "id": "01a2865d-fca2-7d72-a8a8-aa539710829d",
+      "name": "prefs",
+      "persistence": "persisted",
+      "type": "list<string>"
+    }
+  ],
+  "tags": [
+    "housing"
+  ],
+  "team": "apply-register"
+}

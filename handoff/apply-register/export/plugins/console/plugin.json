@@ -1,0 +1,222 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "camera",
+      "haptics",
+      "share"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "encrypted": true,
+          "policy": "networkFirst",
+          "ttlSeconds": 60
+        },
+        "params": {
+          "org": {
+            "$expr": "user.orgSlug ?? \"\""
+          }
+        },
+        "path": "/staff/orgs/{org}/stats"
+      },
+      "id": "01a2f2be-7cd0-763a-96eb-0d844b058831",
+      "kind": "rest",
+      "mock": {
+        "approved": 118,
+        "currency": "EUR",
+        "daily": [
+          4,
+          7,
+          5,
+          9,
+          12,
+          10,
+          14,
+          11,
+          16,
+          13,
+          18,
+          21,
+          17,
+          24
+        ],
+        "labels": [
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17"
+        ],
+        "rejected": 9,
+        "revenue": "2840.00",
+        "submitted": 42
+      },
+      "name": "stats",
+      "route": "plux",
+      "type": "Stats"
+    },
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkOnly"
+        },
+        "mocks": {
+          "empty": [],
+          "error": {
+            "kind": "http",
+            "message": "Service unavailable",
+            "status": 503
+          }
+        },
+        "operations": {
+          "checkin": {
+            "auth": true,
+            "input": "CheckIn",
+            "method": "POST",
+            "output": "CheckInResult",
+            "path": "/staff/checkins"
+          },
+          "export": {
+            "auth": true,
+            "input": "OrgRef",
+            "method": "POST",
+            "output": "ExportLink",
+            "path": "/staff/orgs/{org}/export"
+          },
+          "setStatus": {
+            "auth": true,
+            "input": "StatusChange",
+            "method": "POST",
+            "output": "Ack",
+            "path": "/staff/submissions/{id}/status"
+          }
+        },
+        "pagination": {
+          "firstPage": 1,
+          "hasMore": "more",
+          "pageParam": "page",
+          "pageSize": 50,
+          "style": "page"
+        },
+        "params": {
+          "org": {
+            "$expr": "user.orgSlug ?? \"\""
+          },
+          "q": {
+            "$expr": "plugin.query"
+          },
+          "sort": {
+            "$expr": "plugin.sortKey"
+          },
+          "status": {
+            "$expr": "plugin.status"
+          }
+        },
+        "path": "/staff/orgs/{org}/submissions",
+        "select": "items"
+      },
+      "id": "01a27a0f-48b5-7ba8-9867-ddf6b796e7fc",
+      "kind": "rest",
+      "mock": [
+        {
+          "amount": null,
+          "at": "2026-11-17T08:12:00+01:00",
+          "currency": null,
+          "form": "Account",
+          "id": "s-101",
+          "name": "Lena Hoffmann",
+          "status": "submitted"
+        },
+        {
+          "amount": "25.00",
+          "at": "2026-11-16T17:40:00+01:00",
+          "currency": "EUR",
+          "form": "Account",
+          "id": "s-100",
+          "name": "Dawit Bekele",
+          "status": "approved"
+        }
+      ],
+      "name": "subs",
+      "route": "plux",
+      "type": "list<Submission>"
+    }
+  ],
+  "description": "The organisation console for staff.",
+  "entryPage": "01a2d88c-c715-7ef3-9e59-593089c1b250",
+  "fallbackPage": "01a225b8-721c-76f1-8b62-9b8774cdda54",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a2bd1c-4b5c-7d6c-91bd-f28dcd03d29e",
+  "key": "console",
+  "kind": "plugin",
+  "name": "Console",
+  "pages": [
+    "01a2d88c-c715-7ef3-9e59-593089c1b250",
+    "01a2f05a-22c2-7c6c-bbdc-2809abc24f52",
+    "01a20b15-9fc2-78a5-ad8b-3a0840890dcb",
+    "01a2a5cf-b2a1-7e9e-946f-5368472c39a3",
+    "01a225b8-721c-76f1-8b62-9b8774cdda54"
+  ],
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01a28d4d-cf70-761b-96b0-65917432f8a8",
+      "name": "sort",
+      "type": "int"
+    },
+    {
+      "default": false,
+      "id": "01a27832-7f62-7e50-9ad1-90ed63b6ef20",
+      "name": "asc",
+      "type": "bool"
+    },
+    {
+      "default": "",
+      "id": "01a2cf6b-6c9e-729a-acc1-a8264c2fdbc1",
+      "name": "query",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01a24cc3-73e6-7181-b67f-8621e4056854",
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "default": "date",
+      "id": "01a22314-4bcc-7d75-8315-eed431f9ff97",
+      "name": "sortKey",
+      "type": "string"
+    }
+  ],
+  "tags": [
+    "staff"
+  ],
+  "team": "apply-register"
+}

@@ -1,0 +1,224 @@
+{
+  "id": "01a217af-a9d6-7426-849e-cd452cbbe889",
+  "key": "ln-language",
+  "kind": "page",
+  "pageKind": "bottomSheet",
+  "result": "string",
+  "root": {
+    "id": "01a2e5f7-ff5a-75f9-8c6b-4c8aebc890f1",
+    "slots": {
+      "child": {
+        "children": [
+          {
+            "id": "01a2dc88-ec8a-7c22-8856-0d91ec1f8810",
+            "slots": {
+              "title": {
+                "id": "01a2d8da-8be1-78d6-9296-a358f384293e",
+                "props": {
+                  "data": {
+                    "$t": "01a26004-8aa2-7dfe-9071-35765639a8ed"
+                  },
+                  "style": {
+                    "$token": "typography.titleMedium"
+                  }
+                },
+                "semantics": {
+                  "header": true
+                },
+                "type": "Text"
+              }
+            },
+            "type": "ListTile"
+          },
+          {
+            "events": {
+              "onChanged": {
+                "steps": [
+                  {
+                    "action": "setLocale",
+                    "id": "set",
+                    "input": {
+                      "locale": "en"
+                    },
+                    "next": "back"
+                  },
+                  {
+                    "action": "pop",
+                    "id": "back",
+                    "input": {
+                      "result": "en"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a28b75-4162-7117-862f-b6d9b687ddda",
+            "props": {
+              "controlAffinity": "trailing",
+              "groupValue": {
+                "$expr": "device.locale"
+              },
+              "value": "en"
+            },
+            "slots": {
+              "title": {
+                "id": "01a2229f-12db-7cbb-84e6-a26bfb1f1887",
+                "props": {
+                  "data": {
+                    "$t": "01a2178e-d2f2-7056-a162-f6f36d5d5621"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "lang-en",
+            "type": "RadioListTile"
+          },
+          {
+            "events": {
+              "onChanged": {
+                "steps": [
+                  {
+                    "action": "setLocale",
+                    "id": "set",
+                    "input": {
+                      "locale": "de-DE"
+                    },
+                    "next": "back"
+                  },
+                  {
+                    "action": "pop",
+                    "id": "back",
+                    "input": {
+                      "result": "de-DE"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2b5ec-0452-74e3-9d23-30d37ff3ebec",
+            "props": {
+              "controlAffinity": "trailing",
+              "groupValue": {
+                "$expr": "device.locale"
+              },
+              "value": "de-DE"
+            },
+            "slots": {
+              "title": {
+                "id": "01a256ec-cf69-7c65-a8df-7b85302df30a",
+                "props": {
+                  "data": {
+                    "$t": "01a220fd-2c43-72f9-8c42-726d10b53679"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "lang-de-DE",
+            "type": "RadioListTile"
+          },
+          {
+            "events": {
+              "onChanged": {
+                "steps": [
+                  {
+                    "action": "setLocale",
+                    "id": "set",
+                    "input": {
+                      "locale": "ar"
+                    },
+                    "next": "back"
+                  },
+                  {
+                    "action": "pop",
+                    "id": "back",
+                    "input": {
+                      "result": "ar"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2dc5e-5d4a-7392-9d83-72d4d7ed67f7",
+            "props": {
+              "controlAffinity": "trailing",
+              "groupValue": {
+                "$expr": "device.locale"
+              },
+              "value": "ar"
+            },
+            "slots": {
+              "title": {
+                "id": "01a2d169-ee76-77c4-8ac9-9c1134e62361",
+                "props": {
+                  "data": {
+                    "$t": "01a20af1-5c1e-70d3-93c8-6b08950aecd6"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "lang-ar",
+            "type": "RadioListTile"
+          },
+          {
+            "events": {
+              "onChanged": {
+                "steps": [
+                  {
+                    "action": "setLocale",
+                    "id": "set",
+                    "input": {
+                      "locale": "am-ET"
+                    },
+                    "next": "back"
+                  },
+                  {
+                    "action": "pop",
+                    "id": "back",
+                    "input": {
+                      "result": "am-ET"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a21d20-4aa2-7b80-b887-e0c7abd0d779",
+            "props": {
+              "controlAffinity": "trailing",
+              "groupValue": {
+                "$expr": "device.locale"
+              },
+              "value": "am-ET"
+            },
+            "slots": {
+              "title": {
+                "id": "01a285c4-354d-73b4-bb06-08af732ab99b",
+                "props": {
+                  "data": {
+                    "$t": "01a2db6d-3f46-7c1d-a321-467e0ed935cf"
+                  }
+                },
+                "type": "Text"
+              }
+            },
+            "testId": "lang-am-ET",
+            "type": "RadioListTile"
+          }
+        ],
+        "id": "01a20dda-f96c-79f7-961f-299036317af1",
+        "props": {
+          "mainAxisSize": "min"
+        },
+        "type": "Column"
+      }
+    },
+    "type": "SafeArea"
+  },
+  "route": "ln-language",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a26004-8aa2-7dfe-9071-35765639a8ed"
+  }
+}

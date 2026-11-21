@@ -1,0 +1,172 @@
+{
+  "capabilities": {
+    "deviceApis": [
+      "notifications",
+      "haptics"
+    ],
+    "networkDomains": [
+      "api.applyregister.app",
+      "api.dev.applyregister.app",
+      "api.staging.applyregister.app"
+    ]
+  },
+  "dataSources": [
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "staleWhileRevalidate",
+          "ttlSeconds": 600
+        },
+        "params": {
+          "limit": 6,
+          "sort": "closing"
+        },
+        "path": "/orgs",
+        "select": "items"
+      },
+      "id": "01a2137a-7a0a-7397-a7d1-07299c24c198",
+      "kind": "rest",
+      "mock": [
+        {
+          "category": "finance",
+          "city": "Berlin",
+          "closesAt": "2026-11-19T18:00:00+01:00",
+          "cover": "",
+          "description": "Open an account in minutes.",
+          "fee": null,
+          "lat": 52.52,
+          "lng": 13.4,
+          "logo": "",
+          "name": "Nordvia Bank",
+          "seatsLeft": 40,
+          "slug": "bank",
+          "tags": [
+            "account",
+            "kyc"
+          ],
+          "verified": true
+        },
+        {
+          "category": "education",
+          "city": "Addis Ababa",
+          "closesAt": "2026-11-22T12:00:00+03:00",
+          "cover": "",
+          "description": "Apply for the winter intake.",
+          "fee": {
+            "amount": "25.00",
+            "currency": "EUR"
+          },
+          "lat": 9.03,
+          "lng": 38.74,
+          "logo": "",
+          "name": "Aster University",
+          "seatsLeft": 120,
+          "slug": "campus",
+          "tags": [
+            "admission"
+          ],
+          "verified": true
+        },
+        {
+          "category": "sports",
+          "city": "Riverton",
+          "closesAt": "2026-11-26T09:00:00+01:00",
+          "cover": "",
+          "description": "10 km and half marathon along the river.",
+          "fee": {
+            "amount": "35.00",
+            "currency": "EUR"
+          },
+          "lat": 52.5,
+          "lng": 13.42,
+          "logo": "",
+          "name": "Riverton City Run",
+          "seatsLeft": 300,
+          "slug": "cityrun",
+          "tags": [
+            "10k",
+            "half"
+          ],
+          "verified": false
+        }
+      ],
+      "name": "featured",
+      "route": "plux",
+      "type": "list<Org>"
+    },
+    {
+      "config": {
+        "collection": "notices",
+        "orderBy": "at"
+      },
+      "id": "01a21d11-c9e8-7a91-8327-2ad97c0f1ef9",
+      "kind": "database",
+      "mock": [
+        {
+          "at": "2026-11-17T09:30:00+01:00",
+          "body": "Nordvia Bank received your application.",
+          "id": "n1",
+          "param": "r1",
+          "read": false,
+          "target": "pass",
+          "title": "Registration received"
+        },
+        {
+          "at": "2026-11-16T16:10:00+01:00",
+          "body": "Aster University closes applications in 5 days.",
+          "id": "n2",
+          "param": "campus",
+          "read": true,
+          "target": "org",
+          "title": "Closing soon"
+        }
+      ],
+      "name": "notices",
+      "type": "list<Notice>"
+    }
+  ],
+  "description": "Home, onboarding, the inbox and the app-wide fallbacks.",
+  "entryPage": "01a1e536-7a5f-7761-8f7e-45163969805e",
+  "fallbackPage": "01a2eb4e-af6f-70ef-92d3-189112d8faad",
+  "icon": {
+    "monogram": {
+      "background": "#4F46E5",
+      "text": "AR"
+    }
+  },
+  "id": "01a1e536-7a5f-754b-8c9e-6b97cd596ea3",
+  "key": "launch",
+  "kind": "plugin",
+  "name": "Launch",
+  "pages": [
+    "01a1e536-7a5f-7761-8f7e-45163969805e",
+    "01a24ff5-ba68-7d41-bef8-c481f05c99d2",
+    "01a27488-eadc-7c92-af58-59f939dd4463",
+    "01a217af-a9d6-7426-849e-cd452cbbe889",
+    "01a29841-28a5-79ff-8528-e79ebd3b6c8c",
+    "01a2cd6e-a4c9-7027-872f-e31b7e20e10e",
+    "01a26cbb-c443-762a-9e3e-d5d7d1dc8e2c",
+    "01a2eb4e-af6f-70ef-92d3-189112d8faad"
+  ],
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01a280b0-0320-7016-8788-3a3f39f0d4c5",
+      "name": "heroIndex",
+      "type": "int"
+    },
+    {
+      "default": "",
+      "id": "01a23671-de9a-7918-8434-fb1181a8e45c",
+      "name": "whatsNewSeen",
+      "persistence": "persisted",
+      "type": "string"
+    }
+  ],
+  "tags": [
+    "platform"
+  ],
+  "team": "apply-register"
+}

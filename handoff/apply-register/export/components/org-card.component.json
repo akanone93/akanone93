@@ -1,0 +1,153 @@
+{
+  "description": "An organisation as a card; opening it reports the organisation's slug.",
+  "events": [
+    {
+      "name": "onOpen",
+      "payload": "OrgRef"
+    }
+  ],
+  "exported": true,
+  "id": "01a253a9-df06-7bd7-8427-310390ac2a2d",
+  "key": "org-card",
+  "kind": "component",
+  "name": "OrgCard",
+  "props": [
+    {
+      "name": "org",
+      "required": true,
+      "type": "Org"
+    },
+    {
+      "default": false,
+      "name": "compact",
+      "type": "bool"
+    },
+    {
+      "default": true,
+      "name": "showFee",
+      "type": "bool"
+    }
+  ],
+  "root": {
+    "component": {
+      "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+      "version": 1
+    },
+    "events": {
+      "onTap": {
+        "steps": [
+          {
+            "action": "emitEvent",
+            "id": "open",
+            "input": {
+              "event": "onOpen",
+              "payload": {
+                "slug": {
+                  "$expr": "props.org.slug"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "id": "01a250e5-a7f2-7986-ac7d-c20fd87de34d",
+    "props": {
+      "dense": {
+        "$expr": "props.compact"
+      },
+      "semanticLabel": {
+        "$expr": "props.org.name"
+      },
+      "tappable": true,
+      "variant": "raised"
+    },
+    "slots": {
+      "content": {
+        "id": "01a2bb2c-8a08-709f-87e1-814b6f73365c",
+        "props": {
+          "contentPadding": {
+            "all": 0
+          }
+        },
+        "slots": {
+          "leading": {
+            "id": "01a208d8-3d50-7061-b79a-b1634747121b",
+            "props": {
+              "backgroundColor": {
+                "$token": "color.primaryContainer"
+              }
+            },
+            "slots": {
+              "child": {
+                "id": "01a260f3-d089-736f-b3fc-b254b035d205",
+                "props": {
+                  "color": {
+                    "$token": "color.onPrimaryContainer"
+                  },
+                  "icon": {
+                    "name": "apartment"
+                  }
+                },
+                "semantics": {
+                  "decorative": true
+                },
+                "type": "Icon"
+              }
+            },
+            "type": "CircleAvatar"
+          },
+          "subtitle": {
+            "id": "01a2746f-c140-7587-a782-4ebd31bb9d66",
+            "props": {
+              "data": {
+                "$expr": "props.org.city"
+              },
+              "style": {
+                "$token": "typography.bodySmall"
+              }
+            },
+            "type": "Text"
+          },
+          "title": {
+            "id": "01a2f640-7b82-7ea5-ac77-9481245f3a46",
+            "props": {
+              "data": {
+                "$expr": "props.org.name"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis",
+              "style": {
+                "$token": "typography.titleMedium"
+              }
+            },
+            "type": "Text"
+          },
+          "trailing": {
+            "id": "01a255db-4197-78ad-9123-f222413068ee",
+            "props": {
+              "condition": {
+                "$expr": "props.org.fee != null && props.showFee"
+              }
+            },
+            "slots": {
+              "then": {
+                "id": "01a2e465-1af5-7521-97f6-4893b6b8606b",
+                "props": {
+                  "value": {
+                    "$expr": "props.org.fee"
+                  }
+                },
+                "type": "MoneyText"
+              }
+            },
+            "type": "If"
+          }
+        },
+        "type": "ListTile"
+      }
+    }
+  },
+  "schemaVersion": "1.0.0",
+  "version": 1
+}

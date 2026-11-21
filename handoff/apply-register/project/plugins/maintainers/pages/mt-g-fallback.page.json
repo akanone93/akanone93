@@ -1,0 +1,53 @@
+{
+  "id": "01a2bcb4-afff-71ff-982e-12f77d062ecb",
+  "key": "mt-g-fallback",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2a216-2ba3-791b-99d9-fe8ff7ba1f84",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a22069-d98a-74f3-946e-d596969fd323",
+        "slots": {
+          "child": {
+            "id": "01a2deed-e215-7988-82a9-3fe6f23e6b79",
+            "props": {
+              "data": {
+                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                "args": {
+                  "v": "fallback"
+                }
+              },
+              "style": {
+                "$token": "typography.headlineMedium"
+              }
+            },
+            "semantics": {
+              "header": true
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Center"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "mt-g-fallback",
+  "routeOptions": {
+    "guards": [
+      {
+        "$graph": "01a2879b-4cf9-70c0-b13e-62b7b4533291"
+      }
+    ]
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a23ff9-affd-7258-8dd4-69c83098757b"
+  }
+}

@@ -1,0 +1,490 @@
+{
+  "dataSources": [
+    {
+      "config": {
+        "baseUrl": "apiBaseUrl",
+        "cache": {
+          "policy": "networkFirst",
+          "ttlSeconds": 300
+        },
+        "params": {
+          "slug": {
+            "$expr": "params.slug"
+          }
+        },
+        "path": "/orgs/{slug}"
+      },
+      "id": "01a2cd59-7c40-72b9-8f09-6c5335bc5266",
+      "kind": "rest",
+      "mock": {
+        "category": "finance",
+        "city": "Berlin",
+        "closesAt": "2026-11-19T18:00:00+01:00",
+        "cover": "",
+        "description": "Open an account in minutes. Bring an ID document.",
+        "fee": null,
+        "lat": 52.52,
+        "lng": 13.4,
+        "logo": "",
+        "name": "Nordvia Bank",
+        "seatsLeft": 40,
+        "slug": "bank",
+        "tags": [
+          "account",
+          "kyc"
+        ],
+        "verified": true
+      },
+      "name": "org",
+      "route": "plux",
+      "type": "Org"
+    }
+  ],
+  "id": "01a2a19a-d11b-74ad-aedd-18024d609824",
+  "key": "ex-org",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "setState",
+          "id": "keep",
+          "input": {
+            "path": "app.lastOrg",
+            "value": {
+              "$expr": "params.slug"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "params": [
+    {
+      "mock": "bank",
+      "name": "slug",
+      "type": "string"
+    }
+  ],
+  "root": {
+    "id": "01a2cfaf-f93b-77ba-84ca-a19bf7bc45f3",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "body": {
+        "id": "01a25160-ec27-7bd4-91c6-dae947dd70bb",
+        "props": {
+          "isEmpty": {
+            "$expr": "data.org.value == null"
+          },
+          "source": "org",
+          "status": {
+            "$expr": "data.org.status"
+          }
+        },
+        "slots": {
+          "empty": {
+            "component": {
+              "id": "01a266bd-c9c7-7bb0-b0ed-64508b5f61cf",
+              "version": 1
+            },
+            "id": "01a2362b-3003-7953-a905-c81fddd0367a",
+            "props": {
+              "title": {
+                "$t": "01a27941-e922-787f-b45b-d76269d80a08"
+              }
+            }
+          },
+          "error": {
+            "component": {
+              "id": "01a27edb-0415-79a1-892d-61fa84ed0fb3",
+              "version": 1
+            },
+            "events": {
+              "onRetry": {
+                "steps": [
+                  {
+                    "action": "refreshData",
+                    "id": "load",
+                    "input": {
+                      "source": "org"
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a285d9-244b-7e57-a4e5-e2622e5d48fd",
+            "props": {
+              "retryLabel": {
+                "$t": "01a26fb7-0dd0-72d4-b18d-8d6be59b1b27"
+              },
+              "title": {
+                "$t": "01a2f730-eda4-77a1-8df6-2dac3b974873"
+              }
+            }
+          },
+          "loading": {
+            "id": "01a2469e-3116-7a5d-9174-596a6e2fbbd2",
+            "slots": {
+              "child": {
+                "id": "01a28118-07fa-746d-a712-d5b52758f928",
+                "props": {
+                  "avatar": true,
+                  "lines": 6,
+                  "shimmer": true
+                },
+                "type": "SkeletonLoader"
+              }
+            },
+            "type": "SafeArea"
+          },
+          "success": {
+            "id": "01a2f69c-f668-72c6-86e5-bfdf5d8a0953",
+            "props": {
+              "condition": {
+                "$expr": "data.org.value != null"
+              }
+            },
+            "slots": {
+              "then": {
+                "id": "01a27eaa-66a5-7a45-8211-f610b4999b23",
+                "slots": {
+                  "slivers": [
+                    {
+                      "id": "01a298c5-1cf4-7b58-9a8c-8fa58c9cac69",
+                      "props": {
+                        "backgroundColor": {
+                          "$token": "color.primary"
+                        },
+                        "expandedHeight": 220,
+                        "foregroundColor": {
+                          "$token": "color.onPrimary"
+                        },
+                        "pinned": true
+                      },
+                      "slots": {
+                        "flexibleSpace": {
+                          "id": "01a20afe-1e0d-731c-ab41-82608a782360",
+                          "props": {
+                            "tag": {
+                              "$expr": "\"org-\" + params.slug"
+                            }
+                          },
+                          "slots": {
+                            "child": {
+                              "component": {
+                                "id": "01a218d7-cb2d-7c04-90ba-72fc7a72c1ca",
+                                "version": 1
+                              },
+                              "id": "01a262ae-5fd5-7b85-be9b-675db05b43da",
+                              "props": {
+                                "subtitle": {
+                                  "$expr": "data.org.value.city"
+                                },
+                                "title": {
+                                  "$expr": "data.org.value.name"
+                                }
+                              }
+                            }
+                          },
+                          "type": "Hero"
+                        },
+                        "title": {
+                          "id": "01a2224b-a57b-794c-9c55-d4f8c218567a",
+                          "props": {
+                            "data": {
+                              "$expr": "data.org.value.name"
+                            },
+                            "maxLines": 1,
+                            "overflow": "ellipsis"
+                          },
+                          "type": "Text"
+                        }
+                      },
+                      "type": "SliverAppBar"
+                    },
+                    {
+                      "id": "01a2cc3f-c209-7a86-be78-d4257d1ecde5",
+                      "slots": {
+                        "child": {
+                          "id": "01a22481-0d2e-79c2-935c-ef5f8af9ca3d",
+                          "props": {
+                            "padding": {
+                              "all": 16
+                            }
+                          },
+                          "slots": {
+                            "child": {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "id": "01a2fddf-287f-78fe-b6af-b36b172815bf",
+                                      "props": {
+                                        "backgroundColor": {
+                                          "$token": "color.primaryContainer"
+                                        },
+                                        "radius": 28
+                                      },
+                                      "semantics": {
+                                        "decorative": true
+                                      },
+                                      "slots": {
+                                        "child": {
+                                          "id": "01a26f7e-9846-7ba6-9455-76573c0f4013",
+                                          "props": {
+                                            "color": {
+                                              "$token": "color.onPrimaryContainer"
+                                            },
+                                            "icon": {
+                                              "name": "apartment"
+                                            }
+                                          },
+                                          "semantics": {
+                                            "decorative": true
+                                          },
+                                          "type": "Icon"
+                                        }
+                                      },
+                                      "type": "CircleAvatar"
+                                    },
+                                    {
+                                      "id": "01a255c2-2eed-7fa5-8031-bfc6c20361e6",
+                                      "slots": {
+                                        "child": {
+                                          "id": "01a265ba-66f8-7e0e-9a75-f2c391ea31c9",
+                                          "props": {
+                                            "data": {
+                                              "$expr": "data.org.value.name"
+                                            },
+                                            "style": {
+                                              "$token": "typography.headlineSmall"
+                                            }
+                                          },
+                                          "semantics": {
+                                            "header": true
+                                          },
+                                          "type": "Text"
+                                        }
+                                      },
+                                      "type": "Expanded"
+                                    },
+                                    {
+                                      "id": "01a21e38-eb13-7931-88db-4797c367d83c",
+                                      "props": {
+                                        "condition": {
+                                          "$expr": "data.org.value.verified"
+                                        }
+                                      },
+                                      "slots": {
+                                        "then": {
+                                          "id": "01a20762-fee7-7626-b927-d1a8d5c71382",
+                                          "props": {
+                                            "message": {
+                                              "$t": "01a23181-cf15-7651-9908-0ec0dc0bee98"
+                                            },
+                                            "triggerMode": "tap"
+                                          },
+                                          "slots": {
+                                            "child": {
+                                              "id": "01a2a204-5a7c-739a-87b5-ce2fd85218f1",
+                                              "props": {
+                                                "color": {
+                                                  "$token": "color.primary"
+                                                },
+                                                "icon": {
+                                                  "name": "verified"
+                                                },
+                                                "semanticLabel": {
+                                                  "$t": "01a23181-cf15-7651-9908-0ec0dc0bee98"
+                                                }
+                                              },
+                                              "type": "Icon"
+                                            }
+                                          },
+                                          "type": "Tooltip"
+                                        }
+                                      },
+                                      "type": "If"
+                                    }
+                                  ],
+                                  "id": "01a20b4e-6a27-7af0-9d8a-4306d6e13ba3",
+                                  "props": {
+                                    "spacing": 12
+                                  },
+                                  "type": "Row"
+                                },
+                                {
+                                  "events": {
+                                    "onLink": {
+                                      "steps": [
+                                        {
+                                          "action": "openUrl",
+                                          "id": "open",
+                                          "input": {
+                                            "url": {
+                                              "$expr": "event"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "id": "01a2c322-969c-74f5-bc43-4a51846c41ca",
+                                  "props": {
+                                    "source": {
+                                      "$expr": "data.org.value.description"
+                                    }
+                                  },
+                                  "type": "MarkdownView"
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "id": "01a25838-5e46-7fa7-9711-1b680d029982",
+                                      "props": {
+                                        "items": {
+                                          "$expr": "data.org.value.tags"
+                                        }
+                                      },
+                                      "slots": {
+                                        "item": {
+                                          "id": "01a25f2e-b68b-7069-b2ec-e92ceaa871bb",
+                                          "props": {
+                                            "isEnabled": false
+                                          },
+                                          "slots": {
+                                            "label": {
+                                              "id": "01a28339-0b54-719f-b004-cd65c8367057",
+                                              "props": {
+                                                "data": {
+                                                  "$expr": "item"
+                                                }
+                                              },
+                                              "type": "Text"
+                                            }
+                                          },
+                                          "type": "InputChip"
+                                        }
+                                      },
+                                      "type": "ForEach"
+                                    }
+                                  ],
+                                  "id": "01a2c6b3-138e-7cea-8e66-a5fc346b6dfe",
+                                  "props": {
+                                    "runSpacing": 8,
+                                    "spacing": 8
+                                  },
+                                  "type": "Wrap"
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "component": {
+                                        "id": "01a266bd-c9c7-7bb0-b0ed-64508b5f61cf",
+                                        "version": 1
+                                      },
+                                      "id": "01a25e82-6686-7c47-92db-1b0656107b6b",
+                                      "props": {
+                                        "message": {
+                                          "$t": "01a2f0b2-ae30-7a94-bbfa-bc274fd76b03"
+                                        },
+                                        "title": {
+                                          "$t": "01a2a9ed-afa9-7f00-974e-bf48200ba5ce"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "events": {
+                                        "onPressed": {
+                                          "concurrency": "drop",
+                                          "steps": [
+                                            {
+                                              "action": "apiCall",
+                                              "id": "ask",
+                                              "input": {
+                                                "input": {
+                                                  "slug": {
+                                                    "$expr": "params.slug"
+                                                  }
+                                                },
+                                                "operation": "api.notifyMe"
+                                              },
+                                              "next": "ok",
+                                              "retry": {
+                                                "backoffMs": 200,
+                                                "count": 2
+                                              }
+                                            },
+                                            {
+                                              "action": "showToast",
+                                              "id": "ok",
+                                              "input": {
+                                                "message": {
+                                                  "$t": "01a246f9-fe96-76df-aa59-70b8c871f519"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "id": "01a2595e-6ab9-7e64-856d-4f8bc761a45a",
+                                      "slots": {
+                                        "child": {
+                                          "id": "01a25af0-aa6b-7281-9c31-4e9ae12c3f5d",
+                                          "props": {
+                                            "data": {
+                                              "$t": "01a2a2a8-a731-70c8-b608-e48f63959349"
+                                            }
+                                          },
+                                          "type": "Text"
+                                        }
+                                      },
+                                      "testId": "org-notify",
+                                      "type": "OutlinedButton"
+                                    }
+                                  ],
+                                  "id": "01a2accf-498b-72de-a6eb-87451e29735c",
+                                  "props": {
+                                    "crossAxisAlignment": "stretch",
+                                    "spacing": 8
+                                  },
+                                  "type": "Column"
+                                }
+                              ],
+                              "id": "01a2ff38-f7c8-735b-afe0-2d55eb3e6c1c",
+                              "props": {
+                                "crossAxisAlignment": "stretch",
+                                "spacing": 16
+                              },
+                              "type": "Column"
+                            }
+                          },
+                          "type": "Padding"
+                        }
+                      },
+                      "type": "SliverToBoxAdapter"
+                    }
+                  ]
+                },
+                "type": "CustomScrollView"
+              }
+            },
+            "type": "If"
+          }
+        },
+        "type": "DataScope"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "ex-org",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a25f69-acc8-78bc-a1b4-d362e54c9519"
+  }
+}

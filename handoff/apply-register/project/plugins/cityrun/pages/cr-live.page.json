@@ -1,0 +1,300 @@
+{
+  "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "streamUrl",
+        "params": {
+          "bib": {
+            "$expr": "plugin.bib"
+          },
+          "raceId": "rcr-2027"
+        },
+        "path": "/ws/races/{raceId}/runners/{bib}"
+      },
+      "id": "01a29f6d-aa7f-7dc1-8d53-efeb411b2ac4",
+      "kind": "websocket",
+      "mock": {
+        "etaMinutes": 24,
+        "km": 8.4,
+        "lat": 52.511413,
+        "lng": 13.404138,
+        "status": "running"
+      },
+      "name": "runner",
+      "route": "plux",
+      "type": "RunnerPosition"
+    }
+  ],
+  "id": "01a28520-bd9f-7232-9e43-695d4c0e570e",
+  "key": "cr-live",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "subscribe",
+          "id": "sub",
+          "input": {
+            "params": {
+              "bib": {
+                "$expr": "plugin.bib"
+              },
+              "raceId": "rcr-2027"
+            },
+            "stream": "runner"
+          }
+        }
+      ]
+    },
+    "onLeave": {
+      "steps": [
+        {
+          "action": "unsubscribe",
+          "id": "unsub",
+          "input": {
+            "stream": "runner"
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a235ac-8154-7df4-8a57-0e56441e4823",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      },
+      "extendBody": true,
+      "floatingActionButtonLocation": "centerDocked"
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a26935-e775-70d4-95af-1364f8b5a5d3",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a26ab5-c47b-7ba6-9a99-27b48e210475",
+            "props": {
+              "data": {
+                "$t": "01a27d65-a935-73c8-b761-980d13df39d2"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "events": {
+          "onDoubleTap": {
+            "steps": [
+              {
+                "action": "setState",
+                "id": "flip",
+                "input": {
+                  "path": "page.follow",
+                  "value": {
+                    "$expr": "!page.follow"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a2934c-ff3f-7dea-b82e-8478841fa32b",
+        "props": {
+          "behavior": "translucent"
+        },
+        "slots": {
+          "child": {
+            "id": "01a228e6-9957-74d6-b8ca-92386a30aec6",
+            "props": {
+              "courier": {
+                "$expr": "data.runner.value == null ? null : {\"lat\": data.runner.value?.lat ?? 0.0, \"lng\": data.runner.value?.lng ?? 0.0}"
+              },
+              "courierLabel": {
+                "$expr": "plugin.bib"
+              },
+              "destination": {
+                "$expr": "{\"lat\": data.race.value?.finish?.lat ?? 52.5, \"lng\": data.race.value?.finish?.lng ?? 13.4}"
+              },
+              "destinationLabel": {
+                "$t": "01a25a8d-0236-7fac-b946-b9c9ddb52ad5"
+              },
+              "etaLabel": {
+                "$t": "01a278c0-9650-7b7e-91db-2067978b9920",
+                "args": {
+                  "m": {
+                    "$expr": "string(data.runner.value?.etaMinutes ?? 0)"
+                  }
+                }
+              },
+              "follow": {
+                "$expr": "page.follow"
+              },
+              "origin": {
+                "$expr": "{\"lat\": data.race.value?.start?.lat ?? 52.5, \"lng\": data.race.value?.start?.lng ?? 13.4}"
+              },
+              "originLabel": {
+                "$t": "01a2c97f-6e33-78d2-9837-18a4ceef04fd"
+              },
+              "route": {
+                "$expr": "(data.race.value?.route ?? []).map(p, {\"lat\": p.lat, \"lng\": p.lng})"
+              },
+              "semanticLabel": {
+                "$t": "01a2d462-9460-7747-9f05-658117939806"
+              },
+              "tileUrlTemplate": {
+                "$expr": "env.mapTiles"
+              }
+            },
+            "type": "OrderTrackerMap"
+          }
+        },
+        "testId": "cr-live-map",
+        "type": "GestureDetector"
+      },
+      "bottomNavigationBar": {
+        "id": "01a2d88f-f76f-7b33-84e1-50df62dd2472",
+        "props": {
+          "height": 72,
+          "notchMargin": 6
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a2004a-86fa-737a-838a-884c68b57d57",
+                "slots": {
+                  "child": {
+                    "id": "01a21781-5400-778f-810b-d7c3cea21d25",
+                    "props": {
+                      "etaMinutes": {
+                        "$expr": "data.runner.value?.etaMinutes"
+                      },
+                      "minutesLabel": {
+                        "$t": "01a2b6c3-240e-77a5-bcb7-672a1369b1a3"
+                      },
+                      "status": {
+                        "$expr": "data.runner.value?.status"
+                      }
+                    },
+                    "type": "LiveEtaCard"
+                  }
+                },
+                "type": "Expanded"
+              },
+              {
+                "id": "01a247b4-11e9-7b44-9ad1-827929f94d73",
+                "props": {
+                  "width": 56
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01a245ef-1761-7aaa-99e3-92fb20b0bd37",
+                "slots": {
+                  "child": {
+                    "id": "01a29902-ca9d-71b7-86ab-9b4d91f1f066",
+                    "props": {
+                      "data": {
+                        "$t": "01a254c8-e2fc-7db8-8888-cac5cf48a8cc",
+                        "args": {
+                          "n": {
+                            "$expr": "format.number(data.runner.value?.km ?? 0.0)"
+                          }
+                        }
+                      },
+                      "style": {
+                        "$token": "typography.titleMedium"
+                      },
+                      "textAlign": "end"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "Expanded"
+              }
+            ],
+            "id": "01a23035-7f66-7c5c-8059-b99fc36e9466",
+            "props": {
+              "spacing": 12
+            },
+            "type": "Row"
+          }
+        },
+        "type": "BottomAppBar"
+      },
+      "floatingActionButton": {
+        "events": {
+          "onPressed": {
+            "steps": [
+              {
+                "action": "share",
+                "id": "share",
+                "input": {
+                  "url": {
+                    "$expr": "\"https://applyregister.app/live/\" + plugin.bib"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a255a5-5214-7a00-8fd2-1bfa41685593",
+        "props": {
+          "shape": {
+            "kind": "circle"
+          },
+          "tooltip": {
+            "$t": "01a21998-a21f-7c2c-a08a-7038553de0dd"
+          }
+        },
+        "slots": {
+          "child": {
+            "id": "01a2aa6b-5ece-768e-913c-64bc9ae98c5d",
+            "props": {
+              "icon": {
+                "name": "share"
+              }
+            },
+            "semantics": {
+              "decorative": true
+            },
+            "type": "Icon"
+          }
+        },
+        "testId": "cr-share-live",
+        "type": "FloatingActionButton"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cr-live",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": true,
+      "id": "01a24a9a-a26e-7e7a-8b13-35a7c09d33cf",
+      "name": "follow",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a27d65-a935-73c8-b761-980d13df39d2"
+  }
+}

@@ -1,0 +1,1521 @@
+{
+  "forms": [
+    {
+      "fields": [
+        {
+          "initial": "",
+          "name": "orgName",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "length",
+              "max": 80
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "category",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            }
+          ]
+        },
+        {
+          "initial": "small",
+          "name": "size",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "email",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            },
+            {
+              "kind": "email"
+            },
+            {
+              "$graph": "01a26fd6-912b-78cf-a9b5-9e86327bfaa0",
+              "debounceMs": 600,
+              "kind": "async"
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "phone",
+          "sensitive": true,
+          "type": "string",
+          "validators": [
+            {
+              "kind": "phone"
+            }
+          ]
+        },
+        {
+          "initial": 3,
+          "name": "pages",
+          "type": "int",
+          "validators": [
+            {
+              "kind": "range",
+              "max": 20,
+              "min": 1
+            }
+          ]
+        },
+        {
+          "initial": [],
+          "name": "needs",
+          "type": "list<string>"
+        },
+        {
+          "initial": "growth",
+          "name": "plan",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": {
+                "$t": "01a2ae34-7984-7eb7-9b46-9c18e005e3b5"
+              }
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "notes",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "length",
+              "max": 500
+            }
+          ]
+        }
+      ],
+      "id": "01a2ee60-ccc9-7eca-b424-d085070e15dd",
+      "name": "req"
+    }
+  ],
+  "id": "01a20e00-d1fe-7489-a424-3f080be1da17",
+  "key": "pt-request",
+  "kind": "page",
+  "lifecycle": {
+    "onInit": {
+      "steps": [
+        {
+          "action": "setState",
+          "id": "plan",
+          "input": {
+            "path": "page.req.values.plan",
+            "value": {
+              "$expr": "params.plan"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "params": [
+    {
+      "default": "growth",
+      "mock": "growth",
+      "name": "plan",
+      "type": "string"
+    }
+  ],
+  "root": {
+    "id": "01a22198-bb7f-70d7-a180-a73736bb7630",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2314d-1c03-7394-aab8-e0e62309e41f",
+        "slots": {
+          "title": {
+            "id": "01a2b5ea-8ae1-7b98-a095-26080f37e6d6",
+            "props": {
+              "data": {
+                "$t": "01a23070-7033-78f0-97a7-b91d6a1964e4"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2fc21-95d8-7ca1-920f-67ef823b3dd1",
+        "props": {
+          "form": "req"
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a28012-ca56-736e-b215-f638fa9639d5",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.req.values.orgName",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.req.touched.orgName",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a21b5c-6504-7afd-b3ad-e15460dc1496",
+                            "props": {
+                              "decoration": {
+                                "filled": true,
+                                "labelText": {
+                                  "$t": "01a26d73-79c3-7f5b-81b0-2a0293b3343f"
+                                },
+                                "prefixIcon": {
+                                  "name": "apartment"
+                                }
+                              },
+                              "textCapitalization": "words",
+                              "value": {
+                                "$expr": "page.req.values.orgName"
+                              }
+                            },
+                            "testId": "request-orgName",
+                            "type": "TextFormField"
+                          },
+                          {
+                            "id": "01a2f27f-5e95-7b0b-8374-b11bec6fa4df",
+                            "props": {
+                              "condition": {
+                                "$expr": "page.req.touched.orgName && page.req.errors.orgName != null"
+                              }
+                            },
+                            "slots": {
+                              "then": {
+                                "id": "01a2172a-fe6a-7c80-b149-30af143147f6",
+                                "props": {
+                                  "padding": {
+                                    "start": 16
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2fd18-ba24-79f0-9bd4-a5ed4f719b81",
+                                    "props": {
+                                      "data": {
+                                        "$expr": "page.req.errors.orgName ?? \"\""
+                                      },
+                                      "style": {
+                                        "base": {
+                                          "$token": "typography.bodySmall"
+                                        },
+                                        "color": {
+                                          "$token": "color.error"
+                                        }
+                                      }
+                                    },
+                                    "semantics": {
+                                      "liveRegion": true
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "If"
+                          }
+                        ],
+                        "id": "01a2f125-bb70-7aac-8740-ad5ed3e11ebb",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 4
+                        },
+                        "type": "Column"
+                      },
+                      {
+                        "events": {
+                          "onSelected": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.req.values.category",
+                                  "value": {
+                                    "$expr": "event ?? \"\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2d7f8-b1ab-71c4-823a-b942e88b2961",
+                        "props": {
+                          "dropdownMenuEntries": [
+                            {
+                              "label": {
+                                "$t": "01a2948e-880b-7854-a9ec-de669448ce5e"
+                              },
+                              "leadingIcon": {
+                                "name": "school"
+                              },
+                              "value": "education"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a23d3d-a72e-7c8c-b3fb-3338a9f21f25"
+                              },
+                              "leadingIcon": {
+                                "name": "account_balance"
+                              },
+                              "value": "finance"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a28b38-3bbe-719b-b725-793109b4a21f"
+                              },
+                              "leadingIcon": {
+                                "name": "directions_run"
+                              },
+                              "value": "sports"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a2f4f1-a0a2-70bf-ae0b-d8eb448738b0"
+                              },
+                              "leadingIcon": {
+                                "name": "volunteer_activism"
+                              },
+                              "value": "charity"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a27c20-d5ed-7607-a47e-5869b34b97b3"
+                              },
+                              "leadingIcon": {
+                                "name": "local_hospital"
+                              },
+                              "value": "health"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a20d93-a324-7d7c-b5c3-9c9fceeadecf"
+                              },
+                              "leadingIcon": {
+                                "name": "home_work"
+                              },
+                              "value": "housing"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a24d3b-3b4a-738f-a898-a5466d05112f"
+                              },
+                              "leadingIcon": {
+                                "name": "festival"
+                              },
+                              "value": "events"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a2948d-d706-76cd-b71a-94557dc75644"
+                              },
+                              "leadingIcon": {
+                                "name": "stadium"
+                              },
+                              "value": "venues"
+                            }
+                          ],
+                          "enableSearch": true,
+                          "expandedInsets": {
+                            "all": 0
+                          },
+                          "initialSelection": {
+                            "$expr": "page.req.values.category"
+                          }
+                        },
+                        "slots": {
+                          "label": {
+                            "id": "01a26b47-521c-795b-aa4e-d806ebca21f5",
+                            "props": {
+                              "data": {
+                                "$t": "01a2ed34-e546-7015-a981-a3cb7e667064"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "request-category",
+                        "type": "DropdownMenu"
+                      },
+                      {
+                        "id": "01a2b061-1363-7e09-927f-f8c9dd92334c",
+                        "props": {
+                          "data": {
+                            "$t": "01a2c159-87ea-74c0-9343-af15533adecb"
+                          },
+                          "style": {
+                            "$token": "typography.labelLarge"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "events": {
+                          "onSelectionChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.req.values.size",
+                                  "value": {
+                                    "$expr": "first(event) ?? \"small\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2aebe-dd3c-7450-9618-d142642a1877",
+                        "props": {
+                          "emptySelectionAllowed": false,
+                          "segments": [
+                            {
+                              "label": {
+                                "$t": "01a2f64c-0e1b-76f2-a2ca-c62a1f2c10fa"
+                              },
+                              "value": "small"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a2fee2-e410-7b1e-af5e-08a7f47ceeea"
+                              },
+                              "value": "medium"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a2992c-a33b-7013-9331-242158f3fabe"
+                              },
+                              "value": "large"
+                            }
+                          ],
+                          "selected": {
+                            "$expr": "[page.req.values.size]"
+                          }
+                        },
+                        "testId": "request-size",
+                        "type": "SegmentedButton"
+                      }
+                    ],
+                    "id": "01a27611-988f-7fc1-a8cd-50068bbc28d5",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a2e049-68fd-7977-b96e-f22170e707b6",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "set",
+                                    "input": {
+                                      "path": "page.req.values.email",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    },
+                                    "next": "touch"
+                                  },
+                                  {
+                                    "action": "setState",
+                                    "id": "touch",
+                                    "input": {
+                                      "path": "page.req.touched.email",
+                                      "value": true
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01a2bad8-2837-7678-be50-1a8f21632955",
+                            "props": {
+                              "autocorrect": false,
+                              "decoration": {
+                                "filled": true,
+                                "labelText": {
+                                  "$t": "01a28d54-018f-7de9-a625-1cdaf0572271"
+                                },
+                                "prefixIcon": {
+                                  "name": "mail"
+                                }
+                              },
+                              "enableSuggestions": false,
+                              "keyboardType": "emailAddress",
+                              "value": {
+                                "$expr": "page.req.values.email"
+                              }
+                            },
+                            "testId": "request-email",
+                            "type": "TextFormField"
+                          },
+                          {
+                            "id": "01a27cf2-7aa8-7bb4-9c57-db393f6a3011",
+                            "props": {
+                              "condition": {
+                                "$expr": "page.req.touched.email && page.req.errors.email != null"
+                              }
+                            },
+                            "slots": {
+                              "then": {
+                                "id": "01a2a633-4c5f-7a7d-a10c-e2ae0dbb6915",
+                                "props": {
+                                  "padding": {
+                                    "start": 16
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2bd0a-84e4-759a-b32d-81ec03526eca",
+                                    "props": {
+                                      "data": {
+                                        "$expr": "page.req.errors.email ?? \"\""
+                                      },
+                                      "style": {
+                                        "base": {
+                                          "$token": "typography.bodySmall"
+                                        },
+                                        "color": {
+                                          "$token": "color.error"
+                                        }
+                                      }
+                                    },
+                                    "semantics": {
+                                      "liveRegion": true
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "If"
+                          }
+                        ],
+                        "id": "01a2d2f5-c4c4-7cf5-acf4-2472b6c48078",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 4
+                        },
+                        "type": "Column"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.req.values.phone",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2fb02-b179-7da0-8fa9-6820c8bfb060",
+                        "props": {
+                          "label": {
+                            "$t": "01a284be-d7c8-7c45-8be5-d10c34f64426"
+                          },
+                          "value": {
+                            "$expr": "page.req.values.phone"
+                          }
+                        },
+                        "testId": "request-phone",
+                        "type": "PhoneInput"
+                      }
+                    ],
+                    "id": "01a2a068-0aae-7eda-aaae-1436ea83c124",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 16
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a22c0c-22bd-7c30-a424-fcecc2c02ffa",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a24923-ca51-7fee-b053-a5d691401b86",
+                        "props": {
+                          "contentPadding": {
+                            "all": 0
+                          }
+                        },
+                        "slots": {
+                          "title": {
+                            "id": "01a2ddbe-bdd2-7e7b-a3d7-fe33658e50a6",
+                            "props": {
+                              "data": {
+                                "$t": "01a24431-bc53-75a6-b572-168ad1e50b66"
+                              }
+                            },
+                            "type": "Text"
+                          },
+                          "trailing": {
+                            "id": "01a27366-7eac-7453-b54c-6521fc396d45",
+                            "props": {
+                              "data": {
+                                "$expr": "string(page.req.values.pages)"
+                              },
+                              "style": {
+                                "$token": "typography.titleMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "ListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.req.values.pages",
+                                  "value": {
+                                    "$expr": "round(event)"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a25a3a-198c-7b5c-b0be-91518f0c61dd",
+                        "props": {
+                          "divisions": 19,
+                          "label": {
+                            "$expr": "string(page.req.values.pages)"
+                          },
+                          "max": 20,
+                          "min": 1,
+                          "showValueIndicator": "onlyForDiscrete",
+                          "value": {
+                            "$expr": "double(page.req.values.pages)"
+                          }
+                        },
+                        "semantics": {
+                          "label": {
+                            "$t": "01a24431-bc53-75a6-b572-168ad1e50b66"
+                          }
+                        },
+                        "testId": "request-pages",
+                        "type": "Slider"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "else": "drop",
+                                  "then": "add"
+                                },
+                                "id": "on",
+                                "input": {
+                                  "when": {
+                                    "$expr": "event ?? false"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs + [\"payments\"]"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "drop",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs.filter(x, x != \"payments\")"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a299c7-fdc3-77f5-ac00-0be46475215b",
+                        "props": {
+                          "contentPadding": {
+                            "all": 0
+                          },
+                          "controlAffinity": "leading",
+                          "value": {
+                            "$expr": "\"payments\" in page.req.values.needs"
+                          }
+                        },
+                        "slots": {
+                          "title": {
+                            "id": "01a21d16-26a0-77fe-9ed0-dad07a4147f5",
+                            "props": {
+                              "data": {
+                                "$t": "01a21146-99ca-7482-bb5a-62825ed291a4"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "request-need-payments",
+                        "type": "CheckboxListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "else": "drop",
+                                  "then": "add"
+                                },
+                                "id": "on",
+                                "input": {
+                                  "when": {
+                                    "$expr": "event ?? false"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs + [\"uploads\"]"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "drop",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs.filter(x, x != \"uploads\")"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a257e8-f224-70e0-84cf-0d50c36c8593",
+                        "props": {
+                          "contentPadding": {
+                            "all": 0
+                          },
+                          "controlAffinity": "leading",
+                          "value": {
+                            "$expr": "\"uploads\" in page.req.values.needs"
+                          }
+                        },
+                        "slots": {
+                          "title": {
+                            "id": "01a2c35b-028d-706a-8786-0aedf6291e97",
+                            "props": {
+                              "data": {
+                                "$t": "01a23bc0-d0bc-73e4-b2ca-60a9c91da245"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "request-need-uploads",
+                        "type": "CheckboxListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "else": "drop",
+                                  "then": "add"
+                                },
+                                "id": "on",
+                                "input": {
+                                  "when": {
+                                    "$expr": "event ?? false"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs + [\"maps\"]"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "drop",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs.filter(x, x != \"maps\")"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a27af2-2a13-781a-89ed-b4150c1578e7",
+                        "props": {
+                          "contentPadding": {
+                            "all": 0
+                          },
+                          "controlAffinity": "leading",
+                          "value": {
+                            "$expr": "\"maps\" in page.req.values.needs"
+                          }
+                        },
+                        "slots": {
+                          "title": {
+                            "id": "01a214a9-4b36-7944-ba72-9b5b822e44a4",
+                            "props": {
+                              "data": {
+                                "$t": "01a221d9-f139-7c79-b7bd-13f128725691"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "request-need-maps",
+                        "type": "CheckboxListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "else": "drop",
+                                  "then": "add"
+                                },
+                                "id": "on",
+                                "input": {
+                                  "when": {
+                                    "$expr": "event ?? false"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs + [\"live\"]"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "drop",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs.filter(x, x != \"live\")"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2ab3f-8a5b-75ca-80cd-74450c69b367",
+                        "props": {
+                          "contentPadding": {
+                            "all": 0
+                          },
+                          "controlAffinity": "leading",
+                          "value": {
+                            "$expr": "\"live\" in page.req.values.needs"
+                          }
+                        },
+                        "slots": {
+                          "title": {
+                            "id": "01a2fd77-59ef-78d7-b281-f3a58e185f6e",
+                            "props": {
+                              "data": {
+                                "$t": "01a297d7-c376-7cae-b8a6-b827f832e355"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "request-need-live",
+                        "type": "CheckboxListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "else": "drop",
+                                  "then": "add"
+                                },
+                                "id": "on",
+                                "input": {
+                                  "when": {
+                                    "$expr": "event ?? false"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs + [\"multiPage\"]"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "drop",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs.filter(x, x != \"multiPage\")"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a21c14-b048-7284-99ce-6278406ba951",
+                        "props": {
+                          "contentPadding": {
+                            "all": 0
+                          },
+                          "controlAffinity": "leading",
+                          "value": {
+                            "$expr": "\"multiPage\" in page.req.values.needs"
+                          }
+                        },
+                        "slots": {
+                          "title": {
+                            "id": "01a2b31d-0583-7ebd-8b2e-00a393fab1e9",
+                            "props": {
+                              "data": {
+                                "$t": "01a26511-d8a8-7d6c-a89b-0cbf4559ac03"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "request-need-multiPage",
+                        "type": "CheckboxListTile"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "condition",
+                                "branches": {
+                                  "else": "drop",
+                                  "then": "add"
+                                },
+                                "id": "on",
+                                "input": {
+                                  "when": {
+                                    "$expr": "event ?? false"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "add",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs + [\"multilingual\"]"
+                                  }
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "drop",
+                                "input": {
+                                  "path": "page.req.values.needs",
+                                  "value": {
+                                    "$expr": "page.req.values.needs.filter(x, x != \"multilingual\")"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2debe-39ad-7c5d-bf12-1647bd2e6606",
+                        "props": {
+                          "contentPadding": {
+                            "all": 0
+                          },
+                          "controlAffinity": "leading",
+                          "value": {
+                            "$expr": "\"multilingual\" in page.req.values.needs"
+                          }
+                        },
+                        "slots": {
+                          "title": {
+                            "id": "01a2014f-49be-72ee-9785-b2185004a101",
+                            "props": {
+                              "data": {
+                                "$t": "01a29fc3-b4e8-7c82-8331-a3360a68fccf"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "request-need-multilingual",
+                        "type": "CheckboxListTile"
+                      },
+                      {
+                        "events": {
+                          "onSelectionChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.req.values.plan",
+                                  "value": {
+                                    "$expr": "first(event) ?? \"growth\""
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a29b5d-8172-7701-92f0-0eb523460ead",
+                        "props": {
+                          "multiSelectionEnabled": false,
+                          "segments": [
+                            {
+                              "label": {
+                                "$t": "01a2e775-b772-7202-ba50-8fdc0bcfe364"
+                              },
+                              "value": "starter"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a286a8-2f1b-7f4c-b344-21501aeae28d"
+                              },
+                              "value": "growth"
+                            },
+                            {
+                              "label": {
+                                "$t": "01a2a8d6-849f-7dfa-9f41-b3944890ecc3"
+                              },
+                              "value": "custom"
+                            }
+                          ],
+                          "selected": {
+                            "$expr": "[page.req.values.plan]"
+                          }
+                        },
+                        "testId": "request-plan",
+                        "type": "SegmentedButton"
+                      },
+                      {
+                        "events": {
+                          "onChanged": {
+                            "steps": [
+                              {
+                                "action": "setState",
+                                "id": "set",
+                                "input": {
+                                  "path": "page.req.values.notes",
+                                  "value": {
+                                    "$expr": "event"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a25f9a-5f16-7158-bbdc-dcf2a5472f5c",
+                        "props": {
+                          "decoration": {
+                            "border": {
+                              "kind": "outline"
+                            },
+                            "labelText": {
+                              "$t": "01a22e56-e92d-778a-9f91-4d113f6b5c9f"
+                            }
+                          },
+                          "maxLength": 500,
+                          "maxLines": 5,
+                          "minLines": 3,
+                          "value": {
+                            "$expr": "page.req.values.notes"
+                          }
+                        },
+                        "testId": "request-notes",
+                        "type": "TextField"
+                      }
+                    ],
+                    "id": "01a27973-cc24-7467-8f5c-0d36051dc74f",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 8
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01a202c9-7d42-7256-a99e-2fddd5322129",
+                "props": {
+                  "padding": {
+                    "all": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01a28172-f518-727e-bdf6-af5bb7c744c2",
+                        "props": {
+                          "initiallyExpanded": true,
+                          "maintainState": true
+                        },
+                        "slots": {
+                          "children": [
+                            {
+                              "component": {
+                                "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                                "version": 1
+                              },
+                              "id": "01a23526-b82b-76ac-b593-2c349a78402b",
+                              "props": {
+                                "label": {
+                                  "$t": "01a26d73-79c3-7f5b-81b0-2a0293b3343f"
+                                },
+                                "value": {
+                                  "$expr": "page.req.values.orgName"
+                                }
+                              }
+                            }
+                          ],
+                          "title": {
+                            "id": "01a235ae-d213-7e6a-8e7c-f84017bfe210",
+                            "props": {
+                              "data": {
+                                "$t": "01a29391-af63-7c90-b8df-944960c98229"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "ExpansionTile"
+                      },
+                      {
+                        "id": "01a2c775-4e56-7ce3-8546-9eef612fb22d",
+                        "slots": {
+                          "children": [
+                            {
+                              "component": {
+                                "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                                "version": 1
+                              },
+                              "id": "01a2d572-e991-7ac5-b351-c342c37824d4",
+                              "props": {
+                                "label": {
+                                  "$t": "01a28d54-018f-7de9-a625-1cdaf0572271"
+                                },
+                                "value": {
+                                  "$expr": "page.req.values.email"
+                                }
+                              }
+                            }
+                          ],
+                          "title": {
+                            "id": "01a205e0-08f3-76bf-9ed9-ff9b00250aa5",
+                            "props": {
+                              "data": {
+                                "$t": "01a2074e-ee15-799e-a0d2-991d1ebd511e"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "ExpansionTile"
+                      },
+                      {
+                        "id": "01a2f44c-6460-7f43-9edc-94be3f866477",
+                        "slots": {
+                          "children": [
+                            {
+                              "component": {
+                                "id": "01a2a501-ce23-7395-ba84-b83ff3374807",
+                                "version": 1
+                              },
+                              "id": "01a2ba12-b408-74a9-9eb4-1b88d5705039",
+                              "props": {
+                                "label": {
+                                  "$t": "01a24431-bc53-75a6-b572-168ad1e50b66"
+                                },
+                                "value": {
+                                  "$expr": "string(page.req.values.pages)"
+                                }
+                              }
+                            }
+                          ],
+                          "title": {
+                            "id": "01a2508e-e95b-7710-b37f-d02463b4843d",
+                            "props": {
+                              "data": {
+                                "$t": "01a2ae05-1e39-7db9-a832-4c3a42407082"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "ExpansionTile"
+                      }
+                    ],
+                    "id": "01a20f84-54e0-7553-845c-93f38787c371",
+                    "props": {
+                      "crossAxisAlignment": "stretch"
+                    },
+                    "type": "Column"
+                  }
+                },
+                "type": "Padding"
+              }
+            ],
+            "events": {
+              "onBack": {
+                "steps": [
+                  {
+                    "action": "setState",
+                    "id": "back",
+                    "input": {
+                      "path": "page.step",
+                      "value": {
+                        "$expr": "event"
+                      }
+                    }
+                  }
+                ]
+              },
+              "onNext": {
+                "steps": [
+                  {
+                    "action": "setState",
+                    "id": "next",
+                    "input": {
+                      "path": "page.step",
+                      "value": {
+                        "$expr": "event"
+                      }
+                    }
+                  }
+                ]
+              },
+              "onSubmit": {
+                "concurrency": "drop",
+                "steps": [
+                  {
+                    "action": "submitForm",
+                    "branches": {
+                      "invalid": "fix"
+                    },
+                    "id": "check",
+                    "input": {
+                      "form": "req"
+                    },
+                    "next": "send"
+                  },
+                  {
+                    "action": "announce",
+                    "id": "fix",
+                    "input": {
+                      "assertiveness": "assertive",
+                      "message": {
+                        "$t": "01a2c3dd-6ebd-7df9-96b1-f1a13795033f"
+                      }
+                    }
+                  },
+                  {
+                    "action": "apiCall",
+                    "id": "send",
+                    "input": {
+                      "input": {
+                        "category": {
+                          "$expr": "page.req.values.category"
+                        },
+                        "email": {
+                          "$expr": "page.req.values.email"
+                        },
+                        "needs": {
+                          "$expr": "page.req.values.needs"
+                        },
+                        "notes": {
+                          "$expr": "page.req.values.notes"
+                        },
+                        "orgName": {
+                          "$expr": "page.req.values.orgName"
+                        },
+                        "pages": {
+                          "$expr": "page.req.values.pages"
+                        },
+                        "plan": {
+                          "$expr": "page.req.values.plan"
+                        },
+                        "size": {
+                          "$expr": "page.req.values.size"
+                        }
+                      },
+                      "operation": "partner.submit"
+                    },
+                    "next": "sent",
+                    "onError": "why",
+                    "retry": {
+                      "backoffMs": 500,
+                      "count": 2,
+                      "jitter": true,
+                      "on": [
+                        "network",
+                        "timeout"
+                      ]
+                    }
+                  },
+                  {
+                    "action": "openDialog",
+                    "id": "sent",
+                    "input": {
+                      "params": {
+                        "reference": {
+                          "$expr": "steps.send.output?.reference ?? \"\""
+                        }
+                      },
+                      "route": "pt-sent"
+                    },
+                    "next": "home"
+                  },
+                  {
+                    "action": "navigate",
+                    "id": "home",
+                    "input": {
+                      "mode": "clearAndPush",
+                      "route": "home"
+                    }
+                  },
+                  {
+                    "action": "condition",
+                    "branches": {
+                      "else": "other",
+                      "then": "dup"
+                    },
+                    "id": "why",
+                    "input": {
+                      "when": {
+                        "$expr": "steps.send.error?.code == \"DUPLICATE_REQUEST\""
+                      }
+                    }
+                  },
+                  {
+                    "action": "showSnackbar",
+                    "id": "dup",
+                    "input": {
+                      "message": {
+                        "$t": "01a2fcd7-7af9-77c4-b11d-3bd9c9934987"
+                      }
+                    }
+                  },
+                  {
+                    "action": "showSnackbar",
+                    "id": "other",
+                    "input": {
+                      "message": {
+                        "$t": "01a2e8f0-1585-7e32-862c-13f9e0654645"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "id": "01a2181f-d15e-7087-a287-f47aa2b8adeb",
+            "props": {
+              "backLabel": {
+                "$t": "01a26163-27fc-7b7f-838f-c0d58f42bb81"
+              },
+              "currentStep": {
+                "$expr": "page.step"
+              },
+              "nextLabel": {
+                "$t": "01a2cae3-6a94-71e6-ac01-6c2f09ad3f1d"
+              },
+              "stepFields": [
+                "orgName,category,size",
+                "email,phone",
+                "pages,needs,plan,notes",
+                ""
+              ],
+              "submitLabel": {
+                "$t": "01a207c7-2e0c-7917-a72f-05ecaa309d17"
+              },
+              "titles": [
+                {
+                  "$t": "01a29391-af63-7c90-b8df-944960c98229"
+                },
+                {
+                  "$t": "01a2074e-ee15-799e-a0d2-991d1ebd511e"
+                },
+                {
+                  "$t": "01a2ae05-1e39-7db9-a832-4c3a42407082"
+                },
+                {
+                  "$t": "01a24d1a-2272-7d00-b11e-f6792e365aaa"
+                }
+              ]
+            },
+            "semantics": {
+              "label": {
+                "$t": "01a23070-7033-78f0-97a7-b91d6a1964e4"
+              }
+            },
+            "testId": "request-wizard",
+            "type": "WizardForm"
+          }
+        },
+        "type": "FormScope"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "pt-request",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01a2e02d-5b35-7df0-afe0-d94133dd99a9",
+      "name": "step",
+      "type": "int"
+    }
+  ],
+  "title": {
+    "$t": "01a23070-7033-78f0-97a7-b91d6a1964e4"
+  }
+}

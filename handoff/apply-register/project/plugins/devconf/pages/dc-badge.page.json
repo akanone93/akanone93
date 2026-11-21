@@ -1,0 +1,289 @@
+{
+  "id": "01a2db8b-8eef-71fe-b93d-c041adcf64d1",
+  "key": "dc-badge",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "dbQuery",
+          "id": "r",
+          "input": {
+            "collection": "registrations",
+            "descending": true,
+            "limit": 1,
+            "orderBy": "submittedAt",
+            "where": {
+              "$expr": "record.orgSlug == \"devconf\""
+            }
+          },
+          "next": "keep"
+        },
+        {
+          "action": "setState",
+          "id": "keep",
+          "input": {
+            "path": "page.code",
+            "value": {
+              "$expr": "first(steps.r.output ?? [])?.passCode ?? \"\""
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2c96b-1f56-737d-b736-d49814149543",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a24f91-c5a7-7f98-94a7-7ff399a214ab",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "centerTitle": false,
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a21c6b-00c7-7fc7-824d-71728366d316",
+            "props": {
+              "data": {
+                "$t": "01a2feb4-37a7-7431-91d4-704a57e0a35f"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a27f83-6daf-749b-9f01-4ca9338f64fd",
+        "slots": {
+          "child": {
+            "id": "01a25e72-aa15-75a9-905d-21d293c367f4",
+            "props": {
+              "padding": {
+                "all": 24
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01a2527e-7609-7968-bb0e-9dd37f207794",
+                    "props": {
+                      "data": {
+                        "$t": "01a21e22-7102-7c19-a086-fe46a2811983"
+                      },
+                      "style": {
+                        "$token": "typography.titleLarge"
+                      }
+                    },
+                    "semantics": {
+                      "header": true
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01a2d0bf-be61-7dc9-b509-d87635462f82",
+                    "props": {
+                      "condition": {
+                        "$expr": "page.code != \"\""
+                      }
+                    },
+                    "slots": {
+                      "else": {
+                        "id": "01a2d1b6-b3e1-7577-b0a4-df23d9a9aa3e",
+                        "props": {
+                          "data": {
+                            "$t": "01a2dc88-9b93-7210-92c2-bbac8de0b913"
+                          },
+                          "style": {
+                            "$token": "typography.bodyMedium"
+                          },
+                          "textAlign": "center"
+                        },
+                        "type": "Text"
+                      },
+                      "then": {
+                        "id": "01a2d96d-8314-7b87-ab61-614e5d931824",
+                        "props": {
+                          "data": {
+                            "$expr": "page.code"
+                          },
+                          "errorCorrection": "medium",
+                          "semanticLabel": {
+                            "$t": "01a204e5-dba8-7698-8a9c-94367399f023"
+                          },
+                          "size": 240
+                        },
+                        "testId": "dc-badge-qr",
+                        "type": "QrCodeView"
+                      }
+                    },
+                    "type": "If"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "scanCode",
+                            "branches": {
+                              "cancelled": "none"
+                            },
+                            "id": "scan",
+                            "input": {
+                              "formats": [
+                                "code128",
+                                "ean13",
+                                "upcA"
+                              ]
+                            },
+                            "next": "claim"
+                          },
+                          {
+                            "action": "apiCall",
+                            "id": "claim",
+                            "input": {
+                              "input": {
+                                "code": {
+                                  "$expr": "steps.scan.output?.value ?? \"\""
+                                }
+                              },
+                              "operation": "api.claim"
+                            },
+                            "next": "say"
+                          },
+                          {
+                            "action": "showToast",
+                            "id": "say",
+                            "input": {
+                              "message": {
+                                "$t": "01a2d57d-e8eb-7890-8b55-ed5c2606250b"
+                              }
+                            }
+                          },
+                          {
+                            "action": "stop",
+                            "id": "none"
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a2f4b0-15c7-7fec-8d72-8465bfee2684",
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01a2deec-1830-7ebb-abcd-791b3feb0399",
+                            "props": {
+                              "icon": {
+                                "name": "qr_code_scanner"
+                              }
+                            },
+                            "semantics": {
+                              "decorative": true
+                            },
+                            "type": "Icon"
+                          },
+                          {
+                            "id": "01a217ce-d323-719b-93cc-c77f2681580e",
+                            "props": {
+                              "data": {
+                                "$t": "01a2b8f3-3517-7979-b974-3ae3c15ad0d3"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        ],
+                        "id": "01a2197d-34b6-7ebf-aa56-67db23513aec",
+                        "props": {
+                          "mainAxisSize": "min",
+                          "spacing": 8
+                        },
+                        "type": "Row"
+                      }
+                    },
+                    "testId": "dc-scan",
+                    "type": "OutlinedButton"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "share",
+                            "id": "share",
+                            "input": {
+                              "text": {
+                                "$t": "01a215b8-799a-79a4-920d-2325e3671805"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a29bd9-5deb-759f-a4b9-a1dc6f2d1380",
+                    "slots": {
+                      "child": {
+                        "id": "01a26e36-6877-7863-a0da-86fe13043922",
+                        "props": {
+                          "data": {
+                            "$t": "01a21998-a21f-7c2c-a08a-7038553de0dd"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "dc-share",
+                    "type": "TextButton"
+                  }
+                ],
+                "id": "01a2a31d-c225-78b4-afdd-1305dd4b099c",
+                "props": {
+                  "crossAxisAlignment": "center",
+                  "spacing": 16
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "dc-badge",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
+  "state": [
+    {
+      "default": "",
+      "id": "01a295a9-a3d6-71ce-a7ef-a02121653e12",
+      "name": "code",
+      "sensitive": true,
+      "type": "string"
+    }
+  ],
+  "title": {
+    "$t": "01a2feb4-37a7-7431-91d4-704a57e0a35f"
+  }
+}

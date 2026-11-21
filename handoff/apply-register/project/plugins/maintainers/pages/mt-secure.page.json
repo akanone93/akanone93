@@ -1,0 +1,390 @@
+{
+  "id": "01a26662-a13e-7f69-8a08-e6bf3f4d1ddc",
+  "key": "mt-secure",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2eb1d-5656-7a77-a9fd-8fc470f12730",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a288d7-f02c-78a9-bdba-43434feb4c50",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a2a3ba-ddac-7af2-a2f9-3f03b452e55b",
+            "props": {
+              "data": {
+                "$t": "01a2ab3a-b7c4-74f3-99f6-c58a6fda628b"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a251f9-4717-7541-99a4-1adbbcfdf2e1",
+        "slots": {
+          "child": {
+            "id": "01a2bf12-01f1-7dda-89a4-da616c14bad0",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "id": "01a22736-902a-79db-adef-c7de76329001",
+                        "props": {
+                          "data": {
+                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                            "args": {
+                              "v": "MaskKind"
+                            }
+                          },
+                          "style": {
+                            "$token": "typography.titleSmall"
+                          }
+                        },
+                        "semantics": {
+                          "header": true
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "children": [
+                          {
+                            "id": "01a2ec46-ed8d-7bdd-88c4-9be4660e08cb",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a23c96-8a87-7c59-86b2-1f85bdc8a4c9",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a272aa-2fcd-7ac4-9284-11ade48cef7a",
+                                        "props": {
+                                          "mask": "card",
+                                          "value": "0123456789"
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "card"
+                                            }
+                                          }
+                                        },
+                                        "type": "MaskedText"
+                                      },
+                                      {
+                                        "id": "01a2c9f0-d124-7d30-8e7c-4e48519a6d44",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "card"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a2bfc7-8a5d-7854-8270-5f04b87e58e1",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          },
+                          {
+                            "id": "01a2a228-eba1-728b-a19f-f0a9e428db91",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a269f3-9211-7afe-adaa-9794198de917",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a2b6f5-0fb0-790e-a1f5-3c3aeb027308",
+                                        "props": {
+                                          "mask": "account",
+                                          "value": "0123456789"
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "account"
+                                            }
+                                          }
+                                        },
+                                        "type": "MaskedText"
+                                      },
+                                      {
+                                        "id": "01a24897-4afd-7ef2-8ab5-639079c3b3b0",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "account"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a20ce5-2310-7c12-b6bf-b7d6c9cf3f76",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          },
+                          {
+                            "id": "01a2818e-a9df-717c-8521-8c943a296a98",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a25bbf-073a-79ee-8cd8-b74e237051da",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a2e0c1-adc8-7a6f-8821-a704eefb5b6c",
+                                        "props": {
+                                          "mask": "phone",
+                                          "value": "0123456789"
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "phone"
+                                            }
+                                          }
+                                        },
+                                        "type": "MaskedText"
+                                      },
+                                      {
+                                        "id": "01a259df-243f-7af3-afe5-8958390f2aa1",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "phone"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a2cc6a-fd82-7d82-9706-5e8a37b43eb3",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          },
+                          {
+                            "id": "01a2b46a-10ee-7963-b517-3a3e348a2810",
+                            "props": {
+                              "color": {
+                                "$token": "color.surfaceContainerLow"
+                              },
+                              "elevation": 0,
+                              "margin": {
+                                "all": 0
+                              }
+                            },
+                            "slots": {
+                              "child": {
+                                "id": "01a25953-c1b2-75fe-98b1-cf686591e473",
+                                "props": {
+                                  "padding": {
+                                    "all": 8
+                                  }
+                                },
+                                "slots": {
+                                  "child": {
+                                    "children": [
+                                      {
+                                        "id": "01a2f283-d25a-7e76-ada7-1aa21ae471d6",
+                                        "props": {
+                                          "mask": "custom",
+                                          "value": "0123456789"
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "custom"
+                                            }
+                                          }
+                                        },
+                                        "type": "MaskedText"
+                                      },
+                                      {
+                                        "id": "01a27c86-3340-7ffd-bf37-0ef78bfe9a75",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                            "args": {
+                                              "v": "custom"
+                                            }
+                                          },
+                                          "style": {
+                                            "$token": "typography.labelSmall"
+                                          }
+                                        },
+                                        "type": "Text"
+                                      }
+                                    ],
+                                    "id": "01a20319-af51-7b66-bfb8-ea36454ce44c",
+                                    "props": {
+                                      "crossAxisAlignment": "start",
+                                      "mainAxisSize": "min",
+                                      "spacing": 6
+                                    },
+                                    "type": "Column"
+                                  }
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Card"
+                          }
+                        ],
+                        "id": "01a26e85-5d37-79e1-b5fc-c65ba7aed858",
+                        "props": {
+                          "runSpacing": 8,
+                          "spacing": 8
+                        },
+                        "type": "Wrap"
+                      }
+                    ],
+                    "id": "01a25c1a-4c1a-7eaa-a407-2fe7c54bbdca",
+                    "props": {
+                      "crossAxisAlignment": "stretch",
+                      "spacing": 8
+                    },
+                    "type": "Column"
+                  }
+                ],
+                "id": "01a248ae-90fa-7a3a-9f96-d76d9c3beac9",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 20
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "mt-secure",
+  "schemaVersion": "1.0.0",
+  "security": {
+    "requiresAssurance": "AL3",
+    "secure": true
+  },
+  "title": {
+    "$t": "01a2ab3a-b7c4-74f3-99f6-c58a6fda628b"
+  }
+}

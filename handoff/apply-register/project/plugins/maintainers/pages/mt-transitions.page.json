@@ -1,0 +1,436 @@
+{
+  "id": "01a2442f-16f2-70aa-95dc-f197cfd8d549",
+  "key": "mt-transitions",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a2f779-4b84-7df9-b541-4010ed018b3f",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2e402-c7d8-7bec-808f-4b2273e0c3f2",
+        "props": {
+          "backgroundColor": {
+            "$token": "color.surface"
+          },
+          "elevation": 0,
+          "foregroundColor": {
+            "$token": "color.onSurface"
+          },
+          "scrolledUnderElevation": 2
+        },
+        "slots": {
+          "title": {
+            "id": "01a26caa-d900-7118-bc57-def5b1f2713d",
+            "props": {
+              "data": {
+                "$t": "01a2e276-0543-7588-b1e4-45653e7b33d2"
+              },
+              "maxLines": 1,
+              "overflow": "ellipsis"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2a46d-358e-7d6b-9fd3-ad733bcdad43",
+        "slots": {
+          "child": {
+            "id": "01a28fe9-19c1-7c78-b150-7d91dee6e582",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-platform"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a21fea-3304-7234-b45e-4f768301cd9f",
+                        "slots": {
+                          "child": {
+                            "id": "01a26e4a-83e3-7427-8e24-3253732c7946",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "platform"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-platform",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-fade"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a24302-7094-73f7-b929-927f375ea47f",
+                        "slots": {
+                          "child": {
+                            "id": "01a21f9b-12d0-733d-b589-7b0797946243",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "fade"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-fade",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-slideleft"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2e0db-e690-7f9c-a5a9-b6589e6f50f9",
+                        "slots": {
+                          "child": {
+                            "id": "01a2ec55-d989-79b5-aaad-e72b852aa701",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "slideLeft"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-slideLeft",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-slideright"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a208ca-4bda-7058-ada7-699c08d4fcc0",
+                        "slots": {
+                          "child": {
+                            "id": "01a2d695-7cbe-79ba-8116-9dbd4ca59b32",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "slideRight"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-slideRight",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-slideup"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a23cec-6a32-7147-8ff4-5a94c15926f5",
+                        "slots": {
+                          "child": {
+                            "id": "01a2ee52-debe-75ce-9e42-f0edf178e5eb",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "slideUp"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-slideUp",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-slidedown"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a261f0-88af-78db-b14c-76171845264d",
+                        "slots": {
+                          "child": {
+                            "id": "01a262ba-9b86-71eb-9b25-ad0a7de8a174",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "slideDown"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-slideDown",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-scale"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2532d-150d-7549-a4fa-5d4a300218c5",
+                        "slots": {
+                          "child": {
+                            "id": "01a2c299-a73d-7916-8a16-8a9ccdcc320c",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "scale"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-scale",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-sharedaxis"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2b731-7393-7b19-bbcc-3e1dfa298c43",
+                        "slots": {
+                          "child": {
+                            "id": "01a21acc-8cb3-736b-9e19-99e92b8c8595",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "sharedAxis"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-sharedAxis",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-custom"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2d054-d337-73c9-8b6b-9ea77f47e0bc",
+                        "slots": {
+                          "child": {
+                            "id": "01a29908-7b58-7474-9456-f44392695ba9",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "custom"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-custom",
+                        "type": "OutlinedButton"
+                      },
+                      {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "route": "mt-t-none"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01a2191a-1f8a-7fe8-9b1a-e9b7ca750a00",
+                        "slots": {
+                          "child": {
+                            "id": "01a2db86-a011-7b11-8c7e-90ea6bc43029",
+                            "props": {
+                              "data": {
+                                "$t": "01a2f7a6-3117-7883-b967-b2ae9a61fe01",
+                                "args": {
+                                  "v": "none"
+                                }
+                              },
+                              "style": {
+                                "$token": "typography.labelMedium"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "mt-tr-none",
+                        "type": "OutlinedButton"
+                      }
+                    ],
+                    "id": "01a28f13-1147-7629-88e2-f4ed5cbb2437",
+                    "props": {
+                      "runSpacing": 8,
+                      "spacing": 8
+                    },
+                    "type": "Wrap"
+                  }
+                ],
+                "id": "01a2bf09-f781-7106-957c-b377e96b5d53",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 20
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          }
+        },
+        "type": "SafeArea"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "mt-transitions",
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a2e276-0543-7588-b1e4-45653e7b33d2"
+  }
+}

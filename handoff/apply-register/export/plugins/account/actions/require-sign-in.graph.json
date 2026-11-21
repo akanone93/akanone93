@@ -1,0 +1,39 @@
+{
+  "id": "01a26974-ec12-7eeb-a23c-9d7ef8d932fd",
+  "key": "require-sign-in",
+  "kind": "actionGraph",
+  "output": "GuardResult",
+  "schemaVersion": "1.0.0",
+  "steps": [
+    {
+      "action": "condition",
+      "branches": {
+        "else": "no",
+        "then": "yes"
+      },
+      "id": "gate",
+      "input": {
+        "when": {
+          "$expr": "user.authenticated"
+        }
+      }
+    },
+    {
+      "action": "stop",
+      "id": "yes",
+      "input": {
+        "result": "allow"
+      }
+    },
+    {
+      "action": "stop",
+      "id": "no",
+      "input": {
+        "result": {
+          "decision": "redirect",
+          "route": "ac-sign-in"
+        }
+      }
+    }
+  ]
+}

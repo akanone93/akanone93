@@ -1,0 +1,335 @@
+{
+  "id": "01a22ac9-fc5e-7004-9dbb-eb6295a3e6af",
+  "key": "ac-preferences",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01a201dd-2355-7c3a-bbc7-3f64c48b85e4",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a2688a-6acc-7ec2-a6a1-3d95f93ad5d0",
+        "slots": {
+          "title": {
+            "id": "01a29a65-9927-7f01-bfc8-04e1c93a5572",
+            "props": {
+              "data": {
+                "$t": "01a25512-6d96-71e0-9b1b-b525550e25c7"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a2d7f8-6b60-7b05-aa64-4aca9feb018c",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01a2f1e8-9e11-75a5-90cf-4a78eb2e72d8",
+                "slots": {
+                  "title": {
+                    "id": "01a2b9f5-191d-73ef-b15c-cf652f81bd65",
+                    "props": {
+                      "data": {
+                        "$t": "01a20b81-7217-7299-a9b5-7042c05776be"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "ListTile"
+              },
+              {
+                "id": "01a24bea-fbde-71fe-9187-c676cbdd28b8",
+                "props": {
+                  "padding": {
+                    "horizontal": 16
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onSelectionChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "keep",
+                            "input": {
+                              "path": "app.themePref",
+                              "value": {
+                                "$expr": "first(event) ?? \"system\""
+                              }
+                            },
+                            "next": "mode"
+                          },
+                          {
+                            "action": "switch",
+                            "branches": {
+                              "dark": "dark",
+                              "default": "system",
+                              "light": "light"
+                            },
+                            "id": "mode",
+                            "input": {
+                              "cases": [
+                                "light",
+                                "dark"
+                              ],
+                              "value": {
+                                "$expr": "app.themePref"
+                              }
+                            }
+                          },
+                          {
+                            "action": "setThemeMode",
+                            "id": "light",
+                            "input": {
+                              "mode": "light"
+                            }
+                          },
+                          {
+                            "action": "setThemeMode",
+                            "id": "dark",
+                            "input": {
+                              "mode": "dark"
+                            }
+                          },
+                          {
+                            "action": "setThemeMode",
+                            "id": "system",
+                            "input": {
+                              "mode": "system"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01a29c3e-7aac-7853-a7b4-adc408528f7b",
+                    "props": {
+                      "segments": [
+                        {
+                          "icon": {
+                            "name": "brightness_auto"
+                          },
+                          "label": {
+                            "$t": "01a26f9b-1d37-7a2d-9a7e-1f722a13a8b5"
+                          },
+                          "value": "system"
+                        },
+                        {
+                          "icon": {
+                            "name": "light_mode"
+                          },
+                          "label": {
+                            "$t": "01a27040-63aa-74ed-a7c8-bc274bfed52c"
+                          },
+                          "value": "light"
+                        },
+                        {
+                          "icon": {
+                            "name": "dark_mode"
+                          },
+                          "label": {
+                            "$t": "01a2d5dc-50e2-7dfa-9b77-151530e47cd1"
+                          },
+                          "value": "dark"
+                        }
+                      ],
+                      "selected": {
+                        "$expr": "[app.themePref]"
+                      }
+                    },
+                    "testId": "pref-theme",
+                    "type": "SegmentedButton"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "openBottomSheet",
+                        "id": "pick",
+                        "input": {
+                          "route": "ln-language"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a215da-7660-7a06-9617-90fe52ea858b",
+                "slots": {
+                  "leading": {
+                    "id": "01a2a318-8244-711d-a6d0-8b39e9357607",
+                    "props": {
+                      "icon": {
+                        "name": "translate"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a2d612-744c-720c-a44c-93e8089595e8",
+                    "props": {
+                      "data": {
+                        "$t": "01a26e0e-6c75-7075-afa2-fb2571de7375"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  "trailing": {
+                    "id": "01a2a040-2a53-7649-8db3-77ab0524f059",
+                    "props": {
+                      "icon": {
+                        "name": "chevron_right"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  }
+                },
+                "testId": "pref-language",
+                "type": "ListTile"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "requestPermission",
+                        "id": "ask",
+                        "input": {
+                          "permission": "notifications"
+                        },
+                        "next": "keep"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "keep",
+                        "input": {
+                          "path": "page.notif",
+                          "value": {
+                            "$expr": "steps.ask.output ?? false"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2c596-b10b-7e46-b7cc-dd5c5d04e89c",
+                "props": {
+                  "value": {
+                    "$expr": "page.notif"
+                  }
+                },
+                "slots": {
+                  "secondary": {
+                    "id": "01a2a0f4-80fc-790b-9331-577fdb35e651",
+                    "props": {
+                      "icon": {
+                        "name": "notifications"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "title": {
+                    "id": "01a29c29-8507-7530-acc9-34edd37f3939",
+                    "props": {
+                      "data": {
+                        "$t": "01a224ed-8512-7d86-aeaf-ffb2a2fa822e"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "pref-notifications",
+                "type": "SwitchListTile"
+              },
+              {
+                "id": "01a2d87c-e9d8-7e0e-afdc-126dbaf947c6",
+                "slots": {
+                  "leading": {
+                    "id": "01a29fd7-3e28-721c-b90f-b93e5a07855e",
+                    "props": {
+                      "icon": {
+                        "name": "format_size"
+                      }
+                    },
+                    "semantics": {
+                      "decorative": true
+                    },
+                    "type": "Icon"
+                  },
+                  "subtitle": {
+                    "id": "01a25ff5-240b-7e8a-b86e-306fb4d1e88f",
+                    "props": {
+                      "data": {
+                        "$t": "01a22475-e9c7-727a-aeba-e8964065fa25",
+                        "args": {
+                          "size": {
+                            "$expr": "format.percent(device.textScale)"
+                          }
+                        }
+                      },
+                      "style": {
+                        "$token": "typography.bodySmall"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  "title": {
+                    "id": "01a27b2e-0916-7cc1-af28-26b368546969",
+                    "props": {
+                      "data": {
+                        "$t": "01a26e41-bd81-7d8f-afdd-8e7554e85ac7"
+                      }
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "ListTile"
+              }
+            ],
+            "id": "01a26f2b-7f4f-7167-b812-8c83abeff7cb",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "ac-preferences",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": false,
+      "id": "01a238d5-9434-755a-b071-f2cb8736d075",
+      "name": "notif",
+      "type": "bool"
+    }
+  ],
+  "title": {
+    "$t": "01a25512-6d96-71e0-9b1b-b525550e25c7"
+  }
+}

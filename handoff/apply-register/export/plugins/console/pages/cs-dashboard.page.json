@@ -1,0 +1,1242 @@
+{
+  "id": "01a2d88c-c715-7ef3-9e59-593089c1b250",
+  "key": "cs-dashboard",
+  "kind": "page",
+  "lifecycle": {
+    "onEnter": {
+      "steps": [
+        {
+          "action": "refreshData",
+          "id": "load",
+          "input": {
+            "source": "stats"
+          }
+        }
+      ]
+    }
+  },
+  "pageKind": "screen",
+  "root": {
+    "id": "01a26a03-bfb7-7984-b5a5-fcc8f3c31434",
+    "props": {
+      "backgroundColor": {
+        "$token": "color.surface"
+      }
+    },
+    "slots": {
+      "appBar": {
+        "id": "01a230bc-bcbb-7b91-8079-922080b07fe5",
+        "slots": {
+          "actions": [
+            {
+              "events": {
+                "onPressed": {
+                  "steps": [
+                    {
+                      "action": "refreshData",
+                      "id": "load",
+                      "input": {
+                        "source": "stats"
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "01a2d6f1-5189-7730-bba7-a5a1db0a5282",
+              "props": {
+                "tooltip": {
+                  "$t": "01a2cdb6-0dd7-70c6-815c-707e1c7552de"
+                }
+              },
+              "slots": {
+                "icon": {
+                  "id": "01a2c48f-af96-7868-8b15-d522a9c1ed50",
+                  "props": {
+                    "icon": {
+                      "name": "refresh"
+                    }
+                  },
+                  "semantics": {
+                    "decorative": true
+                  },
+                  "type": "Icon"
+                }
+              },
+              "testId": "console-refresh",
+              "type": "IconButton"
+            }
+          ],
+          "title": {
+            "id": "01a24e8f-06b1-705e-aa44-1a247950215f",
+            "props": {
+              "data": {
+                "$t": "01a24f69-ad3d-7627-a1f4-1e624ec154c1"
+              }
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01a20bae-14af-776d-bf91-b510fe184bf7",
+        "slots": {
+          "compact": {
+            "id": "01a22073-30b4-7f31-80f7-32f1c7aef7b3",
+            "props": {
+              "padding": {
+                "all": 16
+              }
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "component": {
+                      "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                      "version": 1
+                    },
+                    "id": "01a206e2-d41d-76f7-9da2-4744698e28f8",
+                    "props": {
+                      "variant": "flat"
+                    },
+                    "slots": {
+                      "content": {
+                        "children": [
+                          {
+                            "id": "01a2f493-bfc1-7a8f-8954-768c5f035aec",
+                            "props": {
+                              "data": {
+                                "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                              },
+                              "style": {
+                                "$token": "typography.titleMedium"
+                              }
+                            },
+                            "semantics": {
+                              "header": true
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "id": "01a24ecf-df92-7404-821d-5dd1aa3d4914",
+                            "props": {
+                              "labels": {
+                                "$expr": "data.stats.value?.labels ?? []"
+                              },
+                              "series": [
+                                {
+                                  "name": {
+                                    "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                  },
+                                  "values": {
+                                    "$expr": "data.stats.value?.daily ?? []"
+                                  }
+                                }
+                              ],
+                              "showTable": false,
+                              "title": {
+                                "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                              }
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                              }
+                            },
+                            "type": "LineChart"
+                          }
+                        ],
+                        "id": "01a2ca19-94ac-7576-a1bf-071bcaee813c",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 8
+                        },
+                        "type": "Column"
+                      }
+                    }
+                  },
+                  {
+                    "component": {
+                      "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                      "version": 1
+                    },
+                    "id": "01a2a723-a9b9-7823-929c-3fb1421c46eb",
+                    "props": {
+                      "variant": "flat"
+                    },
+                    "slots": {
+                      "content": {
+                        "children": [
+                          {
+                            "id": "01a2b8aa-8a05-718a-bdbb-aab7bf763cf4",
+                            "props": {
+                              "data": {
+                                "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                              },
+                              "style": {
+                                "$token": "typography.titleMedium"
+                              }
+                            },
+                            "semantics": {
+                              "header": true
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "id": "01a2d25e-20e0-7b66-a990-ae2fe79b995e",
+                            "props": {
+                              "showTable": true,
+                              "slices": [
+                                {
+                                  "label": {
+                                    "$t": "01a278e5-b37a-76f8-bf8d-9003010b7e46"
+                                  },
+                                  "value": {
+                                    "$expr": "double(data.stats.value?.submitted ?? 0)"
+                                  }
+                                },
+                                {
+                                  "label": {
+                                    "$t": "01a2772b-e66c-72f4-bf9b-2f4392d84e3d"
+                                  },
+                                  "value": {
+                                    "$expr": "double(data.stats.value?.approved ?? 0)"
+                                  }
+                                },
+                                {
+                                  "label": {
+                                    "$t": "01a292be-ebc4-7a3d-af74-c82b94a14ae1"
+                                  },
+                                  "value": {
+                                    "$expr": "double(data.stats.value?.rejected ?? 0)"
+                                  }
+                                }
+                              ],
+                              "title": {
+                                "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                              }
+                            },
+                            "semantics": {
+                              "label": {
+                                "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                              }
+                            },
+                            "type": "PieChart"
+                          }
+                        ],
+                        "id": "01a216bd-31ca-77a6-a9a3-28486d3764f5",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 8
+                        },
+                        "type": "Column"
+                      }
+                    }
+                  },
+                  {
+                    "component": {
+                      "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                      "version": 1
+                    },
+                    "id": "01a283f7-8020-7dd0-adb1-630009a59187",
+                    "props": {
+                      "variant": "flat"
+                    },
+                    "slots": {
+                      "content": {
+                        "children": [
+                          {
+                            "id": "01a25d52-27b5-7a10-ab24-1d19730eaa79",
+                            "props": {
+                              "data": {
+                                "$t": "01a2936b-3b84-7042-bab6-616eff9d0db2"
+                              },
+                              "style": {
+                                "$token": "typography.titleMedium"
+                              }
+                            },
+                            "semantics": {
+                              "header": true
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "children": [
+                              {
+                                "id": "01a2e509-8491-7710-97ed-eb0ec37d5abe",
+                                "props": {
+                                  "display": "narrowSymbol",
+                                  "style": {
+                                    "$token": "typography.headlineSmall"
+                                  },
+                                  "value": {
+                                    "$expr": "money(data.stats.value?.revenue ?? 0d, data.stats.value?.currency ?? \"EUR\")"
+                                  }
+                                },
+                                "type": "MoneyText"
+                              },
+                              {
+                                "id": "01a2c7ca-0404-78de-94b6-2e467cab1c5b",
+                                "slots": {
+                                  "child": {
+                                    "id": "01a2c2c8-8b96-7632-8256-0c95ba3bf478",
+                                    "props": {
+                                      "semanticLabel": {
+                                        "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                      },
+                                      "values": {
+                                        "$expr": "data.stats.value?.daily ?? []"
+                                      }
+                                    },
+                                    "type": "Sparkline"
+                                  }
+                                },
+                                "type": "Expanded"
+                              }
+                            ],
+                            "id": "01a28e2a-2bf7-746b-9c95-a7626531ea60",
+                            "props": {
+                              "spacing": 16
+                            },
+                            "type": "Row"
+                          }
+                        ],
+                        "id": "01a25540-a7be-749d-bec2-f25a5287b430",
+                        "props": {
+                          "crossAxisAlignment": "stretch",
+                          "spacing": 8
+                        },
+                        "type": "Column"
+                      }
+                    }
+                  }
+                ],
+                "id": "01a233cb-1523-7e9d-9694-ff71d7c90b0d",
+                "props": {
+                  "crossAxisAlignment": "stretch",
+                  "spacing": 16
+                },
+                "type": "Column"
+              }
+            },
+            "type": "SingleChildScrollView"
+          },
+          "expanded": {
+            "children": [
+              {
+                "events": {
+                  "onDestinationSelected": {
+                    "steps": [
+                      {
+                        "action": "switch",
+                        "branches": {
+                          "scan": "scan",
+                          "subs": "subs"
+                        },
+                        "id": "where",
+                        "input": {
+                          "cases": [
+                            "subs",
+                            "scan"
+                          ],
+                          "value": {
+                            "$expr": "event == 1 ? \"subs\" : event == 2 ? \"scan\" : \"home\""
+                          }
+                        }
+                      },
+                      {
+                        "action": "navigate",
+                        "id": "subs",
+                        "input": {
+                          "mode": "replace",
+                          "route": "cs-submissions"
+                        }
+                      },
+                      {
+                        "action": "navigate",
+                        "id": "scan",
+                        "input": {
+                          "mode": "replace",
+                          "route": "cs-checkin"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a29aff-3211-7c7f-a56c-392deb66499d",
+                "props": {
+                  "destinations": [
+                    {
+                      "icon": {
+                        "name": "dashboard"
+                      },
+                      "label": {
+                        "$t": "01a24f69-ad3d-7627-a1f4-1e624ec154c1"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "name": "list_alt"
+                      },
+                      "label": {
+                        "$t": "01a29cd9-9b47-754f-bf85-2ac796f4d354"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "name": "qr_code_scanner"
+                      },
+                      "label": {
+                        "$t": "01a214cb-46c6-7f21-86c7-8895252292f1"
+                      }
+                    }
+                  ],
+                  "extended": true,
+                  "groupAlignment": -1,
+                  "minExtendedWidth": 220,
+                  "selectedIndex": 0
+                },
+                "testId": "console-rail",
+                "type": "NavigationRail"
+              },
+              {
+                "id": "01a2edce-630d-7112-91ae-aa401d77e9dd",
+                "slots": {
+                  "child": {
+                    "id": "01a2946e-3d5b-76e0-8d98-7d3d2b86397d",
+                    "props": {
+                      "padding": {
+                        "all": 16
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01a2131e-bda5-76b3-8793-a1a3673b63d2",
+                            "props": {
+                              "width": 360
+                            },
+                            "slots": {
+                              "child": {
+                                "component": {
+                                  "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                                  "version": 1
+                                },
+                                "id": "01a2ff78-7a3b-704a-a069-039fab6403e0",
+                                "props": {
+                                  "variant": "flat"
+                                },
+                                "slots": {
+                                  "content": {
+                                    "children": [
+                                      {
+                                        "id": "01a2fff3-098d-7c3f-aa26-a2185f3c2bf5",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                          },
+                                          "style": {
+                                            "$token": "typography.titleMedium"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      },
+                                      {
+                                        "id": "01a27b6e-1642-7ed9-a17e-63c2a551aa8a",
+                                        "props": {
+                                          "labels": {
+                                            "$expr": "data.stats.value?.labels ?? []"
+                                          },
+                                          "series": [
+                                            {
+                                              "name": {
+                                                "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                              },
+                                              "values": {
+                                                "$expr": "data.stats.value?.daily ?? []"
+                                              }
+                                            }
+                                          ],
+                                          "showTable": false,
+                                          "title": {
+                                            "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                          }
+                                        },
+                                        "type": "LineChart"
+                                      }
+                                    ],
+                                    "id": "01a206f2-e2aa-7154-8d34-c775d1d7f740",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch",
+                                      "spacing": 8
+                                    },
+                                    "type": "Column"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "SizedBox"
+                          },
+                          {
+                            "id": "01a2e084-ee70-72f5-ae8a-1645e0e85976",
+                            "props": {
+                              "width": 360
+                            },
+                            "slots": {
+                              "child": {
+                                "component": {
+                                  "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                                  "version": 1
+                                },
+                                "id": "01a2debd-6c47-770c-b340-15a7ad244e54",
+                                "props": {
+                                  "variant": "flat"
+                                },
+                                "slots": {
+                                  "content": {
+                                    "children": [
+                                      {
+                                        "id": "01a22588-d3e2-7543-8b38-0fabc77740d8",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                                          },
+                                          "style": {
+                                            "$token": "typography.titleMedium"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      },
+                                      {
+                                        "id": "01a24bad-1242-77f6-a22c-c7de5f0fe598",
+                                        "props": {
+                                          "showTable": true,
+                                          "slices": [
+                                            {
+                                              "label": {
+                                                "$t": "01a278e5-b37a-76f8-bf8d-9003010b7e46"
+                                              },
+                                              "value": {
+                                                "$expr": "double(data.stats.value?.submitted ?? 0)"
+                                              }
+                                            },
+                                            {
+                                              "label": {
+                                                "$t": "01a2772b-e66c-72f4-bf9b-2f4392d84e3d"
+                                              },
+                                              "value": {
+                                                "$expr": "double(data.stats.value?.approved ?? 0)"
+                                              }
+                                            },
+                                            {
+                                              "label": {
+                                                "$t": "01a292be-ebc4-7a3d-af74-c82b94a14ae1"
+                                              },
+                                              "value": {
+                                                "$expr": "double(data.stats.value?.rejected ?? 0)"
+                                              }
+                                            }
+                                          ],
+                                          "title": {
+                                            "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                                          }
+                                        },
+                                        "type": "PieChart"
+                                      }
+                                    ],
+                                    "id": "01a2af60-3a9d-7076-b61d-d82c9b0034d7",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch",
+                                      "spacing": 8
+                                    },
+                                    "type": "Column"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "SizedBox"
+                          },
+                          {
+                            "id": "01a28245-dbfa-7410-b271-794f0c760023",
+                            "props": {
+                              "width": 360
+                            },
+                            "slots": {
+                              "child": {
+                                "component": {
+                                  "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                                  "version": 1
+                                },
+                                "id": "01a24c5c-3c4d-7806-b82e-3fa0aacf53e4",
+                                "props": {
+                                  "variant": "flat"
+                                },
+                                "slots": {
+                                  "content": {
+                                    "children": [
+                                      {
+                                        "id": "01a26bf1-3fde-7643-87d7-45325d5e4ffb",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2936b-3b84-7042-bab6-616eff9d0db2"
+                                          },
+                                          "style": {
+                                            "$token": "typography.titleMedium"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      },
+                                      {
+                                        "children": [
+                                          {
+                                            "id": "01a2f4aa-740b-7dac-8617-51b98d505711",
+                                            "props": {
+                                              "display": "narrowSymbol",
+                                              "style": {
+                                                "$token": "typography.headlineSmall"
+                                              },
+                                              "value": {
+                                                "$expr": "money(data.stats.value?.revenue ?? 0d, data.stats.value?.currency ?? \"EUR\")"
+                                              }
+                                            },
+                                            "type": "MoneyText"
+                                          },
+                                          {
+                                            "id": "01a27f84-732f-762a-8f3c-74d760182e98",
+                                            "slots": {
+                                              "child": {
+                                                "id": "01a23732-c590-7946-a658-5ffcfdc61226",
+                                                "props": {
+                                                  "semanticLabel": {
+                                                    "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                                  },
+                                                  "values": {
+                                                    "$expr": "data.stats.value?.daily ?? []"
+                                                  }
+                                                },
+                                                "type": "Sparkline"
+                                              }
+                                            },
+                                            "type": "Expanded"
+                                          }
+                                        ],
+                                        "id": "01a299c3-b194-7a27-8718-df98b4170fca",
+                                        "props": {
+                                          "spacing": 16
+                                        },
+                                        "type": "Row"
+                                      }
+                                    ],
+                                    "id": "01a2b68c-74e9-7010-b802-e4c9c904262c",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch",
+                                      "spacing": 8
+                                    },
+                                    "type": "Column"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "SizedBox"
+                          }
+                        ],
+                        "id": "01a29f73-f7ce-7233-8007-67801fe7e7ed",
+                        "props": {
+                          "runSpacing": 16,
+                          "spacing": 16
+                        },
+                        "type": "Wrap"
+                      }
+                    },
+                    "type": "SingleChildScrollView"
+                  }
+                },
+                "type": "Expanded"
+              }
+            ],
+            "id": "01a2a772-f24a-7a77-8186-da8670fff239",
+            "type": "Row"
+          },
+          "medium": {
+            "children": [
+              {
+                "events": {
+                  "onDestinationSelected": {
+                    "steps": [
+                      {
+                        "action": "switch",
+                        "branches": {
+                          "scan": "scan",
+                          "subs": "subs"
+                        },
+                        "id": "where",
+                        "input": {
+                          "cases": [
+                            "subs",
+                            "scan"
+                          ],
+                          "value": {
+                            "$expr": "event == 1 ? \"subs\" : event == 2 ? \"scan\" : \"home\""
+                          }
+                        }
+                      },
+                      {
+                        "action": "navigate",
+                        "id": "subs",
+                        "input": {
+                          "mode": "replace",
+                          "route": "cs-submissions"
+                        }
+                      },
+                      {
+                        "action": "navigate",
+                        "id": "scan",
+                        "input": {
+                          "mode": "replace",
+                          "route": "cs-checkin"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01a2ac60-7bf1-7a9d-83bb-5105a1f2e9bd",
+                "props": {
+                  "destinations": [
+                    {
+                      "icon": {
+                        "name": "dashboard"
+                      },
+                      "label": {
+                        "$t": "01a24f69-ad3d-7627-a1f4-1e624ec154c1"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "name": "list_alt"
+                      },
+                      "label": {
+                        "$t": "01a29cd9-9b47-754f-bf85-2ac796f4d354"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "name": "qr_code_scanner"
+                      },
+                      "label": {
+                        "$t": "01a214cb-46c6-7f21-86c7-8895252292f1"
+                      }
+                    }
+                  ],
+                  "extended": false,
+                  "groupAlignment": -1,
+                  "labelType": "selected",
+                  "minExtendedWidth": 220,
+                  "selectedIndex": 0
+                },
+                "testId": "console-rail",
+                "type": "NavigationRail"
+              },
+              {
+                "id": "01a299da-6167-7229-8892-71a2944d3890",
+                "slots": {
+                  "child": {
+                    "id": "01a24927-a7d7-7619-92b6-6c8706a5157c",
+                    "props": {
+                      "padding": {
+                        "all": 16
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01a2aba4-56bd-7377-a81f-637703569fc1",
+                            "props": {
+                              "width": 320
+                            },
+                            "slots": {
+                              "child": {
+                                "component": {
+                                  "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                                  "version": 1
+                                },
+                                "id": "01a2a496-ebe5-798f-93d3-de5c59806744",
+                                "props": {
+                                  "variant": "flat"
+                                },
+                                "slots": {
+                                  "content": {
+                                    "children": [
+                                      {
+                                        "id": "01a21b21-1add-7d67-a173-c8d7901a8143",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                          },
+                                          "style": {
+                                            "$token": "typography.titleMedium"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      },
+                                      {
+                                        "id": "01a2cd77-9c0f-7e48-9c10-26ecd8210294",
+                                        "props": {
+                                          "labels": {
+                                            "$expr": "data.stats.value?.labels ?? []"
+                                          },
+                                          "series": [
+                                            {
+                                              "name": {
+                                                "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                              },
+                                              "values": {
+                                                "$expr": "data.stats.value?.daily ?? []"
+                                              }
+                                            }
+                                          ],
+                                          "showTable": false,
+                                          "title": {
+                                            "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                          }
+                                        },
+                                        "type": "LineChart"
+                                      }
+                                    ],
+                                    "id": "01a224c6-2557-700c-917d-5e8df97079d5",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch",
+                                      "spacing": 8
+                                    },
+                                    "type": "Column"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "SizedBox"
+                          },
+                          {
+                            "id": "01a2a176-84eb-7440-b051-28a841aa309e",
+                            "props": {
+                              "width": 320
+                            },
+                            "slots": {
+                              "child": {
+                                "component": {
+                                  "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                                  "version": 1
+                                },
+                                "id": "01a254d5-a748-7cc3-89ac-7b32864514b2",
+                                "props": {
+                                  "variant": "flat"
+                                },
+                                "slots": {
+                                  "content": {
+                                    "children": [
+                                      {
+                                        "id": "01a29bc7-b377-7c07-9893-bcf0cc0349a3",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                                          },
+                                          "style": {
+                                            "$token": "typography.titleMedium"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      },
+                                      {
+                                        "id": "01a2d817-40da-7512-83cf-1e6d42b4fec5",
+                                        "props": {
+                                          "showTable": true,
+                                          "slices": [
+                                            {
+                                              "label": {
+                                                "$t": "01a278e5-b37a-76f8-bf8d-9003010b7e46"
+                                              },
+                                              "value": {
+                                                "$expr": "double(data.stats.value?.submitted ?? 0)"
+                                              }
+                                            },
+                                            {
+                                              "label": {
+                                                "$t": "01a2772b-e66c-72f4-bf9b-2f4392d84e3d"
+                                              },
+                                              "value": {
+                                                "$expr": "double(data.stats.value?.approved ?? 0)"
+                                              }
+                                            },
+                                            {
+                                              "label": {
+                                                "$t": "01a292be-ebc4-7a3d-af74-c82b94a14ae1"
+                                              },
+                                              "value": {
+                                                "$expr": "double(data.stats.value?.rejected ?? 0)"
+                                              }
+                                            }
+                                          ],
+                                          "title": {
+                                            "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "label": {
+                                            "$t": "01a265be-b576-7350-afdd-bb1fb9b579fc"
+                                          }
+                                        },
+                                        "type": "PieChart"
+                                      }
+                                    ],
+                                    "id": "01a2b076-9ae5-7d18-ab13-38bbd9a38f27",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch",
+                                      "spacing": 8
+                                    },
+                                    "type": "Column"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "SizedBox"
+                          },
+                          {
+                            "id": "01a214ac-62b3-79c0-ae53-e9064b46e964",
+                            "props": {
+                              "width": 320
+                            },
+                            "slots": {
+                              "child": {
+                                "component": {
+                                  "id": "01a21f96-bfbe-7fa2-a198-5345d15df796",
+                                  "version": 1
+                                },
+                                "id": "01a2e382-e3e4-71f6-bf12-be31895c99f8",
+                                "props": {
+                                  "variant": "flat"
+                                },
+                                "slots": {
+                                  "content": {
+                                    "children": [
+                                      {
+                                        "id": "01a259ad-96fa-736a-abac-5afb97577442",
+                                        "props": {
+                                          "data": {
+                                            "$t": "01a2936b-3b84-7042-bab6-616eff9d0db2"
+                                          },
+                                          "style": {
+                                            "$token": "typography.titleMedium"
+                                          }
+                                        },
+                                        "semantics": {
+                                          "header": true
+                                        },
+                                        "type": "Text"
+                                      },
+                                      {
+                                        "children": [
+                                          {
+                                            "id": "01a21996-5caf-72cc-8efa-b936df701ae0",
+                                            "props": {
+                                              "display": "narrowSymbol",
+                                              "style": {
+                                                "$token": "typography.headlineSmall"
+                                              },
+                                              "value": {
+                                                "$expr": "money(data.stats.value?.revenue ?? 0d, data.stats.value?.currency ?? \"EUR\")"
+                                              }
+                                            },
+                                            "type": "MoneyText"
+                                          },
+                                          {
+                                            "id": "01a2b8e9-fb84-7eb3-b6f5-a68493a3b522",
+                                            "slots": {
+                                              "child": {
+                                                "id": "01a23b85-0585-7986-bc79-49fc72add328",
+                                                "props": {
+                                                  "semanticLabel": {
+                                                    "$t": "01a261bc-00d5-79b3-93ed-5341952937bb"
+                                                  },
+                                                  "values": {
+                                                    "$expr": "data.stats.value?.daily ?? []"
+                                                  }
+                                                },
+                                                "type": "Sparkline"
+                                              }
+                                            },
+                                            "type": "Expanded"
+                                          }
+                                        ],
+                                        "id": "01a23373-fa58-777f-9bdb-dd00bceaf9c8",
+                                        "props": {
+                                          "spacing": 16
+                                        },
+                                        "type": "Row"
+                                      }
+                                    ],
+                                    "id": "01a2cbcb-a227-738d-9de4-29c40531d066",
+                                    "props": {
+                                      "crossAxisAlignment": "stretch",
+                                      "spacing": 8
+                                    },
+                                    "type": "Column"
+                                  }
+                                }
+                              }
+                            },
+                            "type": "SizedBox"
+                          }
+                        ],
+                        "id": "01a20693-9663-7ccd-a830-cdd7c074784f",
+                        "props": {
+                          "runSpacing": 16,
+                          "spacing": 16
+                        },
+                        "type": "Wrap"
+                      }
+                    },
+                    "type": "SingleChildScrollView"
+                  }
+                },
+                "type": "Expanded"
+              }
+            ],
+            "id": "01a28541-9b81-7061-b247-6ca3586749ac",
+            "type": "Row"
+          }
+        },
+        "type": "Responsive"
+      },
+      "bottomNavigationBar": {
+        "events": {
+          "onTap": {
+            "steps": [
+              {
+                "action": "switch",
+                "branches": {
+                  "scan": "scan",
+                  "subs": "subs"
+                },
+                "id": "where",
+                "input": {
+                  "cases": [
+                    "subs",
+                    "scan"
+                  ],
+                  "value": {
+                    "$expr": "event == 1 ? \"subs\" : event == 2 ? \"scan\" : \"home\""
+                  }
+                }
+              },
+              {
+                "action": "navigate",
+                "id": "subs",
+                "input": {
+                  "mode": "replace",
+                  "route": "cs-submissions"
+                }
+              },
+              {
+                "action": "navigate",
+                "id": "scan",
+                "input": {
+                  "mode": "replace",
+                  "route": "cs-checkin"
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a2e2e9-c0aa-7c41-8b9f-7b9546659c37",
+        "props": {
+          "currentIndex": 0,
+          "items": [
+            {
+              "icon": {
+                "name": "dashboard"
+              },
+              "label": {
+                "$t": "01a24f69-ad3d-7627-a1f4-1e624ec154c1"
+              }
+            },
+            {
+              "icon": {
+                "name": "list_alt"
+              },
+              "label": {
+                "$t": "01a29cd9-9b47-754f-bf85-2ac796f4d354"
+              }
+            },
+            {
+              "icon": {
+                "name": "qr_code_scanner"
+              },
+              "label": {
+                "$t": "01a214cb-46c6-7f21-86c7-8895252292f1"
+              }
+            }
+          ],
+          "showUnselectedLabels": true,
+          "type": "fixed"
+        },
+        "testId": "console-bottom-nav",
+        "type": "BottomNavigationBar",
+        "visible": {
+          "$expr": "device.sizeClass == \"compact\""
+        }
+      },
+      "drawer": {
+        "events": {
+          "onDestinationSelected": {
+            "steps": [
+              {
+                "action": "switch",
+                "branches": {
+                  "scan": "scan",
+                  "subs": "subs"
+                },
+                "id": "where",
+                "input": {
+                  "cases": [
+                    "subs",
+                    "scan"
+                  ],
+                  "value": {
+                    "$expr": "event == 1 ? \"subs\" : event == 2 ? \"scan\" : \"home\""
+                  }
+                }
+              },
+              {
+                "action": "navigate",
+                "id": "subs",
+                "input": {
+                  "mode": "replace",
+                  "route": "cs-submissions"
+                }
+              },
+              {
+                "action": "navigate",
+                "id": "scan",
+                "input": {
+                  "mode": "replace",
+                  "route": "cs-checkin"
+                }
+              }
+            ]
+          }
+        },
+        "id": "01a24027-861c-74a2-9c77-53ef164db9be",
+        "props": {
+          "destinations": [
+            {
+              "icon": {
+                "name": "dashboard"
+              },
+              "label": {
+                "$t": "01a24f69-ad3d-7627-a1f4-1e624ec154c1"
+              }
+            },
+            {
+              "icon": {
+                "name": "list_alt"
+              },
+              "label": {
+                "$t": "01a29cd9-9b47-754f-bf85-2ac796f4d354"
+              }
+            },
+            {
+              "icon": {
+                "name": "qr_code_scanner"
+              },
+              "label": {
+                "$t": "01a214cb-46c6-7f21-86c7-8895252292f1"
+              }
+            }
+          ],
+          "selectedIndex": 0
+        },
+        "slots": {
+          "header": {
+            "id": "01a223db-1c28-730d-932f-0ea2732d73a5",
+            "slots": {
+              "subtitle": {
+                "id": "01a2b193-9059-783c-88bb-3705496051a4",
+                "props": {
+                  "data": {
+                    "$expr": "user.orgSlug ?? \"\""
+                  },
+                  "style": {
+                    "$token": "typography.bodySmall"
+                  }
+                },
+                "type": "Text"
+              },
+              "title": {
+                "id": "01a2133f-b13e-77fd-b152-bd0521f52278",
+                "props": {
+                  "data": {
+                    "$t": "01a2a555-cf92-7a25-ba55-32ea7cc2c645"
+                  },
+                  "style": {
+                    "$token": "typography.titleLarge"
+                  }
+                },
+                "semantics": {
+                  "header": true
+                },
+                "type": "Text"
+              }
+            },
+            "type": "ListTile"
+          }
+        },
+        "testId": "console-drawer",
+        "type": "NavigationDrawer"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cs-dashboard",
+  "routeOptions": {
+    "guards": [
+      {
+        "$graph": "01a28c0a-756e-7399-b9fb-8f610a8db201"
+      }
+    ]
+  },
+  "schemaVersion": "1.0.0",
+  "title": {
+    "$t": "01a24f69-ad3d-7627-a1f4-1e624ec154c1"
+  }
+}
