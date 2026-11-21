@@ -26,9 +26,8 @@ const (
 // subcommand it prints usage.
 func (e env) governanceCmd(cmd, usage string, args []string, usages map[string]subUsage, extra func(*flag.FlagSet)) (common, []string, int, bool) {
 	var c common
-	if len(args) == 0 {
-		_, _ = fmt.Fprint(e.stderr, usage)
-		return c, nil, exitUsage, false
+	if code, done := e.groupUsage(args, usage); done {
+		return c, nil, code, false
 	}
 	u, known := usages[args[0]]
 	if !known {
@@ -46,6 +45,22 @@ func (e env) governanceCmd(cmd, usage string, args []string, usages map[string]s
 		return c, nil, e.fail(cmd, err), false
 	}
 	return c, rest, exitOK, true
+}
+
+// groupUsage answers a group of subcommands called without one (its usage on
+// standard error, a usage error) or asked for help with -h, --help or help
+// (its usage on standard output, exit 0); done is false when args names a
+// subcommand.
+func (e env) groupUsage(args []string, usage string) (code int, done bool) {
+	switch {
+	case len(args) == 0:
+		_, _ = fmt.Fprint(e.stderr, usage)
+		return exitUsage, true
+	case isHelp(args[0]):
+		_, _ = fmt.Fprint(e.stdout, usage)
+		return exitOK, true
+	}
+	return exitOK, false
 }
 
 // subUsage is a subcommand's usage line and its number of positional

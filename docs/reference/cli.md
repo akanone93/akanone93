@@ -77,7 +77,7 @@ sha256sum --check --ignore-missing SHA256SUMS
 | `plux admin license [--json]` | Shows the installation's licence state as the server reports it: absent, valid, grace, expired or invalid, with what it enables. Needs `organization.manage`. |
 | `plux completion bash\|zsh\|fish\|powershell` | Prints a shell completion script (`CLI-008`), e.g. `source <(plux completion bash)`. |
 | `plux version` | Prints the version, commit, commit date, Go version and platform of the binary. |
-| `plux help` | Lists the commands. `plux <command> -h` lists a command's flags. |
+| `plux help` | Lists the commands. `plux <command> -h` (or `--help`, or `plux help <command>`) prints a command's flags, or a group's subcommands; a group also answers `plux <group> help`. Help is printed on standard output with exit code 0, and never runs the command. |
 
 Flags come before positional arguments. Every server command accepts `--server`, `--org` and `--json`; those that act on an app also accept `--app` and `-C <project-dir>` (default `.`).
 

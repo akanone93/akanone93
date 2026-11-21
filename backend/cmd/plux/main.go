@@ -73,7 +73,7 @@ Commands:
   version     Print version information
   help        Show this help
 
-Run 'plux <command> -h' for the flags of a command.
+Run 'plux <command> -h' (or 'plux help <command>') for the flags or subcommands of a command.
 `
 
 // Exit codes: 0 success, 1 the command ran and failed (a project with
@@ -105,6 +105,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 			return newEnv(stdout, stderr).testCmd(args[1:])
 		}
 		e := newEnv(stdout, stderr)
+		if len(args) == 2 && args[0] == "help" {
+			return e.help(args[1])
+		}
+		if len(args) == 2 && groups[args[0]] && isHelp(args[1]) {
+			return e.help(args[0])
+		}
 		if cmd, ok := e.commands()[args[0]]; ok {
 			return cmd(args[1:])
 		}
@@ -123,6 +129,47 @@ func run(args []string, stdout, stderr io.Writer) int {
 	default:
 		_, _ = fmt.Fprintf(stderr, "%s: unknown command %q\n\n%s", name, args[0], usage)
 		return exitUsage
+	}
+}
+
+// groups are the commands whose first argument names a subcommand. Asked for
+// help, a group prints the usage it prints when called without a subcommand;
+// it is listed here, not found by trying, so that help never runs a command
+// that acts without arguments (login, whoami, doctor).
+var groups = map[string]bool{
+	"access": true, "admin": true, "analytics": true, "approvals": true, "audit": true, "breakglass": true,
+	"completion": true, "compliance": true, "config": true, "control": true, "dsr": true, "experiment": true,
+	"flags": true, "freeze": true, "git": true, "golden": true, "grants": true, "l10n": true, "license": true,
+	"native": true, "notifications": true, "policies": true, "release": true, "render-worker": true,
+	"restrictions": true, "roles": true, "rollout": true, "security": true, "sessions": true, "teams": true,
+	"tokens": true, "webhooks": true,
+}
+
+// isHelp reports whether a group's first argument asks for its usage.
+func isHelp(arg string) bool {
+	return arg == "-h" || arg == "--help" || arg == "help"
+}
+
+// help prints a command's usage on standard output and exits 0: a group's
+// usage, or the flags of any other command. An unknown command is a usage
+// error.
+func (e env) help(cmd string) int {
+	switch cmd {
+	case "validate", "build", "codegen", "test":
+		return run([]string{cmd, "-h"}, e.stdout, e.stdout)
+	}
+	// Both streams go to standard output: the usage is the answer asked for.
+	impl, ok := newEnv(e.stdout, e.stdout).commands()[cmd]
+	switch {
+	case !ok:
+		_, _ = fmt.Fprintf(e.stderr, "%s: unknown command %q\n\n%s", name, cmd, usage)
+		return exitUsage
+	case !groups[cmd]:
+		return impl([]string{"-h"})
+	case impl(nil) == exitUsage:
+		return exitOK
+	default:
+		return exitFailed
 	}
 }
 

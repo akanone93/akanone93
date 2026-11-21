@@ -76,9 +76,8 @@ func (e env) git(args []string) int {
 
 // gitExport dispatches the export subcommands.
 func (e env) gitExport(args []string) int {
-	if len(args) == 0 {
-		_, _ = fmt.Fprint(e.stderr, gitExportUsage)
-		return exitUsage
+	if code, done := e.groupUsage(args, gitExportUsage); done {
+		return code
 	}
 	switch args[0] {
 	case "configure":

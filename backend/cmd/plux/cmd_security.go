@@ -26,6 +26,10 @@ const securityUsage = "Usage: plux security config show|set|diff [flags]\n"
 
 // security runs plux security config show|set|diff (SEC-180, SEC-182).
 func (e env) security(args []string) int {
+	if len(args) == 2 && args[0] == "config" && isHelp(args[1]) {
+		_, _ = fmt.Fprint(e.stdout, securityUsage)
+		return exitOK
+	}
 	if len(args) < 2 || args[0] != "config" {
 		_, _ = fmt.Fprint(e.stderr, securityUsage)
 		return exitUsage
