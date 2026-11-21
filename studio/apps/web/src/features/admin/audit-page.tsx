@@ -7,6 +7,7 @@ import { Button, Field, Input } from "@plux/ui";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { Refusal } from "../../components/refusal.tsx";
 import { adminMessages } from "./admin.messages.ts";
 import type { AuditSearch } from "./admin.schema.ts";
 import { DestinationForm } from "./audit-destinations.tsx";
@@ -108,15 +109,20 @@ export function AuditPage(): ReactElement {
         </Button>
       </div>
       <h2 className="text-label font-medium">{m.destinations}</h2>
-      <Table
-        caption={m.destinations}
-        heads={[m.colName, m.colKind, m.colEnabled, m.colLastUsed]}
-        empty={m.nothing}
-        rows={(destinations.data?.destinations ?? []).map((d) => ({
-          key: d.id,
-          cells: [d.name, m.destinationKind(d.kind), d.enabled ? m.yes : m.no, fmt(d.lastSuccessAt, m.never)],
-        }))}
-      />
+      {/* The destinations need a recent step-up and audit.export; a refusal says so rather than showing none. */}
+      {destinations.isError ? (
+        <Refusal error={destinations.error} failedTitle={m.loadFailed} />
+      ) : (
+        <Table
+          caption={m.destinations}
+          heads={[m.colName, m.colKind, m.colEnabled, m.colLastUsed]}
+          empty={m.nothing}
+          rows={(destinations.data?.destinations ?? []).map((d) => ({
+            key: d.id,
+            cells: [d.name, m.destinationKind(d.kind), d.enabled ? m.yes : m.no, fmt(d.lastSuccessAt, m.never)],
+          }))}
+        />
+      )}
       <DestinationForm can={canExport} run={run} />
     </Frame>
   );

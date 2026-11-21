@@ -309,7 +309,10 @@ export function complianceAdmin(a: AdminData): Partial<ServiceImpl<typeof Compli
 export function auditAdmin(a: AdminData): Partial<ServiceImpl<typeof AuditService>> {
   const rec = recorder(a);
   return {
-    listExportDestinations: () => ({ destinations: a.destinations ?? [] }),
+    listExportDestinations: () => {
+      refuse(a, "listExportDestinations");
+      return { destinations: a.destinations ?? [] };
+    },
     createExportDestination: (req) => {
       // What the server is sent, with the credentials reduced to whether they were sent at all.
       rec("createExportDestination", {

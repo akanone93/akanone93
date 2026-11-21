@@ -571,6 +571,17 @@ describe("[STU-116] organisation administration", () => {
     expect(screen.getByRole("button", { name: "Export CSV" })).toBeTruthy();
   });
 
+  test("O27 says why the export destinations are not shown instead of showing none", async () => {
+    open("/audit", {
+      admin: {
+        refused: {
+          listExportDestinations: [Code.PermissionDenied, "PLX-6201: the last step-up is more than 5 minutes old"],
+        },
+      },
+    });
+    expect(await screen.findByText("Error PLX-6201")).toBeTruthy();
+  });
+
   test("O27 adds an export destination; without the licence only syslog is offered, and a key is not kept", async () => {
     const state: Upstream = { admin: { calls: [], license: { state: "absent" } } };
     open("/audit", state);
