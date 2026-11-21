@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { createClient, createRouterTransport } from "@connectrpc/connect";
-import { AppService, DevPhoneService } from "@plux/api";
+import { AppService, DevPhoneService, StudioEventsService } from "@plux/api";
 import { createSession } from "./session.ts";
 
 /** A server that records the organisation header of each call. */
@@ -14,6 +14,12 @@ function recording() {
       listPhones: (_req, ctx) => {
         seen.push(ctx.requestHeader.get("X-Plux-Organization"));
         return { phones: [] };
+      },
+    });
+    service(StudioEventsService, {
+      // biome-ignore lint/correctness/useYield: the stream ends at once; the test reads its header only.
+      async *watch(_req, ctx) {
+        seen.push(ctx.requestHeader.get("X-Plux-Organization"));
       },
     });
     service(AppService, {
@@ -35,6 +41,16 @@ describe("the organisation a call names", () => {
     // A page's own call names no organisation there.
     await createClient(AppService, session.transport).listApps({});
     expect(seen).toEqual(["org-home", null]);
+  });
+
+  test("the events stream on a page outside any organisation names the home one (ADR-0096)", async () => {
+    const { seen, transport } = recording();
+    const session = createSession("/api", transport);
+    session.setHome("org-home");
+    for await (const _ of createClient(StudioEventsService, session.transport).watch({ cursor: "" })) {
+      // no events
+    }
+    expect(seen).toEqual(["org-home"]);
   });
 
   test("inside an organisation every call names it", async () => {

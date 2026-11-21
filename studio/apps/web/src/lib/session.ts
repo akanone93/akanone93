@@ -7,6 +7,7 @@ import {
   DevPhoneService,
   NotificationService,
   PreferencesService,
+  StudioEventsService,
   withStudioHeaders,
 } from "@plux/api";
 import { QueryClient } from "@tanstack/react-query";
@@ -39,13 +40,15 @@ export interface Session {
 }
 
 /**
- * The services whose calls are the person's own rather than the page's: preferences, the inbox and the phones signed
- * in to the Plux Dev app (ADR-0104) are kept per organisation on the server, and a page outside any, such as the
- * profile, still reaches them in the home organisation.
+ * The services whose calls are the person's own rather than the page's: preferences, the inbox, the events stream that
+ * carries the inbox's notifications and unread count (ADR-0096) and the phones signed in to the Plux Dev app
+ * (ADR-0104) are kept per organisation on the server, and a page outside any, such as the profile, still reaches them in
+ * the home organisation.
  */
 const personal: ReadonlySet<string> = new Set([
   PreferencesService.typeName,
   NotificationService.typeName,
+  StudioEventsService.typeName,
   DevPhoneService.typeName,
 ]);
 
