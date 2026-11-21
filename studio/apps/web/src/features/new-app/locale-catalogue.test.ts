@@ -19,7 +19,11 @@ describe("[I18N-001] every language can be chosen for a new app", () => {
   });
 
   test("search finds by name and by code, leaves out the chosen, and offers a typed region first", () => {
-    expect(searchLocales("amhar", "en", []).map((l) => l.code)).toEqual(["am"]);
+    // A language is offered with its most likely regional tag, so a country's name finds it too.
+    expect(searchLocales("amhar", "en", []).map((l) => l.code)).toEqual(["am", "am-ET"]);
+    expect(searchLocales("Ethiopia", "en", []).map((l) => l.code)).toContain("am-ET");
+    // The best match comes first: the exact code before a name that merely contains the query.
+    expect(searchLocales("de", "en", [])[0]?.code).toBe("de");
     expect(searchLocales("de", "en", ["de"]).some((l) => l.code === "de")).toBe(false);
     expect(searchLocales("am-ET", "en", ["am"])[0]?.code).toBe("am-ET");
   });

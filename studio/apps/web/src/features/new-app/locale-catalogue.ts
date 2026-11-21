@@ -422,9 +422,40 @@ export function englishName(tag: string): string | undefined {
   return name === undefined ? undefined : rest.length === 0 ? name : `${name} (${rest.join(", ")})`;
 }
 
+/** The language's most likely regional tag (`am` → `am-ET`, `de` → `de-DE`), or undefined when there is none. */
+function likelyRegional(code: string): string | undefined {
+  try {
+    const region = new Intl.Locale(code).maximize().region;
+    return region === undefined ? undefined : `${code}-${region}`;
+  } catch {
+    return undefined;
+  }
+}
+
+/** How well a language matches the query: an exact code first, then a code, a name or a word of a name it starts. */
+function rank(l: { readonly code: string; readonly name: string; readonly native: string }, q: string): number {
+  const code = l.code.toLowerCase();
+  const names = [l.name.toLowerCase(), l.native.toLowerCase()];
+  if (code === q) {
+    return 0;
+  }
+  if (code.startsWith(q)) {
+    return 1;
+  }
+  if (names.some((n) => n.startsWith(q))) {
+    return 2;
+  }
+  if (names.some((n) => n.split(/[\s(]+/).some((w) => w.startsWith(q)))) {
+    return 3;
+  }
+  return names.some((n) => n.includes(q)) ? 4 : -1;
+}
+
 /**
- * The languages that match `query` by code or by either name, the chosen ones left out, sorted by name in the UI
- * language; a typed tag that is valid and not listed (a region such as `am-ET`) comes first.
+ * The languages that match `query` by code or by either name, the chosen ones left out: each language and its most
+ * likely regional tag (`am-ET` beside `am`), so a country's name finds its languages. The best matches come first (an
+ * exact code, then a code, name or word the query starts), then by name in the UI language; a typed tag that is valid
+ * and not listed (a region such as `pt-AO`) comes first of all.
  */
 export function searchLocales(
   query: string,
@@ -432,17 +463,14 @@ export function searchLocales(
   chosen: readonly string[],
 ): readonly { readonly code: string; readonly name: string; readonly native: string }[] {
   const q = query.trim().toLowerCase();
-  const all = languageCodes
+  const codes = q === "" ? languageCodes : languageCodes.flatMap((c) => [c, likelyRegional(c) ?? c]);
+  const all = [...new Set(codes)]
     .filter((code) => !chosen.includes(code))
     .map((code) => ({ code, ...localeNames(uiLocale, code) }))
-    .filter(
-      (l) =>
-        q === "" ||
-        l.code.toLowerCase().startsWith(q) ||
-        l.name.toLowerCase().includes(q) ||
-        l.native.toLowerCase().includes(q),
-    )
-    .sort((a, b) => a.name.localeCompare(b.name, uiLocale));
+    .map((l) => ({ l, r: q === "" ? 0 : rank(l, q) }))
+    .filter(({ r }) => r >= 0)
+    .sort((a, b) => a.r - b.r || a.l.name.localeCompare(b.l.name, uiLocale))
+    .map(({ l }) => l);
   const typed = canonicalLocale(query);
   if (typed !== undefined && !chosen.includes(typed) && !all.some((l) => l.code === typed)) {
     return [{ code: typed, ...localeNames(uiLocale, typed) }, ...all];

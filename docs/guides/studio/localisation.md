@@ -55,7 +55,9 @@ still lacks ("3 of 40 missing").
 ## Add a locale, import and export
 
 - **Add a locale** searches every language by its name, in English or in the language itself (`amharic`,
-  `አማርኛ`), or takes a code; type a code with its region, such as `pt-BR` or `am-ET`, for a regional locale.
+  `አማርኛ`), or takes a code; each language is offered with its most likely region too (`am-ET` beside `am`), so a
+  country's name (`Ethiopia`) finds its languages, and the best match comes first. Type a code with its region,
+  such as `pt-BR`, for any other regional locale. The same search picks the languages of a new app.
 - **Import translations** reads XLIFF, ARB, JSON or CSV into the locale you choose. The file is read
   first, so a file that is too large, not valid or empty is refused before anything changes.
 - **Export translations** downloads XLIFF, ARB, JSON or CSV for translators.
