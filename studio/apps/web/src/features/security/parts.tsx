@@ -49,12 +49,15 @@ export function Table({
   caption,
   heads,
   rows,
+  empty,
 }: {
   readonly caption: string;
   readonly heads: readonly string[];
   readonly rows: readonly DataRow[];
+  /** What an empty table says instead; without it an empty table shows its headings only. */
+  readonly empty?: string;
 }): ReactElement {
-  return <DataTable caption={caption} heads={heads} rows={rows} />;
+  return <DataTable caption={caption} heads={heads} rows={rows} {...(empty !== undefined && { empty })} />;
 }
 
 export function fmt(date: Date | undefined, never: string): string {

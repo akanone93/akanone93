@@ -11177,6 +11177,12 @@ msgstr "لا مشكلات في الترحيل: يمكن للأجهزة التح�
 msgid "notify.empty"
 msgstr "لا توجد إشعارات"
 
+#. Empty state of the policies page when no app is chosen and the organisation has no policy for every app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policies.noneOrgWide"
+msgstr "لا توجد سياسات على مستوى المؤسسة. تظهر سياسات كل تطبيق، ومنها سياسته الافتراضية لإصدارات الإنتاج، عند اختيار التطبيق."
+
 #. Option of the brand select: the theme without a brand overlay.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -12274,6 +12280,12 @@ msgstr "بحث المؤسسة غير متاح."
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.settingsTitle"
 msgstr "إعدادات المؤسسة"
+
+#. The app filter's choice on the policies page that shows the policies governing every app of the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policies.orgWide"
+msgstr "على مستوى المؤسسة"
 
 #. Heading of the list of organisations in the organisation switcher of the sidebar.
 #. js-lingui-explicit-id
@@ -18915,6 +18927,12 @@ msgstr "لا تحتوي هذه التطبيق على إضافة بعد."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.empty"
 msgstr "لا يحتوي هذا التطبيق على إضافات بعد."
+
+#. Empty state of the policies page for an app without policies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policies.none"
+msgstr "لا توجد سياسات سارية لهذا التطبيق."
 
 #. Shown when theme.json is missing.
 #. js-lingui-explicit-id

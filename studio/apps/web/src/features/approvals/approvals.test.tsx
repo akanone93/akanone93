@@ -188,6 +188,12 @@ describe("[GOV-024] break-glass reviews", () => {
 describe("[GOV-020] policies and the simulator", () => {
   const policies = [{ key: "mine", name: "My policy", approvers: 2 }];
 
+  test("O11 without an app shows the organisation-wide policies and says so when there are none", async () => {
+    open("/policies", { approvals: { policies: [] } });
+    expect(await screen.findByText(/No organisation-wide policies/)).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: /App/ }).textContent).toContain("Organisation-wide");
+  });
+
   test("O11 lists the policies in force", async () => {
     open("/policies?app=app1", { approvals: { policies } });
     await screen.findByRole("link", { name: "mine" });

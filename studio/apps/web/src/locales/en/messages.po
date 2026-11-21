@@ -11177,6 +11177,12 @@ msgstr "No migration problems: devices can update without losing data."
 msgid "notify.empty"
 msgstr "No notifications"
 
+#. Empty state of the policies page when no app is chosen and the organisation has no policy for every app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policies.noneOrgWide"
+msgstr "No organisation-wide policies. Each app's own policies, its default production-release policy among them, are listed when you choose the app."
+
 #. Option of the brand select: the theme without a brand overlay.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -12274,6 +12280,12 @@ msgstr "Organisation search is unavailable."
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.settingsTitle"
 msgstr "Organisation settings"
+
+#. The app filter's choice on the policies page that shows the policies governing every app of the organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policies.orgWide"
+msgstr "Organisation-wide"
 
 #. Heading of the list of organisations in the organisation switcher of the sidebar.
 #. js-lingui-explicit-id
@@ -18915,6 +18927,12 @@ msgstr "This app has no plugin yet."
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.empty"
 msgstr "This app has no plugins yet."
+
+#. Empty state of the policies page for an app without policies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.policies.none"
+msgstr "This app has no policies in force."
 
 #. Shown when theme.json is missing.
 #. js-lingui-explicit-id

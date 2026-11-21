@@ -12,7 +12,11 @@ import { AppFilter, Frame } from "./parts.tsx";
 import { documentOf } from "./policy-form.ts";
 import { usePolicies, useScope } from "./use-approvals.ts";
 
-/** O11: the policies in force for an app, each opening its editor (GOV-020). */
+/**
+ * O11: the policies in force for an app, each opening its editor (GOV-020). Without an app chosen the page shows the
+ * organisation-wide policies, which govern every app, and names the choice so; each app's own policies (its default
+ * production-release policy among them) are listed under the app (build log #168).
+ */
 export function PoliciesPage(): ReactElement {
   const m = approvalsMessages(useLingui().i18n);
   const { org, app } = useScope();
@@ -28,7 +32,7 @@ export function PoliciesPage(): ReactElement {
       error={policies.error}
     >
       <div className="flex items-end justify-between gap-4">
-        <AppFilter />
+        <AppFilter allLabel={m.orgWidePolicies} />
         <Link
           to="/o/$org/approvals/policies/$policyId"
           params={{ org, policyId: "new" } as never}
@@ -42,6 +46,7 @@ export function PoliciesPage(): ReactElement {
       <Table
         caption={m.policiesTitle}
         heads={[m.colKey, m.colName, m.colVersion, m.colRequires]}
+        empty={app === "" ? m.noOrgWidePolicies : m.noPolicies}
         rows={(policies.data?.policies ?? []).map((p) => {
           const doc = documentOf(p.document);
           return {

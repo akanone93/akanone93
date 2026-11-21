@@ -12,6 +12,24 @@ export function approvalsMessages(i18n: I18n) {
       message: "This could not be loaded.",
       comment: "Shown when a read fails.",
     }),
+    orgWidePolicies: i18n._({
+      id: "approvals.policies.orgWide",
+      message: "Organisation-wide",
+      comment:
+        "The app filter's choice on the policies page that shows the policies governing every app of the organisation.",
+    }),
+    noOrgWidePolicies: i18n._({
+      id: "approvals.policies.noneOrgWide",
+      message:
+        "No organisation-wide policies. Each app's own policies, its default production-release policy among them, are listed when you choose the app.",
+      comment:
+        "Empty state of the policies page when no app is chosen and the organisation has no policy for every app.",
+    }),
+    noPolicies: i18n._({
+      id: "approvals.policies.none",
+      message: "This app has no policies in force.",
+      comment: "Empty state of the policies page for an app without policies.",
+    }),
     allApps: i18n._({
       id: "approvals.allApps",
       message: "All apps",

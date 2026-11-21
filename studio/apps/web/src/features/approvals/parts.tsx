@@ -41,13 +41,13 @@ export function Frame({
 }
 
 /** The app filter of `?app`: one app or the whole organisation. */
-export function AppFilter(): ReactElement {
+export function AppFilter({ allLabel }: { readonly allLabel?: string } = {}): ReactElement {
   const m = approvalsMessages(useLingui().i18n);
   const { app } = useScope();
   const apps = useApps();
   const navigate = useNavigate();
   const options = [
-    { value: allApps, label: m.allApps },
+    { value: allApps, label: allLabel ?? m.allApps },
     ...(apps.data?.apps ?? []).map((a) => ({ value: a.id, label: a.name })),
   ];
   return (
