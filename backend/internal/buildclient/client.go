@@ -181,6 +181,9 @@ func (c *Client) Link(ctx context.Context, in function.LinkInput) (function.Link
 		LinkId: in.LinkID, Sources: sources, Crates: crates, CacheKey: in.CacheKey,
 		Limits: &fnpb.BuildLimits{TimeoutMs: uint32(min(in.Timeout.Milliseconds(), 1<<32-1)), MemoryBytes: uint64(max(in.MemoryBytes, 0))}, //nolint:gosec // G115: bounded and non-negative.
 	}))
+	if connect.CodeOf(err) == connect.CodeResourceExhausted {
+		return function.LinkOutput{}, fmt.Errorf("buildclient.Link: %w: %w", function.ErrLinkerBusy, err)
+	}
 	if err != nil {
 		return function.LinkOutput{}, fmt.Errorf("buildclient.Link: %w", err)
 	}

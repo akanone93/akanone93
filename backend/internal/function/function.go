@@ -113,6 +113,8 @@ type Service struct {
 	invoker atomic.Pointer[invokerBox]
 	// editors are the live language-server sessions of this process.
 	editors editorRegistry
+	// links are the device-module links in progress in this process.
+	links linkFlights
 }
 
 // invokerBox lets an interface value sit in an atomic pointer.

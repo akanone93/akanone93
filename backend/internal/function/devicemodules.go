@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -27,10 +28,17 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 )
 
+// ErrLinkerBusy is what a Linker returns when the builder is using every
+// build slot it may (FN-016): the link is tried again shortly, within the
+// link's own time budget, rather than failing the compilation that asked
+// for it.
+var ErrLinkerBusy = errors.New("the builder is running as many builds as it may")
+
 // Linker links the sources of several device-placed functions into one
 // module on the builder role (FN-051, ADR-0063). Implementations are safe
 // for concurrent use. Sources that do not link are a LinkOutput with error
-// diagnostics and no module; an error is a failure of the builder itself.
+// diagnostics and no module; an error is a failure of the builder itself,
+// or ErrLinkerBusy.
 type Linker interface {
 	Link(ctx context.Context, in LinkInput) (LinkOutput, error)
 }
@@ -136,7 +144,7 @@ func (s *Service) deviceModule(ctx context.Context, organizationID, appID, envir
 	}
 	in := linkInput(key, members, lim)
 	in.CacheKey = organizationID
-	out, err := s.o.Linker.Link(ctx, in)
+	out, err := s.links.do(ctx, key, func() (LinkOutput, error) { return linkPatiently(ctx, s.o.Linker, in, linkRetryFirst) })
 	if err != nil {
 		return compiler.DeviceModule{}, fmt.Errorf("function: link: %w", err)
 	}
@@ -330,4 +338,85 @@ func (s *Service) cachedModule(ctx context.Context, key string, members []linkMe
 		return compiler.DeviceModule{}, false, nil
 	}
 	return mod, true, nil
+}
+
+// linkRetryFirst is the first wait before a busy builder is asked again; each
+// later wait doubles, up to linkRetryMost.
+const (
+	linkRetryFirst = 250 * time.Millisecond
+	linkRetryMost  = 4 * time.Second
+)
+
+// linkPatiently asks the linker, and while the builder is busy asks again
+// after a wait that doubles from first, for as long as the link's own budget
+// (its timeout) or ctx allows; the budget bounds the waiting only, not a link
+// that has started. The publish jobs of one request compile at once and may
+// each need a module, so a builder with one slot is busy for most of them
+// (build log #185).
+func linkPatiently(ctx context.Context, l Linker, in LinkInput, first time.Duration) (LinkOutput, error) {
+	deadline := time.Now().Add(in.Timeout)
+	wait := first
+	for {
+		out, err := l.Link(ctx, in)
+		if !errors.Is(err, ErrLinkerBusy) {
+			return out, err //nolint:wrapcheck // deviceModule wraps it as "function: link"
+		}
+		if in.Timeout <= 0 || time.Now().Add(wait).After(deadline) {
+			return LinkOutput{}, fmt.Errorf("%w for the whole of the link's time budget", err)
+		}
+		timer := time.NewTimer(wait)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return LinkOutput{}, fmt.Errorf("%w: %w", err, ctx.Err())
+		case <-timer.C:
+		}
+		wait = min(wait*2, linkRetryMost)
+	}
+}
+
+// linkFlights lets the compilations running at once in this process share
+// one link of the same set of versions: the first asks the builder, the
+// others wait for its answer, and every later one finds the module in the
+// object store.
+type linkFlights struct {
+	mu      sync.Mutex
+	pending map[string]*linkFlight
+}
+
+// linkFlight is one link in progress and, once done, its answer.
+type linkFlight struct {
+	done chan struct{}
+	out  LinkOutput
+	err  error
+}
+
+// do runs link for key, or waits for the link of key already running. A
+// waiter whose ctx ends stops waiting; the link itself runs on for the
+// others.
+func (f *linkFlights) do(ctx context.Context, key string, link func() (LinkOutput, error)) (LinkOutput, error) {
+	f.mu.Lock()
+	if c, ok := f.pending[key]; ok {
+		f.mu.Unlock()
+		select {
+		case <-c.done:
+			return c.out, c.err
+		case <-ctx.Done():
+			return LinkOutput{}, fmt.Errorf("wait for the link in progress: %w", ctx.Err())
+		}
+	}
+	if f.pending == nil {
+		f.pending = map[string]*linkFlight{}
+	}
+	c := &linkFlight{done: make(chan struct{})}
+	f.pending[key] = c
+	f.mu.Unlock()
+	defer func() {
+		f.mu.Lock()
+		delete(f.pending, key)
+		f.mu.Unlock()
+		close(c.done)
+	}()
+	c.out, c.err = link()
+	return c.out, c.err
 }
