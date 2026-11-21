@@ -80,6 +80,9 @@ func (s *Service) compileOptions(lim limits.Set) compiler.Options {
 	opts.Limits = lim
 	opts.Mode = compiler.Development
 	opts.Version = s.o.CompilerVersion
+	// These compilations check drafts and build nothing to ship; they have no
+	// environment and so no function catalogue (Options.Draft).
+	opts.Draft = true
 	return opts
 }
 

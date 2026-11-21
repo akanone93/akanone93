@@ -48,9 +48,17 @@ type Options struct {
 	// Functions describes the functions of the app and environment being
 	// compiled (FN-004, FN-008); nil checks only that an invokeFunction
 	// step names a function its plugin grants. The step's output then has
-	// no type: validating a page leaves an expression that reads it
-	// unjudged, and a compilation refuses it.
+	// no type: validating a page, or a Draft compilation, leaves an
+	// expression that reads it unjudged, and any other compilation refuses
+	// it.
 	Functions FunctionCatalogue
+	// Draft marks a compilation of drafts that builds nothing to ship: the
+	// app canvas's per-plugin counts and ValidateDraft, which have no
+	// environment and so no function catalogue. It judges a read of a
+	// function step's output as validating a page does, so Studio's counts
+	// agree with its Problems; the release's compilation, which has the
+	// catalogue, checks the read in full.
+	Draft bool
 	// DeviceModules supplies the linked device module of a plugin that
 	// grants device-placed functions (FN-051); nil packs none.
 	DeviceModules DeviceModules

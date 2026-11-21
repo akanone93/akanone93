@@ -272,7 +272,11 @@ func TestValidatorTakesAssetStandIns(t *testing.T) {
 // Without a function catalogue, as in Studio, validating a page does not
 // refuse an expression that reads a granted function's output, whose type
 // only the catalogue knows; any other expression is still checked, and a
-// compilation without the catalogue still refuses the read.
+// compilation without the catalogue still refuses the read. A compilation of
+// drafts that builds no release (Options.Draft: the app canvas's counts and
+// ValidateDraft) judges the read as validating a page does, so the counts
+// agree with the editor's Problems (build log #184), and still checks every
+// other expression.
 func TestValidatePageWithoutCatalogueReadsFunctionOutput(t *testing.T) {
 	t.Parallel()
 	m := withFunctions(t, "loans.quote")
@@ -306,5 +310,20 @@ func TestValidatePageWithoutCatalogueReadsFunctionOutput(t *testing.T) {
 	})
 	if res := Compile(m, DefaultOptions()); len(errorsOf(res)) == 0 {
 		t.Error("a compilation without a catalogue refuses the read")
+	}
+	draft := DefaultOptions()
+	draft.Draft = true
+	if res := Compile(m, draft); len(errorsOf(res)) != 0 {
+		t.Errorf("a compilation of drafts without a catalogue: %v", errorsOf(res))
+	}
+	edit(t, m, calculatorPage, func(doc map[string]any) {
+		var page map[string]any
+		if err := json.Unmarshal(read("page.nothing"), &page); err != nil {
+			t.Fatal(err)
+		}
+		doc["lifecycle"] = page["lifecycle"]
+	})
+	if res := Compile(m, draft); len(errorsOf(res)) == 0 {
+		t.Error("a compilation of drafts still checks an expression that reads no function output")
 	}
 }
