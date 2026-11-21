@@ -368,25 +368,60 @@ func (e env) webhooks(args []string) int {
 // fnTriggers manages the schedules and inbound webhooks of functions
 // (FN-025).
 func (e env) fnTriggers(args []string) int {
+	if code, done := e.groupUsage(args, triggersUsage); done {
+		return code
+	}
+	sub := args[0]
+	u, known := triggerUsages[sub]
+	if !known {
+		_, _ = fmt.Fprintf(e.stderr, "%s fn triggers: unknown subcommand %q\n\n%s", name, sub, triggersUsage)
+		return exitUsage
+	}
+	var c common
 	var in triggerInput
-	c, rest, code, ok := e.governanceCmd("fn triggers", triggersUsage, args, map[string]subUsage{
-		"list":        {"Usage: plux fn triggers list --app id [--json]\n\nLists an app's schedules.", 0},
-		"create":      {"Usage: plux fn triggers create --app id --env id --function name --alias name --cron \"*/5 * * * *\" [--tz zone] [--input json] [--json]\n\nSchedules a function alias.", 0},
-		"delete":      {"Usage: plux fn triggers delete <id>\n\nRemoves a schedule.", 1},
-		"hook-list":   {"Usage: plux fn triggers hook-list --app id [--json]\n\nLists an app's inbound webhooks.", 0},
-		"hook-create": {"Usage: plux fn triggers hook-create --app id --env id --function name --alias name [--verifier name] [--secret-env VAR] [--json]\n\nOpens /hooks/<app>/<function>. A generated signing secret is printed once.", 0},
-		"hook-delete": {"Usage: plux fn triggers hook-delete <id>\n\nCloses an inbound webhook.", 1},
-		"hook-rotate": {"Usage: plux fn triggers hook-rotate [--overlap 24h] [--json] <id>\n\nIssues a new signing secret for a hook.", 1},
-	}, in.register)
+	set := flag.NewFlagSet("fn triggers "+sub, flag.ContinueOnError)
+	c.register(set, true)
+	in.register(set, sub)
+	rest, code, ok := parse(set, args[1:], e.stderr, u.usage, u.positional)
 	if !ok {
 		return code
 	}
+	if err := c.resolve(); err != nil {
+		return e.fail("fn triggers "+sub, err)
+	}
+	ctx := context.Background()
+	switch sub {
+	case "list", "hook-list":
+		if err := needApp(c); err != nil {
+			return e.fail("fn triggers "+sub, err)
+		}
+	case "create", "hook-create":
+		// As every other plux fn command: the app of plux.json, and the
+		// environment by key (or id), checked to be the app's own.
+		t, err := e.fnConnect(c, in.env)
+		if err != nil {
+			return e.fail("fn triggers "+sub, err)
+		}
+		in.env = t.envID
+	}
+	in.app = c.app
 	opt, err := e.authOptions(c)
 	if err != nil {
 		return e.fail("fn triggers", err)
 	}
 	svc := pluxv1connect.NewFunctionTriggerServiceClient(e.httpClient, c.server, opt)
-	return e.runTriggers(context.Background(), svc, c, args[0], rest, in)
+	return e.runTriggers(ctx, svc, c, sub, rest, in)
+}
+
+// triggerUsages are the usage lines of the plux fn triggers subcommands.
+var triggerUsages = map[string]subUsage{
+	"list":        {"Usage: plux fn triggers list [-C dir] [--app id] [--json]\n\nLists an app's schedules.", 0},
+	"create":      {"Usage: plux fn triggers create --function name --alias name --cron \"*/5 * * * *\" [--env key] [--tz zone] [--input json] [-C dir] [--app id] [--json]\n\nSchedules a function alias.", 0},
+	"delete":      {"Usage: plux fn triggers delete [--json] <id>\n\nRemoves a schedule.", 1},
+	"hook-list":   {"Usage: plux fn triggers hook-list [-C dir] [--app id] [--json]\n\nLists an app's inbound webhooks.", 0},
+	"hook-create": {"Usage: plux fn triggers hook-create --function name --alias name [--env key] [--verifier name] [--secret-env VAR] [-C dir] [--app id] [--json]\n\nOpens /hooks/<app>/<function>. A generated signing secret is printed once.", 0},
+	"hook-delete": {"Usage: plux fn triggers hook-delete [--json] <id>\n\nCloses an inbound webhook.", 1},
+	"hook-rotate": {"Usage: plux fn triggers hook-rotate [--overlap 24h] [--json] <id>\n\nIssues a new signing secret for a hook.", 1},
 }
 
 // triggerInput gathers the flags of the trigger subcommands.
@@ -395,17 +430,25 @@ type triggerInput struct {
 	overlap                                                         time.Duration
 }
 
-func (t *triggerInput) register(set *flag.FlagSet) {
-	set.StringVar(&t.app, "app", "", "the app `id`")
-	set.StringVar(&t.env, "env", "", "the environment `id`")
-	set.StringVar(&t.function, "function", "", "the function `name`")
-	set.StringVar(&t.alias, "alias", "", "the alias `name` to run")
-	set.StringVar(&t.cron, "cron", "", "five cron fields, or @hourly, @daily, @weekly, @monthly")
-	set.StringVar(&t.tz, "tz", "", "an IANA time `zone` (default UTC)")
-	set.StringVar(&t.input, "input", "", "the `json` passed to every run")
-	set.StringVar(&t.verifier, "verifier", "", "a provider's verifier `name` (default standard-webhooks)")
-	set.StringVar(&t.secretEnv, "secret-env", "", "the environment `variable` holding a provider's signing secret")
-	set.DurationVar(&t.overlap, "overlap", 0, "how long the old secret stays valid (default 24h)")
+// register adds the flags of one subcommand only, so its help lists nothing
+// it ignores.
+func (t *triggerInput) register(set *flag.FlagSet, sub string) {
+	if sub == "create" || sub == "hook-create" {
+		set.StringVar(&t.env, "env", "", "the environment `key` or id (default plux.json, then development)")
+		set.StringVar(&t.function, "function", "", "the function `name`")
+		set.StringVar(&t.alias, "alias", "", "the alias `name` to run")
+	}
+	switch sub {
+	case "create":
+		set.StringVar(&t.cron, "cron", "", "five cron fields, or @hourly, @daily, @weekly, @monthly")
+		set.StringVar(&t.tz, "tz", "", "an IANA time `zone` (default UTC)")
+		set.StringVar(&t.input, "input", "", "the `json` passed to every run")
+	case "hook-create":
+		set.StringVar(&t.verifier, "verifier", "", "a provider's verifier `name` (default standard-webhooks)")
+		set.StringVar(&t.secretEnv, "secret-env", "", "the environment `variable` holding a provider's signing secret")
+	case "hook-rotate":
+		set.DurationVar(&t.overlap, "overlap", 0, "how long the old secret stays valid (default 24h)")
+	}
 }
 
 func (e env) runTriggers(ctx context.Context, svc pluxv1connect.FunctionTriggerServiceClient, c common, sub string, rest []string, in triggerInput) int {

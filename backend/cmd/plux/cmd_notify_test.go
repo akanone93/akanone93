@@ -8,6 +8,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -69,7 +70,7 @@ func (f fakeNotify) RotateWebhookSecret(_ context.Context, r *connect.Request[pl
 
 func (f fakeNotify) CreateTrigger(_ context.Context, r *connect.Request[pluxv1.CreateTriggerRequest]) (*connect.Response[pluxv1.CreateTriggerResponse], error) {
 	m := r.Msg
-	f.record("trigger " + m.GetFunction() + "@" + m.GetAlias() + " " + m.GetExpression() + " " + m.GetTimezone())
+	f.record("trigger " + m.GetFunction() + "@" + m.GetAlias() + " " + m.GetExpression() + " " + m.GetTimezone() + " in " + m.GetAppId() + "/" + m.GetEnvironmentId())
 	return connect.NewResponse(&pluxv1.CreateTriggerResponse{Trigger: &pluxv1.FunctionTrigger{Id: "t1"}}), nil
 }
 
@@ -93,6 +94,7 @@ func TestNotifyCommands_SRV_062(t *testing.T) { //nolint:paralleltest // the env
 	mux.Handle(pluxv1connect.NewNotificationServiceHandler(fake))
 	mux.Handle(pluxv1connect.NewWebhookServiceHandler(fake))
 	mux.Handle(pluxv1connect.NewFunctionTriggerServiceHandler(fake))
+	mux.Handle(pluxv1connect.NewAppServiceHandler(triggerEnvs{}))
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 	run := func(cmd func(env, []string) int, args ...string) (int, string, string) {
@@ -139,7 +141,7 @@ func TestNotifyCommands_SRV_062(t *testing.T) { //nolint:paralleltest // the env
 	want := []string{
 		"inbox unread=yes", "read n1", "channel smtp host=smtp.example.com secret=hunter2",
 		"webhook https://example.com/hook release.published+rollout.paused", "rotate w1",
-		"trigger sweep@live @daily Europe/Berlin", "hook pay",
+		"trigger sweep@live @daily Europe/Berlin in a1/e1", "hook pay",
 	}
 	if strings.Join(calls, "|") != strings.Join(want, "|") {
 		t.Errorf("calls = %q, want %q", calls, want)
@@ -147,4 +149,33 @@ func TestNotifyCommands_SRV_062(t *testing.T) { //nolint:paralleltest // the env
 	if code, _, _ := run(env.notifications); code != exitUsage {
 		t.Errorf("no subcommand: %d", code)
 	}
+	// As every other plux fn command, a trigger takes the app of plux.json and
+	// the environment by key; an environment the app does not have is refused
+	// before anything is created.
+	project := t.TempDir()
+	putFile2(t, filepath.Join(project, projectFile), `{"app": "a1"}`)
+	calls = nil
+	if code, _, errOut := run(env.fnTriggers, "create", "-C", project, "--env", "development", "--function", "sweep", "--alias", "live", "--cron", "@hourly"); code != exitOK {
+		t.Errorf("fn triggers create from the project: %d %q", code, errOut)
+	}
+	if code, _, errOut := run(env.fnTriggers, "create", "-C", project, "--env", "nowhere", "--function", "sweep", "--alias", "live", "--cron", "@hourly"); code != exitUsage || !strings.Contains(errOut, `no environment "nowhere"`) {
+		t.Errorf("an unknown environment: %d %q", code, errOut)
+	}
+	if strings.Join(calls, "|") != "trigger sweep@live @hourly  in a1/e1" {
+		t.Errorf("calls = %q", calls)
+	}
+	// Each subcommand lists only its own flags.
+	if _, _, errOut := run(env.fnTriggers, "create", "-h"); strings.Contains(errOut, "-overlap") || strings.Contains(errOut, "-secret-env") {
+		t.Errorf("create lists another subcommand's flags: %q", errOut)
+	}
+}
+
+// triggerEnvs answers ListEnvironments with the one environment e1, key
+// development.
+type triggerEnvs struct {
+	pluxv1connect.UnimplementedAppServiceHandler
+}
+
+func (triggerEnvs) ListEnvironments(context.Context, *connect.Request[pluxv1.ListEnvironmentsRequest]) (*connect.Response[pluxv1.ListEnvironmentsResponse], error) {
+	return connect.NewResponse(&pluxv1.ListEnvironmentsResponse{Environments: []*pluxv1.Environment{{Id: "e1", Key: "development"}}}), nil
 }

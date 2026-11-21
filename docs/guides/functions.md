@@ -48,10 +48,14 @@ functions/bank.transferFee/
   Cargo.toml
   function.json
   src/lib.rs
-  .cargo/config.toml     # points plux-fn at the SDK on this machine; not committed
+  .cargo/config.toml     # points plux-fn at the SDK on this machine, for a hand-run cargo; not committed
   .gitignore
 functions/.gitignore     # ignores functions/.target, the build directory the functions share
 ```
+
+`plux fn build`, `test` and `deploy` do not need that file: they tell Cargo on its command line to
+resolve `plux-fn` to the SDK the CLI pins (`--sdk`, else `$PLUX_SDK`, else the copy installed next to
+`plux`), so a project checked out on another machine builds as it is.
 
 A function directory holds only your source and, after a build, `target/plux/`. The dependencies
 are not copied into it: `plux fn` runs `cargo fetch` and reads their published archives from
@@ -290,6 +294,33 @@ plux fn logs bank.transferFee --version 7 --since 15m -n 200
   retention the operator configures.
 
 Aliases are separate per environment: moving `stable` in staging does not move it in production.
+
+### Schedules and inbound webhooks
+
+A server function can also run on a schedule or when a signed webhook arrives (`FN-025`,
+[ADR-0081](../adr/0081-notifications-webhooks-and-function-triggers.md)). Both call an alias, so
+moving the alias moves what they run:
+
+```sh
+plux fn triggers create --function reminders.daily --alias stable --cron @daily --tz Europe/Berlin --input '{"limit": 100}'
+plux fn triggers hook-create --function payments.callback --alias stable --secret-env PROVIDER_SIGNING_SECRET
+plux fn triggers list
+```
+
+- A schedule takes five cron fields or a macro (`@hourly`, `@daily`, `@weekly`, `@monthly`,
+  `@yearly`), in UTC or an IANA zone; an invalid expression or zone is refused with `PLX-7150`.
+  The alias must point at a server-placed version, and creating a trigger needs
+  `function.deploy`.
+- A webhook opens `/hooks/<app>/<function>`; requests are checked against Standard Webhooks
+  signatures (or a provider's verifier) and replays are refused (`PLX-7151`, `PLX-7152`). A
+  provider's signing secret is read from the environment variable you name, never from a flag;
+  without one, a generated secret is printed once.
+- A trigger runs at assurance AL0 with no device, so the function must need AL0 (declared, or the
+  environment's default when it declares none) and neither SCA nor attestation. A trigger that
+  could never run is refused with `PLX-6002` when it is created, when it runs, and when the alias
+  it calls is moved to such a version.
+- The app and environment come from `plux.json`, as for every `plux fn` command; `--env` names
+  another environment by key.
 
 ## 7. Promote between environments
 

@@ -212,7 +212,11 @@ func (e env) fnTest(args []string) int {
 		if err != nil {
 			return e.fail("fn test", err)
 		}
-		if err := runToolEnv(ctx, crateDir(l.project, name), target, e.stderr, e.stderr, "cargo", "test", "--quiet"); err != nil {
+		cargo, err := cargoArgs(crateDir(l.project, name), l.sdk, "test", "--quiet")
+		if err != nil {
+			return e.fail("fn test", err)
+		}
+		if err := runToolEnv(ctx, crateDir(l.project, name), target, e.stderr, e.stderr, "cargo", cargo...); err != nil {
 			return e.fail("fn test", fmt.Errorf("native tests failed: %w", err))
 		}
 	}

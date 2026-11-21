@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing/fstest"
 	"time"
@@ -277,14 +278,37 @@ func packArchive(files fstest.MapFS) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// cargoArgs puts before a Cargo command the patch that resolves the
+// unpublished SDK crate plux-fn to the pinned SDK, so that a function builds
+// wherever its project is checked out: the .cargo/config.toml that plux fn
+// new writes names this machine's path and is not committed. The command
+// line's patch wins over that file, so the CLI's own SDK is used. Without an
+// SDK on this machine a crate's own .cargo/config.toml is used as before; a
+// crate with neither gets the error that says how to name the SDK, not
+// Cargo's "no matching package named plux-fn".
+func cargoArgs(dir, sdkFlag string, args ...string) ([]string, error) {
+	sdk, err := resolveSDK(sdkFlag)
+	if err != nil {
+		if _, statErr := os.Stat(filepath.Join(dir, ".cargo", "config.toml")); statErr == nil {
+			return args, nil
+		}
+		return nil, err
+	}
+	return append([]string{"--config", "patch.crates-io.plux-fn.path=" + strconv.Quote(sdk)}, args...), nil
+}
+
 // fetchCrate runs `cargo fetch` in the crate dir, so that Cargo.lock exists
 // and Cargo's cache holds the archive of every dependency it names (FN-003).
-func (e env) fetchCrate(ctx context.Context, dir string) error {
+func (e env) fetchCrate(ctx context.Context, dir, sdkFlag string) error {
 	if e.fetch != nil {
 		return e.fetch(ctx, dir)
 	}
+	args, err := cargoArgs(dir, sdkFlag, "fetch", "--quiet")
+	if err != nil {
+		return err
+	}
 	var errOut bytes.Buffer
-	if err := runTool(ctx, dir, io.Discard, &errOut, "cargo", "fetch", "--quiet"); err != nil {
+	if err := runTool(ctx, dir, io.Discard, &errOut, "cargo", args...); err != nil {
 		_, _ = e.stderr.Write(errOut.Bytes())
 		return err
 	}
@@ -311,8 +335,8 @@ func (e env) cargoHomeDir() (string, error) {
 // which every function and project on the machine shares, so no function
 // keeps a copy of them (FN-003, ADR-0105). Each archive is the one whose
 // SHA-256 Cargo.lock records; the builder checks them again.
-func (e env) crateSource(ctx context.Context, dir string) (fstest.MapFS, [][]byte, error) {
-	if err := e.fetchCrate(ctx, dir); err != nil {
+func (e env) crateSource(ctx context.Context, dir, sdkFlag string) (fstest.MapFS, [][]byte, error) {
+	if err := e.fetchCrate(ctx, dir, sdkFlag); err != nil {
 		return nil, nil, err
 	}
 	files, err := collectSource(dir)
@@ -442,11 +466,11 @@ func (e env) localBuilder(ctx context.Context, sdkFlag string, set limits.Set) (
 
 // readCrate reads a function's source, the published archives of its
 // dependencies and its validated declaration, as one builder source.
-func (e env) readCrate(ctx context.Context, project, name string, set limits.Set) (builder.FunctionSource, *builder.Declaration, error) {
+func (e env) readCrate(ctx context.Context, project, name, sdkFlag string, set limits.Set) (builder.FunctionSource, *builder.Declaration, error) {
 	if err := checkFunctionName(name); err != nil {
 		return builder.FunctionSource{}, nil, err
 	}
-	files, crates, err := e.crateSource(ctx, crateDir(project, name))
+	files, crates, err := e.crateSource(ctx, crateDir(project, name), sdkFlag)
 	if err != nil {
 		return builder.FunctionSource{}, nil, err
 	}
@@ -478,7 +502,7 @@ func (e env) buildFunction(ctx context.Context, project, name, sdkFlag string, v
 		return nil, err
 	}
 	defer closeBuilder()
-	src, decl, err := e.readCrate(ctx, project, name, set)
+	src, decl, err := e.readCrate(ctx, project, name, sdkFlag, set)
 	if err != nil {
 		return nil, err
 	}

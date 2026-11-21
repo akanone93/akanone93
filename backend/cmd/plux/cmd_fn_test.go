@@ -16,7 +16,9 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -669,7 +671,7 @@ func TestCrateSourceReadsCargosCache_FN_003(t *testing.T) {
 	putFile2(t, filepath.Join(dir, "vendor", "old", ".cargo-checksum.json"), "{}")
 	var errBuf bytes.Buffer
 	e := env{stderr: &errBuf, fetch: noFetch, cargoHome: r.cargoHome()}
-	files, crates, err := e.crateSource(context.Background(), dir)
+	files, crates, err := e.crateSource(context.Background(), dir, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -688,14 +690,14 @@ func TestCrateSourceReadsCargosCache_FN_003(t *testing.T) {
 		t.Errorf("the removal was not reported: %q", errBuf.String())
 	}
 	putFile2(t, filepath.Join(dir, "vendor", "README.md"), "mine")
-	if _, _, err := e.crateSource(context.Background(), dir); err != nil {
+	if _, _, err := e.crateSource(context.Background(), dir, ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(filepath.Join(dir, "vendor", "README.md")); err != nil {
 		t.Errorf("a vendor/ not written by cargo vendor was removed: %v", err)
 	}
 	e.cargoHome = t.TempDir()
-	if _, _, err := e.crateSource(context.Background(), dir); err == nil || !strings.Contains(err.Error(), "cargo fetch") {
+	if _, _, err := e.crateSource(context.Background(), dir, ""); err == nil || !strings.Contains(err.Error(), "cargo fetch") {
 		t.Errorf("a crate missing from Cargo's cache: %v", err)
 	}
 }
@@ -733,5 +735,35 @@ func TestCargoTargetIsShared_FN_030(t *testing.T) { //nolint:paralleltest // t.S
 	t.Setenv("CARGO_TARGET_DIR", "/elsewhere")
 	if extra, err := cargoTargetEnv(project); err != nil || extra != nil {
 		t.Errorf("overrode the developer's CARGO_TARGET_DIR: %v %v", extra, err)
+	}
+}
+
+// Verifies: FN-003.
+// A function builds wherever its project is checked out: Cargo is told on its
+// command line to resolve plux-fn to the pinned SDK, because the
+// .cargo/config.toml of plux fn new names one machine's path and is not
+// committed. Without an SDK on the machine a crate's own config is used; a
+// crate with neither gets the error that names --sdk, not Cargo's.
+func TestCargoResolvesTheSDKWithoutTheCratesConfig_FN_003(t *testing.T) {
+	sdk := t.TempDir()
+	putFile2(t, filepath.Join(sdk, "Cargo.toml"), "[package]\nname = \"plux-fn\"\n")
+	crate := t.TempDir()
+	t.Setenv(sdkEnv, "")
+	got, err := cargoArgs(crate, sdk, "fetch", "--quiet")
+	want := []string{"--config", "patch.crates-io.plux-fn.path=" + strconv.Quote(sdk), "fetch", "--quiet"}
+	if err != nil || !slices.Equal(got, want) {
+		t.Errorf("with an SDK: %q, %v; want %q", got, err, want)
+	}
+	t.Setenv(sdkEnv, sdk)
+	if got, err := cargoArgs(crate, "", "test"); err != nil || got[0] != "--config" {
+		t.Errorf("with $%s: %q, %v", sdkEnv, got, err)
+	}
+	t.Setenv(sdkEnv, "")
+	if _, err := cargoArgs(crate, "", "fetch"); err == nil || !strings.Contains(err.Error(), "--sdk") {
+		t.Errorf("no SDK and no crate config: %v", err)
+	}
+	putFile2(t, filepath.Join(crate, ".cargo", "config.toml"), "[patch.crates-io]\n")
+	if got, err := cargoArgs(crate, "", "fetch"); err != nil || !slices.Equal(got, []string{"fetch"}) {
+		t.Errorf("the crate's own config: %q, %v", got, err)
 	}
 }

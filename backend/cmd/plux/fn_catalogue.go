@@ -192,7 +192,7 @@ func (e env) linkFunctions(ctx context.Context, project string, names []string) 
 	defer closeBuilder()
 	sources := make([]builder.FunctionSource, 0, len(names))
 	for _, name := range names {
-		src, _, err := e.readCrate(ctx, project, name, set)
+		src, _, err := e.readCrate(ctx, project, name, "", set)
 		if err != nil {
 			return compiler.DeviceModule{}, err
 		}

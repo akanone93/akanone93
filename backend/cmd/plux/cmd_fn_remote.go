@@ -72,7 +72,8 @@ func (e env) fnDeploy(args []string) int {
 	c.register(set, true)
 	envKey := set.String("env", "", "the environment `key` (default plux.json, then development)")
 	alias := set.String("alias", "", "point this `alias` at the new version")
-	pos, code, ok := parseFn(set, args, e.stderr, "Usage: plux fn deploy <name> [--env key] [--alias name] [-C dir] [--app id] [--json]\n\nPacks the crate, sends the published archives of its dependencies that the server does not hold yet, uploads the crate, waits for the server's build and tests, and deploys the version. Production needs a second factor: sign in again with plux login when the server asks.", 1)
+	sdk := set.String("sdk", "", "the pinned SDK crate `directory` Cargo resolves plux-fn to (default $"+sdkEnv+", then the copy next to the binary)")
+	pos, code, ok := parseFn(set, args, e.stderr, "Usage: plux fn deploy <name> [--env key] [--alias name] [--sdk dir] [-C dir] [--app id] [--json]\n\nPacks the crate, sends the published archives of its dependencies that the server does not hold yet, uploads the crate, waits for the server's build and tests, and deploys the version. Production needs a second factor: sign in again with plux login when the server asks.", 1)
 	if !ok {
 		return code
 	}
@@ -86,7 +87,7 @@ func (e env) fnDeploy(args []string) int {
 	}
 	ctx, cancel := e.context()
 	defer cancel()
-	archive, crates, err := e.packFunction(ctx, c.dir, name)
+	archive, crates, err := e.packFunction(ctx, c.dir, name, *sdk)
 	if err != nil {
 		return e.fail("fn deploy", err)
 	}
@@ -145,8 +146,8 @@ func stepUp(err error) error {
 
 // packFunction packs the source of a function and returns it with the
 // published archives of its dependencies.
-func (e env) packFunction(ctx context.Context, project, name string) ([]byte, [][]byte, error) {
-	files, crates, err := e.crateSource(ctx, crateDir(project, name))
+func (e env) packFunction(ctx context.Context, project, name, sdkFlag string) ([]byte, [][]byte, error) {
+	files, crates, err := e.crateSource(ctx, crateDir(project, name), sdkFlag)
 	if err != nil {
 		return nil, nil, err
 	}
