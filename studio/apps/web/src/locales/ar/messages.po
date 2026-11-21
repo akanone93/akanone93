@@ -6593,6 +6593,12 @@ msgstr "خطأ"
 msgid "analytics.errorTitle"
 msgstr "خطأ"
 
+#. The stable error code of a failed page, for support (for example PLX-1005).
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.failed.code"
+msgstr "الخطأ {code}"
+
 #. The stable error code of a refusal, for support (for example PLX-6200).
 #. js-lingui-explicit-id
 #: apps/web/src/components/refusal.messages.ts
@@ -16443,6 +16449,12 @@ msgstr "من نسخ الرمز لا يستطيع الإكمال دون هذا ا
 msgid "problems.why.unresolved"
 msgstr "يشير شيء هنا إلى عنصر غير موجود (حُذف أو أُعيدت تسميته). اجعله يشير إلى عنصر موجود."
 
+#. Body of the page shown when loading a page failed; the error code follows when the server gave one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.failed.body"
+msgstr "حدث خطأ أثناء التحميل. حاول مرة أخرى؛ وإذا استمر الفشل فأعطِ الدعم رمز الخطأ."
+
 #. Label of the sort control of the apps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -16928,6 +16940,12 @@ msgstr "تسجيلات بنيوية لجلسات وافق المستخدمون �
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.hero.lead"
 msgstr "يبني Studio الشاشات التي تنزّلها تطبيقات Flutter لديك وتتحقق منها وتعرضها أصليًا، دون إصدار في المتجر."
+
+#. Heading of the page shown when the server does not answer at all (network failure, server down).
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.unreachable.title"
+msgstr "لا يستطيع Studio الوصول إلى Plux Server"
 
 #. Accessible name of the top bar.
 #. js-lingui-explicit-id
@@ -18423,6 +18441,12 @@ msgstr "لم يقبل الخادم التغيير."
 msgid "refusal.failed.body"
 msgstr "لم يستجب الخادم كما هو متوقع. حاول مرة أخرى بعد قليل."
 
+#. Body of the page shown when the server does not answer.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.unreachable.body"
+msgstr "لم يستجب الخادم. تحقّق من أنه يعمل ويمكن الوصول إليه، ثم حاول مرة أخرى."
+
 #. Progress stage: the server is validating the archive and creating the app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -19036,6 +19060,12 @@ msgstr "يتطلّب هذا مفتاح الأمان الخاص بك، مؤكَّ
 msgid "home.apps.empty"
 msgstr "لا توجد تطبيقات في هذه المؤسسة بعد."
 
+#. Heading of the page shown when loading a page failed for a reason other than access.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.failed.title"
+msgstr "تعذّر تحميل هذه الصفحة"
+
 #. Body of the 404 page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
@@ -19479,6 +19509,12 @@ msgstr "الاتجاه"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.issuersTitle"
 msgstr "جهات CI الموثوقة"
+
+#. Button on a page that failed to load: loads it again.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/shell-chrome.messages.ts
+msgid "chrome.failed.retry"
+msgstr "حاول مرة أخرى"
 
 #. The button of a list's error view.
 #. js-lingui-explicit-id

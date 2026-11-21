@@ -360,6 +360,8 @@ export interface UpstreamData {
     onboardingDismissed?: boolean;
     favouriteAppIds?: string[];
   };
+  /** GetCurrentUser answers Unavailable this many times, as when the BFF cannot reach the server. */
+  unreachable?: number;
   explained?: { permission: string; userId?: string; appId?: string; environment?: string }[];
   inbox?: { id: string; eventType: string; title?: string; link?: string; read: boolean }[];
   documents?: { kind: string; path: string; json: unknown }[];
@@ -619,6 +621,10 @@ export function createUpstream(state: UpstreamData) {
       getCurrentUser: (_req, ctx) => {
         if (state.signedIn === false) {
           throw new ConnectError("no session", Code.Unauthenticated);
+        }
+        if (state.unreachable !== undefined && state.unreachable > 0) {
+          state.unreachable -= 1;
+          throw new ConnectError("HTTP 502", Code.Unavailable);
         }
         return create(GetCurrentUserResponseSchema, {
           user: create(UserSchema, { id: "u1", displayName: "Ada", email: "ada@example.org" }),

@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createClient } from "@connectrpc/connect";
+import { Code, ConnectError, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { GovernanceService } from "@plux/api";
 import { Button } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useParams, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageEmpty, PageHeader } from "../../components/page.tsx";
-import { withReason } from "../../components/refusal.tsx";
+import { plxCode, withReason } from "../../components/refusal.tsx";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
@@ -81,6 +81,39 @@ export function ForbiddenPage({ permission }: { permission: string }) {
         </p>
       )}
     </Message>
+  );
+}
+
+/**
+ * A page whose loading failed for a reason other than access: the server unreachable, or any other failure. It says
+ * which, gives the server's code when there is one (never the message or a stack, which may hold internals), and loads
+ * the page again on request.
+ */
+export function FailurePage({ error, reset }: { readonly error: unknown; readonly reset: () => void }) {
+  const m = chromeMessages(useLingui().i18n);
+  const router = useRouter();
+  const unreachable =
+    error instanceof ConnectError && (error.code === Code.Unavailable || error.code === Code.DeadlineExceeded);
+  const code = plxCode(error);
+  const again = async () => {
+    await router.invalidate();
+    reset();
+  };
+  return (
+    <section aria-labelledby="failure-title" className="page-frame" role="alert">
+      <PageHeader
+        id="failure-title"
+        icon="warning-circle"
+        title={unreachable ? m.unreachableTitle : m.failedTitle}
+        caption={unreachable ? m.unreachableBody : m.failedBody}
+      />
+      <div className="page-body flex flex-col items-start gap-3">
+        <Button type="button" size="sm" onClick={() => void again()}>
+          {m.tryAgain}
+        </Button>
+        {code !== "" && <p className="text-xs text-muted-foreground tabular-nums">{m.errorCode(code)}</p>}
+      </div>
+    </section>
   );
 }
 

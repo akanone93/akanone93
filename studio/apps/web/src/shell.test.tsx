@@ -31,6 +31,16 @@ describe("[STU-013] guards", () => {
     expect(r.router.state.location.search).toEqual({ next: `/o/${orgA}` });
   });
 
+  test("a server that does not answer is said plainly, and Try again loads the page once it answers", async () => {
+    renderApp(`/o/${orgA}`, { unreachable: 1 });
+    await screen.findByRole("heading", { name: "Studio can't reach the Plux Server" });
+    expect(screen.queryByText("Show Error")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: "Studio can't reach the Plux Server" }) === null).toBe(true),
+    );
+  });
+
   test("an unknown organisation is a 404 page, not a 403", async () => {
     renderApp("/o/0192f000-0000-7000-8000-0000000000ff", {});
     await screen.findByRole("heading", { name: "Page not found" });

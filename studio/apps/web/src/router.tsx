@@ -31,7 +31,7 @@ import type { ValidatorFactory } from "./features/problems/validator-client.ts";
 import { publishSearchSchema } from "./features/publish/publish.schema.ts";
 import { releaseEnvSearchSchema, releasesSearchSchema } from "./features/releases/releases.schema.ts";
 import { devicesSearchSchema, envSearchSchema } from "./features/security/security.schema.ts";
-import { ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
+import { FailurePage, ForbiddenPage, LicencePage, NotFoundPage } from "./features/shell/error-pages.tsx";
 import { CanvasLayout, PublicLayout } from "./features/shell/layouts.tsx";
 import { ShellLayout } from "./features/shell/shell-layout.tsx";
 import { testRunSearchSchema, testsSearchSchema } from "./features/tests/tests.schema.ts";
@@ -58,11 +58,11 @@ export interface RouterContext {
   readonly observeEditor?: (edit: EditSession) => void;
 }
 
-function RouteError({ error }: ErrorComponentProps) {
+function RouteError({ error, reset }: ErrorComponentProps) {
   if (error instanceof AccessError) {
     return error.kind === "licence" ? <LicencePage /> : <ForbiddenPage permission={error.permission} />;
   }
-  throw error;
+  return <FailurePage error={error} reset={reset} />;
 }
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({

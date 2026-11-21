@@ -49,6 +49,38 @@ export function chromeMessages(i18n: I18n) {
       message: "Go to the home page",
       comment: "Link on the page shown for an address no page answers.",
     }),
+    unreachableTitle: i18n._({
+      id: "chrome.unreachable.title",
+      message: "Studio can't reach the Plux Server",
+      comment: "Heading of the page shown when the server does not answer at all (network failure, server down).",
+    }),
+    unreachableBody: i18n._({
+      id: "chrome.unreachable.body",
+      message: "The server did not answer. Check that it is running and reachable, then try again.",
+      comment: "Body of the page shown when the server does not answer.",
+    }),
+    failedTitle: i18n._({
+      id: "chrome.failed.title",
+      message: "This page could not be loaded",
+      comment: "Heading of the page shown when loading a page failed for a reason other than access.",
+    }),
+    failedBody: i18n._({
+      id: "chrome.failed.body",
+      message: "Something went wrong while loading it. Try again; if it keeps failing, give support the error code.",
+      comment: "Body of the page shown when loading a page failed; the error code follows when the server gave one.",
+    }),
+    tryAgain: i18n._({
+      id: "chrome.failed.retry",
+      message: "Try again",
+      comment: "Button on a page that failed to load: loads it again.",
+    }),
+    errorCode: (code: string) =>
+      i18n._({
+        id: "chrome.failed.code",
+        message: "Error {code}",
+        values: { code },
+        comment: "The stable error code of a failed page, for support (for example PLX-1005).",
+      }),
     forbiddenTitle: i18n._({
       id: "chrome.forbidden.title",
       message: "You do not have access",
