@@ -194,6 +194,7 @@ describe("[STU-116] organisation administration", () => {
   test("O20 lists predefined and custom roles", async () => {
     open("/roles", {
       admin: {
+        license: { state: "valid", features: ["custom-roles"] },
         roles: [
           { key: "owner", name: "Owner", predefined: true, permissions: [] },
           { key: "qa", name: "QA", permissions: [] },
@@ -203,6 +204,31 @@ describe("[STU-116] organisation administration", () => {
     await screen.findByRole("link", { name: "Owner" });
     expect(screen.getByRole("link", { name: "QA" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "New role" })).toBeTruthy();
+  });
+
+  test("O20 says custom roles need a licence before anything is typed, and the builder stays locked [GOV-033]", async () => {
+    for (const license of [
+      { state: "absent" },
+      { state: "valid", features: ["saml"] },
+      { state: "expired", features: ["custom-roles"] },
+    ]) {
+      open("/roles", {
+        admin: { license, roles: [{ key: "owner", name: "Owner", predefined: true, permissions: [] }] },
+      });
+      await screen.findByRole("link", { name: "Owner" });
+      expect(await screen.findByRole("note")).toBeTruthy();
+      expect(screen.getByRole("note").textContent).toContain("Custom roles need an enterprise licence");
+      expect(screen.getByRole("link", { name: "See the licence" })).toBeTruthy();
+      expect(screen.queryByRole("link", { name: "New role" })).toBeNull();
+      cleanup();
+    }
+    const state: Upstream = {
+      admin: { calls: [], license: { state: "absent" }, permissions: [{ name: "release.publish" }] },
+    };
+    open("/roles/new", state);
+    await screen.findByRole("note");
+    expect(screen.getByRole("button", { name: "Save" }).getAttribute("aria-disabled")).toBe("true");
+    expect(calls(state)).toEqual([]);
   });
 
   test("O21 builds a role from the catalogue tree (area, feature, action) and saves the chosen permissions", async () => {
@@ -216,6 +242,7 @@ describe("[STU-116] organisation administration", () => {
         ],
       },
     };
+    state.admin = { ...state.admin, license: { state: "valid", features: ["custom-roles"] } };
     open("/roles/new", state);
     await screen.findByRole("group", { name: "function" });
     expect(screen.getByRole("group", { name: "release" })).toBeTruthy();
@@ -319,16 +346,80 @@ describe("[STU-116] organisation administration", () => {
 
   test("O23 explains an allow naming the grant and a deny naming the restriction", async () => {
     open("/access?user=u2&permission=release.publish", {
-      admin: { explain: { decision: "allow", allowingGrantIds: ["g1"] } },
+      admin: {
+        explain: { decision: "allow", allowingGrantIds: ["g1", "g2", "m9"] },
+        grants: [
+          { id: "g1", userId: "u2", role: "release_manager", scope: "app", appId: "app1" },
+          { id: "g2", teamId: "t1", role: "editor", scope: "organization" },
+        ],
+        teams: [{ id: "t1", key: "orgs", name: "Orgs" }],
+        apps: [{ id: "app1", name: "Apply Register" }],
+      },
     });
     await screen.findByText("Allowed");
-    expect(screen.getByText("g1")).toBeTruthy();
+    // A grant it can read is named by its role, where it applies and the team it comes through; anything else keeps
+    // its identifier.
+    expect(
+      await screen.findByText(
+        "Granted by: release_manager in Apply Register; editor in Organisation, through team Orgs; m9",
+      ),
+    ).toBeTruthy();
     cleanup();
-    open("/access?user=u2&permission=release.publish", {
-      admin: { explain: { decision: "deny", removingRestrictionIds: ["r7"] } },
+    open("/access?user=u2&permission=release.publish&app=app1&env=production", {
+      admin: {
+        explain: { decision: "deny", removingRestrictionIds: ["r7"] },
+        apps: [{ id: "app1", name: "Apply Register" }],
+        restrictions: [
+          {
+            id: "r7",
+            subjectKind: "team",
+            subjectId: "t1",
+            patterns: ["release.publish"],
+            reason: "designers",
+            appId: "app1",
+            environment: "production",
+          },
+        ],
+      },
     });
     await screen.findByText("Denied");
-    expect(screen.getByText("r7")).toBeTruthy();
+    expect(
+      await screen.findByText("Removed by restriction: release.publish in Apply Register › production (designers)"),
+    ).toBeTruthy();
+  });
+
+  test("O23 asks by name: person, permission, app and environment, and says why a question is refused", async () => {
+    const explained: NonNullable<Upstream["explained"]> = [];
+    open("/access", {
+      explained,
+      admin: {
+        members: [{ userId: "u2", displayName: "Grace", email: "grace@example.org", role: "editor" }],
+        permissions: [{ name: "release.publish" }, { name: "secrets.manage" }],
+        apps: [{ id: "app1", name: "Apply Register" }],
+      },
+    });
+    const explain = await screen.findByRole("button", { name: "Explain" });
+    expect(explain.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(screen.getByRole("combobox", { name: "Person" }));
+    await choose(await screen.findByRole("option", { name: "Grace" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Permission" }));
+    await choose(await screen.findByRole("option", { name: "release.publish" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "In app" }));
+    await choose(await screen.findByRole("option", { name: "Apply Register" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "In environment" }));
+    await choose(await screen.findByRole("option", { name: "production" }));
+    fireEvent.click(screen.getByRole("button", { name: "Explain" }));
+    await screen.findByText("Denied");
+    expect(explained).toEqual([
+      { permission: "release.publish", userId: "u2", appId: "app1", environment: "production" },
+    ]);
+    cleanup();
+    // A refused question says what kind of refusal it is, with the server's code, not a bare "failed to load".
+    open("/access?user=u2&permission=release.publish", {
+      admin: { refused: { explainAccess: [Code.PermissionDenied, "PLX-8030: members.read is required"] } },
+    });
+    expect(await screen.findByText("You don't have access")).toBeTruthy();
+    expect(screen.getByText("Error PLX-8030")).toBeTruthy();
   });
 
   test("O24 lists providers and shows a new SCIM secret once", async () => {
@@ -481,7 +572,13 @@ describe("[STU-116] organisation administration", () => {
   });
 
   test("O28 creates a compliance report for a period", async () => {
-    const state: Upstream = { admin: { calls: [], reports: [{ id: "c1", changes: 4, signed: true }] } };
+    const state: Upstream = {
+      admin: {
+        calls: [],
+        license: { state: "grace", features: ["compliance-reports"] },
+        reports: [{ id: "c1", changes: 4, signed: true }],
+      },
+    };
     open("/compliance", state);
     await screen.findByText("4");
     fireEvent.change(screen.getByLabelText("Period from"), { target: { value: "2026-01-01" } });
@@ -490,6 +587,13 @@ describe("[STU-116] organisation administration", () => {
     await waitFor(() =>
       expect(calls(state)).toEqual(['createComplianceReport:{"from":"1767225600","to":"1769817600"}']),
     );
+  });
+
+  test("O28 says reports need a licence in place of the form; earlier reports stay listed [GOV-033]", async () => {
+    open("/compliance", { admin: { license: { state: "absent" }, reports: [{ id: "c1", changes: 4, signed: true }] } });
+    await screen.findByText("4");
+    expect((await screen.findByRole("note")).textContent).toContain("Compliance reports need an enterprise licence");
+    expect(screen.queryByLabelText("Period from")).toBeNull();
   });
 
   test("O29 sets a retention period", async () => {

@@ -1024,6 +1024,18 @@ msgstr "{passed, plural, one {# test passed} other {# tests passed}}, {failed, p
 msgid "panelTabs.codeResult"
 msgstr "{passed} passed, {failed} failed"
 
+#. A restriction with no reason an access decision rests on: its permission patterns and where it applies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.restrictionBare"
+msgstr "{patterns} in {where}"
+
+#. A restriction an access decision rests on: its permission patterns, where it applies and its reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.restriction"
+msgstr "{patterns} in {where} ({reason})"
+
 #. Value of the health badge: the share of active devices without a fatal error in the last seven days.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -1161,6 +1173,18 @@ msgstr "{result, select, true {Now true: the device shows it} false {Now false: 
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.typeRole"
 msgstr "{role, select, custom {Custom} displayLarge {Display large} displayMedium {Display medium} displaySmall {Display small} headlineLarge {Headline large} headlineMedium {Headline medium} headlineSmall {Headline small} titleLarge {Title large} titleMedium {Title medium} titleSmall {Title small} bodyLarge {Body large} bodyMedium {Body medium} bodySmall {Body small} labelLarge {Label large} labelMedium {Label medium} labelSmall {Label small} other {Style}}"
+
+#. A grant an access decision rests on: the role, then the organisation or app it is granted in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.grant"
+msgstr "{role} in {where}"
+
+#. A grant an access decision rests on, made to a team the person belongs to: role, organisation or app, team name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.grantTeam"
+msgstr "{role} in {where}, through team {team}"
 
 #. Under a screen: more timelines autoplay or follow a scroll than the compiler accepts without a warning.
 #. js-lingui-explicit-id
@@ -2486,12 +2510,6 @@ msgstr "App canvas"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.field.icon"
 msgstr "App icon"
-
-#. Text in the organisation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.accessApp"
-msgstr "App ID"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -3906,6 +3924,12 @@ msgstr "Choose up to {max} languages. The default language is always supported."
 msgid "notify.mute.caption"
 msgstr "Choose what reaches your inbox. Approval and security notifications are always on."
 
+#. Placeholder of a chooser on the explain access page before anything is chosen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessChoose"
+msgstr "Choose…"
+
 #. Heading of the list of languages the new app will support.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -4385,6 +4409,12 @@ msgstr "Compliance"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.complianceTitle"
 msgstr "Compliance reports"
+
+#. Shown on the compliance page in place of the report form when the licence does not include reports.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licence.complianceReports"
+msgstr "Compliance reports need an enterprise licence that includes them; reports made earlier can still be downloaded."
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -4937,6 +4967,12 @@ msgstr "Custom frame"
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.customLegend"
 msgstr "Custom metric gates"
+
+#. Shown on the roles page in place of New role when the licence does not include custom roles.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licence.customRoles"
+msgstr "Custom roles need an enterprise licence that includes them; the predefined roles can be granted as they are."
 
 #. Command that copies the selected elements to the clipboard and removes them.
 #. js-lingui-explicit-id
@@ -6495,12 +6531,6 @@ msgstr "Environment"
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.colEnvironment"
-msgstr "Environment"
-
-#. Text in the organisation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.accessEnv"
 msgstr "Environment"
 
 #. Label.
@@ -12665,6 +12695,12 @@ msgstr "Permission patterns (comma-separated)"
 msgid "admin.permissionsTree"
 msgstr "Permissions"
 
+#. Label of the chooser of the member whose access is explained.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessPerson"
+msgstr "Person"
+
 #. An option of what a restriction applies to: a member of the organisation, by name or email.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -15566,6 +15602,12 @@ msgstr "Security profile"
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.security.legend"
 msgstr "Security profile"
+
+#. Link from a feature that needs an enterprise licence to the licence page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licence.link"
+msgstr "See the licence"
 
 #. Label of the segment field of one per-segment flag value.
 #. js-lingui-explicit-id
@@ -19863,12 +19905,6 @@ msgstr "User"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.capClaims"
 msgstr "User claims"
-
-#. Text in the organisation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.accessUser"
-msgstr "User ID"
 
 #. Detail card of a plugin: the names of the Plux Functions it uses.
 #. js-lingui-explicit-id

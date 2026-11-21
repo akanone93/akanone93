@@ -453,6 +453,23 @@ export function adminMessages(i18n: I18n) {
         values: { name },
         comment: "An option of what a restriction applies to: a member of the organisation, by name or email.",
       }),
+    licenceLink: i18n._({
+      id: "admin.licence.link",
+      message: "See the licence",
+      comment: "Link from a feature that needs an enterprise licence to the licence page.",
+    }),
+    customRolesNeedLicence: i18n._({
+      id: "admin.licence.customRoles",
+      message:
+        "Custom roles need an enterprise licence that includes them; the predefined roles can be granted as they are.",
+      comment: "Shown on the roles page in place of New role when the licence does not include custom roles.",
+    }),
+    complianceNeedsLicence: i18n._({
+      id: "admin.licence.complianceReports",
+      message:
+        "Compliance reports need an enterprise licence that includes them; reports made earlier can still be downloaded.",
+      comment: "Shown on the compliance page in place of the report form when the licence does not include reports.",
+    }),
     restrictionApp: i18n._({
       id: "admin.restrictions.app",
       message: "In app",
@@ -522,23 +539,48 @@ export function adminMessages(i18n: I18n) {
       comment: "Text in the organisation administration area.",
     }),
     accessUser: i18n._({
-      id: "admin.accessUser",
-      message: "User ID",
-      comment: "Text in the organisation administration area.",
+      id: "admin.accessPerson",
+      message: "Person",
+      comment: "Label of the chooser of the member whose access is explained.",
     }),
+    accessChoose: i18n._({
+      id: "admin.accessChoose",
+      message: "Choose…",
+      comment: "Placeholder of a chooser on the explain access page before anything is chosen.",
+    }),
+    grantText: (role: string, where: string) =>
+      i18n._({
+        id: "admin.access.grant",
+        message: "{role} in {where}",
+        values: { role, where },
+        comment: "A grant an access decision rests on: the role, then the organisation or app it is granted in.",
+      }),
+    grantTeamText: (role: string, where: string, team: string) =>
+      i18n._({
+        id: "admin.access.grantTeam",
+        message: "{role} in {where}, through team {team}",
+        values: { role, where, team },
+        comment:
+          "A grant an access decision rests on, made to a team the person belongs to: role, organisation or app, team name.",
+      }),
+    restrictionTextBare: (where: string, patterns: string) =>
+      i18n._({
+        id: "admin.access.restrictionBare",
+        message: "{patterns} in {where}",
+        values: { where, patterns },
+        comment:
+          "A restriction with no reason an access decision rests on: its permission patterns and where it applies.",
+      }),
+    restrictionText: (where: string, patterns: string, reason: string) =>
+      i18n._({
+        id: "admin.access.restriction",
+        message: "{patterns} in {where} ({reason})",
+        values: { where, patterns, reason },
+        comment: "A restriction an access decision rests on: its permission patterns, where it applies and its reason.",
+      }),
     accessPermission: i18n._({
       id: "admin.accessPermission",
       message: "Permission",
-      comment: "Text in the organisation administration area.",
-    }),
-    accessApp: i18n._({
-      id: "admin.accessApp",
-      message: "App ID",
-      comment: "Text in the organisation administration area.",
-    }),
-    accessEnv: i18n._({
-      id: "admin.accessEnv",
-      message: "Environment",
       comment: "Text in the organisation administration area.",
     }),
     explain: i18n._({

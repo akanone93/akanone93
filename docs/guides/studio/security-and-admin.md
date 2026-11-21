@@ -87,7 +87,7 @@ before they become overdue ([Approval deadlock and break-glass](../../runbooks/a
 |---|---|
 | Settings, Members, Teams | Rename the organisation, invite people (the invitation is shown once), group them |
 | Roles, Restrictions | Define roles; add restrictions that remove permissions whatever the grants (the last owner always keeps the ability to manage members and policies) |
-| Explain access | See why a person holds or lacks a permission, naming the grant or restriction |
+| Explain access | Choose a person, a permission and, optionally, an app and one of its environments, and see why the person holds or lacks the permission: the grants it rests on (role, where, and the team it comes through) and the restrictions that remove it (patterns, where, reason) |
 | SSO and SCIM | Identity providers and SCIM tokens |
 | Tokens, Sessions | API and CI tokens, workload identities, and active sessions you can revoke |
 | Audit log | Search by date, actor, action and resource; **Export CSV**; export destinations |
@@ -102,7 +102,10 @@ support:
 - **A second factor is required**: the session was signed in with a password only; sign out and
   sign in with a passkey or your second factor.
 - **Not included in your licence**: the feature (SCIM, compliance reports) belongs to the enterprise
-  edition; **View licence** opens the licence page.
+  edition; **View licence** opens the licence page. Pages whose forms need a licence say so before
+  anything is typed: without custom roles in the licence, **Roles** offers no **New role** and a
+  custom role opens read-only; without compliance reports, **Compliance** offers no report form, and
+  reports made earlier can still be downloaded. Change freezes are set with the CLI (`plux freeze`).
 - **You don't have access**: ask an administrator for the permission.
 
 Installation administrators also have **Installation**: health, organisations, storage use, job

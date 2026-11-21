@@ -3,6 +3,7 @@
 
 import type { DescService } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
+import { LicenseService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
@@ -27,6 +28,20 @@ export function useRpc<S extends DescService>(service: S): Client<S> {
 export function useCan(permission: string): boolean {
   const user = useCurrentUser();
   return user.data?.permissions.includes(permission) ?? false;
+}
+
+/**
+ * Whether the installation's licence lets this organisation change an enterprise feature (GOV-030, GOV-033): false
+ * when the licence is absent, invalid or expired, or does not list the feature; undefined while it is read, or when the
+ * person may not read it, so that the server decides and says why.
+ */
+export function useLicensed(feature: string): boolean | undefined {
+  const licence = useRpc(LicenseService);
+  const state = useAdminQuery(["license"], () => licence.getLicenseState({}));
+  if (state.data === undefined) {
+    return undefined;
+  }
+  return (state.data.state === "valid" || state.data.state === "grace") && state.data.features.includes(feature);
 }
 
 /** A read of the administration area; every key starts with `admin` so one mutation refreshes them all. */

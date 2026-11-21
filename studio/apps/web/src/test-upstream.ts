@@ -80,6 +80,7 @@ import {
   installationAdmin,
   licenseAdmin,
   orgAdmin,
+  refuse as refuseAdmin,
 } from "./test-admin.ts";
 import { type AppsGridFixture, createAppsGrid } from "./test-apps.ts";
 import { type ProjectsData, projectsHandlers } from "./test-projects.ts";
@@ -359,7 +360,7 @@ export interface UpstreamData {
     onboardingDismissed?: boolean;
     favouriteAppIds?: string[];
   };
-  explained?: { permission: string }[];
+  explained?: { permission: string; userId?: string; appId?: string; environment?: string }[];
   inbox?: { id: string; eventType: string; title?: string; link?: string; read: boolean }[];
   documents?: { kind: string; path: string; json: unknown }[];
   /** Someone else holds the plugin's editing lock: the editor is read-only. */
@@ -681,7 +682,13 @@ export function createUpstream(state: UpstreamData) {
     service(GovernanceService, {
       ...governanceAdmin(admin),
       explainAccess: (req) => {
-        state.explained?.push({ permission: req.permission });
+        refuseAdmin(admin, "explainAccess");
+        state.explained?.push({
+          permission: req.permission,
+          ...(req.userId !== "" && { userId: req.userId }),
+          ...(req.appId !== "" && { appId: req.appId }),
+          ...(req.environment !== "" && { environment: req.environment }),
+        });
         return { decision: "deny", ...admin.explain };
       },
     });

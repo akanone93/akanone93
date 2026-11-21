@@ -9,9 +9,9 @@ import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useState } from "react";
 import { TypeConfirmDialog } from "../../components/dialogs/index.ts";
 import { adminMessages } from "./admin.messages.ts";
-import { Frame, Table } from "./parts.tsx";
+import { Frame, LicenceNote, Table } from "./parts.tsx";
 import { buildTree, type TreeArea, toggleAll } from "./permission-tree.ts";
-import { pageSize, useAdminQuery, useCan, useRpc, useRun } from "./use-admin.ts";
+import { pageSize, useAdminQuery, useCan, useLicensed, useRpc, useRun } from "./use-admin.ts";
 
 /** O20: predefined and custom roles (GOV-002). */
 export function RolesPage(): ReactElement {
@@ -19,6 +19,7 @@ export function RolesPage(): ReactElement {
   const org = (useParams({ strict: false }) as { org?: string }).org ?? "";
   const governance = useRpc(GovernanceService);
   const roles = useAdminQuery(["roles"], () => governance.listRoles({ page: { pageSize } }));
+  const customRoles = useLicensed("custom-roles");
   return (
     <Frame
       id="admin-roles"
@@ -43,14 +44,18 @@ export function RolesPage(): ReactElement {
           ],
         }))}
       />
-      <Link
-        to="/o/$org/admin/roles/$roleId"
-        params={{ org, roleId: "new" }}
-        className={buttonVariants({ size: "sm", className: "self-start" })}
-      >
-        <Icon name="plus" data-icon="inline-start" />
-        {m.newRole}
-      </Link>
+      {customRoles === false ? (
+        <LicenceNote text={m.customRolesNeedLicence} />
+      ) : (
+        <Link
+          to="/o/$org/admin/roles/$roleId"
+          params={{ org, roleId: "new" }}
+          className={buttonVariants({ size: "sm", className: "self-start" })}
+        >
+          <Icon name="plus" data-icon="inline-start" />
+          {m.newRole}
+        </Link>
+      )}
     </Frame>
   );
 }
@@ -134,7 +139,9 @@ export function RolePage(): ReactElement {
       setSelected(new Set(loaded.permissions));
     }
   }, [loaded]);
-  const locked = !can || loaded?.predefined === true;
+  // A custom role is made and changed only under a licence that includes custom roles; a predefined role never is.
+  const unlicensed = useLicensed("custom-roles") === false && loaded?.predefined !== true;
+  const locked = !can || loaded?.predefined === true || unlicensed;
   const save = async () => {
     const permissions = [...selected].sort();
     const ok = await run(() =>
@@ -158,9 +165,10 @@ export function RolePage(): ReactElement {
       saveError={saveError}
     >
       {loaded?.predefined === true && <p className="text-body text-muted-foreground">{m.predefinedLocked}</p>}
+      {unlicensed && <LicenceNote text={m.customRolesNeedLicence} />}
       <div className="flex flex-wrap gap-3">
         <Field label={m.colKey}>
-          <Input value={key} disabled={!isNew} onChange={(e) => setKey(e.target.value)} />
+          <Input value={key} disabled={!isNew || locked} onChange={(e) => setKey(e.target.value)} />
         </Field>
         <Field label={m.colName}>
           <Input value={name} disabled={locked} onChange={(e) => setName(e.target.value)} />

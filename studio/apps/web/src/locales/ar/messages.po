@@ -1024,6 +1024,18 @@ msgstr "{passed, plural, other {نجح # من الاختبارات}}، {failed, 
 msgid "panelTabs.codeResult"
 msgstr "{passed} ناجح، {failed} فاشل"
 
+#. A restriction with no reason an access decision rests on: its permission patterns and where it applies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.restrictionBare"
+msgstr "{patterns} في {where}"
+
+#. A restriction an access decision rests on: its permission patterns, where it applies and its reason.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.restriction"
+msgstr "{patterns} في {where} ({reason})"
+
 #. Value of the health badge: the share of active devices without a fatal error in the last seven days.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -1161,6 +1173,18 @@ msgstr "{result, select, true {صحيح الآن: يعرضه الجهاز} false
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.typeRole"
 msgstr "{role, select, custom {مخصص} displayLarge {عرض كبير} displayMedium {عرض متوسط} displaySmall {عرض صغير} headlineLarge {عنوان رئيسي كبير} headlineMedium {عنوان رئيسي متوسط} headlineSmall {عنوان رئيسي صغير} titleLarge {عنوان كبير} titleMedium {عنوان متوسط} titleSmall {عنوان صغير} bodyLarge {نص كبير} bodyMedium {نص متوسط} bodySmall {نص صغير} labelLarge {تسمية كبيرة} labelMedium {تسمية متوسطة} labelSmall {تسمية صغيرة} other {نمط}}"
+
+#. A grant an access decision rests on: the role, then the organisation or app it is granted in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.grant"
+msgstr "{role} في {where}"
+
+#. A grant an access decision rests on, made to a team the person belongs to: role, organisation or app, team name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.access.grantTeam"
+msgstr "{role} في {where}، عبر الفريق {team}"
 
 #. Under a screen: more timelines autoplay or follow a scroll than the compiler accepts without a warning.
 #. js-lingui-explicit-id
@@ -2486,12 +2510,6 @@ msgstr "لوحة التطبيق"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.field.icon"
 msgstr "أيقونة التطبيق"
-
-#. Text in the organisation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.accessApp"
-msgstr "معرّف التطبيق"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -3906,6 +3924,12 @@ msgstr "اختر ما يصل إلى {max} لغات. اللغة الافتراض�
 msgid "notify.mute.caption"
 msgstr "اختر ما يصل إلى صندوق الوارد. إشعارات الموافقات والأمان مفعّلة دائمًا."
 
+#. Placeholder of a chooser on the explain access page before anything is chosen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessChoose"
+msgstr "اختر…"
+
 #. Heading of the list of languages the new app will support.
 #. js-lingui-explicit-id
 #: apps/web/src/features/new-app/new-app.messages.ts
@@ -4385,6 +4409,12 @@ msgstr "الامتثال"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.complianceTitle"
 msgstr "تقارير الامتثال"
+
+#. Shown on the compliance page in place of the report form when the licence does not include reports.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licence.complianceReports"
+msgstr "تحتاج تقارير الامتثال إلى ترخيص مؤسسي يشملها؛ ولا يزال بالإمكان تنزيل التقارير السابقة."
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -4937,6 +4967,12 @@ msgstr "إطار مخصص"
 #: apps/web/src/features/publish/rollout.messages.ts
 msgid "publish.rollout.customLegend"
 msgstr "فحوصات المقاييس المخصصة"
+
+#. Shown on the roles page in place of New role when the licence does not include custom roles.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licence.customRoles"
+msgstr "تحتاج الأدوار المخصصة إلى ترخيص مؤسسي يشملها؛ ويمكن منح الأدوار المحددة مسبقًا كما هي."
 
 #. Command that copies the selected elements to the clipboard and removes them.
 #. js-lingui-explicit-id
@@ -6495,12 +6531,6 @@ msgstr "البيئة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.colEnvironment"
-msgstr "البيئة"
-
-#. Text in the organisation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.accessEnv"
 msgstr "البيئة"
 
 #. Label.
@@ -12665,6 +12695,12 @@ msgstr "أنماط الصلاحيات (مفصولة بفواصل)"
 msgid "admin.permissionsTree"
 msgstr "الصلاحيات"
 
+#. Label of the chooser of the member whose access is explained.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.accessPerson"
+msgstr "الشخص"
+
 #. An option of what a restriction applies to: a member of the organisation, by name or email.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -15566,6 +15602,12 @@ msgstr "ملف الأمان"
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.security.legend"
 msgstr "ملف الأمان"
+
+#. Link from a feature that needs an enterprise licence to the licence page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.licence.link"
+msgstr "عرض الترخيص"
 
 #. Label of the segment field of one per-segment flag value.
 #. js-lingui-explicit-id
@@ -19863,12 +19905,6 @@ msgstr "المستخدم"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.capClaims"
 msgstr "مطالبات المستخدم"
-
-#. Text in the organisation administration area.
-#. js-lingui-explicit-id
-#: apps/web/src/features/admin/admin.messages.ts
-msgid "admin.accessUser"
-msgstr "معرّف المستخدم"
 
 #. Detail card of a plugin: the names of the Plux Functions it uses.
 #. js-lingui-explicit-id

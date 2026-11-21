@@ -8,8 +8,8 @@ import { Button } from "@plux/ui";
 import type { ReactElement } from "react";
 import { adminMessages } from "./admin.messages.ts";
 import { download } from "./download.ts";
-import { CreateForm, Frame, fmt, Table } from "./parts.tsx";
-import { pageSize, useAdminQuery, useCan, useRpc, useRun } from "./use-admin.ts";
+import { CreateForm, Frame, fmt, LicenceNote, Table } from "./parts.tsx";
+import { pageSize, useAdminQuery, useCan, useLicensed, useRpc, useRun } from "./use-admin.ts";
 
 /** O28: signed compliance reports of the changes in a period (GOV-026). */
 export function CompliancePage(): ReactElement {
@@ -18,6 +18,7 @@ export function CompliancePage(): ReactElement {
   const can = useCan("compliance.report");
   const { run, failed, error: saveError } = useRun();
   const reports = useAdminQuery(["compliance"], () => compliance.listComplianceReports({ page: { pageSize } }));
+  const licensed = useLicensed("compliance-reports");
   const fetchReport = async (id: string) => {
     const { content, contentType } = await compliance.getComplianceReport({ id, format: "json" });
     download(`compliance-${id}.json`, new Uint8Array(content), contentType || "application/json");
@@ -50,23 +51,27 @@ export function CompliancePage(): ReactElement {
           ],
         }))}
       />
-      <CreateForm
-        fields={[
-          { name: "from", label: m.periodFrom, type: "date", required: true },
-          { name: "to", label: m.periodTo, type: "date", required: true },
-        ]}
-        submit={m.createReport}
-        disabled={!can}
-        deniedReason={m.noPermission}
-        onSubmit={(v) =>
-          run(() =>
-            compliance.createComplianceReport({
-              from: timestampFromDate(new Date(v("from"))),
-              to: timestampFromDate(new Date(v("to"))),
-            }),
-          )
-        }
-      />
+      {licensed === false ? (
+        <LicenceNote text={m.complianceNeedsLicence} />
+      ) : (
+        <CreateForm
+          fields={[
+            { name: "from", label: m.periodFrom, type: "date", required: true },
+            { name: "to", label: m.periodTo, type: "date", required: true },
+          ]}
+          submit={m.createReport}
+          disabled={!can}
+          deniedReason={m.noPermission}
+          onSubmit={(v) =>
+            run(() =>
+              compliance.createComplianceReport({
+                from: timestampFromDate(new Date(v("from"))),
+                to: timestampFromDate(new Date(v("to"))),
+              }),
+            )
+          }
+        />
+      )}
     </Frame>
   );
 }

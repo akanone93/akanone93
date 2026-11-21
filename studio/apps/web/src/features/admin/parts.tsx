@@ -5,6 +5,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import { Button, Field, Input, Select } from "@plux/ui";
+import { Link, useParams } from "@tanstack/react-router";
 import { type FormEvent, type ReactElement, type ReactNode, useState } from "react";
 import { type DataRow, DataTable, PageFrame } from "../../components/page.tsx";
 import { adminMessages } from "./admin.messages.ts";
@@ -161,5 +162,22 @@ export function SecretPanel({
         {dismiss}
       </Button>
     </div>
+  );
+}
+
+/**
+ * Says that a feature needs an enterprise licence, in place of the form that would change it, so nothing is typed in
+ * vain (GOV-033); it links to the licence page, which the person can open since they could read the licence.
+ */
+export function LicenceNote({ text }: { readonly text: string }): ReactElement {
+  const m = adminMessages(useLingui().i18n);
+  const org = (useParams({ strict: false }) as { org?: string }).org ?? "";
+  return (
+    <p role="note" className="text-body text-muted-foreground">
+      {text}{" "}
+      <Link to="/o/$org/admin/license" params={{ org }} className="text-primary underline-offset-4 hover:underline">
+        {m.licenceLink}
+      </Link>
+    </p>
   );
 }

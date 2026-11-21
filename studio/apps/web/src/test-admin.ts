@@ -42,7 +42,7 @@ export interface AdminData {
   destinations?: { id: string; name: string; kind: string; enabled: boolean }[];
   reports?: { id: string; changes: number; signed: boolean }[];
   retention?: { dataClass: string; days: number }[];
-  license?: { state: string; licenseId?: string; organization?: string };
+  license?: { state: string; licenseId?: string; organization?: string; features?: string[] };
   limits?: { key: string; unit: string; value: bigint; effective: bigint; hardMax: bigint }[];
   /** The organisation's apps (O32); when set, they answer ListApps. */
   apps?: { id: string; name: string }[];
@@ -78,7 +78,7 @@ function guard(a: AdminData) {
 }
 
 /** A read the server refuses, as `refused` names it. */
-function refuse(a: AdminData, method: string) {
+export function refuse(a: AdminData, method: string) {
   const refusal = a.refused?.[method];
   if (refusal !== undefined) {
     throw new ConnectError(refusal[1], refusal[0]);
