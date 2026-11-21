@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 	"strings"
 	"sync"
@@ -105,13 +106,40 @@ func (s *Service) DeviceModules(ctx context.Context, organizationID, appID, envi
 	return deviceModules{s: s, ctx: ctx, organizationID: organizationID, app: appID, environ: environmentID}
 }
 
-// Module implements compiler.DeviceModules.
+// Module implements compiler.DeviceModules. What it returns as an error is
+// shown to the person publishing (PLX-7018), so only a PLX-coded error, which
+// says what to fix, passes as it is; the failure of the builder, the store or
+// the database is logged here with its cause and named in one plain sentence,
+// because its text can carry internal names and addresses (as FailBuild
+// does for builds).
 func (d deviceModules) Module(pluginKey string, functions []compiler.DeviceFunctionRef) (compiler.DeviceModule, error) {
 	mod, err := d.s.deviceModule(d.ctx, d.organizationID, d.app, d.environ, functions)
 	if err != nil {
-		return compiler.DeviceModule{}, fmt.Errorf("function.DeviceModules: plugin %q: %w", pluginKey, err)
+		return compiler.DeviceModule{}, d.s.publicLinkError(d.ctx, pluginKey, err)
 	}
 	return mod, nil
+}
+
+// errLinkStillBusy and errLinkFailed are what a person publishing is told
+// when a module could not be linked for a reason that is not theirs to fix.
+var (
+	errLinkStillBusy = errors.New("the builder stayed busy for as long as a link may take; publish again in a few minutes")
+	errLinkFailed    = errors.New("the module could not be linked because a part of the installation failed; the server log has the cause")
+)
+
+// publicLinkError returns err when it carries a PLX code, and otherwise logs
+// it and returns the plain sentence for its kind.
+func (s *Service) publicLinkError(ctx context.Context, pluginKey string, err error) error {
+	if _, coded := plxerr.CodeOf(err); coded {
+		return err
+	}
+	if s.o.Log != nil {
+		s.o.Log.ErrorContext(ctx, "a device module could not be linked", slog.String("plugin", pluginKey), slog.String("error", err.Error()))
+	}
+	if errors.Is(err, ErrLinkerBusy) {
+		return errLinkStillBusy
+	}
+	return errLinkFailed
 }
 
 // linkMember is one function version of a module with what linking it

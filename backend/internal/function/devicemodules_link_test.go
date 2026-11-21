@@ -6,10 +6,15 @@ package function
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log/slog"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
 // busyLinker answers ErrLinkerBusy busy times, then links; it counts calls.
@@ -89,5 +94,32 @@ func TestConcurrentLinksOfOneSetShareTheBuild_FN_051(t *testing.T) {
 		if r != "module" {
 			t.Errorf("caller %d got %q", i, r)
 		}
+	}
+}
+
+// Verifies: FN-051, SRV-006.
+// A link that fails for a reason that is not the publisher's to fix is
+// logged with its cause and shown as one plain sentence, never the internal
+// error chain (package names, addresses); a PLX-coded error, which says what
+// to fix, is shown as it is (build log #188).
+func TestLinkFailuresShownToThePublisherAreRedacted_FN_051(t *testing.T) {
+	t.Parallel()
+	var logged strings.Builder
+	s := &Service{o: Options{Log: slog.New(slog.NewTextHandler(&logged, nil))}}
+	ctx := context.Background()
+	internal := fmt.Errorf("buildclient.Link: read the source of x: dial tcp 10.1.2.3:8446: connection refused")
+	if err := s.publicLinkError(ctx, "campus", internal); !errors.Is(err, errLinkFailed) || strings.Contains(err.Error(), "10.1.2.3") {
+		t.Errorf("a failure of the installation: %v", err)
+	}
+	if !strings.Contains(logged.String(), "10.1.2.3") || !strings.Contains(logged.String(), "campus") {
+		t.Errorf("the cause is not in the server log: %q", logged.String())
+	}
+	busy := fmt.Errorf("buildclient.Link: %w: resource_exhausted", ErrLinkerBusy)
+	if err := s.publicLinkError(ctx, "campus", busy); !errors.Is(err, errLinkStillBusy) {
+		t.Errorf("a builder busy for the whole budget: %v", err)
+	}
+	coded := plxerr.New(plxerr.FunctionNotFound, "no version 3 of essay.stats is deployed in this environment")
+	if err := s.publicLinkError(ctx, "campus", coded); err != coded { //nolint:errorlint // the very error must pass
+		t.Errorf("a PLX-coded error: %v", err)
 	}
 }
