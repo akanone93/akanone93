@@ -104,7 +104,10 @@ export function DeviceBayHost({
           }
         />
       }
-      problemCount={validation.state === "done" ? validation.problems.length : undefined}
+      // What the top bar counts, errors and warnings: a note is listed in the tab but does not raise the chip (#81).
+      problemCount={
+        validation.state === "done" ? validation.problems.filter((p) => p.severity !== "info").length : undefined
+      }
       request={request}
       live={live === true}
       selectedPath={bridge.selectedPath}

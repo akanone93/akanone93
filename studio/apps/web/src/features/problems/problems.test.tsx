@@ -3,7 +3,7 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import type { Problem } from "@plux/validator";
-import { cleanup, fireEvent, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import { countProblems, groupByFile } from "./project-files.ts";
 import type { ValidatorClient } from "./validator-client.ts";
@@ -119,6 +119,23 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
     expect(screen.getByLabelText("1 warning")).toBeTruthy();
     expect(screen.getByLabelText("plugins/pl/pages/home.page.json")).toBeTruthy();
     expect(loaded).toEqual(["plugins/pl/plugin.json", "plugins/pl/pages/home.page.json"]);
+  });
+
+  test("the bar's Problems chip counts errors and warnings, as the action bar does; a note alone does not raise it", async () => {
+    const only = (list: Problem[]) => (): ValidatorClient => ({
+      load: async () => list,
+      validatePage: async () => [],
+      dispose: () => undefined,
+    });
+    const view = renderApp(path, { documents, validator: only(problems) });
+    const chip = await screen.findByRole("button", { name: /^Problems/ }, { timeout: 5000 });
+    await waitFor(() => expect(chip.textContent).toContain("2"));
+    expect(chip.getAttribute("data-alert")).toBe("true");
+    view.unmount();
+    renderApp(path, { documents, validator: only(problems.filter((p) => p.severity === "info")) });
+    const quiet = await screen.findByRole("button", { name: /^Problems/ }, { timeout: 5000 });
+    await waitFor(() => expect(quiet.textContent).toContain("0"));
+    expect(quiet.getAttribute("data-alert") === null).toBe(true);
   });
 
   test("says so when nothing is wrong, and when the validator fails", async () => {
