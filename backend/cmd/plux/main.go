@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 )
@@ -171,6 +172,17 @@ func (e env) help(cmd string) int {
 	default:
 		return exitFailed
 	}
+}
+
+// shownPath is a path as a message shows it: absolute, so that "." or a
+// relative name is not read as part of the sentence (build log #77). A path
+// that cannot be made absolute is shown as given. The sentence does not end
+// with a full stop after it.
+func shownPath(p string) string {
+	if abs, err := filepath.Abs(p); err == nil {
+		return abs
+	}
+	return p
 }
 
 // commands maps the server commands to their implementations.

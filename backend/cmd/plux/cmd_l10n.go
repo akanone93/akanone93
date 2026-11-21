@@ -110,7 +110,7 @@ func (e env) l10nPull(args []string) int {
 		}
 		written = append(written, p)
 	}
-	return e.emit(t.c.json, map[string]any{"files": written}, fmt.Sprintf("Wrote %d translation files to %s.", len(written), t.c.dir))
+	return e.emit(t.c.json, map[string]any{"files": written}, fmt.Sprintf("Wrote %d translation files to %s", len(written), shownPath(t.c.dir)))
 }
 
 // l10nPush uploads the project's translations/<locale>.json files, each

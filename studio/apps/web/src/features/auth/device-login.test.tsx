@@ -26,6 +26,8 @@ describe("[CLI-002] approving plux login in Studio", () => {
     const id = identity();
     renderApp("/device?user_code=bcdf-ghjk", { identity: id });
     const code = await screen.findByLabelText("Code from your terminal");
+    // The organisation chooser has a visible label, as the code field has (build log #76).
+    expect(screen.getByText("Organisation", { selector: "label" })).toBeTruthy();
     expect((code as HTMLInputElement).value).toBe("BCDF-GHJK");
     const approve = screen.getByRole("button", { name: "Approve" });
     expect(approve).toHaveProperty("disabled", true);

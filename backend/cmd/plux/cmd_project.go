@@ -460,7 +460,7 @@ func (e env) export(args []string) int {
 			return e.fail("export", err)
 		}
 	}
-	return e.emit(c.json, map[string]any{"files": len(files), "directory": dir}, fmt.Sprintf("Wrote %d files to %s.", len(files), dir))
+	return e.emit(c.json, map[string]any{"files": len(files), "directory": dir}, fmt.Sprintf("Wrote %d files to %s", len(files), shownPath(dir)))
 }
 
 // importCmd replaces the server's drafts with the local project, or imports

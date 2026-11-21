@@ -73,7 +73,7 @@ func (e env) importSource(kind string, args []string) int {
 	if err := writeFile(*out, data); err != nil {
 		return e.fail("import "+kind, err)
 	}
-	_, _ = fmt.Fprintf(e.stdout, "Wrote %s.\n", *out)
+	_, _ = fmt.Fprintf(e.stdout, "Wrote %s\n", shownPath(*out))
 	return exitOK
 }
 

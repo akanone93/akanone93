@@ -150,7 +150,7 @@ func (e env) writeReport(c common, f complianceFlags, r *pluxv1.GetComplianceRep
 		return e.fail("compliance report", fmt.Errorf("write %s: %w", f.out, err))
 	}
 	return e.emit(c.json, map[string]any{"report": info.GetId(), "changes": info.GetChanges(), "keyId": info.GetKeyId(), "file": f.out},
-		fmt.Sprintf("Wrote report %s (%d production changes, signed with key %s) to %s.", info.GetId(), info.GetChanges(), info.GetKeyId(), f.out))
+		fmt.Sprintf("Wrote report %s (%d production changes, signed with key %s) to %s", info.GetId(), info.GetChanges(), info.GetKeyId(), shownPath(f.out)))
 }
 
 // complianceVerify checks an envelope against the keys the auditor trusts.

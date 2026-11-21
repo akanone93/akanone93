@@ -5,7 +5,7 @@ import { createClient } from "@connectrpc/connect";
 import { useQuery } from "@connectrpc/connect-query";
 import { useLingui } from "@lingui/react";
 import { IdentityService, OrgService } from "@plux/api";
-import { Icon, Select } from "@plux/ui";
+import { Icon, Field as LabelledField, Select } from "@plux/ui";
 import { Alert, AlertDescription } from "@plux/ui/components/alert";
 import { Button } from "@plux/ui/components/button";
 import { Card, CardContent } from "@plux/ui/components/card";
@@ -121,13 +121,16 @@ export function DeviceLoginPage(): ReactElement {
                 }}
               />
             </Field>
-            <Select
-              label={m.deviceOrganisation}
-              value={organizationId}
-              disabled={done || organisations.length === 0}
-              options={organisations.map((o) => ({ value: o.id, label: o.name }))}
-              onValueChange={(v) => setChosen(v)}
-            />
+            {/* A visible label, as the code field has (build log #76); the select's own name stays for assistive tech. */}
+            <LabelledField label={m.deviceOrganisation}>
+              <Select
+                label={m.deviceOrganisation}
+                value={organizationId}
+                disabled={done || organisations.length === 0}
+                options={organisations.map((o) => ({ value: o.id, label: o.name }))}
+                onValueChange={(v) => setChosen(v)}
+              />
+            </LabelledField>
             <Field orientation="horizontal">
               <Checkbox id={mineId} checked={mine} disabled={done} onCheckedChange={(v) => setMine(v === true)} />
               <FieldLabel htmlFor={mineId}>{m.deviceMine}</FieldLabel>

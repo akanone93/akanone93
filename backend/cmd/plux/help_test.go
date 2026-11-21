@@ -5,6 +5,7 @@ package main
 
 import (
 	"bytes"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -84,4 +85,17 @@ func TestHelpOfAnUnknownCommand(t *testing.T) {
 func firstLine(s string) string {
 	line, _, _ := strings.Cut(s, "\n")
 	return line
+}
+
+// TestShownPathIsAbsolute: a written path is shown absolute, so "." is not
+// read as the end of the sentence (build log #77).
+func TestShownPathIsAbsolute(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+	if got := shownPath("."); got != dir {
+		t.Errorf("shownPath(\".\") = %q, want %q", got, dir)
+	}
+	if got := shownPath(filepath.Join("out", "report.json")); got != filepath.Join(dir, "out", "report.json") {
+		t.Errorf("shownPath(relative) = %q", got)
+	}
 }
