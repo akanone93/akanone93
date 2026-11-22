@@ -40,6 +40,7 @@ function fixture(state: string, extra: Partial<ReleaseFixture["request"]> = {}, 
     request: { id: "r1", state, plugins, ...extra },
     calls: [],
     keys: [],
+    jobReads: [],
     acknowledgeWarnings: [],
     ...rest,
   } satisfies ReleaseFixture;
@@ -69,6 +70,9 @@ describe("[STU-100] publish flow", () => {
     await step("Freeze and build");
     press("Freeze and build");
     await waitFor(() => expect(release.keys).toEqual(["r1:home:1", "r1:shared:1"]));
+    // The jobs are read with one listing a poll, not one call per job (#196).
+    await waitFor(() => expect(release.jobReads?.length ?? 0).toBeGreaterThan(0));
+    expect(release.jobReads?.every((r) => r === "list")).toBe(true);
     // Warnings do not stop the builds; the Reports step is where they are acknowledged (SRV-051).
     expect(release.acknowledgeWarnings).toEqual([true, true]);
     await waitFor(() => expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy());

@@ -209,6 +209,8 @@ export interface ReleaseFixture {
   jobState?: string;
   /** Opening a request is refused with PLX-6200 until the session completes a step-up (SEC-103). */
   stepUp?: { done: boolean };
+  /** How the build step read its jobs, call by call: "list" or "get". */
+  jobReads?: string[];
   /** The idempotency keys of the publish jobs. */
   keys?: string[];
   /** The hashes of the images GetVisualDiffImage was asked for. */
@@ -899,22 +901,30 @@ export function createUpstream(state: UpstreamData) {
       releaseLock: () => ({}),
     });
     if (state.release !== undefined) {
+      const jobView = (id: string) => ({
+        id,
+        state: state.release?.jobState ?? "succeeded",
+        percent: 100,
+        version: 1n,
+        diagnostics: state.release?.evidence?.diagnostics?.[id] ?? [],
+      });
+      const startedJobs: string[] = [];
       service(ReleaseRequestService, releaseRequestHandlers(state.release));
       service(PublishService, {
         publish: (req, ctx) => {
           state.release?.keys?.push(ctx.requestHeader.get("Idempotency-Key") ?? "");
           state.release?.acknowledgeWarnings?.push(req.acknowledgeWarnings);
+          startedJobs.unshift(`job-${req.pluginId}`);
           return { job: { id: `job-${req.pluginId}`, state: "running", percent: 40 } };
         },
-        getPublishJob: (req) => ({
-          job: {
-            id: req.jobId,
-            state: state.release?.jobState ?? "succeeded",
-            percent: 100,
-            version: 1n,
-            diagnostics: state.release?.evidence?.diagnostics?.[req.jobId] ?? [],
-          },
-        }),
+        getPublishJob: (req) => {
+          state.release?.jobReads?.push("get");
+          return { job: jobView(req.jobId) };
+        },
+        listPublishJobs: () => {
+          state.release?.jobReads?.push("list");
+          return { jobs: [...new Set(startedJobs)].map(jobView) };
+        },
       });
     }
     service(ReleaseService, {

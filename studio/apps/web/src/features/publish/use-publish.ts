@@ -57,17 +57,26 @@ export function useReleaseRequest(app: string, id: string) {
   });
 }
 
-/** The state of the publish jobs the build step started; polls until each is finished. */
-export function useJobs(jobIds: readonly string[]) {
+/** The newest jobs of an app one poll reads; the build step's jobs are among them unless many were started since. */
+const jobsPage = 100;
+
+/**
+ * The state of the publish jobs the build step started; polls until each is finished. One poll is one listing of the
+ * app's newest jobs, whatever their number, not one call per job (an app's 18 jobs every 1.5 seconds took 720 calls a
+ * minute, past the per-person limit; #196); a job older than the listing is read on its own.
+ */
+export function useJobs(appId: string, jobIds: readonly string[]) {
   const { session } = useApp();
   return useQuery({
-    queryKey: ["publish-jobs", ...jobIds],
+    queryKey: ["publish-jobs", appId, ...jobIds],
     enabled: jobIds.length > 0,
     queryFn: async () => {
       const client = createClient(PublishService, session.transport);
-      return Promise.all(jobIds.map(async (jobId) => (await client.getPublishJob({ jobId })).job));
+      const listed = await client.listPublishJobs({ appId, page: { pageSize: jobsPage } });
+      const byId = new Map(listed.jobs.map((j) => [j.id, j]));
+      return Promise.all(jobIds.map(async (jobId) => byId.get(jobId) ?? (await client.getPublishJob({ jobId })).job));
     },
-    refetchInterval: (query) => (query.state.data?.every((j) => j && terminalJob.has(j.state)) ? false : 1500),
+    refetchInterval: (query) => (query.state.data?.every((j) => j && terminalJob.has(j.state)) ? false : 2000),
   });
 }
 

@@ -104,7 +104,10 @@ function JobRow({
 export function BuildPanel({ request, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const [refs, setRefs] = useState<readonly { pluginKey: string; jobId: string }[]>([]);
-  const jobs = useJobs(refs.map((r) => r.jobId));
+  const jobs = useJobs(
+    request.appId,
+    refs.map((r) => r.jobId),
+  );
   const states = jobs.data ?? [];
   const done = refs.length > 0 && states.length === refs.length && states.every((j) => j?.state === "succeeded");
   const failed = request.hold === "failed" || states.some((j) => j?.state === "failed" || j?.state === "cancelled");
