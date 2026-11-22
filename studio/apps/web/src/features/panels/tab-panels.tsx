@@ -263,12 +263,15 @@ export function JsonTab({ ids, nodes, onOpen }: SelectionTabProps & { readonly o
   const selected = ids.flatMap((id) => nodes.get(id) ?? []);
   return (
     <div className="flex flex-col gap-2">
-      <textarea
-        readOnly
+      {/* Read-only, so drawn as code rather than as a field that looks editable (#74): a named scrolling region. */}
+      <section
         aria-label={m.jsonOf}
-        value={compactJson(selected)}
-        className="max-h-64 min-h-24 w-full resize-y bg-transparent text-data"
-      />
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrolling region must be reachable by keyboard.
+        tabIndex={0}
+        className="max-h-64 min-h-24 w-full overflow-auto rounded-md bg-muted p-2"
+      >
+        <pre className="whitespace-pre-wrap break-all font-mono text-data">{compactJson(selected)}</pre>
+      </section>
       {onOpen !== undefined && (
         <Button variant="secondary" size="sm" onClick={onOpen}>
           <Icon name="pencil-simple" />
