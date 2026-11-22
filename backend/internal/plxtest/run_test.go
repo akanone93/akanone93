@@ -124,7 +124,7 @@ func TestPrepareStarterGeneratesADeterministicSignedTestProject(t *testing.T) {
 	if len(base.Keys) != 1 || len(base.Bundles) != 2 || base.Bundles[0].KeyID != base.Keys[0].KeyID || base.Bundles[0].Signature == "" {
 		t.Errorf("baseline = %+v", base)
 	}
-	if strings.Contains(string(plan.Files["test/plux_harness.dart"]), "DataMocks") {
+	if strings.Contains(string(plan.Files["test/plux_harness.dart"]), "DataMockState") {
 		t.Error("the harness selects data mocks although no scenario uses one")
 	}
 }
@@ -248,7 +248,8 @@ scenarios:
 			t.Errorf("the test lacks %q:\n%s", want, test)
 		}
 	}
-	if h := string(files["test/plux_harness.dart"]); !strings.Contains(h, "DataMocks({for") || strings.Contains(h, "{{") {
+	// The runtime's test overrides take the starting mocks as a map (build log #198).
+	if h := string(files["test/plux_harness.dart"]); !strings.Contains(h, "dataMocks: {for") || strings.Contains(h, "{{") {
 		t.Errorf("harness: data mocks missing or a placeholder left")
 	}
 	if p := string(files["pubspec.yaml"]); !strings.Contains(p, "path: '/src/plux_flutter'") {

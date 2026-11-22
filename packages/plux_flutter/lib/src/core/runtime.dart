@@ -170,7 +170,15 @@ final class RuntimeOverrides {
     this.controlTimer,
     this.backgroundSync,
     this.syncLock,
+    this.dataMocks = const {},
   });
+
+  /// The data-source mocks a test starts with, by source key (DAT-080): the
+  /// Plux Test harness and the render worker of visual diffs select them so
+  /// that a screen shows its mocked state. They take effect only where mocks
+  /// are allowed at all (kPluxDevtools: debug and dev builds), never in a
+  /// release build.
+  final Map<String, DataMockState> dataMocks;
 
   /// The platform scheduler of background sync (SYN-014); the platform's
   /// when null.
@@ -738,9 +746,11 @@ final class PluxRuntime with WidgetsBindingObserver {
     ),
   );
 
-  /// The mock selection of a dev session (`DAT-080`, `DEV-031`); only builds
-  /// with `kPluxDevtools` give it to the data layer.
-  final MutableDataMocks dataMocks = MutableDataMocks();
+  /// The mock selection of a dev session (`DAT-080`, `DEV-031`), starting
+  /// with a test's ([RuntimeOverrides.dataMocks]); only builds with
+  /// `kPluxDevtools` give it to the data layer.
+  late final MutableDataMocks dataMocks = MutableDataMocks()
+    ..replaceAll(overrides.dataMocks);
 
   /// The clock a dev session fixes and advances (`DEV-031`).
   final FakeableActionClock devClock = FakeableActionClock();

@@ -111,8 +111,9 @@ dependencies:
 func harness(mocks bool) string {
 	r := strings.NewReplacer(
 		"{{BASELINE_DIR}}", BaselineDir,
-		"{{DATA_MOCKS_IMPORT}}", dartIf(mocks, "import 'package:plux_flutter/src/data/mocks.dart' show DataMockState, DataMocks;\n"),
-		"{{DATA_MOCKS_ARG}}", dartIf(mocks, "          dataMocks: DataMocks({for (final e in dataSources.entries) e.key: DataMockState.values.byName(e.value)}, true),\n"),
+		"{{DATA_MOCKS_IMPORT}}", dartIf(mocks, "import 'package:plux_flutter/src/data/mocks.dart' show DataMockState;\n"),
+		// The runtime's test overrides take the mocks a scenario starts with (build log #198).
+		"{{DATA_MOCKS_ARG}}", dartIf(mocks, "          dataMocks: {for (final e in dataSources.entries) e.key: DataMockState.values.byName(e.value)},\n"),
 	)
 	return r.Replace(harnessTemplate)
 }
