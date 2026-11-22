@@ -58,6 +58,12 @@ here must never imitate a real company.
 
 Tick each `- [ ]` as you finish it. Nested items are children of the item above.
 
+**Where to build.** Run a local stack and sign in to Studio as [RECREATE-LOCALLY.md](RECREATE-LOCALLY.md) §1–§3
+says (it also holds the finished app, to compare with). Everything below is done in Studio, except what Studio
+has no page for yet, which is marked **(CLI)** or **(console)**: configuration values and function deploys use the
+`plux` CLI; gateway upstreams, environment variables and the user identity provider use the console snippet of
+RECREATE-LOCALLY §6 (build log #199). Organisation owners do §B1; builders start at §B2.
+
 | Notation | Meaning |
 |---|---|
 | `Widget` | Insert this widget (Insert pane or Add-after toolbar). A nested item is its child; `slot:` names a slot (`appBar:`, `body:`, `item:`, `then:` …) |
@@ -150,15 +156,32 @@ GraphQL, WebSocket, SSE), the sign-in the host app needs, and the push sends. Do
 - [ ] **Auth** (`/auth`): `POST /otp/start {phone|email}` · `POST /otp/verify {code}` → `{accessToken, refreshToken, expiresIn}` · `POST /refresh` · `POST /logout` · `DELETE /account` · `GET /.well-known/jwks.json`. Access token claims: `sub`, `role` (`member|staff|maintainer`), `org` (staff's org slug), `region`. Test number `+15555550100`, code `000000` for App Review
 - [ ] **Push**: on a status change, send FCM/APNs data `{"plux":{"route":"pass","params":{"id":"<id>"}}}` and an SSE `Notice`
 - [ ] **Partner inbox**: `POST /partner-requests` (API key header `X-AR-Key`) → stores and e-mails you
+- [ ] A ready development implementation (in memory, no tests) is in the app kit, `handoff/apply-register/ar-api` on
+  branch `claude/handoff-temp`: `go run .` serves `:8090`; partner key `dev-partner-key`; demo sign-in `+15555550100` / `000000`
 - [ ] Seed data: the 8 organisations of §G9–G16 (slugs `bank campus cityrun devconf clinic relief homes arena`), 30 more "coming soon" orgs for paging, 2 races, 3 clinics, 40 programmes
 
 ### A2. Plux server side for `ar-api`
 
 - [ ] Environments `development`, `staging`, `production` exist (§B4); per environment:
-- [ ] Register upstreams (`SecurityAdminService/CreateUpstream`, name = data source name): `api` (REST, `allowedMethods` GET POST PATCH DELETE, `apiKey` header `X-AR-Gateway` → secret `AR_GATEWAY_KEY`), `graph` (POST `/graphql`), `live` (WebSocket + SSE), `transfers` (POST `/transfers`, `requiresAssurance: AL2`, `transaction {amount:/amount, currency:/currency, payee:/to/iban}`)
-- [ ] Set environment secret `AR_GATEWAY_KEY` (`AppService.SetSecret`); function secret `AR_PARTNER_KEY`
-- [ ] Trust `ar-api` tokens for user claims (token exchange, `SEC-026`): issuer `https://api.<your-domain>/auth`, JWKS URL above
-- [ ] Server configuration values (`DAT-090`): `feeTable` (live, JSON string), `supportPhone` (live), `ratesEURUSD` (live, **strict**), `payeeIbanRelief` (server-bound, displayed in SCA sheet)
+- [ ] **(console)** One upstream per data source that goes through the gateway (`route: plux`), named as the data source
+  (`SecurityAdminService/CreateUpstream`), each with `apiKey` header `X-AR-Gateway` → secret `AR_GATEWAY_KEY`. Base URL:
+  development `http://host.docker.internal:8090` with `allowPrivateAddresses` (the local `ar-api`), staging and
+  production `https://api.<your-domain>`:
+  - [ ] REST under `/v1`, `allowedMethods` GET POST PATCH DELETE: `accounts`, `api`, `cacheFirst`, `cacheNF`, `cacheNet`,
+    `cacheSWR`, `campaign`, `donations`, `eligibility`, `featured`, `listings`, `me`, `orgs`, `partner`, `products`, `remote`,
+    `stats`, `subs`, `verify`
+  - [ ] GraphQL at the root, `allowedMethods` POST: `agenda`, `speakers`, `workshops`
+  - [ ] `requiresAssurance: AL2` with an SCA operation: `transfers` (`deposit`, POST `/transfers`, transaction
+    `{amount:/amount, currency:/currency, payee:/to/iban, summary:/reference}`), `payments` (`charge`, POST `/payments`,
+    `{amount, currency, payee:/payee}`), `reliefTransfer` (`donate`, POST `/transfers/relief`, binding `payeeIbanRelief` at
+    `/payee`, displayed as "Recipient")
+- [ ] Administration › Environments and secrets: `AR_GATEWAY_KEY` per environment (the upstreams' key)
+- [ ] **(console)** Trust `ar-api` tokens for user claims in staging and production (token exchange, `SEC-026`): issuer
+  `https://api.<your-domain>/auth`, the JWKS URL above, audience `apply-register`, forwarded claims `role org region segment`
+- [ ] **(CLI)** Server configuration values (`DAT-090`; `plux config set`, after a fresh `plux login`, which is the step-up):
+  `feeTable` (live, JSON string), `supportPhone` (live), `ratesEURUSD` (live, decimal, **strict**), `payeeIbanRelief`
+  (server-bound, displayed in SCA sheet), and the functions' secrets `AR_PARTNER_KEY` and `PASS_SIGNING_KEY` (server-bound,
+  `--sensitive --value-stdin`): a function's `secrets` are read from these values
 
 ### A3. The host app (the store binary)
 
@@ -230,14 +253,18 @@ Plux.state<int>('unreadCount').watch().listen(setAppIconBadge);
 - [ ] **New organisation**: name `Apply Register`, key `apply-register` (key is permanent)
 - [ ] Teams: `platform` (Launch, Explore, Passes, Account, Verify, Pay, Partner, Console, Maintainers), `orgs` (the 8 org plugins), `qa`
 - [ ] Members/roles: you = Owner; a second account = Release Manager (four-eyes approvals); one Translator (`translations.edit`), one Reviewer (`translations.approve`), one Auditor (read-only)
-- [ ] Restriction: Designers may not publish to `production`
-- [ ] Approval policies (§J2), change freeze window (e.g. last day of month 18:00–24:00), break-glass role = Owner
-- [ ] Admin: API token for CI (`plux` CLI), session idle timeout 30 min, audit export test (CEF), retention defaults
+- [ ] Restriction (Administration › Restrictions): team **Orgs**, `release.publish, release.promote`, **In app** Apply Register,
+  **In environment** `production`; check it with **Explain access** (person, permission, app, environment by name)
+- [ ] Approval policies (§J2), change freeze window (e.g. last day of month 18:00–24:00; **(CLI)** `plux freeze`, enterprise
+  licence), break-glass role = Owner. Custom roles also need the enterprise licence; without one Studio says so
+- [ ] Admin: API token for CI (`plux` CLI), session idle timeout 30 min, audit export test (Administration › Audit log ›
+  **Add destination**: syslog on any installation, CEF with the enterprise licence), retention defaults
 
 ### B2. Create the app
 
 - [ ] Apps grid › **Create app** › Blank: name `Apply Register`, key `apply-register`, description "Find an organisation, register, follow your registration."
-- [ ] Default and supported locales: `en` (default), `de-DE`, `ar`, `am-ET`; theme (§C); security profile (§B5); environments (§B4)
+- [ ] Default and supported locales: `en` (default), `de-DE`, `ar`, `am-ET` (search "Amharic" or "Ethiopia"); theme (§C);
+  security profile (§B5); environments (§B4)
 - [ ] Icon: upload `asset:app-icon.png` (1024²). 🧪 remove it once: the card falls back to the monogram, then restore
 - [ ] The default plugin Studio creates → rename to `launch` (§F1); its entry screen becomes `home`
 - [ ] Card actions to try once on a scratch copy: **Duplicate**, **Export .plux archive**, **Archive**/**Unarchive**, **Pin**; grid ↔ list, search, team/tag filters, sort by health
@@ -272,7 +299,11 @@ Plux.state<int>('unreadCount').watch().listen(setAppIconBadge);
 
 - [ ] `development` (dev signing keys, dev attestation provider allowed), `staging`, `production` (`GOV-010`)
 - [ ] Variables per env: `apiBaseUrl` `https://api.<env>.<your-domain>/v1` · `graphUrl` `…/graphql` · `streamUrl` `wss://…` · `mapTiles` · `privacyUrl` · `termsVersion` `2026-11`
-- [ ] Secrets per env (never in documents): `AR_GATEWAY_KEY`, `AR_PARTNER_KEY`, `PASS_SIGNING_KEY`
+- [ ] **(console)** Environment variables the functions read (`env` of §E; names are upper snake case): `FEE_TABLE` (the
+  fees by org and tier, e.g. `{"campus":{"bachelor":"45.00","master":"60.00","phd":"0.00"},"cityrun":{"5k":"25.00",…}}`),
+  `AR_BASE` (`https://api.<env>.<your-domain>/v1`)
+- [ ] Secrets (never in documents): `AR_GATEWAY_KEY` in Administration › Environments and secrets (§A2); the functions'
+  `AR_PARTNER_KEY` and `PASS_SIGNING_KEY` as sensitive server-bound configuration values (§A2)
 - [ ] 🧪 put a fake API key in a text prop once: publish must fail (`SEC-107`), then remove it
 
 ### B5. Security profile and settings (Devices & security › Security profile)
@@ -427,13 +458,13 @@ plux_fn::function!(handler);
 
 - [ ] **`run.finishTime`** — device · `{}` · City Run (§G11): `Input {distance_km: Decimal, pace_sec_per_km: u32}` → `Output {minutes: u32, label: String}`; `label = format!("{:02}:{:02}:{:02}", s/3600, s/60%60, s%60)`; business error `PACE_UNREALISTIC` when pace < 150
 - [ ] **`essay.stats`** — device · `{"kv": true}` · Campus (§G10): `Input {text: String}` → `Output {words, sentences, reading_minutes, long_words}`; also `ctx.kv().put("lastWords", …)`; error `TOO_LONG` above 5,000 words
-- [ ] **`fees.quote`** — server · `{"kv": false}` · `env: ["feeTable"]` · `pure: true, cacheTtlSeconds: 300` · Campus, City Run, DevHarbor, Arena (as a `function` data source)
+- [ ] **`fees.quote`** — server · `{"kv": false}` · `env: ["FEE_TABLE"]` · `pure: true, cacheTtlSeconds: 300` · Campus, City Run, DevHarbor, Arena (as a `function` data source)
 
 ```rust
 #[derive(Deserialize, JsonSchema)] pub struct Input { org: String, tier: String, quantity: u32, currency: String }
 #[derive(Serialize, JsonSchema)] pub struct Output { subtotal: Decimal, tax: Decimal, total: Decimal, currency: String }
 fn handler(ctx: &ServerContext, i: Input) -> Result<Output, BusinessError> {
-    let raw = ctx.env("feeTable").unwrap_or_else(|e| e.trap()).unwrap_or_else(|| "{}".into());
+    let raw = ctx.env("FEE_TABLE").unwrap_or_else(|e| e.trap()).unwrap_or_else(|| "{}".into());
     let table: serde_json::Value = serde_json::from_str(&raw).unwrap_or_default();
     let base: Decimal = table[&i.org][&i.tier].as_str().and_then(|s| s.parse().ok())
         .ok_or_else(|| BusinessError::new("UNKNOWN_TIER", "fees.unknownTier").with_param("tier", &i.tier))?;
@@ -444,7 +475,7 @@ fn handler(ctx: &ServerContext, i: Input) -> Result<Output, BusinessError> {
 plux_fn::function!(handler);
 ```
 
-- [ ] **`partner.submit`** — server · `{"http": ["api.<your-domain>"], "secrets": ["AR_PARTNER_KEY"], "kv": true}` · `env: ["arBase"]` · `limits: {"timeoutMs": 4000, "httpCalls": 1}` · Partner (§G7)
+- [ ] **`partner.submit`** — server · `{"http": ["api.<your-domain>"], "secrets": ["AR_PARTNER_KEY"], "kv": true}` · `env: ["AR_BASE"]` · `limits: {"timeoutMs": 4000, "httpCalls": 1}` · Partner (§G7)
 
 ```rust
 #[derive(Deserialize, Serialize, JsonSchema)] pub struct Input { org_name: String, email: String, category: String, pages: u32, needs: Vec<String>, plan: String, notes: Option<String> }
@@ -454,7 +485,7 @@ fn handler(ctx: &ServerContext, i: Input) -> Result<Output, BusinessError> {
     if ctx.kv().get(&key).unwrap_or_else(|e| e.trap()).is_some() {
         return Err(BusinessError::new("DUPLICATE_REQUEST", "partner.duplicate"));
     }
-    let base = ctx.env("arBase").unwrap_or_else(|e| e.trap()).unwrap_or_default();
+    let base = ctx.env("AR_BASE").unwrap_or_else(|e| e.trap()).unwrap_or_default();
     let req = HttpRequest::post(&format!("{base}/partner-requests"), serde_json::to_vec(&i).unwrap_or_default())
         .header("Content-Type", "application/json")
         .header("X-AR-Key", &ctx.secret("AR_PARTNER_KEY").unwrap_or_else(|e| e.trap()));
@@ -471,14 +502,14 @@ plux_fn::function!(handler);
 - [ ] **`workshops.capacity`** — server · `{"kv": true}` · DevHarbor: `Input {ids: Vec<String>}` → `Output {left: Vec<u32>}`; error `FULL{ id }` when any is 0
 - [ ] **`promo.check`** — server · `{}` · DevHarbor async validator: codes `EARLY20` (−20 %, until `closesAt`), `TEAM5` (needs quantity ≥ 5); errors `PROMO_INVALID`, `PROMO_EXPIRED`, `PROMO_CONDITION`
 - [ ] **`pass.issue`** — server · `{"secrets": ["PASS_SIGNING_KEY"], "claims": true}` · `assurance: "AL1"`: `code = hex(sha256(secret ‖ sub ‖ registrationId))[..12]`; error `NOT_OWNER` when the claims' `sub` differs
-- [ ] **`reminders.daily`** — server · `{"http": ["api.<your-domain>"], "secrets": ["AR_PARTNER_KEY"]}` · run by a **schedule** (`FunctionTriggerService/CreateTrigger` expression `@daily`, timezone `Europe/Berlin`, alias `stable`): GET due reminders, POST pushes
-- [ ] **`hooks.orgSync`** — server · `{"kv": true}` · inbound webhook `/hooks/<app>/hooks.orgSync` (Standard Webhooks signature): stores `{slug, open, closesAt}`; 🧪 a replayed message is refused (`PLX-7152`), a bad signature too (`PLX-7151`)
+- [ ] **`reminders.daily`** — server · `{"http": ["api.<your-domain>"], "secrets": ["AR_PARTNER_KEY"]}` · `env: ["AR_BASE"]` · `assurance: "AL0"` (a schedule runs at AL0) · run by a **schedule** (**(CLI)** `plux fn triggers create --function reminders.daily --alias stable --cron @daily --tz Europe/Berlin`): GET due reminders, POST pushes
+- [ ] **`hooks.orgSync`** — server · `{"kv": true}` · `assurance: "AL0"` · inbound webhook (**(CLI)** `plux fn triggers hook-create --function hooks.orgSync --alias stable`) `/hooks/<app>/hooks.orgSync` (Standard Webhooks signature): stores `{slug, open, closesAt}`; 🧪 a replayed message is refused (`PLX-7152`), a bad signature too (`PLX-7151`)
 
 Per function:
 
 - [ ] 2 stored test cases in `function.json` (one success, one business error); `plux fn test <name>` (native + module + device interpreter for device functions)
 - [ ] `plux fn build <name> --verify` (byte-identical) · `plux fn invoke <name> --input '{…}'`
-- [ ] `plux fn deploy <name> --env development --alias stable` → staging → production (production needs step-up; 🧪 a failing stored case blocks production, `PLX-7020`)
+- [ ] **(CLI)** `plux fn deploy <name> --env development --alias stable` (with `PLUX_SDK` naming `sdk/fn/plux-fn`, or `--sdk`, and the stack's builder running) → staging → production (production needs step-up; 🧪 a failing stored case blocks production, `PLX-7020`)
 - [ ] Studio › Functions: versions (assurance, signed by builder, hashes, toolchain, schemas), **Capabilities** granted, **Tests** › Run, **Metrics** (p50/p95/p99, memory, cache hits for `fees.quote`), **Logs**, **Point alias at this version**, **Edit in the Rust editor** › **Start the language server**
 - [ ] 🧪 under staging's `maximum` profile a device function fails until enabled per function (`FN-055`); a device app without `plux_functions` fails with `PLX-5401`; a `timeoutMs` exceeded shows a generic message and logs `PLX-7001`
 
@@ -1104,7 +1135,7 @@ Plugin: capabilities = all 10 device APIs, every function of §E, native routes 
 
 ### J1. Publish flow (Publish in the top bar)
 
-- [ ] **Select plugins** (a needed plugin is added for you) → **Freeze and build** (Queued/Running/Built; **Freeze again**) → **Reports** (validation, size vs previous, accessibility) → **Visual diffs** + **Changed documents** → **Changelog** → **Target** (environment, channel) → **Approval** → **Rollout plan** → **Release**
+- [ ] **Select plugins** (a needed plugin is added for you) → **Freeze and build** (Queued/Running/Built; **Freeze again** rebuilds the current draft in one press) → **Reports** (validation, size vs previous, accessibility) → **Visual diffs** (drawn by the render worker, which `make dev` starts) + **Changed documents** → **Changelog** → **Target** (environment, channel) → **Approval** → **Rollout plan** → **Release**
 - [ ] Release 1 to `development` (everything), then `staging`, then `production`
 - [ ] 🧪 a validation error, a budget overrun and an accessibility violation each block publish (`PLX` code shown); fix and publish
 
