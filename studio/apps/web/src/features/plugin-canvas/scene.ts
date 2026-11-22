@@ -115,8 +115,9 @@ export function deviceOf(style: ScreenStyle): { readonly width: number; readonly
 /** Each screen's laid-out content height, by screen id. */
 export type Heights = ReadonlyMap<string, number>;
 
+/** Each screen's laid-out height; one that is not finite is left out, so the screen keeps the device's height (#212). */
 export const heightsById = (heights: readonly ScreenHeight[]): Heights =>
-  new Map(heights.map((h) => [h.id, h.contentHeight]));
+  new Map(heights.filter((h) => Number.isFinite(h.contentHeight)).map((h) => [h.id, h.contentHeight]));
 
 /** Where the view goes after a layout: centred on the URL's position, or at a zoom in percent. */
 export interface FitTarget {

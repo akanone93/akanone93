@@ -191,6 +191,10 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     layoutScreens: (screens, style) =>
       new Promise((resolve) => run((h) => void h.layoutScreens(screens, style).then(resolve))),
     setViewport: (x, y, zoom) => {
+      // A view that is not finite is never kept (#212): the worker's viewport refuses it too.
+      if (![x, y, zoom].every(Number.isFinite)) {
+        return;
+      }
       view = { x, y, zoom };
       run((h) => h.setViewport(x, y, zoom));
     },

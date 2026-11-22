@@ -21,7 +21,7 @@ import { MaterialTapTargetSize, m3TextStyle, type TextRole, VisualDensity } from
 import { PipelineOwner, type RenderObject } from "../flutter/object.ts";
 import { RenderParagraph, TextOverflow } from "../flutter/paragraph.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
-import type { RenderBox } from "../flutter/render-box.ts";
+import { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
 import { TextScaler, type TextSpan, type TextStyle } from "../flutter/text-style.ts";
 import { RenderView } from "../flutter/view.ts";
@@ -185,6 +185,12 @@ export interface ScreenLayout {
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
   /** The widgets whose text did not fit its box: the nearest named owner of each overflowing paragraph (PC-32). */
   readonly overflowing?: readonly string[];
+  /**
+   * The widgets the canvas could not size because their layout gave them no bound, such as a horizontal list under an
+   * unbounded height (#212): the nearest named owner of each such box. Flutter refuses these; the canvas keeps them at
+   * their smallest size so the rest of the screen still lays out.
+   */
+  readonly unbounded?: readonly string[];
 }
 
 /** Slots that are drawn by the screen itself, not by the widget tree. */
@@ -860,6 +866,34 @@ function overflowingOwners(paragraphs: readonly RenderParagraph[]): string[] {
   return [...out];
 }
 
+/** A layout with what the layout found: the widgets whose text overflowed and those it could not size, when any. */
+function withFindings(result: ScreenLayout, overflowing: string[], unbounded: string[]): ScreenLayout {
+  return {
+    ...result,
+    ...(overflowing.length === 0 ? {} : { overflowing }),
+    ...(unbounded.length === 0 ? {} : { unbounded }),
+  };
+}
+
+/** The named owners (nearest ancestor with a debug id, the box's own included) of the boxes laid out unbounded, once each. */
+function unboundedOwners(root: RenderObject): string[] {
+  const out = new Set<string>();
+  const visit = (node: RenderObject): void => {
+    if (node instanceof RenderBox && node.unboundedSize) {
+      let at: RenderObject | null = node;
+      while (at !== null && at.debugId === null) {
+        at = at.parent;
+      }
+      if (at?.debugId != null) {
+        out.add(at.debugId.split("#")[0] as string);
+      }
+    }
+    node.visitChildren(visit);
+  };
+  visit(root);
+  return [...out];
+}
+
 /** The root's id when it is a `Scaffold` on a painted screen: the page's own scaffold (PC-12). */
 function pageScaffoldOf(root: WidgetNode | null | undefined, options: LayoutScreenOptions): string | undefined {
   // Under a dialog or sheet page, the page that opens it is the device's page (PC-13).
@@ -1009,7 +1043,8 @@ export function layoutScreen(input: WidgetNode | null | undefined, options: Layo
       }),
     }),
   });
-  const owner = new PipelineOwner();
+  // The canvas contains sizes that are not finite (#212): a widget without a bound is kept small and named.
+  const owner = new PipelineOwner({ containUnbounded: true });
   owner.rootNode = view;
   view.prepareInitialFrame();
   try {
@@ -1023,8 +1058,7 @@ export function layoutScreen(input: WidgetNode | null | undefined, options: Layo
       ctx,
       options,
     );
-    const overflowing = overflowingOwners(paragraphs);
-    return overflowing.length === 0 ? result : { ...result, overflowing };
+    return withFindings(result, overflowingOwners(paragraphs), unboundedOwners(view));
   } finally {
     for (const p of paragraphs) {
       p.dispose();

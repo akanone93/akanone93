@@ -37,4 +37,17 @@ describe("[STU-120] viewport math", () => {
     expect(viewport.y).toBe(25);
     expect(viewport.worldRect(makeRect(0, 0, 0, 0))).toEqual({ l: -50, t: 25, r: 350, b: 325 });
   });
+
+  test("[#212] a change that is not finite is ignored, so the view can always be moved again", () => {
+    const viewport = new Viewport(800, 600);
+    viewport.apply({ op: "set", x: 10, y: 20, zoom: 1 });
+    viewport.apply({ op: "set", x: 0, y: Number.NaN, zoom: 1 });
+    viewport.apply({ op: "set", x: 0, y: 0, zoom: Number.POSITIVE_INFINITY });
+    viewport.apply({ op: "pan", dx: Number.NaN, dy: 5 });
+    viewport.apply({ op: "zoom", factor: Number.NaN, x: 0, y: 0 });
+    viewport.apply({ op: "zoom", factor: 0, x: 0, y: 0 });
+    expect([viewport.x, viewport.y, viewport.zoom]).toEqual([10, 20, 1]);
+    viewport.apply({ op: "pan", dx: 0, dy: 100 });
+    expect(viewport.y).toBe(-80);
+  });
 });

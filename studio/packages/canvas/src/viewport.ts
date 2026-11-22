@@ -9,6 +9,11 @@ export const MIN_ZOOM = 0.1;
 /** The largest zoom: 400 % (ADR-0013). */
 export const MAX_ZOOM = 4;
 
+/** Whether every value is a finite number. */
+function finite(...values: readonly number[]): boolean {
+  return values.every(Number.isFinite);
+}
+
 /** `zoom` clamped to 10–400 %. */
 export function clampZoom(zoom: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
@@ -29,7 +34,10 @@ export class Viewport {
     public height: number,
   ) {}
 
-  /** Applies a change from the protocol. */
+  /**
+   * Applies a change from the protocol. A change holding a number that is not finite is ignored: one `NaN` kept here
+   * would stay through every later pan and zoom, and the view could never be moved back (#212).
+   */
   apply(change: ViewportChange): void {
     switch (change.op) {
       case "pan":
@@ -39,21 +47,29 @@ export class Viewport {
         this.zoomAbout(change.factor, change.x, change.y);
         break;
       case "set":
-        this.x = change.x;
-        this.y = change.y;
-        this.zoom = clampZoom(change.zoom);
+        if (finite(change.x, change.y, change.zoom) && change.zoom > 0) {
+          this.x = change.x;
+          this.y = change.y;
+          this.zoom = clampZoom(change.zoom);
+        }
         break;
     }
   }
 
-  /** Moves the content by `dx`, `dy` CSS pixels. */
+  /** Moves the content by `dx`, `dy` CSS pixels; a move that is not finite is ignored. */
   pan(dx: number, dy: number): void {
+    if (!finite(dx, dy)) {
+      return;
+    }
     this.x -= dx / this.zoom;
     this.y -= dy / this.zoom;
   }
 
-  /** Zooms by `factor` keeping the world point under CSS point (`px`, `py`) fixed. */
+  /** Zooms by `factor` keeping the world point under CSS point (`px`, `py`) fixed; a change that is not finite is ignored. */
   zoomAbout(factor: number, px: number, py: number): void {
+    if (!finite(factor, px, py) || factor <= 0) {
+      return;
+    }
     const wx = this.x + px / this.zoom;
     const wy = this.y + py / this.zoom;
     this.zoom = clampZoom(this.zoom * factor);

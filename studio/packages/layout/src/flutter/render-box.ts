@@ -122,9 +122,25 @@ export abstract class RenderBox extends RenderObject {
     return this._size;
   }
 
-  /** Set only by this box's own [performLayout] or [performResize]. */
+  /**
+   * Whether the last layout gave this box a size that is not finite while its owner contains such sizes (#212,
+   * `PipelineOwner.containUnbounded`). Flutter refuses such a size in a debug build ("was given an infinite size
+   * during layout") and keeps it in a release build; the canvas keeps the box at the smallest finite size its
+   * constraints allow instead and names the widget, so one unbounded widget cannot turn every later box into `NaN`.
+   */
+  unboundedSize = false;
+
+  /** Set only by this box's own [performLayout] or [performResize]; a size that is not finite may be contained (above). */
   set size(value: Size) {
-    this._size = value;
+    if (!this.owner?.containUnbounded || (Number.isFinite(value.width) && Number.isFinite(value.height))) {
+      this._size = value;
+      this.unboundedSize = false;
+      return;
+    }
+    const c = this.constraints;
+    const contained = (v: number, min: number) => (Number.isFinite(v) ? v : Number.isFinite(min) ? min : 0);
+    this._size = new Size(contained(value.width, c.minWidth), contained(value.height, c.minHeight));
+    this.unboundedSize = true;
   }
 
   /** The child's offset when its parent data is [BoxParentData], else zero. */

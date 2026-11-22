@@ -30,9 +30,17 @@ export class PipelineOwner {
   private _nodesNeedingLayout: RenderObject[] = [];
   private readonly _onNeedVisualUpdate: (() => void) | null;
 
+  /**
+   * Whether boxes of this tree keep a size that is not finite at their smallest finite size (`RenderBox.size`). Off,
+   * as in Flutter's release build; the canvas's screen layout turns it on (#212), so one widget laid out without a
+   * bound cannot make every later box `NaN`.
+   */
+  readonly containUnbounded: boolean;
+
   /** `onNeedVisualUpdate` is called whenever a node is scheduled for layout. */
-  constructor(options: { onNeedVisualUpdate?: () => void } = {}) {
+  constructor(options: { onNeedVisualUpdate?: () => void; containUnbounded?: boolean } = {}) {
     this._onNeedVisualUpdate = options.onNeedVisualUpdate ?? null;
+    this.containUnbounded = options.containUnbounded ?? false;
   }
 
   /** The root of the tree; setting it attaches the new root and detaches the old one. */

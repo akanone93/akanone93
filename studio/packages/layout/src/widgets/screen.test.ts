@@ -678,3 +678,36 @@ describe("builder coverage [STU-005]", () => {
     expect(extra).toEqual([]);
   });
 });
+
+describe("[#212] a widget the canvas cannot size", () => {
+  test("is kept at its smallest size and named, and every box and the screen's height stay finite", () => {
+    // A horizontal list under an unbounded height: Flutter refuses it; on the canvas it used to make every box NaN.
+    const root = {
+      id: "scroll",
+      type: "SingleChildScrollView",
+      slots: {
+        child: {
+          id: "column",
+          type: "Column",
+          children: [
+            { id: "list", type: "ListView", props: { scrollDirection: "horizontal", items: ["one", "two"] } },
+            { id: "after", type: "Text", props: { data: "After" } },
+          ],
+        },
+      },
+    };
+    const layout = layoutScreen(root, { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } });
+    expect(Number.isFinite(layout.contentHeight)).toBe(true);
+    expect(layout.boxes.every((b) => [b.x, b.y, b.w, b.h].every(Number.isFinite))).toBe(true);
+    expect(layout.unbounded).toContain("list");
+    expect(layout.boxes.some((b) => b.id === "after")).toBe(true);
+  });
+
+  test("a screen that lays out normally names none", () => {
+    const layout = layoutScreen(
+      { id: "c", type: "Column", children: [{ id: "t", type: "Text", props: { data: "Hi" } }] },
+      { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } },
+    );
+    expect(layout.unbounded).toBeUndefined();
+  });
+});
