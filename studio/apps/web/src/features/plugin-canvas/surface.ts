@@ -115,6 +115,13 @@ const NOTO_FILES: readonly (readonly [string, string])[] = [
 
 const toSource = ([family, url]: readonly [string, string]): FontSource => ({ family, url });
 
+/**
+ * The faces the canvas draws texts in by default, with their weights, for the page to load too: a text edited in place
+ * is shown in the same face as the canvas draws it (#242).
+ */
+export const CANVAS_FONT_FACES: readonly { readonly family: string; readonly weight: number; readonly url: string }[] =
+  [...FONT_FILES, ...NOTO_FILES].map(([family, url], i) => ({ family, url, weight: i % 2 === 0 ? 400 : 700 }));
+
 /** The browser surface: the canvas host on a bundled worker, started once its fonts are loaded. */
 export const browserSurface: SurfaceFactory = (canvas, size) => {
   let host: CanvasHost | null = null;

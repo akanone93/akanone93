@@ -230,8 +230,8 @@ shortly after each edit — and its problems (each with its code) show under its
 size when it is selected; a warning about a timeline — an expensive animation, say — is pinned to the widget it
 animates. Under each screen's corner its cost shows: its widgets against the page's node budget (amber above the count
 the compiler reports, red over the limit), the timelines that run at once when there are more than the compiler
-accepts, and its errors and warnings; the **Performance** tab lists every screen this way. Double-click down to a text to edit it in place: type, then press Enter (Shift+Enter breaks the line) or click
-away to save, Escape to cancel. A text you write this way becomes a translation key named after the page and its
+accepts, and its errors and warnings; the **Performance** tab lists every screen this way. Double-click down to a text to edit it in place — the text itself, in its own face, size and colour where the screen
+shows it: type, then press Enter (Shift+Enter breaks the line) or click away to save, Escape to cancel. A text you write this way becomes a translation key named after the page and its
 words, with your text as the default locale's message, when you may edit the app's keys and messages; a text already
 bound to a key changes its message in the default locale. A selected widget that pads its child shows a short magenta
 bar on each side of the child, and a row or column one in each gap between its children: drag a bar to change that

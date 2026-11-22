@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from "react";
+import { type PaintTheme, resolveTextStyle } from "@plux/layout";
+import { type CSSProperties, type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import type { JsonValue } from "../editor/json-patch.ts";
 import { extractKey, type L10nSessions, useL10nSessions } from "../localisation/index.ts";
 import {
@@ -14,13 +15,14 @@ import {
   setMessageRecipe,
 } from "../localisation/l10n-model.ts";
 import { setPropRecipe } from "../panels/properties-model.ts";
+import { PaintThemeContext } from "../panels/style-editors.tsx";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import type { Node } from "./plugin-model.ts";
 import { uuidv7 } from "./screens.ts";
 import { type EditFn, findNode } from "./select/edits.ts";
 import type { Box } from "./select/geometry.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
-import type { CanvasSurface } from "./surface.ts";
+import { CANVAS_FONT_FACES, type CanvasSurface } from "./surface.ts";
 
 /** A text being edited in place: the `Text` node, its screen, and where it stands. */
 export interface InlineEdit {
@@ -97,19 +99,89 @@ export async function commitInlineText(args: {
   return result.ok ? key : undefined;
 }
 
+/** `0xRRGGBBAA` as a CSS colour. */
+const cssColor = (rgba: number): string =>
+  `rgb(${(rgba >>> 24) & 255} ${(rgba >>> 16) & 255} ${(rgba >>> 8) & 255} / ${((rgba & 255) / 255).toFixed(3)})`;
+
+/** A text's `textAlign` as CSS: `start` and `end` follow the writing direction, as Flutter's do. */
+const ALIGN: Readonly<Record<string, string>> = {
+  left: "left",
+  right: "right",
+  center: "center",
+  justify: "justify",
+  start: "start",
+  end: "end",
+};
+
 /**
- * The editor of a text in place on the canvas (PC-17): a field over the text, at its size on screen, that follows the
- * view. Enter (or leaving it) saves, Shift+Enter breaks the line, Escape cancels.
+ * How the field shows the text (#242): the style the canvas draws it in — face, size at the view's zoom, weight,
+ * slant, tracking, line height, colour and alignment — so the person edits the text as the screen shows it, in place.
+ */
+export function inlineTextStyle(
+  node: Node | undefined,
+  theme: PaintTheme | null,
+  box: Box,
+  view: { readonly x: number; readonly y: number; readonly zoom: number },
+): CSSProperties {
+  const props = (node?.props ?? {}) as Obj;
+  const t = resolveTextStyle(props["style"], theme ?? undefined);
+  const colour = t.color ?? theme?.scheme.onSurface;
+  const align = typeof props["textAlign"] === "string" ? ALIGN[props["textAlign"]] : undefined;
+  // The page's text engine can measure a hair wider than the canvas's: a little room on the side the text grows
+  // towards keeps a line from wrapping in the field when it did not on the canvas.
+  const w = Math.max(24, (box.r - box.l) * view.zoom);
+  const room = Math.max(8, w * 0.15);
+  const before = align === "center" ? room / 2 : align === "right" || align === "end" ? room : 0;
+  return {
+    "--x": (box.l - view.x) * view.zoom - before,
+    "--y": (box.t - view.y) * view.zoom,
+    "--w": w + room,
+    "--h": Math.max(8, (box.b - box.t) * view.zoom),
+    fontFamily: `"${t.family ?? "Roboto"}", "Noto Sans", "Noto Sans Arabic", sans-serif`,
+    fontSize: `${t.size * view.zoom}px`,
+    fontWeight: t.weight,
+    fontStyle: t.italic ? "italic" : "normal",
+    letterSpacing: `${t.letterSpacing * view.zoom}px`,
+    lineHeight: t.height,
+    ...(colour === undefined ? {} : { color: cssColor(colour), caretColor: cssColor(colour) }),
+    ...(align === undefined ? {} : { textAlign: align as CSSProperties["textAlign"] }),
+  } as CSSProperties;
+}
+
+/** Loads the faces the canvas draws texts in into the page, once each, so the field shows the same face (#242). */
+function useCanvasFaces(): void {
+  useEffect(() => {
+    if (typeof document === "undefined" || document.fonts === undefined || typeof FontFace === "undefined") {
+      return;
+    }
+    const have = new Set([...document.fonts].map((f) => `${f.family.replaceAll('"', "")}/${f.weight}`));
+    for (const face of CANVAS_FONT_FACES) {
+      if (!have.has(`${face.family}/${face.weight}`)) {
+        const font = new FontFace(face.family, `url(${face.url})`, { weight: String(face.weight) });
+        document.fonts.add(font);
+        void font.load().catch(() => undefined);
+      }
+    }
+  }, []);
+}
+
+/**
+ * The editor of a text in place on the canvas (PC-17, #242): a field exactly where the text is, in the style the canvas
+ * draws it in, on a transparent background, while the canvas leaves that text out — the person edits the text itself,
+ * not a copy over it. It follows the view. Enter (or leaving it) saves, Shift+Enter breaks the line, Escape cancels.
  */
 export function InlineText(props: {
   readonly store: OverlayStore;
   readonly surface: () => CanvasSurface | null;
   readonly box: Box | undefined;
+  readonly node: Node | undefined;
   readonly initial: string;
   readonly onCommit: (text: string) => void;
   readonly onCancel: () => void;
 }): ReactNode {
   useOverlayState(props.store);
+  useCanvasFaces();
+  const theme = useContext(PaintThemeContext);
   const m = pluginCanvasMessages(useLingui().i18n);
   const [text, setText] = useState(props.initial);
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -127,16 +199,8 @@ export function InlineText(props: {
   if (surface === null || props.box === undefined) {
     return null;
   }
-  const v = surface.viewport;
-  const b = props.box;
-  const height = Math.max(16, (b.b - b.t) * v.zoom);
   const lines = Math.max(1, text.split("\n").length);
-  const style = {
-    "--x": (b.l - v.x) * v.zoom,
-    "--y": (b.t - v.y) * v.zoom,
-    "--w": Math.max(96, (b.r - b.l) * v.zoom + 24),
-    "--fs": Math.min(48, Math.max(11, (height / lines) * 0.7)),
-  } as CSSProperties;
+  const style = inlineTextStyle(props.node, theme, props.box, surface.viewport);
   const finish = (save: boolean) => {
     if (done.current) {
       return;
@@ -210,6 +274,7 @@ export function InlineTextHost(props: {
       store={props.store}
       surface={props.surface}
       box={props.boxOf(editing.id)}
+      node={node}
       initial={current.text}
       onCancel={props.onDone}
       onCommit={(text) => {

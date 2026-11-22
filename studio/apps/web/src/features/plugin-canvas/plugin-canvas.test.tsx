@@ -7,6 +7,7 @@ import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import { canvasSearchSchema } from "./plugin-canvas.schema.ts";
+import { withTextHidden } from "./plugin-canvas-page.tsx";
 import { flowOrder, readSavedPositions } from "./positions.ts";
 import { type CanvasSurface, canvasPoint } from "./surface.ts";
 
@@ -245,5 +246,27 @@ describe("[STU-058] an idle canvas under the preview switches", () => {
     expect(settled).toBeLessThanOrEqual(2 + moves);
     await new Promise((resolve) => setTimeout(resolve, 600));
     expect(s.patches.length).toBe(settled);
+  });
+});
+
+describe("PC-17 the canvas while a text is edited in place (#242)", () => {
+  test("draws that text transparent, in its place, and leaves every other node and screen as it was", () => {
+    const text = { id: "t", type: "Text", props: { data: "Hi", style: { fontSize: 20 } } };
+    const other = { id: "o", type: "Text", props: { data: "Other" } };
+    const root = { id: "r", type: "Column", children: [text, other] };
+    const screens = [
+      { id: "s1", title: "One", at: { x: 0, y: 0 }, root },
+      { id: "s2", title: "Two", at: { x: 500, y: 0 }, root: { id: "r2", type: "Text" } },
+    ];
+    expect(withTextHidden(screens, null)).toBe(screens);
+    const drawn = withTextHidden(screens, { id: "t", screen: "s1" });
+    const children = drawn[0]?.root?.children ?? [];
+    expect((children[0]?.props as { style?: unknown } | undefined)?.style).toEqual({
+      fontSize: 20,
+      color: "#00000000",
+    });
+    expect(children[0]?.props?.data).toBe("Hi");
+    expect(children[1]).toBe(other);
+    expect(drawn[1]).toBe(screens[1]);
   });
 });

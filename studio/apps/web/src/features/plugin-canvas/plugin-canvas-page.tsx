@@ -540,6 +540,49 @@ function boxUnder(hits: readonly string[], ghosts: readonly GhostTarget[]): stri
   return null;
 }
 
+/**
+ * The screens as the canvas draws them while a text is edited in place (#242): that text in a transparent colour, so it
+ * keeps its place and size in the layout but the field over it is the only copy the person sees.
+ */
+export function withTextHidden(screens: readonly PlacedScreen[], editing: InlineEdit | null): readonly PlacedScreen[] {
+  if (editing === null) {
+    return screens;
+  }
+  return screens.map((s) =>
+    s.id !== editing.screen || s.root === undefined ? s : { ...s, root: transparentText(s.root, editing.id) },
+  );
+}
+
+/** `node` with the text `id` drawn transparent; untouched branches keep their identity. */
+function transparentText(node: PluxNode, id: string): PluxNode {
+  if (node.id === id) {
+    const props = (node.props ?? {}) as Record<string, unknown>;
+    const style = typeof props["style"] === "object" && props["style"] !== null ? props["style"] : {};
+    // The node type names only `data`; a widget's props hold its style beside it.
+    const hidden: Record<string, unknown> = { ...props, style: { ...style, color: "#00000000" } };
+    return { ...node, props: hidden };
+  }
+  let changed = false;
+  const children = node.children?.map((c) => {
+    const next = transparentText(c, id);
+    changed ||= next !== c;
+    return next;
+  });
+  const slots =
+    node.slots === undefined
+      ? undefined
+      : Object.fromEntries(
+          Object.entries(node.slots).map(([k, c]) => {
+            const next = transparentText(c, id);
+            changed ||= next !== c;
+            return [k, next];
+          }),
+        );
+  return changed
+    ? { ...node, ...(children === undefined ? {} : { children }), ...(slots === undefined ? {} : { slots }) }
+    : node;
+}
+
 /** The heights a plugin's unsaved screens are arranged with on a device, kept from its first layout (#241). */
 function useArrangedHeights(
   plugin: string | undefined,
@@ -919,6 +962,8 @@ function PluginCanvasView({
     scrubbed,
   );
   const styled = useMemo(() => liveStyle(designStyled, tool), [designStyled, tool]);
+  // A text edited in place is left out of what the canvas draws (#242): the field over it is its only copy.
+  const drawnShown = useMemo(() => withTextHidden(shown, inlineEdit), [shown, inlineEdit]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<CanvasSurface | null>(null);
   const liveHeights = useRef<((heights: readonly ScreenHeight[]) => void) | undefined>(undefined);
@@ -1298,7 +1343,7 @@ function PluginCanvasView({
       return;
     }
     let current = true;
-    void surface.layoutScreens(screenDocuments(shown), styled).then((laidOut) => {
+    void surface.layoutScreens(screenDocuments(drawnShown), styled).then((laidOut) => {
       if (!current) {
         return;
       }
@@ -1342,7 +1387,7 @@ function PluginCanvasView({
     return () => {
       current = false;
     };
-  }, [screens, shown, styled, device, setArranged]);
+  }, [screens, drawnShown, styled, device, setArranged]);
 
   // The view's place in the URL and the ghosts' level of detail follow the view at most once a frame: a router update
   // per wheel step or pointer move re-rendered the whole editor on each, and the canvas stuttered.

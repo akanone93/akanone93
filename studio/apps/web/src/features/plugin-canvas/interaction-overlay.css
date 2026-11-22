@@ -590,26 +590,35 @@
 }
 
 /* A text edited in place (PC-17): a field over the text, at its size on screen. */
+/*
+ * A text edited in place (PC-17, #242): exactly over the text, in the style the canvas draws it in (set inline: face,
+ * size at the zoom, weight, tracking, line height, colour, alignment), on a transparent background, while the canvas
+ * leaves that text out. Only a thin ring says it is being edited.
+ */
 .pc-inline-text {
   position: absolute;
   inset: 0 auto auto 0;
   z-index: 4;
+  box-sizing: content-box;
   inline-size: calc(var(--w) * 1px);
-  min-block-size: 1.6em;
-  transform: translate(calc(var(--x) * 1px - 4px), calc(var(--y) * 1px - 3px));
-  padding: 2px 4px;
+  min-block-size: calc(var(--h) * 1px);
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
+  margin: 0;
+  padding: 0;
   border: 0;
-  border-radius: 4px;
-  outline: 2px solid var(--primary);
-  box-shadow: 0 4px 16px color-mix(in oklch, black 18%, transparent);
-  background-color: var(--background);
-  color: var(--foreground);
-  font: inherit;
-  font-size: calc(var(--fs) * 1px);
-  line-height: 1.25;
+  border-radius: 2px;
+  outline: 1px solid color-mix(in oklch, var(--primary) 70%, transparent);
+  outline-offset: 2px;
+  background: transparent;
   resize: none;
   overflow: hidden;
+  field-sizing: content;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.pc-inline-text::selection {
+  background-color: color-mix(in oklch, var(--primary) 28%, transparent);
 }
 
 /* A widget the selection flies to in a hero transition (PC-29). */

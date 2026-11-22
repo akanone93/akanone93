@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { type DocumentTransport, EditSession, type ServerDocument } from "../editor/edit-session.ts";
 import { applyPatch, type JsonValue } from "../editor/json-patch.ts";
 import type { L10nSessions } from "../localisation/index.ts";
-import { commitInlineText, textValue } from "./inline-text.tsx";
+import { commitInlineText, inlineTextStyle, textValue } from "./inline-text.tsx";
 import type { Node } from "./plugin-model.ts";
 
 /**
@@ -139,5 +139,39 @@ describe("PC-17 a text edited in place [I18N-007]", () => {
     });
     expect(key).toBeUndefined();
     expect(plain.content().page.root.children[0]?.props.data).toBe("Bye");
+  });
+});
+
+describe("PC-17 a text edited where it is (#242)", () => {
+  const theme = { scheme: { onSurface: 0x111111ff } } as unknown as Parameters<typeof inlineTextStyle>[1];
+  const node = {
+    id: "t",
+    type: "Text",
+    props: { data: "Hello", textAlign: "center", style: { fontSize: 40, fontWeight: "w600", color: "#1E88E5FF" } },
+  } as Node;
+
+  test("the field takes the text's place and the style the canvas draws it in, at the view's zoom", () => {
+    const style = inlineTextStyle(node, theme, { l: 100, t: 200, r: 300, b: 260 }, { x: 0, y: 0, zoom: 0.5 }) as Record<
+      string,
+      unknown
+    >;
+    expect(style["fontSize"]).toBe("20px");
+    expect(style["fontWeight"]).toBe(600);
+    expect(style["color"]).toBe("rgb(30 136 229 / 1.000)");
+    expect(style["textAlign"]).toBe("center");
+    expect(style["--y"]).toBe(100);
+    // Centred: the field's room is shared on both sides of the text's box.
+    const w = style["--w"] as number;
+    expect(style["--x"]).toBeCloseTo(50 - (w - 100) / 2, 6);
+    expect(String(style["fontFamily"])).toStartWith('"Roboto"');
+  });
+
+  test("a text without its own colour takes the theme's on-surface colour", () => {
+    const plain: Node = { id: "p", type: "Text", props: { data: "Hi" } };
+    const style = inlineTextStyle(plain, theme, { l: 0, t: 0, r: 10, b: 10 }, { x: 0, y: 0, zoom: 1 }) as Record<
+      string,
+      unknown
+    >;
+    expect(style["color"]).toBe("rgb(17 17 17 / 1.000)");
   });
 });
