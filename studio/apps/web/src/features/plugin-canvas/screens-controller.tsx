@@ -119,6 +119,8 @@ export interface ScreensControllerProps {
   /** Every widget's badges (#216). */
   readonly badges?: boolean;
   readonly onBadges?: (on: boolean) => void;
+  /** Arrange by flow in the top bar (#241). */
+  readonly onArrange?: () => void;
 }
 
 /**
@@ -388,6 +390,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         onSizes={props.onSizes}
         badges={props.badges}
         onBadges={props.onBadges}
+        onArrange={props.onArrange}
         validation={props.validation}
         percent={props.percent}
         onZoom={props.onZoom}

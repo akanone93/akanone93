@@ -4,17 +4,23 @@
 /**
  * Where the plugin's screens sit on the canvas (STU-050, L-10). The saved positions live in the
  * editor-only `canvas` document (kind "canvas"); when none is saved, or the kind is not yet
- * served, screens are laid out left to right in navigation-flow order. This module is the one
- * place that knows the document's shape.
+ * served, screens are arranged by flow (`arrangeScreens`, #241). This module is the one place
+ * that knows the document's shape.
  */
+
+import { arrange, VIEW_ASPECT } from "../../lib/arrange.ts";
 
 export interface Point {
   readonly x: number;
   readonly y: number;
 }
 
-/** Horizontal space between auto-laid-out screens, in world units. */
-export const SCREEN_GAP = 160;
+/**
+ * Space Arrange keeps between screens, in world units (#241): across, room for the arrows to run round them; down,
+ * room for a screen's title above it and the line under the one above, at the zooms the canvas opens at.
+ */
+export const SCREEN_GAP = 200;
+export const SCREEN_ROW_GAP = 320;
 
 /** The kind of the editor-only positions document. */
 export const CANVAS_KIND = "canvas";
@@ -115,40 +121,53 @@ export function flowOrder(
   return order;
 }
 
-/** One row, left to right in `order`, each screen `widths` wide with a gap between. */
-export function autoLayout(order: readonly string[], widths: ReadonlyMap<string, number>): Map<string, Point> {
-  const out = new Map<string, Point>();
-  let x = 0;
-  for (const id of order) {
-    out.set(id, { x, y: 0 });
-    x += (widths.get(id) ?? 0) + SCREEN_GAP;
-  }
-  return out;
+/** A screen's size for arranging: the device's width, and its laid-out height (at least the device's). */
+export type ScreenSize = (id: string) => { readonly w: number; readonly h: number };
+
+/**
+ * The screens arranged by flow (STU-050, #241): a layered layout from the entry along the links, wrapped and packed
+ * towards the view's shape, the screens no link reaches in a grid beside them (`arrange`).
+ */
+export function arrangeScreens(
+  ids: readonly string[],
+  entry: string | undefined,
+  edges: ReadonlyMap<string, readonly string[]>,
+  size: ScreenSize,
+): Map<string, Point> {
+  const links = ids.flatMap((id) => (edges.get(id) ?? []).map((to) => ({ from: id, to })));
+  return arrange(
+    ids.map((id) => ({ id, ...size(id) })),
+    links,
+    { gapX: SCREEN_GAP, gapY: SCREEN_ROW_GAP, groupGap: SCREEN_ROW_GAP, aspect: VIEW_ASPECT, entry },
+  );
 }
 
-/** Saved positions where present, auto-layout for the rest (placed after the rightmost saved screen). */
+/** Saved positions where present; the other screens arranged by flow beside them, to the right of the saved ones. */
 export function placeScreens(
-  order: readonly string[],
-  widths: ReadonlyMap<string, number>,
+  ids: readonly string[],
+  entry: string | undefined,
+  edges: ReadonlyMap<string, readonly string[]>,
+  size: ScreenSize,
   saved: ReadonlyMap<string, Point> | undefined,
 ): Map<string, Point> {
-  const auto = autoLayout(order, widths);
-  if (saved === undefined) {
-    return auto;
-  }
+  const unsaved = ids.filter((id) => saved?.get(id) === undefined);
   const out = new Map<string, Point>();
   let right = 0;
-  for (const id of order) {
-    const p = saved.get(id);
+  let top = Number.POSITIVE_INFINITY;
+  for (const id of ids) {
+    const p = saved?.get(id);
     if (p !== undefined) {
       out.set(id, p);
-      right = Math.max(right, p.x + (widths.get(id) ?? 0) + SCREEN_GAP);
+      right = Math.max(right, p.x + size(id).w + SCREEN_GAP);
+      top = Math.min(top, p.y);
     }
   }
-  for (const id of order) {
-    if (!out.has(id)) {
-      out.set(id, { x: right, y: 0 });
-      right += (widths.get(id) ?? 0) + SCREEN_GAP;
+  if (unsaved.length > 0) {
+    const laid = arrangeScreens(unsaved, entry, edges, size);
+    const y = Number.isFinite(top) ? top : 0;
+    for (const id of unsaved) {
+      const p = laid.get(id) ?? { x: 0, y: 0 };
+      out.set(id, { x: right + p.x, y: y + p.y });
     }
   }
   return out;

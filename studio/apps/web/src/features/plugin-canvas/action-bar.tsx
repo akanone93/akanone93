@@ -21,6 +21,7 @@ import { ZoomControls } from "../app-canvas/canvas-chrome.tsx";
 import { devicesMessages } from "../devices/devices.messages.ts";
 import { historyMessages } from "../history/history.messages.ts";
 import type { Validation } from "../problems/use-validation.ts";
+import { navigationMessages } from "./navigation.messages.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 
 export interface ActionBarProps {
@@ -39,6 +40,8 @@ export interface ActionBarProps {
   /** Every widget's event, binding and component badges, not only the hovered and selected one's (#216). */
   readonly badges?: boolean | undefined;
   readonly onBadges?: ((on: boolean) => void) | undefined;
+  /** Arrange by flow (#241): the screens laid out from the entry along the links, as the app canvas's Arrange. */
+  readonly onArrange?: (() => void) | undefined;
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
@@ -121,7 +124,10 @@ function BarButton(props: {
   );
 }
 
-/** The pointer tools and the canvas's views: Accessibility, Localisation, Size classes and every widget's badges. */
+/**
+ * The pointer tools, the canvas's views — Accessibility, Localisation, Size classes and every widget's badges — and
+ * Arrange by flow.
+ */
 function ToolsAndViews(props: ActionBarProps) {
   const { i18n } = useLingui();
   const m = pluginCanvasMessages(i18n);
@@ -186,6 +192,9 @@ function ToolsAndViews(props: ActionBarProps) {
           pressed={props.badges === true}
           onClick={() => props.onBadges?.(props.badges !== true)}
         />
+      )}
+      {props.onArrange !== undefined && (
+        <BarButton icon="sparkle" label={navigationMessages(i18n).arrange} onClick={props.onArrange} />
       )}
       <Divider />
     </>

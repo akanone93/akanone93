@@ -74,7 +74,10 @@ Canvas, and you can drive both from the keyboard.
    centre it snaps into line, and a guide shows what it lines up with; a plugin you drag stays on
    top of the ones it passes over. Drag on the background to select every plugin the rectangle
    meets. Frame a group with **Frame selection**, then rename or
-   resize the frame from the **Plugins** panel. **Arrange** tidies the layout.
+   resize the frame from the **Plugins** panel. **Arrange** lays the plugins out by their links: from the entry
+   plugin outwards in layers, a crowded layer folded into columns, a long flow wrapped into bands, and the plugins
+   without links in a grid beside them, the whole about the shape of the window. Plugins without a saved place are
+   laid out the same way.
 6. **Plugin settings** changes the description, tags and owning team.
 7. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.
    Deleting or deprecating a plugin of an app with a production release asks you to type its key.
@@ -86,7 +89,7 @@ Positions are read-only while someone else is editing the app.
 
 ## Edit a plugin
 
-1. Double-click a plugin. The **Plugin canvas** shows its screens in navigation order on the same
+1. Double-click a plugin. The **Plugin canvas** shows its screens arranged by flow on the same
    dotted surface as the app canvas, and zooms, pans and draws the same way; it opens with every screen's frame in view,
    with the boxes of the screens and routes outside the plugin that it links to, at 100 % at most, or at 15 % on the
    middle of them when there are more than fit. The
@@ -302,9 +305,10 @@ button to remove it. A selected widget that shows a message draws it at the bott
 snackbar shows it, above the navigation bar, with the action button lifted over it. An arrow's lane names the
 parameters its link passes (`Orders → Order (orderId: item.id)`); pick a lane to give the page it opens each parameter
 the page declares — an expression such as `item.id`, a number, `true` or `false`, or `"text"` in quotes — with the
-required ones it misses named, and choose the transition the page **Opens with**. **Arrange by flow** (in the canvas
-menu and the command palette) lays the screens out in columns, a column per step from the entry screen, the screens
-no link reaches last. Every widget has **Motion** in its properties: an **Enter** and an **Exit** transition (fade,
+required ones it misses named, and choose the transition the page **Opens with**. **Arrange by flow** (in the top bar,
+the canvas menu and the command palette) lays the screens out as **Arrange** does on the app canvas: from the entry
+screen along the links, at their full heights, folded and wrapped to about the shape of the window, the screens no link
+reaches in a grid beside them. Screens without a saved place are arranged that way when the plugin opens. Every widget has **Motion** in its properties: an **Enter** and an **Exit** transition (fade,
 scale, or a slide in any direction) with its duration and curve — **Play enter** and **Play exit** play it on the
 canvas, as the device would — **Animate changes** (its numbers and colours animate when their bound value changes,
 with a duration, a delay and a curve), a **Hero tag** (widgets of other screens with the same tag are outlined while

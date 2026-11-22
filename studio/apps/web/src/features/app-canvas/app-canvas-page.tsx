@@ -454,7 +454,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       ...list.flatMap((s) => (s.plugin === undefined ? [] : [{ id: s.plugin.id, key: s.plugin.key }])),
       ...graph.natives.map((r) => ({ id: nativeBox(r), key: r })),
     ];
-    return placeBoxes(nodes, positions, links).map((b) => {
+    const entry = nodes.find((n) => n.key === entryKey)?.id;
+    return placeBoxes(nodes, positions, links, entry).map((b) => {
       const s = summaryOf.get(b.id);
       const native = s === undefined && b.id === nativeBox(b.key);
       return {
@@ -585,9 +586,10 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       boxes.map((b) => ({ id: b.id, key: b.key })),
       new Map(),
       links,
+      boxes.find((b) => b.key === entryKey)?.id,
     );
     commit(new Map(laid.map((b) => [b.id, { x: b.x, y: b.y }])), frames);
-  }, [boxes, links, frames, commit]);
+  }, [boxes, links, frames, commit, entryKey]);
 
   const open = (b: SceneBox) => {
     if (!b.native) {

@@ -94,14 +94,7 @@ import { dataSourcesOf, jsonOf, messagesFor, namedMocks, titledScreens } from ".
 import { animationOf, heroMatches } from "./motion.ts";
 import { useMotionPlayer } from "./motion-player.ts";
 import { navigationMessages } from "./navigation.messages.ts";
-import {
-  declaredParams,
-  flowLayout,
-  linkParams,
-  setLinkParamRecipe,
-  setTransitionRecipe,
-  transitionOf,
-} from "./navigation.ts";
+import { declaredParams, linkParams, setLinkParamRecipe, setTransitionRecipe, transitionOf } from "./navigation.ts";
 import { resolveNodeParam } from "./node-path.ts";
 import { PagePartsHost, useShownDrawers } from "./page-parts.tsx";
 import { useBrands } from "./paint-theme.ts";
@@ -109,7 +102,7 @@ import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
 import { documentJson, openersOf, type Node as PluxNode, pageStates, readPlugin } from "./plugin-model.ts";
-import { flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
+import { arrangeScreens, flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
 import { eventMarks, snackbarOf } from "./quick-actions.ts";
 import { deviceRoot } from "./responsive.ts";
 import {
@@ -167,19 +160,22 @@ import { useScreenPositions } from "./use-screen-positions.ts";
 import { useSizesView } from "./use-sizes-view.ts";
 
 /**
- * Screens placed: saved positions, else flow order (STU-050); the canvas worker lays them out. `saved` — the edit
- * session's copy of the positions, or a drop on its way — wins over the documents' own.
+ * Screens placed: saved positions, else arranged by flow (STU-050, #241); the canvas worker lays them out. `saved` —
+ * the edit session's copy of the positions, or a drop on its way — wins over the documents' own. Screens without a
+ * saved place are arranged at `heights` (the first layout's, kept), else the device's.
  */
 export function placeModel(
   documents: Parameters<typeof readPlugin>[0],
   saved?: ReadonlyMap<string, Point>,
-  width: number = DEVICE.width,
+  device: { readonly width: number; readonly height: number } = DEVICE,
+  heights?: Heights,
 ): PlacedScreen[] {
   const model = readPlugin(documents);
   const ids = model.screens.map((s) => s.id);
-  const order = flowOrder(ids, model.entryPage ?? ids[0], model.edges);
-  const widths = new Map(ids.map((id) => [id, width]));
-  const at = placeScreens(order, widths, saved ?? readSavedPositions(documents));
+  const entry = model.entryPage ?? ids[0];
+  const order = flowOrder(ids, entry, model.edges);
+  const size = (id: string) => ({ w: device.width, h: Math.max(device.height, heights?.get(id) ?? 0) });
+  const at = placeScreens(order, entry, model.edges, size, saved ?? readSavedPositions(documents));
   const byId = new Map(model.screens.map((s) => [s.id, s]));
   const openers = openersOf(model.screens);
   const opened = new Set([...model.edges.values()].flat());
@@ -544,6 +540,17 @@ function boxUnder(hits: readonly string[], ghosts: readonly GhostTarget[]): stri
   return null;
 }
 
+/** The heights a plugin's unsaved screens are arranged with on a device, kept from its first layout (#241). */
+function useArrangedHeights(
+  plugin: string | undefined,
+  device: { readonly width: number; readonly height: number },
+): { key: string; heights: Heights | undefined; keep: (key: string, heights: Heights) => void } {
+  const [arranged, setArranged] = useState<{ readonly key: string; readonly heights: Heights } | null>(null);
+  const key = `${plugin ?? ""}:${device.width}x${device.height}`;
+  const keep = useCallback((k: string, heights: Heights) => setArranged({ key: k, heights }), []);
+  return { key, heights: arranged?.key === key ? arranged.heights : undefined, keep };
+}
+
 /**
  * The screens' bounds grown by the boxes of the screens and routes they link to outside the plugin (#224), placed
  * beside them as the ghost layer places them: fitting everything frames where the arrows go too.
@@ -747,10 +754,18 @@ function PluginCanvasView({
   );
   // A translated title reads in the previewed locale, as the screen itself does.
   const screenPositions = useScreenPositions(docs.data, useCanEdit());
+  // Screens without a saved place are arranged once with the heights of the first layout (#241), so a screen taller
+  // than the device does not overlap the one below, and they stay put while the screens' content changes.
+  const { key: arrangeKey, heights: arrangedHeights, keep: setArranged } = useArrangedHeights(params.plugin, device);
   const placed = useMemo(
-    () => (docs.data === undefined ? [] : placeModel(live, screenPositions.positions, device.width)),
-    [docs.data, live, screenPositions.positions, device.width],
+    () =>
+      docs.data === undefined
+        ? []
+        : placeModel(live, screenPositions.positions, { width: device.width, height: device.height }, arrangedHeights),
+    [docs.data, live, screenPositions.positions, device.width, device.height, arrangedHeights],
   );
+  const placeInputs = useRef({ live, positions: screenPositions.positions, arrangeKey });
+  placeInputs.current = { live, positions: screenPositions.positions, arrangeKey };
   const titleMessages = useMemo(
     () => messagesFor([...(drawnAppDocs ?? []), ...(docs.data ?? [])], look),
     [drawnAppDocs, docs.data, look],
@@ -1102,6 +1117,15 @@ function PluginCanvasView({
   useScopedCommands("plugin-style", styleCommandList);
   // Arrange by flow (PC-28): a column per step from the entry screen, each screen at its laid-out height.
   const navText = useMemo(() => navigationMessages(i18n), [i18n]);
+  // The same in the top bar, as the app canvas's Arrange (#241); screens at their laid-out heights.
+  const arrangeFlow = useCallback(() => {
+    const model = readPlugin(live);
+    const ids = model.screens.map((s) => s.id);
+    const size = (id: string) => ({ w: device.width, h: Math.max(device.height, heights.get(id) ?? 0) });
+    if (screenPositions.commit(arrangeScreens(ids, model.entryPage ?? ids[0], model.edges, size))) {
+      setFocusNote(navText.arranged);
+    }
+  }, [navText, live, device.width, device.height, heights, screenPositions]);
   const flowCommands = useMemo(
     () => [
       {
@@ -1109,17 +1133,10 @@ function PluginCanvasView({
         title: navText.arrange,
         group: "screens" as const,
         permission: null,
-        run: () => {
-          const model = readPlugin(live);
-          const ids = model.screens.map((s) => s.id);
-          const size = (id: string) => ({ w: device.width, h: Math.max(device.height, heights.get(id) ?? 0) + 48 });
-          if (screenPositions.commit(flowLayout(ids, model.entryPage, model.edges, size, 120))) {
-            setFocusNote(navText.arranged);
-          }
-        },
+        run: arrangeFlow,
       },
     ],
-    [navText, live, device.width, device.height, heights, screenPositions],
+    [navText, arrangeFlow],
   );
   useScopedCommands("plugin-flow", flowCommands);
   const clipboardSource = useMemo(
@@ -1271,6 +1288,8 @@ function PluginCanvasView({
 
   const showFocusRef = useRef(showFocus);
   showFocusRef.current = showFocus;
+  /** The plugin and device whose unsaved screens have been arranged with laid-out heights (#241). */
+  const arrangedFor = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     const surface = surfaceRef.current;
@@ -1287,6 +1306,19 @@ function PluginCanvasView({
       setHeights(byId);
       setOverflowKey(overflowKeyOf(laidOut));
       liveHeights.current?.(laidOut);
+      // The first layout gives the heights the unsaved screens are arranged with (#241); when that moves them, the view
+      // is fitted after the next layout, to where they end up.
+      const inputs = placeInputs.current;
+      if (arrangedFor.current !== inputs.arrangeKey) {
+        arrangedFor.current = inputs.arrangeKey;
+        const next = placeModel(inputs.live, inputs.positions, device, byId);
+        const at = new Map(screens.map((x) => [x.id, x.at]));
+        const moves = next.some((x) => at.get(x.id)?.x !== x.at.x || at.get(x.id)?.y !== x.at.y);
+        if (moves) {
+          setArranged(inputs.arrangeKey, byId);
+          return;
+        }
+      }
       // The first layout on a surface fits the view, and so does a new device frame or orientation (STU-057).
       const deviceKey = `${device.width}x${device.height}`;
       const fit = fitAfterLayout(
@@ -1310,7 +1342,7 @@ function PluginCanvasView({
     return () => {
       current = false;
     };
-  }, [screens, shown, styled, device]);
+  }, [screens, shown, styled, device, setArranged]);
 
   // The view's place in the URL and the ghosts' level of detail follow the view at most once a frame: a router update
   // per wheel step or pointer move re-rendered the whole editor on each, and the canvas stuttered.
@@ -2085,6 +2117,7 @@ function PluginCanvasView({
                               onA11y={setA11yView}
                               badges={allBadges}
                               onBadges={setAllBadges}
+                              {...(canEdit ? { onArrange: arrangeFlow } : {})}
                               l10n={l10nView}
                               onL10n={setL10nView}
                               sizes={sizesView}

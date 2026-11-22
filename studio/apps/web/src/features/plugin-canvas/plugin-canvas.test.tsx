@@ -234,10 +234,15 @@ describe("[STU-058] an idle canvas under the preview switches", () => {
     const s = stub();
     renderApp(path, { documents, surface: s.factory });
     await waitFor(() => expect(s.patches.length).toBeGreaterThan(0));
-    // The editor's copies of the documents arrive once and may lay out the screens a second time.
+    // The editor's copies of the documents arrive once and may lay out the screens a second time; the screens without a
+    // saved place are arranged once with their laid-out heights ("tall" is taller than the device), which moves them
+    // in one more pass (#241). No other pass.
     await new Promise((resolve) => setTimeout(resolve, 600));
     const settled = s.patches.length;
-    expect(settled).toBeLessThanOrEqual(2);
+    const placeOf = (k: number) => JSON.stringify(frames(s.patches[k]).map((d) => [d.id, d.x, d.y]));
+    const moves = s.patches.filter((_, k) => k > 0 && placeOf(k) !== placeOf(k - 1)).length;
+    expect(moves).toBeLessThanOrEqual(1);
+    expect(settled).toBeLessThanOrEqual(2 + moves);
     await new Promise((resolve) => setTimeout(resolve, 600));
     expect(s.patches.length).toBe(settled);
   });

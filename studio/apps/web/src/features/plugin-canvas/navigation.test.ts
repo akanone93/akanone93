@@ -5,8 +5,6 @@ import { describe, expect, test } from "bun:test";
 import { deriveGhosts, paramsLine } from "./ghosts.ts";
 import {
   declaredParams,
-  flowDepths,
-  flowLayout,
   linkParams,
   missingParams,
   paramText,
@@ -15,6 +13,7 @@ import {
   setTransitionRecipe,
   transitionOf,
 } from "./navigation.ts";
+import { arrangeScreens, placeScreens, SCREEN_GAP, SCREEN_ROW_GAP } from "./positions.ts";
 
 const page = {
   params: [
@@ -79,24 +78,40 @@ describe("PC-28 navigation [NAV-001] [NAV-010]", () => {
     expect(p).toEqual({});
   });
 
-  test("arrange by flow: a column per step from the entry, unreached screens last", () => {
+  test("[STU-050] arrange by flow: from the entry along the links, unreached screens apart, nothing overlaps (#241)", () => {
     const edges = new Map([
       ["home", ["list", "settings"]],
       ["list", ["detail"]],
     ]);
     const ids = ["home", "list", "detail", "settings", "orphan"];
-    expect(Object.fromEntries(flowDepths(ids, "home", edges))).toEqual({
-      home: 0,
-      list: 1,
-      settings: 1,
-      detail: 2,
-      orphan: 3,
-    });
-    const at = flowLayout(ids, "home", edges, () => ({ w: 400, h: 800 }), 100);
-    expect(at.get("home")).toEqual({ x: 0, y: 0 });
-    expect(at.get("list")).toEqual({ x: 500, y: 0 });
-    expect(at.get("settings")).toEqual({ x: 500, y: 900 });
-    expect(at.get("detail")).toEqual({ x: 1000, y: 0 });
-    expect(at.get("orphan")).toEqual({ x: 1500, y: 0 });
+    const size = () => ({ w: 400, h: 800 });
+    const at = arrangeScreens(ids, "home", edges, size);
+    const p = (id: string) => at.get(id) ?? { x: Number.NaN, y: Number.NaN };
+    // Each step of the flow lies after the one it comes from, along the flow.
+    const after = (a: string, b: string) => p(b).x > p(a).x || p(b).y > p(a).y;
+    expect(after("home", "list")).toBe(true);
+    expect(after("home", "settings")).toBe(true);
+    expect(after("list", "detail")).toBe(true);
+    // No two screens closer than the gaps.
+    for (const a of ids) {
+      for (const b of ids) {
+        const apart =
+          a === b ||
+          p(a).x + 400 + SCREEN_GAP <= p(b).x ||
+          p(b).x + 400 + SCREEN_GAP <= p(a).x ||
+          p(a).y + 800 + SCREEN_ROW_GAP <= p(b).y ||
+          p(b).y + 800 + SCREEN_ROW_GAP <= p(a).y;
+        expect(apart).toBe(true);
+      }
+    }
+    // The same screens and links always give the same places.
+    expect(arrangeScreens(ids, "home", edges, size)).toEqual(at);
+  });
+
+  test("[STU-050] screens without a saved place are arranged to the right of the saved ones", () => {
+    const saved = new Map([["home", { x: 100, y: 50 }]]);
+    const at = placeScreens(["home", "list"], "home", new Map([["home", ["list"]]]), () => ({ w: 400, h: 800 }), saved);
+    expect(at.get("home")).toEqual({ x: 100, y: 50 });
+    expect(at.get("list")).toEqual({ x: 100 + 400 + SCREEN_GAP, y: 50 });
   });
 });

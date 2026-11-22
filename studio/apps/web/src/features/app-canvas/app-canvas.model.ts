@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import dagre from "@dagrejs/dagre";
+import { arrange, VIEW_ASPECT } from "../../lib/arrange.ts";
 import type { DocumentDraft } from "../editor/edit-session.ts";
 import type { JsonValue } from "../editor/json-patch.ts";
 
@@ -172,31 +172,25 @@ export function canvasRecipe(saved: SavedCanvas): (draft: DocumentDraft) => void
   };
 }
 
-/** Dagre layout, left to right, for plugins that have no saved position (STU-032). */
+/**
+ * The automatic layout (STU-032, #241): a layered layout per connected group of plugins, from the entry plugin
+ * outwards, wrapped and packed towards the view's shape (`arrange`). Gaps scale with the box: wide enough between
+ * layers for the arrows to run round the boxes.
+ */
 export function autoLayout(
   ids: readonly string[],
   links: readonly BoxLink[],
   size: Size = BOX,
+  entry?: string,
+  aspect: number = VIEW_ASPECT,
 ): ReadonlyMap<string, Point> {
-  const g = new dagre.graphlib.Graph();
-  g.setGraph({ rankdir: "LR", nodesep: 48, ranksep: 96, marginx: 0, marginy: 0 });
-  g.setDefaultEdgeLabel(() => ({}));
-  for (const id of ids) {
-    g.setNode(id, { width: size.width, height: size.height });
-  }
-  const known = new Set(ids);
-  for (const l of links) {
-    if (known.has(l.from) && known.has(l.to) && l.from !== l.to) {
-      g.setEdge(l.from, l.to);
-    }
-  }
-  dagre.layout(g);
-  const out = new Map<string, Point>();
-  for (const id of ids) {
-    const n = g.node(id);
-    out.set(id, { x: Math.round(n.x - size.width / 2), y: Math.round(n.y - size.height / 2) });
-  }
-  return out;
+  const gapX = Math.round(size.width * 0.46);
+  const gapY = Math.round(size.height * 0.42);
+  return arrange(
+    ids.map((id) => ({ id, w: size.width, h: size.height })),
+    links,
+    { gapX, gapY, groupGap: Math.round(gapX * 1.34), aspect, entry },
+  );
 }
 
 /** Saved positions where there are some; the automatic layout for every other plugin. */
@@ -204,6 +198,7 @@ export function placeBoxes(
   plugins: readonly { readonly id: string; readonly key: string }[],
   saved: ReadonlyMap<string, Point>,
   links: readonly BoxLink[],
+  entry?: string,
 ): PlacedBox[] {
   const missing = plugins.filter((p) => !saved.has(p.id));
   const laid =
@@ -212,6 +207,8 @@ export function placeBoxes(
       : autoLayout(
           plugins.map((p) => p.id),
           links,
+          BOX,
+          entry,
         );
   return plugins.map((p) => {
     const at = saved.get(p.id) ?? laid.get(p.id) ?? { x: 0, y: 0 };
