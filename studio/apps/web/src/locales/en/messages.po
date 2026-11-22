@@ -11681,6 +11681,12 @@ msgstr "Nothing in the library matches. Save a selection as a template or extrac
 msgid "clipboard.reportIntro"
 msgstr "Nothing is added silently. Choose what happens to each missing item; nothing is pasted until you confirm."
 
+#. The JSON tab of the inspector when no widget is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.jsonNothingSelected"
+msgstr "Nothing is selected. Select a widget to see its JSON here, or open the screen's document in the JSON editor."
+
 #. Shown when neither a command nor the organisation search matches the text.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts

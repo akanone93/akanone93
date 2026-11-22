@@ -150,6 +150,12 @@ export function tabMessages(i18n: I18n) {
       message: "JSON of the selection",
       comment: "Accessible name of the compact JSON of the selected nodes.",
     }),
+    jsonNothingSelected: i18n._({
+      id: "panelTabs.jsonNothingSelected",
+      message:
+        "Nothing is selected. Select a widget to see its JSON here, or open the screen's document in the JSON editor.",
+      comment: "The JSON tab of the inspector when no widget is selected.",
+    }),
     openJson: i18n._({
       id: "panelTabs.openJson",
       message: "Open in the JSON editor",

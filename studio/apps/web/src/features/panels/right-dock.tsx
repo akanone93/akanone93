@@ -1778,7 +1778,8 @@ export function RightDock(props: DockProps) {
       value: "json",
       label: tm.tabJson,
       icon: "braces",
-      panel: body((i) => <JsonTab ids={i} nodes={nodes} onOpen={props.onOpenJson} />),
+      // With nothing selected the tab still opens the JSON editor of the screen, rather than the overview (#73).
+      panel: <JsonTab ids={ids} nodes={nodes} onOpen={props.onOpenJson} />,
     },
     {
       value: "code",

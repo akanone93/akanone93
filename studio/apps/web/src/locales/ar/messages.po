@@ -11681,6 +11681,12 @@ msgstr "لا شيء في المكتبة يطابق. احفظ تحديدًا كق
 msgid "clipboard.reportIntro"
 msgstr "لا يُضاف شيء دون علمك. اختر ما يحدث لكل عنصر مفقود؛ لا يُلصق شيء حتى تؤكد."
 
+#. The JSON tab of the inspector when no widget is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.jsonNothingSelected"
+msgstr "لم يُحدَّد شيء. حدِّد عنصر واجهة لترى JSON الخاص به هنا، أو افتح مستند الشاشة في محرر JSON."
+
 #. Shown when neither a command nor the organisation search matches the text.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts

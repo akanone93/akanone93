@@ -11681,6 +11681,12 @@ msgstr "Nichts in der Bibliothek passt. Speichere eine Auswahl als Vorlage oder 
 msgid "clipboard.reportIntro"
 msgstr "Nichts wird stillschweigend hinzugefügt. Wählen Sie, was mit jedem fehlenden Element geschieht; erst nach Ihrer Bestätigung wird eingefügt."
 
+#. The JSON tab of the inspector when no widget is selected.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/tabs.messages.ts
+msgid "panelTabs.jsonNothingSelected"
+msgstr "Nichts ist ausgewählt. Wählen Sie ein Widget, um hier sein JSON zu sehen, oder öffnen Sie das Dokument des Screens im JSON-Editor."
+
 #. Shown when neither a command nor the organisation search matches the text.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts

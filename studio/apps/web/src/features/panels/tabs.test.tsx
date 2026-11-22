@@ -115,6 +115,14 @@ describe("S5.6 panel tabs [STU-061] [STU-062]", () => {
     await waitFor(() => expect(state()[0]?.["default"]).toBe(5));
   });
 
+  test("[STU-062] with nothing selected the JSON tab says so and opens the JSON editor (#73)", async () => {
+    renderApp(path, { documents, surface: surface("b1") });
+    fireEvent.click(await screen.findByRole("tab", { name: "JSON" }, { timeout: 5000 }));
+    expect(await screen.findByText(/Nothing is selected/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open in the JSON editor" }));
+    expect(await screen.findByRole("dialog")).toBeTruthy();
+  });
+
   test("[STU-062] the right JSON, Code, Localisation and Performance tabs describe the selection", async () => {
     renderApp(path, {
       documents,
