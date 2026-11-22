@@ -119,7 +119,7 @@ func TestLinkFailuresShownToThePublisherAreRedacted_FN_051(t *testing.T) {
 		t.Errorf("a builder busy for the whole budget: %v", err)
 	}
 	coded := plxerr.New(plxerr.FunctionNotFound, "no version 3 of essay.stats is deployed in this environment")
-	if err := s.publicLinkError(ctx, "campus", coded); err != coded { //nolint:errorlint // the very error must pass
+	if err := s.publicLinkError(ctx, "campus", coded); !errors.Is(err, coded) || !strings.Contains(err.Error(), "no version 3 of essay.stats") {
 		t.Errorf("a PLX-coded error: %v", err)
 	}
 }

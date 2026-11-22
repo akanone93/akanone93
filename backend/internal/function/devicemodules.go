@@ -131,7 +131,7 @@ var (
 // it and returns the plain sentence for its kind.
 func (s *Service) publicLinkError(ctx context.Context, pluginKey string, err error) error {
 	if _, coded := plxerr.CodeOf(err); coded {
-		return err
+		return err // the compiler's finding names the plugin
 	}
 	if s.o.Log != nil {
 		s.o.Log.ErrorContext(ctx, "a device module could not be linked", slog.String("plugin", pluginKey), slog.String("error", err.Error()))
@@ -229,7 +229,7 @@ func linkMemberOf(ctx context.Context, q *dbgen.Queries, environment pgtype.UUID
 		return linkMember{}, fmt.Errorf("function: read version %d of %s: %w", r.Version, r.Name, err)
 	}
 	if Placement(row.Placement) != PlacementDevice {
-		return linkMember{}, fmt.Errorf("function: version %d of %s is placed on the %s, not on the device", row.Version, row.Name, row.Placement)
+		return linkMember{}, plxerr.New(plxerr.FunctionModuleInvalid, "version %d of %s is placed on the %s, not on the device", row.Version, row.Name, row.Placement)
 	}
 	build, err := q.GetFunctionBuild(ctx, row.BuildID)
 	if err != nil {
@@ -288,7 +288,8 @@ func linked(out LinkOutput, members []linkMember) (compiler.DeviceModule, error)
 		for _, d := range out.Diagnostics {
 			parts = append(parts, fmt.Sprintf("%v: %s", d.Code, d.Message))
 		}
-		return compiler.DeviceModule{}, fmt.Errorf("function: the device functions do not link: %s", strings.Join(parts, "; "))
+		// The builder's findings are about the developer's own code: they are shown as they are (PLX-7200).
+		return compiler.DeviceModule{}, plxerr.New(plxerr.FunctionBuildFailed, "the device functions do not link: %s", strings.Join(parts, "; "))
 	}
 	if len(out.Module) == 0 || out.ABIVersion <= 0 {
 		return compiler.DeviceModule{}, errors.New("function: the linker returned no module")

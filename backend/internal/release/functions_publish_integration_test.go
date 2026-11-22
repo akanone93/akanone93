@@ -231,7 +231,7 @@ func TestPublishFailsWithTheBuildersDiagnosticsWhenTheSetDoesNotLink_FN_051(t *t
 	f.publish(t, "", false)
 	job := f.publish(t, f.loans, false)
 	if job.State != release.StateFailed || len(job.Diagnostics) == 0 || job.Diagnostics[0].Code != plxerr.FunctionModuleInvalid ||
-		!strings.Contains(job.Diagnostics[0].Message, "error[E0425]") {
+		!strings.Contains(job.Diagnostics[0].Message, "error[E0425]") || !strings.Contains(job.Diagnostics[0].Message, `plugin "loans"`) {
 		t.Fatalf("job = %+v", job)
 	}
 	if _, err := f.rel.GetVersion(context.Background(), f.viewer, f.loans, 1); code(err) != plxerr.ResourceNotFound {

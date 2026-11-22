@@ -176,7 +176,8 @@ func TestDeviceModulesRefuseWhatDoesNotLink_FN_051(t *testing.T) {
 	mods := w.svc.DeviceModules(ctx, w.org, w.app, w.envs["development"])
 
 	w.linker.diags = plxerr.Diagnostics{plxerr.NewDiagnostic(plxerr.FunctionBuildFailed, plxerr.Location{}, "error[E0308]: mismatched types")}
-	if _, err := mods.Module("loans", refs(a)); err == nil || !strings.Contains(err.Error(), "error[E0308]") || !strings.Contains(err.Error(), `plugin "loans"`) {
+	// The builder's findings pass as they are (PLX-7200); the compiler's finding names the plugin (#188).
+	if _, err := mods.Module("loans", refs(a)); code(err) != plxerr.FunctionBuildFailed || !strings.Contains(err.Error(), "error[E0308]") {
 		t.Errorf("a link failure: %v; want the builder's diagnostics", err)
 	}
 	w.linker.diags = nil
