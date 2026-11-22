@@ -4,7 +4,7 @@
 export { CreateDialog, type CreateDialogProps } from "./create-dialog.tsx";
 export { ExplainAccessDialog, type ExplainAccessDialogProps } from "./explain-access-dialog.tsx";
 export { JustificationDialog, type JustificationDialogProps } from "./justification-dialog.tsx";
-export { openSignInPopup, SignedOutDialog } from "./signed-out-dialog.tsx";
+export { closeIfSignInPopup, openSignInPopup, SignedOutDialog } from "./signed-out-dialog.tsx";
 export { StepUpDialog, type StepUpDialogProps } from "./step-up-dialog.tsx";
 export { StepUpHost } from "./step-up-host.tsx";
 export { TypeConfirmDialog, type TypeConfirmDialogProps } from "./type-confirm-dialog.tsx";

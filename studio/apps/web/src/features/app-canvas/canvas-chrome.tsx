@@ -269,28 +269,29 @@ export function PluginActions({
         <Icon name="arrow-up-right" data-icon="inline-start" />
         {m.openPlugin}
       </Button>
+      {/* Left-aligned, so the icons of each column line up (#207). */}
       <div className="grid grid-cols-2 gap-2">
-        <Button variant="outline" size="sm" onClick={() => onDialogue("settings")}>
+        <Button variant="outline" size="sm" className="justify-start" onClick={() => onDialogue("settings")}>
           <Icon name="gear" data-icon="inline-start" />
           {m.settings}
         </Button>
-        <Button variant="outline" size="sm" onClick={() => onDialogue("duplicate")}>
+        <Button variant="outline" size="sm" className="justify-start" onClick={() => onDialogue("duplicate")}>
           <Icon name="copy" data-icon="inline-start" />
           {m.duplicate}
         </Button>
-        <Button variant="outline" size="sm" onClick={() => onDialogue("entry")}>
+        <Button variant="outline" size="sm" className="justify-start" onClick={() => onDialogue("entry")}>
           <Icon name="house" data-icon="inline-start" />
           {m.setEntry}
         </Button>
-        <Button variant="outline" size="sm" onClick={onMove}>
+        <Button variant="outline" size="sm" className="justify-start" onClick={onMove}>
           <Icon name="arrows-up-down" data-icon="inline-start" />
           {m.moveSelection}
         </Button>
-        <Button variant="outline" size="sm" onClick={onArchive}>
+        <Button variant="outline" size="sm" className="justify-start" onClick={onArchive}>
           <Icon name={archived ? "arrow-counter-clockwise" : "folder"} data-icon="inline-start" />
           {archived ? m.restore : m.archive}
         </Button>
-        <Button variant="destructive" size="sm" onClick={onDelete}>
+        <Button variant="destructive" size="sm" className="justify-start" onClick={onDelete}>
           <Icon name="trash" data-icon="inline-start" />
           {m.deletePlugin}
         </Button>

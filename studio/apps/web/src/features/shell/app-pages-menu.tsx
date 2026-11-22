@@ -32,10 +32,10 @@ export function AppPagesMenu({ org, app }: { readonly org: string; readonly app:
   const names = m as unknown as Readonly<Record<string, string>>;
   return (
     <DropdownMenu modal={false}>
-      <DropdownMenuTrigger
-        render={<Button variant="ghost" size="icon-sm" aria-label={m.appPages} title={m.appPages} />}
-      >
-        <Icon name="squares-four" />
+      {/* A visible label, not an icon behind a tooltip: the way to the app's pages has to be found at a glance. */}
+      <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="shrink-0" />}>
+        <Icon name="squares-four" data-icon="inline-start" />
+        {m.appPages}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-52" align="start" sideOffset={6}>
         <DropdownMenuLabel className="text-xs text-muted-foreground">{m.appPages}</DropdownMenuLabel>

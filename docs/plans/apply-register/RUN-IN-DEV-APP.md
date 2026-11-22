@@ -11,14 +11,14 @@ are running. Reference: [Dev app README](../../../apps/plux_dev/README.md), [run
 
 ## 1. What you need once
 
-- Flutter at the version pinned in the `Makefile`, and an Android phone with USB debugging (or an emulator).
+- Flutter at the version pinned in the `Makefile` (`FLUTTER_VERSION`), and an Android phone with USB debugging (or an emulator).
 - The development root keys of the app. They exist only after the first release of the `development`
   environment: in Studio, **Publish** (app menu) › choose the plugins › **Freeze and build** › … ›
   target `development` › **Release** (sheet §J1). Once is enough.
 
 ## 2. Build the Dev app with your keys
 
-From the repository root (the same machine where Flutter and the phone are):
+From the repository root:
 
 ```bash
 plux pull -C handoff/apply-register/project --env development -o ../ar-baseline
@@ -32,8 +32,10 @@ make dev-app-defines DEV_APP_KEYS=../ar-baseline/keys.json DEV_APP_CA=deploy/com
 cd apps/plux_dev && flutter run --debug --dart-define-from-file=dev-defines.json
 ```
 
-`dev-defines.json` holds the keys and the stack's certificate authority; it is ignored by git. If Flutter runs
-on Windows and the stack in WSL, copy `ca.crt` out of WSL first and point `DEV_APP_CA` at the copy.
+`dev-defines.json` holds the keys and the stack's certificate authority; it is ignored by git. With the
+checkout on a Windows drive (`D:\…` in Windows, `/mnt/d/…` in WSL), run `plux pull` in Git Bash, `make
+dev-app-defines` in WSL (where `make` and the stack's `ca.crt` are) and `flutter run` in Windows: all three see the
+same folder, so nothing needs copying.
 
 ## 3. Let the phone reach the stack
 

@@ -3,6 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { Button, Dialog } from "@plux/ui";
+import { Spinner } from "@plux/ui/components/spinner";
 import { type ReactElement, useState } from "react";
 import { dialogMessages } from "./dialogs.messages.ts";
 
@@ -18,7 +19,13 @@ export interface StepUpDialogProps {
 export function StepUpDialog({ open, onOpenChange, options, onAssertion }: StepUpDialogProps): ReactElement {
   const m = dialogMessages(useLingui().i18n);
   const [failed, setFailed] = useState(false);
+  // The authenticator is asked once at a time (#231): the button waits, disabled, until it answers.
+  const [busy, setBusy] = useState(false);
   const run = async () => {
+    if (busy) {
+      return;
+    }
+    setBusy(true);
     setFailed(false);
     try {
       const credential = await navigator.credentials.get(options);
@@ -30,6 +37,8 @@ export function StepUpDialog({ open, onOpenChange, options, onAssertion }: StepU
       onOpenChange(false);
     } catch {
       setFailed(true);
+    } finally {
+      setBusy(false);
     }
   };
   return (
@@ -47,7 +56,10 @@ export function StepUpDialog({ open, onOpenChange, options, onAssertion }: StepU
         </p>
       )}
       <div className="flex justify-end">
-        <Button onClick={() => void run()}>{m.stepUpUse}</Button>
+        <Button onClick={() => void run()} disabled={busy} aria-busy={busy}>
+          {busy && <Spinner data-icon="inline-start" />}
+          {m.stepUpUse}
+        </Button>
       </div>
     </Dialog>
   );

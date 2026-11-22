@@ -2565,12 +2565,6 @@ msgstr "App: {name}. App wechseln"
 msgid "problems.why.pluginNoDirectory"
 msgstr "app.json führt ein Plugin auf, das es nicht mehr gibt (gelöscht oder umbenannt). Entferne es aus der Liste."
 
-#. Tab of the profile page with theme, density and language.
-#. js-lingui-explicit-id
-#: apps/web/src/features/profile/profile.messages.ts
-msgid "profile.nav.appearance"
-msgstr "Darstellung"
-
 #. Command group heading.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -2581,6 +2575,12 @@ msgstr "Darstellung"
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.appearance"
+msgstr "Darstellung"
+
+#. Tab of the profile page with theme, density and language.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.appearance"
 msgstr "Darstellung"
 
 #. Section of the inspector's properties: colour, decoration, style and type.
@@ -7750,6 +7750,12 @@ msgstr "Fortschritt der ersten Schritte"
 msgid "publish.rollout.durationMissing"
 msgstr "Geben Sie jeder Stufe außer der letzten eine Dauer von mindestens einer Minute."
 
+#. Error under the name field of a security key being added, shown while the name is empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.keys.nameRequired"
+msgstr "Geben Sie dem Schlüssel einen Namen, etwa Laptop oder YubiKey."
+
 #. Accessible name of the button that navigates to one use of the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -11777,12 +11783,6 @@ msgstr "Nichts anzuzeigen."
 msgid "devices.empty"
 msgstr "Noch nichts."
 
-#. Tab of the profile page with the notification settings.
-#. js-lingui-explicit-id
-#: apps/web/src/features/profile/profile.messages.ts
-msgid "profile.nav.notifications"
-msgstr "Benachrichtigungen"
-
 #. A device API.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -11805,6 +11805,12 @@ msgstr "Benachrichtigungen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.inbox.title"
+msgstr "Benachrichtigungen"
+
+#. Tab of the profile page with the notification settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.notifications"
 msgstr "Benachrichtigungen"
 
 #. Retention note on the inbox page.
@@ -12815,16 +12821,16 @@ msgstr "Person"
 msgid "admin.restrictions.subjectPerson"
 msgstr "Person · {name}"
 
-#. Tab of the profile page with the phones signed in to the Dev app.
-#. js-lingui-explicit-id
-#: apps/web/src/features/profile/profile.messages.ts
-msgid "profile.nav.phones"
-msgstr "Telefone"
-
 #. Title of the card listing the phones signed in to the Plux Dev app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/phones.messages.ts
 msgid "profile.phones.title"
+msgstr "Telefone"
+
+#. Tab of the profile page with the phones signed in to the Dev app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.phones"
 msgstr "Telefone"
 
 #. Description of the phones card.

@@ -6,7 +6,11 @@ import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/re
 import { orgA, renderApp } from "../../test-harness.tsx";
 import { appNavEntries, visibleAppNav } from "./app-nav.tsx";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  // The remembered app lives in the browser's storage; each test starts without one.
+  globalThis.localStorage?.clear();
+});
 
 const base = `/o/${orgA}/apps/app1`;
 const reader = ["app.read"];
@@ -73,17 +77,29 @@ describe("[STU-100] to [STU-116] navigation between the areas of an app", () => 
   });
 
   test("[#202] on a page without an app in its address, the areas stay for the app last opened", async () => {
-    // Open the app once: it becomes the organisation's remembered app.
-    renderApp(`${base}/releases`, { permissions: reader });
+    const apps = [
+      { id: "app1", key: "shop", name: "Shop" },
+      { id: "app2", key: "cafe", name: "Cafe" },
+    ];
+    // Open the second app once: it becomes the organisation's remembered app, ahead of the first one.
+    renderApp(`/o/${orgA}/apps/app2/releases`, { permissions: reader, creation: { apps, calls: [] } });
     await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
     cleanup();
-    renderApp(`/o/${orgA}`, { permissions: reader });
+    renderApp(`/o/${orgA}`, { permissions: reader, creation: { apps, calls: [] } });
     const nav = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
-    expect(within(nav).getByRole("link", { name: "Settings" }).getAttribute("href")).toBe(`${base}/settings`);
-    expect(within(nav).getByRole("button", { name: "App: Shop. Switch app" })).toBeTruthy();
+    expect(within(nav).getByRole("link", { name: "Settings" }).getAttribute("href")).toBe(
+      `/o/${orgA}/apps/app2/settings`,
+    );
+    expect(within(nav).getByRole("button", { name: "App: Cafe. Switch app" })).toBeTruthy();
   }, 40_000);
 
-  test("[#202] the app's own Approvals entry keeps the app's areas on the organisation-wide page", async () => {
+  test("[#202] without a remembered app the areas are the organisation's first app's", async () => {
+    renderApp(`/o/${orgA}`, { permissions: reader });
+    const nav = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
+    expect(within(nav).getByRole("link", { name: "Canvas" }).getAttribute("href")).toBe(base);
+  }, 40_000);
+
+  test("[#202] the app's own Approvals entry keeps the app's areas, and only one approvals page is current", async () => {
     const { router } = renderApp(`${base}/releases`, { permissions: reader });
     const nav = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
     fireEvent.click(within(nav).getByRole("link", { name: "Approvals" }));
@@ -91,12 +107,19 @@ describe("[STU-100] to [STU-116] navigation between the areas of an app", () => 
     const after = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
     expect(within(after).getByRole("link", { name: "Approvals" }).getAttribute("aria-current")).toBe("page");
     expect(within(after).getByRole("link", { name: "Releases" }).getAttribute("href")).toBe(`${base}/releases`);
+    const studio = screen.getByRole("navigation", { name: "Studio navigation" });
+    const current = within(studio)
+      .getAllByRole("link")
+      .filter((a) => a.hasAttribute("data-active"))
+      .map((a) => a.textContent);
+    expect(current).toEqual(["Inbox"]);
   }, 40_000);
 
   test("[#202] with no app the person may open there is no app navigation", async () => {
-    renderApp(`/o/${orgA}`, { permissions: reader, creation: { apps: [], calls: [] } });
+    const { session } = renderApp(`/o/${orgA}`, { permissions: reader, creation: { apps: [], calls: [] } });
     await screen.findByRole("banner");
-    await new Promise((r) => setTimeout(r, 300));
+    // Once the list of apps has arrived, the navigation has had everything it decides by.
+    await waitFor(() => expect(session.queryClient.getQueryState(["nav-apps", orgA])?.status).toBe("success"));
     expect(screen.queryByRole("navigation", { name: "App areas" }) === null).toBe(true);
   }, 40_000);
 });

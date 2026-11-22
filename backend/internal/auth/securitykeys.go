@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -73,6 +75,34 @@ func credentials(ctx context.Context, q *dbgen.Queries, user dbgen.User) ([]cred
 	return out, nil
 }
 
+// maxLabel is the longest name a factor may have, in characters.
+const maxLabel = 100
+
+// factorLabel checks the name a person gives a security key: required, so
+// the keys can be told apart when one is lost (#232), 1 to 100 characters
+// once trimmed, and plain text, since it is shown in Studio and the audit
+// log: no control characters, and no bidirectional embeddings, overrides or
+// isolates, which could make a name read as something else.
+func factorLabel(label string) (string, error) {
+	label = strings.TrimSpace(label)
+	if label == "" || utf8.RuneCountInString(label) > maxLabel || !utf8.ValidString(label) {
+		return "", plxerr.New(plxerr.InvalidFormat, "a security key's name is 1 to 100 characters")
+	}
+	for _, r := range label {
+		if unicode.IsControl(r) || bidiControl(r) {
+			return "", plxerr.New(plxerr.InvalidFormat, "a security key's name has no control or text-direction characters")
+		}
+	}
+	return label, nil
+}
+
+// bidiControl reports the embedding, override and isolate characters of
+// Unicode's bidirectional algorithm (U+202A to U+202E, U+2066 to U+2069).
+// The marks U+200E and U+200F stay allowed: right-to-left names need them.
+func bidiControl(r rune) bool {
+	return (r >= '\u202A' && r <= '\u202E') || (r >= '\u2066' && r <= '\u2069')
+}
+
 // BeginWebAuthnRegistration adds an unconfirmed security-key factor and
 // returns it with the creation options for the browser.
 func (s *Service) BeginWebAuthnRegistration(ctx context.Context, id Identity, label string) (Factor, []byte, error) {
@@ -82,9 +112,9 @@ func (s *Service) BeginWebAuthnRegistration(ctx context.Context, id Identity, la
 	if err := s.webAuthnRequired(); err != nil {
 		return Factor{}, nil, err
 	}
-	label = strings.TrimSpace(label)
-	if len(label) > 100 {
-		return Factor{}, nil, plxerr.New(plxerr.InvalidFormat, "a factor's label is at most 100 characters")
+	label, err := factorLabel(label)
+	if err != nil {
+		return Factor{}, nil, err
 	}
 	factorID, err := s.newID()
 	if err != nil {

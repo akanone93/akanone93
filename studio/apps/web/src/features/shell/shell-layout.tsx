@@ -9,8 +9,8 @@ import { directionOf } from "@plux/i18n";
 import { SidebarInset, SidebarProvider } from "@plux/ui/components/sidebar";
 import { useQuery as useTanstackQuery } from "@tanstack/react-query";
 import { Outlet, useParams, useRouter } from "@tanstack/react-router";
-import { type CSSProperties, useMemo, useState } from "react";
-import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
+import { closeIfSignInPopup, openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
 import { CommandsProvider, createRegistry, shellCommands } from "../../lib/commands/index.ts";
 import { rememberApp } from "../../lib/current-app.ts";
 import { loadedStudioVersion } from "../../lib/server-version.ts";
@@ -64,6 +64,10 @@ export function ShellLayout() {
   const currentApp = useCurrentApp(currentId);
   const [, setPicked] = useState(0);
 
+  // A sign-in that ended away from the sign-in page (single sign-on returns here) still closes its pop-up (#236).
+  useEffect(() => {
+    closeIfSignInPopup();
+  }, []);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [gettingStartedOpen, setGettingStartedOpen] = useState(false);
   const onboarding = useOnboarding(org !== undefined);
@@ -153,7 +157,18 @@ export function ShellLayout() {
           />
           <SidebarInset>
             <UpdateBanner loadedVersion={loadedStudioVersion} serverVersion={version?.studio} />
-            <SignedOutDialog open={events.state === "ended"} onSignIn={() => openSignInPopup(events.restart)} />
+            <SignedOutDialog
+              open={events.state === "ended"}
+              onSignIn={() =>
+                openSignInPopup(() => {
+                  // The new session's user and CSRF token first, then the page's data; the stream starts again.
+                  void session.queryClient
+                    .invalidateQueries({ queryKey: ["current-user"] })
+                    .then(() => session.queryClient.invalidateQueries())
+                    .finally(events.restart);
+                })
+              }
+            />
             <SiteHeader
               title={current?.name ?? ""}
               status={<StatusChips online={online} stream={events.state} waiting={waiting} />}

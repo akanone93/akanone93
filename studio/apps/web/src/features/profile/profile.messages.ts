@@ -133,6 +133,11 @@ export function profileMessages(i18n: I18n) {
       message: "Name of the new key",
       comment: "Label of the field that names a security key being added, such as 'Laptop' or 'YubiKey'.",
     }),
+    keyNameRequired: i18n._({
+      id: "profile.keys.nameRequired",
+      message: "Give the key a name, such as Laptop or YubiKey.",
+      comment: "Error under the name field of a security key being added, shown while the name is empty.",
+    }),
     keyAdd: i18n._({ id: "profile.keys.add", message: "Add security key", comment: "Button that registers a key." }),
     keyAdding: i18n._({
       id: "profile.keys.adding",

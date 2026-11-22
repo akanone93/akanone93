@@ -10,7 +10,7 @@ import { AlertDialog, Icon } from "@plux/ui";
 import { Badge } from "@plux/ui/components/badge";
 import { Button } from "@plux/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@plux/ui/components/card";
-import { Field, FieldLabel } from "@plux/ui/components/field";
+import { Field, FieldError, FieldLabel } from "@plux/ui/components/field";
 import { Input } from "@plux/ui/components/input";
 import { Spinner } from "@plux/ui/components/spinner";
 import { type ReactElement, useId, useState } from "react";
@@ -28,6 +28,64 @@ function refusedStatus(error: unknown, otherwise: Status): Status {
 }
 
 /**
+ * The name field and button that add a key. The name is required (#232): the server refuses a key without one, and
+ * the field says so before anything is sent. One addition runs at a time.
+ */
+function AddKeyForm({
+  m,
+  busy,
+  onAdd,
+}: {
+  readonly m: Messages;
+  readonly busy: boolean;
+  readonly onAdd: (label: string) => Promise<boolean>;
+}): ReactElement {
+  const [label, setLabel] = useState("");
+  const [touched, setTouched] = useState(false);
+  const labelId = useId();
+  const named = label.trim() !== "";
+  const invalid = touched && !named;
+  const submit = async () => {
+    setTouched(true);
+    if (!named || busy) {
+      return;
+    }
+    if (await onAdd(label.trim())) {
+      setLabel("");
+      setTouched(false);
+    }
+  };
+  return (
+    <div className="flex flex-wrap items-end gap-3">
+      <Field className="min-w-48 flex-1" data-invalid={invalid}>
+        <FieldLabel htmlFor={labelId}>{m.keyLabel}</FieldLabel>
+        <Input
+          id={labelId}
+          value={label}
+          required
+          maxLength={100}
+          autoComplete="off"
+          aria-invalid={invalid}
+          aria-describedby={invalid ? `${labelId}-error` : undefined}
+          onChange={(e) => setLabel(e.target.value)}
+          onBlur={() => setTouched(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              void submit();
+            }
+          }}
+        />
+        {invalid && <FieldError id={`${labelId}-error`}>{m.keyNameRequired}</FieldError>}
+      </Field>
+      <Button onClick={() => void submit()} disabled={busy || !named}>
+        {busy ? <Spinner data-icon="inline-start" /> : <Icon name="key" data-icon="inline-start" />}
+        {busy ? m.keyAdding : m.keyAdd}
+      </Button>
+    </div>
+  );
+}
+
+/**
  * The person's security keys and passkeys (SEC-100, SEC-103): add one with the browser's WebAuthn ceremony, see when
  * each was last used, and remove one after a confirmation. The server decides every rule: a key can be added to an
  * account that has one, or removed, only in a session that presented a second factor.
@@ -37,26 +95,26 @@ export function SecurityKeysCard(): ReactElement {
   const m = profileMessages(i18n);
   const { session } = useApp();
   const factors = useQuery(IdentityService.method.listFactors, {});
-  const [label, setLabel] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [removing, setRemoving] = useState<Factor | null>(null);
-  const labelId = useId();
   const supported = webAuthnAvailable();
 
-  const add = async () => {
+  /** Registers a key named `label`; true when it was added, so the form can clear its field. */
+  const add = async (label: string): Promise<boolean> => {
     setBusy(true);
     setStatus("idle");
     const identity = createClient(IdentityService, session.transport);
     try {
-      const begun = await identity.beginWebAuthnRegistration({ label: label.trim() });
+      const begun = await identity.beginWebAuthnRegistration({ label });
       const factorId = begun.factor?.id ?? "";
       const credential = await createCredential(begun.optionsJson);
       await identity.finishWebAuthnRegistration({ factorId, ...credential });
-      setLabel("");
       setStatus("added");
+      return true;
     } catch (e) {
       setStatus(refusedStatus(e, "failed"));
+      return false;
     } finally {
       setBusy(false);
       await factors.refetch();
@@ -97,22 +155,7 @@ export function SecurityKeysCard(): ReactElement {
           </ul>
         )}
         {supported ? (
-          <div className="flex flex-wrap items-end gap-3">
-            <Field className="min-w-48 flex-1">
-              <FieldLabel htmlFor={labelId}>{m.keyLabel}</FieldLabel>
-              <Input
-                id={labelId}
-                value={label}
-                maxLength={100}
-                autoComplete="off"
-                onChange={(e) => setLabel(e.target.value)}
-              />
-            </Field>
-            <Button onClick={() => void add()} disabled={busy}>
-              {busy ? <Spinner data-icon="inline-start" /> : <Icon name="key" data-icon="inline-start" />}
-              {busy ? m.keyAdding : m.keyAdd}
-            </Button>
-          </div>
+          <AddKeyForm m={m} busy={busy} onAdd={add} />
         ) : (
           <p role="alert" className="text-sm text-destructive">
             {m.keyUnsupported}

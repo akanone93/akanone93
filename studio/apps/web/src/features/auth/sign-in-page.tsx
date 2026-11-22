@@ -8,10 +8,12 @@ import { Button, Field, Icon, type IconName, Input } from "@plux/ui";
 import { Alert, AlertTitle } from "@plux/ui/components/alert";
 import { FieldGroup, FieldSeparator } from "@plux/ui/components/field";
 import { InputGroupButton } from "@plux/ui/components/input-group";
+import { Spinner } from "@plux/ui/components/spinner";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { type ReactNode, useMemo, useState } from "react";
+import { closeIfSignInPopup } from "../../components/dialogs/index.ts";
 import { shownError } from "../../lib/field-error.ts";
 import { forgetUser, safeNext } from "../../lib/guards.ts";
 import type { Session } from "../../lib/session.ts";
@@ -104,6 +106,11 @@ export function SignInPage() {
   const finish = (csrfToken: string) => {
     session.setCsrfToken(csrfToken);
     forgetUser(session);
+    // In the pop-up a lapsed session opened (#236), signing in is all it was for: it closes, and the page that opened
+    // it carries on with the new session.
+    if (closeIfSignInPopup()) {
+      return;
+    }
     router.history.push(safeNext(search.next));
   };
 
@@ -227,13 +234,24 @@ function FactorStep(props: {
   onPasskey: () => Promise<void>;
 }) {
   const { m, challenge } = props;
+  // One step at a time (#231): while a code or a security key is being checked, neither can be started again.
+  const [busy, setBusy] = useState<"code" | "passkey" | null>(null);
+  const step = async (kind: "code" | "passkey", run: () => Promise<void>) => {
+    if (busy !== null) {
+      return;
+    }
+    setBusy(kind);
+    props.setFailure(null);
+    try {
+      await run();
+    } finally {
+      setBusy(null);
+    }
+  };
   const form = useForm({
     defaultValues: { code: "" },
     validators: { onChange: codeSchema(m) },
-    onSubmit: async ({ value }) => {
-      props.setFailure(null);
-      await props.onCode(value.code);
-    },
+    onSubmit: ({ value }) => step("code", () => props.onCode(value.code)),
   });
   const submitted = useStore(form.store, (state) => state.submissionAttempts > 0);
   return (
@@ -263,13 +281,22 @@ function FactorStep(props: {
               </Field>
             )}
           </form.Field>
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={busy !== null} aria-busy={busy === "code"}>
+            {busy === "code" && <Spinner data-icon="inline-start" />}
             {m.verify}
           </Button>
         </form>
       )}
       {challenge.kinds.includes("webauthn") && (
-        <Button type="button" variant="secondary" className="w-full" onClick={() => void props.onPasskey()}>
+        <Button
+          type="button"
+          variant="secondary"
+          className="w-full"
+          disabled={busy !== null}
+          aria-busy={busy === "passkey"}
+          onClick={() => void step("passkey", props.onPasskey)}
+        >
+          {busy === "passkey" && <Spinner data-icon="inline-start" />}
           {m.passkey}
         </Button>
       )}

@@ -69,8 +69,25 @@ describe("[SEC-100] security keys on the profile", () => {
     const id = identity({ refuse: { register: "PLX-8011" } });
     renderApp("/me/security-keys", { identity: id });
     await screen.findByText("YubiKey");
+    fireEvent.change(screen.getByLabelText("Name of the new key"), { target: { value: "Spare" } });
     fireEvent.click(screen.getByRole("button", { name: "Add security key" }));
     await screen.findByText(/Sign out and sign in again with one of your keys/);
+    expect(created).toBe(0);
+  });
+
+  test("[#232] a key needs a name: without one nothing is sent and the field says why", async () => {
+    const id = identity({ factors: [] });
+    renderApp("/me/security-keys", { identity: id });
+    await screen.findByText(/No security key yet/);
+    const add = screen.getByRole("button", { name: "Add security key" });
+    expect(add.hasAttribute("disabled")).toBe(true);
+    const name = screen.getByLabelText("Name of the new key");
+    fireEvent.change(name, { target: { value: "   " } });
+    fireEvent.blur(name);
+    await screen.findByText("Give the key a name, such as Laptop or YubiKey.");
+    expect(name.getAttribute("aria-invalid")).toBe("true");
+    fireEvent.keyDown(name, { key: "Enter" });
+    expect(id.calls).toEqual([]);
     expect(created).toBe(0);
   });
 
