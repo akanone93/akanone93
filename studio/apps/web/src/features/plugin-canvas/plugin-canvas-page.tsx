@@ -135,7 +135,7 @@ import { announce } from "./select/live-region.ts";
 import { createOverlayStore } from "./select/overlay-store.ts";
 import * as sel from "./select/selection.ts";
 import { useSelectionStore } from "./select/store.ts";
-import { indexNodes, itemIdOf, type NodeIndex } from "./select/tree.ts";
+import { indexNodes, itemIdOf, type NodeIndex, screenOfItem } from "./select/tree.ts";
 import type { PointerTool } from "./select/use-canvas-pointer.ts";
 import { useWithSessionDocs } from "./session-docs.ts";
 import { snapSize } from "./spacing-handles.ts";
@@ -520,6 +520,28 @@ function selectionText(
     return m.nothingSelected;
   }
   return ids.length === 1 ? m.oneSelected(nameOf(ids[0] ?? "")) : pm.selectedCount(ids.length);
+}
+
+/**
+ * The box under the pointer whose arrows light up (#240): the screen of the topmost item that belongs to one — its
+ * frame, title or a widget in it (`<screen>/<node>`) — or a target box; none over the empty canvas.
+ */
+function boxUnder(hits: readonly string[], ghosts: readonly GhostTarget[]): string | null {
+  const ghost = ghostOfHit(hits, ghosts);
+  if (ghost !== undefined) {
+    return ghost.id;
+  }
+  for (const hit of hits) {
+    const framed = screenOfItem(hit);
+    if (framed !== undefined) {
+      return framed;
+    }
+    const slash = hit.indexOf("/");
+    if (slash > 0 && !hit.startsWith("ghost-node/") && !hit.startsWith("arrow:")) {
+      return hit.slice(0, slash);
+    }
+  }
+  return null;
 }
 
 /**
@@ -1482,10 +1504,14 @@ function PluginCanvasView({
     }
     return true;
   };
-  /** An arrow on top of the resting pointer expands its bundle; anything else collapses it (STU-044). */
+  /**
+   * An arrow on top of the resting pointer expands its bundle; anything else collapses it (STU-044). The screen or
+   * target box under it lights its arrows once the pointer settles (#240).
+   */
   const hoverArrow = (hits: readonly string[]): boolean => {
     const bundle = ghostLayer.pick(hits.slice(0, 1))?.bundle.id ?? null;
     ghostLayer.hover(bundle);
+    ghostLayer.hoverBox(bundle === null ? boxUnder(hits, ghostLayer.placed) : null);
     return bundle !== null;
   };
   // Problems pinned to their widgets on the canvas (PC-16).

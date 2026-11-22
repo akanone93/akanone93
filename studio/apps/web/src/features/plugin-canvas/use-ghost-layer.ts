@@ -98,6 +98,8 @@ export function useGhostLayer(input: GhostLayerInput): {
   readonly hover: (id: string | null) => void;
   /** Highlights the arrows of these screens and dims the rest (#206): the screen being worked on. */
   readonly highlight: (screens: readonly string[]) => void;
+  /** The pointer rests over a screen or target box (null: none); its arrows light up once it settles (#240). */
+  readonly hoverBox: (id: string | null) => void;
   /** Re-routes the arrows of screens shown at a dragged place, before the drop saves it (STU-045). */
   readonly follow: (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => void;
 } {
@@ -184,6 +186,7 @@ export function useGhostLayer(input: GhostLayerInput): {
         arrows: canvas,
         motion: new ArrowMotion(canvas, (ops) => target.patch?.(ops)),
       };
+      drawn.current.motion.highlight(lit.current);
     }
     const d = drawn.current;
     const items: ItemSpec[] = placed.flatMap((g) =>
@@ -200,7 +203,6 @@ export function useGhostLayer(input: GhostLayerInput): {
       ...placed,
     ];
     d.router.setGraph(boxes, deriveBundles(graph.edges));
-    d.arrows.setHighlight(lit.current);
     target.patch([...d.ghosts.sync(items), ...d.arrows.render(d.motion.now())]);
   }, [surface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device, ghosts, arrows]);
 
@@ -249,5 +251,6 @@ export function useGhostLayer(input: GhostLayerInput): {
     (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => drawn.current?.motion.follow(moved),
     [],
   );
-  return { graph, placed, zoomed, pick, expand, hover, highlight, follow };
+  const hoverBox = useCallback((id: string | null) => drawn.current?.motion.hoverBox(id), []);
+  return { graph, placed, zoomed, pick, expand, hover, highlight, hoverBox, follow };
 }

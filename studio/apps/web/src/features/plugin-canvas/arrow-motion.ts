@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type ArrowCanvas, EXPAND_MS, HoverIntent, type SceneOp } from "@plux/canvas";
+import { type ArrowCanvas, EXPAND_MS, HoverIntent, type IntentTimers, type SceneOp } from "@plux/canvas";
 
 /** What the motion needs from the page: the clock, frames and the reduced-motion setting; real ones by default. */
 export interface MotionHost {
@@ -9,6 +9,8 @@ export interface MotionHost {
   readonly request: (step: () => void) => number;
   readonly cancel: (frame: number) => void;
   readonly reduced: () => boolean;
+  /** The timers the hover intents wait with (#206, #240); the browser's when absent. */
+  readonly timers?: IntentTimers;
 }
 
 const browserHost: MotionHost = {
@@ -30,13 +32,21 @@ export class ArrowMotion {
   private clock = 0;
   /** The pointer's hover waits for intent (#206): a sweep across arrows lights none of them. */
   private readonly intent: HoverIntent<string>;
+  /** The boxes whose arrows are lit (#240): the screen being worked on, and the box the pointer rests on. */
+  private selected: readonly string[] = [];
+  private hovered: string | null = null;
+  private readonly boxIntent: HoverIntent<string>;
 
   constructor(
     private readonly arrows: ArrowCanvas,
     private readonly patch: (ops: SceneOp[]) => void,
     private readonly host: MotionHost = browserHost,
   ) {
-    this.intent = new HoverIntent<string>((id) => this.apply(id));
+    this.intent = new HoverIntent<string>((id) => this.apply(id), host.timers);
+    this.boxIntent = new HoverIntent<string>((id) => {
+      this.hovered = id;
+      this.relight();
+    }, host.timers);
   }
 
   /** A clock that never runs backwards, also after a reduced-motion jump to the end of an animation. */
@@ -88,9 +98,23 @@ export class ArrowMotion {
     this.send([...moved].flatMap(([id, at]) => this.arrows.moveBox(id, at.x, at.y, t)));
   }
 
-  /** Highlights the arrows of `boxes` and dims the rest (#206); an empty list lights none. */
+  /** Highlights the arrows of `boxes` — the screen being worked on — and dims the rest (#206); empty lights none. */
   highlight(boxes: readonly string[]): void {
-    this.send(this.arrows.setHighlight(boxes, this.now()));
+    this.selected = boxes;
+    this.relight();
+  }
+
+  /**
+   * The pointer rests over box `id` — a screen or a target box — or over none (null): its arrows light up with the
+   * highlighted ones once it has settled there, as on the app canvas (#240).
+   */
+  hoverBox(id: string | null): void {
+    this.boxIntent.hover(id);
+  }
+
+  private relight(): void {
+    const lit = this.hovered === null ? this.selected : [...this.selected, this.hovered];
+    this.send(this.arrows.setHighlight(lit, this.now()));
   }
 
   /** Redraws the arrows for the zoom (level of detail, STU-048). */
@@ -101,6 +125,7 @@ export class ArrowMotion {
   /** Stops a running animation and drops a waiting hover. */
   dispose(): void {
     this.intent.dispose();
+    this.boxIntent.dispose();
     this.host.cancel(this.frame);
   }
 

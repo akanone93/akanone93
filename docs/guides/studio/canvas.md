@@ -403,7 +403,8 @@ choose **Replace** or **Add after**.
 Point at an arrow and its bundle opens into one lane per link, each titled with its widget and target; a click on a
 closed bundle opens it too. A click on a lane selects that link: change its trigger, redirect it, open its source
 or target, or remove it. An arrow starts with a dot at its screen and ends with its head at the target, and goes round
-the screens and their titles in its way; the arrows of the screen you are working in light up while the others fade.
+the screens and their titles in its way; the arrows of the screen you are working in, and of a screen or target box
+you rest the pointer on, light up while the others fade.
 Arrows follow a screen while you drag it. Open the **Action graph** for anything a link cannot express:
 add built-in, host, function and flow steps and connect their ports. The **State designer** edits
 state entries (single value, list or map; in memory, for the session, saved on the device or in
