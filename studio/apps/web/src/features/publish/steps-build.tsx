@@ -135,8 +135,11 @@ export function BuildPanel({ request, editable, busy, api, run, pluginIds }: Pan
               disabled={busy}
               onClick={() =>
                 run(async () => {
+                  // One press tries again: the refreeze starts a new revision, and the builds keyed on it are new
+                  // attempts at the current draft (#192).
                   setRefs([]);
-                  await api.refreeze();
+                  const { request: fresh } = await api.refreeze();
+                  setRefs(await api.startBuilds(request.plugins, pluginIds, fresh?.revision ?? request.revision));
                 })
               }
             >

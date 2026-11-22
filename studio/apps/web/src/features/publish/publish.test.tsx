@@ -195,6 +195,10 @@ describe("[STU-100] publish flow", () => {
     const reasons = await screen.findByRole("list", { name: "Failed" });
     within(reasons).getByText("PLX-1001");
     within(reasons).getByText(/the page is not valid/);
+    // One press of Freeze again tries again: new builds keyed on the new revision, not the failed ones (#192).
+    press("Freeze again");
+    await waitFor(() => expect(release.keys).toContain("r1:home:2"));
+    expect(release.calls).toContain("refreeze");
     // Only what stopped the build: a note (info) did not (build log #186).
     expect(within(reasons).queryByText("PLX-2013")).toBeNull();
     screen.getByRole("button", { name: "Freeze again" });

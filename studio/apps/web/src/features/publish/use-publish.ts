@@ -87,8 +87,15 @@ export function useReleaseApi(
     requestApproval: () => client.requestReleaseApproval(ids),
     complete: () => client.completeReleaseRequest(ids),
     cancel: () => client.cancelReleaseRequest(ids),
-    /** Starts, or re-attaches to, one publish job per plugin; the same key returns the original job. */
-    startBuilds: async (plugins: readonly SelectedPlugin[], pluginIds: ReadonlyMap<string, string>) => {
+    /**
+     * Starts, or re-attaches to, one publish job per plugin; the same key returns the original job. The key names the
+     * request's revision, or the one given: a refreeze starts a new revision, so its builds are new attempts (#192).
+     */
+    startBuilds: async (
+      plugins: readonly SelectedPlugin[],
+      pluginIds: ReadonlyMap<string, string>,
+      revision: bigint = request.revision,
+    ) => {
       const publish = createClient(PublishService, session.transport);
       return Promise.all(
         plugins.map(async (p) => {
@@ -102,7 +109,7 @@ export function useReleaseApi(
               environmentId: request.environmentId,
               acknowledgeWarnings: true,
             },
-            { headers: { "Idempotency-Key": `${request.id}:${p.pluginKey}:${request.revision}` } },
+            { headers: { "Idempotency-Key": `${request.id}:${p.pluginKey}:${revision}` } },
           );
           return { pluginKey: p.pluginKey, jobId: job?.id ?? "" };
         }),

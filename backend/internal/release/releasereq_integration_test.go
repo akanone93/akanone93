@@ -309,6 +309,13 @@ func TestReleaseRequestFlow_STU_100(t *testing.T) {
 	if r, err = k.svc.Refreeze(ctx, f.owner, app, r.ID); err != nil || r.State != releasereq.StateBuild || r.ApprovedHash != "" || r.ContentHash != "" {
 		t.Fatalf("Refreeze = %+v, %v", r, err)
 	}
+	// Freezing again at the build step, to try failed builds again, starts a new revision all the same: builds
+	// started after it are new attempts, as their idempotency keys name the revision (#192).
+	again, againErr := k.svc.Refreeze(ctx, f.owner, app, r.ID)
+	if againErr != nil || again.State != releasereq.StateBuild || again.Revision <= r.Revision {
+		t.Fatalf("a second Refreeze at the build step = %+v, %v; want a new revision", again, againErr)
+	}
+	r = again
 	k.builds["j3"] = releasereq.Build{State: "succeeded", PluginKey: "loans", Version: 4, BundleSHA256: "bb"}
 	if r, err = k.svc.Advance(ctx, f.owner, app, r.ID, build("j3")); err != nil || r.ContentHash == firstHash || r.State != releasereq.StateReports {
 		t.Fatalf("rebuilt = %+v, %v", r, err)

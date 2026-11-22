@@ -487,13 +487,17 @@ func (r *Request) plan(step Step) error {
 	return nil
 }
 
-// Refreeze returns a request to the build step after the draft changed:
-// builds, reports, diffs and any approval are void. It needs release.publish.
+// Refreeze returns a request to the build step to take the current draft,
+// after it changed or to try builds that failed again: builds, reports,
+// diffs and any approval are void. It always starts a new revision, even on
+// a request already at the build step, so builds started after it are new
+// attempts: their idempotency keys name the revision (SRV-005; build log
+// #192). It needs release.publish.
 func (s *Service) Refreeze(ctx context.Context, p auth.Principal, appID, id string) (Request, error) {
 	if err := authorize(p, auth.ReleasePublish, appID); err != nil {
 		return Request{}, err
 	}
-	return s.update(ctx, p, appID, id, func(_ context.Context, _ pgx.Tx, r *Request) error {
+	return s.write(ctx, p, appID, id, true, func(_ context.Context, _ pgx.Tx, r *Request) error {
 		if !r.State.Open() {
 			return ended(*r)
 		}

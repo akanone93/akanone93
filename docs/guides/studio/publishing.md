@@ -26,7 +26,8 @@ guide covers Studio's screens.
 3. **Freeze and build.** Editing may continue; the builds freeze the draft as it is now. Each plugin
    shows *Queued*, *Running*, *Built* or *Failed* with its progress; a failed build lists the findings
    that stopped it (code, message and file). Errors fail a build; warnings do not, they wait for the next
-   step. **Freeze again** takes the current draft.
+   step. **Freeze again** takes the current draft and builds it again, in one press: use it after editing,
+   or to try builds that failed for a passing reason.
 4. **Reports.** Validation, bundle **Size** (and the change against the version before),
    **Accessibility** findings and the other **Warnings**, each with its code, message, file and the
    fix to make. The acknowledgement dialog lists the same details. Acknowledge every warning here

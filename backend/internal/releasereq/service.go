@@ -255,6 +255,14 @@ func nonNil[T any](s []T) []T {
 // A request that has ended takes no change, unless f says it may (a
 // cancellation of a cancelled request is a replay).
 func (s *Service) update(ctx context.Context, p auth.Principal, appID, id string, f func(context.Context, pgx.Tx, *Request) error) (Request, error) {
+	return s.write(ctx, p, appID, id, false, f)
+}
+
+// write applies f to the request and stores the result. A change that
+// stores identically is a replay: nothing is written and the revision stays,
+// unless always is set, for an action that must start a new revision even
+// when nothing else changes (Refreeze).
+func (s *Service) write(ctx context.Context, p auth.Principal, appID, id string, always bool, f func(context.Context, pgx.Tx, *Request) error) (Request, error) {
 	app, req, err := ids(appID, id)
 	if err != nil {
 		return Request{}, err
@@ -275,7 +283,7 @@ func (s *Service) update(ctx context.Context, p auth.Principal, appID, id string
 			return err
 		}
 		out = r
-		if sameStored(before, r) {
+		if !always && sameStored(before, r) {
 			out = before
 			return nil
 		}

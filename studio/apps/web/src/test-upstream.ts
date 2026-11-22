@@ -1393,6 +1393,8 @@ function refused(code: string): never {
 /** The release request state machine of ReleaseRequestService, as far as the Studio needs it. */
 function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof ReleaseRequestService>> {
   const r = fx.request;
+  // The revision a refreeze raises, as the server does: it always starts a new one (#192).
+  let revision = 1;
   const view = () => {
     const built = releaseOrder.indexOf(r.state) > 1 || ["released", "rejected"].includes(r.state);
     return {
@@ -1402,7 +1404,7 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
       channel: "production",
       state: r.state,
       hold: r.hold ?? "",
-      revision: 1n,
+      revision: BigInt(revision),
       plugins: r.plugins,
       builds: built
         ? r.plugins.map((p) => ({
@@ -1487,6 +1489,7 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
     },
     refreezeReleaseRequest: () => {
       fx.calls.push("refreeze");
+      revision += 1;
       return move("build");
     },
     requestVisualDiff: () => {
