@@ -73,7 +73,12 @@
   "overrides": [
     {
       "includes": ["apps/web/src/**", "packages/ui/src/**", "!**/*.test.tsx", "!**/*.cases.tsx"],
-      "plugins": ["./lint/no-raw-values.grit", "./lint/logical-properties.grit", "./lint/no-literal-ui-strings.grit"]
+      "plugins": [
+        "./lint/no-raw-values.grit",
+        "./lint/logical-properties.grit",
+        "./lint/no-literal-ui-strings.grit",
+        "./lint/no-native-title.grit"
+      ]
     },
     {
       "includes": ["**/*.test.ts", "**/*.test.tsx"],

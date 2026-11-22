@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { Icon } from "@plux/ui";
+import { Icon, Tooltip } from "@plux/ui";
 import { ToggleGroup, ToggleGroupItem } from "@plux/ui/components/toggle-group";
 import type { ReactElement, ReactNode } from "react";
 import { FoldRow } from "./fold.tsx";
@@ -106,20 +106,22 @@ export function PropRow(props: {
   }
   return (
     <div className="prop-row" data-set={props.set || undefined} data-long={label.length > LONG_LABEL || undefined}>
-      <div className="prop-name" title={props.name}>
-        <span className="prop-dot" aria-hidden="true" />
-        <span className="prop-name-text">{label}</span>
-        {props.override !== undefined && (
-          <span className="prop-override" aria-hidden="true">
-            {props.override}
-          </span>
-        )}
-        {props.onReset !== undefined && props.set && (
-          <button type="button" className="prop-reset" aria-label={props.resetLabel} onClick={props.onReset}>
-            <Icon name="arrow-counter-clockwise" size="pill" />
-          </button>
-        )}
-      </div>
+      <Tooltip content={props.name}>
+        <div className="prop-name">
+          <span className="prop-dot" aria-hidden="true" />
+          <span className="prop-name-text">{label}</span>
+          {props.override !== undefined && (
+            <span className="prop-override" aria-hidden="true">
+              {props.override}
+            </span>
+          )}
+          {props.onReset !== undefined && props.set && (
+            <button type="button" className="prop-reset" aria-label={props.resetLabel} onClick={props.onReset}>
+              <Icon name="arrow-counter-clockwise" size="pill" />
+            </button>
+          )}
+        </div>
+      </Tooltip>
       <div className="prop-control">
         {props.children}
         {props.extra}
@@ -160,18 +162,18 @@ export function AlignmentPicker(props: {
         // biome-ignore lint/a11y/useSemanticElements: a grid of radio buttons, styled as points
         <div role="radiogroup" aria-label={props.label} className="prop-align-grid">
           {grid.map((a) => (
-            // biome-ignore lint/a11y/useSemanticElements: a radio option drawn as a point of the grid
-            <button
-              key={a}
-              type="button"
-              role="radio"
-              aria-checked={props.value === a}
-              aria-label={a}
-              title={a}
-              disabled={props.readOnly}
-              className="prop-align-point"
-              onClick={() => props.onChange(props.value === a ? undefined : a)}
-            />
+            <Tooltip key={a} content={a} disabledTrigger={props.readOnly}>
+              {/* biome-ignore lint/a11y/useSemanticElements: a radio option drawn as a point of the grid */}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={props.value === a}
+                aria-label={a}
+                disabled={props.readOnly}
+                className="prop-align-point"
+                onClick={() => props.onChange(props.value === a ? undefined : a)}
+              />
+            </Tooltip>
           ))}
         </div>
       )}

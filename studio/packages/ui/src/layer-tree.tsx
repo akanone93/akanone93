@@ -521,10 +521,9 @@ function RenameField({
  * the state in the row's name and toggles it with the row's shortcuts.
  */
 function RowToggles({ data, labels }: { readonly data: LayerNode; readonly labels: LayerActions["labels"] }) {
-  const toggle = (act: "hide" | "lock", on: boolean, icon: IconName, title: string, state: string) => (
+  const toggle = (act: "hide" | "lock", on: boolean, icon: IconName, state: string) => (
     <span
       data-act={act}
-      title={title}
       className={cx(
         "flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground",
         on ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-aria-selected:opacity-100",
@@ -536,20 +535,8 @@ function RowToggles({ data, labels }: { readonly data: LayerNode; readonly label
   );
   return (
     <>
-      {toggle(
-        "hide",
-        data.hidden === true,
-        data.hidden === true ? "eye-slash" : "eye",
-        data.hidden === true ? labels.show : labels.hide,
-        labels.hidden,
-      )}
-      {toggle(
-        "lock",
-        data.locked === true,
-        data.locked === true ? "lock" : "lock-open",
-        data.locked === true ? labels.unlock : labels.lock,
-        labels.locked,
-      )}
+      {toggle("hide", data.hidden === true, data.hidden === true ? "eye-slash" : "eye", labels.hidden)}
+      {toggle("lock", data.locked === true, data.locked === true ? "lock" : "lock-open", labels.locked)}
     </>
   );
 }

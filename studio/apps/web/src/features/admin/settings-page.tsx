@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { OrgService } from "@plux/api";
-import { Button, Field, Input } from "@plux/ui";
+import { Button, Field, Input, Tooltip } from "@plux/ui";
 import { type ReactElement, useEffect, useState } from "react";
 import { adminMessages } from "./admin.messages.ts";
 import { Frame } from "./parts.tsx";
@@ -46,9 +46,11 @@ export function SettingsPage(): ReactElement {
         <Field label={m.orgName}>
           <Input value={name} required onChange={(e) => setName(e.target.value)} />
         </Field>
-        <Button type="submit" disabled={!can} title={can ? undefined : m.noPermission}>
-          {m.save}
-        </Button>
+        <Tooltip content={can ? undefined : m.noPermission} disabledTrigger={!can}>
+          <Button type="submit" disabled={!can}>
+            {m.save}
+          </Button>
+        </Tooltip>
       </form>
       {done && (
         <p role="status" className="text-body text-muted-foreground">

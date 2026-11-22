@@ -38,7 +38,10 @@ export interface GestureInput {
   readonly setPositions: (update: (prev: ReadonlyMap<string, Point>) => ReadonlyMap<string, Point>) => void;
   readonly commit: (positions: ReadonlyMap<string, Point>) => void;
   readonly setHover: (id: string | undefined) => void;
+  /** Expands bundle `bundle` at once (a click), or collapses all with null. */
   readonly expand: (bundle: string | null) => void;
+  /** The pointer rests over bundle `bundle` (null: none): it expands once the pointer has settled on it (#206). */
+  readonly hoverArrow: (bundle: string | null) => void;
   readonly pick: (hits: readonly string[]) => ArrowPick | undefined;
   readonly onLane: (pick: ArrowPick) => void;
   readonly onOpen: (box: SceneBox) => void;
@@ -380,7 +383,7 @@ export function useCanvasGestures(input: GestureInput) {
       } else {
         const hits = hitsAt(e);
         input.setHover(boxOfHits(hits));
-        input.expand(input.pick(hits)?.bundle.id ?? null);
+        input.hoverArrow(input.pick(hits)?.bundle.id ?? null);
       }
     },
     onPointerUp: (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -411,7 +414,7 @@ export function useCanvasGestures(input: GestureInput) {
     onPointerLeave: () => {
       if (drag.current === null && press.current === null && pan.current === null) {
         input.setHover(undefined);
-        input.expand(null);
+        input.hoverArrow(null);
       }
     },
     onContextMenu: (e: React.MouseEvent<HTMLCanvasElement>) => {

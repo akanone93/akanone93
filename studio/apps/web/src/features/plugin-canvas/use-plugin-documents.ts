@@ -5,6 +5,18 @@ import { createClient } from "@connectrpc/connect";
 import { DocumentService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useApp } from "../../lib/use-app.tsx";
+import { parseDocument } from "./plugin-model.ts";
+
+/**
+ * Each document with its content parsed once, as it is loaded (#214): every reader takes `parsed` rather than parsing
+ * the bytes again, which every render of the plugin canvas did for the whole app. It lives in the query cache with the
+ * listing and is replaced with it; it is shared, so a reader never changes it (it clones first).
+ */
+function withParsed<D extends { readonly content: Uint8Array }>(
+  documents: readonly D[],
+): (D & { readonly parsed: unknown })[] {
+  return documents.map((d) => ({ ...d, parsed: parseDocument(d.content) }));
+}
 
 /** ListDocuments of one plugin with content (read-only), through the shared query cache. */
 export function usePluginDocuments(appId: string, pluginId: string) {
@@ -17,7 +29,7 @@ export function usePluginDocuments(appId: string, pluginId: string) {
         pluginId,
         contentIncluded: true,
       });
-      return res.documents;
+      return withParsed(res.documents);
     },
   });
 }
@@ -47,10 +59,12 @@ export function useAppDocuments(appId: string) {
     queryKey: ["project-documents", appId],
     queryFn: async () => {
       const documents = createClient(DocumentService, session.transport);
-      return allPages((pageToken) =>
-        documents
-          .listDocuments({ appId, allPlugins: true, contentIncluded: true, page: { pageSize: 100, pageToken } })
-          .then((r) => ({ items: r.documents, next: r.page?.nextPageToken })),
+      return withParsed(
+        await allPages((pageToken) =>
+          documents
+            .listDocuments({ appId, allPlugins: true, contentIncluded: true, page: { pageSize: 100, pageToken } })
+            .then((r) => ({ items: r.documents, next: r.page?.nextPageToken })),
+        ),
       );
     },
   });

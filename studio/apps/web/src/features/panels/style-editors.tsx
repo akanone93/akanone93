@@ -12,7 +12,7 @@ import {
   typeRoleOf,
   typeRoles,
 } from "@plux/layout";
-import { Select } from "@plux/ui";
+import { Select, Tooltip } from "@plux/ui";
 import { Button } from "@plux/ui/components/button";
 import { Input } from "@plux/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@plux/ui/components/popover";
@@ -107,16 +107,16 @@ function Swatches({
       <p className="color-popover-title">{title}</p>
       <div className="color-grid">
         {entries.map((e) => (
-          <button
-            key={e.path}
-            type="button"
-            className="color-chip"
-            title={e.label}
-            aria-label={e.label}
-            aria-pressed={current === e.path}
-            style={swatch(e.rgba)}
-            onClick={() => onPick(e.path)}
-          />
+          <Tooltip key={e.path} content={e.label}>
+            <button
+              type="button"
+              className="color-chip"
+              aria-label={e.label}
+              aria-pressed={current === e.path}
+              style={swatch(e.rgba)}
+              onClick={() => onPick(e.path)}
+            />
+          </Tooltip>
         ))}
       </div>
     </section>

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { Icon, type IconName } from "@plux/ui";
+import { Icon, type IconName, Tooltip } from "@plux/ui";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@plux/ui/components/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
 import { type ReactElement, type ReactNode, useCallback, useState } from "react";
@@ -122,15 +122,11 @@ export function DockTabs({
         <header className="dock-head">
           <div className="min-w-0 flex-1">{head}</div>
           {onFold !== undefined && foldLabel !== undefined && (
-            <button
-              type="button"
-              className="dock-fold"
-              aria-label={foldLabel}
-              title={foldLabel}
-              onClick={() => onFold(true)}
-            >
-              <Icon name={side === "start" ? "panel-start-close" : "panel-end-close"} />
-            </button>
+            <Tooltip content={foldLabel}>
+              <button type="button" className="dock-fold" aria-label={foldLabel} onClick={() => onFold(true)}>
+                <Icon name={side === "start" ? "panel-start-close" : "panel-end-close"} />
+              </button>
+            </Tooltip>
           )}
         </header>
         {panes.map((p) => (
@@ -158,9 +154,11 @@ export function DockExpand({
   readonly onExpand: () => void;
 }): ReactElement {
   return (
-    <button type="button" className="dock-expand" data-side={side} aria-label={label} title={label} onClick={onExpand}>
-      <Icon name={side === "start" ? "panel-start-open" : "panel-end-open"} />
-    </button>
+    <Tooltip content={label}>
+      <button type="button" className="dock-expand" data-side={side} aria-label={label} onClick={onExpand}>
+        <Icon name={side === "start" ? "panel-start-open" : "panel-end-open"} />
+      </button>
+    </Tooltip>
   );
 }
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Icon, Input, TypeTag } from "@plux/ui";
+import { Button, Dialog, Field, Icon, Input, Tooltip, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useState } from "react";
 import { FieldGrid, SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
@@ -462,16 +462,11 @@ export function DbSchemaOverlay(props: DbSchemaOverlayProps) {
               title={m.dbList}
               count={collections.length}
               action={
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  aria-label={m.dbAdd}
-                  title={m.dbAdd}
-                  disabled={!canEdit}
-                  onClick={addCollection}
-                >
-                  <Icon name="plus" />
-                </Button>
+                <Tooltip content={m.dbAdd} disabledTrigger={!canEdit}>
+                  <Button size="sm" variant="ghost" aria-label={m.dbAdd} disabled={!canEdit} onClick={addCollection}>
+                    <Icon name="plus" />
+                  </Button>
+                </Tooltip>
               }
             />
             {collections.length === 0 && <p className="px-2 text-xs text-muted-foreground">{m.dbNone}</p>}

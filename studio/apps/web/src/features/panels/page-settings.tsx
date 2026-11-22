@@ -7,7 +7,7 @@ import { Switch } from "@plux/ui/components/switch";
 import { type ReactElement, type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { pluginCanvasMessages } from "../plugin-canvas/plugin-canvas.messages.ts";
-import { parseDocument } from "../plugin-canvas/plugin-model.ts";
+import { documentJson } from "../plugin-canvas/plugin-model.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { timelineMessages } from "../plugin-canvas/timelines.messages.ts";
 import { timelinesOf } from "../plugin-canvas/timelines.ts";
@@ -524,7 +524,7 @@ function useLiveDocs(docs: readonly Doc[] | undefined): { path: string; kind: st
       (docs ?? []).map((d) => ({
         path: d.path,
         kind: d.kind,
-        json: local[d.path]?.content ?? parseDocument(d.content),
+        json: local[d.path]?.content ?? documentJson(d),
       })),
     [docs, local],
   );
@@ -541,7 +541,7 @@ function externalOpeners(
     if (d.kind !== "page") {
       continue;
     }
-    const json = parseDocument(d.content);
+    const json = documentJson(d);
     if (
       isObj(json) &&
       typeof json["id"] === "string" &&
@@ -598,7 +598,7 @@ export function PageSettingsTab(props: {
   const taken = new Set(
     [
       ...ownPages.map((d) => d.json),
-      ...(props.appDocuments ?? []).filter((d) => d.kind === "page").map((d) => parseDocument(d.content)),
+      ...(props.appDocuments ?? []).filter((d) => d.kind === "page").map((d) => documentJson(d)),
     ].flatMap((j) => (isObj(j) && typeof j["route"] === "string" ? [j["route"]] : [])),
   );
   const links = ownPages.reduce((n, d) => n + retarget(structuredClone(d.json), page.route, page.route), 0);

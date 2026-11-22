@@ -3,7 +3,7 @@
 
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
-import { Button, StatusPill } from "@plux/ui";
+import { Button, StatusPill, Tooltip } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { JustificationDialog } from "../../components/dialogs/index.ts";
@@ -54,14 +54,14 @@ export function DevicePage(): ReactElement {
             ) : (
               <StatusPill status="danger" label={m.stateRevoked} />
             )}
-            <Button
-              variant="danger"
-              disabled={!can || d.revokedAt !== undefined}
-              title={can ? undefined : m.revokeNoPermission}
-              onClick={() => setOpen(true)}
+            <Tooltip
+              content={can ? undefined : m.revokeNoPermission}
+              disabledTrigger={!can || d.revokedAt !== undefined}
             >
-              {m.revoke}
-            </Button>
+              <Button variant="danger" disabled={!can || d.revokedAt !== undefined} onClick={() => setOpen(true)}>
+                {m.revoke}
+              </Button>
+            </Tooltip>
           </div>
           {failed && (
             <p role="alert" className="text-body text-danger">

@@ -1237,7 +1237,7 @@ export class SceneRenderer {
 
   /** Draws what one depth batched: its fills, strokes, links and bars, then its pictures, then its text. */
   private flushLevel(canvas: Canvas): void {
-    this.calls += this.batches.flush(canvas);
+    this.calls += this.batches.flush(canvas, this.viewport.zoom);
     for (const item of this.painted) {
       if (item.spec.kind === "rect") {
         this.calls += drawPainted(this.ck, canvas, item.spec, this.paintedPaint, this.imageOf);

@@ -377,8 +377,14 @@ export function fitViewport(boxes: readonly Point[], view: Size, size: Size = BO
   };
 }
 
-/** The opening view: 100 % with the boxes' centre in the middle of the view (fit stays a button). */
-export function centreViewport(boxes: readonly Point[], view: Size, size: Size = BOX): Viewport {
+/** The least zoom the opening view goes down to: below it a plugin's title is too small to read (#205). */
+export const COMFORT_ZOOM = 0.35;
+
+/**
+ * The opening view (#205, ADR-0103 as amended 2026-11-22): every box in view, with room around them, at most 100 %;
+ * when that would take the view below `COMFORT_ZOOM`, as many as fit at that zoom, centred on the boxes' middle.
+ */
+export function openingViewport(boxes: readonly Point[], view: Size, size: Size = BOX, margin = 72): Viewport {
   if (boxes.length === 0 || view.width <= 0 || view.height <= 0) {
     return { x: -view.width / 2, y: -view.height / 2, z: 1 };
   }
@@ -386,7 +392,9 @@ export function centreViewport(boxes: readonly Point[], view: Size, size: Size =
   const minY = Math.min(...boxes.map((b) => b.y));
   const maxX = Math.max(...boxes.map((b) => b.x + size.width));
   const maxY = Math.max(...boxes.map((b) => b.y + size.height));
-  return { z: 1, x: (minX + maxX) / 2 - view.width / 2, y: (minY + maxY) / 2 - view.height / 2 };
+  const fits = Math.min((view.width - 2 * margin) / (maxX - minX), (view.height - 2 * margin) / (maxY - minY));
+  const z = Math.min(1, Math.max(COMFORT_ZOOM, fits));
+  return { z, x: (minX + maxX) / 2 - view.width / 2 / z, y: (minY + maxY) / 2 - view.height / 2 / z };
 }
 
 /** The key of a new plugin from its name: lower-kebab, starting with a letter (SCH-005). */

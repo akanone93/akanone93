@@ -20,6 +20,16 @@ export interface SceneTheme {
 /** The grid's geometry: a dot every 24 world units, 1 CSS pixel in radius, never closer than 14 CSS pixels. */
 const GRID = { spacing: 24, radius: 1, minGap: 14 } as const;
 
+/**
+ * The arrows' widths (#206): in world units, so they grow with the zoom, and never thinner on screen than the least
+ * width in CSS pixels, so they stay solid lines when the view is zoomed out.
+ */
+const ARROW_WIDTHS = {
+  stroke: { width: 2.25, minScreenWidth: 1.5 },
+  dimmed: { width: 2.25, minScreenWidth: 1.25 },
+  focus: { width: 3, minScreenWidth: 2.25 },
+} as const;
+
 /** The cool blue the canvas surface takes a breath of; the same as `--canvas-surface` in app-canvas.css. */
 const CANVAS_TINT = "oklch(0.72 0.06 245)";
 
@@ -116,16 +126,6 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     },
   };
   const line = colour(token("muted-foreground"));
-  const arrows: ArrowStyle = {
-    ...arrowStyle,
-    stroke: { color: line, width: 2 },
-    dimmed: { color: (line & 0xffffff00) | 0x50, width: 2 },
-    focus: { color: colour(token("primary")), width: 2.5 },
-    badgeFill: colour(token("primary")),
-    badgeText: colour(token("primary-foreground")),
-    labelText: colour(token("foreground")),
-    labelFill: ((colour(token("background")) & 0xffffff00) | 0xeb) >>> 0,
-  };
   // A step off the page (white cards stand off it in light), and the grid's dots a quiet step further, so the canvas
   // reads as a surface without competing with the cards on it.
   // In light, the page's background with a breath of cool blue; in dark the page's own background, as the content
@@ -134,6 +134,30 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     root.dataset["theme"] === "dark"
       ? token("background")
       : `color-mix(in oklch, ${token("background")} 91%, ${CANVAS_TINT})`;
+  const primary = colour(token("primary"));
+  const arrows: ArrowStyle = {
+    ...arrowStyle,
+    ...ARROW_WIDTHS,
+    // At rest the arrows are quiet, the muted foreground mixed well into the canvas: there, but behind the cards (#206).
+    stroke: {
+      ...ARROW_WIDTHS.stroke,
+      color: colour(`color-mix(in oklch, ${token("muted-foreground")} 46%, ${surface})`),
+    },
+    dimmed: {
+      ...ARROW_WIDTHS.dimmed,
+      color: colour(`color-mix(in oklch, ${token("muted-foreground")} 20%, ${surface})`),
+    },
+    // The focused bundle in the primary colour, a little wider, over a soft glow of the same colour.
+    focus: { ...ARROW_WIDTHS.focus, color: primary, glow: { color: ((primary & 0xffffff00) | 0x45) >>> 0, width: 8 } },
+    badgeFill: primary,
+    badgeText: colour(token("primary-foreground")),
+    badgeQuiet: {
+      fill: colour(`color-mix(in oklch, ${token("muted-foreground")} 14%, ${token("card")})`),
+      text: colour(token("muted-foreground")),
+    },
+    labelText: colour(token("foreground")),
+    labelFill: ((colour(token("background")) & 0xffffff00) | 0xeb) >>> 0,
+  };
   const background = colour(surface);
   const grid: GridStyle = {
     ...GRID,

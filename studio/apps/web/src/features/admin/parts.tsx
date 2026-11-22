@@ -4,7 +4,7 @@
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
-import { Button, Field, Input, Select } from "@plux/ui";
+import { Button, Field, Input, Select, Tooltip } from "@plux/ui";
 import { Link, useParams } from "@tanstack/react-router";
 import { type FormEvent, type ReactElement, type ReactNode, useState } from "react";
 import { type DataRow, DataTable, PageFrame } from "../../components/page.tsx";
@@ -132,9 +132,11 @@ export function CreateForm({
         </Field>
       ))}
       {children}
-      <Button type="submit" disabled={disabled} title={disabled ? deniedReason : undefined}>
-        {submit}
-      </Button>
+      <Tooltip content={disabled ? deniedReason : undefined} disabledTrigger={disabled}>
+        <Button type="submit" disabled={disabled}>
+          {submit}
+        </Button>
+      </Tooltip>
     </form>
   );
 }

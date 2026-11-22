@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Icon } from "@plux/ui";
+import { Icon, Tooltip } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { createContext, type ReactElement, useContext, useState } from "react";
 import {
@@ -110,16 +110,17 @@ function BoundRow(p: { readonly v: StyleValue & { readonly token: string }; read
         <span className="truncate">{p.v.token}</span>
         <TokenValue v={p.v} current={current} rt={p.rt} m={m} />
       </span>
-      <button
-        type="button"
-        className="theme-users"
-        aria-label={m.select(p.v.token)}
-        title={m.select(p.v.token)}
-        onClick={() => p.rt.select(users)}
-      >
-        <Icon name="crosshair" size="pill" />
-        {m.usedBy(users.length)}
-      </button>
+      <Tooltip content={m.select(p.v.token)}>
+        <button
+          type="button"
+          className="theme-users"
+          aria-label={m.select(p.v.token)}
+          onClick={() => p.rt.select(users)}
+        >
+          <Icon name="crosshair" size="pill" />
+          {m.usedBy(users.length)}
+        </button>
+      </Tooltip>
     </div>
   );
 }

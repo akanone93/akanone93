@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { widget } from "@plux/schema";
-import { Icon, type IconName, Menu, type MenuEntry } from "@plux/ui";
+import { Icon, type IconName, Menu, type MenuEntry, Tooltip } from "@plux/ui";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import {
   addAfterRecipe,
@@ -42,17 +42,18 @@ function ToolButton(props: {
   readonly caret?: boolean;
 }): ReactElement {
   return (
-    <button
-      type="button"
-      className="pc-tool"
-      aria-label={props.label}
-      title={props.label}
-      data-danger={props.danger || undefined}
-      onClick={props.onClick}
-    >
-      <Icon name={props.icon} />
-      {props.caret === true && <Icon name="caret-down" className="pc-tool-caret" />}
-    </button>
+    <Tooltip content={props.label}>
+      <button
+        type="button"
+        className="pc-tool"
+        aria-label={props.label}
+        data-danger={props.danger || undefined}
+        onClick={props.onClick}
+      >
+        <Icon name={props.icon} />
+        {props.caret === true && <Icon name="caret-down" className="pc-tool-caret" />}
+      </button>
+    </Tooltip>
   );
 }
 

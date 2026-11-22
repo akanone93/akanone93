@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Icon, Input } from "@plux/ui";
+import { Button, Icon, Input, Tooltip } from "@plux/ui";
 import { type ReactElement, type ReactNode, useState } from "react";
 import { ColourChip } from "../../components/colour-field.tsx";
 import { DataTable, PageEmpty } from "../../components/page.tsx";
@@ -25,9 +25,9 @@ function ValueCell({ type, value }: { readonly type: string; readonly value: unk
   return type === "color" ? (
     <ColourChip value={text} />
   ) : (
-    <span className="token-value" title={text}>
-      {text}
-    </span>
+    <Tooltip content={text}>
+      <span className="token-value">{text}</span>
+    </Tooltip>
   );
 }
 

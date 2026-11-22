@@ -4,7 +4,7 @@
 import { useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useEditor } from "../editor/editor-provider.tsx";
-import { parseDocument } from "../plugin-canvas/plugin-model.ts";
+import { documentJson } from "../plugin-canvas/plugin-model.ts";
 import type { Validation } from "../problems/use-validation.ts";
 import { ActionGraphOverlay, type GraphDocument } from "./action-graph-overlay.tsx";
 import { extrasOf } from "./graph-model.ts";
@@ -31,7 +31,7 @@ export function ActionGraphHost(props: ActionGraphHostProps) {
   const extras = useMemo(
     () =>
       extrasOf(
-        documents.map((d) => parseDocument(d.content)),
+        documents.map((d) => documentJson(d)),
         custom,
       ),
     [documents, custom],

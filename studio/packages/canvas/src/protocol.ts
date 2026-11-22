@@ -27,8 +27,13 @@ export interface Point {
 /** A stroke: colour and width in world units; `dash` draws it dashed, dashes of that length in world units. */
 export interface StrokeStyle {
   readonly color: ColorRgba;
+  /** The width in world units: it grows and shrinks with the zoom. */
   readonly width: number;
   readonly dash?: number;
+  /** The least width the stroke keeps on screen, in CSS pixels, however far the view zooms out; none when absent. */
+  readonly minScreenWidth?: number;
+  /** A soft glow drawn under the stroke (a focused arrow): its colour and its width in CSS pixels; none when absent. */
+  readonly glow?: { readonly color: ColorRgba; readonly width: number };
 }
 
 /** A device frame or screen: a container with an optional pre-rendered shadow. */

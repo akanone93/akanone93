@@ -32,11 +32,11 @@ import {
   type BoxLink,
   canvasDocument,
   canvasRecipe,
-  centreViewport,
   changeFrame,
   type Frame,
   type FrameChange,
   fitViewport,
+  openingViewport,
   type Point,
   placeBoxes,
   readSavedCanvas,
@@ -431,10 +431,20 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         return target === undefined || s.plugin === undefined ? [] : [{ from: s.plugin.id, to: target }];
       }),
     );
-    const natives = graph.links.flatMap((l) =>
-      l.targetPage === undefined ? [{ from: l.sourcePlugin, to: nativeBox(l.route) }] : [],
+    // The links the arrows are drawn from, plugin to plugin and to native targets: the layout follows the same graph
+    // the canvas shows, so linked plugins sit near each other (#205); the summaries' links add what is not loaded yet.
+    const drawn = graph.links.flatMap((l) =>
+      l.targetPage === undefined
+        ? [{ from: l.sourcePlugin, to: nativeBox(l.route) }]
+        : l.targetPlugin !== undefined && l.targetPlugin !== l.sourcePlugin
+          ? [{ from: l.sourcePlugin, to: l.targetPlugin }]
+          : [],
     );
-    return [...between, ...natives];
+    const seen = new Set<string>();
+    return [...between, ...drawn].filter((l) => {
+      const key = `${l.from}>${l.to}`;
+      return !seen.has(key) && Boolean(seen.add(key));
+    });
   }, [list, graph]);
   const summaryOf = useMemo(() => new Map(list.map((s) => [s.plugin?.id ?? "", s])), [list]);
   const teams = useTeams();
@@ -558,14 +568,16 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     [boxes, scene, viewOf, setZoom],
   );
   const fit = useCallback(() => place(fitViewport), [place]);
-  // The opening view is 100 % centred on the plugins (STU-067); Fit fits them on demand.
+  // The opening view shows every plugin when they fit at a readable zoom, else as many as fit, centred (#205). It
+  // waits for the app's documents: until their links are in, the automatic layout is not the one the canvas keeps.
+  const laidOut = !project.isPending;
   const opened = useRef(0);
   useEffect(() => {
-    if (opened.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
+    if (laidOut && opened.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
       opened.current = generation;
-      place(centreViewport);
+      place(openingViewport);
     }
-  }, [boxes, place, generation]);
+  }, [boxes, place, generation, laidOut]);
 
   const arrange = useCallback(() => {
     const laid = placeBoxes(
@@ -616,6 +628,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     commit: (next) => commit(next, frames),
     setHover,
     expand: scene.expand,
+    hoverArrow: scene.hoverArrow,
     pick: scene.pick,
     onLane: (p: ArrowPick) => openLane(p.link),
     onOpen: open,

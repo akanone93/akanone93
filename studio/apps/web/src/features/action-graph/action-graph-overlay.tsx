@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Icon, type IconName, Select, TypeTag } from "@plux/ui";
+import { Button, Dialog, Field, Icon, type IconName, Select, Tooltip, TypeTag } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type Problem, scopeAt } from "@plux/validator";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -12,7 +12,7 @@ import { JSON_DEBOUNCE_MS } from "../json-editor/json-editor-overlay.tsx";
 import { pointerOf } from "../panels/properties-model.ts";
 import { PXL_SCOPE_TTL_MS } from "../panels/pxl-source.ts";
 import { eventsOf } from "../plugin-canvas/links.ts";
-import { parseDocument } from "../plugin-canvas/plugin-model.ts";
+import { documentJson } from "../plugin-canvas/plugin-model.ts";
 import type { PxlLanguage } from "../problems/use-validation.ts";
 import { type ActionGraphMessages, actionGraphMessages } from "./action-graph.messages.ts";
 import { GraphContext, type GraphContextValue } from "./graph-context.ts";
@@ -111,25 +111,26 @@ function CataloguePanel(props: {
                     ev.dataTransfer.effectAllowed = "copy";
                   }}
                 >
-                  <button
-                    type="button"
-                    className="sheet-item graph-entry"
-                    disabled={!props.canEdit}
-                    aria-label={m.addNamed(e.label)}
-                    title={e.description}
-                    onClick={() => props.onAdd(e)}
-                  >
-                    <span className="graph-entry-icon" data-group={g} aria-hidden="true">
-                      <Icon name={groupIcon[g] ?? "lightning"} size="pill" />
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate font-mono text-xs">{e.label}</span>
-                      {e.description !== "" && (
-                        <span className="truncate text-tag text-muted-foreground">{e.description}</span>
-                      )}
-                    </span>
-                    <Icon name="plus" size="pill" />
-                  </button>
+                  <Tooltip content={e.description} disabledTrigger={!props.canEdit}>
+                    <button
+                      type="button"
+                      className="sheet-item graph-entry"
+                      disabled={!props.canEdit}
+                      aria-label={m.addNamed(e.label)}
+                      onClick={() => props.onAdd(e)}
+                    >
+                      <span className="graph-entry-icon" data-group={g} aria-hidden="true">
+                        <Icon name={groupIcon[g] ?? "lightning"} size="pill" />
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate font-mono text-xs">{e.label}</span>
+                        {e.description !== "" && (
+                          <span className="truncate text-tag text-muted-foreground">{e.description}</span>
+                        )}
+                      </span>
+                      <Icon name="plus" size="pill" />
+                    </button>
+                  </Tooltip>
                 </li>
               ))}
             </ul>
@@ -154,7 +155,7 @@ function useDocs(documents: readonly GraphDocument[]): Readonly<Record<string, u
   return useMemo(() => {
     const out: Record<string, unknown> = {};
     for (const d of documents) {
-      out[d.path] = local[d.path]?.content ?? parseDocument(d.content);
+      out[d.path] = local[d.path]?.content ?? documentJson(d);
     }
     return out;
   }, [documents, local]);

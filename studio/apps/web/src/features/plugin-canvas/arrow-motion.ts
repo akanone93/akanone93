@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type ArrowCanvas, EXPAND_MS, type SceneOp } from "@plux/canvas";
+import { type ArrowCanvas, EXPAND_MS, HoverIntent, type SceneOp } from "@plux/canvas";
 
 /** What the motion needs from the page: the clock, frames and the reduced-motion setting; real ones by default. */
 export interface MotionHost {
@@ -28,12 +28,16 @@ export class ArrowMotion {
   private focus: string | null = null;
   private frame = 0;
   private clock = 0;
+  /** The pointer's hover waits for intent (#206): a sweep across arrows lights none of them. */
+  private readonly intent: HoverIntent<string>;
 
   constructor(
     private readonly arrows: ArrowCanvas,
     private readonly patch: (ops: SceneOp[]) => void,
     private readonly host: MotionHost = browserHost,
-  ) {}
+  ) {
+    this.intent = new HoverIntent<string>((id) => this.apply(id));
+  }
 
   /** A clock that never runs backwards, also after a reduced-motion jump to the end of an animation. */
   now(): number {
@@ -41,8 +45,18 @@ export class ArrowMotion {
     return this.clock;
   }
 
-  /** Expands bundle `id`, or collapses every bundle with null; animated in the worker frame by frame. */
+  /** Expands bundle `id` at once (a click or keyboard focus), or collapses every bundle with null. */
   expand(id: string | null): void {
+    this.intent.now(id);
+  }
+
+  /** The pointer rests over bundle `id` (null: over no arrow); it expands once the pointer has settled (#206). */
+  hover(id: string | null): void {
+    this.intent.hover(id);
+  }
+
+  /** Expands bundle `id`, or collapses every bundle with null; animated in the worker frame by frame. */
+  private apply(id: string | null): void {
     if (this.focus === id) {
       return;
     }
@@ -79,8 +93,9 @@ export class ArrowMotion {
     this.send(this.arrows.setZoom(zoom, this.now()));
   }
 
-  /** Stops a running animation. */
+  /** Stops a running animation and drops a waiting hover. */
   dispose(): void {
+    this.intent.dispose();
     this.host.cancel(this.frame);
   }
 

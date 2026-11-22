@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { GovernanceService } from "@plux/api";
-import { Button, Field, Icon, Input } from "@plux/ui";
+import { Button, Field, Icon, Input, Tooltip } from "@plux/ui";
 import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useState } from "react";
@@ -93,17 +93,19 @@ function PermissionTree({
                   {f.feature === "" ? m.generalFeature : f.feature}
                 </legend>
                 {f.actions.map((x) => (
-                  <label key={x.name} title={x.description} className="flex items-center gap-2 ps-6 text-body">
-                    <input
-                      type="checkbox"
-                      aria-label={x.name}
-                      checked={selected.has(x.name)}
-                      disabled={locked}
-                      onChange={(e) => onChange(toggleAll(selected, [x.name], e.target.checked))}
-                    />
-                    <span>{x.action}</span>
-                    {x.stepUp && <span className="text-caption text-muted-foreground">{m.needsStepUp}</span>}
-                  </label>
+                  <Tooltip key={x.name} content={x.description}>
+                    <label className="flex items-center gap-2 ps-6 text-body">
+                      <input
+                        type="checkbox"
+                        aria-label={x.name}
+                        checked={selected.has(x.name)}
+                        disabled={locked}
+                        onChange={(e) => onChange(toggleAll(selected, [x.name], e.target.checked))}
+                      />
+                      <span>{x.action}</span>
+                      {x.stepUp && <span className="text-caption text-muted-foreground">{m.needsStepUp}</span>}
+                    </label>
+                  </Tooltip>
                 ))}
               </fieldset>
             );

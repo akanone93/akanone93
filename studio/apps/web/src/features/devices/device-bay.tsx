@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import type { DevEvent } from "@plux/api";
-import { Button, Icon } from "@plux/ui";
+import { Button, Icon, Tooltip } from "@plux/ui";
 import { Tabs as ShadcnTabs, TabsContent, TabsList, TabsTrigger } from "@plux/ui/components/tabs";
 import {
   type ReactNode,
@@ -170,25 +170,22 @@ function ConsoleBar(props: {
       {props.live && (
         <span className="dev-console-tools">
           {/* Icons with their names as labels and tips, so the bar stays one line. */}
-          <Button
-            size="sm"
-            variant={props.highlight ? "primary" : "ghost"}
-            aria-pressed={props.highlight}
-            aria-label={m.highlight}
-            title={m.highlight}
-            onClick={props.onHighlight}
-          >
-            <Icon name="crosshair" size="pill" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            aria-label={m.screenshotCapture}
-            title={m.screenshotCapture}
-            onClick={props.onShot}
-          >
-            <Icon name="camera" size="pill" />
-          </Button>
+          <Tooltip content={m.highlight}>
+            <Button
+              size="sm"
+              variant={props.highlight ? "primary" : "ghost"}
+              aria-pressed={props.highlight}
+              aria-label={m.highlight}
+              onClick={props.onHighlight}
+            >
+              <Icon name="crosshair" size="pill" />
+            </Button>
+          </Tooltip>
+          <Tooltip content={m.screenshotCapture}>
+            <Button size="sm" variant="ghost" aria-label={m.screenshotCapture} onClick={props.onShot}>
+              <Icon name="camera" size="pill" />
+            </Button>
+          </Tooltip>
         </span>
       )}
     </div>

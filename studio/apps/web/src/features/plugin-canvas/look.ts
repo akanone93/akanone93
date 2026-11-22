@@ -7,7 +7,7 @@ import { readLocales, readMessages } from "../localisation/l10n-model.ts";
 import { genericDevice, type MockState, type PreviewDevice, type PreviewRender } from "../preview/switches.ts";
 import { format as formatIcu, pluralArgs } from "./icu.ts";
 import { withLocaleOverrides } from "./locale-overrides.ts";
-import { type Node, parseDocument } from "./plugin-model.ts";
+import { documentJson, type Node } from "./plugin-model.ts";
 
 /** Reads the preview switches into what the canvas draws (STU-058, I18N-010, A11Y-005, THM-001). */
 
@@ -26,9 +26,7 @@ const CUPERTINO = { appBarHeight: 44, controlHeight: 44 } as const;
 
 /** The parsed documents of `kind`. */
 export const jsonOf = (docs: readonly DocLike[], kind: string): Obj[] =>
-  docs
-    .map((d) => (d.parsed !== undefined ? d.parsed : parseDocument(d.content)))
-    .filter((d): d is Obj => isObj(d) && d["kind"] === kind);
+  docs.map((d) => documentJson(d)).filter((d): d is Obj => isObj(d) && d["kind"] === kind);
 
 /**
  * The value of a design token at `name` for `brand` (its `brands.<brand>.<name>` value first, as the device reads it,

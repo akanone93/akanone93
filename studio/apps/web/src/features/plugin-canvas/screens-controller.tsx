@@ -116,6 +116,9 @@ export interface ScreensControllerProps {
   readonly onL10n?: (on: boolean) => void;
   readonly sizes?: boolean;
   readonly onSizes?: (on: boolean) => void;
+  /** Every widget's badges (#216). */
+  readonly badges?: boolean;
+  readonly onBadges?: (on: boolean) => void;
 }
 
 /**
@@ -383,6 +386,8 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         onL10n={props.onL10n}
         sizes={props.sizes}
         onSizes={props.onSizes}
+        badges={props.badges}
+        onBadges={props.onBadges}
         validation={props.validation}
         percent={props.percent}
         onZoom={props.onZoom}

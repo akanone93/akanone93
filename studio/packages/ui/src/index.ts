@@ -41,7 +41,7 @@ export { type StatusKind, StatusPill, type StatusPillProps } from "./status-pill
 export { SummaryCard, type SummaryCardProps, type SummaryCell } from "./summary-card.tsx";
 export { type TabDefinition, Tabs, type TabsProps } from "./tabs.tsx";
 export { notify, Toaster, type ToasterProps, type ToastKind, toastDurationMs } from "./toast.tsx";
-export { Tooltip, type TooltipProps, tooltipDelayMs } from "./tooltip.tsx";
+export { Tooltip, type TooltipProps, TooltipProviders, tooltipDelayMs } from "./tooltip.tsx";
 export { Tree, type TreeNode, type TreeProps } from "./tree.tsx";
 export { TypeTag, type TypeTagProps } from "./type-tag.tsx";
 export { VirtualTable, type VirtualTableProps } from "./virtual-table.tsx";

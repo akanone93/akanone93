@@ -10,6 +10,7 @@ import {
   type Bundle,
   deriveAppBundles,
   EXPAND_MS,
+  HoverIntent,
   type ItemSpec,
   type SceneOp,
 } from "@plux/canvas";
@@ -121,7 +122,7 @@ export function useAppScene(input: AppSceneInput) {
 
   useEffect(() => () => cancelAnimationFrame(drawn.current?.frame ?? 0), []);
 
-  /** Expands bundle `id` (hover, keyboard focus or click) or collapses all; animates in the worker. */
+  /** Expands bundle `id` (keyboard focus, click, or a hover once settled) or collapses all; animates in the worker. */
   const expand = useCallback(
     (id: string | null) => {
       const d = current();
@@ -169,7 +170,13 @@ export function useAppScene(input: AppSceneInput) {
   );
 
   const pick = useCallback((hits: readonly string[]): ArrowPick | undefined => drawn.current?.arrows.pick(hits), []);
-  return { bundles, expand, zoomed, pick };
+  // The pointer's hover waits for intent (#206): an arrow lights up once the pointer has settled on it, so a sweep
+  // across the canvas lights none; a click or keyboard focus goes through `now` at once.
+  const intent = useMemo(() => new HoverIntent<string>(expand), [expand]);
+  useEffect(() => () => intent.dispose(), [intent]);
+  const expandNow = useCallback((id: string | null) => intent.now(id), [intent]);
+  const hoverArrow = useCallback((id: string | null) => intent.hover(id), [intent]);
+  return { bundles, expand: expandNow, hoverArrow, zoomed, pick };
 }
 
 /**

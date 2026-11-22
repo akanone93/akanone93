@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Icon, type IconName } from "@plux/ui";
+import { Icon, type IconName, Tooltip } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { type ReactNode, useRef } from "react";
 import { problemsMessages } from "./problems.messages.ts";
@@ -60,15 +60,11 @@ export function ProblemCounts({
       {pills}
     </span>
   ) : (
-    <button
-      type="button"
-      title={m.counts}
-      className="problem-counts"
-      data-busy={busy ? "" : undefined}
-      onClick={onOpen}
-    >
-      {pills}
-    </button>
+    <Tooltip content={m.counts}>
+      <button type="button" className="problem-counts" data-busy={busy ? "" : undefined} onClick={onOpen}>
+        {pills}
+      </button>
+    </Tooltip>
   );
 }
 

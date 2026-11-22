@@ -138,14 +138,7 @@ function OpenMenu(props: Parameters<typeof CanvasMenu>[0] & { readonly at: MenuA
           props.onClose();
         }
       }}
-      trigger={
-        <span
-          aria-hidden="true"
-          title={props.label}
-          className="pc-anchor"
-          style={{ "--x": at.x, "--y": at.y } as CSSProperties}
-        />
-      }
+      trigger={<span aria-hidden="true" className="pc-anchor" style={{ "--x": at.x, "--y": at.y } as CSSProperties} />}
       entries={menuEntries(at.target, states, props.actions, props.text)}
     />
   );

@@ -53,7 +53,7 @@ export interface InteractionInput {
   /** The plugin's entry screen, marked Entry on its header (PC-11, MR-2). */
   readonly entry?: string | undefined;
   /** A screen's header asks for its page settings or the device matrix, once it has selected the screen (MR-2). */
-  readonly onScreenView?: (view: "settings" | "matrix") => void;
+  readonly onScreenView?: (view: "matrix") => void;
   readonly positions: ScreenPositions;
   readonly onPick: (hits: readonly string[]) => boolean;
   /** The view moved: the URL and the ghosts follow it. */
@@ -89,6 +89,8 @@ export interface InteractionInput {
   readonly costs?: CostsOverlay | undefined;
   /** The component instances (PC-37). */
   readonly instances?: InstancesOverlay | undefined;
+  /** Every widget's event, binding and component badges, not only the hovered and selected one's (#216). */
+  readonly allBadges?: boolean | undefined;
   /** A double-click that reaches a text edits it in place (PC-17). */
   readonly onEditText?: (id: string) => void;
   /** A resized width or height snapped to a dimension token near it (PC-18). */
@@ -257,7 +259,7 @@ function useScreenHeaders(
       select(h);
       if (action === "zoom") {
         zoomToSelection();
-      } else if (action === "settings" || action === "matrix") {
+      } else if (action === "matrix") {
         onScreenView?.(action);
       } else {
         requestScreen(action, h.id);
@@ -347,7 +349,17 @@ function useDeleteCommand(input: InteractionInput): () => void {
  * over its canvas and spreads `handlers` on it.
  */
 /** The badges and the views' marks the overlay draws, each only when the canvas gives it (PC-23 to PC-33). */
-type MarkKey = "problems" | "bindings" | "events" | "heroes" | "a11y" | "l10n" | "sizes" | "costs" | "instances";
+type MarkKey =
+  | "problems"
+  | "bindings"
+  | "events"
+  | "heroes"
+  | "a11y"
+  | "l10n"
+  | "sizes"
+  | "costs"
+  | "instances"
+  | "allBadges";
 
 function marksOf(
   input: { readonly [K in MarkKey]: InteractionInput[K] | undefined } & Pick<InteractionInput, "messages">,
@@ -364,6 +376,7 @@ function marksOf(
     ...(input.sizes === undefined ? {} : { sizes: input.sizes }),
     ...(input.costs === undefined ? {} : { costs: input.costs }),
     ...(input.instances === undefined ? {} : { instances: input.instances }),
+    ...(input.allBadges === true ? { allBadges: true } : {}),
   };
 }
 
@@ -395,10 +408,10 @@ export function useCanvasInteraction(input: InteractionInput) {
     (id: string) => input.canEdit && !input.locked.has(id) && sizedType(index.type.get(id)),
     [input.canEdit, input.locked, index],
   );
-  const { problems, bindings, events, heroes, a11y, l10n, sizes, costs, instances, messages } = input;
+  const { problems, bindings, events, heroes, a11y, l10n, sizes, costs, instances, allBadges, messages } = input;
   const marks = useMemo(
-    () => marksOf({ problems, bindings, events, heroes, a11y, l10n, sizes, costs, instances, messages }),
-    [problems, bindings, events, heroes, a11y, l10n, sizes, costs, instances, messages],
+    () => marksOf({ problems, bindings, events, heroes, a11y, l10n, sizes, costs, instances, allBadges, messages }),
+    [problems, bindings, events, heroes, a11y, l10n, sizes, costs, instances, allBadges, messages],
   );
   const nodes: OverlayNodes = useMemo(
     () => ({

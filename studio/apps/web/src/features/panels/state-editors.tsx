@@ -4,7 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { resolveColor } from "@plux/layout";
 import { valueTypes } from "@plux/schema";
-import { Icon, Menu } from "@plux/ui";
+import { Icon, Menu, Tooltip } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { type CSSProperties, createContext, type ReactElement, useContext, useState } from "react";
 import { type StyleMessages, styleMessages } from "./style.messages.ts";
@@ -106,19 +106,22 @@ export function StateValueEditor(p: {
     <div className="state-editor">
       <div className="state-chips" role="tablist" aria-label={m.statesOf(p.name)}>
         {EDITED_STATES.map((s) => (
-          <button
+          <Tooltip
             key={s}
-            type="button"
-            role="tab"
-            className="state-chip"
-            aria-selected={s === state}
-            data-set={o[s] !== undefined || undefined}
-            title={o[s] === undefined && s !== "value" ? m.stateUnset(m.stateName(s)) : m.stateName(s)}
-            onClick={() => show(s)}
+            content={o[s] === undefined && s !== "value" ? m.stateUnset(m.stateName(s)) : m.stateName(s)}
           >
-            <ChipMark value={o[s]} colour={colour} />
-            {m.stateName(s)}
-          </button>
+            <button
+              type="button"
+              role="tab"
+              className="state-chip"
+              aria-selected={s === state}
+              data-set={o[s] !== undefined || undefined}
+              onClick={() => show(s)}
+            >
+              <ChipMark value={o[s]} colour={colour} />
+              {m.stateName(s)}
+            </button>
+          </Tooltip>
         ))}
       </div>
       <div className="state-body" role="tabpanel" aria-label={m.stateName(state)}>
@@ -329,11 +332,13 @@ function BoundToken(p: NumberProps & { readonly token: string; readonly px: numb
   const m = styleMessages(useLingui().i18n);
   return (
     <div className="token-number">
-      <span className="token-chip" title={p.token}>
-        <Icon name="link" size="pill" />
-        <span className="truncate">{p.token}</span>
-        {p.px !== undefined && <span className="token-px">{p.px}</span>}
-      </span>
+      <Tooltip content={p.token}>
+        <span className="token-chip">
+          <Icon name="link" size="pill" />
+          <span className="truncate">{p.token}</span>
+          {p.px !== undefined && <span className="token-px">{p.px}</span>}
+        </span>
+      </Tooltip>
       {!p.readOnly && (
         <button
           type="button"
@@ -364,7 +369,7 @@ function TokenPicker(
       {p.children}
       <Menu
         trigger={
-          <button type="button" className="token-pick" aria-label={m.bindToken(p.name)} title={m.bindToken(p.name)}>
+          <button type="button" className="token-pick" aria-label={m.bindToken(p.name)}>
             <Icon name="link" size="pill" />
           </button>
         }

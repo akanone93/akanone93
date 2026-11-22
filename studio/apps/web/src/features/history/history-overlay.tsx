@@ -5,7 +5,7 @@ import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { type Client, createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { type DocumentChange, DocumentService, type Snapshot } from "@plux/api";
-import { AlertDialog, Button, Dialog, Icon, Select, TypeTag } from "@plux/ui";
+import { AlertDialog, Button, Dialog, Icon, Select, Tooltip, TypeTag } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { SheetEmpty, SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
@@ -255,9 +255,11 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
                       <span className="flex items-center gap-1.5">
                         <TypeTag>{reasonOf(s.reason, m)}</TypeTag>
                         {s.editorSessionId !== "" && (
-                          <span className="text-tag text-muted-foreground" title={m.sessionTitle}>
-                            {m.sessionTag(sessionTag(s.editorSessionId))}
-                          </span>
+                          <Tooltip content={m.sessionTitle}>
+                            <span className="text-tag text-muted-foreground">
+                              {m.sessionTag(sessionTag(s.editorSessionId))}
+                            </span>
+                          </Tooltip>
                         )}
                       </span>
                     </span>

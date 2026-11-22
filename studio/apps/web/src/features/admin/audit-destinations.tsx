@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { AuditService } from "@plux/api";
-import { Button, Field, Input, Select, Textarea } from "@plux/ui";
+import { Button, Field, Input, Select, Textarea, Tooltip } from "@plux/ui";
 import { Checkbox } from "@plux/ui/components/checkbox";
 import { FieldLabel, Field as FieldRow } from "@plux/ui/components/field";
 import { type FormEvent, type ReactElement, useId, useState } from "react";
@@ -143,9 +143,11 @@ export function DestinationForm({
         <FieldLabel htmlFor={privateId}>{m.destinationAllowPrivate}</FieldLabel>
       </FieldRow>
       <div>
-        <Button type="submit" disabled={!can} title={can ? undefined : m.noPermission}>
-          {m.destinationAdd}
-        </Button>
+        <Tooltip content={can ? undefined : m.noPermission} disabledTrigger={!can}>
+          <Button type="submit" disabled={!can}>
+            {m.destinationAdd}
+          </Button>
+        </Tooltip>
       </div>
     </form>
   );

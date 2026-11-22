@@ -8,7 +8,7 @@
  */
 
 import type { ArrowBox, ColorRgba, ItemSpec, NavigateEdge, SceneOp } from "@plux/canvas";
-import { firstText, type Node, parseDocument } from "./plugin-model.ts";
+import { documentJson, firstText, type Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
 import { DEVICE } from "./scene.ts";
 
@@ -24,6 +24,8 @@ interface DocLike {
   readonly pluginId: string;
   readonly kind: string;
   readonly content: Uint8Array;
+  /** The content as loaded and parsed once (#214); parsed here when absent. */
+  readonly parsed?: unknown;
 }
 
 /** The screens (pages with a route) of every plugin in `documents`. */
@@ -33,7 +35,7 @@ export function readAppScreens(documents: readonly DocLike[]): AppScreen[] {
     if (d.kind !== "page") {
       continue;
     }
-    const p = parseDocument(d.content) as
+    const p = documentJson(d) as
       | { id?: unknown; route?: unknown; title?: unknown; pageKind?: unknown; root?: Node }
       | undefined;
     if (p === undefined || p === null || typeof p.id !== "string" || typeof p.route !== "string") {

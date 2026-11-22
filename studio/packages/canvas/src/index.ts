@@ -67,6 +67,7 @@ export {
   type HostLayers,
   type WorkerLike,
 } from "./host.ts";
+export { HOVER_ENTER_MS, HOVER_LEAVE_MS, HoverIntent, type IntentTimers } from "./hover-intent.ts";
 export {
   ARROW_DETAIL_BELOW,
   type ArrowLod,

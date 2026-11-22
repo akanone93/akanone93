@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { AppService } from "@plux/api";
-import { Button, Field, Select } from "@plux/ui";
+import { Button, Field, Select, Tooltip } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { adminMessages } from "./admin.messages.ts";
 import { CreateForm, Frame, fmt, Table } from "./parts.tsx";
@@ -126,16 +126,16 @@ export function EnvironmentsPage(): ReactElement {
               {s.hint}
             </span>,
             fmt(s.updatedAt, m.never),
-            <Button
-              key="d"
-              size="sm"
-              variant="danger"
-              disabled={!canSecrets}
-              title={canSecrets ? undefined : m.noPermission}
-              onClick={() => run(() => apps.deleteSecret({ environmentId, key: s.key }))}
-            >
-              {m.delete}
-            </Button>,
+            <Tooltip key="d" content={canSecrets ? undefined : m.noPermission} disabledTrigger={!canSecrets}>
+              <Button
+                size="sm"
+                variant="danger"
+                disabled={!canSecrets}
+                onClick={() => run(() => apps.deleteSecret({ environmentId, key: s.key }))}
+              >
+                {m.delete}
+              </Button>
+            </Tooltip>,
           ],
         }))}
       />

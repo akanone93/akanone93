@@ -312,6 +312,12 @@ export function pluginCanvasMessages(i18n: I18n) {
         values: { n },
         comment: "Under a screen: the warnings of its page document.",
       }),
+    badgesView: i18n._({
+      id: "pluginCanvas.badgesView",
+      message: "Badges on every widget",
+      comment:
+        "Toggle that shows every widget's event, binding and component badges, not only the hovered and selected widget's.",
+    }),
     sizesView: i18n._({
       id: "pluginCanvas.sizesView",
       message: "Size classes view",

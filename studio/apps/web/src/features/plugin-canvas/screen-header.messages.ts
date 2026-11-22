@@ -13,54 +13,25 @@ export function screenHeaderMessages(i18n: I18n) {
         values: { title },
         comment: "Accessible name of the bar above a screen on the plugin canvas: its title and its actions.",
       }),
-    editTitle: (title: string) =>
-      i18n._({
-        id: "screenHeader.editTitle",
-        message: "Rename {title}",
-        values: { title },
-        comment: "Accessible name of a screen's title above its frame: a click renames the screen in place.",
-      }),
     titleField: i18n._({
       id: "screenHeader.titleField",
       message: "Screen title",
       comment: "Accessible name of the field that renames a screen in place, above its frame.",
-    }),
-    renameHint: i18n._({
-      id: "screenHeader.renameHint",
-      message: "Click to rename",
-      comment: "Tooltip of a screen's title above its frame.",
     }),
     entry: i18n._({
       id: "screenHeader.entry",
       message: "Entry",
       comment: "Badge after the title of the screen the plugin opens on.",
     }),
-    entryHint: i18n._({
-      id: "screenHeader.entryHint",
-      message: "The plugin opens on this screen",
-      comment: "Tooltip of the Entry badge above a screen.",
-    }),
-    route: (route: string) =>
-      i18n._({
-        id: "screenHeader.route",
-        message: "Route name: {route}",
-        values: { route },
-        comment: "Tooltip of the route name shown above a screen: the name other screens navigate to it by.",
-      }),
-    settings: i18n._({
-      id: "screenHeader.settings",
-      message: "Page settings",
-      comment: "Button above a screen: opens the inspector's Page pane for it.",
-    }),
     matrix: i18n._({
       id: "screenHeader.matrix",
       message: "Show on every device",
-      comment: "Button above a screen: opens the device matrix with this screen in every device frame.",
+      comment: "Menu item above a screen: opens the device matrix with this screen in every device frame.",
     }),
     zoom: i18n._({
       id: "screenHeader.zoom",
       message: "Zoom to screen",
-      comment: "Button above a screen: zooms the canvas to fit the screen.",
+      comment: "Menu item above a screen: zooms the canvas to fit the screen.",
     }),
     more: (title: string) =>
       i18n._({
@@ -72,7 +43,7 @@ export function screenHeaderMessages(i18n: I18n) {
     rename: i18n._({
       id: "screenHeader.rename",
       message: "Rename",
-      comment: "Menu item above a screen: rename it in place.",
+      comment: "Menu item above a screen: rename it in a field above its frame.",
     }),
     duplicate: i18n._({
       id: "screenHeader.duplicate",

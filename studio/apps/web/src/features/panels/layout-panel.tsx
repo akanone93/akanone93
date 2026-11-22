@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Icon, type IconName, Select } from "@plux/ui";
+import { Icon, type IconName, Select, Tooltip } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { Switch } from "@plux/ui/components/switch";
 import type { ReactElement, ReactNode } from "react";
@@ -420,26 +420,28 @@ function Overrides(p: {
         <div className="lay-override-list">
           <span className="lay-label">{m.overrides}</span>
           {classes.map((bp) => (
-            <span key={bp} className="lay-override" data-current={p.bp === bp || undefined} title={o[bp].join(", ")}>
-              <button
-                type="button"
-                className="lay-override-name"
-                aria-label={m.editOverrides(bp)}
-                onClick={() => p.onBp(bp)}
-              >
-                {m.overrideCount(bp, o[bp].length)}
-              </button>
-              {!p.disabled && (
+            <Tooltip key={bp} content={o[bp].join(", ")}>
+              <span className="lay-override" data-current={p.bp === bp || undefined}>
                 <button
                   type="button"
-                  className="lay-override-clear"
-                  aria-label={m.clearOverrides(bp)}
-                  onClick={() => p.onClear(bp)}
+                  className="lay-override-name"
+                  aria-label={m.editOverrides(bp)}
+                  onClick={() => p.onBp(bp)}
                 >
-                  <Icon name="x" size="pill" />
+                  {m.overrideCount(bp, o[bp].length)}
                 </button>
-              )}
-            </span>
+                {!p.disabled && (
+                  <button
+                    type="button"
+                    className="lay-override-clear"
+                    aria-label={m.clearOverrides(bp)}
+                    onClick={() => p.onClear(bp)}
+                  >
+                    <Icon name="x" size="pill" />
+                  </button>
+                )}
+              </span>
+            </Tooltip>
           ))}
         </div>
       )}

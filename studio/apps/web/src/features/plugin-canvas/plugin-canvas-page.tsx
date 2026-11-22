@@ -36,6 +36,7 @@ import { readLocales } from "../localisation/l10n-model.ts";
 import { useOverlayHost } from "../overlay/index.ts";
 import { catalogue } from "../panels/catalogue.ts";
 import { type BranchPreview, BranchPreviewContext } from "../panels/condition-panel.tsx";
+import { useStoredFlag } from "../panels/dock-tabs.tsx";
 import { validatorTexts } from "../panels/forms.messages.ts";
 import type { FormMode } from "../panels/forms-model.ts";
 import { FormPreviewContext, type FormPreviewControl } from "../panels/forms-section.tsx";
@@ -107,7 +108,7 @@ import { useBrands } from "./paint-theme.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
-import { openersOf, type Node as PluxNode, pageStates, parseDocument, readPlugin } from "./plugin-model.ts";
+import { documentJson, openersOf, type Node as PluxNode, pageStates, readPlugin } from "./plugin-model.ts";
 import { flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
 import { eventMarks, snackbarOf } from "./quick-actions.ts";
 import { deviceRoot } from "./responsive.ts";
@@ -391,9 +392,14 @@ function freeArea(canvas: HTMLCanvasElement, width: number, height: number) {
 /** Room left under a screen for the line the canvas draws below it (its node count). */
 const CAPTION_ROOM = 28;
 
+/** The least zoom the first view goes down to: the screens' frames and titles still read as screens (#223). */
+const COMFORT_ZOOM = 0.15;
+
 /**
- * The first view (STU-067): 100 %, the screens centred in the room the docks leave, their tops under the top bar when
- * they are taller than that room; the URL's view wins when it names one. Fit fits them all on demand.
+ * The first view (STU-067, #223, ADR-0103 as amended 2026-11-22): every screen's frame in the room the docks leave,
+ * at most 100 %; when they would need less than `COMFORT_ZOOM`, as many as fit at that zoom, centred on the screens'
+ * middle. A screen's content running on below its frame does not count, so a long page does not shrink the view. The
+ * URL's view wins when it names one; Fit fits everything on demand.
  */
 function fitView(
   surface: CanvasSurface,
@@ -414,12 +420,18 @@ function fitView(
     return;
   }
   const free = freeArea(canvas, width, height);
-  const x = (b.l + b.r) / 2 - (free.left + (free.right - free.left) / 2) / zoom;
-  const room = free.bottom - free.top - CAPTION_ROOM;
-  const tall = (b.b - b.t) * zoom > room - 48;
-  const y = tall ? b.t - (free.top + 24) / zoom : (b.t + b.b) / 2 - (free.top + room / 2) / zoom;
-  surface.setViewport(x, y, zoom);
+  const frames = contentBounds(screens, new Map(), device);
+  const roomW = free.right - free.left - 2 * FIRST_MARGIN;
+  const roomH = free.bottom - free.top - CAPTION_ROOM - 2 * FIRST_MARGIN;
+  const fits = Math.min(roomW / (frames.r - frames.l), roomH / (frames.b - frames.t));
+  const first = s.z !== undefined ? zoom : Math.min(1, Math.max(COMFORT_ZOOM, Number.isFinite(fits) ? fits : 1));
+  const x = (frames.l + frames.r) / 2 - (free.left + (free.right - free.left) / 2) / first;
+  const y = (frames.t + frames.b) / 2 - (free.top + (free.bottom - free.top - CAPTION_ROOM) / 2) / first;
+  surface.setViewport(x, y, first);
 }
+
+/** Room left around the screens in the first view, in CSS pixels. */
+const FIRST_MARGIN = 48;
 
 /**
  * The last finished check of the plugin, standing while the next one runs, as the problem counts keep it: otherwise
@@ -641,7 +653,7 @@ function PluginCanvasView({
   const loaded = useValidation(createValidator, appDocs.data, docs.data, assetNames);
   const stateTarget = useStateTarget(docs.data, appDocs.data);
   const local = useEditor((st) => st.docs);
-  const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: parseDocument(d.content) })), [docs.data]);
+  const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: documentJson(d) })), [docs.data]);
   // The editor's documents, unsaved edits included, over the server's (STU-121); untouched documents keep
   // their parsed objects, so the canvas lays out again only the screens whose root changed.
   const live = useMemo(
@@ -715,7 +727,10 @@ function PluginCanvasView({
     [liveValues, picked.ids, statePreview.state],
   );
   // The Accessibility view (PC-31): focus order, small touch targets and low-contrast texts marked on the screens.
-  const [a11yView, setA11yView] = useState(false);
+  // The canvas's views a person keeps from one visit to the next (#216): the accessibility marks and every widget's
+  // badges, both off at first.
+  const [a11yView, setA11yView] = useStoredFlag("plux.canvas.a11y", false);
+  const [allBadges, setAllBadges] = useStoredFlag("plux.canvas.badges", false);
   // The Localisation view (PC-32): missing, untranslated and overflowing texts marked; plural samples by node.
   const [l10nView, setL10nView] = useState(false);
   // The Size classes view (PC-33): each screen's size class, and the widgets that change with it or cross a fold.
@@ -1231,6 +1246,9 @@ function PluginCanvasView({
         fittedRef.current = surface;
         fittedDevice.current = deviceKey;
         fitView(surface, canvas, screens, byId, fit, device);
+        // The address, the zoom's readout and the ghosts' detail follow the fitted view, as after any pan or zoom: the
+        // readout said 100 % while the first view was fitted lower.
+        syncRef.current();
         focusRef.current = searchRef.current.focus;
       }
       showFocusRef.current(surface, canvas, byId);
@@ -1407,17 +1425,8 @@ function PluginCanvasView({
       setScreenRequest((r) => ({ kind, screen, n: (r?.n ?? 0) + 1, ...(title === undefined ? {} : { title }) })),
     [],
   );
-  // A screen's header opens its page settings in the inspector, or the device matrix with it (MR-2).
-  const onScreenView = useCallback(
-    (view: "settings" | "matrix") => {
-      if (view === "settings") {
-        setDockTab((r) => tabRequest("page", r));
-      } else {
-        openMatrix();
-      }
-    },
-    [openMatrix],
-  );
+  // A screen's header opens the device matrix with it (MR-2).
+  const onScreenView = useCallback((_view: "matrix") => openMatrix(), [openMatrix]);
   /**
    * Ghost screens and arrows take a click before the nodes (STU-046, STU-052, STU-053): a lane opens its link, a
    * collapsed bundle expands into its lanes (the same as a hover, for touch and pens).
@@ -1444,7 +1453,7 @@ function PluginCanvasView({
   /** An arrow on top of the resting pointer expands its bundle; anything else collapses it (STU-044). */
   const hoverArrow = (hits: readonly string[]): boolean => {
     const bundle = ghostLayer.pick(hits.slice(0, 1))?.bundle.id ?? null;
-    ghostLayer.expand(bundle);
+    ghostLayer.hover(bundle);
     return bundle !== null;
   };
   // Problems pinned to their widgets on the canvas (PC-16).
@@ -1652,6 +1661,7 @@ function PluginCanvasView({
     sizes,
     costs,
     instances,
+    allBadges,
     tool,
     setTool,
     onInteract: liveSurface.interact,
@@ -2011,6 +2021,8 @@ function PluginCanvasView({
                             <ScreensController
                               a11y={a11yView}
                               onA11y={setA11yView}
+                              badges={allBadges}
+                              onBadges={setAllBadges}
                               l10n={l10nView}
                               onL10n={setL10nView}
                               sizes={sizesView}

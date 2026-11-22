@@ -43,6 +43,11 @@ interface DocLike {
   readonly parsed?: unknown;
 }
 
+/** A document's JSON: the parse it was loaded with (`parsed`) when it has one, else its content parsed now. */
+export function documentJson(d: { readonly content: Uint8Array; readonly parsed?: unknown }): unknown {
+  return d.parsed !== undefined ? d.parsed : parseDocument(d.content);
+}
+
 /** `content` parsed as JSON, or undefined when it is not JSON. */
 export function parseDocument(content: Uint8Array): unknown {
   try {

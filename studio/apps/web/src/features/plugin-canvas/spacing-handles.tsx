@@ -23,6 +23,7 @@ import {
 } from "./spacing-handles.ts";
 import type { CanvasSurface } from "./surface.ts";
 import "./spacing-handles.css";
+import { Tooltip } from "@plux/ui";
 
 /** One handle: what it drags, where it stands (world units) and along which axis it moves. */
 type Handle =
@@ -189,17 +190,20 @@ export function SpacingHandles(props: {
     // A pointer affordance over the canvas, as the overlay is: the inspector's fields set the same values by keyboard.
     <div className="pc-spacing-handles" aria-hidden="true">
       {handles.map((h) => (
-        <span
+        <Tooltip
           key={h.kind === "padding" ? h.side : `gap${h.n}`}
-          title={h.kind === "padding" ? m.paddingHandle(h.side) : m.gapHandle}
-          className="pc-spacing-handle"
-          data-axis={h.kind === "padding" ? (h.side === "top" || h.side === "bottom" ? "y" : "x") : h.axis}
-          style={at(h)}
-          onPointerDown={(e) => begin(h, e)}
-          onPointerMove={move}
-          onPointerUp={end}
-          onPointerCancel={end}
-        />
+          content={h.kind === "padding" ? m.paddingHandle(h.side) : m.gapHandle}
+        >
+          <span
+            className="pc-spacing-handle"
+            data-axis={h.kind === "padding" ? (h.side === "top" || h.side === "bottom" ? "y" : "x") : h.axis}
+            style={at(h)}
+            onPointerDown={(e) => begin(h, e)}
+            onPointerMove={move}
+            onPointerUp={end}
+            onPointerCancel={end}
+          />
+        </Tooltip>
       ))}
     </div>
   );

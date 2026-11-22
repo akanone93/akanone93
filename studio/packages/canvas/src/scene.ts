@@ -40,9 +40,10 @@ export function fillKey(color: number): string {
 
 /** The batching key of a stroke style. */
 export function strokeKey(stroke: StrokeStyle): string {
-  return stroke.dash === undefined
-    ? `s${stroke.color}:${stroke.width}`
-    : `s${stroke.color}:${stroke.width}:${stroke.dash}`;
+  const dash = stroke.dash === undefined ? "" : `:${stroke.dash}`;
+  const least = stroke.minScreenWidth === undefined ? "" : `:m${stroke.minScreenWidth}`;
+  const glow = stroke.glow === undefined ? "" : `:g${stroke.glow.color}/${stroke.glow.width}`;
+  return `s${stroke.color}:${stroke.width}${dash}${least}${glow}`;
 }
 
 function linkBounds(spec: LinkSpec, out: Rect): Rect {

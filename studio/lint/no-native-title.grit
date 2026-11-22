@@ -1,0 +1,18 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: AGPL-3.0-only
+
+language js(typescript, jsx)
+
+// No browser tooltips (#220): a `title` on an HTML element or on a control that passes it to one (Button, toggles,
+// triggers) shows the browser's own tooltip, which looks unlike Studio's and, on a control that also has Studio's,
+// shows two at once. Studio's Tooltip (`@plux/ui`) is the one tooltip; a component's own `title` prop (a dialog's or a
+// popover's heading) is not a tooltip and stays allowed.
+jsx_attribute(name=$n) as $a where {
+  $n <: `title`,
+  $a <: within or {
+    jsx_opening_element(name=$tag),
+    jsx_self_closing_element(name=$tag)
+  },
+  $tag <: r"^([a-z][\w-]*|Button|ToggleGroupItem|InputGroupButton|SelectTrigger|TabsTrigger|Toggle|Link|Badge)$",
+  register_diagnostic(span=$a, message="No browser tooltips: use Studio's Tooltip from @plux/ui instead of `title` (#220).", severity="error")
+}

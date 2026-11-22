@@ -32,8 +32,11 @@ export interface ArrowStyle {
   readonly dimmed: StrokeStyle;
   /** The expanded bundle's lanes. */
   readonly focus: StrokeStyle;
+  /** The count badge of the focused bundle, and of every bundle when `badgeQuiet` is absent. */
   readonly badgeFill: ColorRgba;
   readonly badgeText: ColorRgba;
+  /** The count badge of a bundle at rest, quiet like its line; `badgeFill` and `badgeText` when absent. */
+  readonly badgeQuiet?: { readonly fill: ColorRgba; readonly text: ColorRgba };
   readonly labelText: ColorRgba;
   /** Depth of collapsed arrows; the expanded bundle is raised by 10. */
   readonly z: number;
@@ -344,8 +347,8 @@ export class ArrowCanvas {
     }
     head(route, prefix, stroke, z, style.head ?? HEAD, out);
     if (this.lod.labels && progress === 0 && bundle.links.length > 1) {
-      const fill = raised || focus === null ? style.badgeFill : style.dimmed.color;
-      this.badge(route, prefix, fill, z, out);
+      const badge = badgeColours(style, raised, focus !== null);
+      this.badge(route, prefix, badge.fill, badge.text, z, out);
     }
     return out;
   }
@@ -397,9 +400,9 @@ export class ArrowCanvas {
   }
 
   /** The count badge at the bundle's midpoint (STU-041). */
-  private badge(route: Route, prefix: string, fill: ColorRgba, z: number, out: Out[]): void {
+  private badge(route: Route, prefix: string, fill: ColorRgba, text: ColorRgba, z: number, out: Out[]): void {
     const mid = routeMidpoint(route);
-    const text = String(route.bundle.links.length);
+    const count = String(route.bundle.links.length);
     out.push({
       item: {
         kind: "rect",
@@ -418,17 +421,29 @@ export class ArrowCanvas {
       item: {
         kind: "text",
         id: `${prefix}count`,
-        x: mid.x - text.length * 3.4,
+        x: mid.x - count.length * 3.4,
         y: mid.y - BADGE_H / 2 + 1,
         w: BADGE_W,
-        text,
+        text: count,
         size: LABEL_SIZE,
-        color: this.style.badgeText,
+        color: text,
         z: z + 2,
       },
       link: undefined,
     });
   }
+}
+
+/**
+ * A count badge's colours: the focused bundle's in the badge colours, a bundle at rest quiet like its line, and a bundle
+ * another one's focus dims in the dimmed colour.
+ */
+function badgeColours(style: ArrowStyle, raised: boolean, dimmed: boolean): { fill: ColorRgba; text: ColorRgba } {
+  const quiet = style.badgeQuiet ?? { fill: style.badgeFill, text: style.badgeText };
+  if (raised) {
+    return { fill: style.badgeFill, text: style.badgeText };
+  }
+  return dimmed ? { fill: style.dimmed.color, text: quiet.text } : quiet;
 }
 
 /** The arrowhead: two strokes back from the target anchor, around the side normal. */

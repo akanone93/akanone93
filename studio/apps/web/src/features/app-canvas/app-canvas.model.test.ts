@@ -5,10 +5,11 @@ import { describe, expect, test } from "bun:test";
 import {
   autoLayout,
   BOX,
+  COMFORT_ZOOM,
   canvasDocument,
-  centreViewport,
   fitViewport,
   marquee,
+  openingViewport,
   placeBoxes,
   pluginKeyFrom,
   readSavedCanvas,
@@ -75,13 +76,36 @@ describe("app canvas model [STU-030] [STU-032]", () => {
     expect(fitViewport([], { width: 1000, height: 600 })).toEqual({ x: 0, y: 0, z: 1 });
   });
 
-  test("the opening view is 100 % with the boxes' centre in the middle of the view [STU-067]", () => {
+  test("[STU-067] [#205] the opening view shows every box when they fit, at most 100 %, centred", () => {
     const view = { width: 1000, height: 600 };
-    const v = centreViewport([{ x: 100, y: 50 }], view);
-    expect(v.z).toBe(1);
-    expect(v.x + view.width / 2).toBe(100 + BOX.width / 2);
-    expect(v.y + view.height / 2).toBe(50 + BOX.height / 2);
-    expect(centreViewport([], view)).toEqual({ x: -500, y: -300, z: 1 });
+    const one = openingViewport([{ x: 100, y: 50 }], view);
+    expect(one.z).toBe(1);
+    expect(one.x + view.width / 2).toBe(100 + BOX.width / 2);
+    expect(one.y + view.height / 2).toBe(50 + BOX.height / 2);
+    const row = [
+      { x: 0, y: 0 },
+      { x: 900, y: 0 },
+    ];
+    const fitted = openingViewport(row, view);
+    expect(fitted.z).toBeLessThan(1);
+    expect(fitted.z).toBeGreaterThanOrEqual(COMFORT_ZOOM);
+    // Both boxes lie inside the view.
+    expect(fitted.x).toBeLessThanOrEqual(0);
+    expect(fitted.x + view.width / fitted.z).toBeGreaterThanOrEqual(900 + BOX.width);
+    expect(openingViewport([], view)).toEqual({ x: -500, y: -300, z: 1 });
+  });
+
+  test("[#205] boxes too far apart to fit at a readable zoom open at that zoom, centred on their middle", () => {
+    const view = { width: 1000, height: 600 };
+    const far = openingViewport(
+      [
+        { x: 0, y: 0 },
+        { x: 10_000, y: 0 },
+      ],
+      view,
+    );
+    expect(far.z).toBe(COMFORT_ZOOM);
+    expect(far.x + view.width / 2 / far.z).toBe((10_000 + BOX.width) / 2);
   });
 
   test("the canvas document round-trips, is written in a stable order and holds only document ids", () => {

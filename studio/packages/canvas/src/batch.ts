@@ -21,14 +21,16 @@ export const BatchLayer = {
   frameStroke: 2,
   rectFill: 3,
   rectStroke: 4,
-  link: 5,
-  bar: 6,
+  /** The glow under focused links, blurred, so the link itself stays crisp on top of it. */
+  linkGlow: 5,
+  link: 6,
+  bar: 7,
 } as const;
 
 /** A batch layer. */
 export type BatchLayer = (typeof BatchLayer)[keyof typeof BatchLayer];
 
-const LAYER_COUNT = 7;
+const LAYER_COUNT = 8;
 
 /** `0xRRGGBBAA` as a CanvasKit colour. */
 export function color4f(ck: CanvasKit, rgba: ColorRgba): Float32Array {
@@ -44,7 +46,21 @@ interface Entry {
   readonly builder: PathBuilder;
   readonly paint: Paint;
   used: boolean;
+  /** The stroke's width in world units, and the least it keeps on screen in CSS pixels (0: none). */
+  readonly width: number;
+  readonly minScreen: number;
+  /** The width the paint holds now, set again only when the zoom changes it. */
+  applied: number;
 }
+
+/** How a link's stroke is drawn: the least width it keeps on screen, and the blur of a glow (0: none). */
+interface LinkPaint {
+  readonly minScreen: number;
+  readonly blur: number;
+}
+
+/** The blur of an arrow's glow, in device pixels: soft, but not a haze. */
+const GLOW_SIGMA = 3;
 
 /** Per-layer, per-style path batches. */
 export class Batches {
@@ -62,7 +78,14 @@ export class Batches {
     return this.layers.reduce((sum, layer) => sum + layer.size, 0);
   }
 
-  private entry(layer: BatchLayer, key: string, color: ColorRgba, strokeWidth: number, dash = 0): Entry {
+  private entry(
+    layer: BatchLayer,
+    key: string,
+    color: ColorRgba,
+    strokeWidth: number,
+    dash = 0,
+    link?: LinkPaint,
+  ): Entry {
     const map = this.layers[layer];
     const found = map?.get(key);
     if (found) {
@@ -80,7 +103,24 @@ export class Batches {
         paint.setPathEffect(this.resources.own(this.ck.PathEffect.MakeDash([dash, dash * 0.75], 0)));
       }
     }
-    const entry: Entry = { builder: this.resources.own(new this.ck.PathBuilder()), paint, used: true };
+    if (link !== undefined) {
+      // Round ends and joins: a curve's ends and an arrowhead's two strokes meet softly instead of in square corners.
+      paint.setStrokeCap(this.ck.StrokeCap.Round);
+      paint.setStrokeJoin(this.ck.StrokeJoin.Round);
+      if (link.blur > 0) {
+        paint.setMaskFilter(
+          this.resources.own(this.ck.MaskFilter.MakeBlur(this.ck.BlurStyle.Normal, link.blur, false)),
+        );
+      }
+    }
+    const entry: Entry = {
+      builder: this.resources.own(new this.ck.PathBuilder()),
+      paint,
+      used: true,
+      width: strokeWidth,
+      minScreen: link?.minScreen ?? 0,
+      applied: strokeWidth,
+    };
     map?.set(key, entry);
     return entry;
   }
@@ -139,24 +179,44 @@ export class Batches {
     }
   }
 
-  /** Adds a link to its stroke style's batch; `straight` draws a segment (LOD). */
+  /**
+   * Adds a link to its stroke style's batch; `straight` draws a segment (LOD). A stroke with a glow also adds the
+   * path to the glow layer under it, a wider blurred stroke of the glow's colour.
+   */
   link(key: string, spec: LinkSpec, straight: boolean): void {
-    const { builder } = this.entry(BatchLayer.link, key, spec.stroke.color, spec.stroke.width);
-    builder.moveTo(spec.from.x, spec.from.y);
-    if (!straight && spec.c1 && spec.c2) {
-      builder.cubicTo(spec.c1.x, spec.c1.y, spec.c2.x, spec.c2.y, spec.to.x, spec.to.y);
-    } else {
-      builder.lineTo(spec.to.x, spec.to.y);
+    const stroke = spec.stroke;
+    const main = this.entry(BatchLayer.link, key, stroke.color, stroke.width, 0, {
+      minScreen: stroke.minScreenWidth ?? 0,
+      blur: 0,
+    });
+    trace(main.builder, spec, straight);
+    if (stroke.glow !== undefined) {
+      // The glow's width is all on screen: a hair in world units, widened to the glow's width at every zoom.
+      const glow = this.entry(BatchLayer.linkGlow, `g${key}`, stroke.glow.color, 0.001, 0, {
+        minScreen: stroke.glow.width,
+        blur: GLOW_SIGMA,
+      });
+      trace(glow.builder, spec, straight);
     }
   }
 
-  /** Draws every used batch in layer order; returns the number of draw calls. */
-  flush(canvas: Canvas): number {
+  /**
+   * Draws every used batch in layer order; returns the number of draw calls. `zoom` is the view's: a stroke with a
+   * least on-screen width is widened to it when the view is zoomed out far enough.
+   */
+  flush(canvas: Canvas, zoom = 1): number {
     let calls = 0;
     for (const layer of this.layers) {
       for (const entry of layer.values()) {
         if (!entry.used) {
           continue;
+        }
+        if (entry.minScreen > 0 && zoom > 0) {
+          const width = Math.max(entry.width, entry.minScreen / zoom);
+          if (width !== entry.applied) {
+            entry.paint.setStrokeWidth(width);
+            entry.applied = width;
+          }
         }
         const path = entry.builder.detach();
         canvas.drawPath(path, entry.paint);
@@ -166,5 +226,15 @@ export class Batches {
       }
     }
     return calls;
+  }
+}
+
+/** Adds a link's path to `builder`: a segment, or its cubic Bézier when it has control points and is not straightened. */
+function trace(builder: PathBuilder, spec: LinkSpec, straight: boolean): void {
+  builder.moveTo(spec.from.x, spec.from.y);
+  if (!straight && spec.c1 && spec.c2) {
+    builder.cubicTo(spec.c1.x, spec.c1.y, spec.c2.x, spec.c2.y, spec.to.x, spec.to.y);
+  } else {
+    builder.lineTo(spec.to.x, spec.to.y);
   }
 }

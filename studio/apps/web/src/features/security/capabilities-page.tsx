@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, Textarea } from "@plux/ui";
+import { Button, Dialog, Field, Textarea, Tooltip } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { Frame, SecurityTabs } from "./parts.tsx";
 import { securityMessages } from "./security.messages.ts";
@@ -77,9 +77,11 @@ export function CapabilitiesPage(): ReactElement {
         ))}
       </dl>
       <div>
-        <Button disabled={!can} title={can ? undefined : m.revokeNoPermission} onClick={edit}>
-          {m.editGrants}
-        </Button>
+        <Tooltip content={can ? undefined : m.revokeNoPermission} disabledTrigger={!can}>
+          <Button disabled={!can} onClick={edit}>
+            {m.editGrants}
+          </Button>
+        </Tooltip>
       </div>
       {failed && (
         <p role="alert" className="text-body text-danger">

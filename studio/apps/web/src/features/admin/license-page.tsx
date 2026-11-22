@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { LicenseService } from "@plux/api";
-import { Button, FileDrop } from "@plux/ui";
+import { Button, FileDrop, Tooltip } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { useCurrentUser } from "../../lib/use-current-user.ts";
 import { adminMessages } from "./admin.messages.ts";
@@ -67,13 +67,14 @@ export function LicensePage(): ReactElement {
           className="w-full"
           onFiles={(files) => setFile(files[0])}
         />
-        <Button
-          type="submit"
-          disabled={user.data?.installationAdmin !== true || file === undefined}
-          title={user.data?.installationAdmin === true ? undefined : m.noPermission}
+        <Tooltip
+          content={user.data?.installationAdmin === true ? undefined : m.noPermission}
+          disabledTrigger={user.data?.installationAdmin !== true || file === undefined}
         >
-          {m.licenseUpload}
-        </Button>
+          <Button type="submit" disabled={user.data?.installationAdmin !== true || file === undefined}>
+            {m.licenseUpload}
+          </Button>
+        </Tooltip>
       </form>
     </Frame>
   );

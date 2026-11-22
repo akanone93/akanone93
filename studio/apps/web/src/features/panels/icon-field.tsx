@@ -9,6 +9,7 @@ import { type ReactElement, useEffect, useMemo, useState } from "react";
 import { loadIconNames } from "../plugin-canvas/icons.ts";
 import { styleMessages } from "./style.messages.ts";
 import "./icon-field.css";
+import { Tooltip } from "@plux/ui";
 
 type IconSet = "material" | "cupertino";
 const SETS: readonly IconSet[] = ["material", "cupertino"];
@@ -245,17 +246,17 @@ function IconGrid({
     <>
       <div className="icon-grid">
         {matches.slice(0, SHOWN).map((n) => (
-          <button
-            key={n}
-            type="button"
-            className="icon-chip"
-            title={n}
-            aria-label={n}
-            aria-pressed={current?.set === set && current.name === n}
-            onClick={() => onPick(n)}
-          >
-            <Glyph name={n} set={set} names={names} />
-          </button>
+          <Tooltip key={n} content={n}>
+            <button
+              type="button"
+              className="icon-chip"
+              aria-label={n}
+              aria-pressed={current?.set === set && current.name === n}
+              onClick={() => onPick(n)}
+            >
+              <Glyph name={n} set={set} names={names} />
+            </button>
+          </Tooltip>
         ))}
       </div>
       {matches.length > SHOWN ? <p className="color-popover-title">{m.iconMore(matches.length - SHOWN)}</p> : null}

@@ -3,16 +3,18 @@
 
 import { useLingui } from "@lingui/react";
 import { titleId } from "@plux/canvas";
-import { Icon, type IconName, Menu, type MenuEntry, Tooltip } from "@plux/ui";
+import { Icon, type IconName, Menu, type MenuEntry } from "@plux/ui";
 import {
   type ButtonHTMLAttributes,
   type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
+  memo,
   type PointerEvent,
   type ReactNode,
   type Ref,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -38,7 +40,7 @@ export interface HeaderScreen {
 }
 
 /** What a header asks the page to do for its screen. */
-export type HeaderAction = "settings" | "matrix" | "zoom" | "duplicate" | "entry" | "move" | "delete";
+export type HeaderAction = "matrix" | "zoom" | "duplicate" | "entry" | "move" | "delete";
 
 /**
  * The canvas's pointer handlers (STU-067). A header hands them its presses as a hit on its screen's title, so a press
@@ -61,9 +63,6 @@ const KIND_ICON: Readonly<Record<PageKind, IconName>> = {
   bottomSheet: "rows",
   fullscreenDialog: "maximize",
 };
-
-/** How far a press may move and still be a click on the title, in CSS pixels. */
-const CLICK_PX = 4;
 
 interface View {
   readonly x: number;
@@ -130,39 +129,23 @@ function TitleField(props: {
   );
 }
 
-/** An icon button of the header; it never grips the screen. A menu hands its trigger props and ref through `rest`. */
-function HeaderButton({
-  icon,
+/** The header's ⋯ button; it never grips the screen. A menu hands its trigger props and ref through `rest`. */
+function MoreButton({
   label,
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  readonly icon: IconName;
   readonly label: string;
   readonly ref?: Ref<HTMLButtonElement>;
 }): ReactNode {
   return (
-    <button {...rest} type="button" className="pc-header-button" aria-label={label} data-no-grip="">
-      <Icon name={icon} size="pill" />
+    <button {...rest} type="button" className="pc-header-button" aria-label={label} data-more="" data-no-grip="">
+      <Icon name="dots-three" size="pill" />
     </button>
   );
 }
 
-/** A quick action above a screen: an icon button with its name as its tooltip. */
-function Quick(props: { readonly icon: IconName; readonly label: string; readonly onClick: () => void }): ReactNode {
-  return (
-    <Tooltip content={props.label}>
-      <HeaderButton icon={props.icon} label={props.label} onClick={props.onClick} />
-    </Tooltip>
-  );
-}
-
-interface HeaderProps {
-  readonly screen: HeaderScreen;
-  readonly box: Box;
-  readonly view: View;
-  readonly selected: boolean;
-  readonly hovered: boolean;
-  readonly canEdit: boolean;
+/** What a header asks the page for, through handlers that keep their identity while the page re-renders. */
+interface HeaderHandlers {
   readonly pointer: HeaderPointer;
   readonly store: OverlayStore;
   readonly onSelect: (screen: HeaderScreen) => void;
@@ -170,13 +153,25 @@ interface HeaderProps {
   readonly onRename: (screen: HeaderScreen, title: string) => void;
 }
 
-/** The entries of a screen's ⋯ menu: every screen action, the editing ones off without the right to edit. */
+interface HeaderProps {
+  readonly screen: HeaderScreen;
+  /** The frame's top start and width in the headers' plane, in CSS pixels (the plane follows the pan). */
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly selected: boolean;
+  readonly hovered: boolean;
+  readonly canEdit: boolean;
+  readonly handlers: HeaderHandlers;
+}
+
+/** The entries of a screen's ⋯ menu: the actions a screen has, the editing ones off without the right to edit. */
 function moreEntries(
   p: HeaderProps,
   m: ReturnType<typeof screenHeaderMessages>,
   rename: () => void,
 ): readonly MenuEntry[] {
-  const act = (action: HeaderAction) => () => p.onAction(action, p.screen);
+  const act = (action: HeaderAction) => () => p.handlers.onAction(action, p.screen);
   const locked = !p.canEdit;
   return [
     { kind: "item", id: "rename", label: m.rename, icon: "pencil-simple", onSelect: rename, disabled: locked },
@@ -194,10 +189,8 @@ function moreEntries(
           },
         ]),
     { kind: "separator", id: "view" },
-    { kind: "item", id: "settings", label: m.settings, icon: "gear", onSelect: act("settings") },
-    { kind: "item", id: "matrix", label: m.matrix, icon: "squares-four", onSelect: act("matrix") },
     { kind: "item", id: "zoom", label: m.zoom, icon: "fit-view", onSelect: act("zoom") },
-    { kind: "separator", id: "move" },
+    { kind: "item", id: "matrix", label: m.matrix, icon: "squares-four", onSelect: act("matrix") },
     { kind: "item", id: "move", label: m.move, icon: "arrow-up-right", onSelect: act("move"), disabled: locked },
     { kind: "separator", id: "danger" },
     {
@@ -212,44 +205,59 @@ function moreEntries(
   ];
 }
 
-/** Whether a pointer event began on one of the header's own controls, which never grip the screen. */
-const onControl = (e: PointerEvent<HTMLElement>): boolean =>
-  e.target instanceof Element && e.target.closest("[data-no-grip]") !== null;
+/**
+ * The ⋯ menu, mounted only once it is opened (#214): forty screens' menus and their floating parts were rendered on
+ * every pointer move of a drag; at rest a header holds one plain button.
+ */
+function MoreMenu(props: {
+  readonly label: string;
+  readonly entries: () => readonly MenuEntry[];
+  readonly onOpen: () => void;
+}): ReactNode {
+  const [open, setOpen] = useState(false);
+  if (!open) {
+    return (
+      <MoreButton
+        label={props.label}
+        aria-haspopup="menu"
+        onClick={() => {
+          props.onOpen();
+          setOpen(true);
+        }}
+      />
+    );
+  }
+  return <Menu open onOpenChange={setOpen} trigger={<MoreButton label={props.label} />} entries={props.entries()} />;
+}
 
 /**
- * One screen's header bar (MR-2): the page kind, the title (a click renames it in place), Entry for the plugin's entry
- * screen and the route name, quick actions (page settings, every device, zoom) and the ⋯ menu of every screen action.
- * It stays one size at every zoom, as wide as its frame; a narrow frame drops the route, then the quick actions. The
- * bar itself grips the screen: a press selects it, a drag moves it.
+ * Whether an event is not the bar's own to grip the screen with: it began on one of the bar's controls, or outside the
+ * bar's element altogether. React passes an open menu's events up to the bar through the portal; a press on a menu
+ * item used to start a drag of the screen, which took the pointer, so the item never got its click (#230).
  */
-function ScreenHeader(p: HeaderProps): ReactNode {
+const notOurs = (e: PointerEvent<HTMLElement> | MouseEvent<HTMLElement>): boolean =>
+  !(e.target instanceof Node && e.currentTarget.contains(e.target)) ||
+  (e.target instanceof Element && e.target.closest("[data-no-grip]") !== null);
+
+/**
+ * One screen's header (MR-2, #227, #230): the page kind, the title, Entry for the plugin's entry screen, the route name
+ * when it says more than the title, and the ⋯ menu of the screen's actions. Like a frame's label in a design tool it is
+ * quiet text above its frame at rest and a small chip under the pointer or when selected; it stays one size at every
+ * zoom, as wide as its frame, and shows its whole title under the pointer. The whole bar, the title included, grips the
+ * screen: a press selects it, a drag moves it; renaming is in the menu. It renders again only when its own screen,
+ * place, selection or hover changes.
+ */
+const ScreenHeader = memo(function ScreenHeader(p: HeaderProps): ReactNode {
   const { i18n } = useLingui();
   const m = screenHeaderMessages(i18n);
   const kind = pluginCanvasMessages(i18n).pageKind(p.screen.kind);
   const [editing, setEditing] = useState(false);
-  const press = useRef<{ x: number; y: number; title: boolean } | null>(null);
+  const press = useRef(false);
+  const h = p.handlers;
   const hits = [titleId(p.screen.id)];
-  const place = headerPlace(p.box, p.view);
   const rename = () => {
-    p.onSelect(p.screen);
+    h.onSelect(p.screen);
     setEditing(true);
-  };
-  const down = (e: PointerEvent<HTMLElement>) => {
-    if (onControl(e) || editing) {
-      return;
-    }
-    const title = e.target instanceof Element && e.target.closest(".pc-header-title") !== null;
-    press.current = (e.button ?? 0) === 0 ? { x: e.clientX, y: e.clientY, title } : null;
-    p.pointer.down(e, hits);
-  };
-  const up = (e: PointerEvent<HTMLElement>) => {
-    const was = press.current;
-    press.current = null;
-    p.pointer.up(e);
-    // A click on the title, not a drag, renames the screen in place.
-    if (was?.title === true && p.canEdit && Math.hypot(e.clientX - was.x, e.clientY - was.y) <= CLICK_PX) {
-      setEditing(true);
-    }
   };
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: the bar grips its screen like the canvas title does; its controls are buttons
@@ -260,29 +268,40 @@ function ScreenHeader(p: HeaderProps): ReactNode {
       data-selected={p.selected || undefined}
       data-hovered={p.hovered || undefined}
       data-editing={editing || undefined}
-      style={{ "--x": place.x, "--y": place.y, "--w": place.w } as CSSProperties}
-      onPointerDown={down}
-      onPointerMove={(e) => press.current !== null && p.pointer.move(e)}
-      onPointerUp={(e) => press.current !== null && up(e)}
-      onPointerCancel={(e) => {
-        press.current = null;
-        p.pointer.cancel(e);
+      style={{ "--x": p.x, "--y": p.y, "--w": p.w } as CSSProperties}
+      onPointerDown={(e) => {
+        if (notOurs(e) || editing) {
+          return;
+        }
+        press.current = true;
+        h.pointer.down(e, hits);
       }}
-      onLostPointerCapture={(e) => {
-        if (press.current !== null) {
-          press.current = null;
-          p.pointer.lost(e);
+      onPointerMove={(e) => press.current && h.pointer.move(e)}
+      onPointerUp={(e) => {
+        if (press.current) {
+          press.current = false;
+          h.pointer.up(e);
         }
       }}
-      onPointerEnter={() => p.store.set({ hover: p.screen.root })}
-      onPointerLeave={() => press.current === null && p.store.set({ hover: null })}
+      onPointerCancel={(e) => {
+        press.current = false;
+        h.pointer.cancel(e);
+      }}
+      onLostPointerCapture={(e) => {
+        if (press.current) {
+          press.current = false;
+          h.pointer.lost(e);
+        }
+      }}
+      onPointerEnter={() => h.store.set({ hover: p.screen.root })}
+      onPointerLeave={() => !press.current && h.store.set({ hover: null })}
       onContextMenu={(e) => {
-        if (!editing) {
-          p.pointer.menu(e, hits);
+        if (!editing && !notOurs(e)) {
+          h.pointer.menu(e, hits);
         }
       }}
     >
-      <span className="pc-header-kind" title={kind}>
+      <span className="pc-header-kind" aria-label={kind} role="img">
         <Icon name={KIND_ICON[p.screen.kind]} size="pill" />
       </span>
       {editing ? (
@@ -293,56 +312,33 @@ function ScreenHeader(p: HeaderProps): ReactNode {
             setEditing(false);
             const text = value?.trim() ?? "";
             if (text !== "" && text !== p.screen.title) {
-              p.onRename(p.screen, text);
+              h.onRename(p.screen, text);
             }
           }}
         />
       ) : (
-        <button
-          type="button"
-          className="pc-header-title"
-          aria-label={m.editTitle(p.screen.title)}
-          title={p.canEdit ? m.renameHint : p.screen.title}
-          aria-disabled={!p.canEdit || undefined}
-          onClick={(e) => {
-            // A click from the keyboard (Enter, Space) renames; a pointer click is handled on release.
-            if (e.detail === 0 && p.canEdit) {
-              rename();
-            }
-          }}
-        >
-          <span className="pc-header-name">{p.screen.title}</span>
-          {p.canEdit && <Icon name="pencil-simple" size="pill" className="pc-header-pencil" />}
-        </button>
+        <span className="pc-header-name">{p.screen.title}</span>
       )}
-      {p.screen.entry && !editing && (
-        <span className="pc-header-entry" title={m.entryHint}>
-          {m.entry}
-        </span>
-      )}
+      {p.screen.entry && !editing && <span className="pc-header-entry">{m.entry}</span>}
       {routeWorthShowing(p.screen.title, p.screen.route) && !editing && (
-        <span className="pc-header-route" title={m.route(p.screen.route ?? "")} dir="ltr">
+        <span className="pc-header-route" dir="ltr">
           {p.screen.route}
         </span>
       )}
       <span className="pc-header-space" />
-      <span className="pc-header-quick">
-        <Quick icon="gear" label={m.settings} onClick={() => p.onAction("settings", p.screen)} />
-        <Quick icon="squares-four" label={m.matrix} onClick={() => p.onAction("matrix", p.screen)} />
-        <Quick icon="fit-view" label={m.zoom} onClick={() => p.onAction("zoom", p.screen)} />
-      </span>
-      <Menu
-        onOpenChange={(open) => open && p.onSelect(p.screen)}
-        trigger={<HeaderButton icon="dots-three" label={m.more(p.screen.title)} data-more="" />}
-        entries={moreEntries(p, m, rename)}
+      <MoreMenu
+        label={m.more(p.screen.title)}
+        onOpen={() => h.onSelect(p.screen)}
+        entries={() => moreEntries(p, m, rename)}
       />
     </div>
   );
-}
+});
 
 /**
  * The header bars of the screens (MR-2), over the canvas and under the docks, following every pan and zoom. Each sits
- * just above its frame; the selected screen's is tinted in the selection's colour and the one under the pointer lifts.
+ * just above its frame. The bars lie on one plane that a pan only shifts, so a pan or a drag renders no bar but the
+ * moved screen's; a zoom places them again.
  */
 export function ScreenHeaders(props: {
   readonly screens: readonly HeaderScreen[];
@@ -357,33 +353,53 @@ export function ScreenHeaders(props: {
   readonly onRename: (screen: HeaderScreen, title: string) => void;
 }): ReactNode {
   const state = useOverlayState(props.store);
+  // The bars' handlers keep one identity for the page's lifetime and call the latest ones, so a re-render of the page
+  // never re-renders a bar on their account.
+  const latest = useRef(props);
+  latest.current = props;
+  const handlers = useMemo<HeaderHandlers>(
+    () => ({
+      pointer: {
+        down: (e, hits) => latest.current.pointer.down(e, hits),
+        move: (e) => latest.current.pointer.move(e),
+        up: (e) => latest.current.pointer.up(e),
+        cancel: (e) => latest.current.pointer.cancel(e),
+        lost: (e) => latest.current.pointer.lost(e),
+        menu: (e, hits) => latest.current.pointer.menu(e, hits),
+      },
+      store: props.store,
+      onSelect: (s) => latest.current.onSelect(s),
+      onAction: (a, s) => latest.current.onAction(a, s),
+      onRename: (s, t) => latest.current.onRename(s, t),
+    }),
+    [props.store],
+  );
   const surface = props.surface();
   if (surface === null) {
     return null;
   }
   const v = surface.viewport;
-  const view = { x: v.x, y: v.y, zoom: v.zoom };
+  const z = v.zoom;
   return (
     <div className="pc-headers" data-busy={state.marquee !== null || undefined}>
-      {props.screens.map((s) => {
-        const box = props.boxOf(s.root);
-        return box === undefined ? null : (
-          <ScreenHeader
-            key={s.id}
-            screen={s}
-            box={box}
-            view={view}
-            selected={props.selected.has(s.root)}
-            hovered={state.hover === s.root}
-            canEdit={props.canEdit}
-            pointer={props.pointer}
-            store={props.store}
-            onSelect={props.onSelect}
-            onAction={props.onAction}
-            onRename={props.onRename}
-          />
-        );
-      })}
+      <div className="pc-headers-plane" style={{ transform: `translate(${-v.x * z}px, ${-v.y * z}px)` }}>
+        {props.screens.map((s) => {
+          const box = props.boxOf(s.root);
+          return box === undefined ? null : (
+            <ScreenHeader
+              key={s.id}
+              screen={s}
+              x={box.l * z}
+              y={box.t * z}
+              w={Math.max(0, (box.r - box.l) * z)}
+              selected={props.selected.has(s.root)}
+              hovered={state.hover === s.root}
+              canEdit={props.canEdit}
+              handlers={handlers}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -19,7 +19,7 @@ import {
   withColorRoles,
 } from "@plux/layout";
 import { useMemo } from "react";
-import { parseDocument } from "./plugin-model.ts";
+import { documentJson } from "./plugin-model.ts";
 
 /**
  * The colours the canvas paints screens with (STU-005, THM-001–THM-003), read from the app's theme document as the
@@ -44,7 +44,7 @@ const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !
  * session holds it when one has it (`parsed`), so the canvas draws a theme edit at once (PC-35).
  */
 export function themeTokens(documents: readonly DocLike[]): Obj {
-  const docs = documents.map((d) => (d.parsed !== undefined ? d.parsed : parseDocument(d.content))).filter(isObj);
+  const docs = documents.map((d) => documentJson(d)).filter(isObj);
   const app = docs.find((d) => d["kind"] === "app");
   const themes = docs.filter((d) => d["kind"] === "theme");
   const ref = typeof app?.["theme"] === "string" ? app["theme"] : undefined;

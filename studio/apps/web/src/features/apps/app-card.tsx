@@ -4,7 +4,7 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import type { AppSummary, EnvironmentRelease } from "@plux/api";
-import { Icon, StatusPill } from "@plux/ui";
+import { Icon, StatusPill, Tooltip } from "@plux/ui";
 import { Badge } from "@plux/ui/components/badge";
 import { Button } from "@plux/ui/components/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plux/ui/components/card";
@@ -125,17 +125,18 @@ function PinButton({ entry, pinned, handlers }: Pick<AppCardProps, "entry" | "pi
   const m = appsMessages(useLingui().i18n);
   const name = entry.app.name;
   return (
-    <Button
-      variant={pinned ? "secondary" : "ghost"}
-      size="icon-sm"
-      aria-pressed={pinned}
-      aria-label={pinned ? m.unpin(name) : m.pin(name)}
-      title={pinned ? m.pinnedShort : m.pinShort}
-      className="relative z-10"
-      onClick={() => handlers.onPin(entry.app.id)}
-    >
-      <Icon name="push-pin" />
-    </Button>
+    <Tooltip content={pinned ? m.pinnedShort : m.pinShort}>
+      <Button
+        variant={pinned ? "secondary" : "ghost"}
+        size="icon-sm"
+        aria-pressed={pinned}
+        aria-label={pinned ? m.unpin(name) : m.pin(name)}
+        className="relative z-10"
+        onClick={() => handlers.onPin(entry.app.id)}
+      >
+        <Icon name="push-pin" />
+      </Button>
+    </Tooltip>
   );
 }
 
@@ -198,11 +199,13 @@ function CompactFigures({
         { label: m.devices, value: summary.activeDevices, icon: "device-mobile" as const },
         { label: m.plugins, value: summary.pluginCount, icon: "puzzle-piece" as const },
       ].map((f) => (
-        <div key={f.label} className="flex items-center gap-1" title={f.label}>
-          <Icon name={f.icon} size="pill" />
-          <dt className="sr-only">{f.label}</dt>
-          <dd className="font-medium text-foreground tabular-nums">{n.format(f.value)}</dd>
-        </div>
+        <Tooltip key={f.label} content={f.label}>
+          <div className="flex items-center gap-1">
+            <Icon name={f.icon} size="pill" />
+            <dt className="sr-only">{f.label}</dt>
+            <dd className="font-medium text-foreground tabular-nums">{n.format(f.value)}</dd>
+          </div>
+        </Tooltip>
       ))}
     </dl>
   );

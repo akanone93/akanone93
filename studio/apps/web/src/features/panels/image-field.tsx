@@ -8,6 +8,7 @@ import { type ReactElement, useState } from "react";
 import { useAppImages } from "../plugin-canvas/screen-images.ts";
 import { styleMessages } from "./style.messages.ts";
 import "./image-field.css";
+import { Tooltip } from "@plux/ui";
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -122,17 +123,17 @@ function ImageGrid({
   return (
     <div className="image-grid">
       {images.map((i) => (
-        <button
-          key={i.id}
-          type="button"
-          className="image-chip"
-          title={i.name}
-          aria-label={i.name}
-          aria-pressed={current === i.id}
-          onClick={() => onPick(i.id)}
-        >
-          <img src={i.url} alt="" />
-        </button>
+        <Tooltip key={i.id} content={i.name}>
+          <button
+            type="button"
+            className="image-chip"
+            aria-label={i.name}
+            aria-pressed={current === i.id}
+            onClick={() => onPick(i.id)}
+          >
+            <img src={i.url} alt="" />
+          </button>
+        </Tooltip>
       ))}
     </div>
   );

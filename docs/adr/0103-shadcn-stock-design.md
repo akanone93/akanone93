@@ -92,8 +92,10 @@ Chosen option: **shadcn/ui as it ships**.
   Code, Localisation, Accessibility, Performance and Docs, and the open pane takes the dock's whole height; properties
   are one compact row each, a name and its editor, under a sticky filter, size-class switch and "Set only"); the zoom controls, identical on
   both canvases, at the bottom start; and on the plugin canvas the developer console between the
-  docks, a slim bar that opens into a resizable drawer of its tabs. A canvas opens at 100 %,
-  centred in the room the docks leave. A native target on the app canvas is a dashed outline with
+  docks, a slim bar that opens into a resizable drawer of its tabs. A canvas opens with all of its content
+  in the room the docks leave, at 100 % at most (amended 2026-11-22, maintainer: it opened at 100 % and showed only a
+  few plugins or screens; when they would need less than a readable zoom, 35 % on the app canvas and 15 % on the plugin
+  canvas, it opens at that zoom on the middle of them). A native target on the app canvas is a dashed outline with
   a "Native" chip, and a secondary click on a plugin opens its context menu. The full-screen
   editors open as one sheet inset from the window, rounded, with a header bar. The left panel keeps
   four tabs where `STU-061` listed seven (amended by the maintainer on 2026-11-04, spec 1.14.0):

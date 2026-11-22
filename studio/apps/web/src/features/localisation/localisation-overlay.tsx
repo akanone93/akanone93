@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { AlertDialog, Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
+import { AlertDialog, Button, Dialog, Field, Icon, Input, Select, Tooltip } from "@plux/ui";
 import { useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
@@ -229,15 +229,11 @@ function KeyName(p: {
       <span className="inline-flex items-center gap-1">
         <span>{p.name}</span>
         {p.canRename && (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={m.renameKey(p.name)}
-            title={m.renameKey(p.name)}
-            onClick={() => setDraft(p.name)}
-          >
-            <Icon name="pencil-simple" />
-          </Button>
+          <Tooltip content={m.renameKey(p.name)}>
+            <Button variant="ghost" size="sm" aria-label={m.renameKey(p.name)} onClick={() => setDraft(p.name)}>
+              <Icon name="pencil-simple" />
+            </Button>
+          </Tooltip>
         )}
       </span>
     );
@@ -283,9 +279,11 @@ function KeyUse(p: {
     return <span className="text-caption text-muted-foreground">{p.usedIn(p.files.length, p.files.join(", "))}</span>;
   }
   return (
-    <Button variant="ghost" size="sm" aria-label={p.label} title={p.label} disabled={!p.canDelete} onClick={p.onDelete}>
-      <Icon name="trash" />
-    </Button>
+    <Tooltip content={p.label} disabledTrigger={!p.canDelete}>
+      <Button variant="ghost" size="sm" aria-label={p.label} disabled={!p.canDelete} onClick={p.onDelete}>
+        <Icon name="trash" />
+      </Button>
+    </Tooltip>
   );
 }
 

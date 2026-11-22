@@ -31,7 +31,8 @@ Canvas, and you can drive both from the keyboard.
    along the foot (for example **Valid**, **2 errors** or **Unpublished changes**); a **+N** pill
    counts the rest, which the detail panel lists; the line under the name adds the owning team. A
    **native** target (a screen of the host app) is a dashed outline with a **Native** chip. The
-   canvas opens at 100 %, centred beside the dock. Panels float over the canvas as frosted glass, so
+   canvas opens with every plugin in view beside the dock, at 100 % at most; when they would need less than 35 %, it
+   opens at 35 % on the middle of them. Panels float over the canvas as frosted glass, so
    the plugins stay in view beneath them:
    - top left, the way back to the organisation and the app's name and number of plugins;
    - top centre, the tools (**Select** and **Hand**), **Frame selection**, **Arrange**, **Trash** and
@@ -84,7 +85,8 @@ Positions are read-only while someone else is editing the app.
 ## Edit a plugin
 
 1. Double-click a plugin. The **Plugin canvas** shows its screens in navigation order on the same
-   dotted surface as the app canvas, and zooms, pans and draws the same way; it opens at 100 %. The
+   dotted surface as the app canvas, and zooms, pans and draws the same way; it opens with every screen's frame in view,
+   at 100 % at most, or at 15 % on the middle of them when there are more than fit. The
    top bar has three parts: on the left the way back to the app canvas and the app over the plugin's
    name; in the centre **New screen**, the current screen (choose another to bring it into view),
    **Screen menu**, **Undo** and **Redo**, **Preview**, **History**, **Pair a device**, **Send to
@@ -101,17 +103,19 @@ Positions are read-only while someone else is editing the app.
    first child and Tab the next sibling. The selection is outlined with its name above it and, where it has a width
    and a height, eight handles that resize it; under it, one stack holds its size, then its problems, the steps its
    events run, its bindings and its component, each below the last. The badges of a widget sit in one row on its top
-   end corner; where a widget and the one inside it share that corner, only the inner one's badges show until you
-   point at or select the outer one. Drag a selected widget to move it: in a column, row or wrap a line
+   end corner. A widget's problem dot always shows; its event, binding and component badges show on the widget under
+   the pointer and the selected one, or on every widget with **Badges on every widget** in the tool bar, which Studio
+   remembers for you; where a widget and the one inside it share that corner, only the inner one's badges show until
+   you point at or select the outer one. Drag a selected widget to move it: in a column, row or wrap a line
    shows where it lands among its siblings or in another container (outlined in green); in a stack it moves to where
    you drop it (always inside its stack), with guides and distances to its siblings; the arrow keys nudge by 1
-   (Shift: 10). Each screen has a header bar above its frame: click the bar to select the screen, and drag the bar —
-   or a selected screen's body — to move it with every selected screen; it snaps to the others and stays where you
-   drop it (Undo puts it back). Click the screen's title in its bar to rename it in place (Enter keeps the new title,
-   Escape the old one); when the new title would change the route name and break deep links or generated code, the
-   rename dialog shows what changes first. The bar's quick actions open the screen's **Page settings**, **Show on
-   every device** (the device matrix) and **Zoom to screen**; its ⋯ menu adds **Rename**, **Duplicate**, **Make it
-   the entry screen**, **Move to another plugin…** and **Delete…**. Drag on the empty canvas, or across a screen that is not selected, to select the screens or the
+   (Shift: 10). Each screen has a label above its frame, quiet at rest and a small chip under the pointer or when the
+   screen is selected: click it, its title included, to select the screen, and drag it — or a selected screen's body —
+   to move it with every selected screen; it snaps to the others and stays where you drop it (Undo puts it back). Its ⋯
+   menu has **Rename** (the title becomes a field: Enter keeps the new title, Escape the old one; when the new title
+   would change the route name and break deep links or generated code, the rename dialog shows what changes first),
+   **Duplicate**, **Make it the entry screen**, **Zoom to screen**, **Show on every device** (the device matrix),
+   **Move to another plugin…** and **Delete…**. Drag on the empty canvas, or across a screen that is not selected, to select the screens or the
    widgets the rectangle meets (Alt: only those inside it). Right-click a widget, a screen or the empty canvas for its
    actions: copy, cut, paste, duplicate, wrap, unwrap, select the parent or the first child, zoom to the selection
    (Shift+2) and delete (Delete or Backspace); a screen's rename, duplicate, move and delete; a new screen and fit all
@@ -193,7 +197,8 @@ Positions are read-only while someone else is editing the app.
 
 Each screen's header bar shows its kind as an icon (**Page**, **Dialog**, **Bottom sheet** or **Full-screen
 dialog**), its title, **Entry** on the plugin's entry screen and its route name when it differs from the title; it keeps
-one size at every zoom, and on a narrow frame it drops the route, then shows the quick actions only on hover. A
+one size at every zoom; on a narrow frame it drops the route, then Entry and the kind, and under the pointer it shows
+the whole title. A
 button or a field shows its text inside its box. A page's app bar reaches under the status bar and keeps its title
 below it, a `SafeArea` keeps its content clear of the status bar, the cutout and the home indicator, and the status
 bar's icons turn light over a dark app bar or header, as the device draws them. A page's `Scaffold` is laid out at the
@@ -307,7 +312,7 @@ lists a row per track with its keyframes: click one to go to it, Shift+click to 
 property and a value, and **Add keyframe** at the playhead; a new track starts from the widget's value. Its settings set
 the duration, the repeats, **Loop**, **Reverse on repeat**, **Play when the page shows**, and **Driven by scroll**: a
 scroll view whose offset moves the timeline over the **Scroll extent** — scroll it in **Interact** mode to see it move.
-**Accessibility view** in the tool bar marks on every screen the order focus moves through its interactive widgets
+**Accessibility view** in the tool bar (off until you turn it on; Studio remembers your choice) marks on every screen the order focus moves through its interactive widgets
 (numbered; an explicit **Focus order** comes first, then reading order), each touch target smaller than the platform's
 minimum (48 × 48 on Android, 44 × 44 on iOS, outlined with its size) and each text whose colour does not stand out
 enough from what is behind it (4.5:1, 3:1 for large text, with its ratio), worked out from the theme's colours. The

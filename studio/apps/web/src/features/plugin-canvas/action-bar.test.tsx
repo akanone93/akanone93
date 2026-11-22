@@ -146,9 +146,19 @@ describe("[STU-060] action bar controls", () => {
     const send = (await screen.findByRole("button", { name: "Send to device" })) as HTMLButtonElement;
     const publish = screen.getByRole("button", { name: "Publish" }) as HTMLButtonElement;
     expect(off(send)).toBe(true);
-    expect(send.title).toBe("Needs the permission devsession.create");
     expect(off(publish)).toBe(true);
-    expect(publish.title).toBe("Needs the permission release.publish");
+    // The reason is Studio's tooltip, on a span the disabled button sits in (#220): no browser tooltip.
+    expect(send.title).toBe("");
+    for (const [button, reason] of [
+      [send, "Needs the permission devsession.create"],
+      [publish, "Needs the permission release.publish"],
+    ] as const) {
+      const holder = button.parentElement as HTMLElement;
+      expect(holder.tabIndex).toBe(0);
+      fireEvent.focus(holder);
+      expect(await screen.findByText(reason, undefined, { timeout: 2000 })).toBeTruthy();
+      fireEvent.blur(holder);
+    }
   });
 
   test("the arrow keys move focus along the controls", async () => {

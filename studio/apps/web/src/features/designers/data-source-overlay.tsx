@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Field, FileDrop, Icon, Input, Select, Textarea, TypeTag } from "@plux/ui";
+import { Button, Dialog, Field, FileDrop, Icon, Input, Select, Textarea, Tooltip, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { useEffect, useMemo, useState } from "react";
 import { FieldGrid, SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
@@ -371,16 +371,11 @@ export function DataSourceOverlay(props: DataSourceOverlayProps) {
               title={m.dataList}
               count={d.sources.length}
               action={
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  aria-label={m.dataAdd}
-                  title={m.dataAdd}
-                  disabled={!canEdit}
-                  onClick={add}
-                >
-                  <Icon name="plus" />
-                </Button>
+                <Tooltip content={m.dataAdd} disabledTrigger={!canEdit}>
+                  <Button size="sm" variant="ghost" aria-label={m.dataAdd} disabled={!canEdit} onClick={add}>
+                    <Icon name="plus" />
+                  </Button>
+                </Tooltip>
               }
             />
             {d.sources.length === 0 && <p className="px-2 text-xs text-muted-foreground">{m.dataNone}</p>}

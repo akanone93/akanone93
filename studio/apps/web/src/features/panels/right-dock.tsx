@@ -4,7 +4,7 @@
 import type { I18n } from "@lingui/core";
 import { useLingui } from "@lingui/react";
 import { enums, type PropDescriptor, valueTypes, widget } from "@plux/schema";
-import { Button, Icon, type IconName, Input, Menu, Select, TypeTag, tooltipDelayMs } from "@plux/ui";
+import { Button, Icon, type IconName, Input, Menu, Select, Tooltip, TypeTag, tooltipDelayMs } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { Switch } from "@plux/ui/components/switch";
 import { TooltipProvider } from "@plux/ui/components/tooltip";
@@ -221,8 +221,7 @@ function ModeMenu(p: {
           type="button"
           className="prop-mode"
           data-mode={p.shown}
-          aria-label={p.label}
-          title={current}
+          aria-label={current === "" ? p.label : `${p.label}: ${current}`}
           disabled={p.disabled}
         >
           <Icon name={modeIcons[p.shown]} size="pill" />
@@ -361,20 +360,22 @@ function InsetsEditor(p: EditorProps) {
   return (
     <div className="prop-insets">
       {insetSides.map((side) => (
-        <span key={side} className="prop-inset" title={labels[side]}>
-          <span className="prop-inset-side" aria-hidden="true">
-            {labels[side].charAt(0)}
+        <Tooltip key={side} content={labels[side]}>
+          <span className="prop-inset">
+            <span className="prop-inset-side" aria-hidden="true">
+              {labels[side].charAt(0)}
+            </span>
+            <Input
+              type="number"
+              aria-label={`${p.name} ${labels[side]}`}
+              value={insetOf(o, side) ?? ""}
+              placeholder={p.mixed ? p.m.mixed : "0"}
+              readOnly={p.readOnly}
+              onChange={(e) => change(side, e.target.value)}
+              onBlur={p.onEnd}
+            />
           </span>
-          <Input
-            type="number"
-            aria-label={`${p.name} ${labels[side]}`}
-            value={insetOf(o, side) ?? ""}
-            placeholder={p.mixed ? p.m.mixed : "0"}
-            readOnly={p.readOnly}
-            onChange={(e) => change(side, e.target.value)}
-            onBlur={p.onEnd}
-          />
-        </span>
+        </Tooltip>
       ))}
     </div>
   );
@@ -782,15 +783,16 @@ function PropertyField(p: {
       }
       extra={
         p.extractable && isTranslatable(prop) && literal !== undefined ? (
-          <button
-            type="button"
-            className="prop-mode"
-            aria-label={p.extractLabel}
-            title={p.extractLabel}
-            onClick={() => p.onExtract(literal)}
-          >
-            <Icon name="globe" size="pill" />
-          </button>
+          <Tooltip content={p.extractLabel}>
+            <button
+              type="button"
+              className="prop-mode"
+              aria-label={p.extractLabel}
+              onClick={() => p.onExtract(literal)}
+            >
+              <Icon name="globe" size="pill" />
+            </button>
+          </Tooltip>
         ) : undefined
       }
     >
@@ -848,21 +850,21 @@ function SizeClasses(props: {
       }}
     >
       {breakpoints.map((b) => (
-        // biome-ignore lint/a11y/useSemanticElements: a segmented control's option, styled as a pill
-        <button
-          key={b}
-          type="button"
-          role="radio"
-          aria-checked={props.bp === b}
-          aria-label={props.labels[b]}
-          title={`${props.label}: ${props.labels[b]}`}
-          tabIndex={props.bp === b ? 0 : -1}
-          className="size-class"
-          onClick={() => props.onChange(b)}
-        >
-          <Icon name={icons[b]} size="pill" />
-          <span className="size-class-name">{props.labels[b]}</span>
-        </button>
+        <Tooltip key={b} content={`${props.label}: ${props.labels[b]}`}>
+          {/* biome-ignore lint/a11y/useSemanticElements: a segmented control's option, styled as a pill */}
+          <button
+            type="button"
+            role="radio"
+            aria-checked={props.bp === b}
+            aria-label={props.labels[b]}
+            tabIndex={props.bp === b ? 0 : -1}
+            className="size-class"
+            onClick={() => props.onChange(b)}
+          >
+            <Icon name={icons[b]} size="pill" />
+            <span className="size-class-name">{props.labels[b]}</span>
+          </button>
+        </Tooltip>
       ))}
     </div>
   );

@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { widget } from "@plux/schema";
-import { Button, Icon, Select } from "@plux/ui";
+import { Button, Icon, Select, Tooltip } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { Switch } from "@plux/ui/components/switch";
 import { type ReactElement, useEffect, useRef, useState } from "react";
@@ -76,23 +76,27 @@ function Tracks(p: TimelineStripProps & { readonly m: TimelineMessages }) {
     <div className="tl-tracks">
       {timeline.tracks.map((t) => (
         <div key={`${t.node ?? "route"}.${t.prop}`} className="tl-track">
-          <span className="tl-track-name" title={`${t.node ?? ""}.${t.prop}`}>
-            {t.node === undefined ? "route" : p.nameOf(t.node)}
-            <span className="tl-track-prop">.{t.prop}</span>
-          </span>
+          <Tooltip content={`${t.node ?? ""}.${t.prop}`}>
+            <span className="tl-track-name">
+              {t.node === undefined ? "route" : p.nameOf(t.node)}
+              <span className="tl-track-prop">.{t.prop}</span>
+            </span>
+          </Tooltip>
           <div className="tl-lane">
             <span className="tl-head" style={{ insetInlineStart: `${(p.ms / timeline.durationMs) * 100}%` }} />
             {t.keyframes.map((k) => (
-              <button
-                key={k.atMs}
-                type="button"
-                className="tl-key"
-                data-at={Math.abs(k.atMs - p.ms) < 1 || undefined}
-                style={{ insetInlineStart: `${(k.atMs / timeline.durationMs) * 100}%` }}
-                title={`${seconds(k.atMs)} · ${JSON.stringify(k.value)} — ${m.keyframeHint}`}
-                aria-label={`${t.prop} ${seconds(k.atMs)}`}
-                onClick={(e) => (e.shiftKey && p.canEdit ? p.removeKeyframe(t.node, t.prop, k.atMs) : p.setMs(k.atMs))}
-              />
+              <Tooltip key={k.atMs} content={`${seconds(k.atMs)} · ${JSON.stringify(k.value)} — ${m.keyframeHint}`}>
+                <button
+                  type="button"
+                  className="tl-key"
+                  data-at={Math.abs(k.atMs - p.ms) < 1 || undefined}
+                  style={{ insetInlineStart: `${(k.atMs / timeline.durationMs) * 100}%` }}
+                  aria-label={`${t.prop} ${seconds(k.atMs)}`}
+                  onClick={(e) =>
+                    e.shiftKey && p.canEdit ? p.removeKeyframe(t.node, t.prop, k.atMs) : p.setMs(k.atMs)
+                  }
+                />
+              </Tooltip>
             ))}
           </div>
         </div>

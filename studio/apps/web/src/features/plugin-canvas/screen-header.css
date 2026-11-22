@@ -2,8 +2,10 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 
 /*
- * The header bars above the screens (MR-2): one size at every zoom, as wide as the frame on screen, placed by `--x`,
- * `--y` (the frame's top start) and `--w` in canvas pixels. Over the canvas and its overlay, under the docks.
+ * The headers above the screens (MR-2, #227, #230): like a frame's label in a design tool, quiet text above the frame
+ * at rest and a small chip under the pointer or when selected. One size at every zoom, as wide as the frame on screen,
+ * placed by `--x`, `--y` (the frame's top start) and `--w` in canvas pixels on a plane that follows the pan. Over the
+ * canvas and its overlay, under the docks.
  */
 
 .pc-headers {
@@ -12,6 +14,12 @@
   z-index: 2;
   overflow: hidden;
   pointer-events: none;
+}
+
+.pc-headers-plane {
+  position: absolute;
+  inset: 0 auto auto 0;
+  will-change: transform;
 }
 
 .pc-headers[data-busy] .pc-header {
@@ -23,45 +31,54 @@
   inset: 0 auto auto 0;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   box-sizing: border-box;
-  inline-size: max(calc(var(--w) * 1px), 64px);
-  block-size: 30px;
-  padding-inline: 6px 3px;
-  border: 1px solid transparent;
-  border-radius: 9px;
+  inline-size: max(calc(var(--w) * 1px), 28px);
+  block-size: 24px;
+  padding-inline: 2px;
+  border-radius: 7px;
   color: var(--muted-foreground);
   font-size: 12px;
+  font-weight: 500;
   line-height: 1;
   white-space: nowrap;
-  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px - 100% - 8px));
+  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px - 100% - 6px));
   container-type: inline-size;
   pointer-events: auto;
   touch-action: none;
   user-select: none;
   cursor: grab;
   transition:
-    background-color 120ms ease-out,
-    border-color 120ms ease-out,
-    box-shadow 120ms ease-out;
+    background-color 140ms ease-out,
+    color 140ms ease-out,
+    box-shadow 140ms ease-out;
 }
 
 .pc-header:active {
   cursor: grabbing;
 }
 
+/* Under the pointer the label becomes a chip, as wide as its content when the frame is narrower, so the whole title shows. */
 .pc-header:hover,
-.pc-header[data-hovered] {
-  border-color: var(--border);
-  background-color: color-mix(in oklch, var(--background) 82%, transparent);
-  box-shadow: 0 1px 2px color-mix(in oklch, black 8%, transparent);
-  backdrop-filter: blur(8px);
+.pc-header[data-hovered],
+.pc-header:focus-within {
+  z-index: 1;
+  min-inline-size: max-content;
+  padding-inline: 6px 2px;
+  color: var(--foreground);
+  background-color: color-mix(in oklch, var(--background) 92%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--foreground) 9%, transparent),
+    0 2px 6px color-mix(in oklch, black 7%, transparent);
 }
 
 .pc-header[data-selected] {
-  border-color: color-mix(in oklch, var(--primary) 35%, transparent);
-  background-color: color-mix(in oklch, var(--primary) 9%, var(--background));
-  color: color-mix(in oklch, var(--primary) 80%, var(--foreground));
+  z-index: 1;
+  min-inline-size: max-content;
+  padding-inline: 6px 2px;
+  color: color-mix(in oklch, var(--primary) 88%, var(--foreground));
+  background-color: color-mix(in oklch, var(--primary) 10%, var(--background));
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--primary) 30%, transparent);
 }
 
 .pc-header[data-editing] {
@@ -71,69 +88,37 @@
 .pc-header-kind {
   display: inline-flex;
   flex: none;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
-.pc-header-title {
-  display: inline-flex;
+.pc-header-name {
   min-inline-size: 0;
-  align-items: center;
-  gap: 4px;
-  block-size: 22px;
-  padding-inline: 4px;
-  border-radius: 6px;
-  color: var(--foreground);
-  font-size: 13px;
-  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
   letter-spacing: -0.005em;
-  cursor: text;
 }
 
-.pc-header[data-selected] .pc-header-title {
-  color: color-mix(in oklch, var(--primary) 85%, var(--foreground));
+.pc-header:hover .pc-header-name,
+.pc-header[data-selected] .pc-header-name {
+  font-weight: 600;
 }
 
-.pc-header-title[aria-disabled="true"] {
-  cursor: inherit;
-}
-
-.pc-header-title:hover {
-  background-color: color-mix(in oklch, var(--foreground) 7%, transparent);
-}
-
-.pc-header-title:focus-visible,
 .pc-header-button:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 1px;
 }
 
-.pc-header-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pc-header-pencil {
-  flex: none;
-  opacity: 0;
-  transition: opacity 120ms ease-out;
-}
-
-.pc-header-title:hover .pc-header-pencil,
-.pc-header-title:focus-visible .pc-header-pencil {
-  opacity: 0.6;
-}
-
 .pc-header-field {
   flex: 1 1 auto;
-  min-inline-size: 0;
-  block-size: 24px;
+  min-inline-size: 140px;
+  block-size: 22px;
   padding-inline: 6px;
   border: 1px solid var(--ring);
   border-radius: 6px;
   color: var(--foreground);
   background-color: var(--background);
   font: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 22%, transparent);
   outline: none;
@@ -143,11 +128,11 @@
 
 .pc-header-entry {
   flex: none;
-  padding: 3px 7px;
+  padding: 3px 6px;
   border-radius: 999px;
   color: oklch(0.42 0.13 155);
   background-color: color-mix(in oklch, oklch(0.62 0.15 155) 16%, transparent);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
@@ -163,38 +148,34 @@
   text-overflow: ellipsis;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 11px;
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .pc-header-space {
   flex: 1 1 0;
-  min-inline-size: 4px;
+  min-inline-size: 2px;
 }
 
-.pc-header-quick {
-  display: inline-flex;
-  flex: none;
-  gap: 1px;
-  opacity: 0.7;
-  transition: opacity 120ms ease-out;
-}
-
-.pc-header:hover .pc-header-quick,
-.pc-header[data-selected] .pc-header-quick,
-.pc-header:focus-within .pc-header-quick {
-  opacity: 1;
-}
-
+/* ⋯ shows under the pointer, with focus, when selected or open; at rest the label is only its text. */
 .pc-header-button {
   display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  inline-size: 24px;
-  block-size: 24px;
-  border-radius: 6px;
+  inline-size: 20px;
+  block-size: 20px;
+  border-radius: 5px;
   color: inherit;
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+}
+
+.pc-header:hover .pc-header-button,
+.pc-header:focus-within .pc-header-button,
+.pc-header[data-selected] .pc-header-button,
+.pc-header-button[data-popup-open] {
+  opacity: 1;
 }
 
 .pc-header-button:hover,
@@ -203,71 +184,32 @@
   background-color: color-mix(in oklch, var(--foreground) 9%, transparent);
 }
 
-/*
- * A narrow frame keeps what matters: the route goes first; the quick actions then show only on hover, focus or
- * selection, so the title keeps its room at rest; then they go, and then the kind and Entry.
- */
-@container (max-width: 380px) {
+/* A narrow frame keeps the title: the route goes first, then Entry and the kind, at rest. */
+@container (max-width: 300px) {
   .pc-header-route {
     display: none;
   }
 }
 
-@container (max-width: 320px) {
-  .pc-header-quick {
-    display: none;
-  }
-
-  .pc-header:hover .pc-header-quick,
-  .pc-header:focus-within .pc-header-quick,
-  .pc-header[data-selected] .pc-header-quick {
-    display: inline-flex;
-  }
-
-  /* While they show, Entry steps aside so the title keeps its room. */
-  .pc-header:hover .pc-header-entry,
-  .pc-header:focus-within .pc-header-entry,
-  .pc-header[data-selected] .pc-header-entry {
+@container (max-width: 160px) {
+  .pc-header:not(:hover, :focus-within, [data-selected]) .pc-header-entry {
     display: none;
   }
 }
 
-@container (max-width: 200px) {
-  .pc-header:hover .pc-header-quick,
-  .pc-header:focus-within .pc-header-quick,
-  .pc-header[data-selected] .pc-header-quick {
-    display: none;
-  }
-}
-
-/* At a far zoom the title takes the whole bar; ⋯ shows on hover, focus or selection. */
-@container (max-width: 150px) {
-  .pc-header-kind,
-  .pc-header-entry {
+@container (max-width: 90px) {
+  .pc-header:not(:hover, :focus-within, [data-selected]) .pc-header-kind {
     display: none;
   }
 
-  .pc-header-title {
-    padding-inline: 2px;
-    font-size: 12px;
-  }
-
-  .pc-header-button[data-more] {
-    display: none;
-  }
-
-  .pc-header:hover .pc-header-button[data-more],
-  .pc-header:focus-within .pc-header-button[data-more],
-  .pc-header[data-selected] .pc-header-button[data-more],
-  .pc-header-button[data-more][data-popup-open] {
-    display: inline-flex;
+  .pc-header:not(:hover, :focus-within, [data-selected]) .pc-header-name {
+    font-size: 11px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pc-header,
-  .pc-header-quick,
-  .pc-header-pencil {
+  .pc-header-button {
     transition: none;
   }
 }

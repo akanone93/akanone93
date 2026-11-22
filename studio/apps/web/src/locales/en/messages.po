@@ -3188,6 +3188,12 @@ msgstr "Backups"
 msgid "installation.backupsTitle"
 msgstr "Backups"
 
+#. Toggle that shows every widget's event, binding and component badges, not only the hovered and selected widget's.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.badgesView"
+msgstr "Badges on every widget"
+
 #. Text in a sample app screen drawn beside the sign-in form. Label above an account balance.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -4061,12 +4067,6 @@ msgstr "Click to go to this keyframe; Shift+click to remove it"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.tileHint"
 msgstr "Click to insert into the selection, or drag onto a screen."
-
-#. Tooltip of a screen's title above its frame.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
-msgid "screenHeader.renameHint"
-msgstr "Click to rename"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -12545,12 +12545,6 @@ msgstr "Page parts"
 msgid "tests.pageLabel"
 msgstr "Page route"
 
-#. Button above a screen: opens the inspector's Page pane for it.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
-msgid "screenHeader.settings"
-msgstr "Page settings"
-
 #. Heading of the list of page-state references that stay in the template and are flagged.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -14242,7 +14236,7 @@ msgstr "Removed slots"
 msgid "pluginCanvas.rename"
 msgstr "Rename"
 
-#. Menu item above a screen: rename it in place.
+#. Menu item above a screen: rename it in a field above its frame.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/screen-header.messages.ts
 msgid "screenHeader.rename"
@@ -14259,12 +14253,6 @@ msgstr "Rename (new=old, comma-separated)"
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "l10n.renameKey"
 msgstr "Rename {key}"
-
-#. Accessible name of a screen's title above its frame: a click renames the screen in place.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
-msgid "screenHeader.editTitle"
-msgstr "Rename {title}"
 
 #. Button: opens the dialog that renames or resizes a frame; label is the frame's name.
 #. js-lingui-explicit-id
@@ -14936,12 +14924,6 @@ msgstr "Route"
 #: apps/web/src/features/panels/page-settings.messages.ts
 msgid "pageSettings.route"
 msgstr "Route name"
-
-#. Tooltip of the route name shown above a screen: the name other screens navigate to it by.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
-msgid "screenHeader.route"
-msgstr "Route name: {route}"
 
 #. Label: the router adapter the app's navigation runs on.
 #. js-lingui-explicit-id
@@ -16215,7 +16197,7 @@ msgstr "Show keyboard shortcuts"
 msgid "panels.showSelection"
 msgstr "Show on canvas"
 
-#. Button above a screen: opens the device matrix with this screen in every device frame.
+#. Menu item above a screen: opens the device matrix with this screen in every device frame.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/screen-header.messages.ts
 msgid "screenHeader.matrix"
@@ -18332,12 +18314,6 @@ msgstr "The plugin has no state yet."
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.readOnly"
 msgstr "The plugin is locked by someone else: the graph is read-only."
-
-#. Tooltip of the Entry badge above a screen.
-#. js-lingui-explicit-id
-#: apps/web/src/features/plugin-canvas/screen-header.messages.ts
-msgid "screenHeader.entryHint"
-msgstr "The plugin opens on this screen"
 
 #. Body of the confirmation before a snapshot is restored; the placeholder is the snapshot's time.
 #. js-lingui-explicit-id
@@ -21040,7 +21016,7 @@ msgstr "Zoom to fit"
 msgid "pluginCanvas.zoomToScreen"
 msgstr "Zoom to screen"
 
-#. Button above a screen: zooms the canvas to fit the screen.
+#. Menu item above a screen: zooms the canvas to fit the screen.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/screen-header.messages.ts
 msgid "screenHeader.zoom"

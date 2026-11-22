@@ -72,8 +72,10 @@ export function useGhostLayer(input: GhostLayerInput): {
   readonly zoomed: (zoom: number) => void;
   /** The arrow lane under a click, from the hit ids (STU-046). */
   readonly pick: (hits: readonly string[]) => ArrowPick | undefined;
-  /** Expands bundle `id` into its lanes (hover, click), or collapses all with null; animated (STU-044). */
+  /** Expands bundle `id` into its lanes at once (a click), or collapses all with null; animated (STU-044). */
   readonly expand: (id: string | null) => void;
+  /** The pointer rests over bundle `id` (null: none): it expands once the pointer has settled on it (#206). */
+  readonly hover: (id: string | null) => void;
   /** Re-routes the arrows of screens shown at a dragged place, before the drop saves it (STU-045). */
   readonly follow: (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => void;
 } {
@@ -215,9 +217,10 @@ export function useGhostLayer(input: GhostLayerInput): {
   const zoomed = useCallback((zoom: number) => drawn.current?.motion.zoom(zoom), []);
   const pick = useCallback((hits: readonly string[]) => drawn.current?.arrows.pick(hits), []);
   const expand = useCallback((id: string | null) => drawn.current?.motion.expand(id), []);
+  const hover = useCallback((id: string | null) => drawn.current?.motion.hover(id), []);
   const follow = useCallback(
     (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => drawn.current?.motion.follow(moved),
     [],
   );
-  return { graph, placed, zoomed, pick, expand, follow };
+  return { graph, placed, zoomed, pick, expand, hover, follow };
 }

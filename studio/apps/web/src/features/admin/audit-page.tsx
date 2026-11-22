@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import { AuditService, IdentityService } from "@plux/api";
-import { Button, Field, Input } from "@plux/ui";
+import { Button, Field, Input, Tooltip } from "@plux/ui";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
@@ -100,13 +100,14 @@ export function AuditPage(): ReactElement {
             {m.moreEntries}
           </Button>
         )}
-        <Button
-          disabled={!canExport}
-          title={canExport ? undefined : m.noPermission}
-          onClick={() => download("audit.csv", new TextEncoder().encode(auditCsv(shown)), "text/csv")}
-        >
-          {m.exportCsv}
-        </Button>
+        <Tooltip content={canExport ? undefined : m.noPermission} disabledTrigger={!canExport}>
+          <Button
+            disabled={!canExport}
+            onClick={() => download("audit.csv", new TextEncoder().encode(auditCsv(shown)), "text/csv")}
+          >
+            {m.exportCsv}
+          </Button>
+        </Tooltip>
       </div>
       <h2 className="text-label font-medium">{m.destinations}</h2>
       {/* The destinations need a recent step-up and audit.export; a refusal says so rather than showing none. */}

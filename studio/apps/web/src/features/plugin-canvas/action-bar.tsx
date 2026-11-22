@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Icon, type IconName, Menu, Popover } from "@plux/ui";
+import { Button, Icon, type IconName, Menu, Popover, Tooltip } from "@plux/ui";
 import {
   SelectContent,
   SelectGroup,
@@ -13,7 +13,6 @@ import {
 } from "@plux/ui/components/select";
 import { Separator } from "@plux/ui/components/separator";
 import { ToggleGroup, ToggleGroupItem } from "@plux/ui/components/toggle-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@plux/ui/components/tooltip";
 import type { KeyboardEvent, ReactNode } from "react";
 import { commandMessages } from "../../lib/commands/commands.messages.ts";
 import { useOptionalCommands } from "../../lib/commands/index.ts";
@@ -37,6 +36,9 @@ export interface ActionBarProps {
   /** The Size classes view (PC-33): each screen's size class and the widgets that change with it. */
   readonly sizes?: boolean | undefined;
   readonly onSizes?: ((on: boolean) => void) | undefined;
+  /** Every widget's event, binding and component badges, not only the hovered and selected one's (#216). */
+  readonly badges?: boolean | undefined;
+  readonly onBadges?: ((on: boolean) => void) | undefined;
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
@@ -97,30 +99,96 @@ function BarButton(props: {
   readonly label: string;
   readonly onClick: () => void;
   readonly disabled?: boolean;
-  readonly title?: string | undefined;
+  /** The tooltip, when it says more than the label (a shortcut); the label when absent (#220: one tooltip, never two). */
+  readonly hint?: string | undefined;
   /** A toggle's state; a plain button without it. */
   readonly pressed?: boolean | undefined;
 }) {
   return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            size="sm"
-            variant="ghost"
-            aria-label={props.label}
-            aria-pressed={props.pressed}
-            data-pressed={props.pressed === true || undefined}
-            title={props.title}
-            disabled={props.disabled}
-            onClick={props.onClick}
-          />
-        }
+    <Tooltip content={props.hint ?? props.label} side="bottom" disabledTrigger={props.disabled === true}>
+      <Button
+        size="sm"
+        variant="ghost"
+        aria-label={props.label}
+        aria-pressed={props.pressed}
+        data-pressed={props.pressed === true || undefined}
+        disabled={props.disabled}
+        onClick={props.onClick}
       >
         <Icon name={props.icon} size="capsule" />
-      </TooltipTrigger>
-      <TooltipContent side="bottom">{props.label}</TooltipContent>
+      </Button>
     </Tooltip>
+  );
+}
+
+/** The pointer tools and the canvas's views: Accessibility, Localisation, Size classes and every widget's badges. */
+function ToolsAndViews(props: ActionBarProps) {
+  const { i18n } = useLingui();
+  const m = pluginCanvasMessages(i18n);
+  const zoomLabels = appCanvasMessages(i18n);
+  return (
+    <>
+      <ToggleGroup
+        aria-label={zoomLabels.tools}
+        value={[props.tool ?? "select"]}
+        onValueChange={(v) => {
+          const next = v[0];
+          if (next === "select" || next === "hand" || next === "interact") {
+            props.onTool?.(next);
+          }
+        }}
+        className="gap-0.5"
+      >
+        <Tooltip content={`${zoomLabels.toolSelect} (V)`} side="bottom">
+          <ToggleGroupItem value="select" aria-label={zoomLabels.toolSelect} size="sm">
+            <Icon name="cursor" size="capsule" />
+          </ToggleGroupItem>
+        </Tooltip>
+        <Tooltip content={`${zoomLabels.toolHand} (H)`} side="bottom">
+          <ToggleGroupItem value="hand" aria-label={zoomLabels.toolHand} size="sm">
+            <Icon name="hand" size="capsule" />
+          </ToggleGroupItem>
+        </Tooltip>
+        <Tooltip content={`${m.toolInteract} (I)`} side="bottom">
+          <ToggleGroupItem value="interact" aria-label={m.toolInteract} size="sm">
+            <Icon name="play" size="capsule" />
+          </ToggleGroupItem>
+        </Tooltip>
+      </ToggleGroup>
+      {props.onA11y !== undefined && (
+        <BarButton
+          icon="accessibility"
+          label={m.a11yView}
+          pressed={props.a11y === true}
+          onClick={() => props.onA11y?.(props.a11y !== true)}
+        />
+      )}
+      {props.onL10n !== undefined && (
+        <BarButton
+          icon="translate"
+          label={m.l10nView}
+          pressed={props.l10n === true}
+          onClick={() => props.onL10n?.(props.l10n !== true)}
+        />
+      )}
+      {props.onSizes !== undefined && (
+        <BarButton
+          icon="monitor"
+          label={m.sizesView}
+          pressed={props.sizes === true}
+          onClick={() => props.onSizes?.(props.sizes !== true)}
+        />
+      )}
+      {props.onBadges !== undefined && (
+        <BarButton
+          icon="lightning"
+          label={m.badgesView}
+          pressed={props.badges === true}
+          onClick={() => props.onBadges?.(props.badges !== true)}
+        />
+      )}
+      <Divider />
+    </>
   );
 }
 
@@ -155,69 +223,7 @@ export function ActionBar(props: ActionBarProps) {
           onKeyDown={rove}
           className="plugin-topbar-tools canvas-panel canvas-bar glass pointer-events-auto flex min-w-0 items-center gap-0.5 p-1.5"
         >
-          {props.tool !== undefined && props.onTool !== undefined && (
-            <>
-              <ToggleGroup
-                aria-label={zoomLabels.tools}
-                value={[props.tool]}
-                onValueChange={(v) => {
-                  const next = v[0];
-                  if (next === "select" || next === "hand" || next === "interact") {
-                    props.onTool?.(next);
-                  }
-                }}
-                className="gap-0.5"
-              >
-                <ToggleGroupItem
-                  value="select"
-                  aria-label={zoomLabels.toolSelect}
-                  title={`${zoomLabels.toolSelect} (V)`}
-                  size="sm"
-                >
-                  <Icon name="cursor" size="capsule" />
-                </ToggleGroupItem>
-                <ToggleGroupItem
-                  value="hand"
-                  aria-label={zoomLabels.toolHand}
-                  title={`${zoomLabels.toolHand} (H)`}
-                  size="sm"
-                >
-                  <Icon name="hand" size="capsule" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="interact" aria-label={m.toolInteract} title={`${m.toolInteract} (I)`} size="sm">
-                  <Icon name="play" size="capsule" />
-                </ToggleGroupItem>
-              </ToggleGroup>
-              {props.onA11y !== undefined && (
-                <BarButton
-                  icon="accessibility"
-                  label={m.a11yView}
-                  title={m.a11yView}
-                  pressed={props.a11y === true}
-                  onClick={() => props.onA11y?.(props.a11y !== true)}
-                />
-              )}
-              {props.onL10n !== undefined && (
-                <BarButton
-                  icon="translate"
-                  label={m.l10nView}
-                  title={m.l10nView}
-                  pressed={props.l10n === true}
-                  onClick={() => props.onL10n?.(props.l10n !== true)}
-                />
-              )}
-              {props.onSizes !== undefined && (
-                <BarButton
-                  icon="monitor"
-                  label={m.sizesView}
-                  title={m.sizesView}
-                  pressed={props.sizes === true}
-                  onClick={() => props.onSizes?.(props.sizes !== true)}
-                />
-              )}
-              <Divider />
-            </>
-          )}
+          {props.tool !== undefined && props.onTool !== undefined && <ToolsAndViews {...props} />}
           <BarButton icon="plus" label={m.newScreen} onClick={props.onNewScreen} />
           {props.screens.length > 0 && (
             <ShadcnSelect
@@ -248,7 +254,7 @@ export function ActionBar(props: ActionBarProps) {
           {props.onScreenAction !== undefined && props.current !== undefined && (
             <Menu
               trigger={
-                <Button size="sm" variant="ghost" aria-label={m.screenMenu} title={m.screenMenu}>
+                <Button size="sm" variant="ghost" aria-label={m.screenMenu}>
                   <Icon name="pencil-simple" size="capsule" />
                 </Button>
               }
@@ -297,28 +303,34 @@ export function ActionBar(props: ActionBarProps) {
           />
           <Divider />
           <span className="flex items-center gap-1.5">
-            <Button
-              size="sm"
-              variant="secondary"
-              aria-label={devices.sendAction}
-              disabled={!props.canSend || send === undefined}
-              title={props.canSend ? devices.sendAction : needs("devsession.create")}
-              onClick={() => void send?.command.run()}
+            <Tooltip
+              content={props.canSend ? devices.sendAction : needs("devsession.create")}
+              side="bottom"
+              disabledTrigger={!props.canSend || send === undefined}
             >
-              <Icon name="paper-plane-tilt" size="capsule" />
-              <span className="bar-label">{m.send}</span>
-            </Button>
-            <Button
-              size="sm"
-              variant="primary"
-              disabled={!props.canPublish}
-              aria-label={m.publish}
-              title={publishReason ?? m.publish}
-              onClick={props.onPublish}
-            >
-              <Icon name="rocket-launch" size="capsule" />
-              <span className="bar-label">{m.publish}</span>
-            </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                aria-label={devices.sendAction}
+                disabled={!props.canSend || send === undefined}
+                onClick={() => void send?.command.run()}
+              >
+                <Icon name="paper-plane-tilt" size="capsule" />
+                <span className="bar-label">{m.send}</span>
+              </Button>
+            </Tooltip>
+            <Tooltip content={publishReason ?? m.publish} side="bottom" disabledTrigger={!props.canPublish}>
+              <Button
+                size="sm"
+                variant="primary"
+                disabled={!props.canPublish}
+                aria-label={m.publish}
+                onClick={props.onPublish}
+              >
+                <Icon name="rocket-launch" size="capsule" />
+                <span className="bar-label">{m.publish}</span>
+              </Button>
+            </Tooltip>
           </span>
         </div>
         <div className="plugin-topbar-end pointer-events-auto flex min-w-0 justify-end">{props.status}</div>

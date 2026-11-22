@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Icon, TypeTag } from "@plux/ui";
+import { Button, Dialog, Icon, Tooltip, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
@@ -301,18 +301,14 @@ function DocumentButton(props: {
 }) {
   const { path } = props;
   return (
-    <button
-      type="button"
-      className="sheet-item"
-      aria-pressed={props.chosen}
-      title={path}
-      onClick={() => props.onChoose(path)}
-    >
-      <Icon name={path.endsWith(".page.json") ? "device-mobile" : "file"} size="pill" />
-      <span className="min-w-0 flex-1 truncate font-mono text-xs" dir="ltr">
-        {path.split("/").at(-1)}
-      </span>
-    </button>
+    <Tooltip content={path}>
+      <button type="button" className="sheet-item" aria-pressed={props.chosen} onClick={() => props.onChoose(path)}>
+        <Icon name={path.endsWith(".page.json") ? "device-mobile" : "file"} size="pill" />
+        <span className="min-w-0 flex-1 truncate font-mono text-xs" dir="ltr">
+          {path.split("/").at(-1)}
+        </span>
+      </button>
+    </Tooltip>
   );
 }
 

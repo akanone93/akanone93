@@ -65,6 +65,11 @@ export interface OverlayNodes {
   readonly costs?: CostsOverlay;
   /** The component instances, their words, and the one isolated (PC-37). */
   readonly instances?: InstancesOverlay;
+  /**
+   * Every widget's event, binding and component badges (#216); without it they show only on the hovered and selected
+   * widgets, so the screens stay clean and a render does not walk every widget. Problem dots always show.
+   */
+  readonly allBadges?: boolean;
   /** Why a drop is refused, in a few words (PC-20), and what a refused drop says once let go. */
   readonly dropText?: {
     readonly refused: (r: RefusedDrop, parent: string) => string;
@@ -201,22 +206,30 @@ function Spacing({ id, box, view, nodes }: { id: string; box: Box; view: View; n
   });
 }
 
-/** The widgets with corner badges: their box, problem dot, bindings and event steps (a screen shows only its dot). */
-function badgeMarks(nodes: OverlayNodes) {
-  const problems = nodes.problems ?? new Map<string, readonly NodeProblem[]>();
-  const bindings = nodes.bindings ?? new Map<string, readonly BindingMark[]>();
-  const events = nodes.events ?? new Map<string, readonly HandlerStep[]>();
-  return [...new Set([...problems.keys(), ...bindings.keys(), ...events.keys()])].flatMap((id) => {
-    const box = nodes.boxOf(id);
-    const severity = problems.get(id)?.[0]?.severity;
-    const dot = severity === "error" || severity === "warning" ? severity : undefined;
-    const screen = nodes.isScreen(id);
-    const bound = screen ? [] : (bindings.get(id) ?? []);
-    const steps = screen ? [] : (events.get(id) ?? []);
-    return box === undefined || (dot === undefined && bound.length === 0 && steps.length === 0)
-      ? []
-      : [{ id, box, dot, bound, steps }];
-  });
+/** The badges of one widget: its box, problem dot, bindings and event steps, or none when it has nothing to show. */
+function badgeMarkOf(id: string, nodes: OverlayNodes, shows: boolean) {
+  const box = nodes.boxOf(id);
+  const severity = nodes.problems?.get(id)?.[0]?.severity;
+  const dot = severity === "error" || severity === "warning" ? severity : undefined;
+  // A screen shows only its dot; another widget its events and bindings too while they are shown (#216).
+  const own = shows && !nodes.isScreen(id);
+  const bound = own ? (nodes.bindings?.get(id) ?? []) : [];
+  const steps = own ? (nodes.events?.get(id) ?? []) : [];
+  return box === undefined || (dot === undefined && bound.length === 0 && steps.length === 0)
+    ? []
+    : [{ id, box, dot, bound, steps }];
+}
+
+/**
+ * The widgets with corner badges. Problem dots always show; events and bindings show on every widget only with
+ * `allBadges`, else on the hovered and selected widgets alone, and only those are walked (#216).
+ */
+function badgeMarks(nodes: OverlayNodes, focus: ReadonlySet<string>) {
+  const all = nodes.allBadges === true;
+  const badged = all ? [...(nodes.bindings?.keys() ?? []), ...(nodes.events?.keys() ?? [])] : [...focus];
+  return [...new Set([...(nodes.problems?.keys() ?? []), ...badged])].flatMap((id) =>
+    badgeMarkOf(id, nodes, all || focus.has(id)),
+  );
 }
 
 /**
@@ -233,7 +246,7 @@ function CornerBadges({
   nodes: OverlayNodes;
   focus: ReadonlySet<string>;
 }): ReactNode {
-  const marked = badgeMarks(nodes);
+  const marked = badgeMarks(nodes, focus);
   const shown = cornersShown(
     marked.map((m) => ({
       id: m.id,
@@ -248,11 +261,7 @@ function CornerBadges({
     .map((m) => (
       <span key={m.id} className="pc-badges" style={point(m.box.r, m.box.t, view)}>
         {m.steps.length > 0 && <span className="pc-event-badge">{m.steps.length > 1 ? m.steps.length : ""}</span>}
-        {m.bound.length > 0 && (
-          <span className="pc-bind-badge" title={m.bound.map((b) => b.expr).join("\n")}>
-            {m.bound.length > 1 ? m.bound.length : ""}
-          </span>
-        )}
+        {m.bound.length > 0 && <span className="pc-bind-badge">{m.bound.length > 1 ? m.bound.length : ""}</span>}
         {m.dot !== undefined && <span className="pc-problem-dot" data-severity={m.dot} />}
       </span>
     ));
@@ -431,25 +440,29 @@ function ProblemTag({ id, nodes }: { id: string; nodes: OverlayNodes }): ReactNo
 }
 
 /** A diamond on every component instance's corner: violet, amber when a newer version exists, red when unknown (PC-37). */
-function InstanceBadges({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+function InstanceBadges({
+  view,
+  nodes,
+  focus,
+}: {
+  view: View;
+  nodes: OverlayNodes;
+  focus: ReadonlySet<string>;
+}): ReactNode {
   const z = nodes.instances;
   if (z === undefined) {
     return null;
   }
+  // A missing or outdated component always shows; a current one with every widget's badges or under the pointer (#216).
   return [...z.marks].flatMap(([id, mark]) => {
+    if (nodes.allBadges !== true && !focus.has(id) && mark.known && mark.latest <= mark.version) {
+      return [];
+    }
     const b = nodes.boxOf(id);
     const state = !mark.known ? "missing" : mark.latest > mark.version ? "stale" : "current";
     return b === undefined
       ? []
-      : [
-          <span
-            key={id}
-            className="pc-instance-badge"
-            data-state={state}
-            title={z.tag(mark)}
-            style={point(b.l, b.t, view)}
-          />,
-        ];
+      : [<span key={id} className="pc-instance-badge" data-state={state} style={point(b.l, b.t, view)} />];
   });
 }
 
@@ -481,7 +494,7 @@ function ScreenCosts({ view, nodes }: { view: View; nodes: OverlayNodes }): Reac
     // Below the screen's overflow band, when its content runs past the frame, so it never covers that content.
     const foot = Math.max(b.b, nodes.overflowBottom?.(root) ?? b.b);
     return [
-      <span key={root} className="pc-cost" data-status={cost.status} title={words.title} style={point(b.r, foot, view)}>
+      <span key={root} className="pc-cost" data-status={cost.status} style={point(b.r, foot, view)}>
         <span className="pc-cost-nodes">{words.nodes}</span>
         {words.timelines !== undefined && (
           <span className="pc-cost-part" data-kind="warning">
@@ -773,7 +786,7 @@ export function InteractionOverlay(props: {
         <L10nView view={view} nodes={nodes} />
         <SizesView view={view} nodes={nodes} />
         <ScreenCosts view={view} nodes={nodes} />
-        <InstanceBadges view={view} nodes={nodes} />
+        <InstanceBadges view={view} nodes={nodes} focus={focus} />
         <Isolation view={view} nodes={nodes} />
         <CornerBadges view={view} nodes={nodes} focus={focus} />
         {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}

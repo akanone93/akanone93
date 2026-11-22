@@ -104,72 +104,32 @@ describe("[STU-050] MR-2 a header bar above each screen", () => {
     expect(routeWorthShowing("Home", undefined)).toBe(false);
   });
 
-  test("a press on the bar grips its screen through the canvas, as a hit on its title; its buttons never do", async () => {
+  test("a press anywhere on the bar, the title included, grips its screen through the canvas; ⋯ never does", async () => {
     const { calls } = mount();
     const bar = await screen.findByRole("toolbar", { name: "Screen Home" });
-    fireEvent.pointerDown(bar, { clientX: 10, clientY: 10, button: 0 });
-    fireEvent.pointerUp(bar, { clientX: 60, clientY: 90, button: 0 });
+    fireEvent.pointerDown(within(bar).getByText("Home"), { clientX: 10, clientY: 10, button: 0 });
+    fireEvent.pointerUp(bar, { clientX: 11, clientY: 11, button: 0 });
     expect(calls.down).toEqual([["title:home"]]);
     expect(calls.up).toBe(1);
-    fireEvent.pointerDown(within(bar).getByRole("button", { name: "Page settings" }), { button: 0 });
+    // A click on the title no longer renames in place (#227): the title is the screen's handle.
+    expect(within(bar).queryByRole("textbox")).toBeNull();
+    fireEvent.pointerDown(within(bar).getByRole("button", { name: "More actions for Home" }), { button: 0 });
     expect(calls.down.length).toBe(1);
     fireEvent.contextMenu(bar);
     expect(calls.menu).toEqual([["title:home"]]);
   });
 
-  test("the quick actions open the page settings, the device matrix and zoom to the screen", async () => {
-    const { calls } = mount();
-    const bar = await screen.findByRole("toolbar", { name: "Screen Pick a size" });
-    for (const name of ["Page settings", "Show on every device", "Zoom to screen"]) {
-      fireEvent.click(within(bar).getByRole("button", { name }));
-    }
-    expect(calls.actions).toEqual([
-      ["settings", "pick"],
-      ["matrix", "pick"],
-      ["zoom", "pick"],
-    ]);
-  });
-
-  test("a click on the title renames in place: Enter keeps the new title, Escape the old one", async () => {
-    const { calls } = mount();
+  test("[#214] at rest a bar holds no menu and no tooltip: only its ⋯ button; the menu mounts when it is opened", async () => {
+    mount();
     const bar = await screen.findByRole("toolbar", { name: "Screen Home" });
-    const title = within(bar).getByRole("button", { name: "Rename Home" });
-    fireEvent.pointerDown(title, { clientX: 20, clientY: 10, button: 0 });
-    fireEvent.pointerUp(bar, { clientX: 21, clientY: 11, button: 0 });
-    const field = (await within(bar).findByRole("textbox", { name: "Screen title" })) as HTMLInputElement;
-    expect(field.value).toBe("Home");
-    fireEvent.change(field, { target: { value: "  Start  " } });
-    fireEvent.keyDown(field, { key: "Enter" });
-    expect(calls.renames).toEqual([["home", "Start"]]);
-    expect(within(bar).queryByRole("textbox")).toBeNull();
-    // Escape keeps the title; the keyboard opens the field too.
-    fireEvent.click(within(bar).getByRole("button", { name: "Rename Home" }), { detail: 0 });
-    const again = await within(bar).findByRole("textbox", { name: "Screen title" });
-    fireEvent.change(again, { target: { value: "Other" } });
-    fireEvent.keyDown(again, { key: "Escape" });
-    expect(calls.renames.length).toBe(1);
-    expect(within(bar).queryByRole("textbox")).toBeNull();
+    const parts = () => document.querySelectorAll("[data-slot=tooltip-trigger], [data-slot=dropdown-menu-trigger]");
+    expect(parts().length).toBe(0);
+    expect(document.querySelectorAll(".pc-header-button").length).toBe(2);
+    fireEvent.click(within(bar).getByRole("button", { name: "More actions for Home" }));
+    await waitFor(() => expect(parts().length).toBe(1));
   });
 
-  test("a drag from the title moves the screen and does not rename it; without the right to edit it never does", async () => {
-    const { calls } = mount({ canEdit: false });
-    const bar = await screen.findByRole("toolbar", { name: "Screen Home" });
-    const title = within(bar).getByRole("button", { name: "Rename Home" });
-    expect(title.getAttribute("aria-disabled")).toBe("true");
-    fireEvent.pointerDown(title, { clientX: 20, clientY: 10, button: 0 });
-    fireEvent.pointerUp(bar, { clientX: 21, clientY: 11, button: 0 });
-    expect(within(bar).queryByRole("textbox")).toBeNull();
-    cleanup();
-    const editable = mount();
-    const bar2 = await screen.findByRole("toolbar", { name: "Screen Home" });
-    fireEvent.pointerDown(within(bar2).getByRole("button", { name: "Rename Home" }), { clientX: 20, clientY: 10 });
-    fireEvent.pointerUp(bar2, { clientX: 140, clientY: 60 });
-    expect(within(bar2).queryByRole("textbox")).toBeNull();
-    expect(editable.calls.down).toEqual([["title:home"]]);
-    expect(calls.renames).toEqual([]);
-  });
-
-  test("the ⋯ menu selects the screen and offers every screen action; the entry is not offered to the entry", async () => {
+  test("the ⋯ menu selects the screen and offers the actions a screen has; the entry is not offered to the entry", async () => {
     const { calls } = mount();
     const bar = await screen.findByRole("toolbar", { name: "Screen Home" });
     fireEvent.click(within(bar).getByRole("button", { name: "More actions for Home" }));
@@ -179,14 +139,33 @@ describe("[STU-050] MR-2 a header bar above each screen", () => {
     expect(names).toEqual([
       "Rename",
       "Duplicate",
-      "Page settings",
-      "Show on every device",
       "Zoom to screen",
+      "Show on every device",
       "Move to another plugin…",
       "Delete…",
     ]);
     fireEvent.click(screen.getByRole("menuitem", { name: "Duplicate" }));
     expect(calls.actions).toEqual([["duplicate", "home"]]);
+  });
+
+  test("Rename in the menu opens the field: Enter keeps the new title, Escape the old one", async () => {
+    const { calls } = mount();
+    const bar = await screen.findByRole("toolbar", { name: "Screen Home" });
+    const rename = async () => {
+      fireEvent.click(within(bar).getByRole("button", { name: "More actions for Home" }));
+      fireEvent.click(await screen.findByRole("menuitem", { name: "Rename" }));
+      return (await within(bar).findByRole("textbox", { name: "Screen title" })) as HTMLInputElement;
+    };
+    const field = await rename();
+    expect(field.value).toBe("Home");
+    fireEvent.change(field, { target: { value: "  Start  " } });
+    fireEvent.keyDown(field, { key: "Enter" });
+    expect(calls.renames).toEqual([["home", "Start"]]);
+    await waitFor(() => expect(within(bar).queryByRole("textbox") === null).toBe(true));
+    const again = await rename();
+    fireEvent.change(again, { target: { value: "Other" } });
+    fireEvent.keyDown(again, { key: "Escape" });
+    expect(calls.renames.length).toBe(1);
   });
 
   test("another screen's menu offers to make it the entry; without the right to edit, the edits are off", async () => {
@@ -196,7 +175,8 @@ describe("[STU-050] MR-2 a header bar above each screen", () => {
     const entry = await screen.findByRole("menuitem", { name: "Make it the entry screen" });
     expect(entry.getAttribute("aria-disabled")).toBe("true");
     expect(screen.getByRole("menuitem", { name: "Delete…" }).getAttribute("aria-disabled")).toBe("true");
-    expect(screen.getByRole("menuitem", { name: "Page settings" }).getAttribute("aria-disabled")).toBeNull();
+    expect(screen.getByRole("menuitem", { name: "Rename" }).getAttribute("aria-disabled")).toBe("true");
+    expect(screen.getByRole("menuitem", { name: "Zoom to screen" }).getAttribute("aria-disabled")).toBeNull();
     fireEvent.click(screen.getByRole("menuitem", { name: "Zoom to screen" }));
     expect(calls.actions).toEqual([["zoom", "pick"]]);
   });
