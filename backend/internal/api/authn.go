@@ -76,6 +76,12 @@ func Authentication(a Authenticator, public map[string]bool, trusted []netip.Pre
 		})
 		id, found, err := credential(ctx, a, c.Procedure, c.Header)
 		if err != nil {
+			// A public procedure needs no credential, so a session that has ended does not stop it: a person whose
+			// session went idle can sign in again without clearing cookies (build log #193). It is not used: the
+			// call runs as no one, as without the cookie. Every other failure, and every other procedure, is refused.
+			if public[c.Procedure] && sessionEnded(err) {
+				return next(ctx)
+			}
 			return err
 		}
 		if !found {
@@ -95,6 +101,13 @@ func Authentication(a Authenticator, public map[string]bool, trusted []netip.Pre
 		}
 		return next(WithIdentity(ctx, id))
 	}
+}
+
+// sessionEnded reports whether err says a session cookie names a session
+// that was revoked, went idle or outlived its absolute lifetime.
+func sessionEnded(err error) bool {
+	code, ok := plxerr.CodeOf(err)
+	return ok && (code == plxerr.SessionRevoked || code == plxerr.SessionIdleTimeout || code == plxerr.SessionAbsoluteTimeout)
 }
 
 // backgroundProcedure reports whether a procedure is one a client calls on

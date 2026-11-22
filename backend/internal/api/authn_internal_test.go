@@ -10,6 +10,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
 // Verifies: GOV-005.
@@ -101,5 +102,57 @@ func TestCredentialCsrfExemption_SEC_101_STU_002(t *testing.T) {
 	b.Set("Authorization", "Bearer plux_pat_good")
 	if id, _, err := credential(context.Background(), &recordingAuthenticator{}, pluxv1connect.IdentityServiceGetCurrentUserProcedure, b); err != nil || id.CSRFToken != "" {
 		t.Errorf("a bearer caller: %+v, %v", id, err)
+	}
+}
+
+// endedAuthenticator answers every session with err.
+type endedAuthenticator struct{ err error }
+
+func (e endedAuthenticator) AuthenticateSession(context.Context, string) (auth.Identity, error) {
+	return auth.Identity{}, e.err
+}
+
+func (e endedAuthenticator) AuthenticateSessionQuietly(context.Context, string) (auth.Identity, error) {
+	return auth.Identity{}, e.err
+}
+
+func (endedAuthenticator) AuthenticateToken(context.Context, string) (auth.Identity, error) {
+	return auth.Identity{}, plxerr.New(plxerr.AuthenticationRequired, "this token is not valid")
+}
+
+// Verifies: SEC-101.
+// A session that has ended (revoked, idle, past its lifetime) does not stop
+// a public procedure such as signing in: the call runs as no one, as without
+// the cookie (build log #193). It still stops every other procedure, and any
+// other failure, such as an invalid token, still stops a public one.
+func TestEndedSessionDoesNotStopSigningIn_SEC_101(t *testing.T) {
+	t.Parallel()
+	signIn := pluxv1connect.IdentityServiceStartPasswordLoginProcedure
+	public := map[string]bool{signIn: true}
+	withCookie := http.Header{"Cookie": []string{SessionCookie + "=old"}}
+	for _, code := range []plxerr.Code{plxerr.SessionRevoked, plxerr.SessionIdleTimeout, plxerr.SessionAbsoluteTimeout} {
+		around := Authentication(endedAuthenticator{plxerr.New(code, "ended")}, public, nil, RateLimiter{}, 0)
+		var asked bool
+		var who auth.Identity
+		err := around(context.Background(), Call{Procedure: signIn, Header: withCookie, ResponseHeader: http.Header{}}, func(ctx context.Context) error {
+			asked = true
+			who, _ = IdentityFrom(ctx)
+			return nil
+		})
+		if err != nil || !asked || who.ID != "" {
+			t.Errorf("%v: sign-in with an ended session: err %v, ran %v, as %q", code, err, asked, who.ID)
+		}
+		err = around(context.Background(), Call{Procedure: pluxv1connect.AppServiceCreateAppProcedure, Header: withCookie, ResponseHeader: http.Header{}}, func(context.Context) error {
+			t.Errorf("%v: a non-public call ran with an ended session", code)
+			return nil
+		})
+		if got, _ := plxerr.CodeOf(err); got != code {
+			t.Errorf("%v: a non-public call with an ended session: %v", code, err)
+		}
+	}
+	around := Authentication(endedAuthenticator{}, public, nil, RateLimiter{}, 0)
+	bearer := http.Header{"Authorization": []string{"Bearer bad"}}
+	if err := around(context.Background(), Call{Procedure: signIn, Header: bearer, ResponseHeader: http.Header{}}, func(context.Context) error { return nil }); err == nil {
+		t.Error("an invalid token was ignored on a public call")
 	}
 }
