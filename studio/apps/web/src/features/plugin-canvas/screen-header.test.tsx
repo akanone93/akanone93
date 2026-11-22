@@ -12,6 +12,7 @@ import {
   type HeaderPointer,
   type HeaderScreen,
   headerPlace,
+  headerRoom,
   routeWorthShowing,
   ScreenHeaders,
 } from "./screen-header.tsx";
@@ -179,5 +180,19 @@ describe("[STU-050] MR-2 a header bar above each screen", () => {
     expect(screen.getByRole("menuitem", { name: "Zoom to screen" }).getAttribute("aria-disabled")).toBeNull();
     fireEvent.click(screen.getByRole("menuitem", { name: "Zoom to screen" }));
     expect(calls.actions).toEqual([["zoom", "pick"]]);
+  });
+});
+
+describe("[STU-050] a screen's title at low zoom (#215)", () => {
+  test("reads into the free room after its frame, up to the next header in its band, less a gap", () => {
+    const a = { l: 0, t: 0, r: 390, b: 844 };
+    const b = { l: 590, t: 0, r: 980, b: 844 };
+    const below = { l: 400, t: 2000, r: 790, b: 2844 };
+    // At 20 %: 200 units to the next frame are 40 px; less the 10 px gap.
+    expect(headerRoom(a, [a, b, below], 0.2)).toBe(30);
+    // The last in its row: up to 240 px.
+    expect(headerRoom(b, [a, b, below], 0.2)).toBe(230);
+    // A frame below does not share the header band.
+    expect(headerRoom(below, [a, b, below], 0.2)).toBe(230);
   });
 });

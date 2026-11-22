@@ -3,7 +3,8 @@
 
 import { describe, expect, test } from "bun:test";
 import type { Problem } from "@plux/validator";
-import { costWords, countNodes, runningTimelines, screenCosts } from "./screen-costs.ts";
+import { costShown } from "./interaction-overlay.tsx";
+import { costWords, countNodes, runningTimelines, type ScreenCost, screenCosts } from "./screen-costs.ts";
 
 const problem = (file: string, severity: Problem["severity"]): Problem => ({
   code: "PLX-0001",
@@ -79,5 +80,37 @@ describe("PC-34 what each screen costs [LIM-001] [ANI-008] [SCH-040]", () => {
       errors: "2e",
       warnings: "1w",
     });
+  });
+});
+
+describe("PC-34 a screen's cost line where it says something (#229)", () => {
+  const cost = (over: Partial<ScreenCost> = {}): ScreenCost => ({
+    nodes: 40,
+    budget: { warning: 4000, limit: 5000 },
+    status: "within",
+    timelines: 0,
+    timelineLimit: 8,
+    errors: 0,
+    warnings: 0,
+    ...over,
+  });
+  const words = { nodes: "40 of 5000 nodes", title: "" };
+  const screen = { l: 0, t: 0, r: 400, b: 800 };
+  const inside = { l: 100, t: 100, r: 200, b: 140 };
+  const elsewhere = { l: 900, t: 100, r: 1000, b: 140 };
+
+  test("hidden on a screen within its budget and without problems", () => {
+    expect(costShown(cost(), words, screen, undefined, [])).toBe("hidden");
+    expect(costShown(cost(), words, screen, elsewhere, [{ box: elsewhere }])).toBe("hidden");
+  });
+
+  test("after a delay under the screen the pointer rests on; at once under the screen worked on", () => {
+    expect(costShown(cost(), words, screen, inside, [])).toBe("delayed");
+    expect(costShown(cost(), words, screen, undefined, [{ box: inside }])).toBe("shown");
+  });
+
+  test("at once when it warns: near or over the budget, or problems", () => {
+    expect(costShown(cost({ status: "warning" }), words, screen, undefined, [])).toBe("shown");
+    expect(costShown(cost(), { ...words, errors: "1 error" }, screen, undefined, [])).toBe("shown");
   });
 });

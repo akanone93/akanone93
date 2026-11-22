@@ -11,7 +11,7 @@ import type { L10nOverlay } from "./l10n-marks.ts";
 import { cornersShown, tagClear } from "./overlay-layout.ts";
 import type { HandlerStep } from "./quick-actions.ts";
 import type { SizesOverlay } from "./responsive.ts";
-import type { CostsOverlay } from "./screen-costs.ts";
+import type { CostsOverlay, CostWords, ScreenCost } from "./screen-costs.ts";
 
 /** What the overlay draws of component instances (PC-37). */
 export interface InstancesOverlay {
@@ -479,8 +479,49 @@ function InstanceTag({ id, nodes }: { id: string; nodes: OverlayNodes }): ReactN
   return mark === undefined ? null : <span className="pc-instance-tag">{nodes.instances?.tag(mark)}</span>;
 }
 
-/** Under each screen's end corner, what it costs: its widgets against the page budget, and its problems (PC-34). */
-function ScreenCosts({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
+/** Whether box `inner`'s centre lies in box `outer`. */
+const centreIn = (inner: Box, outer: Box): boolean => {
+  const x = (inner.l + inner.r) / 2;
+  const y = (inner.t + inner.b) / 2;
+  return x >= outer.l && x <= outer.r && y >= outer.t && y <= outer.b;
+};
+
+/**
+ * Whether a screen's cost line shows (#229): at once when it says something — near or over the budget, problems, or
+ * the screen is worked on — after a short delay when the pointer rests on the screen, else not at all.
+ */
+export function costShown(
+  cost: ScreenCost,
+  words: CostWords,
+  screen: Box,
+  hover: Box | undefined,
+  selected: readonly { readonly box: Box }[],
+): "shown" | "delayed" | "hidden" {
+  const telling =
+    cost.status !== "within" ||
+    words.errors !== undefined ||
+    words.warnings !== undefined ||
+    words.timelines !== undefined ||
+    selected.some((s) => centreIn(s.box, screen));
+  if (telling) {
+    return "shown";
+  }
+  return hover !== undefined && centreIn(hover, screen) ? "delayed" : "hidden";
+}
+
+/**
+ * Under a screen's end corner, what it costs: its widgets against the page budget, and its problems (PC-34). Shown
+ * only where it says something (#229): under a screen near or over its budget or with problems, under the screen
+ * worked on, and under the one the pointer rests on, after a short delay (`data-delayed`); on every screen at once it
+ * cluttered the canvas and cost a label per screen on every pan.
+ */
+function ScreenCosts(props: {
+  readonly view: View;
+  readonly nodes: OverlayNodes;
+  readonly hover: Box | undefined;
+  readonly selected: readonly { readonly box: Box }[];
+}): ReactNode {
+  const { view, nodes } = props;
   const c = nodes.costs;
   if (c === undefined) {
     return null;
@@ -491,10 +532,20 @@ function ScreenCosts({ view, nodes }: { view: View; nodes: OverlayNodes }): Reac
       return [];
     }
     const words = c.text(cost);
+    const shown = costShown(cost, words, b, props.hover, props.selected);
+    if (shown === "hidden") {
+      return [];
+    }
     // Below the screen's overflow band, when its content runs past the frame, so it never covers that content.
     const foot = Math.max(b.b, nodes.overflowBottom?.(root) ?? b.b);
     return [
-      <span key={root} className="pc-cost" data-status={cost.status} style={point(b.r, foot, view)}>
+      <span
+        key={root}
+        className="pc-cost"
+        data-status={cost.status}
+        data-delayed={shown === "delayed" || undefined}
+        style={point(b.r, foot, view)}
+      >
         <span className="pc-cost-nodes">{words.nodes}</span>
         {words.timelines !== undefined && (
           <span className="pc-cost-part" data-kind="warning">
@@ -514,6 +565,11 @@ function ScreenCosts({ view, nodes }: { view: View; nodes: OverlayNodes }): Reac
       </span>,
     ];
   });
+}
+
+/** The box of the node the pointer is over, if any. */
+function hoverOf(id: string | null, nodes: OverlayNodes): Box | undefined {
+  return id === null ? undefined : nodes.boxOf(id);
 }
 
 function Selected(props: {
@@ -785,7 +841,7 @@ export function InteractionOverlay(props: {
         <A11yView view={view} nodes={nodes} />
         <L10nView view={view} nodes={nodes} />
         <SizesView view={view} nodes={nodes} />
-        <ScreenCosts view={view} nodes={nodes} />
+        <ScreenCosts view={view} nodes={nodes} hover={hoverOf(state.hover, nodes)} selected={selected} />
         <InstanceBadges view={view} nodes={nodes} focus={focus} />
         <Isolation view={view} nodes={nodes} />
         <CornerBadges view={view} nodes={nodes} focus={focus} />

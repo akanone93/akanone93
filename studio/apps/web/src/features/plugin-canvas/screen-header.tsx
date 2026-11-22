@@ -159,6 +159,8 @@ interface HeaderProps {
   readonly x: number;
   readonly y: number;
   readonly w: number;
+  /** Free room to the frame's end before the next screen's header, in CSS pixels: a long title reads into it (#215). */
+  readonly room?: number;
   readonly selected: boolean;
   readonly hovered: boolean;
   readonly canEdit: boolean;
@@ -268,7 +270,7 @@ const ScreenHeader = memo(function ScreenHeader(p: HeaderProps): ReactNode {
       data-selected={p.selected || undefined}
       data-hovered={p.hovered || undefined}
       data-editing={editing || undefined}
-      style={{ "--x": p.x, "--y": p.y, "--w": p.w } as CSSProperties}
+      style={{ "--x": p.x, "--y": p.y, "--w": p.w, "--room": p.room ?? 0 } as CSSProperties}
       onPointerDown={(e) => {
         if (notOurs(e) || editing) {
           return;
@@ -340,6 +342,28 @@ const ScreenHeader = memo(function ScreenHeader(p: HeaderProps): ReactNode {
  * just above its frame. The bars lie on one plane that a pan only shifts, so a pan or a drag renders no bar but the
  * moved screen's; a zoom places them again.
  */
+/** A header's height above its frame, with its gap, in CSS pixels (screen-header.css). */
+const HEADER_BAND = 30;
+/** The most room a title takes beyond its frame, and the space it leaves before the next header, in CSS pixels. */
+const MAX_ROOM = 240;
+const ROOM_GAP = 10;
+
+/**
+ * The free room after `box`'s frame for its title, in CSS pixels at `zoom` (#215): up to the nearest frame to its end
+ * whose header shares the band, less a small gap. At low zoom a frame is narrower than its title; the gap beside it is
+ * free, so the title reads into it instead of shrinking to "Ap…".
+ */
+export function headerRoom(box: Box, boxes: readonly (Box | undefined)[], zoom: number): number {
+  const band = HEADER_BAND / zoom;
+  let free = MAX_ROOM / zoom;
+  for (const o of boxes) {
+    if (o !== undefined && o !== box && o.l >= box.r && Math.abs(o.t - box.t) < band) {
+      free = Math.min(free, o.l - box.r);
+    }
+  }
+  return Math.max(0, Math.round(free * zoom - ROOM_GAP));
+}
+
 export function ScreenHeaders(props: {
   readonly screens: readonly HeaderScreen[];
   readonly store: OverlayStore;
@@ -380,11 +404,12 @@ export function ScreenHeaders(props: {
   }
   const v = surface.viewport;
   const z = v.zoom;
+  const boxes = props.screens.map((s) => props.boxOf(s.root));
   return (
     <div className="pc-headers" data-busy={state.marquee !== null || undefined}>
       <div className="pc-headers-plane" style={{ transform: `translate(${-v.x * z}px, ${-v.y * z}px)` }}>
-        {props.screens.map((s) => {
-          const box = props.boxOf(s.root);
+        {props.screens.map((s, i) => {
+          const box = boxes[i];
           return box === undefined ? null : (
             <ScreenHeader
               key={s.id}
@@ -392,6 +417,7 @@ export function ScreenHeaders(props: {
               x={box.l * z}
               y={box.t * z}
               w={Math.max(0, (box.r - box.l) * z)}
+              room={headerRoom(box, boxes, z)}
               selected={props.selected.has(s.root)}
               hovered={state.hover === s.root}
               canEdit={props.canEdit}

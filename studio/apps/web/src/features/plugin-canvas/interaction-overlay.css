@@ -808,6 +808,26 @@
   white-space: nowrap;
 }
 
+/* Under the screen the pointer rests on, the line fades in after a short delay: a sweep across screens shows none. */
+.pc-cost[data-delayed] {
+  animation: pc-cost-in 140ms ease-out 350ms both;
+}
+
+@keyframes pc-cost-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-cost[data-delayed] {
+    animation-duration: 1ms;
+  }
+}
+
 .pc-cost[data-status="warning"] {
   color: oklch(0.45 0.12 70);
   border-color: oklch(0.78 0.16 75);

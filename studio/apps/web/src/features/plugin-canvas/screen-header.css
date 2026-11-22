@@ -33,7 +33,8 @@
   align-items: center;
   gap: 5px;
   box-sizing: border-box;
-  inline-size: max(calc(var(--w) * 1px), 28px);
+  /* As wide as the frame and, at rest, the free room after it (`--room`, #215): a long title reads into the gap. */
+  inline-size: max(calc((var(--w) + var(--room, 0)) * 1px), 28px);
   block-size: 24px;
   padding-inline: 2px;
   border-radius: 7px;
@@ -63,6 +64,7 @@
 .pc-header[data-hovered],
 .pc-header:focus-within {
   z-index: 1;
+  inline-size: max(calc(var(--w) * 1px), 28px);
   min-inline-size: max-content;
   padding-inline: 6px 2px;
   color: var(--foreground);
@@ -74,6 +76,7 @@
 
 .pc-header[data-selected] {
   z-index: 1;
+  inline-size: max(calc(var(--w) * 1px), 28px);
   min-inline-size: max-content;
   padding-inline: 6px 2px;
   color: color-mix(in oklch, var(--primary) 88%, var(--foreground));
