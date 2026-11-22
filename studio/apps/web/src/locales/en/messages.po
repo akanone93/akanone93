@@ -2547,11 +2547,29 @@ msgstr "App ID (empty for the organisation)"
 msgid "shell.field.name"
 msgstr "App name"
 
+#. Button and heading of the menu, in a canvas, that lists the app's pages (releases, data, settings and more).
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.appPages"
+msgstr "App pages"
+
+#. Accessible name of the sidebar's app switcher; {name} is the app the areas below belong to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.switchApp"
+msgstr "App: {name}. Switch app"
+
 #. Explains a plugin key in app.json that has no plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.why.pluginNoDirectory"
 msgstr "app.json lists a plugin that no longer exists (it was deleted or renamed). Remove it from the list."
+
+#. Tab of the profile page with theme, density and language.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.appearance"
+msgstr "Appearance"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -2808,6 +2826,12 @@ msgstr "Approving needs the translations.approve permission."
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.kind.app"
+msgstr "Apps"
+
+#. Heading of the list of apps in the app switcher of the sidebar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.apps"
 msgstr "Apps"
 
 #. Text in the installation administration area.
@@ -3545,6 +3569,12 @@ msgstr "Cancelled"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.buildCancelled"
 msgstr "Cancelled"
+
+#. Entry of the app-area navigation; opens the app canvas with the app's plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.canvas"
+msgstr "Canvas"
 
 #. Caption of the canvas's drawing.
 #. js-lingui-explicit-id
@@ -11747,6 +11777,12 @@ msgstr "Nothing to show."
 msgid "devices.empty"
 msgstr "Nothing yet."
 
+#. Tab of the profile page with the notification settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.notifications"
+msgstr "Notifications"
+
 #. A device API.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -12779,6 +12815,12 @@ msgstr "Person"
 msgid "admin.restrictions.subjectPerson"
 msgstr "Person · {name}"
 
+#. Tab of the profile page with the phones signed in to the Dev app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.phones"
+msgstr "Phones"
+
 #. Title of the card listing the phones signed in to the Plux Dev app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/phones.messages.ts
@@ -13355,7 +13397,7 @@ msgstr "Profile"
 msgid "profile.title"
 msgstr "Profile"
 
-#. Tab of the profile page with the account, appearance and notifications.
+#. Tab of the profile page with the account.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.nav.profile"
@@ -15656,6 +15698,12 @@ msgstr "Security key"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.keys.added"
 msgstr "Security key added. You sign in with it from now on, and protected actions such as publishing ask you to touch it again."
+
+#. Tab of the profile page with the person's security keys and passkeys.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.keys"
+msgstr "Security keys"
 
 #. Heading of the card that lists the person's security keys and passkeys.
 #. js-lingui-explicit-id
@@ -18915,6 +18963,12 @@ msgstr "These settings are compiled into the Flutter project that is built and p
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.body"
 msgstr "This action needs a fresh check with your security key or passkey."
+
+#. Name shown in the sidebar's app switcher while the app's name is loading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.thisApp"
+msgstr "This app"
 
 #. Shown when the app has no funnel.
 #. js-lingui-explicit-id

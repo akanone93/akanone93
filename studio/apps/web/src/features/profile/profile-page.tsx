@@ -91,7 +91,48 @@ function ThemePreview({ theme }: { readonly theme: ThemePreference }): ReactElem
 }
 
 /** U2: the account, theme, density, language and notifications, stored through PreferencesService (STU-014). */
+/** The account: who the person is (#233: each part of the profile has its own page). */
 export function ProfilePage() {
+  const m = profileMessages(useLingui().i18n);
+  return (
+    <ProfileLayout id="profile-title" title={m.title} caption={m.caption}>
+      <AccountCard m={m} />
+    </ProfileLayout>
+  );
+}
+
+/** The person's security keys and passkeys. */
+export function SecurityKeysPage() {
+  const m = profileMessages(useLingui().i18n);
+  return (
+    <ProfileLayout id="profile-title" title={m.title} caption={m.caption}>
+      <SecurityKeysCard />
+    </ProfileLayout>
+  );
+}
+
+/** The phones signed in to the Dev app. */
+export function PhonesPage() {
+  const m = profileMessages(useLingui().i18n);
+  return (
+    <ProfileLayout id="profile-title" title={m.title} caption={m.caption}>
+      <PhonesCard />
+    </ProfileLayout>
+  );
+}
+
+/** What notifications reach the person. */
+export function NotificationsPage() {
+  const m = profileMessages(useLingui().i18n);
+  return (
+    <ProfileLayout id="profile-title" title={m.title} caption={m.caption}>
+      <MuteSettings />
+    </ProfileLayout>
+  );
+}
+
+/** Theme, density and language. */
+export function AppearancePage() {
   const { i18n } = useLingui();
   const m = profileMessages(i18n);
   const { studio } = useApp();
@@ -145,9 +186,6 @@ export function ProfilePage() {
         </>
       }
     >
-      <AccountCard m={m} />
-      <SecurityKeysCard />
-      <PhonesCard />
       <Card>
         <CardHeader>
           <CardTitle>{m.appearance}</CardTitle>
@@ -216,7 +254,6 @@ export function ProfilePage() {
           </Field>
         </CardContent>
       </Card>
-      <MuteSettings />
     </ProfileLayout>
   );
 }

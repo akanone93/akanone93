@@ -7,6 +7,7 @@ import { Outlet } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { CommandsProvider, createRegistry } from "../../lib/commands/index.ts";
 import { useAppliedPreferences } from "../profile/use-applied-preferences.ts";
+import { useRememberAppInPath } from "./use-current-app.ts";
 
 /** Public pages (sign-in family): no shell, no organisation (R1). */
 export function PublicLayout() {
@@ -36,6 +37,8 @@ export function CanvasLayout() {
   // A canvas page can be the first one loaded: theme, density, language and direction apply here as in the shell (STU-012, STU-014).
   const prefs = useQuery(PreferencesService.method.getPreferences, {});
   useAppliedPreferences(prefs.data?.preferences);
+  // The canvas's app becomes the organisation's remembered app, so the sidebar shows it on the next shell page (#202).
+  useRememberAppInPath();
   return (
     <CommandsProvider value={NO_COMMANDS}>
       <main className="h-screen w-screen">

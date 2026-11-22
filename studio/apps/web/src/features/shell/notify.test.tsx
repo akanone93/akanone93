@@ -148,8 +148,8 @@ describe("F16 kinds and mutes", () => {
     expect(kindOf("rollout.paused")).toBe("operations");
   });
 
-  test("the profile lists every type, locking the approval ones", async () => {
-    renderApp("/me");
+  test("the notifications page lists every type, locking the approval ones", async () => {
+    renderApp("/me/notifications");
     // A switch is on while its type reaches the inbox; the approval and security ones stay on.
     const approval = await screen.findByRole("switch", { name: "Notify me: Approval requested" });
     expect(approval.getAttribute("aria-checked")).toBe("true");
@@ -165,7 +165,7 @@ describe("F16 kinds and mutes", () => {
 
   test("a mute is stored in the server preferences under its own mask path [STU-013]", async () => {
     const updates: NonNullable<Parameters<typeof renderApp>[1]>["updates"] = [];
-    renderApp("/me", { updates });
+    renderApp("/me/notifications", { updates });
     const publish = await screen.findByRole("switch", { name: "Notify me: Publish finished" });
     fireEvent.click(publish);
     await waitFor(() => expect(updates?.length).toBe(1));

@@ -189,8 +189,8 @@ describe("[STU-014] preferences", () => {
     expect(document.documentElement.getAttribute("data-theme")).toBe("light");
   });
 
-  test("the profile page offers the three fields that exist", async () => {
-    renderApp("/me", {});
+  test("the appearance page offers the three fields that exist", async () => {
+    renderApp("/me/appearance", {});
     await screen.findByRole("heading", { name: "Profile" });
     for (const label of ["Theme", "Language", "Density"]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);

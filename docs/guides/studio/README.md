@@ -24,8 +24,14 @@ machine first, follow [Run it locally](../run-locally.md) §4.
 | [Plux Test](plux-test.md) | Write test scenarios and read the runs that `plux test` and CI report |
 | [Administration and security](security-and-admin.md) | Pair devices, manage approvals, members, roles and sign-in, and read the audit log |
 
+Navigation: the sidebar holds the organisation's pages and, under **App areas**, the pages of one
+app: the app you last opened in this browser (or the organisation's first app), shown with a
+switcher, so the areas stay in place on every page. **Canvas** opens the app canvas. The canvases
+fill the screen; their **App pages** button, beside the app's name, lists the same areas. You see
+only the areas your permissions open.
+
 Keyboard: `Mod+K` opens the command palette, `Shift+?` lists every shortcut, `Mod+Z` and
 `Mod+Shift+Z` undo and redo, `Alt+H` goes home, `Alt+P` opens your profile and `Alt+T` switches the
-theme. Studio runs in English, German and Arabic (right-to-left); choose the language in your
-profile. The [engineering view](../../engineering/studio-development.md) of the same application is
+theme. Studio runs in English, German and Arabic (right-to-left); choose the language under
+**Profile › Appearance**. The [engineering view](../../engineering/studio-development.md) of the same application is
 for contributors.

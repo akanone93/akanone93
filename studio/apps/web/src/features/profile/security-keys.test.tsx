@@ -53,7 +53,7 @@ const identity = (over: Partial<NonNullable<Upstream["identity"]>> = {}): NonNul
 describe("[SEC-100] security keys on the profile", () => {
   test("a key is added with the browser's ceremony and only its client data and attestation are sent", async () => {
     const id = identity({ factors: [] });
-    renderApp("/me", { identity: id });
+    renderApp("/me/security-keys", { identity: id });
     await screen.findByText(/No security key yet/);
     fireEvent.change(screen.getByLabelText("Name of the new key"), { target: { value: " Laptop " } });
     fireEvent.click(screen.getByRole("button", { name: "Add security key" }));
@@ -67,7 +67,7 @@ describe("[SEC-100] security keys on the profile", () => {
 
   test("a refusal for a missing second factor says how to present one", async () => {
     const id = identity({ refuse: { register: "PLX-8011" } });
-    renderApp("/me", { identity: id });
+    renderApp("/me/security-keys", { identity: id });
     await screen.findByText("YubiKey");
     fireEvent.click(screen.getByRole("button", { name: "Add security key" }));
     await screen.findByText(/Sign out and sign in again with one of your keys/);
@@ -76,7 +76,7 @@ describe("[SEC-100] security keys on the profile", () => {
 
   test("a key is removed only after the confirmation", async () => {
     const id = identity();
-    renderApp("/me", { identity: id });
+    renderApp("/me/security-keys", { identity: id });
     fireEvent.click(await screen.findByRole("button", { name: "Remove YubiKey" }));
     await screen.findByText("Remove this security key?");
     expect(id.calls).toEqual([]);
@@ -87,7 +87,7 @@ describe("[SEC-100] security keys on the profile", () => {
 
   test("without WebAuthn the browser is said to be unable", async () => {
     delete globals["PublicKeyCredential"];
-    renderApp("/me", { identity: identity() });
+    renderApp("/me/security-keys", { identity: identity() });
     await screen.findByText("This browser cannot use security keys or passkeys.");
     expect(screen.queryByRole("button", { name: "Add security key" })).toBeNull();
   });

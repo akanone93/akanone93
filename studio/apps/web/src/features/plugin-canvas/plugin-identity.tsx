@@ -13,6 +13,7 @@ import type { ReactElement } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { Panel } from "../app-canvas/canvas-chrome.tsx";
 import { CardVisual } from "../apps/card-visual.tsx";
+import { AppPagesMenu } from "../shell/app-pages-menu.tsx";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 
 /**
@@ -61,6 +62,7 @@ export function PluginIdentity({
         <span className="truncate text-xs text-muted-foreground">{appName}</span>
         <h1 className="truncate text-sm font-semibold">{plugin ?? ""}</h1>
       </div>
+      {org !== undefined && <AppPagesMenu org={org} app={id} />}
     </Panel>
   );
 }

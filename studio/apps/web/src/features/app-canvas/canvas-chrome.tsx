@@ -14,6 +14,7 @@ import { Link } from "@tanstack/react-router";
 import type { ReactElement, ReactNode } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { CardVisual } from "../apps/card-visual.tsx";
+import { AppPagesMenu } from "../shell/app-pages-menu.tsx";
 import { ThemeButton } from "../shell/theme-button.tsx";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
 import type { SceneBox } from "./app-canvas.scene.ts";
@@ -122,6 +123,7 @@ export function AppBar({
         <h1 className="truncate text-sm font-semibold">{app?.name ?? ""}</h1>
         <p className="truncate text-xs text-muted-foreground">{m.pluginCount(plugins)}</p>
       </div>
+      {app !== undefined && <AppPagesMenu org={org} app={app.id} />}
     </Panel>
   );
 }

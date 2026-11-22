@@ -2547,11 +2547,29 @@ msgstr "معرّف التطبيق (فارغ للمؤسسة)"
 msgid "shell.field.name"
 msgstr "اسم التطبيق"
 
+#. Button and heading of the menu, in a canvas, that lists the app's pages (releases, data, settings and more).
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.appPages"
+msgstr "صفحات التطبيق"
+
+#. Accessible name of the sidebar's app switcher; {name} is the app the areas below belong to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.switchApp"
+msgstr "التطبيق: {name}. تبديل التطبيق"
+
 #. Explains a plugin key in app.json that has no plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.why.pluginNoDirectory"
 msgstr "يذكر app.json إضافة لم تعد موجودة (حُذفت أو أُعيدت تسميتها). أزلها من القائمة."
+
+#. Tab of the profile page with theme, density and language.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.appearance"
+msgstr "المظهر"
 
 #. Command group heading.
 #. js-lingui-explicit-id
@@ -2808,6 +2826,12 @@ msgstr "يتطلب الاعتماد الإذن translations.approve."
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
 msgid "cmd.palette.kind.app"
+msgstr "التطبيقات"
+
+#. Heading of the list of apps in the app switcher of the sidebar.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.apps"
 msgstr "التطبيقات"
 
 #. Text in the installation administration area.
@@ -3545,6 +3569,12 @@ msgstr "ملغى"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.buildCancelled"
 msgstr "ملغى"
+
+#. Entry of the app-area navigation; opens the app canvas with the app's plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.canvas"
+msgstr "اللوحة"
 
 #. Caption of the canvas's drawing.
 #. js-lingui-explicit-id
@@ -11747,6 +11777,12 @@ msgstr "لا شيء لعرضه."
 msgid "devices.empty"
 msgstr "لا شيء بعد."
 
+#. Tab of the profile page with the notification settings.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.notifications"
+msgstr "الإشعارات"
+
 #. A device API.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -12779,6 +12815,12 @@ msgstr "الشخص"
 msgid "admin.restrictions.subjectPerson"
 msgstr "شخص · {name}"
 
+#. Tab of the profile page with the phones signed in to the Dev app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.phones"
+msgstr "الهواتف"
+
 #. Title of the card listing the phones signed in to the Plux Dev app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/phones.messages.ts
@@ -13355,7 +13397,7 @@ msgstr "الملف"
 msgid "profile.title"
 msgstr "الملف الشخصي"
 
-#. Tab of the profile page with the account, appearance and notifications.
+#. Tab of the profile page with the account.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.nav.profile"
@@ -15656,6 +15698,12 @@ msgstr "مفتاح أمان"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.keys.added"
 msgstr "أُضيف مفتاح الأمان. ستسجّل الدخول به من الآن، وتطلب منك الإجراءات المحمية مثل النشر لمسه مرة أخرى."
+
+#. Tab of the profile page with the person's security keys and passkeys.
+#. js-lingui-explicit-id
+#: apps/web/src/features/profile/profile.messages.ts
+msgid "profile.nav.keys"
+msgstr "مفاتيح الأمان"
 
 #. Heading of the card that lists the person's security keys and passkeys.
 #. js-lingui-explicit-id
@@ -18915,6 +18963,12 @@ msgstr "هذه الإعدادات مُترجَمة داخل مشروع Flutter �
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.stepup.body"
 msgstr "يتطلب هذا الإجراء تحققًا جديدًا بمفتاح الأمان أو مفتاح المرور."
+
+#. Name shown in the sidebar's app switcher while the app's name is loading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.thisApp"
+msgstr "هذا التطبيق"
 
 #. Shown when the app has no funnel.
 #. js-lingui-explicit-id

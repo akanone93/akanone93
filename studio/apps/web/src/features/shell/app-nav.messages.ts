@@ -11,6 +11,34 @@ export function appNavMessages(i18n: I18n) {
       message: "App areas",
       comment: "Accessible name of the navigation between the areas of one app.",
     }),
+    canvas: i18n._({
+      id: "appnav.canvas",
+      message: "Canvas",
+      comment: "Entry of the app-area navigation; opens the app canvas with the app's plugins.",
+    }),
+    apps: i18n._({
+      id: "appnav.apps",
+      message: "Apps",
+      comment: "Heading of the list of apps in the app switcher of the sidebar.",
+    }),
+    appPages: i18n._({
+      id: "appnav.appPages",
+      message: "App pages",
+      comment:
+        "Button and heading of the menu, in a canvas, that lists the app's pages (releases, data, settings and more).",
+    }),
+    thisApp: i18n._({
+      id: "appnav.thisApp",
+      message: "This app",
+      comment: "Name shown in the sidebar's app switcher while the app's name is loading.",
+    }),
+    switchApp: (name: string) =>
+      i18n._({
+        id: "appnav.switchApp",
+        message: "App: {name}. Switch app",
+        values: { name },
+        comment: "Accessible name of the sidebar's app switcher; {name} is the app the areas below belong to.",
+      }),
     releases: i18n._({
       id: "appnav.releases",
       message: "Releases",

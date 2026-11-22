@@ -182,6 +182,25 @@ const deviceLoginRoute = createRoute({
   component: lazyRouteComponent(() => import("./features/auth/index.ts"), "DeviceLoginPage"),
 });
 
+/** One of the person's own pages (#233). */
+function profileSubRoute(
+  path: string,
+  component: "SecurityKeysPage" | "PhonesPage" | "AppearancePage" | "NotificationsPage",
+) {
+  return createRoute({
+    getParentRoute: () => shellLayout,
+    path: `/me/${path}`,
+    component: lazyRouteComponent(() => import("./features/profile/index.ts"), component),
+  });
+}
+
+const profileSubRoutes = [
+  profileSubRoute("security-keys", "SecurityKeysPage"),
+  profileSubRoute("phones", "PhonesPage"),
+  profileSubRoute("appearance", "AppearancePage"),
+  profileSubRoute("notifications", "NotificationsPage"),
+];
+
 const shortcutsRoute = createRoute({
   getParentRoute: () => shellLayout,
   path: "/me/shortcuts",
@@ -588,6 +607,7 @@ const routeTree = rootRoute.addChildren([
     personalHomeRoute,
     profileRoute,
     shortcutsRoute,
+    ...profileSubRoutes,
     deviceLoginRoute,
     ...installationRoutes,
     orgRoute.addChildren([

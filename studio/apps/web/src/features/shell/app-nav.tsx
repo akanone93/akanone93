@@ -4,6 +4,14 @@
 import { useLingui } from "@lingui/react";
 import { Icon, type IconName } from "@plux/ui";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@plux/ui/components/dropdown-menu";
+import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -14,6 +22,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { appNavMessages } from "./app-nav.messages.ts";
+import type { NavApp } from "./use-current-app.ts";
 
 /** One area of an app: where it lives and the permission its route guard needs (router.tsx). */
 export interface AppNavEntry {
@@ -26,6 +35,7 @@ export interface AppNavEntry {
 
 /** The areas of an app in navigation order; each permission is the one the route's `beforeLoad` requires. */
 export const appNavEntries: readonly AppNavEntry[] = [
+  { id: "canvas", to: "/o/$org/apps/$app", permission: "app.read", orgWide: false },
   { id: "releases", to: "/o/$org/apps/$app/releases", permission: "app.read", orgWide: false },
   { id: "functions", to: "/o/$org/apps/$app/functions", permission: "app.read", orgWide: false },
   { id: "data", to: "/o/$org/apps/$app/data", permission: "app.read", orgWide: false },
@@ -43,6 +53,7 @@ export const appNavEntries: readonly AppNavEntry[] = [
 
 /** The icon beside each area in the sidebar. */
 export const entryIcons: Readonly<Record<string, IconName>> = {
+  canvas: "flow-arrow",
   releases: "rocket-launch",
   functions: "lightning",
   data: "stack",
@@ -63,18 +74,57 @@ export function visibleAppNav(permissions: readonly string[]): readonly AppNavEn
   return appNavEntries.filter((e) => permissions.includes(e.permission));
 }
 
+/** The switcher above the app's areas: the app they are about, and the other apps the person may open. */
+function AppSwitcher({
+  app,
+  apps,
+  onPick,
+}: {
+  readonly app: string;
+  readonly apps: readonly NavApp[];
+  readonly onPick: (appId: string) => void;
+}): ReactElement {
+  const m = appNavMessages(useLingui().i18n);
+  const name = apps.find((a) => a.id === app)?.name ?? m.thisApp;
+  return (
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger render={<SidebarMenuButton aria-label={m.switchApp(name)} className="font-medium" />}>
+        <Icon name="squares-four" />
+        <span className="truncate">{name}</span>
+        <Icon name="expand-all" className="ms-auto" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="min-w-56" align="start" sideOffset={4}>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-xs text-muted-foreground">{m.apps}</DropdownMenuLabel>
+          {apps.map((a) => (
+            <DropdownMenuItem key={a.id} onClick={() => onPick(a.id)} className="gap-2">
+              <span className="truncate">{a.name}</span>
+              {a.id === app && <Icon name="check" className="ms-auto" />}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 /**
- * Navigation between the areas of the app in the URL, as a group of the sidebar; it renders only entries the person's
- * permissions allow.
+ * The areas of the current app (#202), as a group of the sidebar: the app the one rule of `chooseCurrentApp` names,
+ * with a switcher, so the group stays on every page of the organisation instead of only on pages whose address holds
+ * the app. It renders only entries the person's permissions allow, by the same checks the route guards make.
  */
 export function AppNav({
   org,
   app,
+  apps,
   permissions,
+  onPickApp,
 }: {
   readonly org: string;
   readonly app: string;
+  readonly apps: readonly NavApp[];
   readonly permissions: readonly string[];
+  readonly onPickApp: (appId: string) => void;
 }): ReactElement | null {
   const { i18n } = useLingui();
   const m = appNavMessages(i18n);
@@ -89,6 +139,9 @@ export function AppNav({
         <SidebarGroupLabel>{m.label}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
+            <SidebarMenuItem>
+              <AppSwitcher app={app} apps={apps} onPick={onPickApp} />
+            </SidebarMenuItem>
             {entries.map((e) => (
               <SidebarMenuItem key={e.id}>
                 <SidebarMenuButton
@@ -96,7 +149,8 @@ export function AppNav({
                     <Link
                       to={e.to}
                       params={{ org, app }}
-                      {...(e.id === "approvals" && { search: { app } })}
+                      {...(e.orgWide && { search: { app } })}
+                      activeOptions={{ exact: e.id === "canvas" || e.orgWide, includeSearch: false }}
                       activeProps={{ "aria-current": "page", "data-active": true }}
                     />
                   }

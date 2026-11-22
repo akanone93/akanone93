@@ -21,6 +21,7 @@ describe("[STU-100] to [STU-116] navigation between the areas of an app", () => 
         .map((a) => [a.textContent, a.getAttribute("href")]),
     );
     expect(hrefs).toEqual({
+      Canvas: base,
       Releases: `${base}/releases`,
       Functions: `${base}/functions`,
       Data: `${base}/data`,
@@ -71,9 +72,31 @@ describe("[STU-100] to [STU-116] navigation between the areas of an app", () => 
     expect(appNavEntries.every((e) => e.permission !== "")).toBe(true);
   });
 
-  test("outside an app there is no app navigation", async () => {
+  test("[#202] on a page without an app in its address, the areas stay for the app last opened", async () => {
+    // Open the app once: it becomes the organisation's remembered app.
+    renderApp(`${base}/releases`, { permissions: reader });
+    await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
+    cleanup();
     renderApp(`/o/${orgA}`, { permissions: reader });
+    const nav = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
+    expect(within(nav).getByRole("link", { name: "Settings" }).getAttribute("href")).toBe(`${base}/settings`);
+    expect(within(nav).getByRole("button", { name: "App: Shop. Switch app" })).toBeTruthy();
+  }, 40_000);
+
+  test("[#202] the app's own Approvals entry keeps the app's areas on the organisation-wide page", async () => {
+    const { router } = renderApp(`${base}/releases`, { permissions: reader });
+    const nav = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
+    fireEvent.click(within(nav).getByRole("link", { name: "Approvals" }));
+    await waitFor(() => expect(router.state.location.pathname).toBe(`/o/${orgA}/approvals`));
+    const after = await screen.findByRole("navigation", { name: "App areas" }, { timeout: 20_000 });
+    expect(within(after).getByRole("link", { name: "Approvals" }).getAttribute("aria-current")).toBe("page");
+    expect(within(after).getByRole("link", { name: "Releases" }).getAttribute("href")).toBe(`${base}/releases`);
+  }, 40_000);
+
+  test("[#202] with no app the person may open there is no app navigation", async () => {
+    renderApp(`/o/${orgA}`, { permissions: reader, creation: { apps: [], calls: [] } });
     await screen.findByRole("banner");
+    await new Promise((r) => setTimeout(r, 300));
     expect(screen.queryByRole("navigation", { name: "App areas" }) === null).toBe(true);
   }, 40_000);
 });

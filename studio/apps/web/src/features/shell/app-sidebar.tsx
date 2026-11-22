@@ -35,6 +35,7 @@ import { installationMessages } from "../installation/installation.messages.ts";
 import { AppNav } from "./app-nav.tsx";
 import { NavArea } from "./nav-area.tsx";
 import { chromeMessages } from "./shell-chrome.messages.ts";
+import type { NavApp } from "./use-current-app.ts";
 
 /** The administration area's permission: the one its first page (settings) needs (STU-116). */
 export const ADMIN_PERMISSION = "organization.manage";
@@ -55,9 +56,12 @@ export function initialsOf(name: string): string {
 export interface StudioSidebarProps extends ComponentProps<typeof Sidebar> {
   readonly organisations: readonly { readonly id: string; readonly name: string }[];
   readonly currentId: string | undefined;
-  /** The `:org` and `:app` URL parameters of the page, when it has them. */
+  /** The `:org` URL parameter of the page, or the organisation the sidebar shows outside one. */
   readonly org: string | undefined;
+  /** The app the app's areas are about (`chooseCurrentApp`), and the apps the person may switch to. */
   readonly app: string | undefined;
+  readonly apps: readonly NavApp[];
+  readonly onPickApp: (appId: string) => void;
   readonly permissions: readonly string[];
   readonly user: { readonly name: string; readonly email: string } | undefined;
   readonly onSwitch: (organisationId: string) => void;
@@ -216,6 +220,8 @@ export function StudioSidebar({
   currentId,
   org,
   app,
+  apps,
+  onPickApp,
   permissions,
   user,
   onSwitch,
@@ -314,7 +320,9 @@ export function StudioSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         </nav>
-        {org !== undefined && app !== undefined && <AppNav org={org} app={app} permissions={permissions} />}
+        {org !== undefined && app !== undefined && (
+          <AppNav org={org} app={app} apps={apps} permissions={permissions} onPickApp={onPickApp} />
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} onSignOut={onSignOut} />

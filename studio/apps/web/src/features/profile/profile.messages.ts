@@ -80,7 +80,27 @@ export function profileMessages(i18n: I18n) {
     navProfile: i18n._({
       id: "profile.nav.profile",
       message: "Profile",
-      comment: "Tab of the profile page with the account, appearance and notifications.",
+      comment: "Tab of the profile page with the account.",
+    }),
+    navKeys: i18n._({
+      id: "profile.nav.keys",
+      message: "Security keys",
+      comment: "Tab of the profile page with the person's security keys and passkeys.",
+    }),
+    navPhones: i18n._({
+      id: "profile.nav.phones",
+      message: "Phones",
+      comment: "Tab of the profile page with the phones signed in to the Dev app.",
+    }),
+    navAppearance: i18n._({
+      id: "profile.nav.appearance",
+      message: "Appearance",
+      comment: "Tab of the profile page with theme, density and language.",
+    }),
+    navNotifications: i18n._({
+      id: "profile.nav.notifications",
+      message: "Notifications",
+      comment: "Tab of the profile page with the notification settings.",
     }),
     navShortcuts: i18n._({
       id: "profile.nav.shortcuts",

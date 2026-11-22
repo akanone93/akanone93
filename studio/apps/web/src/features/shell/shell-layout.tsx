@@ -12,6 +12,7 @@ import { Outlet, useParams, useRouter } from "@tanstack/react-router";
 import { type CSSProperties, useMemo, useState } from "react";
 import { openSignInPopup, SignedOutDialog } from "../../components/dialogs/index.ts";
 import { CommandsProvider, createRegistry, shellCommands } from "../../lib/commands/index.ts";
+import { rememberApp } from "../../lib/current-app.ts";
 import { loadedStudioVersion } from "../../lib/server-version.ts";
 import { organizationIdOf } from "../../lib/session.ts";
 import { useApp } from "../../lib/use-app.tsx";
@@ -26,6 +27,7 @@ import { hitPath, type OrgSearchFn } from "./palette-search.ts";
 import { SiteFooter } from "./site-footer.tsx";
 import { SiteHeader } from "./site-header.tsx";
 import { StatusChips, UpdateBanner, useOnline } from "./status-chips.tsx";
+import { useCurrentApp } from "./use-current-app.ts";
 import { useServerVersion } from "./use-server-version.ts";
 import { useStudioEvents } from "./use-studio-events.ts";
 
@@ -46,7 +48,7 @@ export function ShellLayout() {
   const { i18n } = useLingui();
   const { session } = useApp();
   const router = useRouter();
-  const { org, app } = useParams({ strict: false }) as { org?: string; app?: string };
+  const { org } = useParams({ strict: false }) as { org?: string };
   const online = useOnline();
   const events = useStudioEvents();
   const version = useServerVersion(events.state);
@@ -59,6 +61,8 @@ export function ShellLayout() {
   const organisations = orgs.data?.organizations ?? NONE;
   // Outside an organisation (the profile, the installation) the sidebar keeps the home organisation's navigation.
   const currentId = org === undefined ? session.home() : organizationIdOf(org);
+  const currentApp = useCurrentApp(currentId);
+  const [, setPicked] = useState(0);
 
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [gettingStartedOpen, setGettingStartedOpen] = useState(false);
@@ -100,6 +104,26 @@ export function ShellLayout() {
   const current = organisations.find((o) => o.id === currentId);
   const signOut = () => void value.states.find((x) => x.command.id === "account.signout")?.command.run();
   const side = directionOf(i18n.locale) === "rtl" ? "right" : "left";
+  // Switching the app keeps the person in the same area: an app's page moves to that area of the other app, an
+  // organisation-wide page filtered on the app changes its filter, and any other page only changes the remembered app.
+  const pickApp = (appId: string) => {
+    const { pathname, search } = router.state.location;
+    const inApp = /^\/o\/([^/]+)\/apps\/[^/]+(\/[^/]+)?/.exec(pathname);
+    if (inApp !== null) {
+      router.history.push(`/o/${inApp[1]}/apps/${encodeURIComponent(appId)}${inApp[2] ?? ""}`);
+      return;
+    }
+    if (typeof (search as { app?: unknown }).app === "string") {
+      const params = new URLSearchParams(router.state.location.searchStr);
+      params.set("app", appId);
+      router.history.push(`${pathname}?${params.toString()}`);
+      return;
+    }
+    if (currentId !== undefined) {
+      rememberApp(currentId, appId);
+      setPicked((n) => n + 1);
+    }
+  };
 
   return (
     <PendingChangesProvider counter={pending}>
@@ -111,7 +135,9 @@ export function ShellLayout() {
             organisations={organisations}
             currentId={currentId}
             org={org ?? currentId}
-            app={app}
+            app={currentApp.app}
+            apps={currentApp.apps}
+            onPickApp={pickApp}
             permissions={permissions}
             user={
               user.data?.user === undefined

@@ -43,7 +43,7 @@ describe("[DEV-002] phones on the profile (ADR-0104)", () => {
         { state: PhoneSignInState.SIGNED_IN, phoneName: "Pixel 8" },
       ],
     };
-    renderApp("/me", { phones, security: { stepUps } });
+    renderApp("/me/phones", { phones, security: { stepUps } });
     fireEvent.click(await screen.findByRole("button", { name: "Connect a phone" }));
     // The security key comes first: nothing is created before it (SEC-103).
     expect(phones.calls).toEqual([]);
@@ -64,7 +64,7 @@ describe("[DEV-002] phones on the profile (ADR-0104)", () => {
       calls: [] as string[],
       signIn: [{ state: PhoneSignInState.FAILED }],
     };
-    renderApp("/me", { phones, security: { stepUps: [] } });
+    renderApp("/me/phones", { phones, security: { stepUps: [] } });
     fireEvent.click(await screen.findByRole("button", { name: "Connect a phone" }));
     fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
     await screen.findByText(/A wrong number was picked/, {}, slow);
@@ -74,7 +74,7 @@ describe("[DEV-002] phones on the profile (ADR-0104)", () => {
   test("closing the dialog before the phone is connected cancels the sign-in", async () => {
     stubAssertion();
     const phones = { phones: [], calls: [] as string[], signIn: [{ state: PhoneSignInState.WAITING }] };
-    renderApp("/me", { phones, security: { stepUps: [] } });
+    renderApp("/me/phones", { phones, security: { stepUps: [] } });
     fireEvent.click(await screen.findByRole("button", { name: "Connect a phone" }));
     fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
     await screen.findByLabelText("QR code that connects a phone to the Plux Dev app");
@@ -84,7 +84,7 @@ describe("[DEV-002] phones on the profile (ADR-0104)", () => {
 
   test("a phone is signed out only after the confirmation", async () => {
     const phones = { phones: [{ id: "p1", name: "Pixel 8", platform: "android" }], calls: [] as string[], signIn: [] };
-    renderApp("/me", { phones });
+    renderApp("/me/phones", { phones });
     const list = await screen.findByRole("list", { name: "Phones" });
     within(list).getByText("Pixel 8");
     fireEvent.click(screen.getByRole("button", { name: "Sign out Pixel 8" }));
