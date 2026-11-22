@@ -201,8 +201,37 @@ export interface LinkSpec {
   readonly to: Point;
   readonly c1?: Point;
   readonly c2?: Point;
+  /**
+   * Further cubic pieces after the first (which then has `c1` and `c2`), each starting where the one before ends: an
+   * arrow routed round boxes is one item rather than one per piece (#206).
+   */
+  readonly via?: readonly LinkPiece[];
+  /** A filled dot where the link starts (#206); part of the link, so a route with its dot is still one item. */
+  readonly dot?: LinkDot;
   readonly stroke: StrokeStyle;
   readonly z: number;
+}
+
+/**
+ * The start dot of an arrow (#206), in its stroke's colour: it touches its box's side from outside at (`x`, `y`) along
+ * the side's outward normal (`nx`, `ny`), `radius` world units, and at least `minScreenRadius` CSS pixels on screen —
+ * but never more than `DOT_GROWTH` times its radius, so it reads as clearly as the arrowhead when zoomed out without
+ * swelling over the boxes far out.
+ */
+export interface LinkDot {
+  readonly x: number;
+  readonly y: number;
+  readonly nx: number;
+  readonly ny: number;
+  readonly radius: number;
+  readonly minScreenRadius?: number;
+}
+
+/** One cubic piece of a link after its first: from the previous piece's end through `c1` and `c2` to `to`. */
+export interface LinkPiece {
+  readonly c1: Point;
+  readonly c2: Point;
+  readonly to: Point;
 }
 
 /** Any scene item. */

@@ -53,16 +53,29 @@ function distanceToSegment(px: number, py: number, a: Point, b: Point): number {
   return Math.hypot(px - (a.x + t * dx), py - (a.y + t * dy));
 }
 
-function cubicAt(spec: LinkSpec, c1: Point, c2: Point, t: number): Point {
+function cubicAt(from: Point, c1: Point, c2: Point, to: Point, t: number): Point {
   const u = 1 - t;
   const a = u * u * u;
   const b = 3 * u * u * t;
   const c = 3 * u * t * t;
   const d = t * t * t;
   return {
-    x: a * spec.from.x + b * c1.x + c * c2.x + d * spec.to.x,
-    y: a * spec.from.y + b * c1.y + c * c2.y + d * spec.to.y,
+    x: a * from.x + b * c1.x + c * c2.x + d * to.x,
+    y: a * from.y + b * c1.y + c * c2.y + d * to.y,
   };
+}
+
+/** Whether (`x`, `y`) lies within `reach` of the cubic from `from` through `c1`, `c2` to `to`. */
+function nearCubic(from: Point, c1: Point, c2: Point, to: Point, x: number, y: number, reach: number): boolean {
+  let previous = from;
+  for (let i = 1; i <= CURVE_STEPS; i++) {
+    const next = cubicAt(from, c1, c2, to, i / CURVE_STEPS);
+    if (distanceToSegment(x, y, previous, next) <= reach) {
+      return true;
+    }
+    previous = next;
+  }
+  return false;
 }
 
 function nearLink(spec: LinkSpec, x: number, y: number, tolerance: number): boolean {
@@ -71,13 +84,22 @@ function nearLink(spec: LinkSpec, x: number, y: number, tolerance: number): bool
   if (!c1 || !c2) {
     return distanceToSegment(x, y, spec.from, spec.to) <= reach;
   }
-  let previous = spec.from;
-  for (let i = 1; i <= CURVE_STEPS; i++) {
-    const next = cubicAt(spec, c1, c2, i / CURVE_STEPS);
-    if (distanceToSegment(x, y, previous, next) <= reach) {
+  if (nearCubic(spec.from, c1, c2, spec.to, x, y, reach)) {
+    return true;
+  }
+  const dot = spec.dot;
+  if (
+    dot !== undefined &&
+    Math.hypot(x - dot.x - dot.nx * dot.radius, y - dot.y - dot.ny * dot.radius) <= dot.radius + tolerance
+  ) {
+    return true;
+  }
+  let at = spec.to;
+  for (const piece of spec.via ?? []) {
+    if (nearCubic(at, piece.c1, piece.c2, piece.to, x, y, reach)) {
       return true;
     }
-    previous = next;
+    at = piece.to;
   }
   return false;
 }

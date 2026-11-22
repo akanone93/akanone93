@@ -78,6 +78,10 @@ function boxOf(spec: ItemSpec): { x: number; y: number; w: number; h: number } {
     case "link": {
       const xs = [spec.from.x, spec.to.x, spec.c1?.x ?? spec.from.x, spec.c2?.x ?? spec.to.x];
       const ys = [spec.from.y, spec.to.y, spec.c1?.y ?? spec.from.y, spec.c2?.y ?? spec.to.y];
+      for (const piece of spec.via ?? []) {
+        xs.push(piece.c1.x, piece.c2.x, piece.to.x);
+        ys.push(piece.c1.y, piece.c2.y, piece.to.y);
+      }
       const x = Math.min(...xs);
       const y = Math.min(...ys);
       return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };

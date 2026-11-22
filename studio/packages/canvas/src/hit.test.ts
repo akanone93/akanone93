@@ -60,6 +60,20 @@ describe("HitIndex (ADR-0013 hit-testing)", () => {
     expect(index.hitPoint(100, 290, 2)).toEqual([]);
   });
 
+  test("[STU-043] hits a link of several pieces along each of them (#206)", () => {
+    const index = new HitIndex();
+    const first = { ...link("p", 0, 0, 100, 0), c1: { x: 33, y: 0 }, c2: { x: 66, y: 0 } };
+    index.apply([
+      {
+        op: "add",
+        item: { ...first, via: [{ c1: { x: 100, y: 33 }, c2: { x: 100, y: 66 }, to: { x: 100, y: 100 } }] },
+      },
+    ]);
+    expect(index.hitPoint(50, 0, 1)).toEqual(["p"]);
+    expect(index.hitPoint(100, 80, 1)).toEqual(["p"]);
+    expect(index.hitPoint(50, 50, 1)).toEqual([]);
+  });
+
   test("selects by marquee: intersecting or wholly contained", () => {
     const index = new HitIndex();
     index.apply([

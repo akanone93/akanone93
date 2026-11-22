@@ -39,6 +39,8 @@ interface Drawn {
   graph: string;
   placed: Map<string, { x: number; y: number }>;
   focus: string | null;
+  /** The box the pointer has settled on, whose arrows are highlighted with the selected boxes' (#206). */
+  hoverBox: string | null;
   frame: number;
   clock: number;
 }
@@ -50,6 +52,8 @@ export interface AppSceneInput {
   readonly boxes: readonly SceneBox[];
   readonly frames: readonly Frame[];
   readonly selected: ReadonlySet<string>;
+  /** The box under the pointer, if any: its arrows are highlighted once the pointer has settled on it (#206). */
+  readonly hovered?: string | undefined;
   /** The box the accessible list has focus on; drawn with a focus ring. */
   readonly focused: string | undefined;
   readonly graph: AppGraph;
@@ -67,7 +71,7 @@ const reducedMotion = (): boolean =>
  * STU-048). The worker draws; the main thread only diffs item specs and answers hits.
  */
 export function useAppScene(input: AppSceneInput) {
-  const { surface, generation, boxes, frames, selected, focused, graph, style, arrowStyle } = input;
+  const { surface, generation, boxes, frames, selected, hovered, focused, graph, style, arrowStyle } = input;
   const bundles = useMemo<Bundle[]>(
     () =>
       deriveAppBundles(
@@ -93,6 +97,7 @@ export function useAppScene(input: AppSceneInput) {
         graph: "",
         placed: new Map(),
         focus: null,
+        hoverBox: null,
         frame: 0,
         clock: 0,
       };
@@ -113,6 +118,7 @@ export function useAppScene(input: AppSceneInput) {
     }
     const ops: SceneOp[] = [...d.sync.sync(items)];
     ops.push(...arrowOps(d, boxes, bundles));
+    ops.push(...d.arrows.setHighlight(litBoxes(selected, d.hoverBox), now(d)));
     d.placed = new Map(boxes.map((b) => [b.id, { x: b.x, y: b.y }]));
     if (ops.length > 0) {
       d.surface.patch?.(ops);
@@ -170,6 +176,27 @@ export function useAppScene(input: AppSceneInput) {
   );
 
   const pick = useCallback((hits: readonly string[]): ArrowPick | undefined => drawn.current?.arrows.pick(hits), []);
+  // A box's arrows light up with it once the pointer has settled on it (#206): with many arrows on a hub box, the
+  // ones of the box in hand are told apart from the rest. The selection is read when the hover lands.
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
+  const boxIntent = useMemo(
+    () =>
+      new HoverIntent<string>((id) => {
+        const d = current();
+        if (d === null) {
+          return;
+        }
+        d.hoverBox = id;
+        const ops = d.arrows.setHighlight(litBoxes(selectedRef.current, id), now(d));
+        if (ops.length > 0) {
+          d.surface.patch?.(ops);
+        }
+      }),
+    [current],
+  );
+  useEffect(() => boxIntent.hover(hovered ?? null), [boxIntent, hovered]);
+  useEffect(() => () => boxIntent.dispose(), [boxIntent]);
   // The pointer's hover waits for intent (#206): an arrow lights up once the pointer has settled on it, so a sweep
   // across the canvas lights none; a click or keyboard focus goes through `now` at once.
   const intent = useMemo(() => new HoverIntent<string>(expand), [expand]);
@@ -177,6 +204,11 @@ export function useAppScene(input: AppSceneInput) {
   const expandNow = useCallback((id: string | null) => intent.now(id), [intent]);
   const hoverArrow = useCallback((id: string | null) => intent.hover(id), [intent]);
   return { bundles, expand: expandNow, hoverArrow, zoomed, pick };
+}
+
+/** The boxes whose arrows are highlighted: the selected ones and the one the pointer rests on. */
+function litBoxes(selected: ReadonlySet<string>, hovered: string | null): string[] {
+  return hovered === null ? [...selected] : [...selected, hovered];
 }
 
 /**

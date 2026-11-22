@@ -23,7 +23,7 @@ import {
   laneMenu,
   routeMidpoint,
 } from "./lanes.ts";
-import type { ColorRgba, ItemSpec, Point, SceneOp, StrokeStyle } from "./protocol.ts";
+import type { ColorRgba, ItemSpec, LinkDot, Point, SceneOp, StrokeStyle } from "./protocol.ts";
 
 /** Colours, widths and depth of arrows. */
 export interface ArrowStyle {
@@ -65,6 +65,9 @@ export interface ArrowPick {
 
 const HEAD = 8;
 const HEAD_ANGLE = 0.45;
+/** The start dot's radius, as a share of the arrowhead's length, and the least it keeps on screen (#206). */
+const DOT_SHARE = 0.5;
+const DOT_SCREEN_RADIUS = 4;
 const BADGE_W = 22;
 const BADGE_H = 16;
 const LABEL_W = 160;
@@ -81,8 +84,8 @@ export const canvasTitle = (title: string): string => title.replaceAll("→", CA
 
 /** Space between a lane title and the ends of its pill. */
 const LABEL_PAD = 6;
-/** Item parts a collapsed bundle can have: up to three pieces (two waypoints), head, badge. */
-const LIVE_PARTS = ["s0", "s1", "s2", "h0", "h1", "badge", "count"] as const;
+/** Item parts a collapsed bundle can have: its path (one item, whatever its pieces), head, badge. */
+const LIVE_PARTS = ["s0", "h0", "h1", "badge", "count"] as const;
 
 /** An item and the lane link it belongs to, if any. */
 interface Out {
@@ -95,10 +98,22 @@ interface Owner {
   readonly link: NavigateEdge | undefined;
 }
 
-function link(id: string, c: Cubic, stroke: StrokeStyle, z: number, straight: boolean): ItemSpec {
-  return straight
-    ? { kind: "link", id, from: c.from, to: c.to, stroke, z }
-    : { kind: "link", id, from: c.from, c1: c.c1, c2: c.c2, to: c.to, stroke, z };
+/** One scene item for a whole path of cubic pieces (#206): one patch, one hit target, one stroke. */
+function link(id: string, pieces: readonly Cubic[], stroke: StrokeStyle, z: number, dot?: LinkDot): ItemSpec {
+  const c = pieces[0] as Cubic;
+  const rest = pieces.slice(1).map((p) => ({ c1: p.c1, c2: p.c2, to: p.to }));
+  return {
+    kind: "link",
+    id,
+    from: c.from,
+    c1: c.c1,
+    c2: c.c2,
+    to: c.to,
+    ...(rest.length === 0 ? {} : { via: rest }),
+    ...(dot === undefined ? {} : { dot }),
+    stroke,
+    z,
+  };
 }
 
 function segment(id: string, from: Point, to: Point, stroke: StrokeStyle, z: number): ItemSpec {
@@ -158,6 +173,8 @@ export class ArrowCanvas {
   private moving: string[] = [];
   private readonly items = new Map<string, string[]>();
   private readonly owners = new Map<string, Owner>();
+  /** The boxes whose arrows are highlighted (hovered or selected, #206), sorted. */
+  private lit: readonly string[] = [];
 
   constructor(
     readonly router: ArrowRouter,
@@ -219,6 +236,20 @@ export class ArrowCanvas {
       return [];
     }
     this.moving = [...new Set([...this.moving, ...changed])];
+    return this.render(now);
+  }
+
+  /**
+   * Highlights the arrows of `boxes` — the hovered and the selected ones (#206) — and dims every other arrow, so the
+   * arrows of one box can be told apart from the rest; an empty list lights none. Restyles every bundle once when the
+   * set changes.
+   */
+  setHighlight(boxes: readonly string[], now = 0): SceneOp[] {
+    const next = [...new Set(boxes)].sort();
+    if (next.length === this.lit.length && next.every((id, i) => id === this.lit[i])) {
+      return [];
+    }
+    this.lit = next;
     return this.render(now);
   }
 
@@ -329,36 +360,41 @@ export class ArrowCanvas {
     const style = this.style;
     const focus = this.expansion.focus;
     const progress = this.lod.lanes ? this.expansion.progress(bundle.id, now) : 0;
-    const raised = progress > 0 || focus === bundle.id;
-    const stroke = raised ? style.focus : focus !== null ? style.dimmed : style.stroke;
+    const lit = this.lit.length > 0 && (this.lit.includes(bundle.source) || this.lit.includes(bundle.target));
+    const raised = progress > 0 || focus === bundle.id || lit;
+    const quieted = focus !== null || this.lit.length > 0;
+    const stroke = raised ? style.focus : quieted ? style.dimmed : style.stroke;
     const z = raised ? style.z + 10 : style.z;
     const prefix = `arrow:${bundle.id}:`;
     const out: Out[] = [];
-    const first = route.segments[0] as Cubic;
-    const last = route.segments.at(-1) as Cubic;
-    if (this.lod.straight) {
-      out.push({ item: segment(`${prefix}s0`, first.from, last.to, stroke, z), link: undefined });
-    } else if (progress > 0) {
-      this.lanes(route, progress, prefix, stroke, z, out);
+    const dot = startDot(route, style.head ?? HEAD);
+    if (progress > 0) {
+      this.lanes(route, progress, prefix, stroke, z, dot, out);
     } else {
-      route.segments.forEach((c, k) => {
-        out.push({ item: link(`${prefix}s${k}`, c, stroke, z, false), link: undefined });
-      });
+      out.push({ item: link(`${prefix}s0`, route.segments, stroke, z, dot), link: undefined });
     }
     head(route, prefix, stroke, z, style.head ?? HEAD, out);
     if (this.lod.labels && progress === 0 && bundle.links.length > 1) {
-      const badge = badgeColours(style, raised, focus !== null);
+      const badge = badgeColours(style, raised, quieted);
       this.badge(route, prefix, badge.fill, badge.text, z, out);
     }
     return out;
   }
 
   /** The lanes of an expanding bundle, titled once fully expanded (STU-044). */
-  private lanes(route: Route, progress: number, prefix: string, stroke: StrokeStyle, z: number, out: Out[]): void {
+  private lanes(
+    route: Route,
+    progress: number,
+    prefix: string,
+    stroke: StrokeStyle,
+    z: number,
+    dot: LinkDot,
+    out: Out[],
+  ): void {
     for (const [i, lane] of laneGeometry(route, progress).entries()) {
-      lane.segments.forEach((c, k) => {
-        out.push({ item: link(`${prefix}l${i}s${k}`, c, stroke, z, false), link: lane.link });
-      });
+      // The lanes share one entry stem: the first carries the start dot.
+      const start = i === 0 ? dot : undefined;
+      out.push({ item: link(`${prefix}l${i}s0`, lane.segments, stroke, z, start), link: lane.link });
       if (this.lod.labels && progress >= 1) {
         this.label(lane.link, lane.label, `${prefix}`, i, z, out);
       }
@@ -447,6 +483,17 @@ function badgeColours(style: ArrowStyle, raised: boolean, dimmed: boolean): { fi
 }
 
 /** The arrowhead: two strokes back from the target anchor, around the side normal. */
+/**
+ * The start dot (#206): a filled dot in the arrow's colour where it leaves its source box, touching the box's side,
+ * at least `DOT_SCREEN_RADIUS` pixels on screen, so where a link starts reads as clearly as where its head arrives.
+ * Drawn with the shaft, as part of its item.
+ */
+function startDot(route: Route, size: number): LinkDot {
+  const start = (route.segments[0] as Cubic).from;
+  const n = sideNormal(route.sourceSide);
+  return { x: start.x, y: start.y, nx: n.x, ny: n.y, radius: size * DOT_SHARE, minScreenRadius: DOT_SCREEN_RADIUS };
+}
+
 function head(route: Route, prefix: string, stroke: StrokeStyle, z: number, size: number, out: Out[]): void {
   const tip = (route.segments.at(-1) as Cubic).to;
   const n = sideNormal(route.targetSide);

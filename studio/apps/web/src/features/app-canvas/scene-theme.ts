@@ -147,8 +147,9 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
       ...ARROW_WIDTHS.dimmed,
       color: colour(`color-mix(in oklch, ${token("muted-foreground")} 20%, ${surface})`),
     },
-    // The focused bundle in the primary colour, a little wider, over a soft glow of the same colour.
-    focus: { ...ARROW_WIDTHS.focus, color: primary, glow: { color: ((primary & 0xffffff00) | 0x45) >>> 0, width: 8 } },
+    // The focused bundle in the primary colour, a little wider, over a faint glow of the same colour (the maintainer
+    // found a stronger one too much, #239).
+    focus: { ...ARROW_WIDTHS.focus, color: primary, glow: { color: ((primary & 0xffffff00) | 0x22) >>> 0, width: 5 } },
     badgeFill: primary,
     badgeText: colour(token("primary-foreground")),
     badgeQuiet: {

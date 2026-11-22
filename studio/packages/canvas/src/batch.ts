@@ -12,6 +12,7 @@
 import type { Canvas, CanvasKit, Paint, PathBuilder } from "canvaskit-wasm";
 import type { ColorRgba, LinkSpec } from "./protocol.ts";
 import type { Resources } from "./resources.ts";
+import { dotRadius } from "./scene.ts";
 
 /** Draw order of the batch layers. */
 export const BatchLayer = {
@@ -51,6 +52,8 @@ interface Entry {
   readonly minScreen: number;
   /** The width the paint holds now, set again only when the zoom changes it. */
   applied: number;
+  /** Start dots of links (x, y, nx, ny, radius, least screen radius per dot), added at their size for the zoom. */
+  readonly dots: number[];
 }
 
 /** How a link's stroke is drawn: the least width it keeps on screen, and the blur of a glow (0: none). */
@@ -120,6 +123,7 @@ export class Batches {
       width: strokeWidth,
       minScreen: link?.minScreen ?? 0,
       applied: strokeWidth,
+      dots: [],
     };
     map?.set(key, entry);
     return entry;
@@ -190,6 +194,19 @@ export class Batches {
       blur: 0,
     });
     trace(main.builder, spec, straight);
+    if (spec.dot !== undefined) {
+      // A fill in the links' layer, one entry per colour: every arrow's start dot in one draw call, sized at the flush
+      // for the zoom.
+      const { x, y, nx, ny, radius, minScreenRadius } = spec.dot;
+      this.entry(BatchLayer.link, `dot${stroke.color}`, stroke.color, 0).dots.push(
+        x,
+        y,
+        nx,
+        ny,
+        radius,
+        minScreenRadius ?? 0,
+      );
+    }
     if (stroke.glow !== undefined) {
       // The glow's width is all on screen: a hair in world units, widened to the glow's width at every zoom.
       const glow = this.entry(BatchLayer.linkGlow, `g${key}`, stroke.glow.color, 0.001, 0, {
@@ -218,6 +235,7 @@ export class Batches {
             entry.applied = width;
           }
         }
+        addDots(entry, zoom);
         const path = entry.builder.detach();
         canvas.drawPath(path, entry.paint);
         this.resources.discard(path);
@@ -229,12 +247,37 @@ export class Batches {
   }
 }
 
-/** Adds a link's path to `builder`: a segment, or its cubic Bézier when it has control points and is not straightened. */
+/** Adds the entry's start dots to its path at their size for `zoom`, each touching its side from outside. */
+function addDots(entry: Entry, zoom: number): void {
+  const d = entry.dots;
+  for (let i = 0; i + 5 < d.length; i += 6) {
+    const r = dotRadius(d[i + 4] as number, d[i + 5] as number, zoom);
+    entry.builder.addCircle(
+      (d[i] as number) + (d[i + 2] as number) * r,
+      (d[i + 1] as number) + (d[i + 3] as number) * r,
+      r,
+    );
+  }
+  d.length = 0;
+}
+
+/**
+ * Adds a link's path to `builder`: its cubic pieces, or, when it has no control points or is straightened (LOD),
+ * segments between their ends.
+ */
 function trace(builder: PathBuilder, spec: LinkSpec, straight: boolean): void {
   builder.moveTo(spec.from.x, spec.from.y);
-  if (!straight && spec.c1 && spec.c2) {
+  const curved = !straight && spec.c1 !== undefined && spec.c2 !== undefined;
+  if (curved && spec.c1 && spec.c2) {
     builder.cubicTo(spec.c1.x, spec.c1.y, spec.c2.x, spec.c2.y, spec.to.x, spec.to.y);
   } else {
     builder.lineTo(spec.to.x, spec.to.y);
+  }
+  for (const piece of spec.via ?? []) {
+    if (curved) {
+      builder.cubicTo(piece.c1.x, piece.c1.y, piece.c2.x, piece.c2.y, piece.to.x, piece.to.y);
+    } else {
+      builder.lineTo(piece.to.x, piece.to.y);
+    }
   }
 }

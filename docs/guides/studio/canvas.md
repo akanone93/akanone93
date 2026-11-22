@@ -30,7 +30,9 @@ Canvas, and you can drive both from the keyboard.
    **Draft** before the first publish), how many screens, versions and links it has, and its status
    along the foot (for example **Valid**, **2 errors** or **Unpublished changes**); a **+N** pill
    counts the rest, which the detail panel lists; the line under the name adds the owning team. A
-   **native** target (a screen of the host app) is a dashed outline with a **Native** chip. The
+   **native** target (a screen of the host app) is a dashed outline with a **Native** chip. An arrow
+   starts with a dot at the plugin it leaves and ends with its head at the one it opens, and goes round the cards in
+   its way; point at a card, or select it, and its own arrows light up while the others fade. The
    canvas opens with every plugin in view beside the dock, at 100 % at most; when they would need less than 35 %, it
    opens at 35 % on the middle of them. Panels float over the canvas as frosted glass, so
    the plugins stay in view beneath them:
@@ -86,7 +88,8 @@ Positions are read-only while someone else is editing the app.
 
 1. Double-click a plugin. The **Plugin canvas** shows its screens in navigation order on the same
    dotted surface as the app canvas, and zooms, pans and draws the same way; it opens with every screen's frame in view,
-   at 100 % at most, or at 15 % on the middle of them when there are more than fit. The
+   with the boxes of the screens and routes outside the plugin that it links to, at 100 % at most, or at 15 % on the
+   middle of them when there are more than fit. The
    top bar has three parts: on the left the way back to the app canvas and the app over the plugin's
    name; in the centre **New screen**, the current screen (choose another to bring it into view),
    **Screen menu**, **Undo** and **Redo**, **Preview**, **History**, **Pair a device**, **Send to
@@ -399,7 +402,9 @@ choose **Replace** or **Add after**.
 
 Point at an arrow and its bundle opens into one lane per link, each titled with its widget and target; a click on a
 closed bundle opens it too. A click on a lane selects that link: change its trigger, redirect it, open its source
-or target, or remove it. Arrows follow a screen while you drag it. Open the **Action graph** for anything a link cannot express:
+or target, or remove it. An arrow starts with a dot at its screen and ends with its head at the target, and goes round
+the screens and their titles in its way; the arrows of the screen you are working in light up while the others fade.
+Arrows follow a screen while you drag it. Open the **Action graph** for anything a link cannot express:
 add built-in, host, function and flow steps and connect their ports. The **State designer** edits
 state entries (single value, list or map; in memory, for the session, saved on the device or in
 secure storage; sensitive or not), and the **JSON editor** edits the document itself with a

@@ -79,7 +79,7 @@ import { DeviceBayHost } from "./device-bay-host.tsx";
 import { useDeviceFonts } from "./device-fonts.ts";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
-import { type GhostTarget, ghostOfHit, pulseSteps, readAppScreens } from "./ghosts.ts";
+import { type GhostTarget, ghostOfHit, ghostStyleOf, placeGhosts, pulseSteps, readAppScreens } from "./ghosts.ts";
 import { useHostFonts } from "./host-fonts.ts";
 import { type InlineEdit, InlineTextHost } from "./inline-text.tsx";
 import type { A11yMarks, InstancesOverlay } from "./interaction-overlay.tsx";
@@ -408,6 +408,7 @@ function fitView(
   laidOut: Heights,
   s: { x?: number; y?: number; z?: number },
   device: Device,
+  targets: readonly GhostTarget[],
 ): void {
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
@@ -420,7 +421,7 @@ function fitView(
     return;
   }
   const free = freeArea(canvas, width, height);
-  const frames = contentBounds(screens, new Map(), device);
+  const frames = withTargets(contentBounds(screens, new Map(), device), targets);
   const roomW = free.right - free.left - 2 * FIRST_MARGIN;
   const roomH = free.bottom - free.top - CAPTION_ROOM - 2 * FIRST_MARGIN;
   const fits = Math.min(roomW / (frames.r - frames.l), roomH / (frames.b - frames.t));
@@ -521,22 +522,47 @@ function selectionText(
   return ids.length === 1 ? m.oneSelected(nameOf(ids[0] ?? "")) : pm.selectedCount(ids.length);
 }
 
-/** Fit: every laid-out screen in view, at most 100 % (STU-067). */
+/**
+ * The screens' bounds grown by the boxes of the screens and routes they link to outside the plugin (#224), placed
+ * beside them as the ghost layer places them: fitting everything frames where the arrows go too.
+ */
+function withTargets(
+  b: ReturnType<typeof contentBounds>,
+  targets: readonly GhostTarget[],
+): ReturnType<typeof contentBounds> {
+  const out = { ...b };
+  for (const g of placeGhosts(targets, b.r, b.t)) {
+    out.l = Math.min(out.l, g.x);
+    out.t = Math.min(out.t, g.y);
+    out.r = Math.max(out.r, g.x + g.w);
+    out.b = Math.max(out.b, g.y + g.h);
+  }
+  return out;
+}
+
+/** Fit: every laid-out screen, and the targets of its links, in view, at most 100 % (STU-067). */
 function fitAll(
   surface: CanvasSurface,
   canvas: HTMLCanvasElement,
   screens: readonly PlacedScreen[],
   laidOut: Heights,
   device: Device,
+  targets: readonly GhostTarget[],
 ): void {
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
-  const b = contentBounds(screens, laidOut, device);
+  const b = withTargets(contentBounds(screens, laidOut, device), targets);
+  // In the room the docks and the console leave, as the first view: under a dock the targets would be out of sight.
+  const free = freeArea(canvas, width, height);
+  const roomW = free.right - free.left;
+  const roomH = free.bottom - free.top;
   const zoom = Math.min(
     1,
-    Math.max(MIN_ZOOM_PERCENT / 100, Math.min(width / (b.r - b.l + 160), height / (b.b - b.t + 160))),
+    Math.max(MIN_ZOOM_PERCENT / 100, Math.min(roomW / (b.r - b.l + 160), roomH / (b.b - b.t + 160))),
   );
-  surface.setViewport((b.l + b.r) / 2 - width / 2 / zoom, (b.t + b.b) / 2 - height / 2 / zoom, zoom);
+  const x = (b.l + b.r) / 2 - (free.left + roomW / 2) / zoom;
+  const y = (b.t + b.b) / 2 - (free.top + roomH / 2) / zoom;
+  surface.setViewport(x, y, zoom);
 }
 
 /** C2: the plugin canvas with selection (S2.5); edits stay blocked until the editor reports \`canEdit\` (S2.3). */
@@ -912,6 +938,9 @@ function PluginCanvasView({
     },
     [canEdit, session],
   );
+  // The theme's colours, for the surface below and for the arrows and target boxes (#224).
+  const theme = useSceneTheme();
+  const ghostTheme = useMemo(() => ghostStyleOf(theme.style), [theme.style]);
   const ghostLayer = useGhostLayer({
     appId: params.app ?? "",
     pluginId: params.plugin ?? "",
@@ -924,7 +953,11 @@ function PluginCanvasView({
     appScreens,
     nativeRoutes,
     device,
+    arrowStyle: theme.arrows,
+    ghostStyle: ghostTheme,
   });
+  const targetsRef = useRef(ghostLayer.graph.targets);
+  targetsRef.current = ghostLayer.graph.targets;
   // The view map draws the screens at their full height and the ghost screens beside them (C5).
   const mapItems = useMemo<MapItem[]>(
     () => [
@@ -1128,7 +1161,6 @@ function PluginCanvasView({
   // The surface, as on the app canvas (studio-development §9.8): drawn whole on every frame it changes, in full detail,
   // on the theme's canvas surface with its dot grid, and following the page's size. A canvas element is handed to the
   // worker once, so a change of theme makes a new element (`key`) and a new surface on it.
-  const theme = useSceneTheme();
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1245,7 +1277,7 @@ function PluginCanvasView({
       if (fit !== undefined) {
         fittedRef.current = surface;
         fittedDevice.current = deviceKey;
-        fitView(surface, canvas, screens, byId, fit, device);
+        fitView(surface, canvas, screens, byId, fit, device, targetsRef.current);
         // The address, the zoom's readout and the ghosts' detail follow the fitted view, as after any pan or zoom: the
         // readout said 100 % while the first view was fitted lower.
         syncRef.current();
@@ -1329,7 +1361,7 @@ function PluginCanvasView({
     const surface = surfaceRef.current;
     const canvas = canvasRef.current;
     if (surface !== null && canvas !== null) {
-      fitAll(surface, canvas, screens, heights, device);
+      fitAll(surface, canvas, screens, heights, device, ghostLayer.graph.targets);
       sync();
     }
   };
@@ -1692,6 +1724,10 @@ function PluginCanvasView({
     overlay,
   });
   boxRef.current = interaction.boxOf;
+  // The arrows of the screen being worked on stand out from the rest (#206).
+  const { highlight } = ghostLayer;
+  const workedScreen = interaction.selectedScreen;
+  useEffect(() => highlight(workedScreen === undefined ? [] : [workedScreen]), [highlight, workedScreen]);
   const percent = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, search.z ?? 100)));
 
   return (

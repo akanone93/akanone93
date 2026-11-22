@@ -10,28 +10,29 @@
  */
 
 import type { Cubic, NavigateEdge, Route } from "./arrows.ts";
-import { STRAIGHT_LINKS_BELOW } from "./lod.ts";
 import type { Point } from "./protocol.ts";
 
 /** Expansion and collapse take this long (STU-044: 150–200 ms). */
 export const EXPAND_MS = 180;
 /** Distance between neighbouring lanes, room for one title line. */
 export const LANE_SPACING = 28;
-/** Below this zoom arrows are straight, labels hidden and lanes merged (STU-048). */
-export const ARROW_DETAIL_BELOW = STRAIGHT_LINKS_BELOW;
+/**
+ * Below this zoom labels are hidden and lanes merged (STU-048). Arrows keep their routed curves at every zoom: a
+ * straight segment from the first box to the last cut through the boxes the route goes around, and nobody could tell
+ * which arrow went where (#206, ADR-0013's full detail).
+ */
+export const ARROW_DETAIL_BELOW = 0.5;
 
 /** What arrows draw at a zoom level. */
 export interface ArrowLod {
-  /** One straight segment per bundle instead of routed curves. */
-  readonly straight: boolean;
   /** Count badges and lane titles. */
   readonly labels: boolean;
   /** Expansion into lanes; merged into one arrow when false. */
   readonly lanes: boolean;
 }
 
-const detailed: ArrowLod = Object.freeze({ straight: false, labels: true, lanes: true });
-const simple: ArrowLod = Object.freeze({ straight: true, labels: false, lanes: false });
+const detailed: ArrowLod = Object.freeze({ labels: true, lanes: true });
+const simple: ArrowLod = Object.freeze({ labels: false, lanes: false });
 
 /** The arrows' level of detail for `zoom` (STU-048). */
 export function arrowLodForZoom(zoom: number): ArrowLod {
@@ -83,7 +84,7 @@ function shift(p: Point, n: Point, o: number): Point {
  */
 export function laneGeometry(route: Route, progress: number, spacing = LANE_SPACING): Lane[] {
   const pieces = route.segments;
-  const index = Math.floor((pieces.length - 1) / 2);
+  const index = middleOf(route);
   const middle = pieces[index] as Cubic;
   const [left, right] = splitCubic(middle, 0.5);
   const tx = right.c1.x - left.c2.x;
@@ -107,9 +108,14 @@ export function laneGeometry(route: Route, progress: number, spacing = LANE_SPAC
   });
 }
 
+/** The index of the piece a route's badge and lane titles sit on. */
+function middleOf(route: Route): number {
+  return route.middle ?? Math.floor((route.segments.length - 1) / 2);
+}
+
 /** The point halfway along a route's middle piece: where the count badge sits (STU-041). */
 export function routeMidpoint(route: Route): Point {
-  const middle = route.segments[Math.floor((route.segments.length - 1) / 2)] as Cubic;
+  const middle = route.segments[middleOf(route)] as Cubic;
   return splitCubic(middle, 0.5)[0].to;
 }
 

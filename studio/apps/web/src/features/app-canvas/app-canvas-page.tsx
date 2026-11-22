@@ -523,6 +523,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     boxes,
     frames,
     selected,
+    hovered: hover,
     focused,
     graph,
     style: theme.style,

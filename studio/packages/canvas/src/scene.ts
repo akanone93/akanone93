@@ -11,7 +11,18 @@
  */
 
 import { copyRect, intersects, makeRect, type Rect, setRect } from "./geometry.ts";
-import type { ClipSpec, GradientSpec, ItemSpec, LinkSpec, Point, SceneOp, StrokeStyle } from "./protocol.ts";
+import type {
+  ClipSpec,
+  GradientSpec,
+  ItemSpec,
+  LinkDot,
+  LinkPiece,
+  LinkSpec,
+  Point,
+  SceneOp,
+  StrokeStyle,
+} from "./protocol.ts";
+import { MIN_ZOOM } from "./viewport.ts";
 
 /** Extra bounds around a shadowed frame for its pre-rendered shadow. */
 export const SHADOW_MARGIN = 24;
@@ -46,12 +57,40 @@ export function strokeKey(stroke: StrokeStyle): string {
   return `s${stroke.color}:${stroke.width}${dash}${least}${glow}`;
 }
 
+/** How many times its own radius a start dot may grow to keep its least size on screen (`LinkDot`). */
+export const DOT_GROWTH = 4;
+
+/** The radius a start dot is drawn at for `zoom`: its least screen radius there, within its own and `DOT_GROWTH` times it. */
+export function dotRadius(radius: number, minScreenRadius: number, zoom: number): number {
+  const least = zoom > 0 ? minScreenRadius / zoom : 0;
+  return Math.min(radius * DOT_GROWTH, Math.max(radius, least));
+}
+
+/** The largest radius a start dot takes, at the least zoom. */
+function dotReach(dot: LinkDot): number {
+  return dotRadius(dot.radius, dot.minScreenRadius ?? 0, MIN_ZOOM);
+}
+
 function linkBounds(spec: LinkSpec, out: Rect): Rect {
   setRect(out, spec.from.x, spec.from.y, spec.from.x, spec.from.y);
-  for (const p of [spec.to, spec.c1, spec.c2]) {
+  const grow = (p: Point | undefined): void => {
     if (p) {
       setRect(out, Math.min(out.l, p.x), Math.min(out.t, p.y), Math.max(out.r, p.x), Math.max(out.b, p.y));
     }
+  };
+  grow(spec.to);
+  grow(spec.c1);
+  grow(spec.c2);
+  for (const piece of spec.via ?? []) {
+    grow(piece.c1);
+    grow(piece.c2);
+    grow(piece.to);
+  }
+  if (spec.dot !== undefined) {
+    const { x, y } = spec.dot;
+    const reach = 2 * dotReach(spec.dot);
+    grow({ x: x - reach, y: y - reach });
+    grow({ x: x + reach, y: y + reach });
   }
   const half = spec.stroke.width / 2 + 1;
   return setRect(out, out.l - half, out.t - half, out.r + half, out.b + half);
@@ -110,6 +149,17 @@ export function liveDamageOf(spec: ItemSpec, bounds: Rect, out: Rect[]): void {
   pushPieces(spec.from, spec.from, spec.to, spec.to, pad, out);
   if (spec.c1 && spec.c2) {
     pushPieces(spec.from, spec.c1, spec.c2, spec.to, pad, out);
+  }
+  let at = spec.to;
+  for (const piece of spec.via ?? []) {
+    pushPieces(at, at, piece.to, piece.to, pad, out);
+    pushPieces(at, piece.c1, piece.c2, piece.to, pad, out);
+    at = piece.to;
+  }
+  if (spec.dot !== undefined) {
+    const { x, y } = spec.dot;
+    const reach = 2 * dotReach(spec.dot);
+    out.push(antialiased(makeRect(x - reach, y - reach, x + reach, y + reach)));
   }
 }
 
@@ -181,11 +231,30 @@ function sameItem(a: ItemSpec, b: ItemSpec): boolean {
   for (const key of ka) {
     const va: unknown = a[key];
     const vb: unknown = (b as unknown as Record<string, unknown>)[key];
+    if (key === ("via" as keyof ItemSpec)) {
+      if (!samePieces(va as readonly LinkPiece[] | undefined, vb as readonly LinkPiece[] | undefined)) {
+        return false;
+      }
+      continue;
+    }
     if (va !== vb && !(typeof va === "object" && typeof vb === "object" && sameShallow(va, vb))) {
       return false;
     }
   }
   return true;
+}
+
+function samePieces(a: readonly LinkPiece[] | undefined, b: readonly LinkPiece[] | undefined): boolean {
+  if (a === b) {
+    return true;
+  }
+  if (a === undefined || b === undefined || a.length !== b.length) {
+    return false;
+  }
+  return a.every((p, i) => {
+    const q = b[i] as LinkPiece;
+    return sameShallow(p.c1, q.c1) && sameShallow(p.c2, q.c2) && sameShallow(p.to, q.to);
+  });
 }
 
 function sameShallow(a: unknown, b: unknown): boolean {
@@ -320,6 +389,10 @@ export function moveSpec(spec: ItemSpec, dx: number, dy: number): ItemSpec {
     to: shift(spec.to, dx, dy),
     ...(spec.c1 ? { c1: shift(spec.c1, dx, dy) } : {}),
     ...(spec.c2 ? { c2: shift(spec.c2, dx, dy) } : {}),
+    ...(spec.via
+      ? { via: spec.via.map((p) => ({ c1: shift(p.c1, dx, dy), c2: shift(p.c2, dx, dy), to: shift(p.to, dx, dy) })) }
+      : {}),
+    ...(spec.dot ? { dot: { ...spec.dot, x: spec.dot.x + dx, y: spec.dot.y + dy } } : {}),
   };
 }
 

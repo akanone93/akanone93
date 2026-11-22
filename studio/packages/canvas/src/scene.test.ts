@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { box, link, text } from "../test-support/canvaskit.ts";
 import { makeRect, type Rect } from "./geometry.ts";
 import type { FrameSpec } from "./protocol.ts";
-import { boundsOf, damageOf, itemMeets, moveSpec, Scene, type SceneItem, SHADOW_MARGIN } from "./scene.ts";
+import { boundsOf, damageOf, dotRadius, itemMeets, moveSpec, Scene, type SceneItem, SHADOW_MARGIN } from "./scene.ts";
 import { buildSceneModel } from "./scene-model.ts";
 import { Viewport } from "./viewport.ts";
 
@@ -114,6 +114,39 @@ describe("[STU-003] retained scene graph", () => {
     expect(scene.hasLive).toBe(false);
     scene.setLive(["a"], false);
     expect(lifts(scene)).toEqual({ lifted: [], dropped: [], dirty: [] });
+  });
+
+  test("[STU-043] a link of several pieces: bounds, moves, damage and meets cover every piece (#206)", () => {
+    const first = { ...link("p", 0, 0, 100, 0), c1: { x: 33, y: 0 }, c2: { x: 66, y: 0 } };
+    const spec = { ...first, via: [{ c1: { x: 100, y: 33 }, c2: { x: 100, y: 66 }, to: { x: 100, y: 300 } }] };
+    const bounds = boundsOf(spec, makeRect(0, 0, 0, 0));
+    expect(bounds.b).toBeGreaterThan(300);
+    const moved = moveSpec(spec, 5, 5);
+    expect(moved.kind === "link" && moved.via?.[0]?.to).toEqual({ x: 105, y: 305 });
+    // A start dot of radius 4 keeping 4 pixels on screen: 40 units at the least zoom (10 %), but never more than four
+    // times its radius (16), and its bounds cover that much along its side's normal.
+    expect(dotRadius(4, 4, 1)).toBe(4);
+    expect(dotRadius(4, 4, 0.5)).toBe(8);
+    expect(dotRadius(4, 4, 0.1)).toBe(16);
+    const dotted = { ...spec, dot: { x: 0, y: 0, nx: -1, ny: 0, radius: 4, minScreenRadius: 4 } };
+    expect(boundsOf(dotted, makeRect(0, 0, 0, 0)).l).toBeLessThanOrEqual(-32);
+    const shifted = moveSpec(dotted, 5, 5);
+    expect(shifted.kind === "link" && shifted.dot).toEqual({
+      x: 5,
+      y: 5,
+      nx: -1,
+      ny: 0,
+      radius: 4,
+      minScreenRadius: 4,
+    });
+    const same: Rect[] = [];
+    damageOf(spec, bounds, { ...spec, via: [{ ...spec.via[0] }] } as never, bounds, same);
+    expect(same).toEqual([]);
+    const scene = new Scene();
+    scene.apply([{ op: "add", item: spec }]);
+    const item = scene.get("p") as SceneItem;
+    expect(itemMeets(item, makeRect(95, 250, 105, 260))).toBe(true);
+    expect(itemMeets(item, makeRect(10, 250, 20, 260))).toBe(false);
   });
 
   test("moving a link moves its control points; clear removes everything", () => {

@@ -4,7 +4,16 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AssetService } from "@plux/api";
-import { type ArrowBox, ArrowCanvas, type ArrowPick, ArrowRouter, deriveBundles, type ItemSpec } from "@plux/canvas";
+import {
+  type ArrowBox,
+  ArrowCanvas,
+  type ArrowPick,
+  ArrowRouter,
+  type ArrowStyle,
+  deriveBundles,
+  type ItemSpec,
+  type RouterOptions,
+} from "@plux/canvas";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
@@ -15,6 +24,7 @@ import {
   type AppScreen,
   deriveGhosts,
   type GhostGraph,
+  type GhostStyle,
   ghostItems,
   type OwnScreen,
   type PlacedGhost,
@@ -26,6 +36,13 @@ import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { arrowStyle, contentBounds, DEVICE, ghostStyle, type Heights, type PlacedScreen } from "./scene.ts";
 import type { CanvasSurface } from "./surface.ts";
 import { type ListedAsset, loadGhostImages, syncThumbnails } from "./thumbnails.ts";
+
+/**
+ * How the plugin canvas routes its arrows (#206): clear of the screen titles, which stand 30 CSS pixels above each
+ * screen at every zoom (160 world units covers them from 19 % zoom up), and round every screen in the way — a plugin
+ * has tens of screens, so no path is left crossing them.
+ */
+const ARROW_ROUTING: RouterOptions = { headroom: 160, maxThroughGaps: Number.POSITIVE_INFINITY };
 
 /** Quiet time after the last layout before thumbnails are captured and uploaded (A5.6: rate-limited). */
 const THUMBNAIL_DEBOUNCE_MS = 3000;
@@ -58,6 +75,9 @@ export interface GhostLayerInput {
   readonly nativeRoutes: readonly string[];
   /** The device frame the screens are drawn in (PC-11); the generic phone when absent. */
   readonly device?: { readonly width: number; readonly height: number };
+  /** The theme's arrows and target boxes (#224), as the app canvas draws them; the brand colours when absent. */
+  readonly arrowStyle?: ArrowStyle;
+  readonly ghostStyle?: GhostStyle;
 }
 
 /**
@@ -76,11 +96,16 @@ export function useGhostLayer(input: GhostLayerInput): {
   readonly expand: (id: string | null) => void;
   /** The pointer rests over bundle `id` (null: none): it expands once the pointer has settled on it (#206). */
   readonly hover: (id: string | null) => void;
+  /** Highlights the arrows of these screens and dims the rest (#206): the screen being worked on. */
+  readonly highlight: (screens: readonly string[]) => void;
   /** Re-routes the arrows of screens shown at a dragged place, before the drop saves it (STU-045). */
   readonly follow: (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => void;
 } {
   const { appId, pluginId, appLock, canEdit, surface, screens, own, heights, appScreens, nativeRoutes } = input;
   const device = input.device ?? DEVICE;
+  const ghosts = input.ghostStyle ?? ghostStyle;
+  // A new style comes with a new surface (the page makes one per theme), which builds its arrows anew.
+  const arrows = input.arrowStyle ?? arrowStyle;
   const m = pluginCanvasMessages(useLingui().i18n);
   const { session } = useApp();
   const queryClient = useQueryClient();
@@ -141,31 +166,28 @@ export function useGhostLayer(input: GhostLayerInput): {
   }, [surface, listed.data, placed]);
 
   const drawn = useRef<Drawn | null>(null);
+  /** The screens whose arrows are highlighted, kept for a redraw onto a new surface or graph. */
+  const lit = useRef<readonly string[]>([]);
   useEffect(() => {
     const target = surface();
     if (target === null || target.patch === undefined || heights.size === 0) {
       return;
     }
     if (drawn.current?.surface !== target) {
-      const router = new ArrowRouter([], []);
-      const arrows = new ArrowCanvas(router, arrowStyle, target.viewport.zoom);
+      const router = new ArrowRouter([], [], ARROW_ROUTING);
+      const canvas = new ArrowCanvas(router, arrows, target.viewport.zoom);
       drawn.current?.motion.dispose();
       drawn.current = {
         surface: target,
         ghosts: new SceneSync(),
         router,
-        arrows,
-        motion: new ArrowMotion(arrows, (ops) => target.patch?.(ops)),
+        arrows: canvas,
+        motion: new ArrowMotion(canvas, (ops) => target.patch?.(ops)),
       };
     }
     const d = drawn.current;
     const items: ItemSpec[] = placed.flatMap((g) =>
-      ghostItems(
-        g,
-        ghostStyle,
-        { links: m.ghostLinks },
-        g.screenId === undefined ? undefined : imageKeys.get(g.screenId),
-      ),
+      ghostItems(g, ghosts, { links: m.ghostLinks }, g.screenId === undefined ? undefined : imageKeys.get(g.screenId)),
     );
     const boxes: ArrowBox[] = [
       ...screens.map((s) => ({
@@ -178,8 +200,9 @@ export function useGhostLayer(input: GhostLayerInput): {
       ...placed,
     ];
     d.router.setGraph(boxes, deriveBundles(graph.edges));
+    d.arrows.setHighlight(lit.current);
     target.patch([...d.ghosts.sync(items), ...d.arrows.render(d.motion.now())]);
-  }, [surface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device]);
+  }, [surface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device, ghosts, arrows]);
 
   const known = useRef(new Map<string, string>());
   useEffect(() => {
@@ -218,9 +241,13 @@ export function useGhostLayer(input: GhostLayerInput): {
   const pick = useCallback((hits: readonly string[]) => drawn.current?.arrows.pick(hits), []);
   const expand = useCallback((id: string | null) => drawn.current?.motion.expand(id), []);
   const hover = useCallback((id: string | null) => drawn.current?.motion.hover(id), []);
+  const highlight = useCallback((screens: readonly string[]) => {
+    lit.current = screens;
+    drawn.current?.motion.highlight(screens);
+  }, []);
   const follow = useCallback(
     (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => drawn.current?.motion.follow(moved),
     [],
   );
-  return { graph, placed, zoomed, pick, expand, hover, follow };
+  return { graph, placed, zoomed, pick, expand, hover, highlight, follow };
 }

@@ -8,6 +8,7 @@
  */
 
 import type { ArrowBox, ColorRgba, ItemSpec, NavigateEdge, SceneOp } from "@plux/canvas";
+import type { AppSceneStyle } from "../app-canvas/app-canvas.scene.ts";
 import { documentJson, firstText, type Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
 import { DEVICE } from "./scene.ts";
@@ -192,6 +193,21 @@ export interface GhostStyle {
   readonly pulse: ColorRgba;
 }
 
+/**
+ * The ghosts' colours from the theme's scene style (#224): a screen of another plugin on the card colour and a native
+ * route on the native tint, both in the dashed primary outline native targets have on the app canvas, so a target
+ * reads the same on both canvases and stands off the canvas surface.
+ */
+export function ghostStyleOf(style: AppSceneStyle): GhostStyle {
+  return {
+    stroke: style.nativeStroke,
+    fill: style.fill,
+    nativeFill: style.nativeFill,
+    text: style.title,
+    pulse: style.tile,
+  };
+}
+
 /** Dash and gap of the dashed frame, in world units. */
 const DASH = 10;
 const GAP = 7;
@@ -255,7 +271,9 @@ export function ghostItems(
         id: `${ghostItem(ghost.id)}/d${i}`,
         from: s.from,
         to: s.to,
-        stroke: { color: style.stroke, width: 1.5 },
+        // A least on-screen width keeps the box in sight when zoomed out, where its arrows would seem to end in
+        // empty space (#224).
+        stroke: { color: style.stroke, width: 1.5, minScreenWidth: 1.25 },
         z: Z + 1,
       }),
     ),

@@ -551,9 +551,9 @@ describe("[STU-044] [STU-046] [STU-048] lanes, picking and level of detail", () 
     expect(focused?.z).toBe(10);
   });
 
-  test("low zoom: straight lines, no labels, lanes merged; moves patch only re-routed bundles", () => {
-    expect(arrowLodForZoom(ARROW_DETAIL_BELOW - 0.01)).toEqual({ straight: true, labels: false, lanes: false });
-    expect(arrowLodForZoom(1)).toEqual({ straight: false, labels: true, lanes: true });
+  test("low zoom: routed curves kept, no labels, lanes merged; moves patch only re-routed bundles", () => {
+    expect(arrowLodForZoom(ARROW_DETAIL_BELOW - 0.01)).toEqual({ labels: false, lanes: false });
+    expect(arrowLodForZoom(1)).toEqual({ labels: true, lanes: true });
     const router = new ArrowRouter(boxes, bundles);
     const arrows = new ArrowCanvas(router);
     const index = new HitIndex();
@@ -561,7 +561,7 @@ describe("[STU-044] [STU-046] [STU-048] lanes, picking and level of detail", () 
     expect(arrows.setZoom(1)).toEqual([]);
     index.apply(arrows.setZoom(0.3));
     const line = index.spec("arrow:a→b:s0");
-    expect(line?.kind === "link" && line.c1).toBeUndefined();
+    expect(line?.kind === "link" && line.c1).toBeDefined();
     expect(index.spec("arrow:a→b:badge")).toBeUndefined();
     index.apply(arrows.setFocus("a→b", 0));
     index.apply(arrows.frame(EXPAND_MS));
@@ -569,12 +569,11 @@ describe("[STU-044] [STU-046] [STU-048] lanes, picking and level of detail", () 
     const ops = arrows.moveBox("b", 520, 10);
     expect(ops.every((op) => op.op !== "replace" || op.item.id.startsWith("arrow:a→b:"))).toBe(true);
     expect(arrows.moveBox("missing", 0, 0)).toEqual([]);
+    // One item per route, whatever its pieces (#206).
     expect(arrows.itemsAt("b")).toEqual([
       "arrow:a→b:s0",
       "arrow:a→b:h0",
       "arrow:a→b:h1",
-      "arrow:a→b:s1",
-      "arrow:a→b:s2",
       "arrow:a→b:badge",
       "arrow:a→b:count",
     ]);

@@ -88,6 +88,11 @@ export class ArrowMotion {
     this.send([...moved].flatMap(([id, at]) => this.arrows.moveBox(id, at.x, at.y, t)));
   }
 
+  /** Highlights the arrows of `boxes` and dims the rest (#206); an empty list lights none. */
+  highlight(boxes: readonly string[]): void {
+    this.send(this.arrows.setHighlight(boxes, this.now()));
+  }
+
   /** Redraws the arrows for the zoom (level of detail, STU-048). */
   zoom(zoom: number): void {
     this.send(this.arrows.setZoom(zoom, this.now()));

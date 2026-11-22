@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Hover intent for the canvases' arrows (#206, STU-044). A pointer sweeping across a canvas crosses many arrows; if
- * each one lit up the moment it was touched, the canvas would flicker between them. An arrow is therefore shown as
- * hovered only after the pointer has rested on it for `enterMs`, and stays shown for `leaveMs` after the pointer
- * leaves, so a short gap between a lane and its title does not drop it. A click or keyboard focus (`now`) acts at once.
+ * Hover intent for the canvases' arrows and boxes (#206, STU-044). A pointer sweeping across a canvas crosses many
+ * arrows; if each one lit up the moment it was touched, the canvas would flicker between them. An arrow (or a box's
+ * arrows) is therefore shown as hovered only after the pointer has rested on it for `enterMs`, and stays shown for
+ * `leaveMs` after the pointer leaves, so a short gap between a lane and its title does not drop it. A click or
+ * keyboard focus (`now`) acts at once.
  */
 
 /** How long the pointer rests on an arrow before it lights up. */

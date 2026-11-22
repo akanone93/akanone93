@@ -12,12 +12,14 @@
  * side pair whose anchors are closest (with hysteresis), keeps the anchors that
  * share a side apart in an order that keeps parallel bundles from crossing, and draws
  * cubic Béziers that leave and enter perpendicular to their sides, detouring
- * around other boxes through at most two waypoints. A drag re-routes only the
+ * around other boxes through at most two waypoints, or else through the gaps
+ * between them with rounded corners (`gutters.ts`). A drag re-routes only the
  * bundles it can affect (`moveBox`); the result equals a full re-route with
  * the same side history.
  */
 
 import type { Rect } from "./geometry.ts";
+import { gutterRoute, type Heading, roundedPath } from "./gutters.ts";
 import type { Point } from "./protocol.ts";
 
 /** One navigate action of the reference graph (STU-040). */
@@ -73,6 +75,11 @@ export interface Route {
   readonly clear: boolean;
   /** Bounds of every candidate tried: a moved box outside it cannot change the route. */
   readonly envelope: Rect;
+  /**
+   * The piece the count badge and the lane titles sit on: the longest straight run of a path through the gaps; the
+   * middle piece when absent.
+   */
+  readonly middle?: number;
 }
 
 /** Router tuning, in world units. */
@@ -87,6 +94,16 @@ export interface RouterOptions {
   readonly cornerInset?: number;
   /** Anchors sharing a side keep at least this distance apart. */
   readonly anchorGap?: number;
+  /**
+   * Room kept clear above every box other than an arrow's own two, for what is drawn over it: the plugin canvas's
+   * screen titles (#206). Arrows still attach to the box itself.
+   */
+  readonly headroom?: number;
+  /**
+   * Paths meeting more boxes than this cross a field of boxes and are drawn as they are (`MAX_THROUGH_GAPS` when
+   * absent); a canvas with few, large boxes, such as a plugin's screens, routes them all through the gaps.
+   */
+  readonly maxThroughGaps?: number;
 }
 
 /** The id of the bundle from box `source` to box `target`. */
@@ -158,8 +175,18 @@ const MIN_BEND = 24;
 const MAX_BEND = 240;
 /** Flattening step for collision checks. */
 const STEP = 24;
-/** Paths meeting more boxes than this are not detoured. */
+/** Paths meeting more boxes than this are not detoured through waypoints; they go through the gaps (#206). */
 const MAX_DETOURED = 2;
+/**
+ * Paths meeting more boxes than this cross a field of boxes (a dense, tangled graph): they are drawn as they are, as
+ * no path through the gaps would read better there, and searching one for every such bundle costs more than a drop
+ * may take (ADR-0013 M-13, `make studio-bench-canvas`).
+ */
+export const MAX_THROUGH_GAPS = 6;
+/** A turn of a path through the gaps costs this many clearances of length: fewer turns read better. */
+const BEND_CLEARANCES = 6;
+/** Corners of a path through the gaps are rounded to this many clearances at most. */
+const RADIUS_CLEARANCES = 2.5;
 
 interface MBox {
   id: string;
@@ -184,6 +211,23 @@ interface BundleState {
    */
   probes: number[][];
   probeBounds: Rect | undefined;
+  /** The area searched for a path through the gaps: a box moved into or out of it can change the route. */
+  area: Rect | undefined;
+  /**
+   * The blocked candidates tried before that search, with what they were tried for. They stay valid until a box
+   * moves onto or off one of them (`collectMet` drops them then), so a box moved only somewhere in `area` reruns
+   * just the search, not the candidates (#206: a drop re-routes every bundle whose area it touches).
+   */
+  blocked: Blocked | undefined;
+}
+
+interface Blocked {
+  readonly p0: Point;
+  readonly p3: Point;
+  readonly sa: Side;
+  readonly sb: Side;
+  readonly tried: readonly Attempt[];
+  readonly envelope: Rect;
 }
 
 interface Member {
@@ -485,6 +529,8 @@ export class ArrowRouter {
   private readonly hysteresisMin: number;
   private readonly cornerInset: number;
   private readonly anchorGap: number;
+  private readonly headroom: number;
+  private readonly maxThroughGaps: number;
   private readonly boxes = new Map<string, MBox>();
   private readonly grid = new Map<number, MBox[]>();
   private readonly states = new Map<string, BundleState>();
@@ -500,6 +546,8 @@ export class ArrowRouter {
     this.hysteresisMin = options.hysteresisMin ?? 12;
     this.cornerInset = options.cornerInset ?? 12;
     this.anchorGap = options.anchorGap ?? 20;
+    this.headroom = options.headroom ?? 0;
+    this.maxThroughGaps = options.maxThroughGaps ?? MAX_THROUGH_GAPS;
     this.setGraph(boxes, bundles);
   }
 
@@ -547,6 +595,8 @@ export class ArrowRouter {
         paths: [],
         probes: [],
         probeBounds: undefined,
+        area: undefined,
+        blocked: undefined,
       };
       this.states.set(bundle.id, state);
       keep.add(bundle.id);
@@ -608,6 +658,12 @@ export class ArrowRouter {
     }
     const dirty = new Set<BundleState>();
     const met = new Set(drag.pending);
+    // During the drag its own bundles skipped the search through the gaps (it is too slow for every frame).
+    for (const state of this.byBox.get(drag.id) ?? []) {
+      if (state.route?.clear === false) {
+        met.add(state);
+      }
+    }
     this.collectMet(met, drag.start, this.inflated(box), new Set(this.byBox.get(drag.id)));
     this.reselect(met, dirty);
     return this.recurve(dirty);
@@ -683,26 +739,30 @@ export class ArrowRouter {
 
   private inflated(box: MBox): Rect {
     const c = this.clearance;
-    return { l: box.x - c, t: box.y - c, r: box.x + box.w + c, b: box.y + box.h + c };
+    return { l: box.x - c, t: box.y - c - this.headroom, r: box.x + box.w + c, b: box.y + box.h + c };
   }
 
-  /** Adds the bundles (other than `skip`) whose tried candidates meet `a` or `b`. */
+  /**
+   * Adds the bundles (other than `skip`) that a box moved from `a` to `b` can change: those whose tried candidates
+   * or probes meet either place, whose kept blocked candidates are dropped, and those whose search area does.
+   */
   private collectMet(dirty: Set<BundleState>, a: Rect, b: Rect, skip: ReadonlySet<BundleState>): void {
     for (const state of this.states.values()) {
       const env = state.route?.envelope;
-      if (
-        env &&
-        !skip.has(state) &&
-        !dirty.has(state) &&
-        (this.affects(state, env, a) || this.affects(state, env, b))
-      ) {
+      if (env === undefined || skip.has(state)) {
+        continue;
+      }
+      if (this.meetsCandidates(state, env, a) || this.meetsCandidates(state, env, b)) {
+        state.blocked = undefined;
+        dirty.add(state);
+      } else if (state.area !== undefined && (overlaps(state.area, a) || overlaps(state.area, b))) {
         dirty.add(state);
       }
     }
   }
 
-  /** Whether a box moved to or from `rect` can change `state`: it crosses a candidate or a probe. */
-  private affects(state: BundleState, env: Rect, rect: Rect): boolean {
+  /** Whether a box moved to or from `rect` crosses a candidate or a probe of `state`. */
+  private meetsCandidates(state: BundleState, env: Rect, rect: Rect): boolean {
     return (
       meets(state.paths, env, rect) || (state.probeBounds !== undefined && meets(state.probes, state.probeBounds, rect))
     );
@@ -926,7 +986,11 @@ export class ArrowRouter {
     );
   }
 
-  /** Builds the curve of one bundle, detouring around other boxes (STU-043). */
+  /**
+   * Builds the curve of one bundle, detouring around other boxes (STU-043): the direct curve, else one through one
+   * or two waypoints beside the boxes in its way, else — except during a drag, whose drop catches up — a path
+   * through the gaps between the boxes.
+   */
   private curve(state: BundleState): void {
     const { bundle } = state;
     const a = this.boxes.get(bundle.source) as MBox;
@@ -935,10 +999,10 @@ export class ArrowRouter {
     const p3 = sidePoint(b, state.sb, state.fb);
     const n0 = sideNormal(state.sa);
     const n3 = sideNormal(state.sb);
-    const envelope: Rect = { l: p0.x, t: p0.y, r: p0.x, b: p0.y };
-    const tried: Attempt[] = [];
-    const attempt = (waypoints: readonly Point[]): Attempt => {
-      const segments = pathThrough(p0, n0, waypoints, p3, n3);
+    const kept = this.kept(state, p0, p3);
+    const envelope: Rect = kept ? { ...kept.envelope } : { l: p0.x, t: p0.y, r: p0.x, b: p0.y };
+    const tried: Attempt[] = kept ? [...kept.tried] : [];
+    const check = (segments: Cubic[]): Attempt => {
       for (const s of segments) {
         controlBounds(s, envelope);
       }
@@ -949,10 +1013,17 @@ export class ArrowRouter {
       tried.push(result);
       return result;
     };
-    const first = attempt([]);
-    const blocked = first.hit.boxes.length;
-    // A path through a field of boxes cannot be fixed with two waypoints: drawn as is.
-    const found = blocked === 0 ? first : blocked <= MAX_DETOURED ? this.detour(first, p0, p3, attempt) : undefined;
+    const attempt = (waypoints: readonly Point[]): Attempt => check(pathThrough(p0, n0, waypoints, p3, n3));
+    state.area = undefined;
+    state.blocked = undefined;
+    let found = kept ? undefined : this.direct(p0, p3, attempt);
+    let middle: number | undefined;
+    if (found === undefined) {
+      state.blocked = { p0, p3, sa: state.sa, sb: state.sb, tried: [...tried], envelope: { ...envelope } };
+      const gap = this.throughGaps(state, a, b, p0, p3, envelope, tried);
+      found = gap?.attempt;
+      middle = gap?.middle;
+    }
     // No clear candidate: the one meeting the fewest boxes, earliest first.
     const pick = found ?? tried.reduce((x, y) => (y.hit.boxes.length < x.hit.boxes.length ? y : x));
     state.paths = tried.map((t) => t.hit.points);
@@ -963,7 +1034,133 @@ export class ArrowRouter {
       segments: pick.segments,
       clear: found !== undefined,
       envelope,
+      ...(middle === undefined ? {} : { middle }),
     };
+  }
+
+  /**
+   * A path from anchor `p0` to anchor `p3` through the gaps between the boxes near `a` and `b` (#206), searched in
+   * the area around them and then, when that holds none, in a wider one; the area searched is kept on `state`. The
+   * path is clear by construction — it keeps two clearances from every box and its rounded corners cut in by less
+   * than one — so it is not checked again; its polyline, which the curve never leaves by more than that, stands for
+   * it in `paths` and `envelope`.
+   */
+  private gutter(
+    state: BundleState,
+    a: MBox,
+    b: MBox,
+    p0: Point,
+    p3: Point,
+    envelope: Rect,
+  ): { attempt: Attempt; middle: number } | undefined {
+    const lead = this.clearance * 2;
+    const n0 = sideNormal(state.sa);
+    const n3 = sideNormal(state.sb);
+    const from = add(p0, n0.x * lead, n0.y * lead);
+    const to = add(p3, n3.x * lead, n3.y * lead);
+    const around: Rect = {
+      l: Math.min(a.x, b.x) - lead,
+      t: Math.min(a.y, b.y) - lead,
+      r: Math.max(a.x + a.w, b.x + b.w) + lead,
+      b: Math.max(a.y + a.h, b.y + b.h) + lead,
+    };
+    const span = Math.max(a.w, a.h, b.w, b.h);
+    for (const pad of [lead * 4 + this.headroom, lead * 4 + this.headroom + span * 2]) {
+      const area = { l: around.l - pad, t: around.t - pad, r: around.r + pad, b: around.b + pad };
+      state.area = area;
+      // Boxes just outside the area count too: a path along its edge keeps its distance from them.
+      const near = { l: area.l - lead, t: area.t - lead, r: area.r + lead, b: area.b + lead };
+      const points = gutterRoute({
+        from,
+        fromHeading: state.sa,
+        to,
+        toHeading: ((state.sb + 2) % 4) as Heading,
+        obstacles: this.boxesIn(near).map((box) => ({
+          l: box.x - lead,
+          // An arrow's own boxes keep no headroom: it may leave or enter at their tops.
+          t: box.y - lead - (box === a || box === b ? 0 : this.headroom),
+          r: box.x + box.w + lead,
+          b: box.y + box.h + lead,
+        })),
+        area,
+        bend: this.clearance * BEND_CLEARANCES,
+      });
+      if (points !== undefined) {
+        const polyline = [p0, ...points, p3];
+        const flat: number[] = [];
+        for (const p of polyline) {
+          flat.push(p.x, p.y);
+          envelope.l = Math.min(envelope.l, p.x);
+          envelope.t = Math.min(envelope.t, p.y);
+          envelope.r = Math.max(envelope.r, p.x);
+          envelope.b = Math.max(envelope.b, p.y);
+        }
+        const path = roundedPath(polyline, this.clearance * RADIUS_CLEARANCES);
+        return {
+          attempt: { segments: path.segments, hit: { boxes: [], segment: -1, points: flat } },
+          middle: path.middle,
+        };
+      }
+    }
+    return undefined;
+  }
+
+  /** The boxes overlapping `area`, in no particular order (the search does not depend on it). */
+  private boxesIn(area: Rect): MBox[] {
+    const found = new Set<MBox>();
+    for (let ix = Math.floor(area.l / GRID); ix <= Math.floor(area.r / GRID); ix++) {
+      for (let iy = Math.floor(area.t / GRID); iy <= Math.floor(area.b / GRID); iy++) {
+        for (const box of this.grid.get(cellKey(ix, iy)) ?? []) {
+          if (box.x < area.r && box.x + box.w > area.l && box.y - this.headroom < area.b && box.y + box.h > area.t) {
+            found.add(box);
+          }
+        }
+      }
+    }
+    return [...found];
+  }
+
+  /** The blocked candidates kept for `state`, when they were tried between the same anchors and sides. */
+  private kept(state: BundleState, p0: Point, p3: Point): Blocked | undefined {
+    const kept = state.blocked;
+    return kept !== undefined &&
+      kept.sa === state.sa &&
+      kept.sb === state.sb &&
+      samePoint(kept.p0, p0) &&
+      samePoint(kept.p3, p3)
+      ? kept
+      : undefined;
+  }
+
+  /** The direct curve when it is clear, else one through one or two waypoints round the boxes in its way. */
+  private direct(p0: Point, p3: Point, attempt: (waypoints: readonly Point[]) => Attempt): Attempt | undefined {
+    const first = attempt([]);
+    const blocked = first.hit.boxes.length;
+    return blocked === 0 ? first : blocked <= MAX_DETOURED ? this.detour(first, p0, p3, attempt) : undefined;
+  }
+
+  /**
+   * The path through the gaps (#206) for a bundle whose candidates in `tried` are all blocked — except during a drag,
+   * whose drop catches up, and for a path across a field of boxes; added to `tried` when found.
+   */
+  private throughGaps(
+    state: BundleState,
+    a: MBox,
+    b: MBox,
+    p0: Point,
+    p3: Point,
+    envelope: Rect,
+    tried: Attempt[],
+  ): { attempt: Attempt; middle: number } | undefined {
+    const met = tried[0]?.hit.boxes.length ?? 0;
+    if (this.drag !== undefined || met > this.maxThroughGaps) {
+      return undefined;
+    }
+    const gap = this.gutter(state, a, b, p0, p3, envelope);
+    if (gap !== undefined) {
+      tried.push(gap.attempt);
+    }
+    return gap;
   }
 
   /** Whether a flattened path enters the inside of one of its end boxes, a little in from their edges. */
@@ -1084,7 +1281,16 @@ export class ArrowRouter {
         for (const box of this.grid.get(cellKey(ix, iy)) ?? []) {
           if (
             !(skip.includes(box) || found.includes(box) || step.includes(box)) &&
-            segmentHits(prev.x, prev.y, p.x, p.y, box.x - c, box.y - c, box.x + box.w + c, box.y + box.h + c)
+            segmentHits(
+              prev.x,
+              prev.y,
+              p.x,
+              p.y,
+              box.x - c,
+              box.y - c - this.headroom,
+              box.x + box.w + c,
+              box.y + box.h + c,
+            )
           ) {
             step.push(box);
           }
@@ -1098,7 +1304,11 @@ export class ArrowRouter {
     const out: number[] = [];
     const c = this.clearance;
     for (let ix = Math.floor((box.x - c) / GRID); ix <= Math.floor((box.x + box.w + c) / GRID); ix++) {
-      for (let iy = Math.floor((box.y - c) / GRID); iy <= Math.floor((box.y + box.h + c) / GRID); iy++) {
+      for (
+        let iy = Math.floor((box.y - c - this.headroom) / GRID);
+        iy <= Math.floor((box.y + box.h + c) / GRID);
+        iy++
+      ) {
         out.push(cellKey(ix, iy));
       }
     }
@@ -1124,6 +1334,10 @@ export class ArrowRouter {
       }
     }
   }
+}
+
+function samePoint(p: Point, q: Point): boolean {
+  return p.x === q.x && p.y === q.y;
 }
 
 /** Whether a candidate tried for `state` meets `rect`: only then can a box there change its route. */
