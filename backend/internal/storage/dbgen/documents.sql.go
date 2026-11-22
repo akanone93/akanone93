@@ -774,6 +774,82 @@ func (q *Queries) ListAllPlugins(ctx context.Context, appID pgtype.UUID) ([]Plug
 	return items, nil
 }
 
+const listAppDocuments = `-- name: ListAppDocuments :many
+SELECT d.id, d.organization_id, d.draft_id, d.path, d.kind, d.entity_id, d.entity_key, d.sha256, d.revision, d.updated_by_kind, d.updated_by_id, d.updated_by, d.updated_at, d.deleted_at, d.search_text, dr.plugin_id FROM documents d
+  JOIN drafts dr ON dr.id = d.draft_id
+  LEFT JOIN plugins p ON p.id = dr.plugin_id
+ WHERE dr.app_id = $1 AND d.deleted_at IS NULL
+   AND (dr.plugin_id IS NULL OR p.deleted_at IS NULL)
+   AND d.path > $2::text
+ ORDER BY d.path
+ LIMIT $3
+`
+
+type ListAppDocumentsParams struct {
+	AppID     pgtype.UUID
+	AfterPath string
+	PageSize  int32
+}
+
+type ListAppDocumentsRow struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	DraftID        pgtype.UUID
+	Path           string
+	Kind           string
+	EntityID       pgtype.UUID
+	EntityKey      string
+	Sha256         []byte
+	Revision       int64
+	UpdatedByKind  string
+	UpdatedByID    string
+	UpdatedBy      string
+	UpdatedAt      pgtype.Timestamptz
+	DeletedAt      pgtype.Timestamptz
+	SearchText     string
+	PluginID       pgtype.UUID
+}
+
+// The whole project of an app, a page at a time: its own documents and those
+// of its plugins that are not deleted, in path order (paths are unique in an
+// app, plugin documents being under plugins/<key>/).
+func (q *Queries) ListAppDocuments(ctx context.Context, arg ListAppDocumentsParams) ([]ListAppDocumentsRow, error) {
+	rows, err := q.db.Query(ctx, listAppDocuments, arg.AppID, arg.AfterPath, arg.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAppDocumentsRow{}
+	for rows.Next() {
+		var i ListAppDocumentsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.DraftID,
+			&i.Path,
+			&i.Kind,
+			&i.EntityID,
+			&i.EntityKey,
+			&i.Sha256,
+			&i.Revision,
+			&i.UpdatedByKind,
+			&i.UpdatedByID,
+			&i.UpdatedBy,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.SearchText,
+			&i.PluginID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listDocuments = `-- name: ListDocuments :many
 SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text FROM documents
  WHERE draft_id = $1 AND deleted_at IS NULL AND path > $2::text

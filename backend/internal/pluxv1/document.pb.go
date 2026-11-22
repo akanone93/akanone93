@@ -363,8 +363,13 @@ type ListDocumentsRequest struct {
 	Page     *Page                  `protobuf:"bytes,3,opt,name=page,proto3" json:"page,omitempty"`
 	// content_included returns the bytes as well as the metadata.
 	ContentIncluded bool `protobuf:"varint,4,opt,name=content_included,json=contentIncluded,proto3" json:"content_included,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// all_plugins lists the whole project in one listing: the app's own
+	// documents and those of every plugin, in path order (plugin documents
+	// under plugins/<key>/), so a client need not ask once per plugin.
+	// plugin_id must be empty.
+	AllPlugins    bool `protobuf:"varint,5,opt,name=all_plugins,json=allPlugins,proto3" json:"all_plugins,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListDocumentsRequest) Reset() {
@@ -421,6 +426,13 @@ func (x *ListDocumentsRequest) GetPage() *Page {
 func (x *ListDocumentsRequest) GetContentIncluded() bool {
 	if x != nil {
 		return x.ContentIncluded
+	}
+	return false
+}
+
+func (x *ListDocumentsRequest) GetAllPlugins() bool {
+	if x != nil {
+		return x.AllPlugins
 	}
 	return false
 }
@@ -2445,12 +2457,14 @@ const file_plux_v1_document_proto_rawDesc = "" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x12\n" +
 	"\x04path\x18\x03 \x01(\tR\x04path\"D\n" +
 	"\x13GetDocumentResponse\x12-\n" +
-	"\bdocument\x18\x01 \x01(\v2\x11.plux.v1.DocumentR\bdocument\"\x98\x01\n" +
+	"\bdocument\x18\x01 \x01(\v2\x11.plux.v1.DocumentR\bdocument\"\xb9\x01\n" +
 	"\x14ListDocumentsRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12!\n" +
 	"\x04page\x18\x03 \x01(\v2\r.plux.v1.PageR\x04page\x12)\n" +
-	"\x10content_included\x18\x04 \x01(\bR\x0fcontentIncluded\"q\n" +
+	"\x10content_included\x18\x04 \x01(\bR\x0fcontentIncluded\x12\x1f\n" +
+	"\vall_plugins\x18\x05 \x01(\bR\n" +
+	"allPlugins\"q\n" +
 	"\x15ListDocumentsResponse\x12/\n" +
 	"\tdocuments\x18\x01 \x03(\v2\x11.plux.v1.DocumentR\tdocuments\x12'\n" +
 	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xf6\x01\n" +

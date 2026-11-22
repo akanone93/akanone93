@@ -256,6 +256,33 @@ func TestRevisionsAndPatches(t *testing.T) {
 	if err != nil || len(docs) != 2 || docs[0].Path != path || len(docs[1].Content) == 0 {
 		t.Errorf("list: %+v %v", docs, err)
 	}
+	// The whole project in one listing: the app's documents and the plugin's, in path order, a page at a time, each
+	// with its plugin (#195).
+	own, _ := f.docs.ListDocuments(ctx, f.viewer, f.app, "", "", 1000, false)
+	var want []string
+	for _, d := range append(own, docs...) {
+		want = append(want, d.Path)
+	}
+	slices.Sort(want)
+	var got []string
+	after := ""
+	for {
+		page, err := f.docs.ListAppDocuments(ctx, f.viewer, f.app, after, 1, true)
+		if err != nil {
+			t.Fatalf("the project listing: %v", err)
+		}
+		if len(page) == 0 {
+			break
+		}
+		d := page[0]
+		if len(d.Content) == 0 || (strings.HasPrefix(d.Path, "plugins/") != (d.PluginID == plugin)) {
+			t.Errorf("listed %+v", d)
+		}
+		got, after = append(got, d.Path), d.Path
+	}
+	if !slices.Equal(got, want) {
+		t.Errorf("the project listing = %v, want %v", got, want)
+	}
 	if _, err := f.docs.PutDocument(ctx, f.viewer, f.app, plugin, session, path, pageJSON("home", "x"), 3); code(err) != plxerr.PermissionDenied {
 		t.Errorf("a viewer wrote: %v", err)
 	}

@@ -147,6 +147,19 @@ SELECT * FROM documents
 -- name: ListAllDocuments :many
 SELECT * FROM documents WHERE draft_id = $1 AND deleted_at IS NULL ORDER BY path;
 
+-- name: ListAppDocuments :many
+-- The whole project of an app, a page at a time: its own documents and those
+-- of its plugins that are not deleted, in path order (paths are unique in an
+-- app, plugin documents being under plugins/<key>/).
+SELECT d.*, dr.plugin_id FROM documents d
+  JOIN drafts dr ON dr.id = d.draft_id
+  LEFT JOIN plugins p ON p.id = dr.plugin_id
+ WHERE dr.app_id = $1 AND d.deleted_at IS NULL
+   AND (dr.plugin_id IS NULL OR p.deleted_at IS NULL)
+   AND d.path > sqlc.arg(after_path)::text
+ ORDER BY d.path
+ LIMIT sqlc.arg(page_size);
+
 -- name: ListDocumentsOfKind :many
 SELECT d.*, dr.plugin_id FROM documents d
   JOIN drafts dr ON dr.id = d.draft_id

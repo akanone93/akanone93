@@ -118,7 +118,8 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
     expect(screen.getByLabelText("1 error")).toBeTruthy();
     expect(screen.getByLabelText("1 warning")).toBeTruthy();
     expect(screen.getByLabelText("plugins/pl/pages/home.page.json")).toBeTruthy();
-    expect(loaded).toEqual(["plugins/pl/plugin.json", "plugins/pl/pages/home.page.json"]);
+    // The whole project in one listing, in the server's path order (#195).
+    expect(loaded).toEqual(["plugins/pl/pages/home.page.json", "plugins/pl/plugin.json"]);
   });
 
   test("the bar's Problems chip counts errors and warnings, as the action bar does; a note alone does not raise it", async () => {

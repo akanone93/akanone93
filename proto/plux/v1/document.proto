@@ -109,6 +109,11 @@ message ListDocumentsRequest {
   Page page = 3;
   // content_included returns the bytes as well as the metadata.
   bool content_included = 4;
+  // all_plugins lists the whole project in one listing: the app's own
+  // documents and those of every plugin, in path order (plugin documents
+  // under plugins/<key>/), so a client need not ask once per plugin.
+  // plugin_id must be empty.
+  bool all_plugins = 5;
 }
 message ListDocumentsResponse {
   repeated Document documents = 1;

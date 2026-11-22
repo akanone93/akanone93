@@ -659,5 +659,46 @@ func (s *Service) ListDocuments(ctx context.Context, p auth.Principal, appID, pl
 	return out, err
 }
 
+// ListAppDocuments returns a page of the whole project of an app: its own
+// documents and those of every plugin that is not deleted, in path order,
+// after afterPath. One listing replaces one per plugin (build log #195). It
+// needs what reading any of the app's drafts needs (plugin.read).
+func (s *Service) ListAppDocuments(ctx context.Context, p auth.Principal, appID, afterPath string, size int32, content bool) ([]Document, error) {
+	var out []Document
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		d, err := s.resolve(ctx, q, p, appID, "")
+		if err != nil {
+			return err
+		}
+		if err := authorize(p, auth.PluginRead, appID); err != nil {
+			return err
+		}
+		rows, err := q.ListAppDocuments(ctx, dbgen.ListAppDocumentsParams{AppID: d.row.AppID, AfterPath: afterPath, PageSize: size})
+		if err != nil {
+			return failure(err, "document")
+		}
+		for _, row := range rows {
+			doc := Document{
+				ID: storage.ID(row.ID), AppID: d.app, Path: row.Path, Kind: row.Kind,
+				SHA256: hexHash(row.Sha256), Revision: row.Revision,
+				UpdatedBy: audit.Actor{Kind: row.UpdatedByKind, ID: row.UpdatedByID, Display: row.UpdatedBy},
+				UpdatedAt: storage.Time(row.UpdatedAt),
+			}
+			if row.PluginID.Valid {
+				doc.PluginID = storage.ID(row.PluginID)
+			}
+			if content {
+				if doc.Content, err = s.blob(ctx, q, d.row.OrganizationID, row.Sha256); err != nil {
+					return err
+				}
+			}
+			out = append(out, doc)
+		}
+		return nil
+	})
+	return out, err
+}
+
 // validator returns the structural validator, built once.
 func (s *Service) validator() *schema.Validator { return s.schemaValidator }

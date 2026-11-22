@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { createClient } from "@connectrpc/connect";
-import { DocumentService, PluginService } from "@plux/api";
+import { DocumentService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useApp } from "../../lib/use-app.tsx";
 
@@ -37,34 +37,21 @@ async function allPages<T>(
 }
 
 /**
- * The whole project with content, as the validator loads it: the app-level documents (app.json)
- * and the documents of every plugin of the app, each listing followed to its last page.
+ * The whole project with content, as the validator loads it: the app-level documents (app.json) and the documents of
+ * every plugin of the app, in one listing followed to its last page. One listing, not one per plugin: an app's 17
+ * plugins took 18 calls on every page that validates, and an app at the plugin limit would take 201 (#195).
  */
 export function useAppDocuments(appId: string) {
   const { session } = useApp();
   return useQuery({
     queryKey: ["project-documents", appId],
     queryFn: async () => {
-      const plugins = createClient(PluginService, session.transport);
       const documents = createClient(DocumentService, session.transport);
-      const ids = (
-        await allPages((pageToken) =>
-          plugins.listPlugins({ appId, page: { pageSize: 100, pageToken } }).then((r) => ({
-            items: r.plugins.map((p) => p.id),
-            next: r.page?.nextPageToken,
-          })),
-        )
-      ).sort();
-      const lists = await Promise.all(
-        ["", ...ids].map((pluginId) =>
-          allPages((pageToken) =>
-            documents
-              .listDocuments({ appId, pluginId, contentIncluded: true, page: { pageSize: 100, pageToken } })
-              .then((r) => ({ items: r.documents, next: r.page?.nextPageToken })),
-          ),
-        ),
+      return allPages((pageToken) =>
+        documents
+          .listDocuments({ appId, allPlugins: true, contentIncluded: true, page: { pageSize: 100, pageToken } })
+          .then((r) => ({ items: r.documents, next: r.page?.nextPageToken })),
       );
-      return lists.flat();
     },
   });
 }

@@ -523,6 +523,39 @@ function refusal(code: string | undefined): void {
   }
 }
 
+type StoredDoc = { kind: string; path: string; json: unknown };
+
+/** The whole project in one listing, in path order, with each document's plugin, as the server lists it (#195). */
+function projectListing(
+  state: UpstreamData,
+  created: ReadonlyMap<string, StoredDoc & { pluginId: string }>,
+  patched: ReadonlyMap<string, StoredDoc>,
+) {
+  const all = new Map<string, StoredDoc & { pluginId: string }>();
+  for (const d of state.appDocuments ?? []) {
+    all.set(d.path, { ...d, pluginId: "" });
+  }
+  for (const [pluginId, list] of Object.entries(state.pluginDocuments ?? { "": state.documents ?? [] })) {
+    for (const d of list) {
+      all.set(d.path, { ...d, pluginId });
+    }
+  }
+  for (const d of created.values()) {
+    all.set(d.path, d);
+  }
+  return [...all.values()]
+    .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
+    .map((d) => {
+      const shown = patched.get(d.path) ?? d;
+      return create(DocumentSchema, {
+        pluginId: d.pluginId,
+        kind: shown.kind,
+        path: shown.path,
+        content: new TextEncoder().encode(JSON.stringify(shown.json)),
+      });
+    });
+}
+
 /** Factors and device sign-ins (SEC-100, CLI-002), over `state.identity`. */
 function identityFactors(state: UpstreamData) {
   const id = () => {
@@ -1130,22 +1163,27 @@ export function createUpstream(state: UpstreamData) {
         };
       },
       // The fixtures as autosave changed them, and the documents created since (a reload sees both, as on the server).
-      listDocuments: (req) => ({
-        documents: [
-          ...(req.pluginId === ""
-            ? (state.appDocuments ?? state.documents ?? [])
-            : (state.pluginDocuments?.[req.pluginId] ?? state.documents ?? [])
-          ).map((d) => patched.get(d.path) ?? d),
-          ...[...created.values()].filter((d) => d.pluginId === req.pluginId).map((d) => patched.get(d.path) ?? d),
-        ].map((d) =>
-          create(DocumentSchema, {
-            pluginId: req.pluginId,
-            kind: d.kind,
-            path: d.path,
-            content: new TextEncoder().encode(JSON.stringify(d.json)),
-          }),
-        ),
-      }),
+      listDocuments: (req) => {
+        if (req.allPlugins) {
+          return { documents: projectListing(state, created, patched) };
+        }
+        return {
+          documents: [
+            ...(req.pluginId === ""
+              ? (state.appDocuments ?? state.documents ?? [])
+              : (state.pluginDocuments?.[req.pluginId] ?? state.documents ?? [])
+            ).map((d) => patched.get(d.path) ?? d),
+            ...[...created.values()].filter((d) => d.pluginId === req.pluginId).map((d) => patched.get(d.path) ?? d),
+          ].map((d) =>
+            create(DocumentSchema, {
+              pluginId: req.pluginId,
+              kind: d.kind,
+              path: d.path,
+              content: new TextEncoder().encode(JSON.stringify(d.json)),
+            }),
+          ),
+        };
+      },
     });
     securityServices(service, state.security ?? {});
     optionalServices(service, state);

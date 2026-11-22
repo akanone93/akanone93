@@ -28356,6 +28356,14 @@ components:
           type: boolean
           title: content_included
           description: content_included returns the bytes as well as the metadata.
+        allPlugins:
+          type: boolean
+          title: all_plugins
+          description: |-
+            all_plugins lists the whole project in one listing: the app's own
+             documents and those of every plugin, in path order (plugin documents
+             under plugins/<key>/), so a client need not ask once per plugin.
+             plugin_id must be empty.
       title: ListDocumentsRequest
       additionalProperties: false
     plux.v1.ListDocumentsResponse:

@@ -66,7 +66,15 @@ func (s Document) ListDocuments(ctx context.Context, req *connect.Request[pluxv1
 		if err != nil {
 			return nil, err
 		}
-		docs, err := s.h.Documents.ListDocuments(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), after.Key, size, req.Msg.GetContentIncluded())
+		var docs []document.Document
+		switch {
+		case req.Msg.GetAllPlugins() && req.Msg.GetPluginId() != "":
+			return nil, plxerr.New(plxerr.InvalidFormat, "all_plugins lists every plugin; leave plugin_id empty")
+		case req.Msg.GetAllPlugins():
+			docs, err = s.h.Documents.ListAppDocuments(ctx, p, req.Msg.GetAppId(), after.Key, size, req.Msg.GetContentIncluded())
+		default:
+			docs, err = s.h.Documents.ListDocuments(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), after.Key, size, req.Msg.GetContentIncluded())
+		}
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
