@@ -70,7 +70,8 @@ Canvas, and you can drive both from the keyboard.
    one blank screen, its entry, whose route is the plugin's key (or `<key>-home` when that is taken).
    Creating, duplicating, deleting and restoring a plugin keeps the app's `plugins` list in
    `app.json` up to date, so the app never reports a plugin folder that is not listed (PLX-1020).
-5. Drag a plugin to move it, or use **Move to…** with X and Y positions. Near another plugin's edge or
+5. Drag a plugin — or a native target — to move it, or use **Move to…** with X and Y positions; a native target keeps
+   its place too. Near another plugin's edge or
    centre it snaps into line, and a guide shows what it lines up with; a plugin you drag stays on
    top of the ones it passes over. Drag on the background to select every plugin the rectangle
    meets. Frame a group with **Frame selection**, then rename or
@@ -92,7 +93,8 @@ Positions are read-only while someone else is editing the app.
 1. Double-click a plugin. The **Plugin canvas** shows its screens arranged by flow on the same
    dotted surface as the app canvas, and zooms, pans and draws the same way; it opens with every screen's frame in view,
    with the boxes of the screens and routes outside the plugin that it links to, at 100 % at most, or at 15 % on the
-   middle of them when there are more than fit. The
+   middle of them when there are more than fit. Each of those boxes carries its name above it, like a screen's title;
+   drag one to put it where it reads best — it keeps that place — or click it to go to that screen. The
    top bar has three parts: on the left the way back to the app canvas and the app over the plugin's
    name; in the centre **New screen**, the current screen (choose another to bring it into view),
    **Screen menu**, **Undo** and **Redo**, **Preview**, **History**, **Pair a device**, **Send to

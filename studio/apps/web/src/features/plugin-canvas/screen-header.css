@@ -216,3 +216,9 @@
     transition: none;
   }
 }
+
+/* The name of a link target's box (#228): a label only, the box under it takes the pointer. */
+.pc-header[data-target] {
+  pointer-events: none;
+  cursor: default;
+}

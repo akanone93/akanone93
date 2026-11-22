@@ -193,15 +193,17 @@ export type AssuranceLevel = "AL0" | "AL1" | "AL2" | "AL3";
 /** A calendar system (I18N-010). */
 export type Calendar = "gregorian" | "ethiopic" | "islamicUmalqura" | "persian";
 
-/** Editor-only layout of the Studio canvas: where plugin boxes and frames sit in an app, or where screens sit in a plugin (STU-032, STU-035, STU-050). It is versioned and snapshotted like any document and is never compiled into a bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin). */
+/** Editor-only layout of the Studio canvas: where plugin boxes, native routes and frames sit in an app, or where screens and the screens and routes they link to sit in a plugin (STU-032, STU-035, STU-050, STU-052). It is versioned and snapshotted like any document and is never compiled into a bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin). */
 export interface CanvasDocument {
   /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
   readonly schemaVersion: string;
   readonly kind: "canvas";
   /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
   readonly id: string;
-  /** The top-left corner of each box: a plugin in an app canvas, a screen (page) in a plugin canvas. The number of entries is bounded by the limit canvas.positions. */
+  /** The top-left corner of each box: a plugin in an app canvas; a screen (page) in a plugin canvas, its own or another plugin's it links to. The number of entries, with routes, is bounded by the limit canvas.positions. */
   readonly positions?: readonly CanvasPosition[];
+  /** The top-left corner of each box of a native route the canvas's plugins or screens navigate to (STU-033, STU-054), by route name: a native route has no document id. The number of entries, with positions, is bounded by the limit canvas.positions. */
+  readonly routes?: readonly CanvasRoutePosition[];
   /** Labelled groups of plugins (STU-035), for example "Onboarding" or "Payments". Only app canvases carry frames. The number of entries is bounded by the limit canvas.frames. */
   readonly frames?: readonly CanvasFrame[];
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
@@ -227,6 +229,17 @@ export interface CanvasFrame {
 export interface CanvasPosition {
   /** The id of the plugin or page the box shows. */
   readonly id: string;
+  /** A coordinate in canvas world units. */
+  readonly x: number;
+  /** A coordinate in canvas world units. */
+  readonly y: number;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+export interface CanvasRoutePosition {
+  /** The native route the box shows. */
+  readonly route: string;
   /** A coordinate in canvas world units. */
   readonly x: number;
   /** A coordinate in canvas world units. */

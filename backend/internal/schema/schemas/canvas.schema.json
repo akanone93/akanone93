@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://plux.dev/schema/v1/canvas.schema.json",
   "title": "Plux canvas document",
-  "description": "Editor-only layout of the Studio canvas: where plugin boxes and frames sit in an app, or where screens sit in a plugin (STU-032, STU-035, STU-050). It is versioned and snapshotted like any document and is never compiled into a bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin).",
+  "description": "Editor-only layout of the Studio canvas: where plugin boxes, native routes and frames sit in an app, or where screens and the screens and routes they link to sit in a plugin (STU-032, STU-035, STU-050, STU-052). It is versioned and snapshotted like any document and is never compiled into a bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin).",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -24,7 +24,7 @@
     },
     "positions": {
       "type": "array",
-      "description": "The top-left corner of each box: a plugin in an app canvas, a screen (page) in a plugin canvas. The number of entries is bounded by the limit canvas.positions.",
+      "description": "The top-left corner of each box: a plugin in an app canvas; a screen (page) in a plugin canvas, its own or another plugin's it links to. The number of entries, with routes, is bounded by the limit canvas.positions.",
       "items": {
         "type": "object",
         "x-plux-type": "CanvasPosition",
@@ -37,6 +37,35 @@
           "id": {
             "$ref": "common.schema.json#/$defs/id",
             "description": "The id of the plugin or page the box shows."
+          },
+          "x": {
+            "$ref": "#/$defs/worldUnit"
+          },
+          "y": {
+            "$ref": "#/$defs/worldUnit"
+          }
+        },
+        "patternProperties": {
+          "^x-": true
+        },
+        "additionalProperties": false
+      }
+    },
+    "routes": {
+      "type": "array",
+      "description": "The top-left corner of each box of a native route the canvas's plugins or screens navigate to (STU-033, STU-054), by route name: a native route has no document id. The number of entries, with positions, is bounded by the limit canvas.positions.",
+      "items": {
+        "type": "object",
+        "x-plux-type": "CanvasRoutePosition",
+        "required": [
+          "route",
+          "x",
+          "y"
+        ],
+        "properties": {
+          "route": {
+            "$ref": "common.schema.json#/$defs/routeName",
+            "description": "The native route the box shows."
           },
           "x": {
             "$ref": "#/$defs/worldUnit"

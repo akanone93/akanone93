@@ -173,11 +173,31 @@ export const GHOST = { w: DEVICE.width / 2, h: DEVICE.height / 2, nativeH: 72, g
 /** A target and the rectangle it occupies on the canvas. */
 export interface PlacedGhost extends GhostTarget, ArrowBox {}
 
-/** Stacks the targets in one column right of the plugin's screens (`right`), starting at `top`. */
-export function placeGhosts(targets: readonly GhostTarget[], right: number, top: number): PlacedGhost[] {
+/**
+ * Where a target's place is saved among the canvas document's positions (#228): another plugin's screen by its page id,
+ * a native route by `native:<route>` (its box id).
+ */
+export function targetKey(t: GhostTarget): string {
+  return t.kind === "screen" && t.screenId !== undefined ? t.screenId : t.id;
+}
+
+/**
+ * The targets at their saved places (#228), the others stacked in one column right of the plugin's screens (`right`),
+ * starting at `top`.
+ */
+export function placeGhosts(
+  targets: readonly GhostTarget[],
+  right: number,
+  top: number,
+  saved?: ReadonlyMap<string, Point>,
+): PlacedGhost[] {
   let y = top;
   return targets.map((t) => {
     const h = t.kind === "screen" ? GHOST.h : GHOST.nativeH;
+    const at = saved?.get(targetKey(t));
+    if (at !== undefined) {
+      return { ...t, x: at.x, y: at.y, w: GHOST.w, h };
+    }
     const placed = { ...t, x: right + GHOST.offset, y, w: GHOST.w, h };
     y += h + GHOST.gap;
     return placed;

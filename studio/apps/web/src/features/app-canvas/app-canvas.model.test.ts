@@ -108,21 +108,22 @@ describe("app canvas model [STU-030] [STU-032]", () => {
     expect(far.x + view.width / 2 / far.z).toBe((10_000 + BOX.width) / 2);
   });
 
-  test("the canvas document round-trips, is written in a stable order and holds only document ids", () => {
+  test("the canvas document round-trips, in a stable order: plugins by document id, native boxes by route", () => {
     const a = "01a0f752-7d75-72a3-9a43-472f6fbc3b6a";
     const b = "01a0f752-7d75-72a3-9a43-472f6fbc3b6b";
-    const saved = readSavedCanvas(
-      canvasDocument("id", {
-        positions: new Map([
-          [b, { x: 1.4, y: 2 }],
-          ["native:camera", { x: 9, y: 9 }],
-          [a, { x: 3, y: 4 }],
-        ]),
-        frames: [{ id: "f", label: "Payments", x: 0, y: 0, width: 300, height: 200 }],
-      }),
-    );
-    // A native box has no document id, which the canvas schema refuses: it is left out, not the whole save.
-    expect([...saved.positions.keys()]).toEqual([a, b]);
+    const doc = canvasDocument("id", {
+      positions: new Map([
+        [b, { x: 1.4, y: 2 }],
+        ["native:camera", { x: 9, y: 9 }],
+        [a, { x: 3, y: 4 }],
+      ]),
+      frames: [{ id: "f", label: "Payments", x: 0, y: 0, width: 300, height: 200 }],
+    }) as { positions: { id: string }[]; routes: unknown[] };
+    // A native box has no document id, which `positions` refuses (SCH-002): its place goes in `routes` (#228).
+    expect(doc.positions.map((p) => p.id)).toEqual([a, b]);
+    expect(doc.routes).toEqual([{ route: "camera", x: 9, y: 9 }]);
+    const saved = readSavedCanvas(doc);
+    expect([...saved.positions.keys()]).toEqual([a, b, "native:camera"]);
     expect(saved.positions.get(b)).toEqual({ x: 1, y: 2 });
     expect(saved.frames[0]?.label).toBe("Payments");
     expect(readSavedCanvas("nonsense").positions.size).toBe(0);

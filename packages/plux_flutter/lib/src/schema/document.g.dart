@@ -554,12 +554,13 @@ enum Calendar {
   String toJson() => json;
 }
 
-/// Editor-only layout of the Studio canvas: where plugin boxes and frames sit
-/// in an app, or where screens sit in a plugin (STU-032, STU-035, STU-050). It
-/// is versioned and snapshotted like any document and is never compiled into a
+/// Editor-only layout of the Studio canvas: where plugin boxes, native routes
+/// and frames sit in an app, or where screens and the screens and routes they
+/// link to sit in a plugin (STU-032, STU-035, STU-050, STU-052). It is
+/// versioned and snapshotted like any document and is never compiled into a
 /// bundle. File: `canvas.json` (app) or `plugins/<key>/canvas.json` (plugin).
 final class CanvasDocument {
-  const CanvasDocument({required this.schemaVersion, required this.kind, required this.id, this.positions, this.frames});
+  const CanvasDocument({required this.schemaVersion, required this.kind, required this.id, this.positions, this.routes, this.frames});
 
   /// Decodes a JSON object.
   factory CanvasDocument.fromJson(Object json) {
@@ -569,6 +570,7 @@ final class CanvasDocument {
       kind: m['kind']! as String,
       id: m['id']! as String,
       positions: m['positions'] == null ? null : [for (final e in m['positions']! as List<Object?>) CanvasPosition.fromJson(e!)],
+      routes: m['routes'] == null ? null : [for (final e in m['routes']! as List<Object?>) CanvasRoutePosition.fromJson(e!)],
       frames: m['frames'] == null ? null : [for (final e in m['frames']! as List<Object?>) CanvasFrame.fromJson(e!)],
     );
   }
@@ -579,10 +581,15 @@ final class CanvasDocument {
   final String kind;
   /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
   final String id;
-  /// The top-left corner of each box: a plugin in an app canvas, a screen
-  /// (page) in a plugin canvas. The number of entries is bounded by the limit
-  /// canvas.positions.
+  /// The top-left corner of each box: a plugin in an app canvas; a screen
+  /// (page) in a plugin canvas, its own or another plugin's it links to. The
+  /// number of entries, with routes, is bounded by the limit canvas.positions.
   final List<CanvasPosition>? positions;
+  /// The top-left corner of each box of a native route the canvas's plugins or
+  /// screens navigate to (STU-033, STU-054), by route name: a native route has
+  /// no document id. The number of entries, with positions, is bounded by the
+  /// limit canvas.positions.
+  final List<CanvasRoutePosition>? routes;
   /// Labelled groups of plugins (STU-035), for example "Onboarding" or
   /// "Payments". Only app canvases carry frames. The number of entries is
   /// bounded by the limit canvas.frames.
@@ -594,6 +601,7 @@ final class CanvasDocument {
         'kind': kind,
         'id': id,
         if (positions != null) 'positions': [for (final e in positions!) e.toJson()],
+        if (routes != null) 'routes': [for (final e in routes!) e.toJson()],
         if (frames != null) 'frames': [for (final e in frames!) e.toJson()],
       };
 }
@@ -663,6 +671,34 @@ final class CanvasPosition {
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
         'id': id,
+        'x': x,
+        'y': y,
+      };
+}
+
+final class CanvasRoutePosition {
+  const CanvasRoutePosition({required this.route, required this.x, required this.y});
+
+  /// Decodes a JSON object.
+  factory CanvasRoutePosition.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return CanvasRoutePosition(
+      route: m['route']! as String,
+      x: (m['x']! as num).toDouble(),
+      y: (m['y']! as num).toDouble(),
+    );
+  }
+
+  /// The native route the box shows.
+  final String route;
+  /// A coordinate in canvas world units.
+  final double x;
+  /// A coordinate in canvas world units.
+  final double y;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'route': route,
         'x': x,
         'y': y,
       };

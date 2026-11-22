@@ -119,13 +119,27 @@ function readFrames(list: unknown): Frame[] {
   return frames;
 }
 
-/** The saved positions and frames, or an empty canvas when the document is missing or unusable. */
+/** The saved places of native route boxes (`routes`), by their box ids (`native:<route>`, #228). */
+function readRoutes(list: unknown, into: Map<string, Point>): void {
+  if (!Array.isArray(list)) {
+    return;
+  }
+  for (const r of list as { route?: unknown; x?: unknown; y?: unknown }[]) {
+    if (typeof r?.route === "string" && isNumber(r.x) && isNumber(r.y)) {
+      into.set(`${NATIVE_BOX}${r.route}`, { x: r.x, y: r.y });
+    }
+  }
+}
+
+/** The saved positions (native route boxes too) and frames, or an empty canvas when the document is missing or unusable. */
 export function readSavedCanvas(content: unknown): SavedCanvas {
   if (content === null || typeof content !== "object") {
     return { positions: new Map(), frames: [] };
   }
-  const doc = content as { positions?: unknown; frames?: unknown };
-  return { positions: readPositions(doc.positions), frames: readFrames(doc.frames) };
+  const doc = content as { positions?: unknown; routes?: unknown; frames?: unknown };
+  const positions = readPositions(doc.positions);
+  readRoutes(doc.routes, positions);
+  return { positions, frames: readFrames(doc.frames) };
 }
 
 /** Positions in a stable order (by ID), so the same canvas always writes the same document. */
@@ -133,14 +147,22 @@ export function readSavedCanvas(content: unknown): SavedCanvas {
 export const NATIVE_BOX = "native:";
 
 /**
- * The saved positions: plugins only. A native target's box has no document id, which the canvas schema refuses
- * (SCH-002), so a native box is placed afresh each time rather than make the whole save fail.
+ * The saved positions of the plugins, by document id. A native target's box has no document id (SCH-002): its place
+ * is saved by route name in `routes` (#228).
  */
 function positionList(positions: ReadonlyMap<string, Point>): JsonValue[] {
   return [...positions.entries()]
     .filter(([id]) => !id.startsWith(NATIVE_BOX))
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([id, p]) => ({ id, x: Math.round(p.x), y: Math.round(p.y) }));
+}
+
+/** The saved places of the native route boxes, by route name, in route order (#228). */
+function routeList(positions: ReadonlyMap<string, Point>): JsonValue[] {
+  return [...positions.entries()]
+    .filter(([id]) => id.startsWith(NATIVE_BOX))
+    .map(([id, p]) => ({ route: id.slice(NATIVE_BOX.length), x: Math.round(p.x), y: Math.round(p.y) }))
+    .sort((a, b) => (a.route < b.route ? -1 : a.route > b.route ? 1 : 0));
 }
 
 function frameList(frames: readonly Frame[]): JsonValue[] {
@@ -161,6 +183,7 @@ export function canvasDocument(id: string, saved: SavedCanvas): JsonValue {
     kind: "canvas",
     id,
     positions: positionList(saved.positions),
+    routes: routeList(saved.positions),
     frames: frameList(saved.frames),
   };
 }
@@ -168,7 +191,11 @@ export function canvasDocument(id: string, saved: SavedCanvas): JsonValue {
 /** The edit recipe that stores positions and frames in an existing canvas document. */
 export function canvasRecipe(saved: SavedCanvas): (draft: DocumentDraft) => void {
   return (draft) => {
-    Object.assign(draft, { positions: positionList(saved.positions), frames: frameList(saved.frames) });
+    Object.assign(draft, {
+      positions: positionList(saved.positions),
+      routes: routeList(saved.positions),
+      frames: frameList(saved.frames),
+    });
   };
 }
 

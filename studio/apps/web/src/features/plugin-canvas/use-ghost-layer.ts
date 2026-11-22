@@ -31,6 +31,7 @@ import {
   placeGhosts,
   SceneSync,
   sameEntries,
+  targetKey,
 } from "./ghosts.ts";
 import { pluginCanvasMessages } from "./plugin-canvas.messages.ts";
 import { arrowStyle, contentBounds, DEVICE, ghostStyle, type Heights, type PlacedScreen } from "./scene.ts";
@@ -78,6 +79,8 @@ export interface GhostLayerInput {
   /** The theme's arrows and target boxes (#224), as the app canvas draws them; the brand colours when absent. */
   readonly arrowStyle?: ArrowStyle;
   readonly ghostStyle?: GhostStyle;
+  /** The canvas document's saved places: the targets' among them (#228). */
+  readonly saved?: ReadonlyMap<string, { readonly x: number; readonly y: number }> | undefined;
 }
 
 /**
@@ -100,6 +103,15 @@ export function useGhostLayer(input: GhostLayerInput): {
   readonly highlight: (screens: readonly string[]) => void;
   /** The pointer rests over a screen or target box (null: none); its arrows light up once it settles (#240). */
   readonly hoverBox: (id: string | null) => void;
+  /**
+   * Shows target `key` (#228) at `at` while it is dragged, its arrows re-routed, without a re-render; null puts it back
+   * where it is placed.
+   */
+  readonly previewTarget: (key: string, at: { readonly x: number; readonly y: number } | null) => void;
+  /** Where a target being dragged is shown now, by its key; undefined when it is not dragged. */
+  readonly shownTarget: (key: string) => { readonly x: number; readonly y: number } | undefined;
+  /** Calls `listener` whenever a dragged target moves (its label follows it); returns the unsubscribe. */
+  readonly onTargetMoved: (listener: () => void) => () => void;
   /** Re-routes the arrows of screens shown at a dragged place, before the drop saves it (STU-045). */
   readonly follow: (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => void;
 } {
@@ -121,8 +133,8 @@ export function useGhostLayer(input: GhostLayerInput): {
       return [];
     }
     const b = contentBounds(screens, heights, device);
-    return placeGhosts(graph.targets, b.r, b.t);
-  }, [graph.targets, screens, heights, device]);
+    return placeGhosts(graph.targets, b.r, b.t, input.saved);
+  }, [graph.targets, screens, heights, device, input.saved]);
 
   const listed = useQuery({
     queryKey: ["assets", appId],
@@ -168,6 +180,15 @@ export function useGhostLayer(input: GhostLayerInput): {
   }, [surface, listed.data, placed]);
 
   const drawn = useRef<Drawn | null>(null);
+  /**
+   * Each dragged target's place when its drag began (`base`) and where its items stand now (`at`), by key: a drag moves
+   * them by the difference (#228). Kept across redraws until the target's place changes (its drop is saved).
+   */
+  const shownAt = useRef(
+    new Map<string, { readonly base: { x: number; y: number }; readonly at: { x: number; y: number } }>(),
+  );
+  /** Who follows a dragged target (its label), told at each move. */
+  const moveListeners = useRef(new Set<() => void>());
   /** The screens whose arrows are highlighted, kept for a redraw onto a new surface or graph. */
   const lit = useRef<readonly string[]>([]);
   useEffect(() => {
@@ -189,6 +210,13 @@ export function useGhostLayer(input: GhostLayerInput): {
       drawn.current.motion.highlight(lit.current);
     }
     const d = drawn.current;
+    // A target placed somewhere new (its drop saved) is drawn there; a drag still running keeps its items' place.
+    for (const [key, shown] of [...shownAt.current]) {
+      const g = placed.find((p) => targetKey(p) === key);
+      if (g === undefined || g.x !== shown.base.x || g.y !== shown.base.y) {
+        shownAt.current.delete(key);
+      }
+    }
     const items: ItemSpec[] = placed.flatMap((g) =>
       ghostItems(g, ghosts, { links: m.ghostLinks }, g.screenId === undefined ? undefined : imageKeys.get(g.screenId)),
     );
@@ -252,5 +280,55 @@ export function useGhostLayer(input: GhostLayerInput): {
     [],
   );
   const hoverBox = useCallback((id: string | null) => drawn.current?.motion.hoverBox(id), []);
-  return { graph, placed, zoomed, pick, expand, hover, highlight, hoverBox, follow };
+  const placedRef = useRef(placed);
+  placedRef.current = placed;
+  const ghostsRef = useRef(ghosts);
+  ghostsRef.current = ghosts;
+  const previewTarget = useCallback((key: string, at: { readonly x: number; readonly y: number } | null) => {
+    const d = drawn.current;
+    const g = placedRef.current.find((p) => targetKey(p) === key);
+    if (d === null || g === undefined) {
+      return;
+    }
+    const base = { x: g.x, y: g.y };
+    const from = shownAt.current.get(key)?.at ?? base;
+    const to = at ?? base;
+    if (at === null) {
+      shownAt.current.delete(key);
+    } else {
+      shownAt.current.set(key, { base, at: to });
+    }
+    for (const listener of moveListeners.current) {
+      listener();
+    }
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    if (dx === 0 && dy === 0) {
+      return;
+    }
+    const ids = ghostItems(g, ghostsRef.current, { links: () => "" }, undefined).map((i) => i.id);
+    d.surface.patch?.(ids.map((id) => ({ op: "move" as const, id, dx, dy })));
+    d.motion.follow(new Map([[g.id, to]]));
+  }, []);
+  const shownTarget = useCallback((key: string) => shownAt.current.get(key)?.at, []);
+  const onTargetMoved = useCallback((listener: () => void) => {
+    moveListeners.current.add(listener);
+    return () => {
+      moveListeners.current.delete(listener);
+    };
+  }, []);
+  return {
+    graph,
+    placed,
+    zoomed,
+    pick,
+    expand,
+    hover,
+    highlight,
+    hoverBox,
+    previewTarget,
+    shownTarget,
+    onTargetMoved,
+    follow,
+  };
 }

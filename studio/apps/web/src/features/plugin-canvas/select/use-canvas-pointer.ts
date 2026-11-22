@@ -36,6 +36,19 @@ export interface ScreenPlaces {
   readonly commit: (positions: ReadonlyMap<string, Point>) => void;
 }
 
+/**
+ * The boxes of the screens and routes the plugin links to outside itself (#228): a press that moves drags one to a new
+ * place, saved on the drop; a press that does not is a click (`onPick`).
+ */
+export interface TargetPlaces {
+  /** The target box under the pointer, from the hits (topmost first), and where it stands. */
+  readonly under: (hits: readonly string[]) => { readonly key: string; readonly at: Point } | undefined;
+  /** Shows target `key` at `at` without saving; null puts it back. */
+  readonly preview: (key: string, at: Point | null) => void;
+  /** Saves target `key` at `at`, as one undoable change. */
+  readonly commit: (key: string, at: Point) => void;
+}
+
 export interface PointerInput {
   readonly surface: () => CanvasSurface | null;
   readonly canvas: () => HTMLCanvasElement | null;
@@ -56,6 +69,8 @@ export interface PointerInput {
   readonly tool: PointerTool;
   readonly spaceHeld: () => boolean;
   readonly screens: ScreenPlaces;
+  /** The target boxes, which can be dragged (#228); none when absent. */
+  readonly targets?: TargetPlaces;
   /** Ghost screens and lanes take a click before the nodes; true when one did. */
   readonly onPick: (hits: readonly string[]) => boolean;
   /** The view panned. */
@@ -117,7 +132,8 @@ type Mode =
       moved: ReadonlyMap<string, Point>;
       /** The snaps of the last move, held while the pointer stays near them. */
       locks?: SnapResult["locks"];
-    };
+    }
+  | { readonly kind: "target"; readonly key: string; readonly world: Point; readonly origin: Point; at: Point };
 
 interface PointerLike {
   readonly clientX: number;
@@ -314,6 +330,15 @@ export function pointerHandlers(
   };
 
   /** A press that moved past the click distance becomes a drag of what it pressed, or a marquee. */
+  /** A target box on top moves (#228), where a click on it would open it. */
+  const targetDrag = (m: Extract<Mode, { kind: "press" }>): Mode | null => {
+    const i = get();
+    const target = m.ask && i.canEdit ? i.targets?.under(m.hits) : undefined;
+    return target === undefined
+      ? null
+      : { kind: "target", key: target.key, world: m.world, origin: target.at, at: target.at };
+  };
+
   const startDrag = (m: Extract<Mode, { kind: "press" }>, p: Point): Mode | null => {
     const i = get();
     // The empty canvas, or the body of a screen not yet selected, draws a marquee: a screen moves by its title.
@@ -435,7 +460,7 @@ export function pointerHandlers(
       if (Math.hypot(p.x - m.from.x, p.y - m.from.y) <= CLICK_PX) {
         return;
       }
-      mode.current = startDrag(m, p);
+      mode.current = targetDrag(m) ?? startDrag(m, p);
       if (mode.current !== null) {
         move(e);
       }
@@ -456,6 +481,10 @@ export function pointerHandlers(
       get().overlay.set({ ghost: resizeBox(m.box, m.handle, m.delta), hover: null });
     } else if (m.kind === "screens") {
       moveScreens(m, w);
+    } else if (m.kind === "target") {
+      m.at = { x: Math.round(m.origin.x + w.x - m.world.x), y: Math.round(m.origin.y + w.y - m.world.y) };
+      get().targets?.preview(m.key, m.at);
+      get().overlay.set({ hover: null });
     }
   };
 
@@ -528,6 +557,17 @@ export function pointerHandlers(
       finishDrag(m);
     } else if (m.kind === "screens") {
       finishScreens(m);
+    } else if (m.kind === "target") {
+      finishTarget(m);
+    }
+  };
+
+  /** A target dropped where it started is put back; anywhere else its place is saved (#228). */
+  const finishTarget = (m: Extract<Mode, { kind: "target" }>): void => {
+    if (m.at.x === m.origin.x && m.at.y === m.origin.y) {
+      get().targets?.preview(m.key, null);
+    } else {
+      get().targets?.commit(m.key, m.at);
     }
   };
 
@@ -557,6 +597,9 @@ export function pointerHandlers(
     get().overlay.set({ marquee: null, ghost: null, ...noDrop });
     if (m?.kind === "screens") {
       get().screens.preview(m.origin);
+    }
+    if (m?.kind === "target") {
+      get().targets?.preview(m.key, null);
     }
     if (m?.kind === "pan") {
       get().canvas()?.removeAttribute("data-panning");

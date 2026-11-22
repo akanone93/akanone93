@@ -28,6 +28,7 @@ func TestCanvasAccepts_STU_032(t *testing.T) {
 		"empty": canvasDoc(""),
 		"app": canvasDoc(`,"positions":[{"id":"` + canvasPlugin + `","x":-120.5,"y":64}],` +
 			`"frames":[{"id":"` + canvasFrame + `","label":"Onboarding","x":0,"y":0,"width":640,"height":480,"members":["` + canvasPlugin + `"]}]`),
+		"native routes": canvasDoc(`,"routes":[{"route":"sign-in","x":40,"y":-80}]`),
 	} {
 		src, diags := l.ParseDocument("canvas.json", doc, KindCanvas)
 		if src == nil || diags.HasErrors() {
@@ -44,6 +45,8 @@ func TestCanvasRejects_STU_032(t *testing.T) {
 		"string coordinate": pos(`"left"`),
 		"out of world":      pos(`2000000`),
 		"missing y":         `,"positions":[{"id":"` + canvasPlugin + `","x":1}]`,
+		"route not a name":  `,"routes":[{"route":"Sign In","x":0,"y":0}]`,
+		"route without x":   `,"routes":[{"route":"sign-in","y":0}]`,
 		"unknown field":     `,"zoom":2`,
 		"zero-size frame":   `,"frames":[{"id":"` + canvasFrame + `","label":"A","x":0,"y":0,"width":0,"height":10}]`,
 		"empty label":       `,"frames":[{"id":"` + canvasFrame + `","label":"","x":0,"y":0,"width":1,"height":1}]`,
@@ -70,6 +73,23 @@ func TestCanvasLimits_STU_032(t *testing.T) {
 	b.WriteString(`]`)
 	_, diags := l.ParseDocument("canvas.json", canvasDoc(b.String()), KindCanvas)
 	wantDiagnostic(t, diags, plxerr.LimitExceeded, "canvas.json", "/positions")
+}
+
+// A canvas's native route boxes count with its positions towards canvas.positions (#228).
+func TestCanvasRouteLimits_STU_032(t *testing.T) {
+	t.Parallel()
+	l := newLoader(t)
+	var b strings.Builder
+	b.WriteString(`,"positions":[`)
+	for i := 0; i < 1000; i++ {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		fmt.Fprintf(&b, `{"id":"%s","x":%d,"y":0}`, canvasPlugin, i)
+	}
+	b.WriteString(`],"routes":[{"route":"sign-in","x":0,"y":0}]`)
+	_, diags := l.ParseDocument("canvas.json", canvasDoc(b.String()), KindCanvas)
+	wantDiagnostic(t, diags, plxerr.LimitExceeded, "canvas.json", "/routes")
 }
 
 func TestCanvasLayout_STU_032(t *testing.T) {

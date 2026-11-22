@@ -30,7 +30,7 @@ import type { OverlayStore } from "./select/overlay-store.ts";
 import * as sel from "./select/selection.ts";
 import type { SelectionStore } from "./select/store.ts";
 import { childNodes, type NodeIndex } from "./select/tree.ts";
-import { boxItemOf, type PointerTool, useCanvasPointer } from "./select/use-canvas-pointer.ts";
+import { boxItemOf, type PointerTool, type TargetPlaces, useCanvasPointer } from "./select/use-canvas-pointer.ts";
 import type { CanvasSurface } from "./surface.ts";
 import type { ScreenPositions } from "./use-screen-positions.ts";
 
@@ -55,6 +55,8 @@ export interface InteractionInput {
   /** A screen's header asks for its page settings or the device matrix, once it has selected the screen (MR-2). */
   readonly onScreenView?: (view: "matrix") => void;
   readonly positions: ScreenPositions;
+  /** The boxes of the screens and routes the plugin links to, which can be dragged (#228). */
+  readonly targets?: TargetPlaces | undefined;
   readonly onPick: (hits: readonly string[]) => boolean;
   /** The view moved: the URL and the ghosts follow it. */
   readonly onView: () => void;
@@ -498,6 +500,7 @@ export function useCanvasInteraction(input: InteractionInput) {
         }
       },
     },
+    ...(input.targets === undefined ? {} : { targets: input.targets }),
     onPick: input.onPick,
     onView: view,
     onContextMenu: (at, target) => setMenu({ x: at.x, y: at.y, target }),

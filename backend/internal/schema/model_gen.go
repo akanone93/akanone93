@@ -344,9 +344,10 @@ func (v Calendar) Valid() bool {
 }
 
 // CanvasDocument — Editor-only layout of the Studio canvas: where plugin
-// boxes and frames sit in an app, or where screens sit in a plugin (STU-032,
-// STU-035, STU-050). It is versioned and snapshotted like any document and is
-// never compiled into a bundle. File: `canvas.json` (app) or
+// boxes, native routes and frames sit in an app, or where screens and the
+// screens and routes they link to sit in a plugin (STU-032, STU-035, STU-050,
+// STU-052). It is versioned and snapshotted like any document and is never
+// compiled into a bundle. File: `canvas.json` (app) or
 // `plugins/<key>/canvas.json` (plugin).
 type CanvasDocument struct {
 	// SchemaVersion: Version of the document schema (SCH-000). Older documents
@@ -355,10 +356,16 @@ type CanvasDocument struct {
 	Kind          string `json:"kind"`
 	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
 	ID string `json:"id"`
-	// Positions: The top-left corner of each box: a plugin in an app canvas, a
-	// screen (page) in a plugin canvas. The number of entries is bounded by the
-	// limit canvas.positions.
+	// Positions: The top-left corner of each box: a plugin in an app canvas; a
+	// screen (page) in a plugin canvas, its own or another plugin's it links to.
+	// The number of entries, with routes, is bounded by the limit
+	// canvas.positions.
 	Positions []CanvasPosition `json:"positions,omitempty"`
+	// Routes: The top-left corner of each box of a native route the canvas's
+	// plugins or screens navigate to (STU-033, STU-054), by route name: a native
+	// route has no document id. The number of entries, with positions, is
+	// bounded by the limit canvas.positions.
+	Routes []CanvasRoutePosition `json:"routes,omitempty"`
 	// Frames: Labelled groups of plugins (STU-035), for example "Onboarding" or
 	// "Payments". Only app canvases carry frames. The number of entries is
 	// bounded by the limit canvas.frames.
@@ -387,6 +394,17 @@ type CanvasFrame struct {
 type CanvasPosition struct {
 	// ID: The id of the plugin or page the box shows.
 	ID string `json:"id"`
+	// X: A coordinate in canvas world units.
+	X float64 `json:"x"`
+	// Y: A coordinate in canvas world units.
+	Y float64 `json:"y"`
+}
+
+// CanvasRoutePosition — is generated from
+// canvas.schema.json#/properties/routes/items.
+type CanvasRoutePosition struct {
+	// Route: The native route the box shows.
+	Route string `json:"route"`
 	// X: A coordinate in canvas world units.
 	X float64 `json:"x"`
 	// Y: A coordinate in canvas world units.

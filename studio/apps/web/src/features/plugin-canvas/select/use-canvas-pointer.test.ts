@@ -74,6 +74,8 @@ function rig(
     /** Items drawn above the screens (arrows), and what the page answers for a resting pointer. */
     above?: Record<string, Box>;
     onHover?: (hits: readonly string[]) => boolean;
+    /** Target boxes that can be dragged, by item id (#228), and where their previews and saves go. */
+    targets?: { readonly items: Record<string, Point>; readonly log: string[] };
   } = {},
 ): Rig {
   const index = indexNodes([tree, other]);
@@ -156,6 +158,20 @@ function rig(
     onContextMenu: (_at, target) => menus.push(target),
     onRenameScreen: (s) => renames.push(s),
     ...(options.onHover === undefined ? {} : { onHover: options.onHover }),
+    ...(options.targets === undefined
+      ? {}
+      : {
+          targets: {
+            under: (hits) => {
+              const id = hits.find((h) => options.targets?.items[h] !== undefined);
+              const at = id === undefined ? undefined : options.targets?.items[id];
+              return id === undefined || at === undefined ? undefined : { key: id, at };
+            },
+            preview: (key, at) =>
+              options.targets?.log.push(`preview ${key} ${at === null ? "back" : `${at.x},${at.y}`}`),
+            commit: (key, at) => options.targets?.log.push(`commit ${key} ${at.x},${at.y}`),
+          },
+        }),
   };
   const h = pointerHandlers(() => input, { current: null });
   return {
@@ -384,6 +400,40 @@ describe("[STU-050] moving screens", () => {
     const ro = rig({ canEdit: false });
     drag(ro, [1100, -20], [900, -20]);
     expect(ro.commits).toEqual([]);
+  });
+});
+
+describe("[STU-052] [STU-054] moving the boxes of the plugin's link targets (#228)", () => {
+  const ghost = { l: 2000, t: 0, r: 2200, b: 400 };
+  test("a press that moves drags the target box and saves its place on the drop; a click still opens it", () => {
+    const log: string[] = [];
+    const r = rig({
+      above: { "ghost-node/ghost:p1": ghost },
+      targets: { items: { "ghost-node/ghost:p1": { x: 2000, y: 0 } }, log },
+    });
+    drag(r, [2100, 100], [2150, 160]);
+    // Previewed at each move (the release point once more, as every drag's last), then saved where it was let go.
+    expect(log).toEqual([
+      "preview ghost-node/ghost:p1 2025,30",
+      "preview ghost-node/ghost:p1 2050,60",
+      "preview ghost-node/ghost:p1 2050,60",
+      "commit ghost-node/ghost:p1 2050,60",
+    ]);
+    expect(r.picks).toEqual([]);
+    expect(r.commits).toEqual([]);
+    click(r, 2100, 100);
+    expect(r.picks.length).toBe(1);
+  });
+
+  test("read-only, a target box does not move: the press is a click", () => {
+    const log: string[] = [];
+    const r = rig({
+      canEdit: false,
+      above: { "ghost-node/ghost:p1": ghost },
+      targets: { items: { "ghost-node/ghost:p1": { x: 2000, y: 0 } }, log },
+    });
+    drag(r, [2100, 100], [2150, 160]);
+    expect(log).toEqual([]);
   });
 });
 

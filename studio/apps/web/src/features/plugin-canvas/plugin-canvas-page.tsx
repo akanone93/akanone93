@@ -79,7 +79,15 @@ import { DeviceBayHost } from "./device-bay-host.tsx";
 import { useDeviceFonts } from "./device-fonts.ts";
 import { ExtraOverlays } from "./extra-overlays.tsx";
 import { GhostLeaveDialog } from "./ghost-dialog.tsx";
-import { type GhostTarget, ghostOfHit, ghostStyleOf, placeGhosts, pulseSteps, readAppScreens } from "./ghosts.ts";
+import {
+  type GhostTarget,
+  ghostOfHit,
+  ghostStyleOf,
+  placeGhosts,
+  pulseSteps,
+  readAppScreens,
+  targetKey,
+} from "./ghosts.ts";
 import { useHostFonts } from "./host-fonts.ts";
 import { type InlineEdit, InlineTextHost } from "./inline-text.tsx";
 import type { A11yMarks, InstancesOverlay } from "./interaction-overlay.tsx";
@@ -129,13 +137,14 @@ import { createOverlayStore } from "./select/overlay-store.ts";
 import * as sel from "./select/selection.ts";
 import { useSelectionStore } from "./select/store.ts";
 import { indexNodes, itemIdOf, type NodeIndex, screenOfItem } from "./select/tree.ts";
-import type { PointerTool } from "./select/use-canvas-pointer.ts";
+import type { PointerTool, TargetPlaces } from "./select/use-canvas-pointer.ts";
 import { useWithSessionDocs } from "./session-docs.ts";
 import { snapSize } from "./spacing-handles.ts";
 import { SpacingHandles } from "./spacing-handles.tsx";
 import { useStatePreview, withStates } from "./state-preview.ts";
 import { type CopiedStyle, styleCommands } from "./style-clipboard.ts";
 import { browserSurface, type CanvasSurface, canvasPoint } from "./surface.ts";
+import { TargetLabels } from "./target-labels.tsx";
 import { addTokenRecipe, setTokenRecipe, tokenUsers } from "./theme-round-trip.ts";
 import { TimelineStrip } from "./timeline-strip.tsx";
 import {
@@ -404,7 +413,7 @@ function fitView(
   laidOut: Heights,
   s: { x?: number; y?: number; z?: number },
   device: Device,
-  targets: readonly GhostTarget[],
+  targets: TargetsAt,
 ): void {
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
@@ -583,6 +592,51 @@ function transparentText(node: PluxNode, id: string): PluxNode {
     : node;
 }
 
+/**
+ * The places of the boxes of the screens and routes the plugin links to (#228): a drag moves one, its drop saves it;
+ * and every save of the screens' places keeps the current targets' saved places (`placeTargets`), which a save of the
+ * screens alone would drop. A target's drop saves only the places already saved, so screens without one stay arranged.
+ */
+function useTargetPlaces(
+  ghostLayer: ReturnType<typeof useGhostLayer>,
+  positions: ReturnType<typeof useScreenPositions>,
+  screens: readonly PlacedScreen[],
+  canEdit: boolean,
+): { placeTargets: ReturnType<typeof useScreenPositions>; targetPlaces: TargetPlaces | undefined } {
+  const keys = useMemo(() => new Set(ghostLayer.graph.targets.map(targetKey)), [ghostLayer.graph.targets]);
+  const own = useMemo(() => new Set(screens.map((x) => x.id)), [screens]);
+  const kept = useCallback(
+    (keep: (key: string) => boolean) => new Map([...(positions.positions ?? new Map())].filter(([k]) => keep(k))),
+    [positions.positions],
+  );
+  const placeTargets = useMemo(
+    () => ({
+      ...positions,
+      commit: (moved: ReadonlyMap<string, Point>) => positions.commit(new Map([...kept((k) => keys.has(k)), ...moved])),
+    }),
+    [positions, kept, keys],
+  );
+  const { placed, previewTarget } = ghostLayer;
+  const targetPlaces = useMemo<TargetPlaces | undefined>(
+    () =>
+      canEdit
+        ? {
+            under: (hits) => {
+              const g = ghostOfHit(hits, placed);
+              const at = g === undefined ? undefined : placed.find((p) => p.id === g.id);
+              return at === undefined ? undefined : { key: targetKey(at), at: { x: at.x, y: at.y } };
+            },
+            preview: previewTarget,
+            commit: (key, at) => {
+              positions.commit(new Map([...kept((k) => own.has(k) || keys.has(k)), [key, at]]));
+            },
+          }
+        : undefined,
+    [canEdit, placed, previewTarget, positions, kept, own, keys],
+  );
+  return { placeTargets, targetPlaces };
+}
+
 /** The heights a plugin's unsaved screens are arranged with on a device, kept from its first layout (#241). */
 function useArrangedHeights(
   plugin: string | undefined,
@@ -598,12 +652,15 @@ function useArrangedHeights(
  * The screens' bounds grown by the boxes of the screens and routes they link to outside the plugin (#224), placed
  * beside them as the ghost layer places them: fitting everything frames where the arrows go too.
  */
-function withTargets(
-  b: ReturnType<typeof contentBounds>,
-  targets: readonly GhostTarget[],
-): ReturnType<typeof contentBounds> {
+/** The targets of the plugin's links, and the canvas document's saved places (theirs among them, #228). */
+interface TargetsAt {
+  readonly list: readonly GhostTarget[];
+  readonly saved: ReadonlyMap<string, Point> | undefined;
+}
+
+function withTargets(b: ReturnType<typeof contentBounds>, targets: TargetsAt): ReturnType<typeof contentBounds> {
   const out = { ...b };
-  for (const g of placeGhosts(targets, b.r, b.t)) {
+  for (const g of placeGhosts(targets.list, b.r, b.t, targets.saved)) {
     out.l = Math.min(out.l, g.x);
     out.t = Math.min(out.t, g.y);
     out.r = Math.max(out.r, g.x + g.w);
@@ -619,7 +676,7 @@ function fitAll(
   screens: readonly PlacedScreen[],
   laidOut: Heights,
   device: Device,
-  targets: readonly GhostTarget[],
+  targets: TargetsAt,
 ): void {
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
@@ -1037,9 +1094,11 @@ function PluginCanvasView({
     device,
     arrowStyle: theme.arrows,
     ghostStyle: ghostTheme,
+    saved: screenPositions.positions,
   });
-  const targetsRef = useRef(ghostLayer.graph.targets);
-  targetsRef.current = ghostLayer.graph.targets;
+  const { placeTargets, targetPlaces } = useTargetPlaces(ghostLayer, screenPositions, screens, canEdit);
+  const targetsRef = useRef<TargetsAt>({ list: ghostLayer.graph.targets, saved: screenPositions.positions });
+  targetsRef.current = { list: ghostLayer.graph.targets, saved: screenPositions.positions };
   // The view map draws the screens at their full height and the ghost screens beside them (C5).
   const mapItems = useMemo<MapItem[]>(
     () => [
@@ -1460,7 +1519,10 @@ function PluginCanvasView({
     const surface = surfaceRef.current;
     const canvas = canvasRef.current;
     if (surface !== null && canvas !== null) {
-      fitAll(surface, canvas, screens, heights, device, ghostLayer.graph.targets);
+      fitAll(surface, canvas, screens, heights, device, {
+        list: ghostLayer.graph.targets,
+        saved: screenPositions.positions,
+      });
       sync();
     }
   };
@@ -1814,7 +1876,8 @@ function PluginCanvasView({
     styled,
     entry: entryId,
     onScreenView,
-    positions: screenPositions,
+    positions: placeTargets,
+    targets: targetPlaces,
     onPick: pickGhost,
     onHover: hoverArrow,
     onScreensMoved: ghostLayer.follow,
@@ -1935,6 +1998,13 @@ function PluginCanvasView({
                             locked={locked}
                             onAction={() => setDockTab((r) => tabRequest("actions", r))}
                             onDelete={interaction.remove}
+                          />
+                          <TargetLabels
+                            store={overlay}
+                            surface={() => surfaceRef.current}
+                            targets={ghostLayer.placed}
+                            shownAt={ghostLayer.shownTarget}
+                            onMoved={ghostLayer.onTargetMoved}
                           />
                           <InlineTextHost
                             editing={inlineEdit}

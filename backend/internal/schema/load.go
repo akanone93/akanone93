@@ -312,6 +312,10 @@ func (l *Loader) checkCanvasLimits(doc map[string]any, file string) plxerr.Diagn
 	}
 	positions, _ := doc["positions"].([]any)
 	over("/positions", len(positions), limits.CanvasPositions)
+	// A native route's box counts with the others: the limit bounds the boxes a canvas holds (#228).
+	if routes, _ := doc["routes"].([]any); len(routes) > 0 {
+		over("/routes", len(positions)+len(routes), limits.CanvasPositions)
+	}
 	frames, _ := doc["frames"].([]any)
 	over("/frames", len(frames), limits.CanvasFrames)
 	for i, f := range frames {
