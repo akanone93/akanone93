@@ -278,7 +278,8 @@ describe("[STU-111] A13 localisation grid", () => {
     const add = await screen.findByRole("dialog");
     fireEvent.change(within(add).getByLabelText("Language or locale code"), { target: { value: "amhar" } });
     const results = within(add).getByRole("list", { name: "Matching languages" });
-    fireEvent.click(within(results).getByRole("button", { name: /^Amharic/ }));
+    // The language, not its regional variant (Amharic (Ethiopia)) offered beside it (#191).
+    fireEvent.click(within(results).getByRole("button", { name: /^Amharic(?! \()/ }));
     expect((within(add).getByLabelText("Language or locale code") as HTMLInputElement).value).toBe("am");
     fireEvent.click(within(add).getByRole("button", { name: "Add" }));
     await screen.findByText("Translation (am)");
