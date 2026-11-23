@@ -11,7 +11,7 @@ import type { StreamState } from "../shell/studio-events.ts";
 import { devicesMessages } from "./devices.messages.ts";
 import type { Buffer } from "./drawer-model.ts";
 import { JoinPrompts, type JoinRequests, reconcileJoins, withJoinEvent } from "./join-prompt.tsx";
-import { useDevClient, useStudioDevSession } from "./use-dev-session.ts";
+import { studioSessionKey, useDevClient, useStudioDevSession } from "./use-dev-session.ts";
 import { useDeviceEvents } from "./use-device-events.ts";
 import "./dev-link.css";
 
@@ -154,8 +154,21 @@ export function DevLinkProvider({
     },
     [queryClient, sessionId, onJoinEvent],
   );
-  const [stream, setStream] = useState<StreamState | undefined>(undefined);
-  const events = useDeviceEvents(sessionId, [], onEvent, setStream);
+  // The stream's state with the session it is of: a session opened anew starts with no state, never with the last
+  // one's "ended".
+  const [streamOf, setStreamOf] = useState<{ readonly session: string; readonly state: StreamState }>();
+  const onStreamState = useCallback((state: StreamState, session: string) => setStreamOf({ session, state }), []);
+  const events = useDeviceEvents(sessionId, [], onEvent, onStreamState);
+  const stream = streamOf !== undefined && streamOf.session === sessionId ? streamOf.state : undefined;
+  // A session that ended (idle, or ended by the server) stays ended: Studio opens the app's session again, which the
+  // server answers with a new one, so phones have a live session to join without a reload (#269). Once per session.
+  const reopened = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (stream === "ended" && sessionId !== undefined && reopened.current !== sessionId) {
+      reopened.current = sessionId;
+      void queryClient.invalidateQueries({ queryKey: studioSessionKey(appId) });
+    }
+  }, [stream, sessionId, appId, queryClient]);
   const listen = useCallback((listener: (event: DevEvent) => void) => {
     listeners.current.add(listener);
     return () => {

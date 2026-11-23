@@ -27,13 +27,14 @@ function reduce(buffer: Buffer, action: Action): Buffer {
 /**
  * Streams a dev session's events (DEV-020, DEV-021), resuming after the last sequence and retrying with
  * the shared backoff, like the studio events stream. Pausing freezes the view, not the stream. Without a session it
- * streams nothing.
+ * streams nothing. `onState` is told each state with the session it is of, and nothing once that session's stream
+ * was let go: a state never outlives its session.
  */
 export function useDeviceEvents(
   sessionId: string | undefined,
   deviceIds: readonly string[],
   onEvent?: (event: DevEvent) => void,
-  onState?: (state: StreamState) => void,
+  onState?: (state: StreamState, sessionId: string) => void,
 ) {
   const { session } = useApp();
   const client = useMemo(() => createClient(DevSessionService, session.transport), [session.transport]);
@@ -57,8 +58,11 @@ export function useDeviceEvents(
       deviceIds,
       signal: controller.signal,
       onState: (next) => {
+        if (controller.signal.aborted) {
+          return;
+        }
         setState(next);
-        told.current?.(next);
+        told.current?.(next, sessionId);
       },
       onReset: () => dispatch({ type: "clear" }),
       onEvent: (event) => {

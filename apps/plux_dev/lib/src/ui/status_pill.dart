@@ -10,16 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:plux_dev/src/ui/theme.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
-/// The words and colour of a link state; null is no session.
+/// The words and colour of a link state; null is no session. A session that
+/// ended says so: "Offline" read like a network fault while the phone was
+/// joining Studio again (build log #277).
 (String, Color) statusOf(DevLinkState? state) => switch (state) {
   DevLinkState.live => ('Live', DevColors.live),
   DevLinkState.connecting => ('Connecting', DevColors.warn),
   DevLinkState.reconnecting => ('Reconnecting', DevColors.warn),
-  DevLinkState.ended || null => ('Offline', DevColors.muted),
+  DevLinkState.ended => ('Session ended', DevColors.muted),
+  null => ('Offline', DevColors.muted),
 };
 
-/// "Live", "Connecting", "Reconnecting" or "Offline", with a coloured dot
-/// that pulses while the phone connects.
+/// "Live", "Connecting", "Reconnecting", "Session ended" or "Offline", with a
+/// coloured dot that pulses while the phone connects.
 final class StatusPill extends StatefulWidget {
   /// Creates the pill for [state].
   const StatusPill({

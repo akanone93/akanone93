@@ -100,3 +100,18 @@ describe("the app's link with its devices (DEV-002, DEV-020, ADR-0104)", () => {
     expect(await screen.findByText(/hello from the phone/)).toBeTruthy();
   });
 });
+
+describe("a Studio session that ended (#269)", () => {
+  test("Studio opens a new session by itself, and the link is live again without a reload", async () => {
+    const created: string[] = [];
+    renderLink(
+      {
+        devSession: { devices, events: [], sessions: ["s1", "s2"], ended: ["s1"], created },
+        phones: { phones: [], signIn: [], calls: [] },
+      },
+      <DevLinkBar />,
+    );
+    expect(await screen.findByText("Live · 1 device")).toBeTruthy();
+    expect(created).toEqual(["s1", "s2"]);
+  });
+});

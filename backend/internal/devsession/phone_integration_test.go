@@ -436,8 +436,9 @@ func TestJoin_StudioListsOpenRequestsAndKeepsItsSession_DEV_002(t *testing.T) {
 // Verifies: DEV-002.
 // A Studio session past its idle time stays over (Apply Register2,
 // 2026-11-23): the watch that finds it idle ends it in the database as on
-// the relay, Studio's poll of the join requests does not bring it back, a
-// phone's join finds no live session, and Studio opens a new one. Before,
+// the relay and tells the watcher it ended (PLX-9200), Studio's poll of the
+// join requests does not bring it back, a phone's join finds no live
+// session, and Studio opens a new one. Before,
 // the poll revived it in the database while its relay stayed ended, so a
 // phone joined it, was told it ended within milliseconds of connecting, and
 // joined again, without end.
@@ -447,11 +448,10 @@ func TestIdleStudioSession_StaysOver_DEV_002(t *testing.T) {
 	session := f.openStudio(t, f.Developer)
 	phone, key := f.phone(t, f.signInPhone(t, f.Developer))
 	f.Now = f.Now.Add(31 * time.Minute)
-	// Studio watches again after the laptop slept or the server was down.
+	// Studio watches again after the laptop slept or the server was down,
+	// and is told the session ended, so that it opens a new one (#269).
 	err := f.svc.WatchFor(ctx, f.Developer, session.ID, nil, 0, 50*time.Millisecond, func(*pluxv1.DevEvent) error { return nil })
-	if err != nil {
-		t.Fatal(err)
-	}
+	wantCode(t, err, plxerr.DevSessionExpired, "the watch of the idle session")
 	// Studio polls the join requests every few seconds.
 	if _, err := f.svc.ListJoinRequests(ctx, f.Developer, session.ID); err != nil {
 		t.Fatal(err)

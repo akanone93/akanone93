@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { DevConnectionState, type DevEvent, DevJoinState, DevLogLevel } from "@plux/api";
+import { DevConnectionState, type DevEvent, DevJoinState, DevLogLevel, DevSyncPhase } from "@plux/api";
 import { limitDefault } from "@plux/schema";
 
 /** The nine tabs of the bottom drawer, in display order (STU-066). */
@@ -82,7 +82,22 @@ const summaries: Summaries = {
   networkCall: (v: { method: string; urlTemplate: string; status: number }) =>
     `${v.method} ${v.urlTemplate} ${v.status}`,
   functionCall: (v: { function: string; placement: string }) => `${v.function} ${v.placement}`,
-  sync: (v: { plugin: string; releaseSequence: bigint }) => `${v.plugin} #${v.releaseSequence}`,
+  // By its phase, with only what it carries: a sync of the whole app with no release yet has no plugin and no release
+  // sequence, and read "#0" (build log #254).
+  sync: (v: {
+    phase: DevSyncPhase;
+    plugin: string;
+    releaseSequence: bigint;
+    error?: { code: string; message: string };
+  }) =>
+    [
+      `sync ${(DevSyncPhase[v.phase] ?? "").toLowerCase()}`,
+      v.plugin,
+      v.releaseSequence > 0n ? `#${v.releaseSequence}` : "",
+      v.error === undefined ? "" : `${v.error.code} ${v.error.message}`,
+    ]
+      .filter((part) => part !== "")
+      .join(" "),
   hotApply: (v: { pagesApplied: string[] }) => v.pagesApplied.join(", "),
   frameTiming: (v: { route: string; frames: unknown[] }) => `${v.route} ${v.frames.length} frames`,
   commandResult: (v: { commandId: string; status: number }) => `${v.commandId} status ${v.status}`,

@@ -31,17 +31,23 @@ export function devEnvironment(environments: readonly Environment[]): Environmen
   return open.find((e) => e.key === DEV_ENVIRONMENT) ?? open[0];
 }
 
+/** The query key of an app's Studio session: invalidating it opens the session again (#269). */
+export function studioSessionKey(appId: string): readonly unknown[] {
+  return ["studio-dev-session", appId];
+}
+
 /**
  * The Studio dev session of an app (contract #17): created once, when `enabled`, in the app's development
  * environment, and shared by the pairing dialog, the send dialog, the controls and the drawer. The server follows
- * the stored draft; Studio never pushes. A refused session is not asked for again until the editor opens anew.
+ * the stored draft; Studio never pushes. A refused session is not asked for again until the editor opens anew; a
+ * session that ended is opened again by the app's link (`DevLinkProvider`), which the server answers with a new one.
  */
 export function useStudioDevSession(appId: string, enabled: boolean): string | undefined {
   const client = useDevClient();
   const { session } = useApp();
   const apps = useMemo(() => createClient(AppService, session.transport), [session.transport]);
   const created = useQuery({
-    queryKey: ["studio-dev-session", appId],
+    queryKey: studioSessionKey(appId),
     enabled: enabled && appId !== "",
     staleTime: Number.POSITIVE_INFINITY,
     retry: false,

@@ -326,6 +326,12 @@ export interface UpstreamData {
     commands?: DevSessionServiceSendCommandRequest[];
     /** Collects the device filter of every ExportTrace. */
     exported?: string[][];
+    /** The sessions CreateSession opens in turn, the last repeating; `s1` when unset. */
+    sessions?: string[];
+    /** Collects every session CreateSession opened. */
+    created?: string[];
+    /** Sessions whose watch ends with PLX-9200 after its backlog, as an ended session's does (#269). */
+    ended?: string[];
   };
   /**
    * The person's phones signed in to the Plux Dev app and the requests to join a session (ADR-0104). `signIn` lists the
@@ -1214,13 +1220,18 @@ function devSessionService(
   service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
   dev: DevSessionData,
 ) {
+  let opened = 0;
   service(DevSessionService, {
     createSession: (req) => {
       // As the server: a session opens in a non-production environment of the app (DEV-002).
       if (req.environmentId !== "env-dev") {
         throw new ConnectError("the environment identifier is not valid", Code.InvalidArgument);
       }
-      return { session: { id: "s1" } };
+      const ids = dev.sessions ?? ["s1"];
+      const id = ids[Math.min(opened, ids.length - 1)] ?? "s1";
+      opened += 1;
+      dev.created?.push(id);
+      return { session: { id } };
     },
     getPairing: () => ({
       pairing: {
@@ -1241,6 +1252,9 @@ function devSessionService(
         if (req.deviceIds.length === 0 || req.deviceIds.includes(event.deviceId)) {
           yield { event };
         }
+      }
+      if (dev.ended?.includes(req.sessionId)) {
+        throw new ConnectError("PLX-9200: the dev session has ended", Code.FailedPrecondition);
       }
       // As the server does once the backlog is out: the stream is open, events or not.
       yield {};

@@ -230,9 +230,12 @@ func (s *Service) follow(ctx context.Context, session Session, room *room, w *wa
 		if ended {
 			// The relay may have learnt the end from its log alone (an
 			// end record, or a log that is gone): the stored session ends
-			// with it, so that no join or Studio opens it again.
+			// with it, so that no join or Studio opens it again. The
+			// watcher has what the session held, and is told it ended
+			// (PLX-9200), so that Studio opens a new session rather than
+			// watching this one again (#269).
 			s.retire(ctx, session.OrganizationID, session.ID)
-			return nil
+			return expired()
 		}
 		select {
 		case <-ctx.Done():

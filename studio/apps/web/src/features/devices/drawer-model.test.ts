@@ -2,8 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
-import { create } from "@bufbuild/protobuf";
-import { DevConnectionState, DevEventSchema, DevJoinState, DevLogLevel } from "@plux/api";
+import { create, type MessageInitShape } from "@bufbuild/protobuf";
+import {
+  DevConnectionState,
+  DevEventSchema,
+  DevJoinState,
+  DevLogLevel,
+  DevSyncPhase,
+  SyncEventSchema,
+} from "@plux/api";
 import { limitDefault } from "@plux/schema";
 import {
   consoleSource,
@@ -100,5 +107,20 @@ describe("join request events (DEV-002, ADR-0104)", () => {
     expect(summarise(join(DevJoinState.WAITING))).toBe('phone "Pixel 8" asks to join: waiting');
     expect(summarise(join(DevJoinState.JOINED))).toBe('phone "Pixel 8" asks to join: joined');
     expect(summarise(join(DevJoinState.RETRY_ALLOWED))).toBe('phone "Pixel 8" asks to join: retry allowed');
+  });
+});
+
+describe("sync events (DEV-020, build log entry 254)", () => {
+  const sync = (value: MessageInitShape<typeof SyncEventSchema>) =>
+    create(DevEventSchema, { payload: { case: "sync", value: create(SyncEventSchema, value) } });
+  test("a sync is said by its phase, with only what it carries: no bare #0", () => {
+    expect(summarise(sync({ phase: DevSyncPhase.CHECK }))).toBe("sync check");
+    expect(summarise(sync({ phase: DevSyncPhase.COMPLETE, plugin: "launch", releaseSequence: 7n }))).toBe(
+      "sync complete launch #7",
+    );
+    const failed = { code: "PLX-3050", message: "sync failed: no such manifest" };
+    expect(summarise(sync({ phase: DevSyncPhase.FAILED, error: failed }))).toBe(
+      "sync failed PLX-3050 sync failed: no such manifest",
+    );
   });
 });
