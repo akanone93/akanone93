@@ -866,3 +866,36 @@ export function redirectLink(docs: readonly LoadedDoc[], link: AppLink, toRoute:
 export function removeLink(docs: readonly LoadedDoc[], link: AppLink): ChangeSet {
   return removeOutgoing(docs, [link.use]);
 }
+
+/**
+ * The route a plugin opens at, as the app's `entryRoute` names it (#248): its entry screen's, else its first listed
+ * screen's; undefined when it has no screen.
+ */
+export function pluginEntryRoute(
+  docs: readonly LoadedDoc[],
+  pages: ReadonlyMap<string, PageInfo>,
+  pluginId: string,
+): string | undefined {
+  const doc = docs.find((d) => d.kind === "plugin" && d.pluginId === pluginId);
+  const json = isObj(doc?.json) ? doc.json : {};
+  const own = (id: unknown) => {
+    const page = typeof id === "string" ? pages.get(id) : undefined;
+    return page?.pluginId === pluginId ? page.route : undefined;
+  };
+  const listed = Array.isArray(json["pages"]) ? json["pages"] : [];
+  return own(json["entryPage"]) ?? listed.map(own).find((r) => r !== undefined);
+}
+
+/**
+ * The plugin the app opens in: the one whose screen the app's `entryRoute` names, when exactly one screen has that
+ * name (#248, #250); undefined otherwise, for the canvas to fall back on the app's default plugin.
+ */
+export function entryPluginOf(docs: readonly LoadedDoc[], pages: ReadonlyMap<string, PageInfo>): string | undefined {
+  const app = docs.find((d) => d.kind === "app");
+  const route = isObj(app?.json) ? app.json["entryRoute"] : undefined;
+  if (typeof route !== "string") {
+    return undefined;
+  }
+  const owners = [...pages.values()].filter((p) => p.route === route);
+  return owners.length === 1 ? owners[0]?.pluginId : undefined;
+}

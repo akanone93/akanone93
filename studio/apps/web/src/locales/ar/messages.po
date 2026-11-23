@@ -3876,6 +3876,12 @@ msgstr "تحقق من هذه القيمة"
 msgid "dialog.explain.loading"
 msgstr "جارٍ فحص الوصول"
 
+#. Status in the app canvas's Problems tab while the whole app is being checked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.checkingApp"
+msgstr "جارٍ فحص التطبيق…"
+
 #. Validation status.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -12058,6 +12064,12 @@ msgstr "مفتوح"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.reviewOpen"
 msgstr "مفتوحة"
+
+#. Button beside a problem in the app canvas's Problems tab: opens its plugin at the screen and widget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.openProblem"
+msgstr "فتح"
 
 #. Accessible name of an app's link in the apps list; name is the app.
 #. js-lingui-explicit-id

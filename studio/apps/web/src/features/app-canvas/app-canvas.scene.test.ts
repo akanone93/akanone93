@@ -25,11 +25,13 @@ import {
   boxItems,
   boxLayers,
   boxOfHits,
+  entryPluginOf,
   FOCUS_ITEM,
   focusItem,
   frameItems,
   layoutPills,
   nativeBox,
+  pluginEntryRoute,
   redirectLink,
   removeLink,
   type SceneBox,
@@ -279,5 +281,43 @@ describe("C1 arrows to a route name two screens share (STU-040, build log entry 
     // A name one screen has alone keeps its single arrow and its id.
     const toOffers = graph.links.filter((l) => l.route === "offers");
     expect(toOffers.map((l) => l.edge.id)).toEqual(["loans:pages/home.page.json#/root/events/onPressed/steps/0"]);
+  });
+});
+
+describe("the entry plugin is where the app opens (build log entry 248)", () => {
+  const pluginDoc = (pluginId: string, json: object): LoadedDoc => ({
+    pluginId,
+    path: `plugins/${pluginId}/plugin.json`,
+    kind: "plugin",
+    revision: 1,
+    json: { kind: "plugin", ...json },
+  });
+  const appDoc = (entryRoute: string): LoadedDoc => ({
+    pluginId: "",
+    path: "app.json",
+    kind: "app",
+    revision: 1,
+    json: { kind: "app", entryRoute },
+  });
+
+  test("a plugin opens at its entry screen, else its first screen", () => {
+    const all = [...docs, pluginDoc("cards", { entryPage: "terms", pages: ["offers", "terms"] })];
+    const { pages } = appGraph(all, []);
+    expect(pluginEntryRoute(all, pages, "cards")).toBe("terms");
+    const listed = [...docs, pluginDoc("cards", { pages: ["offers", "terms"] })];
+    expect(pluginEntryRoute(listed, appGraph(listed, []).pages, "cards")).toBe("offers");
+    expect(pluginEntryRoute(listed, appGraph(listed, []).pages, "nobody")).toBeUndefined();
+  });
+
+  test("the app's entry route names the plugin it opens in, unless two screens share the name", () => {
+    const all = [...docs, appDoc("terms")];
+    expect(entryPluginOf(all, appGraph(all, []).pages)).toBe("cards");
+    const shared: LoadedDoc = {
+      ...page("main", "m-terms"),
+      json: { id: "m-terms", key: "terms", route: "terms", title: "terms", kind: "page", root: { id: "m-r" } },
+    };
+    const clash = [...all, shared];
+    expect(entryPluginOf(clash, appGraph(clash, []).pages)).toBeUndefined();
+    expect(entryPluginOf(docs, appGraph(docs, []).pages)).toBeUndefined();
   });
 });

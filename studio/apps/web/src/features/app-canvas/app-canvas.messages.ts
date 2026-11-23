@@ -541,6 +541,16 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Overview",
       comment: "Tab of the app canvas's left dock: figures about the whole app.",
     }),
+    checkingApp: i18n._({
+      id: "appCanvas.checkingApp",
+      message: "Checking the app…",
+      comment: "Status in the app canvas's Problems tab while the whole app is being checked.",
+    }),
+    openProblem: i18n._({
+      id: "appCanvas.openProblem",
+      message: "Open",
+      comment: "Button beside a problem in the app canvas's Problems tab: opens its plugin at the screen and widget.",
+    }),
     searchPlugins: i18n._({
       id: "appCanvas.searchPlugins",
       message: "Search plugins",

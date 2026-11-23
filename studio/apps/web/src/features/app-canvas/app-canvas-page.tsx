@@ -25,7 +25,7 @@ import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { browserSurface, type CanvasSurface } from "../plugin-canvas/surface.ts";
 import { declaredNativeRoutes, useNativeRoutes } from "../plugin-canvas/use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
-import { type ChangeSet, loadedDocs, useChangeSets } from "../safety/index.ts";
+import { type ChangeSet, type LoadedDoc, loadedDocs, type PageInfo, useChangeSets } from "../safety/index.ts";
 import { appCanvasMessages } from "./app-canvas.messages.ts";
 import {
   APP_CANVAS_PATH,
@@ -48,12 +48,15 @@ import {
   type AppLink,
   appGraph,
   badgesOf,
+  entryPluginOf,
   nativeBox,
+  pluginEntryRoute,
   redirectLink,
   removeLink,
   type SceneBox,
 } from "./app-canvas.scene.ts";
 import { AppDock } from "./app-dock.tsx";
+import { type ProblemTarget, problemSearch, useProblemsPane } from "./app-problems.tsx";
 import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
 import {
   AppBar,
@@ -345,6 +348,30 @@ function useCanvasLayout(documents: ViewProps["documents"], failed: () => void) 
   return { positions: ahead?.positions ?? saved.positions, frames: ahead?.frames ?? saved.frames, setLive, commit };
 }
 
+/** The app's entry plugin's key: the plugin `entryRoute` opens in, else the app's default plugin (#248). */
+function useEntryKey(
+  list: readonly PluginSummary[],
+  loaded: readonly LoadedDoc[],
+  pages: ReadonlyMap<string, PageInfo>,
+  defaultKey: string | undefined,
+): string {
+  return useMemo(() => {
+    const id = entryPluginOf(loaded, pages);
+    return list.find((s) => s.plugin?.id === id)?.plugin?.key ?? defaultKey ?? "";
+  }, [list, loaded, pages, defaultKey]);
+}
+
+/** The route a plugin, named by its key, opens at (#248). */
+function entryRouteOfKey(
+  list: readonly PluginSummary[],
+  loaded: readonly LoadedDoc[],
+  pages: ReadonlyMap<string, PageInfo>,
+  key: string,
+): string | undefined {
+  const id = list.find((s) => s.plugin?.key === key)?.plugin?.id;
+  return id === undefined ? undefined : pluginEntryRoute(loaded, pages, id);
+}
+
 /** C1: the app canvas (STU-030 to STU-035), drawn by Plux Canvas with bundled arrows (STU-040 to STU-048). */
 function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const { i18n } = useLingui();
@@ -369,7 +396,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   });
   const app = useQuery({ queryKey: ["app", appId], queryFn: async () => (await apps.getApp({ id: appId })).app });
   const list = summaries.data ?? [];
-  const entryKey = app.data?.defaultPluginKey ?? "";
 
   // The navigate links of every page, for the arrows and their lane fixes (STU-040, STU-046).
   const project = useAppDocuments(appId);
@@ -377,6 +403,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const nativeRoutes = useNativeRoutes(appId, declared);
   const loaded = useMemo(() => loadedDocs(project.data ?? []), [project.data]);
   const graph = useMemo(() => appGraph(loaded, nativeRoutes), [loaded, nativeRoutes]);
+  // The entry plugin is the one the app opens in, its `entryRoute`'s, as on a device; the app's default plugin when
+  // the route names no single screen (#248).
+  const entryKey = useEntryKey(list, loaded, graph.pages, app.data?.defaultPluginKey);
 
   const [message, setMessage] = useState<string | null>(null);
   const layout = useCanvasLayout(documents, () => setMessage(m.failed));
@@ -598,6 +627,14 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       });
     }
   };
+  // The whole app's problems, checked again whenever the app's documents are read again (#258).
+  const problemsPane = useProblemsPane(appId, project.dataUpdatedAt, list, loaded, (t: ProblemTarget) =>
+    navigate({
+      to: "/o/$org/apps/$app/plugins/$plugin",
+      params: { org: orgKey, app: appId, plugin: t.pluginId },
+      search: problemSearch(t),
+    }),
+  );
   const openScreen = (plugin: string, page: string) =>
     void navigate({
       to: "/o/$org/apps/$app/plugins/$plugin",
@@ -677,6 +714,19 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     },
     onError: () => setMessage(m.failed),
   });
+  const appEdit = useEditSession();
+  // "Make entry plugin" opens the app there on devices too: `entryRoute` names the plugin's entry screen, and the app
+  // record's default plugin follows (#248).
+  const makeEntry = useCallback(
+    (key: string) => {
+      const route = entryRouteOfKey(list, loaded, graph.pages, key);
+      if (route !== undefined && appEdit.store.getState().docs["app.json"] !== undefined) {
+        appEdit.edit("app.json", (draft) => Object.assign(draft, { entryRoute: route }), { group: "entry" });
+      }
+      mutation.mutate(() => apps.updateApp({ id: appId, name: app.data?.name ?? "", defaultPluginKey: key }));
+    },
+    [list, loaded, graph.pages, appEdit, mutation, apps, appId, app.data?.name],
+  );
   const [editorSession] = useState(() => tabEditorSession(undefined));
   const applyChanges = useChangeSets(appId, editorSession, undefined);
   const applyLane = (changeSet: ChangeSet) => {
@@ -808,6 +858,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onOpen={open}
             frameTools={<FrameTools frames={frames} messages={m} onChange={changeFrameOf} />}
             assets={{ label: assetsMessages(i18n).tab, panel: <AppAssets appId={appId} documents={documents} /> }}
+            problems={problemsPane}
           />
           {detail?.plugin === undefined ? null : (
             <DetailCard
@@ -920,9 +971,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         onDuplicate={(id, name, key) =>
           mutation.mutate(() => plugins.duplicatePlugin({ id, name, key, session: uuidv7() }))
         }
-        onEntry={(key) =>
-          mutation.mutate(() => apps.updateApp({ id: appId, name: app.data?.name ?? "", defaultPluginKey: key }))
-        }
+        onEntry={makeEntry}
         onFrame={(label) => {
           const sel = boxes.filter((b) => selected.has(b.id));
           const minX = Math.min(...sel.map((b) => b.x)) - 24;

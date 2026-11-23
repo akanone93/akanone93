@@ -60,6 +60,7 @@ export function AppDock({
   onOpen,
   frameTools,
   assets,
+  problems,
 }: {
   readonly appName: string | undefined;
   readonly boxes: readonly SceneBox[];
@@ -73,6 +74,8 @@ export function AppDock({
   readonly frameTools: ReactNode;
   /** The app's assets (images, fonts, animations), uploaded and managed at the app level as in a plugin. */
   readonly assets?: { readonly label: string; readonly panel: ReactNode } | undefined;
+  /** The whole app's problems, by plugin and file (#258); `meta` is the count the tab shows. */
+  readonly problems?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
 }): ReactElement {
   const [folded, setFolded] = useStoredFlag("plux.dock.app.folded", false);
   const [query, setQuery] = useState("");
@@ -196,6 +199,17 @@ export function AppDock({
           <div className="canvas-frames flex flex-col gap-0.5">{frameTools}</div>
         ),
     },
+    ...(problems === undefined
+      ? []
+      : [
+          {
+            value: "problems",
+            label: problems.label,
+            icon: "x-circle" as const,
+            meta: problems.meta,
+            panel: problems.panel,
+          },
+        ]),
     ...(assets === undefined
       ? []
       : [{ value: "assets", label: assets.label, icon: "image" as const, panel: assets.panel }]),
