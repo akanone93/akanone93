@@ -56,7 +56,7 @@ import {
   type SceneBox,
 } from "./app-canvas.scene.ts";
 import { AppDock } from "./app-dock.tsx";
-import { type ProblemTarget, problemSearch, useProblemsPane } from "./app-problems.tsx";
+import { draftsRevision, type ProblemTarget, problemSearch, useProblemsPane } from "./app-problems.tsx";
 import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
 import {
   AppBar,
@@ -627,8 +627,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       });
     }
   };
-  // The whole app's problems, checked again whenever the app's documents are read again (#258).
-  const problemsPane = useProblemsPane(appId, project.dataUpdatedAt, list, loaded, (t: ProblemTarget) =>
+  // The whole app's problems, checked again whenever a stored draft changed (#258).
+  const drafts = useMemo(() => draftsRevision(project.data), [project.data]);
+  const problemsPane = useProblemsPane(appId, drafts, list, loaded, (t: ProblemTarget) =>
     navigate({
       to: "/o/$org/apps/$app/plugins/$plugin",
       params: { org: orgKey, app: appId, plugin: t.pluginId },

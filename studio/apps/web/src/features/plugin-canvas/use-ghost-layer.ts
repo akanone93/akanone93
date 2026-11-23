@@ -59,6 +59,64 @@ interface Drawn {
   readonly scene: number;
 }
 
+/**
+ * The layer's drawing on `target`: a new one on a new surface. A layout that replaced the scene took the target boxes
+ * and the arrows with it, while `ghosts` still held the boxes as sent, so they went missing until they changed (#289):
+ * the same drawing then sends them all again. `fresh` says nothing of the layer is on the surface any more.
+ */
+function drawnOn(
+  was: Drawn | null,
+  target: CanvasSurface,
+  style: ArrowStyle,
+  lit: readonly string[],
+): { readonly d: Drawn; readonly fresh: boolean } {
+  const scene = target.scenesReplaced ?? 0;
+  if (was?.surface !== target) {
+    const router = new ArrowRouter([], [], ARROW_ROUTING);
+    const arrows = new ArrowCanvas(router, style, target.viewport.zoom);
+    was?.motion.dispose();
+    const motion = new ArrowMotion(arrows, (ops) => target.patch?.(ops));
+    motion.highlight(lit);
+    return { d: { surface: target, ghosts: new SceneSync(), router, arrows, motion, scene }, fresh: true };
+  }
+  if (was.scene !== scene) {
+    return { d: { ...was, ghosts: new SceneSync(), scene }, fresh: true };
+  }
+  return { d: was, fresh: false };
+}
+
+/** Where a dragged target is shown, by its key (#228). */
+type ShownAt = Map<string, { readonly base: { x: number; y: number }; readonly at: { x: number; y: number } }>;
+
+/** Forgets the drag of a target placed somewhere new (its drop saved); a drag still running keeps its items' place. */
+function forgetDropped(shownAt: ShownAt, placed: readonly PlacedGhost[]): void {
+  for (const [key, shown] of [...shownAt]) {
+    const g = placed.find((p) => targetKey(p) === key);
+    if (g === undefined || g.x !== shown.base.x || g.y !== shown.base.y) {
+      shownAt.delete(key);
+    }
+  }
+}
+
+/** The boxes the arrows attach to: the plugin's screens at their laid-out heights, then the placed targets. */
+function arrowBoxes(
+  screens: readonly PlacedScreen[],
+  placed: readonly PlacedGhost[],
+  device: { readonly width: number; readonly height: number },
+  heights: Heights,
+): ArrowBox[] {
+  return [
+    ...screens.map((s) => ({
+      id: s.id,
+      x: s.at.x,
+      y: s.at.y,
+      w: device.width,
+      h: Math.max(device.height, heights.get(s.id) ?? 0),
+    })),
+    ...placed,
+  ];
+}
+
 /** What the layer needs from the page. */
 export interface GhostLayerInput {
   readonly appId: string;
@@ -196,61 +254,45 @@ export function useGhostLayer(input: GhostLayerInput): {
    * Each dragged target's place when its drag began (`base`) and where its items stand now (`at`), by key: a drag moves
    * them by the difference (#228). Kept across redraws until the target's place changes (its drop is saved).
    */
-  const shownAt = useRef(
-    new Map<string, { readonly base: { x: number; y: number }; readonly at: { x: number; y: number } }>(),
-  );
+  const shownAt = useRef<ShownAt>(new Map());
   /** Who follows a dragged target (its label), told at each move. */
   const moveListeners = useRef(new Set<() => void>());
   /** The screens whose arrows are highlighted, kept for a redraw onto a new surface or graph. */
   const lit = useRef<readonly string[]>([]);
+  /**
+   * The boxes and bundles the arrows were last routed for, as JSON; undefined when they must be routed again (a new
+   * surface or scene, or a box the router moved during a drag).
+   */
+  const routed = useRef<string | undefined>(undefined);
   useEffect(() => {
     const target = onSurface;
     if (target === null || target.patch === undefined || heights.size === 0) {
       return;
     }
-    if (drawn.current?.surface !== target) {
-      const router = new ArrowRouter([], [], ARROW_ROUTING);
-      const canvas = new ArrowCanvas(router, arrows, target.viewport.zoom);
-      drawn.current?.motion.dispose();
-      drawn.current = {
-        surface: target,
-        ghosts: new SceneSync(),
-        router,
-        arrows: canvas,
-        motion: new ArrowMotion(canvas, (ops) => target.patch?.(ops)),
-        scene: target.scenesReplaced ?? 0,
-      };
-      drawn.current.motion.highlight(lit.current);
+    const { d, fresh } = drawnOn(drawn.current, target, arrows, lit.current);
+    drawn.current = d;
+    if (fresh) {
+      shownAt.current.clear();
+      routed.current = undefined;
     }
-    // A layout that replaced the scene took the target boxes with it, while `ghosts` still holds them as sent: they
-    // went missing until they changed (#289). They are all sent again; the arrows are, at every render.
-    const scene = target.scenesReplaced ?? 0;
-    if (drawn.current.scene !== scene) {
-      drawn.current = { ...drawn.current, ghosts: new SceneSync(), scene };
-    }
-    const d = drawn.current;
-    // A target placed somewhere new (its drop saved) is drawn there; a drag still running keeps its items' place.
-    for (const [key, shown] of [...shownAt.current]) {
-      const g = placed.find((p) => targetKey(p) === key);
-      if (g === undefined || g.x !== shown.base.x || g.y !== shown.base.y) {
-        shownAt.current.delete(key);
-      }
-    }
+    forgetDropped(shownAt.current, placed);
     const items: ItemSpec[] = placed.flatMap((g) =>
       ghostItems(g, ghosts, { links: m.ghostLinks }, g.screenId === undefined ? undefined : imageKeys.get(g.screenId)),
     );
-    const boxes: ArrowBox[] = [
-      ...screens.map((s) => ({
-        id: s.id,
-        x: s.at.x,
-        y: s.at.y,
-        w: device.width,
-        h: Math.max(device.height, heights.get(s.id) ?? 0),
-      })),
-      ...placed,
-    ];
-    d.router.setGraph(boxes, deriveBundles(graph.edges));
-    target.patch([...d.ghosts.sync(items), ...d.arrows.render(d.motion.now())]);
+    const boxes = arrowBoxes(screens, placed, device, heights);
+    const bundles = deriveBundles(graph.edges);
+    // Every layout redraws this layer, an edit's included; the arrows are routed and repainted only when a box or a
+    // link changed, not for each edit of a screen's content (STU-121).
+    const key = JSON.stringify([boxes.map((b) => [b.id, b.x, b.y, b.w, b.h]), bundles]);
+    const ops = d.ghosts.sync(items);
+    if (routed.current !== key) {
+      routed.current = key;
+      d.router.setGraph(boxes, bundles);
+      ops.push(...d.arrows.render(d.motion.now()));
+    }
+    if (ops.length > 0) {
+      target.patch(ops);
+    }
   }, [onSurface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device, ghosts, arrows]);
 
   const known = useRef(new Map<string, string>());
@@ -294,10 +336,11 @@ export function useGhostLayer(input: GhostLayerInput): {
     lit.current = screens;
     drawn.current?.motion.highlight(screens);
   }, []);
-  const follow = useCallback(
-    (moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => drawn.current?.motion.follow(moved),
-    [],
-  );
+  const follow = useCallback((moved: ReadonlyMap<string, { readonly x: number; readonly y: number }>) => {
+    // The router now holds boxes where they are dragged: the next redraw routes the placed graph again.
+    routed.current = undefined;
+    drawn.current?.motion.follow(moved);
+  }, []);
   const hoverBox = useCallback((id: string | null) => drawn.current?.motion.hoverBox(id), []);
   const placedRef = useRef(placed);
   placedRef.current = placed;
@@ -327,6 +370,7 @@ export function useGhostLayer(input: GhostLayerInput): {
     }
     const ids = ghostItems(g, ghostsRef.current, { links: () => "" }, undefined).map((i) => i.id);
     d.surface.patch?.(ids.map((id) => ({ op: "move" as const, id, dx, dy })));
+    routed.current = undefined;
     d.motion.follow(new Map([[g.id, to]]));
   }, []);
   const shownTarget = useCallback((key: string) => shownAt.current.get(key)?.at, []);

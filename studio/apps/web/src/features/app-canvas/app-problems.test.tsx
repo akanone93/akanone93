@@ -12,6 +12,7 @@ import type { LoadedDoc } from "../safety/index.ts";
 import {
   type AppProblem,
   AppProblems,
+  draftsRevision,
   groupByPlugin,
   type ProblemTarget,
   problemOf,
@@ -84,6 +85,16 @@ describe("the app's problems on the app canvas (STU-030, build log entry 258)", 
     expect(targetOf(problem("plugins/main/plugin.json", ""), main, [home])).toEqual({ pluginId: "p-main" });
     expect(targetOf(problem("app.json", ""), undefined, [home])).toBeUndefined();
     expect(problemSearch({ pluginId: "p-main", focus: "pg-home" })).toEqual({ focus: "pg-home" });
+  });
+
+  test("the drafts read again unchanged keep their key; an edit, a new or a deleted document change it", () => {
+    const a = { pluginId: "p-main", path: "pages/home.page.json", revision: 2n };
+    const b = { pluginId: "", path: "app.json", revision: 7n };
+    expect(draftsRevision(undefined)).toBeUndefined();
+    expect(draftsRevision([a, b])).toBe(draftsRevision([{ ...b }, { ...a }]));
+    expect(draftsRevision([a, { ...b, revision: 8n }])).not.toBe(draftsRevision([a, b]));
+    expect(draftsRevision([a])).not.toBe(draftsRevision([a, b]));
+    expect(draftsRevision([a, { ...a, pluginId: "p-other" }])).not.toBe(draftsRevision([a, a]));
   });
 
   test("the list says where each problem is and opens it; notes are folded", async () => {

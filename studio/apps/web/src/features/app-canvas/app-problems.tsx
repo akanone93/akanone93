@@ -117,13 +117,29 @@ export function targetOf(
   };
 }
 
-/** The server's check of the whole app, again whenever the app's documents were read again (`revision`). */
-export function useAppProblems(appId: string, revision: number) {
+/**
+ * The stored drafts as one key: each document's plugin, path and revision, in a stable order; undefined until they are
+ * read. The documents read again unchanged (a refetch when the window regains focus) give the same key, so the whole
+ * app is not checked again for nothing; an edit, a new or a deleted document gives another.
+ */
+export function draftsRevision(
+  documents:
+    | readonly { readonly pluginId: string; readonly path: string; readonly revision: bigint | number }[]
+    | undefined,
+): string | undefined {
+  return documents
+    ?.map((d) => `${d.pluginId}/${d.path}@${d.revision}`)
+    .sort()
+    .join("\n");
+}
+
+/** The server's check of the whole app, again whenever the stored drafts changed (`revision`, `draftsRevision`). */
+export function useAppProblems(appId: string, revision: string | undefined) {
   const { session } = useApp();
   const documents = useMemo(() => createClient(DocumentService, session.transport), [session.transport]);
   return useQuery({
     queryKey: ["app-problems", appId, revision],
-    enabled: appId !== "",
+    enabled: appId !== "" && revision !== undefined,
     staleTime: Number.POSITIVE_INFINITY,
     placeholderData: (previous) => previous,
     queryFn: async () => (await documents.validateDraft({ appId, pluginId: "" })).diagnostics.map(problemOf),
@@ -232,7 +248,7 @@ export function problemSearch(t: ProblemTarget): { focus?: string; node?: string
 /** The Problems pane of the app canvas's dock: its label, its count of errors and warnings, and the list. */
 export function useProblemsPane(
   appId: string,
-  revision: number,
+  revision: string | undefined,
   summaries: readonly {
     readonly plugin?: { readonly id: string; readonly key: string; readonly name: string } | undefined;
   }[],

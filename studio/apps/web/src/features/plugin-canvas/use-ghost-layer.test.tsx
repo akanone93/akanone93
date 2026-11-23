@@ -92,15 +92,29 @@ describe("the plugin canvas's target boxes across a scene replaced by a layout (
     const drawn = s.patches.flatMap(boxOps);
     expect(drawn.length).toBeGreaterThan(0);
 
-    // A layout that kept the scene (new heights, the same scene): the box is not sent again.
+    const arrows = s.patches.flatMap((p) =>
+      p.flatMap((op) => (op.op === "replace" && op.item.id.startsWith("arrow:") ? [op.item.id] : [])),
+    );
+    expect(arrows.length).toBeGreaterThan(0);
+
+    // A layout that kept the scene (an edit of a screen's content: new heights, the same boxes and links): neither the
+    // box nor the arrows are sent again, and nothing is routed again (STU-121).
     s.patches.length = 0;
     act(() => rerender(new Map([["home", 300]])));
-    expect(s.patches.flatMap(boxOps)).toEqual([]);
+    expect(s.patches).toEqual([]);
 
-    // A layout that replaced the scene took the box with it: it is sent again, whole.
+    // A layout that replaced the scene took the box and the arrows with it: both are sent again, whole.
     s.patches.length = 0;
     s.replace();
     act(() => rerender(new Map([["home", 300]])));
     expect(new Set(s.patches.flatMap(boxOps))).toEqual(new Set(drawn));
+    expect(s.patches.flat().filter((op) => op.op === "replace" && op.item.id.startsWith("arrow:")).length).toBe(
+      arrows.length,
+    );
+
+    // A taller screen moves the arrows' ends: they are routed and drawn again.
+    s.patches.length = 0;
+    act(() => rerender(new Map([["home", 2000]])));
+    expect(s.patches.flat().some((op) => op.op === "replace" && op.item.id.startsWith("arrow:"))).toBe(true);
   });
 });
