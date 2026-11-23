@@ -662,5 +662,70 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Plugin actions",
       comment: "Accessible name of the actions of the selected plugin in its detail panel.",
     }),
+    noScreen: i18n._({
+      id: "appCanvas.noScreen",
+      message: "No screen",
+      comment:
+        "Chip and badge on the app canvas's box of a route that links navigate to but no screen has: the links are broken.",
+    }),
+    firstError: i18n._({
+      id: "appCanvas.firstError",
+      message: "First error",
+      comment: "Accessible name of the plugin detail panel's box with the plugin's first error (from the app's check).",
+    }),
+    showProblems: (count: number) =>
+      i18n._({
+        id: "appCanvas.showProblems",
+        message: "{count, plural, one {Show the error} other {Show all # errors}}",
+        comment: "Button under a plugin's first error in its detail panel: opens the app's Problems tab at the plugin.",
+        values: { count },
+      }),
+    routesTab: i18n._({
+      id: "appCanvas.routes.tab",
+      message: "Routes",
+      comment: "Tab of the app canvas's left dock: every route of the app, each opening its screen.",
+    }),
+    searchRoutes: i18n._({
+      id: "appCanvas.routes.search",
+      message: "Search routes and screens",
+      comment: "Placeholder and accessible name of the search field of the app canvas's Routes tab.",
+    }),
+    noRouteMatches: i18n._({
+      id: "appCanvas.routes.noMatches",
+      message: "No route matches the search.",
+      comment: "The app canvas's Routes tab when the search matches no route.",
+    }),
+    noRoutes: i18n._({
+      id: "appCanvas.routes.none",
+      message: "The app has no routes yet: add a screen to a plugin.",
+      comment: "The app canvas's Routes tab when the app has no screen and no native route.",
+    }),
+    entryRoute: i18n._({
+      id: "appCanvas.routes.entry",
+      message: "The app opens here",
+      comment: "Mark on the app's entry route in the app canvas's Routes tab.",
+    }),
+    sharedRoute: i18n._({
+      id: "appCanvas.routes.shared",
+      message: "Duplicate: several screens have this name, and a link to it reaches any of them",
+      comment: "Warning on a route name several screens share (an error the check reports), in the Routes tab.",
+    }),
+    missingRoute: i18n._({
+      id: "appCanvas.routes.missing",
+      message: "No screen has this route: the links to it are broken",
+      comment: "Warning on a route that links navigate to but no screen or native route has, in the Routes tab.",
+    }),
+    linkedFrom: i18n._({
+      id: "appCanvas.routes.linkedFrom",
+      message: "Linked from",
+      comment: "Heading of the screens that navigate to a route, in the app canvas's Routes tab.",
+    }),
+    openRoute: (where: string) =>
+      i18n._({
+        id: "appCanvas.routes.open",
+        message: "Open {where}",
+        comment: "Accessible name of a screen in the Routes tab, e.g. 'Open Launch › Home': opens its plugin at it.",
+        values: { where },
+      }),
   };
 }

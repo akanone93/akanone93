@@ -147,12 +147,18 @@ export function readSavedCanvas(content: unknown): SavedCanvas {
 export const NATIVE_BOX = "native:";
 
 /**
+ * The prefix of the box of a route nothing has, `missing:<route>`, which broken links point at (#259): placed beside
+ * its sources each time and never saved, as it should not last.
+ */
+export const MISSING_BOX = "missing:";
+
+/**
  * The saved positions of the plugins, by document id. A native target's box has no document id (SCH-002): its place
  * is saved by route name in `routes` (#228).
  */
 function positionList(positions: ReadonlyMap<string, Point>): JsonValue[] {
   return [...positions.entries()]
-    .filter(([id]) => !id.startsWith(NATIVE_BOX))
+    .filter(([id]) => !id.startsWith(NATIVE_BOX) && !id.startsWith(MISSING_BOX))
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([id, p]) => ({ id, x: Math.round(p.x), y: Math.round(p.y) }));
 }

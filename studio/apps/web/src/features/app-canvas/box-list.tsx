@@ -39,7 +39,7 @@ export function PluginBoxCard(props: CardProps): ReactNode {
   return (
     <button
       type="button"
-      aria-label={box.native ? `${m.native} ${box.key}` : m.plugin(name, box.key)}
+      aria-label={box.native ? `${box.missing === true ? m.noScreen : m.native} ${box.key}` : m.plugin(name, box.key)}
       aria-pressed={props.selected}
       data-plugin={box.key}
       className="flex flex-col items-start gap-1 text-start"
@@ -152,6 +152,10 @@ export function DetailCard(props: {
   published: LastPublished | undefined;
   /** The actions on the plugin, when the panel shows the selected one. */
   actions?: ReactNode;
+  /** The plugin's first error as the app's check found it, and how many it has (#259). */
+  firstError?: { readonly message: string; readonly code: string; readonly count: number } | undefined;
+  /** Opens the app's Problems tab at this plugin (#259). */
+  onShowProblems?: (() => void) | undefined;
 }): ReactNode {
   const { summary: s, messages: m } = props;
   const functions = [...s.functionsUsed];
@@ -176,6 +180,20 @@ export function DetailCard(props: {
           ))}
         </span>
       </header>
+      {props.firstError === undefined ? null : (
+        <section aria-label={m.firstError} className="flex flex-col gap-1 rounded-md border border-destructive/40 p-2">
+          <p className="flex items-start gap-2 text-sm">
+            <Icon name="x-circle" size="pill" className="mt-0.5 text-destructive" />
+            <span className="line-clamp-3 min-w-0">{props.firstError.message}</span>
+          </p>
+          <span className="font-mono text-xs text-muted-foreground">{props.firstError.code}</span>
+          {props.onShowProblems === undefined ? null : (
+            <Button size="sm" variant="secondary" className="self-start" onClick={props.onShowProblems}>
+              {m.showProblems(props.firstError.count)}
+            </Button>
+          )}
+        </section>
+      )}
       {s.plugin?.description ? <p className="text-sm text-muted-foreground">{s.plugin.description}</p> : null}
       <MiniMapView map={props.miniMap} messages={m} />
       <dl className="grid grid-cols-2 gap-2">

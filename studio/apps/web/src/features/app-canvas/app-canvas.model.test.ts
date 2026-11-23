@@ -115,11 +115,13 @@ describe("app canvas model [STU-030] [STU-032]", () => {
       positions: new Map([
         [b, { x: 1.4, y: 2 }],
         ["native:camera", { x: 9, y: 9 }],
+        ["missing:gone", { x: 5, y: 5 }],
         [a, { x: 3, y: 4 }],
       ]),
       frames: [{ id: "f", label: "Payments", x: 0, y: 0, width: 300, height: 200 }],
     }) as { positions: { id: string }[]; routes: unknown[] };
-    // A native box has no document id, which `positions` refuses (SCH-002): its place goes in `routes` (#228).
+    // A native box has no document id, which `positions` refuses (SCH-002): its place goes in `routes` (#228). The box
+    // of a route nothing has is placed afresh each time and never saved (#259).
     expect(doc.positions.map((p) => p.id)).toEqual([a, b]);
     expect(doc.routes).toEqual([{ route: "camera", x: 9, y: 9 }]);
     const saved = readSavedCanvas(doc);

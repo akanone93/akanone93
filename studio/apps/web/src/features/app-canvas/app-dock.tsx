@@ -4,7 +4,7 @@
 import type { PluginSummary } from "@plux/api";
 import { Icon } from "@plux/ui";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
-import { type ReactElement, type ReactNode, useState } from "react";
+import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 import { DockTabs, type Pane, useStoredFlag } from "../panels/dock-tabs.tsx";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
 import type { Frame } from "./app-canvas.model.ts";
@@ -61,6 +61,8 @@ export function AppDock({
   frameTools,
   assets,
   problems,
+  routes,
+  reveal,
 }: {
   readonly appName: string | undefined;
   readonly boxes: readonly SceneBox[];
@@ -76,8 +78,19 @@ export function AppDock({
   readonly assets?: { readonly label: string; readonly panel: ReactNode } | undefined;
   /** The whole app's problems, by plugin and file (#258); `meta` is the count the tab shows. */
   readonly problems?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
+  /** Every route of the app (#268); `meta` is the count the tab shows. */
+  readonly routes?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
+  /** A request to show a tab, unfolding the dock (#259); each new `nonce` is a new request. */
+  readonly reveal?: { readonly tab: string; readonly nonce: number } | undefined;
 }): ReactElement {
   const [folded, setFolded] = useStoredFlag("plux.dock.app.folded", false);
+  const [tab, setTab] = useState("plugins");
+  useEffect(() => {
+    if (reveal !== undefined) {
+      setTab(reveal.tab);
+      setFolded(false);
+    }
+  }, [reveal, setFolded]);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const plugins = boxes.filter((b) => !b.native);
@@ -176,7 +189,7 @@ export function AppDock({
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-sm font-medium">{b.title}</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {b.native ? m.native : (b.subtitle ?? b.key)}
+                    {b.missing === true ? m.noScreen : b.native ? m.native : (b.subtitle ?? b.key)}
                   </span>
                 </span>
                 {b.release !== undefined && <span className="app-dock-chip">{b.release}</span>}
@@ -199,6 +212,17 @@ export function AppDock({
           <div className="canvas-frames flex flex-col gap-0.5">{frameTools}</div>
         ),
     },
+    ...(routes === undefined
+      ? []
+      : [
+          {
+            value: "routes",
+            label: routes.label,
+            icon: "navigation-arrow" as const,
+            meta: routes.meta,
+            panel: routes.panel,
+          },
+        ]),
     ...(problems === undefined
       ? []
       : [
@@ -240,6 +264,8 @@ export function AppDock({
     <Panel className="canvas-layers canvas-side app-dock flex flex-col self-stretch" data-folded={folded || undefined}>
       <DockTabs
         panes={panes}
+        value={tab}
+        onValueChange={setTab}
         defaultValue="plugins"
         mark="squares-four"
         folded={folded}

@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, test } from "bun:test";
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { Severity } from "@plux/api";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import type { AppGraph } from "./app-canvas.scene.ts";
@@ -145,6 +146,39 @@ describe("the plugin detail card [STU-031]", () => {
   });
 });
 
+describe("a plugin's first error on its card (#259)", () => {
+  test("the card shows the first error the app's check found; its button opens the Problems tab at the plugin", async () => {
+    const error = (file: string, message: string) => ({
+      code: "PLX-1103",
+      severity: Severity.ERROR,
+      file,
+      path: "/route",
+      message,
+    });
+    renderApp(
+      path,
+      state({
+        surface: stub().factory,
+        appDiagnostics: [
+          error("plugins/cards/pages/offers.page.json", "a problem of Cards"),
+          error("plugins/loans/pages/home.page.json", "the first problem of Loans"),
+          error("plugins/loans/pages/detail.page.json", "the second problem of Loans"),
+        ],
+      }),
+    );
+    fireEvent.focus(await screen.findByRole("button", { name: /^Loans/ }));
+    const detail = await screen.findByRole("complementary", { name: "Loans" });
+    const first = await within(detail).findByRole("region", { name: "First error" });
+    expect(first.textContent).toContain("the first problem of Loans");
+    expect(first.textContent).toContain("PLX-1103");
+    fireEvent.click(within(first).getByRole("button", { name: "Show all 2 errors" }));
+    const tab = await screen.findByRole("tab", { name: /Problems/ });
+    await waitFor(() => expect(tab.getAttribute("aria-selected")).toBe("true"));
+    const group = await screen.findByRole("region", { name: "Loans" });
+    await waitFor(() => expect(document.activeElement).toBe(within(group).getByRole("heading", { name: "Loans" })));
+  });
+});
+
 describe("the mini-map of a plugin's screens [STU-031]", () => {
   const pageInfo = (id: string, pluginId: string, title: string) =>
     [id, { id, key: id, route: id, title, pluginId, path: `${id}.json` }] as const;
@@ -159,6 +193,8 @@ describe("the mini-map of a plugin's screens [STU-031]", () => {
   const graph: AppGraph = {
     links: [link("a", "b", "p"), link("b", "c", "p"), link("a", "x", "p", "q"), link("b", undefined, "p")],
     boxOf: new Map(),
+    broken: [],
+    missing: [],
     natives: [],
     pages: new Map([
       pageInfo("a", "p", "Alpha"),

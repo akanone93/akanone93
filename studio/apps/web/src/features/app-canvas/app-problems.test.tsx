@@ -13,6 +13,7 @@ import {
   type AppProblem,
   AppProblems,
   draftsRevision,
+  firstErrorOf,
   groupByPlugin,
   type ProblemTarget,
   problemOf,
@@ -85,6 +86,18 @@ describe("the app's problems on the app canvas (STU-030, build log entry 258)", 
     expect(targetOf(problem("plugins/main/plugin.json", ""), main, [home])).toEqual({ pluginId: "p-main" });
     expect(targetOf(problem("app.json", ""), undefined, [home])).toBeUndefined();
     expect(problemSearch({ pluginId: "p-main", focus: "pg-home" })).toEqual({ focus: "pg-home" });
+  });
+
+  test("a plugin's first error and its count of errors; warnings and other plugins' errors do not count (#259)", () => {
+    const list = [
+      problem("plugins/main/pages/a.page.json", "/x", "warning"),
+      problem("plugins/main/pages/b.page.json", "/y"),
+      problem("plugins/launch/plugin.json", ""),
+      problem("plugins/main/plugin.json", ""),
+    ];
+    expect(firstErrorOf(list, "main")).toEqual({ first: list[1] as AppProblem, count: 2 });
+    expect(firstErrorOf(list, "launch")?.count).toBe(1);
+    expect(firstErrorOf(list, "other")).toBeUndefined();
   });
 
   test("the drafts read again unchanged keep their key; an edit, a new or a deleted document change it", () => {

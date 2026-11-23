@@ -328,6 +328,12 @@ msgstr "{count, plural, one {Offline — # Änderung wartet} other {Offline — 
 msgid "history.restored"
 msgstr "{count, plural, one {# Dokument wiederhergestellt.} other {# Dokumente wiederhergestellt.}}"
 
+#. Button under a plugin's first error in its detail panel: opens the app's Problems tab at the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.showProblems"
+msgstr "{count, plural, one {Den Fehler zeigen} other {Alle # Fehler zeigen}}"
+
 #. Where a translation key is used, so it cannot be deleted (STU-072); the first documents follow, the rest under Show all.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -6096,6 +6102,12 @@ msgstr "Bildschirm duplizieren"
 msgid "pluginCanvas.command.duplicate"
 msgstr "Auswahl duplizieren"
 
+#. Warning on a route name several screens share (an error the check reports), in the Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.shared"
+msgstr "Doppelt: Mehrere Bildschirme tragen diesen Namen, und ein Link dorthin erreicht jeden von ihnen"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -7306,6 +7318,12 @@ msgstr "Auslösende Warnungen"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.starter.first"
 msgstr "Erstes"
+
+#. Accessible name of the plugin detail panel's box with the plugin's first error (from the app's check).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.firstError"
+msgstr "Erster Fehler"
 
 #. Shown when a plugin has no earlier version to compare the size with.
 #. js-lingui-explicit-id
@@ -9587,6 +9605,12 @@ msgstr "Mit Bildschirm verlinken"
 msgid "pluginCanvas.laneTitle"
 msgstr "Link: {title}"
 
+#. Heading of the screens that navigate to a route, in the app canvas's Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.linkedFrom"
+msgstr "Verlinkt von"
+
 #. Announced while a link is dragged over a screen; target is the screen's title.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -11369,6 +11393,12 @@ msgstr "Noch keine Ergebnisse."
 msgid "releases.noRollout"
 msgstr "Kein Rollout"
 
+#. The app canvas's Routes tab when the search matches no route.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.noMatches"
+msgstr "Keine Route passt zur Suche."
+
 #. Empty state of the runs table.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -11381,11 +11411,23 @@ msgstr "Noch keine Läufe gemeldet."
 msgid "tests.noScenarios"
 msgstr "Noch keine Szenarien."
 
+#. Chip and badge on the app canvas's box of a route that links navigate to but no screen has: the links are broken.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.noScreen"
+msgstr "Kein Bildschirm"
+
 #. Problem shown for a link whose target screen does not exist; route is the route name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.missing"
 msgstr "Kein Bildschirm hat die Route {route}."
+
+#. Warning on a route that links navigate to but no screen or native route has, in the Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.missing"
+msgstr "Kein Bildschirm hat diese Route: Die Links dorthin sind defekt"
 
 #. Shown when the app has no screen a link could target.
 #. js-lingui-explicit-id
@@ -12076,6 +12118,12 @@ msgstr "Öffnen"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.apps.open"
 msgstr "{name} öffnen"
+
+#. Accessible name of a screen in the Routes tab, e.g. 'Open Launch › Home': opens its plugin at it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.open"
+msgstr "{where} öffnen"
 
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
@@ -14967,6 +15015,12 @@ msgstr "Routenname"
 msgid "shell.field.router"
 msgstr "Router"
 
+#. Tab of the app canvas's left dock: every route of the app, each opening its screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.tab"
+msgstr "Routen"
+
 #. Children side by side, along the reading direction.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/layout-panel.messages.ts
@@ -15638,6 +15692,12 @@ msgstr "Suchen oder Befehl ausführen"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.searchPlugins"
 msgstr "Plugins durchsuchen"
+
+#. Placeholder and accessible name of the search field of the app canvas's Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.search"
+msgstr "Routen und Bildschirme suchen"
 
 #. Title of the search and command palette dialog.
 #. js-lingui-explicit-id
@@ -17559,11 +17619,23 @@ msgstr "Die App hat keine Plugins."
 msgid "shell.icon.no-assets"
 msgstr "Die App hat noch keine PNG-Assets. Lade hier eines hoch, um es als Symbol zu verwenden."
 
+#. The app canvas's Routes tab when the app has no screen and no native route.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.none"
+msgstr "Die App hat noch keine Routen: Füge einem Plugin einen Bildschirm hinzu."
+
 #. One of the places an asset is used, in the delete confirmation's list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.appIcon"
 msgstr "das App-Symbol"
+
+#. Mark on the app's entry route in the app canvas's Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.entry"
+msgstr "Hier öffnet sich die App"
 
 #. Explains a missing asset file in the Problems tab, with what to do.
 #. js-lingui-explicit-id

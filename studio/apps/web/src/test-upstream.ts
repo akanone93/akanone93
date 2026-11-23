@@ -295,6 +295,8 @@ export interface FunctionsFixture {
 }
 
 export interface UpstreamData {
+  /** What the server's check of the whole app (ValidateDraft without a plugin) reports (#258, #259). */
+  appDiagnostics?: { code: string; severity: number; file: string; path: string; message: string }[];
   /** Project import and export, the sample apps, the shell settings and onboarding (STU-024, STU-015, GEN-004). */
   projects?: ProjectsData;
   /** The analytics area's data (A24-A30): rollups per event name, funnels and error groups. */
@@ -1031,6 +1033,14 @@ export function createUpstream(state: UpstreamData) {
       }),
     });
     service(DocumentService, {
+      validateDraft: () => ({
+        diagnostics: (state.appDiagnostics ?? []).map((d) => ({
+          code: d.code,
+          severity: d.severity,
+          message: d.message,
+          location: { file: d.file, path: d.path },
+        })),
+      }),
       listSnapshots: () => ({
         snapshots: (state.snapshots ?? []).map((x) => ({
           id: x.id,

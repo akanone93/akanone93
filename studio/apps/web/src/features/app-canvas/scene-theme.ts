@@ -97,6 +97,8 @@ export function readSceneTheme(root: HTMLElement): SceneTheme {
     archivedFill: colour(token("muted")),
     nativeFill: mix("primary", 10),
     nativeStroke: mix("primary", 55),
+    missingFill: mix("color-danger", 10),
+    missingStroke: mix("color-danger", 70),
     stroke: colour(token("border")),
     title: colour(token("card-foreground")),
     secondary: colour(token("muted-foreground")),

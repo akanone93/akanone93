@@ -22,7 +22,7 @@ import {
   type Use,
 } from "../safety/index.ts";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
-import { BOX, type Frame, NATIVE_BOX, type PlacedBox } from "./app-canvas.model.ts";
+import { BOX, type Frame, MISSING_BOX, NATIVE_BOX, type PlacedBox } from "./app-canvas.model.ts";
 
 type Messages = ReturnType<typeof appCanvasMessages>;
 
@@ -65,7 +65,10 @@ export function badgesOf(s: PluginSummary | undefined, entry: boolean, m: Messag
 /** A box as the scene draws it: a plugin or a native target. */
 export interface SceneBox extends PlacedBox {
   readonly title: string;
+  /** Not a plugin: a native target, or a route nothing has (`missing`); it only receives arrows (STU-033). */
   readonly native: boolean;
+  /** A route nothing has, which broken links point at (#259): drawn in the error colour. */
+  readonly missing?: boolean;
   readonly archived: boolean;
   readonly badges: readonly Badge[];
   /** The line under the name; the key when absent. */
@@ -80,6 +83,9 @@ export interface SceneBox extends PlacedBox {
 
 /** The id of a native target's box. */
 export const nativeBox = (route: string): string => `${NATIVE_BOX}${route}`;
+
+/** The id of the box of a route nothing has (#259). */
+export const missingBox = (route: string): string => `${MISSING_BOX}${route}`;
 
 /** Scene item ids: the main rectangle of a box, its parts `<id>::<part>`, frames and the focus ring. */
 export const boxItem = (id: string): string => `app-box/${id}`;
@@ -120,6 +126,9 @@ export interface AppSceneStyle {
   readonly nativeFill: ColorRgba;
   /** The dashed outline of a native target (STU-033). */
   readonly nativeStroke: ColorRgba;
+  /** The fill and dashed outline of a route nothing has, the broken links' end (#259). */
+  readonly missingFill: ColorRgba;
+  readonly missingStroke: ColorRgba;
   readonly stroke: ColorRgba;
   readonly title: ColorRgba;
   readonly secondary: ColorRgba;
@@ -158,6 +167,8 @@ export const appSceneStyle: AppSceneStyle = {
   archivedFill: rgba(primitives["porcelain.100"]),
   nativeFill: rgba(primitives["violet.700"], 0x14),
   nativeStroke: rgba(primitives["violet.700"], 0x8c),
+  missingFill: rgba(primitives["red.600"], 0x14),
+  missingStroke: rgba(primitives["red.600"], 0xb3),
   stroke: rgba(primitives["navy.alpha16"]),
   title: rgba(primitives["navy.900"]),
   secondary: rgba(primitives["navy.500"]),
@@ -397,10 +408,21 @@ function pillItems(
   ];
 }
 
+/** A box's fill: a route nothing has in the error colour, a native target in the brand's, an archived plugin muted. */
+function fillOf(b: SceneBox, style: AppSceneStyle): ColorRgba {
+  if (b.missing === true) {
+    return style.missingFill;
+  }
+  return b.native ? style.nativeFill : b.archived ? style.archivedFill : style.fill;
+}
+
 /** A box's outline: the focus colour when selected; a native target's dashed, so it never reads as a plugin (STU-033). */
 function outlineOf(b: SceneBox, style: AppSceneStyle, selected: boolean) {
   if (selected) {
     return { color: style.focus, width: 2, ...(b.native ? { dash: 7 } : {}) };
+  }
+  if (b.missing === true) {
+    return { color: style.missingStroke, width: 1.5, dash: 7 };
   }
   return b.native ? { color: style.nativeStroke, width: 1.5, dash: 7 } : { color: style.stroke, width: 1 };
 }
@@ -435,7 +457,7 @@ export function boxItems(
       w: BOX.width,
       h: BOX.height,
       radius: CARD.radius,
-      fill: b.native ? style.nativeFill : b.archived ? style.archivedFill : style.fill,
+      fill: fillOf(b, style),
       stroke: outlineOf(b, style, selected),
       shadow: !b.native,
       z,
@@ -735,12 +757,25 @@ export interface AppLink {
   readonly targetPlugin?: string;
 }
 
+/** A route step to a route no screen and no native route has: a link to a screen that no longer exists (#259). */
+export interface BrokenLink {
+  readonly route: string;
+  readonly sourcePlugin: string;
+  readonly sourcePage: string;
+  /** The step's JSON pointer in its page. */
+  readonly pointer: string;
+}
+
 export interface AppGraph {
   readonly links: readonly AppLink[];
+  /** The route steps to routes nothing has, by page and pointer. */
+  readonly broken: readonly BrokenLink[];
   /** The box each graph node is drawn in: a page in its plugin, a native target in itself. */
   readonly boxOf: ReadonlyMap<string, string>;
   /** The native routes some link reaches, sorted. */
   readonly natives: readonly string[];
+  /** The routes nothing has that some link names, sorted (#259). */
+  readonly missing: readonly string[];
   readonly pages: ReadonlyMap<string, PageInfo>;
 }
 
@@ -821,8 +856,9 @@ function pageOf(d: LoadedDoc, pages: ReadonlyMap<string, PageInfo>): PageInfo | 
 }
 
 /**
- * The navigate links of the app (STU-040): every route step of every page to a page of the app or a
- * native route. Links to unknown routes are not arrows; the validator reports them. Sorted by id.
+ * The navigate links of the app (STU-040): every route step of every page to a page of the app, a
+ * native route, or — a broken link, which the validator reports too — a route nothing has, drawn to
+ * a box of its own so the lane's fixes can redirect or remove it (#259). Sorted by id.
  */
 export function appGraph(docs: readonly LoadedDoc[], nativeRoutes: readonly string[]): AppGraph {
   const { pages } = buildWhereUsed(docs);
@@ -832,7 +868,9 @@ export function appGraph(docs: readonly LoadedDoc[], nativeRoutes: readonly stri
   const native = new Set(nativeRoutes);
   const boxOf = new Map<string, string>([...pages.values()].map((p) => [p.id, p.pluginId]));
   const natives = new Set<string>();
+  const missing = new Set<string>();
   const links: AppLink[] = [];
+  const broken: BrokenLink[] = [];
   for (const d of docs) {
     const from = pageOf(d, pages);
     if (from === undefined) {
@@ -849,11 +887,17 @@ export function appGraph(docs: readonly LoadedDoc[], nativeRoutes: readonly stri
         natives.add(s.route);
         boxOf.set(targetNode, targetNode);
         links.push(linkOf(d, from, s, undefined, targetNode, false));
+      } else {
+        const targetNode = missingBox(s.route);
+        missing.add(s.route);
+        boxOf.set(targetNode, targetNode);
+        links.push(linkOf(d, from, s, undefined, targetNode, false));
+        broken.push({ route: s.route, sourcePlugin: from.pluginId, sourcePage: from.id, pointer: s.pointer });
       }
     }
   }
   links.sort((a, b) => (a.edge.id < b.edge.id ? -1 : a.edge.id > b.edge.id ? 1 : 0));
-  return { links, boxOf, natives: [...natives].sort(), pages };
+  return { links, broken, boxOf, natives: [...natives].sort(), missing: [...missing].sort(), pages };
 }
 
 /** "Redirect" on a lane (STU-046): the one step now navigates to `toRoute`, checked against its route. */
@@ -891,11 +935,17 @@ export function pluginEntryRoute(
  * name (#248, #250); undefined otherwise, for the canvas to fall back on the app's default plugin.
  */
 export function entryPluginOf(docs: readonly LoadedDoc[], pages: ReadonlyMap<string, PageInfo>): string | undefined {
-  const app = docs.find((d) => d.kind === "app");
-  const route = isObj(app?.json) ? app.json["entryRoute"] : undefined;
-  if (typeof route !== "string") {
+  const route = appEntryRoute(docs);
+  if (route === undefined) {
     return undefined;
   }
   const owners = [...pages.values()].filter((p) => p.route === route);
   return owners.length === 1 ? owners[0]?.pluginId : undefined;
+}
+
+/** The route the app opens at, as `app.json` names it; undefined when it names none. */
+export function appEntryRoute(docs: readonly LoadedDoc[]): string | undefined {
+  const app = docs.find((d) => d.kind === "app");
+  const route = isObj(app?.json) ? app.json["entryRoute"] : undefined;
+  return typeof route === "string" ? route : undefined;
 }

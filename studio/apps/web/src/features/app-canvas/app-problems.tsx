@@ -7,7 +7,7 @@ import { type Diagnostic, DocumentService, Severity } from "@plux/api";
 import { Icon, type IconName } from "@plux/ui";
 import { Button } from "@plux/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
-import { type ReactNode, useMemo } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { nodeOfPointer } from "../problems/problem-nodes.ts";
 import { problemsMessages } from "../problems/problems.messages.ts";
@@ -133,6 +133,37 @@ export function draftsRevision(
     .join("\n");
 }
 
+/** A plugin's first error and its count of errors, as its card on the canvas shows them (#259); undefined when none. */
+export function firstErrorOf(
+  problems: readonly AppProblem[],
+  pluginKey: string,
+): { readonly first: AppProblem; readonly count: number } | undefined {
+  const errors = problems.filter((p) => p.severity === "error" && pluginKeyOf(p.file) === pluginKey);
+  const first = errors[0];
+  return first === undefined ? undefined : { first, count: errors.length };
+}
+
+/** A request to show one plugin's problems: its key, and a number that changes with each request. */
+export interface ProblemFocus {
+  readonly key: string;
+  readonly nonce: number;
+}
+
+/**
+ * Opening the Problems tab at a plugin (#259): `show(key)` asks the dock for the tab (`reveal`) and the list for the
+ * plugin's group (`focus`); each request is new, so the same plugin can be shown again after scrolling away.
+ */
+export function useProblemReveal(): {
+  readonly reveal: { readonly tab: string; readonly nonce: number } | undefined;
+  readonly focus: ProblemFocus | undefined;
+  readonly show: (key: string) => void;
+} {
+  const [focus, setFocus] = useState<ProblemFocus | undefined>(undefined);
+  const show = useCallback((key: string) => setFocus((was) => ({ key, nonce: (was?.nonce ?? 0) + 1 })), []);
+  const reveal = useMemo(() => (focus === undefined ? undefined : { tab: "problems", nonce: focus.nonce }), [focus]);
+  return { reveal, focus, show };
+}
+
 /** The server's check of the whole app, again whenever the stored drafts changed (`revision`, `draftsRevision`). */
 export function useAppProblems(appId: string, revision: string | undefined) {
   const { session } = useApp();
@@ -163,8 +194,15 @@ function Groups(props: {
   const m = appCanvasMessages(i18n);
   const label = { error: pm.severityError, warning: pm.severityWarning, info: pm.severityInfo };
   return groupByPlugin(props.problems, props.plugins).map((g) => (
-    <section key={g.plugin?.key ?? ""} className="app-problems-group" aria-label={g.plugin?.name ?? pm.project}>
-      <h3 className="text-label font-medium">{g.plugin?.name ?? pm.project}</h3>
+    <section
+      key={g.plugin?.key ?? ""}
+      className="app-problems-group"
+      aria-label={g.plugin?.name ?? pm.project}
+      data-plugin-key={g.plugin?.key ?? ""}
+    >
+      <h3 className="text-label font-medium" tabIndex={-1}>
+        {g.plugin?.name ?? pm.project}
+      </h3>
       {g.files.map(([file, list]) => (
         <div key={file} className="mt-1">
           <p className="font-mono text-caption text-muted-foreground">{file === "" ? pm.project : file}</p>
@@ -196,17 +234,35 @@ function Groups(props: {
   ));
 }
 
-/** The Problems tab of the app canvas's dock. */
+/** The Problems tab of the app canvas's dock; `focus` brings a plugin's group into view and to the keyboard (#259). */
 export function AppProblems(props: {
   readonly state: "loading" | "failed" | "done";
   readonly problems: readonly AppProblem[];
   readonly plugins: readonly ProblemPlugin[];
   readonly docs: readonly LoadedDoc[];
   readonly onOpen: (target: ProblemTarget) => void;
+  readonly focus?: ProblemFocus | undefined;
 }): ReactNode {
   const { i18n } = useLingui();
   const pm = problemsMessages(i18n);
   const m = appCanvasMessages(i18n);
+  const list = useRef<HTMLDivElement>(null);
+  const focus = props.focus;
+  const ready = props.state === "done";
+  useEffect(() => {
+    if (focus === undefined || !ready) {
+      return;
+    }
+    // After the dock has switched to this tab and drawn it.
+    const frame = requestAnimationFrame(() => {
+      const group = [...(list.current?.querySelectorAll<HTMLElement>("[data-plugin-key]") ?? [])].find(
+        (el) => el.dataset["pluginKey"] === focus.key,
+      );
+      group?.scrollIntoView?.({ block: "start" });
+      group?.querySelector<HTMLElement>("h3")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focus, ready]);
   if (props.state === "loading") {
     return <p className="dock-note">{m.checkingApp}</p>;
   }
@@ -220,7 +276,7 @@ export function AppProblems(props: {
   const issues = props.problems.filter((p) => p.severity !== "info");
   const notes = props.problems.filter((p) => p.severity === "info");
   return (
-    <div className="app-problems flex flex-col gap-3">
+    <div ref={list} className="app-problems flex flex-col gap-3">
       {issues.length === 0 ? (
         <p className="dock-note">{pm.none}</p>
       ) : (
@@ -254,7 +310,14 @@ export function useProblemsPane(
   }[],
   docs: readonly LoadedDoc[],
   onOpen: (target: ProblemTarget) => void,
-): { readonly label: string; readonly meta: string; readonly panel: ReactNode } {
+  focus?: ProblemFocus,
+): {
+  readonly label: string;
+  readonly meta: string;
+  readonly panel: ReactNode;
+  /** The problems found, empty until the check is done. */
+  readonly problems: readonly AppProblem[];
+} {
   const { i18n } = useLingui();
   const checked = useAppProblems(appId, revision);
   const plugins = useMemo(
@@ -269,6 +332,9 @@ export function useProblemsPane(
   return {
     label: problemsMessages(i18n).tab,
     meta: checked.data === undefined ? "" : String(problems.filter((p) => p.severity !== "info").length),
-    panel: <AppProblems state={state} problems={problems} plugins={plugins} docs={docs} onOpen={onOpen} />,
+    panel: (
+      <AppProblems state={state} problems={problems} plugins={plugins} docs={docs} onOpen={onOpen} focus={focus} />
+    ),
+    problems,
   };
 }

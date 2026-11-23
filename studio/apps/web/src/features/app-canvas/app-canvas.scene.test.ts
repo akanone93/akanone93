@@ -19,6 +19,7 @@ import { appCanvasMessages } from "./app-canvas.messages.ts";
 import { BOX } from "./app-canvas.model.ts";
 import {
   appGraph,
+  appSceneStyle,
   badgesOf,
   boxDepth,
   boxItem,
@@ -30,6 +31,7 @@ import {
   focusItem,
   frameItems,
   layoutPills,
+  missingBox,
   nativeBox,
   pluginEntryRoute,
   redirectLink,
@@ -74,6 +76,13 @@ describe("C1 scene items [STU-030]", () => {
     const main = boxItems(native).find((i) => i.id === `app-box/${nativeBox("camera")}`);
     expect(main).toMatchObject({ stroke: { dash: 7 }, shadow: false });
     expect(boxItems(native).some((i) => i.kind === "text" && i.text === "Native")).toBe(true);
+    // A route nothing has, which broken links point at, is dashed in the error colour (#259).
+    const missing = { ...native, id: missingBox("gone"), key: "gone", missing: true, release: "No screen" };
+    const gone = boxItems(missing).find((i) => i.id === `app-box/${missingBox("gone")}`);
+    expect(gone).toMatchObject({
+      stroke: { dash: 7, color: appSceneStyle.missingStroke },
+      fill: appSceneStyle.missingFill,
+    });
     const plugin = boxItems(box("loans", 0, 0)).find((i) => i.id === "app-box/loans");
     expect(plugin).toMatchObject({ shadow: true });
     expect(plugin?.kind === "rect" ? plugin.stroke?.dash : 0).toBeUndefined();
@@ -194,14 +203,18 @@ describe("badge pills [STU-030]", () => {
 describe("C1 arrows [STU-040] [STU-041]", () => {
   const graph = appGraph(docs, ["camera"]);
 
-  test("links between plugins and to native routes are lanes; unknown routes are not [STU-033]", () => {
+  test("links between plugins, to native routes and to routes nothing has are lanes [STU-033] (#259)", () => {
     expect(graph.links.map((l) => l.edge.title)).toEqual(
-      ["home → offers", "home → terms", "home → camera", "terms → home"].sort(
+      ["home → offers", "home → terms", "home → camera", "home → nowhere", "terms → home"].sort(
         (a, b) => graph.links.findIndex((l) => l.edge.title === a) - graph.links.findIndex((l) => l.edge.title === b),
       ),
     );
     expect(graph.natives).toEqual(["camera"]);
     expect(graph.links.find((l) => l.route === "camera")?.edge.target).toBe(nativeBox("camera"));
+    // A link to a route nothing has is drawn to a box of its own, so its lane can redirect or remove it (STU-046).
+    expect(graph.missing).toEqual(["nowhere"]);
+    expect(graph.links.find((l) => l.route === "nowhere")?.edge.target).toBe(missingBox("nowhere"));
+    expect(graph.broken.map((b) => b.route)).toEqual(["nowhere"]);
     expect(graph.links.find((l) => l.route === "offers")?.edge.trigger).toBe("home · onPressed");
   });
 
@@ -213,6 +226,7 @@ describe("C1 arrows [STU-040] [STU-041]", () => {
     expect(bundles.map((b) => [b.id, b.links.length])).toEqual([
       ["cards→loans", 1],
       ["loans→cards", 2],
+      [`loans→${missingBox("nowhere")}`, 1],
       [`loans→${nativeBox("camera")}`, 1],
     ]);
     const router = new ArrowRouter([], []);

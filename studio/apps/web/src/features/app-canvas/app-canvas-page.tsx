@@ -27,6 +27,9 @@ import { declaredNativeRoutes, useNativeRoutes } from "../plugin-canvas/use-nati
 import { useAppDocuments, usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
 import { type ChangeSet, type LoadedDoc, loadedDocs, type PageInfo, useChangeSets } from "../safety/index.ts";
 import { appCanvasMessages } from "./app-canvas.messages.ts";
+
+type Messages = ReturnType<typeof appCanvasMessages>;
+
 import {
   APP_CANVAS_PATH,
   BOX,
@@ -38,6 +41,7 @@ import {
   type FrameChange,
   fitViewport,
   openingViewport,
+  type PlacedBox,
   type Point,
   placeBoxes,
   readSavedCanvas,
@@ -46,9 +50,11 @@ import {
 } from "./app-canvas.model.ts";
 import {
   type AppLink,
+  appEntryRoute,
   appGraph,
   badgesOf,
   entryPluginOf,
+  missingBox,
   nativeBox,
   pluginEntryRoute,
   redirectLink,
@@ -56,7 +62,16 @@ import {
   type SceneBox,
 } from "./app-canvas.scene.ts";
 import { AppDock } from "./app-dock.tsx";
-import { draftsRevision, type ProblemTarget, problemSearch, useProblemsPane } from "./app-problems.tsx";
+import {
+  type AppProblem,
+  draftsRevision,
+  firstErrorOf,
+  type ProblemTarget,
+  problemSearch,
+  useProblemReveal,
+  useProblemsPane,
+} from "./app-problems.tsx";
+import { type RouteScreen, useRoutesPane } from "./app-routes.tsx";
 import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
 import {
   AppBar,
@@ -361,6 +376,32 @@ function useEntryKey(
   }, [list, loaded, pages, defaultKey]);
 }
 
+/**
+ * The box of a route that is no plugin's, saying so in its chip where a plugin shows its release: a native target
+ * (STU-033), or a route nothing has, which broken links point at (#259).
+ */
+function routeBox(b: PlacedBox, missing: boolean, m: Messages): SceneBox {
+  const base = { ...b, title: b.key, native: true, archived: false };
+  return missing
+    ? { ...base, missing: true, badges: [{ status: "danger", label: m.noScreen }], release: m.noScreen }
+    : { ...base, badges: [], release: m.native };
+}
+
+/** The detail panel's first error of a plugin and the way to all of them (#259); nothing when it has none. */
+function detailProblems(
+  problems: readonly AppProblem[],
+  key: string,
+  show: (key: string) => void,
+): { firstError?: { message: string; code: string; count: number }; onShowProblems?: () => void } {
+  const found = firstErrorOf(problems, key);
+  return found === undefined
+    ? {}
+    : {
+        firstError: { message: found.first.message, code: found.first.code, count: found.count },
+        onShowProblems: () => show(key),
+      };
+}
+
 /** The route a plugin, named by its key, opens at (#248). */
 function entryRouteOfKey(
   list: readonly PluginSummary[],
@@ -422,7 +463,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     // the canvas shows, so linked plugins sit near each other (#205); the summaries' links add what is not loaded yet.
     const drawn = graph.links.flatMap((l) =>
       l.targetPage === undefined
-        ? [{ from: l.sourcePlugin, to: nativeBox(l.route) }]
+        ? [{ from: l.sourcePlugin, to: l.edge.target }]
         : l.targetPlugin !== undefined && l.targetPlugin !== l.sourcePlugin
           ? [{ from: l.sourcePlugin, to: l.targetPlugin }]
           : [],
@@ -440,22 +481,24 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     const nodes = [
       ...list.flatMap((s) => (s.plugin === undefined ? [] : [{ id: s.plugin.id, key: s.plugin.key }])),
       ...graph.natives.map((r) => ({ id: nativeBox(r), key: r })),
+      ...graph.missing.map((r) => ({ id: missingBox(r), key: r })),
     ];
     const entry = nodes.find((n) => n.key === entryKey)?.id;
     return placeBoxes(nodes, positions, links, entry).map((b) => {
       const s = summaryOf.get(b.id);
-      const native = s === undefined && b.id === nativeBox(b.key);
+      if (s === undefined && (b.id === nativeBox(b.key) || b.id === missingBox(b.key))) {
+        return routeBox(b, b.id === missingBox(b.key), m);
+      }
       return {
         ...b,
-        title: native ? b.key : (s?.plugin?.name ?? b.key),
-        native,
+        title: s?.plugin?.name ?? b.key,
+        native: false,
         archived: s?.plugin?.archived === true,
-        badges: native ? [] : badgesOf(s, b.key === entryKey, m),
-        // A native target says so in its chip, where a plugin shows its release (STU-033).
-        ...(native ? { release: m.native } : boxFacts(s, m, teamName)),
+        badges: badgesOf(s, b.key === entryKey, m),
+        ...boxFacts(s, m, teamName),
       };
     });
-  }, [list, graph.natives, positions, links, summaryOf, entryKey, m, teamName]);
+  }, [list, graph.natives, graph.missing, positions, links, summaryOf, entryKey, m, teamName]);
 
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [hover, setHover] = useState<string | undefined>();
@@ -627,13 +670,34 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       });
     }
   };
-  // The whole app's problems, checked again whenever a stored draft changed (#258).
+  // The whole app's problems, checked again whenever a stored draft changed (#258); a plugin's card shows its first
+  // error and opens the tab at it (#259).
   const drafts = useMemo(() => draftsRevision(project.data), [project.data]);
-  const problemsPane = useProblemsPane(appId, drafts, list, loaded, (t: ProblemTarget) =>
+  const problemReveal = useProblemReveal();
+  const problemsPane = useProblemsPane(
+    appId,
+    drafts,
+    list,
+    loaded,
+    (t: ProblemTarget) =>
+      navigate({
+        to: "/o/$org/apps/$app/plugins/$plugin",
+        params: { org: orgKey, app: appId, plugin: t.pluginId },
+        search: problemSearch(t),
+      }),
+    problemReveal.focus,
+  );
+  // Every route of the app, each opening its screen (#268).
+  const entryRoute = useMemo(
+    () => appEntryRoute(loaded) ?? entryRouteOfKey(list, loaded, graph.pages, entryKey),
+    [loaded, list, graph.pages, entryKey],
+  );
+  const pluginName = useCallback((id: string) => summaryOf.get(id)?.plugin?.name ?? id, [summaryOf]);
+  const routesPane = useRoutesPane(graph, nativeRoutes, entryRoute, pluginName, (s: RouteScreen) =>
     navigate({
       to: "/o/$org/apps/$app/plugins/$plugin",
-      params: { org: orgKey, app: appId, plugin: t.pluginId },
-      search: problemSearch(t),
+      params: { org: orgKey, app: appId, plugin: s.pluginId },
+      search: { focus: s.pageId },
     }),
   );
   const openScreen = (plugin: string, page: string) =>
@@ -860,6 +924,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             frameTools={<FrameTools frames={frames} messages={m} onChange={changeFrameOf} />}
             assets={{ label: assetsMessages(i18n).tab, panel: <AppAssets appId={appId} documents={documents} /> }}
             problems={problemsPane}
+            routes={routesPane}
+            reveal={problemReveal.reveal}
           />
           {detail?.plugin === undefined ? null : (
             <DetailCard
@@ -869,6 +935,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
               miniMap={miniMap}
               published={published}
               actions={actions}
+              {...detailProblems(problemsPane.problems, detail.plugin.key, problemReveal.show)}
             />
           )}
         </div>

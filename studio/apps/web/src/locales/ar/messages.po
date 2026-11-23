@@ -328,6 +328,12 @@ msgstr "{count, plural, zero {غير متصل} one {غير متصل — تغيي
 msgid "history.restored"
 msgstr "{count, plural, zero {لم تُستعد أي مستندات.} one {تمت استعادة مستند واحد.} two {تمت استعادة مستندين.} few {تمت استعادة # مستندات.} many {تمت استعادة # مستندًا.} other {تمت استعادة # مستند.}}"
 
+#. Button under a plugin's first error in its detail panel: opens the app's Problems tab at the plugin.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.showProblems"
+msgstr "{count, plural, one {عرض الخطأ} two {عرض الخطأين} few {عرض الأخطاء الـ#} many {عرض الأخطاء الـ#} other {عرض الأخطاء الـ#}}"
+
 #. Where a translation key is used, so it cannot be deleted (STU-072); the first documents follow, the rest under Show all.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
@@ -6096,6 +6102,12 @@ msgstr "تكرار الشاشة"
 msgid "pluginCanvas.command.duplicate"
 msgstr "تكرار التحديد"
 
+#. Warning on a route name several screens share (an error the check reports), in the Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.shared"
+msgstr "مكرر: تحمل عدة شاشات هذا الاسم، والرابط إليه يصل إلى أي منها"
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -7306,6 +7318,12 @@ msgstr "التنبيهات النشطة"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.starter.first"
 msgstr "الأول"
+
+#. Accessible name of the plugin detail panel's box with the plugin's first error (from the app's check).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.firstError"
+msgstr "الخطأ الأول"
 
 #. Shown when a plugin has no earlier version to compare the size with.
 #. js-lingui-explicit-id
@@ -9587,6 +9605,12 @@ msgstr "ربط بشاشة"
 msgid "pluginCanvas.laneTitle"
 msgstr "الرابط: {title}"
 
+#. Heading of the screens that navigate to a route, in the app canvas's Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.linkedFrom"
+msgstr "مرتبط من"
+
 #. Announced while a link is dragged over a screen; target is the screen's title.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -11369,6 +11393,12 @@ msgstr "لا توجد نتائج بعد."
 msgid "releases.noRollout"
 msgstr "لا يوجد طرح"
 
+#. The app canvas's Routes tab when the search matches no route.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.noMatches"
+msgstr "لا يوجد مسار يطابق البحث."
+
 #. Empty state of the runs table.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -11381,11 +11411,23 @@ msgstr "لم يُبلَّغ عن أي تشغيل بعد."
 msgid "tests.noScenarios"
 msgstr "لا توجد سيناريوهات بعد."
 
+#. Chip and badge on the app canvas's box of a route that links navigate to but no screen has: the links are broken.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.noScreen"
+msgstr "لا توجد شاشة"
+
 #. Problem shown for a link whose target screen does not exist; route is the route name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
 msgid "links.missing"
 msgstr "لا توجد شاشة بالمسار {route}."
+
+#. Warning on a route that links navigate to but no screen or native route has, in the Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.missing"
+msgstr "لا توجد شاشة لهذا المسار: الروابط إليه معطلة"
 
 #. Shown when the app has no screen a link could target.
 #. js-lingui-explicit-id
@@ -12076,6 +12118,12 @@ msgstr "فتح"
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.apps.open"
 msgstr "فتح {name}"
+
+#. Accessible name of a screen in the Routes tab, e.g. 'Open Launch › Home': opens its plugin at it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.open"
+msgstr "فتح {where}"
 
 #. Link from the popover to the full inbox.
 #. js-lingui-explicit-id
@@ -14967,6 +15015,12 @@ msgstr "اسم المسار"
 msgid "shell.field.router"
 msgstr "الموجِّه"
 
+#. Tab of the app canvas's left dock: every route of the app, each opening its screen.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.tab"
+msgstr "المسارات"
+
 #. Children side by side, along the reading direction.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/layout-panel.messages.ts
@@ -15638,6 +15692,12 @@ msgstr "ابحث أو نفّذ أمرًا"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.searchPlugins"
 msgstr "البحث في الإضافات"
+
+#. Placeholder and accessible name of the search field of the app canvas's Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.search"
+msgstr "البحث في المسارات والشاشات"
 
 #. Title of the search and command palette dialog.
 #. js-lingui-explicit-id
@@ -17559,11 +17619,23 @@ msgstr "لا توجد إضافات في التطبيق."
 msgid "shell.icon.no-assets"
 msgstr "لا توجد في التطبيق أصول PNG بعد. ارفع واحدة هنا لاستخدامها أيقونة."
 
+#. The app canvas's Routes tab when the app has no screen and no native route.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.none"
+msgstr "لا توجد مسارات في التطبيق بعد: أضف شاشة إلى إضافة."
+
 #. One of the places an asset is used, in the delete confirmation's list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.appIcon"
 msgstr "أيقونة التطبيق"
+
+#. Mark on the app's entry route in the app canvas's Routes tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.entry"
+msgstr "يفتح التطبيق هنا"
 
 #. Explains a missing asset file in the Problems tab, with what to do.
 #. js-lingui-explicit-id
