@@ -259,6 +259,28 @@ describe("[STU-061] layer tree", () => {
     expect(picked).toEqual(["col"]);
   });
 
+  test("[STU-061] the arrow keys act on the row last chosen, not the one the tree first had in focus (#218)", () => {
+    let open: readonly string[] = ["s1"];
+    const view = (o: readonly string[]) => (
+      <LayerTree
+        nodes={nodes}
+        rootId="root"
+        label="Layers"
+        selected={[]}
+        onSelect={() => undefined}
+        expanded={o}
+        onExpandedChange={(next) => (open = next)}
+      />
+    );
+    const { rerender } = render(view(open));
+    const row = (id: string) => document.querySelector(`[data-item-id="${id}"]`) as HTMLElement;
+    fireEvent.click(row("col"));
+    fireEvent.keyDown(row("col"), { key: "ArrowRight", code: "ArrowRight" });
+    expect(open).toEqual(["s1", "col"]);
+    rerender(view(open));
+    expect(row("t1")).not.toBeNull();
+  });
+
   test("[STU-061] a row deleted or added with the same rows open is dropped or shown, never read when gone", () => {
     const open: readonly string[] = ["s1", "col"];
     const view = (n: Record<string, LayerNode>, selected: readonly string[]) => (

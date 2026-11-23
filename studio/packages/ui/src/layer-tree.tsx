@@ -198,8 +198,17 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
   const toggle = (id: string, isOpen: boolean) =>
     setExpanded(isOpen ? expanded.filter((x) => x !== id) : [...expanded, id]);
 
+  // The tree's own ref and ours on one element: with only ours, the tree never had its element, never listened for
+  // keys, and no arrow key worked in Layers (#218).
+  const { ref: treeRef, ...container } = tree.getContainerProps(label);
+  const setBox = (el: HTMLDivElement | null) => {
+    box.current = el;
+    if (typeof treeRef === "function") {
+      treeRef(el);
+    }
+  };
   return (
-    <div {...tree.getContainerProps(label)} ref={box} dir={dir} className="flex flex-col gap-px outline-none">
+    <div {...container} ref={setBox} dir={dir} className="flex flex-col gap-px outline-none">
       {tree.getItems().map((item) => {
         const id = item.getId();
         if (keep !== null && !keep.has(id)) {
@@ -232,7 +241,12 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
               }
             }}
             onToggle={() => toggle(id, item.isExpanded())}
-            onSelect={(toggleSel) => onSelect(id, toggleSel)}
+            onSelect={(toggleSel) => {
+              // The tree's own focus follows a click, which its keys act on: without it, an arrow key after choosing a
+              // row moved or opened the row the tree last had in focus (#218).
+              item.setFocused();
+              onSelect(id, toggleSel);
+            }}
             onDrop={onDrop === undefined ? undefined : (dragged, half) => onDrop(dragged, id, half)}
             actions={props.actions}
           />
