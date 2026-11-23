@@ -4,6 +4,8 @@
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { type DevDevice, type DevEvent, DevPhoneService } from "@plux/api";
+import { Icon } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
@@ -11,6 +13,8 @@ import type { StreamState } from "../shell/studio-events.ts";
 import { devicesMessages } from "./devices.messages.ts";
 import type { Buffer } from "./drawer-model.ts";
 import { JoinPrompts, type JoinRequests, reconcileJoins, withJoinEvent } from "./join-prompt.tsx";
+import { PairingDialog } from "./pairing-dialog.tsx";
+import { SendToDeviceDialog } from "./send-dialog.tsx";
 import { studioSessionKey, useDevClient, useStudioDevSession } from "./use-dev-session.ts";
 import { useDeviceEvents } from "./use-device-events.ts";
 import "./dev-link.css";
@@ -240,13 +244,16 @@ export function DevLinkPrompts(): ReactNode {
 }
 
 /**
- * The app canvas's view of the link: the pill, the connected devices by name, and the prompts of phones asking to
- * join above it. Nothing shows while the person may not start a dev session.
+ * The app canvas's view of the link: the pill, the connected devices by name, the prompts of phones asking to join
+ * above it, and — as a plugin's device bay has them (#262) — pairing a device by QR code or short code, and opening a
+ * route on the devices, `route` (the app's entry) first. Nothing shows while the person may not start a dev session.
  */
-export function DevLinkBar(): ReactNode {
+export function DevLinkBar({ route }: { readonly route?: string | undefined }): ReactNode {
   const link = useDevLink();
   const m = devicesMessages(useLingui().i18n);
-  if (link?.sessionId === undefined) {
+  const [dialog, setDialog] = useState<"pair" | "send" | null>(null);
+  const sessionId = link?.sessionId;
+  if (link === undefined || sessionId === undefined) {
     return null;
   }
   const names = link.devices.filter((d) => d.connected).map((d) => d.name);
@@ -256,7 +263,19 @@ export function DevLinkBar(): ReactNode {
       <div className="dev-link-row">
         <DevLinkPill status={link.status} />
         {names.length > 0 && <span className="dev-link-devices">{names.join(" · ")}</span>}
+        <Button size="sm" variant="ghost" onClick={() => setDialog("pair")}>
+          <Icon name="device-mobile" data-icon="inline-start" />
+          {m.pairAction}
+        </Button>
+        <Button size="sm" variant="ghost" disabled={names.length === 0} onClick={() => setDialog("send")}>
+          <Icon name="paper-plane-tilt" data-icon="inline-start" />
+          {m.sendAction}
+        </Button>
       </div>
+      {dialog === "pair" && <PairingDialog sessionId={sessionId} onClose={() => setDialog(null)} />}
+      {dialog === "send" && (
+        <SendToDeviceDialog sessionId={sessionId} initialRoute={route ?? ""} onClose={() => setDialog(null)} />
+      )}
     </section>
   );
 }

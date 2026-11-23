@@ -6,7 +6,7 @@ import { create } from "@bufbuild/protobuf";
 import { DevEventSchema, DevJoinState } from "@plux/api";
 import { createStudioI18n } from "@plux/i18n";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { type ReactNode, useState } from "react";
 import { I18nProvider, useStudioI18n } from "../../i18n-provider.tsx";
 import { createSession } from "../../lib/session.ts";
@@ -98,6 +98,26 @@ describe("the app's link with its devices (DEV-002, DEV-020, ADR-0104)", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Developer console" }));
     fireEvent.click(await screen.findByRole("tab", { name: /^Logs/ }));
     expect(await screen.findByText(/hello from the phone/)).toBeTruthy();
+  });
+});
+
+describe("devices from the app canvas (#262)", () => {
+  test("the bar pairs a device by QR code, and opens the app's entry route on the connected devices", async () => {
+    renderLink({ devSession: { devices, events: [] } }, <DevLinkBar route="home" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Pair a device" }));
+    const pairing = await screen.findByRole("dialog");
+    expect(await within(pairing).findByRole("timer")).toBeTruthy();
+    fireEvent.click(within(pairing).getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(screen.queryByRole("dialog") === null).toBe(true));
+    fireEvent.click(screen.getByRole("button", { name: "Send to device" }));
+    const send = await screen.findByRole("dialog");
+    expect((within(send).getByRole("textbox", { name: "Screen route" }) as HTMLInputElement).value).toBe("home");
+  });
+
+  test("with no device connected, there is nothing to send to yet", async () => {
+    renderLink({ devSession: { devices: [], events: [] } }, <DevLinkBar route="home" />);
+    const send = await screen.findByRole("button", { name: "Send to device" });
+    expect(send.matches(":disabled, [aria-disabled=true]")).toBe(true);
   });
 });
 

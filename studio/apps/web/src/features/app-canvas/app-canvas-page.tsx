@@ -968,7 +968,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
               onFit={fit}
             />
           </div>
-          <DevLinkBar />
+          <DevLinkBar route={entryRoute} />
           <Panel className="canvas-bar canvas-hint hidden px-4 text-xs text-muted-foreground lg:flex">{m.hint}</Panel>
         </div>
       </div>
