@@ -120,7 +120,11 @@ export function useGhostLayer(input: GhostLayerInput): {
   const ghosts = input.ghostStyle ?? ghostStyle;
   // A new style comes with a new surface (the page makes one per theme), which builds its arrows anew.
   const arrows = input.arrowStyle ?? arrowStyle;
-  const m = pluginCanvasMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = useMemo(() => pluginCanvasMessages(i18n), [i18n]);
+  // The surface drawn on now. The effects follow it, not the getter: the page hands a new getter on every render, and
+  // following that set the arrows' graph again several times for each selection (#218).
+  const onSurface = surface();
   const { session } = useApp();
   const queryClient = useQueryClient();
   const assets = useMemo(() => createClient(AssetService, session.transport), [session.transport]);
@@ -144,7 +148,7 @@ export function useGhostLayer(input: GhostLayerInput): {
   const [imageKeys, setImageKeys] = useState<ReadonlyMap<string, string>>(new Map());
   const loaded = useRef(new Set<string>());
   useEffect(() => {
-    const target = surface();
+    const target = onSurface;
     const screenIds = placed.flatMap((g) => (g.screenId === undefined ? [] : [g.screenId]));
     if (target === null || listed.data === undefined || screenIds.length === 0) {
       return;
@@ -177,7 +181,7 @@ export function useGhostLayer(input: GhostLayerInput): {
     return () => {
       current = false;
     };
-  }, [surface, listed.data, placed]);
+  }, [onSurface, listed.data, placed]);
 
   const drawn = useRef<Drawn | null>(null);
   /**
@@ -192,7 +196,7 @@ export function useGhostLayer(input: GhostLayerInput): {
   /** The screens whose arrows are highlighted, kept for a redraw onto a new surface or graph. */
   const lit = useRef<readonly string[]>([]);
   useEffect(() => {
-    const target = surface();
+    const target = onSurface;
     if (target === null || target.patch === undefined || heights.size === 0) {
       return;
     }
@@ -232,11 +236,11 @@ export function useGhostLayer(input: GhostLayerInput): {
     ];
     d.router.setGraph(boxes, deriveBundles(graph.edges));
     target.patch([...d.ghosts.sync(items), ...d.arrows.render(d.motion.now())]);
-  }, [surface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device, ghosts, arrows]);
+  }, [onSurface, screens, heights, placed, imageKeys, graph.edges, m.ghostLinks, device, ghosts, arrows]);
 
   const known = useRef(new Map<string, string>());
   useEffect(() => {
-    const target = surface();
+    const target = onSurface;
     if (!canEdit || target?.thumbnail === undefined || heights.size === 0 || appId === "" || appLock === undefined) {
       return;
     }
@@ -263,7 +267,7 @@ export function useGhostLayer(input: GhostLayerInput): {
         .catch(() => undefined);
     }, THUMBNAIL_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [surface, canEdit, heights, screens, appId, appLock, assets, queryClient]);
+  }, [onSurface, canEdit, heights, screens, appId, appLock, assets, queryClient]);
 
   useEffect(() => () => drawn.current?.motion.dispose(), []);
 

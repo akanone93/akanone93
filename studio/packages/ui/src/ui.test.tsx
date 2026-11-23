@@ -13,7 +13,7 @@ import { cases as iconCases } from "./icon.cases.tsx";
 import { Icon } from "./icon.tsx";
 import { iconMirrors, mirroredIcons } from "./icon-mirrors.ts";
 import { iconNames, icons } from "./icons.ts";
-import { type LayerNode, LayerTree, layerFolders, layerMatches } from "./layer-tree.tsx";
+import { type LayerNode, LayerTree, layerFolders, layerMatches, layerStep } from "./layer-tree.tsx";
 import { cases as menuCases } from "./menu.cases.tsx";
 import { Menu } from "./menu.tsx";
 import { cases as popoverCases } from "./popover.cases.tsx";
@@ -279,6 +279,97 @@ describe("[STU-061] layer tree", () => {
     expect(open).toEqual(["s1", "col"]);
     rerender(view(open));
     expect(row("t1")).not.toBeNull();
+  });
+
+  test("[STU-061] a deep tree narrows its indent instead of running off the side (#218)", () => {
+    expect(layerStep(0)).toBe("20px");
+    expect(layerStep(12)).toBe("clamp(4px, calc(45cqi / 12), 20px)");
+    const deep: Record<string, LayerNode> = { root: { id: "root", name: "", type: "", children: ["n0"] } };
+    for (let i = 0; i < 13; i++) {
+      deep[`n${i}`] = { id: `n${i}`, name: `Node ${i}`, type: "Column", children: i < 12 ? [`n${i + 1}`] : [] };
+    }
+    const open = Array.from({ length: 12 }, (_, i) => `n${i}`);
+    render(
+      <LayerTree
+        nodes={deep}
+        rootId="root"
+        label="Layers"
+        selected={["n12"]}
+        onSelect={() => undefined}
+        expanded={open}
+      />,
+    );
+    const tree = document.querySelector("[role='tree']") as HTMLElement;
+    // One indent for every row, from the deepest row open; each row has a guide per ancestor.
+    expect(tree.style.getPropertyValue("--layer-step")).toBe(layerStep(12));
+    const guides = (id: string) => document.querySelector(`[data-item-id="${id}"] [data-guides]`)?.children.length ?? 0;
+    expect(guides("n0")).toBe(0);
+    expect(guides("n12")).toBe(12);
+  });
+
+  test("[STU-061] a tree of thousands of open rows draws only the rows in view, small trees every row (#218)", () => {
+    const wide: Record<string, LayerNode> = { root: { id: "root", name: "", type: "", children: ["s"] } };
+    const kids = Array.from({ length: 3000 }, (_, i) => `t${i}`);
+    wide["s"] = { id: "s", name: "Home", type: "Scaffold", children: kids };
+    for (const k of kids) {
+      wide[k] = { id: k, name: k, type: "Text" };
+    }
+    // The test document has no layout: the pane is given 400 pixels and each row 28.
+    const proto = HTMLElement.prototype;
+    const saved = ["clientHeight", "offsetHeight"].map((k) => [k, Object.getOwnPropertyDescriptor(proto, k)] as const);
+    Object.defineProperty(proto, "clientHeight", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.dataset["pane"] === undefined ? 0 : 400;
+      },
+    });
+    Object.defineProperty(proto, "offsetHeight", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.getAttribute("role") === "treeitem" ? 28 : 0;
+      },
+    });
+    try {
+      render(
+        <div data-pane="" style={{ overflowY: "auto", height: "400px" }}>
+          <LayerTree
+            nodes={wide}
+            rootId="root"
+            label="Layers"
+            selected={[]}
+            onSelect={() => undefined}
+            expanded={["s"]}
+          />
+        </div>,
+      );
+      const drawn = document.querySelectorAll("[role='treeitem']");
+      expect(drawn.length).toBeGreaterThan(10);
+      expect(drawn.length).toBeLessThan(100);
+      // Each drawn row still tells assistive technology where it stands in the whole list.
+      expect(drawn[1]?.getAttribute("aria-setsize")).toBe("3000");
+      cleanup();
+      render(
+        <div data-pane="" style={{ overflowY: "auto", height: "400px" }}>
+          <LayerTree
+            nodes={nodes}
+            rootId="root"
+            label="Layers"
+            selected={[]}
+            onSelect={() => undefined}
+            expanded={["s1", "col"]}
+          />
+        </div>,
+      );
+      expect(document.querySelectorAll("[role='treeitem']").length).toBe(4);
+    } finally {
+      for (const [k, d] of saved) {
+        if (d === undefined) {
+          delete (proto as unknown as Record<string, unknown>)[k];
+        } else {
+          Object.defineProperty(proto, k, d);
+        }
+      }
+    }
   });
 
   test("[STU-061] a row deleted or added with the same rows open is dropped or shown, never read when gone", () => {

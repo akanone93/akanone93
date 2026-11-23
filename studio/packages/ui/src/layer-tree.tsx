@@ -1,14 +1,18 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { hotkeysCoreFeature, syncDataLoaderFeature } from "@headless-tree/core";
+import { hotkeysCoreFeature, type ItemInstance, syncDataLoaderFeature } from "@headless-tree/core";
 import { useTree } from "@headless-tree/react";
+import { useVirtualizer, type Virtualizer } from "@tanstack/react-virtual";
 import {
+  type CSSProperties,
   type DragEvent,
   type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
+  useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -17,6 +21,77 @@ import { cx, focusRing } from "./cx.ts";
 import { Icon } from "./icon.tsx";
 import type { IconName } from "./icons.ts";
 import { goneNode, type TreeNode, useRebuildOnData } from "./tree.tsx";
+
+/** A level's indent while it fits, in CSS pixels: the caret's width, so each guide stands under its parent's caret. */
+const STEP = 20;
+/** The least indent a level keeps however deep the tree, in CSS pixels. */
+const MIN_STEP = 4;
+/** The share of the tree's width, in per cent, the guides of its deepest open row may take before the indent narrows. */
+const GUIDE_SHARE = 45;
+
+/**
+ * The tree's indent per level (#218): the caret's width while the deepest open row's guides take less than
+ * `GUIDE_SHARE` of the tree's width, narrower beyond, so a deep row neither runs off the side nor scrolls the panel
+ * sideways. One indent for every row, so each guide still stands under the caret of the row it belongs to.
+ */
+export function layerStep(deepest: number): string {
+  return deepest === 0 ? `${STEP}px` : `clamp(${MIN_STEP}px, calc(${GUIDE_SHARE}cqi / ${deepest}), ${STEP}px)`;
+}
+
+/**
+ * From this many open rows the tree draws only the rows in view and a few around them (TanStack Virtual, as decided
+ * for the Layers tree): a large plugin's tree, fully open, has thousands of rows, and drawing them all took seconds
+ * to open and to select a row (#218). Below it every row is drawn, so a small tree reads and searches as a page does.
+ */
+const VIRTUAL_FROM = 200;
+/** Rows drawn past each end of the view, so a fast scroll or a key held down meets drawn rows. */
+const OVERSCAN = 12;
+/** A row's height before it is measured, in CSS pixels (the comfortable density's row). */
+const ROW_GUESS = 28;
+
+/** The nearest ancestor that scrolls vertically: the pane the tree sits in, whose scrolling the rows follow. */
+function scrollParentOf(el: HTMLElement | null): HTMLElement | null {
+  for (let p = el?.parentElement ?? null; p !== null; p = p.parentElement) {
+    const y = getComputedStyle(p).overflowY;
+    if (y === "auto" || y === "scroll") {
+      return p;
+    }
+  }
+  return null;
+}
+
+/**
+ * The scrolling pane around the tree and how far down its content the tree starts (the selection summary above it
+ * moves it), measured after each render; a figure changes only when it moved.
+ */
+function usePane(box: { readonly current: HTMLElement | null }): {
+  readonly pane: HTMLElement | null;
+  readonly offset: number;
+} {
+  const [pane, setPane] = useState<HTMLElement | null>(null);
+  const [offset, setOffset] = useState(0);
+  useLayoutEffect(() => {
+    const el = box.current;
+    const found = scrollParentOf(el);
+    if (found !== pane) {
+      setPane(found);
+    }
+    if (el !== null && found !== null) {
+      const at = el.getBoundingClientRect().top - found.getBoundingClientRect().top + found.scrollTop;
+      if (Math.abs(at - offset) > 0.5) {
+        setOffset(at);
+      }
+    }
+  });
+  return { pane, offset };
+}
+
+/** Where a drawn row stands when the tree draws only the rows in view, and how it reports its height. */
+interface RowPlace {
+  readonly index: number;
+  readonly top: number;
+  readonly measure: (el: Element | null) => void;
+}
 
 /** A row of the layer tree: a node with its icon, what it shows and an optional mark (the entry screen). */
 export interface LayerNode extends TreeNode {
@@ -160,6 +235,8 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
     }
   }, [drop, refusal]);
   const box = useRef<HTMLDivElement>(null);
+  // Brings a row into view before the tree focuses it from the keyboard; set once the rows are known.
+  const reveal = useRef<(id: string) => void>(() => undefined);
   const tree = useTree<LayerNode>({
     rootItemId: rootId,
     getItemName: (item) => item.getItemData().name,
@@ -175,9 +252,30 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
       expandOrDown: { hotkey: rtl ? "ArrowLeft" : "ArrowRight" },
       collapseOrUp: { hotkey: rtl ? "ArrowRight" : "ArrowLeft" },
     },
+    scrollToItem: (item) => reveal.current(item.getId()),
     features: [syncDataLoaderFeature, hotkeysCoreFeature],
   });
   useRebuildOnData(tree, nodes);
+  // The open rows, the filter's rows, their keys and the deepest level are worked out again only when the rows change:
+  // a fully open tree has thousands, and redoing it on each render made each selection slow (#218).
+  const items = tree.getItems();
+  const shown = useMemo(() => (keep === null ? items : items.filter((item) => keep.has(item.getId()))), [items, keep]);
+  const keyOf = useCallback((i: number) => shown[i]?.getId() ?? i, [shown]);
+  const deepest = useMemo(() => items.reduce((d, item) => Math.max(d, item.getItemMeta().level), 0), [items]);
+  const { pane, offset } = usePane(box);
+  const virtual = shown.length >= VIRTUAL_FROM && pane !== null;
+  const rows = useVirtualizer({
+    count: virtual ? shown.length : 0,
+    getScrollElement: () => pane,
+    estimateSize: () => ROW_GUESS,
+    overscan: OVERSCAN,
+    scrollMargin: offset,
+    gap: 1,
+    getItemKey: keyOf,
+  });
+  useLayoutEffect(() => {
+    reveal.current = (id) => revealRow(id, shown, virtual ? rows : null, box.current);
+  });
   const anchor = selected[selected.length - 1];
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the selection or expansion changes, reading the current nodes
   useEffect(() => {
@@ -189,10 +287,7 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
       setExpanded([...new Set([...expanded, ...closed])]);
       return;
     }
-    const row = [...(box.current?.querySelectorAll<HTMLElement>("[data-item-id]") ?? [])].find(
-      (e) => e.dataset["itemId"] === anchor,
-    );
-    row?.scrollIntoView?.({ block: "nearest" });
+    reveal.current(anchor);
   }, [anchor, expanded]);
 
   const toggle = (id: string, isOpen: boolean) =>
@@ -207,53 +302,95 @@ export function LayerTree(props: LayerTreeProps): ReactElement {
       treeRef(el);
     }
   };
-  return (
-    <div {...container} ref={setBox} dir={dir} className="flex flex-col gap-px outline-none">
-      {tree.getItems().map((item) => {
-        const id = item.getId();
-        if (keep !== null && !keep.has(id)) {
-          return null;
-        }
-        const { key: _key, onClick: _click, ...rest } = item.getProps();
-        return (
-          <LayerRow
-            key={id}
-            id={id}
-            rowProps={rest}
-            data={item.getItemData()}
-            name={item.getItemName()}
-            level={item.getItemMeta().level}
-            folder={item.isFolder()}
-            open={item.isExpanded()}
-            selected={selected.includes(id)}
-            drop={drop?.id === id ? drop.half : null}
-            refusal={drop?.id === id ? refusal : null}
-            onDropAt={(half) => setDrop(half === null ? null : { id, half })}
-            onDragging={(on) => {
-              const refused = lastRefusal.current;
-              lastRefusal.current = null;
-              if (!on && refused !== null) {
-                props.onRefused?.(refused);
-              }
-              setDragging(on ? id : null);
-              if (!on) {
-                setDrop(null);
-              }
-            }}
-            onToggle={() => toggle(id, item.isExpanded())}
-            onSelect={(toggleSel) => {
-              // The tree's own focus follows a click, which its keys act on: without it, an arrow key after choosing a
-              // row moved or opened the row the tree last had in focus (#218).
-              item.setFocused();
-              onSelect(id, toggleSel);
-            }}
-            onDrop={onDrop === undefined ? undefined : (dragged, half) => onDrop(dragged, id, half)}
-            actions={props.actions}
-          />
-        );
+  const row = (item: ItemInstance<LayerNode>, place?: RowPlace) => {
+    const id = item.getId();
+    const { key: _key, onClick: _click, ...rest } = item.getProps();
+    return (
+      <LayerRow
+        key={id}
+        id={id}
+        rowProps={rest}
+        place={place}
+        data={item.getItemData()}
+        name={item.getItemName()}
+        level={item.getItemMeta().level}
+        folder={item.isFolder()}
+        open={item.isExpanded()}
+        selected={selected.includes(id)}
+        drop={drop?.id === id ? drop.half : null}
+        refusal={drop?.id === id ? refusal : null}
+        onDropAt={(half) => setDrop(half === null ? null : { id, half })}
+        onDragging={(on) => {
+          const refused = lastRefusal.current;
+          lastRefusal.current = null;
+          if (!on && refused !== null) {
+            props.onRefused?.(refused);
+          }
+          setDragging(on ? id : null);
+          if (!on) {
+            setDrop(null);
+          }
+        }}
+        onToggle={() => toggle(id, item.isExpanded())}
+        onSelect={(toggleSel) => {
+          // The tree's own focus follows a click, which its keys act on: without it, an arrow key after choosing a
+          // row moved or opened the row the tree last had in focus (#218).
+          item.setFocused();
+          onSelect(id, toggleSel);
+        }}
+        onDrop={onDrop === undefined ? undefined : (dragged, half) => onDrop(dragged, id, half)}
+        actions={props.actions}
+      />
+    );
+  };
+  const step = { "--layer-step": layerStep(deepest) } as CSSProperties;
+  return virtual ? (
+    <div
+      {...container}
+      ref={setBox}
+      dir={dir}
+      className="@container relative min-w-0 outline-none"
+      style={{ ...step, blockSize: rows.getTotalSize() }}
+    >
+      {rows.getVirtualItems().map((v) => {
+        const item = shown[v.index];
+        return item === undefined
+          ? null
+          : row(item, { index: v.index, top: v.start - offset, measure: rows.measureElement });
       })}
     </div>
+  ) : (
+    <div
+      {...container}
+      ref={setBox}
+      dir={dir}
+      className="@container flex min-w-0 flex-col gap-px outline-none"
+      style={step}
+    >
+      {shown.map((item) => row(item))}
+    </div>
   );
+}
+
+/**
+ * Brings row `id` into view: through the virtualizer when the tree draws only the rows in view (the row may not be
+ * drawn yet), otherwise by scrolling the drawn row into view.
+ */
+function revealRow(
+  id: string,
+  shown: readonly ItemInstance<LayerNode>[],
+  rows: Virtualizer<HTMLElement, Element> | null,
+  box: HTMLElement | null,
+): void {
+  if (rows !== null) {
+    const index = shown.findIndex((item) => item.getId() === id);
+    if (index >= 0) {
+      rows.scrollToIndex(index, { align: "auto" });
+    }
+    return;
+  }
+  const el = [...(box?.querySelectorAll<HTMLElement>("[data-item-id]") ?? [])].find((e) => e.dataset["itemId"] === id);
+  el?.scrollIntoView?.({ block: "nearest" });
 }
 
 /** The half of a row the pointer is over: a drop there goes before the row, or after it (into it for a folder). */
@@ -266,6 +403,8 @@ function halfOf(e: DragEvent<HTMLDivElement>): "before" | "after" {
 function LayerRow(props: {
   readonly id: string;
   readonly rowProps: Record<string, unknown>;
+  /** Where the row stands when only the rows in view are drawn; absent when every row is drawn in order. */
+  readonly place?: RowPlace | undefined;
   readonly data: LayerNode;
   readonly name: string;
   readonly level: number;
@@ -315,6 +454,9 @@ function LayerRow(props: {
   return (
     <div
       {...props.rowProps}
+      ref={rowRef(props.rowProps, props.place)}
+      data-index={props.place?.index}
+      style={placed(props.place)}
       data-item-id={id}
       role="treeitem"
       tabIndex={(props.rowProps["tabIndex"] as number | undefined) ?? -1}
@@ -400,6 +542,24 @@ function LayerRow(props: {
   );
 }
 
+/** A row's element goes to the tree (which focuses it from the keyboard) and, when placed, to the virtualizer. */
+function rowRef(rowProps: Record<string, unknown>, place: RowPlace | undefined) {
+  const register = rowProps["ref"];
+  return (el: HTMLDivElement | null) => {
+    if (typeof register === "function") {
+      register(el);
+    }
+    place?.measure(el);
+  };
+}
+
+/** A placed row stands at its offset in the tree, across its whole width. */
+function placed(place: RowPlace | undefined): CSSProperties | undefined {
+  return place === undefined
+    ? undefined
+    : { position: "absolute", insetInline: 0, top: 0, transform: `translateY(${place.top}px)` };
+}
+
 /** The line where a dragged row would land: above the row, or below it unless it is a folder (which takes it). */
 /** The line a dragged row would land at, in the primary colour; red with the reason where it cannot go. */
 function DropLine(props: {
@@ -448,14 +608,24 @@ function LayerRowContent(props: {
   const tone = selected ? "text-primary" : level === 0 ? "text-foreground" : "text-muted-foreground";
   return (
     <>
-      {Array.from({ length: level }, (_, i) => (
+      {level > 0 && (
+        // One guide per ancestor, each line under that ancestor's caret (10 px into it at every indent). The padding
+        // keeps the last line inside the clip, and the negative margin takes it and the row's gap back. Past the least
+        // indent the guides give way before the name does, cut at their end (#218).
         <span
-          // biome-ignore lint/suspicious/noArrayIndexKey: the guides of a row are positional and never reorder
-          key={i}
+          data-guides=""
           aria-hidden="true"
-          className="relative w-3.5 shrink-0 self-stretch before:absolute before:inset-y-0 before:start-2 before:border-s before:border-border"
-        />
-      ))}
+          className="-me-4 flex min-w-0 shrink-[0.01] self-stretch overflow-hidden pe-2.5"
+        >
+          {Array.from({ length: level }, (_, i) => (
+            <span
+              // biome-ignore lint/suspicious/noArrayIndexKey: the guides of a row are positional and never reorder
+              key={i}
+              className="relative w-(--layer-step) shrink-0 before:absolute before:inset-y-0 before:start-2.5 before:border-s before:border-border"
+            />
+          ))}
+        </span>
+      )}
       <span
         data-caret=""
         aria-hidden="true"
@@ -470,14 +640,17 @@ function LayerRowContent(props: {
       <span
         data-name=""
         className={cx(
-          "shrink-0 truncate",
+          "min-w-[6ch] truncate",
           (level === 0 || selected) && "font-medium",
           data.hidden === true && "opacity-50",
         )}
       >
         {props.name}
       </span>
-      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{data.preview ?? ""}</span>
+      {/* The preview takes the room left; too narrow to read a word, it is left out rather than cut to a sliver. */}
+      <span className="@container min-w-0 flex-1">
+        <span className="block truncate text-xs text-muted-foreground @max-[2.5rem]:hidden">{data.preview ?? ""}</span>
+      </span>
       {data.badge !== undefined && (
         <span className="shrink-0 rounded-sm bg-primary/12 px-1.5 text-xs font-medium text-primary">{data.badge}</span>
       )}
@@ -539,8 +712,10 @@ function RowToggles({ data, labels }: { readonly data: LayerNode; readonly label
     <span
       data-act={act}
       className={cx(
-        "flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground",
-        on ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-aria-selected:opacity-100",
+        "size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground",
+        // Shown while set, under the pointer, on the chosen row and on the row in focus; otherwise it takes no room,
+        // so names keep it (#218).
+        on ? "flex" : "hidden group-hover:flex group-focus-visible:flex group-aria-selected:flex",
       )}
     >
       <Icon name={icon} size="pill" />

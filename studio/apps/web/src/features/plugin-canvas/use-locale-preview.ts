@@ -32,7 +32,9 @@ export function usePluralSamples(): {
       return next;
     });
   }, []);
-  return { samples, setSample };
+  // One object while the samples are the same: a new one on every render made the locale preview, its `textOf` and
+  // every layer row built from it new on every render of the canvas, the Layers tree rebuilt with them (#218).
+  return useMemo(() => ({ samples, setSample }), [samples, setSample]);
 }
 
 /** The words of the view's marks. */
