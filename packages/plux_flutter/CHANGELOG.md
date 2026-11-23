@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **The runtime declares the PXL locale groups (BND-008, PXL-006, build log #257):** `pxl.format.v1`, `pxl.l10n.v1` and `pxl.calendar.v1`, which it has evaluated since 0.5.0, are now among its supported features; a bundle using `format.*`, `t`, `plural` or a calendar was refused with `PLX-3010`. A test keeps the declared groups equal to the groups the evaluator implements.
+- **A refused dev bundle is kept for the host (DEV-010):** `DevChannel.refused` holds why the last dev bundle was refused, and is cleared once one applies.
 - **A readConfig step can name its value's type (DAT-090, `enum.ConfigValueType.v1`, build log
   #112):** with `type` set, the step's output has that type; a value the server holds with
   another type fails the step with `PLX-6074`, and a decimal arrives as an exact `decimal`

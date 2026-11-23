@@ -334,6 +334,7 @@ final class _DevAppState extends State<DevApp> {
           builder: (context, _) => DevLaunchScreen(
             appName: name,
             entryRoute: widget.entryRoute(),
+            refused: tooling.session.refused,
             onLeave: _leave,
           ),
         ),

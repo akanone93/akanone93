@@ -28,6 +28,8 @@ String entryLocation(String route) => '${PluxGoRoutes.prefix}/$route';
 
 /// The first route of a running app: it opens the entry screen as soon as
 /// the release names it, the dev bundle Studio sends on joining included.
+/// A dev bundle the phone refused is said at once, with its reason, rather
+/// than waited for: the screen it would have opened is not coming.
 final class DevLaunchScreen extends StatefulWidget {
   /// Creates the screen.
   const DevLaunchScreen({
@@ -35,6 +37,7 @@ final class DevLaunchScreen extends StatefulWidget {
     required this.appName,
     required this.entryRoute,
     required this.onLeave,
+    this.refused,
   });
 
   /// The app's name.
@@ -42,6 +45,9 @@ final class DevLaunchScreen extends StatefulWidget {
 
   /// The app's entry route, as the release names it (`Plux.entryRoute`).
   final ValueListenable<String?> entryRoute;
+
+  /// Why the last dev bundle was refused, or null.
+  final ValueListenable<PluxException?>? refused;
 
   /// Leaves the app.
   final VoidCallback onLeave;
@@ -78,7 +84,12 @@ final class _DevLaunchScreenState extends State<DevLaunchScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ValueListenableBuilder<PluxException?>(
+    valueListenable: widget.refused ?? _noRefusal,
+    builder: (context, refused, _) => _page(context, refused),
+  );
+
+  Widget _page(BuildContext context, PluxException? refused) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
       body: SafeArea(
@@ -88,7 +99,31 @@ final class _DevLaunchScreenState extends State<DevLaunchScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!_waitedLong) ...[
+                if (refused != null) ...[
+                  Text(
+                    '${widget.appName} could not open',
+                    style: text.titleLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    refusalAdvice(refused),
+                    style: text.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  SelectableText(
+                    '${refused.code.id}: ${refused.message}',
+                    key: const Key('dev-refusal'),
+                    style: text.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  OutlinedButton(
+                    onPressed: widget.onLeave,
+                    child: const Text('Back to apps'),
+                  ),
+                ] else if (!_waitedLong) ...[
                   const CircularProgressIndicator(),
                   const SizedBox(height: 24),
                   Text('Opening ${widget.appName}…', style: text.titleLarge),
@@ -335,3 +370,15 @@ final class _DevRunOverlayState extends State<DevRunOverlay> {
 
 final ValueNotifier<String?> _quiet = ValueNotifier(null);
 final ValueNotifier<bool> _notPicking = ValueNotifier(false);
+
+final ValueNotifier<PluxException?> _noRefusal = ValueNotifier(null);
+
+/// What the developer can do about a refused dev bundle.
+String refusalAdvice(PluxException e) => switch (e.code) {
+  PluxErrorCode.unsupportedRequiredFeature =>
+    "The app uses a feature this Dev app's runtime does not support. "
+        'Update the Dev app, or remove what needs the feature in Studio.',
+  _ =>
+    'The phone refused the version Studio sent. Fix the cause below; '
+        'it opens here as soon as Studio sends one the phone accepts.',
+};

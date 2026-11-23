@@ -50,7 +50,13 @@ enum DevLinkState {
 
 /// A paired device's channel to its dev session.
 final class DevChannel implements DevEventSink {
-  DevChannel._(this.sessionId, this.deviceId, this._engine, this._link);
+  DevChannel._(
+    this.sessionId,
+    this.deviceId,
+    this._engine,
+    this._link,
+    this._refused,
+  );
 
   /// The session this device joined.
   final String sessionId;
@@ -60,9 +66,16 @@ final class DevChannel implements DevEventSink {
 
   final DevEngineHandle _engine;
   final ValueNotifier<DevLinkState> _link;
+  final ValueNotifier<PluxException?> _refused;
 
   /// Where the link to the session stands, for a status the developer sees.
   ValueListenable<DevLinkState> get link => _link;
+
+  /// Why the last dev bundle was refused (a feature this runtime lacks, a
+  /// signature it does not trust, a newer runtime it needs), or null once
+  /// one applied: the host shows it, rather than waiting for a screen the
+  /// refused bundle would have opened. Studio's console receives it too.
+  ValueListenable<PluxException?> get refused => _refused;
 
   /// Pairs the device with the session of [pairing], a scanned link or a
   /// typed code, and starts the channel.
@@ -152,7 +165,13 @@ final class DevChannel implements DevEventSink {
                 transport: devTransportWith(webSocketClient),
               ));
     final handle = await start(config, host);
-    return DevChannel._(paired.sessionId, paired.deviceId, handle, host.link);
+    return DevChannel._(
+      paired.sessionId,
+      paired.deviceId,
+      handle,
+      host.link,
+      host.refused,
+    );
   }
 
   @override
@@ -229,6 +248,9 @@ final class _UiHost implements DevEngineHost {
   final ValueNotifier<DevLinkState> link = ValueNotifier(
     DevLinkState.connecting,
   );
+
+  /// Why the last dev bundle was refused; null once one applied.
+  final ValueNotifier<PluxException?> refused = ValueNotifier(null);
 
   @override
   void connection({required bool open}) {
@@ -311,6 +333,7 @@ final class _UiHost implements DevEngineHost {
     DevApplyResult result,
   ) {
     final error = result.error;
+    refused.value = result.refused ? error : null;
     return [
       {
         'hotApply': {

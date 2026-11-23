@@ -464,6 +464,31 @@ void main() {
       await channel.close();
     });
 
+    test('DEV-010 a refused bundle is kept for the host until one applies '
+        '[BND-008]', () async {
+      final f = _Fixture();
+      f.applier.result = DevApplyResult(
+        error: PluxException(
+          PluxErrorCode.unsupportedRequiredFeature,
+          'the dev bundle requires pxl.format.v1',
+        ),
+      );
+      final channel = await f.pair();
+      final conn = await f.transport.accept();
+      expect(channel.refused.value, isNull);
+      conn.receive(_bundleFrame(1));
+      await pumpEventQueue();
+      expect(
+        channel.refused.value?.code,
+        PluxErrorCode.unsupportedRequiredFeature,
+      );
+      f.applier.result = const DevApplyResult(pagesApplied: ['/home']);
+      conn.receive(_bundleFrame(2));
+      await pumpEventQueue();
+      expect(channel.refused.value, isNull);
+      await channel.close();
+    });
+
     test(
       'DEV-010 a command frame is handled and a commandResult follows',
       () async {

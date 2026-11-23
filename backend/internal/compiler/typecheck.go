@@ -982,8 +982,11 @@ func (t *typer) compileWith(src, want string, s *scope, from, file, ptr string) 
 // minRuntimeVersion is rejected or raises the plugin's required features
 // (PLX-1119, PLX-1120), as guards do (ADR-0040).
 var pxlFeatureRuntimes = map[string][]string{
-	"pxl.regex.v1": {"0.3.0"},
-	"pxl.phone.v1": {"0.3.0"},
+	"pxl.regex.v1":    {"0.3.0"},
+	"pxl.phone.v1":    {"0.3.0"},
+	"pxl.format.v1":   {"0.5.0"},
+	"pxl.l10n.v1":     {"0.5.0"},
+	"pxl.calendar.v1": {"0.5.0"},
 }
 
 // recordReads adds the state and data sources an expression reads to the

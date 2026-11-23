@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// The features this runtime supports, for `required_features` (BND-008):
-/// `pxl.v1`, `pxl.regex.v1` and `pxl.phone.v1` (0.3.0), `navigation.guards.v1`
+/// `pxl.v1`, `pxl.regex.v1` and `pxl.phone.v1` (0.3.0), the locale groups
+/// `pxl.format.v1`, `pxl.l10n.v1` and `pxl.calendar.v1` (0.5.0), `navigation.guards.v1`
 /// (route guards, ADR-0040), `data.v1` (the data layer, ADR-0048) with `data.streams.v1`, `data.outbox.v1` and
 /// `data.transfers.v1`, the state
 /// engine's `state.write.v1`, `state.computed.v1` and `state.persistence.v1`,
@@ -48,8 +49,17 @@ final class RuntimeFeatures {
     for (final e in enumDescriptors) e.name: e.revision,
   };
 
-  /// The PXL features this runtime evaluates.
-  static const Set<String> pxl = {'pxl.v1', 'pxl.regex.v1', 'pxl.phone.v1'};
+  /// The PXL features this runtime evaluates: every standard-library group
+  /// whose functions its evaluator implements, the locale groups on the
+  /// localisation engine (PXL-006, I18N-001, I18N-003).
+  static const Set<String> pxl = {
+    'pxl.v1',
+    'pxl.regex.v1',
+    'pxl.phone.v1',
+    'pxl.format.v1',
+    'pxl.l10n.v1',
+    'pxl.calendar.v1',
+  };
 
   /// The navigation features this runtime honours: a bundle with a guarded
   /// page requires them, so a runtime without guards never opens it.

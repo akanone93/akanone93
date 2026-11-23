@@ -142,6 +142,17 @@ final class PluxDevSession {
   PluxDevJoined? _paired;
   final ValueNotifier<DevLinkState?> _link = ValueNotifier(null);
   ValueListenable<DevLinkState>? _channelLink;
+  final ValueNotifier<PluxException?> _refused = ValueNotifier(null);
+  ValueListenable<PluxException?>? _channelRefused;
+
+  /// Why the last dev bundle of the pairing in place was refused — a
+  /// feature this runtime lacks, a key it does not trust — or null: the
+  /// host says so instead of waiting for a screen that will not come.
+  ValueListenable<PluxException?> get refused => _refused;
+
+  void _followRefused() {
+    _refused.value = _channelRefused?.value;
+  }
 
   /// Where the link of the pairing in place stands (live, reconnecting,
   /// ended), for a status the developer sees; null while nothing is paired.
@@ -186,6 +197,8 @@ final class PluxDevSession {
       if (events._target case final DevChannel channel) {
         _channelLink = channel.link..addListener(_followLink);
         _followLink();
+        _channelRefused = channel.refused..addListener(_followRefused);
+        _followRefused();
       }
       _state.value = PluxDevPaired(
         sessionId: paired.sessionId,
@@ -218,6 +231,9 @@ final class PluxDevSession {
     _channelLink?.removeListener(_followLink);
     _channelLink = null;
     _link.value = null;
+    _channelRefused?.removeListener(_followRefused);
+    _channelRefused = null;
+    _refused.value = null;
     try {
       await paired?.close();
     } finally {
@@ -230,5 +246,6 @@ final class PluxDevSession {
     await end();
     _state.dispose();
     _link.dispose();
+    _refused.dispose();
   }
 }
