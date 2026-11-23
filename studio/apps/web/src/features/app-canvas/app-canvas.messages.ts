@@ -142,6 +142,11 @@ export function appCanvasMessages(i18n: I18n) {
       comment: "Dialog button that closes it without a change.",
     }),
     close: i18n._({ id: "appCanvas.close", message: "Close", comment: "Accessible name of the dialog close button." }),
+    loading: i18n._({
+      id: "appCanvas.loading",
+      message: "Loading plugins",
+      comment: "Shown in the middle of the app canvas while its plugins load and are laid out for the first time.",
+    }),
     empty: i18n._({
       id: "appCanvas.empty",
       message: "This app has no plugins yet.",

@@ -76,6 +76,7 @@ import { type CanvasTool, type GuideLine, useCanvasGestures } from "./use-canvas
 import { useCanvasKeys } from "./use-canvas-keys.ts";
 import { useZoom } from "./use-zoom.ts";
 import "./app-canvas.css";
+import { CanvasLoading, useFirstLoad } from "../../components/canvas-loading.tsx";
 import { withReason } from "../../components/refusal.tsx";
 import { assetsMessages } from "../panels/assets.messages.ts";
 import { AssetsTab } from "../panels/assets-tab.tsx";
@@ -573,6 +574,14 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   // The opening view shows every plugin when they fit at a readable zoom, else as many as fit, centred (#205). It
   // waits for the app's documents: until their links are in, the automatic layout is not the one the canvas keeps.
   const laidOut = !project.isPending;
+  // The first load on this page lasts until the plugins are laid out with their links (or there are none) (#211).
+  const firstLoad = useFirstLoad({
+    failed: summaries.isError,
+    loaded: summaries.isSuccess,
+    items: list.length,
+    drawn: boxes.length > 0,
+    linked: laidOut,
+  });
   const opened = useRef(0);
   useEffect(() => {
     if (laidOut && opened.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
@@ -843,6 +852,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
           <Panel className="canvas-bar canvas-hint hidden px-4 text-xs text-muted-foreground lg:flex">{m.hint}</Panel>
         </div>
       </div>
+      <CanvasLoading label={m.loading} shown={firstLoad} />
       {list.length === 0 && summaries.isSuccess ? (
         <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
           <Panel className="max-w-sm">

@@ -9737,6 +9737,12 @@ msgstr "Assets werden geladen…"
 msgid "style.iconLoading"
 msgstr "Symbole werden geladen …"
 
+#. Shown in the middle of the app canvas while its plugins load and are laid out for the first time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.loading"
+msgstr "Plugins werden geladen"
+
 #. Shown while the plugin's screens load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts

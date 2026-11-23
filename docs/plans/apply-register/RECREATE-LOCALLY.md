@@ -51,7 +51,8 @@ Time: about an hour, most of it waiting for the first stack start and the functi
    works as is. On Linux add, under the `plux-server` service of `deploy/compose/compose.dev.yaml`,
    `extra_hosts: ["host.docker.internal:host-gateway"]`, and run `make dev` again.
 4. Start the test service in a second terminal: `cd KIT/ar-api && go run .` (listens on `:8090`; demo sign-in
-   `+15555550100`, code `000000`; staff `+15555550101`).
+   `+15555550100`, code `000000`; staff `+15555550101`). Keep the kit outside the checkout, as §1 does: inside it,
+   the repository's `go.work` takes over and `go run .` fails (run `GOWORK=off go run .` there).
 5. Open Studio at <http://localhost:8081>. Sign in as `dev@plux.localhost`; the password is
    `PLUX_DEV_PASSWORD` in `deploy/compose/.secrets/dev.env` (open the file; do not paste it anywhere).
 
@@ -73,11 +74,12 @@ Time: about an hour, most of it waiting for the first stack start and the functi
    register, follow your registration.", locales `en` (default), `de-DE`, `ar`, `am-ET` (search "Amharic" or
    "Ethiopia"). Studio creates the environments `development`, `staging` and `production`.
 2. **Administration › Environments and secrets**, for each environment: `AR_GATEWAY_KEY` (any value; `ar-api`
-   does not check it) and `AR_PARTNER_KEY` (`dev-partner-key` in development, which `ar-api` expects; any value
-   elsewhere).
+   does not check it), the key the gateway upstreams of §6 send. `AR_PARTNER_KEY` does not go here — nothing reads
+   it from this page: the functions read their `secrets` from the sensitive server-bound configuration values of §6.
 3. **App canvas › Assets:** upload every file of `KIT/assets/` and `KIT/fonts/` (52 files; GIF, SVG, WebP, Lottie,
    Rive and fonts are all accepted).
-4. **App › Design › Typography › Host fonts:** Inter (`fonts/inter-variable.ttf`), Noto Naskh Arabic, Noto Sans
+4. **Design › Typography** (the app's areas in the side menu; also **Settings › Host fonts**), section **Host app
+   fonts:** Inter (`fonts/inter-variable.ttf`), Noto Naskh Arabic, Noto Sans
    Ethiopic, IBM Plex Sans, Source Serif 4, JetBrains Mono — each with its uploaded file.
 
 ## 5. Import the project (CLI; Studio's import takes a `.plux` archive, the kit holds the project folder)

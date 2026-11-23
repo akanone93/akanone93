@@ -184,6 +184,36 @@ button.problem-counts:focus-visible {
   opacity: 0.6;
 }
 
+/*
+ * A canvas's first load (#211): a small glass pill in the middle of the stage while its content loads and is laid out.
+ * Centred by its auto margins in either reading direction; it takes no pointer and fades in after a moment, so a quick
+ * load shows nothing.
+ */
+.canvas-loading.canvas-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  inline-size: fit-content;
+  block-size: fit-content;
+  margin: auto;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3.5);
+  border-radius: 9999px;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  pointer-events: none;
+  animation: canvas-loading-in 200ms ease-out 300ms both;
+}
+
+@keyframes canvas-loading-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes canvas-pulse {
   50% {
     opacity: 0.35;
@@ -193,6 +223,10 @@ button.problem-counts:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .save-state[data-state="saving"] .save-state-dot {
     animation: none;
+  }
+
+  .canvas-loading.canvas-panel {
+    animation-duration: 1ms;
   }
 }
 

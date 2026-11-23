@@ -9737,6 +9737,12 @@ msgstr "جارٍ تحميل الأصول…"
 msgid "style.iconLoading"
 msgstr "جارٍ تحميل الأيقونات…"
 
+#. Shown in the middle of the app canvas while its plugins load and are laid out for the first time.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.loading"
+msgstr "جارٍ تحميل الإضافات"
+
 #. Shown while the plugin's screens load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts

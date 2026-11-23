@@ -9,6 +9,7 @@ import { limitDefault } from "@plux/schema";
 import { Icon } from "@plux/ui";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { CanvasLoading, useFirstLoad } from "../../components/canvas-loading.tsx";
 import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
@@ -1030,6 +1031,13 @@ function PluginCanvasView({
   const fittedRef = useRef<CanvasSurface | null>(null);
   const fittedDevice = useRef("");
   const [heights, setHeights] = useState<Heights>(new Map());
+  // The first load on this page lasts until the screens are laid out once (or there are none, or they failed) (#211).
+  const firstLoad = useFirstLoad({
+    failed: docs.isError,
+    loaded: docs.isSuccess,
+    items: screens.length,
+    drawn: heights.size > 0,
+  });
   const declared = useMemo(() => declaredNativeRoutes(appDocs.data ?? []), [appDocs.data]);
   const nativeRoutes = useNativeRoutes(params.app ?? "", declared);
   const appScreens = useMemo(() => readAppScreens(appDocs.data ?? []), [appDocs.data]);
@@ -2031,9 +2039,7 @@ function PluginCanvasView({
                             drawers={drawers}
                             onToggleDrawer={toggleDrawer}
                           />
-                          {docs.isPending && (
-                            <p className="absolute start-4 top-4 text-body text-muted-foreground">{m.loading}</p>
-                          )}
+                          <CanvasLoading label={m.loading} shown={firstLoad} />
                           {docs.isError && (
                             <p role="alert" className="absolute start-4 top-4 text-body">
                               {m.failed}
