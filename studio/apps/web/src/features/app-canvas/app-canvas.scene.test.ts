@@ -263,3 +263,21 @@ describe("C1 arrows [STU-040] [STU-041]", () => {
     });
   });
 });
+
+describe("C1 arrows to a route name two screens share (STU-040, build log entry 250)", () => {
+  test("the link is drawn to each screen of the name, not to whichever was read last", () => {
+    // The Blank wizard's Main kept its own `home` beside the imported Launch's `home` (PLX-1103).
+    const main: LoadedDoc = {
+      ...page("main", "m-home"),
+      path: "plugins/main/pages/home.page.json",
+      json: { id: "m-home", key: "home", route: "home", title: "home", kind: "page", root: { id: "m-r" } },
+    };
+    const graph = appGraph([...docs, main], ["camera"]);
+    const toHome = graph.links.filter((l) => l.route === "home");
+    expect(toHome.map((l) => graph.boxOf.get(l.edge.target)).sort()).toEqual(["loans", "main"]);
+    expect(new Set(toHome.map((l) => l.edge.id)).size).toBe(2);
+    // A name one screen has alone keeps its single arrow and its id.
+    const toOffers = graph.links.filter((l) => l.route === "offers");
+    expect(toOffers.map((l) => l.edge.id)).toEqual(["loans:pages/home.page.json#/root/events/onPressed/steps/0"]);
+  });
+});

@@ -31,6 +31,7 @@ export {
   type PageInfo,
   type RenameEffect,
   routeChangeEffects,
+  routesOf,
   type Use,
   type UseKind,
   type WhereUsedIndex,

@@ -18,6 +18,7 @@ import {
   type PageInfo,
   redirectIncoming,
   removeOutgoing,
+  routesOf,
   type Use,
 } from "../safety/index.ts";
 import type { appCanvasMessages } from "./app-canvas.messages.ts";
@@ -783,12 +784,14 @@ function linkOf(
   s: { pointer: string; route: string },
   target: PageInfo | undefined,
   targetNode: string,
+  shared: boolean,
 ): AppLink {
   const event = eventOf(s.pointer);
   const ends = target === undefined ? {} : { targetPage: target.id, targetPlugin: target.pluginId };
   return {
     edge: {
-      id: `${d.pluginId}:${d.path}#${s.pointer}`,
+      // A step to a route name several screens share has one arrow to each, told apart by the screen.
+      id: shared ? `${d.pluginId}:${d.path}#${s.pointer}>${targetNode}` : `${d.pluginId}:${d.path}#${s.pointer}`,
       source: from.id,
       target: targetNode,
       trigger: event === "" ? from.title : `${from.title} · ${event}`,
@@ -823,7 +826,9 @@ function pageOf(d: LoadedDoc, pages: ReadonlyMap<string, PageInfo>): PageInfo | 
  */
 export function appGraph(docs: readonly LoadedDoc[], nativeRoutes: readonly string[]): AppGraph {
   const { pages } = buildWhereUsed(docs);
-  const byRoute = new Map([...pages.values()].map((p) => [p.route, p]));
+  // A route name several screens share (PLX-1103) is drawn to each of them, not to whichever was read last: the
+  // clash shows on the canvas instead of every link seeming to enter one plugin (#250).
+  const byRoute = routesOf(pages.values());
   const native = new Set(nativeRoutes);
   const boxOf = new Map<string, string>([...pages.values()].map((p) => [p.id, p.pluginId]));
   const natives = new Set<string>();
@@ -836,16 +841,15 @@ export function appGraph(docs: readonly LoadedDoc[], nativeRoutes: readonly stri
     const steps: { pointer: string; route: string }[] = [];
     routeSteps(d.json, "", steps);
     for (const s of steps) {
-      const target = byRoute.get(s.route);
-      if (target === undefined && !native.has(s.route)) {
-        continue;
-      }
-      const targetNode = target?.id ?? nativeBox(s.route);
-      if (target === undefined) {
+      const candidates = byRoute.get(s.route) ?? [];
+      if (candidates.length > 0) {
+        links.push(...candidates.map((target) => linkOf(d, from, s, target, target.id, candidates.length > 1)));
+      } else if (native.has(s.route)) {
+        const targetNode = nativeBox(s.route);
         natives.add(s.route);
         boxOf.set(targetNode, targetNode);
+        links.push(linkOf(d, from, s, undefined, targetNode, false));
       }
-      links.push(linkOf(d, from, s, target, targetNode));
     }
   }
   links.sort((a, b) => (a.edge.id < b.edge.id ? -1 : a.edge.id > b.edge.id ? 1 : 0));

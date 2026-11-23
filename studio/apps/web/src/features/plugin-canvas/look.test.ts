@@ -8,7 +8,7 @@ import { loadCanvasKit, testParagraphEngine } from "../../../../../packages/layo
 import { defaultPreview, previewRender } from "../preview/switches.ts";
 import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme, titledScreens } from "./look.ts";
 import { type Node, readPlugin, titleKeyOf } from "./plugin-model.ts";
-import { fitAfterLayout, screenStyle } from "./scene.ts";
+import { firstViewTarget, fitAfterLayout, screenStyle } from "./scene.ts";
 
 let engine: CanvasKitParagraphEngine;
 beforeAll(async () => {
@@ -137,5 +137,15 @@ describe("[STU-057] MR-1 a new device frame fits the view again", () => {
   });
   test("an edit under the same frame keeps where the user looks", () => {
     expect(fitAfterLayout({ surface, device: "360x800" }, surface, "360x800", search, 2)).toBeUndefined();
+  });
+});
+
+describe("the plugin canvas opens where the tab left it (build log entry 249)", () => {
+  test("the URL's view wins, then the view left in this tab, then the opening fit", () => {
+    const left = { x: 900, y: 1200, zoom: 0.4 };
+    expect(firstViewTarget({ x: 10, y: 20, z: 50 }, left)).toEqual({ x: 10, y: 20, z: 50 });
+    expect(firstViewTarget({ z: 75 }, left)).toEqual({ z: 75 });
+    expect(firstViewTarget({}, left)).toEqual({ x: 900, y: 1200, z: 40 });
+    expect(firstViewTarget({}, undefined)).toEqual({});
   });
 });

@@ -7,13 +7,15 @@ import { ZOOM_MAX, ZOOM_MIN } from "./use-canvas-gestures.ts";
 
 /**
  * The zoom of the canvas for its controls: read back from the surface after every change of view, at most once a
- * frame, and passed on to the scene (the arrows' level of detail). `zoomBy` zooms about the middle of the view within
- * the zoom range; `resetZoom` goes back to 100%.
+ * frame, and passed on to the scene (the arrows' level of detail); `moved` hears each change, as the canvas keeps the
+ * view it was left at. `zoomBy` zooms about the middle of the view within the zoom range; `resetZoom` goes back to
+ * 100%.
  */
 export function useZoom(
   surface: () => CanvasSurface | null,
   view: () => HTMLElement | null,
   zoomed: (zoom: number) => void,
+  moved?: () => void,
 ) {
   const [zoom, setZoom] = useState(1);
   const frame = useRef(0);
@@ -26,8 +28,9 @@ export function useZoom(
       const z = surface()?.viewport.zoom ?? 1;
       setZoom(z);
       zoomed(z);
+      moved?.();
     });
-  }, [surface, zoomed]);
+  }, [surface, zoomed, moved]);
   useEffect(() => () => cancelAnimationFrame(frame.current), []);
   const zoomBy = useCallback(
     (factor: number) => {

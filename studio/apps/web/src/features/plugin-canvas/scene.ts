@@ -127,6 +127,20 @@ export interface FitTarget {
 }
 
 /**
+ * Where the first view goes: the URL's view when it names one, else the view this tab left the plugin at (#249), else
+ * the opening fit (an empty target). `left` is a canvas point at the view's centre and a zoom (1 is 100 %).
+ */
+export function firstViewTarget(
+  search: FitTarget,
+  left: { readonly x: number; readonly y: number; readonly zoom: number } | undefined,
+): FitTarget {
+  if (search.x !== undefined || search.y !== undefined || search.z !== undefined || left === undefined) {
+    return search;
+  }
+  return { x: left.x, y: left.y, z: left.zoom * 100 };
+}
+
+/**
  * Whether a layout fits the view again, and how (STU-057): the first layout on a surface fits it as the URL asks; a
  * new device frame or orientation, which resizes every screen, centres them again at the zoom the user chose; any
  * other layout, an edit, keeps where the user looks (undefined).

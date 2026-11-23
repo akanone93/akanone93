@@ -346,3 +346,41 @@ describe("[STU-063] state entries in the where-used index", () => {
     expect(check.incoming.map((u) => u.pointer)).toEqual(["/state/0/computed"]);
   });
 });
+
+describe("[STU-070] a route name two screens share (build log entry 250)", () => {
+  // The Blank wizard's Main kept its own `home` beside the imported Launch's `home` (PLX-1103).
+  function shared(): LoadedDoc[] {
+    const main: LoadedDoc = {
+      pluginId: "M",
+      path: "plugins/main/pages/home.page.json",
+      kind: "page",
+      revision: 9,
+      json: page("m-home", "home", []),
+    };
+    return [...docs(), main];
+  }
+
+  test("a link to the shared name is a link to each screen of it, each knowing the other", () => {
+    const index = buildWhereUsed(shared());
+    const toHome = index.uses.filter((u) => u.kind === "navigates" && u.fromId === "p-cards" && u.step?.endsWith("/1"));
+    expect(toHome.map((u) => [u.target.id, u.alternatives])).toEqual([
+      ["p-home", ["m-home"]],
+      ["m-home", ["p-home"]],
+    ]);
+  });
+
+  test("either screen, or either plugin, can be deleted: the other still answers the name", () => {
+    const index = buildWhereUsed(shared());
+    expect(isBlocked(checkPluginDelete(index, "M"))).toBe(false);
+    expect(isBlocked(checkScreenDelete(index, "m-home"))).toBe(false);
+    // The entry route names both screens, so deleting Main does not take the app's entry away.
+    expect(checkPluginDelete(index, "M").entry).toBe(false);
+    expect(checkScreenDelete(index, "p-home").incoming).toEqual([]);
+  });
+
+  test("a name one screen has alone still blocks as before", () => {
+    const index = buildWhereUsed(docs());
+    expect(checkPluginDelete(index, "C").incoming.length).toBeGreaterThan(0);
+    expect(checkScreenDelete(index, "p-offers").incoming.map((u) => u.fromId)).toEqual(["p-home", "p-cards"]);
+  });
+});

@@ -11,6 +11,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@p
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams, useRouteContext } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { canvasViewKey, rememberedView, rememberView } from "../../lib/canvas-view-memory.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { DevLinkBar, DevLinkProvider } from "../devices/dev-link.tsx";
@@ -72,7 +73,7 @@ import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
 import { useSceneTheme } from "./scene-theme.ts";
 import { TrashDialog } from "./trash-dialog.tsx";
 import { useAppScene } from "./use-app-scene.ts";
-import { type CanvasTool, type GuideLine, useCanvasGestures } from "./use-canvas-gestures.ts";
+import { type CanvasTool, type GuideLine, useCanvasGestures, ZOOM_MAX, ZOOM_MIN } from "./use-canvas-gestures.ts";
 import { useCanvasKeys } from "./use-canvas-keys.ts";
 import { useZoom } from "./use-zoom.ts";
 import "./app-canvas.css";
@@ -488,7 +489,22 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     arrowStyle: theme.arrows,
   });
 
-  const { zoom, setZoom, viewChanged, zoomBy, resetZoom } = useZoom(surface, viewOf, scene.zoomed);
+  // The view is kept per tab as it changes, and the canvas opens where it was left (#249).
+  const viewKey = canvasViewKey(orgKey, appId);
+  const remember = useCallback(() => {
+    const target = surfaceRef.current;
+    const view = viewOf();
+    if (target === null || view === null) {
+      return;
+    }
+    const v = target.viewport;
+    rememberView(viewKey, {
+      x: v.x + view.clientWidth / 2 / v.zoom,
+      y: v.y + view.clientHeight / 2 / v.zoom,
+      zoom: v.zoom,
+    });
+  }, [viewKey, viewOf]);
+  const { zoom, setZoom, viewChanged, zoomBy, resetZoom } = useZoom(surface, viewOf, scene.zoomed, remember);
   // The view map draws the plugin boxes and the frames around them (C5).
   const mapItems = useMemo<MapItem[]>(
     () => [
@@ -523,9 +539,24 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       target.setViewport(v.x - left / v.z, v.y, v.z);
       scene.zoomed(v.z);
       setZoom(v.z);
+      remember();
     },
-    [boxes, scene, viewOf, setZoom],
+    [boxes, scene, viewOf, setZoom, remember],
   );
+  // The view this tab left the canvas at, centred again in the view as it is now.
+  const restore = useCallback(() => {
+    const target = surfaceRef.current;
+    const view = viewOf();
+    const left = rememberedView(viewKey);
+    if (target === null || view === null || left === undefined) {
+      return false;
+    }
+    const z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, left.zoom));
+    target.setViewport(left.x - view.clientWidth / 2 / z, left.y - view.clientHeight / 2 / z, z);
+    scene.zoomed(z);
+    setZoom(z);
+    return true;
+  }, [viewKey, viewOf, scene, setZoom]);
   const fit = useCallback(() => place(fitViewport), [place]);
   // The opening view shows every plugin when they fit at a readable zoom, else as many as fit, centred (#205). It
   // waits for the app's documents: until their links are in, the automatic layout is not the one the canvas keeps.
@@ -538,13 +569,16 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     drawn: boxes.length > 0,
     linked: laidOut,
   });
+  // A canvas the tab left before opens where it was left, also after a change of theme makes the surface again (#249).
   const opened = useRef(0);
   useEffect(() => {
     if (laidOut && opened.current !== generation && boxes.length > 0 && surfaceRef.current !== null) {
       opened.current = generation;
-      place(openingViewport);
+      if (!restore()) {
+        place(openingViewport);
+      }
     }
-  }, [boxes, place, generation, laidOut]);
+  }, [boxes, place, restore, generation, laidOut]);
 
   const arrange = useCallback(() => {
     const laid = placeBoxes(

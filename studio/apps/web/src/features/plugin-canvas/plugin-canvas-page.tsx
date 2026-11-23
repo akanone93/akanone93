@@ -10,6 +10,7 @@ import { Icon } from "@plux/ui";
 import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { CanvasLoading, useFirstLoad } from "../../components/canvas-loading.tsx";
+import { canvasViewKey, rememberedView, rememberView } from "../../lib/canvas-view-memory.ts";
 import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
@@ -118,6 +119,7 @@ import {
   contentBounds,
   DEVICE,
   type deviceOf,
+  firstViewTarget,
   fitAfterLayout,
   ghostStyle,
   type Heights,
@@ -435,6 +437,11 @@ function fitView(
   const x = (frames.l + frames.r) / 2 - (free.left + (free.right - free.left) / 2) / first;
   const y = (frames.t + frames.b) / 2 - (free.top + (free.bottom - free.top - CAPTION_ROOM) / 2) / first;
   surface.setViewport(x, y, first);
+}
+
+/** The key under which this tab keeps the plugin canvas's view (#249). */
+function pluginViewKey(params: { readonly org?: string; readonly app?: string; readonly plugin?: string }): string {
+  return canvasViewKey(params.org ?? "", params.app ?? "", params.plugin ?? "");
 }
 
 /** Room left around the screens in the first view, in CSS pixels. */
@@ -1308,6 +1315,8 @@ function PluginCanvasView({
   const { fixes: problemFixes, jsonPath, clearJsonPath } = useProblemFixes(docs.data, showJson);
   const searchRef = useRef(search);
   searchRef.current = search;
+  const viewKeyRef = useRef("");
+  viewKeyRef.current = pluginViewKey(params);
 
   // The surface, as on the app canvas (studio-development §9.8): drawn whole on every frame it changes, in full detail,
   // on the theme's canvas surface with its dot grid, and following the page's size. A canvas element is handed to the
@@ -1437,7 +1446,7 @@ function PluginCanvasView({
         { surface: fittedRef.current, device: fittedDevice.current },
         surface,
         deviceKey,
-        searchRef.current,
+        firstViewTarget(searchRef.current, rememberedView(viewKeyRef.current)),
         surface.viewport.zoom,
       );
       if (fit !== undefined) {
@@ -1476,10 +1485,13 @@ function PluginCanvasView({
       return;
     }
     const v = surface.viewport;
-    const x = Math.round(v.x + canvas.clientWidth / 2 / v.zoom);
-    const y = Math.round(v.y + canvas.clientHeight / 2 / v.zoom);
+    const centre = { x: v.x + canvas.clientWidth / 2 / v.zoom, y: v.y + canvas.clientHeight / 2 / v.zoom };
+    const x = Math.round(centre.x);
+    const y = Math.round(centre.y);
     const z = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, v.zoom * 100)));
     ghostLayer.zoomed(v.zoom);
+    // Kept for this tab too: back from the app canvas, the plugin opens where it was left, not fitted again (#249).
+    rememberView(viewKeyRef.current, { ...centre, zoom: v.zoom });
     void navigate({ to: ".", search: (prev: object) => ({ ...prev, x, y, z }), replace: true });
   };
 

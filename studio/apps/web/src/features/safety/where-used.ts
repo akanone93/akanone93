@@ -36,6 +36,11 @@ export interface Use {
   readonly target: { readonly kind: TargetKind; readonly id: string };
   /** The plugin of the target page, for links between plugins. */
   readonly targetPluginId?: string;
+  /**
+   * The other pages the same route name names, when several screens share it (a duplicate route, PLX-1103): the
+   * reference is to each of them alike, and none of them alone carries it (#250).
+   */
+  readonly alternatives?: readonly string[];
 }
 
 /** A page as the index knows it. */
@@ -95,24 +100,40 @@ function pageInfo(d: LoadedDoc): PageInfo | undefined {
 
 type UseBase = Pick<Use, "pluginId" | "path" | "fromId" | "fromTitle">;
 
+/** The pages of each route name, in the order given: more than one when screens share a name (PLX-1103). */
+export function routesOf(pages: Iterable<PageInfo>): Map<string, PageInfo[]> {
+  const out = new Map<string, PageInfo[]>();
+  for (const p of pages) {
+    const list = out.get(p.route);
+    if (list === undefined) {
+      out.set(p.route, [p]);
+    } else {
+      list.push(p);
+    }
+  }
+  return out;
+}
+
+/** The other pages of a reference's route name, as a use carries them; nothing when the name is the page's alone. */
+function alternativesOf(candidates: readonly PageInfo[], target: PageInfo): Pick<Use, "alternatives"> {
+  return candidates.length > 1 ? { alternatives: candidates.filter((c) => c.id !== target.id).map((c) => c.id) } : {};
+}
+
 /** The entry references of a plugin document (entryPage) and of the app document (entryRoute). */
-function entryUses(d: LoadedDoc, json: Json, base: UseBase, byRoute: ReadonlyMap<string, PageInfo>): Use[] {
+function entryUses(d: LoadedDoc, json: Json, base: UseBase, byRoute: ReadonlyMap<string, readonly PageInfo[]>): Use[] {
   const entryPage = str(json["entryPage"]);
   if (d.kind === "plugin" && entryPage !== undefined) {
     return [{ ...base, kind: "entryPage", pointer: "/entryPage", target: { kind: "page", id: entryPage } }];
   }
-  const entry = d.kind === "app" ? byRoute.get(str(json["entryRoute"]) ?? "") : undefined;
-  return entry === undefined
-    ? []
-    : [
-        {
-          ...base,
-          kind: "entryRoute",
-          pointer: "/entryRoute",
-          target: { kind: "page", id: entry.id },
-          targetPluginId: entry.pluginId,
-        },
-      ];
+  const candidates = d.kind === "app" ? (byRoute.get(str(json["entryRoute"]) ?? "") ?? []) : [];
+  return candidates.map((entry) => ({
+    ...base,
+    kind: "entryRoute",
+    pointer: "/entryRoute",
+    target: { kind: "page", id: entry.id },
+    targetPluginId: entry.pluginId,
+    ...alternativesOf(candidates, entry),
+  }));
 }
 
 const stateRef = /\bstate\.([A-Za-z_][A-Za-z0-9_]*)/g;
@@ -141,20 +162,28 @@ function stateUses(value: Json, pointer: string, base: UseBase): Use[] {
 }
 
 /** The references one object of a document holds: a route action, a component use, an asset. */
-function objectUses(value: Json, pointer: string, base: UseBase, byRoute: ReadonlyMap<string, PageInfo>): Use[] {
+function objectUses(
+  value: Json,
+  pointer: string,
+  base: UseBase,
+  byRoute: ReadonlyMap<string, readonly PageInfo[]>,
+): Use[] {
   const out: Use[] = [];
   const action = str(value["action"]);
   const input = value["input"];
-  const target = isObject(input) ? byRoute.get(str(input["route"]) ?? "") : undefined;
-  if (action !== undefined && routeActions.has(action) && target !== undefined) {
-    out.push({
-      ...base,
-      kind: "navigates",
-      pointer: `${pointer}/input/route`,
-      step: pointer,
-      target: { kind: "page", id: target.id },
-      targetPluginId: target.pluginId,
-    });
+  const candidates = isObject(input) ? (byRoute.get(str(input["route"]) ?? "") ?? []) : [];
+  if (action !== undefined && routeActions.has(action)) {
+    for (const target of candidates) {
+      out.push({
+        ...base,
+        kind: "navigates",
+        pointer: `${pointer}/input/route`,
+        step: pointer,
+        target: { kind: "page", id: target.id },
+        targetPluginId: target.pluginId,
+        ...alternativesOf(candidates, target),
+      });
+    }
   }
   const component = value["component"];
   const componentId = isObject(component) ? str(component["id"]) : undefined;
@@ -177,13 +206,12 @@ function objectUses(value: Json, pointer: string, base: UseBase, byRoute: Readon
 /** Builds the index from the loaded documents of one app. */
 export function buildWhereUsed(docs: readonly LoadedDoc[]): WhereUsedIndex {
   const pages = new Map<string, PageInfo>();
-  const byRoute = new Map<string, PageInfo>();
   for (const info of docs.map(pageInfo)) {
     if (info !== undefined) {
       pages.set(info.id, info);
-      byRoute.set(info.route, info);
     }
   }
+  const byRoute = routesOf(pages.values());
   const uses: Use[] = [];
   for (const d of docs) {
     const json = d.json;
@@ -245,7 +273,8 @@ export function isBlocked(check: DeleteCheck): boolean {
 
 /** A screen cannot be deleted while it is its plugin's entry or any link enters it (D24). */
 export function checkScreenDelete(index: WhereUsedIndex, pageId: string): DeleteCheck {
-  const uses = index.usesOf("page", pageId);
+  // A reference to a route name another screen also has still has a screen after this one goes (#250).
+  const uses = index.usesOf("page", pageId).filter((u) => (u.alternatives ?? []).length === 0);
   return {
     entry: uses.some((u) => u.kind === "entryPage" || u.kind === "entryRoute"),
     incoming: uses.filter((u) => u.kind === "navigates" && u.fromId !== pageId),
@@ -255,10 +284,17 @@ export function checkScreenDelete(index: WhereUsedIndex, pageId: string): Delete
 
 /** A plugin cannot be deleted while the app's entry route is one of its screens or any link enters or leaves it (D19). */
 export function checkPluginDelete(index: WhereUsedIndex, pluginId: string): DeleteCheck {
+  // A reference that also names a screen of another plugin still has a screen after this plugin goes (#250).
+  const kept = (u: Use) =>
+    (u.alternatives ?? []).some((id) => {
+      const page = index.pages.get(id);
+      return page !== undefined && page.pluginId !== pluginId;
+    });
+  const stays = (u: Use) => !kept(u);
   return {
-    entry: index.uses.some((u) => u.kind === "entryRoute" && u.targetPluginId === pluginId),
-    incoming: index.incomingToPlugin(pluginId),
-    outgoing: index.outgoingFromPlugin(pluginId),
+    entry: index.uses.some((u) => u.kind === "entryRoute" && u.targetPluginId === pluginId && stays(u)),
+    incoming: index.incomingToPlugin(pluginId).filter(stays),
+    outgoing: index.outgoingFromPlugin(pluginId).filter(stays),
   };
 }
 
