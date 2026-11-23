@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/url"
 	"slices"
 	"sync"
@@ -96,6 +97,9 @@ type Options struct {
 	Random io.Reader
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
+	// Log receives why a followed draft was not pushed; nil uses the
+	// default logger.
+	Log *slog.Logger
 }
 
 // Service opens dev sessions, pairs devices with them and relays their
@@ -135,6 +139,9 @@ func New(o Options) (*Service, error) {
 	}
 	if s.random == nil {
 		s.random = rand.Reader
+	}
+	if s.o.Log == nil {
+		s.o.Log = slog.Default()
 	}
 	return s, nil
 }

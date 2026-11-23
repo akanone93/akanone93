@@ -5,6 +5,8 @@ package devsession
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"slices"
 	"testing/fstest"
 	"time"
@@ -13,6 +15,8 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/pluxv1"
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -25,7 +29,7 @@ var _ document.DraftFollower = (*Service)(nil)
 // sessions' frame streams, so that a device on any replica receives it
 // (L-14, contract #17, DEV-010). Studio never sends the edit itself. A
 // session whose draft does not compile, or that cannot be pushed to, is
-// left as it was; the write never fails for it.
+// left as it was and told why in its console; the write never fails for it.
 func (s *Service) DraftWritten(_ context.Context, p auth.Principal, appID, pluginID string, paths []string) {
 	if !s.CanPush() || len(paths) == 0 {
 		return
@@ -86,9 +90,69 @@ func (s *Service) followDraft(ctx context.Context, p auth.Principal, plan pushPl
 		return err
 	})
 	if err != nil {
+		s.reportDraft(plan, PushResult{}, fmt.Errorf("devsession: read the draft: %w", err))
 		return
 	}
-	_, _ = s.compileAndPush(ctx, p, plan, st, files, st.revs, ids, nil) //nolint:errcheck // the write stands; the next one pushes again
+	out, err := s.compileAndPush(ctx, p, plan, st, files, st.revs, ids, nil)
+	// The write stands either way and the next one pushes again; a draft that did not reach the session's devices
+	// says why, in the server's log and in the session's console, instead of leaving a phone waiting in silence.
+	s.reportDraft(plan, out, err)
+}
+
+// maxReportedDiagnostics bounds the errors of a refused draft put in the session's console.
+const maxReportedDiagnostics = 20
+
+// reportDraft tells the session, as error events in its console, and the server's log why its draft was not pushed:
+// the compiler's errors, or the failure to compile, sign or deliver it. A pushed draft reports nothing.
+func (s *Service) reportDraft(plan pushPlan, out PushResult, err error) {
+	var errs []*pluxv1.DevError
+	switch {
+	case err != nil:
+		errs = append(errs, devErrorOf(err))
+	case out.Diagnostics.HasErrors():
+		for _, d := range out.Diagnostics {
+			if d.Severity < plxerr.SeverityError {
+				continue
+			}
+			if len(errs) == maxReportedDiagnostics {
+				break
+			}
+			msg := d.Message
+			if d.File != "" {
+				msg = d.File + " " + d.Path + ": " + msg
+			}
+			errs = append(errs, &pluxv1.DevError{Code: d.Code.String(), Reason: string(d.Reason), Message: msg})
+		}
+	default:
+		return
+	}
+	// The log names the codes only: a message may quote the draft, which the session's own console may show.
+	codes := make([]string, 0, len(errs))
+	for _, e := range errs {
+		codes = append(codes, e.GetCode())
+	}
+	s.o.Log.Warn("devsession: the draft was not pushed to the session's devices",
+		"session", plan.session.ID, "app", plan.session.AppID, "environment", plan.session.EnvironmentKey,
+		"codes", codes)
+	room := s.hub.room(plan.session.ID, nil)
+	for _, e := range errs {
+		ev := &pluxv1.DevEvent{
+			TimeUnixMicros: s.now().UnixMicro(),
+			Payload: &pluxv1.DevEvent_Error{Error: &pluxv1.ErrorEvent{
+				Error: e, Severity: pluxv1.Severity_SEVERITY_ERROR,
+			}},
+		}
+		_ = room.appendEvent("", 0, ev) //nolint:contextcheck,errcheck // best effort: the console may have gone
+	}
+}
+
+// devErrorOf is an error as the console shows it: its PLX code where it has one.
+func devErrorOf(err error) *pluxv1.DevError {
+	var pe *plxerr.Error
+	if errors.As(err, &pe) {
+		return &pluxv1.DevError{Code: pe.Code.String(), Message: pe.Message}
+	}
+	return &pluxv1.DevError{Code: plxerr.DevPatchRejected.String(), Message: err.Error()}
 }
 
 // welcomeTimeout bounds the compile and push of a welcome.

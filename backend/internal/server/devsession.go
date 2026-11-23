@@ -6,6 +6,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 
@@ -27,7 +28,7 @@ import (
 // buildDevSessions builds the sessions and pairing of dev sessions (DEV-002,
 // DEV-003). Only a process that issues device tokens, which holds the token
 // signer, serves them; elsewhere it returns nil.
-func buildDevSessions(cfg *config.Config, db *storage.DB, log *audit.Log, ids devsession.IDs, ten *tenancy.Service, configs *seccfg.Service, signer signing.TokenSigner, docs *document.Service, releases *release.Service, shared cache.Cache) (*devsession.Service, error) {
+func buildDevSessions(cfg *config.Config, db *storage.DB, log *audit.Log, ids devsession.IDs, ten *tenancy.Service, configs *seccfg.Service, signer signing.TokenSigner, docs *document.Service, releases *release.Service, shared cache.Cache, logger *slog.Logger) (*devsession.Service, error) {
 	if signer == nil {
 		return nil, nil //nolint:nilnil // the role serves no dev sessions
 	}
@@ -35,7 +36,7 @@ func buildDevSessions(cfg *config.Config, db *storage.DB, log *audit.Log, ids de
 		DB: db, Audit: log, IDs: ids, Tokens: signer,
 		Environments: cfg.DevSession.EnabledEnvironments, PublicBaseURL: cfg.Server.PublicBaseURL,
 		PingInterval: cfg.DevSession.PingInterval.Duration(), IdleTimeout: cfg.DevSession.IdleTimeout.Duration(),
-		ServerVersion: buildinfo.Get().Version,
+		ServerVersion: buildinfo.Get().Version, Log: logger,
 		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
 			return ten.Effective(ctx, tx, org, app, "") //nolint:wrapcheck // a domain error
 		},
