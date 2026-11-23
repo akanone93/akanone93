@@ -432,3 +432,40 @@ func TestJoin_StudioListsOpenRequestsAndKeepsItsSession_DEV_002(t *testing.T) {
 		t.Fatalf("the phone joined %v (%v), want Studio's open session %s", again.SessionID, err, session.ID)
 	}
 }
+
+// Verifies: DEV-002.
+// A Studio session past its idle time stays over (Apply Register2,
+// 2026-11-23): the watch that finds it idle ends it in the database as on
+// the relay, Studio's poll of the join requests does not bring it back, a
+// phone's join finds no live session, and Studio opens a new one. Before,
+// the poll revived it in the database while its relay stayed ended, so a
+// phone joined it, was told it ended within milliseconds of connecting, and
+// joined again, without end.
+func TestIdleStudioSession_StaysOver_DEV_002(t *testing.T) {
+	f := newFixture(t, 0)
+	ctx := context.Background()
+	session := f.openStudio(t, f.Developer)
+	phone, key := f.phone(t, f.signInPhone(t, f.Developer))
+	f.Now = f.Now.Add(31 * time.Minute)
+	// Studio watches again after the laptop slept or the server was down.
+	err := f.svc.WatchFor(ctx, f.Developer, session.ID, nil, 0, 50*time.Millisecond, func(*pluxv1.DevEvent) error { return nil })
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Studio polls the join requests every few seconds.
+	if _, err := f.svc.ListJoinRequests(ctx, f.Developer, session.ID); err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.svc.GetPairing(ctx, f.Developer, session.ID)
+	wantCode(t, err, plxerr.DevSessionExpired, "a pairing of the idle session after Studio's poll")
+	if jr, err := f.svc.RequestJoin(ctx, phone, phone.ID, key.Name, f.App); err == nil {
+		t.Fatalf("the phone was offered the idle session: %+v", jr)
+	}
+	ended := f.Audit(t, "devsession.ended")
+	if len(ended) != 1 || ended[0].TargetID != session.ID {
+		t.Fatalf("audit = %+v, want the idle session ended in the database", ended)
+	}
+	if next := f.openStudio(t, f.Developer); next.ID == session.ID {
+		t.Fatal("Studio reopened the idle session")
+	}
+}

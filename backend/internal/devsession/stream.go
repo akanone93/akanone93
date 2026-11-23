@@ -190,7 +190,7 @@ func (s *Service) WatchFor(ctx context.Context, p auth.Principal, sessionID stri
 	if live, err := s.live(ctx, session.OrganizationID, session.ID); err != nil {
 		return err
 	} else if !live {
-		s.hub.End(session.ID, plxerr.DevSessionExpired)
+		s.expire(ctx, session.OrganizationID, session.ID)
 	}
 	after = room.resumePoint(after)
 	w, backlog := room.subscribe(after, filterOf(deviceIDs))
@@ -228,6 +228,10 @@ func (s *Service) follow(ctx context.Context, session Session, room *room, w *wa
 			}
 		}
 		if ended {
+			// The relay may have learnt the end from its log alone (an
+			// end record, or a log that is gone): the stored session ends
+			// with it, so that no join or Studio opens it again.
+			s.retire(ctx, session.OrganizationID, session.ID)
 			return nil
 		}
 		select {
@@ -246,7 +250,7 @@ func (s *Service) follow(ctx context.Context, session Session, room *room, w *wa
 // is no longer live, and the watcher is sent a heartbeat.
 func (s *Service) tick(ctx context.Context, session Session, send func(*pluxv1.DevEvent) error) error {
 	if live, err := s.live(ctx, session.OrganizationID, session.ID); err == nil && !live {
-		s.hub.End(session.ID, plxerr.DevSessionExpired)
+		s.expire(ctx, session.OrganizationID, session.ID)
 	}
 	return send(nil)
 }
@@ -438,5 +442,46 @@ func (s *Service) mergeFunctionLogs(ctx context.Context, b DeviceBinding, ev *pl
 			break
 		}
 		merged++
+	}
+}
+
+// retireTimeout bounds the database write that ends a session its relay
+// ended.
+const retireTimeout = 5 * time.Second
+
+// expire ends a session found no longer live (DEV-002) everywhere: in the
+// database, so that no join, pairing or Studio opens it again, and on every
+// replica's relay, which tells its devices and ends its watches.
+func (s *Service) expire(ctx context.Context, organizationID, sessionID string) {
+	s.retire(ctx, organizationID, sessionID)
+	s.hub.End(sessionID, plxerr.DevSessionExpired)
+}
+
+// retire ends, as the server, the stored session of a relay that has ended,
+// with its devices unpaired and the end audited; a session already ended is
+// left as it is. The relay's end and the database never disagree for long:
+// a session the database kept live after its relay ended was offered to
+// phones, which joined, were told it ended, and joined again, without end.
+func (s *Service) retire(ctx context.Context, organizationID, sessionID string) {
+	id, err := storage.UUID(sessionID)
+	if err != nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), retireTimeout)
+	defer cancel()
+	err = s.inTenant(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		row, err := dbgen.New(tx).GetDevSessionForUpdate(ctx, id)
+		if errors.Is(err, pgx.ErrNoRows) || (err == nil && row.EndedAt.Valid) {
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("devsession: find the session: %w", err)
+		}
+		_, err = s.end(ctx, tx, auth.System(organizationID), id)
+		return err
+	})
+	if err != nil {
+		s.o.Log.Warn("devsession: the ended session could not be ended in the database; the next end tries again",
+			"session", sessionID, "error", err)
 	}
 }

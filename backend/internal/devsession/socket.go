@@ -300,7 +300,7 @@ func (k *socket) touch(ctx context.Context) error {
 	}
 	err := k.s.Touch(ctx, k.b.OrganizationID, k.b.SessionID)
 	if code, ok := plxerr.CodeOf(err); ok && code == plxerr.DevSessionExpired {
-		k.s.hub.End(k.b.SessionID, plxerr.DevSessionExpired)
+		k.s.expire(ctx, k.b.OrganizationID, k.b.SessionID)
 		return err
 	}
 	if err == nil {
@@ -338,6 +338,10 @@ func (k *socket) write(ctx context.Context) {
 
 // sendEnded tells the device its session ended and closes the socket.
 func (k *socket) sendEnded(ctx context.Context, code plxerr.Code) {
+	// The relay may have learnt the end from its log alone: the stored
+	// session ends with it, so that the phone's next join does not find it
+	// live and connect to an ended relay again, and again.
+	k.s.retire(ctx, k.b.OrganizationID, k.b.SessionID)
 	k.closeFor("the dev session ended")
 	_ = k.send(ctx, &pluxv1.DevServerFrame{Payload: &pluxv1.DevServerFrame_Ended{Ended: &pluxv1.DevSessionEnded{Code: code.String()}}})
 	_ = k.c.Close(websocket.StatusNormalClosure, "the dev session ended")
@@ -376,7 +380,7 @@ func (k *socket) keepAlive(ctx context.Context) {
 		live, err := k.s.live(ctx, k.b.OrganizationID, k.b.SessionID)
 		if err == nil && !live {
 			// The writer tells the device and closes the socket.
-			k.s.hub.End(k.b.SessionID, plxerr.DevSessionExpired)
+			k.s.expire(ctx, k.b.OrganizationID, k.b.SessionID)
 			continue
 		}
 		pctx, cancel := context.WithTimeout(ctx, interval)

@@ -431,8 +431,10 @@ func (s *Service) GetJoinRequest(ctx context.Context, p auth.Principal, requestI
 
 // ListJoinRequests lists the open requests to join the caller's live
 // Studio sessions of the app of sessionID, which the caller has open in
-// Studio. Asking it records traffic on that session, so it stays live while
-// Studio shows it and is the newest the caller's phones join.
+// Studio. Asking it records traffic on that session while it is live, so it
+// stays live while Studio shows it and is the newest the caller's phones
+// join. A session past its idle time is over (DEV-002): asking never brings
+// it back, or phones would join a session its relay has ended.
 func (s *Service) ListJoinRequests(ctx context.Context, p auth.Principal, sessionID string) ([]JoinStatus, error) {
 	if err := authorizeAnywhere(p, auth.DevSessionCreate); err != nil {
 		return nil, err
@@ -452,8 +454,8 @@ func (s *Service) ListJoinRequests(ctx context.Context, p auth.Principal, sessio
 		}
 		now := s.now()
 		q := dbgen.New(tx)
-		if err := q.TouchDevSession(ctx, dbgen.TouchDevSessionParams{ID: id, At: storage.Timestamp(now)}); err != nil {
-			return fmt.Errorf("devsession: touch the session: %w", err)
+		if err := s.touchLive(ctx, tx, session, now); err != nil {
+			return err
 		}
 		rows, err := q.ListOpenJoinRequests(ctx, dbgen.ListOpenJoinRequestsParams{
 			AppID: storage.MustUUID(session.AppID), Creator: creatorOf(p), Now: storage.Timestamp(now),
@@ -549,4 +551,21 @@ func (s *Service) announceJoin(sessionID, requestID string, state pluxv1.DevJoin
 		}},
 	}
 	_ = s.hub.room(sessionID, nil).appendEvent("", 0, ev) //nolint:contextcheck // the hub's lifetime
+}
+
+// touchLive records traffic on a session while it is live, and leaves a
+// session past its idle time over (DEV-002).
+func (s *Service) touchLive(ctx context.Context, tx pgx.Tx, session Session, now time.Time) error {
+	set, err := s.o.Limits(ctx, tx, session.OrganizationID, session.AppID)
+	if err != nil {
+		return fmt.Errorf("devsession: read the limits: %w", err)
+	}
+	if !session.Live(now, minutes(set, limits.DevSessionIdleMinutes)) {
+		return nil
+	}
+	err = dbgen.New(tx).TouchDevSession(ctx, dbgen.TouchDevSessionParams{ID: storage.MustUUID(session.ID), At: storage.Timestamp(now)})
+	if err != nil {
+		return fmt.Errorf("devsession: touch the session: %w", err)
+	}
+	return nil
 }
