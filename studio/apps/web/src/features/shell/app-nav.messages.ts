@@ -64,6 +64,11 @@ export function appNavMessages(i18n: I18n) {
       message: "Design",
       comment: "Entry of the app-area navigation; names one area of an app.",
     }),
+    assets: i18n._({
+      id: "appnav.assets",
+      message: "Assets",
+      comment: "Entry of the app-area navigation; names one area of an app.",
+    }),
     analytics: i18n._({
       id: "appnav.analytics",
       message: "Analytics",

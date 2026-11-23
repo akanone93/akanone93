@@ -2948,6 +2948,12 @@ msgstr "اطلب من مسؤول إنشاء تطبيق."
 msgid "chrome.noorg.body"
 msgstr "اطلب من مسؤول دعوتك إلى مؤسسة."
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.assets"
+msgstr "الأصول"
+
 #. Heading of the assets that the pasted elements use but the target lacks.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -9754,6 +9760,12 @@ msgstr "جارٍ تحميل الشاشات"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.insert.loading"
 msgstr "جارٍ تحميل القوالب…"
+
+#. Shown while the app's Assets page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.page.loading"
+msgstr "جارٍ تحميل أصول التطبيق…"
 
 #. Status while the size, accessibility and document changes load.
 #. js-lingui-explicit-id
@@ -17553,11 +17565,23 @@ msgstr "تذكر قائمة أصول التطبيق هذا الملف، لكن �
 msgid "assets.list"
 msgstr "أصول التطبيق"
 
+#. Shown when the app's Assets page could not load the app's documents.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.page.failed"
+msgstr "تعذّر تحميل أصول التطبيق."
+
 #. Shown when the list of images for the icon picker failed to load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.load-failed"
 msgstr "تعذّر تحميل صور التطبيق."
+
+#. Caption of the app's Assets page in the app menu.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.page.caption"
+msgstr "صور التطبيق ورسومه المتحركة وخطوطه، لكل إضافة ولأيقونة التطبيق وخطوط التطبيق المضيف."
 
 #. Shown in the translations editor when the app document with its languages is not loaded.
 #. js-lingui-explicit-id

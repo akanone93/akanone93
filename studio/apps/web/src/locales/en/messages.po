@@ -2948,6 +2948,12 @@ msgstr "Ask an administrator to create one."
 msgid "chrome.noorg.body"
 msgstr "Ask an administrator to invite you to an organisation."
 
+#. Entry of the app-area navigation; names one area of an app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.assets"
+msgstr "Assets"
+
 #. Heading of the assets that the pasted elements use but the target lacks.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -9754,6 +9760,12 @@ msgstr "Loading screens"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.insert.loading"
 msgstr "Loading templates…"
+
+#. Shown while the app's Assets page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.page.loading"
+msgstr "Loading the app's assets…"
 
 #. Status while the size, accessibility and document changes load.
 #. js-lingui-explicit-id
@@ -17553,11 +17565,23 @@ msgstr "The app's asset list names this file, but no file of that name is stored
 msgid "assets.list"
 msgstr "The app's assets"
 
+#. Shown when the app's Assets page could not load the app's documents.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.page.failed"
+msgstr "The app's assets could not be loaded."
+
 #. Shown when the list of images for the icon picker failed to load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.load-failed"
 msgstr "The app's images could not be loaded."
+
+#. Caption of the app's Assets page in the app menu.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.page.caption"
+msgstr "The app's images, animations and fonts, for every plugin, the app icon and the host fonts."
 
 #. Shown in the translations editor when the app document with its languages is not loaded.
 #. js-lingui-explicit-id

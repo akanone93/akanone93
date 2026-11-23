@@ -363,6 +363,15 @@ function designRoute(
   });
 }
 
+/** The app's assets (#203): the canvases' Assets panel as a page; uploading and deleting need the app's editing lock. */
+const assetsRoute = createRoute({
+  getParentRoute: () => orgRoute,
+  path: "/apps/$app/assets",
+  validateSearch: () => ({}),
+  beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+  component: lazyRouteComponent(() => import("./features/assets/index.ts"), "AssetsPage"),
+});
+
 const designTokensRoute = designRoute("", "TokensPage");
 const designThemesRoute = designRoute("/themes", "ThemesPage");
 const designTypographyRoute = designRoute("/typography", "TypographyPage");
@@ -636,6 +645,7 @@ const routeTree = rootRoute.addChildren([
       dataCollectionsRoute,
       dataCollectionRoute,
       designTokensRoute,
+      assetsRoute,
       designThemesRoute,
       designTypographyRoute,
       designIconsRoute,

@@ -31,6 +31,7 @@ describe("[STU-100] to [STU-116] navigation between the areas of an app", () => 
       Data: `${base}/data`,
       Localisation: `${base}/localisation`,
       Design: `${base}/design`,
+      Assets: `${base}/assets`,
       Analytics: `${base}/analytics`,
       Tests: `${base}/tests`,
       Experiments: `${base}/experiments`,

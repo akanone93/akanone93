@@ -46,6 +46,21 @@ export function assetsMessages(i18n: I18n) {
         values: { name, places },
         comment: "Delete confirmation of an asset used by the app icon, app.json or other plugins; places lists them.",
       }),
+    pageCaption: i18n._({
+      id: "assets.page.caption",
+      message: "The app's images, animations and fonts, for every plugin, the app icon and the host fonts.",
+      comment: "Caption of the app's Assets page in the app menu.",
+    }),
+    pageLoading: i18n._({
+      id: "assets.page.loading",
+      message: "Loading the app's assets…",
+      comment: "Shown while the app's Assets page loads.",
+    }),
+    pageFailed: i18n._({
+      id: "assets.page.failed",
+      message: "The app's assets could not be loaded.",
+      comment: "Shown when the app's Assets page could not load the app's documents.",
+    }),
     appIcon: i18n._({
       id: "assets.appIcon",
       message: "the app icon",
