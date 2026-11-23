@@ -680,6 +680,98 @@ export function appCanvasMessages(i18n: I18n) {
         comment: "Button under a plugin's first error in its detail panel: opens the app's Problems tab at the plugin.",
         values: { count },
       }),
+    editingHeading: i18n._({
+      id: "appCanvas.editing.heading",
+      message: "Being edited",
+      comment: "Heading in the app canvas's Overview: the plugins someone holds the editing lock of, with who.",
+    }),
+    nobodyEditing: i18n._({
+      id: "appCanvas.editing.nobody",
+      message: "Nobody is editing a plugin now.",
+      comment: "The app canvas Overview's list of plugins being edited, when no plugin's lock is held.",
+    }),
+    releasesHeading: i18n._({
+      id: "appCanvas.releases.heading",
+      message: "Releases",
+      comment: "Heading of the app canvas Overview's list of each environment's newest release.",
+    }),
+    releaseOf: (sequence: string, date: string) =>
+      i18n._({
+        id: "appCanvas.releases.release",
+        message: "Release {sequence} · {date}",
+        comment: "An environment's newest release in the app canvas's Overview: its number and the day it was made.",
+        values: { sequence, date },
+      }),
+    noReleaseYet: i18n._({
+      id: "appCanvas.releases.none",
+      message: "No release yet",
+      comment: "An environment without a release, in the app canvas's Overview.",
+    }),
+    checkingReleases: i18n._({
+      id: "appCanvas.releases.checking",
+      message: "Reading…",
+      comment: "Status of an environment's releases in the app canvas's Overview while they are read.",
+    }),
+    releasesUnavailable: i18n._({
+      id: "appCanvas.releases.unavailable",
+      message: "Could not be read",
+      comment: "An environment's releases in the app canvas's Overview when they cannot be read.",
+    }),
+    publishApp: i18n._({
+      id: "appCanvas.releases.publish",
+      message: "Publish…",
+      comment: "Button in the app canvas's Overview: opens the app's Publish page.",
+    }),
+    functionsTab: i18n._({
+      id: "appCanvas.functions.tab",
+      message: "Functions",
+      comment: "Tab of the app canvas's left dock: each function, the plugins that call it and its deployed version.",
+    }),
+    functionVersion: (version: number, placement: string) =>
+      i18n._({
+        id: "appCanvas.functions.version",
+        message: "v{version} · {placement}",
+        comment:
+          "Chip of a function in the app canvas's Functions tab: its latest version and where it runs (server or device).",
+        values: { version, placement },
+      }),
+    functionNotDeployed: (environment: string) =>
+      i18n._({
+        id: "appCanvas.functions.notDeployed",
+        message: "Not deployed in {environment}: the calls to it fail",
+        comment: "Warning on a function plugins call that has no version in the environment, e.g. development.",
+        values: { environment },
+      }),
+    functionTestsFail: i18n._({
+      id: "appCanvas.functions.testsFail",
+      message: "Its latest version's tests fail",
+      comment: "Warning on a function in the app canvas's Functions tab whose stored test cases did not all pass.",
+    }),
+    functionUnused: i18n._({
+      id: "appCanvas.functions.unused",
+      message: "No plugin calls it",
+      comment: "Note on a deployed function that no plugin of the app calls, in the app canvas's Functions tab.",
+    }),
+    functionCalledBy: i18n._({
+      id: "appCanvas.functions.calledBy",
+      message: "Called by",
+      comment: "Before the plugins that call a function, each a button that selects the plugin on the app canvas.",
+    }),
+    noFunctions: i18n._({
+      id: "appCanvas.functions.none",
+      message: "No plugin calls a function, and none is deployed.",
+      comment: "The app canvas's Functions tab when the app has no function.",
+    }),
+    checkingFunctions: i18n._({
+      id: "appCanvas.functions.checking",
+      message: "Reading the functions deployed in development…",
+      comment: "Status in the app canvas's Functions tab while the environment's functions are read.",
+    }),
+    functionsUnavailable: i18n._({
+      id: "appCanvas.functions.unavailable",
+      message: "The deployed functions could not be read: what calls what is shown without them.",
+      comment: "Note in the app canvas's Functions tab when the development environment's functions cannot be read.",
+    }),
     routesTab: i18n._({
       id: "appCanvas.routes.tab",
       message: "Routes",

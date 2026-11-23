@@ -405,6 +405,8 @@ export interface UpstreamData {
     validationErrors?: number;
     functionsUsed?: string[];
     unpublishedChanges?: boolean;
+    /** Who holds the plugin's editing lock; nobody when absent. */
+    lockHolder?: string;
     description?: string;
     linksOut?: string[];
     linksIn?: string[];
@@ -887,6 +889,7 @@ export function createUpstream(state: UpstreamData) {
           validationErrors: BigInt(p.validationErrors ?? 0),
           functionsUsed: p.functionsUsed ?? [],
           unpublishedChanges: p.unpublishedChanges ?? false,
+          lockHolder: p.lockHolder ?? "",
         })),
       }),
       deletePlugin: (req) => {

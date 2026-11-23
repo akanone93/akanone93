@@ -42,6 +42,37 @@ function stateOf(b: SceneBox): string {
   return "ok";
 }
 
+/** Who is editing which plugin now (#267), from the plugins' locks: the same holder the card's badge names. */
+function Editing(props: {
+  readonly plugins: readonly SceneBox[];
+  readonly summaries: ReadonlyMap<string, PluginSummary>;
+  readonly messages: Messages;
+}): ReactElement {
+  const m = props.messages;
+  const held = props.plugins.flatMap((b) => {
+    const holder = props.summaries.get(b.id)?.lockHolder ?? "";
+    return holder === "" ? [] : [{ id: b.id, title: b.title, holder }];
+  });
+  return (
+    <section aria-label={m.editingHeading} className="flex flex-col gap-1">
+      <h3 className="text-label font-medium">{m.editingHeading}</h3>
+      {held.length === 0 ? (
+        <p className="dock-note">{m.nobodyEditing}</p>
+      ) : (
+        <ul className="flex flex-col gap-1">
+          {held.map((h) => (
+            <li key={h.id} className="overview-screen">
+              <Icon name="lock" size="pill" />
+              <span className="min-w-0 flex-1 truncate">{h.title}</span>
+              <span className="truncate text-muted-foreground">{h.holder}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 /**
  * The app canvas's left dock, as the plugin editor's: the bold rail (Plugins, Frames, Overview) and the header (which
  * canvas, which app, how big). Plugins lists every plugin with its mark, key and owner, screens and state, searchable and
@@ -62,6 +93,8 @@ export function AppDock({
   assets,
   problems,
   routes,
+  functions,
+  releases,
   reveal,
 }: {
   readonly appName: string | undefined;
@@ -80,6 +113,10 @@ export function AppDock({
   readonly problems?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
   /** Every route of the app (#268); `meta` is the count the tab shows. */
   readonly routes?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
+  /** Each function, the plugins that call it and its deployment (#266); `meta` is the count the tab shows. */
+  readonly functions?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
+  /** Where the app stands, at the foot of the Overview: each environment's newest release and Publish (#261). */
+  readonly releases?: ReactNode;
   /** A request to show a tab, unfolding the dock (#259); each new `nonce` is a new request. */
   readonly reveal?: { readonly tab: string; readonly nonce: number } | undefined;
 }): ReactElement {
@@ -223,6 +260,17 @@ export function AppDock({
             panel: routes.panel,
           },
         ]),
+    ...(functions === undefined
+      ? []
+      : [
+          {
+            value: "functions",
+            label: functions.label,
+            icon: "lightning" as const,
+            meta: functions.meta,
+            panel: functions.panel,
+          },
+        ]),
     ...(problems === undefined
       ? []
       : [
@@ -256,6 +304,8 @@ export function AppDock({
             <span className="min-w-0 flex-1 truncate">{m.entryPlugin}</span>
             <strong className="truncate">{entry?.title ?? m.noEntry}</strong>
           </div>
+          <Editing plugins={plugins} summaries={summaries} messages={m} />
+          {releases}
         </div>
       ),
     },

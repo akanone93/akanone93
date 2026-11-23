@@ -3236,6 +3236,12 @@ msgstr "Vorher"
 msgid "panel.group.behaviour"
 msgstr "Verhalten"
 
+#. Heading in the app canvas's Overview: the plugins someone holds the editing lock of, with who.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editing.heading"
+msgstr "In Bearbeitung"
+
 #. Shown when a list's items are not set.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/list-panel.messages.ts
@@ -3443,6 +3449,12 @@ msgstr "von {author}"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.metricCache"
 msgstr "Cache-Treffer"
+
+#. Before the plugins that call a function, each a button that selects the plugin on the app canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.calledBy"
+msgstr "Aufgerufen von"
 
 #. A device API.
 #. js-lingui-explicit-id
@@ -4823,6 +4835,12 @@ msgstr "Eckcafé"
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.corners"
 msgstr "Ecken"
+
+#. An environment's releases in the app canvas's Overview when they cannot be read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.releases.unavailable"
+msgstr "Konnte nicht gelesen werden"
 
 #. The text of a list's error view.
 #. js-lingui-explicit-id
@@ -7672,6 +7690,12 @@ msgstr "Funktionen"
 msgid "apps.limit.functions"
 msgstr "Funktionen"
 
+#. Tab of the app canvas's left dock: each function, the plugins that call it and its deployed version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.tab"
+msgstr "Funktionen"
+
 #. Heading of the group of plugin functions in the action list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -8789,6 +8813,12 @@ msgstr "Einträge"
 #: apps/web/src/features/panels/quick-actions.messages.ts
 msgid "quick.none"
 msgstr "Seine Ereignisse führen noch nichts aus."
+
+#. Warning on a function in the app canvas's Functions tab whose stored test cases did not all pass.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.testsFail"
+msgstr "Die Tests der neuesten Version schlagen fehl"
 
 #. Note under a widget whose event shows a snackbar.
 #. js-lingui-explicit-id
@@ -11297,6 +11327,18 @@ msgstr "Keine Parameter: Die Seite öffnet ohne Werte."
 msgid "profile.phones.empty"
 msgstr "Noch ist kein Telefon angemeldet."
 
+#. The app canvas's Functions tab when the app has no function.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.none"
+msgstr "Kein Plugin ruft eine Funktion auf, und keine ist bereitgestellt."
+
+#. Note on a deployed function that no plugin of the app calls, in the app canvas's Functions tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.unused"
+msgstr "Kein Plugin ruft sie auf"
+
 #. Shown when there is nothing to publish.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -11368,6 +11410,12 @@ msgstr "Noch kein Projekt erzeugt"
 #: apps/web/src/features/panels/panels.messages.ts
 msgid "panels.noPropMatch"
 msgstr "Keine Eigenschaft passt."
+
+#. An environment without a release, in the app canvas's Overview.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.releases.none"
+msgstr "Noch kein Release"
 
 #. Shown when the environment has no release.
 #. js-lingui-explicit-id
@@ -11525,6 +11573,12 @@ msgstr "Kein Widget passt."
 msgid "approvals.noDecisions"
 msgstr "Noch hat niemand entschieden."
 
+#. The app canvas Overview's list of plugins being edited, when no plugin's lock is held.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editing.nobody"
+msgstr "Gerade bearbeitet niemand ein Plugin."
+
 #. Label of the node path.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -11632,6 +11686,12 @@ msgstr "Nicht verfügbar"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.consoleIdle"
 msgstr "Nicht verbunden"
+
+#. Warning on a function plugins call that has no version in the environment, e.g. development.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.notDeployed"
+msgstr "Nicht in {environment} bereitgestellt: Aufrufe schlagen fehl"
 
 #. Shown for a moment where a widget was let go but could not be dropped; {reason} says why.
 #. js-lingui-explicit-id
@@ -13612,6 +13672,12 @@ msgstr "Schritte der Veröffentlichung"
 msgid "onboarding.step.publish-hint"
 msgstr "Veröffentlichen Sie in einer Umgebung und sehen Sie zu, wie Ihr Gerät sie übernimmt."
 
+#. Button in the app canvas's Overview: opens the app's Publish page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.releases.publish"
+msgstr "Veröffentlichen…"
+
 #. Why a snapshot was made: the plugin was published.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -13756,11 +13822,23 @@ msgstr "Schreibgeschützt: Sie können diese Dokumente jetzt nicht bearbeiten."
 msgid "panels.semFocusAuto"
 msgstr "Lesereihenfolge"
 
+#. Status in the app canvas's Functions tab while the environment's functions are read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.checking"
+msgstr "Die in development bereitgestellten Funktionen werden gelesen…"
+
 #. Status while the importer runs.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataImporting"
 msgstr "Quelle wird gelesen …"
+
+#. Status of an environment's releases in the app canvas's Overview while they are read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.releases.checking"
+msgstr "Wird gelesen…"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -13954,6 +14032,12 @@ msgstr "Release {release} live"
 msgid "releases.detailTitle"
 msgstr "Release {sequence}"
 
+#. An environment's newest release in the app canvas's Overview: its number and the day it was made.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.releases.release"
+msgstr "Release {sequence} · {date}"
+
 #. Label of the label field of a shipped variant.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -14000,6 +14084,12 @@ msgstr "Releases"
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
 msgid "releases.timelineTitle"
+msgstr "Releases"
+
+#. Heading of the app canvas Overview's list of each environment's newest release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.releases.heading"
 msgstr "Releases"
 
 #. Button that reloads the page.
@@ -17943,6 +18033,12 @@ msgstr "Der Standardwert ist kein gültiges JSON."
 msgid "experiments.badJson"
 msgstr "Der Standardwert muss gültiges JSON sein."
 
+#. Note in the app canvas's Functions tab when the development environment's functions cannot be read.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.unavailable"
+msgstr "Die bereitgestellten Funktionen konnten nicht gelesen werden: Wer was aufruft, wird ohne sie gezeigt."
+
 #. Placement value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -20205,6 +20301,12 @@ msgstr "v{version}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.release.version"
 msgstr "v{version}"
+
+#. Chip of a function in the app canvas's Functions tab: its latest version and where it runs (server or device).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.functions.version"
+msgstr "v{version} · {placement}"
 
 #. Badge: a plugin has no validation errors.
 #. js-lingui-explicit-id

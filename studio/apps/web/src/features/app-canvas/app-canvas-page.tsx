@@ -62,6 +62,7 @@ import {
   type SceneBox,
 } from "./app-canvas.scene.ts";
 import { AppDock } from "./app-dock.tsx";
+import { useFunctionsPane } from "./app-functions.tsx";
 import {
   type AppProblem,
   draftsRevision,
@@ -71,6 +72,7 @@ import {
   useProblemReveal,
   useProblemsPane,
 } from "./app-problems.tsx";
+import { AppReleases } from "./app-releases.tsx";
 import { type RouteScreen, useRoutesPane } from "./app-routes.tsx";
 import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
 import {
@@ -700,6 +702,13 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       search: { focus: s.pageId },
     }),
   );
+  // Which plugin calls which function, with its deployment (#266); a caller is shown on the canvas.
+  const functionsPane = useFunctionsPane(orgKey, appId, list, (id: string) => {
+    const b = boxes.find((x) => x.id === id);
+    if (b !== undefined) {
+      showBox(b, false);
+    }
+  });
   const openScreen = (plugin: string, page: string) =>
     void navigate({
       to: "/o/$org/apps/$app/plugins/$plugin",
@@ -925,6 +934,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             assets={{ label: assetsMessages(i18n).tab, panel: <AppAssets appId={appId} documents={documents} /> }}
             problems={problemsPane}
             routes={routesPane}
+            functions={functionsPane}
+            releases={<AppReleases org={orgKey} appId={appId} />}
             reveal={problemReveal.reveal}
           />
           {detail?.plugin === undefined ? null : (
