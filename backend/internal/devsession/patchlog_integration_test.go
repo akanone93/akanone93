@@ -242,10 +242,11 @@ func newStudioRelay(t *testing.T) *relay {
 	return r
 }
 
-// firstBundle reads a device's frames until a bundle, or fails after n.
-func firstBundle(t *testing.T, k *client, n int) *pluxv1.DevBundleFrame {
+// firstBundle reads a device's first four frames until a bundle; nil when
+// none of them is one.
+func firstBundle(t *testing.T, k *client) *pluxv1.DevBundleFrame {
 	t.Helper()
-	for range n {
+	for range 4 {
 		if b := k.next(t).GetBundle(); b != nil {
 			return b
 		}
@@ -269,7 +270,7 @@ func TestWelcome_FreshDeviceReceivesTheDraft_DEV_010_DEV_021(t *testing.T) {
 	d := r.pairDevice(t, s.ID, "device-1")
 	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
 	k.c.SetReadLimit(1 << 24) // a first bundle carries every section
-	b := firstBundle(t, k, 4)
+	b := firstBundle(t, k)
 	if b == nil || b.GetBundleSequence() != 1 || len(b.GetSections()) < 2 {
 		t.Fatalf("the fresh device received %v, want the whole draft", b)
 	}
@@ -308,5 +309,53 @@ func TestWelcome_CLISessionIsLeftAlone_DEV_010(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 	if n := len(r.Audit(t, "devsession.patched")); n != 0 {
 		t.Errorf("a CLI session's device was pushed the stored draft: %d pushes", n)
+	}
+}
+
+// Verifies: DEV-010, DEV-021.
+// A device that connects afresh while the draft is unchanged is sent the
+// bundle already signed, whole, and nothing else happens: no new signature,
+// no audit entry, no push to the session's other devices (#275). Before, a
+// phone that reconnected in a loop cost a compile, a signature and a push to
+// every device each time.
+func TestWelcome_UnchangedDraftReusesItsSignedBundle_DEV_010(t *testing.T) {
+	r := newStudioRelay(t)
+	ctx := context.Background()
+	s, _, err := r.svc.CreateSessionOfKind(ctx, r.Developer, r.App, r.Envs["development"], devsession.KindStudio)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := r.pairDevice(t, s.ID, "device-1")
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	k.c.SetReadLimit(1 << 24)
+	first := firstBundle(t, k)
+	if first == nil || first.GetBundleSequence() != 1 {
+		t.Fatalf("the fresh device received %v, want the first bundle", first)
+	}
+	_ = k.c.Close(websocket.StatusNormalClosure, "")
+
+	// The same phone comes back as if restarted, twice, and a second one joins.
+	for range 2 {
+		renewed, err := r.svc.RenewSocketTicket(ctx, d.caller, s.ID, d.DeviceID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		again := r.connect(t, renewed.Ticket, d.key, &pluxv1.DevDeviceHello{})
+		again.c.SetReadLimit(1 << 24)
+		b := firstBundle(t, again)
+		if b == nil || b.GetBundleSequence() != 1 || len(b.GetSections()) != len(first.GetSections()) ||
+			string(b.GetManifest()) != string(first.GetManifest()) {
+			t.Fatalf("the restarted device received %v, want the signed bundle 1, whole", b)
+		}
+		_ = again.c.Close(websocket.StatusNormalClosure, "")
+	}
+	d2 := r.pairDevice(t, s.ID, "device-2")
+	k2 := r.connect(t, d2.Ticket, d2.key, &pluxv1.DevDeviceHello{})
+	k2.c.SetReadLimit(1 << 24)
+	if b := firstBundle(t, k2); b == nil || b.GetBundleSequence() != 1 || len(b.GetSections()) != len(first.GetSections()) {
+		t.Fatalf("the second device received %v, want the signed bundle 1, whole", b)
+	}
+	if n := len(r.Audit(t, "devsession.patched")); n != 1 {
+		t.Errorf("%d pushes were signed and audited, want the first one only", n)
 	}
 }

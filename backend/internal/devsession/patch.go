@@ -4,6 +4,7 @@
 package devsession
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -140,6 +141,17 @@ type draftState struct {
 	// of the earlier ones and is sent every bundle, and a replica that did
 	// not push them sends them again.
 	sent map[string]map[string]bool
+	// last is this replica's last signed push, which a device that connects
+	// afresh is sent again while the stored draft is unchanged (#275).
+	last *signedPush
+}
+
+// signedPush is a signed development bundle as pushed: the files it was
+// compiled from, its frame without sections, and every bundle by reference.
+type signedPush struct {
+	files   fstest.MapFS
+	frame   *pluxv1.DevBundleFrame
+	bundles map[string][]byte
 }
 
 // forgetDevice drops what this replica sent to a device, so that its next
@@ -306,7 +318,26 @@ func (s *Service) compileAndPush(ctx context.Context, p auth.Principal, plan pus
 	started = time.Now()
 	out.Results = s.deliver(plan.session.ID, devices, frameFor, frame.GetIncompatibleScopes(), pages)
 	out.Timings.Deliver = time.Since(started)
+	last := &signedPush{files: files, frame: frame, bundles: make(map[string][]byte, len(bundles))}
+	for ref, b := range bundles {
+		last.bundles[ref] = b.Data
+	}
+	st.last = last
 	return out, nil
+}
+
+// sameFiles reports whether two drafts hold the same files, byte for byte.
+func sameFiles(a, b fstest.MapFS) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for name, f := range a {
+		g, ok := b[name]
+		if !ok || !bytes.Equal(f.Data, g.Data) {
+			return false
+		}
+	}
+	return true
 }
 
 // digestOf is the lower-case hex SHA-256 of data.

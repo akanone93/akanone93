@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/document"
@@ -193,6 +194,44 @@ func (s *Service) welcome(b DeviceBinding) {
 		return err
 	})
 	if ok {
-		s.followDraft(ctx, p, plan, nil)
+		s.welcomeDraft(ctx, p, plan, b.DeviceID)
 	}
+}
+
+// welcomeDraft sends a device that connected afresh the stored draft. While
+// the draft is what this replica last signed, the device is sent that signed
+// bundle again, whole: a device that reconnects in a loop, by fault or on
+// purpose, costs a read of the draft, not a compile, a signature, an audit
+// entry and a push to every device of the session each time (#275). A draft
+// that changed since is compiled and pushed as an edit is.
+func (s *Service) welcomeDraft(ctx context.Context, p auth.Principal, plan pushPlan, deviceID string) {
+	st := s.enter(plan)
+	defer st.mu.Unlock()
+	var files fstest.MapFS
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		files, err = s.reload(ctx, tx, st, plan)
+		return err
+	})
+	if err != nil {
+		s.reportDraft(plan, PushResult{}, fmt.Errorf("devsession: read the draft: %w", err))
+		return
+	}
+	if last := st.last; last != nil && sameFiles(last.files, files) {
+		held := map[string]bool{}
+		st.sent[deviceID] = held
+		whole := func(string) *pluxv1.DevBundleFrame {
+			f := proto.CloneOf(last.frame)
+			f.Sections = make(map[string][]byte, len(last.bundles))
+			for ref, data := range last.bundles {
+				f.Sections[ref] = data
+				held[ref] = true
+			}
+			return f
+		}
+		s.deliver(plan.session.ID, []Device{{ID: deviceID}}, whole, nil, nil)
+		return
+	}
+	out, err := s.compileAndPush(ctx, p, plan, st, files, st.revs, nil, nil)
+	s.reportDraft(plan, out, err)
 }
