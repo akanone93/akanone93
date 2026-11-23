@@ -58,3 +58,23 @@ func TestWritesTellTheFollower_STU_130(t *testing.T) {
 		t.Errorf("the follower was told of %v, want two writes of %s", rec.writes, path)
 	}
 }
+
+// Verifies: STU-130, DEV-010.
+// Deleting a plugin tells the follower once it is stored, so that the
+// app's live dev sessions are pushed the draft without it (#251).
+func TestDeletePluginTellsTheFollower_STU_130(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	rec := &follower{}
+	f.docs.FollowDrafts(rec)
+	if _, err := f.docs.DeletePlugin(ctx, f.owner, plugin); err != nil {
+		t.Fatal(err)
+	}
+	rec.mu.Lock()
+	defer rec.mu.Unlock()
+	if len(rec.writes) != 1 || !slices.Equal(rec.writes[0], []string{"app.json"}) {
+		t.Errorf("the follower was told of %v, want one change of app.json", rec.writes)
+	}
+}

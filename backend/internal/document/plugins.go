@@ -185,15 +185,21 @@ func (s *Service) UpdatePlugin(ctx context.Context, p auth.Principal, pluginID, 
 }
 
 // DeletePlugin moves a plugin, with its draft and history, to the trash
-// for the retention period (GOV-031); its lock is released.
+// for the retention period (GOV-031); its lock is released. Once that is
+// stored, the follower is told the app's draft changed, so that the app's
+// live dev sessions are pushed the draft without the plugin (#251).
 func (s *Service) DeletePlugin(ctx context.Context, p auth.Principal, pluginID string) (tenancy.TrashItem, error) {
-	var out tenancy.TrashItem
+	var (
+		out   tenancy.TrashItem
+		appID string
+	)
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		d, err := s.plugin(ctx, q, p, pluginID)
 		if err != nil {
 			return err
 		}
+		appID = d.app
 		if err := authorize(p, auth.AppManage, d.app); err != nil {
 			return err
 		}
@@ -211,6 +217,9 @@ func (s *Service) DeletePlugin(ctx context.Context, p auth.Principal, pluginID s
 		}
 		return s.syncAppPlugins(ctx, tx, p, d.app, "")
 	})
+	if err == nil && s.follower != nil {
+		s.follower.DraftWritten(ctx, p, appID, "", []string{appDocument})
+	}
 	return out, err
 }
 
