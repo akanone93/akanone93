@@ -1,0 +1,125 @@
+{
+  "features": [
+    {
+      "name": "actions.concurrency.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "actions.control.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "actions.flows.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "actions.retry.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "actions.triggers.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "anim.timelines.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "anim.transitions.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "anim.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "data.outbox.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "data.streams.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "data.transfers.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "data.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "db.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "db.v2",
+      "runtime": "0.6.0"
+    },
+    {
+      "name": "device.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "experiments.variant.v1",
+      "runtime": "0.6.0"
+    },
+    {
+      "name": "forms.sensitive.v1",
+      "runtime": "0.4.0"
+    },
+    {
+      "name": "forms.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "navigation.guards.v1",
+      "runtime": "0.2.0"
+    },
+    {
+      "name": "pxl.calendar.v1",
+      "runtime": "0.5.0"
+    },
+    {
+      "name": "pxl.format.v1",
+      "runtime": "0.5.0"
+    },
+    {
+      "name": "pxl.l10n.v1",
+      "runtime": "0.5.0"
+    },
+    {
+      "name": "pxl.phone.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "pxl.regex.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "pxl.v1"
+    },
+    {
+      "name": "section.wasm.v1"
+    },
+    {
+      "name": "security.confidential.v1"
+    },
+    {
+      "name": "security.secureui.v1",
+      "runtime": "0.4.0"
+    },
+    {
+      "name": "state.computed.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "state.persistence.v1",
+      "runtime": "0.3.0"
+    },
+    {
+      "name": "state.write.v1",
+      "runtime": "0.3.0"
+    }
+  ]
+}

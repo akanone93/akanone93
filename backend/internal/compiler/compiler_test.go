@@ -27,7 +27,7 @@ import (
 )
 
 // update rewrites the golden bundles.
-var update = flag.Bool("update", false, "rewrite the golden bundles in schema/testdata/bundles")
+var update = flag.Bool("update", false, "rewrite the golden bundles in schema/testdata/bundles and schema/testdata/features")
 
 // goldenRoot holds the bundles of the conformance projects, read by the
 // Dart tests too (QA-003).
