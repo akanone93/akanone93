@@ -194,13 +194,20 @@ export function localisationMessages(i18n: I18n) {
     }),
     deleteKeyConfirm: i18n._({ id: "localisation.delete-key.confirm", message: "Delete", comment: "Confirm button." }),
     deleteKeyCancel: i18n._({ id: "localisation.delete-key.cancel", message: "Cancel", comment: "Cancel button." }),
-    usedIn: (count: number, files: string) =>
+    usedIn: (count: number) =>
       i18n._({
-        id: "localisation.used-in",
-        message: "{count, plural, one {Used in # document} other {Used in # documents}}: {files}",
-        values: { count, files },
+        id: "localisation.used-in-count",
+        message: "{count, plural, one {Used in # document} other {Used in # documents}}",
+        values: { count },
         comment:
-          "Where a translation key is used, so it cannot be deleted (STU-072); files is a list of document paths.",
+          "Where a translation key is used, so it cannot be deleted (STU-072); the first documents follow, the rest under Show all.",
+      }),
+    showAllUses: (count: number) =>
+      i18n._({
+        id: "localisation.show-all-uses",
+        message: "Show all {count}",
+        values: { count },
+        comment: "Opens the full list of the documents that use a translation key; count is how many there are.",
       }),
     usageColumn: i18n._({
       id: "localisation.usage-column",

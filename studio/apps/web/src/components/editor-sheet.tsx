@@ -60,16 +60,19 @@ export function SheetSection({
   description,
   icon,
   actions,
+  wide,
   children,
 }: {
   readonly title: string;
   readonly description?: string;
   readonly icon?: IconName;
   readonly actions?: ReactNode;
+  /** A table that needs the whole work area's width, as a list of keys by locale does. */
+  readonly wide?: boolean;
   readonly children: ReactNode;
 }): ReactElement {
   return (
-    <section className="sheet-section" aria-label={title}>
+    <section className="sheet-section" aria-label={title} data-wide={wide === true || undefined}>
       <header className="sheet-section-head">
         {icon !== undefined && (
           <span className="sheet-section-icon" aria-hidden="true">

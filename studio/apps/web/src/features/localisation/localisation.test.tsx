@@ -13,7 +13,7 @@ import { UndoManager } from "../editor/undo-stack.ts";
 import { setPropRecipe } from "../panels/properties-model.ts";
 import { ExtractKeyDialog } from "./extract-key-dialog.tsx";
 import type { L10nSessions } from "./l10n-sessions.tsx";
-import { LocalisationOverlay } from "./localisation-overlay.tsx";
+import { LocalisationOverlay, shortPath } from "./localisation-overlay.tsx";
 
 afterEach(cleanup);
 
@@ -189,8 +189,9 @@ describe("[STU-063] localisation table V4", () => {
       pluginKeys: new Set(["k1", "k2"]),
       usage: new Map([["k1", ["plugins/main/pages/home.page.json"]]]),
     });
-    // The test catalogue fills simple placeholders, not plurals: the document list is what is checked.
-    await screen.findByText(/: plugins\/main\/pages\/home\.page\.json$/);
+    // The test catalogue fills simple placeholders, not plurals: the document named is what is checked, as the plugin
+    // and the file's name (#221).
+    await screen.findByText("main › home");
     expect(screen.queryByRole("button", { name: "Delete home.title" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Delete home.cta" }));
     await screen.findByText("Delete this translation key?");
@@ -278,6 +279,22 @@ describe("[STU-063] localisation table V4", () => {
       k1: "Welcome",
       k2: "Go",
     });
+  });
+
+  test("[STU-072] a key used in many documents names two and folds the rest under Show all (#221)", async () => {
+    const files = [1, 2, 3, 4].map((n) => `plugins/a/pages/p${n}.page.json`);
+    overlay({ pluginKeys: new Set(["k1", "k2"]), usage: new Map([["k1", files]]) });
+    await screen.findByText("a › p1");
+    expect(screen.getByText("a › p2")).toBeTruthy();
+    const rest = screen.getByText("Show all 4").closest("details");
+    expect(rest?.open).toBe(false);
+    expect(rest?.textContent).toContain("a › p4");
+  });
+
+  test("[STU-072] a document is named short: its plugin and its file's name (#221)", () => {
+    expect(shortPath("plugins/account/pages/ac-offline.page.json")).toBe("account › ac-offline");
+    expect(shortPath("plugins/account/plugin.json")).toBe("account › plugin");
+    expect(shortPath("app.json")).toBe("app");
   });
 
   test("[STU-072] a key's usage spans every document of the app", async () => {

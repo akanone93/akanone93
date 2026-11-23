@@ -20,3 +20,55 @@
     grid-template-columns: 1fr;
   }
 }
+
+/*
+ * The keys by locale (#221): the key and where it is used keep their width and the locales share the rest, at least
+ * 12rem each, so the edited locale's field never shrinks to a sliver; with many locales the table scrolls across inside
+ * its section instead.
+ */
+.l10n-keys-scroll {
+  overflow-x: auto;
+}
+
+.l10n-keys {
+  table-layout: fixed;
+  min-inline-size: calc(14rem + 15rem + var(--locales) * 12rem);
+}
+
+.l10n-keys .l10n-col-key {
+  inline-size: 14rem;
+}
+
+.l10n-keys .l10n-col-use {
+  inline-size: 15rem;
+}
+
+.l10n-keys tbody th,
+.l10n-keys tbody td {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.l10n-uses {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.l10n-uses li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+details > .l10n-uses {
+  max-block-size: 12rem;
+  margin-block-start: calc(var(--spacing) * 1);
+  overflow-y: auto;
+}
+
+/* The edited locale's field is as tall as its message: one line for a short one, never the field's usual three. */
+.l10n-keys textarea {
+  min-block-size: 0;
+  padding-block: calc(var(--spacing) * 1.5);
+  resize: none;
+}

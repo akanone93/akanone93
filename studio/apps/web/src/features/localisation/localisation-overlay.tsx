@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { AlertDialog, Button, Dialog, Field, Icon, Input, Select, Tooltip } from "@plux/ui";
-import { useMemo, useState } from "react";
+import { AlertDialog, Button, Dialog, Field, Icon, Input, Select, Textarea, Tooltip } from "@plux/ui";
+import { type CSSProperties, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
 import type { EditSession, JsonValue } from "../editor/index.ts";
@@ -22,6 +22,7 @@ import {
   setMessageRecipe,
 } from "./l10n-model.ts";
 import { localisationMessages } from "./localisation.messages.ts";
+import "./localisation-area.css";
 
 export type KeyScope = "plugin" | "selection" | "all";
 
@@ -129,63 +130,78 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
         }
       >
         {!props.canEditMessages && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
-        <SheetSection title={m.table} icon="translate">
+        <SheetSection title={m.table} icon="translate" wide>
           {rows.length === 0 ? (
             <SheetEmpty icon="translate" title={m.empty} />
           ) : (
-            <table aria-label={m.table} className="sheet-grid-table">
-              <thead>
-                <tr>
-                  <th scope="col">{m.keyColumn}</th>
+            <div className="l10n-keys-scroll">
+              <table
+                aria-label={m.table}
+                className="sheet-grid-table l10n-keys"
+                style={{ "--locales": shown.length } as CSSProperties}
+              >
+                <colgroup>
+                  <col className="l10n-col-key" />
                   {shown.map((c) => (
-                    <th key={c.locale} scope="col" className="font-mono" dir="ltr">
-                      {c.locale}
-                    </th>
+                    <col key={c.locale} />
                   ))}
-                  <th scope="col">{m.usageColumn}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((k) => (
-                  <tr key={k.id}>
-                    <th scope="row" className="font-mono text-xs font-normal" dir="ltr">
-                      <KeyName
-                        name={k.key}
-                        taken={keys.filter((o) => o.id !== k.id).map((o) => o.key)}
-                        canRename={props.canEditKeys}
-                        onRename={(key) => props.keysSession.edit(KEYS_PATH, renameKeyRecipe(k.id, key))}
-                      />
-                    </th>
+                  <col className="l10n-col-use" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th scope="col">{m.keyColumn}</th>
                     {shown.map((c) => (
-                      <td key={c.locale}>
-                        {c.locale === props.locale ? (
-                          <Input
-                            aria-label={m.messageOf(k.key, c.locale)}
-                            value={mine[k.id] ?? ""}
-                            placeholder={m.missing}
-                            readOnly={!props.canEditMessages}
-                            onChange={(e) => writeMessage(props, messagesDoc, k.id, e.target.value)}
-                          />
-                        ) : (
-                          <span className="text-sm">
-                            {c.messages?.[k.id] ?? <span className="text-muted-foreground italic">{m.missing}</span>}
-                          </span>
-                        )}
-                      </td>
+                      <th key={c.locale} scope="col" className="font-mono" dir="ltr">
+                        {c.locale}
+                      </th>
                     ))}
-                    <td>
-                      <KeyUse
-                        files={props.usage.get(k.id) ?? []}
-                        canDelete={props.canEditKeys}
-                        label={m.deleteKey(k.key)}
-                        usedIn={m.usedIn}
-                        onDelete={() => setDeleting({ id: k.id, key: k.key })}
-                      />
-                    </td>
+                    <th scope="col">{m.usageColumn}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {rows.map((k) => (
+                    <tr key={k.id}>
+                      <th scope="row" className="font-mono text-xs font-normal" dir="ltr">
+                        <KeyName
+                          name={k.key}
+                          taken={keys.filter((o) => o.id !== k.id).map((o) => o.key)}
+                          canRename={props.canEditKeys}
+                          onRename={(key) => props.keysSession.edit(KEYS_PATH, renameKeyRecipe(k.id, key))}
+                        />
+                      </th>
+                      {shown.map((c) => (
+                        <td key={c.locale}>
+                          {c.locale === props.locale ? (
+                            // As tall as its text, so a long message reads whole, as the other locales' do (#221).
+                            <Textarea
+                              aria-label={m.messageOf(k.key, c.locale)}
+                              value={mine[k.id] ?? ""}
+                              placeholder={m.missing}
+                              readOnly={!props.canEditMessages}
+                              onChange={(e) => writeMessage(props, messagesDoc, k.id, e.target.value)}
+                            />
+                          ) : (
+                            <span className="text-sm">
+                              {c.messages?.[k.id] ?? <span className="text-muted-foreground italic">{m.missing}</span>}
+                            </span>
+                          )}
+                        </td>
+                      ))}
+                      <td>
+                        <KeyUse
+                          files={props.usage.get(k.id) ?? []}
+                          canDelete={props.canEditKeys}
+                          label={m.deleteKey(k.key)}
+                          usedIn={m.usedIn}
+                          showAll={m.showAllUses}
+                          onDelete={() => setDeleting({ id: k.id, key: k.key })}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </SheetSection>
       </SheetLayout>
@@ -267,16 +283,48 @@ function KeyName(p: {
   );
 }
 
-/** Where a key is used, or, for a key nothing uses, the button that deletes it (STU-072). */
+/** How many of a key's documents its row names; the rest are a click away (#221). */
+const SHOWN_USES = 2;
+
+/** A document's path, short: the plugin and the file's name without its extensions (`account › ac-offline`). */
+export function shortPath(path: string): string {
+  const parts = path.split("/");
+  const file = (parts[parts.length - 1] ?? path).replace(/(\.page)?\.json$/, "");
+  return parts[0] === "plugins" && parts.length >= 3 ? `${parts[1]} › ${file}` : file;
+}
+
+/**
+ * Where a key is used — how many documents and the first two, the rest under "Show all" — or, for a key nothing uses,
+ * the button that deletes it (STU-072).
+ */
 function KeyUse(p: {
   readonly files: readonly string[];
   readonly canDelete: boolean;
   readonly label: string;
-  readonly usedIn: (count: number, files: string) => string;
+  readonly usedIn: (count: number) => string;
+  readonly showAll: (count: number) => string;
   readonly onDelete: () => void;
 }) {
   if (p.files.length > 0) {
-    return <span className="text-caption text-muted-foreground">{p.usedIn(p.files.length, p.files.join(", "))}</span>;
+    const list = (files: readonly string[]) => (
+      <ul dir="ltr" className="l10n-uses">
+        {files.map((f) => (
+          <li key={f}>{shortPath(f)}</li>
+        ))}
+      </ul>
+    );
+    return (
+      <div className="flex flex-col gap-0.5 text-caption text-muted-foreground">
+        <span>{p.usedIn(p.files.length)}</span>
+        {list(p.files.slice(0, SHOWN_USES))}
+        {p.files.length > SHOWN_USES && (
+          <details>
+            <summary className="cursor-pointer text-foreground">{p.showAll(p.files.length)}</summary>
+            {list(p.files.slice(SHOWN_USES))}
+          </details>
+        )}
+      </div>
+    );
   }
   return (
     <Tooltip content={p.label} disabledTrigger={!p.canDelete}>

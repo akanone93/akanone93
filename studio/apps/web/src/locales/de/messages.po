@@ -328,11 +328,11 @@ msgstr "{count, plural, one {Offline — # Änderung wartet} other {Offline — 
 msgid "history.restored"
 msgstr "{count, plural, one {# Dokument wiederhergestellt.} other {# Dokumente wiederhergestellt.}}"
 
-#. Where a translation key is used, so it cannot be deleted (STU-072); files is a list of document paths.
+#. Where a translation key is used, so it cannot be deleted (STU-072); the first documents follow, the rest under Show all.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
-msgid "localisation.used-in"
-msgstr "{count, plural, one {Verwendet in # Dokument} other {Verwendet in # Dokumenten}}: {files}"
+msgid "localisation.used-in-count"
+msgstr "{count, plural, one {In # Dokument verwendet} other {In # Dokumenten verwendet}}"
 
 #. Count of accessibility diagnostics of a build.
 #. js-lingui-explicit-id
@@ -16178,6 +16178,12 @@ msgstr "{name} auf der Leinwand zeigen"
 #: apps/web/src/features/profile/phones.messages.ts
 msgid "profile.phones.again"
 msgstr "Neuen Code zeigen"
+
+#. Opens the full list of the documents that use a translation key; count is how many there are.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.show-all-uses"
+msgstr "Alle {count} anzeigen"
 
 #. Accessible name of the chip that removes the kind filter of the Insert tab.
 #. js-lingui-explicit-id

@@ -328,11 +328,11 @@ msgstr "{count, plural, zero {غير متصل} one {غير متصل — تغيي
 msgid "history.restored"
 msgstr "{count, plural, zero {لم تُستعد أي مستندات.} one {تمت استعادة مستند واحد.} two {تمت استعادة مستندين.} few {تمت استعادة # مستندات.} many {تمت استعادة # مستندًا.} other {تمت استعادة # مستند.}}"
 
-#. Where a translation key is used, so it cannot be deleted (STU-072); files is a list of document paths.
+#. Where a translation key is used, so it cannot be deleted (STU-072); the first documents follow, the rest under Show all.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
-msgid "localisation.used-in"
-msgstr "{count, plural, zero {مستخدم في # مستند} one {مستخدم في مستند واحد} two {مستخدم في مستندين} few {مستخدم في # مستندات} many {مستخدم في # مستندًا} other {مستخدم في # مستند}}: {files}"
+msgid "localisation.used-in-count"
+msgstr "{count, plural, zero {غير مستخدم} one {مستخدم في مستند واحد} two {مستخدم في مستندين} few {مستخدم في # مستندات} many {مستخدم في # مستندًا} other {مستخدم في # مستند}}"
 
 #. Count of accessibility diagnostics of a build.
 #. js-lingui-explicit-id
@@ -16178,6 +16178,12 @@ msgstr "إظهار {name} على اللوحة"
 #: apps/web/src/features/profile/phones.messages.ts
 msgid "profile.phones.again"
 msgstr "عرض رمز جديد"
+
+#. Opens the full list of the documents that use a translation key; count is how many there are.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "localisation.show-all-uses"
+msgstr "عرض الكل ({count})"
 
 #. Accessible name of the chip that removes the kind filter of the Insert tab.
 #. js-lingui-explicit-id

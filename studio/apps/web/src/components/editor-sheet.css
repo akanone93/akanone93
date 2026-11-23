@@ -146,6 +146,10 @@
   box-shadow: var(--elevation-1);
 }
 
+.sheet-section[data-wide] {
+  max-inline-size: none;
+}
+
 .sheet-section-head {
   display: flex;
   align-items: center;
