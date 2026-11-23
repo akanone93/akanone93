@@ -1,8 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type Problem, PxlService, type PxlSites, parseSites } from "@plux/validator";
-import { useEffect, useState } from "react";
+import {
+  type Problem,
+  type ProjectFile,
+  PxlService,
+  type PxlSites,
+  parseSites,
+  ValidatorCancelled,
+} from "@plux/validator";
+import { useEffect, useRef, useState } from "react";
 import { projectFiles } from "./project-files.ts";
 import type { ValidatorClient, ValidatorFactory } from "./validator-client.ts";
 
@@ -71,9 +78,20 @@ export function assetStandIns(names: readonly string[]): { readonly path: string
 /** One empty list for callers without assets: a fresh `[]` each render would restart the validation each render. */
 const NO_ASSETS: readonly string[] = [];
 
+/** Whether two loads hold the same files, path for path and byte for byte. */
+function sameFiles(a: readonly ProjectFile[] | undefined, b: readonly ProjectFile[]): boolean {
+  if (a === undefined || a.length !== b.length) {
+    return false;
+  }
+  return a.every((f, i) => f.path === b[i]?.path && f.data === b[i]?.data);
+}
+
 /**
  * Loads the project into the validator when the documents and the asset list arrive and validates it project-wide
- * (validate on open).
+ * (validate on open). One validator worker serves the canvas for its lifetime: a change of documents (an edit, or a
+ * refetch when the window regains focus) loads them into the same worker, and only when their content changed. The
+ * last finished check stays the result, its page check usable, until the next one finishes; before, each refetch
+ * started a new worker and the JSON editor and the Properties panel found the validator "not ready" meanwhile (#252).
  */
 export function useValidation(
   createValidator: ValidatorFactory,
@@ -83,18 +101,47 @@ export function useValidation(
   assetFiles: readonly string[] | undefined = NO_ASSETS,
 ): Validation {
   const [result, setResult] = useState<Validation>({ state: "idle" });
+  const [validator, setValidator] = useState<ValidatorClient | undefined>(undefined);
+  // The files the current worker holds, and the worker itself: a worker let go is never loaded again.
+  const loaded = useRef<readonly ProjectFile[] | undefined>(undefined);
+  const current = useRef<ValidatorClient | undefined>(undefined);
+  // The newest load: an older one that finishes late, or one of a validator let go, is dropped.
+  const generation = useRef(0);
+  // A load that failed (a worker that died, say) starts a new worker once for the same files, then reports the failure.
+  const [restarts, setRestarts] = useState(0);
+  const retried = useRef<readonly ProjectFile[] | undefined>(undefined);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a restart asks for a new worker by its count alone
   useEffect(() => {
-    if (app === undefined || plugin === undefined || assetFiles === undefined) {
-      return undefined;
+    const created = createValidator();
+    loaded.current = undefined;
+    current.current = created;
+    setValidator(created);
+    return () => {
+      generation.current += 1;
+      created.dispose();
+    };
+  }, [createValidator, restarts]);
+  useEffect(() => {
+    if (
+      validator === undefined ||
+      validator !== current.current ||
+      app === undefined ||
+      plugin === undefined ||
+      assetFiles === undefined
+    ) {
+      return;
     }
-    setResult({ state: "running" });
-    const validator = createValidator();
-    let live = true;
-    validator
-      .load([...projectFiles(wholeProject(app, plugin)), ...assetStandIns(assetFiles)])
-      .then(
-        (problems) =>
-          live &&
+    const files = [...projectFiles(wholeProject(app, plugin)), ...assetStandIns(assetFiles)];
+    if (sameFiles(loaded.current, files)) {
+      return;
+    }
+    loaded.current = files;
+    generation.current += 1;
+    const mine = generation.current;
+    setResult((prev) => (prev.state === "done" ? prev : { state: "running" }));
+    validator.load(files).then(
+      (problems) => {
+        if (mine === generation.current) {
           setResult({
             state: "done",
             problems: inFiles(problems, plugin),
@@ -104,13 +151,24 @@ export function useValidation(
               validator.tool === undefined
                 ? undefined
                 : (name, args) => validator.tool?.(name, args) ?? Promise.resolve(null),
-          }),
-      )
-      .catch(() => live && setResult({ state: "failed" }));
-    return () => {
-      live = false;
-      validator.dispose();
-    };
-  }, [createValidator, app, plugin, assetFiles]);
+          });
+        }
+      },
+      (e: unknown) => {
+        // A newer load replaced this one; its own result comes.
+        if (mine !== generation.current || e instanceof ValidatorCancelled) {
+          return;
+        }
+        if (!sameFiles(retried.current, files)) {
+          retried.current = files;
+          loaded.current = undefined;
+          setRestarts((n) => n + 1);
+          return;
+        }
+        // These files failed on a new worker too: they are not loaded again until they change.
+        setResult({ state: "failed" });
+      },
+    );
+  }, [validator, app, plugin, assetFiles]);
   return result;
 }
