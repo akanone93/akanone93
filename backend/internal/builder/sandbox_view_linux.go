@@ -24,8 +24,9 @@ import (
 // mount, network and PID namespaces the helper builds a private view of the
 // filesystem — the system directories, the toolchain and the tools read-only,
 // the build's own scratch directory writable, nothing else — then restricts
-// itself with Landlock to the same, sets the limits and replaces itself with
-// the tool. A build therefore cannot read or change another build's files,
+// itself with Landlock to the same, sets the CPU-time limit and replaces
+// itself with the tool through /bin/sh, which sets both limits before the
+// tool starts. A build therefore cannot read or change another build's files,
 // the builder's own files or anything else on the machine (build log #164).
 
 // helperUnavailableExit is the exit status of a helper that cannot isolate
@@ -44,7 +45,6 @@ type viewSpec struct {
 	Path     string   `json:"path"`
 	Args     []string `json:"args"`
 	CPUTime  uint64   `json:"cpuSeconds,omitempty"`
-	Memory   uint64   `json:"memoryBytes,omitempty"`
 }
 
 // systemPaths are read-only in every view: the programs and libraries the
@@ -83,10 +83,6 @@ func RunSandboxHelper(args []string) int {
 		fmt.Fprintf(os.Stderr, "%s%v\n", helperUnavailableMarker, err)
 		return helperUnavailableExit
 	}
-	if err := setOwnLimits(spec); err != nil {
-		fmt.Fprintf(os.Stderr, "plux-sandbox: limits: %v\n", err)
-		return 2
-	}
 	if err := dropCapabilities(); err != nil {
 		fmt.Fprintf(os.Stderr, "plux-sandbox: %v\n", err)
 		return 2
@@ -94,6 +90,10 @@ func RunSandboxHelper(args []string) int {
 	if err := restrictWithLandlock(spec); err != nil {
 		fmt.Fprintf(os.Stderr, "%s%v\n", helperUnavailableMarker, err)
 		return helperUnavailableExit
+	}
+	if err := setOwnCPULimit(spec); err != nil {
+		fmt.Fprintf(os.Stderr, "plux-sandbox: limits: %v\n", err)
+		return 2
 	}
 	env := append(os.Environ(), "TMPDIR="+filepath.Join(spec.Writable[0], "tmp"))
 	err := syscall.Exec(spec.Path, append([]string{spec.Path}, spec.Args...), env) //nolint:gosec // G204: the builder's own command, passed by the sandbox.
@@ -297,18 +297,18 @@ func lockedFlags(path string) uintptr {
 	return out
 }
 
-// setOwnLimits sets the CPU-time and address-space limits just before the
-// tool starts; the shell the tool is started through sets them again.
-func setOwnLimits(spec viewSpec) error {
-	if spec.CPUTime > 0 {
-		if err := syscall.Setrlimit(syscall.RLIMIT_CPU, &syscall.Rlimit{Cur: spec.CPUTime, Max: spec.CPUTime + 1}); err != nil {
-			return fmt.Errorf("CPU time: %w", err)
-		}
+// setOwnCPULimit sets the CPU-time limit just before the tool starts; the
+// shell the tool is started through (limitedCommand) sets it again. The
+// address-space limit only that shell sets, as the last step before the
+// tool, which never starts if it fails: held to a tool's address space, the
+// helper's own Go runtime could neither allocate nor start a thread, and
+// under load it died before the tool started (build log #243).
+func setOwnCPULimit(spec viewSpec) error {
+	if spec.CPUTime == 0 {
+		return nil
 	}
-	if spec.Memory > 0 {
-		if err := syscall.Setrlimit(syscall.RLIMIT_AS, &syscall.Rlimit{Cur: spec.Memory, Max: spec.Memory}); err != nil {
-			return fmt.Errorf("address space: %w", err)
-		}
+	if err := syscall.Setrlimit(syscall.RLIMIT_CPU, &syscall.Rlimit{Cur: spec.CPUTime, Max: spec.CPUTime + 1}); err != nil {
+		return fmt.Errorf("CPU time: %w", err)
 	}
 	return nil
 }
@@ -507,7 +507,6 @@ func helperCommand(helper string, cmd Command) (Command, error) {
 	if cmd.Limits.CPUTime > 0 {
 		spec.CPUTime = uint64((cmd.Limits.CPUTime + time.Second - 1) / time.Second)
 	}
-	spec.Memory = cmd.Limits.Memory
 	raw, err := json.Marshal(spec)
 	if err != nil {
 		return Command{}, fmt.Errorf("builder.LinuxSandbox: %w", err)

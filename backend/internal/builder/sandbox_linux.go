@@ -24,9 +24,9 @@ import (
 // Command.Writable writable, nothing else — and Landlock restricts it to the
 // same, so no build can reach another build's files or the builder's own
 // (build log #164). The helper (SandboxHelperArg) builds the view, applies
-// Landlock and the CPU-time and memory limits, and replaces itself with the
-// tool through /bin/sh, which sets the limits again (limitedCommand). It is
-// safe for concurrent use.
+// Landlock and the CPU-time limit, and replaces itself with the tool through
+// /bin/sh, which sets the CPU-time limit again and the memory limit, then
+// starts the tool (limitedCommand). It is safe for concurrent use.
 type LinuxSandbox struct {
 	// Helper is the executable that runs as the sandbox helper: the
 	// program's own, which calls RunSandboxHelper when its first argument

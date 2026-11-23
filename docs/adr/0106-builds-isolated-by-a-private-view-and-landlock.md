@@ -76,14 +76,23 @@ user namespace. Before the tool starts, the helper:
    only the build's processes — and hides in it, as Docker does, the files that describe the
    whole machine (`kcore`, `keys`, `timer_list`, `sched_debug`, `acpi`, `scsi` and the rest);
 4. pivots into the new root, detaches the old one and makes the root read-only;
-5. sets the CPU-time and address-space limits;
-6. drops every capability: the bounding, ambient, inheritable, permitted and effective sets,
+5. drops every capability: the bounding, ambient, inheritable, permitted and effective sets,
    and checks they are empty — so the tool holds none, even where the builder runs as root;
-7. restricts itself with Landlock (Linux 5.13 or later): read and run in the system and
+6. restricts itself with Landlock (Linux 5.13 or later): read and run in the system and
    toolchain directories, everything in the scratch directory, read and write the four
    devices, read `/proc`; on kernels with Landlock network rules (ABI 4), no TCP at all;
    `no_new_privs` is set;
-8. replaces itself with the tool, with `TMPDIR` in the scratch directory.
+7. sets the CPU-time limit;
+8. replaces itself with the tool through `/bin/sh`, with `TMPDIR` in the scratch directory:
+   the shell sets the CPU-time limit again and the address-space limit, then replaces itself
+   with the tool, which never starts if a limit cannot be set.
+
+*(Amended 2026-11-24, build log #243: the helper set both limits first, before steps 5–7.
+Held to a tool's address space, its own Go runtime could neither allocate nor start a
+thread, and under load it died before the tool started — a flaky test and, on a busy
+builder, failed builds. The limits now come last, and the address-space limit only from the
+shell; the tool starts under both, as `TestLinuxSandboxLimitsHoldFromTheStart_FN_016`
+checks.)*
 
 A machine that refuses any of this — no Landlock, a refused mount, a refused `/proc` — makes
 the helper exit with a marked status, and the builder reports `ErrSandboxUnavailable` and
