@@ -4,6 +4,7 @@
 import type { Guides } from "@plux/canvas";
 import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
+import { A11Y_TEXT_ZOOM, badgeAt, keepApart, type Label, tagAbove, tagBelow } from "./a11y-labels.ts";
 import { type LowContrast, smallTarget } from "./a11y-marks.ts";
 import type { BindingMark } from "./binding-marks.ts";
 import type { InstanceMark } from "./component-instances.ts";
@@ -311,45 +312,81 @@ function BindingTag({ id, nodes }: { id: string; nodes: OverlayNodes }): ReactNo
   );
 }
 
-/** The Accessibility view (PC-31): focus order numbers, small touch targets outlined, low-contrast texts badged. */
+/** One label of the Accessibility view, as drawn: its key, class, kind, words and place. */
+interface A11yLabel {
+  readonly key: string;
+  readonly className: string;
+  readonly kind?: string;
+  readonly text: string;
+  readonly style: CSSProperties;
+}
+
+/** A world point in canvas pixels. */
+const onScreen = (x: number, y: number, v: View) => ({ x: (x - v.x) * v.zoom, y: (y - v.y) * v.zoom });
+
+/** The findings' labels, low contrast first, and the small targets' outlines, which are always drawn. */
+function findingLabels(view: View, nodes: OverlayNodes, a: A11yMarks, outlines: ReactNode[]): Label<A11yLabel>[] {
+  const labels: Label<A11yLabel>[] = [];
+  for (const [id, c] of a.low) {
+    const b = nodes.boxOf(id);
+    if (b !== undefined) {
+      const text = nodes.a11yText?.contrast(c.ratio.toFixed(1), String(c.needed)) ?? "";
+      const p = onScreen(b.r, b.t, view);
+      const style = point(b.r, b.t, view);
+      labels.push({
+        rect: tagAbove(p.x, p.y, text),
+        mark: { key: `c${id}`, className: "pc-a11y-tag", kind: "contrast", text, style },
+      });
+    }
+  }
+  for (const id of a.targets) {
+    const b = nodes.boxOf(id);
+    const size = b === undefined ? undefined : { w: b.r - b.l, h: b.b - b.t };
+    if (b !== undefined && size !== undefined && smallTarget(size, a.min)) {
+      outlines.push(<div key={`t${id}`} className="pc-outline" data-kind="a11y-target" style={place(b, view)} />);
+      const text = nodes.a11yText?.target(Math.round(size.w), Math.round(size.h), a.min) ?? "";
+      const p = onScreen(b.l, b.b, view);
+      labels.push({
+        rect: tagBelow(p.x, p.y, text),
+        mark: { key: `l${id}`, className: "pc-a11y-tag", text, style: point(b.l, b.b, view) },
+      });
+    }
+  }
+  return labels;
+}
+
+/**
+ * The Accessibility view (PC-31): small touch targets outlined, and labels — low contrast, the targets' sizes, the focus
+ * order — kept apart so none covers another, and left out below `A11Y_TEXT_ZOOM`, where they would cover the screens;
+ * a target whose label gives way keeps its outline (#219).
+ */
 function A11yView({ view, nodes }: { view: View; nodes: OverlayNodes }): ReactNode {
   const a = nodes.a11y;
   if (a === undefined) {
     return null;
   }
-  const order = [...a.order].flatMap(([id, n]) => {
+  const outlines: ReactNode[] = [];
+  const labels = findingLabels(view, nodes, a, outlines);
+  for (const [id, n] of a.order) {
     const b = nodes.boxOf(id);
-    return b === undefined
-      ? []
-      : [
-          <span key={`o${id}`} className="pc-a11y-order" style={point(b.l, b.t, view)}>
-            {n}
-          </span>,
-        ];
-  });
-  const small = [...a.targets].flatMap((id) => {
-    const b = nodes.boxOf(id);
-    const size = b === undefined ? undefined : { w: b.r - b.l, h: b.b - b.t };
-    return b === undefined || size === undefined || !smallTarget(size, a.min)
-      ? []
-      : [
-          <div key={`t${id}`} className="pc-outline" data-kind="a11y-target" style={place(b, view)} />,
-          <span key={`l${id}`} className="pc-a11y-tag" style={point(b.l, b.b, view)}>
-            {nodes.a11yText?.target(Math.round(size.w), Math.round(size.h), a.min)}
-          </span>,
-        ];
-  });
-  const low = [...a.low].flatMap(([id, c]) => {
-    const b = nodes.boxOf(id);
-    return b === undefined
-      ? []
-      : [
-          <span key={`c${id}`} className="pc-a11y-tag" data-kind="contrast" style={point(b.r, b.t, view)}>
-            {nodes.a11yText?.contrast(c.ratio.toFixed(1), String(c.needed))}
-          </span>,
-        ];
-  });
-  return [...small, ...low, ...order];
+    if (b !== undefined) {
+      const p = onScreen(b.l, b.t, view);
+      labels.push({
+        rect: badgeAt(p.x, p.y),
+        mark: { key: `o${id}`, className: "pc-a11y-order", text: String(n), style: point(b.l, b.t, view) },
+      });
+    }
+  }
+  const kept =
+    view.zoom < A11Y_TEXT_ZOOM ? [] : keepApart(labels, { width: window.innerWidth, height: window.innerHeight });
+  return [
+    ...outlines,
+    ...kept.map(({ mark: m }) => (
+      <span key={m.key} className={m.className} data-kind={m.kind} style={m.style}>
+        {m.text}
+      </span>
+    )),
+  ];
 }
 
 /** The Localisation view (PC-32): missing, untranslated and overflowing texts tagged and outlined. */

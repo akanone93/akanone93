@@ -763,7 +763,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     <section
       ref={sectionRef}
       aria-label={m.title}
-      className="app-canvas canvas-stage relative h-full w-full overflow-hidden"
+      className="app-canvas canvas-stage relative h-full w-full overflow-clip"
       data-tool={tool}
     >
       {/* A canvas hands its drawing to the worker once: a new theme gets a new element, and a new surface on it. */}

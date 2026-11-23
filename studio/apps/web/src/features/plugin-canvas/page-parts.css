@@ -9,7 +9,8 @@
 .pc-parts {
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  /* Clipped, never scrolled by a focused chip off the view (#229). */
+  overflow: clip;
   pointer-events: none;
   /* Over the interaction overlay, under the docks and bars. */
   z-index: 2;

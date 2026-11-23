@@ -15,6 +15,7 @@ import {
   headerRoom,
   routeWorthShowing,
   ScreenHeaders,
+  viewToShow,
 } from "./screen-header.tsx";
 import type { Box } from "./select/geometry.ts";
 import { createOverlayStore } from "./select/overlay-store.ts";
@@ -194,5 +195,27 @@ describe("[STU-050] a screen's title at low zoom (#215)", () => {
     expect(headerRoom(b, [a, b, below], 0.2)).toBe(230);
     // A frame below does not share the header band.
     expect(headerRoom(below, [a, b, below], 0.2)).toBe(230);
+  });
+});
+
+describe("[STU-050] a header that takes focus outside the view (#229)", () => {
+  const view = { x: 0, y: 0, zoom: 0.5 };
+  const size = { width: 1000, height: 800 };
+  test("leaves a header in view where it is", () => {
+    expect(viewToShow({ l: 100, t: 200, r: 490, b: 1044 }, view, size)).toBeNull();
+  });
+
+  test("brings a screen off the view into it, centred across, its top under its header, at the same zoom", () => {
+    const box = { l: -3000, t: 4000, r: -2610, b: 4844 };
+    const to = viewToShow(box, view, size);
+    expect(to).toEqual({ x: (box.l + box.r) / 2 - 1000, y: 4000 - 240 });
+    // Its header now stands in the view.
+    expect(viewToShow(box, { ...view, ...to }, size)).toBeNull();
+  });
+
+  test("brings a screen whose header a dock covers into the view's middle", () => {
+    const box = { l: 1800, t: 200, r: 2190, b: 1044 };
+    expect(viewToShow(box, view, size)).toBeNull();
+    expect(viewToShow(box, view, size, true)).toEqual({ x: 1995 - 1000, y: 200 - 240 });
   });
 });

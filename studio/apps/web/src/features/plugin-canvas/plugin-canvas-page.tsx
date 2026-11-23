@@ -1917,7 +1917,7 @@ function PluginCanvasView({
                       <TimelineOpenContext.Provider value={openTimelineOn}>
                         <section
                           ref={sectionRef}
-                          className="plugin-canvas canvas-stage relative h-full w-full overflow-hidden"
+                          className="plugin-canvas canvas-stage relative h-full w-full overflow-clip"
                           data-preview-theme={look.theme}
                           data-preview-platform={look.platform}
                         >

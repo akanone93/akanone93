@@ -267,6 +267,7 @@ const ScreenHeader = memo(function ScreenHeader(p: HeaderProps): ReactNode {
       role="toolbar"
       aria-label={m.bar(p.screen.title)}
       className="pc-header"
+      data-screen={p.screen.id}
       data-selected={p.selected || undefined}
       data-hovered={p.hovered || undefined}
       data-editing={editing || undefined}
@@ -364,6 +365,60 @@ export function headerRoom(box: Box, boxes: readonly (Box | undefined)[], zoom: 
   return Math.max(0, Math.round(free * zoom - ROOM_GAP));
 }
 
+/**
+ * How far below the view's top a screen brought into view by its header's focus stands, in CSS pixels: below the top
+ * bar, as Layers reveals one.
+ */
+const FOCUS_TOP = 120;
+
+/**
+ * The view that shows a screen whose header took focus outside the view or under a dock (`covered`) — by Tab, or a menu
+ * handing focus back — at the same zoom: the screen centred across, its top under its header; null when the header is
+ * in view already. The layer is clipped, not scrolled, so the canvas moves instead (#229).
+ */
+export function viewToShow(
+  box: Box,
+  view: { readonly x: number; readonly y: number; readonly zoom: number },
+  size: { readonly width: number; readonly height: number },
+  covered = false,
+): { readonly x: number; readonly y: number } | null {
+  const z = view.zoom;
+  const l = (box.l - view.x) * z;
+  const r = (box.r - view.x) * z;
+  const t = (box.t - view.y) * z;
+  if (!covered && r > 0 && l < size.width && t - HEADER_BAND >= 0 && t < size.height) {
+    return null;
+  }
+  return { x: (box.l + box.r) / 2 - size.width / 2 / z, y: box.t - FOCUS_TOP / z };
+}
+
+/** Brings into view the screen whose header holds `target`, when the header is outside the view. */
+function revealFocused(
+  target: EventTarget | null,
+  layer: HTMLElement,
+  p: {
+    readonly screens: readonly HeaderScreen[];
+    readonly surface: () => CanvasSurface | null;
+    readonly boxOf: (id: string) => Box | undefined;
+  },
+): void {
+  const surface = p.surface();
+  const header = target instanceof Element ? target.closest<HTMLElement>("[data-screen]") : null;
+  const screen = p.screens.find((s) => s.id === header?.dataset["screen"]);
+  const box = screen === undefined ? undefined : p.boxOf(screen.root);
+  if (surface === null || header === null || box === undefined) {
+    return;
+  }
+  // A dock or bar over the header hides it as surely as the view's edge does.
+  const r = header.getBoundingClientRect();
+  const hit = document.elementFromPoint(r.left + Math.min(r.width / 2, 12), r.top + r.height / 2);
+  const covered = hit === null || !header.contains(hit);
+  const to = viewToShow(box, surface.viewport, { width: layer.clientWidth, height: layer.clientHeight }, covered);
+  if (to !== null) {
+    surface.setViewport(to.x, to.y, surface.viewport.zoom);
+  }
+}
+
 export function ScreenHeaders(props: {
   readonly screens: readonly HeaderScreen[];
   readonly store: OverlayStore;
@@ -398,6 +453,20 @@ export function ScreenHeaders(props: {
     }),
     [props.store],
   );
+  // Focus on a header outside the view brings its screen into view (#229); bound once, it reads the latest props.
+  const focusIn = useMemo(() => {
+    let bound: HTMLDivElement | null = null;
+    const on = (e: Event) => {
+      if (bound !== null) {
+        revealFocused(e.target, bound, latest.current);
+      }
+    };
+    return (el: HTMLDivElement | null) => {
+      bound?.removeEventListener("focusin", on);
+      bound = el;
+      el?.addEventListener("focusin", on);
+    };
+  }, []);
   const surface = props.surface();
   if (surface === null) {
     return null;
@@ -406,7 +475,7 @@ export function ScreenHeaders(props: {
   const z = v.zoom;
   const boxes = props.screens.map((s) => props.boxOf(s.root));
   return (
-    <div className="pc-headers" data-busy={state.marquee !== null || undefined}>
+    <div ref={focusIn} className="pc-headers" data-busy={state.marquee !== null || undefined}>
       <div className="pc-headers-plane" style={{ transform: `translate(${-v.x * z}px, ${-v.y * z}px)` }}>
         {props.screens.map((s, i) => {
           const box = boxes[i];

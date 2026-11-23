@@ -12,7 +12,9 @@
   position: absolute;
   inset: 0;
   z-index: 2;
-  overflow: hidden;
+  /* Clipped, never scrolled: with `hidden`, focus on a header off the view (its ⋯ menu) scrolled this layer, and every
+     title stood a screen's width off its frame and stayed there (#229). */
+  overflow: clip;
   pointer-events: none;
 }
 
@@ -197,6 +199,21 @@
 @container (max-width: 160px) {
   .pc-header:not(:hover, :focus-within, [data-selected]) .pc-header-entry {
     display: none;
+  }
+
+  /* At rest the hidden ⋯ and the space before it take no room either: a narrow title keeps it, so a tight row at low
+     zoom reads "slideLe…", not "s…" (#229). The button stays in the tab order, out of the flow; with focus the label
+     shows it in place. An open menu keeps its button. */
+  .pc-header:not(:hover, :focus-within, [data-selected]) .pc-header-space {
+    display: none;
+  }
+
+  .pc-header:not(:hover, :focus-within, [data-selected]) .pc-header-button:not([data-popup-open]) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
 

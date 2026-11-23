@@ -324,7 +324,9 @@ scroll view whose offset moves the timeline over the **Scroll extent** — scrol
 **Accessibility view** in the tool bar (off until you turn it on; Studio remembers your choice) marks on every screen the order focus moves through its interactive widgets
 (numbered; an explicit **Focus order** comes first, then reading order), each touch target smaller than the platform's
 minimum (48 × 48 on Android, 44 × 44 on iOS, outlined with its size) and each text whose colour does not stand out
-enough from what is behind it (4.5:1, 3:1 for large text, with its ratio), worked out from the theme's colours. The
+enough from what is behind it (4.5:1, 3:1 for large text, with its ratio), worked out from the theme's colours. Labels
+never cover one another: where they would, the contrast and size findings stay and a focus number gives way, and a
+small target whose label gives way keeps its outline — zoom in to read it. Below 30 % only the outlines show. The
 inspector's **Accessibility** tab edits a widget's label and hint, **Header** with its **Heading level**, **Button**,
 **Live region**, **Group**, **Decorative**, **Exclude semantics** and **Focus order**, and lists its accessibility
 problems.

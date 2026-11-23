@@ -16,7 +16,8 @@
   --pc-refused: oklch(0.6 0.21 27);
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  /* Clipped, never scrolled by a focused control off the view (as the headers were, #229). */
+  overflow: clip;
   pointer-events: none;
   /* Over the canvas, under the docks and bars. */
   z-index: 1;
