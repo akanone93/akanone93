@@ -7,14 +7,15 @@ import 'package:plux_dev/main.dart' as app;
 
 /// The bootstrap of the Dev app [DEV-001].
 void main() {
-  testWidgets('[DEV-001] starts on the roots it was built with', (
+  testWidgets('[DEV-001] starts with no key of its own (ADR-0109)', (
     tester,
   ) async {
     // main asks the native side for the phone's name first: real async.
     await tester.runAsync(app.main);
     await tester.pump();
     expect(find.byType(DevApp), findsOneWidget);
-    // The test build is made without PLUX_DEV_ROOT_KEYS.
-    expect(find.textContaining('No development roots configured'), findsOne);
+    // Nothing waits for a key at build time: the phone's connection brings
+    // the organisation's root, and each join its app's key.
+    expect(find.textContaining('No development roots'), findsNothing);
   });
 }

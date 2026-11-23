@@ -14,6 +14,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
@@ -70,11 +71,17 @@ func (s DevPhone) CreatePhoneSignIn(ctx context.Context, req *connect.Request[pl
 		if err != nil {
 			return nil, err
 		}
+		// The organisation's development root rides in the QR code, which the phone reads off the person's own
+		// screen after their step-up: the anchor of every app's dev bundles never depends on the network (ADR-0109).
+		root, err := svc.DevelopmentRoot(ctx, p.OrganizationID)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
 		grant, err := s.h.Auth.CreatePhoneSignIn(ctx, p)
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.CreatePhoneSignInResponse{SignInId: grant.ID, Link: svc.SignInLink(grant.Grant), ExpiresAt: ts(grant.ExpiresAt)}, nil
+		return &pluxv1.CreatePhoneSignInResponse{SignInId: grant.ID, Link: svc.SignInLink(grant.Grant, root), ExpiresAt: ts(grant.ExpiresAt)}, nil
 	})
 }
 
@@ -322,6 +329,7 @@ func (s DevPhone) RequestJoin(ctx context.Context, req *connect.Request[pluxv1.R
 		}
 		if jr.Pairing != nil {
 			out.PairingLink = jr.Pairing.URI
+			out.DevelopmentKey = developmentKey(jr.Key)
 		}
 		return out, nil
 	})
@@ -342,7 +350,10 @@ func (s DevPhone) CompleteJoin(ctx context.Context, req *connect.Request[pluxv1.
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.CompleteJoinResponse{PairingLink: joined.Pairing.URI, SessionId: joined.SessionID, Environment: joined.Environment}, nil
+		return &pluxv1.CompleteJoinResponse{
+			PairingLink: joined.Pairing.URI, SessionId: joined.SessionID, Environment: joined.Environment,
+			DevelopmentKey: developmentKey(joined.Key),
+		}, nil
 	})
 }
 
@@ -388,4 +399,12 @@ func phoneSignInState(state string) pluxv1.PhoneSignInState {
 	default:
 		return pluxv1.PhoneSignInState_PHONE_SIGN_IN_STATE_UNSPECIFIED
 	}
+}
+
+// developmentKey is a certified development key as the phone receives it (ADR-0109); nil for none.
+func developmentKey(c *release.DevKeyCertificate) *pluxv1.DevelopmentKeyCertificate {
+	if c == nil {
+		return nil
+	}
+	return &pluxv1.DevelopmentKeyCertificate{Statement: c.Statement, Signature: c.Signature}
 }

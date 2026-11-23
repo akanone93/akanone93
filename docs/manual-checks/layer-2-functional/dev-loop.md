@@ -23,10 +23,9 @@ A dev session never touches a release and is refused for a production environmen
 
 - **Needs:** R-STACK, R-DEVICE, R-CLI
 - **Do:**
-  1. `plux pull -C ~/plux-checks/shop --env development --channel development -o /tmp/baseline` and keep the `keys.json` it writes.
-  2. `make dev-app-build DEV_APP_TARGET=apk DEV_APP_KEYS=/tmp/baseline/keys.json`
-  3. Install the APK on the emulator or phone and open it.
-- **Expect:** the app starts on **Plux Dev** with **Scan the code**; built without the keys it says "No development roots configured".
+  1. `make dev-app-build DEV_APP_TARGET=apk` (no key: the phone pins its organisation's development root when it is connected, ADR-0109).
+  2. Install the APK on the emulator or phone and open it.
+- **Expect:** the app starts on **Plux Dev** with **Scan the code**.
 - **Why:** the Dev app pins development roots only (DEV-001, DEV-050, SEC-056).
 - **Look at:** `adb shell pm list packages | grep dev.plux.dev`.
 - **Result:** ☐ pass ☐ fail — notes:

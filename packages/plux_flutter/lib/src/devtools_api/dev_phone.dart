@@ -12,7 +12,9 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/core/config.dart' show PluxPublicKey;
 import 'package:plux_flutter/src/devtools_api/dev_pairing_link.dart';
+import 'package:plux_flutter/src/devtools_api/dev_root.dart';
 import 'package:plux_flutter/src/devtools_api/dev_session.dart'
     show kPluxDevtools;
 import 'package:plux_flutter/src/platform/platform_services.dart';
@@ -43,6 +45,15 @@ enum DevPhoneFailure {
   /// The server could not be reached.
   unreachable,
 
+  /// The app's development key is not certified by the organisation's
+  /// development root this phone pinned (ADR-0109): its dev bundles would not
+  /// verify, so the app is not opened.
+  untrusted,
+
+  /// The phone was connected before it pinned its organisation's development
+  /// root (ADR-0109): it connects again from Studio to open any app.
+  reconnect,
+
   /// Anything else; the message says what.
   other,
 }
@@ -71,6 +82,7 @@ final class DevPhoneAccount {
     required this.phoneId,
     required this.userDisplay,
     required this.organizationName,
+    this.developmentRoot,
   });
 
   /// The server's base URL.
@@ -84,6 +96,10 @@ final class DevPhoneAccount {
 
   /// The organisation's name.
   final String organizationName;
+
+  /// The organisation's development root the phone pinned when it was
+  /// connected (ADR-0109); null for a phone connected before it had one.
+  final Uint8List? developmentRoot;
 }
 
 /// An app a signed-in phone may open.
@@ -114,8 +130,17 @@ final class DevJoin {
     required this.environment,
     required this.options,
     required this.expiresAt,
+    this.appId = '',
     this.pairingLink,
+    this.developmentKey,
   });
+
+  /// The app the phone asks to open.
+  final String appId;
+
+  /// The app's development key, certified and checked, when [pairingLink] is
+  /// set (ADR-0109).
+  final PluxPublicKey? developmentKey;
 
   /// The request's identifier; empty when no number is needed.
   final String requestId;
@@ -195,7 +220,11 @@ final class DevPhoneClaim {
       phoneId: r['phoneId'] as String? ?? '',
       userDisplay: r['userDisplay'] as String? ?? userDisplay,
       organizationName: r['organizationName'] as String? ?? organizationName,
+      developmentRoot: _link.developmentRoot,
     );
+    // A new connection pins a new root: keys trusted under another are
+    // forgotten with it.
+    await _secrets.delete(DevPhone.keysSecretName);
     await _secrets.write(
       DevPhone.secretName,
       jsonEncode({
@@ -204,6 +233,7 @@ final class DevPhoneClaim {
         'phoneId': account.phoneId,
         'userDisplay': account.userDisplay,
         'organizationName': account.organizationName,
+        'developmentRoot': base64Url.encode(_link.developmentRoot),
       }),
     );
     return DevPhone._(account, _api, _phoneToken(token, _proofs), _secrets);
@@ -229,6 +259,11 @@ final class DevPhone {
   /// The name of the secret the phone's account is kept under, encrypted by
   /// the platform (ADR-0029).
   static const String secretName = 'dev.plux.phone.account';
+
+  /// The name of the secret the apps' development keys are kept under, each
+  /// trusted once its certificate verified under the phone's development
+  /// root (ADR-0109), by app.
+  static const String keysSecretName = 'dev.plux.phone.keys';
 
   /// Whom the phone is signed in as.
   final DevPhoneAccount account;
@@ -304,6 +339,7 @@ final class DevPhone {
         phoneId: j['phoneId'] as String? ?? '',
         userDisplay: j['userDisplay'] as String? ?? '',
         organizationName: j['organizationName'] as String? ?? '',
+        developmentRoot: _rootOf(j['developmentRoot']),
       ),
       PluxApiClient(client(), server),
       _phoneToken(token, proofs),
@@ -330,23 +366,38 @@ final class DevPhone {
   /// Asks to join the person's live Studio session of [appId]
   /// ([DevPhoneFailure.noLiveSession] when Studio has none open).
   Future<DevJoin> requestJoin(String appId) async {
+    _rootOrReconnect();
     final r = await _call('RequestJoin', {'appId': appId});
     final link = r['pairingLink'] as String?;
+    final environment = r['environment'] as String? ?? '';
+    final paired = link != null && link.isNotEmpty;
     return DevJoin(
       requestId: r['requestId'] as String? ?? '',
       sessionId: r['sessionId'] as String? ?? '',
-      environment: r['environment'] as String? ?? '',
+      environment: environment,
       options: _numbers(r['options']),
       expiresAt: DateTime.tryParse(r['expiresAt'] as String? ?? ''),
-      pairingLink: link == null || link.isEmpty ? null : link,
+      appId: appId,
+      pairingLink: paired ? link : null,
+      developmentKey: paired
+          ? await _trust(appId, environment, r['developmentKey'])
+          : null,
     );
   }
 
   /// Picks [number] for [join]; Studio's number returns the pairing link to
-  /// pair the runtime with, another refuses ([DevPhoneFailure.wrongNumber])
-  /// and keeps the phone out until its person lets it try again in Studio.
-  Future<String> completeJoin(DevJoin join, int number) async {
-    if (join.pairingLink case final link?) return link;
+  /// pair the runtime with and the app's development key, checked against
+  /// the phone's development root (ADR-0109); another number refuses
+  /// ([DevPhoneFailure.wrongNumber]) and keeps the phone out until its person
+  /// lets it try again in Studio. A key the root does not certify refuses
+  /// the app ([DevPhoneFailure.untrusted]).
+  Future<DevJoined> completeJoin(DevJoin join, int number) async {
+    if ((join.pairingLink, join.developmentKey) case (
+      final link?,
+      final key?,
+    )) {
+      return DevJoined(pairingLink: link, developmentKey: key);
+    }
     final r = await _call('CompleteJoin', {
       'requestId': join.requestId,
       'number': number,
@@ -358,7 +409,81 @@ final class DevPhone {
         'the server sent no pairing link',
       );
     }
-    return link;
+    final environment = r['environment'] as String? ?? join.environment;
+    final key = await _trust(join.appId, environment, r['developmentKey']);
+    return DevJoined(pairingLink: link, developmentKey: key);
+  }
+
+  /// The development key this phone trusted for [appId] at its last join,
+  /// for a session's pairing code scanned without joining (ADR-0109); null
+  /// when the app was never opened from the list.
+  Future<PluxPublicKey?> trustedKeyOf(String appId) async {
+    final entry = (await _trustedKeys())[appId];
+    if (entry is! Map<String, Object?>) return null;
+    final keyId = entry['keyId'];
+    final key = entry['publicKey'];
+    if (keyId is! String || key is! String) return null;
+    try {
+      return PluxPublicKey(
+        keyId: keyId,
+        algorithm: 'ed25519',
+        role: 'targets',
+        publicKey: base64.decode(key),
+      );
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// The development root, or the refusal of a phone connected before it
+  /// had one.
+  Uint8List _rootOrReconnect() {
+    final root = account.developmentRoot;
+    if (root == null) {
+      throw const DevPhoneException(
+        DevPhoneFailure.reconnect,
+        "connect this phone again from Studio (Profile › Phones) to trust your organisation's apps",
+      );
+    }
+    return root;
+  }
+
+  /// Checks [certificate] for [appId] and [environment] against the phone's
+  /// root and keeps the key it certifies for the app.
+  Future<PluxPublicKey> _trust(
+    String appId,
+    String environment,
+    Object? certificate,
+  ) async {
+    final PluxPublicKey key;
+    try {
+      key = await certifiedDevelopmentKey(
+        _rootOrReconnect(),
+        certificate,
+        appId: appId,
+        environment: environment,
+      );
+    } on DevKeyRefused catch (e) {
+      throw DevPhoneException(DevPhoneFailure.untrusted, e.message);
+    }
+    final keys = await _trustedKeys();
+    keys[appId] = {
+      'keyId': key.keyId,
+      'publicKey': base64.encode(key.publicKey),
+      'environment': environment,
+    };
+    await _secrets.write(keysSecretName, jsonEncode(keys));
+    return key;
+  }
+
+  Future<Map<String, Object?>> _trustedKeys() async {
+    final stored = await _secrets.read(keysSecretName);
+    if (stored == null) return {};
+    try {
+      return jsonDecode(stored) as Map<String, Object?>;
+    } on Object {
+      return {};
+    }
   }
 
   /// Signs the phone out on the server, where it can, and forgets it here.
@@ -371,8 +496,11 @@ final class DevPhone {
     await forget();
   }
 
-  /// Forgets the phone's sign-in on this device.
-  Future<void> forget() => _secrets.delete(secretName);
+  /// Forgets the phone's sign-in on this device, and the keys it trusted.
+  Future<void> forget() async {
+    await _secrets.delete(keysSecretName);
+    await _secrets.delete(secretName);
+  }
 
   Future<Map<String, Object?>> _call(
     String method,
@@ -411,6 +539,33 @@ final class DevPhone {
 /// proof of the phone's key. It lapses on the server, never here.
 DeviceToken _phoneToken(String value, DpopProofs proofs) =>
     DeviceToken(value, DateTime.utc(9999), proofs);
+
+/// The root a stored account holds; null for none or an unreadable one.
+Uint8List? _rootOf(Object? v) {
+  if (v is! String || v.isEmpty) return null;
+  try {
+    return parseDevelopmentRoot(v);
+  } on FormatException {
+    return null;
+  }
+}
+
+/// A phone's answer to joining: the pairing link and the app's development
+/// key, certified by the organisation's root and checked (ADR-0109).
+@immutable
+final class DevJoined {
+  /// Creates the answer.
+  const DevJoined({required this.pairingLink, required this.developmentKey});
+
+  /// The `plux-dev://pair?...` link to pair with; a credential, never logged.
+  final String pairingLink;
+
+  /// The app's development key: the only key its dev bundles verify under.
+  final PluxPublicKey developmentKey;
+
+  @override
+  String toString() => 'DevJoined([redacted], ${developmentKey.keyId})';
+}
 
 List<int> _numbers(Object? v) => [
   for (final n in (v as List<Object?>? ?? const []))

@@ -115,6 +115,10 @@ type Options struct {
 	// ProductionSigning reports whether the signer may sign for a
 	// production environment; the file backend may not (SEC-056).
 	ProductionSigning bool
+	// DevelopmentRootPrefix names each organisation's development root
+	// key, `<prefix>-devroot-<organisation>` (ADR-0109); empty refuses to
+	// read or use it.
+	DevelopmentRootPrefix string
 	// PublicBaseURL is where this server is reached, for object URLs
 	// when the store has no location of its own (DEP-041).
 	PublicBaseURL string

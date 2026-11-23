@@ -139,3 +139,7 @@ No dev-session state may stay only in one process's memory (M-8, O-20). P10 keep
 - session end and expiry reach every replica through the frame stream.
 
 Until S0.9 merges, dev sessions need exactly one `api` replica, and the deployment documents say so. Pairing, trust and the frame format are unchanged. The 500 ms budget of `NFR-030` is re-measured with two replicas.
+
+## Revision (2026-11-23: the Dev app's trust, ADR-0109)
+
+The Dev app no longer pins development root keys supplied at build time. It pins its organisation's development root when its phone is connected, and trusts, for each app, the environment's development key that root certifies when the phone joins a session ([ADR-0109](0109-organisation-development-root-for-the-dev-app.md)). Host apps' debug builds still pin their environment's keys at build time. Dev bundles, their signing with the environment's development key, verify-before-load and the session overlay are unchanged.

@@ -3,46 +3,27 @@
 
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_dev/dev.dart';
-import 'package:plux_flutter/plux_flutter.dart' show DevSignInLink;
 
-/// The development roots the Dev app pins, and only those [DEV-001]
-/// [SEC-051] [SEC-056].
+/// What the Dev app trusts: no key of its own, development keys only, and
+/// no production root [DEV-001] [DEV-003] [SEC-056].
 void main() {
-  test('holds no key when the build was given none [DEV-001]', () {
-    expect(developmentRootKeys(), isEmpty);
-    expect(parseDevelopmentRootKeys('  '), isEmpty);
-  });
-
-  test('reads a keys.json, and names its own define when it is wrong '
-      '[DEV-001]', () {
-    final keys = parseDevelopmentRootKeys(
-      '[{"keyId":"d1","algorithm":"ed25519","role":"root",'
-      '"publicKey":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"}]',
-    );
-    expect(keys.single.keyId, 'd1');
-    expect(developmentRootKeysDefine, 'PLUX_DEV_ROOT_KEYS');
-    expect(noDevelopmentRootsMessage, contains(developmentRootKeysDefine));
-    expect(
-      () => parseDevelopmentRootKeys('nope'),
-      throwsA(
-        isA<FormatException>().having(
-          (e) => e.message,
-          'message',
-          contains(developmentRootKeysDefine),
-        ),
-      ),
-    );
-  });
-
-  testWidgets('without roots the app says so and never offers to connect '
-      '[DEV-001]', (tester) async {
-    await tester.pumpWidget(const DevApp(rootKeys: [], phones: _NoPhone()));
-    await tester.pump();
-    expect(find.textContaining('No development roots configured'), findsOne);
-    expect(find.byKey(const Key('scan')), findsNothing);
+  test("is built with no key: each app's comes with its join [DEV-003, "
+      'ADR-0109]', () {
+    // No build setting carries a key any more; the phone pins its
+    // organisation's development root when it is connected.
+    for (final f in [
+      for (final f in Directory('lib').listSync(recursive: true))
+        if (f is File && f.path.endsWith('.dart')) f,
+    ]) {
+      expect(
+        f.readAsStringSync(),
+        isNot(contains('PLUX_DEV_ROOT_KEYS')),
+        reason: f.path,
+      );
+    }
+    expect(devEnvironment, 'development');
   });
 
   test('the app contains no production roots and imports none [DEV-001, '
@@ -63,16 +44,4 @@ void main() {
       isNot(contains('plux_viewer:')),
     );
   });
-}
-
-/// A directory with no phone signed in.
-final class _NoPhone implements PhoneDirectory {
-  const _NoPhone();
-
-  @override
-  Future<SignedInPhone?> restore() async => null;
-
-  @override
-  Future<PhoneSignIn> claim(DevSignInLink link) =>
-      throw UnimplementedError('no sign-in in this test');
 }

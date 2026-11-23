@@ -133,8 +133,11 @@ type CreatePhoneSignInResponse struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
 	SignInId string                 `protobuf:"bytes,1,opt,name=sign_in_id,json=signInId,proto3" json:"sign_in_id,omitempty"`
 	// link is the QR code's content,
-	// `plux-dev://signin?server=<url>&grant=<grant>`. It is a credential until
-	// it expires: shown once, never stored or logged.
+	// `plux-dev://signin?server=<url>&grant=<grant>&root=<key>`: root is the
+	// organisation's development root public key (unpadded base64url), which
+	// the phone pins as the trust anchor of every app's dev bundles
+	// (ADR-0109). It is a credential until it expires: shown once, never
+	// stored or logged.
 	Link          string                 `protobuf:"bytes,2,opt,name=link,proto3" json:"link,omitempty"`
 	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1579,9 +1582,13 @@ type RequestJoinResponse struct {
 	Options   []uint32               `protobuf:"varint,4,rep,packed,name=options,proto3" json:"options,omitempty"`
 	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	// pairing_link is set only when no number is needed.
-	PairingLink   string `protobuf:"bytes,6,opt,name=pairing_link,json=pairingLink,proto3" json:"pairing_link,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PairingLink string `protobuf:"bytes,6,opt,name=pairing_link,json=pairingLink,proto3" json:"pairing_link,omitempty"`
+	// development_key is set with pairing_link: the key the session's
+	// environment signs dev bundles with, certified by the organisation's
+	// development root (ADR-0109).
+	DevelopmentKey *DevelopmentKeyCertificate `protobuf:"bytes,7,opt,name=development_key,json=developmentKey,proto3" json:"development_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RequestJoinResponse) Reset() {
@@ -1656,6 +1663,13 @@ func (x *RequestJoinResponse) GetPairingLink() string {
 	return ""
 }
 
+func (x *RequestJoinResponse) GetDevelopmentKey() *DevelopmentKeyCertificate {
+	if x != nil {
+		return x.DevelopmentKey
+	}
+	return nil
+}
+
 type CompleteJoinRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
@@ -1713,11 +1727,16 @@ type CompleteJoinResponse struct {
 	// pairing_link is `plux-dev://pair?server=<url>&token=<token>`, the link a
 	// scan of the session's QR code gives, for the phone's runtime to pair with
 	// at once.
-	PairingLink   string `protobuf:"bytes,1,opt,name=pairing_link,json=pairingLink,proto3" json:"pairing_link,omitempty"`
-	SessionId     string `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Environment   string `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PairingLink string `protobuf:"bytes,1,opt,name=pairing_link,json=pairingLink,proto3" json:"pairing_link,omitempty"`
+	SessionId   string `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Environment string `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
+	// development_key is the key the session's environment signs dev bundles
+	// with, certified by the organisation's development root (ADR-0109): the
+	// phone checks it against the root it pinned when it was connected and
+	// trusts it for this app's dev bundles only.
+	DevelopmentKey *DevelopmentKeyCertificate `protobuf:"bytes,4,opt,name=development_key,json=developmentKey,proto3" json:"development_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CompleteJoinResponse) Reset() {
@@ -1771,6 +1790,72 @@ func (x *CompleteJoinResponse) GetEnvironment() string {
 	return ""
 }
 
+func (x *CompleteJoinResponse) GetDevelopmentKey() *DevelopmentKeyCertificate {
+	if x != nil {
+		return x.DevelopmentKey
+	}
+	return nil
+}
+
+// DevelopmentKeyCertificate is an environment's development signing key,
+// certified by its organisation's development root (ADR-0109).
+type DevelopmentKeyCertificate struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// statement is the canonical JSON (RFC 8785) the root signed:
+	// {"algorithm","appId","environment","environmentId","environmentType":
+	// "development","keyId","organizationId","publicKey" (base64),"role":
+	// "targets","type":"plux.dev-key-certificate","version":1}.
+	Statement []byte `protobuf:"bytes,1,opt,name=statement,proto3" json:"statement,omitempty"`
+	// signature is the root's Ed25519 signature of statement.
+	Signature     []byte `protobuf:"bytes,2,opt,name=signature,proto3" json:"signature,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevelopmentKeyCertificate) Reset() {
+	*x = DevelopmentKeyCertificate{}
+	mi := &file_plux_v1_devphone_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevelopmentKeyCertificate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevelopmentKeyCertificate) ProtoMessage() {}
+
+func (x *DevelopmentKeyCertificate) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_devphone_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevelopmentKeyCertificate.ProtoReflect.Descriptor instead.
+func (*DevelopmentKeyCertificate) Descriptor() ([]byte, []int) {
+	return file_plux_v1_devphone_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *DevelopmentKeyCertificate) GetStatement() []byte {
+	if x != nil {
+		return x.Statement
+	}
+	return nil
+}
+
+func (x *DevelopmentKeyCertificate) GetSignature() []byte {
+	if x != nil {
+		return x.Signature
+	}
+	return nil
+}
+
 type SignOutPhoneRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1779,7 +1864,7 @@ type SignOutPhoneRequest struct {
 
 func (x *SignOutPhoneRequest) Reset() {
 	*x = SignOutPhoneRequest{}
-	mi := &file_plux_v1_devphone_proto_msgTypes[31]
+	mi := &file_plux_v1_devphone_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1791,7 +1876,7 @@ func (x *SignOutPhoneRequest) String() string {
 func (*SignOutPhoneRequest) ProtoMessage() {}
 
 func (x *SignOutPhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devphone_proto_msgTypes[31]
+	mi := &file_plux_v1_devphone_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1804,7 +1889,7 @@ func (x *SignOutPhoneRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignOutPhoneRequest.ProtoReflect.Descriptor instead.
 func (*SignOutPhoneRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devphone_proto_rawDescGZIP(), []int{31}
+	return file_plux_v1_devphone_proto_rawDescGZIP(), []int{32}
 }
 
 type SignOutPhoneResponse struct {
@@ -1815,7 +1900,7 @@ type SignOutPhoneResponse struct {
 
 func (x *SignOutPhoneResponse) Reset() {
 	*x = SignOutPhoneResponse{}
-	mi := &file_plux_v1_devphone_proto_msgTypes[32]
+	mi := &file_plux_v1_devphone_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1827,7 +1912,7 @@ func (x *SignOutPhoneResponse) String() string {
 func (*SignOutPhoneResponse) ProtoMessage() {}
 
 func (x *SignOutPhoneResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_devphone_proto_msgTypes[32]
+	mi := &file_plux_v1_devphone_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1840,7 +1925,7 @@ func (x *SignOutPhoneResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignOutPhoneResponse.ProtoReflect.Descriptor instead.
 func (*SignOutPhoneResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_devphone_proto_rawDescGZIP(), []int{32}
+	return file_plux_v1_devphone_proto_rawDescGZIP(), []int{33}
 }
 
 var File_plux_v1_devphone_proto protoreflect.FileDescriptor
@@ -1950,7 +2035,7 @@ const file_plux_v1_devphone_proto_rawDesc = "" +
 	"\fuser_display\x18\x02 \x01(\tR\vuserDisplay\x12+\n" +
 	"\x11organization_name\x18\x03 \x01(\tR\x10organizationName\"+\n" +
 	"\x12RequestJoinRequest\x12\x15\n" +
-	"\x06app_id\x18\x01 \x01(\tR\x05appId\"\xed\x01\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\"\xba\x02\n" +
 	"\x13RequestJoinResponse\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x1d\n" +
@@ -1960,16 +2045,21 @@ const file_plux_v1_devphone_proto_rawDesc = "" +
 	"\aoptions\x18\x04 \x03(\rR\aoptions\x129\n" +
 	"\n" +
 	"expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12!\n" +
-	"\fpairing_link\x18\x06 \x01(\tR\vpairingLink\"L\n" +
+	"\fpairing_link\x18\x06 \x01(\tR\vpairingLink\x12K\n" +
+	"\x0fdevelopment_key\x18\a \x01(\v2\".plux.v1.DevelopmentKeyCertificateR\x0edevelopmentKey\"L\n" +
 	"\x13CompleteJoinRequest\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x16\n" +
-	"\x06number\x18\x02 \x01(\rR\x06number\"z\n" +
+	"\x06number\x18\x02 \x01(\rR\x06number\"\xc7\x01\n" +
 	"\x14CompleteJoinResponse\x12!\n" +
 	"\fpairing_link\x18\x01 \x01(\tR\vpairingLink\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12 \n" +
-	"\venvironment\x18\x03 \x01(\tR\venvironment\"\x15\n" +
+	"\venvironment\x18\x03 \x01(\tR\venvironment\x12K\n" +
+	"\x0fdevelopment_key\x18\x04 \x01(\v2\".plux.v1.DevelopmentKeyCertificateR\x0edevelopmentKey\"W\n" +
+	"\x19DevelopmentKeyCertificate\x12\x1c\n" +
+	"\tstatement\x18\x01 \x01(\fR\tstatement\x12\x1c\n" +
+	"\tsignature\x18\x02 \x01(\fR\tsignature\"\x15\n" +
 	"\x13SignOutPhoneRequest\"\x16\n" +
 	"\x14SignOutPhoneResponse*\x80\x02\n" +
 	"\x10PhoneSignInState\x12#\n" +
@@ -2012,7 +2102,7 @@ func file_plux_v1_devphone_proto_rawDescGZIP() []byte {
 }
 
 var file_plux_v1_devphone_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_plux_v1_devphone_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_plux_v1_devphone_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_plux_v1_devphone_proto_goTypes = []any{
 	(PhoneSignInState)(0),               // 0: plux.v1.PhoneSignInState
 	(*CreatePhoneSignInRequest)(nil),    // 1: plux.v1.CreatePhoneSignInRequest
@@ -2046,62 +2136,65 @@ var file_plux_v1_devphone_proto_goTypes = []any{
 	(*RequestJoinResponse)(nil),         // 29: plux.v1.RequestJoinResponse
 	(*CompleteJoinRequest)(nil),         // 30: plux.v1.CompleteJoinRequest
 	(*CompleteJoinResponse)(nil),        // 31: plux.v1.CompleteJoinResponse
-	(*SignOutPhoneRequest)(nil),         // 32: plux.v1.SignOutPhoneRequest
-	(*SignOutPhoneResponse)(nil),        // 33: plux.v1.SignOutPhoneResponse
-	(*timestamppb.Timestamp)(nil),       // 34: google.protobuf.Timestamp
-	(DevJoinState)(0),                   // 35: plux.v1.DevJoinState
+	(*DevelopmentKeyCertificate)(nil),   // 32: plux.v1.DevelopmentKeyCertificate
+	(*SignOutPhoneRequest)(nil),         // 33: plux.v1.SignOutPhoneRequest
+	(*SignOutPhoneResponse)(nil),        // 34: plux.v1.SignOutPhoneResponse
+	(*timestamppb.Timestamp)(nil),       // 35: google.protobuf.Timestamp
+	(DevJoinState)(0),                   // 36: plux.v1.DevJoinState
 }
 var file_plux_v1_devphone_proto_depIdxs = []int32{
-	34, // 0: plux.v1.CreatePhoneSignInResponse.expires_at:type_name -> google.protobuf.Timestamp
+	35, // 0: plux.v1.CreatePhoneSignInResponse.expires_at:type_name -> google.protobuf.Timestamp
 	0,  // 1: plux.v1.GetPhoneSignInResponse.state:type_name -> plux.v1.PhoneSignInState
-	34, // 2: plux.v1.GetPhoneSignInResponse.expires_at:type_name -> google.protobuf.Timestamp
-	34, // 3: plux.v1.DevPhone.signed_in_at:type_name -> google.protobuf.Timestamp
-	34, // 4: plux.v1.DevPhone.last_used_at:type_name -> google.protobuf.Timestamp
-	34, // 5: plux.v1.DevPhone.lapses_at:type_name -> google.protobuf.Timestamp
+	35, // 2: plux.v1.GetPhoneSignInResponse.expires_at:type_name -> google.protobuf.Timestamp
+	35, // 3: plux.v1.DevPhone.signed_in_at:type_name -> google.protobuf.Timestamp
+	35, // 4: plux.v1.DevPhone.last_used_at:type_name -> google.protobuf.Timestamp
+	35, // 5: plux.v1.DevPhone.lapses_at:type_name -> google.protobuf.Timestamp
 	7,  // 6: plux.v1.ListPhonesResponse.phones:type_name -> plux.v1.DevPhone
-	35, // 7: plux.v1.GetJoinRequestResponse.state:type_name -> plux.v1.DevJoinState
-	34, // 8: plux.v1.GetJoinRequestResponse.expires_at:type_name -> google.protobuf.Timestamp
-	35, // 9: plux.v1.DevJoinRequest.state:type_name -> plux.v1.DevJoinState
-	34, // 10: plux.v1.DevJoinRequest.expires_at:type_name -> google.protobuf.Timestamp
+	36, // 7: plux.v1.GetJoinRequestResponse.state:type_name -> plux.v1.DevJoinState
+	35, // 8: plux.v1.GetJoinRequestResponse.expires_at:type_name -> google.protobuf.Timestamp
+	36, // 9: plux.v1.DevJoinRequest.state:type_name -> plux.v1.DevJoinState
+	35, // 10: plux.v1.DevJoinRequest.expires_at:type_name -> google.protobuf.Timestamp
 	19, // 11: plux.v1.ListJoinRequestsResponse.requests:type_name -> plux.v1.DevJoinRequest
-	34, // 12: plux.v1.ClaimPhoneSignInResponse.expires_at:type_name -> google.protobuf.Timestamp
+	35, // 12: plux.v1.ClaimPhoneSignInResponse.expires_at:type_name -> google.protobuf.Timestamp
 	26, // 13: plux.v1.ListPhoneAppsResponse.apps:type_name -> plux.v1.PhoneApp
-	34, // 14: plux.v1.RequestJoinResponse.expires_at:type_name -> google.protobuf.Timestamp
-	1,  // 15: plux.v1.DevPhoneService.CreatePhoneSignIn:input_type -> plux.v1.CreatePhoneSignInRequest
-	3,  // 16: plux.v1.DevPhoneService.GetPhoneSignIn:input_type -> plux.v1.GetPhoneSignInRequest
-	5,  // 17: plux.v1.DevPhoneService.CancelPhoneSignIn:input_type -> plux.v1.CancelPhoneSignInRequest
-	8,  // 18: plux.v1.DevPhoneService.ListPhones:input_type -> plux.v1.ListPhonesRequest
-	10, // 19: plux.v1.DevPhoneService.RevokePhone:input_type -> plux.v1.RevokePhoneRequest
-	12, // 20: plux.v1.DevPhoneService.GetJoinRequest:input_type -> plux.v1.GetJoinRequestRequest
-	14, // 21: plux.v1.DevPhoneService.DenyJoinRequest:input_type -> plux.v1.DenyJoinRequestRequest
-	16, // 22: plux.v1.DevPhoneService.AllowJoinRetry:input_type -> plux.v1.AllowJoinRetryRequest
-	18, // 23: plux.v1.DevPhoneService.ListJoinRequests:input_type -> plux.v1.ListJoinRequestsRequest
-	21, // 24: plux.v1.DevPhoneService.ClaimPhoneSignIn:input_type -> plux.v1.ClaimPhoneSignInRequest
-	23, // 25: plux.v1.DevPhoneService.CompletePhoneSignIn:input_type -> plux.v1.CompletePhoneSignInRequest
-	25, // 26: plux.v1.DevPhoneService.ListPhoneApps:input_type -> plux.v1.ListPhoneAppsRequest
-	28, // 27: plux.v1.DevPhoneService.RequestJoin:input_type -> plux.v1.RequestJoinRequest
-	30, // 28: plux.v1.DevPhoneService.CompleteJoin:input_type -> plux.v1.CompleteJoinRequest
-	32, // 29: plux.v1.DevPhoneService.SignOutPhone:input_type -> plux.v1.SignOutPhoneRequest
-	2,  // 30: plux.v1.DevPhoneService.CreatePhoneSignIn:output_type -> plux.v1.CreatePhoneSignInResponse
-	4,  // 31: plux.v1.DevPhoneService.GetPhoneSignIn:output_type -> plux.v1.GetPhoneSignInResponse
-	6,  // 32: plux.v1.DevPhoneService.CancelPhoneSignIn:output_type -> plux.v1.CancelPhoneSignInResponse
-	9,  // 33: plux.v1.DevPhoneService.ListPhones:output_type -> plux.v1.ListPhonesResponse
-	11, // 34: plux.v1.DevPhoneService.RevokePhone:output_type -> plux.v1.RevokePhoneResponse
-	13, // 35: plux.v1.DevPhoneService.GetJoinRequest:output_type -> plux.v1.GetJoinRequestResponse
-	15, // 36: plux.v1.DevPhoneService.DenyJoinRequest:output_type -> plux.v1.DenyJoinRequestResponse
-	17, // 37: plux.v1.DevPhoneService.AllowJoinRetry:output_type -> plux.v1.AllowJoinRetryResponse
-	20, // 38: plux.v1.DevPhoneService.ListJoinRequests:output_type -> plux.v1.ListJoinRequestsResponse
-	22, // 39: plux.v1.DevPhoneService.ClaimPhoneSignIn:output_type -> plux.v1.ClaimPhoneSignInResponse
-	24, // 40: plux.v1.DevPhoneService.CompletePhoneSignIn:output_type -> plux.v1.CompletePhoneSignInResponse
-	27, // 41: plux.v1.DevPhoneService.ListPhoneApps:output_type -> plux.v1.ListPhoneAppsResponse
-	29, // 42: plux.v1.DevPhoneService.RequestJoin:output_type -> plux.v1.RequestJoinResponse
-	31, // 43: plux.v1.DevPhoneService.CompleteJoin:output_type -> plux.v1.CompleteJoinResponse
-	33, // 44: plux.v1.DevPhoneService.SignOutPhone:output_type -> plux.v1.SignOutPhoneResponse
-	30, // [30:45] is the sub-list for method output_type
-	15, // [15:30] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	35, // 14: plux.v1.RequestJoinResponse.expires_at:type_name -> google.protobuf.Timestamp
+	32, // 15: plux.v1.RequestJoinResponse.development_key:type_name -> plux.v1.DevelopmentKeyCertificate
+	32, // 16: plux.v1.CompleteJoinResponse.development_key:type_name -> plux.v1.DevelopmentKeyCertificate
+	1,  // 17: plux.v1.DevPhoneService.CreatePhoneSignIn:input_type -> plux.v1.CreatePhoneSignInRequest
+	3,  // 18: plux.v1.DevPhoneService.GetPhoneSignIn:input_type -> plux.v1.GetPhoneSignInRequest
+	5,  // 19: plux.v1.DevPhoneService.CancelPhoneSignIn:input_type -> plux.v1.CancelPhoneSignInRequest
+	8,  // 20: plux.v1.DevPhoneService.ListPhones:input_type -> plux.v1.ListPhonesRequest
+	10, // 21: plux.v1.DevPhoneService.RevokePhone:input_type -> plux.v1.RevokePhoneRequest
+	12, // 22: plux.v1.DevPhoneService.GetJoinRequest:input_type -> plux.v1.GetJoinRequestRequest
+	14, // 23: plux.v1.DevPhoneService.DenyJoinRequest:input_type -> plux.v1.DenyJoinRequestRequest
+	16, // 24: plux.v1.DevPhoneService.AllowJoinRetry:input_type -> plux.v1.AllowJoinRetryRequest
+	18, // 25: plux.v1.DevPhoneService.ListJoinRequests:input_type -> plux.v1.ListJoinRequestsRequest
+	21, // 26: plux.v1.DevPhoneService.ClaimPhoneSignIn:input_type -> plux.v1.ClaimPhoneSignInRequest
+	23, // 27: plux.v1.DevPhoneService.CompletePhoneSignIn:input_type -> plux.v1.CompletePhoneSignInRequest
+	25, // 28: plux.v1.DevPhoneService.ListPhoneApps:input_type -> plux.v1.ListPhoneAppsRequest
+	28, // 29: plux.v1.DevPhoneService.RequestJoin:input_type -> plux.v1.RequestJoinRequest
+	30, // 30: plux.v1.DevPhoneService.CompleteJoin:input_type -> plux.v1.CompleteJoinRequest
+	33, // 31: plux.v1.DevPhoneService.SignOutPhone:input_type -> plux.v1.SignOutPhoneRequest
+	2,  // 32: plux.v1.DevPhoneService.CreatePhoneSignIn:output_type -> plux.v1.CreatePhoneSignInResponse
+	4,  // 33: plux.v1.DevPhoneService.GetPhoneSignIn:output_type -> plux.v1.GetPhoneSignInResponse
+	6,  // 34: plux.v1.DevPhoneService.CancelPhoneSignIn:output_type -> plux.v1.CancelPhoneSignInResponse
+	9,  // 35: plux.v1.DevPhoneService.ListPhones:output_type -> plux.v1.ListPhonesResponse
+	11, // 36: plux.v1.DevPhoneService.RevokePhone:output_type -> plux.v1.RevokePhoneResponse
+	13, // 37: plux.v1.DevPhoneService.GetJoinRequest:output_type -> plux.v1.GetJoinRequestResponse
+	15, // 38: plux.v1.DevPhoneService.DenyJoinRequest:output_type -> plux.v1.DenyJoinRequestResponse
+	17, // 39: plux.v1.DevPhoneService.AllowJoinRetry:output_type -> plux.v1.AllowJoinRetryResponse
+	20, // 40: plux.v1.DevPhoneService.ListJoinRequests:output_type -> plux.v1.ListJoinRequestsResponse
+	22, // 41: plux.v1.DevPhoneService.ClaimPhoneSignIn:output_type -> plux.v1.ClaimPhoneSignInResponse
+	24, // 42: plux.v1.DevPhoneService.CompletePhoneSignIn:output_type -> plux.v1.CompletePhoneSignInResponse
+	27, // 43: plux.v1.DevPhoneService.ListPhoneApps:output_type -> plux.v1.ListPhoneAppsResponse
+	29, // 44: plux.v1.DevPhoneService.RequestJoin:output_type -> plux.v1.RequestJoinResponse
+	31, // 45: plux.v1.DevPhoneService.CompleteJoin:output_type -> plux.v1.CompleteJoinResponse
+	34, // 46: plux.v1.DevPhoneService.SignOutPhone:output_type -> plux.v1.SignOutPhoneResponse
+	32, // [32:47] is the sub-list for method output_type
+	17, // [17:32] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_devphone_proto_init() }
@@ -2116,7 +2209,7 @@ func file_plux_v1_devphone_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_devphone_proto_rawDesc), len(file_plux_v1_devphone_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   33,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

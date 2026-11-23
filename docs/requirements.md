@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.19.0
+**Version:** 1.20.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-19
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -1599,7 +1599,7 @@ sequenceDiagram
 
 **Device authentication.** A socket authenticates once, at the upgrade. The device therefore first pairs over unary ConnectRPC under DPoP (`SEC-021`); the reply carries a short-lived socket ticket, bound to the session and to the thumbprint of the device's DPoP key, which the device presents once at the upgrade. The socket closes when the session ends, the ticket expires or the device is revoked.
 
-**Trust (ADR-0087).** Dev bundles are mini releases — a manifest and its sections — signed with the development targets key (`DEV-003`). The Dev app and debug host builds pin development root keys, verify every dev bundle before loading it (`SEC-052`) and apply it to a session overlay over the active release, which never writes the production store, uses its own sequence space and is discarded when the session ends. The dev manifest carries an additive `development_session` field that release manifests never carry and release runtimes refuse (`SEC-056`).
+**Trust (ADR-0087, ADR-0109).** Dev bundles are mini releases — a manifest and its sections — signed with the development targets key of the session's environment (`DEV-003`). Debug host builds pin their environment's development keys at build time; the Dev app pins its organisation's development root when its phone is connected, from the sign-in QR code, and trusts for each app the environment's development key that root certifies when the phone joins a session — development keys only, for that app and environment alone. Both verify every dev bundle before loading it (`SEC-052`) and apply it to a session overlay over the active release, which never writes the production store, uses its own sequence space and is discarded when the session ends. The dev manifest carries an additive `development_session` field that release manifests never carry and release runtimes refuse (`SEC-056`).
 
 **Permissions.** Starting a session, pushing patches and sending commands need `devsession.create` (Developer and above); reading the stream needs `devsession.observe`. Step-up (`SEC-103`) is required for creating a session only when the organisation's policy requires it for the environment (ADR-0075, Revision); this is core, not edition-gated (`GOV-032`). A session exists only for an environment that is not production and that the installation enables for dev sessions (Appendix H).
 
@@ -3136,7 +3136,7 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.19.0 |
+| Version | 1.20.0 |
 | Status | Draft (living document) |
 | Date | 2026-11-19 |
 | Supersedes | 1.18.0 |
@@ -3184,3 +3184,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.17.0 | 2026-11-19 | Build isolation (maintainer, 2026-11-19; ADR-0106, amending ADR-0063): `FN-016` — each build runs in a private view of the filesystem (the toolchain read-only, its own scratch directory writable, a `/proc` of its own PID namespace), restricted to the same by Landlock and holding no capabilities, so it can neither read nor change another build's files or processes; a machine that cannot provide this refuses to build. The builder's deployment gains seccomp rules for the sandbox's mounts, an unmasked `/proc` for the builder container (a user-namespaced pod in Kubernetes) and an AppArmor profile for hosts with AppArmor. |
 | 1.18.0 | 2026-11-19 | Build caches (maintainer, 2026-11-18, build log #161; ADR-0107): `FN-016` — the builds of one organisation share one cache of the crates.io dependencies they compiled, which no other organisation's build can see and from which no function's own compilation is ever reused. New registry limit `function.buildCacheSize`; the builder role's `builder.cacheDir` and `builder.cacheBytes`; the internal builder protocol gains `cache_key`. |
 | 1.19.0 | 2026-11-19 | Gateway changes need a step-up (maintainer, 2026-11-19, build log #167; ADR-0108): `SEC-103` adds changes to the gateway's upstreams, trusted user identity providers and configuration values; `DAT-090` — values are changed with the new permission `gateway.manage` (high risk, step-up, environment scope) instead of `app.manage`, which upstreams and identity providers also need. Owner and Admin hold it. |
+| 1.20.0 | 2026-11-23 | The Dev app's trust (maintainer, 2026-11-23; ADR-0109, revising ADR-0087, ADR-0093 and ADR-0104): the §20 trust paragraph — the Dev app pins no key at build time; its phone pins the organisation's development root from the sign-in QR code, and each app opens with the development key that root certifies when the phone joins a session, development keys only (`SEC-056`). No requirement's text or status changes. |

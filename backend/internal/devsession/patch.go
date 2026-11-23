@@ -76,6 +76,7 @@ type ManifestSigner interface {
 var (
 	_ DraftSource    = (*document.Service)(nil)
 	_ ManifestSigner = (*release.Service)(nil)
+	_ KeyCertifier   = (*release.Service)(nil)
 )
 
 // DocumentPatch is a JSON Patch to one document of the session's draft.

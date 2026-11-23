@@ -980,7 +980,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 	}
 	releases, err := release.NewService(release.Options{
 		DB: db, Audit: deps.audit, Tenancy: deps.tenancy, Documents: deps.documents, Objects: work.Objects, IDs: deps.ids,
-		Metrics: publishMetrics(work.Metrics), Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
+		Metrics: publishMetrics(work.Metrics), Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, DevelopmentRootPrefix: cfg.Signing.Keys.Targets, Limits: set,
 		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
 		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,

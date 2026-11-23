@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import 'package:plux_flutter/src/devtools_api/dev_root.dart';
 
 /// What a device pairs with: a [DevPairingLink] or a [DevPairingCode].
 @immutable
@@ -110,7 +111,11 @@ final class DevPairingLink extends DevPairingCredential {
 @immutable
 final class DevSignInLink {
   /// Creates a link from its parts; [parse] checks them.
-  const DevSignInLink({required this.server, required this.grant});
+  const DevSignInLink({
+    required this.server,
+    required this.grant,
+    required this.developmentRoot,
+  });
 
   /// Whether [text] is a sign-in link rather than a pairing link or code.
   static bool matches(String text) =>
@@ -153,7 +158,17 @@ final class DevSignInLink {
     if (!secure && !(loopback && allowInsecureLoopback)) {
       throw const FormatException('the sign-in server must use https');
     }
+    // The organisation's development root, the trust anchor of every app's
+    // dev bundles on this phone (ADR-0109): read off the person's own screen.
+    final root = params['root'];
+    if (root == null || root.isEmpty) {
+      throw const FormatException(
+        'the sign-in code carries no development root: update Plux Studio',
+      );
+    }
+    final developmentRoot = parseDevelopmentRoot(root);
     return DevSignInLink(
+      developmentRoot: developmentRoot,
       server: Uri(
         scheme: server.scheme,
         host: server.host,
@@ -169,6 +184,9 @@ final class DevSignInLink {
 
   /// The single-use grant; never logged (SEC-092).
   final String grant;
+
+  /// The organisation's development root public key (ADR-0109).
+  final Uint8List developmentRoot;
 
   @override
   String toString() => 'DevSignInLink($server, [redacted])';

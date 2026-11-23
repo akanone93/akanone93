@@ -51,7 +51,7 @@ func buildDevSessions(cfg *config.Config, db *storage.DB, log *audit.Log, ids de
 	// one signing path for manifests (DEV-010, SEC-056); the relay's hub
 	// delivers it.
 	if docs != nil && releases != nil {
-		o.Drafts, o.CompileOptions, o.Signer = docs, releases.CompileOptions, releases
+		o.Drafts, o.CompileOptions, o.Signer, o.Certifier = docs, releases.CompileOptions, releases, releases
 	}
 	if configs != nil {
 		o.StepUp = func(ctx context.Context, appID, environmentID string) (bool, error) {

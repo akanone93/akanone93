@@ -98,3 +98,7 @@ as `DEV-002` always allowed.
   person seeing every request, not the three choices.
 - **Follow-up:** iOS and Android key attestation of the phone key, as devices do, would bind the
   phone token to a genuine build; not needed for development, recorded here.
+
+## Revision (2026-11-23: the Dev app's trust, ADR-0109)
+
+The sign-in link also carries the organisation's development root, `plux-dev://signin?server=…&grant=…&root=…`, which the phone pins with its account; joining (`CompleteJoin`, or `RequestJoin` without a number) returns the session environment's development key certified by that root ([ADR-0109](0109-organisation-development-root-for-the-dev-app.md)). A phone connected before the root existed connects again.

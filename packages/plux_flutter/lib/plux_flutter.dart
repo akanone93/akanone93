@@ -83,6 +83,7 @@ export 'src/devtools_api/dev_pairing.dart' show PluxDevPairing;
 export 'src/devtools_api/dev_phone.dart'
     show
         DevJoin,
+        DevJoined,
         DevPhone,
         DevPhoneAccount,
         DevPhoneApp,

@@ -117,9 +117,10 @@ running. Each step names the file the command comes from.
      pulls the `staging` baseline and runs it with hot reload. On an Android emulator or a
      phone on USB it runs `adb reverse tcp:8080 tcp:8080` first.
    - The **Plux Dev app** (`apps/plux_dev`), which previews unpublished drafts: build it with
-     `make dev-app-build DEV_APP_TARGET=apk DEV_APP_KEYS=<keys.json>`, where `keys.json` is the
-     development root keys of the installation as `plux pull` writes them; the build also
-     trusts the stack's certificate authority (`deploy/compose/.secrets/ca/ca.crt`)
+     `make dev-app-build DEV_APP_TARGET=apk`; it takes no key — the phone pins its
+     organisation's development root when it is connected and trusts each app's certified
+     development key ([ADR-0109](../adr/0109-organisation-development-root-for-the-dev-app.md)) —
+     and trusts the stack's certificate authority (`deploy/compose/.secrets/ca/ca.crt`)
      ([Dev app README](../../apps/plux_dev/README.md)). `make dev` keeps `adb reverse tcp:8080
      tcp:8080` applied to every phone adb sees, over USB or wireless debugging
      (`DEV_ADB_REVERSE=0` turns that off; then run it yourself). Connect the phone once: in

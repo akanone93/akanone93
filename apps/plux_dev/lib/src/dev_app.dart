@@ -58,19 +58,23 @@ String joinFailure(Object error, String app) => switch (error) {
   DevPhoneException(failure: DevPhoneFailure.unreachable) => "Studio's server can't be reached. Check the phone's connection (adb reverse for a USB phone).",
   DevPhoneException(failure: DevPhoneFailure.rateLimited) =>
     'Too many attempts. Wait a few minutes and try again.',
+  DevPhoneException(failure: DevPhoneFailure.reconnect) => 'Connect this phone again from Studio (Profile › Phones) so that it trusts your organisation\'s apps.',
+  DevPhoneException(failure: DevPhoneFailure.untrusted, :final message) =>
+    "$app was not opened: its key isn't certified by your organisation's development root ($message).",
   DevPhoneException(:final message) => '$app could not join: $message',
   _ => '$app could not start: $error',
 };
 
 /// The Dev app.
 final class DevApp extends StatefulWidget {
-  /// Creates the app. [rootKeys] are the development roots it was built
-  /// with; without any it opens nothing. [phones] gives the phone's sign-in;
+  /// Creates the app. It holds no key of its own: the phone pins its
+  /// organisation's development root when it is connected, and each app
+  /// opens with the development key that root certifies for it (ADR-0109).
+  /// [phones] gives the phone's sign-in;
   /// [startRuntime], [stopRuntime], [scope], [entryRoute] and [scan]
   /// replace the runtime and the camera in tests.
   const DevApp({
     super.key,
-    required this.rootKeys,
     required this.phones,
     this.deviceName = '',
     this.startRuntime = Plux.initialize,
@@ -89,9 +93,6 @@ final class DevApp extends StatefulWidget {
   /// The running app's diagnostics for the dev sheet; the runtime's unless a
   /// test replaces them.
   final PluxDiagnostics? Function()? diagnostics;
-
-  /// The development roots.
-  final List<PluxPublicKey> rootKeys;
 
   /// The phone's sign-in.
   final PhoneDirectory phones;
@@ -248,20 +249,25 @@ final class _DevAppState extends State<DevApp> {
     if (phone == null || context == null) return;
     try {
       final join = await phone.requestJoin(app.id);
-      var link = join.pairingLink;
-      if (link == null) {
+      var picked = 0;
+      if (join.needsNumber) {
         if (!context.mounted) return;
-        final picked = await pickNumber(
+        final number = await pickNumber(
           context,
           options: join.options,
           title: 'Pick the number shown in Studio',
           detail: 'Joining ${app.name} on this phone',
           expiresAt: join.expiresAt,
         );
-        if (picked == null) return;
-        link = await phone.completeJoin(join, picked);
+        if (number == null) return;
+        picked = number;
       }
-      await _launch(app.name, app.id, join.environment, link);
+      // The pairing and the app's development key, checked against the
+      // organisation's root: the only key the app's dev bundles verify under.
+      final joined = await phone.completeJoin(join, picked);
+      await _launch(app.name, app.id, join.environment, joined.pairingLink, [
+        joined.developmentKey,
+      ]);
     } on DevPhoneException catch (e) {
       if (e.failure == DevPhoneFailure.signedOut) {
         _signedOut();
@@ -288,22 +294,32 @@ final class _DevAppState extends State<DevApp> {
     }
     final name =
         _apps.where((a) => a.id == appId).firstOrNull?.name ?? 'The app';
-    await _launch(name, appId, devEnvironment, text);
+    // A scanned code joins no session through the phone, so it brings no key:
+    // the app opens with the key trusted when it was last opened from the
+    // list, or not at all (ADR-0109).
+    final key = await _phone?.trustedKeyOf(appId);
+    if (key == null) {
+      _say('Open $name from the list once, so this phone trusts its key.');
+      return;
+    }
+    await _launch(name, appId, devEnvironment, text, [key]);
   }
 
   /// Starts the runtime for [appId] in [environment] and pairs it with
-  /// [link]; the app then opens at its entry screen.
+  /// [link], trusting [keys] alone, the app's certified development key; the
+  /// app then opens at its entry screen.
   Future<void> _launch(
     String name,
     String appId,
     String environment,
     String link,
+    List<PluxPublicKey> keys,
   ) async {
     final phone = _phone;
     if (phone == null) return;
     final key = GlobalKey<NavigatorState>();
     final tooling = DevTooling(
-      rootKeys: widget.rootKeys,
+      rootKeys: keys,
       navigatorKey: key,
       deviceName: widget.deviceName,
       scan: widget.scan,
@@ -332,7 +348,7 @@ final class _DevAppState extends State<DevApp> {
           appId: appId,
           endpoint: phone.account.server,
           environment: environment.isEmpty ? devEnvironment : environment,
-          rootKeys: widget.rootKeys,
+          rootKeys: keys,
           hostBuild: devHostBuild,
           // Top-level functions: the runtime calls them on its sync and data
           // isolates too, and a closure over this state cannot be sent there
@@ -438,7 +454,7 @@ final class _DevAppState extends State<DevApp> {
               'Not connected. Tap Join again when you want to connect.';
           return;
         }
-        pairing = await phone.completeJoin(join, picked);
+        pairing = (await phone.completeJoin(join, picked)).pairingLink;
       }
       if (_running != running) return;
       // The ended pairing goes; the runtime keeps running and takes the
@@ -534,9 +550,7 @@ final class _DevAppState extends State<DevApp> {
         value: devSystemBars,
         child: child!,
       ),
-      home: widget.rootKeys.isEmpty
-          ? const _NoRoots()
-          : _restoring
+      home: _restoring
           ? const Scaffold(body: Center(child: CircularProgressIndicator()))
           : phone == null
           ? _Connect(
@@ -585,18 +599,4 @@ final class _Connect extends StatelessWidget {
       ],
     );
   }
-}
-
-final class _NoRoots extends StatelessWidget {
-  const _NoRoots();
-
-  @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: SafeArea(
-      child: Padding(
-        padding: EdgeInsets.all(DevSizes.page),
-        child: Text(noDevelopmentRootsMessage),
-      ),
-    ),
-  );
 }

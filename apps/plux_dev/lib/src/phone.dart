@@ -25,7 +25,11 @@ abstract interface class SignedInPhone {
   Future<DevJoin> requestJoin(String appId);
 
   /// Picks [number] for [join] and returns the pairing link.
-  Future<String> completeJoin(DevJoin join, int number);
+  Future<DevJoined> completeJoin(DevJoin join, int number);
+
+  /// The development key the phone trusted for [appId] when it last joined
+  /// it, for a scanned code (ADR-0109); null when it never did.
+  Future<PluxPublicKey?> trustedKeyOf(String appId);
 
   /// Signs the phone out.
   Future<void> signOut();
@@ -103,8 +107,11 @@ final class _Phone implements SignedInPhone {
   Future<DevJoin> requestJoin(String appId) => _p.requestJoin(appId);
 
   @override
-  Future<String> completeJoin(DevJoin join, int number) =>
+  Future<DevJoined> completeJoin(DevJoin join, int number) =>
       _p.completeJoin(join, number);
+
+  @override
+  Future<PluxPublicKey?> trustedKeyOf(String appId) => _p.trustedKeyOf(appId);
 
   @override
   Future<void> signOut() => _p.signOut();

@@ -5,6 +5,7 @@ package devsession
 
 import (
 	"context"
+	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -24,6 +25,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -80,7 +82,11 @@ type Options struct {
 	CompileOptions CompileOptionsFunc
 	Signer         ManifestSigner
 	Deliverer      Deliverer
-	Channel        string
+	// Certifier gives the organisation's development root and certifies an
+	// environment's development key with it, for the Dev app's phones
+	// (ADR-0109); nil gives the phone neither.
+	Certifier KeyCertifier
+	Channel   string
 	// Shared is the shared layer the sessions' events, frames and counters
 	// live on, so that every api replica serves every session (DEV-021,
 	// ADR-0087 revision 2026-10-24); nil keeps them in this process, which
@@ -447,11 +453,35 @@ func uniqueViolation(err error) bool {
 
 // SignInLink is the link of the QR code that connects a phone to the Plux
 // Dev app with a sign-in grant (ADR-0104).
-func (s *Service) SignInLink(grant string) string {
+func (s *Service) SignInLink(grant string, root ed25519.PublicKey) string {
 	q := url.Values{}
 	q.Set("server", s.o.PublicBaseURL)
 	q.Set("grant", grant)
+	if len(root) > 0 {
+		q.Set("root", base64.RawURLEncoding.EncodeToString(root))
+	}
 	return "plux-dev://signin?" + q.Encode()
+}
+
+// DevelopmentRoot is the organisation's development root public key, which
+// the sign-in link carries for the phone to pin (ADR-0109); nil when the
+// service has no certifier.
+func (s *Service) DevelopmentRoot(ctx context.Context, org string) (ed25519.PublicKey, error) {
+	if s.o.Certifier == nil {
+		return nil, nil
+	}
+	root, err := s.o.Certifier.DevelopmentRoot(ctx, org)
+	if err != nil {
+		return nil, fmt.Errorf("devsession: %w", err)
+	}
+	return root, nil
+}
+
+// KeyCertifier holds an organisation's development root (ADR-0109): it
+// gives its public key and certifies an environment's development key.
+type KeyCertifier interface {
+	DevelopmentRoot(ctx context.Context, org string) (ed25519.PublicKey, error)
+	CertifyDevelopmentKey(ctx context.Context, env dbgen.Environment) (release.DevKeyCertificate, error)
 }
 
 // link is the pairing link a QR code holds.

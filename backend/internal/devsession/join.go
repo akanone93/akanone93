@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -54,6 +55,9 @@ type JoinRequest struct {
 	ExpiresAt   time.Time
 	// Pairing is set only when no number is needed.
 	Pairing *Pairing
+	// Key is set with Pairing: the session environment's development key,
+	// certified by the organisation's development root (ADR-0109).
+	Key *release.DevKeyCertificate
 }
 
 // Joined is the pairing a phone receives for the right number.
@@ -61,6 +65,9 @@ type Joined struct {
 	Pairing     Pairing
 	SessionID   string
 	Environment string
+	// Key is the session environment's development key, certified by the
+	// organisation's development root (ADR-0109); nil without a certifier.
+	Key *release.DevKeyCertificate
 }
 
 // JoinStatus is a join request as its session's person sees it; Number is
@@ -224,7 +231,8 @@ func (s *Service) answerJoin(ctx context.Context, tx pgx.Tx, p auth.Principal, t
 			return JoinRequest{}, err
 		}
 		out.Pairing = &pairing
-		return out, nil
+		out.Key, err = s.certify(ctx, tx, t.session)
+		return out, err
 	}
 	id, err := s.o.IDs.New()
 	if err != nil {
@@ -334,7 +342,30 @@ func (s *Service) grantJoin(ctx context.Context, tx pgx.Tx, p auth.Principal, ro
 	if err != nil {
 		return Joined{}, fmt.Errorf("devsession: %w", err)
 	}
-	return Joined{Pairing: pairing, SessionID: session.ID, Environment: session.EnvironmentKey}, nil
+	key, err := s.certify(ctx, tx, session)
+	if err != nil {
+		return Joined{}, err
+	}
+	return Joined{Pairing: pairing, SessionID: session.ID, Environment: session.EnvironmentKey, Key: key}, nil
+}
+
+// certify returns the development key of the session's environment,
+// certified by the organisation's development root, for the joining phone
+// to trust for this app's dev bundles (ADR-0109); nil when the service has
+// no certifier.
+func (s *Service) certify(ctx context.Context, tx pgx.Tx, session Session) (*release.DevKeyCertificate, error) {
+	if s.o.Certifier == nil {
+		return nil, nil //nolint:nilnil // no certifier: the phone is told no key
+	}
+	env, err := dbgen.New(tx).GetEnvironment(ctx, storage.MustUUID(session.EnvironmentID))
+	if err != nil {
+		return nil, fmt.Errorf("devsession: read the session's environment: %w", err)
+	}
+	cert, err := s.o.Certifier.CertifyDevelopmentKey(ctx, env)
+	if err != nil {
+		return nil, fmt.Errorf("devsession: %w", err)
+	}
+	return &cert, nil
 }
 
 // requestClosed is the refusal of a join request that is unknown, another

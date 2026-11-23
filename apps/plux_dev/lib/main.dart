@@ -6,12 +6,13 @@ import 'package:flutter/widgets.dart';
 import 'package:plux_dev/dev.dart';
 import 'package:plux_dev/dev_http.dart';
 
-/// Starts the Plux Dev app with the development root keys it was built with
-/// (`--dart-define=PLUX_DEV_ROOT_KEYS=<keys.json>`) and the dev channel
+/// Starts the Plux Dev app with the dev channel
 /// (`--dart-define=plux.devtools=true`), trusting the development
 /// certificate authority it was built with (`--dart-define=PLUX_DEV_CA=<PEM>`,
-/// optional). The phone connects to Studio once (Profile › Phones); an app
-/// starts when the developer taps it.
+/// optional). It is built with no key: the phone connects to Studio once
+/// (Profile › Phones), pinning its organisation's development root, and each
+/// app starts, when the developer taps it, with the development key that
+/// root certifies for it (ADR-0109).
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   checkDevCertificateAuthority();
@@ -20,7 +21,6 @@ Future<void> main() async {
   final name = await phoneName();
   runApp(
     DevApp(
-      rootKeys: developmentRootKeys(),
       phones: RuntimePhones(client: devHttpClient, deviceName: name),
       deviceName: name,
     ),

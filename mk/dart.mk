@@ -37,11 +37,11 @@ dart-test: ## Run Dart and Flutter tests
 	@for p in $(DART_PACKAGES); do (cd $$p && flutter test); done
 
 # The Dev app is the one build with the dev channel in it (DEV-050): without
-# plux.devtools=true it cannot pair. PLUX_DEV_ROOT_KEYS is the development
-# keys.json of the installation (`plux pull`); without it the app pairs with
-# nothing. DEV_APP_TARGET is apk, appbundle or ios.
+# plux.devtools=true it cannot pair. It is built with no key: the phone pins
+# its organisation's development root when it is connected in Studio, and
+# each app opens with the development key that root certifies (ADR-0109).
+# DEV_APP_TARGET is apk, appbundle or ios.
 DEV_APP_TARGET ?= apk
-DEV_APP_KEYS ?= /dev/null
 # The development certificate authority the Dev app trusts besides the
 # system's (PLUX_DEV_CA): make dev's, where it exists. DEV_APP_CA= trusts the
 # system's alone.
@@ -50,11 +50,11 @@ DEV_APP_CA ?= $(wildcard deploy/compose/.secrets/ca/ca.crt)
 # The settings go in a file (apps/plux_dev/dev-defines.json, ignored by git),
 # not on the command line: they hold quotes and line breaks, which Windows'
 # flutter.bat drops from arguments.
-dev-app-defines: ## Write the Plux Dev app's build settings to apps/plux_dev/dev-defines.json: DEV_APP_KEYS=<development keys.json>, DEV_APP_CA=<ca.crt>
-	scripts/dev-app-defines.sh "$(DEV_APP_KEYS)" "$(DEV_APP_CA)" > apps/plux_dev/dev-defines.json.tmp
+dev-app-defines: ## Write the Plux Dev app's build settings to apps/plux_dev/dev-defines.json: DEV_APP_CA=<ca.crt>; it takes no key (ADR-0109)
+	scripts/dev-app-defines.sh "$(DEV_APP_CA)" > apps/plux_dev/dev-defines.json.tmp
 	mv apps/plux_dev/dev-defines.json.tmp apps/plux_dev/dev-defines.json
 
-dev-app-build: dev-app-defines ## Build the Plux Dev app (DEV-001) with the dev channel in it: DEV_APP_TARGET=apk|appbundle|ios, DEV_APP_KEYS=<development keys.json>, DEV_APP_CA=<ca.crt>
+dev-app-build: dev-app-defines ## Build the Plux Dev app (DEV-001) with the dev channel in it: DEV_APP_TARGET=apk|appbundle|ios, DEV_APP_CA=<ca.crt>
 	cd apps/plux_dev && flutter build $(DEV_APP_TARGET) --dart-define-from-file=dev-defines.json
 
 # How many packages dart-cover tests at once. Each package's output is kept

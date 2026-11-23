@@ -18758,6 +18758,15 @@ components:
         environment:
           type: string
           title: environment
+        developmentKey:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevelopmentKeyCertificate'
+          title: development_key
+          description: |-
+            development_key is the key the session's environment signs dev bundles
+             with, certified by the organisation's development root (ADR-0109): the
+             phone checks it against the root it pinned when it was connected and
+             trusts it for this app's dev bundles only.
       title: CompleteJoinResponse
       additionalProperties: false
     plux.v1.CompleteMfaRequest:
@@ -19876,8 +19885,11 @@ components:
           title: link
           description: |-
             link is the QR code's content,
-             `plux-dev://signin?server=<url>&grant=<grant>`. It is a credential until
-             it expires: shown once, never stored or logged.
+             `plux-dev://signin?server=<url>&grant=<grant>&root=<key>`: root is the
+             organisation's development root public key (unpadded base64url), which
+             the phone pins as the trust anchor of every app's dev bundles
+             (ADR-0109). It is a credential until it expires: shown once, never
+             stored or logged.
         expiresAt:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
@@ -22300,6 +22312,28 @@ components:
         DevelopmentEvidence marks a development build. The server accepts it
          only where the environment's security configuration allows it, and
          the device's assurance stays the lowest (SEC-004).
+    plux.v1.DevelopmentKeyCertificate:
+      type: object
+      properties:
+        statement:
+          type: string
+          title: statement
+          format: byte
+          description: |-
+            statement is the canonical JSON (RFC 8785) the root signed:
+             {"algorithm","appId","environment","environmentId","environmentType":
+             "development","keyId","organizationId","publicKey" (base64),"role":
+             "targets","type":"plux.dev-key-certificate","version":1}.
+        signature:
+          type: string
+          title: signature
+          format: byte
+          description: signature is the root's Ed25519 signature of statement.
+      title: DevelopmentKeyCertificate
+      additionalProperties: false
+      description: |-
+        DevelopmentKeyCertificate is an environment's development signing key,
+         certified by its organisation's development root (ADR-0109).
     plux.v1.DevelopmentSession:
       type: object
       properties:
@@ -32874,6 +32908,14 @@ components:
           type: string
           title: pairing_link
           description: pairing_link is set only when no number is needed.
+        developmentKey:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DevelopmentKeyCertificate'
+          title: development_key
+          description: |-
+            development_key is set with pairing_link: the key the session's
+             environment signs dev bundles with, certified by the organisation's
+             development root (ADR-0109).
       title: RequestJoinResponse
       additionalProperties: false
     plux.v1.RequestLockRequest:

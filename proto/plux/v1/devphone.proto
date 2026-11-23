@@ -106,8 +106,11 @@ message CreatePhoneSignInRequest {}
 message CreatePhoneSignInResponse {
   string sign_in_id = 1;
   // link is the QR code's content,
-  // `plux-dev://signin?server=<url>&grant=<grant>`. It is a credential until
-  // it expires: shown once, never stored or logged.
+  // `plux-dev://signin?server=<url>&grant=<grant>&root=<key>`: root is the
+  // organisation's development root public key (unpadded base64url), which
+  // the phone pins as the trust anchor of every app's dev bundles
+  // (ADR-0109). It is a credential until it expires: shown once, never
+  // stored or logged.
   string link = 2;
   google.protobuf.Timestamp expires_at = 3;
 }
@@ -271,6 +274,10 @@ message RequestJoinResponse {
   google.protobuf.Timestamp expires_at = 5;
   // pairing_link is set only when no number is needed.
   string pairing_link = 6;
+  // development_key is set with pairing_link: the key the session's
+  // environment signs dev bundles with, certified by the organisation's
+  // development root (ADR-0109).
+  DevelopmentKeyCertificate development_key = 7;
 }
 
 message CompleteJoinRequest {
@@ -285,6 +292,23 @@ message CompleteJoinResponse {
   string pairing_link = 1;
   string session_id = 2;
   string environment = 3;
+  // development_key is the key the session's environment signs dev bundles
+  // with, certified by the organisation's development root (ADR-0109): the
+  // phone checks it against the root it pinned when it was connected and
+  // trusts it for this app's dev bundles only.
+  DevelopmentKeyCertificate development_key = 4;
+}
+
+// DevelopmentKeyCertificate is an environment's development signing key,
+// certified by its organisation's development root (ADR-0109).
+message DevelopmentKeyCertificate {
+  // statement is the canonical JSON (RFC 8785) the root signed:
+  // {"algorithm","appId","environment","environmentId","environmentType":
+  // "development","keyId","organizationId","publicKey" (base64),"role":
+  // "targets","type":"plux.dev-key-certificate","version":1}.
+  bytes statement = 1;
+  // signature is the root's Ed25519 signature of statement.
+  bytes signature = 2;
 }
 
 message SignOutPhoneRequest {}

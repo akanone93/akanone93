@@ -24,9 +24,13 @@ Future<bool> _crossIsolates(
   return true;
 });
 
-const String _keys =
-    '[{"keyId":"d1","algorithm":"ed25519","role":"root","publicKey":'
-    '"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"}]';
+/// The development key a join certifies for app_1 (ADR-0109).
+final PluxPublicKey _devKey = PluxPublicKey(
+  keyId: 'k-dev',
+  algorithm: 'ed25519',
+  role: 'targets',
+  publicKey: Uint8List(32),
+);
 
 const _link =
     'plux-dev://pair?server=https%3A%2F%2Fplux.example.org&token=a.e30.c';
@@ -72,18 +76,32 @@ final class FakePhone implements SignedInPhone {
       environment: 'development',
       options: needsNumber ? const [12, 42, 77] : const [],
       expiresAt: null,
+      appId: appId,
       pairingLink: needsNumber ? null : _link,
+      developmentKey: needsNumber ? null : _devKey,
     );
   }
 
   @override
-  Future<String> completeJoin(DevJoin join, int number) async {
+  Future<DevJoined> completeJoin(DevJoin join, int number) async {
+    if (!join.needsNumber) {
+      trusted.add(join.appId);
+      return DevJoined(pairingLink: _link, developmentKey: _devKey);
+    }
     calls.add('pick:$number');
     if (number != 42) {
       throw const DevPhoneException(DevPhoneFailure.wrongNumber, 'PLX-9210');
     }
-    return _link;
+    trusted.add(join.appId);
+    return DevJoined(pairingLink: _link, developmentKey: _devKey);
   }
+
+  /// The apps whose key a join certified.
+  final Set<String> trusted = {};
+
+  @override
+  Future<PluxPublicKey?> trustedKeyOf(String appId) async =>
+      trusted.contains(appId) ? _devKey : null;
 
   @override
   Future<void> signOut() async => calls.add('signOut');
@@ -186,11 +204,9 @@ void main() {
   Widget app({
     required PhoneDirectory phones,
     Future<Object?> Function(PluxConfig config)? start,
-    List<PluxPublicKey>? roots,
     Future<String?> Function(NavigatorState navigator)? scan,
     ValueListenable<String?>? entry,
   }) => DevApp(
-    rootKeys: roots ?? parseDevelopmentRootKeys(_keys),
     phones: phones,
     deviceName: 'Pixel 8',
     startRuntime: start ?? (_) async => null,
@@ -200,7 +216,8 @@ void main() {
     scan:
         scan ??
         (_) async =>
-            'plux-dev://signin?server=https%3A%2F%2Fplux.example.org&grant=g1',
+            'plux-dev://signin?server=https%3A%2F%2Fplux.example.org&grant=g1'
+            '&root=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     newSession: fakeSession,
     diagnostics: _Diagnostics.new,
   );
@@ -211,14 +228,42 @@ void main() {
     }
   }
 
-  testWidgets('[DEV-001] without development roots it opens nothing', (
-    tester,
-  ) async {
-    await tester.pumpWidget(app(phones: FakeDirectory(), roots: const []));
-    await settle(tester);
-    expect(find.textContaining('No development roots configured'), findsOne);
-    expect(find.byKey(const Key('scan')), findsNothing);
-  });
+  testWidgets(
+    '[DEV-003] a scanned code opens only an app whose key a join certified',
+    (tester) async {
+      final phone = FakePhone();
+      PluxConfig? started;
+      // A session's pairing code whose token names app_1.
+      final payload = base64Url
+          .encode(utf8.encode(jsonEncode({'app': 'app_1'})))
+          .replaceAll('=', '');
+      final code =
+          'plux-dev://pair?server=https%3A%2F%2Fplux.example.org&token=a.$payload.c';
+      await tester.pumpWidget(
+        app(
+          phones: FakeDirectory(stored: phone),
+          scan: (_) async => code,
+          start: (config) async {
+            started = config;
+            return null;
+          },
+        ),
+      );
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('scan')));
+      await settle(tester);
+      // Never opened from the list, so no key is trusted for it: refused.
+      expect(started, isNull);
+      expect(find.textContaining('Open Shop from the list once'), findsOne);
+      expect(paired, isEmpty);
+      // Once a join certified its key, the same code opens it with that key.
+      phone.trusted.add('app_1');
+      await tester.tap(find.byKey(const Key('scan')));
+      await settle(tester);
+      expect(started?.rootKeys, [_devKey]);
+      expect(paired, [code]);
+    },
+  );
 
   testWidgets(
     '[DEV-002] connecting: scan Studio\'s code, pick its number, see the apps',
@@ -296,6 +341,8 @@ void main() {
       await settle(tester);
       expect(phone.calls, containsAllInOrder(['join:app_1', 'pick:42']));
       expect(started!.appId, 'app_1');
+      // The app's certified development key, and no other (ADR-0109).
+      expect(started!.rootKeys, [_devKey]);
       expect(started!.environment, 'development');
       expect(
         started!.endpoint.toString(),

@@ -72,3 +72,7 @@ exactly the weakness `SEC-056` exists to avoid. Rejected.
 ### Option 3 — duplicate the code
 
 Two copies of sign-in and pinning drift apart. Rejected.
+
+## Revision (2026-11-23: the Dev app's trust, ADR-0109)
+
+`apps/plux_dev` pins no development roots at build time: its phone pins the organisation's development root when it is connected and trusts each app's certified development key ([ADR-0109](0109-organisation-development-root-for-the-dev-app.md)). It still holds no production root, and the viewer keeps the production set.

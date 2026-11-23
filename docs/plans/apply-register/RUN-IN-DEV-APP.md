@@ -12,30 +12,25 @@ are running. Reference: [Dev app README](../../../apps/plux_dev/README.md), [run
 ## 1. What you need once
 
 - Flutter at the version pinned in the `Makefile` (`FLUTTER_VERSION`), and an Android phone with USB debugging (or an emulator).
-- The development root keys of the app. They exist only after the first release of the `development`
-  environment: in Studio, **Publish** (app menu) › choose the plugins › **Freeze and build** › … ›
-  target `development` › **Release** (sheet §J1). Once is enough.
+No keys and no release are needed: the Dev app is built with none. When the phone is connected it pins your
+organisation's development root, and every app opens with the development key that root certifies
+([ADR-0109](../../adr/0109-organisation-development-root-for-the-dev-app.md)).
 
-## 2. Build the Dev app with your keys
+## 2. Build the Dev app
 
 From the repository root:
 
 ```bash
-plux pull -C handoff/apply-register/project --env development -o ../ar-baseline
-```
-
-```bash
-make dev-app-defines DEV_APP_KEYS=../ar-baseline/keys.json DEV_APP_CA=deploy/compose/.secrets/ca/ca.crt
+make dev-app-defines DEV_APP_CA=deploy/compose/.secrets/ca/ca.crt
 ```
 
 ```bash
 cd apps/plux_dev && flutter run --debug --dart-define-from-file=dev-defines.json
 ```
 
-`dev-defines.json` holds the keys and the stack's certificate authority; it is ignored by git. With the
-checkout on a Windows drive (`D:\…` in Windows, `/mnt/d/…` in WSL), run `plux pull` in Git Bash, `make
-dev-app-defines` in WSL (where `make` and the stack's `ca.crt` are) and `flutter run` in Windows: all three see the
-same folder, so nothing needs copying.
+`dev-defines.json` holds the stack's certificate authority; it is ignored by git. With the checkout on a
+Windows drive (`D:\…` in Windows, `/mnt/d/…` in WSL), run `make dev-app-defines` in WSL (where `make` and
+the stack's `ca.crt` are) and `flutter run` in Windows: both see the same folder, so nothing needs copying.
 
 ## 3. Let the phone reach the stack
 
@@ -51,7 +46,8 @@ with the stack in WSL), and again after every reconnect of the cable.
 ## 4. Connect the phone, once
 
 In Studio: **Profile › Phones › Connect a phone** (your security key first). In the Dev app: scan the code,
-then tap the number Studio shows.
+then tap the number Studio shows. The code also carries your organisation's development root, which the phone
+keeps. A phone connected with an older Studio asks to be connected again.
 
 ## 5. The live loop
 
@@ -67,7 +63,8 @@ then tap the number Studio shows.
 
 | You see | Do |
 |---|---|
-| "No development roots configured" | §2 again: `DEV_APP_KEYS` must name the `keys.json` that `plux pull` wrote |
+| "Connect this phone again from Studio" | §4 again: the phone was connected before it kept your organisation's development root |
+| "… was not opened: its key isn't certified …" | the app's key does not come from your organisation's root (another server, or a root replaced in the signing backend): connect the phone again (§4) |
 | A certificate error | `DEV_APP_CA` must be the stack's `ca.crt`; rebuild after `make dev` created a new one |
 | The app never goes Live | `adb reverse tcp:8080 tcp:8080` again; the phone must reach `https://localhost:8080` |
 | The app is not in the list | open one of its plugins in Studio first; the list shows apps open in Studio |
