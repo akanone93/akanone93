@@ -63,6 +63,7 @@ import {
 } from "./app-canvas.scene.ts";
 import { AppDock } from "./app-dock.tsx";
 import { useFunctionsPane } from "./app-functions.tsx";
+import { AppJsonEditor } from "./app-json-editor.tsx";
 import {
   type AppProblem,
   draftsRevision,
@@ -508,6 +509,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [safety, setSafety] = useState<SafetyMode | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
+  // The JSON editor of the app's own documents (#260, #285), mounted while open.
+  const [jsonOpen, setJsonOpen] = useState(false);
   const [movingBox, setMovingBox] = useState<SceneBox | undefined>();
   const [lane, setLane] = useState<AppLink | undefined>();
 
@@ -936,6 +939,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             routes={routesPane}
             functions={functionsPane}
             releases={<AppReleases org={orgKey} appId={appId} />}
+            onEditJson={() => setJsonOpen(true)}
             reveal={problemReveal.reveal}
           />
           {detail?.plugin === undefined ? null : (
@@ -969,6 +973,14 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             />
           </div>
           <DevLinkBar route={entryRoute} />
+          {jsonOpen && (
+            <AppJsonEditor
+              appId={appId}
+              documents={documents}
+              project={project.data}
+              onClose={() => setJsonOpen(false)}
+            />
+          )}
           <Panel className="canvas-bar canvas-hint hidden px-4 text-xs text-muted-foreground lg:flex">{m.hint}</Panel>
         </div>
       </div>

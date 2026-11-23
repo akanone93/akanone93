@@ -6270,6 +6270,12 @@ msgstr "تحرير النص"
 msgid "layout.editOverrides"
 msgstr "تعديل تجاوزات {bp, select, medium {المتوسط} other {الموسّع}}"
 
+#. Button in the app canvas's Overview: opens the JSON editor on app.json, with the app's other documents (theme, keys) to pick.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editAppJson"
+msgstr "تحرير مستندات التطبيق (JSON)…"
+
 #. Button that opens the mock dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts

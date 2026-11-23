@@ -6270,6 +6270,12 @@ msgstr "Edit text"
 msgid "layout.editOverrides"
 msgstr "Edit the {bp, select, medium {Medium} other {Expanded}} overrides"
 
+#. Button in the app canvas's Overview: opens the JSON editor on app.json, with the app's other documents (theme, keys) to pick.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.editAppJson"
+msgstr "Edit the app's documents (JSON)…"
+
 #. Button that opens the mock dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts

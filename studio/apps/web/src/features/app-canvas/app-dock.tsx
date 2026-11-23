@@ -3,6 +3,7 @@
 
 import type { PluginSummary } from "@plux/api";
 import { Icon } from "@plux/ui";
+import { Button } from "@plux/ui/components/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 import { DockTabs, type Pane, useStoredFlag } from "../panels/dock-tabs.tsx";
@@ -95,6 +96,7 @@ export function AppDock({
   routes,
   functions,
   releases,
+  onEditJson,
   reveal,
 }: {
   readonly appName: string | undefined;
@@ -117,6 +119,8 @@ export function AppDock({
   readonly functions?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
   /** Where the app stands, at the foot of the Overview: each environment's newest release and Publish (#261). */
   readonly releases?: ReactNode;
+  /** Opens the JSON editor on the app's own documents (#260, #285); absent where it cannot be opened. */
+  readonly onEditJson?: (() => void) | undefined;
   /** A request to show a tab, unfolding the dock (#259); each new `nonce` is a new request. */
   readonly reveal?: { readonly tab: string; readonly nonce: number } | undefined;
 }): ReactElement {
@@ -304,6 +308,12 @@ export function AppDock({
             <span className="min-w-0 flex-1 truncate">{m.entryPlugin}</span>
             <strong className="truncate">{entry?.title ?? m.noEntry}</strong>
           </div>
+          {onEditJson !== undefined && (
+            <Button size="sm" variant="outline" className="self-start" onClick={onEditJson}>
+              <Icon name="code" data-icon="inline-start" />
+              {m.editAppJson}
+            </Button>
+          )}
           <Editing plugins={plugins} summaries={summaries} messages={m} />
           {releases}
         </div>

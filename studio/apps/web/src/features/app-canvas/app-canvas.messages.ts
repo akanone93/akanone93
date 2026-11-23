@@ -680,6 +680,12 @@ export function appCanvasMessages(i18n: I18n) {
         comment: "Button under a plugin's first error in its detail panel: opens the app's Problems tab at the plugin.",
         values: { count },
       }),
+    editAppJson: i18n._({
+      id: "appCanvas.editAppJson",
+      message: "Edit the app's documents (JSON)…",
+      comment:
+        "Button in the app canvas's Overview: opens the JSON editor on app.json, with the app's other documents (theme, keys) to pick.",
+    }),
     editingHeading: i18n._({
       id: "appCanvas.editing.heading",
       message: "Being edited",
