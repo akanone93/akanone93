@@ -183,6 +183,7 @@ func (k *socket) run(parent context.Context) {
 	k.room.use() //nolint:contextcheck // the follower lives as long as the replica, not the socket's request
 	defer k.room.release()
 	if err := k.room.hello(k.b.DeviceID, k.link, hello); err != nil {
+		k.s.o.Log.Warn("devsession: a device socket could not resume", "session", k.b.SessionID, "device", k.b.DeviceID, "error", err)
 		_ = k.c.Close(websocket.StatusInternalError, "the dev session could not resume")
 		return
 	}
@@ -200,6 +201,8 @@ func (k *socket) run(parent context.Context) {
 		if r := k.closing.Load(); r != nil {
 			reason = *r
 		}
+		// Why a device's socket closed is in the server's log too, not only in the session's console (#276).
+		k.s.o.Log.Info("devsession: a device socket closed", "session", k.b.SessionID, "device", k.b.DeviceID, "reason", reason)
 		_ = k.room.connection(k.b.DeviceID, id, pluxv1.DevConnectionState_DEV_CONNECTION_STATE_DISCONNECTED, reason, k.s.now()) //nolint:contextcheck // the hub's lifetime
 	}()
 	var wg sync.WaitGroup
@@ -256,6 +259,7 @@ func (k *socket) read(ctx context.Context) {
 				k.closeFor("the device closed the socket")
 			}
 			if ctx.Err() == nil && websocket.CloseStatus(err) == -1 {
+				k.closeFor("the device sent a frame the server cannot read")
 				_ = k.c.Close(websocket.StatusPolicyViolation, "the frame is not a device frame")
 			}
 			return

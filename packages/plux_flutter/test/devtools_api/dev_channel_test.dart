@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -60,6 +61,12 @@ final class _Connection implements StreamConnection {
       _frames.add(StreamFrame.message(frame));
 
   Future<void> drop() => _frames.close();
+
+  /// The server closes the socket with [code] and [reason].
+  Future<void> closeBy(int code, String reason) {
+    _frames.add(StreamFrame.close(code, reason));
+    return _frames.close();
+  }
 
   @override
   Future<void> close() async {
@@ -623,6 +630,36 @@ void main() {
         // b, c and the hotApply of the bundle; a was acknowledged.
         expect(second.events.map((e) => e['sequence']), ['2', '3', '4']);
         expect((second.events.first['log']! as Map)['message'], 'b');
+        await channel.close();
+      },
+    );
+
+    test(
+      'DEV-021 a socket the server closes says why, once per reason (#276)',
+      () async {
+        final printed = <String>[];
+        final saved = debugPrint;
+        debugPrint = (String? message, {int? wrapWidth}) =>
+            printed.add(message ?? '');
+        addTearDown(() => debugPrint = saved);
+        final f = _Fixture();
+        final channel = await f.pair();
+        final first = await f.transport.accept();
+        await first.closeBy(1008, 'the frame is not a device frame');
+        await pumpEventQueue();
+        final second = await f.transport.accept();
+        await second.closeBy(1008, 'the frame is not a device frame');
+        await pumpEventQueue();
+        final said = printed.where((l) => l.contains('closed the socket'));
+        expect(said, [
+          'plux dev channel: the server closed the socket '
+              '(1008: the frame is not a device frame), reconnecting',
+        ]);
+        // A plain close is not reported.
+        final third = await f.transport.accept();
+        await third.closeBy(1000, '');
+        await pumpEventQueue();
+        expect(printed.where((l) => l.contains('closed the socket')).length, 1);
         await channel.close();
       },
     );

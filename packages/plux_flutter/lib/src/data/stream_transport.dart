@@ -95,7 +95,8 @@ final class StreamFrame {
   const StreamFrame.message(this.data, {this.event = 'message', this.id})
     : kind = StreamFrameKind.message,
       retryMs = null,
-      closeCode = null;
+      closeCode = null,
+      closeReason = null;
 
   /// A reconnection delay.
   const StreamFrame.retry(int this.retryMs)
@@ -103,10 +104,12 @@ final class StreamFrame {
       data = null,
       event = '',
       id = null,
-      closeCode = null;
+      closeCode = null,
+      closeReason = null;
 
-  /// The peer closed the connection with [closeCode], when it gave one.
-  const StreamFrame.close(this.closeCode)
+  /// The peer closed the connection with [closeCode] and [closeReason], when
+  /// it gave them.
+  const StreamFrame.close(this.closeCode, [this.closeReason])
     : kind = StreamFrameKind.close,
       data = null,
       event = '',
@@ -130,6 +133,9 @@ final class StreamFrame {
 
   /// A WebSocket's close code.
   final int? closeCode;
+
+  /// A WebSocket's close reason, as the peer wrote it.
+  final String? closeReason;
 }
 
 /// An open connection.
@@ -316,7 +322,7 @@ final class _WebSocketConnection implements StreamConnection {
       },
       onDone: () {
         if (_controller.isClosed) return;
-        _controller.add(StreamFrame.close(_ws.closeCode));
+        _controller.add(StreamFrame.close(_ws.closeCode, _ws.closeReason));
         unawaited(_controller.close());
       },
     );

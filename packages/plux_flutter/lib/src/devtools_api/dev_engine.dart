@@ -339,6 +339,20 @@ final class DevEngine implements DevEngineHandle {
     );
   }
 
+  /// Says once per distinct reason why the server closed the socket, when it
+  /// was not a plain close: a socket the server keeps closing (a frame it
+  /// cannot read, a newer socket of this device) is not silent (#276).
+  void _reportClose(int? code, String? reason) {
+    if (code == null || code == 1000 || code == 1001) return;
+    final said = 'closed $code ${reason ?? ''}';
+    if (said == _lastFailure) return;
+    _lastFailure = said;
+    debugPrint(
+      'plux dev channel: the server closed the socket '
+      '($code: ${reason ?? ''}), reconnecting',
+    );
+  }
+
   Duration _backoff(int attempt) {
     final grown = config.backoffMinMs * (1 << min(attempt, 20));
     final ms = min(grown, config.backoffMaxMs);
@@ -356,7 +370,10 @@ final class DevEngine implements DevEngineHandle {
       conn.send({'event': b.event});
     }
     await for (final f in conn.frames) {
-      if (f.kind == StreamFrameKind.close) break;
+      if (f.kind == StreamFrameKind.close) {
+        _reportClose(f.closeCode, f.closeReason);
+        break;
+      }
       if (f.kind != StreamFrameKind.message) continue;
       final data = f.data;
       if (data is! Map<String, Object?>) continue;

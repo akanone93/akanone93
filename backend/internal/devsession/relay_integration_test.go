@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -789,6 +790,33 @@ func TestRelay_ConnectionEvents_DEV_020(t *testing.T) {
 	}
 	if connected() {
 		t.Error("the closed device is listed as connected")
+	}
+}
+
+// Verifies: DEV-020.
+// A device that sends a frame the server cannot read has its socket closed,
+// and the console and the server's log say why (#276): before, the console
+// said only "the connection dropped" and the log nothing.
+func TestRelay_UnreadableFrameSaysWhy_DEV_020(t *testing.T) {
+	logs := &syncBuffer{}
+	r := newRelayWith(t, nil, func(o *devsession.Options) {
+		o.Log = slog.New(slog.NewTextHandler(logs, nil))
+	})
+	s, _ := r.open(t)
+	d := r.pairDevice(t, s.ID, "device-1")
+	events := r.watch(t, s.ID, 0, nil)
+	k := r.connect(t, d.Ticket, d.key, &pluxv1.DevDeviceHello{})
+	_ = nextConnection(t, events)
+	if err := k.c.Write(context.Background(), websocket.MessageText, []byte(`{"event":`)); err != nil {
+		t.Fatal(err)
+	}
+	closed := nextConnection(t, events)
+	if reason := closed.GetConnection().GetReason(); reason != "the device sent a frame the server cannot read" {
+		t.Fatalf("the console said %q", reason)
+	}
+	if !strings.Contains(logs.String(), "a device socket closed") ||
+		!strings.Contains(logs.String(), "the device sent a frame the server cannot read") {
+		t.Errorf("the server's log %q does not say why the socket closed", logs.String())
 	}
 }
 

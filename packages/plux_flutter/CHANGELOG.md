@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **A dev socket the server closes says why (DEV-021, build log #276):** the dev channel prints the server's close code and reason once per distinct reason; `StreamFrame.closeReason` carries a WebSocket's close reason.
 - **The runtime declares the PXL locale groups (BND-008, PXL-006, build log #257):** `pxl.format.v1`, `pxl.l10n.v1` and `pxl.calendar.v1`, which it has evaluated since 0.5.0, are now among its supported features; a bundle using `format.*`, `t`, `plural` or a calendar was refused with `PLX-3010`. A test keeps the declared groups equal to the groups the evaluator implements.
 - **A refused dev bundle is kept for the host (DEV-010):** `DevChannel.refused` holds why the last dev bundle was refused, and is cleared once one applies.
 - **A readConfig step can name its value's type (DAT-090, `enum.ConfigValueType.v1`, build log
