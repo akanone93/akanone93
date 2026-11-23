@@ -6,7 +6,7 @@ import { Icon, type IconName, Tooltip } from "@plux/ui";
 import type { Problem } from "@plux/validator";
 import { type ReactNode, useRef } from "react";
 import { problemsMessages } from "./problems.messages.ts";
-import { countProblems, groupByFile } from "./project-files.ts";
+import { countProblems, groupByFile, splitNotes } from "./project-files.ts";
 import type { Validation } from "./use-validation.ts";
 
 const icons: Record<Problem["severity"], IconName> = {
@@ -68,7 +68,45 @@ export function ProblemCounts({
   );
 }
 
-/** The findings grouped by file, each with its severity icon: the body of the Problems tab. */
+/** A list of findings grouped by file, each with its severity icon. */
+function ProblemGroups(props: {
+  readonly problems: readonly Problem[];
+  readonly label: Record<Problem["severity"], string>;
+  readonly project: string;
+  readonly help?: ((p: Problem) => ReactNode) | undefined;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      {groupByFile(props.problems).map(([file, list]) => (
+        <section key={file} aria-label={file === "" ? props.project : file}>
+          <h3 className="font-mono text-caption text-muted-foreground">{file === "" ? props.project : file}</h3>
+          <ul className="mt-1 flex flex-col gap-1">
+            {list.map((p, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: a problem has no identity beyond its place in the list
+              <li key={i} className="flex items-start gap-2 text-body">
+                <Icon name={icons[p.severity]} size="pill" label={props.label[p.severity]} />
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span>
+                    {p.message}{" "}
+                    <span className="font-mono text-caption text-muted-foreground">
+                      {p.code} {p.path}
+                    </span>
+                  </span>
+                  {props.help?.(p)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The body of the Problems tab: the errors and warnings the chip counts, grouped by file; then the notes, folded under
+ * their own count (`splitNotes`, #226), so the chip's figure is the number of problems listed.
+ */
 export function ProblemsContent({
   validation,
   help,
@@ -94,36 +132,28 @@ export function ProblemsContent({
             {m.unavailable}
           </p>
         );
-      case "done":
-        if (validation.problems.length === 0) {
-          return <p className="text-body text-muted-foreground">{m.none}</p>;
-        }
+      case "done": {
+        const { issues, notes } = splitNotes(validation.problems);
         return (
           <div className="flex flex-col gap-3">
-            {groupByFile(validation.problems).map(([file, list]) => (
-              <section key={file} aria-label={file === "" ? m.project : file}>
-                <h3 className="font-mono text-caption text-muted-foreground">{file === "" ? m.project : file}</h3>
-                <ul className="mt-1 flex flex-col gap-1">
-                  {list.map((p, i) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: a problem has no identity beyond its place in the list
-                    <li key={i} className="flex items-start gap-2 text-body">
-                      <Icon name={icons[p.severity]} size="pill" label={label[p.severity]} />
-                      <span className="flex min-w-0 flex-col gap-1">
-                        <span>
-                          {p.message}{" "}
-                          <span className="font-mono text-caption text-muted-foreground">
-                            {p.code} {p.path}
-                          </span>
-                        </span>
-                        {help?.(p)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
+            {issues.length === 0 ? (
+              <p className="text-body text-muted-foreground">{m.none}</p>
+            ) : (
+              <ProblemGroups problems={issues} label={label} project={m.project} help={help} />
+            )}
+            {notes.length > 0 && (
+              <details className="border-t border-border pt-2">
+                <summary className="cursor-pointer select-none text-caption font-medium text-muted-foreground">
+                  {m.notes(notes.length)}
+                </summary>
+                <div className="mt-2">
+                  <ProblemGroups problems={notes} label={label} project={m.project} help={help} />
+                </div>
+              </details>
+            )}
           </div>
         );
+      }
     }
   };
   return body();

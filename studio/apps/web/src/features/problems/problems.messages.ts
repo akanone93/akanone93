@@ -109,6 +109,14 @@ export function problemsMessages(i18n: I18n) {
         values: { count },
         comment: "Accessible name of the warning count in the action bar.",
       }),
+    notes: (count: number) =>
+      i18n._({
+        id: "problems.notes",
+        message: "{count, plural, one {# note} other {# notes}}",
+        values: { count },
+        comment:
+          "Heading of the folded list of notes under the problems in the Problems tab; notes are not counted as problems.",
+      }),
     severityError: i18n._({
       id: "problems.severity.error",
       message: "Error",

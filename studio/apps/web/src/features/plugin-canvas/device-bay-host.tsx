@@ -10,6 +10,7 @@ import type { DocState } from "../editor/edit-session.ts";
 import { uploadAsset } from "../panels/upload-asset.ts";
 import type { DeviceLook } from "../preview/preview-bar.tsx";
 import { ProblemsContent } from "../problems/problems-panel.tsx";
+import { splitNotes } from "../problems/project-files.ts";
 import type { Validation } from "../problems/use-validation.ts";
 import type { Node } from "./plugin-model.ts";
 import { type FixContext, ProblemFixes } from "./problem-fixes.tsx";
@@ -104,10 +105,8 @@ export function DeviceBayHost({
           }
         />
       }
-      // What the top bar counts, errors and warnings: a note is listed in the tab but does not raise the chip (#81).
-      problemCount={
-        validation.state === "done" ? validation.problems.filter((p) => p.severity !== "info").length : undefined
-      }
+      // What the top bar counts and the tab lists first, errors and warnings; notes are listed apart (#81, #226).
+      problemCount={validation.state === "done" ? splitNotes(validation.problems).issues.length : undefined}
       request={request}
       live={live === true}
       selectedPath={bridge.selectedPath}

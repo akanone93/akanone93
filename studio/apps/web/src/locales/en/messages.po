@@ -234,6 +234,12 @@ msgstr "{count, plural, one {# more icon: refine the search} other {# more icons
 msgid "panels.selectedCount"
 msgstr "{count, plural, one {# node selected} other {# nodes selected}}"
 
+#. Heading of the folded list of notes under the problems in the Problems tab; notes are not counted as problems.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.notes"
+msgstr "{count, plural, one {# note} other {# notes}}"
+
 #. Fallback line for a notification type this Studio version does not know.
 #. js-lingui-explicit-id
 #: apps/web/src/features/notifications/notification-kinds.ts

@@ -24,6 +24,20 @@ export function countProblems(problems: readonly Problem[]): Record<Problem["sev
   return n;
 }
 
+/**
+ * The one rule for what the Problems chip counts and what its list shows first (#226): errors and warnings are
+ * problems; a note (`info`, such as a runtime-feature note) is listed apart, under Notes with its own count, and never
+ * raises the chip (#81).
+ */
+export function splitNotes(problems: readonly Problem[]): { readonly issues: Problem[]; readonly notes: Problem[] } {
+  const issues: Problem[] = [];
+  const notes: Problem[] = [];
+  for (const p of problems) {
+    (p.severity === "info" ? notes : issues).push(p);
+  }
+  return { issues, notes };
+}
+
 /** Problems grouped by file, files in first-seen order, project-level problems (no file) first. */
 export function groupByFile(problems: readonly Problem[]): [string, Problem[]][] {
   const groups = new Map<string, Problem[]>();

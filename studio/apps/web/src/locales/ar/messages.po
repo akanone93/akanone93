@@ -234,6 +234,12 @@ msgstr "{count, plural, zero {لا مزيد من الأيقونات} one {أيق
 msgid "panels.selectedCount"
 msgstr "{count, plural, zero {لم تُحدَّد عقد} one {تم تحديد عقدة واحدة} two {تم تحديد عقدتين} few {تم تحديد # عقد} many {تم تحديد # عقدة} other {تم تحديد # عقدة}}"
 
+#. Heading of the folded list of notes under the problems in the Problems tab; notes are not counted as problems.
+#. js-lingui-explicit-id
+#: apps/web/src/features/problems/problems.messages.ts
+msgid "problems.notes"
+msgstr "{count, plural, zero {لا ملاحظات} one {ملاحظة واحدة} two {ملاحظتان} few {# ملاحظات} many {# ملاحظةً} other {# ملاحظة}}"
+
 #. Fallback line for a notification type this Studio version does not know.
 #. js-lingui-explicit-id
 #: apps/web/src/features/notifications/notification-kinds.ts

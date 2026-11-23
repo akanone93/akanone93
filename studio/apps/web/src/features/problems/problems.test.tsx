@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import type { Problem } from "@plux/validator";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
-import { countProblems, groupByFile } from "./project-files.ts";
+import { countProblems, groupByFile, splitNotes } from "./project-files.ts";
 import type { ValidatorClient } from "./validator-client.ts";
 
 afterEach(cleanup);
@@ -32,6 +32,14 @@ const problems: Problem[] = [
   },
   { code: "PLX-0300", severity: "info", file: "", path: "", message: "Project note" },
 ];
+/** A note in the page, such as a runtime-feature note (PLX-2013): listed apart from the problems (#226). */
+const pageNote: Problem = {
+  code: "PLX-2013",
+  severity: "info",
+  file: "plugins/pl/pages/home.page.json",
+  path: "/root/2",
+  message: "Runs only on newer runtimes",
+};
 const documents = [
   { kind: "plugin", path: "plugins/pl/plugin.json", json: { id: "pl", kind: "plugin", pages: [] } },
   { kind: "page", path: "plugins/pl/pages/home.page.json", json: { id: "home", kind: "page" } },
@@ -105,7 +113,7 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
     const validator = (): ValidatorClient => ({
       load: async (files) => {
         loaded.push(...files.map((f) => f.path));
-        return problems;
+        return [...problems, pageNote];
       },
       validatePage: async () => [],
       dispose: () => undefined,
@@ -117,7 +125,12 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
     expect(screen.getByRole("tab", { name: "Problems" })).toBeTruthy();
     expect(screen.getByLabelText("1 error")).toBeTruthy();
     expect(screen.getByLabelText("1 warning")).toBeTruthy();
-    expect(screen.getByLabelText("plugins/pl/pages/home.page.json")).toBeTruthy();
+    // The page's file heads its problems, and again its notes.
+    expect(screen.getAllByLabelText("plugins/pl/pages/home.page.json")).toHaveLength(2);
+    // The note is listed apart, folded under its own count: the list's problems are what the chip counts (#226).
+    const notes = screen.getByText("1 note").closest("details");
+    expect(notes?.open).toBe(false);
+    expect(notes?.textContent).toContain("Runs only on newer runtimes");
     // The whole project in one listing, in the server's path order (#195).
     expect(loaded).toEqual(["plugins/pl/pages/home.page.json", "plugins/pl/plugin.json"]);
   });
@@ -156,8 +169,11 @@ describe("S2.1 the Problems tab and counts (F9)", () => {
     expect(await screen.findByText("The validator could not run.")).toBeTruthy();
   });
 
-  test("counts by severity and groups project-level problems first", () => {
+  test("counts by severity, splits the notes from the problems and groups project-level problems first (#226)", () => {
     expect(countProblems(problems)).toEqual({ error: 1, warning: 1, info: 1 });
+    const { issues, notes } = splitNotes(problems);
+    expect(issues.map((p) => p.code)).toEqual(["PLX-0100", "PLX-0200"]);
+    expect(notes.map((p) => p.code)).toEqual(["PLX-0300"]);
     expect(groupByFile(problems).map(([f]) => f)).toEqual(["", "plugins/pl/pages/home.page.json"]);
   });
 });
