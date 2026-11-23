@@ -48,8 +48,13 @@ export interface CanvasSurface {
   /** World rectangle of an item, and the overlay feedback of a drag (guides, distance labels, insertion indicator). */
   boundsOf?(id: string): { l: number; t: number; r: number; b: number } | undefined;
   setGuides?(guides: Guides | null): void;
-  /** Applies scene patches (ghosts, arrows, the pulse); they stay until the next first layout replaces the scene. */
+  /**
+   * Applies scene patches (ghosts, arrows, the pulse); they stay until a layout replaces the scene, the first or one in a
+   * style of another value (`scenesReplaced`).
+   */
   patch?(ops: readonly SceneOp[]): void;
+  /** How many times a layout replaced the scene; the patched items were gone after each (#289). 0 in a stub. */
+  readonly scenesReplaced?: number;
   /** The PNG of scene item `id` rendered in the worker, `width` pixels wide, or null (STU-052). */
   thumbnail?(id: string, width: number, content?: boolean): Promise<Uint8Array | null>;
   /** Makes encoded images available to scene items under their keys. */
@@ -221,6 +226,9 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     setSelection: (ids) => run((h) => h.setSelection(ids)),
     get viewport() {
       return host ? host.viewport : view;
+    },
+    get scenesReplaced() {
+      return host?.scenesReplaced ?? 0;
     },
     dispose: () => {
       disposed = true;

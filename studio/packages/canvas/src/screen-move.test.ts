@@ -145,3 +145,43 @@ describe("[STU-050] a screen dragged on the canvas is moved, not laid out again"
     host.dispose();
   });
 });
+
+describe("[STU-121] a style rebuilt with the same values keeps the scene (#289)", () => {
+  test("[STU-121] only a style of another value lays every screen out again, and the host counts it", () => {
+    const sent: HostMessage[] = [];
+    const worker: WorkerLike = {
+      onmessage: null,
+      postMessage: (message) => sent.push(message as HostMessage),
+      terminate: () => undefined,
+    };
+    const options: CanvasOptions = {
+      renderer: "raster",
+      tileSize: 256,
+      background: 0xffffffff,
+      fonts: [],
+      fontFamily: "Noto Sans",
+      measureFrames: false,
+    };
+    const element = { width: 0, height: 0, transferControlToOffscreen: () => ({ width: 0, height: 0 }) };
+    const host = new CanvasHost(element, { width: 300, height: 200, dpr: 1 }, options, {
+      createWorker: () => worker,
+      mainThread: () => {
+        throw new Error("unused");
+      },
+    });
+    const screens = [{ id: "s", title: "S", x: 0, y: 0, root }];
+    const kinds = () => sent.flatMap((m) => (m.type === "screens" || m.type === "screensUpdate" ? [m.type] : []));
+    expect(host.scenesReplaced).toBe(0);
+    void host.layoutScreens(screens, style);
+    expect(host.scenesReplaced).toBe(1);
+    // A page builds its style again on every edit: equal in value, it sends only what changed.
+    void host.layoutScreens(screens, { ...style, theme: { ...style.theme } });
+    expect(kinds()).toEqual(["screens", "screensUpdate"]);
+    expect(host.scenesReplaced).toBe(1);
+    // Another value (the Interact tool's live screens) lays every screen out again, in a new scene.
+    void host.layoutScreens(screens, { ...style, live: true });
+    expect(kinds()).toEqual(["screens", "screensUpdate", "screens"]);
+    expect(host.scenesReplaced).toBe(2);
+    host.dispose();
+  });
+});

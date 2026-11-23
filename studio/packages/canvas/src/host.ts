@@ -126,8 +126,17 @@ export class CanvasHost {
   private readonly thumbnails = new Map<number, (png: Uint8Array | null) => void>();
   private readonly layouts = new Map<number, (heights: readonly ScreenHeight[]) => void>();
   private nextRequest = 0;
-  /** The screens last handed to the worker and their style; an update sends only what differs (STU-121). */
-  private sent: { readonly style: ScreenStyle; readonly screens: ReadonlyMap<string, ScreenDocument> } | null = null;
+  /**
+   * The screens last handed to the worker and their style, with the style's value as JSON; an update sends only what
+   * differs (STU-121).
+   */
+  private sent: {
+    readonly style: ScreenStyle;
+    readonly styleKey: string;
+    readonly screens: ReadonlyMap<string, ScreenDocument>;
+  } | null = null;
+  /** How many times `layoutScreens` replaced the scene. */
+  private replaced = 0;
   /** Each laid-out screen's content height, by screen id. */
   private readonly contentHeights = new Map<string, ScreenHeight>();
   private settle: { resolve(info: RendererInfo): void; reject(error: Error): void } | null = null;
@@ -244,6 +253,14 @@ export class CanvasHost {
       },
       transfer,
     );
+  }
+
+  /**
+   * How many times `layoutScreens` replaced the scene (the first layout, or one in a style of another value): items a
+   * caller patched in before a replacement are gone after it, so a layer it keeps by diffing sends them all again.
+   */
+  get scenesReplaced(): number {
+    return this.replaced;
   }
 
   /** The view as the host shows it; equal to the scene model's viewport. */
@@ -374,16 +391,21 @@ export class CanvasHost {
    * Shows `screens`, laid out in the worker with SkParagraph (ADR-0013);
    * resolves with each screen's content height once the hit index and
    * accessible tree follow the laid-out items. The first call, and any call in
-   * another style, replaces the scene; later calls send only the screens that
-   * differ from the last call (another id, title, place or root object) and
-   * the ids that are gone, so the worker lays out and redraws only those
-   * (STU-121). Edits must therefore replace a changed root, never mutate it.
+   * a style of another value, replaces the scene, and every item patched in
+   * before it with it (`scenesReplaced` counts these). Later calls send only
+   * the screens that differ from the last call (another id, title, place or
+   * root object) and the ids that are gone, so the worker lays out and redraws
+   * only those (STU-121): a style rebuilt with the same values, as a page does
+   * on every edit, keeps the scene (#289). Edits must therefore replace a
+   * changed root, never mutate it.
    */
   layoutScreens(screens: readonly ScreenDocument[], style: ScreenStyle): Promise<readonly ScreenHeight[]> {
     const requestId = this.nextRequest++;
     const previous = this.sent;
     const next = new Map(screens.map((s) => [s.id, s]));
-    this.sent = { style, screens: next };
+    // The style is plain data (it travels to the worker in a message), so its JSON is its value.
+    const styleKey = previous?.style === style ? previous.styleKey : JSON.stringify(style);
+    this.sent = { style, styleKey, screens: next };
     const promise = new Promise<readonly ScreenHeight[]>((resolve) => {
       this.layouts.set(requestId, (heights) => {
         for (const h of heights) {
@@ -393,7 +415,8 @@ export class CanvasHost {
         resolve(screens.map((s) => this.contentHeights.get(s.id) ?? { id: s.id, contentHeight: 0 }));
       });
     });
-    if (previous === null || previous.style !== style) {
+    if (previous === null || previous.styleKey !== styleKey) {
+      this.replaced++;
       this.contentHeights.clear();
       this.send({ v: PROTOCOL_VERSION, type: "screens", requestId, screens, style });
       return promise;

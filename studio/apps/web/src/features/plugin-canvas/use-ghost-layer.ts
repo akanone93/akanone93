@@ -55,6 +55,8 @@ interface Drawn {
   readonly arrows: ArrowCanvas;
   /** Hover expansion and live re-routing (STU-044, STU-045). */
   readonly motion: ArrowMotion;
+  /** The surface's count of replaced scenes when `ghosts` last sent its items (#289). */
+  readonly scene: number;
 }
 
 /** What the layer needs from the page. */
@@ -147,11 +149,17 @@ export function useGhostLayer(input: GhostLayerInput): {
   });
   const [imageKeys, setImageKeys] = useState<ReadonlyMap<string, string>>(new Map());
   const loaded = useRef(new Set<string>());
+  /** The surface the loaded images were sent to: a new one (a change of theme) holds none of them (#289). */
+  const loadedOn = useRef<CanvasSurface | null>(null);
   useEffect(() => {
     const target = onSurface;
     const screenIds = placed.flatMap((g) => (g.screenId === undefined ? [] : [g.screenId]));
     if (target === null || listed.data === undefined || screenIds.length === 0) {
       return;
+    }
+    if (loadedOn.current !== target) {
+      loadedOn.current = target;
+      loaded.current = new Set();
     }
     let current = true;
     void loadGhostImages(
@@ -210,8 +218,15 @@ export function useGhostLayer(input: GhostLayerInput): {
         router,
         arrows: canvas,
         motion: new ArrowMotion(canvas, (ops) => target.patch?.(ops)),
+        scene: target.scenesReplaced ?? 0,
       };
       drawn.current.motion.highlight(lit.current);
+    }
+    // A layout that replaced the scene took the target boxes with it, while `ghosts` still holds them as sent: they
+    // went missing until they changed (#289). They are all sent again; the arrows are, at every render.
+    const scene = target.scenesReplaced ?? 0;
+    if (drawn.current.scene !== scene) {
+      drawn.current = { ...drawn.current, ghosts: new SceneSync(), scene };
     }
     const d = drawn.current;
     // A target placed somewhere new (its drop saved) is drawn there; a drag still running keeps its items' place.
