@@ -228,6 +228,12 @@ msgstr "{count, plural, zero {لا بيانات تجريبية} one {بيانا�
 msgid "style.iconMore"
 msgstr "{count, plural, zero {لا مزيد من الأيقونات} one {أيقونة واحدة أخرى: حسّن البحث} two {أيقونتان أخريان: حسّن البحث} few {# أيقونات أخرى: حسّن البحث} many {# أيقونة أخرى: حسّن البحث} other {# أيقونة أخرى: حسّن البحث}}"
 
+#. Under a group of search results cut short.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.more"
+msgstr "{count, plural, zero {لا مزيد} one {نتيجة أخرى: حسّن البحث} two {نتيجتان أخريان: حسّن البحث} few {# نتائج أخرى: حسّن البحث} many {# نتيجة أخرى: حسّن البحث} other {# نتيجة أخرى: حسّن البحث}}"
+
 #. Summary of a multiple selection.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -369,6 +375,12 @@ msgstr "{count, plural, one {عرض الخطأ} two {عرض الخطأين} few 
 #: apps/web/src/features/localisation/localisation.messages.ts
 msgid "localisation.used-in-count"
 msgstr "{count, plural, zero {غير مستخدم} one {مستخدم في مستند واحد} two {مستخدم في مستندين} few {مستخدم في # مستندات} many {مستخدم في # مستندًا} other {مستخدم في # مستند}}"
+
+#. Above the places a translation key, component, state entry, asset or function is used, in Search.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.usedIn"
+msgstr "{count, plural, zero {غير مستخدم} one {مستخدم في موضع واحد} two {مستخدم في موضعين} few {مستخدم في # مواضع} many {مستخدم في # موضعًا} other {مستخدم في # موضع}}"
 
 #. Count of accessibility diagnostics of a build.
 #. js-lingui-explicit-id
@@ -699,6 +711,12 @@ msgstr "{kind, select, none {بلا} fade {تلاشٍ} scale {تحجيم} slideU
 #: apps/web/src/features/panels/quick-actions.messages.ts
 msgid "quick.kind"
 msgstr "{kind, select, page {الانتقال إلى صفحة} dialog {فتح حوار} sheet {فتح لوحة} message {عرض رسالة} link {فتح رابط} back {رجوع} state {تعيين حالة} submit {إرسال نموذج} other {إجراء}}"
+
+#. Heading of a group of results in the app canvas's Search tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.group"
+msgstr "{kind, select, plugin {الإضافات} screen {الشاشات} key {مفاتيح الترجمة} component {المكوّنات} state {الحالة} asset {الأصول} function {الدوال} other {النتائج}}"
 
 #. A built-in validator of a form field (STA-020).
 #. js-lingui-explicit-id
@@ -11861,6 +11879,12 @@ msgstr "غير مترجم"
 msgid "l10n.area.notUsed"
 msgstr "غير مستخدم"
 
+#. Under a search result that nothing in the app uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.unused"
+msgstr "غير مستخدم في أي مكان"
+
 #. Shown for a phone that has not been used since it was signed in.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/phones.messages.ts
@@ -11902,6 +11926,12 @@ msgstr "تعذّر استيراد أي شيء من هذا المصدر."
 #: apps/web/src/features/panels/list-panel.messages.ts
 msgid "list.defaultEmpty"
 msgstr "لا شيء هنا بعد"
+
+#. The app canvas's Search tab when the query matches nothing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.nothing"
+msgstr "لا شيء في التطبيق يطابق."
 
 #. Body of the confirmation before deleting an unused translation key.
 #. js-lingui-explicit-id
@@ -15783,6 +15813,12 @@ msgstr "بحث"
 msgid "devices.search"
 msgstr "بحث"
 
+#. Tab of the app canvas's left dock: one search across the app, with where each thing is used.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.tab"
+msgstr "البحث"
+
 #. Label of the field that filters the list of actions.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -15854,6 +15890,12 @@ msgstr "ابحث أو نفّذ أمرًا"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.searchPlugins"
 msgstr "البحث في الإضافات"
+
+#. Placeholder and accessible name of the app canvas's search field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.field"
+msgstr "البحث في الإضافات والشاشات والمفاتيح والمكوّنات والحالة والأصول والدوال"
 
 #. Placeholder and accessible name of the search field of the app canvas's Routes tab.
 #. js-lingui-explicit-id
@@ -20037,6 +20079,12 @@ msgstr "اكتب {name} للتأكيد"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.typeconfirm.prompt"
 msgstr "اكتب {phrase} للتأكيد"
+
+#. The app canvas's Search tab before anything is typed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.search.hint"
+msgstr "اكتب اسمًا أو مسارًا أو مفتاحًا: كل نتيجة تذكر أين تُستخدم، وتفتح هناك."
 
 #. Label of the field in which a type that the pickers cannot express is edited as text.
 #. js-lingui-explicit-id

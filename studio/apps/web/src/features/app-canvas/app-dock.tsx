@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { PluginSummary } from "@plux/api";
-import { Icon } from "@plux/ui";
+import { Icon, type IconName } from "@plux/ui";
 import { Button } from "@plux/ui/components/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ReactElement, type ReactNode, useEffect, useState } from "react";
@@ -81,6 +81,17 @@ function Editing(props: {
   );
 }
 
+/** A pane the page may leave out: none when it gives none. */
+function optionalPane(
+  value: string,
+  icon: IconName,
+  pane: { readonly label: string; readonly meta?: string; readonly panel: ReactNode } | undefined,
+): Pane[] {
+  return pane === undefined
+    ? []
+    : [{ value, label: pane.label, icon, ...(pane.meta === undefined ? {} : { meta: pane.meta }), panel: pane.panel }];
+}
+
 /**
  * The app canvas's left dock, as the plugin editor's: the bold rail (Plugins, Frames, Overview) and the header (which
  * canvas, which app, how big). Plugins lists every plugin with its mark, key and owner, screens and state, searchable and
@@ -102,6 +113,7 @@ export function AppDock({
   problems,
   routes,
   functions,
+  search,
   releases,
   onEditJson,
   onHistory,
@@ -126,6 +138,8 @@ export function AppDock({
   readonly problems?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
   /** Every route of the app (#268); `meta` is the count the tab shows. */
   readonly routes?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
+  /** One search across the app, with where each thing is used (#265). */
+  readonly search?: { readonly label: string; readonly panel: ReactNode } | undefined;
   /** Each function, the plugins that call it and its deployment (#266); `meta` is the count the tab shows. */
   readonly functions?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
   /** Where the app stands, at the foot of the Overview: each environment's newest release and Publish (#261). */
@@ -272,42 +286,11 @@ export function AppDock({
           <div className="canvas-frames flex flex-col gap-0.5">{frameTools}</div>
         ),
     },
-    ...(routes === undefined
-      ? []
-      : [
-          {
-            value: "routes",
-            label: routes.label,
-            icon: "navigation-arrow" as const,
-            meta: routes.meta,
-            panel: routes.panel,
-          },
-        ]),
-    ...(functions === undefined
-      ? []
-      : [
-          {
-            value: "functions",
-            label: functions.label,
-            icon: "lightning" as const,
-            meta: functions.meta,
-            panel: functions.panel,
-          },
-        ]),
-    ...(problems === undefined
-      ? []
-      : [
-          {
-            value: "problems",
-            label: problems.label,
-            icon: "x-circle" as const,
-            meta: problems.meta,
-            panel: problems.panel,
-          },
-        ]),
-    ...(assets === undefined
-      ? []
-      : [{ value: "assets", label: assets.label, icon: "image" as const, panel: assets.panel }]),
+    ...optionalPane("search", "magnifying-glass", search),
+    ...optionalPane("routes", "navigation-arrow", routes),
+    ...optionalPane("functions", "lightning", functions),
+    ...optionalPane("problems", "x-circle", problems),
+    ...optionalPane("assets", "image", assets),
     {
       value: "overview",
       label: m.overviewTab,

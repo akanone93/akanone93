@@ -855,6 +855,53 @@ export function appCanvasMessages(i18n: I18n) {
       message: "The deployed functions could not be read: what calls what is shown without them.",
       comment: "Note in the app canvas's Functions tab when the development environment's functions cannot be read.",
     }),
+    searchTab: i18n._({
+      id: "appCanvas.search.tab",
+      message: "Search",
+      comment: "Tab of the app canvas's left dock: one search across the app, with where each thing is used.",
+    }),
+    searchApp: i18n._({
+      id: "appCanvas.search.field",
+      message: "Search plugins, screens, keys, components, state, assets, functions",
+      comment: "Placeholder and accessible name of the app canvas's search field.",
+    }),
+    searchHint: i18n._({
+      id: "appCanvas.search.hint",
+      message: "Type a name, a route or a key: each result says where it is used, and opens there.",
+      comment: "The app canvas's Search tab before anything is typed.",
+    }),
+    searchNothing: i18n._({
+      id: "appCanvas.search.nothing",
+      message: "Nothing in the app matches.",
+      comment: "The app canvas's Search tab when the query matches nothing.",
+    }),
+    searchGroup: (kind: "plugin" | "screen" | "key" | "component" | "state" | "asset" | "function") =>
+      i18n._({
+        id: "appCanvas.search.group",
+        message:
+          "{kind, select, plugin {Plugins} screen {Screens} key {Translation keys} component {Components} state {State} asset {Assets} function {Functions} other {Results}}",
+        values: { kind },
+        comment: "Heading of a group of results in the app canvas's Search tab.",
+      }),
+    searchUsedIn: (count: number) =>
+      i18n._({
+        id: "appCanvas.search.usedIn",
+        message: "{count, plural, one {Used in # place} other {Used in # places}}",
+        values: { count },
+        comment: "Above the places a translation key, component, state entry, asset or function is used, in Search.",
+      }),
+    searchUnused: i18n._({
+      id: "appCanvas.search.unused",
+      message: "Not used anywhere",
+      comment: "Under a search result that nothing in the app uses.",
+    }),
+    searchMore: (count: number) =>
+      i18n._({
+        id: "appCanvas.search.more",
+        message: "{count, plural, one {# more: refine the search} other {# more: refine the search}}",
+        values: { count },
+        comment: "Under a group of search results cut short.",
+      }),
     routesTab: i18n._({
       id: "appCanvas.routes.tab",
       message: "Routes",

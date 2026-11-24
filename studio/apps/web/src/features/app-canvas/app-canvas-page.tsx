@@ -81,6 +81,7 @@ import {
 } from "./app-problems.tsx";
 import { AppReleases } from "./app-releases.tsx";
 import { type RouteScreen, useRoutesPane } from "./app-routes.tsx";
+import { useSearchPane } from "./app-search.tsx";
 import { BoxList, DetailCard, type LastPublished, MoveToDialog } from "./box-list.tsx";
 import {
   AppBar,
@@ -751,6 +752,22 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       }),
     setMovingScreen,
   );
+  // One search across the app, with where each thing is used (#265).
+  const searchPane = useSearchPane(loaded, list, {
+    onPlugin: (id) => {
+      const b = boxes.find((x) => x.id === id);
+      if (b !== undefined) {
+        showBox(b, false);
+      }
+    },
+    onScreen: (plugin, page) =>
+      void navigate({
+        to: "/o/$org/apps/$app/plugins/$plugin",
+        params: { org: orgKey, app: appId, plugin },
+        search: page === undefined ? {} : { focus: page },
+      }),
+    pluginName,
+  });
   // Which plugin calls which function, with its deployment (#266); a caller is shown on the canvas.
   const functionsPane = useFunctionsPane(orgKey, appId, list, (id: string) => {
     const b = boxes.find((x) => x.id === id);
@@ -987,6 +1004,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             problems={problemsPane}
             routes={routesPane}
             functions={functionsPane}
+            search={searchPane}
             releases={<AppReleases org={orgKey} appId={appId} />}
             onEditJson={() => setOverlay("json")}
             onHistory={() => setOverlay("history")}
