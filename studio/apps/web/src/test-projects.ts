@@ -80,7 +80,7 @@ const reasons: Readonly<Record<keyof ShellFixture, string>> = {
   deepLinkHosts: "Deep-link hosts are declared in the native manifests and entitlements.",
   deepLinkSchemes: "Deep-link schemes are declared in the native manifests.",
   packages: "Optional packages are dependencies of the shell and need a build.",
-  entryRoute: "The entry route is compiled into the shell's options.",
+  entryRoute: "The entry route the shell opens before the first release is compiled into its options.",
 };
 
 function text(value: ShellFixture[keyof ShellFixture]): string {

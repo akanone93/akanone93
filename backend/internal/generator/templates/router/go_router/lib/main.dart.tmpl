@@ -42,21 +42,27 @@ Future<void> main() async {
   );
 }
 
-/// The app's entry page: the entry route of its default plugin.
+/// The app's entry page: the entry route its release names.
 class _Home extends StatelessWidget {
   const _Home();
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: PluxView(
-      '{%.Plux.EntryRoute%}',
-      loadingBuilder: (_) => const Center(
-        key: ValueKey('plux-loading'),
-        child: CircularProgressIndicator(),
-      ),
-      fallbackBuilder: (_, error) => Center(
-        key: const ValueKey('plux-unavailable'),
-        child: Text('Not available (${error.code.id})'),
+    // The entry route the release names (app.json's entryRoute), so the app
+    // opens where its project says; the route this shell was generated with
+    // only until a release names one.
+    body: ValueListenableBuilder<String?>(
+      valueListenable: Plux.entryRoute,
+      builder: (context, route, _) => PluxView(
+        route ?? '{%.Plux.EntryRoute%}',
+        loadingBuilder: (_) => const Center(
+          key: ValueKey('plux-loading'),
+          child: CircularProgressIndicator(),
+        ),
+        fallbackBuilder: (_, error) => Center(
+          key: const ValueKey('plux-unavailable'),
+          child: Text('Not available (${error.code.id})'),
+        ),
       ),
     ),
   );

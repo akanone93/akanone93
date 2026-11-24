@@ -61,6 +61,12 @@ describe("every route of the app on the app canvas (#268, #259)", () => {
     expect(routes.find((r) => r.route === "gone")?.from.map((s) => s.pageId)).toEqual(["mainHome", "settings"]);
   });
 
+  test("an entry route no screen has heads the list as missing (#248)", () => {
+    const gone = appRoutes(graph, ["camera", "scanner"], "welcome");
+    expect(gone[0]).toMatchObject({ route: "welcome", kind: "missing", entry: true, screens: [], from: [] });
+    expect(appRoutes(graph, [], "camera").some((r) => r.route === "camera")).toBe(true);
+  });
+
   test("the search finds a route by its name, its screens' titles and their plugins' names", () => {
     expect(searchRoutes(routes, "sett", pluginName).map((r) => r.route)).toEqual(["settings"]);
     expect(searchRoutes(routes, "launch", pluginName).map((r) => r.route)).toEqual(["start", "home"]);

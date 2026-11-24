@@ -57,7 +57,7 @@ var fields = []field{
 	{"deepLinkHosts", "Deep-link hosts are declared in the native manifests and entitlements.", func(s generator.ShellSpec) string { return list(s.DeepLinkHosts) }},
 	{"deepLinkSchemes", "Deep-link schemes are declared in the native manifests.", func(s generator.ShellSpec) string { return list(s.DeepLinkSchemes) }},
 	{"packages", "Optional packages are dependencies of the shell and need a build.", func(s generator.ShellSpec) string { return list(s.Packages) }},
-	{"entryRoute", "The entry route is compiled into the shell's options.", func(s generator.ShellSpec) string { return s.Plux.EntryRoute }},
+	{"entryRoute", "The entry route the shell opens before the first release is compiled into its options.", func(s generator.ShellSpec) string { return s.Plux.EntryRoute }},
 }
 
 // Normalise puts the list settings in the order the generator writes them,

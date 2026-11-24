@@ -16467,6 +16467,12 @@ msgstr "Showing {screen}"
 msgid "preview.chromeShown"
 msgstr "Shown"
 
+#. Help under the shell settings' entry route: the generated app follows app.json's entryRoute from its release, this one only before.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell-settings/shell-settings.messages.ts
+msgid "shell.field.entry-route.hint"
+msgstr "Shown until the app's first release arrives. After that the app opens at the entry route of its release, which the app canvas sets."
+
 #. Comparison mode.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/compare.messages.ts

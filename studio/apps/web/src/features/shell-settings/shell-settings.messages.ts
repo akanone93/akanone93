@@ -164,6 +164,13 @@ export function shellSettingsMessages(i18n: I18n) {
       message: "Optional packages",
       comment: "Label: optional packages added to the shell, separated by commas.",
     }),
+    entryRouteHint: i18n._({
+      id: "shell.field.entry-route.hint",
+      message:
+        "Shown until the app's first release arrives. After that the app opens at the entry route of its release, which the app canvas sets.",
+      comment:
+        "Help under the shell settings' entry route: the generated app follows app.json's entryRoute from its release, this one only before.",
+    }),
     fieldEntryRoute: i18n._({
       id: "shell.field.entry-route",
       message: "Entry route",

@@ -113,8 +113,8 @@ export function ShellForm({
       setWorking(false);
     }
   };
-  const text = (field: TextKey, label: string) => (
-    <Field label={label}>
+  const text = (field: TextKey, label: string, description?: string) => (
+    <Field label={label} {...(description === undefined ? {} : { description })}>
       <Input
         value={values[field]}
         disabled={!canManage}
@@ -165,7 +165,7 @@ export function ShellForm({
         {text("bundleId", m.fieldBundleId)}
         {text("appVersion", m.fieldAppVersion)}
         {text("splashColor", m.fieldSplashColor)}
-        {text("entryRoute", m.fieldEntryRoute)}
+        {text("entryRoute", m.fieldEntryRoute, m.entryRouteHint)}
         <Field label={m.fieldRouter}>
           <Select
             label={m.fieldRouter}

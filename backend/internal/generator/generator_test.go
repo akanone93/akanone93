@@ -142,7 +142,8 @@ func TestShellAndPlatformSettings(t *testing.T) {
 	contains("ios/Runner.xcodeproj/project.pbxproj", "CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;", "PRODUCT_BUNDLE_IDENTIFIER = com.example.loans;")
 	contains("ios/Runner/Base.lproj/LaunchScreen.storyboard", `red="0.043" green="0.431" blue="0.310"`)
 	contains("pubspec.yaml", "name: loans\n", "version: 1.2.0+7", "plux_flutter: "+RuntimeConstraint, "- assets/plux/assets/")
-	contains("lib/main.dart", "title: 'Loans & More'", "PluxView(\n          'welcome'", "PluxOptions.config(navigatorKey: navigatorKey)")
+	// The app opens at the entry route its release names, the shell's own only until one arrives (build log #248).
+	contains("lib/main.dart", "title: 'Loans & More'", "valueListenable: Plux.entryRoute", "PluxView(\n            route ?? 'welcome'", "PluxOptions.config(navigatorKey: navigatorKey)")
 	contains("lib/plux/plux_options.g.dart", "static const appId = '01e0c450-6c00-7000-8000-000000000001';", "static const channel = 'beta';", "Uint8List.fromList([0x01, 0x02, 0x03])")
 	contains("integration_test/app_test.dart", "import 'package:loans/main.dart' as app;")
 	contains("assets/plux/bundles/_app.pxb", "PX")

@@ -73,6 +73,10 @@ export function appRoutes(
     }
   }
   const missing = new Set(graph.broken.map((b) => b.route));
+  // An entry route nothing has opens nothing on a device: it heads the list, flagged, though no link names it (#248).
+  if (entryRoute !== undefined && entryRoute !== "" && !byRoute.has(entryRoute) && !native.has(entryRoute)) {
+    missing.add(entryRoute);
+  }
   for (const route of missing) {
     out.push({ route, kind: "missing", screens: [], from: sourcesOf(route), entry: route === entryRoute });
   }
