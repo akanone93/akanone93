@@ -74,6 +74,12 @@ func TestCreate(t *testing.T) { //nolint:paralleltest // the environment is proc
 			t.Errorf("no %s: %v", p, err)
 		}
 	}
+	// Its debug builds pair with a dev session, verifying Studio's bundles with the development environment's keys
+	// (DEV-040, build log #273).
+	options, err := os.ReadFile(filepath.Join(out, "lib", "plux", "plux_options.g.dart")) //nolint:gosec // the test's own file
+	if err != nil || !strings.Contains(string(options), "static final devRootKeys = <PluxPublicKey>[\n    PluxPublicKey(\n      keyId: 'k1',") {
+		t.Errorf("the development keys: %v\n%s", err, options)
+	}
 	if code, _, stderr := cli(t, t.TempDir(), append(base, "--out", out, "demo")...); code != exitFailed || !strings.Contains(stderr, "not empty") {
 		t.Errorf("a non-empty directory: %d %s", code, stderr)
 	}

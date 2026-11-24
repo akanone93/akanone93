@@ -97,6 +97,10 @@ type Input struct {
 	Icon []byte
 	// Keys are the environment's root public keys (SEC-051).
 	Keys []codegen.RootKey
+	// DevKeys are the development environment's root public keys, which a
+	// debug build's dev session verifies Studio's bundles with (DEV-040);
+	// none when the app has no development key yet.
+	DevKeys []codegen.RootKey
 	// Baseline holds the release `plux pull` writes, by path under
 	// assets/plux/ (SYN-007).
 	Baseline map[string][]byte
@@ -114,6 +118,14 @@ type File struct {
 
 // RuntimeConstraint is the plux_flutter version generated projects use.
 const RuntimeConstraint = "^0.6.0"
+
+// DevEnvironment is the key of the environment whose keys a generated
+// project's debug builds verify Studio's dev bundles with (DEV-040); a
+// production environment of that key is never pinned for them (SEC-056).
+const DevEnvironment = "development"
+
+// DevtoolsConstraint is the plux_devtools version generated projects use.
+const DevtoolsConstraint = "^0.2.0"
 
 // AdapterConstraint is the version of the router adapters generated
 // projects use, as plux init adds them.
@@ -250,7 +262,10 @@ type view struct {
 	RuntimeConstraint                  string
 	FlutterVersion                     string
 	PluxPath                           string
-	BaselineAssets                     bool
+	// DevtoolsConstraint and DevtoolsPath name plux_devtools: a version, or
+	// the directory beside plux_flutter's when PluxPath is set.
+	DevtoolsConstraint, DevtoolsPath string
+	BaselineAssets                   bool
 	// RouterDeps are the router's dependencies, the adapter first: a
 	// version, or a path when PluxPath is set (the adapter is read from
 	// the directory beside plux_flutter's).
@@ -278,6 +293,10 @@ func Generate(in Input) ([]File, error) {
 	v := view{
 		ShellSpec: spec, Entitlements: spec.Push || len(spec.DeepLinkHosts) > 0,
 		SplashHex: strings.ToUpper(spec.SplashColor), RuntimeConstraint: RuntimeConstraint, FlutterVersion: FlutterVersion, PluxPath: in.PluxPath,
+		DevtoolsConstraint: DevtoolsConstraint,
+	}
+	if in.PluxPath != "" {
+		v.DevtoolsPath = filepath.Join(filepath.Dir(in.PluxPath), "plux_devtools")
 	}
 	for _, p := range spec.AndroidPermissions {
 		name, maxSDK, _ := strings.Cut(p, ";maxSdkVersion=")
@@ -309,7 +328,7 @@ func Generate(in Input) ([]File, error) {
 	files["plux.shell.json"] = File{Path: "plux.shell.json", Data: append(shell, '\n'), Mode: 0o644}
 	files["lib/plux/plux_options.g.dart"] = File{Path: "lib/plux/plux_options.g.dart", Mode: 0o644, Data: codegen.Options(codegen.OptionsSpec{
 		AppKey: spec.Plux.AppKey, AppID: spec.Plux.AppID, Endpoint: spec.Plux.Endpoint, Environment: spec.Plux.Environment,
-		Channel: spec.Plux.Channel, Keys: in.Keys,
+		Channel: spec.Plux.Channel, Keys: in.Keys, DevTools: true, DevKeys: in.DevKeys,
 	})}
 	if err := icons(in.Icon, bg, files); err != nil {
 		return nil, err

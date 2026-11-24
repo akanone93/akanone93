@@ -131,8 +131,12 @@ colour) and the splash colour (default `#FFFFFF`). The project holds:
   the permissions and usage descriptions the device APIs need, push (iOS entitlement and
   background mode, Android notification permission) and deep links (intent filters,
   associated domains, URL schemes);
-- `lib/main.dart`, which starts Plux and shows the entry page, and
-  `lib/plux/plux_options.g.dart` with the environment's root keys;
+- `lib/main.dart`, which starts Plux and shows the entry page — in debug builds under the
+  Plux debug overlay, which pairs with a Studio dev session (`DEV-040`; a release build
+  contains no dev tooling, `DEV-050`) — and `lib/plux/plux_options.g.dart` with the
+  environment's root keys and, as `devRootKeys`, the `development` environment's, which
+  alone verify a dev session's bundles (none when the app has no development key yet, which
+  `plux create` says; a production environment's keys are never used for it);
 - the release embedded under `assets/plux/`, `plux.yaml` and `plux.shell.json`, the
   shell settings it was generated from;
 - `integration_test/app_test.dart`, which waits for the entry page on a device;

@@ -15,6 +15,7 @@ import (
 	"image/png"
 	"io"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
@@ -183,8 +184,17 @@ func TestShellIconAndPatch_GEN_004(t *testing.T) {
 	if _, err := f.shells.SetSettings(ctx, f.owner, app.ID, set); err != nil {
 		t.Fatalf("a valid icon: %v", err)
 	}
-	if done := f.runJob(t, app.ID, ""); done.Status != shellupdate.StatusSucceeded {
+	done := f.runJob(t, app.ID, "")
+	if done.Status != shellupdate.StatusSucceeded {
 		t.Fatalf("zip job: %+v", done)
+	}
+	// The project's debug builds pair with a dev session through the app's development keys (DEV-040, build log #273).
+	_, zipped, err := f.shells.Download(ctx, f.owner, app.ID, done.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options := string(readZip(t, zipped)["shop/lib/plux/plux_options.g.dart"]); !strings.Contains(options, "static final devRootKeys = <PluxPublicKey>[\n    PluxPublicKey(\n      keyId: 'k1',") {
+		t.Errorf("the generated options pin no development key:\n%s", options)
 	}
 	st, err = f.shells.Status(ctx, f.owner, app.ID)
 	if err != nil || st.Generated == nil || st.Generated.IconSHA256 != redSHA || st.Current.IconSHA256 != redSHA || len(st.Changes) != 0 {

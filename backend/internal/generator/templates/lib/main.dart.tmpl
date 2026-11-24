@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:plux_devtools/plux_devtools.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
 import 'plux/plux_options.g.dart';
@@ -13,13 +15,25 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   WidgetsBinding.instance.addObserver(_Links());
   await Plux.initialize(PluxOptions.config(navigatorKey: navigatorKey));
-  runApp(const App());
+  // A debug build pairs with a Studio dev session and shows the Plux debug
+  // overlay (DEV-040); a release build has no session, and the overlay is
+  // its child alone, tree-shaken away (DEV-050).
+  runApp(
+    App(
+      devSession: kDebugMode
+          ? PluxDevSession(devRootKeys: PluxOptions.devRootKeys)
+          : null,
+    ),
+  );
 }
 
 /// The app: its entry page.
 class App extends StatelessWidget {
   /// Creates the app.
-  const App({super.key});
+  const App({super.key, this.devSession});
+
+  /// Pairs this debug build with a dev session; null in release builds.
+  final PluxDevSession? devSession;
 
   @override
   Widget build(BuildContext context) => PluxScope(
@@ -27,6 +41,8 @@ class App extends StatelessWidget {
       title: '{%dart .Name%}',
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) =>
+          PluxDevtools(session: devSession, child: child!),
       home: Scaffold(
         // The entry route the release names (app.json's entryRoute), so the
         // app opens where its project says; the route this shell was

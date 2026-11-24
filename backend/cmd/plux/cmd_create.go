@@ -15,10 +15,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"connectrpc.com/connect"
+
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
 	"github.com/nightCode42/plux3/backend/internal/codegen"
 	"github.com/nightCode42/plux3/backend/internal/generator"
+	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 )
 
 // createFlags are plux create's flags beyond the server's.
@@ -110,6 +113,9 @@ func (e env) create(args []string) int {
 	if err != nil {
 		return e.fail("create", err)
 	}
+	if in.DevKeys, err = devKeys(ctx, cl, c.app); err != nil {
+		return e.fail("create", err)
+	}
 	pkg := generator.PackageName(app.GetKey())
 	if err := f.apply(&in, pkg, app.GetKey(), app.GetId(), c.server); err != nil {
 		return e.fail("create", err)
@@ -122,8 +128,37 @@ func (e env) create(args []string) int {
 	if err != nil {
 		return e.fail("create", err)
 	}
-	return e.emit(c.json, map[string]any{"package": pkg, "files": len(files), "release": base.Sequence, "output": where},
-		fmt.Sprintf("Generated %s (%d files) with release %d embedded: %s.\n", pkg, len(files), base.Sequence, where))
+	text := fmt.Sprintf("Generated %s (%d files) with release %d embedded: %s.\n", pkg, len(files), base.Sequence, where)
+	if len(in.DevKeys) == 0 {
+		text += fmt.Sprintf("The app has no %s key yet, so its debug builds cannot pair with a dev session; run plux create again once it has one.\n", generator.DevEnvironment)
+	}
+	return e.emit(c.json, map[string]any{"package": pkg, "files": len(files), "release": base.Sequence, "output": where, "devKeys": len(in.DevKeys)}, text)
+}
+
+// devKeys returns the keys of the app's development environment, which the
+// generated project's debug builds verify Studio's dev bundles with
+// (DEV-040); none when the app has no such environment, or only a
+// production one, whose keys a dev session never uses (SEC-056).
+func devKeys(ctx context.Context, cl *clients, app string) ([]codegen.RootKey, error) {
+	envs, err := cl.app.ListEnvironments(ctx, connect.NewRequest(&pluxv1.ListEnvironmentsRequest{AppId: app, Page: &pluxv1.Page{PageSize: 1000}}))
+	if err != nil {
+		return nil, err //nolint:wrapcheck // reported as is
+	}
+	for _, en := range envs.Msg.GetEnvironments() {
+		if en.GetKey() != generator.DevEnvironment || en.GetProduction() {
+			continue
+		}
+		keys, err := cl.manifest.GetRootKeys(ctx, connect.NewRequest(&pluxv1.GetRootKeysRequest{AppId: app, Environment: en.GetKey()}))
+		if err != nil {
+			return nil, err //nolint:wrapcheck // reported as is
+		}
+		out := make([]codegen.RootKey, 0, len(keys.Msg.GetKeys()))
+		for _, k := range keys.Msg.GetKeys() {
+			out = append(out, codegen.RootKey{KeyID: k.GetKeyId(), Algorithm: k.GetAlgorithm(), Role: k.GetRole(), PublicKey: k.GetPublicKey()})
+		}
+		return out, nil
+	}
+	return nil, nil
 }
 
 // apply sets what the flags give on the shell read from the release.

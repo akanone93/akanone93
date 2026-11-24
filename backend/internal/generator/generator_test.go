@@ -34,6 +34,7 @@ func sample() Input {
 			Plux: PluxSource{AppKey: "loans", AppID: "01e0c450-6c00-7000-8000-000000000001", Endpoint: "https://plux.example.com", Environment: "production", Channel: "beta", EntryRoute: "welcome"},
 		},
 		Keys:     []codegen.RootKey{{KeyID: "k1", Algorithm: "ed25519", Role: "targets", PublicKey: []byte{1, 2, 3}}},
+		DevKeys:  []codegen.RootKey{{KeyID: "dev1", Algorithm: "ed25519", Role: "targets", PublicKey: []byte{4, 5, 6}}},
 		Baseline: map[string][]byte{"baseline.json": []byte("{}\n"), "keys.json": []byte("[]\n"), "bundles/_app.pxb": {0x50, 0x58}, "assets/ab12": {1}},
 	}
 }
@@ -141,10 +142,14 @@ func TestShellAndPlatformSettings(t *testing.T) {
 	contains("ios/Runner/Runner.entitlements", "aps-environment", "applinks:loans.example.com")
 	contains("ios/Runner.xcodeproj/project.pbxproj", "CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;", "PRODUCT_BUNDLE_IDENTIFIER = com.example.loans;")
 	contains("ios/Runner/Base.lproj/LaunchScreen.storyboard", `red="0.043" green="0.431" blue="0.310"`)
-	contains("pubspec.yaml", "name: loans\n", "version: 1.2.0+7", "plux_flutter: "+RuntimeConstraint, "- assets/plux/assets/")
+	contains("pubspec.yaml", "name: loans\n", "version: 1.2.0+7", "plux_flutter: "+RuntimeConstraint, "plux_devtools: "+DevtoolsConstraint, "- assets/plux/assets/")
 	// The app opens at the entry route its release names, the shell's own only until one arrives (build log #248).
 	contains("lib/main.dart", "title: 'Loans & More'", "valueListenable: Plux.entryRoute", "PluxView(\n            route ?? 'welcome'", "PluxOptions.config(navigatorKey: navigatorKey)")
 	contains("lib/plux/plux_options.g.dart", "static const appId = '01e0c450-6c00-7000-8000-000000000001';", "static const channel = 'beta';", "Uint8List.fromList([0x01, 0x02, 0x03])")
+	// A debug build pairs with a Studio dev session, verifying its bundles with the development keys alone; a release
+	// build has no session and the overlay is its child (DEV-040, DEV-050; build log #273).
+	contains("lib/main.dart", "kDebugMode\n          ? PluxDevSession(devRootKeys: PluxOptions.devRootKeys)\n          : null", "PluxDevtools(session: devSession, child: child!)")
+	contains("lib/plux/plux_options.g.dart", "static final devRootKeys = <PluxPublicKey>[\n    PluxPublicKey(\n      keyId: 'dev1',", "Uint8List.fromList([0x04, 0x05, 0x06])")
 	contains("integration_test/app_test.dart", "import 'package:loans/main.dart' as app;")
 	contains("assets/plux/bundles/_app.pxb", "PX")
 	contains(".github/workflows/release.yml", "FLUTTER_VERSION: "+FlutterVersion, "secrets.ANDROID_KEYSTORE_BASE64", "<key>com.example.loans</key>")
@@ -191,8 +196,11 @@ func TestShellAndPlatformSettings(t *testing.T) {
 	if !bytes.Contains(byPath(files)["pubspec.yaml"].Data, []byte("plux_flutter:\n    path: /repo/packages/plux_flutter")) {
 		t.Error("a path dependency on the runtime")
 	}
-	if bytes.Contains(byPath(files)["pubspec.yaml"].Data, []byte("dependency_overrides")) {
-		t.Error("an override without a router adapter")
+	// plux_devtools, read beside the runtime, depends on a release of it like
+	// an adapter does: pub needs the checkout as an override (DEV-040).
+	if !bytes.Contains(byPath(files)["pubspec.yaml"].Data, []byte("plux_devtools:\n    path: /repo/packages/plux_devtools")) ||
+		!bytes.Contains(byPath(files)["pubspec.yaml"].Data, []byte("dependency_overrides:\n  plux_flutter:\n    path: /repo/packages/plux_flutter")) {
+		t.Error("plux_devtools at a path needs the runtime at the same path")
 	}
 	plain.Spec.Router = "go_router"
 	files, _ = Generate(plain)

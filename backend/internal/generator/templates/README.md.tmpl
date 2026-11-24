@@ -28,6 +28,12 @@ The app starts from `assets/plux/` and syncs newer releases from
 `{%.Plux.Endpoint%}` ({%.Plux.Environment%}). Update the embedded release with
 `plux pull --env {%.Plux.Environment%} -o assets/plux`.
 
+A debug build shows the Plux debug overlay and pairs with a Studio dev session:
+open the overlay's badge and paste the session's pairing link or type its code.
+Studio's changes then reach this app as you make them, verified with the
+`development` environment's keys (`PluxOptions.devRootKeys`). A release build
+contains none of it.
+
 ## Release builds
 
 `scripts/build_android.sh` builds the App Bundle and `scripts/build_ios.sh` the IPA.

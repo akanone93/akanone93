@@ -16,6 +16,14 @@ dependencies:
 {%- else%}
   plux_flutter: {%.RuntimeConstraint%}
 {%- end%}
+  # The debug overlay and dev-session pairing of debug builds (DEV-040);
+  # release builds contain none of it (DEV-050).
+{%- if .PluxPath%}
+  plux_devtools:
+    path: {%.DevtoolsPath%}
+{%- else%}
+  plux_devtools: {%.DevtoolsConstraint%}
+{%- end%}
 {%- range .RouterDeps%}
 {%- if .Path%}
   {%.Name%}:
@@ -30,10 +38,10 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-{%- if and .PluxPath .RouterDeps%}
+{%- if .PluxPath%}
 
-# The adapters depend on a release of plux_flutter; the checkout is the one
-# the app builds against.
+# plux_devtools and the adapters depend on a release of plux_flutter; the
+# checkout is the one the app builds against.
 dependency_overrides:
   plux_flutter:
     path: {%.PluxPath%}

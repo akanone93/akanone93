@@ -24,6 +24,12 @@ type OptionsSpec struct {
 	// Packages are the optional Plux packages the configuration
 	// registers, by pub name (OptionalPackages).
 	Packages []string
+	// DevTools adds devRootKeys, the development environment's keys
+	// (DevKeys, possibly none) that a debug build's dev session verifies
+	// Studio's bundles with (DEV-040); a project plux create generates
+	// pairs its debug builds through them.
+	DevTools bool
+	DevKeys  []RootKey
 }
 
 func channel(c string) string {
@@ -67,15 +73,17 @@ abstract final class PluxOptions {
   /// The environment's root public keys.
   static final rootKeys = <PluxPublicKey>[
 `, o.AppKey, o.Environment, packageImports(pkgs), DartString(o.AppID), DartString(o.Endpoint), DartString(o.Environment), DartString(channel(o.Channel)))
-	for _, k := range o.Keys {
-		hex := make([]string, 0, len(k.PublicKey))
-		for _, by := range k.PublicKey {
-			hex = append(hex, fmt.Sprintf("0x%02x", by))
-		}
-		fmt.Fprintf(&b, "    PluxPublicKey(\n      keyId: %s,\n      algorithm: %s,\n      role: %s,\n      publicKey: Uint8List.fromList([%s]),\n    ),\n",
-			DartString(k.KeyID), DartString(k.Algorithm), DartString(k.Role), strings.Join(hex, ", "))
+	writeKeys(&b, o.Keys)
+	if o.DevTools {
+		b.WriteString(`
+  /// The development environment's root public keys: a debug build's dev
+  /// session verifies the bundles Studio sends with them alone, never with
+  /// [rootKeys] (DEV-040, SEC-056). Empty when the app had no development
+  /// key when this was written; generate the project again then.
+  static final devRootKeys = <PluxPublicKey>[
+`)
+		writeKeys(&b, o.DevKeys)
 	}
-	b.WriteString("  ];\n")
 	if needsNavigatorKey(pkgs) {
 		key = "navigatorKey ?? rootNavigatorKey"
 		b.WriteString(`
@@ -102,6 +110,19 @@ abstract final class PluxOptions {
 	}
 	b.WriteString("      );\n}\n")
 	return []byte(b.String())
+}
+
+// writeKeys writes the entries of a key list and closes it.
+func writeKeys(b *strings.Builder, keys []RootKey) {
+	for _, k := range keys {
+		hex := make([]string, 0, len(k.PublicKey))
+		for _, by := range k.PublicKey {
+			hex = append(hex, fmt.Sprintf("0x%02x", by))
+		}
+		fmt.Fprintf(b, "    PluxPublicKey(\n      keyId: %s,\n      algorithm: %s,\n      role: %s,\n      publicKey: Uint8List.fromList([%s]),\n    ),\n",
+			DartString(k.KeyID), DartString(k.Algorithm), DartString(k.Role), strings.Join(hex, ", "))
+	}
+	b.WriteString("  ];\n")
 }
 
 // packageImports are the import lines of the packages, after a blank line,

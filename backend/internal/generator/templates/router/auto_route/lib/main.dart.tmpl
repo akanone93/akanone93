@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:plux_auto_route/plux_auto_route.dart';
+import 'package:plux_devtools/plux_devtools.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
 import 'plux/plux_options.g.dart';
@@ -35,12 +37,20 @@ Future<void> main() async {
       router: PluxAutoRoute(router),
     ),
   );
+  // A debug build pairs with a Studio dev session and shows the Plux debug
+  // overlay (DEV-040); a release build has no session, and the overlay is
+  // its child alone, tree-shaken away (DEV-050).
+  final devSession = kDebugMode
+      ? PluxDevSession(devRootKeys: PluxOptions.devRootKeys)
+      : null;
   runApp(
     PluxScope(
       child: MaterialApp.router(
         title: '{%dart .Name%}',
         routerConfig: router.config(),
         debugShowCheckedModeBanner: false,
+        builder: (context, child) =>
+            PluxDevtools(session: devSession, child: child!),
       ),
     ),
   );

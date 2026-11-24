@@ -444,10 +444,35 @@ type claim struct {
 	spec  generator.ShellSpec
 	gen   *generator.ShellSpec
 	envID string
+	// devEnvID is the app's development environment, whose keys the
+	// project's debug builds pin for dev sessions (DEV-040); empty when the
+	// app has none, or only a production one of that key.
+	devEnvID string
 	// iconSHA is the content hash of the current icon asset; iconGone says
 	// the setting names an asset that no longer exists.
 	iconSHA  string
 	iconGone bool
+}
+
+// environments reads the job's environment and the app's development
+// environment, whose keys the project's debug builds pin for dev sessions
+// (DEV-040); a production environment of that key is never pinned for them
+// (SEC-056).
+func (c *claim) environments(ctx context.Context, q *dbgen.Queries) error {
+	env, err := q.GetEnvironmentByKey(ctx, dbgen.GetEnvironmentByKeyParams{AppID: c.app.ID, Key: c.row.EnvironmentKey})
+	if err != nil {
+		return failure(err, "environment")
+	}
+	c.envID = storage.ID(env.ID)
+	dev, err := q.GetEnvironmentByKey(ctx, dbgen.GetEnvironmentByKeyParams{AppID: c.app.ID, Key: generator.DevEnvironment})
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+	case err != nil:
+		return failure(err, "development environment")
+	case !dev.Production:
+		c.devEnvID = storage.ID(dev.ID)
+	}
+	return nil
 }
 
 // Work generates the project of one job. A generation that fails is recorded
@@ -482,12 +507,7 @@ func (s *Service) Work(ctx context.Context, job Job) error {
 				c.iconGone = true
 			}
 		}
-		env, err := q.GetEnvironmentByKey(ctx, dbgen.GetEnvironmentByKeyParams{AppID: c.app.ID, Key: c.row.EnvironmentKey})
-		if err != nil {
-			return failure(err, "environment")
-		}
-		c.envID = storage.ID(env.ID)
-		return nil
+		return c.environments(ctx, q)
 	})
 	if err != nil {
 		return fmt.Errorf("shellupdate: claim the job: %w", err)
@@ -499,13 +519,14 @@ func (s *Service) Work(ctx context.Context, job Job) error {
 	return s.finish(ctx, tenant, c.row, c.spec, genSpec, data, genErr)
 }
 
-// render generates the files of one project from a spec and its icon.
-func render(spec generator.ShellSpec, icon []byte, keys []codegen.RootKey) ([]generator.File, generator.ShellSpec, error) {
+// render generates the files of one project from a spec and its icon, with
+// the environment's keys and the development environment's.
+func render(spec generator.ShellSpec, icon []byte, keys, devKeys []codegen.RootKey) ([]generator.File, generator.ShellSpec, error) {
 	derived, err := generator.Derive(spec)
 	if err != nil {
 		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the shell settings are not valid: %v", err)
 	}
-	files, err := generator.Generate(generator.Input{Spec: derived, Icon: icon, Keys: keys})
+	files, err := generator.Generate(generator.Input{Spec: derived, Icon: icon, Keys: keys, DevKeys: devKeys})
 	if err != nil {
 		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the project cannot be generated: %v", err)
 	}
@@ -531,6 +552,12 @@ func (s *Service) build(ctx context.Context, job Job, c claim) ([]byte, generato
 	if len(keys) == 0 {
 		return nil, spec, plxerr.New(plxerr.InvalidFormat, "the environment has no root keys yet; publish a release first")
 	}
+	var devKeys []codegen.RootKey
+	if c.devEnvID != "" {
+		if devKeys, err = s.o.Keys(ctx, job.OrganizationID, c.devEnvID); err != nil {
+			return nil, spec, fmt.Errorf("shellupdate: development keys: %w", err)
+		}
+	}
 	spec.Plux = generator.PluxSource{
 		AppKey: c.app.Key, AppID: storage.ID(c.app.ID), Endpoint: s.o.Endpoint, Environment: c.row.EnvironmentKey, Channel: c.row.ChannelKey,
 		EntryRoute: spec.Plux.EntryRoute,
@@ -544,13 +571,13 @@ func (s *Service) build(ctx context.Context, job Job, c claim) ([]byte, generato
 			return nil, spec, err
 		}
 	}
-	files, derived, err := render(spec, icon, keys)
+	files, derived, err := render(spec, icon, keys, devKeys)
 	if err != nil {
 		return nil, spec, err
 	}
 	root := derived.Package
 	if c.row.Format == FormatPatch {
-		if files, err = s.patch(ctx, c.gen, files, derived, keys); err != nil {
+		if files, err = s.patch(ctx, c.gen, files, derived, keys, devKeys); err != nil {
 			return nil, spec, err
 		}
 	}
@@ -568,7 +595,7 @@ func (s *Service) build(ctx context.Context, job Job, c claim) ([]byte, generato
 // old project is generated again from the stored spec and the icon it
 // recorded, with the current root keys on both sides, so a key rotation is
 // not a difference.
-func (s *Service) patch(ctx context.Context, gen *generator.ShellSpec, updated []generator.File, to generator.ShellSpec, keys []codegen.RootKey) ([]generator.File, error) {
+func (s *Service) patch(ctx context.Context, gen *generator.ShellSpec, updated []generator.File, to generator.ShellSpec, keys, devKeys []codegen.RootKey) ([]generator.File, error) {
 	if gen == nil {
 		return nil, plxerr.New(plxerr.PreconditionFailed, "a patch needs a project generated before; generate the project first")
 	}
@@ -579,7 +606,7 @@ func (s *Service) patch(ctx context.Context, gen *generator.ShellSpec, updated [
 			return nil, err
 		}
 	}
-	old, from, err := render(*gen, icon, keys)
+	old, from, err := render(*gen, icon, keys, devKeys)
 	if err != nil {
 		return nil, err
 	}
