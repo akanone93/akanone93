@@ -33,7 +33,6 @@ type Messages = ReturnType<typeof appCanvasMessages>;
 
 import { UndoCommands } from "../editor/undo-commands.tsx";
 import { UndoManager } from "../editor/undo-stack.ts";
-import { HistoryOverlay } from "../history/index.ts";
 import {
   APP_CANVAS_PATH,
   BOX,
@@ -68,8 +67,8 @@ import {
 import { AppConsole } from "./app-console.tsx";
 import { AppDock } from "./app-dock.tsx";
 import { useFunctionsPane } from "./app-functions.tsx";
-import { AppJsonEditor } from "./app-json-editor.tsx";
 import { useAppLockHolder } from "./app-lock.ts";
+import { type AppOverlay, AppOverlays } from "./app-overlays.tsx";
 import {
   type AppProblem,
   draftsRevision,
@@ -545,10 +544,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const [dialogue, setDialogue] = useState<Dialogue>(null);
   const [safety, setSafety] = useState<SafetyMode | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
-  // The JSON editor of the app's own documents (#260, #285), mounted while open.
-  const [jsonOpen, setJsonOpen] = useState(false);
-  // The history of the app's own documents, and who holds their lock (#267).
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // The app's own documents' overlays: the JSON editor, the State designer, the history (#260, #283, #267).
+  const [overlay, setOverlay] = useState<AppOverlay | undefined>();
+  // Who holds the app's own lock (#267).
   const appLockHolder = useAppLockHolder(appId);
   const [movingBox, setMovingBox] = useState<SceneBox | undefined>();
   const [lane, setLane] = useState<AppLink | undefined>();
@@ -988,8 +986,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             routes={routesPane}
             functions={functionsPane}
             releases={<AppReleases org={orgKey} appId={appId} />}
-            onEditJson={() => setJsonOpen(true)}
-            onHistory={() => setHistoryOpen(true)}
+            onEditJson={() => setOverlay("json")}
+            onHistory={() => setOverlay("history")}
+            onState={() => setOverlay("state")}
             appLockHolder={appLockHolder}
             reveal={problemReveal.reveal}
           />
@@ -1034,7 +1033,13 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
           </div>
           <AppConsole appId={appId} route={entryRoute} problems={problemsPane} />
           <DevLinkBar route={entryRoute} />
-          <HistoryOverlay open={historyOpen} onClose={() => setHistoryOpen(false)} />
+          <AppOverlays
+            open={overlay}
+            appId={appId}
+            documents={documents}
+            project={project.data}
+            onClose={() => setOverlay(undefined)}
+          />
           <MoveScreenDialog
             screen={movingScreen}
             docs={loaded}
@@ -1046,14 +1051,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onRefused={setMessage}
             onClose={() => setMovingScreen(undefined)}
           />
-          {jsonOpen && (
-            <AppJsonEditor
-              appId={appId}
-              documents={documents}
-              project={project.data}
-              onClose={() => setJsonOpen(false)}
-            />
-          )}
           <Panel className="canvas-bar canvas-hint hidden px-4 text-xs text-muted-foreground lg:flex">{m.hint}</Panel>
         </div>
       </div>

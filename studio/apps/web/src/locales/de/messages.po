@@ -2595,6 +2595,12 @@ msgstr "App-Name"
 msgid "appnav.appPages"
 msgstr "App-Seiten"
 
+#. Button in the app canvas's Overview: opens the State designer on the app's own state entries (app.json).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.appState"
+msgstr "Zustand der App…"
+
 #. Accessible name of the sidebar's app switcher; {name} is the app the areas below belong to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts

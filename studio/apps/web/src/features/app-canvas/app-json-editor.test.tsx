@@ -83,4 +83,27 @@ describe("the app's own documents from the app canvas (#260, #285)", () => {
       { timeout: 5000 },
     );
   });
+
+  test("the Overview opens the State designer on the app's own state, saved to app.json (#283)", async () => {
+    const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
+    renderApp(`/o/${orgA}/apps/app1`, {
+      surface: () => surface(),
+      summaries: [{ id: "loans", key: "loans", name: "Loans" }],
+      permissions: ["app.read", "app.manage", "plugin.read", "plugin.write"],
+      appDocuments: [app],
+      sent,
+      validator,
+    });
+    fireEvent.click(await screen.findByRole("tab", { name: /Overview/ }, { timeout: 5000 }));
+    fireEvent.click(await screen.findByRole("button", { name: "App state…" }));
+    expect(await screen.findByRole("dialog", { name: /State designer/ })).toBeTruthy();
+    fireEvent.click((await screen.findAllByRole("button", { name: "Add state entry" }))[0] as HTMLElement);
+    await waitFor(
+      () =>
+        expect(
+          sent.some((s) => s.path === "app.json" && s.ops.some((o) => o.op === "add" && o.path.startsWith("/state"))),
+        ).toBe(true),
+      { timeout: 5000 },
+    );
+  });
 });
