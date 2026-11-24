@@ -134,7 +134,7 @@ export function insertDropHandlers(a: Args) {
       const image = isAsset(e) ? imageUnder(a, w) : undefined;
       if (image !== undefined) {
         e.dataTransfer.dropEffect = "copy";
-        a.surface()?.setGuides?.(null);
+        a.surface()?.setIndicator?.(null);
         marks({ ...noDrop, drop: image.id, dropSlot: image.prop });
         return;
       }
@@ -144,11 +144,11 @@ export function insertDropHandlers(a: Args) {
       e.dataTransfer.dropEffect = plan.ok ? "copy" : "none";
       refused = plan.ok ? null : { reason: plan.reason, type, at: plan.at, x: w.x, y: w.y };
       const shown = dropMarks(plan, type);
-      a.surface()?.setGuides?.(shown.guides);
+      a.surface()?.setIndicator?.(shown.indicator);
       marks(shown);
     },
     onDragLeave(e: DragEvent): void {
-      a.surface()?.setGuides?.(null);
+      a.surface()?.setIndicator?.(null);
       marks(noDrop);
       // Leaving the canvas for another part of the page is no drop; letting go leaves with nothing entered.
       if (e.relatedTarget !== null) {
@@ -156,7 +156,7 @@ export function insertDropHandlers(a: Args) {
       }
     },
     onDrop(e: DragEvent): void {
-      a.surface()?.setGuides?.(null);
+      a.surface()?.setIndicator?.(null);
       marks(noDrop);
       refused = null;
       const w = world(e);

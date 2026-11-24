@@ -118,5 +118,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0107](0107-per-organisation-build-caches.md) | Server builds reuse the compiled dependencies of their own organisation, and never a compiled function | P11 | Accepted |
 | [0108](0108-gateway-changes-need-a-step-up.md) | Changes to the gateway need their own permission and a step-up | P11 | Accepted |
 | [0109](0109-organisation-development-root-for-the-dev-app.md) | The Dev app trusts each app's development key through its organisation's development root | P11 | Accepted |
+| [0110](0110-no-alignment-guides-or-snapping-on-the-canvases.md) | The canvases have no alignment guides, distance labels or snapping | P11 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

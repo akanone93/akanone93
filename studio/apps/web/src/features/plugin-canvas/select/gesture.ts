@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Guides } from "@plux/canvas";
 import { uuidv7 } from "../screens.ts";
 import { type DropPlan, planDrop, wrapNode } from "./drop-rules.ts";
 import {
@@ -17,70 +16,11 @@ import {
   unwrapRecipe,
   wrapRecipe,
 } from "./edits.ts";
-import {
-  type Box,
-  type DistanceLabel,
-  distances,
-  type Handle,
-  resizeBox,
-  type SnapResult,
-  snapBox,
-  translate,
-} from "./geometry.ts";
+import { type Box, type Handle, resizeBox } from "./geometry.ts";
 import type { DropTarget } from "./reparent.ts";
 import type { NodeIndex } from "./tree.ts";
 
 export type GestureKind = "move" | "resize";
-
-export interface MovePlan {
-  /** The snapped offset of the dragged box. */
-  readonly delta: { readonly x: number; readonly y: number };
-  readonly guides: Guides;
-  /** The snaps to hold on the next move (hysteresis). */
-  readonly locks: SnapResult["locks"];
-}
-
-/**
- * The distances worth showing: to the nearest box on each side (left, right, above, below), not to every sibling, so
- * a crowded parent shows four labels at most instead of a cloud of numbers.
- */
-function nearestDistances(box: Box, others: readonly Box[]): DistanceLabel[] {
-  const best = new Map<string, DistanceLabel>();
-  for (const o of others) {
-    for (const d of distances(box, o)) {
-      const before = d.axis === "x" ? d.to <= box.l + 1e-6 : d.to <= box.t + 1e-6;
-      const side = `${d.axis}:${before ? "before" : "after"}`;
-      const was = best.get(side);
-      if (was === undefined || d.value < was.value) {
-        best.set(side, d);
-      }
-    }
-  }
-  return [...best.values()];
-}
-
-/** Smart guides and distance labels for dragging \`box\` by \`delta\` among \`others\`. */
-export function planMove(
-  box: Box,
-  others: readonly Box[],
-  delta: { x: number; y: number },
-  zoom: number,
-  held: SnapResult["locks"] = {},
-): MovePlan {
-  const moved = translate(box, delta);
-  const snap = snapBox(moved, others, zoom, held);
-  const final = translate(moved, snap.delta);
-  const labels = nearestDistances(final, others).map((d) => ({
-    x: d.axis === "x" ? (d.from + d.to) / 2 : d.across,
-    y: d.axis === "y" ? (d.from + d.to) / 2 : d.across,
-    text: String(Math.round(d.value)),
-  }));
-  return {
-    delta: { x: delta.x + snap.delta.x, y: delta.y + snap.delta.y },
-    guides: { lines: snap.guides, labels },
-    locks: snap.locks,
-  };
-}
 
 export interface GestureEnv {
   readonly index: NodeIndex;
@@ -144,9 +84,8 @@ export function dropAt(env: GestureEnv, ids: readonly string[], x: number, y: nu
 }
 
 /** The insertion indicator while dragging `ids` over the screens at world point (x, y). */
-export function reparentPreview(env: GestureEnv, ids: readonly string[], x: number, y: number): Guides | null {
-  const drop = dropAt(env, ids, x, y);
-  return drop === null ? null : { lines: [], labels: [], indicator: drop.indicator };
+export function reparentPreview(env: GestureEnv, ids: readonly string[], x: number, y: number): Box | null {
+  return dropAt(env, ids, x, y)?.indicator ?? null;
 }
 
 /** The wrapper a drop puts the moved node in, with a fresh id, when it needs one. */

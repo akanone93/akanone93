@@ -110,24 +110,6 @@
   pointer-events: none;
 }
 
-/* A snap guide (STU-032): a hairline in the primary along the shared edge or centre, placed like the marquee. */
-.canvas-guide {
-  position: absolute;
-  inset: 0 auto auto 0;
-  inline-size: calc(var(--w) * 1px);
-  block-size: calc(var(--h) * 1px);
-  transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
-  pointer-events: none;
-}
-
-.canvas-guide[data-axis="x"] {
-  border-inline-start: 1px solid var(--primary);
-}
-
-.canvas-guide[data-axis="y"] {
-  border-block-start: 1px solid var(--primary);
-}
-
 /* The point a context menu opens from: placed like the marquee, from the physical top left. */
 .canvas-anchor {
   position: absolute;

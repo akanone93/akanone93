@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { ArrowPick, Guides } from "@plux/canvas";
+import type { ArrowPick } from "@plux/canvas";
 import { type RefObject, useEffect, useRef } from "react";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
-import { BOX, type Point, SNAP_DISTANCE, type Snapped, select, snap } from "./app-canvas.model.ts";
+import { type Point, select } from "./app-canvas.model.ts";
 import { boxOfHits, boxOfItem, type SceneBox } from "./app-canvas.scene.ts";
 
 /** Movement in CSS pixels below which a press is a click, not a drag or a marquee. */
@@ -52,8 +52,6 @@ export interface GestureInput {
   readonly tool: CanvasTool;
   /** Whether Space is held: the canvas pans while it is. */
   readonly spaceHeld: () => boolean;
-  /** The snap guides of a drag in world units, or null when there are none; the page draws them. */
-  readonly onGuides?: (lines: readonly GuideLine[] | null) => void;
   /** The marquee being drawn, in view pixels, or null when it ends; the page draws it. */
   readonly onMarquee?: (rect: { l: number; t: number; r: number; b: number } | null) => void;
   /** Changes when the canvas element is replaced, so the wheel listener moves to the new one. */
@@ -69,8 +67,6 @@ interface Drag {
   readonly start: Point;
   readonly origin: ReadonlyMap<string, Point>;
   moved: boolean;
-  /** The snaps of the last move, held while the box stays near them. */
-  held?: Snapped["held"];
 }
 
 interface Press {
@@ -85,37 +81,6 @@ const rectOf = (a: Point, b: Point) => ({
   r: Math.max(a.x, b.x),
   b: Math.max(a.y, b.y),
 });
-
-/** A guide line in world units: vertical at `x = at` (axis "x") or horizontal at `y = at`, from `from` to `to`. */
-export type GuideLine = Guides["lines"][number];
-
-/** How far a guide runs past the boxes it aligns, in world units. */
-const GUIDE_OVERHANG = 12;
-
-/**
- * The guide lines of a snap: each runs along the shared edge or centre from the dragged box to the farthest box it
- * aligns with, a little past both, as design tools draw them.
- */
-export function guideLines(
-  guides: readonly { axis: "x" | "y"; at: number }[],
-  moved: Point,
-  others: readonly Point[],
-): GuideLine[] {
-  const on = (start: number, size: number, at: number) =>
-    [start, start + size / 2, start + size].some((v) => Math.abs(v - at) < 0.5);
-  return guides.map((g) => {
-    const vertical = g.axis === "x";
-    const aligned = [moved, ...others.filter((o) => on(vertical ? o.x : o.y, vertical ? BOX.width : BOX.height, g.at))];
-    const starts = aligned.map((b) => (vertical ? b.y : b.x));
-    const size = vertical ? BOX.height : BOX.width;
-    return {
-      axis: g.axis,
-      at: g.at,
-      from: Math.min(...starts) - GUIDE_OVERHANG,
-      to: Math.max(...starts) + size + GUIDE_OVERHANG,
-    };
-  });
-}
 
 /** The pan of a wheel turn: a mouse wheel with Shift scrolls sideways; a trackpad gives both deltas itself. */
 function wheelPan(e: WheelEvent): readonly [number, number] {
@@ -210,7 +175,7 @@ function useWheel(
 
 /**
  * Pointer handling of the app canvas, as design tools do it: the main-thread hit index finds the box or arrow under
- * the pointer (ADR-0013), a drag moves the selection with snapping and overlay guides, a press on the background draws
+ * the pointer (ADR-0013), a drag moves the selection (no snapping or guides, ADR-0110), a press on the background draws
  * a marquee in the overlay, a click on an arrow expands it or opens a lane. The hand tool, Space held or the middle
  * button pan by dragging; the wheel or a two-finger scroll pans, and with Ctrl or Cmd (a trackpad pinch) zooms about
  * the pointer, never the page. The worker draws all of it.
@@ -260,16 +225,10 @@ export function useCanvasGestures(input: GestureInput) {
       return;
     }
     d.moved = true;
-    const others = input.boxes.filter((b) => !d.origin.has(b.id));
-    // The snap distance is in screen pixels: at a low zoom a few world units were too close to ever snap.
-    const s = snap({ x: lead.x + dx, y: lead.y + dy }, others, BOX, SNAP_DISTANCE / zoom, d.held);
-    d.held = s.held;
-    const lines = s.guides.length === 0 ? null : guideLines(s.guides, s.point, others);
-    input.surface()?.setGuides?.(lines === null ? null : { lines, labels: [] });
-    input.onGuides?.(lines);
-    // Whole world units: the document saves positions rounded, so a drop lands exactly where it is saved.
-    const ox = Math.round(s.point.x - lead.x);
-    const oy = Math.round(s.point.y - lead.y);
+    // The boxes follow the pointer, snapping to nothing (ADR-0110), in whole world units: the document saves positions
+    // rounded, so a drop lands exactly where it is saved.
+    const ox = Math.round(dx);
+    const oy = Math.round(dy);
     input.setPositions((prev) => {
       const next = new Map(prev);
       for (const b of input.boxes) {
@@ -291,10 +250,11 @@ export function useCanvasGestures(input: GestureInput) {
     const v = surface.viewport;
     const r = rectOf(p.from, p.to);
     input.onMarquee?.(r);
-    surface.setGuides?.({
-      lines: [],
-      labels: [],
-      indicator: { l: v.x + r.l / v.zoom, t: v.y + r.t / v.zoom, r: v.x + r.r / v.zoom, b: v.y + r.b / v.zoom },
+    surface.setIndicator?.({
+      l: v.x + r.l / v.zoom,
+      t: v.y + r.t / v.zoom,
+      r: v.x + r.r / v.zoom,
+      b: v.y + r.b / v.zoom,
     });
   };
 
@@ -307,8 +267,7 @@ export function useCanvasGestures(input: GestureInput) {
     }
     drag.current = null;
     press.current = null;
-    input.surface()?.setGuides?.(null);
-    input.onGuides?.(null);
+    input.surface()?.setIndicator?.(null);
     input.onMarquee?.(null);
     if (d?.moved === true) {
       input.setPositions((prev) => {
@@ -323,7 +282,7 @@ export function useCanvasGestures(input: GestureInput) {
 
   const endPress = (e: React.PointerEvent, p: Press) => {
     const surface = input.surface();
-    surface?.setGuides?.(null);
+    surface?.setIndicator?.(null);
     input.onMarquee?.(null);
     const r = rectOf(p.from, local(e));
     if (r.r - r.l + (r.b - r.t) >= CLICK_PX) {
@@ -398,8 +357,7 @@ export function useCanvasGestures(input: GestureInput) {
       drag.current = null;
       press.current = null;
       if (d !== null) {
-        input.surface()?.setGuides?.(null);
-        input.onGuides?.(null);
+        input.surface()?.setIndicator?.(null);
         if (d.moved) {
           input.commit(new Map(input.boxes.map((b) => [b.id, { x: b.x, y: b.y }])));
         }
@@ -408,7 +366,7 @@ export function useCanvasGestures(input: GestureInput) {
       }
     },
     // A drag the browser ends without a release (another window, a system gesture, the capture lost) puts the boxes
-    // back where they were and clears its guides; before, the guides stayed and the next move dragged on its own.
+    // back where they were and clears its marks; before, the marks stayed and the next move dragged on its own.
     onPointerCancel: (e: React.PointerEvent<HTMLCanvasElement>) => abandon(e),
     onLostPointerCapture: (e: React.PointerEvent<HTMLCanvasElement>) => abandon(e),
     onPointerLeave: () => {

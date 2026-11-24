@@ -135,7 +135,7 @@ Chosen option: **1**. The numbers and the rejected alternatives are in decisions
   main-thread canvas above the base, so selecting never re-renders the base. The cost is a
   second copy of the item bounds in memory. The canvases of Studio draw that feedback in the page's DOM over the
   canvas instead (amended 2026-11-05): the plugin canvas's overlay — selection with its name, size and handles,
-  hover, marquee, snap guides, distances, insertion indicator and drop target — follows every pan and zoom from the
+  hover, marquee, insertion indicator and drop target (no guides or distances, ADR-0110) — follows every pan and zoom from the
   host's view and the hit index's bounds, so it too never re-renders the base. A screen that only moved (its tree and
   title the same) is translated in the worker with `move` ops (`ScreenMove`), not laid out again, so dragging a screen
   costs no layout; moving an item moves the world points it paints by (its ancestors' clips, its gradient).

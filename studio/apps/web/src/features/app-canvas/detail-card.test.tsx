@@ -81,7 +81,7 @@ function stub() {
     hitTest: () => hits.point,
     hitTestRect: () => [],
     setSelection: () => undefined,
-    setGuides: () => undefined,
+    setIndicator: () => undefined,
     patch: () => undefined,
     viewport: { x: 0, y: 0, zoom: 1 },
     dispose: () => undefined,

@@ -96,9 +96,8 @@ export {
 export {
   type Context2DLike,
   type DeviceRect,
-  type Guides,
-  guideBars,
   HANDLE_SIZE,
+  indicatorBar,
   OUTLINE_WIDTH,
   type OverlayCanvasLike,
   type OverlayColors,

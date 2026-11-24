@@ -6,8 +6,8 @@ import { GestureTracker } from "../../app-canvas/use-canvas-gestures.ts";
 import type { Point } from "../positions.ts";
 import type { CanvasSurface } from "../surface.ts";
 import type { EditFn } from "./edits.ts";
-import { type Box, type Handle, resizeBox, type SnapResult, snapBox, translate } from "./geometry.ts";
-import { finishMove, finishResize, type GestureEnv, moveDrop, planMove } from "./gesture.ts";
+import { type Box, type Handle, resizeBox, translate } from "./geometry.ts";
+import { finishMove, finishResize, type GestureEnv, moveDrop } from "./gesture.ts";
 import { handleAt, handleCursor } from "./handles.ts";
 import { dropMarks, noDrop, type OverlayStore } from "./overlay-store.ts";
 import * as sel from "./selection.ts";
@@ -114,8 +114,6 @@ type Mode =
       readonly box: Box;
       delta: Point;
       last: Point;
-      /** The snaps of the last move, held while the pointer stays near them. */
-      locks?: SnapResult["locks"];
     }
   | {
       readonly kind: "resize";
@@ -130,8 +128,6 @@ type Mode =
       readonly world: Point;
       readonly origin: ReadonlyMap<string, Point>;
       moved: ReadonlyMap<string, Point>;
-      /** The snaps of the last move, held while the pointer stays near them. */
-      locks?: SnapResult["locks"];
     }
   | { readonly kind: "target"; readonly key: string; readonly world: Point; readonly origin: Point; at: Point };
 
@@ -174,9 +170,9 @@ function capture(e: PointerLike): void {
 /**
  * The plugin canvas's pointer, as design tools have it (STU-050, STU-067): a press picks what a click selects (the
  * node in the current scope, the innermost with Ctrl or Cmd, toggled with Shift; a screen by its frame or title) and a
- * drag moves it — a node within or into a flow container at the insertion indicator, inside a Stack by its offset with
- * snap guides and distances, a screen with every selected screen, snapping to the others, saved on the drop. A handle
- * of the single selection resizes it; a press on the empty canvas draws a marquee (screens, or the nodes of the scope
+ * drag moves it — a node within or into a flow container at the insertion indicator, inside a Stack by its offset, a
+ * screen with every selected screen, saved on the drop; no guides or snapping (ADR-0110). A handle of the single
+ * selection resizes it; a press on the empty canvas draws a marquee (screens, or the nodes of the scope
  * when it stays inside one screen). The hand tool, Space held or the middle button pan. Hovering shows what a click
  * would select. Feedback is drawn by the page's overlay; the worker draws only the screens.
  */
@@ -363,22 +359,18 @@ export function pointerHandlers(
     const i = get();
     const e = env();
     const raw = { x: w.x - m.world.x, y: w.y - m.world.y };
-    const siblings = (i.index.children.get(i.index.parent.get(m.id) ?? "") ?? [])
-      .filter((k) => k !== m.id)
-      .flatMap((k) => i.boxOf(k) ?? []);
     const target = moveDrop(e, [m.id], w.x, w.y);
-    const plan = planMove(m.box, siblings, raw, zoom(), m.locks);
-    m.locks = plan.locks;
     const flow = target.ok && target.target.position === undefined;
-    m.delta = flow ? raw : plan.delta;
+    // The widget follows the pointer: the canvases snap to nothing and draw no alignment guides (ADR-0110).
+    m.delta = raw;
     m.last = w;
     const parent = i.index.parent.get(m.id);
-    // Over a place the widget cannot go, the reason shows instead of a target; in a Stack, the snap guides.
+    // Over a place the widget cannot go, the reason shows instead of a target; in a Stack, the moved box shows where.
     const marks = dropMarks(target, i.index.type.get(m.id) ?? "");
     i.overlay.set({
       ghost: translate(m.box, m.delta),
       ...marks,
-      guides: target.ok && !flow ? plan.guides : marks.guides,
+      indicator: flow ? marks.indicator : null,
       drop: flow && (target.target.parent !== parent || target.target.slot !== undefined) ? target.target.parent : null,
       hover: null,
     });
@@ -386,31 +378,11 @@ export function pointerHandlers(
 
   const moveScreens = (m: Extract<Mode, { kind: "screens" }>, w: Point): void => {
     const i = get();
-    const raw = { x: w.x - m.world.x, y: w.y - m.world.y };
-    const all = i.screens.all();
-    const frames = (ids: Iterable<string>) =>
-      [...ids].flatMap((s) => {
-        const root = i.rootOf(s);
-        const box = root === undefined ? undefined : i.boxOf(root);
-        const at = all.get(s);
-        // The box as it stands at the drag's start: the preview moves the frames, the snap measures from the origin.
-        const origin = m.origin.get(s) ?? at;
-        return box === undefined || at === undefined || origin === undefined
-          ? []
-          : [translate(box, { x: origin.x - at.x, y: origin.y - at.y })];
-      });
-    const own = frames(m.origin.keys());
-    const lead = own[0];
-    const others = frames([...all.keys()].filter((s) => !m.origin.has(s)));
-    const snap =
-      lead === undefined
-        ? { delta: { x: 0, y: 0 }, guides: [], locks: {} }
-        : snapBox(translate(lead, raw), others, zoom(), m.locks);
-    m.locks = snap.locks;
-    const d = { x: Math.round(raw.x + snap.delta.x), y: Math.round(raw.y + snap.delta.y) };
+    // Whole world units, as positions are saved; no snapping to the other screens (ADR-0110).
+    const d = { x: Math.round(w.x - m.world.x), y: Math.round(w.y - m.world.y) };
     m.moved = new Map([...m.origin].map(([s, o]) => [s, { x: o.x + d.x, y: o.y + d.y }]));
     i.screens.preview(m.moved);
-    i.overlay.set({ guides: snap.guides.length === 0 ? null : { lines: [...snap.guides], labels: [] }, hover: null });
+    i.overlay.set({ hover: null });
   };
 
   const hover = (e: PointerLike, p: Point): void => {

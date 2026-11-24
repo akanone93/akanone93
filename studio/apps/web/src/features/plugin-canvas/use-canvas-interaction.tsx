@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { type Guides, overflowId, type ScreenStyle } from "@plux/canvas";
+import { overflowId, type ScreenStyle } from "@plux/canvas";
 import { widget } from "@plux/schema";
 import { type ReactNode, type RefObject, useCallback, useMemo, useRef, useState } from "react";
 import { type Command, useScopedCommands } from "../../lib/commands/index.ts";
@@ -65,7 +65,7 @@ export interface InteractionInput {
   readonly resetZoom: () => void;
   readonly requestScreen: (kind: ScreenRequest["kind"], screen: string, title?: string) => void;
   readonly messages: Messages;
-  /** The overlay's state: the page makes it, so its surface can route guides to it (`guidesToOverlay`). */
+  /** The overlay's state: the page makes it, so its surface can route the indicator to it (`indicatorToOverlay`). */
   readonly overlay: OverlayStore;
   /** With the Interact tool, a click on the screens (PC-15). */
   readonly onInteract?: (world: Point, hits: readonly string[]) => void;
@@ -346,7 +346,7 @@ function useDeleteCommand(input: InteractionInput): () => void {
 
 /**
  * The plugin canvas's interaction (STU-050, STU-061, STU-067): the pointer and its tools, the overlay that shows the
- * selection, hover, marquee, guides and drops, the screens' drag with its live preview and saved places, the context
+ * selection, hover, marquee, indicator and drops, the screens' drag with its live preview and saved places, the context
  * menu, the tool and view keys (V, H, Space, +, −, Shift+1, Shift+2, Ctrl+0) and Delete. The page renders `element`
  * over its canvas and spreads `handlers` on it.
  */
@@ -572,12 +572,12 @@ export function useCanvasInteraction(input: InteractionInput) {
   return { handlers, element, tool, setTool, overlay, remove, selectedScreen, boxOf };
 }
 
-/** Routes a surface's guides to the overlay too, so every drag (inserting from the panel included) shows them. */
-export function guidesToOverlay(surface: CanvasSurface, overlay: OverlayStore): CanvasSurface {
-  const own = surface.setGuides?.bind(surface);
-  surface.setGuides = (guides: Guides | null) => {
-    overlay.set({ guides });
-    own?.(guides);
+/** Routes a surface's insertion indicator to the overlay too, so every drag (inserting from the panel included) shows it. */
+export function indicatorToOverlay(surface: CanvasSurface, overlay: OverlayStore): CanvasSurface {
+  const own = surface.setIndicator?.bind(surface);
+  surface.setIndicator = (indicator: Box | null) => {
+    overlay.set({ indicator });
+    own?.(indicator);
   };
   return surface;
 }

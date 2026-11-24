@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Guides } from "@plux/canvas";
 import { useSyncExternalStore } from "react";
 import type { Refusal } from "./drop-rules.ts";
 import type { Box } from "./geometry.ts";
@@ -15,16 +14,16 @@ export interface RefusedDrop {
 
 /**
  * What the canvas shows over the screens while the pointer works (STU-067): the node under the pointer, the marquee,
- * snap guides and distance labels, the insertion indicator, the container a drop lands in and the box being dragged
- * or resized. The page's DOM overlay draws it; the worker never re-renders for it.
+ * the insertion indicator, the container a drop lands in and the box being dragged or resized. The page's DOM overlay
+ * draws it; the worker never re-renders for it. There are no alignment guides (ADR-0110).
  */
 export interface OverlayState {
   /** The node a click would select, or null. */
   readonly hover: string | null;
   /** The marquee in canvas pixels, or null. */
   readonly marquee: Box | null;
-  /** Snap guides, distance labels and the insertion indicator, in world units, or null. */
-  readonly guides: Guides | null;
+  /** Where a drop inserts, in world units, or null. */
+  readonly indicator: Box | null;
   /** The container a drop would land in, or null. */
   readonly drop: string | null;
   /** The slot of `drop` it would land in, named on its tag; null for its children. */
@@ -42,7 +41,7 @@ export interface OverlayState {
 export const idleOverlay: OverlayState = {
   hover: null,
   marquee: null,
-  guides: null,
+  indicator: null,
   drop: null,
   dropSlot: null,
   refused: null,
@@ -60,23 +59,23 @@ export function dropMarks(
       }
     | (Omit<RefusedDrop, "type"> & { readonly ok: false }),
   type: string,
-): Pick<OverlayState, "drop" | "dropSlot" | "refused" | "guides"> {
+): Pick<OverlayState, "drop" | "dropSlot" | "refused" | "indicator"> {
   return plan.ok
     ? {
         drop: plan.target.parent,
         dropSlot: plan.target.slot ?? null,
         refused: null,
-        guides: { lines: [], labels: [], indicator: plan.target.indicator },
+        indicator: plan.target.indicator,
       }
-    : { drop: null, dropSlot: null, refused: { reason: plan.reason, type, at: plan.at }, guides: null };
+    : { drop: null, dropSlot: null, refused: { reason: plan.reason, type, at: plan.at }, indicator: null };
 }
 
 /** The overlay change that clears every drop mark. */
-export const noDrop: Pick<OverlayState, "drop" | "dropSlot" | "refused" | "guides"> = {
+export const noDrop: Pick<OverlayState, "drop" | "dropSlot" | "refused" | "indicator"> = {
   drop: null,
   dropSlot: null,
   refused: null,
-  guides: null,
+  indicator: null,
 };
 
 export interface OverlayStore {

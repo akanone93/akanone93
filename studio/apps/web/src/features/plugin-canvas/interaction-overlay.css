@@ -2,16 +2,14 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 
 /*
- * The plugin canvas's interaction overlay (STU-067): selection, hover, scope, drop target, marquee, guides, distances
- * and the insertion indicator, placed from the physical top left by `--x`, `--y`, `--w` and `--h` in canvas pixels.
- * The selection takes the theme's primary colour; guides and distances take a measuring magenta, as design tools do.
+ * The plugin canvas's interaction overlay (STU-067): selection, hover, scope, drop target, marquee and the insertion
+ * indicator, placed from the physical top left by `--x`, `--y`, `--w` and `--h` in canvas pixels. The selection takes
+ * the theme's primary colour. There are no guides or distance labels (ADR-0110).
  */
 
 .pc-overlay {
   --pc-select: var(--primary);
   --pc-select-ink: var(--primary-foreground);
-  --pc-measure: oklch(0.63 0.25 350);
-  --pc-measure-ink: oklch(0.99 0 0);
   --pc-drop: oklch(0.7 0.17 150);
   --pc-refused: oklch(0.6 0.21 27);
   position: absolute;
@@ -25,7 +23,6 @@
 
 .pc-outline,
 .pc-marquee,
-.pc-guide,
 .pc-indicator {
   position: absolute;
   inset: 0 auto auto 0;
@@ -80,7 +77,6 @@
 /* A name tag sits above its box's top left; the drop target's in its own colour. */
 .pc-tag,
 .pc-size,
-.pc-distance,
 .pc-handle {
   position: absolute;
   inset: 0 auto auto 0;
@@ -169,14 +165,10 @@
 }
 
 /* A screen's name, marked over the name the canvas draws above its frame, at its size (`--z` is the zoom). */
-/* Sizes and distances are numbers read left to right in any locale ("358 × 56", never "56 × 358"). */
-.pc-size,
-.pc-distance {
+/* Sizes are numbers read left to right in any locale ("358 × 56", never "56 × 358"). */
+.pc-size {
   direction: ltr;
   unicode-bidi: isolate;
-}
-
-.pc-size {
   translate: -50% 6px;
   border-radius: 4px;
   padding: 0 5px;
@@ -204,27 +196,6 @@
 .pc-marquee {
   border: 1px solid var(--pc-select);
   background-color: color-mix(in oklch, var(--pc-select) 10%, transparent);
-}
-
-.pc-guide[data-axis="x"] {
-  inline-size: 0;
-  border-inline-start: 1px solid var(--pc-measure);
-}
-
-.pc-guide[data-axis="y"] {
-  block-size: 0;
-  border-block-start: 1px solid var(--pc-measure);
-}
-
-.pc-distance {
-  translate: -50% -50%;
-  border-radius: 4px;
-  padding: 0 4px;
-  font-size: 10.5px;
-  font-variant-numeric: tabular-nums;
-  line-height: 15px;
-  color: var(--pc-measure-ink);
-  background-color: var(--pc-measure);
 }
 
 /* The insertion indicator: a bar where the drop lands, with round ends; a point drop in a stack is a cross-hair. */

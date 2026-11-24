@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Guides } from "@plux/canvas";
 import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import type { NodeProblem } from "../problems/problem-nodes.ts";
 import { A11Y_TEXT_ZOOM, badgeAt, keepApart, type Label, tagAbove, tagBelow } from "./a11y-labels.ts";
@@ -684,30 +683,14 @@ function Hover({
   );
 }
 
-function GuideMarks({ guides, view }: { guides: Guides; view: View }): ReactNode {
-  const i = guides.indicator;
+/** Where a drop inserts: a line between siblings in a row or column, or a box. */
+function InsertionMark({ indicator: i, view }: { indicator: Box; view: View }): ReactNode {
   return (
-    <>
-      {guides.lines.map((l) => {
-        const box =
-          l.axis === "x" ? { l: l.at, t: l.from, r: l.at, b: l.to } : { l: l.from, t: l.at, r: l.to, b: l.at };
-        return (
-          <div key={`${l.axis}:${l.at}:${l.from}`} className="pc-guide" data-axis={l.axis} style={place(box, view)} />
-        );
-      })}
-      {guides.labels.map((l) => (
-        <span key={`${l.x}:${l.y}:${l.text}`} className="pc-distance" style={point(l.x, l.y, view)}>
-          {l.text}
-        </span>
-      ))}
-      {i !== undefined && (
-        <div
-          className="pc-indicator"
-          data-shape={i.r - i.l < 1 ? "column" : i.b - i.t < 1 ? "row" : "box"}
-          style={place(i, view)}
-        />
-      )}
-    </>
+    <div
+      className="pc-indicator"
+      data-shape={i.r - i.l < 1 ? "column" : i.b - i.t < 1 ? "row" : "box"}
+      style={place(i, view)}
+    />
   );
 }
 
@@ -820,8 +803,8 @@ function DropNotice({ store, view, nodes }: { store: OverlayStore; view: View; n
 /**
  * The interaction overlay of the plugin canvas (STU-067), in the page's DOM above the canvas and below the docks: the
  * selection with its tag, size and handles (a screen as its device frame), the node under the pointer, the container
- * the selection is inside, the marquee, the box of a drag or resize, snap guides with distances, the insertion
- * indicator and the container a drop lands in. It follows the view on every pan and zoom; the worker draws nothing of
+ * the selection is inside, the marquee, the box of a drag or resize, the insertion indicator and the container a
+ * drop lands in. It follows the view on every pan and zoom; the worker draws nothing of
  * it, so the screens never re-render for the pointer.
  */
 export function InteractionOverlay(props: {
@@ -882,7 +865,7 @@ export function InteractionOverlay(props: {
         <InstanceBadges view={view} nodes={nodes} focus={focus} />
         <Isolation view={view} nodes={nodes} />
         <CornerBadges view={view} nodes={nodes} focus={focus} />
-        {state.guides !== null && <GuideMarks guides={state.guides} view={view} />}
+        {state.indicator !== null && <InsertionMark indicator={state.indicator} view={view} />}
         {state.marquee !== null && (
           <div
             className="pc-marquee"

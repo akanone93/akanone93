@@ -4,7 +4,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import type { I18n } from "@lingui/core";
 import type { PluginSummary } from "@plux/api";
-import type { Guides, SceneOp } from "@plux/canvas";
+import type { SceneOp } from "@plux/canvas";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
@@ -139,11 +139,11 @@ const state = (over: Upstream = {}): Upstream => ({
 });
 const path = `/o/${orgA}/apps/app1`;
 
-/** A surface that records patches, selection and guides, and answers hits from `hits`. */
+/** A surface that records patches, selection and indicators, and answers hits from `hits`. */
 function stub() {
   const patches: SceneOp[] = [];
   const selections: string[][] = [];
-  const guides: (Guides | null)[] = [];
+  const indicators: ({ l: number; t: number; r: number; b: number } | null)[] = [];
   const views: number[][] = [];
   const hits = { point: [] as string[], rect: [] as string[] };
   const pans: number[][] = [];
@@ -156,13 +156,13 @@ function stub() {
     hitTest: () => hits.point,
     hitTestRect: () => hits.rect,
     setSelection: (ids) => selections.push([...ids]),
-    setGuides: (g) => guides.push(g),
+    setIndicator: (i) => indicators.push(i),
     patch: (ops) => patches.push(...ops),
     viewport: { x: 0, y: 0, zoom: 1 },
     dispose: () => undefined,
   };
   const added = () => new Set(patches.flatMap((o) => (o.op === "add" || o.op === "replace" ? [o.item.id] : [])));
-  return { patches, selections, guides, views, hits, pans, zooms, added, factory: () => surface };
+  return { patches, selections, indicators, views, hits, pans, zooms, added, factory: () => surface };
 }
 
 const canvas = () => document.querySelector("canvas") as HTMLCanvasElement;
@@ -192,10 +192,10 @@ describe("C1 on Plux Canvas ([STU-030], [STU-040], ADR-0013)", () => {
     s.hits.rect = ["app-box/loans", "app-box/cards::key"];
     fireEvent.pointerDown(canvas(), { button: 0, clientX: 0, clientY: 0 });
     fireEvent.pointerMove(canvas(), { clientX: 400, clientY: 300 });
-    expect(s.guides.at(-1)?.indicator).toBeDefined();
+    expect(s.indicators.at(-1)).not.toBeNull();
     fireEvent.pointerUp(canvas(), { clientX: 400, clientY: 300 });
     await waitFor(() => expect([...(s.selections.at(-1) ?? [])].sort()).toEqual(["app-box/cards", "app-box/loans"]));
-    expect(s.guides.at(-1)).toBeNull();
+    expect(s.indicators.at(-1)).toBeNull();
   });
 
   test("dragging a box re-routes its arrow and saves its position in canvas.json [STU-032] [STU-045]", async () => {
@@ -338,7 +338,7 @@ describe("C1's floating panels and gestures ([STU-030], [STU-032], ADR-0103)", (
     fireEvent.pointerMove(canvas(), { clientX: 130, clientY: 90 });
     fireEvent.pointerUp(canvas(), { clientX: 130, clientY: 90 });
     expect(s.pans).toEqual([[30, -10]]);
-    expect(s.guides.length).toBe(0);
+    expect(s.indicators.length).toBe(0);
 
     fireEvent.keyDown(window, { key: "v" });
     fireEvent.pointerDown(canvas(), { button: 1, clientX: 0, clientY: 0 });
@@ -355,7 +355,7 @@ describe("C1's floating panels and gestures ([STU-030], [STU-032], ADR-0103)", (
 
     fireEvent.pointerDown(canvas(), { button: 0, clientX: 0, clientY: 0 });
     fireEvent.pointerMove(canvas(), { clientX: 40, clientY: 40 });
-    expect(s.guides.at(-1)?.indicator).toBeDefined();
+    expect(s.indicators.at(-1)).not.toBeNull();
     fireEvent.pointerUp(canvas(), { clientX: 40, clientY: 40 });
     expect(s.pans.length).toBe(3);
   });

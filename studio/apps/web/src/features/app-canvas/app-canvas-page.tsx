@@ -104,7 +104,7 @@ import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
 import { useSceneTheme } from "./scene-theme.ts";
 import { TrashDialog } from "./trash-dialog.tsx";
 import { useAppScene } from "./use-app-scene.ts";
-import { type CanvasTool, type GuideLine, useCanvasGestures, ZOOM_MAX, ZOOM_MIN } from "./use-canvas-gestures.ts";
+import { type CanvasTool, useCanvasGestures, ZOOM_MAX, ZOOM_MIN } from "./use-canvas-gestures.ts";
 import { useCanvasKeys } from "./use-canvas-keys.ts";
 import { useZoom } from "./use-zoom.ts";
 import "./app-canvas.css";
@@ -254,38 +254,6 @@ function Marquee({ rect }: { readonly rect: { l: number; t: number; r: number; b
   }
   const style = { "--x": rect.l, "--y": rect.t, "--w": rect.r - rect.l, "--h": rect.b - rect.t } as React.CSSProperties;
   return <div aria-hidden="true" className="canvas-marquee" style={style} />;
-}
-
-/**
- * The snap guides of a drag over the canvas (STU-032), in view pixels: the browser surface has no overlay layer, and
- * its overlay would also draw resize handles plugin boxes do not have.
- */
-function SnapGuides({
-  lines,
-  view,
-}: {
-  readonly lines: readonly GuideLine[] | null;
-  readonly view: { readonly x: number; readonly y: number; readonly zoom: number } | undefined;
-}): ReactNode {
-  if (lines === null || view === undefined) {
-    return null;
-  }
-  return (
-    <div aria-hidden="true">
-      {lines.map((l) => {
-        const vertical = l.axis === "x";
-        const at = vertical ? (l.at - view.x) * view.zoom : (l.at - view.y) * view.zoom;
-        const from = vertical ? (l.from - view.y) * view.zoom : (l.from - view.x) * view.zoom;
-        const length = (l.to - l.from) * view.zoom;
-        const style = (
-          vertical
-            ? { "--x": at, "--y": from, "--w": 0, "--h": length }
-            : { "--x": from, "--y": at, "--w": length, "--h": 0 }
-        ) as React.CSSProperties;
-        return <div key={`${l.axis}:${l.at}`} className="canvas-guide" data-axis={l.axis} style={style} />;
-      })}
-    </div>
-  );
 }
 
 /** The size of the view in CSS pixels, the window's while the page is not laid out yet, and the pixel ratio. */
@@ -795,7 +763,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
 
   const [tool, setTool] = useState<CanvasTool>("select");
   const [marquee, setMarquee] = useState<{ l: number; t: number; r: number; b: number } | null>(null);
-  const [guides, setGuides] = useState<readonly GuideLine[] | null>(null);
   const space = useRef(false);
   const errorTotal = list.reduce((n, x) => n + Number(x.validationErrors), 0);
   const [menuAt, setMenuAt] = useState<{ readonly box: SceneBox; readonly x: number; readonly y: number } | null>(null);
@@ -804,7 +771,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     tool,
     frame: sectionRef,
     onMarquee: setMarquee,
-    onGuides: setGuides,
     spaceHeld: () => space.current,
     element: generation,
     surface,
@@ -965,7 +931,6 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         {...gestures.handlers}
       />
       <Marquee rect={marquee} />
-      <SnapGuides lines={guides} view={surfaceRef.current?.viewport} />
       <BoxList
         boxes={boxes}
         bundles={scene.bundles}

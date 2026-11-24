@@ -219,7 +219,7 @@ describe("[STU-061] left panels", () => {
     const surface = {
       viewport: { x: 0, y: 0, zoom: 1 },
       boundsOf: (item: string) => boxes[item.split("/")[1] ?? ""],
-      setGuides: mock(),
+      setIndicator: mock(),
     };
     const canvas = { getBoundingClientRect: () => ({ left: 0, top: 0 }) };
     const h = insertDropHandlers({
@@ -239,7 +239,7 @@ describe("[STU-061] left panels", () => {
       dataTransfer: { types: ["application/x-plux-widget"], getData: () => "Text" },
     };
     h.onDragOver(ev as never);
-    expect(surface.setGuides).toHaveBeenCalled();
+    expect(surface.setIndicator).toHaveBeenCalled();
     h.onDrop(ev as never);
     expect(edit).toHaveBeenCalledTimes(1);
     // [AST-002] An image dragged from the Assets tab lands as an Image of that asset.

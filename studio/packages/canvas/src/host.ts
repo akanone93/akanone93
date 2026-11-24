@@ -37,7 +37,7 @@ import {
 } from "./fonts.ts";
 import { makeRect, type Rect } from "./geometry.ts";
 import { HitIndex, type RectMode } from "./hit.ts";
-import type { Guides, SelectionOverlay } from "./overlay.ts";
+import type { SelectionOverlay } from "./overlay.ts";
 import {
   type CanvasOptions,
   type FrameStats,
@@ -156,7 +156,7 @@ export class CanvasHost {
   private readonly notices: CanvasNotice[] = [];
   private readonly noticed = new Set<string>();
   private selected: readonly string[] = [];
-  private guides: Guides | null = null;
+  private indicator: Rect | null = null;
 
   /**
    * Loads the fonts of `request` (STU-006) and then starts the canvas, so no
@@ -510,11 +510,11 @@ export class CanvasHost {
   }
 
   /**
-   * Shows smart guides, distance labels and an insertion indicator (world coordinates) on the overlay;
-   * `null` hides them. Only the overlay is redrawn; the worker is not told.
+   * Shows an indicator (world coordinates) on the overlay — where a drop inserts, or a marquee; `null` hides it. Only
+   * the overlay is redrawn; the worker is not told.
    */
-  setGuides(guides: Guides | null): void {
-    this.guides = guides;
+  setIndicator(indicator: Rect | null): void {
+    this.indicator = indicator;
     this.drawOverlay();
   }
 
@@ -530,13 +530,13 @@ export class CanvasHost {
         boxes.push(box);
       }
     }
-    overlay.draw(this.view, this.dpr, boxes, this.guides ?? undefined);
+    overlay.draw(this.view, this.dpr, boxes, this.indicator ?? undefined);
   }
 
   /** The view changed: the overlay and the accessible tree follow it. */
   private followView(): void {
     this.layers.tree?.setView(this.view.x, this.view.y, this.view.zoom);
-    if (this.selected.length > 0 || this.guides !== null) {
+    if (this.selected.length > 0 || this.indicator !== null) {
       this.drawOverlay();
     }
   }

@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.20.0
+**Version:** 1.21.0
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-11-19
+**Date:** 2026-11-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -1685,7 +1685,7 @@ The app canvas shows every plugin of an app as a box on an infinite canvas, with
 |---|---|---|---|---|
 | `STU-030` | P11 | MUST | Each plugin **MUST** be a box showing name, icon, number of screens, draft/published state and version, badges (unpublished changes, locked by *user*, validation errors, disabled by kill switch), and owner. | DONE |
 | `STU-031` | P11 | MUST | Hovering or focusing a plugin **MUST** show a detail card: description, a mini-map of its screens, inbound and outbound link counts, functions used, bundle size, last published by and when. | DONE |
-| `STU-032` | P11 | MUST | Plugin boxes **MUST** be freely draggable, with snapping, alignment guides, multi-select, auto-layout (layered graph layout) and zoom-to-fit; positions are saved per app. | DONE |
+| `STU-032` | P11 | MUST | Plugin boxes **MUST** be freely draggable, with multi-select, auto-layout (layered graph layout) and zoom-to-fit; positions are saved per app. | DONE |
 | `STU-033` | P11 | MUST | Native routes that plugins navigate to **MUST** appear as distinct native nodes (dashed outline, native icon) that only **receive** arrows. Native → plugin arrows **MUST NOT** be drawn, because Plux cannot know which native screens open plugin pages (§13.1). | DONE |
 | `STU-034` | P11 | MUST | Plugins **MUST** be creatable, renamed, duplicated, archived and configured from the canvas (context menu and toolbar). Double-clicking a plugin opens its plugin canvas. | DONE |
 | `STU-035` | P11 | SHOULD | Frames (labelled groups of plugins, e.g. "Onboarding", "Payments") **SHOULD** be supported for organising large apps. | DONE |
@@ -1716,7 +1716,7 @@ The plugin canvas shows **all screens of the plugin at the same time**, with arr
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-050` | P11 | MUST | All screens of a plugin **MUST** be laid out on one infinite canvas inside device frames, freely draggable, with snapping and auto-layout by navigation flow. | DONE |
+| `STU-050` | P11 | MUST | All screens of a plugin **MUST** be laid out on one infinite canvas inside device frames, freely draggable, with auto-layout by navigation flow. | DONE |
 | `STU-051` | P11 | MUST | Links between screens of the same plugin **MUST** be drawn with the bundled-arrow rules of §21.5. | DONE |
 | `STU-052` | P11 | MUST | For every link between a screen of this plugin and a screen of **another plugin** — in either direction — the other screen **MUST** appear as a **ghost screen**: semi-transparent, dashed outline, showing its plugin name, screen name, thumbnail and link count, placed near the connected screens. | DONE |
 | `STU-053` | P11 | MUST | Clicking a ghost screen **MUST** show a confirmation ("Leave *Loans* and open *Cards › Card details*?"), then open the other plugin's canvas, pan and zoom to that screen and highlight it (a pulse lasting about 2 s). | DONE |
@@ -1743,7 +1743,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 | `STU-064` | P11 | MUST | The JSON editor **MUST** validate against the schema as the user types, show diagnostics inline, offer a diff against the last published version, and apply edits only when valid. | DONE |
 | `STU-065` | P11 | MUST | The action graph editor **MUST** be a node-based editor with typed ports, the action catalogue (built-in, custom, functions, flows), inline PXL editing with autocompletion, and validation of every path. | DONE |
 | `STU-066` | P11 | MUST | A resizable, collapsible **bottom drawer** **MUST** provide tabs fed by paired devices (`DEV-020`): **Problems** (validation), **Logs**, **Process flow** (visual timeline and graph of action runs; clicking a step selects the node or action in the editor), **State**, **Network**, **Functions** (with server-side logs), **Sync**, **Performance** and **Console** (PXL against device state). The drawer **MUST** support choosing the source device, filters, search, pause and export. | DONE |
-| `STU-067` | P11 | MUST | Canvas interactions **MUST** include: click, shift-click and marquee selection; select parent (Esc) and children (Enter); deep select; drag and drop from the Insert panel onto the canvas or the layer tree with insertion indicators for rows, columns and stacks; reparenting by drag; wrap selection in a layout widget and unwrap; copy, paste and duplicate across screens, plugins and apps (with ID remapping and dependency reporting); smart guides and distance measurement; keyboard nudging; zoom 10–400%, fit screen and fit all. | DONE |
+| `STU-067` | P11 | MUST | Canvas interactions **MUST** include: click, shift-click and marquee selection; select parent (Esc) and children (Enter); deep select; drag and drop from the Insert panel onto the canvas or the layer tree with insertion indicators for rows, columns and stacks; reparenting by drag; wrap selection in a layout widget and unwrap; copy, paste and duplicate across screens, plugins and apps (with ID remapping and dependency reporting); keyboard nudging; zoom 10–400%, fit screen and fit all. | DONE |
 | `STU-068` | P11 | MUST | The canvas is a design surface: lists and scroll views can be scrolled, tabs and page views switched, text wraps and overflows as laid out by the conformance-tested engine, and animation timelines can be scrubbed. Actions that navigate, call networks or functions are **not** executed on the canvas; interactive testing happens on the device (§20). | DONE |
 | `STU-069` | P11 | MUST | Every edit **MUST** be undoable (per-plugin undo history persisted across reloads for the session) and autosaved; the history panel **MUST** list snapshots with author and time, compare any two and restore any one (`SRV-031`). | DONE |
 
@@ -3136,10 +3136,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.20.0 |
+| Version | 1.21.0 |
 | Status | Draft (living document) |
-| Date | 2026-11-19 |
-| Supersedes | 1.18.0 |
+| Date | 2026-11-24 |
+| Supersedes | 1.20.0 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3185,3 +3185,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.18.0 | 2026-11-19 | Build caches (maintainer, 2026-11-18, build log #161; ADR-0107): `FN-016` — the builds of one organisation share one cache of the crates.io dependencies they compiled, which no other organisation's build can see and from which no function's own compilation is ever reused. New registry limit `function.buildCacheSize`; the builder role's `builder.cacheDir` and `builder.cacheBytes`; the internal builder protocol gains `cache_key`. |
 | 1.19.0 | 2026-11-19 | Gateway changes need a step-up (maintainer, 2026-11-19, build log #167; ADR-0108): `SEC-103` adds changes to the gateway's upstreams, trusted user identity providers and configuration values; `DAT-090` — values are changed with the new permission `gateway.manage` (high risk, step-up, environment scope) instead of `app.manage`, which upstreams and identity providers also need. Owner and Admin hold it. |
 | 1.20.0 | 2026-11-23 | The Dev app's trust (maintainer, 2026-11-23; ADR-0109, revising ADR-0087, ADR-0093 and ADR-0104): the §20 trust paragraph — the Dev app pins no key at build time; its phone pins the organisation's development root from the sign-in QR code, and each app opens with the development key that root certifies when the phone joins a session, development keys only (`SEC-056`). No requirement's text or status changes. |
+| 1.21.0 | 2026-11-24 | No alignment guides or snapping on the canvases (maintainer, 2026-11-24, build log row 225; ADR-0110): `STU-032` no longer names snapping and alignment guides, `STU-050` no longer names snapping, and `STU-067` no longer names smart guides and distance measurement. A dragged box follows the pointer; the insertion indicator, the drop target and the marquee stay. |

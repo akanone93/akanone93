@@ -71,10 +71,8 @@ Canvas, and you can drive both from the keyboard.
    Creating, duplicating, deleting and restoring a plugin keeps the app's `plugins` list in
    `app.json` up to date, so the app never reports a plugin folder that is not listed (PLX-1020).
 5. Drag a plugin — or a native target — to move it, or use **Move to…** with X and Y positions; a native target keeps
-   its place too. Near another plugin's edge or
-   centre it snaps into line, and a guide shows what it lines up with; a plugin you drag stays on
-   top of the ones it passes over. Drag on the background to select every plugin the rectangle
-   meets. Frame a group with **Frame selection**, then rename or
+   its place too. It goes exactly where you drop it; a plugin you drag stays on top of the ones it passes over.
+   Drag on the background to select every plugin the rectangle meets. Frame a group with **Frame selection**, then rename or
    resize the frame from the **Plugins** panel. **Arrange** lays the plugins out by their links: from the entry
    plugin outwards in layers, a crowded layer folded into columns, a long flow wrapped into bands, and the plugins
    without links in a grid beside them, the whole about the shape of the window. Plugins without a saved place are
@@ -116,10 +114,10 @@ Positions are read-only while someone else is editing the app.
    remembers for you; where a widget and the one inside it share that corner, only the inner one's badges show until
    you point at or select the outer one. Drag a selected widget to move it: in a column, row or wrap a line
    shows where it lands among its siblings or in another container (outlined in green); in a stack it moves to where
-   you drop it (always inside its stack), with guides and distances to its siblings; the arrow keys nudge by 1
+   you drop it (always inside its stack); the arrow keys nudge by 1
    (Shift: 10). Each screen has a label above its frame, quiet at rest and a small chip under the pointer or when the
    screen is selected: click it, its title included, to select the screen, and drag it — or a selected screen's body —
-   to move it with every selected screen; it snaps to the others and stays where you drop it (Undo puts it back). Its ⋯
+   to move it with every selected screen; it stays where you drop it (Undo puts it back). Its ⋯
    menu has **Rename** (the title becomes a field: Enter keeps the new title, Escape the old one; when the new title
    would change the route name and break deep links or generated code, the rename dialog shows what changes first),
    **Duplicate**, **Make it the entry screen**, **Zoom to screen**, **Show on every device** (the device matrix),

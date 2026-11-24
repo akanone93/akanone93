@@ -164,7 +164,7 @@ import {
 } from "./timelines.ts";
 import { useAssetElsewhere, useAssetNames, useProblemFixes } from "./use-asset-facts.ts";
 import { useAssetsTab } from "./use-assets-tab.ts";
-import { guidesToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
+import { indicatorToOverlay, useCanvasInteraction } from "./use-canvas-interaction.tsx";
 import { useGhostLayer } from "./use-ghost-layer.ts";
 import { useLocalePreview, usePluralSamples } from "./use-locale-preview.ts";
 import { declaredNativeRoutes, useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
@@ -1333,7 +1333,7 @@ function PluginCanvasView({
       hostFonts,
       deviceFonts,
     });
-    surfaceRef.current = guidesToOverlay(surface, overlay);
+    surfaceRef.current = indicatorToOverlay(surface, overlay);
     const observer = followPage(page, surface);
     return () => {
       observer?.disconnect();

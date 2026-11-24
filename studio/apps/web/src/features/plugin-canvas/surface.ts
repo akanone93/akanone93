@@ -9,7 +9,6 @@ import {
   type FontRequest,
   type FontSource,
   type GridStyle,
-  type Guides,
   type InteractionKind,
   type SceneOp,
   type ScreenDocument,
@@ -45,9 +44,10 @@ export interface CanvasSurface {
   hitTest?(x: number, y: number): string[];
   hitTestRect?(rect: { l: number; t: number; r: number; b: number }, mode: "intersect" | "contain"): string[];
   setSelection?(ids: readonly string[]): void;
-  /** World rectangle of an item, and the overlay feedback of a drag (guides, distance labels, insertion indicator). */
+  /** World rectangle of an item. */
   boundsOf?(id: string): { l: number; t: number; r: number; b: number } | undefined;
-  setGuides?(guides: Guides | null): void;
+  /** Shows where a drop inserts, or a marquee, in world coordinates; null hides it. No alignment guides (ADR-0110). */
+  setIndicator?(indicator: { l: number; t: number; r: number; b: number } | null): void;
   /**
    * Applies scene patches (ghosts, arrows, the pulse); they stay until a layout replaces the scene, the first or one in a
    * style of another value (`scenesReplaced`).
@@ -222,7 +222,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     hitTest: (x, y) => host?.hitTest(x, y) ?? [],
     hitTestRect: (rect, mode) => host?.hitTestRect(rect, mode) ?? [],
     boundsOf: (id) => host?.boundsOf(id),
-    setGuides: (g) => run((h) => h.setGuides(g)),
+    setIndicator: (i) => run((h) => h.setIndicator(i)),
     setSelection: (ids) => run((h) => h.setSelection(ids)),
     get viewport() {
       return host ? host.viewport : view;

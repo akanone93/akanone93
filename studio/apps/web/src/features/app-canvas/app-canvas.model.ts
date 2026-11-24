@@ -6,8 +6,8 @@ import type { DocumentDraft } from "../editor/edit-session.ts";
 import type { JsonValue } from "../editor/json-patch.ts";
 
 /**
- * The pure model of the app canvas (C1, STU-030, STU-032, STU-035): boxes, snapping with guides,
- * selection, zoom to fit, automatic layout and the shape of the app-level `canvas` document.
+ * The pure model of the app canvas (C1, STU-030, STU-032, STU-035): boxes, selection, zoom to fit, automatic
+ * layout and the shape of the app-level `canvas` document.
  * Nothing here touches React, the network or the clock.
  */
 
@@ -23,8 +23,6 @@ export interface Size {
 
 /** World size of a plugin box. */
 export const BOX: Size = { width: 260, height: 152 };
-/** Distance in world units within which a box snaps to another box's edge or centre. */
-export const SNAP_DISTANCE = 6;
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 4;
 
@@ -247,104 +245,6 @@ export function placeBoxes(
     const at = saved.get(p.id) ?? laid.get(p.id) ?? { x: 0, y: 0 };
     return { id: p.id, key: p.key, x: at.x, y: at.y };
   });
-}
-
-export interface Guide {
-  readonly axis: "x" | "y";
-  /** World coordinate of the guide line. */
-  readonly at: number;
-}
-
-export interface Snapped {
-  readonly point: Point;
-  readonly guides: readonly Guide[];
-  /** Each axis's snap, for the next move to hold (hysteresis). */
-  readonly held: { readonly x?: AxisHold | undefined; readonly y?: AxisHold | undefined };
-}
-
-/** A held snap: the line an axis sits on and which of the box's lines (start 0, centre 1, end 2) sits there. */
-export interface AxisHold {
-  readonly at: number;
-  readonly mine: 0 | 1 | 2;
-}
-
-interface AxisSnap {
-  readonly value: number;
-  readonly guide: Guide;
-  readonly hold: AxisHold;
-}
-
-/** How much farther than the snap distance a held snap lets go (no flicker at the threshold). */
-const SNAP_RELEASE = 2;
-
-/**
- * Snaps one axis of a box to the nearest edge or centre of another box in range. A snap held from the last move stays
- * while its line is within twice the distance: near the threshold the box no longer flips between snapped and free on
- * every pixel, which read as a vibration while dragging.
- */
-function snapAxis(
-  value: number,
-  extent: number,
-  starts: readonly number[],
-  kind: "x" | "y",
-  distance: number,
-  held: AxisHold | undefined,
-): AxisSnap | undefined {
-  const mines = [0, extent / 2, extent] as const;
-  const targets = starts.flatMap((base) => [base, base + extent / 2, base + extent]);
-  if (held !== undefined && targets.some((t) => Math.abs(t - held.at) < 1e-6)) {
-    const delta = held.at - (value + mines[held.mine]);
-    if (Math.abs(delta) <= distance * SNAP_RELEASE) {
-      return { value: value + delta, guide: { axis: kind, at: held.at }, hold: held };
-    }
-  }
-  let best: { delta: number; at: number; mine: 0 | 1 | 2 } | undefined;
-  for (const target of targets) {
-    mines.forEach((m, i) => {
-      const delta = target - (value + m);
-      if (Math.abs(delta) <= distance && (best === undefined || Math.abs(delta) < Math.abs(best.delta))) {
-        best = { delta, at: target, mine: i as 0 | 1 | 2 };
-      }
-    });
-  }
-  return best === undefined
-    ? undefined
-    : { value: value + best.delta, guide: { axis: kind, at: best.at }, hold: { at: best.at, mine: best.mine } };
-}
-
-/**
- * Snaps a box being dragged to the edges and centres of the other boxes; returns the guides to draw. Each axis snaps
- * to the nearest candidate within `distance` (world units: the caller divides the screen distance by the zoom), and
- * keeps the snap `held` from the last move while the box stays near it.
- */
-export function snap(
-  moving: Point,
-  others: readonly Point[],
-  size: Size = BOX,
-  distance: number = SNAP_DISTANCE,
-  held: Snapped["held"] = {},
-): Snapped {
-  const sx = snapAxis(
-    moving.x,
-    size.width,
-    others.map((o) => o.x),
-    "x",
-    distance,
-    held.x,
-  );
-  const sy = snapAxis(
-    moving.y,
-    size.height,
-    others.map((o) => o.y),
-    "y",
-    distance,
-    held.y,
-  );
-  return {
-    point: { x: sx?.value ?? moving.x, y: sy?.value ?? moving.y },
-    guides: [sx?.guide, sy?.guide].filter((g): g is Guide => g !== undefined),
-    held: { x: sx?.hold, y: sy?.hold },
-  };
 }
 
 /** Click selects one; with `additive` it toggles; the result is a new set. */

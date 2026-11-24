@@ -30,7 +30,7 @@ function rig(type: string) {
   const surface = {
     viewport: { x: 0, y: 0, zoom: 1 },
     boundsOf: (item: string) => boxes[item.split("/")[1] ?? ""],
-    setGuides: () => undefined,
+    setIndicator: () => undefined,
   } as unknown as CanvasSurface;
   const handlers = insertDropHandlers({
     surface: () => surface,

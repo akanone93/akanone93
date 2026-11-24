@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, expect, test } from "bun:test";
-import type { Guides } from "@plux/canvas";
 import { createStore } from "zustand/vanilla";
 import type { Node } from "../plugin-model.ts";
 import type { Point } from "../positions.ts";
@@ -54,7 +53,8 @@ interface Rig {
   readonly ids: () => readonly string[];
   readonly draft: Node & { children: Node[] };
   readonly edits: { doc: string; group: string | undefined }[];
-  readonly guides: (Guides | null)[];
+  /** The ghost box the overlay showed after each change. */
+  readonly ghosts: (Box | null)[];
   readonly previews: ReadonlyMap<string, Point>[];
   readonly commits: ReadonlyMap<string, Point>[];
   readonly picks: (readonly string[])[];
@@ -82,7 +82,7 @@ function rig(
   const store = selectionStoreOf(createStore<{ selection: sel.Selection }>(() => ({ selection: sel.emptySelection })));
   const draft = JSON.parse(JSON.stringify(tree)) as Node & { children: Node[] };
   const edits: Rig["edits"] = [];
-  const guides: Rig["guides"] = [];
+  const ghosts: Rig["ghosts"] = [];
   const previews: Rig["previews"] = [];
   const commits: Rig["commits"] = [];
   const picks: Rig["picks"] = [];
@@ -90,7 +90,7 @@ function rig(
   const renames: string[] = [];
   const pans: Rig["pans"] = [];
   const overlay = createOverlayStore();
-  overlay.subscribe(() => guides.push(overlay.get().guides));
+  overlay.subscribe(() => ghosts.push(overlay.get().ghost));
   const edit: EditFn = (doc, recipe, o) => {
     edits.push({ doc, group: o?.group });
     recipe(draft);
@@ -179,7 +179,7 @@ function rig(
     ids: () => store.get().ids,
     draft,
     edits,
-    guides,
+    ghosts,
     previews,
     commits,
     picks,
@@ -282,12 +282,13 @@ describe("[STU-067] picking on the canvas", () => {
 });
 
 describe("[STU-067] dragging widgets", () => {
-  test("[STU-067] dragging a Stack child shows guides, then moves its Positioned left/top", () => {
+  test("[STU-067] dragging a Stack child shows its box, then moves its Positioned left/top", () => {
     const r = rig();
     r.select("t");
     drag(r, [20, 20], [30, 35]);
-    expect(r.guides.some((g) => g !== null)).toBe(true);
-    expect(r.overlay.get().guides).toBeNull();
+    expect(r.ghosts.some((g) => g !== null)).toBe(true);
+    expect(r.overlay.get().ghost).toBeNull();
+    expect(r.overlay.get().indicator).toBeNull();
     expect(r.edits).toEqual([{ doc: "s", group: "move" }]);
     expect(r.draft.children[0]?.children?.[0]?.props as unknown).toEqual({ left: 10, top: 15 });
   });
@@ -306,7 +307,7 @@ describe("[STU-067] dragging widgets", () => {
     r.select("a");
     r.h.onPointerDown(ev(50, 220));
     r.h.onPointerMove(ev(250, 250));
-    expect(r.overlay.get().guides?.indicator).toBeDefined();
+    expect(r.overlay.get().indicator).not.toBeNull();
     expect(r.overlay.get().drop).toBe("r");
     expect(r.overlay.get().ghost).not.toBeNull();
     r.h.onPointerUp(ev(250, 250));
@@ -354,19 +355,19 @@ describe("[STU-067] dragging widgets", () => {
 });
 
 describe("[STU-050] moving screens", () => {
-  test("[STU-050] dragging a screen by its title previews it live, snaps to the others and saves every place", () => {
+  test("[STU-050] dragging a screen by its title previews it live and saves every place, on whole units", () => {
     const r = rig();
     drag(r, [1100, -20], [900, -27]);
     expect(r.ids()).toEqual(["q0"]);
     expect(r.previews.length).toBeGreaterThan(0);
-    // Its top snaps to the other screen's top (-10) within 6 px; x moves freely.
+    // It follows the pointer exactly: no snapping to the other screens (ADR-0110).
     expect(r.commits).toEqual([
       new Map([
         ["s", { x: -10, y: -10 }],
-        ["s2", { x: 800, y: -10 }],
+        ["s2", { x: 800, y: -7 }],
       ]),
     ]);
-    expect(r.overlay.get().guides).toBeNull();
+    expect(r.overlay.get().indicator).toBeNull();
     expect(r.edits).toEqual([]);
   });
 

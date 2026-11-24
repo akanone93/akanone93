@@ -14,9 +14,8 @@ import {
   pluginKeyFrom,
   readSavedCanvas,
   select,
-  snap,
 } from "./app-canvas.model.ts";
-import { GestureTracker, guideLines, WHEEL_REST_MS } from "./use-canvas-gestures.ts";
+import { GestureTracker, WHEEL_REST_MS } from "./use-canvas-gestures.ts";
 
 describe("app canvas model [STU-030] [STU-032]", () => {
   test("auto layout ranks linked plugins left to right and is deterministic", () => {
@@ -42,14 +41,6 @@ describe("app canvas model [STU-030] [STU-032]", () => {
     );
     expect(boxes[0]).toMatchObject({ x: 500, y: 40 });
     expect(boxes[1]?.key).toBe("b");
-  });
-
-  test("snapping aligns edges and centres within range and reports guides", () => {
-    const s = snap({ x: 103, y: 400 }, [{ x: 100, y: 0 }]);
-    expect(s.point).toEqual({ x: 100, y: 400 });
-    expect(s.guides).toEqual([{ axis: "x", at: 100 }]);
-    const centre = snap({ x: 0, y: 100 + BOX.height / 2 - BOX.height / 2 + 4 }, [{ x: 0, y: 100 }]);
-    expect(centre.point.y).toBe(100);
   });
 
   test("selection toggles with the additive key and a marquee selects what it touches", () => {
@@ -138,28 +129,6 @@ describe("app canvas model [STU-030] [STU-032]", () => {
   });
 });
 
-describe("snap guides [STU-032]", () => {
-  test("a guide runs from the dragged box to the boxes it aligns with, a little past both", () => {
-    const moved = { x: 0, y: 300 };
-    const lines = guideLines(
-      [
-        { axis: "x", at: 0 },
-        { axis: "y", at: 300 + BOX.height },
-      ],
-      moved,
-      [
-        { x: 0, y: 0 },
-        { x: 500, y: 300 },
-        { x: 900, y: 900 },
-      ],
-    );
-    expect(lines).toEqual([
-      { axis: "x", at: 0, from: -12, to: 300 + BOX.height + 12 },
-      { axis: "y", at: 300 + BOX.height, from: -12, to: 500 + BOX.width + 12 },
-    ]);
-  });
-});
-
 describe("view gestures reach the worker (M-12) [STU-032]", () => {
   test("a burst of wheel steps is one gesture, ended once the wheel rests; a new kind ends the old one", async () => {
     const calls: string[] = [];
@@ -174,16 +143,5 @@ describe("view gestures reach the worker (M-12) [STU-032]", () => {
     expect(calls).toEqual(["zoom:true", "zoom:false", "pan:true"]);
     await new Promise((resolve) => setTimeout(resolve, WHEEL_REST_MS + 40));
     expect(calls).toEqual(["zoom:true", "zoom:false", "pan:true", "pan:false"]);
-  });
-});
-
-describe("[STU-032] app canvas snapping follows the zoom and holds", () => {
-  test("the distance is the caller's, in world units, and a snap is held while the box stays near", () => {
-    const zoomedOut = snap({ x: 112, y: 400 }, [{ x: 100, y: 0 }], BOX, 6 / 0.5);
-    expect(zoomedOut.point.x).toBe(100);
-    const held = snap({ x: 109, y: 400 }, [{ x: 100, y: 0 }], BOX, 6, zoomedOut.held);
-    expect(held.point.x).toBe(100);
-    const free = snap({ x: 120, y: 400 }, [{ x: 100, y: 0 }], BOX, 6, held.held);
-    expect(free.point.x).toBe(120);
   });
 });
