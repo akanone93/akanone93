@@ -121,6 +121,17 @@ export function clipboardMessages(i18n: I18n) {
       message: "The pasted elements do not pass validation.",
       comment: "Why a paste was refused: the validator rejected the elements.",
     }),
+    refusedNoWidgets: i18n._({
+      id: "clipboard.refusedNoWidgets",
+      message: "The clipboard holds no widgets. Copy widgets on a canvas, or a widget's JSON, and paste again.",
+      comment: "Why a paste did nothing: the clipboard holds plain text, not widgets or widget JSON.",
+    }),
+    refusedNoPlace: i18n._({
+      id: "clipboard.refusedNoPlace",
+      message:
+        "This screen has no column, row or other list to paste into. Add one, select a widget in it and paste again.",
+      comment: "Why a paste was refused: nothing on the screen can hold more widgets (every parent takes one child).",
+    }),
     droppedTitle: i18n._({
       id: "clipboard.droppedTitle",
       message: "Some items were not copied",

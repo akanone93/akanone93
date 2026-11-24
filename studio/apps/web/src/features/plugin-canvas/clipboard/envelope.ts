@@ -93,10 +93,16 @@ export function buildEnvelope(source: ClipboardSource, nodes: readonly unknown[]
   };
 }
 
-export type RefusalReason = "too-large" | "unknown-version" | "malformed" | "invalid";
+/**
+ * Why a paste was refused; `no-widgets`: the clipboard holds text that is neither an envelope nor widget JSON;
+ * `no-place`: the screen has no list a widget can join (#75).
+ */
+export type RefusalReason = "too-large" | "unknown-version" | "malformed" | "invalid" | "no-widgets" | "no-place";
 
 export type ParseResult =
   | { readonly kind: "envelope"; readonly envelope: Envelope }
+  /** Widget JSON from outside an envelope — a node or a list of nodes, as the JSON editor or the docs show them (#75). */
+  | { readonly kind: "nodes"; readonly nodes: readonly unknown[] }
   | { readonly kind: "text"; readonly text: string }
   | { readonly kind: "refused"; readonly reason: RefusalReason; readonly detail?: string };
 
@@ -106,6 +112,8 @@ export type NodeValidator = (nodes: readonly unknown[]) => Promise<readonly stri
 export interface ParseOptions {
   readonly maxBytes?: number;
   readonly validate: NodeValidator;
+  /** Makes the id a node of bare widget JSON lacks; UUIDv7 by default. */
+  readonly newId?: () => string;
 }
 
 const DEPENDENCY_KINDS: readonly DependencyKind[] = ["functions", "translations", "assets", "dataSources"];
@@ -154,10 +162,45 @@ function tryJson(text: string): unknown {
   }
 }
 
+/** A widget node as JSON shows one: an object with a string `type`. */
+const isWidget = (v: unknown): v is Record<string, unknown> => isRecord(v) && typeof v["type"] === "string";
+
+/** The nodes of widget JSON outside an envelope — one node, or a non-empty list of them — or undefined. */
+function widgetsOf(data: unknown): readonly Record<string, unknown>[] | undefined {
+  if (isWidget(data)) {
+    return [data];
+  }
+  return Array.isArray(data) && data.length > 0 && data.every(isWidget) ? data : undefined;
+}
+
+/** `node` and every node below it (slots and children) with an id, a new one where it had none. */
+function withIds(node: unknown, newId: () => string): unknown {
+  if (!isRecord(node)) {
+    return node;
+  }
+  const out: Record<string, unknown> = { ...node };
+  if (typeof out["type"] === "string" && typeof out["id"] !== "string") {
+    out["id"] = newId();
+  }
+  if (Array.isArray(out["children"])) {
+    out["children"] = out["children"].map((c) => withIds(c, newId));
+  }
+  if (isRecord(out["slots"])) {
+    out["slots"] = Object.fromEntries(
+      Object.entries(out["slots"]).map(([k, v]) => [
+        k,
+        Array.isArray(v) ? v.map((c) => withIds(c, newId)) : withIds(v, newId),
+      ]),
+    );
+  }
+  return out;
+}
+
 /**
- * Parses clipboard text as untrusted data. Over the registry cap it is refused unread; anything that is not
- * an envelope is plain text only; an envelope of an unknown version, a malformed one or one the validator
- * rejects is refused. Nothing is ever interpreted as HTML.
+ * Parses clipboard text as untrusted data. Over the registry cap it is refused unread. An envelope of an unknown
+ * version, a malformed one or one the validator rejects is refused. Widget JSON outside an envelope — one node or a
+ * list, copied from the JSON editor or the docs — is taken through the same validator, with ids given where it has none
+ * (#75); any other text is only text. Nothing is ever interpreted as HTML.
  */
 export async function parseClipboard(text: string, options: ParseOptions): Promise<ParseResult> {
   const cap = options.maxBytes ?? limitDefault("studio.clipboardBytes");
@@ -165,6 +208,14 @@ export async function parseClipboard(text: string, options: ParseOptions): Promi
     return { kind: "refused", reason: "too-large" };
   }
   const data = tryJson(text);
+  const bare = isRecord(data) && data["format"] === CLIPBOARD_MIME ? undefined : widgetsOf(data);
+  if (bare !== undefined) {
+    const nodes = bare.map((n) => withIds(n, options.newId ?? uuidv7));
+    const problems = await options.validate(nodes);
+    return problems.length > 0
+      ? { kind: "refused", reason: "invalid", detail: problems[0] ?? "" }
+      : { kind: "nodes", nodes };
+  }
   if (!isRecord(data) || data["format"] !== CLIPBOARD_MIME) {
     return { kind: "text", text };
   }

@@ -18105,6 +18105,12 @@ msgstr "The clipboard content is damaged."
 msgid "clipboard.refusedTooLarge"
 msgstr "The clipboard holds more than the size limit allows."
 
+#. Why a paste did nothing: the clipboard holds plain text, not widgets or widget JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedNoWidgets"
+msgstr "The clipboard holds no widgets. Copy widgets on a canvas, or a widget's JSON, and paste again."
+
 #. Title of the dialog that tells the clipboard content was refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -19671,6 +19677,12 @@ msgstr "This scenario reported no steps."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.blockedTitle"
 msgstr "This screen cannot be deleted"
+
+#. Why a paste was refused: nothing on the screen can hold more widgets (every parent takes one child).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedNoPlace"
+msgstr "This screen has no column, row or other list to paste into. Add one, select a widget in it and paste again."
 
 #. Shown when a screen cannot be deleted while edits are waiting to be saved.
 #. js-lingui-explicit-id

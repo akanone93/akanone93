@@ -103,4 +103,17 @@ describe("[STU-067] the paste dependency report (D34, F7)", () => {
     expect(await screen.findByText("The clipboard holds more than the size limit allows.")).toBeTruthy();
     expect(screen.queryByText("Paste with these choices")).toBeNull();
   });
+
+  test("a paste of plain text says the clipboard holds no widgets (#75)", async () => {
+    renderI18n(
+      <ClipboardReportDialog
+        items={undefined}
+        candidates={has([])}
+        refusal="no-widgets"
+        onConfirm={() => undefined}
+        onClose={() => undefined}
+      />,
+    );
+    expect(await screen.findByText(/The clipboard holds no widgets/)).toBeTruthy();
+  });
 });

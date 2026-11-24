@@ -18105,6 +18105,12 @@ msgstr "محتوى الحافظة تالف."
 msgid "clipboard.refusedTooLarge"
 msgstr "تحتوي الحافظة على أكثر مما يسمح به حد الحجم."
 
+#. Why a paste did nothing: the clipboard holds plain text, not widgets or widget JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedNoWidgets"
+msgstr "لا تحتوي الحافظة على عناصر واجهة. انسخ عناصر من لوحة، أو انسخ JSON لعنصر، ثم الصق مرة أخرى."
+
 #. Title of the dialog that tells the clipboard content was refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -19671,6 +19677,12 @@ msgstr "لم يُبلِّغ هذا السيناريو عن أي خطوات."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.blockedTitle"
 msgstr "لا يمكن حذف هذه الشاشة"
+
+#. Why a paste was refused: nothing on the screen can hold more widgets (every parent takes one child).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedNoPlace"
+msgstr "لا تحتوي هذه الشاشة على عمود أو صف أو قائمة أخرى للّصق فيها. أضف واحدة، واختر عنصرًا فيها، ثم الصق مرة أخرى."
 
 #. Shown when a screen cannot be deleted while edits are waiting to be saved.
 #. js-lingui-explicit-id

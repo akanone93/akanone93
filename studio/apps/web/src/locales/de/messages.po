@@ -18105,6 +18105,12 @@ msgstr "Der Inhalt der Zwischenablage ist beschädigt."
 msgid "clipboard.refusedTooLarge"
 msgstr "Die Zwischenablage enthält mehr, als das Größenlimit erlaubt."
 
+#. Why a paste did nothing: the clipboard holds plain text, not widgets or widget JSON.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedNoWidgets"
+msgstr "Die Zwischenablage enthält keine Widgets. Kopieren Sie Widgets auf einer Arbeitsfläche oder das JSON eines Widgets und fügen Sie erneut ein."
+
 #. Title of the dialog that tells the clipboard content was refused.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
@@ -19671,6 +19677,12 @@ msgstr "Dieses Szenario hat keine Schritte gemeldet."
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.blockedTitle"
 msgstr "Dieser Bildschirm kann nicht gelöscht werden"
+
+#. Why a paste was refused: nothing on the screen can hold more widgets (every parent takes one child).
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/clipboard/clipboard.messages.ts
+msgid "clipboard.refusedNoPlace"
+msgstr "Dieser Bildschirm hat keine Spalte, Zeile oder andere Liste zum Einfügen. Fügen Sie eine hinzu, wählen Sie ein Widget darin aus und fügen Sie erneut ein."
 
 #. Shown when a screen cannot be deleted while edits are waiting to be saved.
 #. js-lingui-explicit-id

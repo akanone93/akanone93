@@ -49,6 +49,35 @@ describe("[STU-067] [STU-055] the clipboard envelope", () => {
     expect((await parseClipboard('{"a":1}', { validate: ok })).kind).toBe("text");
   });
 
+  test("widget JSON outside an envelope is taken as nodes, through the validator, ids given where missing (#75)", async () => {
+    let n = 0;
+    const newId = () => `new-${++n}`;
+    const one = { type: "Text", props: { data: "Hi" } };
+    const r = await parseClipboard(JSON.stringify(one), { validate: ok, newId });
+    expect(r).toEqual({ kind: "nodes", nodes: [{ id: "new-1", type: "Text", props: { data: "Hi" } }] });
+    const list = [
+      { id: "a", type: "Column", children: [{ type: "Text" }], slots: { x: { type: "Icon" } } },
+      { id: "b", type: "Divider" },
+    ];
+    const many = await parseClipboard(JSON.stringify(list), { validate: ok, newId });
+    expect(many.kind === "nodes" ? many.nodes : []).toEqual([
+      {
+        id: "a",
+        type: "Column",
+        children: [{ id: "new-2", type: "Text" }],
+        slots: { x: { id: "new-3", type: "Icon" } },
+      },
+      { id: "b", type: "Divider" },
+    ]);
+    // The same checks as an envelope's: what the validator rejects is refused; the size cap holds.
+    const refused = await parseClipboard(JSON.stringify(one), { validate: async () => ["unknown widget"], newId });
+    expect(refused).toEqual({ kind: "refused", reason: "invalid", detail: "unknown widget" });
+    expect((await parseClipboard(JSON.stringify(one), { validate: ok, maxBytes: 4 })).kind).toBe("refused");
+    // Neither a list with a non-widget nor an empty list is widget JSON.
+    expect((await parseClipboard(JSON.stringify([one, 1]), { validate: ok })).kind).toBe("text");
+    expect((await parseClipboard("[]", { validate: ok })).kind).toBe("text");
+  });
+
   test("an oversized paste is refused unread", async () => {
     const r = await parseClipboard(JSON.stringify(buildEnvelope(source, nodes())), { validate: ok, maxBytes: 10 });
     expect(r).toEqual({ kind: "refused", reason: "too-large" });

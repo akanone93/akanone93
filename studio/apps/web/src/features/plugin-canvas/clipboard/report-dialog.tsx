@@ -108,6 +108,8 @@ export function ClipboardReportDialog({
     "unknown-version": m.refusedVersion,
     malformed: m.refusedMalformed,
     invalid: m.refusedInvalid,
+    "no-widgets": m.refusedNoWidgets,
+    "no-place": m.refusedNoPlace,
   };
   const reason = { forbidden: m.dropForbidden, limit: m.dropLimit, rejected: m.dropRejected };
   const change = (item: ReportItem, next: Resolution) =>

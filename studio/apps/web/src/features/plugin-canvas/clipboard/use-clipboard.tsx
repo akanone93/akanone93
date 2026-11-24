@@ -26,18 +26,77 @@ import {
 } from "./envelope.ts";
 import { ClipboardReportDialog } from "./report-dialog.tsx";
 
-/** Inserts `nodes` after `anchor` in its children list, or at the end of the root's children without an anchor. */
+type Node = Record<string, unknown>;
+const isNode = (v: unknown): v is Node => typeof v === "object" && v !== null && !Array.isArray(v);
+
+/** The lists below `node` that hold widgets — its `children`, then each list slot — in document order, depth first. */
+function firstList(node: unknown): unknown[] | undefined {
+  if (!isNode(node)) {
+    return undefined;
+  }
+  if (Array.isArray(node["children"])) {
+    return node["children"];
+  }
+  const slots = isNode(node["slots"]) ? Object.values(node["slots"]) : [];
+  for (const slot of slots) {
+    const found = Array.isArray(slot) ? slot : firstList(slot);
+    if (found !== undefined) {
+      return found;
+    }
+  }
+  return undefined;
+}
+
+/** The chain from `node` down to the node `id`: each step's list and index, or null for a single-child slot. */
+function chainTo(node: unknown, id: string): { list: unknown[] | null; index: number }[] | undefined {
+  if (!isNode(node)) {
+    return undefined;
+  }
+  if (node["id"] === id) {
+    return [];
+  }
+  const below = (child: unknown, list: unknown[] | null, index: number) => {
+    const rest = chainTo(child, id);
+    return rest === undefined ? undefined : [{ list, index }, ...rest];
+  };
+  const kids = Array.isArray(node["children"]) ? node["children"] : [];
+  for (const [i, child] of kids.entries()) {
+    const found = below(child, kids, i);
+    if (found !== undefined) {
+      return found;
+    }
+  }
+  for (const slot of isNode(node["slots"]) ? Object.values(node["slots"]) : []) {
+    const found = Array.isArray(slot)
+      ? slot.map((child, i) => below(child, slot, i)).find((f) => f !== undefined)
+      : below(slot, null, -1);
+    if (found !== undefined) {
+      return found;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Where pasted nodes go in a screen (#75): right after the anchor when it sits in a list, else after its nearest
+ * ancestor that does; with no anchor, or none in a list, at the end of the screen's first list. Undefined when the
+ * screen has no list at all: a widget is never put where its parent takes none.
+ */
+export function pastePlace(root: unknown, anchor: string | undefined): { list: unknown[]; index: number } | undefined {
+  const chain = anchor === undefined ? undefined : chainTo(root, anchor);
+  const inList = chain?.filter((step) => step.list !== null).at(-1);
+  if (inList?.list != null) {
+    return { list: inList.list, index: inList.index + 1 };
+  }
+  const list = firstList(root);
+  return list === undefined ? undefined : { list, index: list.length };
+}
+
+/** Pastes `nodes` into the screen whose root the draft is, where `pastePlace` puts them; nothing where it puts none. */
 export function pasteRecipe(anchor: string | undefined, nodes: readonly unknown[]): (draft: unknown) => void {
   return (draft) => {
-    const place = anchor === undefined ? null : findNode(draft, anchor);
-    if (place?.list != null) {
-      place.list.splice(place.index + 1, 0, ...nodes);
-      return;
-    }
-    const root = draft as { children?: unknown[] } | null;
-    if (root !== null && typeof root === "object") {
-      root.children = [...(Array.isArray(root.children) ? root.children : []), ...nodes];
-    }
+    const place = pastePlace(draft, anchor);
+    place?.list.splice(place.index, 0, ...nodes);
   };
 }
 
@@ -169,6 +228,11 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
       if (doc === undefined) {
         return;
       }
+      if (pastePlace(screens.find((s) => s.id === doc)?.root, anchor) === undefined) {
+        // The screen holds no list a widget can join; nothing is copied over for a paste that cannot land.
+        setRefusal("no-place");
+        return;
+      }
       let resolved = choices;
       const wanted = copyItems(items, choices);
       if (input.copyOver !== undefined && wanted.length > 0) {
@@ -200,6 +264,12 @@ export function useClipboard(input: ClipboardInput): ReactElement | null {
     const result = await parseClipboard(await readEnvelopeText(board), { validate });
     if (result.kind === "refused") {
       setRefusal(result.reason);
+    } else if (result.kind === "text") {
+      // A paste that does nothing says why (#75).
+      setRefusal("no-widgets");
+    } else if (result.kind === "nodes") {
+      // Widget JSON from outside an envelope: pasted as if copied here, its references checked by the validator.
+      await apply(buildEnvelope(source, result.nodes), []);
     } else if (result.kind === "envelope") {
       const items = planReport(result.envelope, source, has);
       if (items.length > 0) {
