@@ -246,6 +246,12 @@ msgstr "{count, plural, zero {لا ملاحظات} one {ملاحظة واحدة}
 msgid "notify.type.unknown"
 msgstr "{count, plural, zero {لا إشعار} one {إشعار} two {إشعاران} few {# إشعارات} many {# إشعارًا} other {# إشعارًا}}"
 
+#. Heading of the app canvas's panel of actions on several selected plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.selected"
+msgstr "{count, plural, zero {لم تُحدَّد أي إضافة} one {إضافة واحدة محددة} two {إضافتان محددتان} few {# إضافات محددة} many {# إضافة محددة} other {# إضافة محددة}}"
+
 #. Under the app's name on the canvas: how many plugins the app has.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -304,6 +310,24 @@ msgstr "{count, plural, zero {لا تحذيرات} one {تحذير واحد} two
 msgid "panel.multiTitle"
 msgstr "{count, plural, zero {لا عناصر واجهة} one {عنصر واجهة واحد} two {عنصرا واجهة} few {# عناصر واجهة} many {# عنصر واجهة} other {# عنصر واجهة}}"
 
+#. Question that asks to confirm archiving several plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.archiveConfirm"
+msgstr "{count, plural, zero {لا شيء للأرشفة.} one {أرشفة إضافة واحدة؟ تبقى في التطبيق، مُعلَّمة كمؤرشفة، ويمكن استعادتها.} two {أرشفة إضافتين؟ تبقيان في التطبيق، مُعلَّمتين كمؤرشفتين، ويمكن استعادتهما.} few {أرشفة # إضافات؟ تبقى في التطبيق، مُعلَّمة كمؤرشفة، ويمكن استعادتها.} many {أرشفة # إضافة؟ تبقى في التطبيق، مُعلَّمة كمؤرشفة، ويمكن استعادتها.} other {أرشفة # إضافة؟ تبقى في التطبيق، مُعلَّمة كمؤرشفة، ويمكن استعادتها.}}"
+
+#. Button and title: archive the selected plugins that are not archived yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.archive"
+msgstr "{count, plural, zero {أرشفة لا شيء} one {أرشفة إضافة واحدة} two {أرشفة إضافتين} few {أرشفة # إضافات} many {أرشفة # إضافة} other {أرشفة # إضافة}}"
+
+#. Button: copy each selected plugin under a numbered name and a new key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.duplicate"
+msgstr "{count, plural, zero {تكرار لا شيء} one {تكرار إضافة واحدة} two {تكرار إضافتين} few {تكرار # إضافات} many {تكرار # إضافة} other {تكرار # إضافة}}"
+
 #. The developer console's state while devices are connected: how many.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -321,6 +345,12 @@ msgstr "{count, plural, zero {ليس عضوًا في أي منظمة} one {عض�
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "chip.offline-waiting"
 msgstr "{count, plural, zero {غير متصل} one {غير متصل — تغيير واحد بانتظار الحفظ} two {غير متصل — تغييران بانتظار الحفظ} few {غير متصل — # تغييرات بانتظار الحفظ} many {غير متصل — # تغييرًا بانتظار الحفظ} other {غير متصل — # تغيير بانتظار الحفظ}}"
+
+#. Button: bring the selected archived plugins back.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.restore"
+msgstr "{count, plural, zero {استعادة لا شيء} one {استعادة إضافة واحدة} two {استعادة إضافتين} few {استعادة # إضافات} many {استعادة # إضافة} other {استعادة # إضافة}}"
 
 #. Result after a restore; the count is the number of documents that changed.
 #. js-lingui-explicit-id
@@ -2875,6 +2905,12 @@ msgstr "العربية"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.action.archive"
 msgstr "أرشفة"
+
+#. Question that asks to confirm archiving one plugin (not deleting it).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.archiveConfirm"
+msgstr "أرشفة {name}؟ تبقى في التطبيق، مُعلَّمة كمؤرشفة ومستبعدة من العمل الجديد، ويمكن استعادتها."
 
 #. Label of the file input for a .plux archive.
 #. js-lingui-explicit-id
@@ -11705,6 +11741,12 @@ msgstr "غير منشورة في {environment}: تفشل الاستدعاءات 
 msgid "pluginCanvas.dropNotice"
 msgstr "لم يُفلَت: {reason}"
 
+#. Message when one of several plugin changes was refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.failed"
+msgstr "تعذر تغيير كل الإضافات: أوقف الرفض الأول الباقي. تُظهر اللوحة ما تم."
+
 #. Badge of a key whose registration was started but not completed; it cannot be used.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -17708,6 +17750,12 @@ msgstr "لا يمكن تحرير مستند التطبيق الآن، لذا ل�
 #: apps/web/src/features/panels/instance-card.messages.ts
 msgid "instanceCard.missing"
 msgstr "لا يملك التطبيق هذا المكوّن: لا يمكن للوحة رسمه"
+
+#. STU-074: why archiving several plugins asks for the app's key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.productionNote"
+msgstr "للتطبيق إصدار إنتاج. اكتب مفتاح التطبيق للتأكيد."
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id

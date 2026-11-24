@@ -246,6 +246,12 @@ msgstr "{count, plural, one {# note} other {# notes}}"
 msgid "notify.type.unknown"
 msgstr "{count, plural, one {# notification} other {# notifications}}"
 
+#. Heading of the app canvas's panel of actions on several selected plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.selected"
+msgstr "{count, plural, one {# plugin selected} other {# plugins selected}}"
+
 #. Under the app's name on the canvas: how many plugins the app has.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -304,6 +310,24 @@ msgstr "{count, plural, one {# warning} other {# warnings}}"
 msgid "panel.multiTitle"
 msgstr "{count, plural, one {# widget} other {# widgets}}"
 
+#. Question that asks to confirm archiving several plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.archiveConfirm"
+msgstr "{count, plural, one {Archive # plugin? It stays in the app, marked archived, and can be restored.} other {Archive # plugins? They stay in the app, marked archived, and can be restored.}}"
+
+#. Button and title: archive the selected plugins that are not archived yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.archive"
+msgstr "{count, plural, one {Archive # plugin} other {Archive # plugins}}"
+
+#. Button: copy each selected plugin under a numbered name and a new key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.duplicate"
+msgstr "{count, plural, one {Duplicate # plugin} other {Duplicate # plugins}}"
+
 #. The developer console's state while devices are connected: how many.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -321,6 +345,12 @@ msgstr "{count, plural, one {Member of # organisation} other {Member of # organi
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "chip.offline-waiting"
 msgstr "{count, plural, one {Offline — # change waiting} other {Offline — # changes waiting}}"
+
+#. Button: bring the selected archived plugins back.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.restore"
+msgstr "{count, plural, one {Restore # plugin} other {Restore # plugins}}"
 
 #. Result after a restore; the count is the number of documents that changed.
 #. js-lingui-explicit-id
@@ -2875,6 +2905,12 @@ msgstr "Arabic"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.action.archive"
 msgstr "Archive"
+
+#. Question that asks to confirm archiving one plugin (not deleting it).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.archiveConfirm"
+msgstr "Archive {name}? It stays in the app, marked archived and left out of new work, and can be restored."
 
 #. Label of the file input for a .plux archive.
 #. js-lingui-explicit-id
@@ -11705,6 +11741,12 @@ msgstr "Not deployed in {environment}: the calls to it fail"
 msgid "pluginCanvas.dropNotice"
 msgstr "Not dropped: {reason}"
 
+#. Message when one of several plugin changes was refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.failed"
+msgstr "Not every plugin could be changed: the first refusal stopped the rest. The canvas shows what was done."
+
 #. Badge of a key whose registration was started but not completed; it cannot be used.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -17708,6 +17750,12 @@ msgstr "The app document cannot be edited now, so its variables cannot be added.
 #: apps/web/src/features/panels/instance-card.messages.ts
 msgid "instanceCard.missing"
 msgstr "The app does not have this component: the canvas cannot draw it"
+
+#. STU-074: why archiving several plugins asks for the app's key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.productionNote"
+msgstr "The app has a production release. Type the app's key to confirm."
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id

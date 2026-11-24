@@ -91,10 +91,13 @@ export function PluginSafety(props: PluginSafetyProps): ReactNode {
     });
   };
   const incomingPages = check.incoming.filter((u) => u.kind === "navigates");
+  // Archiving says it archives: it asked "Delete …? It moves to the trash" over an archive call.
   const description = deprecating
     ? m.deprecateConfirm(plugin.name, check.incoming.length)
-    : m.deleteConfirm(plugin.name);
-  const action = deprecating ? m.deprecate : m.deletePlugin;
+    : mode === "archive"
+      ? m.archiveConfirm(plugin.name)
+      : m.deleteConfirm(plugin.name);
+  const action = deprecating ? m.deprecate : mode === "archive" ? m.archive : m.deletePlugin;
 
   return (
     <>

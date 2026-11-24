@@ -246,6 +246,12 @@ msgstr "{count, plural, one {# Hinweis} other {# Hinweise}}"
 msgid "notify.type.unknown"
 msgstr "{count, plural, one {# Benachrichtigung} other {# Benachrichtigungen}}"
 
+#. Heading of the app canvas's panel of actions on several selected plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.selected"
+msgstr "{count, plural, one {# Plugin ausgewählt} other {# Plugins ausgewählt}}"
+
 #. Under the app's name on the canvas: how many plugins the app has.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -304,6 +310,24 @@ msgstr "{count, plural, one {# Warnung} other {# Warnungen}}"
 msgid "panel.multiTitle"
 msgstr "{count, plural, one {# Widget} other {# Widgets}}"
 
+#. Question that asks to confirm archiving several plugins.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.archiveConfirm"
+msgstr "{count, plural, one {# Plugin archivieren? Es bleibt in der App, als archiviert markiert, und kann wiederhergestellt werden.} other {# Plugins archivieren? Sie bleiben in der App, als archiviert markiert, und können wiederhergestellt werden.}}"
+
+#. Button and title: archive the selected plugins that are not archived yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.archive"
+msgstr "{count, plural, one {# Plugin archivieren} other {# Plugins archivieren}}"
+
+#. Button: copy each selected plugin under a numbered name and a new key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.duplicate"
+msgstr "{count, plural, one {# Plugin duplizieren} other {# Plugins duplizieren}}"
+
 #. The developer console's state while devices are connected: how many.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/devices.messages.ts
@@ -321,6 +345,12 @@ msgstr "{count, plural, one {Mitglied in # Organisation} other {Mitglied in # Or
 #: apps/web/src/features/editor/editor.messages.ts
 msgid "chip.offline-waiting"
 msgstr "{count, plural, one {Offline — # Änderung wartet} other {Offline — # Änderungen warten}}"
+
+#. Button: bring the selected archived plugins back.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.restore"
+msgstr "{count, plural, one {# Plugin wiederherstellen} other {# Plugins wiederherstellen}}"
 
 #. Result after a restore; the count is the number of documents that changed.
 #. js-lingui-explicit-id
@@ -2875,6 +2905,12 @@ msgstr "Arabisch"
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.action.archive"
 msgstr "Archivieren"
+
+#. Question that asks to confirm archiving one plugin (not deleting it).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.archiveConfirm"
+msgstr "{name} archivieren? Es bleibt in der App, als archiviert markiert und aus neuer Arbeit herausgenommen, und kann wiederhergestellt werden."
 
 #. Label of the file input for a .plux archive.
 #. js-lingui-explicit-id
@@ -11705,6 +11741,12 @@ msgstr "Nicht in {environment} bereitgestellt: Aufrufe schlagen fehl"
 msgid "pluginCanvas.dropNotice"
 msgstr "Nicht abgelegt: {reason}"
 
+#. Message when one of several plugin changes was refused.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.failed"
+msgstr "Nicht jedes Plugin konnte geändert werden: Die erste Ablehnung hat den Rest gestoppt. Das Canvas zeigt, was erledigt wurde."
+
 #. Badge of a key whose registration was started but not completed; it cannot be used.
 #. js-lingui-explicit-id
 #: apps/web/src/features/profile/profile.messages.ts
@@ -17708,6 +17750,12 @@ msgstr "Das App-Dokument kann jetzt nicht bearbeitet werden, daher können seine
 #: apps/web/src/features/panels/instance-card.messages.ts
 msgid "instanceCard.missing"
 msgstr "Die App hat diese Komponente nicht: Die Arbeitsfläche kann sie nicht zeichnen"
+
+#. STU-074: why archiving several plugins asks for the app's key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.bulk.productionNote"
+msgstr "Die App hat ein Produktions-Release. Gib zur Bestätigung den Schlüssel der App ein."
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id

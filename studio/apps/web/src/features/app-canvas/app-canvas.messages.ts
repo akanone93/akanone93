@@ -680,6 +680,59 @@ export function appCanvasMessages(i18n: I18n) {
         comment: "Button under a plugin's first error in its detail panel: opens the app's Problems tab at the plugin.",
         values: { count },
       }),
+    archiveConfirm: (name: string) =>
+      i18n._({
+        id: "appCanvas.archiveConfirm",
+        message: "Archive {name}? It stays in the app, marked archived and left out of new work, and can be restored.",
+        values: { name },
+        comment: "Question that asks to confirm archiving one plugin (not deleting it).",
+      }),
+    bulkSelected: (count: number) =>
+      i18n._({
+        id: "appCanvas.bulk.selected",
+        message: "{count, plural, one {# plugin selected} other {# plugins selected}}",
+        values: { count },
+        comment: "Heading of the app canvas's panel of actions on several selected plugins.",
+      }),
+    archiveSeveral: (count: number) =>
+      i18n._({
+        id: "appCanvas.bulk.archive",
+        message: "{count, plural, one {Archive # plugin} other {Archive # plugins}}",
+        values: { count },
+        comment: "Button and title: archive the selected plugins that are not archived yet.",
+      }),
+    archiveSeveralConfirm: (count: number) =>
+      i18n._({
+        id: "appCanvas.bulk.archiveConfirm",
+        message:
+          "{count, plural, one {Archive # plugin? It stays in the app, marked archived, and can be restored.} other {Archive # plugins? They stay in the app, marked archived, and can be restored.}}",
+        values: { count },
+        comment: "Question that asks to confirm archiving several plugins.",
+      }),
+    restoreSeveral: (count: number) =>
+      i18n._({
+        id: "appCanvas.bulk.restore",
+        message: "{count, plural, one {Restore # plugin} other {Restore # plugins}}",
+        values: { count },
+        comment: "Button: bring the selected archived plugins back.",
+      }),
+    duplicateSeveral: (count: number) =>
+      i18n._({
+        id: "appCanvas.bulk.duplicate",
+        message: "{count, plural, one {Duplicate # plugin} other {Duplicate # plugins}}",
+        values: { count },
+        comment: "Button: copy each selected plugin under a numbered name and a new key.",
+      }),
+    productionNoteSeveral: i18n._({
+      id: "appCanvas.bulk.productionNote",
+      message: "The app has a production release. Type the app's key to confirm.",
+      comment: "STU-074: why archiving several plugins asks for the app's key.",
+    }),
+    bulkFailed: i18n._({
+      id: "appCanvas.bulk.failed",
+      message: "Not every plugin could be changed: the first refusal stopped the rest. The canvas shows what was done.",
+      comment: "Message when one of several plugin changes was refused.",
+    }),
     editAppJson: i18n._({
       id: "appCanvas.editAppJson",
       message: "Edit the app's documents (JSON)…",

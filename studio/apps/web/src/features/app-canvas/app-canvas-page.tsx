@@ -88,6 +88,7 @@ import {
 import { FrameTools } from "./frame-tools.tsx";
 import { LaneMenu } from "./lane-menu.tsx";
 import { latestPublisher } from "./latest-publisher.ts";
+import { PluginBulk } from "./plugin-bulk.tsx";
 import { type Dialogue, PluginDialogs } from "./plugin-dialogs.tsx";
 import { miniMapOf } from "./plugin-minimap.ts";
 import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
@@ -377,6 +378,19 @@ function useEntryKey(
     const id = entryPluginOf(loaded, pages);
     return list.find((s) => s.plugin?.id === id)?.plugin?.key ?? defaultKey ?? "";
   }, [list, loaded, pages, defaultKey]);
+}
+
+/** The plugins of the selection (#264), every plugin key of the app, and the app's key. */
+function useSelection(
+  selected: ReadonlySet<string>,
+  summaryOf: ReadonlyMap<string, PluginSummary>,
+  list: readonly PluginSummary[],
+  app: { readonly key: string } | undefined,
+) {
+  // Two or more plugins selected are acted on together; native and missing boxes are no plugins.
+  const bulk = useMemo(() => [...selected].flatMap((id) => summaryOf.get(id)?.plugin ?? []), [selected, summaryOf]);
+  const pluginKeys = useMemo(() => new Set(list.flatMap((s) => s.plugin?.key ?? [])), [list]);
+  return { bulk, pluginKeys, appKey: app?.key ?? "" };
 }
 
 /**
@@ -815,7 +829,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   };
 
   const one = selected.size === 1 ? summaryOf.get([...selected][0] ?? "") : undefined;
-  const detail = summaryOf.get(hover ?? [...selected][0] ?? "");
+  const { bulk, pluginKeys, appKey } = useSelection(selected, summaryOf, list, app.data);
+  // The pointer's plugin, else the one selected: several selected show their joint actions instead (#264).
+  const detail = summaryOf.get(hover ?? one?.plugin?.id ?? "");
 
   const detailPlugin = detail?.plugin;
   const publisher = useQuery({
@@ -941,6 +957,15 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             releases={<AppReleases org={orgKey} appId={appId} />}
             onEditJson={() => setJsonOpen(true)}
             reveal={problemReveal.reveal}
+          />
+          <PluginBulk
+            appId={appId}
+            appKey={appKey}
+            plugins={bulk}
+            keys={pluginKeys}
+            hidden={hover !== undefined}
+            onDone={() => void refresh()}
+            onFailed={setMessage}
           />
           {detail?.plugin === undefined ? null : (
             <DetailCard
