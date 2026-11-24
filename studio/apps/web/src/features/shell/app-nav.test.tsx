@@ -38,6 +38,7 @@ describe("[STU-100] to [STU-116] navigation between the areas of an app", () => 
       Approvals: `/o/${orgA}/approvals?app=app1`,
       Devices: `${base}/devices`,
       Security: `${base}/security`,
+      Gateway: `${base}/gateway`,
       Settings: `${base}/settings`,
     });
   }, 40_000);

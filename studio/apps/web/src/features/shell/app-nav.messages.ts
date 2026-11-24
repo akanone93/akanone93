@@ -104,6 +104,11 @@ export function appNavMessages(i18n: I18n) {
       message: "Security",
       comment: "Entry of the app-area navigation; names one area of an app.",
     }),
+    gateway: i18n._({
+      id: "appnav.gateway",
+      message: "Gateway",
+      comment: "Entry of the app-area navigation; names the area of the gateway's upstreams, values and user sign-in.",
+    }),
     settings: i18n._({
       id: "appnav.settings",
       message: "Settings",

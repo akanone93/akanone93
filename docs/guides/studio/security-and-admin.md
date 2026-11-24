@@ -68,6 +68,26 @@ page and action needs the matching permission; Studio says so when you lack it.
   grants** changes them, one entry per line, and a release is published only when every plugin
   requests a subset.
 
+## Gateway
+
+The **Gateway** area of an app holds, for the environment chosen at the top right, what its gateway
+needs; reading it needs *app.read*, and every change needs *gateway.manage* and asks for your security
+key (step-up).
+
+- **Upstreams** lists the APIs the gateway may call for the environment's devices: each one's name (which
+  data sources refer to), base URL, how the gateway signs in (none, an API key in a header, OAuth client
+  credentials or a client certificate), the HTTP methods it forwards and its named operations. **Add
+  upstream** and **Edit** open one form: credentials are named after the environment's secrets, never
+  typed here; **Allow private and loopback addresses** is off by default and warns when turned on, because
+  the gateway could then reach the server's own network; the operations are a JSON list, empty to allow
+  any path.
+- **Configuration values** lists the values the gateway binds into requests (*Gateway, server-bound*) or
+  devices read (*Devices, live*), with their type and version. A sensitive value is sealed when saved and
+  only ever shown as *Sealed*; to change it, type it again. A change is refused when someone changed the
+  value since you opened it.
+- **User sign-in** is the identity provider whose user tokens the environment's devices may exchange: its
+  issuer, its JWKS address (HTTPS), the audiences accepted and the claims passed on to upstreams.
+
 ## Approvals
 
 **Approvals** has an **Inbox** of requests waiting for a decision, **History**, **Break-glass

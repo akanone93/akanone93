@@ -280,6 +280,21 @@ const keysRoute = securityRoute("security/keys", "KeysPage", envSearchSchema);
 const pinsRoute = securityRoute("security/pins", "PinsPage", envSearchSchema);
 const capabilitiesRoute = securityRoute("security/capabilities", "CapabilitiesPage", envSearchSchema);
 
+/** The Gateway area of one app (build log row 199): reading needs `app.read`; each change `gateway.manage` and a step-up. */
+function gatewayRoute(path: string, component: "UpstreamsPage" | "ConfigValuesPage" | "IdentityProviderPage") {
+  return createRoute({
+    getParentRoute: () => orgRoute,
+    path: `/apps/$app/${path}`,
+    validateSearch: (raw) => envSearchSchema.parse(raw),
+    beforeLoad: ({ context }) => requirePermission(context.user, "app.read"),
+    component: lazyRouteComponent(() => import("./features/gateway/index.ts"), component),
+  });
+}
+
+const gatewayUpstreamsRoute = gatewayRoute("gateway", "UpstreamsPage");
+const gatewayConfigRoute = gatewayRoute("gateway/config", "ConfigValuesPage");
+const gatewayIdentityRoute = gatewayRoute("gateway/identity", "IdentityProviderPage");
+
 /** A1: opens or resumes the release request; A2: the publish flow of one request (STU-100). */
 const publishStartRoute = createRoute({
   getParentRoute: () => orgRoute,
@@ -665,6 +680,9 @@ const routeTree = rootRoute.addChildren([
       keysRoute,
       pinsRoute,
       capabilitiesRoute,
+      gatewayUpstreamsRoute,
+      gatewayConfigRoute,
+      gatewayIdentityRoute,
       ...adminRoutes,
       libraryRoute,
       libraryComponentRoute,

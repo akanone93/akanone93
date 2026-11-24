@@ -1738,6 +1738,12 @@ msgstr "الإجراءات"
 msgid "links.tab"
 msgstr "الإجراءات"
 
+#. Column of a row's buttons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.actions"
+msgstr "الإجراءات"
+
 #. Heading of the tokens table's column of edit and remove buttons.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -2146,6 +2152,18 @@ msgstr "إضافة رمز"
 msgid "design.addToken"
 msgstr "إضافة رمز"
 
+#. Button that adds a gateway upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.upstreams.add"
+msgstr "إضافة خدمة خلفية"
+
+#. Button that adds a configuration value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.config.add"
+msgstr "إضافة قيمة"
+
 #. Button that adds a variant.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -2403,11 +2421,23 @@ msgstr "التوزيع"
 msgid "admin.destinations.allowPrivate"
 msgstr "السماح بعنوان خاص أو محلي (للتطوير فقط)"
 
+#. Switch that lets an upstream resolve to a private network address.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.private"
+msgstr "السماح بالعناوين الخاصة وعناوين الاسترجاع"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.allowed"
 msgstr "مسموح"
+
+#. Group of the HTTP methods the gateway forwards.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.methods"
+msgstr "الطرق المسموح بها"
 
 #. Placeholder of the visibility condition field when it is empty.
 #. js-lingui-explicit-id
@@ -2534,6 +2564,12 @@ msgstr "تعريفات واجهات البرمجة"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.sourcesLink"
 msgstr "تعريفات واجهات البرمجة"
+
+#. The gateway sends a key in a header.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.auth.apiKey"
+msgstr "مفتاح API"
 
 #. Heading of the app's own documents (app.json, the theme, the translation keys) in the JSON editor's list.
 #. js-lingui-explicit-id
@@ -3116,11 +3152,23 @@ msgstr "الجمهور"
 msgid "admin.audience"
 msgstr "الجمهور"
 
+#. Field of the audience of the assertion the gateway sends to the upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.audience"
+msgstr "الجمهور (اتركه فارغًا لعنوان URL الأساسي)"
+
 #. Label of the field that lists the segments an experiment targets.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentLabel"
 msgstr "شرائح الجمهور"
+
+#. Field of the accepted token audiences.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.audiences"
+msgstr "الجماهير، واحد في كل سطر"
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -3295,6 +3343,18 @@ msgstr "الشارات على كل عنصر"
 #: apps/web/src/features/auth/auth.messages.ts
 msgid "auth.scene.bank-balance"
 msgstr "الرصيد"
+
+#. Column of an upstream's base URL.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.baseUrl"
+msgstr "عنوان URL الأساسي"
+
+#. Field of an upstream's base URL.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.baseUrl"
+msgstr "عنوان URL الأساسي"
 
 #. Heading of the base URL section.
 #. js-lingui-explicit-id
@@ -3630,6 +3690,12 @@ msgstr "إلغاء"
 msgid "history.cancel"
 msgstr "إلغاء"
 
+#. Button that closes a Gateway dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.cancel"
+msgstr "إلغاء"
+
 #. Dialog button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -3912,6 +3978,12 @@ msgstr "تظهر التغييرات على اللوحة أثناء الكتاب�
 msgid "approvals.inboxCaption"
 msgstr "تغييرات تنتظر قرارًا."
 
+#. Tooltip on a disabled change button; gateway.manage is a permission name, not translated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.noPermission"
+msgstr "يتطلب تغيير البوابة صلاحية gateway.manage."
+
 #. Explains why the form is read-only for a person without the app-manage permission.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -4128,6 +4200,12 @@ msgstr "جهات CI"
 msgid "style.circle"
 msgstr "دائرة"
 
+#. Field of the token claims the gateway forwards.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.claims"
+msgstr "المطالبات المُمرَّرة إلى الخدمات الخلفية، واحدة في كل سطر (sub دائمًا)"
+
 #. Button that removes the colour or decoration.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -4188,11 +4266,23 @@ msgstr "انقر للإدراج في التحديد، أو اسحب إلى شا�
 msgid "admin.colClient"
 msgstr "العميل"
 
+#. The gateway signs in with a client certificate.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.auth.mtls"
+msgstr "شهادة العميل (mTLS)"
+
 #. The certificate this installation presents to the destination (mutual TLS).
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.destinations.clientCertificate"
 msgstr "شهادة العميل (PEM، اختياري)"
+
+#. Field of an OAuth client ID.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.clientId"
+msgstr "معرّف العميل"
 
 #. The private key of the client certificate; it is stored sealed and never shown again.
 #. js-lingui-explicit-id
@@ -4294,6 +4384,12 @@ msgstr "إغلاق"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.close"
+msgstr "إغلاق"
+
+#. Accessible name of a dialog's close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.close"
 msgstr "إغلاق"
 
 #. Accessible name of the D35 close button.
@@ -4703,6 +4799,18 @@ msgstr "الشروط"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.config"
 msgstr "الإعدادات (JSON)"
+
+#. Title of the dialog that edits a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.value.dialog"
+msgstr "قيمة إعداد"
+
+#. Title of the page of an environment's configuration values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.config.title"
+msgstr "قيم الإعداد"
 
 #. Heading of the cards that open the other settings of the app: native shell, host fonts, administration.
 #. js-lingui-explicit-id
@@ -5346,6 +5454,12 @@ msgstr "تصحيح"
 msgid "approvals.historyTitle"
 msgstr "الموافقات التي تم البتّ فيها"
 
+#. A configuration value's type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.type.decimal"
+msgstr "عدد عشري"
+
 #. Heading of the decision section.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -5934,6 +6048,12 @@ msgstr "الأجهزة"
 msgid "analytics.devicesColumn"
 msgstr "الأجهزة"
 
+#. A value devices fetch.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.tier.live"
+msgstr "الأجهزة (مباشر)"
+
 #. Help under the app's read-only key in the app settings.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -6246,6 +6366,12 @@ msgstr "المدة (مللي ثانية)"
 msgid "admin.environmentsCaption"
 msgstr "بيئات كل تطبيق والأسرار التي يحفظها الخادم لكل منها: تشير إليها الدوال وخوادم البوابة، ولا تصل إلى الأجهزة أبدًا."
 
+#. Caption under a Gateway page's title: every change needs a fresh security-key confirmation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.stepUpNote"
+msgstr "كل تغيير يطلب مفتاح الأمان الخاص بك."
+
 #. Switch that sets a radius per corner instead of one for all.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -6286,6 +6412,12 @@ msgstr "تحرير"
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
 msgid "history.reasonWrite"
+msgstr "تعديل"
+
+#. Button that edits one row of a Gateway list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.edit"
 msgstr "تعديل"
 
 #. Button that loads a flag into the form.
@@ -6623,6 +6755,12 @@ msgstr "إدخال نص"
 msgid "auth.error.code"
 msgstr "أدخل الرمز المكوّن من 6 أرقام."
 
+#. Placeholder of the value field when a sensitive value is edited.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.newSealedValue"
+msgstr "أدخل القيمة مرة أخرى: لا تُعرض القيمة الحساسة أبدًا."
+
 #. Error of the custom frame dialog when the size or density is not a positive number.
 #. js-lingui-explicit-id
 #: apps/web/src/features/preview/preview.messages.ts
@@ -6717,6 +6855,12 @@ msgstr "جهاز أندرويد اقتصادي"
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.environment"
+msgstr "البيئة"
+
+#. Label of the choice of the app environment whose gateway the page shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.environment"
 msgstr "البيئة"
 
 #. Label of the environment filter.
@@ -7858,6 +8002,24 @@ msgstr "سلسلة Galaxy A"
 msgid "layout.gap"
 msgstr "الفجوة"
 
+#. Entry of the app-area navigation; names the area of the gateway's upstreams, values and user sign-in.
+#. js-lingui-explicit-id
+#: apps/web/src/features/shell/app-nav.messages.ts
+msgid "appnav.gateway"
+msgstr "البوابة"
+
+#. A value only the gateway reads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.tier.server"
+msgstr "البوابة (مرتبطة بالخادم)"
+
+#. Accessible name of the tab strip of the Gateway area.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.areaNav"
+msgstr "صفحات البوابة"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -8091,6 +8253,12 @@ msgstr "تسليم"
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.api.haptics"
 msgstr "اللمس الاهتزازي"
+
+#. Field of the header that carries an API key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.header"
+msgstr "الترويسة"
 
 #. Checkbox that marks the widget as a heading.
 #. js-lingui-explicit-id
@@ -8764,6 +8932,12 @@ msgstr "نسخة من {name}"
 msgid "library.usage"
 msgstr "النسخ عبر التطبيقات"
 
+#. A configuration value's type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.type.integer"
+msgstr "عدد صحيح"
+
 #. Canvas tool: the screens behave as on a device — scroll lists, switch tabs, open the drawer, follow links — without changing the plugin.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -8870,6 +9044,12 @@ msgstr "عزل"
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.issuer"
+msgstr "الجهة المُصدِرة"
+
+#. Field of the issuer (iss) the provider's tokens carry.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.issuer"
 msgstr "الجهة المُصدِرة"
 
 #. Text in the organisation administration area.
@@ -9024,6 +9204,12 @@ msgstr "المبرّر"
 msgid "dialog.justification.label"
 msgstr "المبرر"
 
+#. Field of where the provider publishes its signing keys.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.jwks"
+msgstr "عنوان JWKS (HTTPS)"
+
 #. Button: keep the lock despite the request.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -9076,6 +9262,12 @@ msgstr "المفتاح"
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.key"
+msgstr "المفتاح"
+
+#. Column of a configuration value's key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.key"
 msgstr "المفتاح"
 
 #. Column heading.
@@ -9131,6 +9323,12 @@ msgstr "المفتاح"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.create.key"
 msgstr "المفتاح"
+
+#. Field of a configuration value's key.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.key"
+msgstr "المفتاح (حرف، ثم حروف وأرقام وشرطات سفلية)"
 
 #. Link text.
 #. js-lingui-explicit-id
@@ -9995,6 +10193,12 @@ msgstr "جارٍ تحميل القوالب"
 msgid "l10n.area.loading"
 msgstr "جارٍ تحميل الترجمات"
 
+#. Shown while a Gateway page loads.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.loading"
+msgstr "جارٍ التحميل…"
+
 #. Shown while the apps or an app's settings load.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -10156,6 +10360,12 @@ msgstr "منخفضة"
 #: apps/web/src/components/dialogs/dialogs.messages.ts
 msgid "dialog.create.key-hint"
 msgstr "أحرف صغيرة وأرقام وواصلات، بحد أقصى 64 حرفًا. لا يمكن تغيير المفتاح لاحقًا."
+
+#. Choice of the lowest device assurance level (AL0 to AL3) a call needs.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.assurance"
+msgstr "أدنى مستوى ضمان"
 
 #. Button that adds the raw value to the theme as a new token and uses it.
 #. js-lingui-explicit-id
@@ -10378,6 +10588,12 @@ msgstr "الرسائل"
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.colMethod"
 msgstr "الطريقة"
+
+#. Column of the HTTP methods an upstream allows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.methods"
+msgstr "الطرق"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -10671,6 +10887,18 @@ msgstr "الاسم"
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.colName"
+msgstr "الاسم"
+
+#. Column of a name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.name"
+msgstr "الاسم"
+
+#. Field of an upstream's name, which data sources refer to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.name"
 msgstr "الاسم"
 
 #. Label of a name field.
@@ -11759,6 +11987,12 @@ msgstr "بلا"
 msgid "style.none"
 msgstr "لا شيء"
 
+#. The gateway sends no credentials to the upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.auth.none"
+msgstr "لا شيء"
+
 #. Shown when a list of grants is empty.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -12137,6 +12371,12 @@ msgstr "الرقم المطلوب اختياره: {n}"
 msgid "devices.join.number"
 msgstr "الرقم المطلوب اختياره: {n}"
 
+#. The gateway signs in with the OAuth 2.0 client credentials grant.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.auth.oauth"
+msgstr "بيانات اعتماد عميل OAuth"
+
 #. Heading of the occurrences table.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -12503,11 +12743,23 @@ msgstr "عمليات"
 msgid "notify.kind.operations"
 msgstr "العمليات"
 
+#. Column of the number of named operations of an upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.operations"
+msgstr "العمليات"
+
 #. Heading of the operations table.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.operations"
 msgstr "العمليات"
+
+#. Field of an upstream's named operations, written as a JSON list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.operations"
+msgstr "العمليات (قائمة JSON؛ الفارغة تسمح بأي مسار)"
 
 #. Caption of one data source page.
 #. js-lingui-explicit-id
@@ -13924,11 +14176,23 @@ msgstr "الفائدة"
 msgid "lock.lost.retake"
 msgstr "إعادة الاستلام والتطبيق"
 
+#. Column saying whether the gateway or devices use a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.tier"
+msgstr "يصل إلى"
+
 #. Label of the control that fills the import text from a file the user chooses.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataChooseFile"
 msgstr "قراءة ملف من هذا الحاسوب"
+
+#. Choice of whether the gateway or devices read a value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.tier"
+msgstr "يقرؤها"
 
 #. What the app canvas's Quality tab checks and what it leaves to the plugin canvas.
 #. js-lingui-explicit-id
@@ -14290,6 +14554,12 @@ msgstr "إزالة"
 msgid "profile.keys.remove.confirm"
 msgstr "إزالة"
 
+#. Button that removes one row of a Gateway list.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.remove"
+msgstr "إزالة"
+
 #. Button that removes a per-segment value of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -14349,6 +14619,12 @@ msgstr "إزالة {name}"
 #: apps/web/src/features/new-app/new-app.messages.ts
 msgid "newApp.locales.remove"
 msgstr "أزل {name}"
+
+#. Question before an upstream, a value or the identity provider is removed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.removeConfirm"
+msgstr "إزالة {name}؟ تفقد الأجهزة ما يقدّمه لها فورًا."
 
 #. Button that removes a key without a plugin from app.json's plugins list.
 #. js-lingui-explicit-id
@@ -14457,6 +14733,12 @@ msgstr "إزالة الروابط الصادرة"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.brandRemoveConfirm"
 msgstr "إزالة الطبقة"
+
+#. Button that removes the identity provider.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.identity.remove"
+msgstr "إزالة المزوّد"
 
 #. Accessible name of the remove button of one per-segment flag value.
 #. js-lingui-explicit-id
@@ -14811,6 +15093,12 @@ msgstr "مستوى الضمان المطلوب"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceRequired"
 msgstr "مستوى الضمان المطلوب"
+
+#. Shown under a required field left empty.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.required"
+msgstr "مطلوب."
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -15447,6 +15735,12 @@ msgstr "رملي"
 msgid "security.save"
 msgstr "حفظ"
 
+#. Button that saves a Gateway dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.save"
+msgstr "حفظ"
+
 #. Dialog button that applies the change.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -15488,6 +15782,12 @@ msgstr "حفظ إصدار جديد"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.save"
 msgstr "حفظ السياسة"
+
+#. Button that saves the identity provider.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.identity.save"
+msgstr "حفظ المزوّد"
 
 #. Button: save the scenario.
 #. js-lingui-explicit-id
@@ -15644,6 +15944,12 @@ msgstr "النطاق"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.tokenScopes"
 msgstr "النطاقات (مفصولة بفواصل)"
+
+#. Field of OAuth scopes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.scopes"
+msgstr "النطاقات، واحد في كل سطر"
 
 #. Column: the first screen of a replay.
 #. js-lingui-explicit-id
@@ -15855,6 +16161,12 @@ msgstr "مدى التمرير (px)"
 msgid "timeline.driven"
 msgstr "مرّر العرض في وضع التفاعل لتحريكه."
 
+#. Shown instead of a sensitive value, which is never returned.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.config.sealed"
+msgstr "مختومة"
+
 #. Label of the top bar button that opens the search and command palette.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -16010,6 +16322,18 @@ msgstr "العامل الثاني"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.secretHeading"
 msgstr "السر (يُعرض مرة واحدة)"
+
+#. Field naming the environment secret that holds a credential.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.secretRef"
+msgstr "اسم السر"
+
+#. Description of the upstream dialog.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.upstream.dialogDescription"
+msgstr "تُسمّى الأسرار فقط ولا تُكتب هنا: تقرؤها البوابة من أسرار البيئة."
 
 #. Capability label.
 #. js-lingui-explicit-id
@@ -16268,6 +16592,12 @@ msgstr "حساس"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbSensitive"
 msgstr "حساس"
+
+#. Switch marking a value as sensitive; only gateway values may be.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.sensitive"
+msgstr "حساسة: مختومة عند التخزين ولا تُعرض مرة أخرى"
 
 #. Shown after the command was sent.
 #. js-lingui-explicit-id
@@ -16712,6 +17042,18 @@ msgstr "سجّل الخروج ثم سجّل الدخول مجددًا بأحد �
 #: apps/web/src/features/profile/phones.messages.ts
 msgid "profile.phones.signOutTitle"
 msgstr "تسجيل خروج هذا الهاتف؟"
+
+#. Column of how the gateway signs in to an upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.auth"
+msgstr "تسجيل الدخول"
+
+#. Choice of how the gateway signs in to the upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.auth"
+msgstr "تسجيل الدخول"
 
 #. Shown when the sign-in request fails for another reason.
 #. js-lingui-explicit-id
@@ -17397,6 +17739,12 @@ msgstr "صارم"
 msgid "newApp.security.strict"
 msgstr "صارم"
 
+#. Switch marking a live value as strict.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.strict"
+msgstr "صارمة: يُرفض الجهاز الذي يحمل إصدارًا أقدم من القيم المباشرة"
+
 #. Flag type.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -17805,6 +18153,12 @@ msgstr "نص"
 msgid "l10n.extract.text"
 msgstr "النص"
 
+#. A configuration value's type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.type.string"
+msgstr "نص"
+
 #. Expectation kind.
 #. js-lingui-explicit-id
 #: apps/web/src/features/tests/tests.messages.ts
@@ -17858,6 +18212,12 @@ msgstr "فشل الإجراء. لم يتغير شيء."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.aliasFailed"
 msgstr "تعذّر تغيير الاسم المستعار."
+
+#. Caption of the page of gateway upstreams.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.upstreams.caption"
+msgstr "واجهات API التي يمكن لبوابة هذه البيئة استدعاؤها لأجهزتها، وكيف تسجّل الدخول إلى كل منها."
 
 #. Error: the locale is already supported.
 #. js-lingui-explicit-id
@@ -18104,6 +18464,12 @@ msgstr "لم يُطبَّق التغيير لأن مستندًا تغيّر في
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.changeRefused"
 msgstr "لم يُطبَّق التغيير لأن مستندًا تغيّر في هذه الأثناء. لم تُكتب أي بيانات."
+
+#. Shown when a change on a Gateway page was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.saveFailed"
+msgstr "لم يُحفظ التغيير."
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -18459,6 +18825,18 @@ msgstr "ليس للدالة أي اعتماديات."
 msgid "functions.listCaption"
 msgstr "دوال هذه البيئة مع أحدث إصدار لكل منها."
 
+#. Shown when an environment has no gateway upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.upstreams.empty"
+msgstr "لا تصل البوابة إلى أي خدمة خلفية في هذه البيئة."
+
+#. Shown when a Gateway page could not load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.loadFailed"
+msgstr "تعذّر تحميل إعدادات البوابة."
+
 #. Shown in the icon picker when an upload failed; the server's reason follows.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -18476,6 +18854,12 @@ msgstr "الأيقونات التي توفرها كل مجموعة للتطبي�
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.sourceHint"
 msgstr "معرّف مصدر الدالة الذي رُفع إلى الخادم بالفعل. يعمل خادم اللغة والاختبارات على هذا المصدر."
+
+#. Caption of the page of the user identity provider.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.identity.caption"
+msgstr "مزوّد الهوية الذي يمكن لأجهزة هذه البيئة استبدال رموز مستخدميه، والمطالبات المُمرَّرة إلى الخدمات الخلفية."
 
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
@@ -18650,6 +19034,12 @@ msgstr "الاسم وعنوان البريد الإلكتروني اللذان �
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.skipName"
 msgstr "الاسم غير مسموح به"
+
+#. Shown when the operations field does not parse.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.operationsInvalid"
+msgstr "العمليات ليست قائمة JSON صالحة من العمليات."
 
 #. Caption under the library heading.
 #. js-lingui-explicit-id
@@ -19546,6 +19936,18 @@ msgstr "هذه البيئة غير موجودة."
 msgid "releases.envMissing"
 msgstr "هذه البيئة غير موجودة."
 
+#. Shown when an environment has no configuration value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.config.empty"
+msgstr "لا توجد قيم إعداد لهذه البيئة."
+
+#. Shown when an environment has no user identity provider.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.identity.none"
+msgstr "لا تثق هذه البيئة بأي مزوّد هوية للمستخدمين."
+
 #. Shown when the event's action graph has no steps.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -19840,6 +20242,12 @@ msgstr "الخط الزمني {name}"
 msgid "timeline.timelines"
 msgstr "الخطوط الزمنية"
 
+#. Field of the time limit of one call to the upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.timeout"
+msgstr "المهلة بالمللي ثانية (اتركها فارغة للقيمة الافتراضية)"
+
 #. Label of the page's title field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -19917,6 +20325,12 @@ msgstr "اسم الرمز"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.brandToken"
 msgstr "الرمز المراد استبداله"
+
+#. Field of an OAuth token endpoint.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.tokenUrl"
+msgstr "عنوان الرمز"
 
 #. Link to the tokens page.
 #. js-lingui-explicit-id
@@ -20050,6 +20464,12 @@ msgstr "سلة المحذوفات"
 msgid "analytics.trendColumn"
 msgstr "الاتجاه"
 
+#. A configuration value's type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.type.boolean"
+msgstr "صح أو خطأ"
+
 #. The certificate authority that must have signed the destination's certificate; empty uses the system's.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -20108,6 +20528,18 @@ msgstr "النوع"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
 msgid "pageSettings.paramType"
+msgstr "النوع"
+
+#. Column of a configuration value's type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.type"
+msgstr "النوع"
+
+#. Choice of a configuration value's type.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.type"
 msgstr "النوع"
 
 #. Label of the flag type select.
@@ -20260,6 +20692,12 @@ msgstr "تغييرات غير منشورة"
 msgid "notify.inbox.unread-only"
 msgstr "غير المقروءة فقط"
 
+#. Warning beside the switch that allows private addresses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.privateWarning"
+msgstr "غير آمن: قد تصل البوابة حينها إلى شبكة الخادم نفسه. اتركه معطّلًا ما لم تكن الخدمة الخلفية داخلية."
+
 #. Shown beside the save button while the name or description differs from what is saved.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -20343,6 +20781,18 @@ msgstr "فشل رفع {name}."
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.uploading"
 msgstr "جارٍ الرفع…"
+
+#. Title of the dialog that edits an upstream.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.upstream.dialog"
+msgstr "خدمة خلفية"
+
+#. Title of the page of gateway upstreams.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.upstreams.title"
+msgstr "الخدمات الخلفية"
 
 #. Column heading.
 #. js-lingui-explicit-id
@@ -20500,6 +20950,12 @@ msgstr "المستخدم"
 msgid "functions.capClaims"
 msgstr "مطالبات المستخدم"
 
+#. Title of the page of the user identity provider.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.identity.title"
+msgstr "تسجيل دخول المستخدمين"
+
 #. Detail card of a plugin: the names of the Plux Functions it uses.
 #. js-lingui-explicit-id
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
@@ -20570,6 +21026,18 @@ msgstr "القيمة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/condition-panel.messages.ts
 msgid "condition.value"
+msgstr "القيمة"
+
+#. Column of a configuration value.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.value"
+msgstr "القيمة"
+
+#. Field of a configuration value's content.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.field.value"
 msgstr "القيمة"
 
 #. Label of the field for the value of a new token.
@@ -20650,6 +21118,12 @@ msgstr "القيم لكل شريحة"
 msgid "experiments.segmentValuesHeading"
 msgstr "القيم لكل شريحة"
 
+#. Caption of the page of configuration values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.config.caption"
+msgstr "قيم تضعها البوابة في الطلبات (مرتبطة بالخادم) أو تقرؤها الأجهزة (مباشر). تُختم القيم الحساسة ولا تُعرض مرة أخرى."
+
 #. Column heading.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -20720,6 +21194,12 @@ msgstr "الإصدار"
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
 msgid "security.profileVersion"
+msgstr "الإصدار"
+
+#. Column of a configuration value's version.
+#. js-lingui-explicit-id
+#: apps/web/src/features/gateway/gateway.messages.ts
+msgid "gateway.col.version"
 msgstr "الإصدار"
 
 #. Label of the field that holds a collection's schema version.

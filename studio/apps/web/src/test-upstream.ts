@@ -34,6 +34,9 @@ import {
   FederationService,
   FlagService,
   FunctionAdminService,
+  type UserIdentityProvider as GatewayProvider,
+  type Upstream as GatewayUpstream,
+  type ConfigValue as GatewayValue,
   GetCurrentUserResponseSchema,
   type GetReplayRequest,
   GovernanceService,
@@ -107,6 +110,13 @@ export interface SecurityData {
   putDocuments?: { path: string; content: string; ifRevision: bigint }[];
   /** Every read fails. */
   failing?: boolean;
+  /** The gateway of the environment (build log row 199): what it holds and the changes Studio made, in order. */
+  gateway?: {
+    upstreams: GatewayUpstream[];
+    values: GatewayValue[];
+    provider?: GatewayProvider | undefined;
+    calls: string[];
+  };
 }
 
 /** The Approvals area (STU-102): requests with their evidence, break-glass reviews, policies and the simulator. */
@@ -1393,6 +1403,65 @@ function rustServices(service: Parameters<Parameters<typeof createRouterTranspor
   });
 }
 
+/** The gateway's part of the security-admin RPCs (build log row 199), in memory: what it holds and each change. */
+function gatewayAdmin(data: SecurityData): Partial<ServiceImpl<typeof SecurityAdminService>> {
+  const g = () => {
+    if (data.gateway === undefined) {
+      throw new ConnectError("no gateway fixture", Code.Unimplemented);
+    }
+    return data.gateway;
+  };
+  return {
+    listUpstreams: (req) => ({ upstreams: g().upstreams.filter((u) => u.environmentId === req.environmentId) }),
+    createUpstream: (req) => {
+      const upstream = { ...(req.upstream as GatewayUpstream), id: `up-${g().upstreams.length + 1}` };
+      g().upstreams.push(upstream);
+      g().calls.push(`create:${upstream.name}`);
+      return { upstream };
+    },
+    updateUpstream: (req) => {
+      const upstream = req.upstream as GatewayUpstream;
+      g().upstreams = g().upstreams.map((u) => (u.id === upstream.id ? upstream : u));
+      g().calls.push(`update:${upstream.name}`);
+      return { upstream };
+    },
+    deleteUpstream: (req) => {
+      g().upstreams = g().upstreams.filter((u) => u.id !== req.id);
+      g().calls.push(`delete:${req.id}`);
+      return {};
+    },
+    listConfigValues: () => ({ values: g().values.map((v) => (v.sensitive ? { ...v, value: "" } : v)) }),
+    setConfigValue: (req) => {
+      const value = { ...(req.value as GatewayValue), version: (req.expectedVersion ?? 0n) + 1n };
+      g().values = [...g().values.filter((v) => v.key !== value.key), value];
+      g().calls.push(`set:${value.key}:${String(req.expectedVersion ?? "")}`);
+      return { value: { ...value, value: value.sensitive ? "" : value.value } };
+    },
+    deleteConfigValue: (req) => {
+      g().values = g().values.filter((v) => v.key !== req.key);
+      g().calls.push(`unset:${req.key}`);
+      return {};
+    },
+    getUserIdentityProvider: () => {
+      const provider = g().provider;
+      if (provider === undefined) {
+        throw new ConnectError("no provider", Code.NotFound);
+      }
+      return { provider };
+    },
+    setUserIdentityProvider: (req) => {
+      g().provider = req.provider as GatewayProvider;
+      g().calls.push(`provider:${req.provider?.issuer ?? ""}`);
+      return {};
+    },
+    deleteUserIdentityProvider: () => {
+      g().provider = undefined;
+      g().calls.push("provider:removed");
+      return {};
+    },
+  };
+}
+
 /** The device, security-admin and manifest RPCs of the Devices and security area, in memory. */
 function securityServices(
   service: Parameters<Parameters<typeof createRouterTransport>[0]>[0]["service"],
@@ -1440,6 +1509,7 @@ function securityServices(
         overridesJson: new TextEncoder().encode(JSON.stringify(data.overrides ?? {})),
       };
     },
+    ...gatewayAdmin(data),
     setSecurityConfig: (req) => {
       data.profiles?.push({
         profile: req.profile,
