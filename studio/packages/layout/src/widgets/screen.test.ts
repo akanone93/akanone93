@@ -236,6 +236,27 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     }
   });
 
+  test("a Match shows the branch its value names, else otherwise, else its first branch — from its branches slot (#128)", () => {
+    const match = (value: unknown, otherwise: boolean): WidgetNode =>
+      ({
+        id: "m",
+        type: "Match",
+        props: { cases: ["a", "b"], value },
+        slots: {
+          branches: [text("ba", "Branch A"), text("bb", "Branch B")],
+          ...(otherwise ? { otherwise: text("bo", "Otherwise") } : {}),
+        },
+      }) as unknown as WidgetNode;
+    const shown = (root: WidgetNode) =>
+      layoutScreen(root, { engine, theme })
+        .boxes.filter((b) => b.kind === "text")
+        .map((b) => b.text);
+    expect(shown(match("b", true))).toEqual(["Branch B"]);
+    // A value the canvas cannot know (an expression) shows otherwise, as the device does for no match.
+    expect(shown(match({ $expr: "params.slug" }, true))).toEqual(["Otherwise"]);
+    expect(shown(match({ $expr: "params.slug" }, false))).toEqual(["Branch A"]);
+  });
+
   test("a widget the scene cannot build is named, with why, instead of failing in silence (#80)", () => {
     const root: WidgetNode = {
       id: "col",

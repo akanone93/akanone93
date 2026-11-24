@@ -76,7 +76,10 @@ const matchBuilder: WidgetBuilder = (node, ctx) => {
   const cases = prop(node, "cases");
   const value = prop(node, "value");
   const index = Array.isArray(cases) && typeof value === "string" ? cases.indexOf(value) : -1;
-  const branches = node.children ?? [];
+  // The branches are the `branches` list slot (one per case); reading `children` found none, so the canvas always
+  // showed `otherwise` (build log #128).
+  const listed: unknown = node.slots?.["branches"];
+  const branches: readonly WidgetNode[] = Array.isArray(listed) ? listed : (node.children ?? []);
   return show((index >= 0 ? branches[index] : undefined) ?? slot(node, "otherwise") ?? branches[0], ctx);
 };
 
