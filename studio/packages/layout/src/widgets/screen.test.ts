@@ -9,6 +9,7 @@ import { TextDirection } from "../flutter/geometry.ts";
 import { RenderParagraph } from "../flutter/paragraph.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { colorSchemeFromSeed } from "../material-color/scheme.ts";
+import { argbToRgba } from "../paint/paint.ts";
 import type { CanvasKitParagraphEngine } from "../text/canvaskit-engine.ts";
 import { TextAlign } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
@@ -297,6 +298,33 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     // The hint and the button stand where they stood with no terms.
     const empty = parts("");
     expect(empty.find((b) => b.text === "Scroll to the end")?.y).toBeCloseTo(hint?.y ?? Number.NaN, 5);
+  });
+
+  test("a SegmentedButton draws its segments, the selected one filled with a check, not a placeholder (#127)", () => {
+    const root: WidgetNode = {
+      id: "seg",
+      type: "SegmentedButton",
+      props: {
+        segments: [
+          { value: "d", label: "Day" },
+          { value: "w", label: "Week" },
+          { value: "m", label: "Month" },
+        ],
+        selected: ["w"],
+      },
+    };
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const box = layoutScreen(root, { engine, theme, paint: { scheme } }).boxes.find((b) => b.id === "seg");
+    expect(box?.kind).not.toBe("placeholder");
+    expect(box?.paint?.role).toBe("paint");
+    expect(box?.paint?.texts?.map((t) => t.text)).toEqual(["Day", "Week", "Month"]);
+    expect(box?.paint?.glyphs?.map((g) => g.name)).toEqual(["check"]);
+    // The selected segment is the middle third, filled; the track is outlined, 40 high in the 48 of the tap target.
+    const fill = box?.paint?.boxes.find((b) => b.fill === argbToRgba(scheme.secondaryContainer));
+    expect(fill?.x).toBeCloseTo((box?.x ?? 0) + (box?.w ?? 0) / 3, 5);
+    const track = box?.paint?.boxes.at(-1);
+    expect(track?.h).toBe(40);
+    expect(track?.border).toBeDefined();
   });
 
   test("a widget the scene cannot build is named, with why, instead of failing in silence (#80)", () => {

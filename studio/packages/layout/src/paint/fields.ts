@@ -33,6 +33,8 @@ export interface PaintText {
   readonly w: number;
   readonly style: ResolvedText;
   readonly color: Rgba;
+  /** Centred in its width (a segment's label); at its start when absent. */
+  readonly align?: "center";
 }
 
 /** An icon a widget draws itself, in a box of its own. */

@@ -424,6 +424,7 @@ function partItems(
       ...(t.style.letterSpacing === 0 ? {} : { letterSpacing: t.style.letterSpacing }),
       height: t.style.height,
       maxLines: 1,
+      ...(t.align === undefined ? {} : { align: t.align }),
       color: t.color,
       ...fade,
       z,
