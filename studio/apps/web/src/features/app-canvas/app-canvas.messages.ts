@@ -739,6 +739,12 @@ export function appCanvasMessages(i18n: I18n) {
       comment:
         "Button in the app canvas's Overview: opens the State designer on the app's own state entries (app.json).",
     }),
+    appLogic: i18n._({
+      id: "appCanvas.appLogic",
+      message: "App logic…",
+      comment:
+        "Button in the app canvas's Overview: opens the Action graph editor on what the app does on resume, pause, a push, an error and host events.",
+    }),
     appHistory: i18n._({
       id: "appCanvas.appHistory",
       message: "History of the app's documents…",

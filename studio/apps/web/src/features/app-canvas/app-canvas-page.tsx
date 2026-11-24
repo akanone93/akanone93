@@ -989,6 +989,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onEditJson={() => setOverlay("json")}
             onHistory={() => setOverlay("history")}
             onState={() => setOverlay("state")}
+            onLogic={() => setOverlay("logic")}
             appLockHolder={appLockHolder}
             reveal={problemReveal.reveal}
           />

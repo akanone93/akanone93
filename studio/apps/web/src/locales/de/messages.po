@@ -2583,6 +2583,12 @@ msgstr "App-Symbol"
 msgid "admin.grantApp"
 msgstr "App-ID (leer für die Organisation)"
 
+#. Button in the app canvas's Overview: opens the Action graph editor on what the app does on resume, pause, a push, an error and host events.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.appLogic"
+msgstr "Logik der App…"
+
 #. Label: the name shown under the launcher icon and in the stores.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts

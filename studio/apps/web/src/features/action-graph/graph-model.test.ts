@@ -291,3 +291,22 @@ describe("[STU-065] positions that JSON cannot hold", () => {
     expect(Object.keys(stepsAt(d, inline)[0] ?? {})).not.toContain("x-position");
   });
 });
+
+describe("[STU-065] an event handler inside a document (#284)", () => {
+  test("its steps are read and written at the pointer, the objects on the way made, the pointer escaped", () => {
+    const loc = { kind: "handler" as const, path: "app.json", pointer: ["triggers", "hostEvents", "a/b"] };
+    const app: Record<string, unknown> = { kind: "app" };
+    expect(stepsAt(app, loc)).toEqual([]);
+    const all = buildCatalogue();
+    const entry = all.find((e) => e.key === "kvGet");
+    if (entry === undefined) {
+      throw new Error("no kvGet in the catalogue");
+    }
+    addStepRecipe(loc, entry, "kvGet1", all)(app);
+    expect(stepsAt(app, loc).map((s) => s.id)).toEqual(["kvGet1"]);
+    expect((app["triggers"] as { hostEvents: Record<string, unknown> }).hostEvents["a/b"]).toMatchObject({
+      steps: [{ id: "kvGet1" }],
+    });
+    expect(stepsPointer(app, loc, () => null)).toBe("/triggers/hostEvents/a~1b/steps");
+  });
+});

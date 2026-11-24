@@ -106,6 +106,7 @@ export function AppDock({
   onEditJson,
   onHistory,
   onState,
+  onLogic,
   appLockHolder,
   reveal,
 }: {
@@ -133,6 +134,8 @@ export function AppDock({
   readonly onEditJson?: (() => void) | undefined;
   /** Opens the history of the app's own documents, with restore as one undo step (#267). */
   readonly onHistory?: (() => void) | undefined;
+  /** Opens the Action graph editor on the app's own triggers (#284). */
+  readonly onLogic?: (() => void) | undefined;
   /** Opens the State designer on the app's own state (#283). */
   readonly onState?: (() => void) | undefined;
   /** Who holds the app's own lock (app.json, the theme, the keys); empty when nobody does (#267). */
@@ -334,6 +337,12 @@ export function AppDock({
             <Button size="sm" variant="outline" className="self-start" onClick={onState}>
               <Icon name="database" data-icon="inline-start" />
               {m.appState}
+            </Button>
+          )}
+          {onLogic !== undefined && (
+            <Button size="sm" variant="outline" className="self-start" onClick={onLogic}>
+              <Icon name="flow-arrow" data-icon="inline-start" />
+              {m.appLogic}
             </Button>
           )}
           {onHistory !== undefined && (

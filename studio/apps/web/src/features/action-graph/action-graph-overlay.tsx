@@ -25,8 +25,10 @@ import {
   type Extras,
   findNodeIn,
   freshId,
+  type GraphLocation,
   groupProblems,
   isObj,
+  type Obj,
   type Point,
   type Recipe,
   resolveLocation,
@@ -54,6 +56,14 @@ export interface ActionGraphOverlayProps {
   readonly extras: Extras;
   readonly validatePage: ((file: string, data: string) => Promise<readonly Problem[]>) | undefined;
   readonly language: PxlLanguage | undefined;
+  /**
+   * The event handlers of a document instead of a page node's events (#284): `app.json`'s triggers on the app canvas,
+   * each a key the event picker lists and the pointer to its handler.
+   */
+  readonly handlers?: {
+    readonly path: string;
+    readonly events: readonly { readonly key: string; readonly pointer: readonly string[] }[];
+  };
 }
 
 const GROUPS: readonly CatalogueGroup[] = ["builtin", "custom", "function", "flow"];
@@ -197,14 +207,17 @@ function useVerdict(
   return verdict;
 }
 
-/** The widget, event and graph the editor shows: from the selection, the event chosen and the documents. */
-function useTarget(props: ActionGraphOverlayProps, docs: Readonly<Record<string, unknown>>) {
-  const [chosen, setEvent] = useState<string | undefined>(undefined);
-  useEffect(() => {
-    if (!props.open) {
-      setEvent(undefined);
-    }
-  }, [props.open]);
+/** A page node's events: the selected widget's, the chosen one or its first, and where its steps live. */
+function nodeTarget(
+  props: Pick<ActionGraphOverlayProps, "pagePath" | "nodeId">,
+  docs: Readonly<Record<string, unknown>>,
+  chosen: string | undefined,
+): {
+  node: Obj | undefined;
+  events: readonly string[];
+  event: string | undefined;
+  location: GraphLocation | undefined;
+} {
   const page = props.pagePath === undefined ? undefined : docs[props.pagePath];
   const node = props.nodeId === undefined || !isObj(page) ? undefined : findNodeIn(page["root"], props.nodeId);
   const events = eventsOf(typeof node?.["type"] === "string" ? node["type"] : undefined);
@@ -213,6 +226,38 @@ function useTarget(props: ActionGraphOverlayProps, docs: Readonly<Record<string,
     props.pagePath === undefined || props.nodeId === undefined || event === undefined
       ? undefined
       : resolveLocation(docs, props.pagePath, props.nodeId, event);
+  return { node, events, event, location };
+}
+
+/** A document's event handlers (#284): the chosen one or the first, at its pointer. */
+function handlerTarget(
+  handlers: NonNullable<ActionGraphOverlayProps["handlers"]>,
+  chosen: string | undefined,
+): {
+  node: Obj | undefined;
+  events: readonly string[];
+  event: string | undefined;
+  location: GraphLocation | undefined;
+} {
+  const events = handlers.events.map((e) => e.key);
+  const event = chosen !== undefined && events.includes(chosen) ? chosen : events[0];
+  const found = handlers.events.find((e) => e.key === event);
+  const location: GraphLocation | undefined =
+    found === undefined ? undefined : { kind: "handler", path: handlers.path, pointer: found.pointer };
+  return { node: undefined, events, event, location };
+}
+
+/** The widget, event and graph the editor shows: from the selection, the event chosen and the documents. */
+function useTarget(props: ActionGraphOverlayProps, docs: Readonly<Record<string, unknown>>) {
+  const [chosen, setEvent] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (!props.open) {
+      setEvent(undefined);
+    }
+  }, [props.open]);
+  const { node, events, event, location } = props.handlers
+    ? handlerTarget(props.handlers, chosen)
+    : nodeTarget(props, docs, chosen);
   const doc = location === undefined ? undefined : docs[location.path];
   const steps: readonly Step[] = useMemo(() => (location === undefined ? [] : stepsAt(doc, location)), [doc, location]);
   const prefix = location === undefined ? null : stepsPointer(doc, location, pointerOf);
@@ -264,6 +309,9 @@ function statusOf(verdict: Verdict, m: ActionGraphMessages): string {
 }
 
 function noticeOf(t: ReturnType<typeof useTarget>, props: ActionGraphOverlayProps, m: ActionGraphMessages) {
+  if (props.handlers !== undefined) {
+    return t.events.length === 0 ? m.noEvents : undefined;
+  }
   if (props.nodeId === undefined || t.node === undefined) {
     return m.noSelection;
   }

@@ -14,10 +14,30 @@ export interface Obj {
 }
 export const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** Where an event's steps live: inline in a page node's event handler, or in an action graph document. */
+/**
+ * Where an event's steps live: inline in a page node's event handler, in an action graph document, or in an event
+ * handler at `pointer` inside a document — the app's own triggers in `app.json` (`triggers/onAppResume`, #284).
+ */
 export type GraphLocation =
   | { readonly kind: "inline"; readonly path: string; readonly nodeId: string; readonly event: string }
-  | { readonly kind: "graph"; readonly path: string };
+  | { readonly kind: "graph"; readonly path: string }
+  | { readonly kind: "handler"; readonly path: string; readonly pointer: readonly string[] };
+
+/** The object at `pointer` under `doc`, or undefined; with `create`, the missing objects on the way are made. */
+function objectAt(doc: Obj, pointer: readonly string[], create: boolean): Obj | undefined {
+  let at: Obj = doc;
+  for (const key of pointer) {
+    const next = at[key];
+    if (!isObj(next)) {
+      if (!create) {
+        return undefined;
+      }
+      at[key] = {};
+    }
+    at = at[key] as Obj;
+  }
+  return at;
+}
 
 /** One step of a graph as the document holds it (§5). */
 export interface Step {
@@ -293,6 +313,10 @@ function rawSteps(doc: unknown, loc: GraphLocation): unknown[] | undefined {
   if (loc.kind === "graph") {
     return Array.isArray(doc["steps"]) ? doc["steps"] : undefined;
   }
+  if (loc.kind === "handler") {
+    const handler = objectAt(doc, loc.pointer, false);
+    return handler !== undefined && Array.isArray(handler["steps"]) ? handler["steps"] : undefined;
+  }
   const node = findNodeIn(doc["root"], loc.nodeId);
   const handler = node !== undefined && isObj(node["events"]) ? node["events"][loc.event] : undefined;
   return isObj(handler) && Array.isArray(handler["steps"]) ? handler["steps"] : undefined;
@@ -308,6 +332,13 @@ function ensureSteps(doc: unknown, loc: GraphLocation): unknown[] | undefined {
       doc["steps"] = [];
     }
     return doc["steps"] as unknown[];
+  }
+  if (loc.kind === "handler") {
+    const handler = objectAt(doc, loc.pointer, true);
+    if (handler !== undefined && !Array.isArray(handler["steps"])) {
+      handler["steps"] = [];
+    }
+    return handler?.["steps"] as unknown[] | undefined;
   }
   const node = findNodeIn(doc["root"], loc.nodeId);
   if (node === undefined) {
@@ -605,6 +636,9 @@ export function stepsPointer(
 ): string | null {
   if (loc.kind === "graph") {
     return "/steps";
+  }
+  if (loc.kind === "handler") {
+    return `/${loc.pointer.map((k) => k.replaceAll("~", "~0").replaceAll("/", "~1")).join("/")}/steps`;
   }
   const node = pointerOf(doc, loc.nodeId);
   return node === null ? null : `${node}/events/${loc.event}/steps`;
