@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **The AVIF probe is what the variants are (CMP-030, build log #278):** the image the runtime decodes at start to decide whether a device is offered AVIF variants now has an alpha plane, as a transparent PNG's variants do, so a decoder that handles opaque AVIF only is offered WebP instead of failing on the variants; it is still 1×1, the smallest a variant can be. The probe runs beside the store's opening instead of before the sync isolate starts.
 - **A host knows when a dev bundle arrived (DEV-001, build log #247):** `DevChannel.applied` counts the dev bundles that arrived and were not refused, so a host waiting for its first screen can say Studio has sent nothing yet instead of that the app has no entry screen.
 - **A dev socket the server closes says why (DEV-021, build log #276):** the dev channel prints the server's close code and reason once per distinct reason; `StreamFrame.closeReason` carries a WebSocket's close reason.
 - **The runtime declares the PXL locale groups (BND-008, PXL-006, build log #257):** `pxl.format.v1`, `pxl.l10n.v1` and `pxl.calendar.v1`, which it has evaluated since 0.5.0, are now among its supported features; a bundle using `format.*`, `t`, `plural` or a calendar was refused with `PLX-3010`. A test keeps the declared groups equal to the groups the evaluator implements.

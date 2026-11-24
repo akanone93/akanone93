@@ -321,6 +321,10 @@ final class PluxRuntime with WidgetsBindingObserver {
     final bundledRoot = reconstructing
         ? Future<Uint8List?>.value()
         : _bundledRoot(config.baseline);
+    // The AVIF probe allocates a platform decoder (Android: an AV1 codec);
+    // it never throws, and runs beside the store's opening instead of
+    // before the sync isolate starts (#278).
+    final avif = decodesAvif();
     try {
       // Refuses an unpinned release build before anything is started
       // (SEC-041); a host's own client is the host's to pin.
@@ -368,7 +372,7 @@ final class PluxRuntime with WidgetsBindingObserver {
                 .firstOrNull
                 ?.devicePixelRatio ??
             3,
-        avif: await decodesAvif(),
+        avif: await avif,
       );
       final worker = await SyncWorker.start(
         SyncWorkerConfig(
