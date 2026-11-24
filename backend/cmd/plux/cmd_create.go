@@ -102,7 +102,7 @@ func (e env) create(args []string) int {
 		return e.fail("create", err)
 	}
 	defer func() { _ = os.RemoveAll(pulled) }()
-	base, err := pullBaseline(ctx, cl, c, *f.env, *f.channel, pulled)
+	base, err := pullBaseline(ctx, cl, c, *f.env, *f.channel, pulled, false)
 	if err != nil {
 		return e.fail("create", err)
 	}

@@ -414,6 +414,22 @@ func TestServerCommands(t *testing.T) { //nolint:paralleltest // the keychain mo
 	if code, _, stderr := cli(t, config, "pull", "-C", project, "-o", host); code != exitFailed || !strings.Contains(stderr, "does not match") {
 		t.Errorf("a tampered bundle: %d %s", code, stderr)
 	}
+	// Before a first release, pull writes the environment's keys alone and no baseline, so a host app's debug build gets
+	// its development keys and syncs its first release when one is published (#274).
+	// A baseline an earlier pull left for another channel is removed: the runtime would refuse it.
+	fresh := t.TempDir()
+	if err := os.WriteFile(filepath.Join(fresh, "baseline.json"), []byte("{}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if code, out, _ := cli(t, config, "pull", "-C", project, "--env", "development", "-o", fresh); code != exitOK || !strings.Contains(out, "has no release yet") {
+		t.Errorf("pull before a first release: %d %s", code, out)
+	}
+	if _, err := os.Stat(filepath.Join(fresh, "keys.json")); err != nil {
+		t.Errorf("pull before a first release wrote no keys: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(fresh, "baseline.json")); !os.IsNotExist(err) {
+		t.Errorf("pull before a first release wrote a baseline: %v", err)
+	}
 	if code, out, _ := cli(t, config, "keys", "-C", project); code != exitOK || !strings.Contains(out, "k1  ed25519  targets  0102") {
 		t.Errorf("keys: %d %s", code, out)
 	}

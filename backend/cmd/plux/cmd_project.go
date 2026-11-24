@@ -720,7 +720,8 @@ func (e env) pull(args []string) int {
 	if _, code, ok := parse(set, args, e.stderr, "Usage: plux pull [-C dir] [--env key] [--channel key] [-o dir] [--json]\n\n"+
 		"Writes the channel's current release and the root public keys into the host app's\n"+
 		"assets (run it from the host app, or pass -o):\n"+
-		"<out>/bundles/<key>.pxb, <out>/assets/<sha256>, <out>/keys.json and <out>/baseline.json.", 0); !ok {
+		"<out>/bundles/<key>.pxb, <out>/assets/<sha256>, <out>/keys.json and <out>/baseline.json.\n"+
+		"Before the channel's first release it writes only the keys (<out>/keys.json, <out>/root.json).", 0); !ok {
 		return code
 	}
 	if err := c.resolve(); err != nil {
@@ -733,14 +734,17 @@ func (e env) pull(args []string) int {
 	if err != nil {
 		return e.fail("pull", err)
 	}
-	b, err := pullBaseline(context.Background(), cl, c, *envKey, *channel, *out)
+	b, err := pullBaseline(context.Background(), cl, c, *envKey, *channel, *out, true)
 	if err != nil {
 		return e.fail("pull", err)
+	}
+	if b.Sequence == 0 {
+		return e.emit(c.json, b, fmt.Sprintf("%s/%s has no release yet: pulled its %d keys into %s. The app syncs its first release when one is published.", *envKey, *channel, len(b.Keys), *out))
 	}
 	return e.emit(c.json, b, fmt.Sprintf("Pulled release %d (%d bundles, %d asset files, %d keys) into %s.", b.Sequence, len(b.Bundles), len(b.Assets), len(b.Keys), *out))
 }
 
-func pullBaseline(ctx context.Context, cl *clients, c common, envKey, channel, dir string) (baseline, error) {
+func pullBaseline(ctx context.Context, cl *clients, c common, envKey, channel, dir string, keysWithoutRelease bool) (baseline, error) {
 	envID, err := environmentID(ctx, cl, c.app, envKey)
 	if err != nil {
 		return baseline{}, err
@@ -749,14 +753,26 @@ func pullBaseline(ctx context.Context, cl *clients, c common, envKey, channel, d
 	if err != nil {
 		return baseline{}, err
 	}
+	out := baseline{App: c.app, Environment: envKey, Channel: channel, Sequence: seq, Bundles: []baselineEntry{}, Keys: []baselineKey{}}
 	if seq == 0 {
-		return baseline{}, fmt.Errorf("channel %s/%s has no release", envKey, channel)
+		if !keysWithoutRelease {
+			return baseline{}, fmt.Errorf("channel %s/%s has no release", envKey, channel)
+		}
+		// Before a first release the environment's keys are all there is: a host app's debug build embeds them and
+		// syncs its first release when one is published. A baseline.json from an earlier pull is removed, so the app
+		// imports none instead of refusing one made for another channel (#274).
+		if out.Keys, err = pullKeys(ctx, cl, c, envKey, dir); err != nil {
+			return baseline{}, err
+		}
+		if err := os.Remove(filepath.Join(dir, "baseline.json")); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			return baseline{}, fmt.Errorf("remove the earlier baseline: %w", err)
+		}
+		return out, nil
 	}
 	rel, err := cl.release.GetRelease(ctx, connect.NewRequest(&pluxv1.GetReleaseRequest{AppId: c.app, Sequence: seq}))
 	if err != nil {
 		return baseline{}, err //nolint:wrapcheck // reported as is
 	}
-	out := baseline{App: c.app, Environment: envKey, Channel: channel, Sequence: seq, Bundles: []baselineEntry{}, Keys: []baselineKey{}}
 	if err := os.MkdirAll(filepath.Join(dir, "bundles"), 0o755); err != nil { //nolint:gosec // G301: project files.
 		return baseline{}, fmt.Errorf("create %s: %w", dir, err)
 	}
@@ -771,24 +787,38 @@ func pullBaseline(ctx context.Context, cl *clients, c common, envKey, channel, d
 	if out.Assets, err = cl.writeAssets(ctx, dir, files); err != nil {
 		return baseline{}, err
 	}
+	if out.Keys, err = pullKeys(ctx, cl, c, envKey, dir); err != nil {
+		return baseline{}, err
+	}
+	data, _ := json.MarshalIndent(out, "", "  ")
+	if err := writeFile(filepath.Join(dir, "baseline.json"), append(data, '\n')); err != nil {
+		return baseline{}, err
+	}
+	return out, nil
+}
+
+// pullKeys writes the environment's public keys (keys.json) and its root, if an operator uploaded one, into dir.
+func pullKeys(ctx context.Context, cl *clients, c common, envKey, dir string) ([]baselineKey, error) {
 	keys, err := cl.manifest.GetRootKeys(ctx, connect.NewRequest(&pluxv1.GetRootKeysRequest{AppId: c.app, Environment: envKey}))
 	if err != nil {
-		return baseline{}, err //nolint:wrapcheck // reported as is
+		return nil, err //nolint:wrapcheck // reported as is
 	}
+	out := []baselineKey{}
 	for _, k := range keys.Msg.GetKeys() {
-		out.Keys = append(out.Keys, baselineKey{KeyID: k.GetKeyId(), Algorithm: k.GetAlgorithm(), Role: k.GetRole(), PublicKey: hex.EncodeToString(k.GetPublicKey())})
+		out = append(out, baselineKey{KeyID: k.GetKeyId(), Algorithm: k.GetAlgorithm(), Role: k.GetRole(), PublicKey: hex.EncodeToString(k.GetPublicKey())})
 	}
-	if len(out.Keys) == 0 {
-		return baseline{}, errors.New("the environment has no signing key yet")
+	if len(out) == 0 {
+		return nil, errors.New("the environment has no signing key yet")
 	}
-	for name, v := range map[string]any{"keys.json": out.Keys, "baseline.json": out} {
-		data, _ := json.MarshalIndent(v, "", "  ")
-		if err := writeFile(filepath.Join(dir, name), append(data, '\n')); err != nil {
-			return baseline{}, err
-		}
+	if err := os.MkdirAll(dir, 0o755); err != nil { //nolint:gosec // G301: project files.
+		return nil, fmt.Errorf("create %s: %w", dir, err)
+	}
+	data, _ := json.MarshalIndent(out, "", "  ")
+	if err := writeFile(filepath.Join(dir, "keys.json"), append(data, '\n')); err != nil {
+		return nil, err
 	}
 	if err := writeRoot(dir, keys.Msg.GetRoots()); err != nil {
-		return baseline{}, err
+		return nil, err
 	}
 	return out, nil
 }
