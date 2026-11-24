@@ -421,6 +421,23 @@ describe("[STU-100] build evidence and diffs", () => {
     expect(screen.getByText("No accessibility findings")).toBeTruthy();
   });
 
+  test("the app bundle's row shows its size, from the app's own versions (#197)", async () => {
+    const withApp = {
+      ...evidence,
+      versions: { ...evidence.versions, "app:app1": [{ version: 1, size: 2048, snapshot: "sa" }] },
+    };
+    open(
+      "/publish/r1",
+      fixture("reports", { plugins: [...plugins, { pluginKey: "", reason: "changed" }] }, { evidence: withApp }),
+      {
+        summaries,
+      },
+    );
+    await step("Reports");
+    await screen.findByText("2.0 KiB");
+    expect(screen.queryByText("Size not reported")).toBeNull();
+  });
+
   test("the diffs step shows the before and after of each screen and the JSON diff of the changed documents", async () => {
     const urls: Blob[] = [];
     URL.createObjectURL = (b: Blob | MediaSource) => {

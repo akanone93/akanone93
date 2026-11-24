@@ -29230,6 +29230,12 @@ components:
           allOf:
             - $ref: '#/components/schemas/plux.v1.Page'
           title: page
+        appId:
+          type: string
+          title: app_id
+          description: |-
+            app_id, with no plugin_id, lists the versions of that app's own bundle
+             (the app bundle), which belongs to no plugin.
       title: ListPluginVersionsRequest
       additionalProperties: false
     plux.v1.ListPluginVersionsResponse:

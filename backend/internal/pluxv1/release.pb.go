@@ -828,9 +828,12 @@ func (x *GetPluginVersionResponse) GetVersion() *PluginVersion {
 }
 
 type ListPluginVersionsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PluginId      string                 `protobuf:"bytes,1,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
-	Page          *Page                  `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	PluginId string                 `protobuf:"bytes,1,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	Page     *Page                  `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	// app_id, with no plugin_id, lists the versions of that app's own bundle
+	// (the app bundle), which belongs to no plugin.
+	AppId         string `protobuf:"bytes,3,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -877,6 +880,13 @@ func (x *ListPluginVersionsRequest) GetPage() *Page {
 		return x.Page
 	}
 	return nil
+}
+
+func (x *ListPluginVersionsRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
 }
 
 type ListPluginVersionsResponse struct {
@@ -1938,10 +1948,11 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x03R\aversion\"L\n" +
 	"\x18GetPluginVersionResponse\x120\n" +
-	"\aversion\x18\x01 \x01(\v2\x16.plux.v1.PluginVersionR\aversion\"[\n" +
+	"\aversion\x18\x01 \x01(\v2\x16.plux.v1.PluginVersionR\aversion\"r\n" +
 	"\x19ListPluginVersionsRequest\x12\x1b\n" +
 	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\x12!\n" +
-	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"y\n" +
+	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\x12\x15\n" +
+	"\x06app_id\x18\x03 \x01(\tR\x05appId\"y\n" +
 	"\x1aListPluginVersionsResponse\x122\n" +
 	"\bversions\x18\x01 \x03(\v2\x16.plux.v1.PluginVersionR\bversions\x12'\n" +
 	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xad\x02\n" +

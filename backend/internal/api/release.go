@@ -190,7 +190,7 @@ func (s Release) ListPluginVersions(ctx context.Context, req *connect.Request[pl
 		if err != nil {
 			return nil, err
 		}
-		vs, err := s.h.Releases.ListVersions(ctx, p, req.Msg.GetPluginId(), after.Sequence, size)
+		vs, err := s.h.Releases.ListVersions(ctx, p, req.Msg.GetPluginId(), req.Msg.GetAppId(), after.Sequence, size)
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}

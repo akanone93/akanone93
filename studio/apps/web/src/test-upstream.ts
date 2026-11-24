@@ -986,7 +986,7 @@ export function createUpstream(state: UpstreamData) {
                 }),
               )
             : state.release?.evidence !== undefined
-              ? (state.release.evidence.versions[req.pluginId] ?? []).map((v) =>
+              ? (state.release.evidence.versions[versionsKey(req)] ?? []).map((v) =>
                   create(PluginVersionSchema, {
                     id: `v${v.version}`,
                     version: BigInt(v.version),
@@ -1463,6 +1463,11 @@ const releaseHash = "c0ffee00c0ffee00c0ffee00";
 
 function refused(code: string): never {
   throw new ConnectError(`${code} refused`, Code.FailedPrecondition);
+}
+
+/** The key of a versions listing in a release fixture: the plugin, or the app bundle's as `app:<appId>` (#197). */
+function versionsKey(req: { readonly pluginId: string; readonly appId: string }): string {
+  return req.pluginId === "" ? `app:${req.appId}` : req.pluginId;
 }
 
 /** The release request state machine of ReleaseRequestService, as far as the Studio needs it. */

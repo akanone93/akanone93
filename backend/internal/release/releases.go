@@ -482,18 +482,18 @@ func (s *Service) GetAppVersion(ctx context.Context, p auth.Principal, appID str
 
 // ListVersions lists a plugin's versions, newest first; before is the
 // version to continue before.
-func (s *Service) ListVersions(ctx context.Context, p auth.Principal, pluginID string, before int64, size int32) ([]Version, error) {
+func (s *Service) ListVersions(ctx context.Context, p auth.Principal, pluginID, appID string, before int64, size int32) ([]Version, error) {
 	if before <= 0 {
 		before = 1 << 62
 	}
 	var out []Version
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		plugin, err := s.pluginRow(ctx, q, p, pluginID)
+		owner, err := s.versionsOwner(ctx, q, p, pluginID, appID)
 		if err != nil {
 			return err
 		}
-		rows, err := q.ListVersions(ctx, dbgen.ListVersionsParams{AppID: plugin.AppID, PluginID: plugin.ID, BeforeVersion: before, PageSize: size})
+		rows, err := q.ListVersions(ctx, dbgen.ListVersionsParams{AppID: owner.AppID, PluginID: owner.ID, BeforeVersion: before, PageSize: size})
 		if err != nil {
 			return failure(err, "version")
 		}
@@ -503,6 +503,23 @@ func (s *Service) ListVersions(ctx context.Context, p auth.Principal, pluginID s
 		return nil
 	})
 	return out, err
+}
+
+// versionsOwner is whose versions a listing reads: the plugin pluginID, or
+// with none, the app bundle of appID — the versions of no plugin (#197). Both
+// are read with plugin.read on the app, as every version is.
+func (s *Service) versionsOwner(ctx context.Context, q *dbgen.Queries, p auth.Principal, pluginID, appID string) (dbgen.Plugin, error) {
+	if pluginID != "" || appID == "" {
+		return s.pluginRow(ctx, q, p, pluginID)
+	}
+	app, err := parseID(appID, "app")
+	if err != nil {
+		return dbgen.Plugin{}, err
+	}
+	if err := authorize(p, auth.PluginRead, appID); err != nil {
+		return dbgen.Plugin{}, plxerr.New(plxerr.ResourceNotFound, "no such app")
+	}
+	return dbgen.Plugin{AppID: app}, nil
 }
 
 // pluginRow reads a plugin the principal may read.

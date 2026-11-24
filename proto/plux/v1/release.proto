@@ -141,6 +141,9 @@ message GetPluginVersionResponse {
 message ListPluginVersionsRequest {
   string plugin_id = 1;
   Page page = 2;
+  // app_id, with no plugin_id, lists the versions of that app's own bundle
+  // (the app bundle), which belongs to no plugin.
+  string app_id = 3;
 }
 message ListPluginVersionsResponse {
   repeated PluginVersion versions = 1;

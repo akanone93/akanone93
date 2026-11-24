@@ -55,11 +55,15 @@ export interface WarningDetail {
   readonly fix: string;
 }
 
-async function versionsOf(releases: Client<typeof ReleaseService>, pluginId: string): Promise<PluginVersion[]> {
+/** The versions of a plugin, or with no plugin those of the app's own bundle (#197). */
+async function versionsOf(
+  releases: Client<typeof ReleaseService>,
+  owner: { readonly pluginId: string; readonly appId: string },
+): Promise<PluginVersion[]> {
   const out: PluginVersion[] = [];
   let token = "";
   do {
-    const page = await releases.listPluginVersions({ pluginId, page: { pageSize: 100, pageToken: token } });
+    const page = await releases.listPluginVersions({ ...owner, page: { pageSize: 100, pageToken: token } });
     out.push(...page.versions);
     token = page.page?.nextPageToken ?? "";
   } while (token !== "");
@@ -73,10 +77,11 @@ async function evidenceOf(
     readonly publish: Client<typeof PublishService>;
   },
   build: BuildRef,
-  pluginId: string,
+  owner: { readonly pluginId: string; readonly appId: string },
 ): Promise<PluginEvidence> {
   const [versions, job] = await Promise.all([
-    pluginId === "" ? Promise.resolve([]) : versionsOf(clients.releases, pluginId),
+    // The app bundle belongs to no plugin: its versions are the app's (#197).
+    owner.pluginId === "" && owner.appId === "" ? Promise.resolve([]) : versionsOf(clients.releases, owner),
     build.jobId === "" ? Promise.resolve(undefined) : clients.publish.getPublishJob({ jobId: build.jobId }),
   ]);
   const built = versions.find((v) => v.version === build.version);
@@ -121,7 +126,18 @@ export function useEvidence(request: ReleaseRequest, pluginIds: ReadonlyMap<stri
         documents: createClient(DocumentService, session.transport),
         publish: createClient(PublishService, session.transport),
       };
-      return Promise.all(request.builds.map((b) => evidenceOf(clients, b, pluginIds.get(b.pluginKey) ?? "")));
+      return Promise.all(
+        request.builds.map((b) =>
+          // The app bundle's build has no plugin key: its versions are the app's (#197).
+          evidenceOf(
+            clients,
+            b,
+            b.pluginKey === ""
+              ? { pluginId: "", appId: request.appId }
+              : { pluginId: pluginIds.get(b.pluginKey) ?? "", appId: "" },
+          ),
+        ),
+      );
     },
   });
 }

@@ -403,9 +403,22 @@ func TestPublish(t *testing.T) {
 	if failed.State != release.StateFailed || !failed.Diagnostics.HasErrors() || failed.Version != 0 {
 		t.Errorf("a publish with errors: %+v", failed)
 	}
-	versions, err := f.rel.ListVersions(ctx, f.viewer, f.loans, 0, 10)
+	versions, err := f.rel.ListVersions(ctx, f.viewer, f.loans, "", 0, 10)
 	if err != nil || len(versions) != 2 || versions[0].Version != 2 {
 		t.Errorf("versions: %+v %v", versions, err)
+	}
+	// With no plugin, the app's own bundle: its versions, with their sizes, for the reports step (#197).
+	appVersions, err := f.rel.ListVersions(ctx, f.viewer, "", f.app, 0, 10)
+	if err != nil || len(appVersions) != 1 || appVersions[0].Version != 1 || appVersions[0].BundleSize <= 0 || appVersions[0].PluginID != "" {
+		t.Errorf("app bundle versions: %+v %v", appVersions, err)
+	}
+	if _, err := f.rel.ListVersions(ctx, f.viewer, "", "not-an-id", 0, 10); err == nil {
+		t.Error("an app id that is no id is refused")
+	}
+	// Without plugin.read on the app, the app's versions are not found, as a plugin's are.
+	blind := auth.Principal{Identity: f.viewer.Identity, OrganizationID: f.viewer.OrganizationID}
+	if _, err := f.rel.ListVersions(ctx, blind, "", f.app, 0, 10); code(err) != plxerr.ResourceNotFound {
+		t.Errorf("app versions without plugin.read: %v", err)
 	}
 	// Cancelled before the worker ran: nothing happens.
 	queued, err := f.rel.Publish(ctx, f.owner, release.PublishRequest{AppID: f.app, EnvironmentID: f.envs["development"].ID})
