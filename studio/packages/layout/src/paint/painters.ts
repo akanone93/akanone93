@@ -39,6 +39,7 @@ import {
   shapePaint,
 } from "./paint.ts";
 import { segmentedPaint } from "./segmented.ts";
+import { stepperPaint } from "./stepper.ts";
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -248,6 +249,7 @@ function circleAvatar(props: Obj, r: Rect, theme: PaintTheme): Painted {
 
 const painters: ReadonlyMap<string, Painter> = new Map<string, Painter>([
   ["SegmentedButton", (props, r, theme) => segmentedPaint(props, r, theme) ?? {}],
+  ["Stepper", (props, r, theme) => stepperPaint(props, r, theme) ?? {}],
   ["Image", image],
   ["CircleAvatar", circleAvatar],
   ["Container", container],

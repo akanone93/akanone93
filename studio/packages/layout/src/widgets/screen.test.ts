@@ -327,6 +327,46 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(track?.border).toBeDefined();
   });
 
+  test("a Stepper draws its steps: numbered, checked or in error, joined by lines, its titles beside (row 123)", () => {
+    const root: WidgetNode = {
+      id: "st",
+      type: "Stepper",
+      props: {
+        currentStep: 1,
+        steps: [
+          { title: "About you", state: "complete", isActive: true },
+          { title: "Your education", subtitle: "Two schools", state: "indexed", isActive: true },
+          { title: "Your essay", state: "error", isActive: true },
+        ],
+      },
+    };
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const box = layoutScreen(root, { engine, theme, paint: { scheme } }).boxes.find((b) => b.id === "st");
+    expect(box?.kind).not.toBe("placeholder");
+    expect(box?.paint?.texts?.map((t) => t.text)).toEqual([
+      "About you",
+      "2",
+      "Your education",
+      "Two schools",
+      "Your essay",
+    ]);
+    expect(box?.paint?.glyphs?.map((g) => g.name)).toEqual(["check", "warning"]);
+    const x = box?.x ?? 0;
+    const y = box?.y ?? 0;
+    // Circles 24 across, 24 from the start, centred in 72-high headers; the current step's 88 of content follow it.
+    const circles = box?.paint?.boxes.filter((b) => b.w === 24) ?? [];
+    expect(circles.map((c) => [c.x - x, c.y - y])).toEqual([
+      [24, 24],
+      [24, 96],
+    ]);
+    expect(box?.paint?.glyphs?.[1]).toMatchObject({ x: x + 24, y: y + 72 + 72 + 88 + 24, color: 0xf44336ff });
+    // A title stands 60 from the start; a step in error has its title in red.
+    expect(box?.paint?.texts?.[0]?.x).toBe(x + 60);
+    expect(box?.paint?.texts?.at(-1)?.color).toBe(0xf44336ff);
+    // Lines join the circles: below the first, above and below the second (and down its content), above the last.
+    expect(box?.paint?.boxes.filter((b) => b.w === 1).length).toBe(5);
+  });
+
   test("a widget the scene cannot build is named, with why, instead of failing in silence (#80)", () => {
     const root: WidgetNode = {
       id: "col",
