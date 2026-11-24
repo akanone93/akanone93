@@ -147,12 +147,13 @@ func writeStepUpJSON(w http.ResponseWriter, status int, body map[string]any) {
 	_ = json.NewEncoder(w).Encode(body)
 }
 
-// pageData is what the step-up page shows.
+// pageData is what the step-up page shows, in the visitor's language.
 type pageData struct {
 	Nonce   string
 	Request string
 	CSRF    string
 	Message string
+	T       stepUpText
 }
 
 // Page handles GET /stepup?request=<id>: the page on which a person, signed
@@ -175,7 +176,7 @@ func (s *StepUpRoutes) Page(w http.ResponseWriter, r *http.Request) {
 	h.Set("Referrer-Policy", "no-referrer")
 	h.Set("X-Content-Type-Options", "nosniff")
 	h.Set("Cross-Origin-Opener-Policy", "same-origin")
-	data := pageData{Nonce: nonce, Request: r.URL.Query().Get("request")}
+	data := pageData{Nonce: nonce, Request: r.URL.Query().Get("request"), T: stepUpTextFor(r.Header.Get("Accept-Language"))}
 	status, tmpl := s.decide(r, &data)
 	w.WriteHeader(status)
 	_ = tmpl.Execute(w, data)
@@ -186,16 +187,16 @@ func (s *StepUpRoutes) Page(w http.ResponseWriter, r *http.Request) {
 func (s *StepUpRoutes) decide(r *http.Request, data *pageData) (int, *template.Template) {
 	secret, ok := cookie(r.Header, SessionCookie)
 	if !ok {
-		data.Message = "Sign in to Plux Studio in this browser, then open this link again."
+		data.Message = data.T.SignIn
 		return http.StatusUnauthorized, s.notice
 	}
 	id, err := s.Auth.AuthenticateSession(r.Context(), secret)
 	if err != nil {
-		data.Message = "Your Studio session is not valid. Sign in again, then open this link again."
+		data.Message = data.T.Session
 		return http.StatusUnauthorized, s.notice
 	}
 	if _, err := s.Auth.PendingStepUp(r.Context(), id, data.Request); err != nil {
-		data.Message = "There is no step-up request waiting for you here. Run the command again."
+		data.Message = data.T.NoRequest
 		return http.StatusNotFound, s.notice
 	}
 	data.CSRF = id.CSRFToken
@@ -211,25 +212,49 @@ func newNonce() (string, error) {
 	return base64.RawStdEncoding.EncodeToString(b), nil
 }
 
-// stepUpNotice is the page for a visitor who cannot approve anything.
-const stepUpNotice = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plux step-up</title>
-<style nonce="{{.Nonce}}">body{font:16px/1.5 system-ui,sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem}</style>
-</head><body><main><h1>Plux step-up</h1><p>{{.Message}}</p></main></body></html>`
-
-// stepUpPage is the page of the ceremony. The script is static: what varies
-// travels in data attributes, which the template escapes.
-const stepUpPage = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plux step-up</title>
-<style nonce="{{.Nonce}}">body{font:16px/1.5 system-ui,sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem}button{font:inherit;padding:.6rem 1rem}</style>
+// stepUpHead is the head both pages share: Studio's colours in light and
+// dark (theme.gen.css), its type, and its brand row, under the page's nonce.
+// The CSP loads nothing else, so the type is the system's when Inter is not
+// installed.
+const stepUpHead = `<!doctype html>
+<html lang="{{.T.Lang}}" dir="{{.T.Dir}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{{.T.Title}} · Plux Studio</title>
+<style nonce="{{.Nonce}}">
+:root{color-scheme:light dark;--background:oklch(0.985 0.001 286);--foreground:oklch(0.141 0.005 285.823);--card:oklch(1 0 0);--primary:oklch(0.511 0.262 276.966);--primary-foreground:oklch(0.985 0 0);--muted-foreground:oklch(0.52 0.016 286);--border:oklch(0.92 0.004 286.32);--ring:oklch(0.585 0.233 277.117);--radius:0.625rem}
+@media (prefers-color-scheme:dark){:root{--background:oklch(0.178 0.005 286);--foreground:oklch(0.985 0 0);--card:oklch(0.218 0.006 286);--muted-foreground:oklch(0.705 0.015 286.067);--border:oklch(1 0 0 / 10%)}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100svh;display:flex;flex-direction:column;gap:1rem;padding:1.5rem;background:var(--background);color:var(--foreground);font:14px/1.5 "Inter Variable","Inter","Noto Sans Arabic",ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:500}
+.mark{display:flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:calc(var(--radius) * 0.6);background:var(--primary);color:var(--primary-foreground)}
+main{flex:1;display:flex;align-items:center;justify-content:center}
+.card{width:100%;max-width:24rem;display:flex;flex-direction:column;gap:1rem;padding:1.5rem;border:1px solid var(--border);border-radius:calc(var(--radius) * 1.4);background:var(--card);box-shadow:0 1px 2px oklch(0 0 0 / 6%)}
+h1{margin:0;font-size:1.25rem;font-weight:600;letter-spacing:-0.01em}
+p{margin:0}
+.lead{color:var(--muted-foreground)}
+button{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;height:2.25rem;padding:0 1rem;border:0;border-radius:var(--radius);background:var(--primary);color:var(--primary-foreground);font:inherit;font-weight:500;cursor:pointer}
+button:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+#status:empty{display:none}
+#status{color:var(--muted-foreground)}
+</style>
 </head><body>
-<main id="app" data-request="{{.Request}}" data-csrf="{{.CSRF}}">
-<h1>Confirm with your security key</h1>
-<p>The Plux command line asks you to confirm an action with your security key. Continue only if you just started it.</p>
-<button id="go" type="button">Use my security key</button>
+<div class="brand"><span class="mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg></span>Plux Studio</div>
+`
+
+// stepUpNotice is the page for a visitor who cannot approve anything.
+const stepUpNotice = stepUpHead + `<main><div class="card"><h1>{{.T.Title}}</h1><p class="lead">{{.Message}}</p></div></main></body></html>`
+
+// stepUpPage is the page of the ceremony. The script is static: what varies,
+// its words included, travels in data attributes, which the template escapes.
+const stepUpPage = stepUpHead + `<main id="app" data-request="{{.Request}}" data-csrf="{{.CSRF}}"
+ data-waiting="{{.T.Waiting}}" data-confirmed="{{.T.Confirmed}}" data-not-confirmed="{{.T.NotConfirmed}}" data-refused="{{.T.Refused}}">
+<div class="card">
+<h1>{{.T.Heading}}</h1>
+<p class="lead">{{.T.Lead}}</p>
+<button id="go" type="button">{{.T.Button}}</button>
 <p id="status" role="status"></p>
+</div>
 </main>
 <script nonce="{{.Nonce}}">
 (() => {
@@ -245,12 +270,12 @@ const stepUpPage = `<!doctype html>
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!res.ok) { throw new Error(data.message || 'The request was refused.'); }
+    if (!res.ok) { throw new Error(data.message || app.dataset.refused); }
     return data;
   };
   button.addEventListener('click', async () => {
     button.disabled = true;
-    status.textContent = 'Waiting for your security key...';
+    status.textContent = app.dataset.waiting;
     try {
       const begun = await call('BeginStepUp', {cliRequestId: app.dataset.request});
       const o = JSON.parse(begun.optionsJson);
@@ -263,9 +288,9 @@ const stepUpPage = `<!doctype html>
         requestId: begun.requestId, credentialId: toB64(cred.rawId), clientDataJson: toB64(r.clientDataJSON),
         authenticatorData: toB64(r.authenticatorData), signature: toB64(r.signature),
       });
-      status.textContent = 'Confirmed. You can return to the terminal.';
+      status.textContent = app.dataset.confirmed;
     } catch (e) {
-      status.textContent = 'Not confirmed: ' + e.message;
+      status.textContent = app.dataset.notConfirmed + ' ' + e.message;
       button.disabled = false;
     }
   });
