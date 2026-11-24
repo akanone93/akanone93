@@ -220,3 +220,15 @@
 .app-dock[data-folded] .dock-rail-column {
   border-radius: inherit;
 }
+
+/*
+ * The developer console on the app canvas (#282): a slim bar beside the view map and the zoom while closed, the width
+ * from the dock's edge to the canvas's while open, its height set from its top edge.
+ */
+.app-canvas .dev-console {
+  inset-inline: 14rem auto;
+}
+
+.app-canvas .dev-console[data-open] {
+  inset-inline: 23rem 0.75rem;
+}

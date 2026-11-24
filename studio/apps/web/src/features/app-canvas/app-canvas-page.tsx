@@ -65,6 +65,7 @@ import {
   removeLink,
   type SceneBox,
 } from "./app-canvas.scene.ts";
+import { AppConsole } from "./app-console.tsx";
 import { AppDock } from "./app-dock.tsx";
 import { useFunctionsPane } from "./app-functions.tsx";
 import { AppJsonEditor } from "./app-json-editor.tsx";
@@ -1031,6 +1032,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
               onFit={fit}
             />
           </div>
+          <AppConsole appId={appId} route={entryRoute} problems={problemsPane} />
           <DevLinkBar route={entryRoute} />
           <HistoryOverlay open={historyOpen} onClose={() => setHistoryOpen(false)} />
           <MoveScreenDialog

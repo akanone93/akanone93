@@ -36,6 +36,7 @@ import { type Capture, lookOf, ScreenshotPanel } from "./screenshot-panel.tsx";
 import type { ScreenshotStore } from "./screenshots.ts";
 import { SendToDeviceDialog } from "./send-dialog.tsx";
 import { useDevClient } from "./use-dev-session.ts";
+import "./dev-console.css";
 
 export { type ConsoleStatus, consoleStatus } from "./dev-link.tsx";
 
@@ -69,6 +70,11 @@ export interface DeviceBayProps {
    * app's link the link starts it.
    */
   readonly live?: boolean;
+  /**
+   * Whether the bar shows the link's state and the join prompts; false where the page shows them already (the app
+   * canvas's link bar, #282).
+   */
+  readonly linkShown?: boolean;
 }
 
 type Dialog = "pair" | "send" | null;
@@ -137,6 +143,7 @@ function ConsoleBar(props: {
   readonly onProblems: () => void;
   readonly onHighlight: () => void;
   readonly onShot: () => void;
+  readonly linkShown: boolean;
 }) {
   const m = devicesMessages(useLingui().i18n);
   return (
@@ -146,7 +153,7 @@ function ConsoleBar(props: {
         {m.bayToggle}
         <Icon name={props.shown ? "caret-down" : "caret-up"} size="pill" />
       </button>
-      <DevLinkPill status={props.status} />
+      {props.linkShown && <DevLinkPill status={props.status} />}
       <button
         type="button"
         className="dev-console-chip"
@@ -339,10 +346,11 @@ function Bay(props: DeviceBayProps & { readonly onAsk: () => void }): ReactNode 
       className="dev-console absolute bottom-3 z-10"
       data-open={shown || undefined}
     >
-      <DevLinkPrompts />
+      {props.linkShown !== false && <DevLinkPrompts />}
       <div className="canvas-panel glass dev-console-panel" style={shown ? { blockSize: height } : undefined}>
         {shown && <ConsoleGrip height={height} onHeight={setHeight} />}
         <ConsoleBar
+          linkShown={props.linkShown !== false}
           shown={shown}
           status={status}
           live={status.kind === "live"}
