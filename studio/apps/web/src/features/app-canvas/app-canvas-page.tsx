@@ -88,10 +88,10 @@ import {
   AppBar,
   CanvasStatus,
   CanvasToolbar,
+  FollowedZoomControls,
   Panel,
   PluginActions,
   PluginContextMenu,
-  ZoomControls,
 } from "./canvas-chrome.tsx";
 import { FrameTools } from "./frame-tools.tsx";
 import { LaneMenu } from "./lane-menu.tsx";
@@ -1053,7 +1053,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
               labels={{ label: m.viewMap, hide: m.viewMapHide, show: m.viewMapShow }}
               onView={viewChanged}
             />
-            <ZoomControls
+            <FollowedZoomControls
+              surface={surface}
               zoom={zoom}
               messages={m}
               onZoomIn={() => zoomBy(1.25)}
