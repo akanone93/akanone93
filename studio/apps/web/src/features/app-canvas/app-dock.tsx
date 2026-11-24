@@ -114,6 +114,7 @@ export function AppDock({
   routes,
   functions,
   search,
+  quality,
   releases,
   onEditJson,
   onHistory,
@@ -138,6 +139,8 @@ export function AppDock({
   readonly problems?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
   /** Every route of the app (#268); `meta` is the count the tab shows. */
   readonly routes?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
+  /** Per plugin, the screens with low-contrast texts or near their widget budget (#288). */
+  readonly quality?: { readonly label: string; readonly meta: string; readonly panel: ReactNode } | undefined;
   /** One search across the app, with where each thing is used (#265). */
   readonly search?: { readonly label: string; readonly panel: ReactNode } | undefined;
   /** Each function, the plugins that call it and its deployment (#266); `meta` is the count the tab shows. */
@@ -290,6 +293,7 @@ export function AppDock({
     ...optionalPane("routes", "navigation-arrow", routes),
     ...optionalPane("functions", "lightning", functions),
     ...optionalPane("problems", "x-circle", problems),
+    ...optionalPane("quality", "gauge", quality),
     ...optionalPane("assets", "image", assets),
     {
       value: "overview",

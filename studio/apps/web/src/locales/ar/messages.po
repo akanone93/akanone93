@@ -292,6 +292,12 @@ msgstr "{count, plural, zero {لا إدخالات حالة} one {إدخال حا
 msgid "tests.fromSessionSteps"
 msgstr "{count, plural, zero {لا نقرات مسجلة في جلسة الجهاز} one {نقرة واحدة مسجلة في جلسة الجهاز} two {نقرتان مسجلتان في جلسة الجهاز} few {# نقرات مسجلة في جلسة الجهاز} many {# نقرة مسجلة في جلسة الجهاز} other {# نقرة مسجلة في جلسة الجهاز}}"
 
+#. A screen's accessibility finding in the Quality tab; modes are light and/or dark, e.g. 'light · dark'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.contrast"
+msgstr "{count, plural, zero {لا نصوص بتباين منخفض ({modes})} one {نص واحد بتباين غير كافٍ ({modes})} two {نصان بتباين غير كافٍ ({modes})} few {# نصوص بتباين غير كافٍ ({modes})} many {# نصًا بتباين غير كافٍ ({modes})} other {# نص بتباين غير كافٍ ({modes})}}"
+
 #. STU-070, STU-072: heading of the list of uses of, or links into, the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -1077,6 +1083,12 @@ msgstr "{nodes} من {limit}"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.costNodes"
 msgstr "{nodes} من {limit} عقدة"
+
+#. A screen's widgets against the page's widget budget, in the Quality tab, when near or over it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.nodes"
+msgstr "{nodes} من {limit} عنصر"
 
 #. Summary of a finished test run: the number of tests that passed and failed.
 #. js-lingui-explicit-id
@@ -11549,6 +11561,12 @@ msgstr "لا توجد سيناريوهات بعد."
 msgid "appCanvas.noScreen"
 msgstr "لا توجد شاشة"
 
+#. The app canvas's Quality tab when every screen passes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.none"
+msgstr "لا توجد شاشة فيها نص بتباين منخفض، ولا شاشة قريبة من ميزانية عناصرها."
+
 #. Problem shown for a link whose target screen does not exist; route is the route name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -13816,6 +13834,12 @@ msgstr "رمز QR لرابط الإقران"
 msgid "profile.phones.qrLabel"
 msgstr "رمز QR يوصل هاتفًا بتطبيق Plux Dev"
 
+#. Tab of the app canvas's left dock: per plugin, the screens with low-contrast texts or over the widget budget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.tab"
+msgstr "الجودة"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -13869,6 +13893,12 @@ msgstr "إعادة الاستلام والتطبيق"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataChooseFile"
 msgstr "قراءة ملف من هذا الحاسوب"
+
+#. What the app canvas's Quality tab checks and what it leaves to the plugin canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.note"
+msgstr "مقروء من المستندات: يُعد المكوّن هنا عنصرًا واحدًا وتُفحص نصوصه حيث هو؛ وتُعلَّم أهداف اللمس في عرض إمكانية الوصول للإضافة."
 
 #. Hint above the properties when editing is blocked.
 #. js-lingui-explicit-id

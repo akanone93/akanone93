@@ -79,6 +79,7 @@ import {
   useProblemReveal,
   useProblemsPane,
 } from "./app-problems.tsx";
+import { useQualityPane } from "./app-quality.tsx";
 import { AppReleases } from "./app-releases.tsx";
 import { type RouteScreen, useRoutesPane } from "./app-routes.tsx";
 import { useSearchPane } from "./app-search.tsx";
@@ -752,6 +753,14 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       }),
     setMovingScreen,
   );
+  // Per plugin, the screens to look at for contrast or their widget budget (#288).
+  const qualityPane = useQualityPane(project.data, loaded, graph.pages, pluginName, (plugin, page) =>
+    navigate({
+      to: "/o/$org/apps/$app/plugins/$plugin",
+      params: { org: orgKey, app: appId, plugin },
+      search: { focus: page },
+    }),
+  );
   // One search across the app, with where each thing is used (#265).
   const searchPane = useSearchPane(loaded, list, {
     onPlugin: (id) => {
@@ -1005,6 +1014,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             routes={routesPane}
             functions={functionsPane}
             search={searchPane}
+            quality={qualityPane}
             releases={<AppReleases org={orgKey} appId={appId} />}
             onEditJson={() => setOverlay("json")}
             onHistory={() => setOverlay("history")}

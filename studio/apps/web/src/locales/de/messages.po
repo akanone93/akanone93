@@ -292,6 +292,12 @@ msgstr "{count, plural, one {# Zustandseintrag} other {# Zustandseinträge}}"
 msgid "tests.fromSessionSteps"
 msgstr "{count, plural, one {# Tippen in der Gerätesitzung aufgezeichnet} other {# Tippen in der Gerätesitzung aufgezeichnet}}"
 
+#. A screen's accessibility finding in the Quality tab; modes are light and/or dark, e.g. 'light · dark'.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.contrast"
+msgstr "{count, plural, one {# Text mit zu wenig Kontrast ({modes})} other {# Texte mit zu wenig Kontrast ({modes})}}"
+
 #. STU-070, STU-072: heading of the list of uses of, or links into, the item.
 #. js-lingui-explicit-id
 #: apps/web/src/features/safety/safety.messages.ts
@@ -1077,6 +1083,12 @@ msgstr "{nodes} von {limit}"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.costNodes"
 msgstr "{nodes} von {limit} Knoten"
+
+#. A screen's widgets against the page's widget budget, in the Quality tab, when near or over it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.nodes"
+msgstr "{nodes} von {limit} Widgets"
 
 #. Summary of a finished test run: the number of tests that passed and failed.
 #. js-lingui-explicit-id
@@ -11549,6 +11561,12 @@ msgstr "Noch keine Szenarien."
 msgid "appCanvas.noScreen"
 msgstr "Kein Bildschirm"
 
+#. The app canvas's Quality tab when every screen passes.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.none"
+msgstr "Kein Bildschirm hat einen Text mit zu wenig Kontrast, und keiner ist nahe an seinem Widget-Budget."
+
 #. Problem shown for a link whose target screen does not exist; route is the route name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/links.messages.ts
@@ -13816,6 +13834,12 @@ msgstr "QR-Code des Kopplungslinks"
 msgid "profile.phones.qrLabel"
 msgstr "QR-Code, der ein Telefon mit der Plux-Dev-App verbindet"
 
+#. Tab of the app canvas's left dock: per plugin, the screens with low-contrast texts or over the widget budget.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.tab"
+msgstr "Qualität"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -13869,6 +13893,12 @@ msgstr "Erneut übernehmen und anwenden"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dataChooseFile"
 msgstr "Datei von diesem Computer lesen"
+
+#. What the app canvas's Quality tab checks and what it leaves to the plugin canvas.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.quality.note"
+msgstr "Aus den Dokumenten gelesen: Eine Komponente zählt hier als ein Widget, und ihre Texte werden dort geprüft, wo sie ist; Touch-Ziele markiert die Barrierefreiheitsansicht eines Plugins."
 
 #. Hint above the properties when editing is blocked.
 #. js-lingui-explicit-id

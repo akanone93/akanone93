@@ -855,6 +855,39 @@ export function appCanvasMessages(i18n: I18n) {
       message: "The deployed functions could not be read: what calls what is shown without them.",
       comment: "Note in the app canvas's Functions tab when the development environment's functions cannot be read.",
     }),
+    qualityTab: i18n._({
+      id: "appCanvas.quality.tab",
+      message: "Quality",
+      comment:
+        "Tab of the app canvas's left dock: per plugin, the screens with low-contrast texts or over the widget budget.",
+    }),
+    qualityNone: i18n._({
+      id: "appCanvas.quality.none",
+      message: "No screen has a low-contrast text, and none is near its widget budget.",
+      comment: "The app canvas's Quality tab when every screen passes.",
+    }),
+    qualityContrast: (count: number, modes: string) =>
+      i18n._({
+        id: "appCanvas.quality.contrast",
+        message:
+          "{count, plural, one {# text with too little contrast ({modes})} other {# texts with too little contrast ({modes})}}",
+        values: { count, modes },
+        comment:
+          "A screen's accessibility finding in the Quality tab; modes are light and/or dark, e.g. 'light · dark'.",
+      }),
+    qualityNodes: (nodes: number, limit: number) =>
+      i18n._({
+        id: "appCanvas.quality.nodes",
+        message: "{nodes} of {limit} widgets",
+        values: { nodes, limit },
+        comment: "A screen's widgets against the page's widget budget, in the Quality tab, when near or over it.",
+      }),
+    qualityNote: i18n._({
+      id: "appCanvas.quality.note",
+      message:
+        "Read from the documents: a component is one widget here and its texts are checked where it is; touch targets are marked in a plugin's Accessibility view.",
+      comment: "What the app canvas's Quality tab checks and what it leaves to the plugin canvas.",
+    }),
     searchTab: i18n._({
       id: "appCanvas.search.tab",
       message: "Search",
