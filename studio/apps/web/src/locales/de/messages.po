@@ -6066,12 +6066,6 @@ msgstr "Herunterladen"
 msgid "admin.download"
 msgstr "Herunterladen"
 
-#. Button that generates and downloads the host project.
-#. js-lingui-explicit-id
-#: apps/web/src/features/new-app/new-app.messages.ts
-msgid "newApp.project.download"
-msgstr "Flutter-Projekt herunterladen"
-
 #. Button that downloads only the files that changed since the project was last generated.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -13775,6 +13769,12 @@ msgstr "Veröffentlichen"
 msgid "onboarding.step.publish"
 msgstr "Version veröffentlichen"
 
+#. How to get the generated Flutter host project after creating an app. Native shell and Host project are the names of a page and its section; flutter run is a command, not translated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.project.howTo"
+msgstr "Veröffentlichen Sie zuerst ein Release: Das Projekt enthält dessen Signaturschlüssel. Laden Sie das Projekt dann unter Native shell › Host project herunter und führen Sie darin flutter run aus."
+
 #. js-lingui-explicit-id
 #: apps/web/src/features/notifications/notification-kinds.ts
 msgid "notify.name.release.published"
@@ -18422,12 +18422,6 @@ msgstr "Die Funktion hat keine Abhängigkeiten."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.listCaption"
 msgstr "Die Funktionen dieser Umgebung mit ihrer neuesten Version."
-
-#. Explains the generated Flutter project that can be downloaded.
-#. js-lingui-explicit-id
-#: apps/web/src/features/new-app/new-app.messages.ts
-msgid "newApp.project.caption"
-msgstr "Das Host-Projekt enthält den Namen der App, Kennungen, Symbole, die Plux-Laufzeit und Build-Skripte. Sie können es später auch in den Shell-Einstellungen der App herunterladen."
 
 #. Shown in the icon picker when an upload failed; the server's reason follows.
 #. js-lingui-explicit-id

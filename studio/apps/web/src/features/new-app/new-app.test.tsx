@@ -361,7 +361,8 @@ describe("creating an app from a .plux archive [STU-024]", () => {
 });
 
 describe("the generated Flutter project on the last step [STU-024]", () => {
-  const finish = async (state: Upstream) => {
+  test("the last step says where to download the project once a release is published; it offers no download itself", async () => {
+    const state = manager({ projects: { calls: [], samples, jobStatuses: ["succeeded"] } });
     renderApp(home, state);
     const dialog = await open();
     radio(dialog, "From a template");
@@ -370,56 +371,9 @@ describe("the generated Flutter project on the last step [STU-024]", () => {
     next(dialog);
     create(dialog);
     await within(dialog).findByRole("heading", { name: "Starter was created" });
-    return dialog;
-  };
-
-  test("the project is generated as a job, followed until it is ready, and downloaded", async () => {
-    let downloaded = "";
-    const created = URL.createObjectURL;
-    URL.createObjectURL = (b: Blob | MediaSource) => {
-      downloaded = (b as Blob).type;
-      return "blob:project";
-    };
-    const state = manager({ projects: { calls: [], samples, jobStatuses: ["queued", "running", "succeeded"] } });
-    const dialog = await finish(state);
-    fireEvent.click(within(dialog).getByRole("button", { name: "Download Flutter project" }));
-    expect(await within(dialog).findByText("Downloaded shop-project.zip", {}, { timeout: 5000 })).toBeTruthy();
-    URL.createObjectURL = created;
-    expect(downloaded).toBe("application/zip");
-    expect(state.projects?.calls.filter((c) => !c.startsWith("sample:"))).toEqual([
-      "generate:app-starter:production:production",
-      "job:job-1",
-      "job:job-1",
-      "job:job-1",
-      "download:job-1",
-    ]);
-  });
-
-  test("a failed job shows the server's explanation", async () => {
-    const state = manager({
-      projects: {
-        calls: [],
-        samples,
-        jobStatuses: ["failed"],
-        jobError: { code: "PLX-4012", message: "no release to embed" },
-      },
-    });
-    const dialog = await finish(state);
-    fireEvent.click(within(dialog).getByRole("button", { name: "Download Flutter project" }));
-    expect((await within(dialog).findByRole("alert", {}, { timeout: 5000 })).textContent).toBe(
-      "The project could not be generated: no release to embed",
-    );
-  });
-
-  test("a refusal such as the hourly limit is shown and nothing is polled", async () => {
-    const state = manager({
-      projects: { calls: [], samples, refuse: { generate: "the app has queued 10 projects this hour" } },
-    });
-    const dialog = await finish(state);
-    fireEvent.click(within(dialog).getByRole("button", { name: "Download Flutter project" }));
-    expect((await within(dialog).findByRole("alert")).textContent).toBe(
-      "The project could not be generated: the app has queued 10 projects this hour",
-    );
-    expect(state.projects?.calls.some((c) => c.startsWith("job:"))).toBe(false);
+    const project = within(dialog).getByRole("region", { name: "Flutter project" });
+    expect(project.textContent).toContain("Native shell › Host project");
+    expect(within(dialog).queryByRole("button", { name: /Download/ })).toBeNull();
+    expect(state.projects?.calls.filter((c) => !c.startsWith("sample:"))).toEqual([]);
   });
 });

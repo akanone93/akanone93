@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.22.0
+**Version:** 1.22.1
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -1674,7 +1674,7 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
 | `STU-021` | P11 | MUST | Each card's visual **MUST** be, in order of preference: a live screenshot of the app's plugin canvas, an uploaded image, or a monogram of the app name's first character on a colour derived from the app. | DONE |
 | `STU-022` | P11 | MUST | Each card **MUST** show the app's name, description, owning team, environment badges with live release per environment, last publish (who, when), active devices, number of plugins, and a health indicator (crash-free rate and error trend). | DONE |
 | `STU-023` | P11 | MUST | The grid **MUST** support search, filters (team, tag, status, my apps), sort (name, last activity, health), pinning favourites, and card actions (open, settings, duplicate, export `.plux` archive, archive). | DONE |
-| `STU-024` | P11 | MUST | Creating an app **MUST** offer: blank, from template, from `.plux` import, or from an AI prompt (`AI-010`, arriving with P12); then locales, theme, security profile and environments. Every new app **MUST** start with a default plugin and entry screen, and offer the **generated Flutter project** for download (`GEN-001`). | DONE |
+| `STU-024` | P11 | MUST | Creating an app **MUST** offer: blank, from template, from `.plux` import, or from an AI prompt (`AI-010`, arriving with P12); then locales, theme, security profile and environments. Every new app **MUST** start with a default plugin and entry screen, and offer the **generated Flutter project** for download (`GEN-001`): on the app's Native shell page once a release gives it signing keys, which the wizard's last step names. | DONE |
 | `STU-025` | P11 | MUST | Each app card and app settings **MUST** show the app's limits usage (release size, plugins, pages, assets, functions) against its configured limits (§30.4). | DONE |
 
 ### 21.4 App canvas — the plugin graph
@@ -3136,10 +3136,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.22.0 |
+| Version | 1.22.1 |
 | Status | Draft (living document) |
 | Date | 2026-11-24 |
-| Supersedes | 1.21.0 |
+| Supersedes | 1.22.0 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3187,3 +3187,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.20.0 | 2026-11-23 | The Dev app's trust (maintainer, 2026-11-23; ADR-0109, revising ADR-0087, ADR-0093 and ADR-0104): the §20 trust paragraph — the Dev app pins no key at build time; its phone pins the organisation's development root from the sign-in QR code, and each app opens with the development key that root certifies when the phone joins a session, development keys only (`SEC-056`). No requirement's text or status changes. |
 | 1.21.0 | 2026-11-24 | No alignment guides or snapping on the canvases (maintainer, 2026-11-24, build log row 225; ADR-0110): `STU-032` no longer names snapping and alignment guides, `STU-050` no longer names snapping, and `STU-067` no longer names smart guides and distance measurement. A dragged box follows the pointer; the insertion indicator, the drop target and the marquee stay. |
 | 1.22.0 | 2026-11-24 | A screen's frame grows to hold its content (maintainer, 2026-11-24, build log row 119; ADR-0111): `STU-056` — the frame grows to hold the page's own scroll content, its bars below that content, with a mark where the device's view ends; the translucent overflow region stays for content that overflows a box that does not scroll. |
+| 1.22.1 | 2026-11-24 | `STU-024` says where a new app's Flutter project is offered: on the app's Native shell page once a release gives it signing keys, which the creation wizard's last step names instead of a download that cannot work before the first release (maintainer, 2026-11-24, build log row 234). A clarification; the requirement is unchanged. |

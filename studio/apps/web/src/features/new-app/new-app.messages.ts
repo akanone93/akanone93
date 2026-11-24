@@ -444,16 +444,12 @@ export function newAppMessages(i18n: I18n) {
       message: "Flutter project",
       comment: "Heading of the offer to download the generated host project.",
     }),
-    projectCaption: i18n._({
-      id: "newApp.project.caption",
+    projectHowTo: i18n._({
+      id: "newApp.project.howTo",
       message:
-        "The host project holds the app's name, identifiers, icons, the Plux runtime and build scripts. You can also download it later from the app's shell settings.",
-      comment: "Explains the generated Flutter project that can be downloaded.",
-    }),
-    projectDownload: i18n._({
-      id: "newApp.project.download",
-      message: "Download Flutter project",
-      comment: "Button that generates and downloads the host project.",
+        "Publish a release first: the project carries its signing keys. Then download the project from Native shell › Host project and run flutter run in it.",
+      comment:
+        "How to get the generated Flutter host project after creating an app. Native shell and Host project are the names of a page and its section; flutter run is a command, not translated.",
     }),
   };
 }

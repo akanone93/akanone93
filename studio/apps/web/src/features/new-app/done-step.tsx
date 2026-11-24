@@ -4,11 +4,13 @@
 import { useLingui } from "@lingui/react";
 import { Button, StatusPill } from "@plux/ui";
 import type { ReactElement } from "react";
-import { ProjectDownload } from "../shell-settings/index.ts";
 import { newAppMessages } from "./new-app.messages.ts";
 import type { CreatedApp } from "./use-new-app.ts";
 
-/** The last step (`step=done`): the app exists; open it or download its generated Flutter project (GEN-001). */
+/**
+ * The last step (`step=done`): the app exists; open it. Its generated Flutter project (GEN-001) is downloaded from the
+ * app's Native shell page once a release gives it signing keys; this step says how (build log row 234).
+ */
 export function DoneStep({
   created,
   onOpen,
@@ -33,8 +35,7 @@ export function DoneStep({
         <h3 id="new-app-project" className="text-section">
           {m.projectTitle}
         </h3>
-        <p className="text-body text-muted-foreground">{m.projectCaption}</p>
-        <ProjectDownload appId={created.id} label={m.projectDownload} />
+        <p className="text-body text-muted-foreground">{m.projectHowTo}</p>
       </section>
       <div className="flex justify-end gap-2">
         <Button variant="secondary" onClick={onClose}>

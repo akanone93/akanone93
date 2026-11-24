@@ -6066,12 +6066,6 @@ msgstr "Download"
 msgid "admin.download"
 msgstr "Download"
 
-#. Button that generates and downloads the host project.
-#. js-lingui-explicit-id
-#: apps/web/src/features/new-app/new-app.messages.ts
-msgid "newApp.project.download"
-msgstr "Download Flutter project"
-
 #. Button that downloads only the files that changed since the project was last generated.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -13775,6 +13769,12 @@ msgstr "Publish"
 msgid "onboarding.step.publish"
 msgstr "Publish a release"
 
+#. How to get the generated Flutter host project after creating an app. Native shell and Host project are the names of a page and its section; flutter run is a command, not translated.
+#. js-lingui-explicit-id
+#: apps/web/src/features/new-app/new-app.messages.ts
+msgid "newApp.project.howTo"
+msgstr "Publish a release first: the project carries its signing keys. Then download the project from Native shell › Host project and run flutter run in it."
+
 #. js-lingui-explicit-id
 #: apps/web/src/features/notifications/notification-kinds.ts
 msgid "notify.name.release.published"
@@ -18422,12 +18422,6 @@ msgstr "The function has no dependencies."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.listCaption"
 msgstr "The functions of this environment with their latest version."
-
-#. Explains the generated Flutter project that can be downloaded.
-#. js-lingui-explicit-id
-#: apps/web/src/features/new-app/new-app.messages.ts
-msgid "newApp.project.caption"
-msgstr "The host project holds the app's name, identifiers, icons, the Plux runtime and build scripts. You can also download it later from the app's shell settings."
 
 #. Shown in the icon picker when an upload failed; the server's reason follows.
 #. js-lingui-explicit-id
