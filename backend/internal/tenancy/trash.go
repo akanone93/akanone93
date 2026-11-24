@@ -39,6 +39,10 @@ type TrashKind struct {
 	Restore func(ctx context.Context, tx pgx.Tx, p auth.Principal, item TrashItem) error
 	// Purge deletes the item for good in the caller's transaction.
 	Purge func(ctx context.Context, tx pgx.Tx, p auth.Principal, item TrashItem) error
+	// Restored, when set, is told once a restore is stored, outside its
+	// transaction, so what follows the stored state (the drafts' live dev
+	// sessions) sees the item back. It cannot fail the restore.
+	Restored func(ctx context.Context, p auth.Principal, item TrashItem)
 }
 
 // trashKinds returns the kinds the trash handles, with apps built in.
@@ -158,7 +162,13 @@ func (s *Service) ListTrash(ctx context.Context, p auth.Principal, appID string,
 // it was in the trash cannot come back under that key and is refused
 // as already existing.
 func (s *Service) RestoreFromTrash(ctx context.Context, p auth.Principal, itemID string) error {
-	return s.withTrashItem(ctx, p, itemID, func(ctx context.Context, tx pgx.Tx, item TrashItem, kind TrashKind) error {
+	// The restored item and its kind, for the hook told once the transaction is stored.
+	var done func()
+	err := s.withTrashItem(ctx, p, itemID, func(ctx context.Context, tx pgx.Tx, item TrashItem, kind TrashKind) error {
+		done = nil
+		if kind.Restored != nil {
+			done = func() { kind.Restored(ctx, p, item) }
+		}
 		if err := kind.Restore(ctx, tx, p, item); err != nil {
 			return err
 		}
@@ -172,6 +182,10 @@ func (s *Service) RestoreFromTrash(ctx context.Context, p auth.Principal, itemID
 		}
 		return s.record(ctx, tx, p, audit.TrashRestored, item.Kind, item.TargetID)
 	})
+	if err == nil && done != nil {
+		done()
+	}
+	return err
 }
 
 // PurgeFromTrash deletes an item for good, before its retention ends.

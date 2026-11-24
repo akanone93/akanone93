@@ -78,3 +78,31 @@ func TestDeletePluginTellsTheFollower_STU_130(t *testing.T) {
 		t.Errorf("the follower was told of %v, want one change of app.json", rec.writes)
 	}
 }
+
+// Verifies: STU-130, DEV-010.
+// Restoring a plugin from the trash tells the follower once the restore is
+// stored, so the app's live dev sessions are pushed the draft with it again;
+// a restore that fails tells nothing (#251).
+func TestRestoreFromTrashTellsTheFollower_STU_130(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	plugin := f.plugin(t)
+	item, err := f.docs.DeletePlugin(ctx, f.owner, plugin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec := &follower{}
+	f.docs.FollowDrafts(rec)
+	if err := f.tenancy.RestoreFromTrash(ctx, f.owner, item.ID); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.tenancy.RestoreFromTrash(ctx, f.owner, item.ID); err == nil {
+		t.Fatal("a second restore of the same item succeeded")
+	}
+	rec.mu.Lock()
+	defer rec.mu.Unlock()
+	if len(rec.writes) != 1 || !slices.Equal(rec.writes[0], []string{"app.json"}) {
+		t.Errorf("the follower was told of %v, want one change of app.json", rec.writes)
+	}
+}

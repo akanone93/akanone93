@@ -227,8 +227,17 @@ func (s *Service) DeletePlugin(ctx context.Context, p auth.Principal, pluginID s
 // the server registers them with the tenancy service.
 func (s *Service) TrashKinds() map[string]tenancy.TrashKind {
 	return map[string]tenancy.TrashKind{
-		"plugin": {Restore: s.restorePlugin, Purge: s.purgePlugin},
-		"page":   {Restore: s.restorePage, Purge: s.purgePage},
+		"plugin": {Restore: s.restorePlugin, Purge: s.purgePlugin, Restored: s.restored},
+		"page":   {Restore: s.restorePage, Purge: s.purgePage, Restored: s.restored},
+	}
+}
+
+// restored tells the draft follower, once a plugin or a page is back from
+// the trash and the restore stored, that the app's draft changed: its live
+// dev sessions are pushed the draft with it, as after a delete (#251).
+func (s *Service) restored(ctx context.Context, p auth.Principal, item tenancy.TrashItem) {
+	if s.follower != nil {
+		s.follower.DraftWritten(ctx, p, item.AppID, "", []string{appDocument})
 	}
 }
 
