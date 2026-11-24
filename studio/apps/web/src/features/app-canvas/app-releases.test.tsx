@@ -57,6 +57,21 @@ describe("where the app stands, on the app canvas (#261)", () => {
     expect(editing.textContent).not.toContain("Cards");
   });
 
+  test("the Overview says who holds the app's own lock, and opens the app documents' history (#267)", async () => {
+    renderApp(`/o/${orgA}/apps/app1`, {
+      surface: () => surface(),
+      summaries: [{ id: "loans", key: "loans", name: "Loans" }],
+      permissions: ["app.read", "plugin.read"],
+      lockHeldElsewhere: true,
+      snapshots: [{ id: "s1", revision: 3, reason: "edit", author: "Ana", documents: [] }],
+    });
+    fireEvent.click(await screen.findByRole("tab", { name: /Overview/ }));
+    const editing = await screen.findByRole("region", { name: "Being edited" });
+    await waitFor(() => expect(editing.textContent).toContain("The app's documentsAna"));
+    fireEvent.click(screen.getByRole("button", { name: "History of the app's documents…" }));
+    expect(await screen.findByRole("dialog", { name: /History/ })).toBeTruthy();
+  });
+
   test("without the permission to publish, there is no Publish", async () => {
     renderApp(`/o/${orgA}/apps/app1`, {
       surface: () => surface(),

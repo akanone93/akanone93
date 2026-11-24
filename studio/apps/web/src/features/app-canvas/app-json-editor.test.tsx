@@ -66,5 +66,21 @@ describe("the app's own documents from the app canvas (#260, #285)", () => {
     expect(write?.ops.filter((o) => o.op !== "test")).toEqual([
       { op: "replace", path: "/nativeRoutes", value: ["camera", "scanner"] },
     ]);
+
+    // The app's documents have an undo stack of their own: mod+z on the canvas takes the change back (#267).
+    fireEvent.keyDown(document.body, { key: "Escape", code: "Escape" });
+    await waitFor(() => expect(screen.queryByLabelText("JSON of the document") === null).toBe(true));
+    fireEvent.keyDown(document.body, { key: "z", code: "KeyZ", ctrlKey: true });
+    await waitFor(
+      () =>
+        expect(
+          sent.some((s) =>
+            s.ops.some(
+              (o) => o.op === "replace" && o.path === "/nativeRoutes" && JSON.stringify(o.value) === '["camera"]',
+            ),
+          ),
+        ).toBe(true),
+      { timeout: 5000 },
+    );
   });
 });

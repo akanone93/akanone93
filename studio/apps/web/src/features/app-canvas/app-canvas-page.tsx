@@ -6,6 +6,7 @@ import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { AppService, PluginService, type PluginSummary, ReleaseService } from "@plux/api";
 import type { ArrowPick, NavigateEdge } from "@plux/canvas";
+import { limitDefault } from "@plux/schema";
 import { Icon } from "@plux/ui";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@plux/ui/components/empty";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,6 +31,9 @@ import { appCanvasMessages } from "./app-canvas.messages.ts";
 
 type Messages = ReturnType<typeof appCanvasMessages>;
 
+import { UndoCommands } from "../editor/undo-commands.tsx";
+import { UndoManager } from "../editor/undo-stack.ts";
+import { HistoryOverlay } from "../history/index.ts";
 import {
   APP_CANVAS_PATH,
   BOX,
@@ -64,6 +68,7 @@ import {
 import { AppDock } from "./app-dock.tsx";
 import { useFunctionsPane } from "./app-functions.tsx";
 import { AppJsonEditor } from "./app-json-editor.tsx";
+import { useAppLockHolder } from "./app-lock.ts";
 import {
   type AppProblem,
   draftsRevision,
@@ -126,9 +131,20 @@ export function AppCanvasPage(): ReactNode {
   // The app's link with its devices starts with the app (ADR-0104): a signed-in phone joins from here as well as from
   // any plugin, and the bar at the bottom shows the number to pick and whether a device is live.
   const canStart = useCan("devsession.create");
+  // The app's own documents have an undo stack of their own (""), so a frame, the entry route, a JSON edit or a
+  // restored snapshot can be undone with mod+z, as on a plugin canvas (#267).
+  const canEdit = useRef(true);
+  const [undo] = useState(
+    () =>
+      new UndoManager({
+        depth: limitDefault("studio.undoDepth"),
+        blocked: () => (canEdit.current ? undefined : "read-only"),
+      }),
+  );
   return (
     <DevLinkProvider appId={appId} enabled={canStart}>
-      <EditorProvider appId={appId} pluginId="" documents={docs.data}>
+      <EditorProvider appId={appId} pluginId="" documents={docs.data} undo={undo}>
+        <UndoCommands undo={undo} stack="" canEdit={canEdit} scope="app-undo" />
         <AppCanvasView appId={appId} documents={docs.data} />
       </EditorProvider>
     </DevLinkProvider>
@@ -525,6 +541,9 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const [trashOpen, setTrashOpen] = useState(false);
   // The JSON editor of the app's own documents (#260, #285), mounted while open.
   const [jsonOpen, setJsonOpen] = useState(false);
+  // The history of the app's own documents, and who holds their lock (#267).
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const appLockHolder = useAppLockHolder(appId);
   const [movingBox, setMovingBox] = useState<SceneBox | undefined>();
   const [lane, setLane] = useState<AppLink | undefined>();
 
@@ -956,6 +975,8 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             functions={functionsPane}
             releases={<AppReleases org={orgKey} appId={appId} />}
             onEditJson={() => setJsonOpen(true)}
+            onHistory={() => setHistoryOpen(true)}
+            appLockHolder={appLockHolder}
             reveal={problemReveal.reveal}
           />
           <PluginBulk
@@ -998,6 +1019,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             />
           </div>
           <DevLinkBar route={entryRoute} />
+          <HistoryOverlay open={historyOpen} onClose={() => setHistoryOpen(false)} />
           {jsonOpen && (
             <AppJsonEditor
               appId={appId}

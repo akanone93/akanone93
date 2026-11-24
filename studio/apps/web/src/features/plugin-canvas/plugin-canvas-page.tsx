@@ -11,7 +11,7 @@ import { useNavigate, useParams, useRouteContext, useSearch } from "@tanstack/re
 import { type ReactElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { CanvasLoading, useFirstLoad } from "../../components/canvas-loading.tsx";
 import { canvasViewKey, rememberedView, rememberView } from "../../lib/canvas-view-memory.ts";
-import { createUndoFocus, undoCommands, useScopedCommands } from "../../lib/commands/index.ts";
+import { useScopedCommands } from "../../lib/commands/index.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import type { RouterContext } from "../../router.tsx";
 import { ActionGraphHost } from "../action-graph/index.ts";
@@ -29,6 +29,7 @@ import { tabEditorSession } from "../editor/document-transport.ts";
 import type { EditSession } from "../editor/edit-session.ts";
 import { EditorProvider, useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
 import { SaveStateChip } from "../editor/save-state.tsx";
+import { UndoCommands } from "../editor/undo-commands.tsx";
 import { UndoManager } from "../editor/undo-stack.ts";
 import { JsonEditorHost } from "../json-editor/index.ts";
 import { useLibraryActions } from "../library/canvas/use-library-actions.tsx";
@@ -721,25 +722,6 @@ function ObserveEditor({ observe }: { readonly observe: (edit: EditSession) => v
   return null;
 }
 
-/** Registers edit.undo and edit.redo for the plugin's stack, disabled with the reason while read-only. */
-function UndoCommands(props: {
-  readonly undo: UndoManager;
-  readonly stack: string;
-  readonly canEdit: { current: boolean };
-}): null {
-  const { i18n } = useLingui();
-  const canEdit = useCanEdit();
-  props.canEdit.current = canEdit;
-  const { undo, stack } = props;
-  const list = useMemo(() => {
-    const focus = createUndoFocus();
-    focus.set({ undo: () => undo.undo(stack), redo: () => undo.redo(stack) });
-    return undoCommands(i18n, focus, !canEdit);
-  }, [i18n, undo, stack, canEdit]);
-  useScopedCommands("plugin-undo", list);
-  return null;
-}
-
 /** Follows a change of the page's size: the surface draws the view at the page's size (the canvas element is the view). */
 function followPage(page: HTMLElement, surface: CanvasSurface): ResizeObserver | undefined {
   if (typeof ResizeObserver === "undefined") {
@@ -783,7 +765,7 @@ export function PluginCanvasPage() {
       editorSessionId={editorSessionId}
     >
       {observeEditor !== undefined && <ObserveEditor observe={observeEditor} />}
-      <UndoCommands undo={undo} stack={stack} canEdit={canEdit} />
+      <UndoCommands undo={undo} stack={stack} canEdit={canEdit} scope="plugin-undo" />
       <L10nSessionsProvider appId={params.app ?? ""} documents={appDocs.data}>
         <PluginCanvasView docs={docs} editorSessionId={editorSessionId} />
       </L10nSessionsProvider>

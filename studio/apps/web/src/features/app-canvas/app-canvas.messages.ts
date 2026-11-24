@@ -733,6 +733,18 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Not every plugin could be changed: the first refusal stopped the rest. The canvas shows what was done.",
       comment: "Message when one of several plugin changes was refused.",
     }),
+    appHistory: i18n._({
+      id: "appCanvas.appHistory",
+      message: "History of the app's documents…",
+      comment:
+        "Button in the app canvas's Overview: the snapshots of app.json, the theme and the keys, to compare and restore.",
+    }),
+    appDocuments: i18n._({
+      id: "appCanvas.appDocuments",
+      message: "The app's documents",
+      comment:
+        "In the app canvas Overview's list of what is being edited: app.json, the theme and the keys, under the app lock.",
+    }),
     editAppJson: i18n._({
       id: "appCanvas.editAppJson",
       message: "Edit the app's documents (JSON)…",

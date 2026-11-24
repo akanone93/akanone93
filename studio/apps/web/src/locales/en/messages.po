@@ -8218,6 +8218,12 @@ msgstr "History"
 msgid "approvals.navHistory"
 msgstr "History"
 
+#. Button in the app canvas's Overview: the snapshots of app.json, the theme and the keys, to compare and restore.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.appHistory"
+msgstr "History of the app's documents…"
+
 #. Label of the holdout field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -17804,6 +17810,12 @@ msgstr "The app's assets"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.page.failed"
 msgstr "The app's assets could not be loaded."
+
+#. In the app canvas Overview's list of what is being edited: app.json, the theme and the keys, under the app lock.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.appDocuments"
+msgstr "The app's documents"
 
 #. Shown when the list of images for the icon picker failed to load.
 #. js-lingui-explicit-id

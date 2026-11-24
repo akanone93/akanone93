@@ -43,17 +43,24 @@ function stateOf(b: SceneBox): string {
   return "ok";
 }
 
-/** Who is editing which plugin now (#267), from the plugins' locks: the same holder the card's badge names. */
+/**
+ * Who is editing what now (#267): the app's own documents, under the app lock, and each plugin, from the plugins'
+ * locks — the same holder the card's badge names.
+ */
 function Editing(props: {
   readonly plugins: readonly SceneBox[];
   readonly summaries: ReadonlyMap<string, PluginSummary>;
+  readonly appLockHolder: string;
   readonly messages: Messages;
 }): ReactElement {
   const m = props.messages;
-  const held = props.plugins.flatMap((b) => {
-    const holder = props.summaries.get(b.id)?.lockHolder ?? "";
-    return holder === "" ? [] : [{ id: b.id, title: b.title, holder }];
-  });
+  const held = [
+    ...(props.appLockHolder === "" ? [] : [{ id: "", title: m.appDocuments, holder: props.appLockHolder }]),
+    ...props.plugins.flatMap((b) => {
+      const holder = props.summaries.get(b.id)?.lockHolder ?? "";
+      return holder === "" ? [] : [{ id: b.id, title: b.title, holder }];
+    }),
+  ];
   return (
     <section aria-label={m.editingHeading} className="flex flex-col gap-1">
       <h3 className="text-label font-medium">{m.editingHeading}</h3>
@@ -97,6 +104,8 @@ export function AppDock({
   functions,
   releases,
   onEditJson,
+  onHistory,
+  appLockHolder,
   reveal,
 }: {
   readonly appName: string | undefined;
@@ -121,6 +130,10 @@ export function AppDock({
   readonly releases?: ReactNode;
   /** Opens the JSON editor on the app's own documents (#260, #285); absent where it cannot be opened. */
   readonly onEditJson?: (() => void) | undefined;
+  /** Opens the history of the app's own documents, with restore as one undo step (#267). */
+  readonly onHistory?: (() => void) | undefined;
+  /** Who holds the app's own lock (app.json, the theme, the keys); empty when nobody does (#267). */
+  readonly appLockHolder?: string | undefined;
   /** A request to show a tab, unfolding the dock (#259); each new `nonce` is a new request. */
   readonly reveal?: { readonly tab: string; readonly nonce: number } | undefined;
 }): ReactElement {
@@ -314,7 +327,13 @@ export function AppDock({
               {m.editAppJson}
             </Button>
           )}
-          <Editing plugins={plugins} summaries={summaries} messages={m} />
+          {onHistory !== undefined && (
+            <Button size="sm" variant="outline" className="self-start" onClick={onHistory}>
+              <Icon name="clock" data-icon="inline-start" />
+              {m.appHistory}
+            </Button>
+          )}
+          <Editing plugins={plugins} summaries={summaries} appLockHolder={appLockHolder ?? ""} messages={m} />
           {releases}
         </div>
       ),
