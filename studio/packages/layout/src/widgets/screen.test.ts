@@ -185,6 +185,57 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(below?.y ?? 0).toBeGreaterThanOrEqual(200);
   });
 
+  test("list tiles draw their checkbox, switch and radio, and close and back buttons their glyph (#69, #70)", () => {
+    const tile = (id: string, type: string, props: Record<string, unknown>): WidgetNode => ({
+      id,
+      type,
+      props: { onChanged: { steps: [] }, ...props },
+      slots: { title: text(`${id}t`, id) },
+    });
+    const root = {
+      id: "col",
+      type: "Column",
+      children: [
+        tile("check", "CheckboxListTile", { value: true }),
+        tile("toggle", "SwitchListTile", { value: false }),
+        tile("radio", "RadioListTile", { value: 1, groupValue: 1 }),
+        { id: "close", type: "CloseButton", props: {} },
+        { id: "back", type: "BackButton", props: {} },
+      ],
+    } as unknown as WidgetNode;
+    const painted = layoutScreen(root, { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } });
+    const paintOf = (id: string) => painted.boxes.find((b) => b.id === id)?.paint;
+    const controlBox = (id: string) => painted.boxes.find((b) => b.id === `${id}#control`);
+    for (const id of ["check", "toggle", "radio"]) {
+      const box = controlBox(id);
+      expect(box).toBeDefined();
+      // The box is a part the tile draws in, not a widget of its own: no placeholder is drawn for it.
+      expect(box?.kind).not.toBe("placeholder");
+      expect(paintOf(id)?.role).toBe("paint");
+      // Each control is drawn inside the box the tile keeps for it.
+      for (const b of paintOf(id)?.boxes ?? []) {
+        expect(b.x).toBeGreaterThanOrEqual(box?.x ?? Number.NaN);
+        expect(b.x + b.w).toBeLessThanOrEqual((box?.x ?? 0) + (box?.w ?? 0));
+      }
+    }
+    // A checked checkbox: its filled box and its tick; a selected radio: its ring and its dot; a switch: track and thumb.
+    expect(paintOf("check")?.boxes).toHaveLength(1);
+    expect(paintOf("check")?.glyphs?.map((g) => g.name)).toEqual(["check"]);
+    expect(paintOf("radio")?.boxes).toHaveLength(2);
+    expect(paintOf("toggle")?.boxes.length).toBeGreaterThanOrEqual(2);
+    // The radio leads its tile; the checkbox and the switch trail theirs.
+    expect(controlBox("radio")?.x ?? 0).toBeLessThan(painted.boxes.find((b) => b.id === "radiot")?.x ?? 0);
+    expect(controlBox("check")?.x ?? 0).toBeGreaterThan(painted.boxes.find((b) => b.id === "checkt")?.x ?? 0);
+    for (const [id, glyph] of [
+      ["close", "close"],
+      ["back", "arrow_back"],
+    ] as const) {
+      expect(painted.boxes.find((b) => b.id === id)?.kind).not.toBe("placeholder");
+      expect(paintOf(id)?.role).toBe("paint");
+      expect(paintOf(id)?.icon).toMatchObject({ name: glyph, size: 24 });
+    }
+  });
+
   test("a scroll view that runs across lays its content out whole, from its start edge (#92)", () => {
     const strip: WidgetNode = {
       id: "sv",

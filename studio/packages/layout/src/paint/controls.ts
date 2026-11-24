@@ -418,6 +418,9 @@ type ControlPainter = (node: ControlNode, r: Rect, theme: PaintTheme) => BoxPain
 export const controlPainters: ReadonlyMap<string, ControlPainter> = new Map<string, ControlPainter>([
   ...Object.keys(BUTTON_CONTENT).map((k): [string, ControlPainter] => [k, (n, r, t) => button(k, n, r, t)]),
   ["IconButton", () => []],
+  // Icon buttons whose glyph is their own (#69): nothing but the icon, which `buttonGlyph` gives.
+  ["CloseButton", () => []],
+  ["BackButton", () => []],
   ["FloatingActionButton", fab],
   ["Chip", chip],
   ["ActionChip", chip],
@@ -432,6 +435,16 @@ export const controlPainters: ReadonlyMap<string, ControlPainter> = new Map<stri
   ["CircularProgressIndicator", circularProgress],
   ["Badge", badge],
 ]);
+
+/** The glyphs of the icon buttons that bring their own (#69): Material's `close` and `arrow_back`. */
+const BUTTON_GLYPHS: Readonly<Record<string, string>> = { CloseButton: "close", BackButton: "arrow_back" };
+
+/** The glyph a `CloseButton` or `BackButton` draws, in an icon button's colour and size; undefined for any other. */
+export function buttonGlyph(node: ControlNode, theme: PaintTheme): { name: string; color: Rgba } | undefined {
+  const name = BUTTON_GLYPHS[node.type ?? ""];
+  const color = controlForeground({ ...node, type: "IconButton" }, theme)?.icon;
+  return name === undefined || color === undefined ? undefined : { name, color };
+}
 
 /** The check a checked checkbox draws over its box, as an icon (`check`, or `remove` for a tristate's null). */
 export function checkboxMark(node: ControlNode, theme: PaintTheme): { name: string; color: Rgba } | undefined {

@@ -470,6 +470,13 @@ function control(width: number, height: number): RenderBox {
   return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width, height }) });
 }
 
+/** The box a list tile keeps for its checkbox, switch or radio, reported as `<id>#control` to a canvas that draws it. */
+function tileControl(node: SceneNode, ctx: MaterialContext, width: number, height: number): RenderBox {
+  const box = control(width, height);
+  box.debugId = ctx.text?.parts === true ? `${node.id}#control` : null;
+  return box;
+}
+
 /** The `secondary` widget of a `CheckboxListTile`, `SwitchListTile` or `RadioListTile`, or null. */
 function secondary(node: SceneNode, ctx: MaterialContext): RenderBox | null {
   const part = only(node, "secondary");
@@ -529,10 +536,10 @@ const builders: Record<string, Builder> = {
       ),
     });
   },
-  CheckboxListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), control(40, 48)),
-  SwitchListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), control(60, 48)),
+  CheckboxListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), tileControl(node, ctx, 40, 48)),
+  SwitchListTile: (node, ctx) => buildTile(node, ctx, secondary(node, ctx), tileControl(node, ctx, 60, 48)),
   // The radio is the leading part, 40 wide; the secondary widget trails.
-  RadioListTile: (node, ctx) => buildTile(node, ctx, control(40, 40), secondary(node, ctx)),
+  RadioListTile: (node, ctx) => buildTile(node, ctx, tileControl(node, ctx, 40, 40), secondary(node, ctx)),
   PreferredSize: (node, ctx) => ctx.build(required(node, "child")),
   AppBar: (node, ctx) => {
     const p = node.props;

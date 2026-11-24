@@ -11,7 +11,7 @@
 
 import type { ColorRole } from "../material-color/scheme.ts";
 import { barPainters, barSurface } from "./bars.ts";
-import { checkboxMark, controlForeground, controlPainters } from "./controls.ts";
+import { buttonGlyph, checkboxMark, controlForeground, controlPainters } from "./controls.ts";
 import { cupertinoForeground, cupertinoPainterOf, cupertinoPainters } from "./cupertino.ts";
 import { fieldModel, fieldPaint, fieldTypes, type PaintText, type PlacedGlyph, searchBarPaint } from "./fields.ts";
 import { layer2Paint, layer2Parts } from "./layer2.ts";
@@ -652,6 +652,35 @@ function routeSurface(id: string, theme: PaintTheme, rects: ReadonlyMap<string, 
     : [{ ...sheet, fill: roleColor(theme, "surfaceContainerLow"), radii: [28, 28, 0, 0] }];
 }
 
+/** The control a list tile draws in the box its layout keeps for it (`<id>#control`), by tile type. */
+const TILE_CONTROLS: ReadonlyMap<string, string> = new Map([
+  ["CheckboxListTile", "Checkbox"],
+  ["SwitchListTile", "Switch"],
+  ["RadioListTile", "Radio"],
+]);
+
+/**
+ * A list tile's checkbox, switch or radio, drawn as the control itself with the tile's props in the box the layout kept
+ * for it (#70); undefined for any other widget, or where the scene reported no such box.
+ */
+function tileControlPaint(node: PaintNode, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted | undefined {
+  const type = TILE_CONTROLS.get(node.type ?? "");
+  const r = type === undefined ? undefined : rects.get(`${node.id}#control`);
+  const paint = type === undefined ? undefined : controlPainters.get(type);
+  if (type === undefined || r === undefined || paint === undefined) {
+    return undefined;
+  }
+  const control = { ...node, type };
+  const mark = checkboxMark(control, theme);
+  const tick = { x: r.x + (r.w - 18) / 2, y: r.y + (r.h - 18) / 2, w: 18, h: 18 };
+  return {
+    boxes: paint(control, r, theme),
+    ...(mark === undefined
+      ? {}
+      : { glyphs: [{ ...tick, name: mark.name, set: "material" as const, size: 18, color: mark.color }] }),
+  };
+}
+
 /** What a widget paints in its box `r`: its parts, a surface, a Layer 2 component's, a control's, or its painter's. */
 function ownPaintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: ReadonlyMap<string, Rect>): Painted {
   const type = node.type ?? "";
@@ -660,6 +689,7 @@ function ownPaintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: Readonly
   const control = controlPainters.get(type);
   return (
     partsPaintOf(node, r, theme, rects) ??
+    tileControlPaint(node, theme, rects) ??
     (surface === undefined ? undefined : { boxes: surface }) ??
     (layer2 === undefined ? undefined : { boxes: layer2.boxes, parts: layer2.parts }) ??
     (control === undefined ? undefined : { boxes: control(node, r, theme) }) ??
@@ -683,10 +713,14 @@ function paintsItself(type: string): boolean {
   );
 }
 
-/** The glyph a widget draws: an `Icon`'s, or the check of a checked checkbox. */
+/** The glyph a widget draws: an `Icon`'s, the check of a checked checkbox, or a close or back button's own (#69). */
 function ownIcon(node: PaintNode, theme: PaintTheme, icons: IconContext): IconPaint | undefined {
   if (node.type === "Icon") {
     return iconOf(node.props ?? {}, theme, icons);
+  }
+  const button = buttonGlyph(node, theme);
+  if (button !== undefined) {
+    return { name: button.name, set: "material", size: 24, color: button.color };
   }
   const mark = checkboxMark(node, theme);
   return mark === undefined ? undefined : { name: mark.name, set: "material", size: 18, color: mark.color };
@@ -729,6 +763,10 @@ class TreePainter {
     }
     if (this.rects.has(`${node.id}#scrim`)) {
       // A drawer or a page on a route paints its scrim and surface, whatever it is.
+      return "paint";
+    }
+    if (TILE_CONTROLS.has(type) && this.rects.has(`${node.id}#control`)) {
+      // A tile draws its control (#70); without the box it is layout only.
       return "paint";
     }
     const sourceless = type === "Image" && (painted.boxes?.length ?? 0) === 0;
