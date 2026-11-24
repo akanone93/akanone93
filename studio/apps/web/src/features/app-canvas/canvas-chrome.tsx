@@ -138,6 +138,7 @@ export function CanvasToolbar({
   onFrame,
   onArrange,
   onTrash,
+  preview,
 }: {
   readonly tool: CanvasTool;
   readonly onTool: (tool: CanvasTool) => void;
@@ -147,9 +148,11 @@ export function CanvasToolbar({
   readonly onFrame: () => void;
   readonly onArrange: () => void;
   readonly onTrash: () => void;
+  /** The preview switches every plugin of the app is drawn in (#286). */
+  readonly preview?: ReactNode;
 }): ReactElement {
   return (
-    <Panel role="toolbar" aria-label={m.toolbar} className="canvas-bar flex gap-1 p-1.5">
+    <Panel role="toolbar" aria-label={m.toolbar} className="canvas-bar flex items-center gap-1 p-1.5">
       <ToggleGroup
         aria-label={m.tools}
         value={[tool]}
@@ -172,6 +175,12 @@ export function CanvasToolbar({
       <ToolButton icon="squares-four" label={m.newFrame} shortcut="F" disabled={selected === 0} onClick={onFrame} />
       <ToolButton icon="sparkle" label={m.autoLayout} onClick={onArrange} />
       <ToolButton icon="trash" label={m.trash} onClick={onTrash} />
+      {preview !== undefined && (
+        <>
+          <Separator orientation="vertical" className="mx-1 h-6" />
+          {preview}
+        </>
+      )}
       <Separator orientation="vertical" className="mx-1 h-6" />
       <ToolButton icon="plus" label={m.newPlugin} variant="default" text onClick={onNew} />
     </Panel>

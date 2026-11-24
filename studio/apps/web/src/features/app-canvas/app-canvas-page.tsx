@@ -69,6 +69,7 @@ import { AppDock } from "./app-dock.tsx";
 import { useFunctionsPane } from "./app-functions.tsx";
 import { useAppLockHolder } from "./app-lock.ts";
 import { type AppOverlay, AppOverlays } from "./app-overlays.tsx";
+import { AppPreview } from "./app-preview.tsx";
 import {
   type AppProblem,
   draftsRevision,
@@ -966,6 +967,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             onFrame={() => setDialogue({ kind: "frame" })}
             onArrange={arrange}
             onTrash={() => setTrashOpen(true)}
+            preview={<AppPreview appId={appId} project={project.data} />}
           />
           <AppStatus text={message ?? m.selected(selected.size)} errors={errorTotal} messages={m} />
         </div>
