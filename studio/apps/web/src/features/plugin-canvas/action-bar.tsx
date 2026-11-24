@@ -17,7 +17,7 @@ import type { KeyboardEvent, ReactNode } from "react";
 import { commandMessages } from "../../lib/commands/commands.messages.ts";
 import { useOptionalCommands } from "../../lib/commands/index.ts";
 import { appCanvasMessages } from "../app-canvas/app-canvas.messages.ts";
-import { ZoomControls } from "../app-canvas/canvas-chrome.tsx";
+import { FollowedZoomControls } from "../app-canvas/canvas-chrome.tsx";
 import { devicesMessages } from "../devices/devices.messages.ts";
 import { historyMessages } from "../history/history.messages.ts";
 import type { Validation } from "../problems/use-validation.ts";
@@ -45,6 +45,8 @@ export interface ActionBarProps {
   /** The validation of the plugin; its counts are part of `status`. */
   readonly validation: Validation;
   readonly percent: number;
+  /** The canvas, whose zoom the percentage follows as it changes; `percent` stands until it starts. */
+  readonly surface?: (() => { readonly viewport: { readonly zoom: number } } | null) | undefined;
   readonly onZoom: (factor: number) => void;
   readonly onFit: () => void;
   /** The map of the canvas, above the zoom controls (C5). */
@@ -346,7 +348,8 @@ export function ActionBar(props: ActionBarProps) {
       </div>
       <div className="plugin-zoom pointer-events-none absolute bottom-3 z-10 flex flex-col items-start gap-2">
         {props.viewMap}
-        <ZoomControls
+        <FollowedZoomControls
+          surface={props.surface}
           zoom={props.percent / 100}
           messages={zoomLabels}
           className="pointer-events-auto"

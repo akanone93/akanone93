@@ -498,6 +498,9 @@ const COMPARE_WIDTH = 720;
 /** How long a comparison waits for the canvas to lay its screens out again after the look changed, in milliseconds. */
 const COMPARE_SETTLE_MS = 400;
 
+/** How long the view must rest before its place is written to the URL and remembered (#214). */
+const VIEW_SETTLE_MS = 200;
+
 /** The next request to open the console on Problems: a new number, so the same tab opens again. */
 const problemsRequest = (r: { readonly n: number } | undefined) => ({ tab: "problems" as const, n: (r?.n ?? 0) + 1 });
 
@@ -1447,18 +1450,31 @@ function PluginCanvasView({
     };
   }, [screens, drawnShown, styled, device, setArranged]);
 
-  // The view's place in the URL and the ghosts' level of detail follow the view at most once a frame: a router update
-  // per wheel step or pointer move re-rendered the whole editor on each, and the canvas stuttered.
+  // The ghosts' level of detail follows the view at most once a frame. The view's place in the URL is written once the
+  // view settles: a router update re-renders the whole editor, and once a frame through a pan or a zoom it took most
+  // of each frame (#214); the zoom controls follow the surface themselves.
   const syncFrame = useRef(0);
-  useEffect(() => () => cancelAnimationFrame(syncFrame.current), []);
+  const settleTimer = useRef(0);
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(syncFrame.current);
+      window.clearTimeout(settleTimer.current);
+    },
+    [],
+  );
   const sync = () => {
     overlay.viewChanged();
     if (syncFrame.current === 0) {
       syncFrame.current = requestAnimationFrame(() => {
         syncFrame.current = 0;
-        syncNow();
+        const zoom = surfaceRef.current?.viewport.zoom;
+        if (zoom !== undefined) {
+          ghostLayer.zoomed(zoom);
+        }
       });
     }
+    window.clearTimeout(settleTimer.current);
+    settleTimer.current = window.setTimeout(syncNow, VIEW_SETTLE_MS);
   };
   const syncNow = () => {
     const surface = surfaceRef.current;
@@ -1471,7 +1487,6 @@ function PluginCanvasView({
     const x = Math.round(centre.x);
     const y = Math.round(centre.y);
     const z = Math.round(Math.min(MAX_ZOOM_PERCENT, Math.max(MIN_ZOOM_PERCENT, v.zoom * 100)));
-    ghostLayer.zoomed(v.zoom);
     // Kept for this tab too: back from the app canvas, the plugin opens where it was left, not fitted again (#249).
     rememberView(viewKeyRef.current, { ...centre, zoom: v.zoom });
     void navigate({ to: ".", search: (prev: object) => ({ ...prev, x, y, z }), replace: true });
@@ -2250,6 +2265,7 @@ function PluginCanvasView({
                               entryPage={entryPage}
                               validation={validation}
                               percent={percent}
+                              surface={() => surfaceRef.current}
                               onZoom={zoomBy}
                               onZoomReset={resetZoom}
                               onFit={fit}

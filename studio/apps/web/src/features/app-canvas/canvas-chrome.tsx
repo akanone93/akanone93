@@ -11,7 +11,7 @@ import { ToggleGroup, ToggleGroupItem } from "@plux/ui/components/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@plux/ui/components/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import type { ReactElement, ReactNode } from "react";
+import { type ReactElement, type ReactNode, useEffect, useRef, useState } from "react";
 import { useApp } from "../../lib/use-app.tsx";
 import { CardVisual } from "../apps/card-visual.tsx";
 import { AppPagesMenu } from "../shell/app-pages-menu.tsx";
@@ -229,6 +229,44 @@ export function ZoomControls({
       <ToolButton icon="fit-view" label={m.zoomToFit} shortcut="⇧1" onClick={onFit} />
     </Panel>
   );
+}
+
+/** What a followed zoom reads: a surface's view, or null before the canvas starts. */
+type ZoomSource = () => { readonly viewport: { readonly zoom: number } } | null;
+
+/**
+ * The surface's zoom, read once a frame and kept only when it changes: a label follows a pinch or a wheel zoom without
+ * the page around it re-rendering at each step (#214). `initial` stands until the surface exists.
+ */
+export function useFollowedZoom(surface: ZoomSource | undefined, initial: number): number {
+  const [zoom, setZoom] = useState(initial);
+  const latest = useRef(surface);
+  latest.current = surface;
+  useEffect(() => {
+    if (typeof requestAnimationFrame === "undefined") {
+      return undefined;
+    }
+    let frame = 0;
+    const tick = () => {
+      const z = latest.current?.()?.viewport.zoom;
+      if (z !== undefined) {
+        setZoom((prev) => (prev === z ? prev : z));
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  return latest.current?.()?.viewport.zoom ?? zoom;
+}
+
+/** The zoom controls with the percentage following the surface (`useFollowedZoom`); `zoom` stands until it exists. */
+export function FollowedZoomControls({
+  surface,
+  zoom,
+  ...rest
+}: Parameters<typeof ZoomControls>[0] & { readonly surface?: ZoomSource | undefined }): ReactElement {
+  return <ZoomControls {...rest} zoom={useFollowedZoom(surface, zoom)} />;
 }
 
 /**

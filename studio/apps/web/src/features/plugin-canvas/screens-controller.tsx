@@ -84,6 +84,8 @@ export interface ScreensControllerProps {
   readonly entryPage: string | undefined;
   readonly validation: Validation;
   readonly percent: number;
+  /** The canvas, whose zoom the zoom controls follow as it changes. */
+  readonly surface?: (() => { readonly viewport: { readonly zoom: number } } | null) | undefined;
   readonly onZoom: (factor: number) => void;
   readonly onFit: () => void;
   /** The map of the canvas, above the zoom controls (C5). */
@@ -393,6 +395,7 @@ export function ScreensController(props: ScreensControllerProps): ReactNode {
         onArrange={props.onArrange}
         validation={props.validation}
         percent={props.percent}
+        surface={props.surface}
         onZoom={props.onZoom}
         onFit={props.onFit}
         viewMap={props.viewMap}

@@ -32,11 +32,43 @@ interface Seen {
   readonly h: number;
 }
 
-/** The view and the canvas's size, read once a frame and kept only when they change. */
+/**
+ * The canvas's size as it changes: from a ResizeObserver, so following the view reads no layout. Reading the element's
+ * size once a frame forced the browser to lay out the page at every frame of a pan or a zoom (#214).
+ */
+function useCanvasSize(canvas: () => HTMLElement | null, on: boolean): { readonly current: Size } {
+  const size = useRef<Size>({ w: 0, h: 0 });
+  const latest = useRef(canvas);
+  latest.current = canvas;
+  useEffect(() => {
+    const el = latest.current();
+    if (!on || el === null) {
+      return undefined;
+    }
+    size.current = { w: el.clientWidth, h: el.clientHeight };
+    if (typeof ResizeObserver === "undefined") {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => {
+      size.current = { w: el.clientWidth, h: el.clientHeight };
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [on]);
+  return size;
+}
+
+interface Size {
+  readonly w: number;
+  readonly h: number;
+}
+
+/** The view and the canvas's size, compared once a frame and kept only when they change. */
 function useSeen(surface: () => CanvasSurface | null, canvas: () => HTMLElement | null, on: boolean): Seen | null {
   const [seen, setSeen] = useState<Seen | null>(null);
-  const latest = useRef({ surface, canvas });
-  latest.current = { surface, canvas };
+  const latest = useRef(surface);
+  latest.current = surface;
+  const size = useCanvasSize(canvas, on);
   useEffect(() => {
     if (!on || typeof requestAnimationFrame === "undefined") {
       return undefined;
@@ -44,20 +76,20 @@ function useSeen(surface: () => CanvasSurface | null, canvas: () => HTMLElement 
     let last = "";
     let frame = 0;
     const tick = () => {
-      const v = latest.current.surface()?.viewport;
-      const el = latest.current.canvas();
-      if (v !== undefined && el !== null && el.clientWidth > 0) {
-        const key = `${v.x}:${v.y}:${v.zoom}:${el.clientWidth}:${el.clientHeight}`;
+      const v = latest.current()?.viewport;
+      const { w, h } = size.current;
+      if (v !== undefined && w > 0) {
+        const key = `${v.x}:${v.y}:${v.zoom}:${w}:${h}`;
         if (key !== last) {
           last = key;
-          setSeen({ x: v.x, y: v.y, zoom: v.zoom, w: el.clientWidth, h: el.clientHeight });
+          setSeen({ x: v.x, y: v.y, zoom: v.zoom, w, h });
         }
       }
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [on]);
+  }, [on, size]);
   return seen;
 }
 
