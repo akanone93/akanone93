@@ -441,6 +441,11 @@ export interface ScreenStyle {
   readonly overflowBox: ColorRgba;
   readonly overflowText: ColorRgba;
   readonly overflowStroke: ColorRgba;
+  /**
+   * The widget types that hold content (a slot or children). One that holds none and is laid out too small to see gets
+   * a dashed outline of its own, which the layout does not know of, so it can be seen and clicked (#68).
+   */
+  readonly wrappers?: readonly string[];
   /** The colours to paint widgets with; without it, every widget is drawn as a neutral box (STU-005). */
   readonly paint?: PaintTheme;
   /** The colour of each screen's name, drawn above its device frame as a design tool names its frames; none when absent. */

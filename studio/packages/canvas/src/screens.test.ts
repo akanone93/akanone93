@@ -285,6 +285,37 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     engine.dispose();
   });
 
+  test("an empty wrapper too small to see gets a dashed outline of its own, the layout unchanged (#68)", () => {
+    const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
+    const scheme = colorSchemeFromSeed(0xff6750a4, false);
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        { id: "empty", type: "Card" },
+        { id: "full", type: "Card", slots: { child: text("in", "Hi") } },
+        { id: "gap", type: "SizedBox", props: { height: 16 } },
+      ],
+    };
+    const wrapped = { ...style, paint: { scheme }, wrappers: ["Card", "Column"] };
+    const out = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], wrapped, engine);
+    const items = new Map(out.ops.flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])));
+    const outline = items.get("s/empty#empty");
+    expect(outline).toMatchObject({ kind: "rect", stroke: { color: 0x33, width: 1, dash: 4 } });
+    expect(outline).not.toHaveProperty("fill");
+    // Above the column it sits in, so a click there finds the empty card, not the column.
+    expect(outline?.z ?? 0).toBeGreaterThan(items.get("s/col")?.z ?? Number.POSITIVE_INFINITY);
+    expect(outline?.kind === "rect" ? Math.min(outline.w, outline.h) : 0).toBeGreaterThanOrEqual(24);
+    // A wrapper with content, and a type outside the list (a spacer), are drawn as they are.
+    expect(items.has("s/full#empty")).toBe(false);
+    expect(items.has("s/gap#empty")).toBe(false);
+    // The layout is the same with or without the outlines.
+    const plain = layoutScreens([{ id: "s", title: "S", x: 0, y: 0, root }], { ...style, paint: { scheme } }, engine);
+    expect(plain.heights).toEqual(out.heights);
+    expect([...items.keys()].filter((k) => k.endsWith("#empty"))).toEqual(["s/empty#empty"]);
+    engine.dispose();
+  });
+
   test("[STU-056] a list that runs past the screen shows a little of what follows, faded, at its real size", () => {
     const engine = canvasParagraphEngine(ck, { fonts: [fontBytes()], fontFamily: "Noto Sans" } as never);
     const scheme = colorSchemeFromSeed(0xff6750a4, false);

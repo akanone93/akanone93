@@ -4,6 +4,7 @@
 import { primitives } from "@plux/brand";
 import type { ArrowStyle, ColorRgba, ScreenDocument, ScreenHeight, ScreenStyle } from "@plux/canvas";
 import { defaultScreenTheme } from "@plux/layout";
+import { widgets } from "@plux/schema";
 import type { GhostStyle } from "./ghosts.ts";
 import type { Node } from "./plugin-model.ts";
 import type { Point } from "./positions.ts";
@@ -29,6 +30,15 @@ export function rgba(css: string, alphaOverride?: number): ColorRgba {
   return ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
 }
 
+/**
+ * The widget types that hold content: an empty one too small to see is outlined so it can be found and clicked (#68).
+ * A `SizedBox` is left out: it is used empty as a spacer, and every gap would be outlined.
+ */
+export const WRAPPER_TYPES: readonly string[] = widgets
+  .filter((w) => w.slots.length > 0 && w.type !== "SizedBox")
+  .map((w) => w.type)
+  .sort();
+
 /** How the canvas worker draws laid-out screens: the brand colours and the device. */
 export const screenStyle: ScreenStyle = {
   deviceHeight: DEVICE.height,
@@ -43,6 +53,7 @@ export const screenStyle: ScreenStyle = {
   overflowBox: rgba(primitives["porcelain.100"], OVERFLOW_ALPHA),
   overflowText: rgba(primitives["navy.900"], OVERFLOW_ALPHA),
   overflowStroke: rgba(primitives["violet.700"], 0x60),
+  wrappers: WRAPPER_TYPES,
 };
 
 /** Ghost screens and native nodes (STU-052, STU-054): dashed navy outline on porcelain. */

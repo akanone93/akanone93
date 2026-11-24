@@ -21,6 +21,7 @@ import {
   TextDirection,
   type UnbuiltWidget,
   type ViewPadding,
+  type WidgetNode,
 } from "@plux/layout";
 import { chromeItems } from "./chrome.ts";
 import type {
@@ -609,6 +610,7 @@ function screenItems(
       z: 1,
     });
   }
+  items.push(...emptyWrapperItems(s, boxes, style));
   const paints = new Map(boxes.flatMap((b) => (b.paint === undefined ? [] : [[b.id, b.paint] as const])));
   const radius = style.chrome?.radius ?? DEFAULT_FRAME_RADIUS;
   const corners = { x: s.x, y: s.y, w: width, h: style.deviceHeight, r: radius };
@@ -617,6 +619,68 @@ function screenItems(
     items.push(...made.map((item) => inCorners(item, corners)), ...ghostItems(s, paintOfItems(b, paints), made));
   }
   return items;
+}
+
+/** The least width and height, in world units, of the outline of an empty wrapper (#68). */
+const EMPTY_WRAPPER_MIN = 24;
+
+/** The nodes of a screen's tree by id, and whether each holds content (a slotted or child node). */
+function contentOf(
+  root: WidgetNode | null | undefined,
+): Map<string, { readonly type: string; readonly empty: boolean }> {
+  const out = new Map<string, { type: string; empty: boolean }>();
+  const visit = (n: WidgetNode | null | undefined): void => {
+    if (n === null || n === undefined || typeof n !== "object") {
+      return;
+    }
+    const slotted = Object.values(n.slots ?? {}).flatMap((v) => (Array.isArray(v) ? v : [v])) as WidgetNode[];
+    const kids = [...slotted, ...(n.children ?? [])].filter((k) => k !== null && k !== undefined);
+    if (typeof n.id === "string") {
+      out.set(n.id, { type: n.type ?? "", empty: kids.length === 0 });
+    }
+    for (const k of kids) {
+      visit(k);
+    }
+  };
+  visit(root);
+  return out;
+}
+
+/**
+ * Outlines for the wrappers that hold nothing and are laid out too small to see — an empty `Card`, `Container` or
+ * `Padding` has no size in Flutter (#68). Each is dashed, at least `EMPTY_WRAPPER_MIN` on a side from where the widget
+ * sits, and its own item (`<screen>/<node>#empty`), so the layout is unchanged and a click on it selects the widget.
+ */
+function emptyWrapperItems(s: ScreenDocument, boxes: readonly Placed[], style: ScreenStyle): ItemSpec[] {
+  if (style.wrappers === undefined || style.wrappers.length === 0) {
+    return [];
+  }
+  const wrappers = new Set(style.wrappers);
+  const nodes = contentOf(s.root);
+  return boxes.flatMap((b): ItemSpec[] => {
+    const node = typeof b.id === "string" ? nodes.get(b.id) : undefined;
+    if (node === undefined || !node.empty || !wrappers.has(node.type)) {
+      return [];
+    }
+    if (b.w >= EMPTY_WRAPPER_MIN && b.h >= EMPTY_WRAPPER_MIN) {
+      return [];
+    }
+    return [
+      {
+        kind: "rect",
+        id: `${s.id}/${b.id}#empty`,
+        x: s.x + b.x,
+        y: s.y + b.y,
+        w: Math.max(b.w, EMPTY_WRAPPER_MIN),
+        h: Math.max(b.h, EMPTY_WRAPPER_MIN),
+        radius: 4,
+        stroke: { color: style.boxStroke, width: 1, dash: 4 },
+        // Over the widget's own paint and its ancestors', so the outline is what a click finds there.
+        z: b.paint === undefined ? 3 : PAINT_Z + b.paint.order + 0.5,
+        ...(b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) }),
+      },
+    ];
+  });
 }
 
 /**
