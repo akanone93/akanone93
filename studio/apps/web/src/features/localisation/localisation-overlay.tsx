@@ -59,6 +59,9 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
   const keysDoc = useStore(props.keysSession.store, (st) => st.docs[KEYS_PATH]?.content);
   const messagesDoc = useStore(props.messagesSession.store, (st) => st.docs[localePath(props.locale)]?.content);
   const keys = useMemo(() => readKeys(keysDoc), [keysDoc]);
+  // Every key's name, once: each row's rename checks against it (its own name is never a clash, as an unchanged name
+  // is no rename). A list of the other names built per row made each render quadratic in the keys (#214).
+  const names = useMemo(() => new Set(keys.map((k) => k.key)), [keys]);
   const mine = useMemo(() => readMessages(messagesDoc), [messagesDoc]);
   const rows = keys.filter((k) => filtered(scope, k.id, props));
   const [deleting, setDeleting] = useState<{ readonly id: string; readonly key: string } | null>(null);
@@ -164,7 +167,7 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
                       <th scope="row" className="font-mono text-xs font-normal" dir="ltr">
                         <KeyName
                           name={k.key}
-                          taken={keys.filter((o) => o.id !== k.id).map((o) => o.key)}
+                          taken={names}
                           canRename={props.canEditKeys}
                           onRename={(key) => props.keysSession.edit(KEYS_PATH, renameKeyRecipe(k.id, key))}
                         />
@@ -234,7 +237,8 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
  */
 function KeyName(p: {
   readonly name: string;
-  readonly taken: readonly string[];
+  /** Every key's name; the key's own is ignored, as keeping it is no rename. */
+  readonly taken: ReadonlySet<string>;
   readonly canRename: boolean;
   readonly onRename: (key: string) => void;
 }) {
@@ -254,7 +258,7 @@ function KeyName(p: {
       </span>
     );
   }
-  const problem = draft === p.name ? undefined : keyProblem(draft, new Set(p.taken));
+  const problem = draft === p.name ? undefined : keyProblem(draft, p.taken);
   const finish = () => {
     if (problem === undefined && draft !== p.name) {
       p.onRename(draft);
