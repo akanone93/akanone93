@@ -86,6 +86,11 @@ func newEnv(stdout, stderr io.Writer) env {
 type common struct {
 	server, org, app, dir string
 	json                  bool
+	// serverFrom says where resolve found the server: "--server", "$PLUX_SERVER" or the path of the plux.json that
+	// names it, so an error about the server names its source (#280).
+	serverFrom string
+	// project is the path of the plux.json resolve read; empty when there is none.
+	project string
 }
 
 func (c *common) register(set *flag.FlagSet, withApp bool) {
@@ -100,19 +105,23 @@ func (c *common) register(set *flag.FlagSet, withApp bool) {
 
 // resolve fills unset values from the environment and plux.json.
 func (c *common) resolve() error {
-	var p projectConfig
-	if c.dir != "" {
-		if data, err := os.ReadFile(filepath.Join(c.dir, projectFile)); err == nil { //nolint:gosec // G703: the project directory the user named
-			if err := json.Unmarshal(data, &p); err != nil {
-				return fmt.Errorf("read %s: %w", projectFile, err)
-			}
-		}
+	p, err := c.readProject()
+	if err != nil {
+		return err
+	}
+	switch {
+	case c.server != "":
+		c.serverFrom = "--server"
+	case os.Getenv(serverEnv) != "":
+		c.serverFrom = "$" + serverEnv
+	case p.Server != "":
+		c.serverFrom = c.project
 	}
 	c.server = firstOf(c.server, os.Getenv(serverEnv), p.Server)
 	c.org = firstOf(c.org, os.Getenv(orgEnv), p.Organization)
 	c.app = firstOf(c.app, p.App)
 	if c.server == "" {
-		return usageError("no server: pass --server, set " + serverEnv + " or run plux init")
+		return usageError("no server: pass --server, set " + serverEnv + " or point the project at one with plux init" + c.lookedIn())
 	}
 	u, err := url.Parse(c.server)
 	if err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" {
@@ -120,6 +129,48 @@ func (c *common) resolve() error {
 	}
 	c.server = strings.TrimSuffix(c.server, "/")
 	return nil
+}
+
+// readProject reads the plux.json of the project directory, recording its path; none is an empty configuration.
+func (c *common) readProject() (projectConfig, error) {
+	var p projectConfig
+	c.project = ""
+	if c.dir == "" {
+		return p, nil
+	}
+	path := filepath.Join(c.dir, projectFile)
+	data, err := os.ReadFile(path) //nolint:gosec // G304: the project directory the user named
+	if err != nil {
+		return p, nil //nolint:nilerr // no plux.json: the flags and the environment are all there is
+	}
+	if err := json.Unmarshal(data, &p); err != nil {
+		return p, fmt.Errorf("read %s: %w", path, err)
+	}
+	c.project = path
+	return p, nil
+}
+
+// lookedIn says, for an error about a missing value, which project directory had no plux.json; empty when one was
+// read or none was looked for.
+func (c common) lookedIn() string {
+	if c.project != "" || c.dir == "" {
+		return ""
+	}
+	return " (no " + projectFile + " in " + c.dir + "; pass -C dir to name the project)"
+}
+
+// notSignedIn is the error of a command with no credential for the server; it names where the server came from, so a
+// sign-in to another server (plux login --server …) is told apart from the project's (#280).
+func notSignedIn(c common) error {
+	switch {
+	case c.serverFrom == "$"+serverEnv:
+		return authError("not signed in to " + c.server + " (from $" + serverEnv + "): run plux login or set " + tokenEnv)
+	case c.serverFrom != "" && c.serverFrom != "--server":
+		return authError("not signed in to " + c.server + " (named by " + c.serverFrom + "): run plux login or set " + tokenEnv +
+			", or point the project at another server with plux init --server url --app id")
+	default:
+		return authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
+	}
 }
 
 func firstOf(vs ...string) string {
@@ -167,7 +218,7 @@ func (e env) connect(c common, needToken bool) (*clients, error) {
 		return nil, err
 	}
 	if needToken && token == "" {
-		return nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
+		return nil, notSignedIn(c)
 	}
 	opts := connect.WithInterceptors(e.headers(c.server, token, c.org))
 	return &clients{
@@ -317,8 +368,12 @@ func parse(set *flag.FlagSet, args []string, stderr io.Writer, usage string, pos
 
 // needApp checks that an app is known.
 func needApp(c common) error {
-	if c.app == "" {
-		return usageError("no app: pass --app or run plux init")
+	switch {
+	case c.app != "":
+		return nil
+	case c.project != "":
+		return usageError("no app in " + c.project + ": pass --app or run plux init")
+	default:
+		return usageError("no app: pass --app or run plux init" + c.lookedIn())
 	}
-	return nil
 }

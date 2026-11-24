@@ -308,6 +308,57 @@ func cli(t *testing.T, config string, args ...string) (int, string, string) {
 	return cmd(args[1:]), out.String(), errOut.String()
 }
 
+// Verifies: CLI-003, CLI-007.
+// An error about the server names where the server came from — plux.json or
+// $PLUX_SERVER — and plux init points a project at another server, taking the
+// app from its flags, not from the plux.json of the old server (#280).
+func TestProjectServerSource(t *testing.T) { //nolint:paralleltest // the keychain mock and environment are process-wide
+	keyring.MockInit()
+	t.Setenv(tokenEnv, "")
+	t.Setenv(serverEnv, "")
+	t.Setenv(orgEnv, "")
+	_, url := newFake(t)
+	config := t.TempDir()
+	project := t.TempDir()
+	if code, _, _ := cli(t, config, "login", "--server", url); code != exitOK {
+		t.Fatalf("login: %d", code)
+	}
+	const elsewhere = "https://elsewhere.example:8443"
+	stale := `{"server": "` + elsewhere + `", "organization": "o-old", "app": "a-old"}` + "\n"
+	if err := os.WriteFile(filepath.Join(project, projectFile), []byte(stale), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	named := filepath.Join(project, projectFile)
+	if code, _, stderr := cli(t, config, "diff", "-C", project); code != exitAuth ||
+		!strings.Contains(stderr, "not signed in to "+elsewhere+" (named by "+named+")") || !strings.Contains(stderr, "plux init --server") {
+		t.Errorf("a server from plux.json: %d %s", code, stderr)
+	}
+	t.Setenv(serverEnv, elsewhere)
+	if code, _, stderr := cli(t, config, "diff", "-C", project); code != exitAuth || !strings.Contains(stderr, "(from $"+serverEnv+")") {
+		t.Errorf("a server from the environment: %d %s", code, stderr)
+	}
+	t.Setenv(serverEnv, "")
+	if code, _, stderr := cli(t, config, "init", "--server", url, "-C", project); code != exitUsage || !strings.Contains(stderr, "pass --app") {
+		t.Errorf("init on another server without an app: %d %s", code, stderr)
+	}
+	code, out, _ := cli(t, config, "init", "--server", url, "--app", "demo", "-C", project)
+	if code != exitOK || !strings.Contains(out, "Pointed "+named+" at app demo on "+url+" (it named app a-old on "+elsewhere+")") {
+		t.Fatalf("init pointing the project at another server: %d %s", code, out)
+	}
+	data, err := os.ReadFile(named) //nolint:gosec // G304: the test's own file
+	if err != nil || strings.Contains(string(data), "o-old") || strings.Contains(string(data), elsewhere) {
+		t.Errorf("plux.json after init: %s %v", data, err)
+	}
+	empty := t.TempDir()
+	if code, _, stderr := cli(t, config, "diff", "-C", empty); code != exitUsage || !strings.Contains(stderr, "no "+projectFile+" in "+empty) {
+		t.Errorf("no server and no plux.json: %d %s", code, stderr)
+	}
+	if code, _, stderr := cli(t, config, "diff", "-C", empty, "--server", url); code != exitUsage || !strings.Contains(stderr, "no app: pass --app") ||
+		!strings.Contains(stderr, "pass -C dir") {
+		t.Errorf("no app and no plux.json: %d %s", code, stderr)
+	}
+}
+
 // Verifies: CLI-002, CLI-003, CLI-004, CLI-007, CLI-008.
 // Every server command, against a fake server: sign-in through the
 // device grant into the keychain, the project commands with --json, and

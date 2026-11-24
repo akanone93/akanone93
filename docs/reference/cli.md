@@ -29,7 +29,7 @@ sha256sum --check --ignore-missing SHA256SUMS
 | `plux login [--server url]` | Signs in with the OAuth 2.0 device authorization grant: prints a code and a URL, waits (`--timeout`, default 10 minutes) until someone approves the code in Studio, and stores the token (below) (`CLI-002`). The URL is Studio's **Approve a command-line sign-in** page (`<studio>/device`, `server.studioBaseURL` or else the public URL): it never approves on arrival, asks the person to confirm they started the sign-in and that the code matches, and needs a session that presented a security key. |
 | `plux logout [--server url]` | Forgets the stored token for the server. |
 | `plux whoami` | Shows the signed-in user and their organisations; with `--org`, their permissions there. |
-| `plux init --server url --org id --app id-or-key [-C dir] [--env key] [--packages names] [--project dir]` | In a Plux project, or an empty directory a project export will fill: writes `plux.json`, naming the server, organisation, app and the environment publishes go to (default `development`). It holds no secret and is meant to be committed. In a Flutter app — a `pubspec.yaml` on the Flutter SDK and no `app.json` — sets the app up as a Plux host (`HST-032`, below). A directory holding both is a usage error. |
+| `plux init --server url --org id --app id-or-key [-C dir] [--env key] [--packages names] [--project dir]` | In a Plux project, or an empty directory a project export will fill: writes `plux.json`, naming the server, organisation, app and the environment publishes go to (default `development`). It holds no secret and is meant to be committed. Run it again with other values to point the project at another server, organisation or app: with another server it takes the organisation and app from its flags only (the old ones are the old server's), so `--app` is needed, and it says what `plux.json` named before. In a Flutter app — a `pubspec.yaml` on the Flutter SDK and no `app.json` — sets the app up as a Plux host (`HST-032`, below). A directory holding both is a usage error. |
 | `plux doctor [-C dir]` | Checks, in order, the project (`plux.json`, and that it compiles), the configuration, the server's `/readyz`, the credential, the sign-in and the app. |
 | `plux validate [--json] <project-dir>` | Compiles a project in the [Git layout](document-model.md#1-project-layout) and reports every diagnostic, without a server. |
 | `plux build [--dev] [--json] -o <out-dir> <project-dir>` | Compiles the project and writes its bundles, without a server (below). |
@@ -41,7 +41,7 @@ sha256sum --check --ignore-missing SHA256SUMS
 | `plux release promote --env key [--channel key] [--wait duration] <sequence>` | Points a channel (default `production`) at a release and waits, as `publish --promote` does, for its signed manifest. |
 | `plux release rollback --env key [--channel key] [--notes text] [--wait duration] <to-sequence>` | Creates a new release with the content of an earlier one, points the channel at it (`REL-006`) and waits for its signed manifest. |
 | `plux export [-C dir] [-o dir]` | Writes the server's drafts in the Git layout. |
-| `plux import [-C dir]` | Replaces the server's drafts with the local project. |
+| `plux import [-C dir]` | Replaces the server's drafts with the local project, on the server and app `plux.json` names (or `--server`, `--app`). |
 | `plux import openapi <file> [-o out]` | Reads an OpenAPI 3.x document offline and writes a data-source fragment — `dataSources`, `types`, variables and base URLs, as canonical JSON — for `app.json` or a plugin (`DAT-002`). A construct with no Plux type is reported with its location, and its operation is left out. |
 | `plux import graphql <schema.graphql> <operations.graphql>... [-o out]` | The same from a GraphQL schema and the operations a plugin uses. |
 | `plux mock <openapi-file> [--addr 127.0.0.1:0] [--seed n]` | Serves every operation of an OpenAPI document from its examples, or from values generated from its schemas with a fixed seed, on the loopback interface unless `--addr` names another (`TST-004`). |
@@ -212,5 +212,5 @@ The server commands print what they did as one object: `publish` gives `ok`, one
 | 0 | Success; warnings do not fail a command |
 | 1 | The command ran and failed: the project has errors, a publish failed, `diff` found differences, a bundle did not match its hash, or the output could not be written |
 | 2 | Usage error: an unknown command or flag, a missing argument or setting, or a project path that is not a directory |
-| 3 | Not signed in, or the server refused the credential |
+| 3 | Not signed in, or the server refused the credential; the message says where the server came from — `--server`, `$PLUX_SERVER` or the `plux.json` that names it |
 | 4 | The server could not be reached |

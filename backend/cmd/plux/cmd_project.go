@@ -50,7 +50,8 @@ func (e env) initProject(args []string) int {
 		"The optional packages the app uses (--packages, and those the device actions and widgets\n"+
 		"of the project at --project need) are added to pubspec.yaml and registered in the\n"+
 		"configuration.\n"+
-		"Running it again changes nothing.", 0); !ok {
+		"Running it again changes nothing; run it with other values to point the project at\n"+
+		"another server, organisation or app (with another server, pass --app too).", 0); !ok {
 		return code
 	}
 	host, err := dirKind(c.dir)
@@ -67,10 +68,11 @@ func (e env) initProject(args []string) int {
 	if *pkgs != "" || *projectDir != "" {
 		return e.fail("init", usageError("--packages and --project apply to a Flutter app, not a Plux project"))
 	}
-	if err := c.resolve(); err != nil {
+	old, err := c.readProject()
+	if err != nil {
 		return e.fail("init", err)
 	}
-	if err := needApp(c); err != nil {
+	if err := c.repoint(old); err != nil {
 		return e.fail("init", err)
 	}
 	cl, err := e.connect(c, true)
@@ -83,10 +85,32 @@ func (e env) initProject(args []string) int {
 	}
 	p := projectConfig{Server: c.server, Organization: firstOf(c.org, app.GetOrganizationId()), App: app.GetId(), Environment: *envKey}
 	data, _ := json.MarshalIndent(p, "", "  ")
-	if err := os.WriteFile(filepath.Join(c.dir, projectFile), append(data, '\n'), 0o644); err != nil { //nolint:gosec // G306: project configuration, no secret.
+	path := filepath.Join(c.dir, projectFile)
+	if err := os.WriteFile(path, append(data, '\n'), 0o644); err != nil { //nolint:gosec // G306: project configuration, no secret.
 		return e.fail("init", err)
 	}
-	return e.emit(c.json, p, "Wrote "+filepath.Join(c.dir, projectFile)+" for app "+app.GetKey()+".")
+	if old.App != "" && (old.Server != p.Server || old.Organization != p.Organization || old.App != p.App) {
+		return e.emit(c.json, p, fmt.Sprintf("Pointed %s at app %s on %s (it named app %s on %s).", path, app.GetKey(), p.Server, old.App, old.Server))
+	}
+	return e.emit(c.json, p, "Wrote "+path+" for app "+app.GetKey()+".")
+}
+
+// repoint resolves init's server, organisation and app over the plux.json the project already has (old). The
+// organisation and app a plux.json names belong to its server: pointing the project at another server takes them from
+// the flags and the environment only, and needs --app (#280).
+func (c *common) repoint(old projectConfig) error {
+	given := *c
+	if err := c.resolve(); err != nil {
+		return err
+	}
+	if old.Server != "" && strings.TrimSuffix(old.Server, "/") != c.server {
+		c.org = firstOf(given.org, os.Getenv(orgEnv))
+		c.app = given.app
+		if c.app == "" {
+			return usageError(c.project + " names an app on " + old.Server + ": pass --app to point the project at " + c.server)
+		}
+	}
+	return needApp(*c)
 }
 
 // findApp resolves an app by ID or key.

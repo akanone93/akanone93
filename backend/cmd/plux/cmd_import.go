@@ -24,7 +24,8 @@ const importUsage = `Usage: plux import [-C dir] [--json]
        plux import openapi <file> [-o out]
        plux import graphql <schema.graphql> <operations.graphql>... [-o out]
 
-Without a subcommand, replaces the server's drafts with the local project, one snapshot per draft.
+Without a subcommand, replaces the server's drafts with the local project, one snapshot per draft,
+on the server and app plux.json names (plux init points the project at others).
 
 'openapi' and 'graphql' read a source document offline and write a data-source fragment
 (dataSources, types, variables and baseUrls, as canonical JSON) for app.json or a plugin.

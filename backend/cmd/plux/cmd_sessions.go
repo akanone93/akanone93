@@ -28,7 +28,7 @@ func (e env) identityClient(c common) (pluxv1connect.IdentityServiceClient, erro
 		return nil, err
 	}
 	if token == "" {
-		return nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
+		return nil, notSignedIn(c)
 	}
 	return pluxv1connect.NewIdentityServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, token, c.org))), nil
 }
