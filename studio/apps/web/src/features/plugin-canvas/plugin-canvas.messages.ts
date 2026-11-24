@@ -755,6 +755,14 @@ export function pluginCanvasMessages(i18n: I18n) {
       message: "The screen's new place could not be saved. It is back where it was.",
       comment: "Shown when moving a screen on the canvas could not be saved, for example offline.",
     }),
+    unbuiltWidget: (type: string, reason: string) =>
+      i18n._({
+        id: "pluginCanvas.unbuiltWidget",
+        message: "The canvas could not draw this {type} as a device does, so it shows a stand-in: {reason}",
+        values: { type, reason },
+        comment:
+          "Problems list: the canvas failed to lay out a widget the way Flutter does and drew a placeholder or an approximation instead. {type} is the widget type (Column, AppBar); {reason} is the technical cause, in English.",
+      }),
   };
 }
 

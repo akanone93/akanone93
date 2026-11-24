@@ -9,7 +9,7 @@
  * (base and interaction layer) and the font buffers in `init`.
  */
 
-import type { PaintTheme, ScreenTheme, TextDirection, WidgetNode } from "@plux/layout";
+import type { PaintTheme, ScreenTheme, TextDirection, UnbuiltWidget, WidgetNode } from "@plux/layout";
 import type { BaseOrigin, LayerBox } from "./compositor.ts";
 
 /** The protocol version; a message with another version is rejected. */
@@ -461,6 +461,8 @@ export interface ScreenHeight {
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
   /** The widgets whose text does not fit its box (PC-32). */
   readonly overflowing?: readonly string[];
+  /** The widgets the canvas could not build as Flutter does, and why: drawn as placeholders or approximations (#80). */
+  readonly unbuilt?: readonly UnbuiltWidget[];
 }
 
 /** An encoded image and the key scene items refer to it by. */

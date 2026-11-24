@@ -135,6 +135,13 @@ export interface WidgetContext {
   readonly deviceHeight?: number | undefined;
   /** Records how the box with `id` is drawn; a text records the style it is measured and drawn in. */
   mark(id: string, kind: PlacedKind, text?: string, style?: PlacedText): void;
+  /**
+   * Tells the layout that widget `id` of `type` could not be built as Flutter builds it, and why: it is drawn as a
+   * placeholder or an approximation instead, and the layout names it (`ScreenLayout.unbuilt`, #80).
+   */
+  failed?(id: string, type: string, reason: string): void;
+  /** How many widgets have been named as unbuilt so far (`failed`). */
+  failures?(): number;
   /** The colours and type scale to paint with, when the screen is painted (STU-005). */
   readonly paint?: PaintTheme | undefined;
   /**
@@ -191,6 +198,18 @@ export interface ScreenLayout {
    * their smallest size so the rest of the screen still lays out.
    */
   readonly unbounded?: readonly string[];
+  /**
+   * The widgets the canvas could not build as Flutter does, each with why (#80): each is drawn as a placeholder or an
+   * approximation, and Studio says so instead of leaving a blank or odd screen unexplained.
+   */
+  readonly unbuilt?: readonly UnbuiltWidget[];
+}
+
+/** A widget the canvas could not build, and why. */
+export interface UnbuiltWidget {
+  readonly id: string;
+  readonly type: string;
+  readonly reason: string;
 }
 
 /** Slots that are drawn by the screen itself, not by the widget tree. */
@@ -866,12 +885,21 @@ function overflowingOwners(paragraphs: readonly RenderParagraph[]): string[] {
   return [...out];
 }
 
-/** A layout with what the layout found: the widgets whose text overflowed and those it could not size, when any. */
-function withFindings(result: ScreenLayout, overflowing: string[], unbounded: string[]): ScreenLayout {
+/**
+ * A layout with what the layout found: the widgets whose text overflowed, those it could not size, and those it could
+ * not build, when any.
+ */
+function withFindings(
+  result: ScreenLayout,
+  overflowing: string[],
+  unbounded: string[],
+  unbuilt: readonly UnbuiltWidget[],
+): ScreenLayout {
   return {
     ...result,
     ...(overflowing.length === 0 ? {} : { overflowing }),
     ...(unbounded.length === 0 ? {} : { unbounded }),
+    ...(unbuilt.length === 0 ? {} : { unbuilt }),
   };
 }
 
@@ -943,6 +971,8 @@ export function layoutScreen(input: WidgetNode | null | undefined, options: Layo
   const textScale = options.textScale ?? 1;
   const rootId = "root";
   const live: ScrollExtent[] = [];
+  const unbuilt = new Map<string, UnbuiltWidget>();
+  let reports = 0;
   const insets = pageInsets(root, options);
   const hasBar = insets.hasBar;
   // The page's app bar is laid out under the whole view padding; the body below it has none at the top.
@@ -953,6 +983,12 @@ export function layoutScreen(input: WidgetNode | null | undefined, options: Layo
     },
     pageBar: insets.pageBar,
     pageScaffold: pageScaffoldOf(root, options),
+    failed(id, type, reason) {
+      // A widget built twice (measured, then laid out) is named once, but each report counts (`failures`).
+      reports += 1;
+      unbuilt.set(id, { id, type, reason });
+    },
+    failures: () => reports,
     live: liveOf(options, live),
     withViewPadding(next, build) {
       const kept = padding;
@@ -1058,7 +1094,7 @@ export function layoutScreen(input: WidgetNode | null | undefined, options: Layo
       ctx,
       options,
     );
-    return withFindings(result, overflowingOwners(paragraphs), unboundedOwners(view));
+    return withFindings(result, overflowingOwners(paragraphs), unboundedOwners(view), [...unbuilt.values()]);
   } finally {
     for (const p of paragraphs) {
       p.dispose();

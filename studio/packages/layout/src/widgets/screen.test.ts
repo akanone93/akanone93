@@ -236,6 +236,22 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     }
   });
 
+  test("a widget the scene cannot build is named, with why, instead of failing in silence (#80)", () => {
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        // A chip needs its label: the scene refuses one without, and the canvas draws its placeholder.
+        { id: "chip", type: "Chip", props: {} },
+        { id: "fine", type: "Chip", slots: { label: text("finet", "Label") } },
+      ],
+    };
+    const painted = layoutScreen(root, { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } });
+    expect(painted.unbuilt?.map((u) => [u.id, u.type])).toEqual([["chip", "Chip"]]);
+    expect(painted.unbuilt?.[0]?.reason).toContain("label");
+    expect(layoutScreen({ id: "ok", type: "Column", children: [] }, { engine, theme }).unbuilt).toBeUndefined();
+  });
+
   test("a scroll view that runs across lays its content out whole, from its start edge (#92)", () => {
     const strip: WidgetNode = {
       id: "sv",

@@ -18009,6 +18009,12 @@ msgstr "Die meistgenutzten Apps der Organisation, als Ebenen gestapelt."
 msgid "compare.title"
 msgstr "Arbeitsfläche und Gerät"
 
+#. Problems list: the canvas failed to lay out a widget the way Flutter does and drew a placeholder or an approximation instead. {type} is the widget type (Column, AppBar); {reason} is the technical cause, in English.
+#. js-lingui-explicit-id
+#: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
+msgid "pluginCanvas.unbuiltWidget"
+msgstr "Die Arbeitsfläche konnte dieses {type} nicht wie ein Gerät zeichnen und zeigt einen Platzhalter: {reason}"
+
 #. Shown when the canvas preview's size, mode or text scale differs from the device's.
 #. js-lingui-explicit-id
 #: apps/web/src/features/devices/compare.messages.ts

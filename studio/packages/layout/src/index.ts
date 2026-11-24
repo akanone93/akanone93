@@ -287,6 +287,7 @@ export {
   type PlacedText,
   type ScreenLayout,
   type ScreenTheme,
+  type UnbuiltWidget,
   type WidgetBuilder,
   type WidgetContext,
   type WidgetNode,

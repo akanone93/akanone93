@@ -72,6 +72,7 @@ import { useStateTarget } from "../state-designer/index.ts";
 import { a11yMarksOf } from "./a11y-marks.ts";
 import { assetUses, replaceAssetRecipe } from "./asset-uses.ts";
 import { bindingMarks } from "./binding-marks.ts";
+import { unbuiltKeyOf, unbuiltProblems, withProblems } from "./canvas-problems.ts";
 import { targetHas, useClipboard } from "./clipboard/use-clipboard.tsx";
 import { useCopyOver } from "./clipboard/use-copy-over.ts";
 import { componentsOf, instanceMarks } from "./component-instances.ts";
@@ -783,7 +784,8 @@ function PluginCanvasView({
   docs: ReturnType<typeof usePluginDocuments>;
   editorSessionId: string;
 }) {
-  const m = pluginCanvasMessages(useLingui().i18n);
+  const { i18n } = useLingui();
+  const m = pluginCanvasMessages(i18n);
   const params = useParams({ strict: false }) as { org?: string; app?: string; plugin?: string };
   const assets = useAssetsTab(editorSessionId);
   const search = useSearch({ strict: false }) as { x?: number; y?: number; z?: number; focus?: string; node?: string };
@@ -810,7 +812,13 @@ function PluginCanvasView({
   );
   // Each page checked in full — semantic and policy checks, budgets, expensive animations — and again after an edit:
   // the counts, the Problems panel and the problems pinned to widgets show them (PC-34, SCH-040).
-  const validation = usePageChecks(loaded, live);
+  const pageChecks = usePageChecks(loaded, live);
+  // And what the canvas's own layout found: the widgets it could not draw as a device does (#80).
+  const [unbuiltKey, setUnbuiltKey] = useState("");
+  const validation = useMemo(
+    () => withProblems(pageChecks, unbuiltProblems(unbuiltKey, live, pluginCanvasMessages(i18n).unbuiltWidget)),
+    [pageChecks, unbuiltKey, live, i18n],
+  );
   const checked = useLastCheck(validation, params.plugin);
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
   const brands = useBrands(appDocs.data);
@@ -866,7 +874,6 @@ function PluginCanvasView({
   const screens = useMemo(() => titledScreens(placed, titleMessages), [placed, titleMessages]);
   // Each screen's header bar marks the plugin's entry (PC-11, MR-2).
   const entryId = useMemo(() => (docs.data === undefined ? undefined : readPlugin(docs.data).entryPage), [docs.data]);
-  const { i18n } = useLingui();
   // The tool is the page's: with Interact the screens are live (PC-15), and their live values are drawn.
   const [tool, setTool] = useState<PointerTool>("select");
   const [liveValues, setLive] = useState<LiveState>(emptyLive);
@@ -1411,6 +1418,7 @@ function PluginCanvasView({
       const byId = heightsById(laidOut);
       setHeights(byId);
       setOverflowKey(overflowKeyOf(laidOut));
+      setUnbuiltKey(unbuiltKeyOf(laidOut));
       liveHeights.current?.(laidOut);
       // The first layout gives the heights the unsaved screens are arranged with (#241); when that moves them, the view
       // is fitted after the next layout, to where they end up.

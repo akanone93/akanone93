@@ -757,12 +757,21 @@ function themedEngine(
   };
 }
 
-/** Builds `node` from its scene node; a node the scene cannot build is drawn as its labelled placeholder. */
+/** Why the scene could not build a node: the error's message, or what was thrown. */
+function reasonOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Builds `node` from its scene node; a node the scene cannot build is drawn as its labelled placeholder, and the
+ * layout is told why (#80).
+ */
 function sceneBuilder(root: (node: WidgetNode) => WidgetNode): WidgetBuilder {
   return (node, ctx) => {
     try {
       return sceneBuild(root(node), ctx);
-    } catch {
+    } catch (error) {
+      ctx.failed?.(node.id, node.type ?? "", reasonOf(error));
       return placeholder(node, ctx, node.type ?? "");
     }
   };
@@ -770,7 +779,8 @@ function sceneBuilder(root: (node: WidgetNode) => WidgetNode): WidgetBuilder {
 
 /**
  * The builder of a faithful type: on a painted screen, the scene's (as Flutter lays it out), else `legacy`, the
- * screen's own approximation; `legacy` too when the scene cannot build the node, so a screen never collapses.
+ * screen's own approximation; `legacy` too when the scene cannot build the node, so a screen never collapses — and the
+ * layout is told why (#80).
  */
 export function faithful(legacy: WidgetBuilder): WidgetBuilder {
   return (node, ctx) => {
@@ -779,8 +789,15 @@ export function faithful(legacy: WidgetBuilder): WidgetBuilder {
     }
     try {
       return sceneBuild(node, ctx);
-    } catch {
-      return legacy(node, ctx);
+    } catch (error) {
+      // The scene builds the node with everything below it: when a descendant is what failed, the approximation builds
+      // that descendant on its own, which names itself; the node is named only when nothing below it was.
+      const before = ctx.failures?.() ?? 0;
+      const box = legacy(node, ctx);
+      if ((ctx.failures?.() ?? 0) === before) {
+        ctx.failed?.(node.id, node.type ?? "", reasonOf(error));
+      }
+      return box;
     }
   };
 }
