@@ -5,13 +5,27 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
+import type { MonacoViewProps } from "../json-editor/monaco-view.types.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { budgetStatus, compactJson, functionsIn, nodeBudget, stringsIn, subtreeOf } from "./tab-model.ts";
 
-/** Monaco needs a real browser and leaves its globals behind; the Code tab test opens the editor on a stand-in. */
+/**
+ * Monaco needs a real browser and leaves its globals behind — its clipboard listener on the document made later test
+ * files fail when the folder ran alone (build log #291) — so the Code and JSON tabs open their editors on stand-ins.
+ */
 mock.module("../rust-editor/rust-monaco-view.tsx", () => ({
   default: (props: { label: string; value: string }) => (
     <textarea aria-label={props.label} readOnly value={props.value} />
+  ),
+}));
+mock.module("../json-editor/monaco-view.tsx", () => ({
+  default: (props: MonacoViewProps) => (
+    <textarea
+      aria-label={props.label}
+      readOnly={props.readOnly}
+      value={props.value}
+      onChange={(e) => props.onChange(e.target.value)}
+    />
   ),
 }));
 
