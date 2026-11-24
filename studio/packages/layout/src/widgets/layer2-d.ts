@@ -19,10 +19,13 @@ import {
 } from "../flutter/geometry.ts";
 import { type ButtonKind, buildButton } from "../flutter/material/buttons.ts";
 import { MaterialTapTargetSize, m3TextStyle, type TextRole, VisualDensity } from "../flutter/material/theme.ts";
+import type { RenderObject } from "../flutter/object.ts";
+import { RenderParagraph } from "../flutter/paragraph.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import { RenderAspectRatio, RenderLimitedBox } from "../flutter/proxy-boxes.ts";
-import type { RenderBox } from "../flutter/render-box.ts";
+import { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
+import { RenderUnconstrainedBox } from "../flutter/shifted-boxes.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { RenderWrap } from "../flutter/wrap.ts";
 import {
@@ -275,8 +278,40 @@ const termsHeightShare = 0.6;
 const fallbackDeviceHeight = 800;
 
 /**
- * `TermsViewer`: as high as its parent allows, with the scrolling text filling it, then (the end is not reached at
- * design time) the hint and the accept button, each 8 below.
+ * The text area of a `TermsViewer` at the top of its scroll: the terms laid out at the area's width from its top, and
+ * only the paragraphs that fit whole are drawn — the rest are scrolled out of view on a device, and drawn they ran
+ * over the hint and the button. A paragraph keeps its part id (`<id>#p<n>`) while it fits, so the canvas draws it.
+ */
+class RenderTermsArea extends RenderUnconstrainedBox {
+  private readonly ids = new Map<RenderParagraph, string>();
+
+  constructor(child: RenderBox, textDirection: TextDirection) {
+    super({ alignment: AlignmentDirectional.topStart, textDirection, constrainedAxis: Axis.horizontal, child });
+  }
+
+  protected override performLayout(): void {
+    super.performLayout();
+    const bottom = this.size.height + 0.5;
+    const visit = (node: RenderObject, top: number): void => {
+      if (node instanceof RenderParagraph) {
+        const id = this.ids.get(node) ?? node.debugId;
+        if (id !== null) {
+          this.ids.set(node, id);
+          node.debugId = top + node.size.height <= bottom ? id : null;
+        }
+        return;
+      }
+      node.visitChildren((child) => visit(child, top + RenderBox.offsetOf(child).dy));
+    };
+    if (this.child !== null) {
+      visit(this.child, RenderBox.offsetOf(this.child).dy);
+    }
+  }
+}
+
+/**
+ * `TermsViewer`: as high as its parent allows, with the scrolling text filling it — the terms from their top (#124) —
+ * then (the end is not reached at design time) the hint and the accept button, each 8 below.
  */
 const termsViewer: WidgetBuilder = (node, ctx) =>
   named(
@@ -286,7 +321,7 @@ const termsViewer: WidgetBuilder = (node, ctx) =>
       child: column(
         ctx,
         [
-          expanded(sized(0, 0)),
+          expanded(new RenderTermsArea(markdownColumn(ctx, text(node, "source") ?? ""), direction(ctx))),
           padded(
             ctx,
             EdgeInsets.only({ top: 8 }),

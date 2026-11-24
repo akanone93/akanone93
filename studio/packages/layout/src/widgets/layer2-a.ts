@@ -195,16 +195,22 @@ const imageGallery: WidgetBuilder = (node, ctx) => named(node, sized(ctx.availab
 /** `CountryPicker` and `CurrencyPicker`: a search field over a list, in a box 360 high. */
 const picker: WidgetBuilder = (node, ctx) => named(node, sized(ctx.available(), 360));
 
-/** A `TextField` with a label: one line of `bodyLarge` under the default underline decoration. */
-function labelledField(node: WidgetNode, ctx: WidgetContext, prefix: string | null): RenderBox {
+/**
+ * A `TextField` with a label: one line of `bodyLarge` under the default underline decoration, drawn empty, as the
+ * canvas has no value to put in it. An empty field shows its label where the text goes, and no prefix — Flutter shows
+ * an `AmountInput`'s currency only once the label floats — so the input line is the label: the line's own stand-in
+ * text was drawn as a stray "A" beside the currency, and the label not at all (build log #122).
+ */
+function labelledField(node: WidgetNode, ctx: WidgetContext): RenderBox {
   const label = text(node, "label");
   return named(
     node,
     buildInputDecorator({
-      input: new RenderEditableLine(line(ctx, "A", "bodyLarge")),
+      // A space keeps one line's height where there is no label, and draws nothing.
+      input: new RenderEditableLine(line(ctx, label ?? " ", "bodyLarge")),
       prefixIcon: null,
       suffixIcon: null,
-      prefix: prefix === null ? null : line(ctx, prefix, "bodyLarge"),
+      prefix: null,
       isEmpty: true,
       subtext: null,
       outline: false,
@@ -220,10 +226,10 @@ function labelledField(node: WidgetNode, ctx: WidgetContext, prefix: string | nu
 }
 
 /** `IbanInput`: a labelled text field. */
-const ibanInput: WidgetBuilder = (node, ctx) => labelledField(node, ctx, null);
+const ibanInput: WidgetBuilder = (node, ctx) => labelledField(node, ctx);
 
-/** `AmountInput`: a labelled text field whose prefix is the currency. */
-const amountInput: WidgetBuilder = (node, ctx) => labelledField(node, ctx, `${text(node, "currency") ?? ""} `);
+/** `AmountInput`: a labelled text field whose prefix, the currency, shows once it holds an amount. */
+const amountInput: WidgetBuilder = (node, ctx) => labelledField(node, ctx);
 
 /** The money of a `{label, amount}` line, as the runtime writes it. */
 function moneyText(value: unknown): string {

@@ -257,6 +257,48 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(shown(match({ $expr: "params.slug" }, false))).toEqual(["Branch A"]);
   });
 
+  test("an empty AmountInput shows its label where the amount goes, and no currency or stand-in text (#122)", () => {
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [{ id: "amt", type: "AmountInput", props: { label: "Amount", currency: "EUR" } }],
+    };
+    const painted = layoutScreen(root, { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } });
+    const texts = painted.boxes.filter((b) => b.id.startsWith("amt#") && b.kind === "text").map((b) => b.text);
+    expect(texts).toEqual(["Amount"]);
+  });
+
+  test("a TermsViewer shows its terms from the top, as far as whole paragraphs fit, above its hint and button (#124)", () => {
+    const source = Array.from({ length: 40 }, (_, i) => `Clause ${i + 1}: the holder agrees to the terms.`).join(
+      "\n\n",
+    );
+    const viewer = (src: string): WidgetNode => ({
+      id: "tv",
+      type: "TermsViewer",
+      props: { source: src, version: "1", acceptLabel: "Accept", scrollHint: "Scroll to the end" },
+    });
+    const paint = { scheme: colorSchemeFromSeed(0xff6750a4, false) };
+    const parts = (src: string) =>
+      layoutScreen(viewer(src), { engine, theme, paint }).boxes.filter(
+        (b) => b.id.startsWith("tv#p") && b.kind === "text",
+      );
+    const drawn = parts(source);
+    const texts = drawn.map((b) => b.text ?? "");
+    expect(texts[0]).toBe("Clause 1: the holder agrees to the terms.");
+    const clauses = texts.filter((t) => t.startsWith("Clause"));
+    // Some clauses, not all forty: the rest are past the area.
+    expect(clauses.length).toBeGreaterThan(1);
+    expect(clauses.length).toBeLessThan(40);
+    const hint = drawn.find((b) => b.text === "Scroll to the end");
+    expect(hint).toBeDefined();
+    for (const c of drawn.filter((b) => b.text?.startsWith("Clause"))) {
+      expect(c.y + c.h).toBeLessThanOrEqual((hint?.y ?? 0) + 0.5);
+    }
+    // The hint and the button stand where they stood with no terms.
+    const empty = parts("");
+    expect(empty.find((b) => b.text === "Scroll to the end")?.y).toBeCloseTo(hint?.y ?? Number.NaN, 5);
+  });
+
   test("a widget the scene cannot build is named, with why, instead of failing in silence (#80)", () => {
     const root: WidgetNode = {
       id: "col",
