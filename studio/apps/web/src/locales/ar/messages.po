@@ -4446,6 +4446,12 @@ msgstr "الرمز من طرفيتك"
 msgid "panels.collapseAll"
 msgstr "طي الكل"
 
+#. Button that collapses every section of the JSON document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.foldAll"
+msgstr "طي الكل"
+
 #. Heading of one collection page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -6036,6 +6042,12 @@ msgstr "المستند"
 msgid "analytics.jsonPathLabel"
 msgstr "مسار المستند"
 
+#. Accessible name of the bar of buttons above the JSON text: collapse, expand, outline, format, find.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.tools"
+msgstr "أدوات المستند"
+
 #. Help menu entry that opens the documentation.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/notify.messages.ts
@@ -7025,6 +7037,12 @@ msgstr "الخروج"
 msgid "panels.expandAll"
 msgstr "توسيع الكل"
 
+#. Button that expands every collapsed section of the JSON document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.unfoldAll"
+msgstr "توسيع الكل"
+
 #. Window size class from 840 dp.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -7397,6 +7415,12 @@ msgstr "تصفية الخصائص"
 msgid "tests.searchLabel"
 msgstr "تصفية السيناريوهات"
 
+#. Button that opens the find bar of the JSON editor.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.find"
+msgstr "بحث"
+
 #. Heading of the list of validator findings about the chosen state entry.
 #. js-lingui-explicit-id
 #: apps/web/src/features/state-designer/state.messages.ts
@@ -7582,6 +7606,12 @@ msgstr "اسم النموذج"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.importFormat"
 msgstr "الصيغة"
+
+#. Button that indents the JSON document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.format"
+msgstr "تنسيق"
 
 #. Section of the page settings: the page's forms.
 #. js-lingui-explicit-id
@@ -12652,6 +12682,12 @@ msgstr "إضافات أخرى تفتح هذا المسار ({plugins})؛ غيّ�
 #: apps/web/src/features/panels/style.messages.ts
 msgid "style.outline"
 msgstr "الحد الخارجي"
+
+#. Button that collapses the JSON document to its top-level parts, so it reads as an outline.
+#. js-lingui-explicit-id
+#: apps/web/src/features/json-editor/json-editor.messages.ts
+msgid "jsonEditor.outline"
+msgstr "مخطط"
 
 #. Accessible name of the width field of a shape's outline.
 #. js-lingui-explicit-id

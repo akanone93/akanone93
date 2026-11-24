@@ -155,6 +155,30 @@ describe("[STU-064] JSON editor V1", () => {
     expect(views.at(-1)?.diff).toBe(false);
   });
 
+  test("the tools above the text collapse, expand, outline, format and find in the document", async () => {
+    renderApp(path, { documents, surface: surface().factory });
+    await openEditors();
+    fireEvent.click(await screen.findByRole("button", { name: "JSON editor" }, { timeout: 5000 }));
+    await area();
+    const ran: string[] = [];
+    const commands = views.at(-1)?.commands;
+    expect(commands).toBeDefined();
+    if (commands !== undefined) {
+      commands.current = {
+        foldAll: () => ran.push("foldAll"),
+        unfoldAll: () => ran.push("unfoldAll"),
+        foldToParts: () => ran.push("foldToParts"),
+        format: () => ran.push("format"),
+        find: () => ran.push("find"),
+      };
+    }
+    const tools = screen.getByRole("toolbar", { name: "Document tools" });
+    for (const name of ["Collapse all", "Expand all", "Outline", "Format", "Find"]) {
+      fireEvent.click(within(tools).getByRole("button", { name }));
+    }
+    expect(ran).toEqual(["foldAll", "unfoldAll", "foldToParts", "format", "find"]);
+  });
+
   test("read-only while someone else holds the lock: the text is read-only and Apply is off", async () => {
     renderApp(path, { documents, surface: surface().factory, lockHeldElsewhere: true });
     await openEditors();

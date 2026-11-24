@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
-import { Button, Dialog, Icon, Tooltip, TypeTag } from "@plux/ui";
+import { Button, Dialog, Icon, type IconName, Tooltip, TypeTag } from "@plux/ui";
 import type { Problem } from "@plux/validator";
-import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { type ReactElement, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { SheetLayout, SheetNavHead } from "../../components/editor-sheet.tsx";
 import type { EditSession } from "../editor/edit-session.ts";
 import { useCanEdit, useEditor, useEditSession } from "../editor/editor-provider.tsx";
@@ -13,7 +13,7 @@ import { type JsonEditorMessages, jsonEditorMessages } from "./json-editor.messa
 import { MonacoView } from "./lazy-view.tsx";
 import { lineColumn, locate } from "./locate.ts";
 import { mergeInto } from "./merge.ts";
-import type { EditorMarker } from "./monaco-view.types.ts";
+import type { EditorCommands, EditorMarker } from "./monaco-view.types.ts";
 import type { LoadPublished } from "./use-published.ts";
 
 /** Milliseconds after the last keystroke before the validator worker checks the text (the same as PXL fields, F9). */
@@ -294,6 +294,30 @@ function ProblemList({ problems, empty, m }: { problems: readonly Problem[]; emp
 }
 
 /** One document of the list, by its file name; the whole path is its tooltip. */
+/** The buttons above the text: collapse and expand its sections, outline it, format it, find in it (row 285). */
+function EditorTools(props: {
+  readonly commands: { current: EditorCommands | null };
+  readonly readOnly: boolean;
+  readonly m: JsonEditorMessages;
+}): ReactElement {
+  const { commands, m } = props;
+  const tool = (icon: IconName, label: string, run: (c: EditorCommands) => void, disabled = false) => (
+    <Button variant="ghost" size="sm" disabled={disabled} onClick={() => commands.current && run(commands.current)}>
+      <Icon name={icon} />
+      {label}
+    </Button>
+  );
+  return (
+    <div role="toolbar" aria-label={m.tools} className="flex flex-wrap items-center gap-1">
+      {tool("collapse-all", m.foldAll, (c) => c.foldAll())}
+      {tool("expand-all", m.unfoldAll, (c) => c.unfoldAll())}
+      {tool("list", m.outline, (c) => c.foldToParts())}
+      {tool("rows", m.format, (c) => c.format(), props.readOnly)}
+      {tool("magnifying-glass", m.find, (c) => c.find())}
+    </div>
+  );
+}
+
 function DocumentButton(props: {
   readonly path: string;
   readonly chosen: boolean;
@@ -325,6 +349,8 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
   const [diff, setDiff] = useState(false);
   const [note, setNote] = useState("");
   const applied = useRef(0);
+  // The editor's commands for the buttons above it, filled while it is shown.
+  const commands = useRef<EditorCommands | null>(null);
   const published = usePublishedText(props.open, diff, path, props.loadPublished);
   const verdict = useVerdict(props.open, text, path, props.validatePage, m);
 
@@ -397,6 +423,7 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
       >
         {!canEdit && <p className="text-caption text-muted-foreground">{m.readOnly}</p>}
         <PublishedNotes diff={diff} published={published} m={m} />
+        <EditorTools commands={commands} readOnly={!canEdit} m={m} />
         <div className="sheet-code">
           {props.open && (
             <Suspense fallback={<p className="text-body text-muted-foreground">{m.checking}</p>}>
@@ -408,6 +435,7 @@ export function JsonEditorOverlay(props: JsonEditorOverlayProps) {
                 label={m.editorLabel}
                 markers={markers}
                 onChange={setText}
+                commands={commands}
               />
             </Suspense>
           )}

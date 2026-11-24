@@ -8,7 +8,7 @@ import "./monaco-features.ts";
 import "monaco-editor/language/json/monaco.contribution.js";
 import { useEffect, useRef } from "react";
 import { isDark } from "../../lib/color-scheme.ts";
-import type { MonacoViewProps } from "./monaco-view.types.ts";
+import type { EditorCommands, MonacoViewProps } from "./monaco-view.types.ts";
 
 const MARKER_OWNER = "plux-validator";
 const severity = { error: monaco.MarkerSeverity.Error, warning: monaco.MarkerSeverity.Warning } as const;
@@ -23,7 +23,14 @@ const options: monaco.editor.IStandaloneEditorConstructionOptions & monaco.edito
   suggestOnTriggerCharacters: false,
   codeLens: false,
   lightbulb: { enabled: monaco.editor.ShowLightbulbIconMode.Off },
-  stickyScroll: { enabled: false },
+  // A long document reads by its sections: each folds from the gutter, its path stays at the top while scrolling,
+  // and its brackets and indentation are guided (build log row 285).
+  folding: true,
+  showFoldingControls: "always",
+  foldingHighlight: true,
+  stickyScroll: { enabled: true, maxLineCount: 4 },
+  bracketPairColorization: { enabled: true },
+  guides: { bracketPairs: "active", indentation: true },
   scrollBeyondLastLine: false,
   tabSize: 2,
   fontFamily: "var(--font-mono)",
@@ -31,12 +38,32 @@ const options: monaco.editor.IStandaloneEditorConstructionOptions & monaco.edito
 
 const dark = isDark;
 
+/** The commands of `editor`, by Monaco's own actions. */
+function commandsOf(editor: monaco.editor.ICodeEditor): EditorCommands {
+  const run = (id: string) => () => {
+    void editor.getAction(id)?.run();
+  };
+  return {
+    foldAll: run("editor.foldAll"),
+    unfoldAll: run("editor.unfoldAll"),
+    foldToParts: run("editor.foldLevel2"),
+    format: run("editor.action.formatDocument"),
+    find: run("actions.find"),
+  };
+}
+
 /** Monaco's JSON editor, or its diff editor against `baseline` (S5.1). Loaded lazily; the one place Monaco is used. */
 export default function MonacoView(props: MonacoViewProps) {
   const host = useRef<HTMLDivElement>(null);
   const model = useRef<monaco.editor.ITextModel | null>(null);
   const onChange = useRef(props.onChange);
   onChange.current = props.onChange;
+  const commands = props.commands;
+  const setCommands = (next: EditorCommands | null) => {
+    if (commands !== undefined) {
+      commands.current = next;
+    }
+  };
   const { diff, readOnly, label, value, baseline } = props;
 
   // The value seeds the model once per editor; later changes arrive through the effect below.
@@ -62,13 +89,16 @@ export default function MonacoView(props: MonacoViewProps) {
         ariaLabel: label,
       });
       editor.setModel({ original, modified });
+      setCommands(commandsOf(editor.getModifiedEditor()));
       dispose = () => editor.dispose();
     } else {
       const editor = monaco.editor.create(element, { ...options, theme, readOnly, model: modified, ariaLabel: label });
       editor.focus();
+      setCommands(commandsOf(editor));
       dispose = () => editor.dispose();
     }
     return () => {
+      setCommands(null);
       subscription.dispose();
       dispose();
       original?.dispose();

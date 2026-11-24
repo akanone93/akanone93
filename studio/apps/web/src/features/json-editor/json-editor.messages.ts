@@ -37,6 +37,36 @@ export function jsonEditorMessages(i18n: I18n) {
       comment:
         "Heading of the app's own documents (app.json, the theme, the translation keys) in the JSON editor's list.",
     }),
+    tools: i18n._({
+      id: "jsonEditor.tools",
+      message: "Document tools",
+      comment: "Accessible name of the bar of buttons above the JSON text: collapse, expand, outline, format, find.",
+    }),
+    foldAll: i18n._({
+      id: "jsonEditor.foldAll",
+      message: "Collapse all",
+      comment: "Button that collapses every section of the JSON document.",
+    }),
+    unfoldAll: i18n._({
+      id: "jsonEditor.unfoldAll",
+      message: "Expand all",
+      comment: "Button that expands every collapsed section of the JSON document.",
+    }),
+    outline: i18n._({
+      id: "jsonEditor.outline",
+      message: "Outline",
+      comment: "Button that collapses the JSON document to its top-level parts, so it reads as an outline.",
+    }),
+    format: i18n._({
+      id: "jsonEditor.format",
+      message: "Format",
+      comment: "Button that indents the JSON document.",
+    }),
+    find: i18n._({
+      id: "jsonEditor.find",
+      message: "Find",
+      comment: "Button that opens the find bar of the JSON editor.",
+    }),
     editorLabel: i18n._({
       id: "jsonEditor.editorLabel",
       message: "JSON of the document",

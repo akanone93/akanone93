@@ -11,6 +11,20 @@ export interface EditorMarker {
   readonly endColumn: number;
 }
 
+/** What the JSON editor's buttons ask of the editor (build log row 285). */
+export interface EditorCommands {
+  /** Collapses every section. */
+  foldAll(): void;
+  /** Expands every section. */
+  unfoldAll(): void;
+  /** Collapses every section below the top level, so the document's parts read as an outline. */
+  foldToParts(): void;
+  /** Indents the document as JSON. */
+  format(): void;
+  /** Opens the find bar. */
+  find(): void;
+}
+
 export interface MonacoViewProps {
   readonly value: string;
   /** The last published version of the document, for the diff view. */
@@ -20,4 +34,6 @@ export interface MonacoViewProps {
   readonly label: string;
   readonly markers: readonly EditorMarker[];
   readonly onChange: (text: string) => void;
+  /** Filled with the editor's commands while it is shown; null otherwise. */
+  readonly commands?: { current: EditorCommands | null };
 }

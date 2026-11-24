@@ -423,7 +423,9 @@ Arrows follow a screen while you drag it. Open the **Action graph** for anything
 add built-in, host, function and flow steps and connect their ports. The **State designer** edits
 state entries (single value, list or map; in memory, for the session, saved on the device or in
 secure storage; sensitive or not), and the **JSON editor** edits the document itself with a
-comparison against the last published version. **Apply** writes only a valid document.
+comparison against the last published version. Each object and list folds from the gutter, the path of the section
+you are in stays at the top while you scroll, and the bar above the text has **Collapse all**, **Expand all**,
+**Outline** (the document's top-level parts, folded), **Format** and **Find**. **Apply** writes only a valid document.
 
 ## Undo, locks and conflicts
 
