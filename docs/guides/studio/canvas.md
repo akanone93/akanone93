@@ -210,9 +210,13 @@ below it, a `SafeArea` keeps its content clear of the status bar, the cutout and
 bar's icons turn light over a dark app bar or header, as the device draws them. A page's `Scaffold` is laid out at the
 device's size with its parts where the device puts them: the app bar at the top, the navigation bar and persistent
 footer buttons at the bottom above the home indicator, the floating action button at its location and the bottom sheet
-above the bottom bar; a scrolling body keeps all its content, past the frame. Select a page to add what its scaffold
-lacks from the chips on its frame — **App bar**, **Navigation bar**, **Action button** and **Drawer** — each as one
-undo step; **Show drawer** draws the drawer open over its scrim, and selecting anything inside a drawer opens it too.
+above the bottom bar. A page whose body scrolls — a scroll view, or one inside a `SafeArea`, `Padding`, `FormScope`,
+`RefreshIndicator` or `Scrollbar` — keeps all its content: its frame grows to hold it, with its bars below the
+content, so everything above a footer can be seen and edited; a short line beside each side of the frame marks where
+the device's screen ends before it scrolls, and the frame shrinks back as content is removed. Content that overflows a
+box that does not scroll is drawn in a translucent region below the frame, as it would be cut off on the device.
+Select a page to add what its scaffold lacks from the chips on its frame — **App bar**, **Navigation bar**, **Action
+button** and **Drawer** — each as one undo step; **Show drawer** draws the drawer open over its scrim, and selecting anything inside a drawer opens it too.
 Showing a drawer changes only the canvas, never the page. **New screen** asks for its **Kind**: a **Page**, a
 **Dialog**, a **Bottom sheet** or a **Full-screen dialog**, each starting from a fitting layout. A dialog page is drawn
 as the device presents it — over the page that opens it, dimmed by a scrim, on Material 3's dialog card — and a bottom

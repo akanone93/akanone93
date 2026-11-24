@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.21.0
+**Version:** 1.22.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -1722,7 +1722,7 @@ The plugin canvas shows **all screens of the plugin at the same time**, with arr
 | `STU-053` | P11 | MUST | Clicking a ghost screen **MUST** show a confirmation ("Leave *Loans* and open *Cards › Card details*?"), then open the other plugin's canvas, pan and zoom to that screen and highlight it (a pulse lasting about 2 s). | DONE |
 | `STU-054` | P11 | MUST | Native routes targeted by this plugin's screens **MUST** appear as native nodes that only receive arrows (`STU-033`). | DONE |
 | `STU-055` | P11 | MUST | Screens **MUST** be creatable (blank, from template, and from an AI prompt, which arrives with P12), duplicated (with new IDs and internal links remapped), renamed, moved to another plugin (links updated), set as the plugin's entry screen, and deleted subject to `STU-070`. | DONE |
-| `STU-056` | P11 | MUST | Content that extends beyond a screen's viewport (e.g. a long list or scroll view) **MUST** be shown on the canvas as a translucent **overflow region** below or beside the device frame, so designers see the whole scrollable content. | DONE |
+| `STU-056` | P11 | MUST | Content that extends beyond a screen's viewport (e.g. a long list or scroll view) **MUST** be shown on the canvas in full, so designers see and edit the whole scrollable content: a screen's frame **MUST** grow to hold its page's own scroll content, with its bars below that content and a mark where the device's view ends, and content that overflows a box that does not scroll **MUST** be shown as a translucent **overflow region** below the frame (ADR-0111). | DONE |
 | `STU-057` | P11 | MUST | Studio **MUST** support **multiple device frames**: presets (small Android phone 360×800, Pixel, Galaxy A-series, entry-level Android, iPhone SE, iPhone standard and Pro Max, iPad, foldable), custom sizes, orientation, and a **device matrix** mode showing one screen on several devices side by side. | DONE |
 | `STU-058` | P11 | MUST | Canvas-wide preview switches **MUST** include theme (light/dark, brand overlay), locale (including RTL and pseudo-locales), text scale, platform style (Material/Cupertino) and data-source mock state (`loading`, `empty`, `error`, `success`). | DONE |
 
@@ -3136,10 +3136,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.21.0 |
+| Version | 1.22.0 |
 | Status | Draft (living document) |
 | Date | 2026-11-24 |
-| Supersedes | 1.20.0 |
+| Supersedes | 1.21.0 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3186,3 +3186,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.19.0 | 2026-11-19 | Gateway changes need a step-up (maintainer, 2026-11-19, build log #167; ADR-0108): `SEC-103` adds changes to the gateway's upstreams, trusted user identity providers and configuration values; `DAT-090` — values are changed with the new permission `gateway.manage` (high risk, step-up, environment scope) instead of `app.manage`, which upstreams and identity providers also need. Owner and Admin hold it. |
 | 1.20.0 | 2026-11-23 | The Dev app's trust (maintainer, 2026-11-23; ADR-0109, revising ADR-0087, ADR-0093 and ADR-0104): the §20 trust paragraph — the Dev app pins no key at build time; its phone pins the organisation's development root from the sign-in QR code, and each app opens with the development key that root certifies when the phone joins a session, development keys only (`SEC-056`). No requirement's text or status changes. |
 | 1.21.0 | 2026-11-24 | No alignment guides or snapping on the canvases (maintainer, 2026-11-24, build log row 225; ADR-0110): `STU-032` no longer names snapping and alignment guides, `STU-050` no longer names snapping, and `STU-067` no longer names smart guides and distance measurement. A dragged box follows the pointer; the insertion indicator, the drop target and the marquee stay. |
+| 1.22.0 | 2026-11-24 | A screen's frame grows to hold its content (maintainer, 2026-11-24, build log row 119; ADR-0111): `STU-056` — the frame grows to hold the page's own scroll content, its bars below that content, with a mark where the device's view ends; the translucent overflow region stays for content that overflows a box that does not scroll. |

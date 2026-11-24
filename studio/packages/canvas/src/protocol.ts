@@ -462,6 +462,8 @@ export interface ScreenStyle {
 export interface ScreenHeight {
   readonly id: string;
   readonly contentHeight: number;
+  /** The height of its frame: the device's, or more where the page grew to hold its scroll content (ADR-0111). */
+  readonly frameHeight?: number;
   /** On a live screen, each scroll view and how far it scrolls (PC-15). */
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
   /** The widgets whose text does not fit its box (PC-32). */

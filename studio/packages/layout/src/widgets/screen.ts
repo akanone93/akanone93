@@ -36,7 +36,13 @@ import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { layer2Types, layer2WidgetBuilders } from "./layer2.ts";
 import { materialWidgetBuilders } from "./material.ts";
 import { buildPageRoute, ROUTE_TYPE, routeParts } from "./page-route.ts";
-import { SCROLLING as BODY_SCROLLS, buildPageScaffold, pageBody, type ScrollExtent } from "./page-scaffold.ts";
+import {
+  SCROLLING as BODY_SCROLLS,
+  buildPageScaffold,
+  ownScrollView,
+  pageBody,
+  type ScrollExtent,
+} from "./page-scaffold.ts";
 import { cupertinoComponents, faithful, sceneWidgetBuilders } from "./scene-widgets.ts";
 import { atSizeClass } from "./size-class.ts";
 import { structuralWidgetBuilders } from "./structural.ts";
@@ -186,8 +192,14 @@ export interface Placed {
 /** A laid-out screen. */
 export interface ScreenLayout {
   readonly boxes: readonly Placed[];
-  /** Height of the content; beyond the device height the screen overflows (STU-056). */
+  /** Height of the content: the foot of its lowest box. */
   readonly contentHeight: number;
+  /**
+   * Height of the screen's frame (STU-056, ADR-0111): the device's, or more where the page's own scroll view needs it
+   * to show all of its content; a live screen's is the device's. Content below it is drawn past the frame, as a box
+   * that does not scroll and overflows is on the device.
+   */
+  readonly frameHeight: number;
   /** On a live screen, each scroll view's node and how far it scrolls (PC-15). */
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
   /** The widgets whose text did not fit its box: the nearest named owner of each overflowing paragraph (PC-32). */
@@ -327,10 +339,15 @@ const SCROLLING: ReadonlySet<string> = new Set([
 
 /**
  * The constraints of a painted screen's root or a scaffold's body, as a route and `Scaffold` give them: the screen's
- * width, and at most `height` unless it scrolls (a screen shows a scroll view's content in full, past the frame).
+ * width, and at most `height` unless it scrolls (a screen shows a scroll view's content in full, its frame grown).
  */
-function bodyConstraints(node: WidgetNode | undefined, width: number, height: number): BoxConstraints {
-  return node === undefined || SCROLLING.has(node.type ?? "") || node.type === "Scaffold"
+function bodyConstraints(
+  node: WidgetNode | undefined,
+  width: number,
+  height: number,
+  scrolls = SCROLLING.has(node?.type ?? ""),
+): BoxConstraints {
+  return node === undefined || scrolls || node.type === "Scaffold"
     ? BoxConstraints.tightFor({ width })
     : new BoxConstraints({ minWidth: width, maxWidth: width, maxHeight: height });
 }
@@ -368,7 +385,13 @@ function rootConstraints(
 ): BoxConstraints {
   return options.paint === undefined
     ? new BoxConstraints({ maxWidth: theme.width - 2 * theme.pagePadding })
-    : bodyConstraints(root, theme.width, options.deviceHeight ?? theme.viewportHeight);
+    : bodyConstraints(
+        root,
+        theme.width,
+        options.deviceHeight ?? theme.viewportHeight,
+        // A design screen draws its own scroll view whole, wrapped or not (ADR-0111); a live one only a bare one.
+        options.live === true ? BODY_SCROLLS.has(root?.type ?? "") : ownScrollView(root),
+      );
 }
 
 /** The status bar the page's app bar reaches under, for the screen's root scaffold; 0 for any other. */
@@ -863,11 +886,24 @@ function liveOf(options: LayoutScreenOptions, sink: ScrollExtent[]): ScrollExten
   return options.live === true && options.paint !== undefined ? sink : undefined;
 }
 
-/** A laid-out screen; a live one is the device's view, nothing running past the frame, with its scroll extents. */
-function screenResult(boxes: Placed[], height: number, ctx: WidgetContext, options: LayoutScreenOptions): ScreenLayout {
-  return ctx.live === undefined
-    ? { boxes, contentHeight: height }
-    : { boxes, contentHeight: options.deviceHeight ?? height, scrolls: ctx.live };
+/**
+ * A laid-out screen; a live one is the device's view, nothing running past the frame, with its scroll extents. A design
+ * screen's frame is as high as its root: the device's height, or the page grown by its scroll content (ADR-0111).
+ */
+function screenResult(
+  boxes: Placed[],
+  height: number,
+  root: number,
+  ctx: WidgetContext,
+  options: LayoutScreenOptions,
+): ScreenLayout {
+  const device = options.deviceHeight ?? ctx.theme.viewportHeight;
+  if (ctx.live !== undefined) {
+    const frameHeight = options.deviceHeight ?? height;
+    return { boxes, contentHeight: frameHeight, frameHeight, scrolls: ctx.live };
+  }
+  const frameHeight = Math.max(device, root);
+  return { boxes, contentHeight: height, frameHeight };
 }
 
 /** The named owners (nearest ancestor with a debug id) of the paragraphs that overflowed, once each (PC-32). */
@@ -1091,6 +1127,7 @@ export function layoutScreen(input: WidgetNode | null | undefined, options: Layo
     const result = screenResult(
       placedBoxes(rects, marks, paints, rootId),
       contentHeightOf(rects, rootId, paints),
+      rects.get(rootId)?.h ?? 0,
       ctx,
       options,
     );

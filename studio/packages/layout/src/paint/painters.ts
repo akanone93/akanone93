@@ -520,7 +520,7 @@ const SCRIM: Rgba = 0x0000008a;
  * clipped to its box, as Flutter clips a scroll view (`hardEdge`), and shows a little of what follows, faded, so the
  * person sees it goes on: across, past its edge at the content's real size; down, over the last stretch inside its
  * box, where a continuation below would cover the widgets under it. The screen's own scroll view is drawn whole
- * instead, its content past the device in the overflow band (STU-056).
+ * instead, in a frame grown to hold it (STU-056, ADR-0111).
  */
 const runsAcross: ReadonlySet<string> = new Set([
   "PageView",
@@ -614,7 +614,7 @@ function scrollClip(node: PaintNode, r: Rect, rects: ReadonlyMap<string, Rect>):
   if (scrollsAcross(node)) {
     return acrossClip(r, content);
   }
-  // The screen's own vertical scroll view is drawn whole, its content past the device in the overflow band.
+  // The screen's own vertical scroll view is drawn whole, in a frame grown to hold it (ADR-0111).
   return type === "TabBar" || rects.has(`${node.id}#page`) ? undefined : downClip(r, content);
 }
 

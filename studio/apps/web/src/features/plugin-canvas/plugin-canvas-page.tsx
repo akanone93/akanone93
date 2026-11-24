@@ -127,6 +127,7 @@ import {
   type Heights,
   heightsById,
   type PlacedScreen,
+  pastFrameKey,
   screenDocuments,
 } from "./scene.ts";
 import { type CostsOverlay, costWords, screenCosts } from "./screen-costs.ts";
@@ -1030,6 +1031,9 @@ function PluginCanvasView({
   const fittedRef = useRef<CanvasSurface | null>(null);
   const fittedDevice = useRef("");
   const [heights, setHeights] = useState<Heights>(new Map());
+  // The screens with content below their frame, which the screen list names for assistive technology.
+  const [pastKey, setPastKey] = useState("");
+  const pastFrame = useMemo(() => new Set(pastKey === "" ? [] : pastKey.split("\n")), [pastKey]);
   // The first load on this page lasts until the screens are laid out once (or there are none, or they failed) (#211).
   const firstLoad = useFirstLoad({
     failed: docs.isError,
@@ -1417,6 +1421,7 @@ function PluginCanvasView({
       }
       const byId = heightsById(laidOut);
       setHeights(byId);
+      setPastKey(pastFrameKey(laidOut, device.height));
       setOverflowKey(overflowKeyOf(laidOut));
       setUnbuiltKey(unbuiltKeyOf(laidOut));
       liveHeights.current?.(laidOut);
@@ -2092,9 +2097,7 @@ function PluginCanvasView({
                             {screens.map((s) => (
                               <li key={s.id}>
                                 {s.title}
-                                {(heights.get(s.id) ?? 0) > device.height && (
-                                  <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>
-                                )}
+                                {pastFrame.has(s.id) && <span id={overflowId(s.id)}> {m.overflow(s.title)}</span>}
                               </li>
                             ))}
                           </ol>

@@ -104,6 +104,23 @@ describe("PC-13 dialog and sheet pages presented as the runtime presents them [S
     expect((items.get("s/t")?.z ?? 0) > (card?.z ?? 0)).toBe(true);
   });
 
+  test("[STU-056] under a dialog the opener keeps the device's height, its scroll content not growing the frame", () => {
+    const long: WidgetNode = {
+      id: "under:sc",
+      type: "Scaffold",
+      slots: {
+        body: {
+          id: "under:list",
+          type: "ListView",
+          children: Array.from({ length: 40 }, (_, i) => text(`under:t${i}`, `Row ${i}`)),
+        },
+      },
+    };
+    const items = lay(route("dialog", long));
+    expect(items.get("screen:s")).toMatchObject({ h: 844 });
+    expect(items.get("s/c#paint0")).toMatchObject({ h: 844 });
+  });
+
   test("a bottom sheet: as wide as the screen up to 640, at the bottom, its top corners rounded", () => {
     const items = lay(route("bottomSheet"));
     const sheet = items.get("s/c#paint1");

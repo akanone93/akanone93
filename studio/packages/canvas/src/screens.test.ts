@@ -79,8 +79,13 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     const items = new Map(
       (reply?.ops ?? []).flatMap((op) => (op.op === "add" ? [[op.item.id, op.item] as const] : [])),
     );
-    expect(items.get("overflow:long")).toMatchObject({ kind: "rect", y: 844, h: long - 844 });
+    // The frame grows to hold a column that runs past the device (ADR-0111), with a mark where the device ends.
+    expect(reply?.heights.find((h) => h.id === "long")?.frameHeight).toBe(long);
+    expect(items.get("screen:long")).toMatchObject({ kind: "frame", h: long });
+    expect(items.get("fold:long:start")).toMatchObject({ kind: "rect", y: 843 });
+    expect(items.has("overflow:long")).toBe(false);
     expect(items.has("overflow:short")).toBe(false);
+    expect(items.has("fold:short:start")).toBe(false);
     expect(items.get("short/a")).toMatchObject({
       kind: "text",
       text: "Hello",
@@ -92,9 +97,9 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     expect(items.get("short/m")).toMatchObject({ kind: "rect", label: "MapView", fill: 0x44 });
     // A labelled box draws its label centred on one line inside it.
     expect(items.get("short/m#label")).toMatchObject({ kind: "text", text: "MapView", align: "center", maxLines: 1 });
-    const beyond = items.get("long/t39");
-    expect(beyond?.kind === "text" && beyond.color).toBe(0x88);
-    expect(beyond && "frame" in beyond).toBe(false);
+    const last = items.get("long/t39");
+    expect(last?.kind === "text" && last.color).toBe(style.text);
+    expect(last && "frame" in last && last.frame).toBe("screen:long");
     await core.receive({ v, type: "snapshot", requestId: 1 });
     const snapshot = posted.find((m): m is Extract<WorkerMessage, { type: "snapshot" }> => m.type === "snapshot");
     expect(snapshot?.model.frames).toEqual(["screen:long", "screen:short"]);

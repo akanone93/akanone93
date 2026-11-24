@@ -151,16 +151,80 @@ describe("PC-12 a page's scaffold laid out in place [STU-005]", () => {
     expect(items.get("s/fab#paint0")?.y).toBe(844 - 34 - 16 - 56);
   });
 
-  test("a scrolling body keeps its whole content, which runs past the frame into the overflow region", () => {
+  test("[STU-056] a scrolling body keeps its whole content, and the frame grows to hold it above the bars", () => {
     const { items, height } = lay({
       id: "sc",
       type: "Scaffold",
-      slots: { body: { id: "list", type: "ListView", children: rows(30) }, bottomNavigationBar: nav },
+      slots: {
+        body: { id: "list", type: "ListView", children: rows(30) },
+        persistentFooterButtons: [
+          { id: "go", type: "FilledButton", slots: { child: text("gt", "Show results") } },
+        ] as unknown as WidgetNode,
+        bottomNavigationBar: nav,
+      },
     });
     expect(height).toBeGreaterThan(844 + 400);
-    expect(items.has("overflow:s")).toBe(true);
-    // The navigation bar stays where the device shows it, over the list.
-    expect(items.get("s/nav#paint0")?.y).toBe(844 - 114);
+    // ADR-0111: the frame is as high as the page with all of its content; nothing runs past it.
+    expect(items.get("screen:s")).toMatchObject({ kind: "frame", h: height });
+    expect(items.has("overflow:s")).toBe(false);
+    // The bars stand at the grown frame's foot, below the list's last row, never over it.
+    const navTop = items.get("s/nav#paint0")?.y ?? 0;
+    expect(navTop).toBe(height - 114);
+    const footer = items.get("s/go#paint0") as Box;
+    expect(footer.y + footer.h).toBeLessThanOrEqual(navTop);
+    const last = items.get("s/r29") as Box;
+    expect(last.y + last.h).toBeLessThanOrEqual(footer.y);
+    // A mark outside each side of the frame shows where the device's view ends.
+    expect(items.get("fold:s:start")).toMatchObject({ x: -14, y: 843, w: 10, h: 2 });
+    expect(items.get("fold:s:end")).toMatchObject({ x: 394, y: 843 });
+  });
+
+  test("[STU-056] a scroll view wrapped in a SafeArea is the page's own: drawn whole, unfaded, the frame grown", () => {
+    const { items, height } = lay({
+      id: "sc",
+      type: "Scaffold",
+      slots: {
+        body: {
+          id: "safe",
+          type: "SafeArea",
+          slots: {
+            child: {
+              id: "scroll",
+              type: "SingleChildScrollView",
+              slots: { child: { id: "col", type: "Column", children: rows(30) } },
+            },
+          },
+        },
+      },
+    });
+    expect(height).toBeGreaterThan(844 + 400);
+    expect(items.get("screen:s")).toMatchObject({ h: height });
+    expect(items.has("overflow:s")).toBe(false);
+    const last = items.get("s/r29") as Box;
+    expect(last.y + last.h).toBeLessThanOrEqual(height);
+    expect([...items.keys()].some((id) => id.includes("~ghost"))).toBe(false);
+  });
+
+  test("[STU-056] a page that fits keeps the device's height, without marks", () => {
+    const short = lay({
+      id: "sc",
+      type: "Scaffold",
+      slots: { body: { id: "list", type: "ListView", children: rows(3) } },
+    });
+    expect(short.items.get("screen:s")).toMatchObject({ h: 844 });
+    expect(short.items.has("fold:s:start")).toBe(false);
+    expect(short.items.has("overflow:s")).toBe(false);
+  });
+
+  test("[STU-056] a body that does not scroll is not grown: what overflows it is drawn past the frame", () => {
+    const { items, height } = lay({
+      id: "sc",
+      type: "Scaffold",
+      slots: { body: { id: "col", type: "Column", children: rows(30) } },
+    });
+    expect(items.get("screen:s")).toMatchObject({ h: 844 });
+    expect(height).toBeGreaterThan(844);
+    expect(items.get("overflow:s")).toMatchObject({ y: 844, h: height - 844 });
   });
 
   test("a drawer shown open covers the page over a scrim, at the start; the end drawer at the end", () => {

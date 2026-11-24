@@ -6,13 +6,14 @@
  * parts stand where the device puts them — the app bar at the top under the status bar, the navigation bar and the
  * persistent footer at the bottom over the home indicator, the floating action button at its location, the bottom
  * sheet above the bottom bar — and, when the canvas shows it open, the drawer over a scrim at its edge. The body keeps
- * the whole of a scroll view's content, which runs past the frame into the overflow region (STU-056).
+ * the whole of a scroll view's content, and the page grows to hold it: the scaffold is laid out as high as the device
+ * and its scroll content together, so the bottom bars stand below the content, never over it (STU-056, ADR-0111).
  */
 
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { ContainerRenderBox } from "../flutter/container.ts";
 import { Axis, CrossAxisAlignment, MainAxisAlignment, MainAxisSize, RenderFlex } from "../flutter/flex.ts";
-import { EdgeInsets, Offset, type Size, TextDirection } from "../flutter/geometry.ts";
+import { EdgeInsets, Offset, Size, TextDirection } from "../flutter/geometry.ts";
 import { type FabLocation, RenderScaffold, type ScaffoldSlots } from "../flutter/material/scaffold.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
@@ -34,6 +35,40 @@ export const SCROLLING: ReadonlySet<string> = new Set([
 ]);
 
 const NONE: ViewPadding = { top: 0, right: 0, bottom: 0, left: 0 };
+
+/**
+ * Wrappers of one child that hand the page's height on to it: a scroll view under a chain of them — `SafeArea` ›
+ * `SingleChildScrollView` is the common page — is still the page's own scroll view (ADR-0111).
+ */
+const PASSES_HEIGHT: ReadonlySet<string> = new Set([
+  "SafeArea",
+  "Padding",
+  "FormScope",
+  "RefreshIndicator",
+  "Scrollbar",
+]);
+
+/** How many wrappers deep a page's own scroll view is looked for. */
+const WRAPPER_DEPTH = 6;
+
+/**
+ * Whether `node` is a page's own scroll view on a design screen: a scroll view, or one wrapped only in wrappers that
+ * pass the height on. Its whole content is drawn and the page grows to hold it (STU-056, ADR-0111).
+ */
+export function ownScrollView(node: WidgetNode | undefined): boolean {
+  let at = node;
+  for (let depth = 0; at !== undefined && depth <= WRAPPER_DEPTH; depth += 1) {
+    const type = at.type ?? "";
+    if (SCROLLING.has(type)) {
+      return true;
+    }
+    if (!PASSES_HEIGHT.has(type) || (at.children?.length ?? 0) > 0) {
+      return false;
+    }
+    at = one(at, "child");
+  }
+  return false;
+}
 
 /** The drawer a scaffold is shown with on the canvas: `drawer`, `endDrawer`, or none. */
 export function shownDrawer(node: WidgetNode): "drawer" | "endDrawer" | undefined {
@@ -73,6 +108,14 @@ export class RenderPageBody extends RenderShiftedBox {
     return constraints.biggest;
   }
 
+  /** How much higher than its box a design screen's scroll content is: what the page grows by to hold it; 0 live. */
+  get overflow(): number {
+    const child = this.child;
+    return this.scrolls && this.live === undefined && child !== null
+      ? Math.max(0, child.size.height - this.size.height)
+      : 0;
+  }
+
   protected override performLayout(): void {
     this.size = this.constraints.biggest;
     const child = this.child;
@@ -97,18 +140,20 @@ export class RenderPageBody extends RenderShiftedBox {
  * A scroll view's body on a live screen: shifted by its offset in a viewport named `<node>#viewport`, which its
  * painter clips its content to; off a live screen, the plain body that shows its whole content.
  */
-export function pageBody(child: RenderBox, node: WidgetNode, ctx: WidgetContext): RenderBox {
-  const scrolls = SCROLLING.has(node.type ?? "");
-  if (ctx.live === undefined || !scrolls) {
+export function pageBody(child: RenderBox, node: WidgetNode, ctx: WidgetContext): RenderPageBody {
+  const live = ctx.live;
+  if (live === undefined || !SCROLLING.has(node.type ?? "")) {
+    // A live screen scrolls only a body that is itself a scroll view; a design screen draws a wrapped one whole too.
+    const scrolls = live === undefined && ownScrollView(node);
     const body = new RenderPageBody(child, scrolls);
-    // The screen's own scroll view: its content past the device goes in the overflow band, not faded in its box.
+    // The screen's own scroll view: drawn whole, the page grown to hold it, not faded in its box.
     if (scrolls) {
       body.debugId = `${node.id}#page`;
     }
     return body;
   }
   const extent: ScrollExtent = { node: node.id, max: 0 };
-  ctx.live.push(extent);
+  live.push(extent);
   const body = new RenderPageBody(child, true, { offset: scrollOf(node), extent });
   body.debugId = `${node.id}#viewport`;
   return body;
@@ -133,6 +178,45 @@ class RenderOwnHeight extends RenderShiftedBox {
     }
     child.layout(new BoxConstraints({ minWidth: c.minWidth, maxWidth: c.maxWidth }), { parentUsesSize: true });
     this.size = c.constrain(child.size);
+    setChildOffset(child, Offset.zero);
+  }
+}
+
+/**
+ * A page as high as the device, or higher by as much as its body's scroll content needs (STU-056, ADR-0111): laid out
+ * at the device's height first, then once more grown by the body's overflow. The second pass lays the scroll content
+ * out at the constraints it already had, so it is not laid out again. Under a route (a dialog or sheet page over it)
+ * the constraints keep the page at the device's height.
+ */
+class RenderGrowingPage extends RenderShiftedBox {
+  constructor(
+    child: RenderBox,
+    private readonly width: number,
+    private readonly height: number,
+    private readonly body: RenderPageBody | null,
+  ) {
+    super(child);
+  }
+
+  protected override computeDryLayout(constraints: BoxConstraints): Size {
+    return constraints.constrain(new Size(this.width, this.height));
+  }
+
+  protected override performLayout(): void {
+    const c = this.constraints;
+    const child = this.child;
+    if (child === null) {
+      this.size = c.constrain(new Size(this.width, this.height));
+      return;
+    }
+    const at = (height: number) =>
+      child.layout(BoxConstraints.tightFor({ width: this.width, height }).enforce(c), { parentUsesSize: true });
+    at(this.height);
+    const grow = this.body?.overflow ?? 0;
+    if (grow > 0.5) {
+      at(this.height + Math.ceil(grow));
+    }
+    this.size = child.size;
     setChildOffset(child, Offset.zero);
   }
 }
@@ -229,9 +313,9 @@ function scrimOf(drawer: WidgetNode): RenderBox {
 }
 
 /**
- * Builds a page's `Scaffold` at the device's size (`ctx.deviceHeight`), its parts in place. The app bar takes the whole
- * view padding; the body has none at the top below an app bar and none at the bottom above a bottom bar, as Flutter's
- * `Scaffold` removes them.
+ * Builds a page's `Scaffold` at the device's size (`ctx.deviceHeight`), grown to hold its body's scroll content, its
+ * parts in place. The app bar takes the whole view padding; the body has none at the top below an app bar and none at
+ * the bottom above a bottom bar, as Flutter's `Scaffold` removes them.
  */
 export function buildPageScaffold(
   node: WidgetNode,
@@ -240,18 +324,16 @@ export function buildPageScaffold(
 ): RenderBox {
   const pad = ctx.viewPadding ?? NONE;
   const direction = ctx.textDirection ?? TextDirection.ltr;
+  const parts = scaffoldParts(node, ctx, pad, direction);
   const scaffold = new RenderScaffold({
-    ...scaffoldParts(node, ctx, pad, direction),
+    ...parts,
     fabLocation: fabLocationOf(node),
     textDirection: direction,
     minViewPaddingBottom: pad.bottom,
   });
   const height = ctx.deviceHeight ?? ctx.theme.viewportHeight;
-  const sized = (child: RenderBox) =>
-    new RenderConstrainedBox({
-      additionalConstraints: BoxConstraints.tightFor({ width: ctx.available(), height }),
-      child,
-    });
+  const body = parts.body instanceof RenderPageBody ? parts.body : null;
+  const sized = (child: RenderBox) => new RenderGrowingPage(child, ctx.available(), height, body);
   const open = shownDrawer(node);
   const drawerNode = open === undefined ? undefined : one(node, open);
   if (open === undefined || drawerNode === undefined) {

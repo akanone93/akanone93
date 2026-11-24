@@ -130,6 +130,17 @@ export type Heights = ReadonlyMap<string, number>;
 export const heightsById = (heights: readonly ScreenHeight[]): Heights =>
   new Map(heights.filter((h) => Number.isFinite(h.contentHeight)).map((h) => [h.id, h.contentHeight]));
 
+/**
+ * The screens with content below their frame — a box that does not scroll and runs past the device (STU-056) — as a
+ * key that changes only when that list does. A page's own scroll content grows its frame instead (ADR-0111).
+ */
+export const pastFrameKey = (heights: readonly ScreenHeight[], deviceHeight: number): string =>
+  heights
+    .filter((h) => Number.isFinite(h.contentHeight) && h.contentHeight > (h.frameHeight ?? deviceHeight) + 0.5)
+    .map((h) => h.id)
+    .sort()
+    .join("\n");
+
 /** Where the view goes after a layout: centred on the URL's position, or at a zoom in percent. */
 export interface FitTarget {
   readonly x?: number;

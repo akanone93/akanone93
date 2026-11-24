@@ -40,6 +40,12 @@ import type {
 } from "./protocol.ts";
 import { moveSpec } from "./scene.ts";
 
+/** The style a screen's items are made with: the plugin's, with the foot of this screen's frame (ADR-0111). */
+interface FramedStyle extends ScreenStyle {
+  /** The height of the screen's frame: the device's, or more where the page grew to hold its scroll content. */
+  readonly frameHeight: number;
+}
+
 /** The scene id of a screen's device frame. */
 export const frameId = (screen: string) => `screen:${screen}`;
 /** The scene id of a screen's name above its frame. */
@@ -47,8 +53,8 @@ export const titleId = (screen: string) => `title:${screen}`;
 /** The scene id of a screen's overflow region (STU-056). */
 export const overflowId = (screen: string) => `overflow:${screen}`;
 
-function boxItem(s: ScreenDocument, b: Placed, style: ScreenStyle): ItemSpec {
-  const beyond = b.y >= style.deviceHeight;
+function boxItem(s: ScreenDocument, b: Placed, style: FramedStyle): ItemSpec {
+  const beyond = b.y >= style.frameHeight;
   const common = {
     id: `${s.id}/${b.id}`,
     x: s.x + b.x,
@@ -85,12 +91,12 @@ export const LABEL_SUFFIX = "#label";
  * The label of a labelled box (a button's text, an input's hint, a placeholder's widget type), centred in it on one
  * line at the theme's control text size; a box too small to read a label in gets none.
  */
-function labelItem(s: ScreenDocument, b: Placed, style: ScreenStyle): ItemSpec | null {
+function labelItem(s: ScreenDocument, b: Placed, style: FramedStyle): ItemSpec | null {
   const size = Math.round(style.theme.fontSize * 0.875);
   if (b.kind === "text" || b.text === undefined || b.text === "" || b.h < size * 1.5 || b.w < size * 2) {
     return null;
   }
-  const beyond = b.y >= style.deviceHeight;
+  const beyond = b.y >= style.frameHeight;
   const pad = Math.min(12, b.w / 8);
   return {
     kind: "text",
@@ -210,9 +216,9 @@ function iconItems(
   paint: NodePaint,
   icon: IconPaint,
   glyph: { readonly text: string; readonly families: readonly string[]; readonly mirrored: boolean },
-  style: ScreenStyle,
+  style: FramedStyle,
 ): ItemSpec[] {
-  const frame = b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) };
+  const frame = b.y >= style.frameHeight ? {} : { frame: frameId(s.id) };
   const z = PAINT_Z + paint.order;
   const faded = paint.opacity < 1 ? { opacity: paint.opacity } : {};
   return [
@@ -264,9 +270,9 @@ function glyphItems(
   paint: NodePaint,
   icon: IconPaint,
   glyph: { readonly text: string; readonly families: readonly string[]; readonly mirrored: boolean },
-  style: ScreenStyle,
+  style: FramedStyle,
 ): ItemSpec[] {
-  const frame = b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) };
+  const frame = b.y >= style.frameHeight ? {} : { frame: frameId(s.id) };
   return [
     ...iconItems(s, b, paint, icon, glyph, style),
     ...paint.boxes.map((box, i) => paintedBox(s, b, paint, box, i, frame, style)),
@@ -323,7 +329,7 @@ function paintedItems(
   s: ScreenDocument,
   b: Placed,
   paint: NodePaint,
-  style: ScreenStyle,
+  style: FramedStyle,
   glyphs?: IconGlyphs,
 ): ItemSpec[] {
   if (paint.role === "hidden") {
@@ -333,7 +339,7 @@ function paintedItems(
   if (paint.icon !== undefined && glyph !== undefined) {
     return glyphItems(s, b, paint, paint.icon, glyph, style);
   }
-  const beyond = b.y >= style.deviceHeight;
+  const beyond = b.y >= style.frameHeight;
   const frame = beyond ? {} : { frame: frameId(s.id) };
   const z = PAINT_Z + paint.order;
   const own = { id: `${s.id}/${b.id}`, x: s.x + b.x, y: s.y + b.y, w: b.w, z, ...frame };
@@ -375,7 +381,7 @@ function textPartItem(
   s: ScreenDocument,
   b: Placed,
   paints: ReadonlyMap<string, NodePaint>,
-  style: ScreenStyle,
+  style: FramedStyle,
 ): ItemSpec | undefined {
   const cut = typeof b.id === "string" ? b.id.indexOf("#p") : -1;
   if (cut < 0 || b.kind !== "text" || b.text === undefined || b.textStyle === undefined) {
@@ -394,7 +400,7 @@ function textPartItem(
     ...textStyleOf(b, style),
     color,
     ...(owner === undefined ? {} : { z: PAINT_Z + owner.order + 0.5, ...clipsOf(s, owner) }),
-    ...(b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) }),
+    ...(b.y >= style.frameHeight ? {} : { frame: frameId(s.id) }),
     z: PAINT_Z + (owner?.order ?? 0) + 0.5,
   } as ItemSpec;
 }
@@ -556,14 +562,19 @@ function headerItems(s: ScreenDocument, style: ScreenStyle): ItemSpec[] {
 /** The suffix of the scene id of a screen's route and kind after its name; a hit on it is a hit on the header. */
 export const META_SUFFIX = "#meta";
 
-/** The scene items of one laid-out screen. */
+/**
+ * The scene items of one laid-out screen. Its frame is `frameHeight` high: the device's height, or more where the page
+ * grew to hold its scroll content (ADR-0111), with a mark at each side where the device's view ends. Content below the
+ * frame, of a box that does not scroll, is drawn in the overflow region (STU-056).
+ */
 function screenItems(
   s: ScreenDocument,
   boxes: readonly Placed[],
-  contentHeight: number,
-  style: ScreenStyle,
+  heights: { readonly content: number; readonly frame: number },
+  plain: ScreenStyle,
   glyphs?: IconGlyphs,
 ): ItemSpec[] {
+  const style: FramedStyle = { ...plain, frameHeight: Math.max(plain.deviceHeight, heights.frame) };
   const { width } = style.theme;
   const items: ItemSpec[] = [
     {
@@ -573,7 +584,7 @@ function screenItems(
       x: s.x,
       y: s.y,
       w: width,
-      h: style.deviceHeight,
+      h: style.frameHeight,
       radius: style.chrome?.radius ?? DEFAULT_FRAME_RADIUS,
       fill: style.frame,
       stroke: { color: style.frameStroke, width: 2 },
@@ -588,7 +599,7 @@ function screenItems(
         s,
         style.chrome,
         frameId(s.id),
-        { width, height: style.deviceHeight },
+        { width, height: style.frameHeight },
         boxes,
         style.frame,
         style.theme.fontFamilies,
@@ -596,13 +607,14 @@ function screenItems(
       ),
     );
   }
-  const overflow = Math.max(0, contentHeight - style.deviceHeight);
+  items.push(...foldItems(s, style));
+  const overflow = Math.max(0, heights.content - style.frameHeight);
   if (overflow > 0) {
     items.push({
       kind: "rect",
       id: overflowId(s.id),
       x: s.x,
-      y: s.y + style.deviceHeight,
+      y: s.y + style.frameHeight,
       w: width,
       h: overflow,
       radius: 0,
@@ -614,12 +626,42 @@ function screenItems(
   items.push(...emptyWrapperItems(s, boxes, style));
   const paints = new Map(boxes.flatMap((b) => (b.paint === undefined ? [] : [[b.id, b.paint] as const])));
   const radius = style.chrome?.radius ?? DEFAULT_FRAME_RADIUS;
-  const corners = { x: s.x, y: s.y, w: width, h: style.deviceHeight, r: radius };
+  const corners = { x: s.x, y: s.y, w: width, h: style.frameHeight, r: radius };
   for (const b of boxes) {
     const made = boxItems(s, b, paints, style, glyphs);
     items.push(...made.map((item) => inCorners(item, corners)), ...ghostItems(s, paintOfItems(b, paints), made));
   }
   return items;
+}
+
+/** The scene id of a mark at the side of a grown screen's frame, where the device's view ends (ADR-0111). */
+export const foldId = (screen: string, side: "start" | "end") => `fold:${screen}:${side}`;
+
+/** How far a fold mark reaches out from the frame's side, and how far it stands off it, in world units. */
+const FOLD_MARK = { length: 10, gap: 4, thickness: 2 } as const;
+
+/**
+ * The marks of a grown frame (ADR-0111): a short line just outside each side of the frame at the device's height,
+ * where a device's view ends before it scrolls, so the frame's content is never covered. None at the device's height.
+ */
+function foldItems(s: ScreenDocument, style: FramedStyle): ItemSpec[] {
+  if (style.frameHeight <= style.deviceHeight) {
+    return [];
+  }
+  const { length, gap, thickness } = FOLD_MARK;
+  const y = s.y + style.deviceHeight - thickness / 2;
+  const mark = (side: "start" | "end", x: number): ItemSpec => ({
+    kind: "rect",
+    id: foldId(s.id, side),
+    x,
+    y,
+    w: length,
+    h: thickness,
+    radius: thickness / 2,
+    fill: style.frameStroke,
+    z: 1,
+  });
+  return [mark("start", s.x - gap - length), mark("end", s.x + style.theme.width + gap)];
 }
 
 /** The least width and height, in world units, of the outline of an empty wrapper (#68). */
@@ -652,7 +694,7 @@ function contentOf(
  * `Padding` has no size in Flutter (#68). Each is dashed, at least `EMPTY_WRAPPER_MIN` on a side from where the widget
  * sits, and its own item (`<screen>/<node>#empty`), so the layout is unchanged and a click on it selects the widget.
  */
-function emptyWrapperItems(s: ScreenDocument, boxes: readonly Placed[], style: ScreenStyle): ItemSpec[] {
+function emptyWrapperItems(s: ScreenDocument, boxes: readonly Placed[], style: FramedStyle): ItemSpec[] {
   if (style.wrappers === undefined || style.wrappers.length === 0) {
     return [];
   }
@@ -678,7 +720,7 @@ function emptyWrapperItems(s: ScreenDocument, boxes: readonly Placed[], style: S
         stroke: { color: style.boxStroke, width: 1, dash: 4 },
         // Over the widget's own paint and its ancestors', so the outline is what a click finds there.
         z: b.paint === undefined ? 3 : PAINT_Z + b.paint.order + 0.5,
-        ...(b.y >= style.deviceHeight ? {} : { frame: frameId(s.id) }),
+        ...(b.y >= style.frameHeight ? {} : { frame: frameId(s.id) }),
       },
     ];
   });
@@ -794,7 +836,7 @@ function boxItems(
   s: ScreenDocument,
   b: Placed,
   paints: ReadonlyMap<string, NodePaint>,
-  style: ScreenStyle,
+  style: FramedStyle,
   glyphs: IconGlyphs | undefined,
 ): ItemSpec[] {
   const part = style.paint === undefined ? undefined : textPartItem(s, b, paints, style);
@@ -827,14 +869,16 @@ function layOut(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine, 
     return layOutContent(s, style, engine, glyphs);
   } catch {
     // A screen the layout cannot lay out keeps its frame and title; the others are drawn as ever.
-    return { items: screenItems(s, [], 0, style, glyphs), height: 0 };
+    return { items: screenItems(s, [], { content: 0, frame: style.deviceHeight }, style, glyphs), height: 0 };
   }
 }
 
-/** A laid-out screen: its items, its content height and, live, its scroll views' extents. */
+/** A laid-out screen: its items, its content and frame heights and, live, its scroll views' extents. */
 interface Laid {
   readonly items: ItemSpec[];
   readonly height: number;
+  /** The height of its frame, when the layout gave one (ADR-0111). */
+  readonly frameHeight?: number;
   readonly scrolls?: readonly { readonly node: string; readonly max: number }[];
   readonly overflowing?: readonly string[];
   readonly unbuilt?: readonly UnbuiltWidget[];
@@ -845,6 +889,7 @@ function heightOf(id: string, laid: Laid): ScreenHeight {
   return {
     id,
     contentHeight: laid.height,
+    ...(laid.frameHeight === undefined ? {} : { frameHeight: laid.frameHeight }),
     ...(laid.scrolls === undefined || laid.scrolls.length === 0 ? {} : { scrolls: laid.scrolls }),
     ...(laid.overflowing === undefined ? {} : { overflowing: laid.overflowing }),
     ...(laid.unbuilt === undefined ? {} : { unbuilt: laid.unbuilt }),
@@ -852,7 +897,7 @@ function heightOf(id: string, laid: Laid): ScreenHeight {
 }
 
 function layOutContent(s: ScreenDocument, style: ScreenStyle, engine: ParagraphEngine, glyphs?: IconGlyphs): Laid {
-  const { boxes, contentHeight, scrolls, overflowing, unbuilt } = layoutScreen(s.root, {
+  const { boxes, contentHeight, frameHeight, scrolls, overflowing, unbuilt } = layoutScreen(s.root, {
     engine,
     theme: style.theme,
     title: s.title,
@@ -864,8 +909,9 @@ function layOutContent(s: ScreenDocument, style: ScreenStyle, engine: ParagraphE
     ...(style.live === true ? { live: true } : {}),
   });
   return {
-    items: screenItems(s, boxes, contentHeight, style, glyphs),
+    items: screenItems(s, boxes, { content: contentHeight, frame: frameHeight }, style, glyphs),
     height: contentHeight,
+    frameHeight,
     ...(scrolls === undefined ? {} : { scrolls }),
     ...(overflowing === undefined ? {} : { overflowing }),
     ...(unbuilt === undefined ? {} : { unbuilt }),
