@@ -275,7 +275,11 @@ a value set there overrides the smaller classes, and the widget lists the classe
 or clear it. **Reset layout** clears the layout properties at the class you edit. A widget bound to an expression is
 drawn with the value it would have on the device at design time: a page parameter's mock (else its default), the
 default of the page's, plugin's or app's state, or a data source's mock in the state chosen under **Preview** — one
-**Data state** for all sources, or one for each source (**Data: orders**). A bound widget has a small teal badge on its
+**Data state** for all sources, or one for each source (**Data: orders**). Any other expression — arithmetic such as
+`40.0 * device.textScale`, a call such as `format.number(item)` or `t(…)`, a condition with parentheses — is worked out
+by the same PXL engine that checks the page, with those values, the previewed locale's formats and messages, and the
+preview's device (platform, text scale, dark mode, size class): the screen is drawn at once and takes these values a
+moment later, page by page, in the background. A bound widget has a small teal badge on its
 corner (with a count when several of its properties are bound); select it to see each binding, its expression and the
 value drawn, and the inspector shows **The canvas shows** under a bound field. A value only the device knows (a
 computed state, a flag, an event) is drawn as the widget's default and marked with a dash. A list, grid or page view
@@ -290,8 +294,8 @@ again** reloads the list's source — which you then design like any widget. Con
 would decide them now: an `If` draws its **then** or **else** branch, a `Match` the branch of its value (or
 **otherwise**), a `ForEach` one copy of its template per item, and a widget whose **Visible when** is false is left
 out. The canvas works out comparisons (`page.count > 0`, `params.tab == "paid"`), negations, `isEmpty` and
-`isNotEmpty`, joined by `&&` or `||`, from the same design-time values as bindings; anything else draws the first
-branch and keeps the widget. Select a widget to edit its **Visible when** under **Conditions**, see what it is now
+`isNotEmpty`, joined by `&&` or `||`, from the same design-time values as bindings; anything else the PXL engine works
+out, and only what it cannot draws the first branch and keeps the widget. Select a widget to edit its **Visible when** under **Conditions**, see what it is now
 (**Now true**, **Now false**, or **Only the device can work this out**), and pick what the canvas draws — **From
 data**, a branch, **Shown** or **Hidden** — to design a branch the data does not show. A page's forms are edited under **Page › Forms**: **Add a form**, name it
 (bindings read it as `page.<form>`), and give it fields — a name, a type, an initial value and checks (**Required**,

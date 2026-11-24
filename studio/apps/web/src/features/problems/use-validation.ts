@@ -32,6 +32,11 @@ export type Validation =
       readonly language: PxlLanguage | undefined;
       /** The Go module's pure tools (importers, migration preview; L-12); undefined in a stub without them. */
       readonly tool: ValidatorClient["tool"];
+      /**
+       * Evaluates a batch of page expressions with design-time values for the canvas (ADR-0112); the same function
+       * for as long as the worker lives, so the canvas keeps its answers across checks. Absent in a stub without it.
+       */
+      readonly evaluate?: (request: string) => Promise<unknown>;
     }
   | { readonly state: "failed" };
 
@@ -63,6 +68,23 @@ function languageOf(validator: ValidatorClient): PxlLanguage | undefined {
     service: new PxlService({ pxl: (op, scope, src, offset) => pxl.call(validator, op, scope, src, offset) }),
     sites: async (file, data) => parseSites(await pxlSites.call(validator, file, data)),
   };
+}
+
+/** The validator's design-time evaluation (ADR-0112), made once per worker; none when it has none. */
+function evaluatorOf(
+  validator: ValidatorClient,
+  made: WeakMap<ValidatorClient, (request: string) => Promise<unknown>>,
+): { readonly evaluate?: (request: string) => Promise<unknown> } {
+  const { pxlEval } = validator;
+  if (pxlEval === undefined) {
+    return {};
+  }
+  let evaluate = made.get(validator);
+  if (evaluate === undefined) {
+    evaluate = (request) => pxlEval.call(validator, request);
+    made.set(validator, evaluate);
+  }
+  return { evaluate };
 }
 
 /**
@@ -102,6 +124,8 @@ export function useValidation(
 ): Validation {
   const [result, setResult] = useState<Validation>({ state: "idle" });
   const [validator, setValidator] = useState<ValidatorClient | undefined>(undefined);
+  // One evaluation function per worker, so the canvas keeps its answers while the worker lives.
+  const evaluators = useRef(new WeakMap<ValidatorClient, (request: string) => Promise<unknown>>());
   // The files the current worker holds, and the worker itself: a worker let go is never loaded again.
   const loaded = useRef<readonly ProjectFile[] | undefined>(undefined);
   const current = useRef<ValidatorClient | undefined>(undefined);
@@ -147,6 +171,7 @@ export function useValidation(
             problems: inFiles(problems, plugin),
             validatePage: (file, data) => validator.validatePage(file, data),
             language: languageOf(validator),
+            ...evaluatorOf(validator, evaluators.current),
             tool:
               validator.tool === undefined
                 ? undefined

@@ -115,6 +115,7 @@ import { MAX_ZOOM_PERCENT, MIN_ZOOM_PERCENT } from "./plugin-canvas.schema.ts";
 import { PluginIdentity } from "./plugin-identity.tsx";
 import { documentJson, openersOf, type Node as PluxNode, pageStates, readPlugin } from "./plugin-model.ts";
 import { arrangeScreens, flowOrder, type Point, placeScreens, readSavedPositions } from "./positions.ts";
+import type { PageSource } from "./pxl-preview.ts";
 import { eventMarks, snackbarOf } from "./quick-actions.ts";
 import { deviceRoot } from "./responsive.ts";
 import {
@@ -170,7 +171,7 @@ import { useGhostLayer } from "./use-ghost-layer.ts";
 import { useLocalePreview, usePluralSamples } from "./use-locale-preview.ts";
 import { declaredNativeRoutes, useNativeRoutes, useNativeWidgets } from "./use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "./use-plugin-documents.ts";
-import { usePreviewScene } from "./use-preview-scene.ts";
+import { type DesignEvaluation, usePreviewScene } from "./use-preview-scene.ts";
 import { useScreenPositions } from "./use-screen-positions.ts";
 import { useSizesView } from "./use-sizes-view.ts";
 
@@ -213,6 +214,24 @@ export function placeModel(
           },
         ];
   });
+}
+
+/** The design-time evaluation over the plugin's pages as drawn: each page's file and document by page id (ADR-0112). */
+function designEvaluation(
+  evaluate: (request: string) => Promise<unknown>,
+  live: readonly { readonly path: string; readonly parsed: unknown }[],
+): DesignEvaluation {
+  const pages = new Map<string, PageSource>();
+  for (const d of live) {
+    const doc = d.parsed;
+    if (typeof doc === "object" && doc !== null && (doc as { kind?: unknown }).kind === "page") {
+      const id = (doc as { id?: unknown }).id;
+      if (typeof id === "string") {
+        pages.set(id, { file: d.path, doc });
+      }
+    }
+  }
+  return { evaluate, pages };
 }
 
 /** The screens' style: live with the Interact tool (PC-15). */
@@ -821,6 +840,12 @@ function PluginCanvasView({
     [pageChecks, unbuiltKey, live, i18n],
   );
   const checked = useLastCheck(validation, params.plugin);
+  // The PXL engine evaluates the screens' expressions with design-time values (ADR-0112), on the documents as drawn.
+  const evaluate = loaded.state === "done" ? loaded.evaluate : undefined;
+  const evaluation = useMemo(
+    () => (evaluate === undefined ? undefined : designEvaluation(evaluate, live)),
+    [evaluate, live],
+  );
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
   const brands = useBrands(appDocs.data);
   // The screens are drawn with the translations as the localisation session holds them, unsaved edits included.
@@ -1018,6 +1043,7 @@ function PluginCanvasView({
     snackOwner,
     motion.playing,
     scrubbed,
+    evaluation,
   );
   const styled = useMemo(() => liveStyle(designStyled, tool), [designStyled, tool]);
   // A text edited in place is left out of what the canvas draws (#242): the field over it is its only copy.

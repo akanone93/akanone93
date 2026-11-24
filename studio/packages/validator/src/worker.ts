@@ -51,6 +51,12 @@ export function serveValidatorWorker(
         case "sites":
           scope.postMessage({ type: "value", id: req.id, value: parseValue(engine.pxlSites(req.file, req.data)) });
           break;
+        case "eval":
+          if (engine.pxlEval === undefined) {
+            throw new Error("the validator does not evaluate expressions");
+          }
+          scope.postMessage({ type: "value", id: req.id, value: parseValue(engine.pxlEval(req.request)) });
+          break;
         case "tool":
           scope.postMessage({ type: "value", id: req.id, value: parseValue(engine.tool(req.name, req.args)) });
           break;

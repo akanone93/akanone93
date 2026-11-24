@@ -11,7 +11,7 @@
  */
 
 import type { MockState } from "../preview/switches.ts";
-import { type DesignScope, emptyScope, evaluateMockBinding, type SourceMocks } from "./mock-bindings.ts";
+import { type DesignScope, emptyScope, evaluateMockBinding, readsItem, type SourceMocks } from "./mock-bindings.ts";
 import type { Node } from "./plugin-model.ts";
 
 type Obj = Record<string, unknown>;
@@ -102,7 +102,10 @@ function withIds(node: unknown, suffix: string): unknown {
   return out;
 }
 
-/** `value` with each `{"$expr": "item…"}` or `{"$expr": "index"}` replaced by its value for one item. */
+/**
+ * `value` with each `{"$expr": …}` that reads `item` or `index` (`item.name`, `format.number(item)`) replaced by its
+ * value for one item.
+ */
 function bindItem(value: unknown, scope: DesignScope, env: Env): unknown {
   if (Array.isArray(value)) {
     return value.map((v) => bindItem(v, scope, env));
@@ -111,7 +114,7 @@ function bindItem(value: unknown, scope: DesignScope, env: Env): unknown {
     return value;
   }
   const expr = exprOf(value);
-  if (expr !== undefined && /^\s*(item|index)\b/.test(expr)) {
+  if (expr !== undefined && readsItem(expr)) {
     const v = evaluateMockBinding(expr, env.mocks, env.states, scope);
     return v === undefined || v === null ? value : typeof v === "number" || typeof v === "boolean" ? String(v) : v;
   }

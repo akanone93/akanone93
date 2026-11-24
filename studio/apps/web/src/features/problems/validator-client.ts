@@ -20,6 +20,8 @@ export interface ValidatorClient {
   pxl?(op: PxlOp, scope: string, src: string, offset: number): Promise<unknown>;
   /** The expression sites of a page of the loaded project with the scope each reads. */
   pxlSites?(file: string, data: string): Promise<unknown>;
+  /** A batch of design-time evaluations for the canvas preview (ADR-0112); absent in a stub without the module. */
+  pxlEval?(request: string): Promise<unknown>;
   /** A pure tool of the Go module (L-12): the importers and the migration preview; absent in a stub without the module. */
   tool?(name: ToolName, args: readonly string[]): Promise<unknown>;
   dispose(): void;

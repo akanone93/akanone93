@@ -136,6 +136,12 @@ export interface LocalizeOptions {
   readonly samples?: ReadonlyMap<string, number>;
   /** An argument's design-time value: an expression resolved, a literal as it is; undefined when unknown. */
   readonly arg?: (value: unknown) => unknown;
+  /**
+   * Whether an argument has its value only later — one that reads a list item, known in each copy of the item
+   * template — so its text is left as it is, to be localised again once the lists are drawn; `deferred` counts them.
+   */
+  readonly defer?: (value: unknown) => boolean;
+  readonly deferred?: { count: number };
 }
 
 interface Walk {
@@ -146,27 +152,47 @@ interface Walk {
   readonly node: string | undefined;
 }
 
-/** A translation reference's text: its message in the locale with its arguments (and the node's sample) filled. */
-function translated(ref: Obj, w: Walk): string {
+/** Whether a reference waits for later values (`LocalizeOptions.defer`); counted in `deferred` when it does. */
+function waits(given: readonly [string, unknown][], options: LocalizeOptions): boolean {
+  const { defer, deferred } = options;
+  if (defer === undefined || !given.some(([, v]) => defer(v))) {
+    return false;
+  }
+  if (deferred !== undefined) {
+    deferred.count += 1;
+  }
+  return true;
+}
+
+/**
+ * A translation reference's text: its message in the locale with its arguments (and the node's sample) filled;
+ * undefined when an argument has its value only later (`LocalizeOptions.defer`).
+ */
+function translated(ref: Obj, w: Walk): string | undefined {
   const id = String(ref["$t"]);
   const message = w.messages[id] ?? id;
-  if (!message.includes("{") || w.options === undefined) {
+  const options = w.options;
+  if (!message.includes("{") || options === undefined) {
     return message;
   }
+  const given = Object.entries(isObj(ref["args"]) ? ref["args"] : {});
+  if (waits(given, options)) {
+    return undefined;
+  }
   const args: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(isObj(ref["args"]) ? ref["args"] : {})) {
-    const value = w.options.arg === undefined ? v : w.options.arg(v);
+  for (const [k, v] of given) {
+    const value = options.arg === undefined ? v : options.arg(v);
     if (value !== undefined) {
       args[k] = value;
     }
   }
-  const sample = w.node === undefined ? undefined : w.options.samples?.get(w.node);
+  const sample = w.node === undefined ? undefined : options.samples?.get(w.node);
   if (sample !== undefined) {
     for (const name of pluralArgs(message)) {
       args[name] = sample;
     }
   }
-  return formatIcu(message, args, w.options.locale);
+  return formatIcu(message, args, options.locale);
 }
 
 /** `value` with `{"$t": id}` resolved to the locale's message and visible texts passed through `localize`. */
@@ -178,7 +204,8 @@ function localizeValue(value: unknown, key: string, w: Walk): unknown {
     return typeof value === "string" && TEXT_PROPS.has(key) ? w.fn(value) : value;
   }
   if (typeof value["$t"] === "string") {
-    return w.fn(translated(value, w));
+    const text = translated(value, w);
+    return text === undefined ? value : w.fn(text);
   }
   // A node takes its overrides for the previewed locale (I18N-012) and is the owner of the texts below it.
   const isNode = typeof value["id"] === "string" && typeof value["type"] === "string";
@@ -238,15 +265,32 @@ export function chromeSpec(d: PreviewDevice, platform: PreviewRender["platform"]
 
 /** The data sources of a plugin's documents, by id, with their design-time mock (DAT-080). */
 export function dataSourcesOf(documents: readonly DocLike[]): { id: string; name: string; mock: unknown }[] {
-  return jsonOf(documents, "plugin").flatMap((p) =>
-    Array.isArray(p["dataSources"])
-      ? p["dataSources"].flatMap((s) =>
-          isObj(s) && typeof s["id"] === "string"
-            ? [{ id: s["id"], name: String(s["name"] ?? s["id"]), mock: s["mock"] }]
-            : [],
-        )
-      : [],
-  );
+  return jsonOf(documents, "plugin").flatMap(sourcesOf);
+}
+
+/** The data sources a document declares (`dataSources`), with their mocks. */
+function sourcesOf(doc: Obj): { id: string; name: string; mock: unknown }[] {
+  return Array.isArray(doc["dataSources"])
+    ? doc["dataSources"].flatMap((s) =>
+        isObj(s) && typeof s["id"] === "string"
+          ? [{ id: s["id"], name: String(s["name"] ?? s["id"]), mock: s["mock"] }]
+          : [],
+      )
+    : [];
+}
+
+/** Each page's own data sources, by page id: a page reads them beside the plugin's, as `data.<name>`. */
+export function pageDataSourcesOf(
+  documents: readonly DocLike[],
+): ReadonlyMap<string, readonly { id: string; name: string; mock: unknown }[]> {
+  const out = new Map<string, { id: string; name: string; mock: unknown }[]>();
+  for (const page of jsonOf(documents, "page")) {
+    const own = sourcesOf(page);
+    if (typeof page["id"] === "string" && own.length > 0) {
+      out.set(page["id"], own);
+    }
+  }
+  return out;
 }
 
 /**

@@ -16,6 +16,7 @@ declare class Go {
 type PluxValidatePage = (files: readonly ProjectFile[], file: string, data: string) => string;
 type PluxPxl = (op: PxlOp, scope: string, src: string, offset: number) => string;
 type PluxPxlSites = (file: string, data: string) => string;
+type PluxPxlEval = (request: string) => string;
 type PluxImport = (kind: string, files: readonly { file: string; data: string }[]) => string;
 type PluxCollectionsPreview = (previous: string, current: string, dropped: string) => string;
 
@@ -27,6 +28,7 @@ const module = self as unknown as {
   pluxValidatePage: PluxValidatePage;
   pluxPxl: PluxPxl;
   pluxPxlSites: PluxPxlSites;
+  pluxPxlEval: PluxPxlEval;
   pluxImport: PluxImport;
   pluxCollectionsPreview: PluxCollectionsPreview;
 };
@@ -36,6 +38,7 @@ const engine: ValidatorEngine = {
   validatePage: (file, data) => validate([], file, data),
   pxl: (op, scope, src, offset) => module.pluxPxl(op, scope, src, offset),
   pxlSites: (file, data) => module.pluxPxlSites(file, data),
+  pxlEval: (request) => module.pluxPxlEval(request),
   tool: (name, args) =>
     name === "import"
       ? module.pluxImport(args[0] ?? "", JSON.parse(args[1] ?? "[]"))

@@ -3,7 +3,7 @@
 
 import type { ScreenStyle } from "@plux/canvas";
 import type { PaintTheme } from "@plux/layout";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { withoutHidden } from "../panels/studio-meta.ts";
 import type { MockState, PreviewRender } from "../preview/switches.ts";
 import { componentsOf, expandInstances } from "./component-instances.ts";
@@ -11,14 +11,23 @@ import { applyConditions, type BranchPick } from "./conditions.ts";
 import { designScopes, type FormPreview } from "./design-scope.ts";
 import { expandLists, type ListState, type StateTexts } from "./list-preview.ts";
 import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
-import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, namedMocks, resolveTheme } from "./look.ts";
-import { bindMocks, type DesignScope, evaluateMockBinding } from "./mock-bindings.ts";
+import {
+  dataSourcesOf,
+  localizeTree,
+  lookedStyle,
+  messagesFor,
+  namedMocks,
+  pageDataSourcesOf,
+  resolveTheme,
+} from "./look.ts";
+import { bindMocks, type DesignScope, emptyScope, evaluateMockBinding, readsItem } from "./mock-bindings.ts";
 import { withMotion } from "./motion.ts";
 import type { Playing } from "./motion-player.ts";
 import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
 import { presented, RouteCache } from "./page-routes.ts";
 import { paintedStyle, paintThemeOf, themeTokens } from "./paint-theme.ts";
 import type { Node } from "./plugin-model.ts";
+import { type PageSource, PxlPreview, type ScreenData } from "./pxl-preview.ts";
 import { withSnackbar } from "./quick-actions.ts";
 import { deviceRoot } from "./responsive.ts";
 import type { PlacedScreen } from "./scene.ts";
@@ -113,6 +122,71 @@ function argValue(
   return value === null ? undefined : value;
 }
 
+/** What a pass over the screens draws them with. */
+interface Pass {
+  readonly messages: Record<string, string>;
+  readonly mocks: ReadonlyMap<string, unknown>;
+  readonly states: Readonly<Record<string, MockState>>;
+  readonly components: ReturnType<typeof componentsOf>;
+  readonly look: PreviewRender;
+  readonly design: DesignPicks;
+}
+
+/** A screen's design scope; what the readers do not resolve, the PXL engine evaluates when it can (ADR-0112). */
+function scopeOf(
+  id: string,
+  scopes: ReadonlyMap<string, DesignScope>,
+  preview: PxlPreview | undefined,
+  pages: ReadonlyMap<string, PageSource> | undefined,
+  data: ScreenData,
+): DesignScope | undefined {
+  const found = scopes.get(id);
+  const page = pages?.get(id);
+  return preview === undefined || page === undefined
+    ? found
+    : { ...(found ?? emptyScope), evaluate: preview.forScreen(id, page, data) };
+}
+
+/** A screen's data: the plugin's sources and its page's own, which win on a name both use. */
+function screenData(
+  id: string,
+  sources: ReturnType<typeof dataSourcesOf>,
+  own: ReturnType<typeof pageDataSourcesOf>,
+  plugin: ScreenData,
+  look: PreviewRender,
+): ScreenData {
+  const mine = own.get(id);
+  return mine === undefined ? plugin : namedMocks([...sources, ...mine], look.mockStates);
+}
+
+/**
+ * A screen's root as the preview draws it: hidden layers left out (STU-061), component instances drawn as their
+ * components (PC-37), texts in the previewed locale with their arguments' design-time values (PC-32), conditions and
+ * lists from their data (PC-24, PC-25), then every other binding at its design-time value.
+ */
+function designRoot(root: Node, scope: DesignScope | undefined, pass: Pass): Node | undefined {
+  const { mocks, states, look, design } = pass;
+  const drawn = expandInstances(withoutHidden(root), pass.components);
+  const options = {
+    locale: look.locale,
+    ...(design.samples === undefined ? {} : { samples: design.samples }),
+    arg: (v: unknown) => argValue(v, mocks, states, scope),
+  };
+  // A text whose arguments read a list item waits for the list's copies, where each has its item's values.
+  const deferred = { count: 0 };
+  const localized = localizeTree(drawn, pass.messages, look.localize, { ...options, defer: itemArg, deferred });
+  const decided = applyConditions(localized, mocks, states, scope, design.branches);
+  const listed = expandLists(decided, mocks, states, scope, design.lists, design.listText);
+  const texts = deferred.count === 0 ? listed : localizeTree(listed, pass.messages, look.localize, options);
+  return bindMocks(texts, mocks, states, scope);
+}
+
+/** Whether a message argument is an expression that reads a list item. */
+function itemArg(value: unknown): boolean {
+  const expr = typeof value === "object" && value !== null ? (value as { $expr?: unknown }).$expr : undefined;
+  return typeof expr === "string" && readsItem(expr);
+}
+
 /** A page's root drawn at the moment of its open timeline; other pages are kept. */
 function scrubbing(page: string, root: Node | undefined, scrubbed: Scrubbed | undefined): Node | undefined {
   return root === undefined || scrubbed === undefined || scrubbed.page !== page
@@ -162,6 +236,50 @@ interface LocalizedRoots {
   readonly look: PreviewRender;
   readonly design: DesignPicks;
   readonly byRoot: WeakMap<Node, Node | undefined>;
+  /** The PXL engine's evaluator the roots were drawn with; another one draws them again. */
+  readonly preview: PxlPreview | undefined;
+  /** Each screen's root as last drawn, so the screens the PXL engine answered for are drawn again. */
+  readonly roots: Map<string, Node>;
+}
+
+/**
+ * The PXL engine's design-time evaluation (ADR-0112), kept while the validator's worker lives; when the engine
+ * answers, the screens that asked are drawn again.
+ */
+export interface DesignEvaluation {
+  /** Sends a batch to the engine; the same function for as long as the worker lives. */
+  readonly evaluate: (request: string) => Promise<unknown>;
+  /** Each page's file and document as the canvas draws them, by page id. */
+  readonly pages: ReadonlyMap<string, PageSource>;
+}
+
+/**
+ * The canvas's evaluator for `evaluation` and the count of its answers: each answer drops the answered screens' drawn
+ * roots from `cache`, and the count draws them again.
+ */
+function usePxlPreview(
+  evaluation: DesignEvaluation | undefined,
+  cache: { readonly current: LocalizedRoots | undefined },
+): { readonly preview: PxlPreview | undefined; readonly answers: number } {
+  const [answers, setAnswers] = useState(0);
+  const send = evaluation?.evaluate;
+  const preview = useMemo(
+    () =>
+      send === undefined
+        ? undefined
+        : new PxlPreview(send, (screens) => {
+            const kept = cache.current;
+            for (const id of screens) {
+              const root = kept?.roots.get(id);
+              if (root !== undefined) {
+                kept?.byRoot.delete(root);
+              }
+            }
+            setAnswers((n) => n + 1);
+          }),
+    [send, cache],
+  );
+  return { preview, answers };
 }
 
 /** What the preview switches draw (STU-058, DAT-080): the screens with translated texts, data bound to the selected mock states, and the style with theme, scale and direction. */
@@ -176,6 +294,7 @@ export function usePreviewScene(
   snackOwner?: string,
   playing?: Playing,
   scrubbed?: Scrubbed,
+  evaluation?: DesignEvaluation,
 ): { shown: readonly PlacedScreen[]; styled: ScreenStyle; paint: PaintTheme } {
   const everything = useMemo(() => [...(appDocs ?? []), ...(pluginDocs ?? [])], [appDocs, pluginDocs]);
   // The screens are painted in the theme's colours for the previewed mode and brand (STU-005, THM-001–THM-003).
@@ -190,42 +309,41 @@ export function usePreviewScene(
     [everything, paint, look],
   );
   const cache = useRef<LocalizedRoots | undefined>(undefined);
+  const { preview, answers } = usePxlPreview(evaluation, cache);
+  const pages = evaluation?.pages;
   const [opened] = useState(() => new WeakMap<Node, { side: DrawerSide; node: Node }>());
   const [routes] = useState(() => new RouteCache());
   const [implied] = useState(() => new WeakMap<Node, { key: string; node: Node }>());
   const [snacked] = useState(() => new WeakMap<Node, { owner: string; node: Node }>());
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the engine's answers draw the screens again by their count
   const shown = useMemo(() => {
     const kept = cache.current;
-    const byRoot =
-      kept !== undefined && kept.everything === everything && kept.look === look && kept.design === design
-        ? kept.byRoot
-        : new WeakMap<Node, Node | undefined>();
-    cache.current = { everything, look, design, byRoot };
+    const same =
+      kept !== undefined &&
+      kept.everything === everything &&
+      kept.look === look &&
+      kept.design === design &&
+      kept.preview === preview;
+    const byRoot = same ? kept.byRoot : new WeakMap<Node, Node | undefined>();
+    const roots = new Map<string, Node>();
+    cache.current = { everything, look, design, byRoot, preview, roots };
     const messages = messagesFor(everything, look);
-    const { mocks, states } = namedMocks(dataSourcesOf(everything), look.mockStates);
+    const sources = dataSourcesOf(everything);
+    const own = pageDataSourcesOf(everything);
+    const plugin = namedMocks(sources, look.mockStates);
+    preview?.begin({ locale: look.locale, messages });
     // Conditions read the `device` root as the frame and the switches set it (PC-33).
     const scopes = designScopes(everything, design.forms, deviceRoot(look));
-    const components = componentsOf(everything);
+    const pass: Pass = { messages, ...plugin, components: componentsOf(everything), look, design };
     const drawn = screens.map((s) => {
       if (s.root === undefined) {
         return s;
       }
+      roots.set(s.id, s.root);
       if (!byRoot.has(s.root)) {
-        // A layer hidden in Layers is left out of what the canvas draws (STU-061); the device still shows it.
-        // A component instance is drawn as its component (PC-37).
-        const drawn = expandInstances(withoutHidden(s.root), components);
-        // Conditions pick their branches (PC-25) and lists are drawn from their data (PC-24) first; then every other
-        // binding takes its design-time value.
-        const scope = scopes.get(s.id);
-        // Texts take the previewed locale's messages, with their arguments' design-time values (PC-32).
-        const localized = localizeTree(drawn, messages, look.localize, {
-          locale: look.locale,
-          ...(design.samples === undefined ? {} : { samples: design.samples }),
-          arg: (v) => argValue(v, mocks, states, scope),
-        });
-        const decided = applyConditions(localized, mocks, states, scope, design.branches);
-        const listed = expandLists(decided, mocks, states, scope, design.lists, design.listText);
-        byRoot.set(s.root, bindMocks(listed, mocks, states, scope));
+        const data = screenData(s.id, sources, own, plugin, look);
+        const scope = scopeOf(s.id, scopes, preview, pages, data);
+        byRoot.set(s.root, designRoot(s.root, scope, data === plugin ? pass : { ...pass, ...data }));
       }
       const drawer = scrubbing(
         s.id,
@@ -249,6 +367,15 @@ export function usePreviewScene(
     snacked,
     playing,
     scrubbed,
+    preview,
+    pages,
+    answers,
   ]);
+  // What the pass left to evaluate goes to the engine after the screens are drawn, in one batch.
+  useEffect(() => {
+    if (shown !== undefined) {
+      preview?.flush();
+    }
+  }, [preview, shown]);
   return { shown, styled, paint };
 }

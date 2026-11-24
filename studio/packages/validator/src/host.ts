@@ -63,6 +63,14 @@ export class ValidatorHost {
     return this.#send<unknown>(`sites:${file}`, (id) => ({ type: "sites", id, file, data }));
   }
 
+  /**
+   * A batch of design-time evaluations for the canvas preview (ADR-0112), as JSON. Batches pile up, none supersedes
+   * another: each asks for different expressions, and the canvas sends each expression once.
+   */
+  pxlEval(request: string): Promise<unknown> {
+    return this.#send<unknown>(null, (id) => ({ type: "eval", id, request }));
+  }
+
   /** A pure tool of the Go module (L-12); answers pile up, none supersedes another. */
   tool(name: ToolName, args: readonly string[]): Promise<unknown> {
     return this.#send<unknown>(null, (id) => ({ type: "tool", id, name, args }));

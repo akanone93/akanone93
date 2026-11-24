@@ -50,7 +50,8 @@ function operand(text: string, env: Env): unknown {
   if (literal !== undefined) {
     return literal;
   }
-  const v = evaluateMockBinding(text.trim(), env.mocks, env.states, env.scope);
+  // An operand is a part of the condition: only the whole condition is the page's, for the PXL engine to evaluate.
+  const v = evaluateMockBinding(text.trim(), env.mocks, env.states, env.scope, false);
   return v === null ? undefined : v;
 }
 
@@ -110,7 +111,17 @@ export function evaluateCondition(
   states: Readonly<Record<string, MockState>>,
   scope: DesignScope = emptyScope,
 ): boolean | undefined {
-  const env: Env = { mocks, states, scope, picks: new Map() };
+  const read = readCondition(expr, { mocks, states, scope, picks: new Map() });
+  if (read !== undefined) {
+    return read;
+  }
+  // What the terms here do not decide, the PXL engine evaluates as the page's check compiled it (ADR-0112).
+  const value = scope.evaluate?.(expr, scope);
+  return typeof value === "boolean" ? value : undefined;
+}
+
+/** A condition decided by its terms, without parentheses; undefined when a term is unknown. */
+function readCondition(expr: string, env: Env): boolean | undefined {
   if (/[()]/.test(expr)) {
     return undefined;
   }

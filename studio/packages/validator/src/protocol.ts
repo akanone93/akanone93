@@ -44,6 +44,8 @@ export type ValidatorRequest =
     }
   /** The expression sites of a page of the loaded project, with what each can read. */
   | { readonly type: "sites"; readonly id: number; readonly file: string; readonly data: string }
+  /** A batch of design-time evaluations for the canvas preview, as JSON (ADR-0112). */
+  | { readonly type: "eval"; readonly id: number; readonly request: string }
   /** One of the pure tools; `args` are its text arguments (see {@link ValidatorEngine.tool}). */
   | { readonly type: "tool"; readonly id: number; readonly name: ToolName; readonly args: readonly string[] }
   | { readonly type: "cancel"; readonly id: number };
@@ -65,6 +67,8 @@ export interface ValidatorEngine {
   pxl(op: PxlOp, scope: string, src: string, offset: number): string;
   /** The expression sites of a page as JSON `{sites, envs}`. */
   pxlSites(file: string, data: string): string;
+  /** A batch of design-time evaluations as JSON `{results}` (ADR-0112); optional in stubs. */
+  pxlEval?(request: string): string;
   /**
    * A pure tool as JSON. `import`: `[kind, JSON of [{file, data}]]` gives `{fragment, diagnostics}`;
    * `collections`: `[previous, current, dropped]` as JSON arrays gives diagnostics.

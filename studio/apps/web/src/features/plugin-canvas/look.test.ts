@@ -6,7 +6,15 @@ import { layoutScreen, type ScreenLayout, type WidgetNode } from "@plux/layout";
 import type { CanvasKitParagraphEngine } from "../../../../../packages/layout/src/text/canvaskit-engine.ts";
 import { loadCanvasKit, testParagraphEngine } from "../../../../../packages/layout/test-support/canvaskit.ts";
 import { defaultPreview, previewRender } from "../preview/switches.ts";
-import { dataSourcesOf, localizeTree, lookedStyle, messagesFor, resolveTheme, titledScreens } from "./look.ts";
+import {
+  dataSourcesOf,
+  localizeTree,
+  lookedStyle,
+  messagesFor,
+  pageDataSourcesOf,
+  resolveTheme,
+  titledScreens,
+} from "./look.ts";
 import { type Node, readPlugin, titleKeyOf } from "./plugin-model.ts";
 import { firstViewTarget, fitAfterLayout, screenStyle } from "./scene.ts";
 
@@ -107,6 +115,18 @@ describe("the preview switches reach the canvas [STU-058]", () => {
 
   test("[DAT-080]: the data sources of the plugin are listed with their mock", () => {
     expect(dataSourcesOf(documents)).toEqual([{ id: "orders", name: "Orders", mock: [1] }]);
+  });
+
+  test("[DAT-080]: a page's own data sources are listed by page, beside the plugin's", () => {
+    const page = (json: object) => ({ kind: "page", content: new TextEncoder().encode(JSON.stringify(json)) });
+    const pages = [
+      page({ kind: "page", id: "home", dataSources: [{ id: "s1", name: "programmes", mock: [{ name: "CS" }] }] }),
+      page({ kind: "page", id: "plain" }),
+    ];
+    expect(pageDataSourcesOf(pages)).toEqual(
+      new Map([["home", [{ id: "s1", name: "programmes", mock: [{ name: "CS" }] }]]]),
+    );
+    expect(dataSourcesOf(pages)).toEqual([]);
   });
 });
 

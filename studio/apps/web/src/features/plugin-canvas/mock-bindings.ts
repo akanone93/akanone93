@@ -23,6 +23,14 @@ const itemPath = /^\s*(item|index)((?:\??\.\w+|\[\d+\])*)(?:\s*\?\?\s*(.+?))?\s*
 /** `params`, `page`, `plugin` or `app` then member steps, optionally `?? <JSON literal>`. */
 const scoped = /^\s*(params|page|plugin|app|device)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
 
+/** `item` or `index` as a root, not a member (`page.item`): an expression that reads a list item. */
+const ITEM_ROOT = /(?<![.\w$])(item|index)\b/;
+
+/** Whether an expression reads a list item (`item`, `index`), so only a copy of its item template has its value. */
+export function readsItem(expr: string): boolean {
+  return ITEM_ROOT.test(expr);
+}
+
 /** The values the scopes hold at design time: page parameters and the page's, plugin's and app's state. */
 export interface DesignScope {
   readonly params: Readonly<Obj>;
@@ -34,6 +42,11 @@ export interface DesignScope {
   /** Inside a list's item template (PC-24): the item a copy is built for, and its index. */
   readonly item?: unknown;
   readonly index?: number;
+  /**
+   * The PXL engine's design-time value of an expression the readers here do not resolve (ADR-0112): a value, or
+   * undefined until the engine has answered, or when the expression does not evaluate. Absent, such expressions stay.
+   */
+  readonly evaluate?: (expr: string, scope: DesignScope) => unknown;
 }
 
 export const emptyScope: DesignScope = { params: {}, page: {}, plugin: {}, app: {} };
@@ -136,13 +149,16 @@ function constantLiteral(expr: string): unknown {
 
 /**
  * The value of one binding expression under the selected mock states, `undefined` when the expression is not a
- * plain path or a constant literal this module reads (it is left as it is) and `null` when the path reaches nothing.
+ * plain path or a constant literal this module reads and the scope's PXL engine has no value for it yet (it is left as
+ * it is), and `null` when the path reaches nothing.
  */
 export function evaluateMockBinding(
   expr: string,
   mocks: SourceMocks,
   states: Readonly<Record<string, MockState>>,
   scope: DesignScope = emptyScope,
+  /** Whether the scope's PXL engine is asked when the readers here do not resolve `expr`; not for a part of one. */
+  engine = true,
 ): unknown {
   // `null` (a path reaching nothing) is an answer; only `undefined` passes the expression to the next reader.
   const constant = constantLiteral(expr);
@@ -154,7 +170,11 @@ export function evaluateMockBinding(
     return item;
   }
   const scoped = scopeValue(expr, scope);
-  return scoped !== undefined ? scoped : dataValue(expr, mocks, states);
+  if (scoped !== undefined) {
+    return scoped;
+  }
+  const data = dataValue(expr, mocks, states);
+  return data !== undefined || !engine ? data : scope.evaluate?.(expr, scope);
 }
 
 /** The mock value of a `{"$expr": "…"}` prop, `undefined` when `value` is not a binding this module can read. */
@@ -202,7 +222,7 @@ export function bindMocks(
   states: Readonly<Record<string, MockState>>,
   scope: DesignScope = emptyScope,
 ): Node | undefined {
-  return root === undefined || (mocks.size === 0 && scopeSize(scope) === 0)
+  return root === undefined || (mocks.size === 0 && scopeSize(scope) === 0 && scope.evaluate === undefined)
     ? root
     : (bindValue(root, { mocks, states, scope }) as Node);
 }

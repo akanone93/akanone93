@@ -104,6 +104,16 @@ describe("ValidatorHost", () => {
     await expect(host.validatePage("a", "{}")).rejects.toThrow("boom");
   });
 
+  test("design-time evaluations are answered, and two batches both are (ADR-0112)", async () => {
+    const ok = await pair({
+      ...engine([]),
+      pxlEval: (request) => JSON.stringify({ results: [{ value: JSON.parse(request).n }] }),
+    });
+    const [first, second] = await Promise.all([ok.host.pxlEval('{"n":1}'), ok.host.pxlEval('{"n":2}')]);
+    expect(first).toEqual({ results: [{ value: 1 }] });
+    expect(second).toEqual({ results: [{ value: 2 }] });
+  });
+
   test("a language-service request is answered and an engine error rejects it", async () => {
     const calls: string[] = [];
     const ok = await pair(engine(calls));
@@ -118,6 +128,8 @@ describe("ValidatorHost", () => {
       tool: () => '{"error":"importer: unknown kind"}',
     });
     await expect(bad.host.tool("import", ["soap", "[]"])).rejects.toThrow("importer: unknown kind");
+    // A module without design-time evaluation refuses it (ADR-0112).
+    await expect(bad.host.pxlEval("{}")).rejects.toThrow("does not evaluate");
     await expect(bad.host.pxl("check", "{", "1", 0)).rejects.toThrow("scope: bad");
   });
 

@@ -6,7 +6,8 @@
 // Command plux-validator-wasm is a measurement prototype (Studio S0.8): it
 // compiles the page validator to WebAssembly so a browser worker can call
 // it. It exposes pluxValidatePage and, for the PXL language service of the
-// editors (PXL-007, ADR-0099), pluxPxl and pluxPxlSites.
+// editors (PXL-007, ADR-0099), pluxPxl and pluxPxlSites, and for the canvas's
+// design-time evaluation (ADR-0112), pluxPxlEval.
 package main
 
 import (
@@ -79,6 +80,22 @@ func pluxPxl(_ js.Value, args []js.Value) any {
 		return errorJSON("pluxPxl takes (op, scope, src, offset)")
 	}
 	return language.Handle(args[0].String(), args[1].String(), args[2].String(), args[3].Int())
+}
+
+// design evaluates the loaded project's pages with design-time values.
+var design = compiler.NewDesignEvaluator()
+
+// pluxPxlEval(request) evaluates a batch of page expressions with
+// design-time values for the canvas preview and answers JSON; see
+// compiler.DesignEvaluator.Evaluate. The project must be loaded.
+func pluxPxlEval(_ js.Value, args []js.Value) any {
+	if len(args) != 1 {
+		return errorJSON("pluxPxlEval takes (request)")
+	}
+	if validator == nil {
+		return errorJSON("no project is loaded")
+	}
+	return string(design.Evaluate(validator, []byte(args[0].String())))
 }
 
 // pluxPxlSites(file, data) returns the expression sites of the page, by the
@@ -160,6 +177,7 @@ func main() {
 	js.Global().Set("pluxValidatePage", js.FuncOf(pluxValidatePage))
 	js.Global().Set("pluxPxl", js.FuncOf(pluxPxl))
 	js.Global().Set("pluxPxlSites", js.FuncOf(pluxPxlSites))
+	js.Global().Set("pluxPxlEval", js.FuncOf(pluxPxlEval))
 	js.Global().Set("pluxImport", js.FuncOf(pluxImport))
 	js.Global().Set("pluxCollectionsPreview", js.FuncOf(pluxCollectionsPreview))
 	select {}
