@@ -72,6 +72,7 @@ function Group(props: {
         <span className="text-muted-foreground">{props.rows.length}</span>
       </h2>
       <DataTable
+        actions
         caption={props.group}
         heads={[m.colToken, m.newType, m.colLight, m.colDark, m.colContrast, m.colActions]}
         rows={props.rows.map((r) => {

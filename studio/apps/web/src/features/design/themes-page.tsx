@@ -142,6 +142,7 @@ function BrandCard({ brand }: { readonly brand: string }): ReactElement {
       </div>
       {rows.length > 0 && (
         <DataTable
+          actions
           caption={m.brandOverrides(brand, rows.length)}
           heads={[m.colToken, m.colLight, m.colDark, m.colActions]}
           rows={rows.map((r) => {

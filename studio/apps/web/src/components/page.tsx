@@ -225,12 +225,16 @@ export function DataTable({
   heads,
   rows,
   empty,
+  actions = false,
 }: {
   readonly caption: string;
   readonly heads: readonly string[];
   readonly rows: readonly DataRow[];
   readonly empty?: string;
+  /** The last column holds each row's actions, at the row's end; its heading stands there too (#59). */
+  readonly actions?: boolean;
 }): ReactElement {
+  const align = (i: number) => (actions && i === heads.length - 1 ? "px-4 text-end" : "px-4");
   if (rows.length === 0 && empty !== undefined) {
     return <PageEmpty text={empty} />;
   }
@@ -240,8 +244,8 @@ export function DataTable({
         <TableCaption className="sr-only">{caption}</TableCaption>
         <TableHeader>
           <TableRow>
-            {heads.map((h) => (
-              <TableHead key={h} scope="col" className="px-4">
+            {heads.map((h, i) => (
+              <TableHead key={h} scope="col" className={align(i)}>
                 {h}
               </TableHead>
             ))}
@@ -253,7 +257,7 @@ export function DataTable({
           render={(r) =>
             r.cells.map((c, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: cells have a fixed order
-              <TableCell key={i} className="px-4">
+              <TableCell key={i} className={align(i)}>
                 {c}
               </TableCell>
             ))

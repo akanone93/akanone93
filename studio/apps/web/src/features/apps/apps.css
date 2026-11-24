@@ -136,21 +136,20 @@ li:hover .app-visual .app-icon {
 }
 
 /* The details form: its fields one under the other inside the card, which is its panel. */
+/* One readable width for the name, the key and the description, which line up. */
 .settings-form {
   display: grid;
   gap: 1rem;
+  max-width: 36rem;
 }
 
-/* The name beside the fixed key, two to one; one under the other on a narrow page. */
+/*
+ * The name above the fixed key, as the new-app wizard has them: beside the name the key's column was too narrow for its
+ * hint, which ran over three lines (#44).
+ */
 .settings-name-row {
   display: grid;
   gap: 1rem;
-}
-
-@media (min-width: 40rem) {
-  .settings-name-row {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  }
 }
 
 /* The headline limits: as many meters to a row as fit at a readable width. */
