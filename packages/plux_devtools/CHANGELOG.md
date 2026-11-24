@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- `PluxDevSession.applied` counts the dev bundles of the pairing that arrived and were not refused (build log #247): while none has, the host says Studio has sent nothing yet.
 - `PluxDevSession.refused` says why the last dev bundle of the pairing was refused (build log #257), so the host can show it rather than wait for a screen that will not come.
 - The debug panel is redesigned: a dark, slightly see-through sheet with a header, tabs (Sync,
   Release, Problems with a count, Session with the link state) and monospace rows that scroll.

@@ -56,6 +56,7 @@ final class DevChannel implements DevEventSink {
     this._engine,
     this._link,
     this._refused,
+    this._applied,
   );
 
   /// The session this device joined.
@@ -67,6 +68,7 @@ final class DevChannel implements DevEventSink {
   final DevEngineHandle _engine;
   final ValueNotifier<DevLinkState> _link;
   final ValueNotifier<PluxException?> _refused;
+  final ValueNotifier<int> _applied;
 
   /// Where the link to the session stands, for a status the developer sees.
   ValueListenable<DevLinkState> get link => _link;
@@ -76,6 +78,11 @@ final class DevChannel implements DevEventSink {
   /// one applied: the host shows it, rather than waiting for a screen the
   /// refused bundle would have opened. Studio's console receives it too.
   ValueListenable<PluxException?> get refused => _refused;
+
+  /// How many dev bundles arrived and were not refused: none tells a host
+  /// still waiting for its first screen that Studio has sent nothing yet,
+  /// rather than that the app has no entry screen (#247).
+  ValueListenable<int> get applied => _applied;
 
   /// Pairs the device with the session of [pairing], a scanned link or a
   /// typed code, and starts the channel.
@@ -171,6 +178,7 @@ final class DevChannel implements DevEventSink {
       handle,
       host.link,
       host.refused,
+      host.applied,
     );
   }
 
@@ -251,6 +259,11 @@ final class _UiHost implements DevEngineHost {
 
   /// Why the last dev bundle was refused; null once one applied.
   final ValueNotifier<PluxException?> refused = ValueNotifier(null);
+
+  /// How many dev bundles arrived and were not refused: none tells a host
+  /// that is still waiting for its first screen that Studio has sent
+  /// nothing yet, rather than that the app has no entry screen (#247).
+  final ValueNotifier<int> applied = ValueNotifier(0);
 
   @override
   void connection({required bool open}) {
@@ -334,6 +347,7 @@ final class _UiHost implements DevEngineHost {
   ) {
     final error = result.error;
     refused.value = result.refused ? error : null;
+    if (!result.refused) applied.value += 1;
     return [
       {
         'hotApply': {

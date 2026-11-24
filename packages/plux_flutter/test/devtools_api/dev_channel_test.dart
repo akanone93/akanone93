@@ -483,16 +483,20 @@ void main() {
       final channel = await f.pair();
       final conn = await f.transport.accept();
       expect(channel.refused.value, isNull);
+      expect(channel.applied.value, 0);
       conn.receive(_bundleFrame(1));
       await pumpEventQueue();
       expect(
         channel.refused.value?.code,
         PluxErrorCode.unsupportedRequiredFeature,
       );
+      // A refused bundle is not one that arrived for the host (#247).
+      expect(channel.applied.value, 0);
       f.applier.result = const DevApplyResult(pagesApplied: ['/home']);
       conn.receive(_bundleFrame(2));
       await pumpEventQueue();
       expect(channel.refused.value, isNull);
+      expect(channel.applied.value, 1);
       await channel.close();
     });
 

@@ -335,6 +335,7 @@ final class _DevAppState extends State<DevApp> {
             appName: name,
             entryRoute: widget.entryRoute(),
             refused: tooling.session.refused,
+            applied: tooling.session.applied,
             onLeave: _leave,
           ),
         ),

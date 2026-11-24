@@ -7,7 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:plux_dev/src/run_screen.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
-Widget _launch(ValueNotifier<PluxException?> refused) => MaterialApp.router(
+Widget _launch(
+  ValueNotifier<PluxException?> refused, {
+  ValueNotifier<int>? applied,
+}) => MaterialApp.router(
   routerConfig: GoRouter(
     routes: [
       GoRoute(
@@ -16,6 +19,7 @@ Widget _launch(ValueNotifier<PluxException?> refused) => MaterialApp.router(
           appName: 'Apply Register2',
           entryRoute: ValueNotifier<String?>(null),
           refused: refused,
+          applied: applied,
           onLeave: () {},
         ),
       ),
@@ -51,6 +55,38 @@ void main() {
       await tester.pump();
       expect(find.text('Opening Apply Register2…'), findsOneWidget);
       await tester.pump(entryWait);
+    },
+  );
+
+  // When nothing arrived the screen said "no entry screen yet" after 20
+  // seconds, sending the developer to the wrong place (build log #247).
+  testWidgets(
+    'a long wait with no dev bundle says Studio sent nothing; one applied without an entry says so [DEV-001]',
+    (tester) async {
+      final applied = ValueNotifier<int>(0);
+      await tester.pumpWidget(
+        _launch(ValueNotifier<PluxException?>(null), applied: applied),
+      );
+      await tester.pump(entryWait);
+      expect(
+        find.text('Studio has not sent Apply Register2 yet'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Apply Register2 has no entry screen yet'),
+        findsNothing,
+      );
+
+      applied.value = 1;
+      await tester.pump();
+      expect(
+        find.text('Apply Register2 has no entry screen yet'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Studio has not sent Apply Register2 yet'),
+        findsNothing,
+      );
     },
   );
 }

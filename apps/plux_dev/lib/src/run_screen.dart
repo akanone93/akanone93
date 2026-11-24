@@ -38,6 +38,7 @@ final class DevLaunchScreen extends StatefulWidget {
     required this.entryRoute,
     required this.onLeave,
     this.refused,
+    this.applied,
   });
 
   /// The app's name.
@@ -48,6 +49,11 @@ final class DevLaunchScreen extends StatefulWidget {
 
   /// Why the last dev bundle was refused, or null.
   final ValueListenable<PluxException?>? refused;
+
+  /// How many dev bundles arrived and were not refused; while none has, a
+  /// long wait means Studio sent nothing yet, not that the app has no entry
+  /// screen (#247). Null outside a dev session: the release decides.
+  final ValueListenable<int>? applied;
 
   /// Leaves the app.
   final VoidCallback onLeave;
@@ -86,10 +92,13 @@ final class _DevLaunchScreenState extends State<DevLaunchScreen> {
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<PluxException?>(
     valueListenable: widget.refused ?? _noRefusal,
-    builder: (context, refused, _) => _page(context, refused),
+    builder: (context, refused, _) => ValueListenableBuilder<int>(
+      valueListenable: widget.applied ?? _oneApplied,
+      builder: (context, applied, _) => _page(context, refused, applied > 0),
+    ),
   );
 
-  Widget _page(BuildContext context, PluxException? refused) {
+  Widget _page(BuildContext context, PluxException? refused, bool arrived) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
       body: SafeArea(
@@ -127,6 +136,26 @@ final class _DevLaunchScreenState extends State<DevLaunchScreen> {
                   const CircularProgressIndicator(),
                   const SizedBox(height: 24),
                   Text('Opening ${widget.appName}…', style: text.titleLarge),
+                ] else if (!arrived) ...[
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Studio has not sent ${widget.appName} yet',
+                    key: const Key('dev-nothing-sent'),
+                    style: text.titleLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Keep the app open in Studio: it sends the app as soon as its draft compiles. If a draft does not compile, Studio says why in its console.',
+                    style: text.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  OutlinedButton(
+                    onPressed: widget.onLeave,
+                    child: const Text('Back to apps'),
+                  ),
                 ] else ...[
                   Text(
                     '${widget.appName} has no entry screen yet',
@@ -372,6 +401,9 @@ final ValueNotifier<String?> _quiet = ValueNotifier(null);
 final ValueNotifier<bool> _notPicking = ValueNotifier(false);
 
 final ValueNotifier<PluxException?> _noRefusal = ValueNotifier(null);
+
+/// Outside a dev session the release decides: a long wait means no entry screen.
+final ValueNotifier<int> _oneApplied = ValueNotifier(1);
 
 /// What the developer can do about a refused dev bundle.
 String refusalAdvice(PluxException e) => switch (e.code) {

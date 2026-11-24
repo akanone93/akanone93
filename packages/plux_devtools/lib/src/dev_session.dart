@@ -144,6 +144,17 @@ final class PluxDevSession {
   ValueListenable<DevLinkState>? _channelLink;
   final ValueNotifier<PluxException?> _refused = ValueNotifier(null);
   ValueListenable<PluxException?>? _channelRefused;
+  final ValueNotifier<int> _applied = ValueNotifier(0);
+  ValueListenable<int>? _channelApplied;
+
+  /// How many dev bundles of the pairing in place arrived and were not
+  /// refused: while none has, the host says Studio has sent nothing yet
+  /// instead of that the app has no entry screen (#247).
+  ValueListenable<int> get applied => _applied;
+
+  void _followApplied() {
+    _applied.value = _channelApplied?.value ?? 0;
+  }
 
   /// Why the last dev bundle of the pairing in place was refused — a
   /// feature this runtime lacks, a key it does not trust — or null: the
@@ -199,6 +210,8 @@ final class PluxDevSession {
         _followLink();
         _channelRefused = channel.refused..addListener(_followRefused);
         _followRefused();
+        _channelApplied = channel.applied..addListener(_followApplied);
+        _followApplied();
       }
       _state.value = PluxDevPaired(
         sessionId: paired.sessionId,
@@ -234,6 +247,9 @@ final class PluxDevSession {
     _channelRefused?.removeListener(_followRefused);
     _channelRefused = null;
     _refused.value = null;
+    _channelApplied?.removeListener(_followApplied);
+    _channelApplied = null;
+    _applied.value = 0;
     try {
       await paired?.close();
     } finally {
