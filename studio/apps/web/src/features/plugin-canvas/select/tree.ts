@@ -67,6 +67,14 @@ export function indexNodes(roots: readonly (Node | undefined)[]): NodeIndex {
   return { parent, children, depth, type, slot };
 }
 
+/**
+ * The widgets inside a plugin's screens, as the editor's header and the Overview both count them (#5): every indexed
+ * node but each screen's root, which is the screen, not a widget.
+ */
+export function widgetCount(index: NodeIndex, screens: number): number {
+  return Math.max(0, index.parent.size - screens);
+}
+
 /** `id` and its ancestors, innermost first. */
 export function lineage(index: NodeIndex, id: string): string[] {
   const out: string[] = [];

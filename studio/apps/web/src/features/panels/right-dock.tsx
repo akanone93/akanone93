@@ -26,7 +26,7 @@ import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
 import type { ScreenCost } from "../plugin-canvas/screen-costs.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { type EditFn, findNode } from "../plugin-canvas/select/edits.ts";
-import type { NodeIndex } from "../plugin-canvas/select/tree.ts";
+import { type NodeIndex, widgetCount } from "../plugin-canvas/select/tree.ts";
 import { setStyleRecipe } from "../plugin-canvas/theme-round-trip.ts";
 import type { PxlLanguage } from "../problems/use-validation.ts";
 import { rustEditorMessages } from "../rust-editor/rust-editor.messages.ts";
@@ -1561,7 +1561,7 @@ function PluginOverview(props: DockProps & { readonly m: ReturnType<typeof panel
   }[] = [
     { key: "screens", value: props.screens.length, icon: "device-mobile" },
     // The widgets inside the screens, as the left dock counts them: a screen's root is the screen, not a widget.
-    { key: "widgets", value: Math.max(0, props.index.parent.size - props.screens.length), icon: "cube" },
+    { key: "widgets", value: widgetCount(props.index, props.screens.length), icon: "cube" },
     { key: "state", value: count(plugin?.["state"]), icon: "variable" },
     { key: "data", value: count(plugin?.["dataSources"]), icon: "database" },
     { key: "errors", value: errors, icon: "x-circle", ...(errors > 0 ? { tone: "error" } : {}) },

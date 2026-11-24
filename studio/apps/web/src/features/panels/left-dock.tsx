@@ -13,7 +13,7 @@ import type { Refusal } from "../plugin-canvas/select/drop-rules.ts";
 import type { EditFn } from "../plugin-canvas/select/edits.ts";
 import type { Selection } from "../plugin-canvas/select/selection.ts";
 import type { SelectionStore } from "../plugin-canvas/select/store.ts";
-import { itemIdOf, type NodeIndex } from "../plugin-canvas/select/tree.ts";
+import { itemIdOf, type NodeIndex, widgetCount } from "../plugin-canvas/select/tree.ts";
 import type { CanvasSurface } from "../plugin-canvas/surface.ts";
 import { assetsMessages } from "./assets.messages.ts";
 import { AssetsTab } from "./assets-tab.tsx";
@@ -264,7 +264,8 @@ export function LeftDock(props: LeftDockProps): ReactElement {
     },
   ];
 
-  const widgets = Math.max(0, index.parent.size - roots.length);
+  // One root per screen, as the Overview counts them; the open layer rows are no measure of it (#5).
+  const widgets = widgetCount(index, props.screens.length);
   return (
     <aside
       aria-label={m.dock}
