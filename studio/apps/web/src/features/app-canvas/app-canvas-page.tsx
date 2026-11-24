@@ -93,6 +93,7 @@ import {
 import { FrameTools } from "./frame-tools.tsx";
 import { LaneMenu } from "./lane-menu.tsx";
 import { latestPublisher } from "./latest-publisher.ts";
+import { MoveScreenDialog } from "./move-screen.tsx";
 import { PluginBulk } from "./plugin-bulk.tsx";
 import { type Dialogue, PluginDialogs } from "./plugin-dialogs.tsx";
 import { miniMapOf } from "./plugin-minimap.ts";
@@ -406,7 +407,11 @@ function useSelection(
   // Two or more plugins selected are acted on together; native and missing boxes are no plugins.
   const bulk = useMemo(() => [...selected].flatMap((id) => summaryOf.get(id)?.plugin ?? []), [selected, summaryOf]);
   const pluginKeys = useMemo(() => new Set(list.flatMap((s) => s.plugin?.key ?? [])), [list]);
-  return { bulk, pluginKeys, appKey: app?.key ?? "" };
+  const pluginList = useMemo(
+    () => list.flatMap((s) => (s.plugin === undefined ? [] : [{ id: s.plugin.id, name: s.plugin.name }])),
+    [list],
+  );
+  return { bulk, pluginKeys, appKey: app?.key ?? "", pluginList };
 }
 
 /**
@@ -731,12 +736,20 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
     [loaded, list, graph.pages, entryKey],
   );
   const pluginName = useCallback((id: string) => summaryOf.get(id)?.plugin?.name ?? id, [summaryOf]);
-  const routesPane = useRoutesPane(graph, nativeRoutes, entryRoute, pluginName, (s: RouteScreen) =>
-    navigate({
-      to: "/o/$org/apps/$app/plugins/$plugin",
-      params: { org: orgKey, app: appId, plugin: s.pluginId },
-      search: { focus: s.pageId },
-    }),
+  // A screen moves to another plugin from the Routes tab (#287).
+  const [movingScreen, setMovingScreen] = useState<RouteScreen | undefined>();
+  const routesPane = useRoutesPane(
+    graph,
+    nativeRoutes,
+    entryRoute,
+    pluginName,
+    (s: RouteScreen) =>
+      navigate({
+        to: "/o/$org/apps/$app/plugins/$plugin",
+        params: { org: orgKey, app: appId, plugin: s.pluginId },
+        search: { focus: s.pageId },
+      }),
+    setMovingScreen,
   );
   // Which plugin calls which function, with its deployment (#266); a caller is shown on the canvas.
   const functionsPane = useFunctionsPane(orgKey, appId, list, (id: string) => {
@@ -848,7 +861,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   };
 
   const one = selected.size === 1 ? summaryOf.get([...selected][0] ?? "") : undefined;
-  const { bulk, pluginKeys, appKey } = useSelection(selected, summaryOf, list, app.data);
+  const { bulk, pluginKeys, appKey, pluginList } = useSelection(selected, summaryOf, list, app.data);
   // The pointer's plugin, else the one selected: several selected show their joint actions instead (#264).
   const detail = summaryOf.get(hover ?? one?.plugin?.id ?? "");
 
@@ -1020,6 +1033,17 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
           </div>
           <DevLinkBar route={entryRoute} />
           <HistoryOverlay open={historyOpen} onClose={() => setHistoryOpen(false)} />
+          <MoveScreenDialog
+            screen={movingScreen}
+            docs={loaded}
+            plugins={pluginList}
+            apply={(changeSet) => {
+              applyLane(changeSet);
+              void refresh();
+            }}
+            onRefused={setMessage}
+            onClose={() => setMovingScreen(undefined)}
+          />
           {jsonOpen && (
             <AppJsonEditor
               appId={appId}

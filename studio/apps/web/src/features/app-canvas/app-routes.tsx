@@ -102,20 +102,38 @@ function ScreenButton(props: {
   readonly screen: RouteScreen;
   readonly plugin: string;
   readonly onOpen: (screen: RouteScreen) => void;
+  /** Offered for a screen of the route, not for a link's source: moves it to another plugin (#287). */
+  readonly onMove?: ((screen: RouteScreen) => void) | undefined;
 }): ReactNode {
   const { i18n } = useLingui();
+  const m = appCanvasMessages(i18n);
   const where = `${props.plugin} › ${props.screen.title}`;
+  const { onMove } = props;
   return (
-    <Button
-      size="sm"
-      variant="ghost"
-      className="h-auto justify-start px-1 py-0.5 text-start"
-      aria-label={appCanvasMessages(i18n).openRoute(where)}
-      onClick={() => props.onOpen(props.screen)}
-    >
-      <span className="truncate text-muted-foreground">{props.plugin} ›</span>
-      <span className="truncate">{props.screen.title}</span>
-    </Button>
+    <div className="flex min-w-0 items-center">
+      <Button
+        size="sm"
+        variant="ghost"
+        className="h-auto min-w-0 flex-1 justify-start px-1 py-0.5 text-start"
+        aria-label={m.openRoute(where)}
+        onClick={() => props.onOpen(props.screen)}
+      >
+        <span className="truncate text-muted-foreground">{props.plugin} ›</span>
+        <span className="truncate">{props.screen.title}</span>
+      </Button>
+      {onMove !== undefined && (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-auto px-1 py-0.5"
+          aria-label={m.moveScreenOf(where)}
+          title={m.moveScreenOf(where)}
+          onClick={() => onMove(props.screen)}
+        >
+          <Icon name="arrows-up-down" size="pill" />
+        </Button>
+      )}
+    </div>
   );
 }
 
@@ -123,6 +141,7 @@ function RouteRow(props: {
   readonly route: AppRoute;
   readonly pluginName: (id: string) => string;
   readonly onOpen: (screen: RouteScreen) => void;
+  readonly onMove?: ((screen: RouteScreen) => void) | undefined;
 }): ReactNode {
   const { i18n } = useLingui();
   const m = appCanvasMessages(i18n);
@@ -141,7 +160,13 @@ function RouteRow(props: {
         <p className="text-caption text-muted-foreground">{shared ? m.sharedRoute : m.missingRoute}</p>
       )}
       {r.screens.map((s) => (
-        <ScreenButton key={s.pageId} screen={s} plugin={props.pluginName(s.pluginId)} onOpen={props.onOpen} />
+        <ScreenButton
+          key={s.pageId}
+          screen={s}
+          plugin={props.pluginName(s.pluginId)}
+          onOpen={props.onOpen}
+          onMove={props.onMove}
+        />
       ))}
       {r.kind !== "screen" && r.from.length > 0 && (
         <>
@@ -160,6 +185,8 @@ export function AppRoutes(props: {
   readonly routes: readonly AppRoute[];
   readonly pluginName: (id: string) => string;
   readonly onOpen: (screen: RouteScreen) => void;
+  /** Moves a screen to another plugin (#287); absent where it cannot be offered. */
+  readonly onMove?: ((screen: RouteScreen) => void) | undefined;
 }): ReactNode {
   const { i18n } = useLingui();
   const m = appCanvasMessages(i18n);
@@ -186,7 +213,13 @@ export function AppRoutes(props: {
       ) : (
         <ul className="flex flex-col gap-2" aria-label={m.routesTab}>
           {shown.map((r) => (
-            <RouteRow key={`${r.kind}:${r.route}`} route={r} pluginName={props.pluginName} onOpen={props.onOpen} />
+            <RouteRow
+              key={`${r.kind}:${r.route}`}
+              route={r}
+              pluginName={props.pluginName}
+              onOpen={props.onOpen}
+              onMove={props.onMove}
+            />
           ))}
         </ul>
       )}
@@ -204,12 +237,13 @@ export function useRoutesPane(
   entryRoute: string | undefined,
   pluginName: (id: string) => string,
   onOpen: (screen: RouteScreen) => void,
+  onMove?: (screen: RouteScreen) => void,
 ): { readonly label: string; readonly meta: string; readonly panel: ReactNode } {
   const { i18n } = useLingui();
   const routes = useMemo(() => appRoutes(graph, nativeRoutes, entryRoute), [graph, nativeRoutes, entryRoute]);
   return {
     label: appCanvasMessages(i18n).routesTab,
     meta: String(routes.length),
-    panel: <AppRoutes routes={routes} pluginName={pluginName} onOpen={onOpen} />,
+    panel: <AppRoutes routes={routes} pluginName={pluginName} onOpen={onOpen} onMove={onMove} />,
   };
 }

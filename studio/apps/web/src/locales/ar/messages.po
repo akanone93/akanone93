@@ -10523,6 +10523,12 @@ msgstr "نقل"
 msgid "appCanvas.moveTo"
 msgstr "نقل {name} إلى…"
 
+#. Button beside a screen in the Routes tab, e.g. 'Move Launch › Home to another plugin…' (with its links).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.move"
+msgstr "نقل {where} إلى إضافة أخرى…"
+
 #. Title of the dialog that creates a translation key from literal text.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts

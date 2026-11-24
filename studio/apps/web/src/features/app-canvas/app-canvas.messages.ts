@@ -883,6 +883,14 @@ export function appCanvasMessages(i18n: I18n) {
       message: "Linked from",
       comment: "Heading of the screens that navigate to a route, in the app canvas's Routes tab.",
     }),
+    moveScreenOf: (where: string) =>
+      i18n._({
+        id: "appCanvas.routes.move",
+        message: "Move {where} to another plugin…",
+        comment:
+          "Button beside a screen in the Routes tab, e.g. 'Move Launch › Home to another plugin…' (with its links).",
+        values: { where },
+      }),
     openRoute: (where: string) =>
       i18n._({
         id: "appCanvas.routes.open",

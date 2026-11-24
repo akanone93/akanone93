@@ -10523,6 +10523,12 @@ msgstr "Verschieben"
 msgid "appCanvas.moveTo"
 msgstr "{name} verschieben nach …"
 
+#. Button beside a screen in the Routes tab, e.g. 'Move Launch › Home to another plugin…' (with its links).
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.routes.move"
+msgstr "{where} in ein anderes Plugin verschieben…"
+
 #. Title of the dialog that creates a translation key from literal text.
 #. js-lingui-explicit-id
 #: apps/web/src/features/localisation/localisation.messages.ts
