@@ -39,7 +39,8 @@ type Asset struct {
 	// width and height are set for raster and vector images.
 	Width  int32 `protobuf:"varint,8,opt,name=width,proto3" json:"width,omitempty"`
 	Height int32 `protobuf:"varint,9,opt,name=height,proto3" json:"height,omitempty"`
-	// variants are the processed forms, such as WebP at 1x, 2x and 3x.
+	// variants are the processed forms, such as WebP at 1x, 2x and 3x, then
+	// the stored file itself (metadata stripped) as the "original".
 	Variants []*AssetVariant `protobuf:"bytes,10,rep,name=variants,proto3" json:"variants,omitempty"`
 	// processing is "pending", "ready" or "failed".
 	Processing    string                 `protobuf:"bytes,11,opt,name=processing,proto3" json:"processing,omitempty"`
@@ -181,7 +182,8 @@ func (x *Asset) GetCreatedAt() *timestamppb.Timestamp {
 // AssetVariant is one processed form of an asset (CMP-030, CMP-033).
 type AssetVariant struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// kind is "webp", "avif", "png", "dotlottie", "original" or "vector".
+	// kind is "webp", "avif", "png", "dotlottie", "original" or "vector"
+	// (an SVG compiled to vector_graphics).
 	Kind string `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
 	// density is 1, 2 or 3 for raster variants; zero otherwise.
 	Density       int32     `protobuf:"varint,2,opt,name=density,proto3" json:"density,omitempty"`

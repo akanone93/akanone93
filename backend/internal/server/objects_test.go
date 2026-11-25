@@ -21,7 +21,8 @@ var pngHeader = []byte("\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\
 // Verifies: REL-024, AST-001.
 // Bundles, deltas and asset files are served by content address,
 // cacheable for ever, with range requests, an asset with the media type
-// it was stored with; other kinds and malformed keys are not served.
+// it was stored with and sandboxed; other kinds and malformed keys are
+// not served.
 func TestObjectHandler(t *testing.T) {
 	t.Parallel()
 	store, err := objects.NewFilesystem(t.TempDir(), "")
@@ -70,6 +71,11 @@ func TestObjectHandler(t *testing.T) {
 	if res.StatusCode != http.StatusOK || string(body) != string(data) || res.Header.Get("Content-Type") != "application/octet-stream" ||
 		res.Header.Get("X-Content-Type-Options") != "nosniff" {
 		t.Errorf("an asset: %d %v", res.StatusCode, res.Header)
+	}
+	// An object opened in a browser is a sandboxed document that loads and runs nothing: an uploaded SVG's script
+	// never runs on the server's origin.
+	if csp := res.Header.Get("Content-Security-Policy"); csp != "default-src 'none'; style-src 'unsafe-inline'; sandbox" {
+		t.Errorf("an asset's policy: %q", csp)
 	}
 	if assetMediaType("image/avif", nil) != "image/avif" || assetMediaType("", pngHeader) != "image/png" {
 		t.Error("an asset keeps its stored media type, or the one its bytes show")

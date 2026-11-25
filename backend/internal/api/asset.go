@@ -12,6 +12,7 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/nightCode42/plux3/backend/internal/compiler/media"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
@@ -207,6 +208,10 @@ func (s Asset) artifact(ctx context.Context, sum string, size int64, mediaType s
 	return out
 }
 
+// assetProto describes an asset with its forms: the processed variants,
+// then the stored file itself as the "original" (metadata stripped), which
+// Studio reads to show a font, an SVG or an image the server has not
+// processed yet.
 func (s Asset) assetProto(ctx context.Context, a document.Asset) *pluxv1.Asset {
 	out := &pluxv1.Asset{
 		Id: a.ID, AppId: a.AppID, Name: a.File, MediaType: a.MediaType, Size: a.Size, Sha256: a.SHA256,
@@ -215,9 +220,36 @@ func (s Asset) assetProto(ctx context.Context, a document.Asset) *pluxv1.Asset {
 	}
 	for _, v := range a.Variants {
 		out.Variants = append(out.Variants, &pluxv1.AssetVariant{
-			Kind: v.MediaType, Density: int32(v.Density), Width: int32(v.Width), Height: int32(v.Height), //nolint:gosec // small
+			Kind: variantKind(v.MediaType), Density: int32(v.Density), Width: int32(v.Width), Height: int32(v.Height), //nolint:gosec // small
 			Artifact: s.artifact(ctx, v.SHA256, v.Size, v.MediaType),
 		})
 	}
+	out.Variants = append(out.Variants, &pluxv1.AssetVariant{
+		Kind: variantOriginal, Width: out.GetWidth(), Height: out.GetHeight(),
+		Artifact: s.artifact(ctx, a.SHA256, a.Size, a.MediaType),
+	})
 	return out
+}
+
+// variantOriginal is the kind of the form that is the stored file itself.
+const variantOriginal = "original"
+
+// variantKind is the kind the API names a processed form by (asset.proto):
+// "webp", "avif" or "png" for a raster image, "vector" for an SVG compiled
+// to vector_graphics, "dotlottie" for an animation.
+func variantKind(mediaType string) string {
+	switch mediaType {
+	case media.WebP:
+		return "webp"
+	case media.AVIF:
+		return "avif"
+	case media.PNG:
+		return "png"
+	case media.VectorGraphics:
+		return "vector"
+	case media.DotLottie:
+		return "dotlottie"
+	default:
+		return mediaType
+	}
 }

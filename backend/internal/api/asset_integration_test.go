@@ -10,6 +10,7 @@ import (
 	"image"
 	"image/png"
 	"io"
+	"strings"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -74,6 +75,16 @@ func TestAssetServiceEndToEnd(t *testing.T) {
 	if got.GetSha256() != a.GetSha256() || got.GetName() != "images/logo.png" {
 		t.Errorf("GetAsset = %+v", got)
 	}
+	// Before processing, the only form is the stored file; after, the processed forms come first, named as
+	// asset.proto names them, and the stored file last.
+	if kinds := variantKinds(got); kinds != "original" || got.GetVariants()[0].GetArtifact().GetSha256() != a.GetSha256() {
+		t.Errorf("forms before processing: %s", kinds)
+	}
+	w.runPublishes(t)
+	got = must(w.asset.GetAsset(ctx, req(admin, &pluxv1.GetAssetRequest{Id: a.GetId()})))(t).GetAsset()
+	if kinds := variantKinds(got); !strings.HasPrefix(kinds, "webp") || !strings.HasSuffix(kinds, ",original") || strings.Contains(kinds, "/") {
+		t.Errorf("forms after processing: %s", kinds)
+	}
 	list := must(w.asset.ListAssets(ctx, req(admin, &pluxv1.ListAssetsRequest{AppId: app})))(t)
 	if len(list.GetAssets()) != 1 {
 		t.Errorf("ListAssets = %+v", list)
@@ -85,4 +96,13 @@ func TestAssetServiceEndToEnd(t *testing.T) {
 	if _, err := w.asset.GetAsset(ctx, req(admin, &pluxv1.GetAssetRequest{Id: a.GetId()})); codeOf(err) != connect.CodeNotFound {
 		t.Errorf("a deleted asset: %v", err)
 	}
+}
+
+// variantKinds lists the kinds of an asset's forms, in order.
+func variantKinds(a *pluxv1.Asset) string {
+	kinds := make([]string, 0, len(a.GetVariants()))
+	for _, v := range a.GetVariants() {
+		kinds = append(kinds, v.GetKind())
+	}
+	return strings.Join(kinds, ",")
 }

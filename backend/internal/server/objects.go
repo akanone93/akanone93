@@ -51,9 +51,18 @@ func (s *Server) objectHandler() http.Handler {
 		}
 		h.Set("Content-Type", mediaType)
 		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("Content-Security-Policy", objectPolicy)
 		http.ServeContent(w, r, "", info.ModTime, bytes.NewReader(data))
 	})
 }
+
+// objectPolicy is the Content-Security-Policy of every served object. An
+// uploaded SVG is served as image/svg+xml, which a browser opened on it
+// would run as a document on this server's origin, the origin of the
+// step-up page; sandboxed, with nothing to load, its script never runs
+// and it has no origin to act for. A device or an <img> reading the
+// bytes is unaffected.
+const objectPolicy = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
 
 // served returns the media type a key devices may download is served
 // with ("" for the stored one) and whether they may download it.

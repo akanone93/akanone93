@@ -17564,7 +17564,9 @@ components:
           items:
             $ref: '#/components/schemas/plux.v1.AssetVariant'
           title: variants
-          description: variants are the processed forms, such as WebP at 1x, 2x and 3x.
+          description: |-
+            variants are the processed forms, such as WebP at 1x, 2x and 3x, then
+             the stored file itself (metadata stripped) as the "original".
         processing:
           type: string
           title: processing
@@ -17590,7 +17592,9 @@ components:
         kind:
           type: string
           title: kind
-          description: kind is "webp", "avif", "png", "dotlottie", "original" or "vector".
+          description: |-
+            kind is "webp", "avif", "png", "dotlottie", "original" or "vector"
+             (an SVG compiled to vector_graphics).
         density:
           type: integer
           title: density

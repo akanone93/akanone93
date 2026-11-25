@@ -75,7 +75,8 @@ export type Asset = Message<"plux.v1.Asset"> & {
   height: number;
 
   /**
-   * variants are the processed forms, such as WebP at 1x, 2x and 3x.
+   * variants are the processed forms, such as WebP at 1x, 2x and 3x, then
+   * the stored file itself (metadata stripped) as the "original".
    *
    * @generated from field: repeated plux.v1.AssetVariant variants = 10;
    */
@@ -118,7 +119,8 @@ export const AssetSchema: GenMessage<Asset> = /*@__PURE__*/
  */
 export type AssetVariant = Message<"plux.v1.AssetVariant"> & {
   /**
-   * kind is "webp", "avif", "png", "dotlottie", "original" or "vector".
+   * kind is "webp", "avif", "png", "dotlottie", "original" or "vector"
+   * (an SVG compiled to vector_graphics).
    *
    * @generated from field: string kind = 1;
    */

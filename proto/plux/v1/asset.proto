@@ -44,7 +44,8 @@ message Asset {
   // width and height are set for raster and vector images.
   int32 width = 8;
   int32 height = 9;
-  // variants are the processed forms, such as WebP at 1x, 2x and 3x.
+  // variants are the processed forms, such as WebP at 1x, 2x and 3x, then
+  // the stored file itself (metadata stripped) as the "original".
   repeated AssetVariant variants = 10;
   // processing is "pending", "ready" or "failed".
   string processing = 11;
@@ -55,7 +56,8 @@ message Asset {
 
 // AssetVariant is one processed form of an asset (CMP-030, CMP-033).
 message AssetVariant {
-  // kind is "webp", "avif", "png", "dotlottie", "original" or "vector".
+  // kind is "webp", "avif", "png", "dotlottie", "original" or "vector"
+  // (an SVG compiled to vector_graphics).
   string kind = 1;
   // density is 1, 2 or 3 for raster variants; zero otherwise.
   int32 density = 2;
