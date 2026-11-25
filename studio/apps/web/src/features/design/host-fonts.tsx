@@ -9,6 +9,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useMemo, useState } from "react";
 import { withReason } from "../../components/refusal.tsx";
 import { useApp } from "../../lib/use-app.tsx";
+import { UploadNewAsset } from "../assets/upload-new.tsx";
 import { usePermissions } from "../security/use-security.ts";
 import { designMessages } from "./design.messages.ts";
 import { useDesign } from "./scope.tsx";
@@ -82,9 +83,10 @@ export function HostFonts(): ReactElement {
           </li>
         ))}
       </ul>
-      {listed.isSuccess && files.length === 0 ? (
+      {listed.isSuccess && files.length === 0 && (
         <p className="text-body text-muted-foreground">{m.hostFontsNoAssets}</p>
-      ) : (
+      )}
+      {listed.isSuccess && files.length === 0 ? null : (
         <form
           className="flex items-end gap-3"
           onSubmit={(e) => {
@@ -103,6 +105,7 @@ export function HostFonts(): ReactElement {
             <Select
               label={m.hostFontAsset}
               disabled={!can}
+              value={asset}
               options={files.map((a) => ({ value: a.id, label: a.name }))}
               onValueChange={setAsset}
             />
@@ -112,6 +115,8 @@ export function HostFonts(): ReactElement {
           </Button>
         </form>
       )}
+      {/* A font file uploaded here is an app asset, chosen at once (build log #203). */}
+      <UploadNewAsset appId={app} accept=".ttf,.otf,font/ttf,font/otf" disabled={!can} onUploaded={setAsset} />
       {failed !== null && (
         <p role="alert" className="text-body text-danger">
           {withReason(m.hostFontsSaveFailed, failed)}

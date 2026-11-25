@@ -19029,6 +19029,12 @@ msgstr "Der Dateiname braucht Kleinbuchstaben, Ziffern und Bindestriche."
 msgid "assets.failure.hash-mismatch"
 msgstr "Die Datei wurde auf dem Weg zum Server beschädigt. Lade sie erneut hoch."
 
+#. Message when an upload from an asset picker was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadNewFailed"
+msgstr "Die Datei wurde nicht hochgeladen."
+
 #. Help under the per-segment values of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -20986,6 +20992,12 @@ msgstr "{file} hochladen"
 msgid "admin.licenseUpload"
 msgstr "Lizenz hochladen"
 
+#. Button beside an asset picker: upload a file as an app asset and choose it at once.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadNew"
+msgstr "Neue Datei hochladen"
+
 #. Shown when the app has no font asset to list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -21038,6 +21050,12 @@ msgstr "Das Hochladen von {name} ist fehlgeschlagen."
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.uploading"
+msgstr "Wird hochgeladen…"
+
+#. Label of the upload button while a file is uploading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadingNew"
 msgstr "Wird hochgeladen…"
 
 #. Title of the dialog that edits an upstream.

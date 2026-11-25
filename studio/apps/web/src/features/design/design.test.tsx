@@ -508,6 +508,21 @@ describe("[STU-006] host app fonts", () => {
     expect(await screen.findByText("No host fonts are listed.")).toBeTruthy();
   });
 
+  test("a font file uploaded beside the picker becomes an asset and is chosen at once (#203)", async () => {
+    const uploaded: string[] = [];
+    const data = withFonts({ uploaded }) as typeof state & { hostFonts?: { family: string; assetId: string }[] };
+    renderApp(`${base}/typography`, data);
+    fireEvent.change(await screen.findByLabelText("Font family", {}, { timeout: 10000 }), {
+      target: { value: "Brand Display" },
+    });
+    const input = await screen.findByLabelText("Upload a new file", { selector: "input" });
+    fireEvent.change(input, { target: { files: [new File([new Uint8Array([0, 1, 0, 0])], "Display.ttf")] } });
+    await waitFor(() => expect(uploaded).toEqual(["fonts/display.ttf"]));
+    await waitFor(() => expect(screen.getAllByRole("combobox").at(-1)?.textContent).toBe("fonts/display.ttf"));
+    fireEvent.click(screen.getByRole("button", { name: "Add font" }));
+    await waitFor(() => expect(data.hostFonts).toEqual([{ family: "Brand Display", assetId: "font-2" }]));
+  });
+
   test("without permission to manage the app the list is read-only", async () => {
     renderApp(`${base}/typography`, withFonts({ permissions: ["app.read"] }) as typeof state);
     expect(

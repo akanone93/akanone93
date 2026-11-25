@@ -308,5 +308,20 @@ export function assetsMessages(i18n: I18n) {
         values: { name, n },
         comment: "Delete confirmation of an asset that the plugin's pages use.",
       }),
+    uploadNew: i18n._({
+      id: "assets.uploadNew",
+      message: "Upload a new file",
+      comment: "Button beside an asset picker: upload a file as an app asset and choose it at once.",
+    }),
+    uploadingNew: i18n._({
+      id: "assets.uploadingNew",
+      message: "Uploading…",
+      comment: "Label of the upload button while a file is uploading.",
+    }),
+    uploadNewFailed: i18n._({
+      id: "assets.uploadNewFailed",
+      message: "The file was not uploaded.",
+      comment: "Message when an upload from an asset picker was refused; the server's reason follows.",
+    }),
   };
 }

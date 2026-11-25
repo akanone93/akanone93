@@ -1070,6 +1070,11 @@ export function createUpstream(state: UpstreamData) {
       }),
       beginAssetUpload: (req) => {
         state.uploaded?.push(req.name);
+        // A font is listed with the fonts, as the server types a file from its bytes; anything else as an SVG.
+        if (/\.(ttf|otf)$/.test(req.name)) {
+          state.fontAssets = [...(state.fontAssets ?? []), req.name];
+          return { uploadId: `up-${req.name}`, chunkSize: 1n << 20n };
+        }
         state.svgAssets = [...(state.svgAssets ?? []), { name: req.name, processing: "pending" }];
         return { uploadId: `up-${req.name}`, chunkSize: 1n << 20n };
       },

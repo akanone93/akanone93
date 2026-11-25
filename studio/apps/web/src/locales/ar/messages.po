@@ -19029,6 +19029,12 @@ msgstr "يحتاج اسم الملف إلى أحرف صغيرة وأرقام و�
 msgid "assets.failure.hash-mismatch"
 msgstr "تضرر الملف أثناء إرساله إلى الخادم. ارفعه مرة أخرى."
 
+#. Message when an upload from an asset picker was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadNewFailed"
+msgstr "لم يتم رفع الملف."
+
 #. Help under the per-segment values of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -20986,6 +20992,12 @@ msgstr "ارفع {file}"
 msgid "admin.licenseUpload"
 msgstr "رفع ترخيص"
 
+#. Button beside an asset picker: upload a file as an app asset and choose it at once.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadNew"
+msgstr "رفع ملف جديد"
+
 #. Shown when the app has no font asset to list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -21038,6 +21050,12 @@ msgstr "فشل رفع {name}."
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.uploading"
+msgstr "جارٍ الرفع…"
+
+#. Label of the upload button while a file is uploading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadingNew"
 msgstr "جارٍ الرفع…"
 
 #. Title of the dialog that edits an upstream.

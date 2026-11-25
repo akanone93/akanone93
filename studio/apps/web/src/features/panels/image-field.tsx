@@ -4,7 +4,9 @@
 import { useLingui } from "@lingui/react";
 import { Input } from "@plux/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@plux/ui/components/popover";
+import { useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { UploadNewAsset } from "../assets/upload-new.tsx";
 import { useAppImages } from "../plugin-canvas/screen-images.ts";
 import { styleMessages } from "./style.messages.ts";
 import "./image-field.css";
@@ -47,6 +49,7 @@ export function ImageSourceField({
 }): ReactElement {
   const m = styleMessages(useLingui().i18n);
   const images = useAppImages();
+  const { app } = useParams({ strict: false }) as { app?: string };
   const current = sourceOf(value);
   const [kind, setKind] = useState<"asset" | "url">(current.url === undefined ? "asset" : "url");
   const chosen = current.asset === undefined ? undefined : images?.find((i) => i.id === current.asset);
@@ -77,7 +80,12 @@ export function ImageSourceField({
           ))}
         </div>
         {kind === "asset" ? (
-          <ImageGrid images={images} current={current.asset} onPick={(id) => pick(assetSource(value, id))} />
+          <>
+            <ImageGrid images={images} current={current.asset} onPick={(id) => pick(assetSource(value, id))} />
+            {app !== undefined && (
+              <UploadNewAsset appId={app} accept="image/*" onUploaded={(id) => pick(assetSource(value, id))} />
+            )}
+          </>
         ) : (
           <div className="flex flex-col gap-1.5">
             <Input

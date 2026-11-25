@@ -19029,6 +19029,12 @@ msgstr "The file name needs lowercase letters, digits and hyphens."
 msgid "assets.failure.hash-mismatch"
 msgstr "The file was damaged on the way to the server. Upload it again."
 
+#. Message when an upload from an asset picker was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadNewFailed"
+msgstr "The file was not uploaded."
+
 #. Help under the per-segment values of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -20986,6 +20992,12 @@ msgstr "Upload {file}"
 msgid "admin.licenseUpload"
 msgstr "Upload a licence"
 
+#. Button beside an asset picker: upload a file as an app asset and choose it at once.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadNew"
+msgstr "Upload a new file"
+
 #. Shown when the app has no font asset to list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
@@ -21038,6 +21050,12 @@ msgstr "Uploading {name} failed."
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.uploading"
+msgstr "Uploading…"
+
+#. Label of the upload button while a file is uploading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/assets.messages.ts
+msgid "assets.uploadingNew"
 msgstr "Uploading…"
 
 #. Title of the dialog that edits an upstream.
