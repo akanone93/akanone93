@@ -152,4 +152,46 @@ describe("[STU-062] MR-3 a text field's keyboard and input props have their own 
     expect(propGroupOf("textDirection")).toBe("layout");
     expect(propGroupOf("softWrap")).toBe("content");
   });
+  test("a Curve prop bound to a curve token shows the token and unbinds to its points (row 48)", async () => {
+    const changes: unknown[] = [];
+    render(
+      <I18nProvider studio={createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false })}>
+        <ValueEditor
+          type="Curve"
+          name="curve"
+          value={{ $token: "motion.easing.standard" }}
+          mixed={false}
+          unit=""
+          readOnly={false}
+          sources={{ tokens: [], curves: { "motion.easing.standard": [0.2, 0, 0, 1] }, keys: [], check: undefined }}
+          m={m}
+          onChange={(v) => changes.push(v)}
+          onEnd={() => undefined}
+        />
+      </I18nProvider>,
+    );
+    await screen.findByText("motion.easing.standard");
+    fireEvent.click(screen.getByRole("button", { name: /motion\.easing\.standard/ }));
+    expect(changes).toEqual([[0.2, 0, 0, 1]]);
+  });
+
+  test("an unbound Curve prop offers the theme's curve tokens beside its curve", async () => {
+    render(
+      <I18nProvider studio={createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false })}>
+        <ValueEditor
+          type="Curve"
+          name="curve"
+          value="easeIn"
+          mixed={false}
+          unit=""
+          readOnly={false}
+          sources={{ tokens: [], curves: { "motion.easing.standard": [0.2, 0, 0, 1] }, keys: [], check: undefined }}
+          m={m}
+          onChange={() => undefined}
+          onEnd={() => undefined}
+        />
+      </I18nProvider>,
+    );
+    expect(await screen.findByRole("button", { name: "Use a theme token for curve" })).toBeTruthy();
+  });
 });

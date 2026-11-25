@@ -79,6 +79,7 @@ import type { PxlEditorSource } from "./pxl-editor.tsx";
 import { type PxlScopeCache, pxlSource } from "./pxl-source.ts";
 import { ShapeEditor, StateValueEditor, stateInnerOf, TokenNumber } from "./state-editors.tsx";
 import { lockedIds } from "./studio-meta.ts";
+import { styleMessages } from "./style.messages.ts";
 import { ColorField, DecorationEditor, TextStyleEditor } from "./style-editors.tsx";
 import { CodeTab, JsonTab, LocalisationTab, PerformanceTab } from "./tab-panels.tsx";
 import { tabMessages } from "./tabs.messages.ts";
@@ -99,6 +100,8 @@ type Check = (expr: string) => Promise<readonly string[]>;
 
 export interface Sources {
   readonly tokens: readonly string[];
+  /** The theme's `cubicBezier` tokens with their control points, which a `Curve` prop may bind. */
+  readonly curves?: Readonly<Record<string, readonly [number, number, number, number]>>;
   readonly keys: readonly { readonly id: string; readonly key: string }[];
   readonly check: Check | undefined;
   /** The language service for the field's expression; undefined without the validator module. */
@@ -571,9 +574,44 @@ function ObjectEditor(p: EditorProps) {
 }
 
 /** A Curve prop: one of Flutter's named curves, or a cubic Bézier's four control points. */
+/**
+ * A `Curve` prop: a named curve or a cubic Bézier's points (build log row 48), or one of the theme's `cubicBezier`
+ * tokens — bound, a chip that unbinds to the token's points; unbound, a menu of the tokens beside the curve.
+ */
 function CurvePropEditor(p: EditorProps) {
   const m = motionMessages(useLingui().i18n);
+  const sm = styleMessages(useLingui().i18n);
+  const curves = p.sources.curves ?? {};
+  const token = isObj(p.value) && typeof p.value["$token"] === "string" ? p.value["$token"] : undefined;
+  const set = (v: unknown) => {
+    p.onChange(v);
+    p.onEnd();
+  };
+  if (token !== undefined) {
+    const points = curves[token];
+    return (
+      <div className="token-number">
+        <Tooltip content={token}>
+          <span className="token-chip">
+            <Icon name="link" size="pill" />
+            <span className="truncate">{token}</span>
+          </span>
+        </Tooltip>
+        {!p.readOnly && (
+          <button
+            type="button"
+            className="token-unbind"
+            aria-label={sm.unbindToken(token)}
+            onClick={() => set(points === undefined ? "fastOutSlowIn" : [...points])}
+          >
+            <Icon name="x" size="pill" />
+          </button>
+        )}
+      </div>
+    );
+  }
   const value = cubicPointsOf(p.value) ?? (typeof p.value === "string" ? p.value : undefined);
+  const paths = Object.keys(curves).sort();
   return (
     <div className="motion-pair">
       <CurveSelect
@@ -581,11 +619,23 @@ function CurvePropEditor(p: EditorProps) {
         label={p.name}
         value={value}
         ro={p.readOnly}
-        set={(v) => {
-          p.onChange(typeof v === "string" ? v : [...v]);
-          p.onEnd();
-        }}
+        set={(v) => set(typeof v === "string" ? v : [...v])}
       />
+      {paths.length > 0 && !p.readOnly && (
+        <Menu
+          trigger={
+            <button type="button" className="token-pick" aria-label={sm.bindToken(p.name)}>
+              <Icon name="link" size="pill" />
+            </button>
+          }
+          entries={paths.map((path) => ({
+            kind: "item" as const,
+            id: path,
+            label: `${path} · ${curves[path]?.join(", ") ?? ""}`,
+            onSelect: () => set({ $token: path }),
+          }))}
+        />
+      )}
     </div>
   );
 }
@@ -622,8 +672,8 @@ export function ValueEditor(p: EditorProps) {
       );
     }
     case "enum":
-      // A Curve prop may also be a cubic Bézier by its control points (build log row 48).
-      if (bare === "Curve" && bindingOf(p.value) === null) {
+      // A Curve prop may also be a cubic Bézier by its control points, or a curve token (build log row 48).
+      if (bare === "Curve" && (bindingOf(p.value) === null || bindingOf(p.value)?.kind === "token")) {
         return <CurvePropEditor {...p} />;
       }
       return (
@@ -1178,7 +1228,7 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
   const types = ids.map((id) => p.index.type.get(id) ?? "");
   const props = sharedProps(types);
   const docsState = useEditor((st) => st.docs);
-  const { tokens, keys } = useMemo(
+  const { tokens, curves, keys } = useMemo(
     () => projectSources(p.sourceDocuments ?? p.documents ?? []),
     [p.sourceDocuments, p.documents],
   );
@@ -1282,6 +1332,7 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
             extractLabel={lm.extract}
             sources={{
               tokens,
+              curves,
               keys,
               check: makeCheck(prop.name),
               drawn: p.drawnValue === undefined ? undefined : (expr: string) => p.drawnValue?.(first, expr),

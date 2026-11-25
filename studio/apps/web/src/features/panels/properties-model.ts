@@ -339,17 +339,44 @@ function textKeys(doc: Obj): { id: string; key: string }[] {
   return keys.flatMap((k) => (typeof k.id === "string" && typeof k.key === "string" ? [{ id: k.id, key: k.key }] : []));
 }
 
+/** A cubic Bézier's control points, as a `cubicBezier` token holds them. */
+type Points = readonly [number, number, number, number];
+
 /**
- * Theme token paths and translation keys of the project's documents, for the pickers. The theme and the keys are
- * app-level documents, so the plugin canvas passes the app's documents; a document an edit session holds unsaved
- * comes as `parsed`, which wins over `content`.
+ * The `cubicBezier` tokens of a W3C token tree, by path (`$type` set on the token or a group above it), with their
+ * control points: the curves a `Curve` prop may bind (build log row 48).
+ */
+export function curveTokens(tokens: unknown, prefix = "", type?: unknown): Record<string, Points> {
+  if (!isObj(tokens)) {
+    return {};
+  }
+  const own = tokens["$type"] ?? type;
+  if ("$value" in tokens) {
+    const v = tokens["$value"];
+    const ok = own === "cubicBezier" && Array.isArray(v) && v.length === 4 && v.every((x) => typeof x === "number");
+    return ok ? { [prefix]: v as unknown as Points } : {};
+  }
+  return Object.assign(
+    {},
+    ...Object.entries(tokens)
+      .filter(([k]) => !k.startsWith("$"))
+      .map(([k, v]) => curveTokens(v, prefix === "" ? k : `${prefix}.${k}`, own)),
+  );
+}
+
+/**
+ * Theme token paths, curve tokens and translation keys of the project's documents, for the pickers. The theme and the
+ * keys are app-level documents, so the plugin canvas passes the app's documents; a document an edit session holds
+ * unsaved comes as `parsed`, which wins over `content`.
  */
 export function projectSources(documents: readonly { readonly content: Uint8Array; readonly parsed?: unknown }[]): {
   tokens: string[];
+  curves: Record<string, Points>;
   keys: { id: string; key: string }[];
 } {
   const decoder = new TextDecoder();
   const tokens = new Set<string>();
+  const curves: Record<string, Points> = {};
   const keys: { id: string; key: string }[] = [];
   for (const d of documents) {
     const j =
@@ -358,11 +385,12 @@ export function projectSources(documents: readonly { readonly content: Uint8Arra
       for (const t of tokenPaths(j.tokens)) {
         tokens.add(t);
       }
+      Object.assign(curves, curveTokens(j.tokens));
     } else if (j?.kind === "translationKeys") {
       keys.push(...textKeys(j));
     }
   }
-  return { tokens: [...tokens].sort(), keys };
+  return { tokens: [...tokens].sort(), curves, keys };
 }
 
 function parseObject(text: string): Obj | undefined {

@@ -118,10 +118,18 @@ describe("[STU-121] panels: editors generate the right recipe", () => {
     const enc = (v: unknown) => new TextEncoder().encode(JSON.stringify(v));
     const stored = { kind: "translationKeys", keys: [{ id: "k1", key: "home.title" }] };
     const unsaved = { kind: "translationKeys", keys: [...stored.keys, { id: "k2", key: "home.hello" }] };
-    const theme = { kind: "theme", tokens: { color: { primary: { $value: "#fff", $type: "color" } } } };
+    const theme = {
+      kind: "theme",
+      tokens: {
+        color: { primary: { $value: "#fff", $type: "color" } },
+        // A group's `$type` holds for its tokens; a curve token is offered to `Curve` props (row 48).
+        motion: { easing: { $type: "cubicBezier", standard: { $value: [0.2, 0, 0, 1] } } },
+      },
+    };
     const page = { kind: "page", root: { id: "r" } };
     expect(projectSources([{ content: enc(page) }, { content: enc(stored) }, { content: enc(theme) }])).toEqual({
-      tokens: ["color.primary"],
+      tokens: ["color.primary", "motion.easing.standard"],
+      curves: { "motion.easing.standard": [0.2, 0, 0, 1] },
       keys: [{ id: "k1", key: "home.title" }],
     });
     expect(projectSources([{ content: enc(stored), parsed: unsaved }]).keys.map((k) => k.key)).toEqual([
