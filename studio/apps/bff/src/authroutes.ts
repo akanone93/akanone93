@@ -68,7 +68,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: { nonce: string } }>, 
     if (state === "" || code === "" || expected === undefined || expected !== state) {
       return fail(400, authMessages.failed);
     }
-    const r = await login.oidc(code, state);
+    const r = await login.oidc(code, state, ip(c.req.raw));
     return r.ok ? done(r.cookies) : fail(400, authMessages.failed);
   });
 
@@ -89,7 +89,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: { nonce: string } }>, 
       return fail(400, authMessages.badRequest);
     }
     const provider = new URL(c.req.url).searchParams.get("provider") ?? "";
-    const r = await login.saml(provider, response, form.get("RelayState") ?? "");
+    const r = await login.saml(provider, response, form.get("RelayState") ?? "", ip(c.req.raw));
     return r.ok ? done(r.cookies) : fail(400, authMessages.failed);
   });
 }

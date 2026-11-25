@@ -84,13 +84,22 @@ export type LoginResult = { ok: true; cookies: string[] } | { ok: false };
  * this call's own HTTP response, never from state shared with a concurrent
  * completion (which could hand one person's session to another).
  */
-async function completeLogin(upstream: string, call: (transport: Transport) => Promise<unknown>): Promise<LoginResult> {
+async function completeLogin(
+  upstream: string,
+  clientIp: string,
+  call: (transport: Transport) => Promise<unknown>,
+): Promise<LoginResult> {
   let cookies: string[] = [];
   const transport = createConnectTransport({
     baseUrl: upstream,
     useBinaryFormat: true,
     fetch: (async (input: string | URL | Request, init?: RequestInit) => {
-      const res = await fetch(input, init);
+      // The person's address, as on every proxied call: the server limits sign-ins by it (build log row 194).
+      const headers = new Headers(init?.headers);
+      if (clientIp !== "" && clientIp !== "unknown") {
+        headers.set("x-forwarded-for", clientIp);
+      }
+      const res = await fetch(input, { ...init, headers });
       cookies = res.headers.getSetCookie().filter((c) => c.startsWith(sessionCookie));
       return res;
     }) as typeof fetch,
@@ -106,13 +115,13 @@ async function completeLogin(upstream: string, call: (transport: Transport) => P
 /** Calls the server's sign-in completion RPCs; the server sets the session cookie. */
 export function createLoginClient(upstream: string) {
   return {
-    oidc(code: string, state: string): Promise<LoginResult> {
-      return completeLogin(upstream, (t) =>
+    oidc(code: string, state: string, clientIp: string): Promise<LoginResult> {
+      return completeLogin(upstream, clientIp, (t) =>
         createClient(IdentityService, t).completeOidcLogin(create(CompleteOidcLoginRequestSchema, { code, state })),
       );
     },
-    saml(providerId: string, samlResponse: string, relayState: string): Promise<LoginResult> {
-      return completeLogin(upstream, (t) =>
+    saml(providerId: string, samlResponse: string, relayState: string, clientIp: string): Promise<LoginResult> {
+      return completeLogin(upstream, clientIp, (t) =>
         createClient(FederationService, t).completeSamlLogin(
           create(CompleteSamlLoginRequestSchema, { providerId, samlResponse, relayState }),
         ),

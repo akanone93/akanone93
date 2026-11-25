@@ -163,7 +163,14 @@ export function createBff(options: AppOptions): BffApp {
       release = got;
     }
     const url = new URL(req.url);
-    return proxyRequest(req, config.apiUpstream, url.pathname.slice("/api".length) + url.search, release, stream);
+    return proxyRequest(
+      req,
+      config.apiUpstream,
+      url.pathname.slice("/api".length) + url.search,
+      release,
+      stream,
+      ip(req),
+    );
   });
 
   app.get("/", async (c) => serveIndex(c.get("nonce")));

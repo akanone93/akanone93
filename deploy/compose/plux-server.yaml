@@ -10,6 +10,10 @@ server:
   # Studio runs on its own port here: security keys are accepted from it and
   # `plux login` sends people to its device page (server.studioBaseURL).
   studioBaseURL: "http://localhost:8081"
+  # Studio's BFF sets X-Forwarded-For to the browser's address; the server
+  # believes it from the BFF alone, so per-address limits and the audit log
+  # see people, not the BFF (build log row 194, ADR-0026).
+  trustedProxies: ["10.218.81.81/32"]
   # The api role terminates TLS 1.3 itself, as a production installation
   # does; init-secrets.sh issues this development-only certificate.
   tls:

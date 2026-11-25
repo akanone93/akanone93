@@ -17,7 +17,13 @@ const responseAllow = ["content-type", "cache-control", "retry-after", "grpc-sta
 const responsePrefixes = ["connect-", "grpc-"];
 const sessionCookie = "__Host-plux_session=";
 
-export function filterRequestHeaders(src: Headers): Headers {
+/**
+ * The headers a request carries upstream: the allowlisted ones, the server's session cookie alone, and, when given,
+ * `X-Forwarded-For` set to the client address the BFF resolved, replacing any the browser sent, so the server, which
+ * lists the BFF in `trustedProxies`, limits and audits by the person's address rather than the BFF's (build log row
+ * 194, ADR-0026).
+ */
+export function filterRequestHeaders(src: Headers, clientIp?: string): Headers {
   const out = new Headers();
   for (const [k, v] of src) {
     if (k === "cookie") {
@@ -32,6 +38,9 @@ export function filterRequestHeaders(src: Headers): Headers {
     } else if (!requestDeny.includes(k) && (requestAllow.includes(k) || requestPrefixes.some((p) => k.startsWith(p)))) {
       out.set(k, v);
     }
+  }
+  if (clientIp !== undefined && clientIp !== "" && clientIp !== "unknown") {
+    out.set("x-forwarded-for", clientIp);
   }
   return out;
 }
@@ -68,6 +77,7 @@ export async function proxyRequest(
   path: string,
   release: () => void,
   stream = false,
+  clientIp?: string,
 ): Promise<Response> {
   const url = new URL(path, upstream);
   const hasBody = req.method !== "GET" && req.method !== "HEAD";
@@ -78,7 +88,7 @@ export async function proxyRequest(
     // `timeout` is Bun's own fetch option; false turns its timeout off.
     const init: RequestInit & { duplex?: "half"; timeout?: false } = {
       method: req.method,
-      headers: filterRequestHeaders(req.headers),
+      headers: filterRequestHeaders(req.headers, clientIp),
       signal: controller.signal,
       redirect: "manual",
       ...(stream ? { timeout: false as const } : {}),

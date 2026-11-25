@@ -43,6 +43,14 @@ x-server-build: &server-build
 # also on `outbound`, so the internet is reachable from the function runner
 # through the egress proxy alone (ADR-0064). `default` carries everything else.
 networks:
+  # A fixed subnet, so the server can trust exactly Studio's BFF to tell it the
+  # browser's address (server.trustedProxies, build log row 194): the BFF has
+  # its own address outside the range the other containers are given.
+  default:
+    ipam:
+      config:
+        - subnet: 10.218.81.0/24
+          ip_range: 10.218.81.128/25
   functions:
     internal: true
   outbound: {}
@@ -100,7 +108,9 @@ services:
     volumes:
       - ./.secrets/ca/ca.crt:/etc/plux/ca.crt:ro
     tmpfs: [/tmp]
-    networks: [default]
+    networks:
+      default:
+        ipv4_address: 10.218.81.81
     ports: ["127.0.0.1:8081:8081"]
     restart: unless-stopped
 

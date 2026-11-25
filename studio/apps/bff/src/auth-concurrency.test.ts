@@ -5,6 +5,8 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createLoginClient } from "./auth.ts";
 
 let upstream: ReturnType<typeof Bun.serve>;
+/** The X-Forwarded-For of each completion, by its code. */
+const forwarded = new Map<string, string | null>();
 
 beforeAll(() => {
   upstream = Bun.serve({
@@ -13,6 +15,7 @@ beforeAll(() => {
       // The OIDC code names the session; "slow" sends its headers at once and its body later,
       // so a second completion can start while the first is still reading its response.
       const code = new TextDecoder().decode(new Uint8Array(await req.arrayBuffer())).includes("slow") ? "slow" : "fast";
+      forwarded.set(code, req.headers.get("x-forwarded-for"));
       const headers = new Headers({ "Content-Type": "application/proto" });
       headers.append("Set-Cookie", `__Host-plux_session=${code}; Path=/; HttpOnly; Secure`);
       // An unknown varint field (number 1000, value 0), split so the headers and first byte go
@@ -39,11 +42,14 @@ afterAll(() => {
 describe("[SEC-101] [STU-002] sign-in completions are request-scoped", () => {
   test("overlapping completions each get their own session cookie", async () => {
     const login = createLoginClient(`http://127.0.0.1:${upstream.port}`);
-    const slow = login.oidc("slow", "s1");
+    const slow = login.oidc("slow", "s1", "203.0.113.7");
     await Bun.sleep(40);
-    const fast = login.oidc("fast", "s2");
+    const fast = login.oidc("fast", "s2", "198.51.100.9");
     const [a, b] = await Promise.all([slow, fast]);
     expect(a).toEqual({ ok: true, cookies: ["__Host-plux_session=slow; Path=/; HttpOnly; Secure"] });
     expect(b).toEqual({ ok: true, cookies: ["__Host-plux_session=fast; Path=/; HttpOnly; Secure"] });
+    // Each completion carries its own person's address, for the server's per-address limits (build log row 194).
+    expect(forwarded.get("slow")).toBe("203.0.113.7");
+    expect(forwarded.get("fast")).toBe("198.51.100.9");
   });
 });

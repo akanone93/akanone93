@@ -31,7 +31,7 @@ contains the secret (`config.ts`, `main.ts`). Unsafe but accepted settings print
 | `PLUX_BFF_MIN_SERVER` (`minServer`) | `0.0` | Oldest server version Studio supports, `major.minor`. `/readyz` fails when the server reports an older one. |
 | `PLUX_BFF_DOCS_URL` (`docsUrl`) | empty | `https` URL of the documentation site, without credentials. Empty hides the documentation links in Studio's help menu. |
 | `PLUX_BFF_VALKEY_URL` (`valkeyUrl`) | empty | Valkey/Redis URL for rate-limit counters shared by replicas. Empty counts in memory, per replica. |
-| `PLUX_BFF_TRUSTED_PROXIES` (`trustedProxies`) | empty | Comma-separated CIDRs (or single addresses) of the load balancers whose `X-Forwarded-For` is honoured. None by default. |
+| `PLUX_BFF_TRUSTED_PROXIES` (`trustedProxies`) | empty | Comma-separated CIDRs (or single addresses) of the load balancers whose `X-Forwarded-For` is honoured. None by default. The address the BFF resolves this way is the one it sends the server in `X-Forwarded-For`, replacing the browser's; list the BFF in the server's `server.trustedProxies` for the server to believe it. |
 | `PLUX_BFF_REQUESTS_PER_MINUTE` (`requestsPerMinute`) | 1200 | API requests per session per minute, and per client address, before the BFF answers 429. Registry key `bff.requestsPerMinute`. |
 | `PLUX_BFF_STREAMS_PER_SESSION` (`streamsPerSession`) | 8 | Server streams open at once per session. Registry key `bff.streamsPerSession`. |
 | `PLUX_BFF_MAX_STREAM_CONNECTIONS` (`maxStreamConnections`) | 1000 | Streams open at once in this process. |

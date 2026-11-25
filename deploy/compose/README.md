@@ -24,6 +24,13 @@ Addresses, all bound to `127.0.0.1`: server <https://localhost:8080> (TLS 1.3, s
 `keycloak` (an OpenID Connect provider on port 8180), `ollama`, `functions` (the function
 builder) and `visual-diff` (the render worker) start with `docker compose --profile <name> …`.
 
+The `default` network has a fixed subnet, `10.218.81.0/24`, and Studio's BFF the fixed
+address `10.218.81.81`, outside the range the other containers are given: the server trusts
+that address alone (`server.trustedProxies`) for the `X-Forwarded-For` the BFF sets to the
+browser's address, so Studio's users are limited and audited by their own addresses (build log
+row 194). A stack created before this needs `make compose-down` once for Docker to make the
+network again.
+
 ## Secrets
 
 `init-secrets.sh` writes random credentials into `.secrets/` (mode 0600, ignored by Git)

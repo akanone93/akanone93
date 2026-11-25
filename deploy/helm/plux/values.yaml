@@ -67,7 +67,10 @@ server:
   tls:
     # A kubernetes.io/tls Secret (tls.crt, tls.key) for the api role.
     existingSecret: ""
-  # CIDR ranges whose X-Forwarded-For header the api role believes.
+  # CIDR ranges whose X-Forwarded-For header the api role believes: the
+  # ingress in front of it, and Studio's BFF, which sets the header to the
+  # browser's address so per-address limits and the audit log see people
+  # (list its pods' CIDR; build log row 194).
   trustedProxies: []
   shutdownGrace: 30s
   logLevel: info

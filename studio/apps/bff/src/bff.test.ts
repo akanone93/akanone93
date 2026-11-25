@@ -299,6 +299,18 @@ describe("[STU-002] [SRV-007] API proxy", () => {
     expect(res.headers.get("connect-content-encoding")).toBe("identity");
     expect(res.headers.getSetCookie()).toEqual(["__Host-plux_session=abc; HttpOnly; Secure; Path=/"]);
   });
+  test("the client address goes upstream in X-Forwarded-For, replacing what the browser sent (build log row 194)", async () => {
+    const bff = createBff({ staticDir: dir, config: cfg(), stateKey: KEY, clientIp: () => "203.0.113.7" });
+    await bff.app.request("/api/plux.v1.X/Y", {
+      method: "POST",
+      body: "{}",
+      headers: { "Content-Type": "application/json", "X-Forwarded-For": "10.9.9.9" },
+    });
+    expect(lastHeaders.get("x-forwarded-for")).toBe("203.0.113.7");
+    // Without a resolved address nothing is forwarded, not even the browser's own header.
+    expect(filterRequestHeaders(new Headers({ "X-Forwarded-For": "10.9.9.9" })).get("x-forwarded-for")).toBeNull();
+    expect(filterRequestHeaders(new Headers(), "unknown").get("x-forwarded-for")).toBeNull();
+  });
   test("header filters are exact", () => {
     expect(
       [

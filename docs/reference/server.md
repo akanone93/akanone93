@@ -191,7 +191,11 @@ streaming — is counted against its client's address
 immediate peer, unless that peer is listed in `server.trustedProxies`, in
 which case `X-Forwarded-For` is read from the right, skipping trusted
 hops; a client therefore cannot choose its own address by sending the
-header. The same address is recorded in the audit log (`SEC-140`).
+header. The same address is recorded in the audit log (`SEC-140`). Studio's
+BFF sets `X-Forwarded-For` to the browser's address, replacing any the
+browser sent, so an installation lists the BFF in `server.trustedProxies`
+and Studio's users are limited and audited by their own addresses, not the
+BFF's (build log row 194; the compose stack trusts its BFF's fixed address).
 
 ## 5. Starting and stopping
 
