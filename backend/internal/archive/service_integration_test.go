@@ -106,7 +106,11 @@ func newFixture(t *testing.T) *fixture {
 		t.Fatal(err)
 	}
 	sample := archive.Sample{ID: "loans", Key: "loans", Name: "Loans", Data: data}
-	f.archives, err = archive.New(archive.Options{DB: db, Audit: f.log, Tenancy: f.tenancy, Documents: docs, IDs: gen, Samples: []archive.Sample{sample}})
+	setup, err := archive.NewSetupReader(archive.SetupDeps{Tenancy: f.tenancy})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.archives, err = archive.New(archive.Options{DB: db, Audit: f.log, Tenancy: f.tenancy, Documents: docs, IDs: gen, Samples: []archive.Sample{sample}, Setup: setup})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -520,5 +524,87 @@ func TestPluginExportImport_STU_023(t *testing.T) {
 		if !slices.Contains(got, want) {
 			t.Errorf("no %s entry in the audit log", want)
 		}
+	}
+}
+
+// TestSetupTravelsByName_STU_024 exports an app with setup beyond the
+// defaults: the manifest names it without a value, a viewer's export names
+// the secrets it may not read as unread, and a duplicate lists exactly what
+// the copy lacks as still to do (build log row 178).
+func TestSetupTravelsByName_STU_024(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	src, err := f.archives.ImportSample(ctx, f.owner, "loans", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(src.SetupToDo) != 0 {
+		t.Errorf("a sample names setup: %+v", src.SetupToDo)
+	}
+	envs, err := f.tenancy.ListEnvironments(ctx, f.owner, src.App.ID, tenancy.Page{Size: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var production string
+	for _, e := range envs {
+		if e.Key == "production" {
+			production = e.ID
+		}
+	}
+	eu, err := f.tenancy.CreateEnvironment(ctx, f.owner, src.App.ID, "eu", "EU", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.tenancy.SetVariable(ctx, f.owner, eu.ID, "API_BASE", "https://internal-host.example"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.tenancy.SetSecret(ctx, f.owner, production, "PAYMENT_KEY", "value-of-the-secret"); err != nil {
+		t.Fatal(err)
+	}
+	exp, err := f.archives.Export(ctx, f.owner, src.App.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, value := range []string{"internal-host", "value-of-the-secret"} {
+		if bytes.Contains(exp.Data, []byte(value)) {
+			t.Errorf("the archive carries %q", value)
+		}
+	}
+	m, _, err := archive.Unpack(exp.Data, archive.LimitsOf(defaultLimits()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []archive.SetupItem{
+		{Kind: archive.SetupSecret, Environment: "production", Name: "PAYMENT_KEY"},
+		{Kind: archive.SetupVariable, Environment: "eu", Name: "API_BASE"},
+		{Kind: archive.SetupEnvironment, Environment: "eu", Name: "eu"},
+	} {
+		if !slices.Contains(m.Setup, want) {
+			t.Errorf("the manifest does not name %+v: %+v", want, m.Setup)
+		}
+	}
+
+	viewed, err := f.archives.Export(ctx, f.viewer, src.App.ID)
+	if err != nil {
+		t.Fatalf("a viewer's export: %v", err)
+	}
+	vm, _, _ := archive.Unpack(viewed.Data, archive.LimitsOf(defaultLimits()))
+	if !slices.Contains(vm.Setup, archive.SetupItem{Kind: archive.SetupUnread, Environment: "production", Name: archive.SetupSecret}) ||
+		slices.ContainsFunc(vm.Setup, func(it archive.SetupItem) bool { return it.Kind == archive.SetupSecret }) {
+		t.Errorf("a viewer's export names secrets it may not read: %+v", vm.Setup)
+	}
+
+	dup, err := f.archives.Duplicate(ctx, f.owner, src.App.ID, "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var todo []string
+	for _, it := range dup.SetupToDo {
+		todo = append(todo, it.Kind+":"+it.Environment+":"+it.Name)
+	}
+	slices.Sort(todo)
+	want := []string{"channel:eu:production", "environment:eu:eu", "secret:production:PAYMENT_KEY", "variable:eu:API_BASE"}
+	if !slices.Equal(todo, want) {
+		t.Errorf("still to do %v, want %v", todo, want)
 	}
 }

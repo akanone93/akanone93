@@ -90,3 +90,30 @@ built in one app can be reused in another without copying documents by hand (`ST
   changed locale's and the new plugin's — and gives back only those it took.
 - Export needs `plugin.read`, import `app.manage` on the app; both are audited (`plugin.exported`,
   `plugin.imported`), and the import is idempotent through the `Idempotency-Key` header.
+
+## Revision 2026-11-25: the server-side setup by name
+
+The maintainer decided on 2026-11-24 (build log row 178) that an app's archive names the server-side
+setup it does not carry, so that rebuilding an app on another installation, or duplicating it, says
+what is still to do instead of leaving it to be found (`STU-024`).
+
+- **Manifest.** An app archive's manifest gains `"setup": [{"kind", "environment", "name", "detail"}]`,
+  sorted, without repeats. The kinds are `environment` (detail `production` for a production one),
+  `channel`, `variable`, `secret`, `config` (detail: tier, type, `sensitive`, `strict`), `upstream`
+  (detail: the authentication kind), `identityProvider`, `function`, `schedule` (name
+  `<function>@<alias>`, detail: expression and time zone), `hook` (name `<function>@<alias>`) and
+  `unread`. **No value travels:** not a secret's, a configuration value's or a variable's, not a
+  secret's hint, not a URL, an identifier or a time. The field is additive within version 1: a reader
+  that does not know it imports the documents as before.
+- **Read with the exporter's permissions.** Each kind is read through its own service as the caller;
+  a kind the caller may not read (`PERMISSION_DENIED`) is named `{"kind": "unread", "name": <kind>}`
+  rather than refusing the export, so an export needs `plugin.read` as before and reveals no name the
+  caller could not list. A part the installation does not run (gateway, functions) is left out.
+- **Untrusted on import.** The setup is checked before anything is written: at most `archive.entries`
+  items, known kinds only, an environment on every item, and fields of at most 512 characters without
+  control characters (`LIMIT_EXCEEDED`, `INVALID_FORMAT`).
+- **Still to do.** An import or a duplicate reads the new app's setup the same way and returns the
+  archive's items it lacks, matched by kind, environment and name (`setup_to_do` on
+  `ImportAppResponse` and `DuplicateAppResponse`); an `unread` item is always listed. When the new
+  app's setup cannot be read, every item is listed. Studio shows the list by environment on the new-app
+  wizard's last step and before a duplicate opens. Nothing is created from it: values are set by hand.

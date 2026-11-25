@@ -1027,7 +1027,11 @@ export function createUpstream(state: UpstreamData) {
       },
       duplicateApp: (req) => {
         state.appsGrid?.calls.push(`duplicate:${req.appId}:${req.key}:${req.name}`);
-        return { app: { id: `app-${req.key}`, key: req.key, name: req.name }, documents: 1 };
+        return {
+          app: { id: `app-${req.key}`, key: req.key, name: req.name },
+          documents: 1,
+          setupToDo: state.appsGrid?.setupToDo ?? [],
+        };
       },
     });
     service(AssetService, {

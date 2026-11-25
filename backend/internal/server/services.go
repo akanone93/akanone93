@@ -716,8 +716,12 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 		svc.Goldens = golden.New(golden.Options{DB: k.db, Audit: k.log, Objects: k.work.Objects, IDs: k.gen, Limits: k.set, Approvals: k.approvals})
 	}
 	svc.TestRuns = testrun.New(testrun.Options{DB: k.db, IDs: k.gen, Limits: k.set})
+	setup, err := archive.NewSetupReader(setupDeps(svc))
+	if err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
 	if svc.Archives, err = archive.New(archive.Options{
-		DB: k.db, Audit: k.log, Tenancy: svc.Tenancy, Documents: svc.Documents, IDs: k.gen, Limits: k.set,
+		DB: k.db, Audit: k.log, Tenancy: svc.Tenancy, Documents: svc.Documents, IDs: k.gen, Limits: k.set, Setup: setup,
 	}); err != nil {
 		return fmt.Errorf("server: %w", err)
 	}
@@ -1576,6 +1580,23 @@ func MaintenanceJobs(workers *jobs.Workers, svc *Services, log *slog.Logger) []*
 }
 
 // gatewayRegistry returns the upstream registry of the gateway, if any.
+// setupDeps are the services an app's server-side setup is read from for
+// its archive (build log row 178); a part the process does not run stays a
+// nil interface, not a nil pointer in one.
+func setupDeps(svc *Services) archive.SetupDeps {
+	deps := archive.SetupDeps{Tenancy: svc.Tenancy}
+	if svc.Gateway != nil && svc.Gateway.Configs != nil {
+		deps.Configs = svc.Gateway.Configs
+	}
+	if svc.Gateway != nil && svc.Gateway.Upstreams != nil {
+		deps.Gateway = svc.Gateway.Upstreams
+	}
+	if svc.Functions != nil {
+		deps.Functions = svc.Functions
+	}
+	return deps
+}
+
 func gatewayRegistry(g *GatewayParts) *gateway.Registry {
 	if g == nil {
 		return nil

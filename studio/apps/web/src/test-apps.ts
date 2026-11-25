@@ -56,6 +56,8 @@ export interface AppsGridFixture {
   assets?: Record<string, { id: string; name: string; mediaType: string; url: string }[]>;
   /** Every call received: `summaries:<limit>:<afterKey>`, `archive:<id>:<on|off>`, `update:<id>:<name>:<description>`, `export:<id>`, `duplicate:<id>:<key>:<name>`, `listApps:<status>:<mine>`. */
   calls: string[];
+  /** The server-side setup a duplicate reports as still to do (build log row 178). */
+  setupToDo?: { kind: string; environment: string; name: string; detail: string }[];
 }
 
 /** The App message of a fixture app. */

@@ -341,6 +341,27 @@ describe("search, filters, sort, pins and actions [STU-023]", () => {
     await waitFor(() => expect(r.router.state.location.pathname).toBe(`/o/${orgA}/apps/app-bank-2`));
   });
 
+  test("a copy that lacks its source's server-side setup lists it by environment before it opens", async () => {
+    const { state } = setup({
+      setupToDo: [
+        { kind: "secret", environment: "production", name: "PAYMENT_KEY", detail: "" },
+        { kind: "environment", environment: "eu", name: "eu", detail: "production" },
+      ],
+    });
+    const r = open(state);
+    await card("Bank");
+    fireEvent.click(await menu("Bank", "Duplicate"));
+    const dialog = await screen.findByRole("dialog", { name: "Duplicate Bank" });
+    fireEvent.change(within(dialog).getByLabelText("Name"), { target: { value: "Bank 2" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Duplicate app" }));
+    const todo = await screen.findByRole("region", { name: "Still to set up on this server" });
+    expect(within(todo).getByText("Set the secret PAYMENT_KEY")).toBeTruthy();
+    expect(within(todo).getByText("Create the production environment eu")).toBeTruthy();
+    expect(r.router.state.location.pathname).not.toBe(`/o/${orgA}/apps/app-bank-2`);
+    fireEvent.click(screen.getByRole("button", { name: "Open the copy" }));
+    await waitFor(() => expect(r.router.state.location.pathname).toBe(`/o/${orgA}/apps/app-bank-2`));
+  });
+
   test("exporting downloads the app as a .plux archive", async () => {
     const { grid, state } = setup();
     const blobs: Blob[] = [];

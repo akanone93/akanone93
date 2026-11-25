@@ -237,6 +237,30 @@ describe("creating an app from a .plux archive [STU-024]", () => {
     expect(await within(dialog).findByRole("heading", { name: "imported was created" })).toBeTruthy();
   });
 
+  test("the last step lists the server-side setup the archive names and the new app lacks", async () => {
+    const state = manager({
+      projects: {
+        calls: [],
+        archives: [],
+        samples,
+        setupToDo: [
+          { kind: "config", environment: "production", name: "feeLimit", detail: "live decimal" },
+          { kind: "unread", environment: "production", name: "secret", detail: "" },
+        ],
+      },
+    });
+    renderApp(home, state);
+    const dialog = await open();
+    await choose(dialog, await pluxFile());
+    await within(dialog).findByText(/^shop\.plux \(/);
+    next(dialog);
+    create(dialog);
+    const todo = await within(dialog).findByRole("region", { name: "Still to set up on this server" });
+    expect(within(todo).getByRole("heading", { name: "Environment production" })).toBeTruthy();
+    expect(within(todo).getByText("Set the configuration value feeLimit (live decimal)")).toBeTruthy();
+    expect(within(todo).getByText("Check by hand: whoever exported the app could not read its secrets")).toBeTruthy();
+  });
+
   test("a name and key given here override the archive's", async () => {
     const state = manager();
     renderApp(home, state);

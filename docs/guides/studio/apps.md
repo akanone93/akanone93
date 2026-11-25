@@ -45,6 +45,14 @@ copy opens at once), **Export .plux archive**, and **Archive** or **Unarchive**.
 permissions do not allow is shown dimmed: duplicating and archiving need the permission to manage
 apps, and exporting needs read access to the app's plugins.
 
+An archive carries the app's documents and assets, not its server-side setup. Its manifest names
+that setup without any value — each environment with its channels, variables, secrets, configuration
+values, gateway upstreams, identity provider, functions, schedules and hooks — read with your own
+permissions: a kind you may not read, such as secrets without the permission to manage the
+environment, is named as unread. When the archive is imported, or the app duplicated, Studio lists
+what the new app still lacks under **Still to set up on this server**, by environment, before you
+open it. Set each piece up by hand; secrets never travel in an archive.
+
 ## App settings
 
 **Settings** in the app navigation opens the app's settings, the most used first.

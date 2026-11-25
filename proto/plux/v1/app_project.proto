@@ -131,6 +131,26 @@ message ImportAppResponse {
   int32 documents = 2;
   // error_diagnostics counts validation errors the imported project still has.
   int32 error_diagnostics = 3;
+  // setup_to_do is the server-side setup the archive's manifest names and
+  // the new app lacks: what is still to do by hand (ADR-0102).
+  repeated SetupItem setup_to_do = 4;
+}
+
+// SetupItem is one named piece of an app's server-side setup, which an
+// archive names and does not carry. It holds no value of a secret, a
+// configuration value or a variable, and no URL.
+message SetupItem {
+  // kind is environment, channel, variable, secret, config, upstream,
+  // identityProvider, function, schedule, hook, or unread: a kind of the
+  // environment's setup the exporter could not read, named in name.
+  string kind = 1;
+  // environment is the key of the environment the item belongs to.
+  string environment = 2;
+  string name = 3;
+  // detail is what recreating it needs beyond its name: "production" for
+  // an environment, a configuration value's tier and type, an upstream's
+  // authentication kind, a schedule's expression and time zone.
+  string detail = 4;
 }
 
 message DuplicateAppRequest {
@@ -141,6 +161,8 @@ message DuplicateAppRequest {
 message DuplicateAppResponse {
   App app = 1;
   int32 documents = 2;
+  // setup_to_do is the source's server-side setup the copy lacks.
+  repeated SetupItem setup_to_do = 3;
 }
 
 message ExportPluginRequest {

@@ -5,11 +5,12 @@ import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
 import { type App, AppProjectService, AppService, MetadataUpdateSchema } from "@plux/api";
-import { notify } from "@plux/ui";
+import { Button, Dialog, notify } from "@plux/ui";
 import { useNavigate } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { CreateDialog } from "../../components/dialogs/index.ts";
 import { withReason } from "../../components/refusal.tsx";
+import { type SetupStep, SetupToDo } from "../../components/setup-to-do.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { download } from "../admin/download.ts";
 import type { AppActionHandlers } from "./app-actions.tsx";
@@ -31,6 +32,13 @@ export function useAppActions(org: string): {
   const refresh = useRefreshApps();
   const { pinned, toggle } = usePinnedApps();
   const [duplicating, setDuplicating] = useState<App | undefined>(undefined);
+  // A copy whose setup the source had and the copy lacks, shown before the copy opens (build log row 178).
+  const [copied, setCopied] = useState<{
+    readonly id: string;
+    readonly name: string;
+    readonly steps: readonly SetupStep[];
+  }>();
+  const openApp = (id: string) => void navigate({ to: "/o/$org/apps/$app", params: { org, app: id } });
   const fail = (error: unknown) => notify("error", withReason(m.actionFailed, error));
   const handlers: AppActionHandlers = {
     onPin: (id) => {
@@ -70,9 +78,34 @@ export function useAppActions(org: string): {
           });
           await refresh();
           setDuplicating(undefined);
-          void navigate({ to: "/o/$org/apps/$app", params: { org, app: res.app?.id ?? "" } });
+          if (res.setupToDo.length > 0) {
+            setCopied({ id: res.app?.id ?? "", name: res.app?.name ?? "", steps: res.setupToDo });
+          } else {
+            openApp(res.app?.id ?? "");
+          }
         }}
       />
     );
-  return { pinned, handlers, dialog };
+  const setupDialog =
+    copied === undefined ? undefined : (
+      <Dialog
+        open
+        onOpenChange={(open) => !open && setCopied(undefined)}
+        title={copied.name}
+        labels={{ close: m.close }}
+      >
+        <SetupToDo steps={copied.steps} />
+        <div className="flex justify-end">
+          <Button
+            onClick={() => {
+              setCopied(undefined);
+              openApp(copied.id);
+            }}
+          >
+            {m.openCopy}
+          </Button>
+        </div>
+      </Dialog>
+    );
+  return { pinned, handlers, dialog: dialog ?? setupDialog };
 }

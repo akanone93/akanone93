@@ -4038,6 +4038,12 @@ msgstr "Kanal"
 msgid "approvals.colChannel"
 msgstr "Kanal"
 
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.channels"
+msgstr "Kanäle"
+
 #. Unit word after a number of characters.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -4049,6 +4055,12 @@ msgstr "Zeichen"
 #: apps/web/src/features/installation/installation.messages.ts
 msgid "installation.colCheck"
 msgstr "Prüfung"
+
+#. A setup step: a kind of setup the exporter had no permission to read; kind is one of the kind names below.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.unread"
+msgstr "Von Hand prüfen: Wer die App exportiert hat, konnte ihre {kind} nicht lesen"
 
 #. What to do on the page shown for an address no page answers; the heading's caption already says why.
 #. js-lingui-explicit-id
@@ -4444,6 +4456,12 @@ msgstr "Schließen"
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.close"
+msgstr "Schließen"
+
+#. Accessible name of a dialog's close button.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.close"
 msgstr "Schließen"
 
 #. Accessible name of the dialog close button.
@@ -4842,6 +4860,12 @@ msgstr "Konfiguration (JSON)"
 msgid "gateway.value.dialog"
 msgstr "Konfigurationswert"
 
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.config"
+msgstr "Konfigurationswerte"
+
 #. Title of the page of an environment's configuration values.
 #. js-lingui-explicit-id
 #: apps/web/src/features/gateway/gateway.messages.ts
@@ -5214,11 +5238,41 @@ msgstr "Team erstellen"
 msgid "tests.fromSession"
 msgstr "Test aus Gerätesitzung erstellen"
 
+#. A setup step: a release channel.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.channel"
+msgstr "Kanal {name} anlegen"
+
+#. A setup step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.createEnvironment"
+msgstr "Umgebung {name} anlegen"
+
 #. Body shown to a signed-in installation administrator who has no organisation yet.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/shell-chrome.messages.ts
 msgid "chrome.noorg.admin-body"
 msgstr "Legen Sie die erste Organisation an, um Apps zu entwickeln."
+
+#. A setup step; name is function@alias.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.hook"
+msgstr "Hook von {name} anlegen"
+
+#. A setup step for an environment marked as production.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.createProductionEnvironment"
+msgstr "Produktionsumgebung {name} anlegen"
+
+#. A setup step; name is function@alias, detail the cron expression and time zone.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.schedule"
+msgstr "Zeitplan von {name} anlegen ({detail})"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -5801,6 +5855,12 @@ msgstr "Abhängigkeiten"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceDeps"
 msgstr "Abhängigkeiten"
+
+#. A setup step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.function"
+msgstr "Funktion {name} bereitstellen"
 
 #. Confirm button of the dialog that marks a published plugin deprecated (STU-073).
 #. js-lingui-explicit-id
@@ -6947,6 +7007,12 @@ msgstr "Umgebung"
 msgid "approvals.colEnvironment"
 msgstr "Umgebung"
 
+#. Group heading: the setup of one environment.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.environment"
+msgstr "Umgebung {name}"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -7960,6 +8026,12 @@ msgstr "Funktion {name}"
 msgid "notify.name.function.failing"
 msgstr "Funktion schlägt fehl"
 
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.functions"
+msgstr "Funktionen"
+
 #. Group of search results.
 #. js-lingui-explicit-id
 #: apps/web/src/lib/commands/commands.messages.ts
@@ -8085,6 +8157,12 @@ msgstr "Gateway (serverseitig gebunden)"
 #: apps/web/src/features/gateway/gateway.messages.ts
 msgid "gateway.areaNav"
 msgstr "Gateway-Seiten"
+
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.upstreams"
+msgstr "Gateway-Upstreams"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -8542,6 +8620,12 @@ msgstr "Start"
 msgid "pluginCanvas.partHome"
 msgstr "Start"
 
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.hooks"
+msgstr "Hooks"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/functions/functions.messages.ts
@@ -8637,6 +8721,12 @@ msgstr "Icons"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.iconsTitle"
 msgstr "Symbole"
+
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.identityProvider"
+msgstr "Identitätsanbieter"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -12737,6 +12827,12 @@ msgstr "Zielbildschirm öffnen"
 msgid "newApp.done.open"
 msgstr "App öffnen"
 
+#. Button after a duplicate whose server-side setup is still to do: opens the new app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/apps/apps.messages.ts
+msgid "apps.duplicate.openCopy"
+msgstr "Kopie öffnen"
+
 #. Button of the Data tab that opens the full-screen data source designer.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/tabs.messages.ts
@@ -14464,6 +14560,12 @@ msgstr "Bewegung reduzieren"
 msgid "shell.project.regenerate"
 msgstr "Projekt neu erzeugen"
 
+#. A setup step; detail is how the upstream authenticates, such as 'mtls'.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.upstream"
+msgstr "Gateway-Upstream {name} registrieren ({detail})"
+
 #. Label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/security/security.messages.ts
@@ -15987,6 +16089,12 @@ msgstr "Geplant"
 msgid "admin.scheduledChanges"
 msgstr "Geplante Änderungen"
 
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.schedules"
+msgstr "Zeitpläne"
+
 #. Heading of the schemas list.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -16401,6 +16509,12 @@ msgstr "Geheimnis (wird einmal angezeigt)"
 msgid "gateway.field.secretRef"
 msgstr "Name des Geheimnisses"
 
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.secrets"
+msgstr "Geheimnisse"
+
 #. Description of the upstream dialog.
 #. js-lingui-explicit-id
 #: apps/web/src/features/gateway/gateway.messages.ts
@@ -16766,6 +16880,30 @@ msgstr "Pro Ecke gesetzt"
 #: apps/web/src/features/admin/admin.messages.ts
 msgid "admin.secretsSet"
 msgstr "Geheimnis setzen"
+
+#. A setup step; detail is the tier and type, such as 'live integer'.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.config"
+msgstr "Konfigurationswert {name} setzen ({detail})"
+
+#. A setup step: the provider whose tokens the gateway accepts.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.identityProvider"
+msgstr "Identitätsanbieter festlegen"
+
+#. A setup step; the value never travels.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.secret"
+msgstr "Geheimnis {name} setzen"
+
+#. A setup step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.variable"
+msgstr "Variable {name} setzen"
 
 #. Column head: the setting's name.
 #. js-lingui-explicit-id
@@ -17751,6 +17889,12 @@ msgstr "Schritte"
 msgid "analytics.funnelSteps"
 msgstr "Schritte, ein Ereignisname pro Zeile"
 
+#. Heading of the list of server-side setup an imported or duplicated app lacks.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.title"
+msgstr "Auf diesem Server noch einzurichten"
+
 #. Button that stops the experiment.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -18434,6 +18578,12 @@ msgstr "Die Freigabe wurde abgelehnt."
 #: apps/web/src/features/home/home.messages.ts
 msgid "home.apps.load-failed"
 msgstr "Die Apps konnten nicht geladen werden."
+
+#. Explains the setup list after an import or a duplicate; secrets never travel in an archive.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.intro"
+msgstr "Das Archiv enthält die Dokumente und Assets der App. Ihre serverseitige Einrichtung ist hier ohne Werte aufgeführt: Richte jeden Punkt von Hand ein, mit Werten von denen, die sie verantworten."
 
 #. Error when the unzipped archive is larger than any limit allows; both values are sizes.
 #. js-lingui-explicit-id
@@ -21225,6 +21375,12 @@ msgstr "Werte je Segment"
 #: apps/web/src/features/gateway/gateway.messages.ts
 msgid "gateway.config.caption"
 msgstr "Werte, die das Gateway in Anfragen einsetzt (serverseitig gebunden) oder Geräte lesen (live). Sensible Werte werden versiegelt und nie wieder angezeigt."
+
+#. Kind name in the unread step.
+#. js-lingui-explicit-id
+#: apps/web/src/components/setup-to-do.messages.ts
+msgid "setupToDo.kind.variables"
+msgstr "Variablen"
 
 #. Column heading.
 #. js-lingui-explicit-id

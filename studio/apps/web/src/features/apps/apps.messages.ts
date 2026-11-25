@@ -295,6 +295,12 @@ export function appsMessages(i18n: I18n) {
         values: { name },
         comment: "Title of the dialog that copies an app; name is the app.",
       }),
+    close: i18n._({ id: "apps.close", message: "Close", comment: "Accessible name of a dialog's close button." }),
+    openCopy: i18n._({
+      id: "apps.duplicate.openCopy",
+      message: "Open the copy",
+      comment: "Button after a duplicate whose server-side setup is still to do: opens the new app.",
+    }),
     duplicateSubmit: i18n._({
       id: "apps.duplicate.submit",
       message: "Duplicate app",

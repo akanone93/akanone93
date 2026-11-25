@@ -4,6 +4,7 @@
 import { useLingui } from "@lingui/react";
 import { Button, StatusPill } from "@plux/ui";
 import type { ReactElement } from "react";
+import { SetupToDo } from "../../components/setup-to-do.tsx";
 import { newAppMessages } from "./new-app.messages.ts";
 import type { CreatedApp } from "./use-new-app.ts";
 
@@ -31,6 +32,7 @@ export function DoneStep({
           {created.errors > 0 && <StatusPill status="warning" label={m.doneErrors(created.errors)} />}
         </div>
       </div>
+      <SetupToDo steps={created.setupToDo} />
       <section aria-labelledby="new-app-project" className="flex flex-col gap-2">
         <h3 id="new-app-project" className="text-section">
           {m.projectTitle}

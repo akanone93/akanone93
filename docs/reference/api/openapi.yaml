@@ -22767,6 +22767,12 @@ components:
           type: integer
           title: documents
           format: int32
+        setupToDo:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SetupItem'
+          title: setup_to_do
+          description: setup_to_do is the source's server-side setup the copy lacks.
       title: DuplicateAppResponse
       additionalProperties: false
     plux.v1.DuplicatePluginRequest:
@@ -26978,6 +26984,14 @@ components:
           title: error_diagnostics
           format: int32
           description: error_diagnostics counts validation errors the imported project still has.
+        setupToDo:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SetupItem'
+          title: setup_to_do
+          description: |-
+            setup_to_do is the server-side setup the archive's manifest names and
+             the new app lacks: what is still to do by hand (ADR-0102).
       title: ImportAppResponse
       additionalProperties: false
     plux.v1.ImportComponentRequest:
@@ -35104,6 +35118,36 @@ components:
           title: variable
       title: SetVariableResponse
       additionalProperties: false
+    plux.v1.SetupItem:
+      type: object
+      properties:
+        kind:
+          type: string
+          title: kind
+          description: |-
+            kind is environment, channel, variable, secret, config, upstream,
+             identityProvider, function, schedule, hook, or unread: a kind of the
+             environment's setup the exporter could not read, named in name.
+        environment:
+          type: string
+          title: environment
+          description: environment is the key of the environment the item belongs to.
+        name:
+          type: string
+          title: name
+        detail:
+          type: string
+          title: detail
+          description: |-
+            detail is what recreating it needs beyond its name: "production" for
+             an environment, a configuration value's tier and type, an upstream's
+             authentication kind, a schedule's expression and time zone.
+      title: SetupItem
+      additionalProperties: false
+      description: |-
+        SetupItem is one named piece of an app's server-side setup, which an
+         archive names and does not carry. It holds no value of a secret, a
+         configuration value or a variable, and no URL.
     plux.v1.Severity:
       type: string
       title: Severity

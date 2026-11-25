@@ -41,6 +41,14 @@ func summaryProto(s tenancy.AppSummary) *pluxv1.AppSummary {
 	return out
 }
 
+func setupProto(items []archive.SetupItem) []*pluxv1.SetupItem {
+	out := make([]*pluxv1.SetupItem, len(items))
+	for i, it := range items {
+		out[i] = &pluxv1.SetupItem{Kind: it.Kind, Environment: it.Environment, Name: it.Name, Detail: it.Detail}
+	}
+	return out
+}
+
 // ListAppSummaries returns the apps grid in one call.
 func (s AppProject) ListAppSummaries(ctx context.Context, req *connect.Request[pluxv1.ListAppSummariesRequest]) (*connect.Response[pluxv1.ListAppSummariesResponse], error) {
 	return read(ctx, func(ctx context.Context) (*pluxv1.ListAppSummariesResponse, error) {
@@ -86,7 +94,10 @@ func (s AppProject) ImportApp(ctx context.Context, req *connect.Request[pluxv1.I
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.ImportAppResponse{App: appProto(in.App), Documents: int32(in.Documents), ErrorDiagnostics: int32(in.ErrorDiagnostics)}, nil //nolint:gosec // bounded by archive.entries
+		return &pluxv1.ImportAppResponse{
+			App: appProto(in.App), Documents: int32(in.Documents), ErrorDiagnostics: int32(in.ErrorDiagnostics), //nolint:gosec // bounded by archive.entries
+			SetupToDo: setupProto(in.SetupToDo),
+		}, nil
 	})
 }
 
@@ -101,7 +112,7 @@ func (s AppProject) DuplicateApp(ctx context.Context, req *connect.Request[pluxv
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.DuplicateAppResponse{App: appProto(in.App), Documents: int32(in.Documents)}, nil //nolint:gosec // bounded by archive.entries
+		return &pluxv1.DuplicateAppResponse{App: appProto(in.App), Documents: int32(in.Documents), SetupToDo: setupProto(in.SetupToDo)}, nil //nolint:gosec // bounded by archive.entries
 	})
 }
 

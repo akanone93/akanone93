@@ -3,6 +3,7 @@
 
 import { createClient } from "@connectrpc/connect";
 import { AppProjectService } from "@plux/api";
+import type { SetupStep } from "../../components/setup-to-do.tsx";
 import { useApp } from "../../lib/use-app.tsx";
 import { blankProject } from "./blank-project.ts";
 import { blankOptions, type Draft } from "./draft.ts";
@@ -16,6 +17,8 @@ export interface CreatedApp {
   readonly documents: number;
   /** Validation errors an imported project still has. */
   readonly errors: number;
+  /** The server-side setup the archive names and the new app lacks (build log row 178). */
+  readonly setupToDo: readonly SetupStep[];
 }
 
 export type CreateStage = "preparing" | "creating";
@@ -35,7 +38,7 @@ export function useCreateApp(organizationId: string) {
     if (draft.source === "template") {
       stage("creating");
       const res = await client.importSampleApp({ organizationId, sampleId: draft.sampleId, key, name });
-      return createdOf(res.app, res.documents, 0);
+      return createdOf(res.app, res.documents, 0, []);
     }
     const archive =
       draft.source === "import"
@@ -46,7 +49,7 @@ export function useCreateApp(organizationId: string) {
           );
     stage("creating");
     const res = await client.importApp({ organizationId, archive: new Uint8Array(archive), key, name });
-    return createdOf(res.app, res.documents, res.errorDiagnostics);
+    return createdOf(res.app, res.documents, res.errorDiagnostics, res.setupToDo);
   };
 }
 
@@ -54,6 +57,7 @@ function createdOf(
   app: { readonly id: string; readonly key: string; readonly name: string } | undefined,
   documents: number,
   errors: number,
+  setupToDo: readonly SetupStep[],
 ): CreatedApp {
-  return { id: app?.id ?? "", key: app?.key ?? "", name: app?.name ?? "", documents, errors };
+  return { id: app?.id ?? "", key: app?.key ?? "", name: app?.name ?? "", documents, errors, setupToDo };
 }

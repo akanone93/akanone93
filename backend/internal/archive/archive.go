@@ -71,12 +71,14 @@ type Entry struct {
 
 // Manifest is plux-archive.json. App is the app an app archive holds, or
 // the app a plugin archive's plugin was exported from; Plugin is set only
-// in a plugin archive.
+// in a plugin archive. Setup names the server-side setup of an exported
+// app, which the archive does not carry (setup.go).
 type Manifest struct {
 	Format  string      `json:"format"`
 	Version int         `json:"version"`
 	App     AppInfo     `json:"app"`
 	Plugin  *PluginInfo `json:"plugin,omitempty"`
+	Setup   []SetupItem `json:"setup,omitempty"`
 	Files   []Entry     `json:"files"`
 }
 
@@ -102,7 +104,17 @@ var zipEpoch = time.Date(1980, time.January, 1, 0, 0, 0, 0, time.UTC)
 // the arguments: entries are sorted, stored without compression, with the
 // ZIP epoch as time and mode 0644, and the manifest is the first entry.
 func Pack(app AppInfo, files []document.File) ([]byte, error) {
-	return pack(Manifest{Format: Format, Version: appVersion, App: app}, files)
+	return PackApp(app, nil, files)
+}
+
+// PackApp is Pack with the names of the app's server-side setup in the
+// manifest, sorted, so that the bytes stay deterministic.
+func PackApp(app AppInfo, setup []SetupItem, files []document.File) ([]byte, error) {
+	m := Manifest{Format: Format, Version: appVersion, App: app}
+	if len(setup) > 0 {
+		m.Setup = sortSetup(setup)
+	}
+	return pack(m, files)
 }
 
 // PackPlugin writes the archive of one plugin exported from app: its

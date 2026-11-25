@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.24.0
+**Version:** 1.25.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -1674,7 +1674,7 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
 | `STU-021` | P11 | MUST | Each card's visual **MUST** be, in order of preference: a live screenshot of the app's plugin canvas, an uploaded image, or a monogram of the app name's first character on a colour derived from the app. | DONE |
 | `STU-022` | P11 | MUST | Each card **MUST** show the app's name, description, owning team, environment badges with live release per environment, last publish (who, when), active devices, number of plugins, and a health indicator (crash-free rate and error trend). | DONE |
 | `STU-023` | P11 | MUST | The grid **MUST** support search, filters (team, tag, status, my apps), sort (name, last activity, health), pinning favourites, and card actions (open, settings, duplicate, export `.plux` archive, archive). | DONE |
-| `STU-024` | P11 | MUST | Creating an app **MUST** offer: blank, from template, from `.plux` import, or from an AI prompt (`AI-010`, arriving with P12); then locales, theme, security profile and environments. Every new app **MUST** start with a default plugin and entry screen, and offer the **generated Flutter project** for download (`GEN-001`): on the app's Native shell page once a release gives it signing keys, which the wizard's last step names. | DONE |
+| `STU-024` | P11 | MUST | Creating an app **MUST** offer: blank, from template, from `.plux` import, or from an AI prompt (`AI-010`, arriving with P12); then locales, theme, security profile and environments. An export **MUST** name the app's server-side setup in its manifest without any value — environments, channels, variables, secrets, configuration values, gateway upstreams, identity provider, functions, schedules and hooks — and an import or a duplicate **MUST** list what of it the new app lacks as still to do. Every new app **MUST** start with a default plugin and entry screen, and offer the **generated Flutter project** for download (`GEN-001`): on the app's Native shell page once a release gives it signing keys, which the wizard's last step names. | DONE |
 | `STU-025` | P11 | MUST | Each app card and app settings **MUST** show the app's limits usage (release size, plugins, pages, assets, functions) against its configured limits (§30.4). | DONE |
 
 ### 21.4 App canvas — the plugin graph
@@ -3136,10 +3136,11 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.24.0 |
+| Version | 1.25.0 |
 | Status | Draft (living document) |
 | Date | 2026-11-25 |
-| Supersedes | 1.23.0 |
+| Supersedes | 1.24.0 |
+| 1.25.0 | 2026-11-25 | `STU-024`: an app export names the app's server-side setup in its manifest without any value, and an import or a duplicate lists what the new app lacks as still to do (maintainer decision of 2026-11-24, build log row 178; ADR-0102, Revision 2026-11-25). |
 | 1.24.0 | 2026-11-25 | `STU-034`: a plugin is exported as a `.plux` archive with the translation keys, messages and assets it uses, and imported from one into another app; a plugin archive is manifest version 2 (maintainer decision of 2026-11-24, build log row 264; ADR-0102, Revision 2026-11-25). |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 

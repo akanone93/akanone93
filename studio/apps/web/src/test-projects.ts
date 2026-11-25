@@ -41,6 +41,8 @@ export interface ProjectsData {
   samples?: { id: string; key: string; name: string; description: string; size: number }[];
   /** A request of this kind is refused with this message (and, for an import, the registered code in its text). */
   refuse?: { import?: string; sample?: string; generate?: string; shell?: string; importPlugin?: string };
+  /** The server-side setup an import reports as still to do (build log row 178). */
+  setupToDo?: { kind: string; environment: string; name: string; detail: string }[];
   /** A plugin import under one of these keys is refused as taken (PLX-8032), as the server refuses a used key. */
   takenPluginKeys?: string[];
   /** The statuses a project job reports one after the other; the last repeats. Default: `succeeded`. */
@@ -129,7 +131,12 @@ export function projectsHandlers(
       const key = req.key === "" ? "imported" : req.key;
       const app = { id: `app-${key}`, key, name: req.name === "" ? key : req.name };
       addApp(app);
-      return { app: { ...app, organizationId: req.organizationId }, documents: 8, errorDiagnostics: 0 };
+      return {
+        app: { ...app, organizationId: req.organizationId },
+        documents: 8,
+        errorDiagnostics: 0,
+        setupToDo: data.setupToDo ?? [],
+      };
     },
     exportPlugin: (req) => {
       data.calls.push(`exportPlugin:${req.pluginId}`);

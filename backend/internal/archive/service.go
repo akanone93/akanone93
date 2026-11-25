@@ -54,6 +54,10 @@ type Options struct {
 	Limits limits.Set
 	// Samples are the sample apps; nil uses those embedded in the binary.
 	Samples []Sample
+	// Setup reads an app's server-side setup by name for its archive's
+	// manifest and an import's list of what is still to do; nil leaves both
+	// out (build log row 178).
+	Setup SetupReader
 }
 
 // Service exports, imports and duplicates apps (STU-023, STU-024), exports
@@ -92,6 +96,9 @@ type Imported struct {
 	Documents int
 	// ErrorDiagnostics counts the validation errors the project still has.
 	ErrorDiagnostics int
+	// SetupToDo is the server-side setup the archive's manifest names and
+	// the new app lacks, in order: what is still to do by hand.
+	SetupToDo []SetupItem
 }
 
 // Export returns an app's drafts as an archive. It needs plugin.read on the
@@ -105,7 +112,13 @@ func (s *Service) Export(ctx context.Context, p auth.Principal, appID string) (E
 	if err != nil {
 		return Exported{}, fmt.Errorf("archive: %w", err)
 	}
-	data, err := Pack(AppInfo{Key: app.Key, Name: app.Name, Description: app.Description, Tags: app.Tags}, files)
+	var setup []SetupItem
+	if s.o.Setup != nil {
+		if setup, err = s.o.Setup.Setup(ctx, p, appID); err != nil {
+			return Exported{}, err //nolint:wrapcheck // the reader wraps its own failures
+		}
+	}
+	data, err := PackApp(AppInfo{Key: app.Key, Name: app.Name, Description: app.Description, Tags: app.Tags}, setup, files)
 	if err != nil {
 		return Exported{}, err
 	}
@@ -229,6 +242,9 @@ func (s *Service) importAs(ctx context.Context, p auth.Principal, data []byte, k
 	if m.Plugin != nil {
 		return Imported{}, plxerr.New(plxerr.InvalidProjectLayout, "the archive holds the plugin %q; import it into an app", m.Plugin.Key)
 	}
+	if err := checkSetup(m.Setup, LimitsOf(s.o.Limits).Entries); err != nil {
+		return Imported{}, err
+	}
 	if key == "" {
 		key = m.App.Key
 	}
@@ -258,7 +274,7 @@ func (s *Service) importAs(ctx context.Context, p auth.Principal, data []byte, k
 		return Imported{}, fmt.Errorf("archive: %w", err)
 	}
 	s.release(ctx, p, app.ID, session)
-	out = Imported{Documents: len(written.Documents), ErrorDiagnostics: countErrors(written.Diagnostics)}
+	out = Imported{Documents: len(written.Documents), ErrorDiagnostics: countErrors(written.Diagnostics), SetupToDo: s.toDo(ctx, p, app.ID, m.Setup)}
 	if out.App, err = s.o.Tenancy.GetApp(ctx, p, app.ID); err != nil {
 		return Imported{}, fmt.Errorf("archive: %w", err)
 	}
@@ -270,6 +286,22 @@ func (s *Service) importAs(ctx context.Context, p auth.Principal, data []byte, k
 		return Imported{}, err
 	}
 	return out, nil
+}
+
+// toDo is the setup an archive names that the new app lacks. When the new
+// app's setup cannot be read, all of it is listed: a list too long is
+// better than a piece of setup nobody is told about.
+func (s *Service) toDo(ctx context.Context, p auth.Principal, appID string, want []SetupItem) []SetupItem {
+	if len(want) == 0 {
+		return []SetupItem{}
+	}
+	var have []SetupItem
+	if s.o.Setup != nil {
+		if read, err := s.o.Setup.Setup(ctx, p, appID); err == nil {
+			have = read
+		}
+	}
+	return SetupToDo(want, have)
 }
 
 // release lets go of the locks the import took, so that the person who
