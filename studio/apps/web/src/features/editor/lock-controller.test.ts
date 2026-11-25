@@ -87,6 +87,7 @@ function stubServer(clock: { now: () => number }) {
       ? null
       : {
           holder: held.holder,
+          holderId: held.holder,
           session: held.session,
           acquiredAt: new Date(held.heartbeat),
           expiresAt: new Date(held.heartbeat + LOCK_TTL_MS),
@@ -184,7 +185,7 @@ function controller(
   clock: ReturnType<typeof fakeClock>,
   transport: LockTransport,
   session: string,
-  extra: { channel?: TabChannel; beforeRelease?: () => Promise<void> } = {},
+  extra: { channel?: TabChannel; beforeRelease?: () => Promise<void>; self?: () => string | undefined } = {},
 ) {
   return new LockController({
     transport,
@@ -289,6 +290,30 @@ describe("LockController (F1, [SRV-040]–[SRV-042], [STU-075])", () => {
     await clock.advance(LOCK_HEARTBEAT_MS);
     expect(ben.store.getState().status).toBe("lost");
     expect(ben.store.getState().lost).toBe("takeover");
+  });
+
+  test("a lock the same person left in another session is theirs to take back at once (#67)", async () => {
+    const clock = fakeClock();
+    const server = stubServer(clock);
+    // Ana's tab closed without releasing; her new tab finds her own lock, with time left on its lease.
+    const old = controller(clock, server.as("ana"), "closed-tab");
+    await old.ensure();
+    const fresh = controller(clock, server.as("ana"), "new-tab", { self: () => "ana" });
+    await fresh.refresh();
+    expect(fresh.store.getState().status).toBe("held-by-other");
+    expect(fresh.isMine()).toBe(true);
+    await fresh.takeBack();
+    expect(fresh.store.getState().status).toBe("held");
+    // The old session finds it gone at its next heartbeat.
+    await clock.advance(LOCK_HEARTBEAT_MS);
+    expect(old.store.getState().status).toBe("lost");
+    // Someone else's lock is not theirs, and an unknown user owns none.
+    const ben = controller(clock, server.as("ben"), "b-1", { self: () => "ben" });
+    await ben.refresh();
+    expect(ben.isMine()).toBe(false);
+    const anonymous = controller(clock, server.as("ana"), "t", { self: () => undefined });
+    await anonymous.refresh();
+    expect(anonymous.isMine()).toBe(false);
   });
 
   test("a lapsed lease allows takeover at once", () => {

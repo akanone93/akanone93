@@ -15,6 +15,8 @@ export const LOCK_LEASE_LAPSE_MS = 2 * LOCK_HEARTBEAT_MS;
 /** A plugin's lock as Studio shows it. */
 export interface LockInfo {
   readonly holder: string;
+  /** The holder's user identifier, when the holder is a person; this user's own lock in another session is theirs. */
+  readonly holderId?: string;
   readonly session: string;
   readonly acquiredAt?: Date | undefined;
   readonly expiresAt?: Date | undefined;
@@ -90,6 +92,8 @@ export interface LockControllerOptions {
   readonly now?: () => number;
   /** Flushes autosave before an idle release (F1.2). */
   readonly beforeRelease?: () => Promise<void>;
+  /** The signed-in user's identifier, once known: a lock they hold in another session is theirs to take back. */
+  readonly self?: () => string | undefined;
 }
 
 /** Rejects the saves of a tab that cannot hold the lock, or whose unsent changes were discarded. */
@@ -260,6 +264,28 @@ export class LockController {
       const lock = await this.options.transport.request();
       this.store.setState({ lock, requested: true });
     } catch {
+      await this.refresh();
+    }
+  }
+
+  /**
+   * Whether the lock is this user's own, held in another session — a tab closed without releasing it, another
+   * browser or device (build log #67). The server lets its holder take it back at once, without the override
+   * permission or the idle wait (L-1 is about another person); the other session then finds it lost.
+   */
+  isMine(): boolean {
+    const { status, lock } = this.store.getState();
+    const me = this.options.self?.();
+    return status === "held-by-other" && lock !== null && me !== undefined && me !== "" && lock.holderId === me;
+  }
+
+  /** Takes this user's own lock back from their other session ([isMine]). */
+  async takeBack(): Promise<void> {
+    try {
+      const { lock } = await this.options.transport.acquire(this.options.session, false);
+      this.becomeHeld(lock);
+    } catch {
+      this.store.setState({ takeoverRefused: true });
       await this.refresh();
     }
   }

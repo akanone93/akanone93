@@ -53,7 +53,7 @@ function lockOf(now: number, allowedIn: number): LockInfo {
   };
 }
 
-function controller(transport: LockTransport, now: number) {
+function controller(transport: LockTransport, now: number, self?: string) {
   return new LockController({
     transport,
     session: "tab-1",
@@ -62,10 +62,24 @@ function controller(transport: LockTransport, now: number) {
     scheduler: never,
     ticker: { every: () => () => undefined },
     now: () => now,
+    self: () => self,
   });
 }
 
 describe("[STU-075] lock banner, D36 and D37 (F1, L-1)", () => {
+  test("a lock the person left in another session offers Edit here at once, without the override (#67)", async () => {
+    const now = Date.now();
+    const calls: string[] = [];
+    const own = { ...lockOf(now, 600_000), holder: "Ana", holderId: "ana" };
+    const lock = controller(stub(own, calls), now, "ana");
+    await lock.refresh();
+    renderI18n(<LockBanner lock={lock} now={() => now} />);
+    expect(await screen.findByText(/You have been editing this plugin in another session/)).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Request edit" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Edit here" }));
+    await waitFor(() => expect(calls).toEqual(["acquire false"]));
+  });
+
   test("without plugin.lock.override only Request edit is offered", async () => {
     const now = Date.now();
     const lock = controller(stub(lockOf(now, -1), []), now);

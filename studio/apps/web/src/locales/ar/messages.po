@@ -6582,6 +6582,12 @@ msgstr "تحرير شاشة"
 msgid "security.editGrants"
 msgstr "تحرير المنح"
 
+#. Button: take one's own editing lock back from one's other session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.edit-here"
+msgstr "حرّر هنا"
+
 #. Button that opens the action graph editor for the page's lifecycle handlers.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -22011,6 +22017,12 @@ msgstr "ليس لديك صلاحية الوصول"
 #: apps/web/src/components/refusal.messages.ts
 msgid "refusal.permission.title"
 msgstr "ليس لديك وصول"
+
+#. Read-only banner: the signed-in person holds the lock themselves, in a session that is not this tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.banner.held-by-you"
+msgstr "أنت تحرّر هذه الإضافة في جلسة أخرى منذ {since}: علامة تبويب مغلقة أو متصفح آخر أو جهاز آخر. حرّرها هنا لاستعادتها؛ وتصبح الجلسة الأخرى للقراءة فقط."
 
 #. Title of the dialog shown when the session ended.
 #. js-lingui-explicit-id

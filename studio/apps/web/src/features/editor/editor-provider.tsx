@@ -133,6 +133,10 @@ function documentsKey(appId: string, pluginId: string) {
 export function EditorProvider(props: EditorProviderProps): ReactElement {
   const { appId, pluginId, documents } = props;
   const { session } = useApp();
+  // The signed-in user, so a lock left by their own other session is theirs to take back (build log #67).
+  const user = useCurrentUser();
+  const me = useRef<string | undefined>(undefined);
+  me.current = user.data?.user?.id;
   // The callbacks are read through a ref so the session, made once, always calls the latest ones.
   const latest = useRef(props);
   latest.current = props;
@@ -150,6 +154,7 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
         ticker: workerTicker(lockWorkerFactory()),
         channel: tabChannel(appId, pluginId, props.lockScope ?? ""),
         beforeRelease: () => flushed(edit),
+        self: () => me.current,
       }),
   );
   const [edit] = useState(() => {
@@ -251,7 +256,6 @@ export function EditorProvider(props: EditorProviderProps): ReactElement {
   const status = useStore(lock.store, (st) => st.status);
   const canEdit = (props.canEdit ?? true) && editableWhile(status);
   // D36 "Take over" is offered only to holders of plugin.lock.override; the server checks it too.
-  const user = useCurrentUser();
   const canOverride = user.data?.permissions.includes(LOCK_OVERRIDE) ?? false;
 
   const waiting = useStore(edit.store, (s) => Object.values(s.docs).reduce((n, d) => n + d.waiting, 0));

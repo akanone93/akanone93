@@ -15,6 +15,19 @@ export function lockMessages(i18n: I18n) {
         values: { holder, since: time(since) },
         comment: "Read-only banner: someone else holds the plugin's editing lock.",
       }),
+    heldByYou: (since: Date | undefined) =>
+      i18n._({
+        id: "lock.banner.held-by-you",
+        message:
+          "You have been editing this plugin in another session since {since}: a closed tab, another browser or another device. Edit here to take it back; the other session becomes read-only.",
+        values: { since: time(since) },
+        comment: "Read-only banner: the signed-in person holds the lock themselves, in a session that is not this tab.",
+      }),
+    editHere: i18n._({
+      id: "lock.edit-here",
+      message: "Edit here",
+      comment: "Button: take one's own editing lock back from one's other session.",
+    }),
     otherTab: i18n._({
       id: "lock.banner.other-tab",
       message: "You are editing this plugin in another tab.",

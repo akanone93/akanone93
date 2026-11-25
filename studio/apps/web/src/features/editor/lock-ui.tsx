@@ -73,6 +73,23 @@ export function LockBanner({
     return null;
   }
   const held = state.lock;
+  if (lock.isMine()) {
+    // This user's own lock, left by another session: theirs to take back at once (build log #67).
+    return (
+      <div
+        role="status"
+        className="flex flex-wrap items-center gap-2 border-b border-subtle bg-surface-raised px-4 py-2 text-body"
+      >
+        <span className="grow">{m.heldByYou(held.acquiredAt)}</span>
+        {state.takeoverRefused && <span className="text-muted-foreground">{m.takeoverRefused}</span>}
+        {canEdit && (
+          <Button variant="primary" onClick={() => void lock.takeBack()}>
+            {m.editHere}
+          </Button>
+        )}
+      </div>
+    );
+  }
   return (
     <div
       role="status"

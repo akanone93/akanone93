@@ -15,6 +15,7 @@ function date(t: Timestamp | undefined): Date | undefined {
 export function toLockInfo(l: Lock): LockInfo {
   return {
     holder: l.holder?.display || l.holder?.id || "",
+    holderId: l.holder?.kind === "user" ? l.holder.id : "",
     session: l.session,
     acquiredAt: date(l.acquiredAt),
     expiresAt: date(l.expiresAt),

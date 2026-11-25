@@ -6582,6 +6582,12 @@ msgstr "Bildschirm bearbeiten"
 msgid "security.editGrants"
 msgstr "Berechtigungen bearbeiten"
 
+#. Button: take one's own editing lock back from one's other session.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.edit-here"
+msgstr "Hier bearbeiten"
+
 #. Button that opens the action graph editor for the page's lifecycle handlers.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/page-settings.messages.ts
@@ -22011,6 +22017,12 @@ msgstr "Kein Zugriff"
 #: apps/web/src/components/refusal.messages.ts
 msgid "refusal.permission.title"
 msgstr "Du hast keinen Zugriff"
+
+#. Read-only banner: the signed-in person holds the lock themselves, in a session that is not this tab.
+#. js-lingui-explicit-id
+#: apps/web/src/features/editor/lock.messages.ts
+msgid "lock.banner.held-by-you"
+msgstr "Du bearbeitest dieses Plugin seit {since} in einer anderen Sitzung: einem geschlossenen Tab, einem anderen Browser oder einem anderen Gerät. Bearbeite es hier, um es zurückzuholen; die andere Sitzung wird schreibgeschützt."
 
 #. Title of the dialog shown when the session ended.
 #. js-lingui-explicit-id
