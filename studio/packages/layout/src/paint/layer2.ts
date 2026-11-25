@@ -40,8 +40,6 @@ const INPUTS: ReadonlySet<string> = new Set([
   "PhoneInput",
   "SecureTextField",
   "SearchField",
-  "CountryPicker",
-  "CurrencyPicker",
 ]);
 const STATES: ReadonlySet<string> = new Set(["EmptyState", "ErrorState"]);
 

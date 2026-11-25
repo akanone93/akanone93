@@ -38,6 +38,7 @@ import {
   roleColor,
   shapePaint,
 } from "./paint.ts";
+import { pickerPaint, securePinPadPaint } from "./secure-pickers.ts";
 import { segmentedPaint } from "./segmented.ts";
 import { stepperPaint } from "./stepper.ts";
 
@@ -258,6 +259,9 @@ function circleAvatar(props: Obj, r: Rect, theme: PaintTheme): Painted {
 
 const painters: ReadonlyMap<string, Painter> = new Map<string, Painter>([
   ["SegmentedButton", (props, r, theme) => segmentedPaint(props, r, theme) ?? {}],
+  ["SecurePinPad", securePinPadPaint],
+  ["CurrencyPicker", (props, r, theme) => pickerPaint(props, r, theme, "currency")],
+  ["CountryPicker", (props, r, theme) => pickerPaint(props, r, theme, "country")],
   ["Stepper", (props, r, theme) => stepperPaint(props, r, theme) ?? {}],
   ["Image", image],
   ["CircleAvatar", circleAvatar],
