@@ -61,24 +61,32 @@ Canvas, and you can drive both from the keyboard.
 3. Hover a plugin, or move keyboard focus to it, to see its detail panel: the description, a
    mini-map of its screens and the links among them, its screens and versions, its bundle size,
    how many links go out and in, the functions it uses, and who published it last and when. Select
-   a plugin to add its actions: **Open plugin**, **Plugin settings**, **Duplicate plugin**, **Make
-   entry plugin**, **Move to…**, **Archive plugin** (or **Restore plugin**) and **Delete plugin**.
+   a plugin to add its actions: **Open plugin**, **Plugin settings**, **Duplicate plugin**, **Export**,
+   **Make entry plugin**, **Move to…**, **Archive plugin** (or **Restore plugin**) and **Delete plugin**.
    Right-click a plugin for the same actions in its context menu. **Duplicate plugin** copies every
    document with new identifiers; route names are unique in the app, so each copied screen gets
    `<route>-copy` (then `-copy-2` and so on), and the copy's links open the copy's own screens.
-4. Choose **New plugin**, give it a name and a key, and save. The plugin starts with its manifest and
+   **Export** downloads the plugin as a `.plux` archive with the translation keys, messages and assets
+   it uses, and nothing else of the app.
+4. Choose **Import plugin** in the toolbar to add a plugin from such an archive. The server checks
+   every file first; the plugin's documents get new identifiers and free route names, its translation
+   keys and assets are added beside the app's (a key or a file the app already has is reused, and a
+   key whose name the app uses is renamed `<plugin>.<name>`), and the message says what was added and
+   how many problems the plugin has here — such as a component or type only its first app declares.
+   When the app already has a plugin with the archive's key, Studio asks for another name.
+5. Choose **New plugin**, give it a name and a key, and save. The plugin starts with its manifest and
    one blank screen, its entry, whose route is the plugin's key (or `<key>-home` when that is taken).
    Creating, duplicating, deleting and restoring a plugin keeps the app's `plugins` list in
    `app.json` up to date, so the app never reports a plugin folder that is not listed (PLX-1020).
-5. Drag a plugin — or a native target — to move it, or use **Move to…** with X and Y positions; a native target keeps
+6. Drag a plugin — or a native target — to move it, or use **Move to…** with X and Y positions; a native target keeps
    its place too. It goes exactly where you drop it; a plugin you drag stays on top of the ones it passes over.
    Drag on the background to select every plugin the rectangle meets. Frame a group with **Frame selection**, then rename or
    resize the frame from the **Plugins** panel. **Arrange** lays the plugins out by their links: from the entry
    plugin outwards in layers, a crowded layer folded into columns, a long flow wrapped into bands, and the plugins
    without links in a grid beside them, the whole about the shape of the window. Plugins without a saved place are
    laid out the same way.
-6. **Plugin settings** changes the description, tags and owning team.
-7. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.
+7. **Plugin settings** changes the description, tags and owning team.
+8. **Delete plugin** moves a plugin to the **Trash** for 30 days; restoring it brings its links back.
    Deleting or deprecating a plugin of an app with a production release asks you to type its key.
    If other plugins link into it, **Redirect incoming links** to a new target screen first.
 

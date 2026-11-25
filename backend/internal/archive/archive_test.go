@@ -82,6 +82,38 @@ func TestPackIsDeterministic_STU_023(t *testing.T) {
 	}
 }
 
+// TestPackPluginIsDeterministic_STU_023 proves a plugin archive names its
+// plugin, is written as version 2 so that a reader of version 1 refuses
+// it, and is as deterministic as an app archive (build log row 264).
+func TestPackPluginIsDeterministic_STU_023(t *testing.T) {
+	app, plugin := archive.AppInfo{Key: "shop", Name: "Shop"}, archive.PluginInfo{Key: "cart", Name: "Cart"}
+	a, err := archive.PackPlugin(app, plugin, files())
+	if err != nil {
+		t.Fatal(err)
+	}
+	reversed := files()
+	reversed[0], reversed[1] = reversed[1], reversed[0]
+	if b, err := archive.PackPlugin(app, plugin, reversed); err != nil || !bytes.Equal(a, b) {
+		t.Fatalf("the output depends on the order of the files: %v", err)
+	}
+	m, got, err := archive.Unpack(a, big)
+	if err != nil || m.Plugin == nil || *m.Plugin != plugin || m.Version != 2 || m.App.Key != "shop" || len(got) != 2 {
+		t.Fatalf("round trip: %+v %v %v", m, got, err)
+	}
+	if m, _, err := archive.Unpack(mustPack(t, app), big); err != nil || m.Plugin != nil || m.Version != 1 {
+		t.Fatalf("an app archive: %+v %v", m, err)
+	}
+}
+
+func mustPack(t *testing.T, app archive.AppInfo) []byte {
+	t.Helper()
+	data, err := archive.Pack(app, files())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return data
+}
+
 // TestUnpackRefusesUntrustedArchives_STU_024 walks the checks of ADR-0102.
 func TestUnpackRefusesUntrustedArchives_STU_024(t *testing.T) {
 	good := manifest(map[string]string{"app.json": "{}"})
@@ -102,7 +134,8 @@ func TestUnpackRefusesUntrustedArchives_STU_024(t *testing.T) {
 		{"too many entries", build(t, [2]string{archive.ManifestName, good}, [2]string{"project/app.json", "{}"}), archive.Limits{Bytes: 1 << 20, Entries: 1, ExpandedBytes: 1 << 20}, plxerr.LimitExceeded},
 		{"too many bytes", build(t, [2]string{archive.ManifestName, good}, [2]string{"project/app.json", "{}"}), archive.Limits{Bytes: 10, Entries: 10, ExpandedBytes: 1 << 20}, plxerr.LimitExceeded},
 		{"expands too far", build(t, [2]string{archive.ManifestName, good}, [2]string{"project/app.json", "{}"}), archive.Limits{Bytes: 1 << 20, Entries: 10, ExpandedBytes: 4}, plxerr.LimitExceeded},
-		{"newer version", build(t, [2]string{archive.ManifestName, `{"format":"plux-archive","version":2,"files":[]}`}), big, plxerr.InvalidFormat},
+		{"newer version", build(t, [2]string{archive.ManifestName, `{"format":"plux-archive","version":3,"files":[]}`}), big, plxerr.InvalidFormat},
+		{"plugin in version 1", build(t, [2]string{archive.ManifestName, `{"format":"plux-archive","version":1,"plugin":{"key":"a","name":"A"},"files":[]}`}), big, plxerr.InvalidFormat},
 		{"wrong format", build(t, [2]string{archive.ManifestName, `{"format":"zip","version":1,"files":[]}`}), big, plxerr.InvalidFormat},
 	}
 	for _, c := range cases {

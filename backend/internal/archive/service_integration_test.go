@@ -50,6 +50,7 @@ type fixture struct {
 	db       *storage.DB
 	tenancy  *tenancy.Service
 	archives *archive.Service
+	docs     *document.Service
 	shells   *shellupdate.Service
 	queue    *queue
 	objects  *objects.Filesystem
@@ -87,6 +88,7 @@ func newFixture(t *testing.T) *fixture {
 	if err != nil {
 		t.Fatal(err)
 	}
+	f.docs = docs
 	for kind, k := range docs.TrashKinds() {
 		f.tenancy.RegisterTrashKind(kind, k)
 	}
@@ -447,5 +449,76 @@ func TestAppUsageInSummariesAndLimits_STU_025(t *testing.T) {
 	}
 	if _, err := f.tenancy.ListAppLimits(ctx, f.other, imp.App.ID); code(err) != plxerr.ResourceNotFound {
 		t.Errorf("another organisation reads the limits: %v", err)
+	}
+}
+
+// TestPluginExportImport_STU_023 exports one plugin of an app and imports
+// it into another: the archive is deterministic, the plugin arrives under
+// its key with its translation keys, both steps are audited, and an app
+// archive and a plugin archive are each refused where the other belongs
+// (build log row 264).
+func TestPluginExportImport_STU_023(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	src, err := f.archives.ImportSample(ctx, f.owner, "loans", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	plugins, err := f.docs.ListPlugins(ctx, f.owner, src.App.ID, storage.Cursor{}, 10)
+	if err != nil || len(plugins) != 1 {
+		t.Fatalf("the sample's plugins: %+v %v", plugins, err)
+	}
+	exp, err := f.archives.ExportPlugin(ctx, f.owner, plugins[0].ID)
+	if err != nil || exp.Filename != "loans.plux" {
+		t.Fatalf("ExportPlugin: %+v %v", exp, err)
+	}
+	if again, err := f.archives.ExportPlugin(ctx, f.owner, plugins[0].ID); err != nil || !bytes.Equal(exp.Data, again.Data) {
+		t.Fatalf("an export of an unchanged plugin is not byte-identical: %v", err)
+	}
+	m, files, err := archive.Unpack(exp.Data, archive.LimitsOf(defaultLimits()))
+	if err != nil || m.Plugin == nil || m.Plugin.Key != "loans" || m.App.Key != "loans" {
+		t.Fatalf("the archive: %+v %v", m, err)
+	}
+	for _, file := range files {
+		if file.Path == "app.json" || file.Path == "theme.json" || strings.HasPrefix(file.Path, "templates/") {
+			t.Errorf("a plugin archive carries %s", file.Path)
+		}
+	}
+
+	target, err := f.tenancy.CreateApp(ctx, f.owner, "bank", "Bank")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.archives.ImportPlugin(ctx, f.viewer, target.ID, exp.Data, "", "", ""); code(err) != plxerr.PermissionDenied {
+		t.Errorf("a viewer imported a plugin: %v", err)
+	}
+	if _, err := f.archives.ImportPlugin(ctx, f.other, target.ID, exp.Data, "", "", ""); err == nil {
+		t.Error("another organisation imported a plugin into the app")
+	}
+	in, err := f.archives.ImportPlugin(ctx, f.owner, target.ID, exp.Data, "", "", "")
+	if err != nil || in.Plugin.Key != "loans" || in.Keys == 0 || in.Documents != 5 {
+		t.Fatalf("ImportPlugin: %+v %v", in, err)
+	}
+	// The target has none of the app-level documents the plugin needs, such
+	// as the app.json declaring its types, which the import counts.
+	if in.ErrorDiagnostics == 0 {
+		t.Error("the problems of the plugin in the target app are not counted")
+	}
+
+	appArchive, err := f.archives.Export(ctx, f.owner, src.App.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.archives.ImportPlugin(ctx, f.owner, target.ID, appArchive.Data, "", "", ""); code(err) != plxerr.InvalidProjectLayout {
+		t.Errorf("an app archive imported as a plugin: %v", err)
+	}
+	if _, err := f.archives.Import(ctx, f.owner, exp.Data, "plugin-as-app", ""); code(err) != plxerr.InvalidProjectLayout {
+		t.Errorf("a plugin archive imported as an app: %v", err)
+	}
+	got := actions(t, f, f.owner)
+	for _, want := range []audit.Action{audit.PluginExported, audit.PluginImported} {
+		if !slices.Contains(got, want) {
+			t.Errorf("no %s entry in the audit log", want)
+		}
 	}
 }

@@ -8,6 +8,7 @@ package plux.v1;
 import "google/protobuf/timestamp.proto";
 import "plux/v1/app.proto";
 import "plux/v1/common.proto";
+import "plux/v1/plugin.proto";
 
 option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
 
@@ -30,6 +31,14 @@ service AppProjectService {
   // DuplicateApp creates an app from an export of another. It needs
   // plugin.read on the source and app.manage; it is idempotent and audited.
   rpc DuplicateApp(DuplicateAppRequest) returns (DuplicateAppResponse) {}
+  // ExportPlugin returns one plugin as a deterministic .plux archive: its
+  // documents with the translation keys, messages and assets they use
+  // (ADR-0102). It needs plugin.read on the app and is audited.
+  rpc ExportPlugin(ExportPluginRequest) returns (ExportPluginResponse) {}
+  // ImportPlugin adds the plugin of a plugin .plux archive, an untrusted
+  // input, to an app. It needs app.manage on the app, is idempotent per
+  // Idempotency-Key and is audited.
+  rpc ImportPlugin(ImportPluginRequest) returns (ImportPluginResponse) {}
   // ListSampleApps lists the sample apps embedded in the server image.
   rpc ListSampleApps(ListSampleAppsRequest) returns (ListSampleAppsResponse) {}
   // ImportSampleApp imports a sample app as an ordinary import.
@@ -132,6 +141,40 @@ message DuplicateAppRequest {
 message DuplicateAppResponse {
   App app = 1;
   int32 documents = 2;
+}
+
+message ExportPluginRequest {
+  string plugin_id = 1;
+}
+message ExportPluginResponse {
+  string filename = 1;
+  bytes archive = 2;
+  string sha256 = 3;
+}
+
+message ImportPluginRequest {
+  string app_id = 1;
+  bytes archive = 2;
+  // key and name override the archive's; empty keeps them.
+  string key = 3;
+  string name = 4;
+  // session is the caller's editing session, which takes the locks the
+  // import needs and gives back those it did not hold; empty uses one of
+  // the import's own.
+  string session = 5;
+}
+message ImportPluginResponse {
+  Plugin plugin = 1;
+  // documents is the number of the plugin's documents written.
+  int32 documents = 2;
+  // translation_keys and assets count those added to the app; those it
+  // already had are used as they are.
+  int32 translation_keys = 3;
+  int32 assets = 4;
+  // error_diagnostics counts the validation errors of the plugin in the
+  // app: its own, such as a reference to a component the app does not
+  // declare, and those of the app-level documents it depends on.
+  int32 error_diagnostics = 5;
 }
 
 message SampleApp {

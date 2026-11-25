@@ -90,20 +90,29 @@ func (s *Service) prepare(d draft, lim limits.Set, path string, data []byte, ifR
 	c.searchText = searchText(place.Kind, src.Tree)
 	c.entityID, _ = src.Tree["id"].(string)
 	c.entityKey, _ = src.Tree["key"].(string)
-	name := c.entityKey
-	switch place.Kind {
-	case schema.KindTranslations:
-		name, _ = src.Tree["locale"].(string)
-	case schema.KindFunction:
-		name, _ = src.Tree["name"].(string)
-	}
-	if place.Key != "" && name != place.Key {
-		return change{}, diags, plxerr.New(plxerr.InvalidProjectLayout, "%s must be named after its key %q", path, name)
+	if err := namedAfterKey(path, place, src.Tree); err != nil {
+		return change{}, diags, err
 	}
 	if place.Kind == schema.KindPlugin && c.entityKey != d.plugin.Key {
 		return change{}, diags, plxerr.New(plxerr.InvalidProjectLayout, "plugin.json has key %q, but this is plugin %q", c.entityKey, d.plugin.Key)
 	}
 	return c, diags, nil
+}
+
+// namedAfterKey refuses a document whose file is not named after its key:
+// its key, a translations document's locale or a function's name.
+func namedAfterKey(path string, place schema.Place, tree map[string]any) error {
+	name, _ := tree["key"].(string)
+	switch place.Kind {
+	case schema.KindTranslations:
+		name, _ = tree["locale"].(string)
+	case schema.KindFunction:
+		name, _ = tree["name"].(string)
+	}
+	if place.Key != "" && name != place.Key {
+		return plxerr.New(plxerr.InvalidProjectLayout, "%s must be named after its key %q", path, name)
+	}
+	return nil
 }
 
 // refusal turns the first error of a document's diagnostics into the

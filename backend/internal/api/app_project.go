@@ -105,6 +105,40 @@ func (s AppProject) DuplicateApp(ctx context.Context, req *connect.Request[pluxv
 	})
 }
 
+// ExportPlugin returns one plugin as a .plux archive.
+func (s AppProject) ExportPlugin(ctx context.Context, req *connect.Request[pluxv1.ExportPluginRequest]) (*connect.Response[pluxv1.ExportPluginResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ExportPluginResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		x, err := s.h.Archives.ExportPlugin(ctx, p, req.Msg.GetPluginId())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.ExportPluginResponse{Filename: x.Filename, Archive: x.Data, Sha256: x.SHA256}, nil
+	})
+}
+
+// ImportPlugin adds the plugin of a .plux archive to an app.
+func (s AppProject) ImportPlugin(ctx context.Context, req *connect.Request[pluxv1.ImportPluginRequest]) (*connect.Response[pluxv1.ImportPluginResponse], error) {
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.ImportPluginResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		in, err := s.h.Archives.ImportPlugin(ctx, p, m.GetAppId(), m.GetArchive(), m.GetKey(), m.GetName(), m.GetSession())
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.ImportPluginResponse{
+			Plugin: pluginProto(in.Plugin), Documents: int32(in.Documents), TranslationKeys: int32(in.Keys), //nolint:gosec // bounded by archive.entries
+			Assets: int32(in.Assets), ErrorDiagnostics: int32(in.ErrorDiagnostics), //nolint:gosec // bounded by archive.entries
+		}, nil
+	})
+}
+
 // ListSampleApps lists the embedded sample apps.
 func (s AppProject) ListSampleApps(ctx context.Context, req *connect.Request[pluxv1.ListSampleAppsRequest]) (*connect.Response[pluxv1.ListSampleAppsResponse], error) {
 	return read(ctx, func(ctx context.Context) (*pluxv1.ListSampleAppsResponse, error) {

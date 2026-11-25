@@ -13,13 +13,15 @@ import type { App } from "./app_pb.ts";
 import { file_plux_v1_app } from "./app_pb.ts";
 import type { Actor } from "./common_pb.ts";
 import { file_plux_v1_common } from "./common_pb.ts";
+import type { Plugin } from "./plugin_pb.ts";
+import { file_plux_v1_plugin } from "./plugin_pb.ts";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file plux/v1/app_project.proto.
  */
 export const file_plux_v1_app_project: GenFile = /*@__PURE__*/
-  fileDesc("ChlwbHV4L3YxL2FwcF9wcm9qZWN0LnByb3RvEgdwbHV4LnYxInYKEkVudmlyb25tZW50UmVsZWFzZRIXCg9lbnZpcm9ubWVudF9rZXkYASABKAkSFQoNbGl2ZV9zZXF1ZW5jZRgCIAEoAxIwCgxwdWJsaXNoZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIjkKDUFwcExpbWl0VXNhZ2USCwoDa2V5GAEgASgJEgwKBHVzZWQYAiABKAMSDQoFbGltaXQYAyABKAMivgIKCkFwcFN1bW1hcnkSGQoDYXBwGAEgASgLMgwucGx1eC52MS5BcHASLQoIcmVsZWFzZXMYAiADKAsyGy5wbHV4LnYxLkVudmlyb25tZW50UmVsZWFzZRI1ChFsYXN0X3B1Ymxpc2hlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFgoOYWN0aXZlX2RldmljZXMYBCABKAMSFAoMcGx1Z2luX2NvdW50GAUgASgDEhcKD2NyYXNoX2ZyZWVfcmF0ZRgGIAEoARIYChBjcmFzaF9mcmVlX3RyZW5kGAcgASgBEiYKBmxpbWl0cxgIIAMoCzIWLnBsdXgudjEuQXBwTGltaXRVc2FnZRImCg5sYXN0X3B1Ymxpc2hlchgJIAEoCzIOLnBsdXgudjEuQWN0b3IiVAoXTGlzdEFwcFN1bW1hcmllc1JlcXVlc3QSFwoPb3JnYW5pemF0aW9uX2lkGAEgASgJEg0KBWxpbWl0GAIgASgFEhEKCWFmdGVyX2tleRgDIAEoCSJaChhMaXN0QXBwU3VtbWFyaWVzUmVzcG9uc2USJgoJc3VtbWFyaWVzGAEgAygLMhMucGx1eC52MS5BcHBTdW1tYXJ5EhYKDm5leHRfYWZ0ZXJfa2V5GAIgASgJIiIKEEV4cG9ydEFwcFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJIkYKEUV4cG9ydEFwcFJlc3BvbnNlEhAKCGZpbGVuYW1lGAEgASgJEg8KB2FyY2hpdmUYAiABKAwSDgoGc2hhMjU2GAMgASgJIlcKEEltcG9ydEFwcFJlcXVlc3QSFwoPb3JnYW5pemF0aW9uX2lkGAEgASgJEg8KB2FyY2hpdmUYAiABKAwSCwoDa2V5GAMgASgJEgwKBG5hbWUYBCABKAkiXAoRSW1wb3J0QXBwUmVzcG9uc2USGQoDYXBwGAEgASgLMgwucGx1eC52MS5BcHASEQoJZG9jdW1lbnRzGAIgASgFEhkKEWVycm9yX2RpYWdub3N0aWNzGAMgASgFIkAKE0R1cGxpY2F0ZUFwcFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEgsKA2tleRgCIAEoCRIMCgRuYW1lGAMgASgJIkQKFER1cGxpY2F0ZUFwcFJlc3BvbnNlEhkKA2FwcBgBIAEoCzIMLnBsdXgudjEuQXBwEhEKCWRvY3VtZW50cxgCIAEoBSJlCglTYW1wbGVBcHASCgoCaWQYASABKAkSCwoDa2V5GAIgASgJEgwKBG5hbWUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDAoEc2l6ZRgFIAEoAxIOCgZzaGEyNTYYBiABKAkiFwoVTGlzdFNhbXBsZUFwcHNSZXF1ZXN0Ij0KFkxpc3RTYW1wbGVBcHBzUmVzcG9uc2USIwoHc2FtcGxlcxgBIAMoCzISLnBsdXgudjEuU2FtcGxlQXBwIl8KFkltcG9ydFNhbXBsZUFwcFJlcXVlc3QSFwoPb3JnYW5pemF0aW9uX2lkGAEgASgJEhEKCXNhbXBsZV9pZBgCIAEoCRILCgNrZXkYAyABKAkSDAoEbmFtZRgEIAEoCSJHChdJbXBvcnRTYW1wbGVBcHBSZXNwb25zZRIZCgNhcHAYASABKAsyDC5wbHV4LnYxLkFwcBIRCglkb2N1bWVudHMYAiABKAUiqQIKDVNoZWxsU2V0dGluZ3MSDAoEbmFtZRgBIAEoCRIPCgdwYWNrYWdlGAIgASgJEhYKDmFwcGxpY2F0aW9uX2lkGAMgASgJEhEKCWJ1bmRsZV9pZBgEIAEoCRITCgthcHBfdmVyc2lvbhgFIAEoCRIUCgxzcGxhc2hfY29sb3IYBiABKAkSDgoGcm91dGVyGAcgASgJEhMKC2RldmljZV9hcGlzGAggAygJEgwKBHB1c2gYCSABKAgSFwoPZGVlcF9saW5rX2hvc3RzGAogAygJEhkKEWRlZXBfbGlua19zY2hlbWVzGAsgAygJEhAKCHBhY2thZ2VzGAwgAygJEhMKC2VudHJ5X3JvdXRlGA0gASgJEhUKDWljb25fYXNzZXRfaWQYDiABKAkiUgoLU2hlbGxDaGFuZ2USDQoFZmllbGQYASABKAkSEQoJb2xkX3ZhbHVlGAIgASgJEhEKCW5ld192YWx1ZRgDIAEoCRIOCgZyZWFzb24YBCABKAkiJwoVR2V0U2hlbGxTdGF0dXNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCSLeAQoWR2V0U2hlbGxTdGF0dXNSZXNwb25zZRInCgdjdXJyZW50GAEgASgLMhYucGx1eC52MS5TaGVsbFNldHRpbmdzEikKCWdlbmVyYXRlZBgCIAEoCzIWLnBsdXgudjEuU2hlbGxTZXR0aW5ncxIwCgxnZW5lcmF0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD3VwZGF0ZV9yZXF1aXJlZBgEIAEoCBIlCgdjaGFuZ2VzGAUgAygLMhQucGx1eC52MS5TaGVsbENoYW5nZSJTChdTZXRTaGVsbFNldHRpbmdzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSKAoIc2V0dGluZ3MYAiABKAsyFi5wbHV4LnYxLlNoZWxsU2V0dGluZ3MiRAoYU2V0U2hlbGxTZXR0aW5nc1Jlc3BvbnNlEigKCHNldHRpbmdzGAEgASgLMhYucGx1eC52MS5TaGVsbFNldHRpbmdzIqACCgpQcm9qZWN0Sm9iEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIXCg9lbnZpcm9ubWVudF9rZXkYAyABKAkSEwoLY2hhbm5lbF9rZXkYBCABKAkSDgoGZm9ybWF0GAUgASgJEg4KBnN0YXR1cxgGIAEoCRISCgplcnJvcl9jb2RlGAcgASgJEhUKDWVycm9yX21lc3NhZ2UYCCABKAkSDAoEc2l6ZRgJIAEoAxIOCgZzaGEyNTYYCiABKAkSLgoKY3JlYXRlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wImYKFkdlbmVyYXRlUHJvamVjdFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhcKD2Vudmlyb25tZW50X2tleRgCIAEoCRITCgtjaGFubmVsX2tleRgDIAEoCRIOCgZmb3JtYXQYBCABKAkiOwoXR2VuZXJhdGVQcm9qZWN0UmVzcG9uc2USIAoDam9iGAEgASgLMhMucGx1eC52MS5Qcm9qZWN0Sm9iIjYKFEdldFByb2plY3RKb2JSZXF1ZXN0Eg4KBmpvYl9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkiOQoVR2V0UHJvamVjdEpvYlJlc3BvbnNlEiAKA2pvYhgBIAEoCzITLnBsdXgudjEuUHJvamVjdEpvYiI4ChZEb3dubG9hZFByb2plY3RSZXF1ZXN0Eg4KBmpvYl9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkiTAoXRG93bmxvYWRQcm9qZWN0UmVzcG9uc2USEAoIZmlsZW5hbWUYASABKAkSDwoHYXJjaGl2ZRgCIAEoDBIOCgZzaGEyNTYYAyABKAkykgcKEUFwcFByb2plY3RTZXJ2aWNlElcKEExpc3RBcHBTdW1tYXJpZXMSIC5wbHV4LnYxLkxpc3RBcHBTdW1tYXJpZXNSZXF1ZXN0GiEucGx1eC52MS5MaXN0QXBwU3VtbWFyaWVzUmVzcG9uc2USQgoJRXhwb3J0QXBwEhkucGx1eC52MS5FeHBvcnRBcHBSZXF1ZXN0GhoucGx1eC52MS5FeHBvcnRBcHBSZXNwb25zZRJCCglJbXBvcnRBcHASGS5wbHV4LnYxLkltcG9ydEFwcFJlcXVlc3QaGi5wbHV4LnYxLkltcG9ydEFwcFJlc3BvbnNlEksKDER1cGxpY2F0ZUFwcBIcLnBsdXgudjEuRHVwbGljYXRlQXBwUmVxdWVzdBodLnBsdXgudjEuRHVwbGljYXRlQXBwUmVzcG9uc2USUQoOTGlzdFNhbXBsZUFwcHMSHi5wbHV4LnYxLkxpc3RTYW1wbGVBcHBzUmVxdWVzdBofLnBsdXgudjEuTGlzdFNhbXBsZUFwcHNSZXNwb25zZRJUCg9JbXBvcnRTYW1wbGVBcHASHy5wbHV4LnYxLkltcG9ydFNhbXBsZUFwcFJlcXVlc3QaIC5wbHV4LnYxLkltcG9ydFNhbXBsZUFwcFJlc3BvbnNlElEKDkdldFNoZWxsU3RhdHVzEh4ucGx1eC52MS5HZXRTaGVsbFN0YXR1c1JlcXVlc3QaHy5wbHV4LnYxLkdldFNoZWxsU3RhdHVzUmVzcG9uc2USVwoQU2V0U2hlbGxTZXR0aW5ncxIgLnBsdXgudjEuU2V0U2hlbGxTZXR0aW5nc1JlcXVlc3QaIS5wbHV4LnYxLlNldFNoZWxsU2V0dGluZ3NSZXNwb25zZRJUCg9HZW5lcmF0ZVByb2plY3QSHy5wbHV4LnYxLkdlbmVyYXRlUHJvamVjdFJlcXVlc3QaIC5wbHV4LnYxLkdlbmVyYXRlUHJvamVjdFJlc3BvbnNlEk4KDUdldFByb2plY3RKb2ISHS5wbHV4LnYxLkdldFByb2plY3RKb2JSZXF1ZXN0Gh4ucGx1eC52MS5HZXRQcm9qZWN0Sm9iUmVzcG9uc2USVAoPRG93bmxvYWRQcm9qZWN0Eh8ucGx1eC52MS5Eb3dubG9hZFByb2plY3RSZXF1ZXN0GiAucGx1eC52MS5Eb3dubG9hZFByb2plY3RSZXNwb25zZUI9WjtnaXRodWIuY29tL25pZ2h0Q29kZTQyL3BsdXgzL2JhY2tlbmQvaW50ZXJuYWwvcGx1eHYxO3BsdXh2MWIGcHJvdG8z", [file_google_protobuf_timestamp, file_plux_v1_app, file_plux_v1_common]);
+  fileDesc("ChlwbHV4L3YxL2FwcF9wcm9qZWN0LnByb3RvEgdwbHV4LnYxInYKEkVudmlyb25tZW50UmVsZWFzZRIXCg9lbnZpcm9ubWVudF9rZXkYASABKAkSFQoNbGl2ZV9zZXF1ZW5jZRgCIAEoAxIwCgxwdWJsaXNoZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIjkKDUFwcExpbWl0VXNhZ2USCwoDa2V5GAEgASgJEgwKBHVzZWQYAiABKAMSDQoFbGltaXQYAyABKAMivgIKCkFwcFN1bW1hcnkSGQoDYXBwGAEgASgLMgwucGx1eC52MS5BcHASLQoIcmVsZWFzZXMYAiADKAsyGy5wbHV4LnYxLkVudmlyb25tZW50UmVsZWFzZRI1ChFsYXN0X3B1Ymxpc2hlZF9hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFgoOYWN0aXZlX2RldmljZXMYBCABKAMSFAoMcGx1Z2luX2NvdW50GAUgASgDEhcKD2NyYXNoX2ZyZWVfcmF0ZRgGIAEoARIYChBjcmFzaF9mcmVlX3RyZW5kGAcgASgBEiYKBmxpbWl0cxgIIAMoCzIWLnBsdXgudjEuQXBwTGltaXRVc2FnZRImCg5sYXN0X3B1Ymxpc2hlchgJIAEoCzIOLnBsdXgudjEuQWN0b3IiVAoXTGlzdEFwcFN1bW1hcmllc1JlcXVlc3QSFwoPb3JnYW5pemF0aW9uX2lkGAEgASgJEg0KBWxpbWl0GAIgASgFEhEKCWFmdGVyX2tleRgDIAEoCSJaChhMaXN0QXBwU3VtbWFyaWVzUmVzcG9uc2USJgoJc3VtbWFyaWVzGAEgAygLMhMucGx1eC52MS5BcHBTdW1tYXJ5EhYKDm5leHRfYWZ0ZXJfa2V5GAIgASgJIiIKEEV4cG9ydEFwcFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJIkYKEUV4cG9ydEFwcFJlc3BvbnNlEhAKCGZpbGVuYW1lGAEgASgJEg8KB2FyY2hpdmUYAiABKAwSDgoGc2hhMjU2GAMgASgJIlcKEEltcG9ydEFwcFJlcXVlc3QSFwoPb3JnYW5pemF0aW9uX2lkGAEgASgJEg8KB2FyY2hpdmUYAiABKAwSCwoDa2V5GAMgASgJEgwKBG5hbWUYBCABKAkiXAoRSW1wb3J0QXBwUmVzcG9uc2USGQoDYXBwGAEgASgLMgwucGx1eC52MS5BcHASEQoJZG9jdW1lbnRzGAIgASgFEhkKEWVycm9yX2RpYWdub3N0aWNzGAMgASgFIkAKE0R1cGxpY2F0ZUFwcFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEgsKA2tleRgCIAEoCRIMCgRuYW1lGAMgASgJIkQKFER1cGxpY2F0ZUFwcFJlc3BvbnNlEhkKA2FwcBgBIAEoCzIMLnBsdXgudjEuQXBwEhEKCWRvY3VtZW50cxgCIAEoBSIoChNFeHBvcnRQbHVnaW5SZXF1ZXN0EhEKCXBsdWdpbl9pZBgBIAEoCSJJChRFeHBvcnRQbHVnaW5SZXNwb25zZRIQCghmaWxlbmFtZRgBIAEoCRIPCgdhcmNoaXZlGAIgASgMEg4KBnNoYTI1NhgDIAEoCSJiChNJbXBvcnRQbHVnaW5SZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCRIPCgdhcmNoaXZlGAIgASgMEgsKA2tleRgDIAEoCRIMCgRuYW1lGAQgASgJEg8KB3Nlc3Npb24YBSABKAkijwEKFEltcG9ydFBsdWdpblJlc3BvbnNlEh8KBnBsdWdpbhgBIAEoCzIPLnBsdXgudjEuUGx1Z2luEhEKCWRvY3VtZW50cxgCIAEoBRIYChB0cmFuc2xhdGlvbl9rZXlzGAMgASgFEg4KBmFzc2V0cxgEIAEoBRIZChFlcnJvcl9kaWFnbm9zdGljcxgFIAEoBSJlCglTYW1wbGVBcHASCgoCaWQYASABKAkSCwoDa2V5GAIgASgJEgwKBG5hbWUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDAoEc2l6ZRgFIAEoAxIOCgZzaGEyNTYYBiABKAkiFwoVTGlzdFNhbXBsZUFwcHNSZXF1ZXN0Ij0KFkxpc3RTYW1wbGVBcHBzUmVzcG9uc2USIwoHc2FtcGxlcxgBIAMoCzISLnBsdXgudjEuU2FtcGxlQXBwIl8KFkltcG9ydFNhbXBsZUFwcFJlcXVlc3QSFwoPb3JnYW5pemF0aW9uX2lkGAEgASgJEhEKCXNhbXBsZV9pZBgCIAEoCRILCgNrZXkYAyABKAkSDAoEbmFtZRgEIAEoCSJHChdJbXBvcnRTYW1wbGVBcHBSZXNwb25zZRIZCgNhcHAYASABKAsyDC5wbHV4LnYxLkFwcBIRCglkb2N1bWVudHMYAiABKAUiqQIKDVNoZWxsU2V0dGluZ3MSDAoEbmFtZRgBIAEoCRIPCgdwYWNrYWdlGAIgASgJEhYKDmFwcGxpY2F0aW9uX2lkGAMgASgJEhEKCWJ1bmRsZV9pZBgEIAEoCRITCgthcHBfdmVyc2lvbhgFIAEoCRIUCgxzcGxhc2hfY29sb3IYBiABKAkSDgoGcm91dGVyGAcgASgJEhMKC2RldmljZV9hcGlzGAggAygJEgwKBHB1c2gYCSABKAgSFwoPZGVlcF9saW5rX2hvc3RzGAogAygJEhkKEWRlZXBfbGlua19zY2hlbWVzGAsgAygJEhAKCHBhY2thZ2VzGAwgAygJEhMKC2VudHJ5X3JvdXRlGA0gASgJEhUKDWljb25fYXNzZXRfaWQYDiABKAkiUgoLU2hlbGxDaGFuZ2USDQoFZmllbGQYASABKAkSEQoJb2xkX3ZhbHVlGAIgASgJEhEKCW5ld192YWx1ZRgDIAEoCRIOCgZyZWFzb24YBCABKAkiJwoVR2V0U2hlbGxTdGF0dXNSZXF1ZXN0Eg4KBmFwcF9pZBgBIAEoCSLeAQoWR2V0U2hlbGxTdGF0dXNSZXNwb25zZRInCgdjdXJyZW50GAEgASgLMhYucGx1eC52MS5TaGVsbFNldHRpbmdzEikKCWdlbmVyYXRlZBgCIAEoCzIWLnBsdXgudjEuU2hlbGxTZXR0aW5ncxIwCgxnZW5lcmF0ZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD3VwZGF0ZV9yZXF1aXJlZBgEIAEoCBIlCgdjaGFuZ2VzGAUgAygLMhQucGx1eC52MS5TaGVsbENoYW5nZSJTChdTZXRTaGVsbFNldHRpbmdzUmVxdWVzdBIOCgZhcHBfaWQYASABKAkSKAoIc2V0dGluZ3MYAiABKAsyFi5wbHV4LnYxLlNoZWxsU2V0dGluZ3MiRAoYU2V0U2hlbGxTZXR0aW5nc1Jlc3BvbnNlEigKCHNldHRpbmdzGAEgASgLMhYucGx1eC52MS5TaGVsbFNldHRpbmdzIqACCgpQcm9qZWN0Sm9iEgoKAmlkGAEgASgJEg4KBmFwcF9pZBgCIAEoCRIXCg9lbnZpcm9ubWVudF9rZXkYAyABKAkSEwoLY2hhbm5lbF9rZXkYBCABKAkSDgoGZm9ybWF0GAUgASgJEg4KBnN0YXR1cxgGIAEoCRISCgplcnJvcl9jb2RlGAcgASgJEhUKDWVycm9yX21lc3NhZ2UYCCABKAkSDAoEc2l6ZRgJIAEoAxIOCgZzaGEyNTYYCiABKAkSLgoKY3JlYXRlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLZmluaXNoZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wImYKFkdlbmVyYXRlUHJvamVjdFJlcXVlc3QSDgoGYXBwX2lkGAEgASgJEhcKD2Vudmlyb25tZW50X2tleRgCIAEoCRITCgtjaGFubmVsX2tleRgDIAEoCRIOCgZmb3JtYXQYBCABKAkiOwoXR2VuZXJhdGVQcm9qZWN0UmVzcG9uc2USIAoDam9iGAEgASgLMhMucGx1eC52MS5Qcm9qZWN0Sm9iIjYKFEdldFByb2plY3RKb2JSZXF1ZXN0Eg4KBmpvYl9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkiOQoVR2V0UHJvamVjdEpvYlJlc3BvbnNlEiAKA2pvYhgBIAEoCzITLnBsdXgudjEuUHJvamVjdEpvYiI4ChZEb3dubG9hZFByb2plY3RSZXF1ZXN0Eg4KBmpvYl9pZBgBIAEoCRIOCgZhcHBfaWQYAiABKAkiTAoXRG93bmxvYWRQcm9qZWN0UmVzcG9uc2USEAoIZmlsZW5hbWUYASABKAkSDwoHYXJjaGl2ZRgCIAEoDBIOCgZzaGEyNTYYAyABKAkyrAgKEUFwcFByb2plY3RTZXJ2aWNlElcKEExpc3RBcHBTdW1tYXJpZXMSIC5wbHV4LnYxLkxpc3RBcHBTdW1tYXJpZXNSZXF1ZXN0GiEucGx1eC52MS5MaXN0QXBwU3VtbWFyaWVzUmVzcG9uc2USQgoJRXhwb3J0QXBwEhkucGx1eC52MS5FeHBvcnRBcHBSZXF1ZXN0GhoucGx1eC52MS5FeHBvcnRBcHBSZXNwb25zZRJCCglJbXBvcnRBcHASGS5wbHV4LnYxLkltcG9ydEFwcFJlcXVlc3QaGi5wbHV4LnYxLkltcG9ydEFwcFJlc3BvbnNlEksKDER1cGxpY2F0ZUFwcBIcLnBsdXgudjEuRHVwbGljYXRlQXBwUmVxdWVzdBodLnBsdXgudjEuRHVwbGljYXRlQXBwUmVzcG9uc2USSwoMRXhwb3J0UGx1Z2luEhwucGx1eC52MS5FeHBvcnRQbHVnaW5SZXF1ZXN0Gh0ucGx1eC52MS5FeHBvcnRQbHVnaW5SZXNwb25zZRJLCgxJbXBvcnRQbHVnaW4SHC5wbHV4LnYxLkltcG9ydFBsdWdpblJlcXVlc3QaHS5wbHV4LnYxLkltcG9ydFBsdWdpblJlc3BvbnNlElEKDkxpc3RTYW1wbGVBcHBzEh4ucGx1eC52MS5MaXN0U2FtcGxlQXBwc1JlcXVlc3QaHy5wbHV4LnYxLkxpc3RTYW1wbGVBcHBzUmVzcG9uc2USVAoPSW1wb3J0U2FtcGxlQXBwEh8ucGx1eC52MS5JbXBvcnRTYW1wbGVBcHBSZXF1ZXN0GiAucGx1eC52MS5JbXBvcnRTYW1wbGVBcHBSZXNwb25zZRJRCg5HZXRTaGVsbFN0YXR1cxIeLnBsdXgudjEuR2V0U2hlbGxTdGF0dXNSZXF1ZXN0Gh8ucGx1eC52MS5HZXRTaGVsbFN0YXR1c1Jlc3BvbnNlElcKEFNldFNoZWxsU2V0dGluZ3MSIC5wbHV4LnYxLlNldFNoZWxsU2V0dGluZ3NSZXF1ZXN0GiEucGx1eC52MS5TZXRTaGVsbFNldHRpbmdzUmVzcG9uc2USVAoPR2VuZXJhdGVQcm9qZWN0Eh8ucGx1eC52MS5HZW5lcmF0ZVByb2plY3RSZXF1ZXN0GiAucGx1eC52MS5HZW5lcmF0ZVByb2plY3RSZXNwb25zZRJOCg1HZXRQcm9qZWN0Sm9iEh0ucGx1eC52MS5HZXRQcm9qZWN0Sm9iUmVxdWVzdBoeLnBsdXgudjEuR2V0UHJvamVjdEpvYlJlc3BvbnNlElQKD0Rvd25sb2FkUHJvamVjdBIfLnBsdXgudjEuRG93bmxvYWRQcm9qZWN0UmVxdWVzdBogLnBsdXgudjEuRG93bmxvYWRQcm9qZWN0UmVzcG9uc2VCPVo7Z2l0aHViLmNvbS9uaWdodENvZGU0Mi9wbHV4My9iYWNrZW5kL2ludGVybmFsL3BsdXh2MTtwbHV4djFiBnByb3RvMw", [file_google_protobuf_timestamp, file_plux_v1_app, file_plux_v1_common, file_plux_v1_plugin]);
 
 /**
  * @generated from message plux.v1.EnvironmentRelease
@@ -365,6 +367,139 @@ export const DuplicateAppResponseSchema: GenMessage<DuplicateAppResponse> = /*@_
   messageDesc(file_plux_v1_app_project, 10);
 
 /**
+ * @generated from message plux.v1.ExportPluginRequest
+ */
+export type ExportPluginRequest = Message<"plux.v1.ExportPluginRequest"> & {
+  /**
+   * @generated from field: string plugin_id = 1;
+   */
+  pluginId: string;
+};
+
+/**
+ * Describes the message plux.v1.ExportPluginRequest.
+ * Use `create(ExportPluginRequestSchema)` to create a new message.
+ */
+export const ExportPluginRequestSchema: GenMessage<ExportPluginRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_app_project, 11);
+
+/**
+ * @generated from message plux.v1.ExportPluginResponse
+ */
+export type ExportPluginResponse = Message<"plux.v1.ExportPluginResponse"> & {
+  /**
+   * @generated from field: string filename = 1;
+   */
+  filename: string;
+
+  /**
+   * @generated from field: bytes archive = 2;
+   */
+  archive: Uint8Array;
+
+  /**
+   * @generated from field: string sha256 = 3;
+   */
+  sha256: string;
+};
+
+/**
+ * Describes the message plux.v1.ExportPluginResponse.
+ * Use `create(ExportPluginResponseSchema)` to create a new message.
+ */
+export const ExportPluginResponseSchema: GenMessage<ExportPluginResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_app_project, 12);
+
+/**
+ * @generated from message plux.v1.ImportPluginRequest
+ */
+export type ImportPluginRequest = Message<"plux.v1.ImportPluginRequest"> & {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId: string;
+
+  /**
+   * @generated from field: bytes archive = 2;
+   */
+  archive: Uint8Array;
+
+  /**
+   * key and name override the archive's; empty keeps them.
+   *
+   * @generated from field: string key = 3;
+   */
+  key: string;
+
+  /**
+   * @generated from field: string name = 4;
+   */
+  name: string;
+
+  /**
+   * session is the caller's editing session, which takes the locks the
+   * import needs and gives back those it did not hold; empty uses one of
+   * the import's own.
+   *
+   * @generated from field: string session = 5;
+   */
+  session: string;
+};
+
+/**
+ * Describes the message plux.v1.ImportPluginRequest.
+ * Use `create(ImportPluginRequestSchema)` to create a new message.
+ */
+export const ImportPluginRequestSchema: GenMessage<ImportPluginRequest> = /*@__PURE__*/
+  messageDesc(file_plux_v1_app_project, 13);
+
+/**
+ * @generated from message plux.v1.ImportPluginResponse
+ */
+export type ImportPluginResponse = Message<"plux.v1.ImportPluginResponse"> & {
+  /**
+   * @generated from field: plux.v1.Plugin plugin = 1;
+   */
+  plugin?: Plugin | undefined;
+
+  /**
+   * documents is the number of the plugin's documents written.
+   *
+   * @generated from field: int32 documents = 2;
+   */
+  documents: number;
+
+  /**
+   * translation_keys and assets count those added to the app; those it
+   * already had are used as they are.
+   *
+   * @generated from field: int32 translation_keys = 3;
+   */
+  translationKeys: number;
+
+  /**
+   * @generated from field: int32 assets = 4;
+   */
+  assets: number;
+
+  /**
+   * error_diagnostics counts the validation errors of the plugin in the
+   * app: its own, such as a reference to a component the app does not
+   * declare, and those of the app-level documents it depends on.
+   *
+   * @generated from field: int32 error_diagnostics = 5;
+   */
+  errorDiagnostics: number;
+};
+
+/**
+ * Describes the message plux.v1.ImportPluginResponse.
+ * Use `create(ImportPluginResponseSchema)` to create a new message.
+ */
+export const ImportPluginResponseSchema: GenMessage<ImportPluginResponse> = /*@__PURE__*/
+  messageDesc(file_plux_v1_app_project, 14);
+
+/**
  * @generated from message plux.v1.SampleApp
  */
 export type SampleApp = Message<"plux.v1.SampleApp"> & {
@@ -404,7 +539,7 @@ export type SampleApp = Message<"plux.v1.SampleApp"> & {
  * Use `create(SampleAppSchema)` to create a new message.
  */
 export const SampleAppSchema: GenMessage<SampleApp> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 11);
+  messageDesc(file_plux_v1_app_project, 15);
 
 /**
  * @generated from message plux.v1.ListSampleAppsRequest
@@ -417,7 +552,7 @@ export type ListSampleAppsRequest = Message<"plux.v1.ListSampleAppsRequest"> & {
  * Use `create(ListSampleAppsRequestSchema)` to create a new message.
  */
 export const ListSampleAppsRequestSchema: GenMessage<ListSampleAppsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 12);
+  messageDesc(file_plux_v1_app_project, 16);
 
 /**
  * @generated from message plux.v1.ListSampleAppsResponse
@@ -434,7 +569,7 @@ export type ListSampleAppsResponse = Message<"plux.v1.ListSampleAppsResponse"> &
  * Use `create(ListSampleAppsResponseSchema)` to create a new message.
  */
 export const ListSampleAppsResponseSchema: GenMessage<ListSampleAppsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 13);
+  messageDesc(file_plux_v1_app_project, 17);
 
 /**
  * @generated from message plux.v1.ImportSampleAppRequest
@@ -466,7 +601,7 @@ export type ImportSampleAppRequest = Message<"plux.v1.ImportSampleAppRequest"> &
  * Use `create(ImportSampleAppRequestSchema)` to create a new message.
  */
 export const ImportSampleAppRequestSchema: GenMessage<ImportSampleAppRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 14);
+  messageDesc(file_plux_v1_app_project, 18);
 
 /**
  * @generated from message plux.v1.ImportSampleAppResponse
@@ -488,7 +623,7 @@ export type ImportSampleAppResponse = Message<"plux.v1.ImportSampleAppResponse">
  * Use `create(ImportSampleAppResponseSchema)` to create a new message.
  */
 export const ImportSampleAppResponseSchema: GenMessage<ImportSampleAppResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 15);
+  messageDesc(file_plux_v1_app_project, 19);
 
 /**
  * ShellSettings is everything about an app that needs a new store build
@@ -577,7 +712,7 @@ export type ShellSettings = Message<"plux.v1.ShellSettings"> & {
  * Use `create(ShellSettingsSchema)` to create a new message.
  */
 export const ShellSettingsSchema: GenMessage<ShellSettings> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 16);
+  messageDesc(file_plux_v1_app_project, 20);
 
 /**
  * @generated from message plux.v1.ShellChange
@@ -611,7 +746,7 @@ export type ShellChange = Message<"plux.v1.ShellChange"> & {
  * Use `create(ShellChangeSchema)` to create a new message.
  */
 export const ShellChangeSchema: GenMessage<ShellChange> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 17);
+  messageDesc(file_plux_v1_app_project, 21);
 
 /**
  * @generated from message plux.v1.GetShellStatusRequest
@@ -628,7 +763,7 @@ export type GetShellStatusRequest = Message<"plux.v1.GetShellStatusRequest"> & {
  * Use `create(GetShellStatusRequestSchema)` to create a new message.
  */
 export const GetShellStatusRequestSchema: GenMessage<GetShellStatusRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 18);
+  messageDesc(file_plux_v1_app_project, 22);
 
 /**
  * @generated from message plux.v1.GetShellStatusResponse
@@ -669,7 +804,7 @@ export type GetShellStatusResponse = Message<"plux.v1.GetShellStatusResponse"> &
  * Use `create(GetShellStatusResponseSchema)` to create a new message.
  */
 export const GetShellStatusResponseSchema: GenMessage<GetShellStatusResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 19);
+  messageDesc(file_plux_v1_app_project, 23);
 
 /**
  * @generated from message plux.v1.SetShellSettingsRequest
@@ -691,7 +826,7 @@ export type SetShellSettingsRequest = Message<"plux.v1.SetShellSettingsRequest">
  * Use `create(SetShellSettingsRequestSchema)` to create a new message.
  */
 export const SetShellSettingsRequestSchema: GenMessage<SetShellSettingsRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 20);
+  messageDesc(file_plux_v1_app_project, 24);
 
 /**
  * @generated from message plux.v1.SetShellSettingsResponse
@@ -708,7 +843,7 @@ export type SetShellSettingsResponse = Message<"plux.v1.SetShellSettingsResponse
  * Use `create(SetShellSettingsResponseSchema)` to create a new message.
  */
 export const SetShellSettingsResponseSchema: GenMessage<SetShellSettingsResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 21);
+  messageDesc(file_plux_v1_app_project, 25);
 
 /**
  * @generated from message plux.v1.ProjectJob
@@ -786,7 +921,7 @@ export type ProjectJob = Message<"plux.v1.ProjectJob"> & {
  * Use `create(ProjectJobSchema)` to create a new message.
  */
 export const ProjectJobSchema: GenMessage<ProjectJob> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 22);
+  messageDesc(file_plux_v1_app_project, 26);
 
 /**
  * @generated from message plux.v1.GenerateProjectRequest
@@ -822,7 +957,7 @@ export type GenerateProjectRequest = Message<"plux.v1.GenerateProjectRequest"> &
  * Use `create(GenerateProjectRequestSchema)` to create a new message.
  */
 export const GenerateProjectRequestSchema: GenMessage<GenerateProjectRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 23);
+  messageDesc(file_plux_v1_app_project, 27);
 
 /**
  * @generated from message plux.v1.GenerateProjectResponse
@@ -839,7 +974,7 @@ export type GenerateProjectResponse = Message<"plux.v1.GenerateProjectResponse">
  * Use `create(GenerateProjectResponseSchema)` to create a new message.
  */
 export const GenerateProjectResponseSchema: GenMessage<GenerateProjectResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 24);
+  messageDesc(file_plux_v1_app_project, 28);
 
 /**
  * @generated from message plux.v1.GetProjectJobRequest
@@ -863,7 +998,7 @@ export type GetProjectJobRequest = Message<"plux.v1.GetProjectJobRequest"> & {
  * Use `create(GetProjectJobRequestSchema)` to create a new message.
  */
 export const GetProjectJobRequestSchema: GenMessage<GetProjectJobRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 25);
+  messageDesc(file_plux_v1_app_project, 29);
 
 /**
  * @generated from message plux.v1.GetProjectJobResponse
@@ -880,7 +1015,7 @@ export type GetProjectJobResponse = Message<"plux.v1.GetProjectJobResponse"> & {
  * Use `create(GetProjectJobResponseSchema)` to create a new message.
  */
 export const GetProjectJobResponseSchema: GenMessage<GetProjectJobResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 26);
+  messageDesc(file_plux_v1_app_project, 30);
 
 /**
  * @generated from message plux.v1.DownloadProjectRequest
@@ -902,7 +1037,7 @@ export type DownloadProjectRequest = Message<"plux.v1.DownloadProjectRequest"> &
  * Use `create(DownloadProjectRequestSchema)` to create a new message.
  */
 export const DownloadProjectRequestSchema: GenMessage<DownloadProjectRequest> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 27);
+  messageDesc(file_plux_v1_app_project, 31);
 
 /**
  * @generated from message plux.v1.DownloadProjectResponse
@@ -929,7 +1064,7 @@ export type DownloadProjectResponse = Message<"plux.v1.DownloadProjectResponse">
  * Use `create(DownloadProjectResponseSchema)` to create a new message.
  */
 export const DownloadProjectResponseSchema: GenMessage<DownloadProjectResponse> = /*@__PURE__*/
-  messageDesc(file_plux_v1_app_project, 28);
+  messageDesc(file_plux_v1_app_project, 32);
 
 /**
  * AppProjectService serves the apps grid and an app's project: bounded
@@ -984,6 +1119,30 @@ export const AppProjectService: GenService<{
     methodKind: "unary";
     input: typeof DuplicateAppRequestSchema;
     output: typeof DuplicateAppResponseSchema;
+  },
+  /**
+   * ExportPlugin returns one plugin as a deterministic .plux archive: its
+   * documents with the translation keys, messages and assets they use
+   * (ADR-0102). It needs plugin.read on the app and is audited.
+   *
+   * @generated from rpc plux.v1.AppProjectService.ExportPlugin
+   */
+  exportPlugin: {
+    methodKind: "unary";
+    input: typeof ExportPluginRequestSchema;
+    output: typeof ExportPluginResponseSchema;
+  },
+  /**
+   * ImportPlugin adds the plugin of a plugin .plux archive, an untrusted
+   * input, to an app. It needs app.manage on the app, is idempotent per
+   * Idempotency-Key and is audited.
+   *
+   * @generated from rpc plux.v1.AppProjectService.ImportPlugin
+   */
+  importPlugin: {
+    methodKind: "unary";
+    input: typeof ImportPluginRequestSchema;
+    output: typeof ImportPluginResponseSchema;
   },
   /**
    * ListSampleApps lists the sample apps embedded in the server image.

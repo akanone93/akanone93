@@ -33,8 +33,15 @@ const (
 	ManifestName = "plux-archive.json"
 	// Format identifies the manifest.
 	Format = "plux-archive"
-	// Version is the manifest version this package writes and reads.
-	Version = 1
+	// Version is the newest manifest version this package reads. An app
+	// archive is written as version 1; a plugin archive, which version 2
+	// added, as version 2, so that a reader of version 1 refuses it
+	// instead of importing it as an app (ADR-0102 Revision 2026-11-25).
+	Version = 2
+	// appVersion is the version an app archive is written as.
+	appVersion = 1
+	// pluginVersion is the version a plugin archive is written as.
+	pluginVersion = 2
 	// Prefix is the directory the project layout lives in.
 	Prefix = "project/"
 	// maxName bounds one entry name.
@@ -49,6 +56,12 @@ type AppInfo struct {
 	Tags        []string `json:"tags"`
 }
 
+// PluginInfo is the plugin a plugin archive holds.
+type PluginInfo struct {
+	Key  string `json:"key"`
+	Name string `json:"name"`
+}
+
 // Entry is one file the manifest lists.
 type Entry struct {
 	Path   string `json:"path"`
@@ -56,12 +69,15 @@ type Entry struct {
 	SHA256 string `json:"sha256"`
 }
 
-// Manifest is plux-archive.json.
+// Manifest is plux-archive.json. App is the app an app archive holds, or
+// the app a plugin archive's plugin was exported from; Plugin is set only
+// in a plugin archive.
 type Manifest struct {
-	Format  string  `json:"format"`
-	Version int     `json:"version"`
-	App     AppInfo `json:"app"`
-	Files   []Entry `json:"files"`
+	Format  string      `json:"format"`
+	Version int         `json:"version"`
+	App     AppInfo     `json:"app"`
+	Plugin  *PluginInfo `json:"plugin,omitempty"`
+	Files   []Entry     `json:"files"`
 }
 
 // Limits are the size and count limits of an import, from the registry.
@@ -86,9 +102,20 @@ var zipEpoch = time.Date(1980, time.January, 1, 0, 0, 0, 0, time.UTC)
 // the arguments: entries are sorted, stored without compression, with the
 // ZIP epoch as time and mode 0644, and the manifest is the first entry.
 func Pack(app AppInfo, files []document.File) ([]byte, error) {
+	return pack(Manifest{Format: Format, Version: appVersion, App: app}, files)
+}
+
+// PackPlugin writes the archive of one plugin exported from app: its
+// documents and the app-level parts they name (document.ExportPlugin), as
+// deterministically as Pack.
+func PackPlugin(app AppInfo, plugin PluginInfo, files []document.File) ([]byte, error) {
+	return pack(Manifest{Format: Format, Version: pluginVersion, App: app, Plugin: &plugin}, files)
+}
+
+func pack(m Manifest, files []document.File) ([]byte, error) {
 	sorted := slices.Clone(files)
 	slices.SortFunc(sorted, func(a, b document.File) int { return strings.Compare(a.Path, b.Path) })
-	m := Manifest{Format: Format, Version: Version, App: app, Files: make([]Entry, 0, len(sorted))}
+	m.Files = make([]Entry, 0, len(sorted))
 	if m.App.Tags == nil {
 		m.App.Tags = []string{}
 	}
@@ -242,6 +269,8 @@ func parseManifest(data []byte) (Manifest, error) {
 		return Manifest{}, plxerr.New(plxerr.InvalidFormat, "%s is not a %s manifest", ManifestName, Format)
 	case m.Version < 1 || m.Version > Version:
 		return Manifest{}, plxerr.New(plxerr.InvalidFormat, "the archive has version %d; this server reads version %d and below", m.Version, Version)
+	case m.Plugin != nil && m.Version < pluginVersion:
+		return Manifest{}, plxerr.New(plxerr.InvalidFormat, "a plugin archive has version %d or above", pluginVersion)
 	}
 	return m, nil
 }

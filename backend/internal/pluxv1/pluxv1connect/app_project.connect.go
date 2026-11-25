@@ -48,6 +48,12 @@ const (
 	// AppProjectServiceDuplicateAppProcedure is the fully-qualified name of the AppProjectService's
 	// DuplicateApp RPC.
 	AppProjectServiceDuplicateAppProcedure = "/plux.v1.AppProjectService/DuplicateApp"
+	// AppProjectServiceExportPluginProcedure is the fully-qualified name of the AppProjectService's
+	// ExportPlugin RPC.
+	AppProjectServiceExportPluginProcedure = "/plux.v1.AppProjectService/ExportPlugin"
+	// AppProjectServiceImportPluginProcedure is the fully-qualified name of the AppProjectService's
+	// ImportPlugin RPC.
+	AppProjectServiceImportPluginProcedure = "/plux.v1.AppProjectService/ImportPlugin"
 	// AppProjectServiceListSampleAppsProcedure is the fully-qualified name of the AppProjectService's
 	// ListSampleApps RPC.
 	AppProjectServiceListSampleAppsProcedure = "/plux.v1.AppProjectService/ListSampleApps"
@@ -87,6 +93,14 @@ type AppProjectServiceClient interface {
 	// DuplicateApp creates an app from an export of another. It needs
 	// plugin.read on the source and app.manage; it is idempotent and audited.
 	DuplicateApp(context.Context, *connect.Request[pluxv1.DuplicateAppRequest]) (*connect.Response[pluxv1.DuplicateAppResponse], error)
+	// ExportPlugin returns one plugin as a deterministic .plux archive: its
+	// documents with the translation keys, messages and assets they use
+	// (ADR-0102). It needs plugin.read on the app and is audited.
+	ExportPlugin(context.Context, *connect.Request[pluxv1.ExportPluginRequest]) (*connect.Response[pluxv1.ExportPluginResponse], error)
+	// ImportPlugin adds the plugin of a plugin .plux archive, an untrusted
+	// input, to an app. It needs app.manage on the app, is idempotent per
+	// Idempotency-Key and is audited.
+	ImportPlugin(context.Context, *connect.Request[pluxv1.ImportPluginRequest]) (*connect.Response[pluxv1.ImportPluginResponse], error)
 	// ListSampleApps lists the sample apps embedded in the server image.
 	ListSampleApps(context.Context, *connect.Request[pluxv1.ListSampleAppsRequest]) (*connect.Response[pluxv1.ListSampleAppsResponse], error)
 	// ImportSampleApp imports a sample app as an ordinary import.
@@ -142,6 +156,18 @@ func NewAppProjectServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(appProjectServiceMethods.ByName("DuplicateApp")),
 			connect.WithClientOptions(opts...),
 		),
+		exportPlugin: connect.NewClient[pluxv1.ExportPluginRequest, pluxv1.ExportPluginResponse](
+			httpClient,
+			baseURL+AppProjectServiceExportPluginProcedure,
+			connect.WithSchema(appProjectServiceMethods.ByName("ExportPlugin")),
+			connect.WithClientOptions(opts...),
+		),
+		importPlugin: connect.NewClient[pluxv1.ImportPluginRequest, pluxv1.ImportPluginResponse](
+			httpClient,
+			baseURL+AppProjectServiceImportPluginProcedure,
+			connect.WithSchema(appProjectServiceMethods.ByName("ImportPlugin")),
+			connect.WithClientOptions(opts...),
+		),
 		listSampleApps: connect.NewClient[pluxv1.ListSampleAppsRequest, pluxv1.ListSampleAppsResponse](
 			httpClient,
 			baseURL+AppProjectServiceListSampleAppsProcedure,
@@ -193,6 +219,8 @@ type appProjectServiceClient struct {
 	exportApp        *connect.Client[pluxv1.ExportAppRequest, pluxv1.ExportAppResponse]
 	importApp        *connect.Client[pluxv1.ImportAppRequest, pluxv1.ImportAppResponse]
 	duplicateApp     *connect.Client[pluxv1.DuplicateAppRequest, pluxv1.DuplicateAppResponse]
+	exportPlugin     *connect.Client[pluxv1.ExportPluginRequest, pluxv1.ExportPluginResponse]
+	importPlugin     *connect.Client[pluxv1.ImportPluginRequest, pluxv1.ImportPluginResponse]
 	listSampleApps   *connect.Client[pluxv1.ListSampleAppsRequest, pluxv1.ListSampleAppsResponse]
 	importSampleApp  *connect.Client[pluxv1.ImportSampleAppRequest, pluxv1.ImportSampleAppResponse]
 	getShellStatus   *connect.Client[pluxv1.GetShellStatusRequest, pluxv1.GetShellStatusResponse]
@@ -220,6 +248,16 @@ func (c *appProjectServiceClient) ImportApp(ctx context.Context, req *connect.Re
 // DuplicateApp calls plux.v1.AppProjectService.DuplicateApp.
 func (c *appProjectServiceClient) DuplicateApp(ctx context.Context, req *connect.Request[pluxv1.DuplicateAppRequest]) (*connect.Response[pluxv1.DuplicateAppResponse], error) {
 	return c.duplicateApp.CallUnary(ctx, req)
+}
+
+// ExportPlugin calls plux.v1.AppProjectService.ExportPlugin.
+func (c *appProjectServiceClient) ExportPlugin(ctx context.Context, req *connect.Request[pluxv1.ExportPluginRequest]) (*connect.Response[pluxv1.ExportPluginResponse], error) {
+	return c.exportPlugin.CallUnary(ctx, req)
+}
+
+// ImportPlugin calls plux.v1.AppProjectService.ImportPlugin.
+func (c *appProjectServiceClient) ImportPlugin(ctx context.Context, req *connect.Request[pluxv1.ImportPluginRequest]) (*connect.Response[pluxv1.ImportPluginResponse], error) {
+	return c.importPlugin.CallUnary(ctx, req)
 }
 
 // ListSampleApps calls plux.v1.AppProjectService.ListSampleApps.
@@ -273,6 +311,14 @@ type AppProjectServiceHandler interface {
 	// DuplicateApp creates an app from an export of another. It needs
 	// plugin.read on the source and app.manage; it is idempotent and audited.
 	DuplicateApp(context.Context, *connect.Request[pluxv1.DuplicateAppRequest]) (*connect.Response[pluxv1.DuplicateAppResponse], error)
+	// ExportPlugin returns one plugin as a deterministic .plux archive: its
+	// documents with the translation keys, messages and assets they use
+	// (ADR-0102). It needs plugin.read on the app and is audited.
+	ExportPlugin(context.Context, *connect.Request[pluxv1.ExportPluginRequest]) (*connect.Response[pluxv1.ExportPluginResponse], error)
+	// ImportPlugin adds the plugin of a plugin .plux archive, an untrusted
+	// input, to an app. It needs app.manage on the app, is idempotent per
+	// Idempotency-Key and is audited.
+	ImportPlugin(context.Context, *connect.Request[pluxv1.ImportPluginRequest]) (*connect.Response[pluxv1.ImportPluginResponse], error)
 	// ListSampleApps lists the sample apps embedded in the server image.
 	ListSampleApps(context.Context, *connect.Request[pluxv1.ListSampleAppsRequest]) (*connect.Response[pluxv1.ListSampleAppsResponse], error)
 	// ImportSampleApp imports a sample app as an ordinary import.
@@ -322,6 +368,18 @@ func NewAppProjectServiceHandler(svc AppProjectServiceHandler, opts ...connect.H
 		AppProjectServiceDuplicateAppProcedure,
 		svc.DuplicateApp,
 		connect.WithSchema(appProjectServiceMethods.ByName("DuplicateApp")),
+		connect.WithHandlerOptions(opts...),
+	)
+	appProjectServiceExportPluginHandler := connect.NewUnaryHandler(
+		AppProjectServiceExportPluginProcedure,
+		svc.ExportPlugin,
+		connect.WithSchema(appProjectServiceMethods.ByName("ExportPlugin")),
+		connect.WithHandlerOptions(opts...),
+	)
+	appProjectServiceImportPluginHandler := connect.NewUnaryHandler(
+		AppProjectServiceImportPluginProcedure,
+		svc.ImportPlugin,
+		connect.WithSchema(appProjectServiceMethods.ByName("ImportPlugin")),
 		connect.WithHandlerOptions(opts...),
 	)
 	appProjectServiceListSampleAppsHandler := connect.NewUnaryHandler(
@@ -376,6 +434,10 @@ func NewAppProjectServiceHandler(svc AppProjectServiceHandler, opts ...connect.H
 			appProjectServiceImportAppHandler.ServeHTTP(w, r)
 		case AppProjectServiceDuplicateAppProcedure:
 			appProjectServiceDuplicateAppHandler.ServeHTTP(w, r)
+		case AppProjectServiceExportPluginProcedure:
+			appProjectServiceExportPluginHandler.ServeHTTP(w, r)
+		case AppProjectServiceImportPluginProcedure:
+			appProjectServiceImportPluginHandler.ServeHTTP(w, r)
 		case AppProjectServiceListSampleAppsProcedure:
 			appProjectServiceListSampleAppsHandler.ServeHTTP(w, r)
 		case AppProjectServiceImportSampleAppProcedure:
@@ -413,6 +475,14 @@ func (UnimplementedAppProjectServiceHandler) ImportApp(context.Context, *connect
 
 func (UnimplementedAppProjectServiceHandler) DuplicateApp(context.Context, *connect.Request[pluxv1.DuplicateAppRequest]) (*connect.Response[pluxv1.DuplicateAppResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AppProjectService.DuplicateApp is not implemented"))
+}
+
+func (UnimplementedAppProjectServiceHandler) ExportPlugin(context.Context, *connect.Request[pluxv1.ExportPluginRequest]) (*connect.Response[pluxv1.ExportPluginResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AppProjectService.ExportPlugin is not implemented"))
+}
+
+func (UnimplementedAppProjectServiceHandler) ImportPlugin(context.Context, *connect.Request[pluxv1.ImportPluginRequest]) (*connect.Response[pluxv1.ImportPluginResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AppProjectService.ImportPlugin is not implemented"))
 }
 
 func (UnimplementedAppProjectServiceHandler) ListSampleApps(context.Context, *connect.Request[pluxv1.ListSampleAppsRequest]) (*connect.Response[pluxv1.ListSampleAppsResponse], error) {

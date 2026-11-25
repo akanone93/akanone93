@@ -264,6 +264,12 @@ msgstr "{count, plural, zero {لم تُحدَّد أي إضافة} one {إضاف
 msgid "appCanvas.plugin-count"
 msgstr "{count, plural, zero {لا إضافات} one {إضافة واحدة} two {إضافتان} few {# إضافات} many {# إضافة} other {# إضافة}}"
 
+#. Follows the import message when the imported plugin has validation errors in this app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImportProblems"
+msgstr "{count, plural, zero {# مشكلة يجب إصلاحها: راجع المشكلات.} one {مشكلة واحدة يجب إصلاحها: راجع المشكلات.} two {مشكلتان يجب إصلاحهما: راجع المشكلات.} few {# مشكلات يجب إصلاحها: راجع المشكلات.} many {# مشكلة يجب إصلاحها: راجع المشكلات.} other {# مشكلة يجب إصلاحها: راجع المشكلات.}}"
+
 #. Count of problems found in one step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -7367,6 +7373,12 @@ msgstr "شرح الوصول"
 msgid "library.export"
 msgstr "تصدير"
 
+#. Button: download the plugin as a .plux archive with the translations and assets it uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.exportPlugin"
+msgstr "تصدير"
+
 #. Menu entry that downloads the app as a .plux archive.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -8710,6 +8722,12 @@ msgstr "استيراد مكوّن"
 msgid "design.importTitle"
 msgstr "استيراد رموز التصميم"
 
+#. Button and dialog title: add a plugin to this app from a .plux archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.importPlugin"
+msgstr "استيراد إضافة"
+
 #. Button: upload a template library file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -8733,6 +8751,12 @@ msgstr "استيراد الترجمات"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.importTitle"
 msgstr "استيراد الترجمات"
+
+#. Message after a plugin import: the translation keys and assets added to the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImported"
+msgstr "تم استيراد {name} مع إضافة {keys, plural, zero {# مفتاح ترجمة} one {مفتاح ترجمة واحد} two {مفتاحَي ترجمة} few {# مفاتيح ترجمة} many {# مفتاح ترجمة} other {# مفتاح ترجمة}} و{assets, plural, zero {# أصل} one {أصل واحد} two {أصلين} few {# أصول} many {# أصلًا} other {# أصل}}."
 
 #. Confirmation after importing a library file.
 #. js-lingui-explicit-id
@@ -19185,6 +19209,18 @@ msgstr "ليست لدى الإضافة حالة بعد."
 msgid "actionGraph.readOnly"
 msgstr "الإضافة مقفلة من قبل شخص آخر: المخطط للقراءة فقط."
 
+#. Message when a plugin export was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginExportFailed"
+msgstr "لم يتم تصدير الإضافة."
+
+#. Message when a plugin import was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImportFailed"
+msgstr "لم يتم استيراد الإضافة."
+
 #. Body of the confirmation before a snapshot is restored; the placeholder is the snapshot's time.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -19821,6 +19857,12 @@ msgstr "يتطلب هذا الإجراء تحققًا جديدًا بمفتاح 
 #: apps/web/src/features/shell/app-nav.messages.ts
 msgid "appnav.thisApp"
 msgstr "هذا التطبيق"
+
+#. Dialog text when an imported plugin's key is taken.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImportKeyTaken"
+msgstr "يحتوي هذا التطبيق بالفعل على إضافة بمفتاح الأرشيف. اختر اسمًا آخر للإضافة المستوردة."
 
 #. Shown when the app has no funnel.
 #. js-lingui-explicit-id

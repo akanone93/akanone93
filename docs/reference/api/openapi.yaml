@@ -1038,6 +1038,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ExportAppResponse'
+  /plux.v1.AppProjectService/ExportPlugin:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: ExportPlugin
+      description: |-
+        ExportPlugin returns one plugin as a deterministic .plux archive: its
+         documents with the translation keys, messages and assets they use
+         (ADR-0102). It needs plugin.read on the app and is audited.
+      operationId: plux.v1.AppProjectService.ExportPlugin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExportPluginRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExportPluginResponse'
   /plux.v1.AppProjectService/GenerateProject:
     post:
       tags:
@@ -1202,6 +1244,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ImportAppResponse'
+  /plux.v1.AppProjectService/ImportPlugin:
+    post:
+      tags:
+        - plux.v1.AppProjectService
+      summary: ImportPlugin
+      description: |-
+        ImportPlugin adds the plugin of a plugin .plux archive, an untrusted
+         input, to an app. It needs app.manage on the app, is idempotent per
+         Idempotency-Key and is audited.
+      operationId: plux.v1.AppProjectService.ImportPlugin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ImportPluginRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ImportPluginResponse'
   /plux.v1.AppProjectService/ImportSampleApp:
     post:
       tags:
@@ -23533,6 +23617,29 @@ components:
           format: byte
       title: ExportDraftResponse
       additionalProperties: false
+    plux.v1.ExportPluginRequest:
+      type: object
+      properties:
+        pluginId:
+          type: string
+          title: plugin_id
+      title: ExportPluginRequest
+      additionalProperties: false
+    plux.v1.ExportPluginResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+          title: filename
+        archive:
+          type: string
+          title: archive
+          format: byte
+        sha256:
+          type: string
+          title: sha256
+      title: ExportPluginResponse
+      additionalProperties: false
     plux.v1.ExportPoliciesRequest:
       type: object
       properties:
@@ -26937,6 +27044,65 @@ components:
             $ref: '#/components/schemas/plux.v1.Diagnostic'
           title: diagnostics
       title: ImportDraftResponse
+      additionalProperties: false
+    plux.v1.ImportPluginRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        archive:
+          type: string
+          title: archive
+          format: byte
+        key:
+          type: string
+          title: key
+          description: key and name override the archive's; empty keeps them.
+        name:
+          type: string
+          title: name
+        session:
+          type: string
+          title: session
+          description: |-
+            session is the caller's editing session, which takes the locks the
+             import needs and gives back those it did not hold; empty uses one of
+             the import's own.
+      title: ImportPluginRequest
+      additionalProperties: false
+    plux.v1.ImportPluginResponse:
+      type: object
+      properties:
+        plugin:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Plugin'
+          title: plugin
+        documents:
+          type: integer
+          title: documents
+          format: int32
+          description: documents is the number of the plugin's documents written.
+        translationKeys:
+          type: integer
+          title: translation_keys
+          format: int32
+          description: |-
+            translation_keys and assets count those added to the app; those it
+             already had are used as they are.
+        assets:
+          type: integer
+          title: assets
+          format: int32
+        errorDiagnostics:
+          type: integer
+          title: error_diagnostics
+          format: int32
+          description: |-
+            error_diagnostics counts the validation errors of the plugin in the
+             app: its own, such as a reference to a component the app does not
+             declare, and those of the app-level documents it depends on.
+      title: ImportPluginResponse
       additionalProperties: false
     plux.v1.ImportSampleAppRequest:
       type: object
@@ -37149,6 +37315,11 @@ tags:
     description: |-
       AppService manages apps, their environments and channels (GOV-010), and
        the trash that deleted apps, plugins and pages go to (GOV-031).
+  - name: plux.v1.PluginService
+    description: |-
+      PluginService manages plugins and their editing locks (SRV-040–SRV-042).
+       App-level documents share one lock of their own, addressed by app_id with
+       an empty plugin_id.
   - name: plux.v1.AppProjectService
     description: |-
       AppProjectService serves the apps grid and an app's project: bounded
@@ -37412,11 +37583,6 @@ tags:
       FunctionTriggerService schedules functions and opens them to signed
        inbound webhooks (FN-025, ADR-0081). A trigger runs the version an alias
        points at, on the server, at the lowest assurance, with no credentials.
-  - name: plux.v1.PluginService
-    description: |-
-      PluginService manages plugins and their editing locks (SRV-040–SRV-042).
-       App-level documents share one lock of their own, addressed by app_id with
-       an empty plugin_id.
   - name: plux.v1.PreferencesService
     description: |-
       PreferencesService keeps each signed-in user's Studio preferences, one

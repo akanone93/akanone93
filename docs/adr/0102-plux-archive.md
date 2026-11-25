@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 - **Status:** Accepted (maintainer, plan P11 §4.3 #24; S8.1)
 - **Date:** 2026-10-28
-- **Requirements:** `STU-023`, `STU-024`, `STU-015`, `SCH-006`, `CMP-002`, `SEC-052`, `LIM-001`
+- **Requirements:** `STU-023`, `STU-024`, `STU-015`, `STU-034`, `SCH-006`, `CMP-002`, `SEC-052`, `LIM-001`
 
 ## Context and problem
 
@@ -56,3 +56,37 @@ idempotent through the `Idempotency-Key` header, and import, export, duplicate a
 - **Negative:** uncompressed archives are larger on disk; transport compression applies on the wire.
 - **Follow-up:** a later version may add fields to the manifest; readers ignore unknown fields only
   when the version is unchanged, and refuse a higher version.
+
+## Revision 2026-11-25: plugin archives
+
+The maintainer decided on 2026-11-24 (build log row 264) that one plugin travels between apps as a
+`.plux` archive, through additive RPCs (`AppProjectService.ExportPlugin`, `ImportPlugin`), so a plugin
+built in one app can be reused in another without copying documents by hand (`STU-034`).
+
+- **Content.** A plugin archive holds the plugin's documents (`project/plugins/<key>/…`) and the parts
+  of the app-level documents they name, cut down to them: the translation keys whose identifiers the
+  plugin's documents hold, those keys' messages and review states in every locale
+  (`translations/keys.json`, `translations/<locale>.json`), and the asset index entries of the assets
+  the plugin's documents or those keys hold, with the files and per-locale files they name
+  (`assets/index.json`, `assets/…`). Nothing else of the app travels: components, functions, types,
+  data and the theme are the target app's to have, and a reference to one it lacks is counted as the
+  imported plugin's validation errors.
+- **Manifest.** The manifest gains `"plugin": {"key", "name"}`, and `app` names the app the plugin was
+  exported from. A plugin archive is written as **version 2**, so that a server reading version 1
+  refuses it rather than importing it as an app; an app archive is still written as version 1. A
+  version-1 manifest with a `plugin` is refused. An app import refuses a plugin archive, and a plugin
+  import refuses an app archive, each with `INVALID_PROJECT_LAYOUT`.
+- **Untrusted on import,** as an app archive: every check above, then every document is checked
+  against its schema, a file outside the plugin and the three app-level documents, an asset file the
+  index does not list and an index entry without its file are refused, and the plugin key is checked
+  free and within `app.plugins` — all before anything is written.
+- **Merge.** The plugin's documents get new identifiers and route names that clash with none of the
+  app's, as a duplicate's do (`STU-034`). A translation key the app has (same identifier) is used as it
+  is; an added key whose name the app uses is renamed under the plugin's key (`<plugin>.<name>`), and
+  its messages and review states are added to the locales the app has. An asset whose content the app
+  has (same SHA-256) is used instead of a copy; any other is uploaded through the ordinary asset path
+  (type check, stripping, scanner) under a name the app does not use, with its description and
+  per-locale files. The import takes the locks it needs for the caller's session — the app's, each
+  changed locale's and the new plugin's — and gives back only those it took.
+- Export needs `plugin.read`, import `app.manage` on the app; both are audited (`plugin.exported`,
+  `plugin.imported`), and the import is idempotent through the `Idempotency-Key` header.

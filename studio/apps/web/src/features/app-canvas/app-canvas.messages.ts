@@ -728,6 +728,46 @@ export function appCanvasMessages(i18n: I18n) {
       message: "The app has a production release. Type the app's key to confirm.",
       comment: "STU-074: why archiving several plugins asks for the app's key.",
     }),
+    exportPlugin: i18n._({
+      id: "appCanvas.exportPlugin",
+      message: "Export",
+      comment: "Button: download the plugin as a .plux archive with the translations and assets it uses.",
+    }),
+    importPlugin: i18n._({
+      id: "appCanvas.importPlugin",
+      message: "Import plugin",
+      comment: "Button and dialog title: add a plugin to this app from a .plux archive.",
+    }),
+    pluginImported: (name: string, keys: number, assets: number) =>
+      i18n._({
+        id: "appCanvas.pluginImported",
+        message:
+          "Imported {name}, adding {keys, plural, one {# translation key} other {# translation keys}} and {assets, plural, one {# asset} other {# assets}}.",
+        values: { name, keys, assets },
+        comment: "Message after a plugin import: the translation keys and assets added to the app.",
+      }),
+    pluginImportProblems: (count: number) =>
+      i18n._({
+        id: "appCanvas.pluginImportProblems",
+        message: "{count, plural, one {# problem to fix: see Problems.} other {# problems to fix: see Problems.}}",
+        values: { count },
+        comment: "Follows the import message when the imported plugin has validation errors in this app.",
+      }),
+    pluginImportKeyTaken: i18n._({
+      id: "appCanvas.pluginImportKeyTaken",
+      message: "This app already has a plugin with the archive's key. Give the imported plugin another name.",
+      comment: "Dialog text when an imported plugin's key is taken.",
+    }),
+    pluginImportFailed: i18n._({
+      id: "appCanvas.pluginImportFailed",
+      message: "The plugin was not imported.",
+      comment: "Message when a plugin import was refused; the server's reason follows.",
+    }),
+    pluginExportFailed: i18n._({
+      id: "appCanvas.pluginExportFailed",
+      message: "The plugin was not exported.",
+      comment: "Message when a plugin export was refused; the server's reason follows.",
+    }),
     bulkFailed: i18n._({
       id: "appCanvas.bulk.failed",
       message: "Not every plugin could be changed: the first refusal stopped the rest. The canvas shows what was done.",

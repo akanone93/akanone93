@@ -214,6 +214,10 @@ const (
 	AppImported Action = "app.imported"
 	// AppDuplicated: an app was duplicated through an export and an import (STU-024).
 	AppDuplicated Action = "app.duplicated"
+	// PluginExported: a plugin was exported as a .plux archive (build log row 264).
+	PluginExported Action = "plugin.exported"
+	// PluginImported: a plugin was added to an app from a .plux archive (build log row 264).
+	PluginImported Action = "plugin.imported"
 	// AppArchived: an app was archived or unarchived (STU-022).
 	AppArchived Action = "app.archived"
 	// ShellSettingsSet: an app's shell settings were stored (GEN-004).
@@ -522,6 +526,7 @@ var actions = sorted(
 	DevSessionJoined, DevPhoneSignedIn, DevPhoneRevoked,
 	LibraryItemCreated, LibraryVersionAdded, LibraryVisibilitySet, LibraryVersionAdopted,
 	AppExported, AppImported, AppDuplicated, AppArchived, ShellSettingsSet, ProjectGenerated,
+	PluginExported, PluginImported,
 )
 
 // sorted returns its arguments in order.

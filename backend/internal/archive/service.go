@@ -34,6 +34,8 @@ type Tenancy interface {
 type Documents interface {
 	Export(ctx context.Context, p auth.Principal, appID, pluginID string) ([]document.File, error)
 	Import(ctx context.Context, p auth.Principal, appID, pluginID, session string, files []document.File) (document.Written, error)
+	ExportPlugin(ctx context.Context, p auth.Principal, pluginID string) (document.Plugin, []document.File, error)
+	ImportPlugin(ctx context.Context, p auth.Principal, appID, srcKey, key, name, session string, files []document.File) (document.PluginImport, error)
 	ListPlugins(ctx context.Context, p auth.Principal, appID string, after storage.Cursor, size int32) ([]document.Plugin, error)
 	ReleaseLock(ctx context.Context, p auth.Principal, appID, pluginID, session string) error
 }
@@ -54,7 +56,8 @@ type Options struct {
 	Samples []Sample
 }
 
-// Service exports, imports and duplicates apps (STU-023, STU-024) and
+// Service exports, imports and duplicates apps (STU-023, STU-024), exports
+// a plugin and imports it into another app (build log row 264), and
 // offers the sample apps (STU-015).
 type Service struct{ o Options }
 
@@ -107,7 +110,66 @@ func (s *Service) Export(ctx context.Context, p auth.Principal, appID string) (E
 		return Exported{}, err
 	}
 	out := Exported{Filename: app.Key + ".plux", Data: data, SHA256: sum(data)}
-	return out, s.record(ctx, p, audit.AppExported, appID, out.SHA256)
+	return out, s.record(ctx, p, audit.AppExported, "app", appID, out.SHA256)
+}
+
+// ExportPlugin returns one plugin as an archive: its documents with the
+// translation keys, messages and assets they use. It needs plugin.read on
+// the app, and is audited.
+func (s *Service) ExportPlugin(ctx context.Context, p auth.Principal, pluginID string) (Exported, error) {
+	pl, files, err := s.o.Documents.ExportPlugin(ctx, p, pluginID)
+	if err != nil {
+		return Exported{}, fmt.Errorf("archive: %w", err)
+	}
+	app, err := s.o.Tenancy.GetApp(ctx, p, pl.AppID)
+	if err != nil {
+		return Exported{}, fmt.Errorf("archive: %w", err)
+	}
+	data, err := PackPlugin(AppInfo{Key: app.Key, Name: app.Name, Tags: []string{}}, PluginInfo{Key: pl.Key, Name: pl.Name}, files)
+	if err != nil {
+		return Exported{}, err
+	}
+	out := Exported{Filename: pl.Key + ".plux", Data: data, SHA256: sum(data)}
+	return out, s.record(ctx, p, audit.PluginExported, "plugin", pl.ID, out.SHA256)
+}
+
+// PluginImported is the outcome of a plugin import.
+type PluginImported = document.PluginImport
+
+// ImportPlugin adds the plugin of a plugin archive, which is untrusted
+// input, to an app. key and name override the archive's when not empty.
+// session is the caller's editing session, which takes the locks the
+// import needs and gives back those it did not hold; empty uses one of
+// the import's own. It needs app.manage on the app, and is audited.
+func (s *Service) ImportPlugin(ctx context.Context, p auth.Principal, appID string, data []byte, key, name, session string) (PluginImported, error) {
+	if err := p.AuthorizeApp(auth.AppManage, appID); err != nil {
+		return PluginImported{}, fmt.Errorf("archive: %w", err)
+	}
+	m, files, err := Unpack(data, LimitsOf(s.o.Limits))
+	if err != nil {
+		return PluginImported{}, err
+	}
+	if m.Plugin == nil {
+		return PluginImported{}, plxerr.New(plxerr.InvalidProjectLayout, "the archive holds an app; import it as a new app")
+	}
+	if key == "" {
+		key = m.Plugin.Key
+	}
+	if name == "" {
+		name = m.Plugin.Name
+	}
+	if session == "" {
+		id, err := s.o.IDs.New()
+		if err != nil {
+			return PluginImported{}, fmt.Errorf("archive: session: %w", err)
+		}
+		session = "import-" + id
+	}
+	out, err := s.o.Documents.ImportPlugin(ctx, p, appID, m.Plugin.Key, key, name, session, files)
+	if err != nil {
+		return out, fmt.Errorf("archive: %w", err)
+	}
+	return out, s.record(ctx, p, audit.PluginImported, "plugin", out.Plugin.ID, sum(data))
 }
 
 // Import creates an app from an archive, which is untrusted input. key and
@@ -164,6 +226,9 @@ func (s *Service) importAs(ctx context.Context, p auth.Principal, data []byte, k
 	if err != nil {
 		return Imported{}, err
 	}
+	if m.Plugin != nil {
+		return Imported{}, plxerr.New(plxerr.InvalidProjectLayout, "the archive holds the plugin %q; import it into an app", m.Plugin.Key)
+	}
 	if key == "" {
 		key = m.App.Key
 	}
@@ -201,7 +266,7 @@ func (s *Service) importAs(ctx context.Context, p auth.Principal, data []byte, k
 	if source != "" {
 		detail = source + " " + detail
 	}
-	if err = s.record(ctx, p, action, app.ID, detail); err != nil {
+	if err = s.record(ctx, p, action, "app", app.ID, detail); err != nil {
 		return Imported{}, err
 	}
 	return out, nil
@@ -229,10 +294,10 @@ func (s *Service) discard(ctx context.Context, p auth.Principal, appID string) {
 	_ = s.o.Tenancy.PurgeFromTrash(ctx, p, item.ID)
 }
 
-func (s *Service) record(ctx context.Context, p auth.Principal, action audit.Action, appID, detail string) error {
+func (s *Service) record(ctx context.Context, p auth.Principal, action audit.Action, kind, id, detail string) error {
 	err := s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID, UserID: p.UserID}, func(ctx context.Context, tx pgx.Tx) error {
 		_, err := s.o.Audit.Append(ctx, tx, audit.Entry{
-			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: action, TargetKind: "app", TargetID: appID, Detail: detail,
+			OrganizationID: p.OrganizationID, Actor: p.Actor(), Action: action, TargetKind: kind, TargetID: id, Detail: detail,
 		})
 		return err //nolint:wrapcheck // the audit package wraps its own failures
 	})

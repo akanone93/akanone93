@@ -102,6 +102,7 @@ import { PluginBulk } from "./plugin-bulk.tsx";
 import { type Dialogue, PluginDialogs } from "./plugin-dialogs.tsx";
 import { miniMapOf } from "./plugin-minimap.ts";
 import { PluginSafety, type SafetyMode } from "./plugin-safety.tsx";
+import { usePluginTransfer } from "./plugin-transfer.tsx";
 import { useSceneTheme } from "./scene-theme.ts";
 import { TrashDialog } from "./trash-dialog.tsx";
 import { useAppScene } from "./use-app-scene.ts";
@@ -823,6 +824,12 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   };
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["plugin-summaries", appId] });
+  const transfer = usePluginTransfer({
+    appId,
+    taken: new Set(list.map((s) => s.plugin?.key ?? "")),
+    onImported: () => Promise.all([refresh(), queryClient.invalidateQueries({ queryKey: ["app", appId] })]),
+    onMessage: setMessage,
+  });
   const mutation = useMutation({
     mutationFn: async (run: () => Promise<unknown>) => run(),
     onSuccess: async () => {
@@ -913,6 +920,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       archived={one?.plugin?.archived === true}
       onOpen={() => selectedBox !== undefined && open(selectedBox)}
       onDialogue={(kind) => setDialogue({ kind })}
+      onExport={() => selectedBox !== undefined && transfer.exportPlugin(selectedBox.id)}
       onMove={() => setMovingBox(selectedBox)}
       onArchive={archiveOrRestore}
       onDelete={() => setSafety("delete")}
@@ -958,6 +966,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
             messages={m}
             selected={selected.size}
             onNew={() => setDialogue({ kind: "new" })}
+            onImport={transfer.openImport}
             onFrame={() => setDialogue({ kind: "frame" })}
             onArrange={arrange}
             onTrash={() => setTrashOpen(true)}
@@ -1076,6 +1085,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
         onClose={() => setMenuAt(null)}
         onOpen={open}
         onDialogue={(kind) => setDialogue({ kind })}
+        onExport={(box) => transfer.exportPlugin(box.id)}
         onMove={setMovingBox}
         onArchive={archiveOrRestore}
         onDelete={() => setSafety("delete")}
@@ -1114,6 +1124,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
           }}
         />
       )}
+      {transfer.ui}
       {trashOpen && <TrashDialog appId={appId} onClose={() => setTrashOpen(false)} onRestored={() => void refresh()} />}
       <PluginDialogs
         dialogue={dialogue}

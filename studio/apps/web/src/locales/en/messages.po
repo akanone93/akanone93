@@ -264,6 +264,12 @@ msgstr "{count, plural, one {# plugin selected} other {# plugins selected}}"
 msgid "appCanvas.plugin-count"
 msgstr "{count, plural, one {# plugin} other {# plugins}}"
 
+#. Follows the import message when the imported plugin has validation errors in this app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImportProblems"
+msgstr "{count, plural, one {# problem to fix: see Problems.} other {# problems to fix: see Problems.}}"
+
 #. Count of problems found in one step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/action-graph/action-graph.messages.ts
@@ -7367,6 +7373,12 @@ msgstr "Explain access"
 msgid "library.export"
 msgstr "Export"
 
+#. Button: download the plugin as a .plux archive with the translations and assets it uses.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.exportPlugin"
+msgstr "Export"
+
 #. Menu entry that downloads the app as a .plux archive.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -8710,6 +8722,12 @@ msgstr "Import component"
 msgid "design.importTitle"
 msgstr "Import design tokens"
 
+#. Button and dialog title: add a plugin to this app from a .plux archive.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.importPlugin"
+msgstr "Import plugin"
+
 #. Button: upload a template library file.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/library.messages.ts
@@ -8733,6 +8751,12 @@ msgstr "Import translations"
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.importTitle"
 msgstr "Import translations"
+
+#. Message after a plugin import: the translation keys and assets added to the app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImported"
+msgstr "Imported {name}, adding {keys, plural, one {# translation key} other {# translation keys}} and {assets, plural, one {# asset} other {# assets}}."
 
 #. Confirmation after importing a library file.
 #. js-lingui-explicit-id
@@ -19185,6 +19209,18 @@ msgstr "The plugin has no state yet."
 msgid "actionGraph.readOnly"
 msgstr "The plugin is locked by someone else: the graph is read-only."
 
+#. Message when a plugin export was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginExportFailed"
+msgstr "The plugin was not exported."
+
+#. Message when a plugin import was refused; the server's reason follows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImportFailed"
+msgstr "The plugin was not imported."
+
 #. Body of the confirmation before a snapshot is restored; the placeholder is the snapshot's time.
 #. js-lingui-explicit-id
 #: apps/web/src/features/history/history.messages.ts
@@ -19821,6 +19857,12 @@ msgstr "This action needs a fresh check with your security key or passkey."
 #: apps/web/src/features/shell/app-nav.messages.ts
 msgid "appnav.thisApp"
 msgstr "This app"
+
+#. Dialog text when an imported plugin's key is taken.
+#. js-lingui-explicit-id
+#: apps/web/src/features/app-canvas/app-canvas.messages.ts
+msgid "appCanvas.pluginImportKeyTaken"
+msgstr "This app already has a plugin with the archive's key. Give the imported plugin another name."
 
 #. Shown when the app has no funnel.
 #. js-lingui-explicit-id

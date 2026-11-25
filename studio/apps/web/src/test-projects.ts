@@ -31,7 +31,8 @@ export interface ShellFixture {
 export interface ProjectsData {
   /**
    * Every request received, as `import:<organizationId>:<key>:<name>:<entries>`, `sample:<organizationId>:<id>:<key>:<name>`,
-   * `generate:<appId>:<environment>:<channel>`, `job:<id>`, `download:<id>` and `shell:<appId>:<json>`.
+   * `generate:<appId>:<environment>:<channel>`, `job:<id>`, `download:<id>`, `shell:<appId>:<json>`,
+   * `exportPlugin:<pluginId>` and `importPlugin:<appId>:<key>:<name>:<bytes>`.
    */
   calls: string[];
   /** The archives ImportApp received. */
@@ -39,7 +40,9 @@ export interface ProjectsData {
   /** The sample apps the server embeds. */
   samples?: { id: string; key: string; name: string; description: string; size: number }[];
   /** A request of this kind is refused with this message (and, for an import, the registered code in its text). */
-  refuse?: { import?: string; sample?: string; generate?: string; shell?: string };
+  refuse?: { import?: string; sample?: string; generate?: string; shell?: string; importPlugin?: string };
+  /** A plugin import under one of these keys is refused as taken (PLX-8032), as the server refuses a used key. */
+  takenPluginKeys?: string[];
   /** The statuses a project job reports one after the other; the last repeats. Default: `succeeded`. */
   jobStatuses?: string[];
   /** The failure a `failed` job reports. */
@@ -127,6 +130,26 @@ export function projectsHandlers(
       const app = { id: `app-${key}`, key, name: req.name === "" ? key : req.name };
       addApp(app);
       return { app: { ...app, organizationId: req.organizationId }, documents: 8, errorDiagnostics: 0 };
+    },
+    exportPlugin: (req) => {
+      data.calls.push(`exportPlugin:${req.pluginId}`);
+      return { filename: `${req.pluginId}.plux`, archive: new Uint8Array([80, 75]), sha256: "00" };
+    },
+    importPlugin: (req) => {
+      data.calls.push(`importPlugin:${req.appId}:${req.key}:${req.name}:${req.archive.length}`);
+      refuse("importPlugin");
+      const key = req.key === "" ? "cards" : req.key;
+      if (data.takenPluginKeys?.includes(key) === true) {
+        throw new ConnectError("PLX-8032 a plugin with this key already exists", Code.AlreadyExists);
+      }
+      const name = req.name === "" ? "Cards" : req.name;
+      return {
+        plugin: { id: `plugin-${key}`, appId: req.appId, key, name },
+        documents: 3,
+        translationKeys: 2,
+        assets: 1,
+        errorDiagnostics: 1,
+      };
     },
     listSampleApps: () => ({
       samples: (data.samples ?? []).map((s) => ({ ...s, size: BigInt(s.size), sha256: "00" })),

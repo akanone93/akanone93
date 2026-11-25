@@ -727,6 +727,272 @@ func (x *DuplicateAppResponse) GetDocuments() int32 {
 	return 0
 }
 
+type ExportPluginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PluginId      string                 `protobuf:"bytes,1,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportPluginRequest) Reset() {
+	*x = ExportPluginRequest{}
+	mi := &file_plux_v1_app_project_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportPluginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportPluginRequest) ProtoMessage() {}
+
+func (x *ExportPluginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_app_project_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportPluginRequest.ProtoReflect.Descriptor instead.
+func (*ExportPluginRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ExportPluginRequest) GetPluginId() string {
+	if x != nil {
+		return x.PluginId
+	}
+	return ""
+}
+
+type ExportPluginResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Filename      string                 `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
+	Archive       []byte                 `protobuf:"bytes,2,opt,name=archive,proto3" json:"archive,omitempty"`
+	Sha256        string                 `protobuf:"bytes,3,opt,name=sha256,proto3" json:"sha256,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportPluginResponse) Reset() {
+	*x = ExportPluginResponse{}
+	mi := &file_plux_v1_app_project_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportPluginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportPluginResponse) ProtoMessage() {}
+
+func (x *ExportPluginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_app_project_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportPluginResponse.ProtoReflect.Descriptor instead.
+func (*ExportPluginResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ExportPluginResponse) GetFilename() string {
+	if x != nil {
+		return x.Filename
+	}
+	return ""
+}
+
+func (x *ExportPluginResponse) GetArchive() []byte {
+	if x != nil {
+		return x.Archive
+	}
+	return nil
+}
+
+func (x *ExportPluginResponse) GetSha256() string {
+	if x != nil {
+		return x.Sha256
+	}
+	return ""
+}
+
+type ImportPluginRequest struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	AppId   string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Archive []byte                 `protobuf:"bytes,2,opt,name=archive,proto3" json:"archive,omitempty"`
+	// key and name override the archive's; empty keeps them.
+	Key  string `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
+	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	// session is the caller's editing session, which takes the locks the
+	// import needs and gives back those it did not hold; empty uses one of
+	// the import's own.
+	Session       string `protobuf:"bytes,5,opt,name=session,proto3" json:"session,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportPluginRequest) Reset() {
+	*x = ImportPluginRequest{}
+	mi := &file_plux_v1_app_project_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportPluginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportPluginRequest) ProtoMessage() {}
+
+func (x *ImportPluginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_app_project_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportPluginRequest.ProtoReflect.Descriptor instead.
+func (*ImportPluginRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ImportPluginRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ImportPluginRequest) GetArchive() []byte {
+	if x != nil {
+		return x.Archive
+	}
+	return nil
+}
+
+func (x *ImportPluginRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ImportPluginRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ImportPluginRequest) GetSession() string {
+	if x != nil {
+		return x.Session
+	}
+	return ""
+}
+
+type ImportPluginResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Plugin *Plugin                `protobuf:"bytes,1,opt,name=plugin,proto3" json:"plugin,omitempty"`
+	// documents is the number of the plugin's documents written.
+	Documents int32 `protobuf:"varint,2,opt,name=documents,proto3" json:"documents,omitempty"`
+	// translation_keys and assets count those added to the app; those it
+	// already had are used as they are.
+	TranslationKeys int32 `protobuf:"varint,3,opt,name=translation_keys,json=translationKeys,proto3" json:"translation_keys,omitempty"`
+	Assets          int32 `protobuf:"varint,4,opt,name=assets,proto3" json:"assets,omitempty"`
+	// error_diagnostics counts the validation errors of the plugin in the
+	// app: its own, such as a reference to a component the app does not
+	// declare, and those of the app-level documents it depends on.
+	ErrorDiagnostics int32 `protobuf:"varint,5,opt,name=error_diagnostics,json=errorDiagnostics,proto3" json:"error_diagnostics,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ImportPluginResponse) Reset() {
+	*x = ImportPluginResponse{}
+	mi := &file_plux_v1_app_project_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportPluginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportPluginResponse) ProtoMessage() {}
+
+func (x *ImportPluginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_app_project_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportPluginResponse.ProtoReflect.Descriptor instead.
+func (*ImportPluginResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ImportPluginResponse) GetPlugin() *Plugin {
+	if x != nil {
+		return x.Plugin
+	}
+	return nil
+}
+
+func (x *ImportPluginResponse) GetDocuments() int32 {
+	if x != nil {
+		return x.Documents
+	}
+	return 0
+}
+
+func (x *ImportPluginResponse) GetTranslationKeys() int32 {
+	if x != nil {
+		return x.TranslationKeys
+	}
+	return 0
+}
+
+func (x *ImportPluginResponse) GetAssets() int32 {
+	if x != nil {
+		return x.Assets
+	}
+	return 0
+}
+
+func (x *ImportPluginResponse) GetErrorDiagnostics() int32 {
+	if x != nil {
+		return x.ErrorDiagnostics
+	}
+	return 0
+}
+
 type SampleApp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -741,7 +1007,7 @@ type SampleApp struct {
 
 func (x *SampleApp) Reset() {
 	*x = SampleApp{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[11]
+	mi := &file_plux_v1_app_project_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -753,7 +1019,7 @@ func (x *SampleApp) String() string {
 func (*SampleApp) ProtoMessage() {}
 
 func (x *SampleApp) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[11]
+	mi := &file_plux_v1_app_project_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -766,7 +1032,7 @@ func (x *SampleApp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SampleApp.ProtoReflect.Descriptor instead.
 func (*SampleApp) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *SampleApp) GetId() string {
@@ -819,7 +1085,7 @@ type ListSampleAppsRequest struct {
 
 func (x *ListSampleAppsRequest) Reset() {
 	*x = ListSampleAppsRequest{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[12]
+	mi := &file_plux_v1_app_project_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -831,7 +1097,7 @@ func (x *ListSampleAppsRequest) String() string {
 func (*ListSampleAppsRequest) ProtoMessage() {}
 
 func (x *ListSampleAppsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[12]
+	mi := &file_plux_v1_app_project_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -844,7 +1110,7 @@ func (x *ListSampleAppsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSampleAppsRequest.ProtoReflect.Descriptor instead.
 func (*ListSampleAppsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{16}
 }
 
 type ListSampleAppsResponse struct {
@@ -856,7 +1122,7 @@ type ListSampleAppsResponse struct {
 
 func (x *ListSampleAppsResponse) Reset() {
 	*x = ListSampleAppsResponse{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[13]
+	mi := &file_plux_v1_app_project_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -868,7 +1134,7 @@ func (x *ListSampleAppsResponse) String() string {
 func (*ListSampleAppsResponse) ProtoMessage() {}
 
 func (x *ListSampleAppsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[13]
+	mi := &file_plux_v1_app_project_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -881,7 +1147,7 @@ func (x *ListSampleAppsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSampleAppsResponse.ProtoReflect.Descriptor instead.
 func (*ListSampleAppsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListSampleAppsResponse) GetSamples() []*SampleApp {
@@ -903,7 +1169,7 @@ type ImportSampleAppRequest struct {
 
 func (x *ImportSampleAppRequest) Reset() {
 	*x = ImportSampleAppRequest{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[14]
+	mi := &file_plux_v1_app_project_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -915,7 +1181,7 @@ func (x *ImportSampleAppRequest) String() string {
 func (*ImportSampleAppRequest) ProtoMessage() {}
 
 func (x *ImportSampleAppRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[14]
+	mi := &file_plux_v1_app_project_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -928,7 +1194,7 @@ func (x *ImportSampleAppRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportSampleAppRequest.ProtoReflect.Descriptor instead.
 func (*ImportSampleAppRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ImportSampleAppRequest) GetOrganizationId() string {
@@ -969,7 +1235,7 @@ type ImportSampleAppResponse struct {
 
 func (x *ImportSampleAppResponse) Reset() {
 	*x = ImportSampleAppResponse{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[15]
+	mi := &file_plux_v1_app_project_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -981,7 +1247,7 @@ func (x *ImportSampleAppResponse) String() string {
 func (*ImportSampleAppResponse) ProtoMessage() {}
 
 func (x *ImportSampleAppResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[15]
+	mi := &file_plux_v1_app_project_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -994,7 +1260,7 @@ func (x *ImportSampleAppResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportSampleAppResponse.ProtoReflect.Descriptor instead.
 func (*ImportSampleAppResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ImportSampleAppResponse) GetApp() *App {
@@ -1038,7 +1304,7 @@ type ShellSettings struct {
 
 func (x *ShellSettings) Reset() {
 	*x = ShellSettings{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[16]
+	mi := &file_plux_v1_app_project_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1050,7 +1316,7 @@ func (x *ShellSettings) String() string {
 func (*ShellSettings) ProtoMessage() {}
 
 func (x *ShellSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[16]
+	mi := &file_plux_v1_app_project_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1063,7 +1329,7 @@ func (x *ShellSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShellSettings.ProtoReflect.Descriptor instead.
 func (*ShellSettings) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ShellSettings) GetName() string {
@@ -1177,7 +1443,7 @@ type ShellChange struct {
 
 func (x *ShellChange) Reset() {
 	*x = ShellChange{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[17]
+	mi := &file_plux_v1_app_project_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1189,7 +1455,7 @@ func (x *ShellChange) String() string {
 func (*ShellChange) ProtoMessage() {}
 
 func (x *ShellChange) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[17]
+	mi := &file_plux_v1_app_project_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1202,7 +1468,7 @@ func (x *ShellChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShellChange.ProtoReflect.Descriptor instead.
 func (*ShellChange) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ShellChange) GetField() string {
@@ -1242,7 +1508,7 @@ type GetShellStatusRequest struct {
 
 func (x *GetShellStatusRequest) Reset() {
 	*x = GetShellStatusRequest{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[18]
+	mi := &file_plux_v1_app_project_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1254,7 +1520,7 @@ func (x *GetShellStatusRequest) String() string {
 func (*GetShellStatusRequest) ProtoMessage() {}
 
 func (x *GetShellStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[18]
+	mi := &file_plux_v1_app_project_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1267,7 +1533,7 @@ func (x *GetShellStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetShellStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetShellStatusRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetShellStatusRequest) GetAppId() string {
@@ -1292,7 +1558,7 @@ type GetShellStatusResponse struct {
 
 func (x *GetShellStatusResponse) Reset() {
 	*x = GetShellStatusResponse{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[19]
+	mi := &file_plux_v1_app_project_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1304,7 +1570,7 @@ func (x *GetShellStatusResponse) String() string {
 func (*GetShellStatusResponse) ProtoMessage() {}
 
 func (x *GetShellStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[19]
+	mi := &file_plux_v1_app_project_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1317,7 +1583,7 @@ func (x *GetShellStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetShellStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetShellStatusResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetShellStatusResponse) GetCurrent() *ShellSettings {
@@ -1365,7 +1631,7 @@ type SetShellSettingsRequest struct {
 
 func (x *SetShellSettingsRequest) Reset() {
 	*x = SetShellSettingsRequest{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[20]
+	mi := &file_plux_v1_app_project_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1377,7 +1643,7 @@ func (x *SetShellSettingsRequest) String() string {
 func (*SetShellSettingsRequest) ProtoMessage() {}
 
 func (x *SetShellSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[20]
+	mi := &file_plux_v1_app_project_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1390,7 +1656,7 @@ func (x *SetShellSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetShellSettingsRequest.ProtoReflect.Descriptor instead.
 func (*SetShellSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *SetShellSettingsRequest) GetAppId() string {
@@ -1416,7 +1682,7 @@ type SetShellSettingsResponse struct {
 
 func (x *SetShellSettingsResponse) Reset() {
 	*x = SetShellSettingsResponse{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[21]
+	mi := &file_plux_v1_app_project_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1428,7 +1694,7 @@ func (x *SetShellSettingsResponse) String() string {
 func (*SetShellSettingsResponse) ProtoMessage() {}
 
 func (x *SetShellSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[21]
+	mi := &file_plux_v1_app_project_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1441,7 +1707,7 @@ func (x *SetShellSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetShellSettingsResponse.ProtoReflect.Descriptor instead.
 func (*SetShellSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SetShellSettingsResponse) GetSettings() *ShellSettings {
@@ -1474,7 +1740,7 @@ type ProjectJob struct {
 
 func (x *ProjectJob) Reset() {
 	*x = ProjectJob{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[22]
+	mi := &file_plux_v1_app_project_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1486,7 +1752,7 @@ func (x *ProjectJob) String() string {
 func (*ProjectJob) ProtoMessage() {}
 
 func (x *ProjectJob) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[22]
+	mi := &file_plux_v1_app_project_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1499,7 +1765,7 @@ func (x *ProjectJob) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectJob.ProtoReflect.Descriptor instead.
 func (*ProjectJob) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ProjectJob) GetId() string {
@@ -1601,7 +1867,7 @@ type GenerateProjectRequest struct {
 
 func (x *GenerateProjectRequest) Reset() {
 	*x = GenerateProjectRequest{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[23]
+	mi := &file_plux_v1_app_project_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1613,7 +1879,7 @@ func (x *GenerateProjectRequest) String() string {
 func (*GenerateProjectRequest) ProtoMessage() {}
 
 func (x *GenerateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[23]
+	mi := &file_plux_v1_app_project_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1626,7 +1892,7 @@ func (x *GenerateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateProjectRequest.ProtoReflect.Descriptor instead.
 func (*GenerateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{23}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GenerateProjectRequest) GetAppId() string {
@@ -1666,7 +1932,7 @@ type GenerateProjectResponse struct {
 
 func (x *GenerateProjectResponse) Reset() {
 	*x = GenerateProjectResponse{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[24]
+	mi := &file_plux_v1_app_project_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1678,7 +1944,7 @@ func (x *GenerateProjectResponse) String() string {
 func (*GenerateProjectResponse) ProtoMessage() {}
 
 func (x *GenerateProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[24]
+	mi := &file_plux_v1_app_project_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1691,7 +1957,7 @@ func (x *GenerateProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateProjectResponse.ProtoReflect.Descriptor instead.
 func (*GenerateProjectResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{24}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GenerateProjectResponse) GetJob() *ProjectJob {
@@ -1712,7 +1978,7 @@ type GetProjectJobRequest struct {
 
 func (x *GetProjectJobRequest) Reset() {
 	*x = GetProjectJobRequest{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[25]
+	mi := &file_plux_v1_app_project_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1724,7 +1990,7 @@ func (x *GetProjectJobRequest) String() string {
 func (*GetProjectJobRequest) ProtoMessage() {}
 
 func (x *GetProjectJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[25]
+	mi := &file_plux_v1_app_project_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1737,7 +2003,7 @@ func (x *GetProjectJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectJobRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectJobRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{25}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetProjectJobRequest) GetJobId() string {
@@ -1763,7 +2029,7 @@ type GetProjectJobResponse struct {
 
 func (x *GetProjectJobResponse) Reset() {
 	*x = GetProjectJobResponse{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[26]
+	mi := &file_plux_v1_app_project_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1775,7 +2041,7 @@ func (x *GetProjectJobResponse) String() string {
 func (*GetProjectJobResponse) ProtoMessage() {}
 
 func (x *GetProjectJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[26]
+	mi := &file_plux_v1_app_project_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1788,7 +2054,7 @@ func (x *GetProjectJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectJobResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectJobResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{26}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetProjectJobResponse) GetJob() *ProjectJob {
@@ -1808,7 +2074,7 @@ type DownloadProjectRequest struct {
 
 func (x *DownloadProjectRequest) Reset() {
 	*x = DownloadProjectRequest{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[27]
+	mi := &file_plux_v1_app_project_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1820,7 +2086,7 @@ func (x *DownloadProjectRequest) String() string {
 func (*DownloadProjectRequest) ProtoMessage() {}
 
 func (x *DownloadProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[27]
+	mi := &file_plux_v1_app_project_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1833,7 +2099,7 @@ func (x *DownloadProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadProjectRequest.ProtoReflect.Descriptor instead.
 func (*DownloadProjectRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{27}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *DownloadProjectRequest) GetJobId() string {
@@ -1861,7 +2127,7 @@ type DownloadProjectResponse struct {
 
 func (x *DownloadProjectResponse) Reset() {
 	*x = DownloadProjectResponse{}
-	mi := &file_plux_v1_app_project_proto_msgTypes[28]
+	mi := &file_plux_v1_app_project_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1873,7 +2139,7 @@ func (x *DownloadProjectResponse) String() string {
 func (*DownloadProjectResponse) ProtoMessage() {}
 
 func (x *DownloadProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_app_project_proto_msgTypes[28]
+	mi := &file_plux_v1_app_project_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1886,7 +2152,7 @@ func (x *DownloadProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadProjectResponse.ProtoReflect.Descriptor instead.
 func (*DownloadProjectResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{28}
+	return file_plux_v1_app_project_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *DownloadProjectResponse) GetFilename() string {
@@ -1914,7 +2180,7 @@ var File_plux_v1_app_project_proto protoreflect.FileDescriptor
 
 const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\n" +
-	"\x19plux/v1/app_project.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11plux/v1/app.proto\x1a\x14plux/v1/common.proto\"\xa1\x01\n" +
+	"\x19plux/v1/app_project.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11plux/v1/app.proto\x1a\x14plux/v1/common.proto\x1a\x14plux/v1/plugin.proto\"\xa1\x01\n" +
 	"\x12EnvironmentRelease\x12'\n" +
 	"\x0fenvironment_key\x18\x01 \x01(\tR\x0eenvironmentKey\x12#\n" +
 	"\rlive_sequence\x18\x02 \x01(\x03R\fliveSequence\x12=\n" +
@@ -1962,7 +2228,25 @@ const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\"T\n" +
 	"\x14DuplicateAppResponse\x12\x1e\n" +
 	"\x03app\x18\x01 \x01(\v2\f.plux.v1.AppR\x03app\x12\x1c\n" +
-	"\tdocuments\x18\x02 \x01(\x05R\tdocuments\"\x8f\x01\n" +
+	"\tdocuments\x18\x02 \x01(\x05R\tdocuments\"2\n" +
+	"\x13ExportPluginRequest\x12\x1b\n" +
+	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\"d\n" +
+	"\x14ExportPluginResponse\x12\x1a\n" +
+	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x18\n" +
+	"\aarchive\x18\x02 \x01(\fR\aarchive\x12\x16\n" +
+	"\x06sha256\x18\x03 \x01(\tR\x06sha256\"\x86\x01\n" +
+	"\x13ImportPluginRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x18\n" +
+	"\aarchive\x18\x02 \x01(\fR\aarchive\x12\x10\n" +
+	"\x03key\x18\x03 \x01(\tR\x03key\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12\x18\n" +
+	"\asession\x18\x05 \x01(\tR\asession\"\xcd\x01\n" +
+	"\x14ImportPluginResponse\x12'\n" +
+	"\x06plugin\x18\x01 \x01(\v2\x0f.plux.v1.PluginR\x06plugin\x12\x1c\n" +
+	"\tdocuments\x18\x02 \x01(\x05R\tdocuments\x12)\n" +
+	"\x10translation_keys\x18\x03 \x01(\x05R\x0ftranslationKeys\x12\x16\n" +
+	"\x06assets\x18\x04 \x01(\x05R\x06assets\x12+\n" +
+	"\x11error_diagnostics\x18\x05 \x01(\x05R\x10errorDiagnostics\"\x8f\x01\n" +
 	"\tSampleApp\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x12\n" +
@@ -2056,12 +2340,14 @@ const file_plux_v1_app_project_proto_rawDesc = "" +
 	"\x17DownloadProjectResponse\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x18\n" +
 	"\aarchive\x18\x02 \x01(\fR\aarchive\x12\x16\n" +
-	"\x06sha256\x18\x03 \x01(\tR\x06sha2562\xa8\a\n" +
+	"\x06sha256\x18\x03 \x01(\tR\x06sha2562\xc6\b\n" +
 	"\x11AppProjectService\x12Y\n" +
 	"\x10ListAppSummaries\x12 .plux.v1.ListAppSummariesRequest\x1a!.plux.v1.ListAppSummariesResponse\"\x00\x12D\n" +
 	"\tExportApp\x12\x19.plux.v1.ExportAppRequest\x1a\x1a.plux.v1.ExportAppResponse\"\x00\x12D\n" +
 	"\tImportApp\x12\x19.plux.v1.ImportAppRequest\x1a\x1a.plux.v1.ImportAppResponse\"\x00\x12M\n" +
-	"\fDuplicateApp\x12\x1c.plux.v1.DuplicateAppRequest\x1a\x1d.plux.v1.DuplicateAppResponse\"\x00\x12S\n" +
+	"\fDuplicateApp\x12\x1c.plux.v1.DuplicateAppRequest\x1a\x1d.plux.v1.DuplicateAppResponse\"\x00\x12M\n" +
+	"\fExportPlugin\x12\x1c.plux.v1.ExportPluginRequest\x1a\x1d.plux.v1.ExportPluginResponse\"\x00\x12M\n" +
+	"\fImportPlugin\x12\x1c.plux.v1.ImportPluginRequest\x1a\x1d.plux.v1.ImportPluginResponse\"\x00\x12S\n" +
 	"\x0eListSampleApps\x12\x1e.plux.v1.ListSampleAppsRequest\x1a\x1f.plux.v1.ListSampleAppsResponse\"\x00\x12V\n" +
 	"\x0fImportSampleApp\x12\x1f.plux.v1.ImportSampleAppRequest\x1a .plux.v1.ImportSampleAppResponse\"\x00\x12S\n" +
 	"\x0eGetShellStatus\x12\x1e.plux.v1.GetShellStatusRequest\x1a\x1f.plux.v1.GetShellStatusResponse\"\x00\x12Y\n" +
@@ -2082,7 +2368,7 @@ func file_plux_v1_app_project_proto_rawDescGZIP() []byte {
 	return file_plux_v1_app_project_proto_rawDescData
 }
 
-var file_plux_v1_app_project_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_plux_v1_app_project_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_plux_v1_app_project_proto_goTypes = []any{
 	(*EnvironmentRelease)(nil),       // 0: plux.v1.EnvironmentRelease
 	(*AppLimitUsage)(nil),            // 1: plux.v1.AppLimitUsage
@@ -2095,77 +2381,87 @@ var file_plux_v1_app_project_proto_goTypes = []any{
 	(*ImportAppResponse)(nil),        // 8: plux.v1.ImportAppResponse
 	(*DuplicateAppRequest)(nil),      // 9: plux.v1.DuplicateAppRequest
 	(*DuplicateAppResponse)(nil),     // 10: plux.v1.DuplicateAppResponse
-	(*SampleApp)(nil),                // 11: plux.v1.SampleApp
-	(*ListSampleAppsRequest)(nil),    // 12: plux.v1.ListSampleAppsRequest
-	(*ListSampleAppsResponse)(nil),   // 13: plux.v1.ListSampleAppsResponse
-	(*ImportSampleAppRequest)(nil),   // 14: plux.v1.ImportSampleAppRequest
-	(*ImportSampleAppResponse)(nil),  // 15: plux.v1.ImportSampleAppResponse
-	(*ShellSettings)(nil),            // 16: plux.v1.ShellSettings
-	(*ShellChange)(nil),              // 17: plux.v1.ShellChange
-	(*GetShellStatusRequest)(nil),    // 18: plux.v1.GetShellStatusRequest
-	(*GetShellStatusResponse)(nil),   // 19: plux.v1.GetShellStatusResponse
-	(*SetShellSettingsRequest)(nil),  // 20: plux.v1.SetShellSettingsRequest
-	(*SetShellSettingsResponse)(nil), // 21: plux.v1.SetShellSettingsResponse
-	(*ProjectJob)(nil),               // 22: plux.v1.ProjectJob
-	(*GenerateProjectRequest)(nil),   // 23: plux.v1.GenerateProjectRequest
-	(*GenerateProjectResponse)(nil),  // 24: plux.v1.GenerateProjectResponse
-	(*GetProjectJobRequest)(nil),     // 25: plux.v1.GetProjectJobRequest
-	(*GetProjectJobResponse)(nil),    // 26: plux.v1.GetProjectJobResponse
-	(*DownloadProjectRequest)(nil),   // 27: plux.v1.DownloadProjectRequest
-	(*DownloadProjectResponse)(nil),  // 28: plux.v1.DownloadProjectResponse
-	(*timestamppb.Timestamp)(nil),    // 29: google.protobuf.Timestamp
-	(*App)(nil),                      // 30: plux.v1.App
-	(*Actor)(nil),                    // 31: plux.v1.Actor
+	(*ExportPluginRequest)(nil),      // 11: plux.v1.ExportPluginRequest
+	(*ExportPluginResponse)(nil),     // 12: plux.v1.ExportPluginResponse
+	(*ImportPluginRequest)(nil),      // 13: plux.v1.ImportPluginRequest
+	(*ImportPluginResponse)(nil),     // 14: plux.v1.ImportPluginResponse
+	(*SampleApp)(nil),                // 15: plux.v1.SampleApp
+	(*ListSampleAppsRequest)(nil),    // 16: plux.v1.ListSampleAppsRequest
+	(*ListSampleAppsResponse)(nil),   // 17: plux.v1.ListSampleAppsResponse
+	(*ImportSampleAppRequest)(nil),   // 18: plux.v1.ImportSampleAppRequest
+	(*ImportSampleAppResponse)(nil),  // 19: plux.v1.ImportSampleAppResponse
+	(*ShellSettings)(nil),            // 20: plux.v1.ShellSettings
+	(*ShellChange)(nil),              // 21: plux.v1.ShellChange
+	(*GetShellStatusRequest)(nil),    // 22: plux.v1.GetShellStatusRequest
+	(*GetShellStatusResponse)(nil),   // 23: plux.v1.GetShellStatusResponse
+	(*SetShellSettingsRequest)(nil),  // 24: plux.v1.SetShellSettingsRequest
+	(*SetShellSettingsResponse)(nil), // 25: plux.v1.SetShellSettingsResponse
+	(*ProjectJob)(nil),               // 26: plux.v1.ProjectJob
+	(*GenerateProjectRequest)(nil),   // 27: plux.v1.GenerateProjectRequest
+	(*GenerateProjectResponse)(nil),  // 28: plux.v1.GenerateProjectResponse
+	(*GetProjectJobRequest)(nil),     // 29: plux.v1.GetProjectJobRequest
+	(*GetProjectJobResponse)(nil),    // 30: plux.v1.GetProjectJobResponse
+	(*DownloadProjectRequest)(nil),   // 31: plux.v1.DownloadProjectRequest
+	(*DownloadProjectResponse)(nil),  // 32: plux.v1.DownloadProjectResponse
+	(*timestamppb.Timestamp)(nil),    // 33: google.protobuf.Timestamp
+	(*App)(nil),                      // 34: plux.v1.App
+	(*Actor)(nil),                    // 35: plux.v1.Actor
+	(*Plugin)(nil),                   // 36: plux.v1.Plugin
 }
 var file_plux_v1_app_project_proto_depIdxs = []int32{
-	29, // 0: plux.v1.EnvironmentRelease.published_at:type_name -> google.protobuf.Timestamp
-	30, // 1: plux.v1.AppSummary.app:type_name -> plux.v1.App
+	33, // 0: plux.v1.EnvironmentRelease.published_at:type_name -> google.protobuf.Timestamp
+	34, // 1: plux.v1.AppSummary.app:type_name -> plux.v1.App
 	0,  // 2: plux.v1.AppSummary.releases:type_name -> plux.v1.EnvironmentRelease
-	29, // 3: plux.v1.AppSummary.last_published_at:type_name -> google.protobuf.Timestamp
+	33, // 3: plux.v1.AppSummary.last_published_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: plux.v1.AppSummary.limits:type_name -> plux.v1.AppLimitUsage
-	31, // 5: plux.v1.AppSummary.last_publisher:type_name -> plux.v1.Actor
+	35, // 5: plux.v1.AppSummary.last_publisher:type_name -> plux.v1.Actor
 	2,  // 6: plux.v1.ListAppSummariesResponse.summaries:type_name -> plux.v1.AppSummary
-	30, // 7: plux.v1.ImportAppResponse.app:type_name -> plux.v1.App
-	30, // 8: plux.v1.DuplicateAppResponse.app:type_name -> plux.v1.App
-	11, // 9: plux.v1.ListSampleAppsResponse.samples:type_name -> plux.v1.SampleApp
-	30, // 10: plux.v1.ImportSampleAppResponse.app:type_name -> plux.v1.App
-	16, // 11: plux.v1.GetShellStatusResponse.current:type_name -> plux.v1.ShellSettings
-	16, // 12: plux.v1.GetShellStatusResponse.generated:type_name -> plux.v1.ShellSettings
-	29, // 13: plux.v1.GetShellStatusResponse.generated_at:type_name -> google.protobuf.Timestamp
-	17, // 14: plux.v1.GetShellStatusResponse.changes:type_name -> plux.v1.ShellChange
-	16, // 15: plux.v1.SetShellSettingsRequest.settings:type_name -> plux.v1.ShellSettings
-	16, // 16: plux.v1.SetShellSettingsResponse.settings:type_name -> plux.v1.ShellSettings
-	29, // 17: plux.v1.ProjectJob.created_at:type_name -> google.protobuf.Timestamp
-	29, // 18: plux.v1.ProjectJob.finished_at:type_name -> google.protobuf.Timestamp
-	22, // 19: plux.v1.GenerateProjectResponse.job:type_name -> plux.v1.ProjectJob
-	22, // 20: plux.v1.GetProjectJobResponse.job:type_name -> plux.v1.ProjectJob
-	3,  // 21: plux.v1.AppProjectService.ListAppSummaries:input_type -> plux.v1.ListAppSummariesRequest
-	5,  // 22: plux.v1.AppProjectService.ExportApp:input_type -> plux.v1.ExportAppRequest
-	7,  // 23: plux.v1.AppProjectService.ImportApp:input_type -> plux.v1.ImportAppRequest
-	9,  // 24: plux.v1.AppProjectService.DuplicateApp:input_type -> plux.v1.DuplicateAppRequest
-	12, // 25: plux.v1.AppProjectService.ListSampleApps:input_type -> plux.v1.ListSampleAppsRequest
-	14, // 26: plux.v1.AppProjectService.ImportSampleApp:input_type -> plux.v1.ImportSampleAppRequest
-	18, // 27: plux.v1.AppProjectService.GetShellStatus:input_type -> plux.v1.GetShellStatusRequest
-	20, // 28: plux.v1.AppProjectService.SetShellSettings:input_type -> plux.v1.SetShellSettingsRequest
-	23, // 29: plux.v1.AppProjectService.GenerateProject:input_type -> plux.v1.GenerateProjectRequest
-	25, // 30: plux.v1.AppProjectService.GetProjectJob:input_type -> plux.v1.GetProjectJobRequest
-	27, // 31: plux.v1.AppProjectService.DownloadProject:input_type -> plux.v1.DownloadProjectRequest
-	4,  // 32: plux.v1.AppProjectService.ListAppSummaries:output_type -> plux.v1.ListAppSummariesResponse
-	6,  // 33: plux.v1.AppProjectService.ExportApp:output_type -> plux.v1.ExportAppResponse
-	8,  // 34: plux.v1.AppProjectService.ImportApp:output_type -> plux.v1.ImportAppResponse
-	10, // 35: plux.v1.AppProjectService.DuplicateApp:output_type -> plux.v1.DuplicateAppResponse
-	13, // 36: plux.v1.AppProjectService.ListSampleApps:output_type -> plux.v1.ListSampleAppsResponse
-	15, // 37: plux.v1.AppProjectService.ImportSampleApp:output_type -> plux.v1.ImportSampleAppResponse
-	19, // 38: plux.v1.AppProjectService.GetShellStatus:output_type -> plux.v1.GetShellStatusResponse
-	21, // 39: plux.v1.AppProjectService.SetShellSettings:output_type -> plux.v1.SetShellSettingsResponse
-	24, // 40: plux.v1.AppProjectService.GenerateProject:output_type -> plux.v1.GenerateProjectResponse
-	26, // 41: plux.v1.AppProjectService.GetProjectJob:output_type -> plux.v1.GetProjectJobResponse
-	28, // 42: plux.v1.AppProjectService.DownloadProject:output_type -> plux.v1.DownloadProjectResponse
-	32, // [32:43] is the sub-list for method output_type
-	21, // [21:32] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	34, // 7: plux.v1.ImportAppResponse.app:type_name -> plux.v1.App
+	34, // 8: plux.v1.DuplicateAppResponse.app:type_name -> plux.v1.App
+	36, // 9: plux.v1.ImportPluginResponse.plugin:type_name -> plux.v1.Plugin
+	15, // 10: plux.v1.ListSampleAppsResponse.samples:type_name -> plux.v1.SampleApp
+	34, // 11: plux.v1.ImportSampleAppResponse.app:type_name -> plux.v1.App
+	20, // 12: plux.v1.GetShellStatusResponse.current:type_name -> plux.v1.ShellSettings
+	20, // 13: plux.v1.GetShellStatusResponse.generated:type_name -> plux.v1.ShellSettings
+	33, // 14: plux.v1.GetShellStatusResponse.generated_at:type_name -> google.protobuf.Timestamp
+	21, // 15: plux.v1.GetShellStatusResponse.changes:type_name -> plux.v1.ShellChange
+	20, // 16: plux.v1.SetShellSettingsRequest.settings:type_name -> plux.v1.ShellSettings
+	20, // 17: plux.v1.SetShellSettingsResponse.settings:type_name -> plux.v1.ShellSettings
+	33, // 18: plux.v1.ProjectJob.created_at:type_name -> google.protobuf.Timestamp
+	33, // 19: plux.v1.ProjectJob.finished_at:type_name -> google.protobuf.Timestamp
+	26, // 20: plux.v1.GenerateProjectResponse.job:type_name -> plux.v1.ProjectJob
+	26, // 21: plux.v1.GetProjectJobResponse.job:type_name -> plux.v1.ProjectJob
+	3,  // 22: plux.v1.AppProjectService.ListAppSummaries:input_type -> plux.v1.ListAppSummariesRequest
+	5,  // 23: plux.v1.AppProjectService.ExportApp:input_type -> plux.v1.ExportAppRequest
+	7,  // 24: plux.v1.AppProjectService.ImportApp:input_type -> plux.v1.ImportAppRequest
+	9,  // 25: plux.v1.AppProjectService.DuplicateApp:input_type -> plux.v1.DuplicateAppRequest
+	11, // 26: plux.v1.AppProjectService.ExportPlugin:input_type -> plux.v1.ExportPluginRequest
+	13, // 27: plux.v1.AppProjectService.ImportPlugin:input_type -> plux.v1.ImportPluginRequest
+	16, // 28: plux.v1.AppProjectService.ListSampleApps:input_type -> plux.v1.ListSampleAppsRequest
+	18, // 29: plux.v1.AppProjectService.ImportSampleApp:input_type -> plux.v1.ImportSampleAppRequest
+	22, // 30: plux.v1.AppProjectService.GetShellStatus:input_type -> plux.v1.GetShellStatusRequest
+	24, // 31: plux.v1.AppProjectService.SetShellSettings:input_type -> plux.v1.SetShellSettingsRequest
+	27, // 32: plux.v1.AppProjectService.GenerateProject:input_type -> plux.v1.GenerateProjectRequest
+	29, // 33: plux.v1.AppProjectService.GetProjectJob:input_type -> plux.v1.GetProjectJobRequest
+	31, // 34: plux.v1.AppProjectService.DownloadProject:input_type -> plux.v1.DownloadProjectRequest
+	4,  // 35: plux.v1.AppProjectService.ListAppSummaries:output_type -> plux.v1.ListAppSummariesResponse
+	6,  // 36: plux.v1.AppProjectService.ExportApp:output_type -> plux.v1.ExportAppResponse
+	8,  // 37: plux.v1.AppProjectService.ImportApp:output_type -> plux.v1.ImportAppResponse
+	10, // 38: plux.v1.AppProjectService.DuplicateApp:output_type -> plux.v1.DuplicateAppResponse
+	12, // 39: plux.v1.AppProjectService.ExportPlugin:output_type -> plux.v1.ExportPluginResponse
+	14, // 40: plux.v1.AppProjectService.ImportPlugin:output_type -> plux.v1.ImportPluginResponse
+	17, // 41: plux.v1.AppProjectService.ListSampleApps:output_type -> plux.v1.ListSampleAppsResponse
+	19, // 42: plux.v1.AppProjectService.ImportSampleApp:output_type -> plux.v1.ImportSampleAppResponse
+	23, // 43: plux.v1.AppProjectService.GetShellStatus:output_type -> plux.v1.GetShellStatusResponse
+	25, // 44: plux.v1.AppProjectService.SetShellSettings:output_type -> plux.v1.SetShellSettingsResponse
+	28, // 45: plux.v1.AppProjectService.GenerateProject:output_type -> plux.v1.GenerateProjectResponse
+	30, // 46: plux.v1.AppProjectService.GetProjectJob:output_type -> plux.v1.GetProjectJobResponse
+	32, // 47: plux.v1.AppProjectService.DownloadProject:output_type -> plux.v1.DownloadProjectResponse
+	35, // [35:48] is the sub-list for method output_type
+	22, // [22:35] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_app_project_proto_init() }
@@ -2175,13 +2471,14 @@ func file_plux_v1_app_project_proto_init() {
 	}
 	file_plux_v1_app_proto_init()
 	file_plux_v1_common_proto_init()
+	file_plux_v1_plugin_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_app_project_proto_rawDesc), len(file_plux_v1_app_project_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   29,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

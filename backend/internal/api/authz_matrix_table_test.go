@@ -602,6 +602,12 @@ var matrix = map[string]entry{
 	"AppProjectService/DuplicateApp": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DuplicateAppRequest{AppId: f.freshApp(t), Key: f.name()}
 	}),
+	"AppProjectService/ExportPlugin": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ExportPluginRequest{PluginId: f.plugin}
+	})),
+	"AppProjectService/ImportPlugin": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ImportPluginRequest{AppId: f.app, Archive: []byte("not an archive")}
+	})),
 	"AppProjectService/ListSampleApps": atPerm(auth.AppRead, anyone(&pluxv1.ListSampleAppsRequest{})),
 	"AppProjectService/ImportSampleApp": atPerm(auth.AppManage, fixed(func(*matrixFixture) proto.Message {
 		return &pluxv1.ImportSampleAppRequest{SampleId: "no-such-sample"}

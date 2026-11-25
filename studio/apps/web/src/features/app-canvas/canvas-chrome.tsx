@@ -135,6 +135,7 @@ export function CanvasToolbar({
   messages: m,
   selected,
   onNew,
+  onImport,
   onFrame,
   onArrange,
   onTrash,
@@ -145,6 +146,8 @@ export function CanvasToolbar({
   readonly messages: Messages;
   readonly selected: number;
   readonly onNew: () => void;
+  /** Adds a plugin from a .plux archive (build log row 264). */
+  readonly onImport: () => void;
   readonly onFrame: () => void;
   readonly onArrange: () => void;
   readonly onTrash: () => void;
@@ -182,6 +185,7 @@ export function CanvasToolbar({
         </>
       )}
       <Separator orientation="vertical" className="mx-1 h-6" />
+      <ToolButton icon="upload" label={m.importPlugin} onClick={onImport} />
       <ToolButton icon="plus" label={m.newPlugin} variant="default" text onClick={onNew} />
     </Panel>
   );
@@ -291,6 +295,7 @@ export function PluginActions({
   archived,
   onOpen,
   onDialogue,
+  onExport,
   onMove,
   onArchive,
   onDelete,
@@ -302,6 +307,8 @@ export function PluginActions({
   readonly archived: boolean;
   readonly onOpen: () => void;
   readonly onDialogue: (kind: "settings" | "duplicate" | "entry") => void;
+  /** Downloads the plugin as a .plux archive (build log row 264). */
+  readonly onExport: () => void;
   readonly onMove: () => void;
   readonly onArchive: () => void;
   readonly onDelete: () => void;
@@ -325,6 +332,10 @@ export function PluginActions({
         <Button variant="outline" size="sm" className="justify-start" onClick={() => onDialogue("duplicate")}>
           <Icon name="copy" data-icon="inline-start" />
           {m.duplicate}
+        </Button>
+        <Button variant="outline" size="sm" className="justify-start" onClick={onExport}>
+          <Icon name="download" data-icon="inline-start" />
+          {m.exportPlugin}
         </Button>
         <Button variant="outline" size="sm" className="justify-start" onClick={() => onDialogue("entry")}>
           <Icon name="house" data-icon="inline-start" />
@@ -357,6 +368,7 @@ export function PluginContextMenu({
   onClose,
   onOpen,
   onDialogue,
+  onExport,
   onMove,
   onArchive,
   onDelete,
@@ -366,6 +378,7 @@ export function PluginContextMenu({
   readonly onClose: () => void;
   readonly onOpen: (box: SceneBox) => void;
   readonly onDialogue: (kind: "settings" | "duplicate" | "entry") => void;
+  readonly onExport: (box: SceneBox) => void;
   readonly onMove: (box: SceneBox) => void;
   readonly onArchive: () => void;
   readonly onDelete: () => void;
@@ -394,6 +407,7 @@ export function PluginContextMenu({
         { kind: "item", id: "open", label: m.openPlugin, onSelect: () => onOpen(box) },
         { kind: "item", id: "settings", label: m.settings, onSelect: () => onDialogue("settings") },
         { kind: "item", id: "duplicate", label: m.duplicate, onSelect: () => onDialogue("duplicate") },
+        { kind: "item", id: "export", label: m.exportPlugin, onSelect: () => onExport(box) },
         { kind: "item", id: "entry", label: m.setEntry, onSelect: () => onDialogue("entry") },
         { kind: "separator", id: "place" },
         { kind: "item", id: "move", label: m.moveSelection, onSelect: () => onMove(box) },

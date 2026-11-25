@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.23.0
+**Version:** 1.24.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -1687,7 +1687,7 @@ The app canvas shows every plugin of an app as a box on an infinite canvas, with
 | `STU-031` | P11 | MUST | Hovering or focusing a plugin **MUST** show a detail card: description, a mini-map of its screens, inbound and outbound link counts, functions used, bundle size, last published by and when. | DONE |
 | `STU-032` | P11 | MUST | Plugin boxes **MUST** be freely draggable, with multi-select, auto-layout (layered graph layout) and zoom-to-fit; positions are saved per app. | DONE |
 | `STU-033` | P11 | MUST | Native routes that plugins navigate to **MUST** appear as distinct native nodes (dashed outline, native icon) that only **receive** arrows. Native → plugin arrows **MUST NOT** be drawn, because Plux cannot know which native screens open plugin pages (§13.1). | DONE |
-| `STU-034` | P11 | MUST | Plugins **MUST** be creatable, renamed, duplicated, archived and configured from the canvas (context menu and toolbar). Double-clicking a plugin opens its plugin canvas. | DONE |
+| `STU-034` | P11 | MUST | Plugins **MUST** be creatable, renamed, duplicated, exported as a `.plux` archive, imported from one into another app, archived and configured from the canvas (context menu and toolbar). Double-clicking a plugin opens its plugin canvas. | DONE |
 | `STU-035` | P11 | SHOULD | Frames (labelled groups of plugins, e.g. "Onboarding", "Payments") **SHOULD** be supported for organising large apps. | DONE |
 
 ### 21.5 Bundled navigation arrows
@@ -3136,10 +3136,11 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.23.0 |
+| Version | 1.24.0 |
 | Status | Draft (living document) |
-| Date | 2026-11-24 |
-| Supersedes | 1.22.0 |
+| Date | 2026-11-25 |
+| Supersedes | 1.23.0 |
+| 1.24.0 | 2026-11-25 | `STU-034`: a plugin is exported as a `.plux` archive with the translation keys, messages and assets it uses, and imported from one into another app; a plugin archive is manifest version 2 (maintainer decision of 2026-11-24, build log row 264; ADR-0102, Revision 2026-11-25). |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
