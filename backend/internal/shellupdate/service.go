@@ -17,6 +17,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/baseline"
 	"github.com/nightCode42/plux3/backend/internal/codegen"
 	"github.com/nightCode42/plux3/backend/internal/generator"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -63,6 +64,11 @@ type Enqueuer interface {
 // KeyReader returns an environment's root public keys (SEC-051).
 type KeyReader func(ctx context.Context, organizationID, environmentID string) ([]codegen.RootKey, error)
 
+// ReleaseReader returns a channel's current release, which a generated
+// project embeds as its baseline (GEN-001, SYN-007); the reader fills its
+// sequence, versions, confidentiality and root.
+type ReleaseReader func(ctx context.Context, organizationID, environmentID, channel string) (baseline.Release, error)
+
 // Options are what the service needs.
 type Options struct {
 	DB    *storage.DB
@@ -71,8 +77,12 @@ type Options struct {
 	// Queue enqueues jobs; nil makes GenerateProject refuse.
 	Queue Enqueuer
 	Keys  KeyReader
-	// Objects holds the asset files, so an icon can be checked and read; nil
-	// refuses an icon.
+	// Release reads the channel's release a full project embeds; nil
+	// embeds none, and the app syncs its first release at first launch.
+	Release ReleaseReader
+	// Objects holds the asset files, so an icon can be checked and read,
+	// and the bundles and asset files a project embeds; nil refuses an
+	// icon and embeds no release.
 	Objects objects.Store
 	// Endpoint is the server's public base URL, compiled into the project.
 	Endpoint string
@@ -521,12 +531,12 @@ func (s *Service) Work(ctx context.Context, job Job) error {
 
 // render generates the files of one project from a spec and its icon, with
 // the environment's keys and the development environment's.
-func render(spec generator.ShellSpec, icon []byte, keys, devKeys []codegen.RootKey) ([]generator.File, generator.ShellSpec, error) {
+func render(spec generator.ShellSpec, icon []byte, keys, devKeys []codegen.RootKey, embed map[string][]byte) ([]generator.File, generator.ShellSpec, error) {
 	derived, err := generator.Derive(spec)
 	if err != nil {
 		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the shell settings are not valid: %v", err)
 	}
-	files, err := generator.Generate(generator.Input{Spec: derived, Icon: icon, Keys: keys, DevKeys: devKeys})
+	files, err := generator.Generate(generator.Input{Spec: derived, Icon: icon, Keys: keys, DevKeys: devKeys, Baseline: embed})
 	if err != nil {
 		return nil, spec, plxerr.Wrap(plxerr.InvalidFormat, err, "the project cannot be generated: %v", err)
 	}
@@ -571,7 +581,15 @@ func (s *Service) build(ctx context.Context, job Job, c claim) ([]byte, generato
 			return nil, spec, err
 		}
 	}
-	files, derived, err := render(spec, icon, keys, devKeys)
+	var embed map[string][]byte
+	if c.row.Format != FormatPatch {
+		// A patch updates the shell; the embedded release is refreshed with
+		// plux pull, so only a full project carries one.
+		if embed, err = s.baseline(ctx, job.OrganizationID, c, keys); err != nil {
+			return nil, spec, err
+		}
+	}
+	files, derived, err := render(spec, icon, keys, devKeys, embed)
 	if err != nil {
 		return nil, spec, err
 	}
@@ -606,7 +624,7 @@ func (s *Service) patch(ctx context.Context, gen *generator.ShellSpec, updated [
 			return nil, err
 		}
 	}
-	old, from, err := render(*gen, icon, keys, devKeys)
+	old, from, err := render(*gen, icon, keys, devKeys, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -615,6 +633,58 @@ func (s *Service) patch(ctx context.Context, gen *generator.ShellSpec, updated [
 		return nil, fmt.Errorf("shellupdate: patch: %w", err)
 	}
 	return out, nil
+}
+
+// baseline is the channel's release a full project embeds under
+// assets/plux, as plux pull writes it (GEN-001, SYN-007): the keys, the
+// root, and the bundles and asset files of a release that is not
+// confidential, each checked against its hash; nil when the server reads
+// no releases.
+func (s *Service) baseline(ctx context.Context, org string, c claim, keys []codegen.RootKey) (map[string][]byte, error) {
+	if s.o.Release == nil {
+		return nil, nil
+	}
+	rel, err := s.o.Release(ctx, org, c.envID, c.row.ChannelKey)
+	if err != nil {
+		return nil, fmt.Errorf("shellupdate: the channel's release: %w", err)
+	}
+	rel.App, rel.Environment, rel.Channel = storage.ID(c.app.ID), c.row.EnvironmentKey, c.row.ChannelKey
+	rel.Keys = make([]baseline.Key, len(keys))
+	for i, k := range keys {
+		rel.Keys[i] = baseline.Key{KeyID: k.KeyID, Algorithm: k.Algorithm, Role: k.Role, PublicKey: hex.EncodeToString(k.PublicKey)}
+	}
+	files, err := baseline.Files(ctx, rel, objectFetcher{s.o.Objects}, s.o.Limits.Get(limits.ProjectBytes))
+	if err != nil {
+		return nil, fmt.Errorf("shellupdate: embed the release: %w", err)
+	}
+	return files, nil
+}
+
+// objectFetcher reads a release's bundles and asset files from the object
+// store.
+type objectFetcher struct{ store objects.Store }
+
+func (f objectFetcher) Bundle(ctx context.Context, sha string) ([]byte, error) {
+	return f.get(ctx, objects.KindBundle, sha)
+}
+
+func (f objectFetcher) Asset(ctx context.Context, sha string) ([]byte, error) {
+	return f.get(ctx, objects.KindAsset, sha)
+}
+
+func (f objectFetcher) get(ctx context.Context, kind objects.Kind, sha string) ([]byte, error) {
+	if f.store == nil {
+		return nil, plxerr.New(plxerr.PreconditionFailed, "object storage is not available on this server")
+	}
+	key, err := objects.Key(kind, sha)
+	if err != nil {
+		return nil, plxerr.New(plxerr.InvalidFormat, "%q is not an object hash", sha)
+	}
+	data, _, err := f.store.Get(ctx, key)
+	if err != nil {
+		return nil, fmt.Errorf("read %s: %w", key, err)
+	}
+	return data, nil
 }
 
 // currentIcon reads the icon asset of an app, under the app's row-level

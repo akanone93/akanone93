@@ -15,16 +15,11 @@ import (
 	"regexp"
 	"slices"
 
-	"github.com/nightCode42/plux3/backend/internal/bundle"
-	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
-	"github.com/nightCode42/plux3/backend/internal/compiler/media"
+	embedded "github.com/nightCode42/plux3/backend/internal/baseline"
 )
 
 // baselineAsset is one asset file of a baseline, named by its SHA-256.
-type baselineAsset struct {
-	SHA256 string `json:"sha256"`
-	File   string `json:"file"`
-}
+type baselineAsset = embedded.Asset
 
 // maxAssetFile bounds one downloaded asset file: the hard maximum of
 // asset.fileSize.
@@ -33,67 +28,10 @@ const maxAssetFile = 100 << 20
 // assetFileName matches the files pull writes under assets/.
 var assetFileName = regexp.MustCompile(`^[0-9a-f]{64}$`)
 
-// baselineAssetFiles lists, sorted and once each, the asset files a
-// baseline embeds for the assets its bundles index (AST-001): the WebP
-// variants of a raster image at every density, so that the device picks
-// its density at run time and every platform decodes it; the
-// vector_graphics variant of an SVG, never the SVG itself (CMP-031); the
-// file itself for anything else.
+// baselineAssetFiles lists the asset files a baseline embeds for the
+// assets its bundles index (embedded.AssetFiles).
 func baselineAssetFiles(bundles [][]byte) ([]string, error) {
-	seen := map[string]bool{}
-	for _, data := range bundles {
-		b, err := bundle.ReadStructure(data)
-		if err != nil {
-			return nil, fmt.Errorf("read a bundle: %w", err)
-		}
-		for _, s := range b.Sections {
-			if s.Kind == bundle.SectionAssetsIndex {
-				indexFiles(fbs.GetRootAsAssetIndex(s.Data, 0), seen)
-			}
-		}
-	}
-	out := make([]string, 0, len(seen))
-	for h := range seen {
-		out = append(out, h)
-	}
-	slices.Sort(out)
-	return out, nil
-}
-
-// indexFiles adds the files of every asset of an index to seen.
-func indexFiles(idx *fbs.AssetIndex, seen map[string]bool) {
-	var a fbs.Asset
-	for i := range idx.AssetsLength() {
-		if idx.Assets(&a, i) {
-			for _, h := range assetFiles(&a) {
-				seen[h] = true
-			}
-		}
-	}
-}
-
-// assetFiles names the files of one asset a baseline embeds.
-func assetFiles(a *fbs.Asset) []string {
-	var webp, vec []string
-	var v fbs.AssetVariant
-	for j := range a.VariantsLength() {
-		if !a.Variants(&v, j) {
-			continue
-		}
-		switch string(v.MediaType()) {
-		case media.WebP:
-			webp = append(webp, hex.EncodeToString(v.HashBytes()))
-		case media.VectorGraphics:
-			vec = append(vec, hex.EncodeToString(v.HashBytes()))
-		}
-	}
-	switch {
-	case string(a.MediaType()) == media.SVG:
-		return vec
-	case len(webp) > 0:
-		return webp
-	}
-	return []string{hex.EncodeToString(a.HashBytes())}
+	return embedded.AssetFiles(bundles) //nolint:wrapcheck // the package's own message
 }
 
 // writeAssets downloads the asset files into dir/assets, checking each

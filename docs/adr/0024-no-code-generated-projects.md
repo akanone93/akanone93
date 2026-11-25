@@ -265,3 +265,17 @@ template changes, and the output is not reproducible across machines.
 It would fit Flutter developers' tools. But it is a new dependency outside the allowlist,
 it needs a Dart runtime on the server in P11, and Go's `text/template` already covers the
 need.
+
+## Revision 2026-11-25: Studio's download embeds the release
+
+Studio's project download (P11, `shellupdate`) rendered the project without a baseline, although
+this ADR and `GEN-001` have the project embed the channel's release; its `pubspec.yaml` listed
+asset directories that did not exist and the first launch needed the network (build log row 294).
+The download now embeds the channel's release under `assets/plux` exactly as `plux pull` writes it:
+the baseline's format and its asset selection moved to `internal/baseline`, which the CLI and the
+server share, and the server reads the release, its signatures and the environment's newest root
+in the organisation's tenancy, then every bundle and asset file from the object store, each checked
+against its hash, within `project.bytes`. A **confidential** release (`SEC-053`) is embedded as its
+keys and root alone, as the confidential-bundles guide advises, because a downloaded project gives
+no one the choice; a **patch** embeds nothing, since it updates the shell and the release is
+refreshed with `plux pull`. `plux pull` and `plux create` are unchanged.

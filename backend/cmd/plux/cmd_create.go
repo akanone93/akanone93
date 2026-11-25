@@ -100,20 +100,8 @@ func (e env) create(args []string) int {
 		return e.fail("create", err)
 	}
 	c.app = app.GetId()
-	pulled, err := os.MkdirTemp("", "plux-create-")
+	in, base, err := projectInput(ctx, cl, c, *f.env, *f.channel)
 	if err != nil {
-		return e.fail("create", err)
-	}
-	defer func() { _ = os.RemoveAll(pulled) }()
-	base, err := pullBaseline(ctx, cl, c, *f.env, *f.channel, pulled, false)
-	if err != nil {
-		return e.fail("create", err)
-	}
-	in, err := createInput(pulled, base)
-	if err != nil {
-		return e.fail("create", err)
-	}
-	if in.DevKeys, err = devKeys(ctx, cl, c.app); err != nil {
 		return e.fail("create", err)
 	}
 	pkg := generator.PackageName(app.GetKey())
@@ -210,6 +198,29 @@ func createInput(dir string, base baseline) (generator.Input, error) {
 		in.Keys = append(in.Keys, codegen.RootKey{KeyID: k.KeyID, Algorithm: k.Algorithm, Role: k.Role, PublicKey: key})
 	}
 	return in, nil
+}
+
+// projectInput pulls the channel's release into a directory of its own and
+// reads the project's input from it: the shell, the release, its keys and
+// the development keys.
+func projectInput(ctx context.Context, cl *clients, c common, env, channel string) (generator.Input, baseline, error) {
+	pulled, err := os.MkdirTemp("", "plux-create-")
+	if err != nil {
+		return generator.Input{}, baseline{}, fmt.Errorf("create a directory for the release: %w", err)
+	}
+	defer func() { _ = os.RemoveAll(pulled) }()
+	base, err := pullBaseline(ctx, cl, c, env, channel, pulled, false)
+	if err != nil {
+		return generator.Input{}, baseline{}, err
+	}
+	in, err := createInput(pulled, base)
+	if err != nil {
+		return generator.Input{}, baseline{}, err
+	}
+	if in.DevKeys, err = devKeys(ctx, cl, c.app); err != nil {
+		return generator.Input{}, baseline{}, err
+	}
+	return in, base, nil
 }
 
 // readTree reads every file under dir, by slash path.

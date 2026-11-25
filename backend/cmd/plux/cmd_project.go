@@ -24,6 +24,7 @@ import (
 
 	"connectrpc.com/connect"
 
+	embedded "github.com/nightCode42/plux3/backend/internal/baseline"
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -701,35 +702,13 @@ func publishOne(ctx context.Context, cl *clients, app string, p *pluxv1.Plugin, 
 }
 
 // baseline describes what pull wrote.
-type baseline struct {
-	App         string          `json:"app"`
-	Environment string          `json:"environment"`
-	Channel     string          `json:"channel"`
-	Sequence    int64           `json:"releaseSequence"`
-	Bundles     []baselineEntry `json:"bundles"`
-	Assets      []baselineAsset `json:"assets"`
-	Keys        []baselineKey   `json:"keys"`
-}
-
-// baselineEntry is one bundle of a baseline with the signature publish
-// made over its bundle hash, so the runtime verifies it under the
-// embedded keys before loading it (SEC-052, ADR-0029).
-type baselineEntry struct {
-	Plugin    string `json:"plugin"`
-	Version   int64  `json:"version"`
-	SHA256    string `json:"sha256"`
-	File      string `json:"file"`
-	KeyID     string `json:"keyId"`
-	Algorithm string `json:"algorithm"`
-	Signature string `json:"signature"`
-}
-
-type baselineKey struct {
-	KeyID     string `json:"keyId"`
-	Algorithm string `json:"algorithm"`
-	Role      string `json:"role"`
-	PublicKey string `json:"publicKey"`
-}
+// The baseline's format is shared with the server's project download
+// (GEN-001), which embeds the same files (internal/baseline).
+type (
+	baseline      = embedded.Baseline
+	baselineEntry = embedded.Entry
+	baselineKey   = embedded.Key
+)
 
 // pull downloads the release a channel points at, with the root public
 // keys, into the host project as its baseline (CLI-004, SYN-007). Every

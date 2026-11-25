@@ -18,9 +18,13 @@ import (
 	"strings"
 	"testing"
 
+	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/baseline"
+	"github.com/nightCode42/plux3/backend/internal/bundle"
+	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
 	"github.com/nightCode42/plux3/backend/internal/generator"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/shellupdate"
@@ -330,4 +334,97 @@ func (f *fixture) lastJob(t *testing.T, appID string) shellupdate.ProjectJob {
 		t.Fatal(err)
 	}
 	return j
+}
+
+// emptyAppBundle is a valid app bundle with an empty asset index.
+func emptyAppBundle(t *testing.T) []byte {
+	t.Helper()
+	b := flatbuffers.NewBuilder(0)
+	fbs.AssetIndexStartAssetsVector(b, 0)
+	list := b.EndVector(0)
+	fbs.AssetIndexStart(b)
+	fbs.AssetIndexAddAssets(b, list)
+	bundle.Finish(b, fbs.AssetIndexEnd(b), bundle.SectionAssetsIndex)
+	data, err := bundle.Encode(bundle.KindApp, []bundle.Section{{Kind: bundle.SectionAssetsIndex, Data: b.FinishedBytes()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return data
+}
+
+// TestProjectEmbedsTheRelease_GEN_001 downloads the project Studio
+// generates: it embeds the channel's release under assets/plux as plux
+// pull writes it, with the bundles' signatures; a confidential release
+// is embedded as its keys alone, so no plaintext of it enters the app
+// (SEC-053); and a patch embeds none (build log row 294).
+func TestProjectEmbedsTheRelease_GEN_001(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	app, err := f.tenancy.CreateApp(ctx, f.owner, "shop", "Shop")
+	if err != nil {
+		t.Fatal(err)
+	}
+	st, err := f.shells.Status(ctx, f.owner, app.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.shells.SetSettings(ctx, f.owner, app.ID, st.Current); err != nil {
+		t.Fatal(err)
+	}
+	data := emptyAppBundle(t)
+	b, err := bundle.ReadStructure(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sha := hex.EncodeToString(b.Hash[:])
+	if _, err := f.objects.Put(ctx, mustObjectKey(t, objects.KindBundle, sha), data, bundle.MediaType); err != nil {
+		t.Fatal(err)
+	}
+	f.release = baseline.Release{Sequence: 4, Root: []byte(`{"root":1}`), Versions: []baseline.Version{
+		{Version: 1, SHA256: sha, KeyID: "k1", Algorithm: "ed25519", Signature: []byte{9, 9}},
+	}}
+	files := f.download(t, app.ID, f.runJob(t, app.ID, ""))
+	if !bytes.Equal(files["shop/assets/plux/bundles/_app.pxb"], data) {
+		t.Error("the project does not embed the app bundle")
+	}
+	manifest := string(files["shop/assets/plux/baseline.json"])
+	for _, want := range []string{`"releaseSequence": 4`, `"signature": "CQk="`, `"channel": "production"`, `"environment": "development"`} {
+		if !strings.Contains(manifest, want) {
+			t.Errorf("baseline.json lacks %s:\n%s", want, manifest)
+		}
+	}
+	if string(files["shop/assets/plux/root.json"]) != `{"root":1}` || files["shop/assets/plux/keys.json"] == nil {
+		t.Error("the project does not embed the keys and the root")
+	}
+
+	f.release.Confidential = true
+	files = f.download(t, app.ID, f.runJob(t, app.ID, ""))
+	if files["shop/assets/plux/bundles/_app.pxb"] != nil || files["shop/assets/plux/baseline.json"] != nil || files["shop/assets/plux/keys.json"] == nil {
+		t.Error("a confidential release's plaintext entered the project")
+	}
+	if !strings.Contains(string(files["shop/pubspec.yaml"]), "assets/plux/") {
+		t.Error("the pubspec does not list the embedded release")
+	}
+}
+
+// download reads the zip of a succeeded job.
+func (f *fixture) download(t *testing.T, appID string, job shellupdate.ProjectJob) map[string][]byte {
+	t.Helper()
+	if job.Status != shellupdate.StatusSucceeded {
+		t.Fatalf("job: %+v", job)
+	}
+	_, zipped, err := f.shells.Download(context.Background(), f.owner, appID, job.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return readZip(t, zipped)
+}
+
+func mustObjectKey(t *testing.T, kind objects.Kind, sha string) string {
+	t.Helper()
+	key, err := objects.Key(kind, sha)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return key
 }

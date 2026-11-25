@@ -38,6 +38,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/baseline"
 	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
@@ -381,6 +382,23 @@ func rootKeys(ctx context.Context, releases *release.Service, org, env string) (
 	out := make([]codegen.RootKey, len(keys))
 	for i, k := range keys {
 		out[i] = codegen.RootKey{KeyID: k.KeyID, Algorithm: k.Algorithm, Role: k.Role, PublicKey: k.PublicKey}
+	}
+	return out, nil
+}
+
+// channelRelease is a channel's current release as a generated project
+// embeds it (GEN-001, build log row 294).
+func channelRelease(ctx context.Context, releases *release.Service, org, env, channel string) (baseline.Release, error) {
+	cr, err := releases.ChannelRelease(ctx, org, env, channel)
+	if err != nil {
+		return baseline.Release{}, err //nolint:wrapcheck // a domain error
+	}
+	out := baseline.Release{Sequence: cr.Sequence, Confidential: cr.Confidential, Root: cr.Root}
+	for _, v := range cr.Versions {
+		out.Versions = append(out.Versions, baseline.Version{
+			Plugin: v.PluginKey, Version: v.Version, SHA256: v.BundleSHA256, KeyID: v.KeyID, Algorithm: v.Algorithm,
+			Signature: v.Signature, RequiredFeatures: v.RequiredFeatures,
+		})
 	}
 	return out, nil
 }
@@ -729,6 +747,9 @@ func (k *serviceKit) buildPublishing(svc *Services) error {
 		DB: k.db, Audit: k.log, IDs: k.gen, Limits: k.set, Queue: projectQueue{k.work.Queue}, Objects: k.work.Objects, Endpoint: k.cfg.Server.PublicBaseURL,
 		Keys: func(ctx context.Context, org, env string) ([]codegen.RootKey, error) {
 			return rootKeys(ctx, svc.Releases, org, env)
+		},
+		Release: func(ctx context.Context, org, env, channel string) (baseline.Release, error) {
+			return channelRelease(ctx, svc.Releases, org, env, channel)
 		},
 	}); err != nil {
 		return fmt.Errorf("server: %w", err)

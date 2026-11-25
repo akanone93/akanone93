@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/archive"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/baseline"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/codegen"
 	"github.com/nightCode42/plux3/backend/internal/document"
@@ -51,15 +52,17 @@ type fixture struct {
 	tenancy  *tenancy.Service
 	archives *archive.Service
 	docs     *document.Service
-	shells   *shellupdate.Service
-	queue    *queue
-	objects  *objects.Filesystem
-	gen      ids
-	log      *audit.Log
-	org      string
-	owner    auth.Principal
-	viewer   auth.Principal
-	other    auth.Principal // owner of a second organisation
+	// release is the channel's release a generated project embeds.
+	release baseline.Release
+	shells  *shellupdate.Service
+	queue   *queue
+	objects *objects.Filesystem
+	gen     ids
+	log     *audit.Log
+	org     string
+	owner   auth.Principal
+	viewer  auth.Principal
+	other   auth.Principal // owner of a second organisation
 }
 
 func newFixture(t *testing.T) *fixture {
@@ -117,7 +120,11 @@ func newFixture(t *testing.T) *fixture {
 	keys := func(context.Context, string, string) ([]codegen.RootKey, error) {
 		return []codegen.RootKey{{KeyID: "k1", Algorithm: "ed25519", Role: "targets", PublicKey: bytes.Repeat([]byte{7}, 32)}}, nil
 	}
-	f.shells, err = shellupdate.New(shellupdate.Options{DB: db, Audit: f.log, IDs: gen, Queue: f.queue, Keys: keys, Objects: files, Endpoint: "https://plux.example"})
+	// The channel's release a full project embeds: f.release, none until a test sets one.
+	channel := func(context.Context, string, string, string) (baseline.Release, error) { return f.release, nil }
+	f.shells, err = shellupdate.New(shellupdate.Options{
+		DB: db, Audit: f.log, IDs: gen, Queue: f.queue, Keys: keys, Release: channel, Objects: files, Endpoint: "https://plux.example",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

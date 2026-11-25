@@ -68,7 +68,9 @@ an older runtime refuses the release before it downloads anything.
   launch without the network.
 - **The embedded baseline is not sealed.** `plux pull` writes the published bundles. If the
   content must stay confidential, do not ship a baseline of it in the app (`baseline: null`);
-  the first launch then needs the network.
+  the first launch then needs the network. The project Studio generates (**Native shell ›
+  Host project**) embeds the environment's keys alone for a confidential release, never its
+  bundles, so it never ships one.
 - **Errors.** `PLX-6050` means the device cannot obtain or use the key: its level is below
   `confidentialMinAssurance`, it has no key-agreement key, or the key does not open the
   content (wrapped for another device or release, or altered). Hash failures are `PLX-3041`
