@@ -66,6 +66,7 @@ func (t *typer) plugin(pl *plugin) {
 	base := t.baseScope(pl)
 	pl.scope = base
 	t.computed(pl, pl.doc.State, pl.file, base)
+	t.kvPrepass(pl, base)
 	if u.inFocus(pl.file) {
 		t.triggers(pl.triggers, base, "app", "plugin")
 	}
@@ -621,6 +622,7 @@ func (t *typer) graph(g *graph, s *scope) {
 	}
 	t.loops(g, s, compileStep)
 	g.scope = s
+	t.kvTyped(g)
 }
 
 // loops compiles the inputs of every step of a graph in its scope: steps
@@ -721,6 +723,8 @@ func (t *typer) stepOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSp
 		return t.queryOutput(g, st, synth)
 	case "readConfig":
 		return configOutput(st)
+	case "kvGet":
+		return t.kvOutput(g, st)
 	}
 	if out, ok := t.customOutput(st); ok {
 		return out

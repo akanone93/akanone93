@@ -167,6 +167,7 @@ type plugin struct {
 	state      []*stateEntry
 	sources    []*dataSource
 	triggers   []*trigger // the plugin's triggers (ACT-002)
+	kv         kvTypes    // what its kvSet steps write, by key (DB-009)
 }
 
 // route is a route name's target: a page or a native route.
