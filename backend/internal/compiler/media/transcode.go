@@ -52,11 +52,14 @@ func Raster(mediaType string) bool {
 	return mediaType == PNG || mediaType == JPEG || mediaType == GIF || mediaType == WebP
 }
 
-// Transcode makes the variants of a raster image: WebP and AVIF at each
-// density, largest first (CMP-030). Re-encoding from pixels leaves every
-// piece of metadata behind. An image with more than maxPixels pixels is
-// refused before it is decoded; an animated one is described but not
-// transcoded.
+// Transcode makes the variants of a raster image: WebP at each density,
+// largest first, and AVIF beside it for a photograph (CMP-030). A graphic
+// (PNG, GIF, lossless WebP) gets lossless WebP and no AVIF, as the AVIF
+// encoder is lossy and the runtime prefers AVIF, which would show sharp
+// edges blurred (ADR-0027 Revision 2026-11-25). Re-encoding from pixels
+// leaves every piece of metadata behind. An image with more than
+// maxPixels pixels is refused before it is decoded; an animated one is
+// described but not transcoded.
 func (c *Codecs) Transcode(ctx context.Context, data []byte, mediaType string, maxPixels int64) (Info, []Variant, error) {
 	info, lossless, err := describe(data, mediaType)
 	if err != nil {
@@ -85,13 +88,15 @@ func (c *Codecs) Transcode(ctx context.Context, data []byte, mediaType string, m
 		if err != nil {
 			return info, nil, err
 		}
+		out = append(out, Variant{MediaType: WebP, Density: d, Width: w, Height: h, Data: webp})
+		if lossless {
+			continue
+		}
 		avif, err := c.encodeAVIF(ctx, px, avifQuality, avifSpeed)
 		if err != nil {
 			return info, nil, err
 		}
-		out = append(out,
-			Variant{MediaType: WebP, Density: d, Width: w, Height: h, Data: webp},
-			Variant{MediaType: AVIF, Density: d, Width: w, Height: h, Data: avif})
+		out = append(out, Variant{MediaType: AVIF, Density: d, Width: w, Height: h, Data: avif})
 	}
 	return info, out, nil
 }

@@ -199,3 +199,18 @@ document; the maintainer kept one image for all roles (2026-09-29).
   within the limits registry's bounds, shown with a ThumbHash or BlurHash placeholder when
   the document gives one and an error image on failure, and restricted to the plugin's
   declared network domains when the app pins them.
+
+## Revision (2026-11-25: no AVIF for a graphic)
+
+A PNG, a GIF or a lossless WebP got lossless WebP variants but lossy AVIF ones (quality 60), and
+the runtime prefers AVIF where the device decodes it, so a graphic with sharp edges — an icon, a
+logo, text in an image — was shown blurred on exactly the devices that decode AVIF (build log
+row 278). The maintainer decided (2026-11-24): **no AVIF variant for a lossless source**.
+
+- The transcoder makes WebP only for a source it encodes losslessly (PNG, GIF, lossless WebP);
+  a photograph (JPEG, lossy WebP) keeps its AVIF beside the WebP, as before.
+- The server lists no AVIF variant of a PNG or a GIF for the compiler, so an asset transcoded
+  before this revision shares the fix without being processed again (processing reuses a
+  file's variants by its hash). A lossless WebP processed before keeps its AVIF until it is
+  uploaded again: the server cannot tell it from a lossy one without reading it.
+- `CMP-030` says AVIF is made for lossy sources (spec 1.23.0).

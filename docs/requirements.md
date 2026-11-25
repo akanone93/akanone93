@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.22.1
+**Version:** 1.23.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -716,7 +716,7 @@ The full catalogue with phases is in Appendix C.
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `CMP-030` | P2 | MUST | Raster images **MUST** be transcoded to WebP (and AVIF where the runtime supports it) at 1×, 2× and 3× densities, stripped of metadata, and content-addressed. | DONE |
+| `CMP-030` | P2 | MUST | Raster images **MUST** be transcoded to WebP (and, for a lossy source such as a photograph, AVIF where the runtime supports it; a lossless source gets lossless WebP only) at 1×, 2× and 3× densities, stripped of metadata, and content-addressed. | DONE |
 | `CMP-031` | P2 | MUST | SVGs **MUST** be compiled to Flutter's `vector_graphics` binary format at publish time; raw SVG parsing on the device is not permitted. | DONE |
 | `CMP-032` | P2 | SHOULD | Icon fonts **SHOULD** be subset to the glyphs used; text fonts **MAY** be subset by Unicode script ranges declared for the app's locales, never below full coverage of those scripts (Ethiopic, Latin, Arabic…). | DONE |
 | `CMP-033` | P2 | MUST | Lottie animations **MUST** be packaged as dotLottie; Rive files are stored as-is. | DONE |
@@ -3136,7 +3136,7 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.22.1 |
+| Version | 1.23.0 |
 | Status | Draft (living document) |
 | Date | 2026-11-24 |
 | Supersedes | 1.22.0 |
@@ -3188,3 +3188,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.21.0 | 2026-11-24 | No alignment guides or snapping on the canvases (maintainer, 2026-11-24, build log row 225; ADR-0110): `STU-032` no longer names snapping and alignment guides, `STU-050` no longer names snapping, and `STU-067` no longer names smart guides and distance measurement. A dragged box follows the pointer; the insertion indicator, the drop target and the marquee stay. |
 | 1.22.0 | 2026-11-24 | A screen's frame grows to hold its content (maintainer, 2026-11-24, build log row 119; ADR-0111): `STU-056` — the frame grows to hold the page's own scroll content, its bars below that content, with a mark where the device's view ends; the translucent overflow region stays for content that overflows a box that does not scroll. |
 | 1.22.1 | 2026-11-24 | `STU-024` says where a new app's Flutter project is offered: on the app's Native shell page once a release gives it signing keys, which the creation wizard's last step names instead of a download that cannot work before the first release (maintainer, 2026-11-24, build log row 234). A clarification; the requirement is unchanged. |
+| 1.23.0 | 2026-11-25 | `CMP-030`: a lossless source (PNG, GIF, lossless WebP) gets lossless WebP variants only, no lossy AVIF, which the runtime would prefer and show blurred (maintainer, 2026-11-24, build log row 278; ADR-0027 Revision 2026-11-25). |

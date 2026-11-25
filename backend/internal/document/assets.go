@@ -494,7 +494,10 @@ func (s *Service) variants(ctx context.Context, data []byte, mediaType string) (
 }
 
 // AssetVariants returns, for an app, the variants of each asset file by
-// its SHA-256, in the form the compiler takes (CMP-030).
+// its SHA-256, in the form the compiler takes (CMP-030). A graphic (PNG,
+// GIF) lists no AVIF variant: the AVIF encoder is lossy and the runtime
+// prefers AVIF (ADR-0027 Revision 2026-11-25); one made before is left
+// out rather than made again, so a file processed earlier shares the fix.
 func (*Service) AssetVariants(ctx context.Context, tx pgx.Tx, appID string) (func([sha256.Size]byte) []compiler.AssetVariant, error) {
 	app, err := parseID(appID, "app")
 	if err != nil {
@@ -513,6 +516,9 @@ func (*Service) AssetVariants(ctx context.Context, tx pgx.Tx, appID string) (fun
 			return nil, fmt.Errorf("document: read the variants of %s: %w", r.File, err)
 		}
 		for _, v := range vs {
+			if v.MediaType == media.AVIF && (r.MediaType == media.PNG || r.MediaType == media.GIF) {
+				continue
+			}
 			var h [sha256.Size]byte
 			if b, err := hex.DecodeString(v.SHA256); err == nil && len(b) == sha256.Size {
 				copy(h[:], b)

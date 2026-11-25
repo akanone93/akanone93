@@ -118,7 +118,8 @@ of metadata, scanned when a scanner is configured, and listed in the
 app-level draft's `assets/index.json` under the app's lock; an upload under
 an existing name replaces the file and keeps its asset ID. Assets belong to
 the app, so `plugin_id` must be empty. A raster image comes back with
-`processing` `pending`; the worker then adds its WebP and AVIF variants and
+`processing` `pending`; the worker then adds its WebP variants (and AVIF ones
+for a photograph) and
 sets `ready`, or `failed` with diagnostics. Links in `Artifact.urls` are
 signed or CDN URLs valid for fifteen minutes. Refusals: `invalid_argument`
 for an unknown or malformed file (`PLX-1005`) or one the scanner rejects

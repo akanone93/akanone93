@@ -280,8 +280,9 @@ together, and stored by the hash of its bytes
 ([ADR-0003](../adr/0003-section-level-deltas.md)).
 
 The worker role transcodes uploaded raster images on the `asset` queue:
-each upload's job, enqueued in the upload's transaction, makes WebP and
-AVIF variants at 1×, 2× and 3× with WebAssembly codecs, stores them by
+each upload's job, enqueued in the upload's transaction, makes WebP
+variants at 1×, 2× and 3× — lossless for a PNG, a GIF or a lossless WebP,
+with AVIF beside them for a photograph — with WebAssembly codecs, stores them by
 hash and marks the asset ready; content transcoded before is reused, and
 an image the codecs refuse is marked failed with a diagnostic
 ([ADR-0027](../adr/0027-asset-pipeline.md)). Only the worker role compiles

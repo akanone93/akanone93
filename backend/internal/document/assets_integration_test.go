@@ -7,7 +7,9 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/binary"
+	"encoding/hex"
 	"image"
 	"image/color"
 	"image/png"
@@ -176,8 +178,9 @@ func TestAssets(t *testing.T) {
 	if err := f.docs.ProcessAsset(ctx, pending[0]); err != nil {
 		t.Fatalf("ProcessAsset: %v", err)
 	}
+	// A PNG is a graphic: lossless WebP at three densities, and no lossy AVIF (ADR-0027 Revision 2026-11-25).
 	a, err = f.docs.GetAsset(ctx, f.viewer, a.ID)
-	if err != nil || a.Processing != "ready" || len(a.Variants) != 6 {
+	if err != nil || a.Processing != "ready" || len(a.Variants) != 3 {
 		t.Fatalf("processed %+v %v", a, err)
 	}
 	for _, v := range a.Variants {
@@ -199,8 +202,31 @@ func TestAssets(t *testing.T) {
 		}
 	}
 	copyOf, _ = f.docs.GetAsset(ctx, f.viewer, copyOf.ID)
-	if copyOf.SHA256 != a.SHA256 || len(copyOf.Variants) != 6 || copyOf.Variants[0].SHA256 != a.Variants[0].SHA256 {
+	if copyOf.SHA256 != a.SHA256 || len(copyOf.Variants) != 3 || copyOf.Variants[0].SHA256 != a.Variants[0].SHA256 {
 		t.Errorf("the copy: %+v", copyOf)
+	}
+	// A graphic processed before kept an AVIF variant; a bundle lists none of it.
+	if err := f.db.InTx(ctx, storage.Tenant{OrganizationID: f.org}, func(ctx context.Context, tx pgx.Tx) error {
+		legacy := `[{"mediaType": "image/webp", "density": 1, "width": 30, "height": 30, "sha256": "` + a.Variants[0].SHA256 + `", "size": 1},
+			{"mediaType": "image/avif", "density": 1, "width": 30, "height": 30, "sha256": "` + a.Variants[0].SHA256 + `", "size": 1}]`
+		if _, err := tx.Exec(ctx, "UPDATE assets SET variants = $2::jsonb WHERE asset_id = $1", copyOf.ID, legacy); err != nil {
+			return err
+		}
+		listed, err := f.docs.AssetVariants(ctx, tx, f.app)
+		if err != nil {
+			return err
+		}
+		var sum [sha256.Size]byte
+		raw, _ := hex.DecodeString(a.SHA256)
+		copy(sum[:], raw)
+		for _, v := range listed(sum) {
+			if v.MediaType == media.AVIF {
+				t.Errorf("a PNG lists an AVIF variant: %+v", v)
+			}
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
 	}
 	// Uploading again under the same name keeps the asset's identifier.
 	bigger := pngWithText(t, 60, 60)

@@ -65,8 +65,10 @@ func encodePNG(t testing.TB, img image.Image) []byte {
 }
 
 // Verifies: CMP-030.
-// A raster image becomes WebP and AVIF at 1×, 2× and 3×, from pixels, so
-// no metadata survives; the same input gives the same bytes.
+// A raster image becomes WebP at 1×, 2× and 3×, and a photograph AVIF
+// beside it, from pixels, so no metadata survives; a graphic (PNG, a
+// lossless WebP) gets no AVIF, which would be lossy (ADR-0027 Revision
+// 2026-11-25); the same input gives the same bytes.
 func TestTranscode(t *testing.T) {
 	t.Parallel()
 	c := codecs(t)
@@ -76,7 +78,7 @@ func TestTranscode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if info.Width != 90 || info.Height != 60 || len(variants) != 6 {
+	if info.Width != 90 || info.Height != 60 || len(variants) != 3 {
 		t.Fatalf("info %+v, %d variants", info, len(variants))
 	}
 	for _, v := range variants {
@@ -93,10 +95,8 @@ func TestTranscode(t *testing.T) {
 			if px != nil && px.Pix[3] != 0 {
 				t.Errorf("the transparent corner is opaque at %d×", v.Density)
 			}
-		case AVIF:
-			if len(v.Data) < 12 || string(v.Data[4:12]) != "ftypavif" {
-				t.Errorf("the %d× AVIF has no AVIF brand", v.Density)
-			}
+		default:
+			t.Errorf("a PNG got a %s variant", v.MediaType)
 		}
 	}
 	_, again, err := c.Transcode(ctx, src, PNG, 1_000_000)
@@ -112,12 +112,21 @@ func TestTranscode(t *testing.T) {
 	if err := jpeg.Encode(&jpg, gradient(30, 30), nil); err != nil {
 		t.Fatal(err)
 	}
-	if _, v, err := c.Transcode(ctx, jpg.Bytes(), JPEG, 1_000_000); err != nil || len(v) != 6 {
-		t.Errorf("a JPEG: %d variants, %v", len(v), err)
+	_, photo, err := c.Transcode(ctx, jpg.Bytes(), JPEG, 1_000_000)
+	if err != nil || len(photo) != 6 {
+		t.Fatalf("a JPEG: %d variants, %v", len(photo), err)
+	}
+	for _, v := range photo {
+		if v.MediaType == AVIF && (len(v.Data) < 12 || string(v.Data[4:12]) != "ftypavif") {
+			t.Errorf("the %d× AVIF has no AVIF brand", v.Density)
+		}
 	}
 	webp := variants[0].Data
-	if _, v, err := c.Transcode(ctx, webp, WebP, 1_000_000); err != nil || len(v) != 6 {
-		t.Errorf("a WebP: %d variants, %v", len(v), err)
+	if _, v, err := c.Transcode(ctx, webp, WebP, 1_000_000); err != nil || len(v) != 3 {
+		t.Errorf("a lossless WebP: %d variants, %v", len(v), err)
+	}
+	if _, v, err := c.Transcode(ctx, photo[0].Data, WebP, 1_000_000); err != nil || len(v) != 6 {
+		t.Errorf("a lossy WebP: %d variants, %v", len(v), err)
 	}
 	if _, _, err := c.Transcode(ctx, src, PNG, 100); !errors.Is(err, ErrTooLarge) {
 		t.Errorf("above asset.imagePixels: %v", err)
@@ -402,7 +411,8 @@ func TestStartCodecs(t *testing.T) {
 	if err := c.Ready(gone); !errors.Is(err, context.Canceled) {
 		t.Errorf("a cancelled wait: %v", err)
 	}
-	if _, variants, err := c.Transcode(ctx, encodePNG(t, gradient(12, 12)), PNG, 1<<20); err != nil || len(variants) != 6 {
+	// A PNG: lossless WebP at three densities, no AVIF.
+	if _, variants, err := c.Transcode(ctx, encodePNG(t, gradient(12, 12)), PNG, 1<<20); err != nil || len(variants) != 3 {
 		t.Errorf("Transcode before the codecs were ready: %d %v", len(variants), err)
 	}
 	if err := c.Ready(ctx); err != nil {
