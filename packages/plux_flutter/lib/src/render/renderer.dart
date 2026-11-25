@@ -70,6 +70,7 @@ import 'package:plux_flutter/src/render/values.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_flutter/src/schema/registry_types.dart';
 import 'package:plux_flutter/src/secure/secure_ui.dart';
 import 'package:plux_flutter/src/state/access.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
@@ -427,12 +428,15 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     );
   }
 
-  /// The named types the pages of plugin [plugin] may use: the app's and
-  /// the plugin's (SCH-010).
+  /// The registry's value types and enums, built once.
+  late final Map<String, NamedType> registry = registryTypes();
+
+  /// The named types the pages of plugin [plugin] may use: the registry's,
+  /// the app's and the plugin's (SCH-010).
   Map<String, NamedType> typesOf(ActiveRelease release, String plugin) {
     final app = view(release, '');
     final pl = view(release, plugin);
-    final all = {...app.types, ...pl.types};
+    final all = {...registry, ...app.types, ...pl.types};
     app.resolveFields(all);
     pl.resolveFields(all);
     return all;
@@ -1499,10 +1503,10 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     );
   }
 
-  /// The declared types the page's values may have: the app's and the
-  /// plugin's.
+  /// The types the page's values may have: the registry's, the app's and
+  /// the plugin's.
   late final Map<String, NamedType> _types = () {
-    final all = {..._app.types, ..._plugin.types};
+    final all = {...widget.renderer.registry, ..._app.types, ..._plugin.types};
     _app.resolveFields(all);
     _plugin.resolveFields(all);
     return all;

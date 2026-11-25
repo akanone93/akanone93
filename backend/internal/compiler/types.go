@@ -5,6 +5,7 @@ package compiler
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -108,6 +109,7 @@ func (u *unit) declareTypes(t *universe, pl *plugin, decls []schema.TypeDecl, fi
 		}
 		out[d.Name] = pxl.TypeSpec{Fields: map[string]string{}}
 	}
+	fieldTypes := withRegistryTypes(out, t.base)
 	for i, d := range decls {
 		spec, ok := out[d.Name]
 		if !ok || spec.Fields == nil {
@@ -117,9 +119,23 @@ func (u *unit) declareTypes(t *universe, pl *plugin, decls []schema.TypeDecl, fi
 		for j, f := range d.Fields {
 			fptr := plxerr.Pointer("types", strconv.Itoa(i), "fields", strconv.Itoa(j))
 			fields.claim(f.Name, file, fptr+"/name")
-			if u.checkTypeIn(t, pl, out, f.Type, file, fptr+"/type") != nil {
+			if u.checkTypeIn(t, pl, fieldTypes, f.Type, file, fptr+"/type") != nil {
 				spec.Fields[f.Name] = f.Type
 			}
+		}
+	}
+	return out
+}
+
+// withRegistryTypes is what a declared type's field may name: the
+// document's types, and the registry's value types and enums, such as a
+// LatLng (document-model.md §3; build log row 143), but none of the
+// compiler's own Plux types.
+func withRegistryTypes(declared, base map[string]pxl.TypeSpec) map[string]pxl.TypeSpec {
+	out := maps.Clone(declared)
+	for name, spec := range base {
+		if !strings.HasPrefix(name, reservedPrefix) {
+			out[name] = spec
 		}
 	}
 	return out

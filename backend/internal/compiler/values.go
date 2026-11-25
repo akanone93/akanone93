@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"regexp"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/nightCode42/plux3/backend/internal/icons"
@@ -39,6 +40,11 @@ type vctx struct {
 	from string
 	// constraints restrict a literal (PLX-1121).
 	constraints *registry.Constraints
+	// data is set inside a declared object, which the runtime reads as
+	// data: a registry value type there is an object keyed by field name
+	// and a registry enum its member's name, as a declared one, rather
+	// than a widget prop's permanent IDs (build log row 143).
+	data bool
 }
 
 // at returns the context of a nested value.
@@ -102,9 +108,15 @@ func (u *unit) check(c vctx, v any, t *texpr) *value {
 		return u.checkPrimitive(c, v, t)
 	}
 	if vt, ok := registry.LookupValueType(t.name); ok {
+		if c.data {
+			return u.checkObject(c, v, vt.Name, dataFields(&vt))
+		}
 		return u.checkValueType(c, v, &vt)
 	}
 	if e, ok := registry.LookupEnum(t.name); ok {
+		if c.data {
+			return u.checkDeclaredEnum(c, v, e.Name, memberNames(&e))
+		}
 		return u.checkRegistryEnum(c, v, &e)
 	}
 	if spec, ok := u.declared(c.pl, t.name); ok {
@@ -696,7 +708,9 @@ func (u *unit) checkObject(c vctx, v any, name string, fields map[string]string)
 			}
 			continue
 		}
-		x := u.check(c.at(f), raw, te)
+		fc := c.at(f)
+		fc.data = true
+		x := u.check(fc, raw, te)
 		if x == nil {
 			return nil
 		}
@@ -707,6 +721,30 @@ func (u *unit) checkObject(c vctx, v any, name string, fields map[string]string)
 			u.report(c.code, c.file, c.ptr+plxerr.Pointer(k), "%s has no field %q", name, k)
 			return nil
 		}
+	}
+	return out
+}
+
+// dataFields are a registry value type's fields as a declared object's:
+// their types by name, an optional field nullable, as the runtime reads
+// them in data.
+func dataFields(vt *registry.ValueType) map[string]string {
+	out := make(map[string]string, len(vt.Fields))
+	for _, f := range vt.Fields {
+		typ := f.Type
+		if !f.Required && !strings.HasSuffix(typ, "?") {
+			typ += "?"
+		}
+		out[f.Name] = typ
+	}
+	return out
+}
+
+// memberNames are a registry enum's members, in its order.
+func memberNames(e *registry.Enum) []string {
+	out := make([]string, len(e.Values))
+	for i, v := range e.Values {
+		out[i] = v.Name
 	}
 	return out
 }

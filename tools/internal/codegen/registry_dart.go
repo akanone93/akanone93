@@ -55,6 +55,7 @@ func registryDart(r *registry.Registry) []byte {
 	for _, t := range r.Types {
 		fmt.Fprintf(&b, "  ValueTypeDescriptor(\n    %s,\n    %d,\n    revision: %d,\n", quoteDart(t.Name), t.ID, t.Revision)
 		writeDartIDs(&b, "fields", t.Fields, func(f registry.Field) (string, uint32) { return f.Name, f.ID })
+		writeDartFieldTypes(&b, t.Fields)
 		b.WriteString("  ),\n")
 	}
 	b.WriteString("];\n\n/// Every enum, sorted by name.\nconst List<EnumDescriptor> enumDescriptors = [\n")
@@ -86,6 +87,24 @@ func writeDartIDs[T any](b *bytes.Buffer, name string, members []T, key func(T) 
 		entries[i] = fmt.Sprintf("%s: %d", quoteDart(n), id)
 	}
 	fmt.Fprintf(b, "    %s: {%s},\n", name, strings.Join(entries, ", "))
+}
+
+// writeDartFieldTypes writes a value type's field types by name, in field
+// ID order: an optional field nullable, as data reads it (SCH-010).
+func writeDartFieldTypes(b *bytes.Buffer, fields []registry.Field) {
+	if len(fields) == 0 {
+		return
+	}
+	sorted := sortedByID(fields, func(f registry.Field) uint32 { return f.ID })
+	entries := make([]string, len(sorted))
+	for i, f := range sorted {
+		typ := f.Type
+		if !f.Required && !strings.HasSuffix(typ, "?") {
+			typ += "?"
+		}
+		entries[i] = fmt.Sprintf("%s: %s", quoteDart(f.Name), quoteDart(typ))
+	}
+	fmt.Fprintf(b, "    types: {%s},\n", strings.Join(entries, ", "))
 }
 
 // dartRegistryClasses declares the descriptor types of registry.g.dart.
@@ -137,7 +156,7 @@ final class WidgetDescriptor {
 /// A value type and the permanent IDs of its fields.
 final class ValueTypeDescriptor {
   /// Creates a descriptor.
-  const ValueTypeDescriptor(this.name, this.id, {required this.revision, this.fields = const {}});
+  const ValueTypeDescriptor(this.name, this.id, {required this.revision, this.fields = const {}, this.types = const {}});
 
   /// The type name.
   final String name;
@@ -150,6 +169,10 @@ final class ValueTypeDescriptor {
 
   /// Field IDs by name.
   final Map<String, int> fields;
+
+  /// Field type expressions by name, an optional field nullable: the
+  /// type's fields as data reads them (SCH-010).
+  final Map<String, String> types;
 }
 
 /// An enum and the permanent IDs of its values.
