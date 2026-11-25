@@ -311,6 +311,35 @@ describe("[STU-121] damage-rect redraw", () => {
     whole.renderer.dispose();
   });
 
+  // Build log row 293: the presentation both of Studio's canvases use draws an edit's damage, not the whole view.
+  test("without tiles, an edit redraws only its damage over the kept pixels and matches a whole redraw", () => {
+    const { scene, viewport, renderer, target } = render(false, [
+      { op: "add", item: column },
+      ...rows.map((item) => ({ op: "add" as const, item })),
+    ]);
+    const first = renderer.frame();
+    expect(first.regions).toBe(0);
+    scene.apply([
+      { op: "replace", item: { ...column, w: 150 } },
+      { op: "replace", item: text("r1", 50, 80, "Row 1 edited") },
+    ]);
+    const damaged = renderer.frame();
+    expect(damaged.regions).toBe(3);
+    const whole = render(false, [
+      { op: "add", item: { ...column, w: 150 } },
+      { op: "add", item: rows[0] ?? column },
+      { op: "add", item: text("r1", 50, 80, "Row 1 edited") },
+    ]);
+    whole.renderer.frame();
+    expect(differing(pixels(target), pixels(whole.target))).toBe(0);
+    // A frame with nothing changed draws nothing; a moved view is drawn whole again.
+    expect(renderer.frame().drawCalls).toBe(0);
+    viewport.pan(-7, 0);
+    expect(renderer.frame().regions).toBe(0);
+    renderer.dispose();
+    whole.renderer.dispose();
+  });
+
   test("tiles refreshed in place hold the same pixels as a whole redraw", () => {
     const items = [{ op: "add" as const, item: column }, ...rows.map((item) => ({ op: "add" as const, item }))];
     const { scene, viewport, renderer, target } = render(true, items);

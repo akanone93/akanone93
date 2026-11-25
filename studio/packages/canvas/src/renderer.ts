@@ -108,6 +108,10 @@ export const REFRESH_CHUNK = 32;
 /** Above this many undrawn damage rectangles the next base draw is a whole one. */
 export const MAX_DAMAGE = 32;
 
+/** The most damaged rectangles, and the largest share of the view they cover, that a direct view redraws alone. */
+export const DIRECT_DAMAGE_RECTS = 16;
+export const DIRECT_DAMAGE_SHARE = 0.5;
+
 /** Where the interaction layer draws: its surface, the world point at its top-left, and its scale. */
 export interface LiveLayer {
   readonly surface: Surface;
@@ -617,10 +621,9 @@ export class SceneRenderer {
     const canvas = this.surface.getCanvas();
     const scale = this.viewport.zoom * this.dpr;
     if (!this.options.tiles) {
-      canvas.clear(this.background);
-      this.calls++;
+      return this.drawDirect(canvas, scale, includeLive, start);
     }
-    if (this.options.tiles && this.canDrawDamage(scale, includeLive)) {
+    if (this.canDrawDamage(scale, includeLive)) {
       return this.drawDamage(canvas, scale);
     }
     if (this.options.tiles && this.damage.length > MAX_DAMAGE && this.canDrawDamage(scale, includeLive, false)) {
@@ -629,14 +632,58 @@ export class SceneRenderer {
     canvas.save();
     canvas.scale(scale, scale);
     canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
-    if (this.options.tiles) {
-      this.drawTiled(canvas, scale, includeLive);
-    } else {
-      this.drawScene(canvas, this.view, includeLive);
-      this.counters.tileMs = this.now() - start;
-    }
+    this.drawTiled(canvas, scale, includeLive);
     canvas.restore();
     return this.flushBase(canvas);
+  }
+
+  /**
+   * Draws the directly presented view (no tiles): when the surface still shows the view at this placement and only
+   * a few rectangles changed, just those, clipped, over the pixels it keeps (its WebGL buffer is preserved, a CPU
+   * raster surface keeps them), so an edit costs what it changed, not the whole view (build log row 293); otherwise
+   * the whole view, which it then records as shown. Returns the flush time.
+   */
+  private drawDirect(canvas: Canvas, scale: number, includeLive: boolean, start: number): number {
+    if (this.canDrawDirectDamage(includeLive)) {
+      return this.drawDamage(canvas, scale);
+    }
+    canvas.clear(this.background);
+    this.calls++;
+    canvas.save();
+    canvas.scale(scale, scale);
+    canvas.translate(-Math.round(this.viewport.x * scale) / scale, -Math.round(this.viewport.y * scale) / scale);
+    this.drawScene(canvas, this.view, includeLive);
+    canvas.restore();
+    this.counters.tileMs = this.now() - start;
+    this.damage.length = 0;
+    this.regionCount = 0;
+    // Live items drawn into the base would be left behind by damage drawn over it later, so such a view is not reused.
+    const liveDrawn = includeLive && this.scene.liveItems(this.items).length > 0;
+    this.shown = liveDrawn ? null : { x: this.viewport.x, y: this.viewport.y, zoom: this.viewport.zoom };
+    return this.flushBase(canvas);
+  }
+
+  /**
+   * Whether the direct view is better brought up to date by redrawing its damaged rectangles: the surface shows the
+   * view at this very placement, no live item has to be drawn into the base, and the damage is small — at most
+   * `DIRECT_DAMAGE_RECTS` rectangles over at most `DIRECT_DAMAGE_SHARE` of the view. Many scattered changes are
+   * cheaper drawn whole, in one batch per style, than region by region.
+   */
+  private canDrawDirectDamage(includeLive: boolean): boolean {
+    if (
+      this.damage.length > DIRECT_DAMAGE_RECTS ||
+      this.needsShift() ||
+      (includeLive && this.scene.liveItems(this.items).length > 0)
+    ) {
+      return false;
+    }
+    const v = this.view;
+    let area = 0;
+    for (const d of this.damage) {
+      area +=
+        Math.max(0, Math.min(d.r, v.r) - Math.max(d.l, v.l)) * Math.max(0, Math.min(d.b, v.b) - Math.max(d.t, v.t));
+    }
+    return area <= (v.r - v.l) * (v.b - v.t) * DIRECT_DAMAGE_SHARE;
   }
 
   /**

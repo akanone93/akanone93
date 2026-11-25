@@ -3,8 +3,10 @@
 
 // Canvas benchmark in software rendering (STU-045, STU-120, ADR-0013 M-12):
 // headless Chromium with SwiftShader (no GPU), the pinned Flutter CanvasKit,
-// scenes A, B and C; runs the page RUNS times and prints the median of every
-// number as a JSON summary and fails when a budget (budgets.ts) is missed. `make studio-bench-canvas`.
+// scenes A, B and C, in both presentations — `direct`, which both of Studio's
+// canvases use, and the tiled compositor the canvas still has (build log row
+// 238); runs the page RUNS times per presentation, prints the median of every
+// number as a JSON summary and fails when either misses a budget (budgets.ts). `make studio-bench-canvas`.
 
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
@@ -80,28 +82,44 @@ const browser = await chromium.launch({
   headless: true,
   args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
 });
-try {
+/** The presentations measured, each held to every budget. */
+const PRESENTATIONS = ["direct", "compositor"] as const;
+
+/** The results of RUNS runs of the page in one presentation; undefined after a page error, which sets the exit code. */
+async function measure(present: (typeof PRESENTATIONS)[number]): Promise<unknown[] | undefined> {
   const results: unknown[] = [];
-  for (let run = 0; run < RUNS && process.exitCode === undefined; run++) {
+  const renderer = process.env.PLUX_CANVAS_RENDERER ?? "auto";
+  for (let run = 0; run < RUNS; run++) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    const renderer = process.env.PLUX_CANVAS_RENDERER ?? "auto";
-    await page.goto(`http://localhost:${server.port}/?renderer=${encodeURIComponent(renderer)}`);
+    await page.goto(`http://localhost:${server.port}/?renderer=${encodeURIComponent(renderer)}&present=${present}`);
     const result = await page.waitForSelector("#result", { state: "attached", timeout: 600_000 });
     const text = (await result.textContent()) ?? "";
     await page.close();
     if (errors.length > 0 || text.includes('"error"')) {
-      process.stderr.write(`page errors: ${errors.join("; ")}\n${text}\n`);
+      process.stderr.write(`${present}: page errors: ${errors.join("; ")}\n${text}\n`);
       process.exitCode = 1;
-    } else {
-      results.push(JSON.parse(text));
+      return undefined;
     }
+    results.push(JSON.parse(text));
+  }
+  return results;
+}
+
+try {
+  const medians: Record<string, unknown> = {};
+  const missed: string[] = [];
+  for (const present of PRESENTATIONS) {
+    const results = await measure(present);
+    if (results === undefined) {
+      break;
+    }
+    medians[present] = median(results);
+    missed.push(...violations(medians[present] as Summary).map((line) => `${present}: ${line}`));
   }
   if (process.exitCode === undefined) {
-    const summary = median(results);
-    process.stdout.write(`${JSON.stringify({ runs: RUNS, median: summary }, null, 2)}\n`);
-    const missed = violations(summary as Summary);
+    process.stdout.write(`${JSON.stringify({ runs: RUNS, median: medians }, null, 2)}\n`);
     if (missed.length > 0) {
       process.stderr.write(`canvas budgets missed (median of ${RUNS} runs):\n  ${missed.join("\n  ")}\n`);
       process.exitCode = 1;

@@ -452,6 +452,16 @@ function rendererPreference(): RendererPreference {
   return value === "webgl" || value === "raster" ? value : "auto";
 }
 
+/**
+ * How the view reaches the screen: `direct`, the whole view drawn each frame in full detail, as both of Studio's
+ * canvases present it (ADR-0013), or the tiled compositor, which the canvas still has (build log row 238).
+ */
+function presentation(): { present: "compositor" | "direct"; detail?: "full" } {
+  return new URLSearchParams(location.search).get("present") === "direct"
+    ? { present: "direct", detail: "full" }
+    : { present: "compositor" };
+}
+
 async function run(): Promise<unknown> {
   const container = document.createElement("div");
   container.style.cssText = `position:relative;overflow:hidden;width:${WIDTH}px;height:${HEIGHT}px`;
@@ -465,6 +475,7 @@ async function run(): Promise<unknown> {
     { width: WIDTH, height: HEIGHT, dpr: 1 },
     {
       renderer: rendererPreference(),
+      ...presentation(),
       tileSize: 512,
       background: 0xf8f9faff,
       fonts: [font],
