@@ -50,11 +50,6 @@ function tokenValue(tokens: unknown, name: string, dark: boolean, brand = ""): u
   return token["$value"];
 }
 
-const dimension = (v: unknown): number | undefined => {
-  const n = typeof v === "number" ? v : typeof v === "string" ? Number.parseFloat(v) : Number.NaN;
-  return Number.isFinite(n) && n >= 0 ? n : undefined;
-};
-
 /** Tokens of the app theme with the overlay's tokens over them, name by name. */
 /** The tokens of the app's theme: the one the app document names, else the only one there is. */
 function appTokens(themes: readonly Obj[], appTheme: string): Obj {
@@ -82,15 +77,18 @@ function scriptFamilies(tokens: Obj, dark: boolean, brand: string): string[] {
     .flatMap((code) => familiesOf(tokenValue(tokens, `font.script.${code}`, dark, brand)));
 }
 
-/** The layout theme: the app's theme document, read for the previewed brand and mode, else the default (THM-001). */
+/**
+ * The layout theme: the canvas's faces with the app theme's script fonts as fallbacks, read for the previewed brand and
+ * mode (THM-001, THM-004), and the platform's bars. What else a page is laid out with — text styles, sizes — the theme's
+ * tokens give it as the device reads them; top-level `fontFamily`, `fontSize`, `pagePadding` or `spacing` tokens, which
+ * the device does not read, are not read here either (build log row 27).
+ */
 export function resolveTheme(documents: readonly DocLike[], look: PreviewRender): ScreenTheme {
   const app = jsonOf(documents, "app")[0];
   const appTheme = typeof app?.["theme"] === "string" ? app["theme"] : "";
   const tokens = appTokens(jsonOf(documents, "theme"), appTheme);
   const dark = look.theme === "dark";
   const brand = look.brandOverlay;
-  const pick = (name: string, fallback: number): number => dimension(tokenValue(tokens, name, dark, brand)) ?? fallback;
-  const families = familiesOf(tokenValue(tokens, "fontFamily", dark, brand));
   const base = defaultScreenTheme;
   const bars = look.platform === "cupertino" ? CUPERTINO : {};
   return {
@@ -98,15 +96,11 @@ export function resolveTheme(documents: readonly DocLike[], look: PreviewRender)
     // The app's script fonts come before the canvas's last-resort faces, which only fill what nothing else draws.
     fontFamilies: [
       ...new Set([
-        ...families,
         ...base.fontFamilies.filter((f) => !LAST_RESORT_FAMILIES.includes(f)),
         ...scriptFamilies(tokens, dark, brand),
         ...LAST_RESORT_FAMILIES,
       ]),
     ],
-    fontSize: pick("fontSize", base.fontSize),
-    pagePadding: pick("pagePadding", base.pagePadding),
-    spacing: pick("spacing", base.spacing),
     ...bars,
   };
 }

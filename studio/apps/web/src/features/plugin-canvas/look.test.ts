@@ -85,9 +85,8 @@ describe("the preview switches reach the canvas [STU-058]", () => {
     expect(box(laidOut({ locale: "en-XA" }), "a").w).toBeGreaterThan(en);
   });
 
-  test("[THM-003] [THM-004] the app theme sets the layout theme; a brand's value wins; script fonts are fallbacks", () => {
+  test("[THM-003] [THM-004] the app theme's script fonts are fallbacks, a brand's winning; top-level layout tokens are not read", () => {
     const look = previewRender(defaultPreview, "material");
-    expect(resolveTheme(documents, look).fontSize).toBe(24);
     const branded = documents.map((d) =>
       d.kind === "theme"
         ? doc({
@@ -97,14 +96,15 @@ describe("the preview switches reach the canvas [STU-058]", () => {
             name: "T",
             tokens: {
               fontSize: { $value: 24 },
-              brands: { o: { fontSize: { $value: 30 } } },
+              fontFamily: { $value: "Comic Neue" },
+              pagePadding: { $value: 40 },
+              spacing: { $value: 12 },
+              brands: { o: { font: { script: { Ethi: { $type: "fontFamily", $value: ["Noto Serif Ethiopic"] } } } } },
               font: { script: { Ethi: { $type: "fontFamily", $value: ["Abyssinica SIL"] } } },
             },
           })
         : d,
     );
-    expect(resolveTheme(branded, { ...look, brandOverlay: "o" }).fontSize).toBe(30);
-    expect(resolveTheme(branded, look).fontSize).toBe(24);
     // A script font is a fallback after the base faces, and wins over the canvas's last-resort faces.
     expect(resolveTheme(branded, look).fontFamilies.slice(2)).toEqual([
       "Noto Sans Arabic",
@@ -112,7 +112,16 @@ describe("the preview switches reach the canvas [STU-058]", () => {
       "Noto Sans Ethiopic",
       "Noto Sans Symbols",
     ]);
-    expect(resolveTheme([], look).fontSize).toBe(16);
+    expect(resolveTheme(branded, { ...look, brandOverlay: "o" }).fontFamilies).toContain("Noto Serif Ethiopic");
+    expect(resolveTheme(branded, { ...look, brandOverlay: "o" }).fontFamilies).not.toContain("Abyssinica SIL");
+    // The device reads no top-level fontFamily, fontSize, pagePadding or spacing token, so the canvas does not (row 27).
+    const theme = resolveTheme(branded, look);
+    expect(theme.fontFamilies).not.toContain("Comic Neue");
+    expect([theme.fontSize, theme.pagePadding, theme.spacing]).toEqual([
+      resolveTheme([], look).fontSize,
+      resolveTheme([], look).pagePadding,
+      resolveTheme([], look).spacing,
+    ]);
   });
 
   test("Cupertino takes its bar heights", () => {
