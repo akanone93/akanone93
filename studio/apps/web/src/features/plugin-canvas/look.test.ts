@@ -98,14 +98,20 @@ describe("the preview switches reach the canvas [STU-058]", () => {
             tokens: {
               fontSize: { $value: 24 },
               brands: { o: { fontSize: { $value: 30 } } },
-              font: { script: { Ethi: { $type: "fontFamily", $value: ["Noto Sans Ethiopic"] } } },
+              font: { script: { Ethi: { $type: "fontFamily", $value: ["Abyssinica SIL"] } } },
             },
           })
         : d,
     );
     expect(resolveTheme(branded, { ...look, brandOverlay: "o" }).fontSize).toBe(30);
     expect(resolveTheme(branded, look).fontSize).toBe(24);
-    expect(resolveTheme(branded, look).fontFamilies.at(-1)).toBe("Noto Sans Ethiopic");
+    // A script font is a fallback after the base faces, and wins over the canvas's last-resort faces.
+    expect(resolveTheme(branded, look).fontFamilies.slice(2)).toEqual([
+      "Noto Sans Arabic",
+      "Abyssinica SIL",
+      "Noto Sans Ethiopic",
+      "Noto Sans Symbols",
+    ]);
     expect(resolveTheme([], look).fontSize).toBe(16);
   });
 

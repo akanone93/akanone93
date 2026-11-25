@@ -279,6 +279,7 @@ export { ROUTE_TYPE, type RouteKind } from "./widgets/page-route.ts";
 export {
   defaultScreenTheme,
   defaultWidgetBuilders,
+  LAST_RESORT_FAMILIES,
   type LayoutScreenOptions,
   layoutScreen,
   type Placed,

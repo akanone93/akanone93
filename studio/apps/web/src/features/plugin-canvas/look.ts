@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { DeviceChromeSpec, ScreenStyle } from "@plux/canvas";
-import { defaultScreenTheme, type ScreenTheme, TextDirection } from "@plux/layout";
+import { defaultScreenTheme, LAST_RESORT_FAMILIES, type ScreenTheme, TextDirection } from "@plux/layout";
 import { readLocales, readMessages } from "../localisation/l10n-model.ts";
 import { genericDevice, type MockState, type PreviewDevice, type PreviewRender } from "../preview/switches.ts";
 import { format as formatIcu, pluralArgs } from "./icu.ts";
@@ -95,7 +95,15 @@ export function resolveTheme(documents: readonly DocLike[], look: PreviewRender)
   const bars = look.platform === "cupertino" ? CUPERTINO : {};
   return {
     ...base,
-    fontFamilies: [...new Set([...families, ...base.fontFamilies, ...scriptFamilies(tokens, dark, brand)])],
+    // The app's script fonts come before the canvas's last-resort faces, which only fill what nothing else draws.
+    fontFamilies: [
+      ...new Set([
+        ...families,
+        ...base.fontFamilies.filter((f) => !LAST_RESORT_FAMILIES.includes(f)),
+        ...scriptFamilies(tokens, dark, brand),
+        ...LAST_RESORT_FAMILIES,
+      ]),
+    ],
     fontSize: pick("fontSize", base.fontSize),
     pagePadding: pick("pagePadding", base.pagePadding),
     spacing: pick("spacing", base.spacing),

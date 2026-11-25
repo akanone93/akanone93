@@ -77,14 +77,18 @@ export interface ScreenTheme {
 }
 
 /**
+ * The faces the canvas loads only for texts that need them (build log rows 116, 126): the last fallbacks, after the
+ * app's own script fonts, which win where both draw a character. A family the canvas has not loaded is skipped.
+ */
+export const LAST_RESORT_FAMILIES: readonly string[] = ["Noto Sans Ethiopic", "Noto Sans Symbols"];
+
+/**
  * The default theme: a 390-pt phone, 16-pt Roboto with the Noto fallbacks the canvas loads — Noto Sans, then Noto Sans
- * Arabic for the Arabic script (PC-32), then the faces it loads only for texts that need them: Noto Sans Ethiopic and
- * Noto Sans Symbols (build log rows 116, 126) — so text is measured in the faces it is drawn in. A family the canvas has
- * not loaded is skipped.
+ * Arabic for the Arabic script (PC-32), then the last-resort faces — so text is measured in the faces it is drawn in.
  */
 export const defaultScreenTheme: ScreenTheme = {
   width: 390,
-  fontFamilies: ["Roboto", "Noto Sans", "Noto Sans Arabic", "Noto Sans Ethiopic", "Noto Sans Symbols"],
+  fontFamilies: ["Roboto", "Noto Sans", "Noto Sans Arabic", ...LAST_RESORT_FAMILIES],
   fontSize: 16,
   pagePadding: 16,
   appBarHeight: 56,
