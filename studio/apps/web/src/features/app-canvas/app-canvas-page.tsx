@@ -23,6 +23,7 @@ import { useCan } from "../library/use-library.ts";
 import { useDeviceFonts } from "../plugin-canvas/device-fonts.ts";
 import { useHostFonts } from "../plugin-canvas/host-fonts.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
+import { useScriptFonts } from "../plugin-canvas/script-fonts.ts";
 import { browserSurface, type CanvasSurface } from "../plugin-canvas/surface.ts";
 import { declaredNativeRoutes, useNativeRoutes } from "../plugin-canvas/use-native-widgets.ts";
 import { useAppDocuments, usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
@@ -433,6 +434,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
   const { createSurface = browserSurface } = useRouteContext({ strict: false }) as Pick<RouterContext, "createSurface">;
   const hostFonts = useHostFonts(appId);
   const deviceFonts = useDeviceFonts(appId);
+  const scriptFonts = useScriptFonts(appId);
   const queryClient = useQueryClient();
   const plugins = useMemo(() => createClient(PluginService, session.transport), [session]);
   const apps = useMemo(() => createClient(AppService, session.transport), [session]);
@@ -548,6 +550,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       detail: "full",
       hostFonts,
       deviceFonts,
+      scriptFonts,
     });
     surfaceRef.current = surface;
     setGeneration((g) => g + 1);
@@ -557,7 +560,7 @@ function AppCanvasView({ appId, documents }: ViewProps): ReactNode {
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface, hostFonts, deviceFonts, theme.background, theme.grid]);
+  }, [createSurface, hostFonts, deviceFonts, scriptFonts, theme.background, theme.grid]);
   const surface = useCallback(() => surfaceRef.current, []);
   /** The element whose box is the view: the page, or the canvas before the page is laid out. */
   const viewOf = useCallback(() => sectionRef.current ?? canvasRef.current, []);

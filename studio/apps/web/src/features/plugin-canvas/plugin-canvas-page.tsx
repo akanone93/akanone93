@@ -134,6 +134,7 @@ import {
 import { type CostsOverlay, costWords, screenCosts } from "./screen-costs.ts";
 import type { ScreenRequest } from "./screens-controller.tsx";
 import { ScreensController } from "./screens-controller.tsx";
+import { useScriptFonts } from "./script-fonts.ts";
 import { canvasCommands, type StructureKind } from "./select/canvas-commands.ts";
 import { type EditFn, findNode } from "./select/edits.ts";
 import type { Box } from "./select/geometry.ts";
@@ -817,6 +818,7 @@ function PluginCanvasView({
   const { session: app } = useApp();
   const hostFonts = useHostFonts(params.app);
   const deviceFonts = useDeviceFonts(params.app);
+  const scriptFonts = useScriptFonts(params.app);
   const tests = useMemo(() => createClient(FunctionAdminService, app.transport), [app.transport]);
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const assetNames = useAssetNames(params.app);
@@ -1362,6 +1364,7 @@ function PluginCanvasView({
       detail: "full",
       hostFonts,
       deviceFonts,
+      scriptFonts,
     });
     surfaceRef.current = indicatorToOverlay(surface, overlay);
     const observer = followPage(page, surface);
@@ -1370,7 +1373,7 @@ function PluginCanvasView({
       surface.dispose();
       surfaceRef.current = null;
     };
-  }, [createSurface, hostFonts, deviceFonts, theme.background, theme.grid, overlay]);
+  }, [createSurface, hostFonts, deviceFonts, scriptFonts, theme.background, theme.grid, overlay]);
 
   const focusRef = useRef<string | undefined>(undefined);
   useEffect(() => {

@@ -36,7 +36,7 @@ SPDX-License-Identifier: Apache-2.0
 
 1. The ported Flutter layout code (BSD-3-Clause inside the AGPL `studio/`, `REUSE.toml`).
 2. SF Pro through Local Font Access (not shipped; Studio reads the installed copy).
-3. The OFL fonts (Roboto, Noto Sans in the canvas; the `@fontsource` fonts; texts in the image under `fonts/` and the package folders).
+3. The OFL fonts (Roboto, Noto Sans, Noto Sans Ethiopic and Noto Sans Symbols in the canvas; the `@fontsource` fonts; texts in the image under `fonts/` and the package folders).
 4. Phosphor paths (MIT, `@phosphor-icons/core`).
 5. `axe-core` (MPL-2.0, development only; confirm it is in no shipped file).
 6. The notices of CanvasKit/Skia, Monaco, CodeMirror and every shipped package: `studio/notices/THIRD_PARTY_NOTICES.txt` and the per-package files (`scripts/release/js-notices.sh`) are in the image; the enumeration of the components inside the CanvasKit binary is not complete.

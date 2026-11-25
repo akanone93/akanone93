@@ -87,15 +87,24 @@ export interface SurfaceSize {
   readonly hostFonts?: () => Promise<readonly FontSource[]>;
   /** The app's own font assets by their declared family (ADR-0032), read before the worker starts; absent when the page has none. */
   readonly deviceFonts?: () => Promise<readonly FontSource[]>;
+  /** The bundled faces the app's texts need beyond Roboto and Noto (`useScriptFonts`), read before the worker starts. */
+  readonly scriptFonts?: () => Promise<readonly FontSource[]>;
 }
 
-/** The fonts the canvas asks for: the app's own assets rank first, then the host's, then Roboto and Noto. */
-export function fontRequest(device: readonly FontSource[], host: readonly FontSource[]): FontRequest {
+/**
+ * The fonts the canvas asks for: the app's own assets rank first, then the host's, then Roboto and Noto, then the
+ * bundled faces the app's texts need (Ethiopic, symbols).
+ */
+export function fontRequest(
+  device: readonly FontSource[],
+  host: readonly FontSource[],
+  script: readonly FontSource[] = [],
+): FontRequest {
   return {
     device,
     host,
     roboto: toSource(FONT_FILES[0] as readonly [string, string]),
-    noto: [...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource),
+    noto: [...[...FONT_FILES.slice(1), ...NOTO_FILES].map(toSource), ...script],
     sfPro: false,
     icons: ICON_FONTS,
   };
@@ -127,6 +136,12 @@ const toSource = ([family, url]: readonly [string, string]): FontSource => ({ fa
 export const CANVAS_FONT_FACES: readonly { readonly family: string; readonly weight: number; readonly url: string }[] =
   [...FONT_FILES, ...NOTO_FILES].map(([family, url], i) => ({ family, url, weight: i % 2 === 0 ? 400 : 700 }));
 
+/** What a font loader answers; none when there is no loader or it fails, so the canvas still opens. */
+function fontsOf(load: (() => Promise<readonly FontSource[]>) | undefined): Promise<readonly FontSource[]> {
+  const none = (): readonly FontSource[] => [];
+  return (load?.() ?? Promise.resolve(none())).catch(none);
+}
+
 /** The browser surface: the canvas host on a bundled worker, started once its fonts are loaded. */
 export const browserSurface: SurfaceFactory = (canvas, size) => {
   let host: CanvasHost | null = null;
@@ -146,10 +161,10 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
     if (disposed) {
       return;
     }
-    const none = (): readonly FontSource[] => [];
-    const [deviceFonts, hostFonts, icons] = await Promise.all([
-      (size.deviceFonts?.() ?? Promise.resolve(none())).catch(none),
-      (size.hostFonts?.() ?? Promise.resolve(none())).catch(none),
+    const [deviceFonts, hostFonts, scriptFonts, icons] = await Promise.all([
+      fontsOf(size.deviceFonts),
+      fontsOf(size.hostFonts),
+      fontsOf(size.scriptFonts),
       // Without the names, icons stay placeholders.
       loadIconNames().catch(() => undefined),
     ]);
@@ -182,7 +197,7 @@ export const browserSurface: SurfaceFactory = (canvas, size) => {
         },
       },
       {
-        request: fontRequest(deviceFonts, hostFonts),
+        request: fontRequest(deviceFonts, hostFonts, scriptFonts),
         deps: { fetchFont: (url) => fetch(url).then((r) => r.arrayBuffer()) },
       },
     )

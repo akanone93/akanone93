@@ -5,6 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { CANVAS_ARROW } from "@plux/canvas";
+import { SYMBOLS_RANGES, scriptFontOf } from "./script-fonts.ts";
 
 const dir = new URL("./fonts/", import.meta.url);
 const pinned = readFileSync(new URL("VERSION", dir), "utf-8")
@@ -60,9 +61,32 @@ function codePoints(bytes: Buffer): Set<number> {
   return out;
 }
 
+/** The faces every canvas loads; the others load only for texts that need them (script-fonts.ts). */
+const always = ["NotoSans_400Regular.ttf", "NotoSans_700Bold.ttf", "Roboto_400Regular.ttf", "Roboto_700Bold.ttf"];
+
+/** The code points of a pinned font. */
+const pointsOf = (name: string): Set<number> => codePoints(readFileSync(new URL(name, dir)));
+
+/** Code points as ranges, first and last, in order. */
+function rangesOf(points: Iterable<number>): [number, number][] {
+  const out: [number, number][] = [];
+  for (const c of [...points].sort((a, b) => a - b)) {
+    const last = out.at(-1);
+    if (last !== undefined && c === last[1] + 1) {
+      last[1] = c;
+    } else {
+      out.push([c, c]);
+    }
+  }
+  return out;
+}
+
 describe("[STU-006] canvas fonts", () => {
-  test("four fonts are pinned", () => {
+  test("seven fonts are pinned", () => {
     expect(pinned.map(([name]) => name).sort()).toEqual([
+      "NotoSansEthiopic_400Regular.ttf",
+      "NotoSansEthiopic_700Bold.ttf",
+      "NotoSansSymbols_400Regular.ttf",
       "NotoSans_400Regular.ttf",
       "NotoSans_700Bold.ttf",
       "Roboto_400Regular.ttf",
@@ -82,10 +106,25 @@ describe("[STU-006] canvas fonts", () => {
 
   // The canvas draws arrow titles and badges with these fonts: a character none of them has draws as a box.
   test("every font draws the characters of arrow titles and badges", () => {
-    for (const [name] of pinned) {
-      const has = codePoints(readFileSync(new URL(name, dir)));
+    for (const name of always) {
+      const has = pointsOf(name);
       const missing = [...`${CANVAS_ARROW}·0123456789()`].filter((ch) => !has.has(ch.codePointAt(0) ?? 0));
       expect({ name, missing }).toEqual({ name, missing: [] });
     }
+  });
+
+  // Build log rows 116 and 126: a face loads when a text needs a character only it draws, so its table must be exact.
+  test("the symbol table is what Noto Sans Symbols draws beyond Noto Sans and Roboto", () => {
+    const base = new Set(always.flatMap((name) => [...pointsOf(name)]));
+    const beyond = (name: string) => [...pointsOf(name)].filter((c) => !base.has(c));
+    expect(rangesOf(beyond("NotoSansSymbols_400Regular.ttf"))).toEqual(SYMBOLS_RANGES.map(([a, b]) => [a, b]));
+  });
+
+  test("every character Noto Sans Ethiopic draws beyond Noto Sans and Roboto loads it", () => {
+    const base = new Set(always.flatMap((name) => [...pointsOf(name)]));
+    const missed = [...pointsOf("NotoSansEthiopic_400Regular.ttf")]
+      .filter((c) => !base.has(c) && scriptFontOf(String.fromCodePoint(c)) !== "ethiopic")
+      .map((c) => c.toString(16));
+    expect(missed).toEqual([]);
   });
 });
