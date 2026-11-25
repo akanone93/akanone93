@@ -14,10 +14,16 @@ import 'package:plux_devtools/src/dev_session.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
 /// Wraps the host app with the Plux debug overlay. In release builds it is
-/// [child] alone, so the overlay is tree-shaken away.
+/// [child] alone and the overlay's code is removed; build it only when
+/// `kDebugMode`, as generated projects do, so that a release build holds no
+/// code of this package at all (DEV-050).
 ///
 /// ```dart
-/// MaterialApp(builder: (context, child) => PluxDevtools(child: child!));
+/// MaterialApp(
+///   builder: kDebugMode
+///       ? (context, child) => PluxDevtools(child: child!)
+///       : null,
+/// );
 /// ```
 final class PluxDevtools extends StatefulWidget {
   /// Creates the overlay over [child].

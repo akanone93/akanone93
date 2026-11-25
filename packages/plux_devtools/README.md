@@ -12,11 +12,13 @@ It uses only `plux_flutter`'s public diagnostics and renders nothing in release 
 
 ## Usage
 
-Wrap the app's content, for example in `MaterialApp.builder`:
+Wrap the app's content in debug builds, for example in `MaterialApp.builder`. Building it
+only when `kDebugMode` keeps every line of this package out of release builds (DEV-050), which
+`make release-inspect` checks for the apps it builds:
 
 ```dart
 MaterialApp(
-  builder: (context, child) => PluxDevtools(child: child!),
+  builder: kDebugMode ? (context, child) => PluxDevtools(child: child!) : null,
   home: const HomeScreen(),
 )
 ```
@@ -33,12 +35,14 @@ bundles are verified against them alone.
 final session = PluxDevSession(devRootKeys: devRootKeys);
 
 MaterialApp(
-  builder: (context, child) => PluxDevtools(
-    session: session,
-    // Optional: scan the session's QR code, for example with plux_scanner.
-    scan: (context) => scanPairingCode(context),
-    child: child!,
-  ),
+  builder: kDebugMode
+      ? (context, child) => PluxDevtools(
+          session: session,
+          // Optional: scan the session's QR code, for example with plux_scanner.
+          scan: (context) => scanPairingCode(context),
+          child: child!,
+        )
+      : null,
 )
 ```
 

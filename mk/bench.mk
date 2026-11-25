@@ -98,5 +98,5 @@ size-ios: ## Check what plux_flutter adds to a release iOS app for arm64 (RT-061
 PLATFORM ?= android
 
 # Verifies: SEC-074, DEV-050.
-release-inspect: ## Build the starter app and Plux Bank for release and fail on devtools code, dev-only logging, source maps or debug files (SEC-074; PLATFORM=android needs the Android SDK, ios needs Xcode)
+release-inspect: ## Build the starter app, Plux Bank and a generated host project for release and fail on devtools code, dev-only logging, source maps or debug files (SEC-074; PLATFORM=android needs the Android SDK, ios needs Xcode)
 	test/release/inspect.sh --build $(PLATFORM)

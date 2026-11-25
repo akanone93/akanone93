@@ -384,16 +384,16 @@
     },
     "size-android": {
       "description": "What plux_flutter adds to the release APKs and App Bundle downloads (RT-061)",
-      "go": ["tools/cmd/sizegate"],
+      "go": ["tools/cmd/sizegate", "backend/internal/generator/cmd/genproject"],
       "dart": ["test/size/plux", "apps/starter", "apps/plux_bank"],
-      "paths": ["test/size/**", "test/release/**", "mk/bench.mk"],
+      "paths": ["test/size/**", "test/release/**", "mk/bench.mk", "backend/internal/generator/templates/**"],
       "exclude": ["**/*.md", "**/ios/**"]
     },
     "size-ios": {
       "description": "What plux_flutter adds to a release iOS app (RT-061); its job also checks the compiler's goldens on macOS (go-determinism)",
-      "go": ["tools/cmd/sizegate"],
+      "go": ["tools/cmd/sizegate", "backend/internal/generator/cmd/genproject"],
       "dart": ["test/size/plux", "apps/starter", "apps/plux_bank"],
-      "paths": ["test/size/**", "test/release/**", "mk/bench.mk"],
+      "paths": ["test/size/**", "test/release/**", "mk/bench.mk", "backend/internal/generator/templates/**"],
       "exclude": ["**/*.md", "**/android/**"]
     },
     "studio": {

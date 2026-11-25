@@ -7,9 +7,13 @@
 #
 #   inspect.sh <apk|aab|ipa|zip|directory>...   inspect built artifacts
 #   inspect.sh --build android|ios              build the starter app (which
-#                                               wraps itself in PluxDevtools)
-#                                               and Plux Bank for release,
-#                                               then inspect them
+#                                               wraps itself in PluxDevtools
+#                                               in debug builds), Plux Bank
+#                                               and a host project the
+#                                               generator makes, as `plux
+#                                               create` and Studio's download
+#                                               do, for release, then inspect
+#                                               them
 #
 # A release build must contain
 #   - an AOT snapshot (libapp.so, or App.framework/App): a build without
@@ -72,23 +76,34 @@ artifact() {
 }
 
 build() {
-	local root out symbols
+	local root out symbols generated
 	root=$(git rev-parse --show-toplevel)
 	out=${RELEASE_OUT:-$root/build/release}
 	mkdir -p "$out"
 	symbols=$out/symbols
 	mkdir -p "$symbols"
+	# The host project the generator makes for a fixed app (build log row
+	# 273): the templates `plux create` and Studio's download render, with
+	# plux_flutter and plux_devtools from this repository and a development
+	# key, so that its debug builds carry the dev session (DEV-040).
+	generated=$out/generated
+	rm -rf "$generated"
+	(cd "$root/backend" && go run ./internal/generator/cmd/genproject -out "$generated" \
+		-plux-path "$root/packages/plux_flutter")
 	case "$1" in
 	android)
-		# The starter keeps its class names, so the probes that are class
-		# names mean something; Plux Bank is built as a store build is,
-		# obfuscated, with its symbols kept outside the package.
+		# The starter and the generated project keep their class names, so
+		# the probes that are class names mean something; Plux Bank is built
+		# as a store build is, obfuscated, with its symbols kept outside the
+		# package.
 		(cd "$root/apps/starter" && flutter build apk --release --target-platform android-arm64)
 		(cd "$root/apps/plux_bank" && flutter build apk --release --target-platform android-arm64 \
 			--obfuscate --split-debug-info="$symbols")
+		(cd "$generated" && flutter build apk --release --target-platform android-arm64)
 		artifacts=(
 			"$root/apps/starter/build/app/outputs/flutter-apk/app-release.apk"
 			"$root/apps/plux_bank/build/app/outputs/flutter-apk/app-release.apk"
+			"$generated/build/app/outputs/flutter-apk/app-release.apk"
 		)
 		;;
 	ios)
@@ -96,9 +111,11 @@ build() {
 		(cd "$root/apps/starter" && flutter build ios --release --no-codesign)
 		(cd "$root/apps/plux_bank" && flutter build ios --release --no-codesign \
 			--obfuscate --split-debug-info="$symbols")
+		(cd "$generated" && flutter build ios --release --no-codesign)
 		artifacts=(
 			"$root/apps/starter/build/ios/iphoneos/Runner.app"
 			"$root/apps/plux_bank/build/ios/iphoneos/Runner.app"
+			"$generated/build/ios/iphoneos/Runner.app"
 		)
 		;;
 	*)

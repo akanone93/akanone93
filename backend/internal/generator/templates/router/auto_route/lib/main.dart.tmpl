@@ -38,8 +38,8 @@ Future<void> main() async {
     ),
   );
   // A debug build pairs with a Studio dev session and shows the Plux debug
-  // overlay (DEV-040); a release build has no session, and the overlay is
-  // its child alone, tree-shaken away (DEV-050).
+  // overlay (DEV-040); a release build has neither, nor any code of
+  // plux_devtools (DEV-050).
   final devSession = kDebugMode
       ? PluxDevSession(devRootKeys: PluxOptions.devRootKeys)
       : null;
@@ -49,8 +49,12 @@ Future<void> main() async {
         title: '{%dart .Name%}',
         routerConfig: router.config(),
         debugShowCheckedModeBanner: false,
-        builder: (context, child) =>
-            PluxDevtools(session: devSession, child: child!),
+        // The overlay only in debug builds, so that a release build holds
+        // none of plux_devtools (DEV-050).
+        builder: kDebugMode
+            ? (context, child) =>
+                  PluxDevtools(session: devSession, child: child!)
+            : null,
       ),
     ),
   );

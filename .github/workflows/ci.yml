@@ -2089,7 +2089,7 @@ jobs:
         if: matrix.part == 'size'
         run: make size-android
       # Verifies: SEC-074, DEV-050.
-      - name: Release APKs of the starter and Plux Bank hold no dev tooling
+      - name: Release APKs of the starter, Plux Bank and a generated project hold no dev tooling
         if: matrix.part == 'release'
         run: make release-inspect PLATFORM=android
       - name: Report
@@ -2183,7 +2183,7 @@ jobs:
         if: env.SIZE == 'true'
         run: make size-ios
       # Verifies: SEC-074, DEV-050.
-      - name: Release apps of the starter and Plux Bank hold no dev tooling
+      - name: Release apps of the starter, Plux Bank and a generated project hold no dev tooling
         if: env.SIZE == 'true'
         run: make release-inspect PLATFORM=ios
       - name: Report

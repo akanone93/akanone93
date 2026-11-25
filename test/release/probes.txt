@@ -4,8 +4,10 @@
 # that, so a renamed string cannot leave a probe that passes vacuously.
 #
 # devtools: reachable only from the overlay body packages/plux_devtools builds
-#   when not kReleaseMode. PluxDevtools and its State stay in a release build
-#   (the widget returns its child), so their names are not probes.
+#   when not kReleaseMode; and, since the apps this inspection builds wrap
+#   their app in PluxDevtools only when kDebugMode (build log row 273), the
+#   widget's name and its library's URI: a release build holds no code of
+#   plux_devtools at all.
 # logging: text of plux_flutter diagnostics that kDebugMode or kReleaseMode
 #   remove from release builds.
 devtools	Open Plux devtools
@@ -14,6 +16,8 @@ devtools	describeSyncEvent
 devtools	_SyncTab
 devtools	_ReleaseTab
 devtools	_LogTab
+devtools	PluxDevtools
+devtools	package:plux_devtools/
 logging	where actions do not run
 #
 # p10: symbols of the dev session (P10, DEV-050): the classes of

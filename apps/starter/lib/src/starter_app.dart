@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:plux_devtools/plux_devtools.dart';
 import 'package:plux_flutter/plux_flutter.dart';
@@ -58,8 +59,12 @@ final class _StarterAppState extends State<StarterApp> {
         brightness: Brightness.dark,
       ),
       themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
-      builder: (context, child) =>
-          PluxDevtools(session: widget.devSession, child: child!),
+      // The overlay only in debug builds, so that a release build holds
+      // none of plux_devtools (DEV-050).
+      builder: kDebugMode
+          ? (context, child) =>
+                PluxDevtools(session: widget.devSession, child: child!)
+          : null,
       home: HomeScreen(
         config: widget.config,
         startup: widget.startup,

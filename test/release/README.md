@@ -6,7 +6,7 @@ A release build contains no Plux dev tooling, verbose logging or source maps (`S
 that they did.
 
 ```bash
-make release-inspect                    # builds the starter app and Plux Bank for Android, then inspects the APKs
+make release-inspect                    # builds the starter app, Plux Bank and a generated host project for Android, then inspects the APKs
 make release-inspect PLATFORM=ios       # the same for iOS (Xcode); inspects Runner.app, the content of an IPA
 test/release/inspect.sh app.apk dir/    # inspects built artifacts or already extracted directories
 ```
@@ -23,12 +23,19 @@ test/release/inspect.sh app.apk dir/    # inspects built artifacts or already ex
 - ships `kernel_blob.bin`, a `.dill`, a JIT snapshot, a source map (`*.map`) or split-debug-info
   symbols (`*.symbols`).
 
-The starter app wraps itself in `PluxDevtools`, so its release build is the proof that the overlay
-is tree-shaken; Plux Bank is built as a store build is, with `--obfuscate --split-debug-info`. The
-inspection runs in the `size-android` and `size-ios` CI jobs, which already build release apps.
+The starter app wraps itself in `PluxDevtools` in debug builds (`kDebugMode`), so its release build
+is the proof that the overlay is gone; Plux Bank is built as a store build is, with
+`--obfuscate --split-debug-info`. The third build is the host project the generator makes, with the
+templates `plux create` and Studio's project download render (`GEN-001`), written by
+`backend/internal/generator/cmd/genproject` for a fixed app with a development key and
+`plux_flutter` and `plux_devtools` from this repository, so the inspection covers what developers
+ship, not only the repository's own apps (build log row 273). The inspection runs in the
+`size-android` and `size-ios` CI jobs, which already build release apps; they run when the
+generator's templates change too.
 
-`PluxDevtools` and its `State` stay in a release build (the widget returns its child), so their
-names are not probes. A probe must occur verbatim in its package; a policy test
+These apps build `PluxDevtools` only when `kDebugMode`, so a release build holds no code of
+`plux_devtools` at all, and the widget's name and its library's URI (`package:plux_devtools/`) are
+probes. A probe must occur verbatim in its package; a policy test
 (`tools/internal/policy/release_test.go`) checks that, and runs the script on small extracted trees
 to prove it fails on a planted devtools string, a source map, a debug artifact and a missing
 snapshot, and passes a clean tree.
