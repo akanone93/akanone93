@@ -21,7 +21,7 @@ const binding = /^\s*data\.(\w+)\.(value|loading|error)((?:\??\.\w+|\[\d+\])*)(?
 /** `item` (then member steps) or `index`, inside an item template, optionally `?? <JSON literal>`. */
 const itemPath = /^\s*(item|index)((?:\??\.\w+|\[\d+\])*)(?:\s*\?\?\s*(.+?))?\s*$/;
 /** `params`, `page`, `plugin` or `app` then member steps, optionally `?? <JSON literal>`. */
-const scoped = /^\s*(params|page|plugin|app|device)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
+const scoped = /^\s*(params|page|plugin|app|device|flags)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
 
 /** `item` or `index` as a root, not a member (`page.item`): an expression that reads a list item. */
 const ITEM_ROOT = /(?<![.\w$])(item|index)\b/;
@@ -39,6 +39,8 @@ export interface DesignScope {
   readonly app: Readonly<Obj>;
   /** PXL's `device` root at design time (PC-33): the frame's size class and the preview's switches. */
   readonly device?: Readonly<Obj>;
+  /** PXL's `flags` root at design time: each flag the app declares at its default (build log row 138). */
+  readonly flags?: Readonly<Obj>;
   /** Inside a list's item template (PC-24): the item a copy is built for, and its index. */
   readonly item?: unknown;
   readonly index?: number;
@@ -52,7 +54,11 @@ export interface DesignScope {
 export const emptyScope: DesignScope = { params: {}, page: {}, plugin: {}, app: {} };
 
 const scopeSize = (s: DesignScope) =>
-  Object.keys(s.params).length + Object.keys(s.page).length + Object.keys(s.plugin).length + Object.keys(s.app).length;
+  Object.keys(s.params).length +
+  Object.keys(s.page).length +
+  Object.keys(s.plugin).length +
+  Object.keys(s.app).length +
+  Object.keys(s.flags ?? {}).length;
 
 /** The value at `steps` (`.a?.b[0]`) under `start`; null when a step reaches nothing. */
 function walk(start: unknown, steps: string): unknown {
@@ -111,7 +117,7 @@ function scopeValue(expr: string, scope: DesignScope): unknown {
   if (m === null) {
     return undefined;
   }
-  const root = scope[m[1] as "params" | "page" | "plugin" | "app" | "device"];
+  const root = scope[m[1] as "params" | "page" | "plugin" | "app" | "device" | "flags"];
   const first = /^\??\.(\w+)/.exec(m[2] ?? "")?.[1];
   return root === undefined || first === undefined || !(first in root)
     ? undefined

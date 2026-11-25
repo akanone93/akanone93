@@ -65,11 +65,27 @@ function column(ctx: WidgetContext, children: RenderBox[], crossAxis = CrossAxis
 const currencySymbols: Readonly<Record<string, string>> = { EUR: "€", USD: "$", GBP: "£", JPY: "¥" };
 const zeroDigits = new Set(["JPY", "KRW", "VND", "CLP", "ISK", "UGX", "XAF", "XOF"]);
 
-/** The money value of a document prop: `money("1234.56", "EUR")` as the compiler keeps it. */
+/** An amount of money as a decimal string. */
+const AMOUNT = /^-?[0-9]+(\.[0-9]+)?$/;
+const CURRENCY = /^[A-Z]{3}$/;
+
+/**
+ * The money value of a document prop: `money("1234.56", "EUR")` as the compiler keeps it, or `{amount, currency}` as a
+ * money value's JSON form is — a mock's, or a bound expression's design-time value (ADR-0112, build log row 138).
+ */
 export function moneyOf(value: unknown): { amount: string; currency: string } | null {
-  const expr = (value as { $expr?: unknown } | null)?.$expr;
-  const match = typeof expr === "string" ? /^money\("(-?[0-9.]+)", "([A-Z]{3})"\)$/.exec(expr) : null;
-  return match?.[1] !== undefined && match[2] !== undefined ? { amount: match[1], currency: match[2] } : null;
+  if (typeof value !== "object" || value === null) {
+    return null;
+  }
+  const { $expr: expr, amount, currency } = value as { $expr?: unknown; amount?: unknown; currency?: unknown };
+  if (typeof expr === "string") {
+    const match = /^money\("(-?[0-9.]+)", "([A-Z]{3})"\)$/.exec(expr);
+    return match?.[1] !== undefined && match[2] !== undefined ? { amount: match[1], currency: match[2] } : null;
+  }
+  const digits = typeof amount === "number" && Number.isFinite(amount) ? String(amount) : amount;
+  return typeof digits === "string" && AMOUNT.test(digits) && typeof currency === "string" && CURRENCY.test(currency)
+    ? { amount: digits, currency }
+    : null;
 }
 
 /** The English format of the runtime's built-in locale data: `€1,234.56`. */

@@ -214,9 +214,9 @@ export const cupertinoWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new M
   ["CupertinoDatePicker", (node, ctx) => marked(node, ctx, datePicker(node, ctx))],
   [
     "CupertinoContextMenu",
-    // The static state is the closed menu: its child; the actions only show in the open sheet.
+    // The static state is the closed menu: its child (its `child` slot); the actions only show in the open sheet.
     (node, ctx) => {
-      const child = (node.children ?? []).find((c) => c.type !== "CupertinoContextMenuAction");
+      const child = node.slots?.["child"] ?? (node.children ?? []).find((c) => c.type !== "CupertinoContextMenuAction");
       const label = labelOf(node);
       return marked(
         node,

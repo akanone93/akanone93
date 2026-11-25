@@ -477,6 +477,9 @@ function dayCell(
   });
 }
 
+/** The weekdays' initials, Sunday first, as the runtime's English locale data heads the grid (build log row 138). */
+const WEEKDAY_INITIALS = ["S", "M", "T", "W", "T", "F", "S"] as const;
+
 /**
  * `DualCalendarDatePicker`: the month of `value` in `calendar` as a grid of 48 px cells (Sunday first, the runtime's
  * English locale data), each with the day number of `secondaryCalendar` below, under a header of two 48 px buttons
@@ -517,7 +520,7 @@ const dualCalendarDatePicker: WidgetBuilder = (node, ctx) => {
       row(ctx, [sized(48, 48), expanded(column(ctx, titleLines, CrossAxisAlignment.center)), sized(48, 48)]),
       row(
         ctx,
-        Array.from({ length: 7 }, () => expanded(line(ctx, "S", "labelMedium"))),
+        WEEKDAY_INITIALS.map((d) => expanded(line(ctx, d, "labelMedium"))),
       ),
       ...Array.from({ length: rows }, (_, r) => row(ctx, cells(r))),
     ]),

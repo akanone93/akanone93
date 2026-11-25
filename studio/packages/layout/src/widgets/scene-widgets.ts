@@ -31,6 +31,7 @@ import {
 } from "../scene/scene.ts";
 import type { ParagraphEngine } from "../text/paragraph-engine.ts";
 import { FontStyle } from "../text/paragraph-engine.ts";
+import { layer2Types } from "./layer2.ts";
 import type { PlacedText, WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 import { layoutTextStyle, paintedTextOf } from "./screen.ts";
 import { placeholder } from "./structural.ts";
@@ -261,6 +262,11 @@ function converts(type: string | undefined, deep: boolean, painted: boolean): bo
   }
   if (painted && faithfulTypes.has(type)) {
     return true;
+  }
+  if (painted && layer2Types.has(type)) {
+    // A Layer 2 component on a painted screen lays its texts out as its parts (`<id>#p<n>`), which only the screen's
+    // own build names and draws; built by the scene below a composite (a card), it drew as an empty box (row 138).
+    return false;
   }
   return bridged.has(type) || (deep && (type === "Text" || supportedTypes().has(type)) && !hostOnly.has(type));
 }
@@ -621,6 +627,8 @@ function faithfulScene(node: WidgetNode, props: Record<string, unknown>, childre
       return fieldScene(node.id, props);
     case "TabBar":
       return { id: node.id, type: "TabBar", props, ...tabsOf(node.id, props, children) };
+    case "CupertinoTabBar":
+      return { id: node.id, type: "CupertinoTabBar", props, ...tabItemsOf(node.id, props, children) };
     default:
       return {
         id: node.id,
@@ -656,6 +664,24 @@ function tabsOf(id: string, props: Record<string, unknown>, children: SceneNode[
       type: "Tab",
       props: typeof t["label"] === "string" ? { text: t["label"] } : {},
       ...(isRecord(t["icon"]) ? { children: [{ id: `${id}.${i}.icon`, type: "Icon", slot: "icon", props: {} }] } : {}),
+    }),
+  );
+  const all = [...children, ...made];
+  return all.length === 0 ? {} : { children: all };
+}
+
+/**
+ * A Cupertino tab bar's `items` as the scene's `CupertinoTabItem` children: each its icon, 30 square as the bar's icon
+ * theme sizes it, and its label (build log row 138). Children it already has are kept.
+ */
+function tabItemsOf(id: string, props: Record<string, unknown>, children: SceneNode[]): { children?: SceneNode[] } {
+  const items = Array.isArray(props["items"]) ? props["items"].filter(isRecord) : [];
+  const made = items.map(
+    (item, i): SceneNode => ({
+      id: `${id}.${i}`,
+      type: "CupertinoTabItem",
+      props: typeof item["label"] === "string" ? { label: item["label"] } : {},
+      children: [{ id: `${id}.${i}.icon`, type: "Icon", props: { size: 30 } }],
     }),
   );
   const all = [...children, ...made];

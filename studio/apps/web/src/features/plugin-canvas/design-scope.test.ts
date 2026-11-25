@@ -26,11 +26,16 @@ const page = {
 const documents = [
   doc(page),
   doc({ kind: "plugin", id: "pl", state: [{ id: "a", name: "theme", type: "string", default: "ocean" }] }),
-  doc({ kind: "app", id: "ap", state: [{ id: "b", name: "currency", type: "string", default: "EUR" }] }),
+  doc({
+    kind: "app",
+    id: "ap",
+    state: [{ id: "b", name: "currency", type: "string", default: "EUR" }],
+    flags: [{ name: "maxWorkshops", type: "int", default: 2 }],
+  }),
 ];
 
 describe("PC-23 design-time values of bound widgets [STA-001] [DAT-080]", () => {
-  test("a page's scope: each parameter's mock else default, each state entry's default; computed ones wait", () => {
+  test("a page's scope: each parameter's mock else default, each state entry's default, each flag's default (row 138); computed ones wait", () => {
     expect(paramMocks(page.params)).toEqual({ orderId: "A-1042", tab: 2 });
     expect(stateDefaults(page.state)).toEqual({ count: 3, user: { name: "Ada", tags: ["pro"] } });
     expect(designScopes(documents).get("p1")).toEqual({
@@ -38,10 +43,11 @@ describe("PC-23 design-time values of bound widgets [STA-001] [DAT-080]", () => 
       page: { count: 3, user: { name: "Ada", tags: ["pro"] } },
       plugin: { theme: "ocean" },
       app: { currency: "EUR" },
+      flags: { maxWorkshops: 2 },
     });
   });
 
-  test("paths into params, page, plugin and app state resolve with steps and fallbacks; unknown ones stay", () => {
+  test("paths into params, page, plugin and app state and flags resolve with steps and fallbacks; unknown ones stay", () => {
     const scope = designScopes(documents).get("p1");
     const ev = (expr: string) => evaluateMockBinding(expr, new Map(), {}, scope);
     expect(ev("params.orderId")).toBe("A-1042");
@@ -49,6 +55,7 @@ describe("PC-23 design-time values of bound widgets [STA-001] [DAT-080]", () => 
     expect(ev("page.user?.tags[0]")).toBe("pro");
     expect(ev("app.currency")).toBe("EUR");
     expect(ev("plugin.theme")).toBe("ocean");
+    expect(ev("flags.maxWorkshops")).toBe(2);
     expect(ev('page.user.missing ?? "–"')).toBe("–");
     expect(ev("page.label")).toBeUndefined();
     expect(ev('params.orderId + "!"')).toBeUndefined();

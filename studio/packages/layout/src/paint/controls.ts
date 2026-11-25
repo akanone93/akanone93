@@ -54,6 +54,7 @@ const ACTIONS: Readonly<Record<string, readonly string[]>> = {
   Radio: ["onChanged"],
   Switch: ["onChanged"],
   Slider: ["onChanged"],
+  RangeSlider: ["onChanged"],
 };
 
 /** Whether `node` is a control with no action: Flutter draws it disabled. */
@@ -364,6 +365,36 @@ function slider(node: ControlNode, r: Rect, theme: PaintTheme): BoxPaint[] {
   ];
 }
 
+/**
+ * A range slider, as Material 3's: the track in `surfaceContainerHighest`, the range between `values.start` and
+ * `values.end` in primary over it, and a thumb at each end (build log row 138).
+ */
+function rangeSlider(node: ControlNode, r: Rect, theme: PaintTheme): BoxPaint[] {
+  const p = node.props ?? {};
+  const min = num(p["min"]) ?? 0;
+  const max = num(p["max"]) ?? 1;
+  const values = isObj(p["values"]) ? p["values"] : {};
+  const clamp = (v: number | undefined, fallback: number) => Math.min(max, Math.max(min, v ?? fallback));
+  const start = clamp(num(values["start"]), min);
+  const end = Math.max(start, clamp(num(values["end"]), max));
+  const left = r.x + 20;
+  const width = Math.max(0, r.w - 40);
+  const y = r.y + r.h / 2;
+  const at = (v: number) => left + width * (max > min ? (v - min) / (max - min) : 0);
+  const off = disabledControl(node);
+  const active = off ? withAlpha(roleColor(theme, "onSurface"), DISABLED_CONTENT) : roleColor(theme, "primary");
+  const inactive = off
+    ? withAlpha(roleColor(theme, "onSurface"), DISABLED_CONTAINER)
+    : roleColor(theme, "surfaceContainerHighest");
+  const [from, to] = [at(start), at(end)];
+  return [
+    { x: left, y: y - 2, w: width, h: 4, radii: corners(2), fill: inactive },
+    { x: from, y: y - 2, w: to - from, h: 4, fill: active },
+    { x: from - 10, y: y - 10, w: 20, h: 20, oval: true, fill: active },
+    { x: to - 10, y: y - 10, w: 20, h: 20, oval: true, fill: active },
+  ];
+}
+
 /** A linear progress indicator: its track in `secondaryContainer`, the value (or a moment of the animation) in primary. */
 function linearProgress(node: ControlNode, r: Rect, theme: PaintTheme): BoxPaint[] {
   const t = Math.min(1, Math.max(0, num(node.props?.["value"]) ?? 0.4));
@@ -393,16 +424,20 @@ function circularProgress(node: ControlNode, r: Rect, theme: PaintTheme): BoxPai
 }
 
 /**
- * A badge in `error` at the top end of what it badges, where Flutter's `_Badge` puts it: a 6 pixel dot, or with a
- * label a pill 16 high offset by (4, 4) and lifted by half its height. The label's text is not laid out yet; its pill
- * is drawn at its smallest width.
+ * A badge in `error` (or its `backgroundColor`) at the top end of what it badges, where Flutter's `_Badge` puts it: a
+ * 6 pixel dot, or with a label a pill 16 high offset by (4, 4) and lifted by half its height. The label's text is not
+ * laid out yet; its pill is drawn at its smallest width. A badge without a child fills its own box.
  */
 function badge(node: ControlNode, r: Rect, theme: PaintTheme): BoxPaint[] {
   if (node.props?.["isLabelVisible"] === false) {
     return [];
   }
   const label = isObj(node.slots) && node.slots["label"] !== undefined;
-  const fill = roleColor(theme, "error");
+  const fill = resolveColor(node.props?.["backgroundColor"], theme) ?? roleColor(theme, "error");
+  if (isObj(node.slots) && node.slots["child"] === undefined) {
+    // A badge whose slots hold no child is the badge alone: its whole box is the pill (or the dot).
+    return [{ ...r, ...(label ? { radii: pill(r) } : { oval: true }), fill }];
+  }
   if (!label) {
     const size = num(node.props?.["smallSize"]) ?? 6;
     return [{ x: r.x + r.w - size, y: r.y, w: size, h: size, oval: true, fill, foreground: true }];
@@ -431,6 +466,7 @@ export const controlPainters: ReadonlyMap<string, ControlPainter> = new Map<stri
   ["Radio", radio],
   ["Switch", switchPaint],
   ["Slider", slider],
+  ["RangeSlider", rangeSlider],
   ["LinearProgressIndicator", linearProgress],
   ["CircularProgressIndicator", circularProgress],
   ["Badge", badge],

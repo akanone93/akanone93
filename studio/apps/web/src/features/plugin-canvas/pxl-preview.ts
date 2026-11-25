@@ -118,6 +118,7 @@ function pageRoots(scope: DesignScope, data: Record<string, unknown>): Record<st
     app: scope.app,
     data,
     ...(scope.device === undefined ? {} : { device: scope.device }),
+    ...(scope.flags === undefined ? {} : { flags: scope.flags }),
   };
 }
 
@@ -350,6 +351,7 @@ export class PxlPreview {
       was.plugin === scope.plugin &&
       was.app === scope.app &&
       was.device === scope.device &&
+      was.flags === scope.flags &&
       kept.set.roots["data"] === data.roots
     ) {
       return kept.set;

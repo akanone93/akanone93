@@ -245,9 +245,36 @@ function nested(node: WidgetNode): WidgetNode[] {
     ...(node.children ?? []),
     ...Object.entries(node.slots ?? {})
       .filter(([name]) => !SKIPPED_SLOTS.has(name))
-      .map(([, child]) => child),
+      // A list slot (a section's `children`) holds its widgets in order.
+      .flatMap(([, child]) => (Array.isArray(child) ? (child as WidgetNode[]) : [child])),
   ];
 }
+
+/**
+ * `CupertinoListSection`: its header, its rows back to back and its footer, as Flutter's section stacks them (build
+ * log row 138); its rows are its `children` slot (or children).
+ */
+const listSection: WidgetBuilder = (node, ctx) => {
+  const slots = (node.slots ?? {}) as Readonly<Record<string, WidgetNode | readonly WidgetNode[] | undefined>>;
+  const listOf = (v: WidgetNode | readonly WidgetNode[] | undefined): readonly WidgetNode[] =>
+    v === undefined ? [] : Array.isArray(v) ? v : [v as WidgetNode];
+  const rows = [
+    ...listOf(slots["header"]),
+    ...(node.children ?? []),
+    ...listOf(slots["children"]),
+    ...listOf(slots["footer"]),
+  ];
+  return named(
+    node.id,
+    new RenderFlex({
+      direction: Axis.vertical,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      textDirection: ctx.textDirection ?? TextDirection.ltr,
+      children: rows.map((c) => ctx.build(c)),
+    }),
+  );
+};
 
 function textOf(node: WidgetNode): string | undefined {
   if (node.type === "Text" && typeof node.props?.data === "string") {
@@ -794,7 +821,7 @@ export const defaultWidgetBuilders: ReadonlyMap<string, WidgetBuilder> = new Map
   ["TextFormField", faithful(control)],
   ["CupertinoPageScaffold", wrapper],
   ["CupertinoTabScaffold", wrapper],
-  ["CupertinoListSection", (node, ctx) => flex(Axis.vertical, node, ctx)],
+  ["CupertinoListSection", listSection],
   ...materialWidgetBuilders,
   ...layer2WidgetBuilders,
   ...cupertinoWidgetBuilders,

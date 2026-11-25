@@ -109,13 +109,34 @@ export const leafBuilders: Readonly<Record<string, LeafBuilder>> = {
       child: child === undefined ? null : ctx.build(child),
     });
   },
-  /** A badge's box is its child's: the label is positioned over it without taking space. */
+  /**
+   * A badge's box is its child's: the label is positioned over it without taking space. Without a child it is the
+   * badge alone, as Flutter's `Badge` returns it: a pill `largeSize` high and at least as wide, padded 4 across, its
+   * label centred in `labelSmall`; without a label a `smallSize` dot (build log row 138).
+   */
   Badge: (node, ctx) => {
     const child = node.children?.find((c) => (c.slot ?? "child") === "child");
-    if (child === undefined) {
-      throw new Error(`node "${node.id}": a Badge needs a child`);
+    if (child !== undefined) {
+      // A box of its own, so the badge and its child each keep their rect.
+      return new RenderPadding({ padding: EdgeInsets.zero, textDirection: ctx.direction, child: ctx.build(child) });
     }
-    // A box of its own, so the badge and its child each keep their rect.
-    return new RenderPadding({ padding: EdgeInsets.zero, textDirection: ctx.direction, child: ctx.build(child) });
+    const label = node.children?.find((c) => c.slot === "label");
+    if (label === undefined) {
+      const dot = number(node, "smallSize", 6);
+      return tight(dot, dot);
+    }
+    const side = number(node, "largeSize", 16);
+    return new RenderConstrainedBox({
+      additionalConstraints: new BoxConstraints({ minWidth: side, minHeight: side, maxHeight: side }),
+      child: new RenderPadding({
+        padding: EdgeInsets.symmetric({ horizontal: 4 }),
+        textDirection: ctx.direction,
+        child: new RenderPositionedBox({
+          alignment: Alignment.center,
+          widthFactor: 1,
+          child: ctx.build(label, style("labelSmall")),
+        }),
+      }),
+    });
   },
 };

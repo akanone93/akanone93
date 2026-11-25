@@ -132,7 +132,8 @@ const searchField: WidgetBuilder = (node, ctx) => {
   const hint = str(node, "hint") ?? "Search";
   const text = str(node, "value") ?? "";
   const field = buildInputDecorator({
-    input: new RenderEditableLine(line(ctx, "A", "bodyLarge")),
+    // Its value, else a space that keeps one line's height and draws nothing under the hint (build log row 138).
+    input: new RenderEditableLine(line(ctx, text === "" ? " " : text, "bodyLarge")),
     prefixIcon: decoratorIcon(box(24, 24), VisualDensity.standard),
     suffixIcon: null,
     hint: line(ctx, hint, "bodyLarge"),
@@ -251,7 +252,11 @@ const skeletonLoader: WidgetBuilder = (node, ctx) => {
 const secureTextField: WidgetBuilder = (node, ctx) => {
   const label = str(node, "label");
   const obscure = node.props?.["obscure"] !== false;
-  const input = ctx.paragraph("A", role(ctx, "bodyLarge"));
+  const value = str(node, "value") ?? "";
+  // Its value, masked while obscured; empty, its label where the text goes, or a space that keeps one line's height.
+  // A stand-in letter drew as a stray "A" (build log row 138).
+  const shown = value !== "" ? (obscure ? "•".repeat([...value].length) : value) : (label ?? " ");
+  const input = ctx.paragraph(shown, role(ctx, "bodyLarge"));
   const field = buildInputDecorator({
     input: new RenderEditableLine(input),
     prefixIcon: null,
@@ -261,7 +266,7 @@ const secureTextField: WidgetBuilder = (node, ctx) => {
     filled: false,
     isDense: false,
     hasLabel: label !== undefined,
-    floating: (str(node, "value") ?? "") !== "",
+    floating: value !== "",
     floatingLabelHeight: input.textScaler.scale(16),
     density: VisualDensity.standard,
     textDirection: direction(ctx),

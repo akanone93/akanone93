@@ -177,4 +177,13 @@ describe("ADR-0112 the PXL engine evaluates design-time expressions for the canv
       me: { value: null, loading: false, error: { message: "" }, hasMore: false, status: "error" },
     });
   });
+  test("the engine gets each flag at its default as the flags root (row 138)", () => {
+    const r = rig(() => undefined);
+    r.preview.begin(context());
+    const at = { ...scope, flags: { maxWorkshops: 2 }, evaluate: r.preview.forScreen("a", page, data) };
+    expect(evaluateMockBinding("flags.maxWorkshops", new Map(), {}, at)).toBe(2);
+    expect(evaluateMockBinding("size(page.picked) < flags.maxWorkshops", new Map(), {}, at)).toBeUndefined();
+    r.preview.flush();
+    expect(r.batches[0]?.values[0]?.roots["flags"]).toEqual({ maxWorkshops: 2 });
+  });
 });

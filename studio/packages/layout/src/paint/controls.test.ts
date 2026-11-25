@@ -76,5 +76,10 @@ describe("[STU-005] Material 3 controls as Flutter's defaults paint them", () =>
     expect(slider[2]).toMatchObject({ x: 110, y: 14, w: 20, oval: true });
     expect(paint("LinearProgressIndicator", { props: { value: 0.25 } }, { x: 0, y: 0, w: 200, h: 4 })[1]?.w).toBe(50);
     expect(paint("Badge", {}, { x: 0, y: 0, w: 24, h: 24 })[0]).toMatchObject({ x: 18, w: 6, fill: role("error") });
+    // A badge without a child (row 138) is the badge alone: a pill filling its box, in its own colour.
+    const alone = { slots: { label: { id: "l", type: "Text" } }, props: { backgroundColor: "#00ff00" } };
+    expect(paint("Badge", alone, { x: 0, y: 0, w: 40, h: 22 })).toEqual([
+      { x: 0, y: 0, w: 40, h: 22, radii: [11, 11, 11, 11], fill: 0x00ff00ff },
+    ]);
   });
 });

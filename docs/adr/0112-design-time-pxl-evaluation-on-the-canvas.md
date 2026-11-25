@@ -44,8 +44,8 @@ Chosen option: **3**.
   in its own scope (list items, guarded branches), with the registry's PXL limits. The validator module exposes it as
   `pluxPxlEval`; the validator worker answers `eval` requests beside validation.
 - **Values.** The canvas sends each page as drawn, unsaved edits included, and the design-time values of its roots:
-  parameters, page, plugin and app state, the data sources under their mock states, the preview's device, and a list
-  item's `item` and `index` over its page's values. A root or field the canvas does not give, or one of another shape,
+  parameters, page, plugin and app state, each flag at its declared default (build log row 138), the data sources
+  under their mock states, the preview's device, and a list item's `item` and `index` over its page's values. A root or field the canvas does not give, or one of another shape,
   reads as its type's empty value (`pxl.DesignFromJSON`), never an error; only the canvas reads values this way. `now`
   is the time the canvas opened. `format.*` and `t()` use the previewed locale's data and messages.
 - **When.** The canvas's own readers stay the fast path. A pass over the screens reads what the engine answered

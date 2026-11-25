@@ -269,6 +269,26 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(texts).toEqual(["Amount"]);
   });
 
+  test("money draws from a literal and from a money value's JSON form, a bound expression's design-time value (row 138)", () => {
+    const root: WidgetNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        { id: "lit", type: "MoneyText", props: { value: { $expr: 'money("1234.5", "EUR")' } } },
+        { id: "val", type: "MoneyText", props: { value: { amount: "0", currency: "EUR" } } },
+        { id: "num", type: "MoneyText", props: { value: { amount: 12, currency: "USD" } } },
+        { id: "bad", type: "MoneyText", props: { value: { amount: "1e9", currency: "EUR" } } },
+      ],
+    };
+    const painted = layoutScreen(root, { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } });
+    const textOf = (id: string) =>
+      painted.boxes
+        .filter((b) => b.id.startsWith(`${id}#`) && b.kind === "text")
+        .map((b) => b.text)
+        .join("");
+    expect(["lit", "val", "num", "bad"].map(textOf)).toEqual(["€1,234.50", "€0.00", "$12.00", ""]);
+  });
+
   test("a TermsViewer shows its terms from the top, as far as whole paragraphs fit, above its hint and button (#124)", () => {
     const source = Array.from({ length: 40 }, (_, i) => `Clause ${i + 1}: the holder agrees to the terms.`).join(
       "\n\n",
@@ -940,5 +960,158 @@ describe("[#212] a widget the canvas cannot size", () => {
       { engine, theme, paint: { scheme: colorSchemeFromSeed(0xff6750a4, false) } },
     );
     expect(layout.unbounded).toBeUndefined();
+  });
+});
+
+describe("bound content on painted screens (build log row 138) [STU-005]", () => {
+  const paint = { scheme: colorSchemeFromSeed(0xff6750a4, false) };
+  const textsOf = (layout: ReturnType<typeof layoutScreen>, id: string): string[] =>
+    layout.boxes
+      .filter((b) => (b.id === id || b.id.startsWith(`${id}#`) || b.id.startsWith(`${id}.`)) && b.kind === "text")
+      .map((b) => b.text ?? "");
+  const column = (...children: WidgetNode[]): WidgetNode => ({ id: "col", type: "Column", children });
+
+  test("a Layer 2 component inside a card draws its texts, and a calendar heads its days S M T W T F S", () => {
+    const picker: WidgetNode = {
+      id: "pk",
+      type: "DualCalendarDatePicker",
+      props: { calendar: "gregorian", firstDate: "1940-01-01", lastDate: "2011-12-31" },
+    };
+    const layout = layoutScreen(column({ id: "card", type: "Card", slots: { child: picker } }), {
+      engine,
+      theme,
+      paint,
+    });
+    expect(textsOf(layout, "pk").slice(0, 8)).toEqual(["January 1940", "S", "M", "T", "W", "T", "F", "S"]);
+  });
+
+  test("a badge without a child is the badge alone, its label in it; a decorating AnimatedContainer lays out", () => {
+    const layout = layoutScreen(
+      column(
+        { id: "badge", type: "Badge", props: { largeSize: 22 }, slots: { label: text("n", "3 left") } },
+        {
+          id: "anim",
+          type: "AnimatedContainer",
+          props: { duration: 200, decoration: { borderRadius: { all: 8 } } },
+          slots: { child: text("inside", "Inside") },
+        },
+      ),
+      { engine, theme, paint },
+    );
+    expect(layout.unbuilt).toBeUndefined();
+    const badge = layout.boxes.find((b) => b.id === "badge");
+    expect(badge?.h).toBe(22);
+    expect(textsOf(layout, "n")).toEqual(["3 left"]);
+    expect(textsOf(layout, "inside")).toEqual(["Inside"]);
+  });
+
+  test("a CupertinoListSection draws the rows of its children slot; a CupertinoContextMenu its child", () => {
+    const layout = layoutScreen(
+      column(
+        {
+          id: "section",
+          type: "CupertinoListSection",
+          slots: { children: [text("a", "General practice"), text("b", "Vaccinations")] } as unknown as Record<
+            string,
+            WidgetNode
+          >,
+        },
+        {
+          id: "menu",
+          type: "CupertinoContextMenu",
+          props: { actions: [] },
+          slots: { child: text("card", "Your visit") },
+        },
+      ),
+      { engine, theme, paint },
+    );
+    expect(textsOf(layout, "a")).toEqual(["General practice"]);
+    expect(textsOf(layout, "b")).toEqual(["Vaccinations"]);
+    expect(textsOf(layout, "card")).toEqual(["Your visit"]);
+  });
+
+  test("a CupertinoTabBar lays its items out and paints their icons and labels, the current one active", () => {
+    const layout = layoutScreen(
+      column({
+        id: "tabs",
+        type: "CupertinoTabBar",
+        props: {
+          currentIndex: 1,
+          items: [
+            { icon: { name: "people" }, label: "Queue" },
+            { icon: { name: "map" }, label: "Directions" },
+          ],
+        },
+      }),
+      { engine, theme, paint },
+    );
+    const ids = layout.boxes.map((b) => b.id);
+    expect(ids).toEqual(expect.arrayContaining(["tabs.0.icon", "tabs.0#label", "tabs.1.icon", "tabs.1#label"]));
+    expect(layout.boxes.find((b) => b.id === "tabs.0.icon")?.w).toBe(30);
+    const painted = layout.boxes.find((b) => b.id === "tabs")?.paint;
+    expect(painted?.texts?.map((t) => t.text)).toEqual(["Queue", "Directions"]);
+    expect(painted?.glyphs?.map((g) => g.name)).toEqual(["people", "map"]);
+    const [queue, directions] = painted?.texts ?? [];
+    expect(directions?.color).toBe(argbToRgba(paint.scheme.primary));
+    expect(queue?.color).not.toBe(directions?.color);
+  });
+
+  test("a Table takes the document's column widths ({kind, value}), intrinsic among them", () => {
+    const cells = ["Mo", "Tu", "We", "Th"].map((d) => text(`c${d}`, d));
+    const layout = layoutScreen(
+      column(
+        { id: "t1", type: "Table", props: { columns: 2, defaultColumnWidth: { kind: "intrinsic" } }, children: cells },
+        {
+          id: "t2",
+          type: "Table",
+          props: {
+            columns: 2,
+            columnWidths: [
+              { kind: "fixed", value: 60 },
+              { kind: "flex", value: 1 },
+            ],
+          },
+          children: cells.map((c) => ({ ...c, id: `${c.id}2` })),
+        },
+      ),
+      { engine, theme, paint },
+    );
+    expect(layout.unbuilt).toBeUndefined();
+    expect(layout.boxes.find((b) => b.id === "t1")?.w).toBeLessThan(100);
+    expect(layout.boxes.find((b) => b.id === "cMo2")?.x).toBe(layout.boxes.find((b) => b.id === "t2")?.x);
+    expect(layout.boxes.find((b) => b.id === "cTu2")?.x).toBe((layout.boxes.find((b) => b.id === "t2")?.x ?? 0) + 60);
+  });
+
+  test("empty phone and secure fields show their labels, never a stand-in letter", () => {
+    const layout = layoutScreen(
+      column(
+        { id: "phone", type: "PhoneInput", props: { label: "Phone", value: "" } },
+        { id: "secret", type: "SecureTextField", props: { label: "Password" } },
+        { id: "shown", type: "SecureTextField", props: { label: "Password", value: "abc" } },
+      ),
+      { engine, theme, paint },
+    );
+    expect(textsOf(layout, "phone")).toEqual(["+", "Phone"]);
+    expect(textsOf(layout, "secret")).toEqual(["Password"]);
+    expect(textsOf(layout, "shown")).toEqual(["•••"]);
+  });
+
+  test("a RangeSlider paints its track, the range between its values and a thumb at each end", () => {
+    const layout = layoutScreen(
+      column({
+        id: "range",
+        type: "RangeSlider",
+        props: { min: 0, max: 100, values: { start: 25, end: 75 } },
+        events: { onChanged: { steps: [] } },
+      }),
+      { engine, theme, paint },
+    );
+    const range = layout.boxes.find((b) => b.id === "range");
+    const boxes = range?.paint?.boxes ?? [];
+    expect(boxes).toHaveLength(4);
+    const [track, active, from, to] = boxes;
+    expect(active?.x).toBeCloseTo((track?.x ?? 0) + (track?.w ?? 0) * 0.25);
+    expect(active?.w).toBeCloseTo((track?.w ?? 0) * 0.5);
+    expect([from?.oval, to?.oval]).toEqual([true, true]);
   });
 });

@@ -9,7 +9,7 @@
  */
 
 import type { Foreground } from "./controls.ts";
-import type { PartsPaint, PlacedGlyph } from "./fields.ts";
+import type { PaintText, PartsPaint, PlacedGlyph } from "./fields.ts";
 import {
   type BoxPaint,
   type PaintTheme,
@@ -191,6 +191,37 @@ type Painter = (
   theme: PaintTheme,
   rectOf: (id: string) => Rect | undefined,
 ) => PartsPaint;
+
+/** A tab bar label, as `CupertinoTextThemeData.tabLabelTextStyle`: 10 pixels, tracking −0.24. */
+const TAB_LABEL: ResolvedText = { size: 10, weight: 500, height: 1.2, letterSpacing: -0.24, italic: false };
+
+/**
+ * A tab bar: its surface with a hairline above; each of its `items` with its icon (`<id>.<i>.icon`) and its label
+ * (`<id>.<i>#label`), the current one in `activeColor` (else the theme's primary), the others in `inactiveColor` (else
+ * iOS's inactive grey), as Flutter's `CupertinoTabBar` (build log row 138).
+ */
+function tabBar(node: CupertinoNode, r: Rect, theme: PaintTheme, rectOf: (id: string) => Rect | undefined): PartsPaint {
+  const items = Array.isArray(node.props?.["items"]) ? node.props["items"].filter(isObj) : [];
+  const current = num(node.props?.["currentIndex"]) ?? 0;
+  const active = resolveColor(node.props?.["activeColor"], theme) ?? roleColor(theme, "primary");
+  const inactive = resolveColor(node.props?.["inactiveColor"], theme) ?? INACTIVE_GRAY;
+  const glyphs: PlacedGlyph[] = [];
+  const texts: PaintText[] = [];
+  items.forEach((item, i) => {
+    const color = i === current ? active : inactive;
+    const icon = rectOf(`${node.id}.${i}.icon`);
+    const glyph = item["icon"];
+    if (icon !== undefined && isObj(glyph) && typeof glyph["name"] === "string") {
+      const set = glyph["set"] === "cupertino" ? "cupertino" : "material";
+      glyphs.push({ ...icon, name: glyph["name"], set, size: Math.min(icon.w, icon.h), color });
+    }
+    const at = rectOf(`${node.id}.${i}#label`);
+    if (at !== undefined && typeof item["label"] === "string") {
+      texts.push({ text: item["label"], x: at.x, y: at.y, w: at.w + 1, style: TAB_LABEL, color, align: "center" });
+    }
+  });
+  return { boxes: bar(node, r, theme, "top"), texts, glyphs };
+}
 const boxesOnly =
   (f: (node: CupertinoNode, r: Rect, theme: PaintTheme) => BoxPaint[]): Painter =>
   (node, r, theme) => ({ boxes: f(node, r, theme), texts: [], glyphs: [] });
@@ -207,7 +238,7 @@ export const cupertinoPainters: ReadonlyMap<string, Painter> = new Map<string, P
     (n, r, t, rectOf) => ({ boxes: slidingSegments(n, r, t, rectOf), texts: [], glyphs: [] }),
   ],
   ["CupertinoNavigationBar", boxesOnly((n, r, t) => bar(n, r, t, "bottom"))],
-  ["CupertinoTabBar", boxesOnly((n, r, t) => bar(n, r, t, "top"))],
+  ["CupertinoTabBar", tabBar],
 ]);
 
 /** The Cupertino counterparts of adaptive Material controls (`Switch.adaptive` and the rest) on iOS. */

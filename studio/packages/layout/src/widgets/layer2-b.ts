@@ -387,7 +387,9 @@ const promoBanner: WidgetBuilder = (node, ctx) => {
 /** A `TextField` with an underline border and an optional label, its text in `name`'s role. */
 function field(ctx: WidgetContext, name: TextRole, label: string | undefined): RenderBox {
   return buildInputDecorator({
-    input: new RenderEditableLine(line(ctx, "A", name)),
+    // The empty field shows its label where the text goes, as Flutter's does; a space keeps one line's height where
+    // there is none. A stand-in letter drew as a stray "A" (build log row 138).
+    input: new RenderEditableLine(line(ctx, label ?? " ", name)),
     prefixIcon: null,
     suffixIcon: null,
     subtext: null,

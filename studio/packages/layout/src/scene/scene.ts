@@ -662,9 +662,18 @@ function animatedProperty<T>(
   return lerpProperty(name in from ? parse(from[name]) : null, name in to ? parse(to[name]) : null, t, lerp);
 }
 
-/** A Table column width spec: `{type: fixed|fraction|flex|intrinsic|max|min, value, flex, a, b}`. */
+/**
+ * A Table column width spec: `{type: fixed|fraction|flex|intrinsic|max|min, value, flex, a, b}`, or a document's
+ * `ColumnWidth`, `{kind: flex|fixed|fraction|intrinsic, value}` with `kind` flex and `value` 1 by default (build log
+ * row 138).
+ */
 function columnWidth(spec: unknown): TableColumnWidth {
   const props = record(spec);
+  if (!("type" in props)) {
+    const kind = props["kind"] ?? "flex";
+    const value = optionalNum(props, "value") ?? 1;
+    return kind === "intrinsic" ? new IntrinsicColumnWidth(null) : columnWidth({ type: kind, value });
+  }
   switch (field(props, "type")) {
     case "fixed":
       return new FixedColumnWidth(num(field(props, "value"), "value"));
@@ -776,10 +785,11 @@ function buildAnimated(node: SceneNode, child: RenderBox | null, textDirection: 
         textDirection,
         child,
       });
-      if (box === null || box === child) {
-        throw new Error(`node "${node.id}": AnimatedContainer needs at least one layout property`);
-      }
-      return box;
+      // One that only decorates (a border, a colour) lays out as its child, in a box of its own so that it keeps its
+      // rect, as a `Container` does (build log row 138).
+      return box === null || box === child
+        ? new RenderPadding({ padding: EdgeInsets.zero, textDirection, child })
+        : box;
     }
     case "AnimatedPadding":
       return new RenderPadding({

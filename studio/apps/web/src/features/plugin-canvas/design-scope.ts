@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * The design-time scope of each page (PC-23, STA-001, SCH-024): what `params`, `page`, `plugin` and `app` hold while
- * the canvas draws a page — each parameter's mock (else its default), each state entry's default (a computed entry has
- * no value until it runs on a device). The canvas binds widgets to these values; the device binds them to real ones.
+ * The design-time scope of each page (PC-23, STA-001, SCH-024): what `params`, `page`, `plugin`, `app` and `flags`
+ * hold while the canvas draws a page — each parameter's mock (else its default), each state entry's default (a computed
+ * entry has no value until it runs on a device), each flag's default. The canvas binds widgets to these values; the
+ * device binds them to real ones.
  */
 
 import { type FormMode, formStatesOf, type ValidatorTexts } from "../panels/forms-model.ts";
@@ -55,7 +56,10 @@ export function designScopes(
   forms?: FormPreview,
   device?: Readonly<Record<string, unknown>>,
 ): ReadonlyMap<string, DesignScope> {
-  const app = stateDefaults(jsonOf(documents, "app")[0]?.["state"]);
+  const appDoc = jsonOf(documents, "app")[0];
+  const app = stateDefaults(appDoc?.["state"]);
+  // A flag's value comes from the server at run time; the canvas draws its declared default.
+  const flags = stateDefaults(appDoc?.["flags"]);
   const plugin = stateDefaults(jsonOf(documents, "plugin")[0]?.["state"]);
   const out = new Map<string, DesignScope>();
   for (const page of jsonOf(documents, "page")) {
@@ -67,6 +71,7 @@ export function designScopes(
         page: { ...stateDefaults(page["state"]), ...own },
         plugin,
         app,
+        flags,
         ...(device === undefined ? {} : { device }),
       });
     }

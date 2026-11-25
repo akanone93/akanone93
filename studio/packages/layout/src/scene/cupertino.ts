@@ -487,10 +487,12 @@ function buildGroup7(node: SceneNode, ctx: CupertinoContext): RenderBox | null {
     case "CupertinoTabBar": {
       const items = (node.children ?? []).map((item) => {
         const text = item.props["label"];
-        return {
-          icon: ctx.build(item, ctx.text),
-          label: typeof text === "string" ? label(ctx, text, cupertinoTextTheme.tabLabelTextStyle) : null,
-        };
+        const line = typeof text === "string" ? label(ctx, text, cupertinoTextTheme.tabLabelTextStyle) : null;
+        if (line !== null && ctx.text?.parts === true) {
+          // On a painted screen, the label's rect, which the bar's painter writes the label in.
+          line.debugId = `${item.id}#label`;
+        }
+        return { icon: ctx.build(item, ctx.text), label: line };
       });
       box = cupertinoTabBar({
         height: numberProp(node, "height", 50),
