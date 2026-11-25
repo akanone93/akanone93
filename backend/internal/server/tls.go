@@ -19,6 +19,7 @@ func (s *Server) buildTLS() error {
 	if srv.TLS.Enabled() {
 		tlsConfig, err := httpx.ServerTLS(httpx.ServerTLSOptions{
 			CertFile: srv.TLS.CertFile, KeyFile: srv.TLS.KeyFile, AllowTLS12: srv.TLS.AllowTLS12,
+			NameCertFile: srv.TLS.NameCertFile, NameKeyFile: srv.TLS.NameKeyFile,
 		})
 		if err != nil {
 			return fmt.Errorf("server: %w", err)

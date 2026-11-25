@@ -69,7 +69,9 @@ CNF
     renew=1
     echo "Generated the development CA .secrets/ca/ca.crt (valid 1 year): trust it as described in README.md."
   fi
-  if [ "$renew" = 0 ] && [ -s .secrets/tls/server.crt ] && openssl x509 -checkend "$month" -noout -in .secrets/tls/server.crt >/dev/null; then
+  if [ "$renew" = 0 ] && [ -s .secrets/tls/server.crt ] && [ -s .secrets/tls/server-names.crt ] &&
+    openssl x509 -checkend "$month" -noout -in .secrets/tls/server.crt >/dev/null &&
+    openssl x509 -checkend "$month" -noout -in .secrets/tls/server-names.crt >/dev/null; then
     return 0
   fi
   cat > "$tmp/leaf.cnf" <<'CNF'
@@ -96,12 +98,18 @@ CNF
   openssl req -new -key .secrets/tls/server.key -config "$tmp/leaf.cnf" -out "$tmp/leaf.csr"
   openssl x509 -req -sha256 -days 90 -in "$tmp/leaf.csr" -CA .secrets/ca/ca.crt -CAkey .secrets/ca/ca.key \
     -CAcreateserial -extfile "$tmp/leaf.cnf" -extensions ext -out .secrets/tls/server.crt 2>/dev/null
+  # The same key under a certificate naming only DNS names, which the server
+  # gives a client that sends a server name (server.tls.nameCertFile): Bun
+  # refuses the CA's IP constraints when the certificate names IP addresses.
+  sed -e '/^IP\./d' "$tmp/leaf.cnf" > "$tmp/names.cnf"
+  openssl x509 -req -sha256 -days 90 -in "$tmp/leaf.csr" -CA .secrets/ca/ca.crt -CAkey .secrets/ca/ca.key \
+    -CAcreateserial -extfile "$tmp/names.cnf" -extensions ext -out .secrets/tls/server-names.crt 2>/dev/null
   cp .secrets/ca/ca.crt .secrets/tls/ca.crt
   # The server runs as another user (65532) than the one who ran this
   # script, so, like s3.json, its files must be world-readable; the
   # directory above them (.secrets, mode 0700) keeps other users out.
   chmod 755 .secrets/tls
-  chmod 644 .secrets/tls/server.key .secrets/tls/server.crt .secrets/tls/ca.crt
+  chmod 644 .secrets/tls/server.key .secrets/tls/server.crt .secrets/tls/server-names.crt .secrets/tls/ca.crt
   echo "Issued the development server certificate .secrets/tls/server.crt (valid 90 days; restart plux-server to load a renewed one)."
 }
 

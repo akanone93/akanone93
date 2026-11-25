@@ -15,6 +15,10 @@ server:
   tls:
     certFile: "/etc/plux/tls/server.crt"
     keyFile: "/etc/plux/tls/server.key"
+    # The same key under a certificate naming only DNS names, for clients that
+    # send a server name, such as Studio's BFF on Bun (build log row 179).
+    nameCertFile: "/etc/plux/tls/server-names.crt"
+    nameKeyFile: "/etc/plux/tls/server.key"
   # Browsers apply HSTS to a host on every port, so a long policy for
   # localhost would also force https on Grafana and Prometheus here.
   hsts:

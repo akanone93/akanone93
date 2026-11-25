@@ -20,6 +20,10 @@ import (
 type ServerTLSOptions struct {
 	// CertFile and KeyFile are the PEM certificate chain and private key.
 	CertFile, KeyFile string
+	// NameCertFile and NameKeyFile, when set, are a certificate naming DNS
+	// names only, served to a client that sends a server name (SNI); one
+	// that connects to an IP address sends none and gets CertFile.
+	NameCertFile, NameKeyFile string
 	// AllowTLS12 lets a client negotiate TLS 1.2 with an AEAD ECDHE
 	// suite; without it only TLS 1.3 is accepted. It is the installation
 	// default of the tls12Allowed setting.
@@ -51,6 +55,20 @@ func ServerTLS(o ServerTLSOptions) (*tls.Config, error) {
 		Certificates: []tls.Certificate{cert},
 		MinVersion:   tls.VersionTLS13,
 		NextProtos:   []string{"h2", "http/1.1"},
+	}
+	if o.NameCertFile != "" {
+		named, err := tls.LoadX509KeyPair(o.NameCertFile, o.NameKeyFile)
+		if err != nil {
+			return nil, fmt.Errorf("httpx: load the server name certificate: %w", err)
+		}
+		// A client sends a server name only for a host name, never an IP
+		// address (RFC 6066 §3); returning nil falls back to Certificates.
+		c.GetCertificate = func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+			if hello.ServerName == "" {
+				return nil, nil //nolint:nilnil // nil, nil is crypto/tls's "use Certificates"
+			}
+			return &named, nil
+		}
 	}
 	if o.AllowTLS12 {
 		c.MinVersion = tls.VersionTLS12

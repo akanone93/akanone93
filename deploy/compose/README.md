@@ -185,6 +185,7 @@ sure these exist:
 |---|---|
 | `.secrets/ca/ca.crt`, `ca.key` | A development CA, valid 1 year. Its name constraints allow only `localhost`, `plux-server`, `127.0.0.1`, `::1` and `10.0.2.2`, so trusting it cannot vouch for any other site. The key never leaves `.secrets/ca`. |
 | `.secrets/tls/server.crt`, `server.key` | The server certificate for those names, ECDSA P-256, valid 90 days. Mounted read-only into `plux-server`. The key is kept when the certificate is renewed. |
+| `.secrets/tls/server-names.crt` | A second certificate for the same key naming only `localhost` and `plux-server`, served to a client that sends a server name (`server.tls.nameCertFile`). Bun, which runs Studio's BFF, refuses a CA's IP name constraints in a chain whose certificate names IP addresses; a phone or emulator that reaches the server by its address still gets `server.crt` (build log row 179). |
 | `.secrets/tls/ca.crt` | A copy of the CA certificate for clients and Prometheus (which scrapes `/metrics` over HTTPS with it). |
 
 A certificate within 30 days of expiry is re-issued by the next `make compose-up`; restart

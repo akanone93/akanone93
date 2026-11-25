@@ -372,6 +372,15 @@ type TLS struct {
 	// CertFile and KeyFile are PEM files; both or neither.
 	CertFile string `json:"certFile"`
 	KeyFile  string `json:"keyFile"`
+	// NameCertFile and NameKeyFile are an optional second certificate,
+	// naming DNS names only, served to a client that sends a server name
+	// (SNI); a client that connects to an IP address sends none and gets
+	// CertFile. Some TLS stacks, Bun's among them, refuse a CA's IP name
+	// constraints in a chain whose certificate names IP addresses, while a
+	// device on an emulator reaches the server only by its address (build
+	// log row 179). Both or neither, and only beside CertFile.
+	NameCertFile string `json:"nameCertFile"`
+	NameKeyFile  string `json:"nameKeyFile"`
 	// AllowTLS12 accepts TLS 1.2 with AEAD ECDHE suites besides TLS 1.3.
 	// It is the installation default of the tls12Allowed setting, which
 	// is false, and every start with it set logs a warning.

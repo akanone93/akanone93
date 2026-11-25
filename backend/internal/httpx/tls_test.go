@@ -378,3 +378,68 @@ func fetch(t *testing.T, c *http.Client, url string) (*http.Response, error) {
 	}
 	return c.Do(req) //nolint:wrapcheck // a test helper
 }
+
+// issueNamed writes a certificate naming only the DNS name localhost,
+// signed by the authority, and returns the file paths.
+func (a authority) issueNamed(t *testing.T, dir string) (certFile, keyFile string) {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmpl := &x509.Certificate{
+		SerialNumber: big.NewInt(3), Subject: pkix.Name{CommonName: "localhost"},
+		NotBefore: time.Now().Add(-time.Minute), NotAfter: time.Now().Add(time.Hour),
+		KeyUsage:    x509.KeyUsageDigitalSignature,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		DNSNames:    []string{"localhost"},
+	}
+	der, err := x509.CreateCertificate(rand.Reader, tmpl, a.cert, &key.PublicKey, a.key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	keyDER, err := x509.MarshalPKCS8PrivateKey(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	certFile, keyFile = filepath.Join(dir, "named.crt"), filepath.Join(dir, "named.key")
+	write(t, certFile, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}))
+	write(t, keyFile, pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: keyDER}))
+	return certFile, keyFile
+}
+
+// Verifies: SEC-040.
+// With a name certificate, a client that sends a server name gets the
+// certificate that names DNS names only, and one that connects to an IP
+// address, which sends none, gets the IP certificate (build log row 179).
+func TestServerTLSServesTheNameCertificateOnSNI(t *testing.T) {
+	t.Parallel()
+	ca := newAuthority(t, "ca")
+	dir := t.TempDir()
+	cert, key := ca.issue(t, dir, "server")
+	named, namedKey := ca.issueNamed(t, dir)
+	cfg, err := ServerTLS(ServerTLSOptions{CertFile: cert, KeyFile: key, NameCertFile: named, NameKeyFile: namedKey})
+	if err != nil {
+		t.Fatal(err)
+	}
+	addr := serveTLS(t, cfg, http.NotFoundHandler())
+	roots := x509.NewCertPool()
+	roots.AddCert(ca.cert)
+	byName, err := handshake(addr, &tls.Config{RootCAs: roots, ServerName: "localhost", MinVersion: tls.VersionTLS13})
+	if err != nil {
+		t.Fatalf("by name: %v", err)
+	}
+	if leaf := byName.PeerCertificates[0]; len(leaf.IPAddresses) != 0 || len(leaf.DNSNames) != 1 {
+		t.Errorf("by name: IPs %v, names %v", leaf.IPAddresses, leaf.DNSNames)
+	}
+	byAddress, err := handshake(addr, &tls.Config{RootCAs: roots, MinVersion: tls.VersionTLS13})
+	if err != nil {
+		t.Fatalf("by address: %v", err)
+	}
+	if leaf := byAddress.PeerCertificates[0]; len(leaf.IPAddresses) != 1 {
+		t.Errorf("by address: IPs %v", leaf.IPAddresses)
+	}
+	if _, err := ServerTLS(ServerTLSOptions{CertFile: cert, KeyFile: key, NameCertFile: named, NameKeyFile: key + ".missing"}); err == nil {
+		t.Error("a name certificate without its key was accepted")
+	}
+}

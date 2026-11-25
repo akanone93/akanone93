@@ -57,6 +57,8 @@ server:
   tls:                          # optional: the server terminates TLS itself (SEC-040)
     certFile: "/etc/plux/tls/server.crt"
     keyFile: "/etc/plux/tls/server.key"
+    nameCertFile: ""            # optional: a certificate naming DNS names only, for clients that send a server name (SNI)
+    nameKeyFile: ""             # its key; a client that connects to an IP address gets certFile
     allowTLS12: false           # TLS 1.3 only; true adds TLS 1.2 with AEAD ECDHE suites, with a warning
   behindTLSProxy: false         # true when a proxy in front terminates TLS (required in production without tls)
   hsts:                         # on every response (SEC-040)

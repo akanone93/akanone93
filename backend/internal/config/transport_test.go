@@ -102,6 +102,8 @@ func TestTLSSettingsAreChecked(t *testing.T) {
 	mentions(t, []struct{ name, src, want string }{
 		{"certificate without key", withServer("  tls:\n    certFile: /c.crt\n"), "certFile and keyFile must be set together"},
 		{"key without certificate", withServer("  tls:\n    keyFile: /c.key\n"), "certFile and keyFile must be set together"},
+		{"name certificate without key", withServer("  tls:\n    certFile: /c.crt\n    keyFile: /c.key\n    nameCertFile: /n.crt\n"), "nameCertFile and nameKeyFile must be set together"},
+		{"name certificate alone", withServer("  tls:\n    nameCertFile: /n.crt\n    nameKeyFile: /n.key\n"), "needs server.tls.certFile"},
 		{"TLS 1.2 without TLS", withServer("  tls:\n    allowTLS12: true\n"), "server.tls.allowTLS12"},
 		{"preload without subdomains", withServer("  hsts:\n    preload: true\n    includeSubDomains: false\n"), "server.hsts.preload"},
 		{"preload with a short max-age", withServer("  hsts:\n    preload: true\n    maxAge: 24h\n"), "server.hsts.preload"},

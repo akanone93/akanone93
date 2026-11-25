@@ -21,6 +21,12 @@ func (c *Config) validateTransport(p *problems) {
 	if s.TLS.Enabled() && (s.TLS.CertFile == "" || s.TLS.KeyFile == "") {
 		p.addf("server.tls", "certFile and keyFile must be set together")
 	}
+	if (s.TLS.NameCertFile == "") != (s.TLS.NameKeyFile == "") {
+		p.addf("server.tls", "nameCertFile and nameKeyFile must be set together")
+	}
+	if s.TLS.NameCertFile != "" && s.TLS.CertFile == "" {
+		p.addf("server.tls.nameCertFile", "needs server.tls.certFile, the certificate a client without a server name gets")
+	}
 	if s.TLS.AllowTLS12 && !s.TLS.Enabled() {
 		p.addf("server.tls.allowTLS12", "has no effect without server.tls.certFile and keyFile")
 	}
